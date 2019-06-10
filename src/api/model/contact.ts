@@ -1,6 +1,12 @@
+import { Id } from './id';
+
+
+
 export interface Contact {
   formattedName: string;
-  id: any;
+
+  id: Id;
+
   isBusiness: boolean;
   isEnterprise: boolean;
   isHighLevelVerified: any;

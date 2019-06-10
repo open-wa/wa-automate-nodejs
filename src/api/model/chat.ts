@@ -1,12 +1,14 @@
 import { Contact } from './contact';
+import { GroupMetadata } from './group-metadata';
+import { Id } from './id';
 
 export interface Chat {
   archive: boolean;
   changeNumberNewJid: any;
   changeNumberOldJid: any;
   contact: Contact;
-  groupMetadata: any;
-  id: any;
+  groupMetadata: GroupMetadata;
+  id: Id;
   isAnnounceGrpRestrict: any;
   isGroup: boolean;
   isReadOnly: boolean;

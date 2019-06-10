@@ -3,6 +3,7 @@ import { ExposedFn } from './functions/exposed.enum';
 import { Chat } from './model/chat';
 import { Contact } from './model/contact';
 import { Message } from './model/message';
+import { Id } from './model/id';
 
 declare module WAPI {
   const waitNewMessages: (rmCallback: boolean, callback: Function) => void;
@@ -11,7 +12,8 @@ declare module WAPI {
   const getAllContacts: () => Contact[];
   const getAllChats: () => Chat[];
   const getAllChatsWithNewMsg: () => Chat[];
-  const getAllGroups: () => any[];
+  const getAllGroups: () => Chat[];
+  const getGroupParticipantIDs: (groupId: string) => Promise<Id[]>;
 }
 
 export class Whatsapp {
@@ -77,5 +79,16 @@ export class Whatsapp {
       const chats = await this.page.evaluate(() => WAPI.getAllChats());
       return chats.filter(chat => chat.isGroup);
     }
+  }
+
+  /**
+   * Retrieves group members as [Id] objects
+   * @param groupId group id
+   */
+  public async getGroupMembersId(groupId) {
+    return await this.page.evaluate(
+      groupId => WAPI.getGroupParticipantIDs(groupId),
+      groupId
+    );
   }
 }

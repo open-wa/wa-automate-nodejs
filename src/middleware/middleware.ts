@@ -19,7 +19,6 @@ enum ExposedFn {
  */
 WAPI.waitNewMessages(false, data => {
   data.forEach(message => {
-    console.log(message);
     window[ExposedFn.OnMessage](message);
   });
 });

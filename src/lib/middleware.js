@@ -14,7 +14,6 @@ var ExposedFn;
  */
 WAPI.waitNewMessages(false, function (data) {
     data.forEach(function (message) {
-        console.log(message);
         window[ExposedFn.OnMessage](message);
     });
 });
