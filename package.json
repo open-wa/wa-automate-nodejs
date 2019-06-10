@@ -1,0 +1,58 @@
+{
+  "name": "nico",
+  "version": "1.0.0",
+  "description": "Javascript whatsapp framework",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc && npm run build:middleware && npm run build:lib",
+    "build:lib": "ts-node prebuild.ts",
+    "build:middleware": "tsc --out src/lib/middleware.js src/middleware/middleware.ts --module amd",
+    "watch": "npm run build && tsc-watch ./src/index.ts --outDir ./dist --onSuccess \"node ./dist/index.js\" --onFailure \"echo Error while compiling\" --compiler typescript/bin/tsc",
+    "clean": "rm -rf session && rm -rf dist",
+    "clean:full": "rm -rf node_modules && npm run clean",
+    "precise-commits": "precise-commits",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run precise-commits"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danielcardeenas/nico.git"
+  },
+  "keywords": [
+    "whatsapp",
+    "javascript",
+    "bot",
+    "typescript",
+    "automatization",
+    "puppeteer"
+  ],
+  "author": "Daniel Cardenas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/danielcardeenas/nico/issues"
+  },
+  "homepage": "https://github.com/danielcardeenas/nico#readme",
+  "devDependencies": {
+    "@types/node": "^12.0.7",
+    "@types/puppeteer": "^1.12.4",
+    "@types/shelljs": "^0.8.5",
+    "husky": "^2.4.0",
+    "precise-commits": "^1.0.2",
+    "prettier": "^1.18.2",
+    "ts-node": "^8.2.0",
+    "tsc-watch": "^2.2.1",
+    "typescript": "^3.5.1"
+  },
+  "dependencies": {
+    "ora": "^3.4.0",
+    "puppeteer": "^1.17.0",
+    "qrcode-terminal": "^0.12.0",
+    "rxjs": "^6.5.2",
+    "shelljs": "^0.8.3"
+  }
+}
