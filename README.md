@@ -1,4 +1,5 @@
 # 🤖 sulla
+
 Javascript whatsapp framework (web whatsapp driver)
 
 ## Instalation
@@ -6,19 +7,21 @@ Javascript whatsapp framework (web whatsapp driver)
 ```bash
 > npm i sulla
 ```
+
 ## Usage
 
 ```javascript
-import { init } from 'sulla';
+import { create } from 'sulla';
 
-init().then(client => start(client));
+create().then(client => start(client));
 
 function start(client) {
-  client.onMessage().subscribe(message => {
-    if (message.body === 'Hi') {
-      client.sendText(message.from, '👋 Hello from sulla!');
-    }
+  create().then(client => {
+    client.onMessage(message => {
+      if (message.body === 'Hi') {
+        client.sendText(message.from, '👋 Hello from sulla!');
+      }
+    });
   });
 }
-
 ```
