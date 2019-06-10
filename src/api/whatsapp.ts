@@ -1,5 +1,4 @@
 import { Page } from 'puppeteer';
-import { Subject } from 'rxjs';
 import { ExposedFn } from './functions/exposed.enum';
 import { Chat } from './model/chat';
 import { Contact } from './model/contact';
@@ -24,12 +23,10 @@ export class Whatsapp {
    * Listens to messages received
    * @returns Observable stream of messages
    */
-  public onMessage() {
-    const messageSubject = new Subject<Message>();
+  public onMessage(fn: (message: Message) => void) {
     this.page.exposeFunction(ExposedFn.OnMessage, (message: Message) =>
-      messageSubject.next(message)
+      fn(message)
     );
-    return messageSubject.asObservable();
   }
 
   /**

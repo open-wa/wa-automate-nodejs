@@ -18,4 +18,3 @@ WAPI.waitNewMessages(false, function (data) {
         window[ExposedFn.OnMessage](message);
     });
 });
-
