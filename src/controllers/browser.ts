@@ -1,5 +1,5 @@
 import * as path from 'path';
-import puppeteer from 'puppeteer';
+import * as puppeteer from 'puppeteer';
 import { puppeteerConfig } from '../config/puppeteer.config';
 
 export async function initWhatsapp() {
