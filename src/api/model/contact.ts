@@ -1,13 +1,8 @@
 import { Id } from './id';
 
-
-
-
 export interface Contact {
   formattedName: string;
-
   id: Id;
-
   isBusiness: boolean;
   isEnterprise: boolean;
   isHighLevelVerified: any;
@@ -21,7 +16,14 @@ export interface Contact {
   msgs: any;
   name: string;
   plaintextDisabled: boolean;
-  profilePicThumbObj: any;
+  profilePicThumbObj: {
+    eurl: string;
+    id: Id;
+    img: string;
+    imgFull: string;
+    raw: any;
+    tag: string;
+  };
   pushname: string;
   sectionHeader: any;
   shortName: string;
