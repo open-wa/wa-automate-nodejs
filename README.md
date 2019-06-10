@@ -16,12 +16,10 @@ import { create } from 'sulla';
 create().then(client => start(client));
 
 function start(client) {
-  create().then(client => {
-    client.onMessage(message => {
-      if (message.body === 'Hi') {
-        client.sendText(message.from, '👋 Hello from sulla!');
-      }
-    });
+  client.onMessage(message => {
+    if (message.body === 'Hi') {
+      client.sendText(message.from, '👋 Hello from sulla!');
+    }
   });
 }
 ```
