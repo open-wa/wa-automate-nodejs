@@ -11,11 +11,12 @@ Javascript whatsapp framework (web whatsapp driver)
 ## Usage
 
 ```javascript
-import { create } from 'sulla';
+// var create = require("sulla").create;
+import { create, Whatsapp } from 'sulla';
 
 create().then(client => start(client));
 
-function start(client) {
+function start(client: Whatsapp) {
   client.onMessage(message => {
     if (message.body === 'Hi') {
       client.sendText(message.from, '👋 Hello from sulla!');

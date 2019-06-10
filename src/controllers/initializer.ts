@@ -7,7 +7,7 @@ const spinner = ora();
 /**
  * Should be called to initialize whatsapp client
  */
-export const create = async () => {
+export async function create() {
   spinner.start('Initializing whatsapp');
   let waPage = await initWhatsapp();
   spinner.succeed();
@@ -32,4 +32,4 @@ export const create = async () => {
   spinner.succeed('Whatsapp is ready');
 
   return new Whatsapp(waPage);
-};
+}
