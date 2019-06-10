@@ -23,3 +23,8 @@ function start(client) {
   });
 }
 ```
+
+## Info
+After executing `create()` function, **sulla** will create an instance of whatsapp web. If you are not logged in, it will print a QR code in the [terminal](https://i.imgur.com/g8QvERI.png). Scan it with your phone and you are ready to go!
+
+###### 🤖 Sulla will remember the session so there is no need to authenticate everytime.
