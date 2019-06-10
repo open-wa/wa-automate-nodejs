@@ -14,6 +14,7 @@ declare module WAPI {
   const getAllChatsWithNewMsg: () => Chat[];
   const getAllGroups: () => Chat[];
   const getGroupParticipantIDs: (groupId: string) => Promise<Id[]>;
+  const getContact: (contactId: string) => Contact;
 }
 
 export class Whatsapp {
@@ -85,10 +86,34 @@ export class Whatsapp {
    * Retrieves group members as [Id] objects
    * @param groupId group id
    */
-  public async getGroupMembersId(groupId) {
+  public async getGroupMembersId(groupId: string) {
     return await this.page.evaluate(
       groupId => WAPI.getGroupParticipantIDs(groupId),
       groupId
+    );
+  }
+
+  /**
+   * Returns group members [Contact] objects
+   * @param groupId
+   */
+  public async getGroupMembers(groupId: string) {
+    const membersIds = await this.getGroupMembersId(groupId);
+    const actions = membersIds.map(memberId => {
+      return this.getContact(memberId._serialized);
+    });
+    return await Promise.all(actions);
+  }
+
+  /**
+   * Retrieves contact detail object of given contact id
+   * @param contactId
+   * @returns contact detial as promise
+   */
+  public async getContact(contactId: string) {
+    return await this.page.evaluate(
+      contactId => WAPI.getContact(contactId),
+      contactId
     );
   }
 }

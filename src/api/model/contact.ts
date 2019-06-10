@@ -2,6 +2,7 @@ import { Id } from './id';
 
 
 
+
 export interface Contact {
   formattedName: string;
 

@@ -295,37 +295,6 @@ window.WAPI.getChatByName = function (name, done) {
     return found;
 };
 
-window.WAPI.sendImageFromDatabasePicBot = function (picId, chatId, caption) {
-    var chatDatabase = window.WAPI.getChatByName('DATABASEPICBOT');
-    var msgWithImg   = chatDatabase.msgs.find((msg) => msg.caption == picId);
-
-    if (msgWithImg === undefined) {
-        return false;
-    }
-    var chatSend = WAPI.getChat(chatId);
-    if (chatSend === undefined) {
-        return false;
-    }
-    const oldCaption = msgWithImg.caption;
-
-    msgWithImg.id.id     = window.WAPI.getNewId();
-    msgWithImg.id.remote = chatId;
-    msgWithImg.t         = Math.ceil(new Date().getTime() / 1000);
-    msgWithImg.to        = chatId;
-
-    if (caption !== undefined && caption !== '') {
-        msgWithImg.caption = caption;
-    } else {
-        msgWithImg.caption = '';
-    }
-
-    msgWithImg.collection.send(msgWithImg).then(function (e) {
-        msgWithImg.caption = oldCaption;
-    });
-
-    return true;
-};
-
 window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, chatId, done) {
     var chatSend = WAPI.getChat(chatId);
     if (chatSend === undefined) {
