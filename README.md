@@ -18,12 +18,12 @@
 ## Usage
 
 ```javascript
-// var create = require("sulla").create;
-import { create, Whatsapp } from 'sulla';
+// import { create, Whatsapp } from 'sulla';
+const sulla = require('sulla');
 
-create().then(client => start(client));
+sulla.create().then(client => start(client));
 
-function start(client: Whatsapp) {
+function start(client) {
   client.onMessage(message => {
     if (message.body === 'Hi') {
       client.sendText(message.from, '👋 Hello from sulla!');
