@@ -38,7 +38,7 @@
   },
   "homepage": "https://github.com/danielcardeenas/sulla#readme",
   "devDependencies": {
-    "@types/node": "^12.6.8",
+    "@types/node": "^12.7.0",
     "@types/puppeteer": "^1.19.0",
     "@types/shelljs": "^0.8.5",
     "husky": "^3.0.2",
