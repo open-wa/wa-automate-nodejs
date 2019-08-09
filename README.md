@@ -9,7 +9,7 @@
 > It is built using [puppeteer](https://github.com/GoogleChrome/puppeteer) and based on [this python wrapper](https://github.com/mukulhase/WebWhatsapp-Wrapper)
 
 
-## Instalation
+## Installation
 
 ```bash
 > npm i sulla
