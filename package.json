@@ -1,6 +1,6 @@
 {
-  "name": "sulla",
-  "version": "1.1.1",
+  "name": "sulla-hotfix",
+  "version": "1.1.6",
   "description": "Javascript whatsapp framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -49,9 +49,15 @@
     "typescript": "^3.5.1"
   },
   "dependencies": {
+    "atob": "^2.1.2",
+    "crypto": "^1.0.1",
+    "death": "^1.1.0",
+    "futoin-hkdf": "^1.2.0",
+    "image-type": "^4.1.0",
     "ora": "^3.4.0",
     "puppeteer": "^1.19.0",
     "qrcode-terminal": "^0.12.0",
+    "request-promise": "^4.2.4",
     "rxjs": "^6.5.2",
     "shelljs": "^0.8.3"
   }

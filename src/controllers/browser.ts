@@ -1,12 +1,13 @@
 import * as path from 'path';
-import * as puppeteer from 'puppeteer';
-import { puppeteerConfig } from '../config/puppeteer.config';
-
+import puppeteer from 'puppeteer'
+import { puppeteerConfig, useragent } from '../config/puppeteer.config';
+const ON_DEATH = require('death'); //this is intentionally ugly
+let browser;
 export async function initWhatsapp() {
-  const browser = await initBrowser();
+  browser = await initBrowser();
   const waPage = await getWhatsappPage(browser);
   await waPage.setUserAgent(
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36'
+    useragent
   );
 
   await waPage.goto(puppeteerConfig.whatsappUrl);
@@ -40,3 +41,8 @@ async function getWhatsappPage(browser: puppeteer.Browser) {
   console.assert(pages.length > 0);
   return pages[0];
 }
+
+ON_DEATH(async (signal, err) => {
+  //clean up code here
+  if(browser) await browser.close();
+})

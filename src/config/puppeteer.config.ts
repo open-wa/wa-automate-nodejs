@@ -1,5 +1,4 @@
 var path = require('path');
-
 const puppeteerConfig = {
   whatsappUrl: 'https://web.whatsapp.com',
   chroniumArgs: [
@@ -35,5 +34,7 @@ const puppeteerConfig = {
     '--disable-accelerated-video-decode'
   ]
 };
+
+export const useragent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36'
 
 export { puppeteerConfig };

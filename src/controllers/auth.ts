@@ -29,18 +29,7 @@ export const needsToScan = (waPage: puppeteer.Page) => {
 
 export const isInsideChat = (waPage: puppeteer.Page) => {
   return from(
-    waPage
-      .waitForFunction(
-        `
-        document.getElementsByClassName('app')[0] &&
-        document.getElementsByClassName('app')[0].attributes &&
-        !!document.getElementsByClassName('app')[0].attributes.tabindex
-        `,
-        {
-          timeout: 0
-        }
-      )
-      .then(() => true)
+    waPage.waitForFunction("document.getElementsByClassName('app')[0] && document.getElementsByClassName('app')[0].attributes && !!document.getElementsByClassName('app')[0].attributes.tabindex",{timeout: 0}).then(() => true)
   );
 };
 

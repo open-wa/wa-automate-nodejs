@@ -48,7 +48,34 @@ function start(client) {
 | Get contact detail                	|             	| ✅           	|
 | Send media (image, audio, doc)    	|             	|             	|
 | Send stickers                     	|             	|             	|
-| Decrypt media (image, audio, doc) 	|             	|             	|
+| Decrypt media (image, audio, doc) 	|             	| ✅            	|
+
+
+## Decrypting Media
+
+Here is a sample of how to decrypt media. This has been tested on images, videos, documents, audio. It does not work for voice notes right now, or I don't have the right codecs to play them.
+
+```
+import { create, Whatsapp, decryptMedia} from 'sulla-hotfix';
+const mime = require('mime-types')
+const fs = require('fs');
+
+function start(client: Whatsapp) {
+  client.onMessage(async message => {
+  if(message.mimetype) {
+    const mediaData =  await decryptMedia(message);
+    fs.writeFile(`${message.t}.${mime.extension(message.mimetype)}`, mediaData, function (err) {
+      if (err) {
+          return console.log(err);
+      }
+      console.log("The file was saved!");
+  });
+  }
+  });
+}
+
+create().then(client => start(client));
+```
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
