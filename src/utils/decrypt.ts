@@ -43,14 +43,14 @@ const magix = (fileData: any, mediaKeyBase64: any, mediaType: any) => {
   var encodedBytes = hexToBytes(encodedHex);
   var mediaKeyBytes: any = base64ToBytes(mediaKeyBase64);
   const info = `WhatsApp ${mediaTypes[mediaType.toUpperCase()]} Keys`;
-  const algo: any = 'sha256';
+  const hash: string = 'sha256';
   const salt: any = new Uint8Array(32);
   const expandedSize = 112;
   // @ts-ignore
   const mediaKeyExpanded = hkdf(mediaKeyBytes, expandedSize, {
     salt,
     info,
-    algo
+    hash
   });
   var iv = mediaKeyExpanded.slice(0, 16);
   // console.log("mediaKeyExpanded:  (" + mediaKeyExpanded.length + " bytes)");
