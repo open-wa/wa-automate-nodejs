@@ -1,14 +1,12 @@
 import * as path from 'path';
-import puppeteer from 'puppeteer'
+import puppeteer from 'puppeteer';
 import { puppeteerConfig, useragent } from '../config/puppeteer.config';
 const ON_DEATH = require('death'); //this is intentionally ugly
 let browser;
 export async function initWhatsapp() {
   browser = await initBrowser();
   const waPage = await getWhatsappPage(browser);
-  await waPage.setUserAgent(
-    useragent
-  );
+  await waPage.setUserAgent(useragent);
 
   await waPage.goto(puppeteerConfig.whatsappUrl);
   return waPage;
@@ -44,5 +42,5 @@ async function getWhatsappPage(browser: puppeteer.Browser) {
 
 ON_DEATH(async (signal, err) => {
   //clean up code here
-  if(browser) await browser.close();
-})
+  if (browser) await browser.close();
+});
