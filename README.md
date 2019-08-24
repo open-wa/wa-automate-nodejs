@@ -54,7 +54,7 @@ function start(client) {
 
 Here is a sample of how to decrypt media. This has been tested on images, videos, documents, audio. It does not work for voice notes right now, or I don't have the right codecs to play them.
 
-```
+```javascript
 import { create, Whatsapp, decryptMedia} from 'sulla-hotfix';
 const mime = require('mime-types')
 const fs = require('fs');
