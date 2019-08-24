@@ -11,14 +11,14 @@
 ## Installation
 
 ```bash
-> npm i sulla
+> npm i --save sulla-hotfix
 ```
 
 ## Usage
 
 ```javascript
 // import { create, Whatsapp } from 'sulla';
-const sulla = require('sulla');
+const sulla = require('sulla-hotfix');
 
 sulla.create().then(client => start(client));
 
