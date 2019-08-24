@@ -1,5 +1,4 @@
-[![npm version](https://img.shields.io/npm/v/sulla.svg?color=%2378e08f)](https://www.npmjs.com/package/sulla)
-[![Maintainability](https://api.codeclimate.com/v1/badges/4cef2f41fd607c4c7094/maintainability)](https://codeclimate.com/github/danielcardeenas/sulla/maintainability)
+[![npm version](https://img.shields.io/npm/v/sulla.svg?color=%2378e08f)](https://www.npmjs.com/package/sulla-hotfix)
 [![Greenkeeper badge](https://badges.greenkeeper.io/danielcardeenas/sulla.svg)](https://greenkeeper.io/)
 
 # sulla
