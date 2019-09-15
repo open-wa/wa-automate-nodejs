@@ -10,6 +10,7 @@ export const mediaTypes = {
   IMAGE: 'Image',
   VIDEO: 'Video',
   AUDIO: 'Audio',
+  PTT: 'Audio',
   DOCUMENT: 'Document'
 };
 

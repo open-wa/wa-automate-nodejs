@@ -9,8 +9,10 @@ const fs = require('fs');
 function start(client: Whatsapp) {
   client.onMessage(async message => {
   console.log('TCL: start -> message', message);
+  //@ts-ignore
   if(message.mimetype) {
     const mediaData =  await decryptMedia(message);
+  //@ts-ignore
     fs.writeFile(`${message.t}.${mime.extension(message.mimetype)}`, mediaData, function (err) {
       if (err) {
           return console.log(err);
