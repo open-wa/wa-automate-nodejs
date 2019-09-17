@@ -3,10 +3,10 @@ const fs = require('fs');
 // import opuppeteer from 'puppeteer';
 // puppeteer-extra is a drop-in replacement for puppeteer,
 // it augments the installed puppeteer with plugin functionality
-const puppeteer = require("puppeteer-extra")
+const puppeteer = require('puppeteer-extra');
 // add stealth plugin and use defaults (all evasion techniques)
-const pluginStealth = require("puppeteer-extra-plugin-stealth")
-puppeteer.use(pluginStealth())
+const pluginStealth = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(pluginStealth());
 import { puppeteerConfig, useragent } from '../config/puppeteer.config';
 //@ts-ignore
 import { Browser, Page } from '@types/puppeteer';

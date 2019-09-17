@@ -10,17 +10,18 @@ function start(client: Whatsapp) {
     if (message.mimetype) {
       const filename = `${message.t}.${mime.extension(message.mimetype)}`;
       const mediaData = await decryptMedia(message);
-      await client.sendImage(message.from,`data:${message.mimetype};base64,${mediaData.toString('base64')}`,filename, `You just sent me this ${message.type}`);
-      fs.writeFile(
+      await client.sendImage(
+        message.from,
+        `data:${message.mimetype};base64,${mediaData.toString('base64')}`,
         filename,
-        mediaData,
-        function(err) {
-          if (err) {
-            return console.log(err);
-          }
-          console.log('The file was saved!');
-        }
+        `You just sent me this ${message.type}`
       );
+      fs.writeFile(filename, mediaData, function(err) {
+        if (err) {
+          return console.log(err);
+        }
+        console.log('The file was saved!');
+      });
     }
   });
 }

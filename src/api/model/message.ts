@@ -2,7 +2,7 @@ export interface Message {
   id: string;
   body: string;
   type: string;
-  mimetype?:string;
+  mimetype?: string;
   t: number;
   notifyName: string;
   from: string;
