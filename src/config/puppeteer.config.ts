@@ -19,6 +19,10 @@ const puppeteerConfig = {
     '--no-sandbox',
     // Extras
     '--disable-webgl',
+    '--disable-infobars',
+    '--window-position=0,0',
+    '--ignore-certifcate-errors',
+    '--ignore-certifcate-errors-spki-list',
     '--disable-threaded-animation',
     '--disable-threaded-scrolling',
     '--disable-in-process-stack-traces',

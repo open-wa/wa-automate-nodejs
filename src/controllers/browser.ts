@@ -1,6 +1,15 @@
 import * as path from 'path';
-import puppeteer from 'puppeteer';
+const fs = require('fs');
+// import opuppeteer from 'puppeteer';
+// puppeteer-extra is a drop-in replacement for puppeteer,
+// it augments the installed puppeteer with plugin functionality
+const puppeteer = require("puppeteer-extra")
+// add stealth plugin and use defaults (all evasion techniques)
+const pluginStealth = require("puppeteer-extra-plugin-stealth")
+puppeteer.use(pluginStealth())
 import { puppeteerConfig, useragent } from '../config/puppeteer.config';
+//@ts-ignore
+import { Browser, Page } from '@types/puppeteer';
 const ON_DEATH = require('death'); //this is intentionally ugly
 let browser;
 export async function initWhatsapp() {
@@ -12,7 +21,9 @@ export async function initWhatsapp() {
   return waPage;
 }
 
-export async function injectApi(page: puppeteer.Page) {
+export async function injectApi(page: Page) {
+  // const preloadFile = fs.readFileSync('./preload', 'utf8');
+  // await page.evaluateOnNewDocument(preloadFile);
   await page.addScriptTag({
     path: require.resolve(path.join(__dirname, '../lib', 'wapi.js'))
   });
@@ -35,7 +46,7 @@ async function initBrowser() {
   return browser;
 }
 
-async function getWhatsappPage(browser: puppeteer.Browser) {
+async function getWhatsappPage(browser: Browser) {
   const pages = await browser.pages();
   console.assert(pages.length > 0);
   return pages[0];

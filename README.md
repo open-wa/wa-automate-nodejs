@@ -45,8 +45,9 @@ function start(client) {
 | Get group members                 	|             	| ✅           	|
 | Send contact                      	|             	| ✅           	|
 | Get contact detail                	|             	| ✅           	|
-| Send media (image, audio, doc)    	|             	|             	|
-| Send stickers                     	|             	|             	|
+| Send Images (image)    	            |             	| ✅             |
+| Send media (audio, doc, video)    	|             	|             	 |
+| Send stickers                     	|             	|             	 |
 | Decrypt media (image, audio, doc) 	|             	| ✅            	|
 
 
@@ -61,15 +62,22 @@ const fs = require('fs');
 
 function start(client: Whatsapp) {
   client.onMessage(async message => {
-  if(message.mimetype) {
-    const mediaData =  await decryptMedia(message);
-    fs.writeFile(`${message.t}.${mime.extension(message.mimetype)}`, mediaData, function (err) {
-      if (err) {
-          return console.log(err);
-      }
-      console.log("The file was saved!");
-  });
-  }
+    if (message.mimetype) {
+      const filename = `${message.t}.${mime.extension(message.mimetype)}`;
+      const mediaData = await decryptMedia(message);
+      const imageBase64 = `data:${message.mimetype};base64,${mediaData.toString('base64')}`;
+      await client.sendImage(message.from,imageBase64,filename, `You just sent me this ${message.type}`);
+      fs.writeFile(
+        filename,
+        mediaData,
+        function(err) {
+          if (err) {
+            return console.log(err);
+          }
+          console.log('The file was saved!');
+        }
+      );
+    }
   });
 }
 

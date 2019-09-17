@@ -7,14 +7,12 @@ const fs = require('fs');
 
 function start(client: Whatsapp) {
   client.onMessage(async message => {
-    console.log('TCL: start -> message', message);
-    //@ts-ignore
     if (message.mimetype) {
+      const filename = `${message.t}.${mime.extension(message.mimetype)}`;
       const mediaData = await decryptMedia(message);
-      // client.sendText(message.from,'some text');
+      await client.sendImage(message.from,`data:${message.mimetype};base64,${mediaData.toString('base64')}`,filename, `You just sent me this ${message.type}`);
       fs.writeFile(
-        //@ts-ignore
-        `${message.t}.${mime.extension(message.mimetype)}`,
+        filename,
         mediaData,
         function(err) {
           if (err) {

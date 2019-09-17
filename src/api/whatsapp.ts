@@ -9,6 +9,7 @@ declare module WAPI {
   const waitNewMessages: (rmCallback: boolean, callback: Function) => void;
   const sendMessage: (to: string, content: string) => void;
   const sendSeen: (to: string) => void;
+  const sendImage: (base64: string, to: string, filename: string, caption: string) => void;
   const getAllContacts: () => Contact[];
   const getAllChats: () => Chat[];
   const getAllChatsWithNewMsg: () => Chat[];
@@ -45,6 +46,21 @@ export class Whatsapp {
         WAPI.sendMessage(to, content);
       },
       { to, content }
+    );
+  }
+  
+ /**
+   * Sends a image to given chat, with caption or not, using base64
+   * @param to chat id xxxxx@us.c
+   * @param base64 base64 data:image/xxx;base64,xxx
+   * @param filename string xxxxx
+   * @param caption string xxxxx
+   */
+  public async sendImage(to: string, base64: string, filename: string, caption: string) {
+    console.log("TCL: sendImage -> sendImage")
+    return await this.page.evaluate(
+      ({ to, base64, filename, caption }) =>  {WAPI.sendImage(base64, to, filename, caption)},
+      { to, base64, filename, caption }
     );
   }
 

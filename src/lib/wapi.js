@@ -295,6 +295,37 @@ window.WAPI.getChatByName = function (name, done) {
     return found;
 };
 
+window.WAPI.sendImageFromDatabasePicBot = function (picId, chatId, caption) {
+    var chatDatabase = window.WAPI.getChatByName('DATABASEPICBOT');
+    var msgWithImg   = chatDatabase.msgs.find((msg) => msg.caption == picId);
+
+    if (msgWithImg === undefined) {
+        return false;
+    }
+    var chatSend = WAPI.getChat(chatId);
+    if (chatSend === undefined) {
+        return false;
+    }
+    const oldCaption = msgWithImg.caption;
+
+    msgWithImg.id.id     = window.WAPI.getNewId();
+    msgWithImg.id.remote = chatId;
+    msgWithImg.t         = Math.ceil(new Date().getTime() / 1000);
+    msgWithImg.to        = chatId;
+
+    if (caption !== undefined && caption !== '') {
+        msgWithImg.caption = caption;
+    } else {
+        msgWithImg.caption = '';
+    }
+
+    msgWithImg.collection.send(msgWithImg).then(function (e) {
+        msgWithImg.caption = oldCaption;
+    });
+
+    return true;
+};
+
 window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, chatId, done) {
     var chatSend = WAPI.getChat(chatId);
     if (chatSend === undefined) {
@@ -557,6 +588,14 @@ window.WAPI.isLoggedIn = function (done) {
 
     if (done !== undefined) done(isLogged);
     return isLogged;
+};
+
+window.WAPI.isConnected = function (done) {
+    // Phone Disconnected icon appears when phone is disconnected from the tnternet
+    const isConnected = document.querySelector('*[data-icon="alert-phone"]') !== null ? false : true;
+
+    if (done !== undefined) done(isConnected);
+    return isConnected;
 };
 
 window.WAPI.processMessageObj = function (messageObj, includeMe, includeNotifications) {
@@ -1169,12 +1208,16 @@ window.WAPI.getBufferedNewMessages = function (done) {
 /** End new messages observable functions **/
 
 window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
+console.log("TCL: window.WAPI.sendImage -> sendImage")
 //var idUser = new window.Store.UserConstructor(chatid);
 var idUser = new window.Store.UserConstructor(chatid, { intentionallyUsePrivateConstructor: true });
+console.log("TCL: window.WAPI.sendImage -> idUser", idUser)
 // create new chat
 return Store.Chat.find(idUser).then((chat) => {
     var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
-    var mc = new Store.MediaCollection();
+console.log("TCL: window.WAPI.sendImage -> chat")
+var mc = new Store.MediaCollection();
+    console.log("TCL: window.WAPI.sendImage -> mc", mc)
     mc.processFiles([mediaBlob], chat, 1).then(() => {
         var media = mc.models[0];
         media.sendToChat(chat, { caption: caption });
