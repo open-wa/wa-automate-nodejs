@@ -1,8 +1,7 @@
 // const sulla = require('../dist/index');
-
 // var create = require("sulla").create;
 // import { create, Whatsapp, decryptMedia} from 'sulla-hotfix';
-import { create, Whatsapp, decryptMedia } from '../dist/index';
+import { create, Whatsapp, decryptMedia } from '../src/index';
 const mime = require('mime-types');
 const fs = require('fs');
 
@@ -12,8 +11,9 @@ function start(client: Whatsapp) {
     //@ts-ignore
     if (message.mimetype) {
       const mediaData = await decryptMedia(message);
+      // client.sendText(message.from,'some text');
       fs.writeFile(
-      //@ts-ignore
+        //@ts-ignore
         `${message.t}.${mime.extension(message.mimetype)}`,
         mediaData,
         function(err) {

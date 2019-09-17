@@ -28,6 +28,7 @@ async function initBrowser() {
     // headless: false,
     headless: true,
     devtools: false,
+    // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     userDataDir: path.join(process.cwd(), 'session'),
     args: [...puppeteerConfig.chroniumArgs]
   });
