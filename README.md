@@ -49,7 +49,25 @@ function start(client) {
 | Send media (audio, doc, video)    	|             	|             	 |
 | Send stickers                     	|             	|             	 |
 | Decrypt media (image, audio, doc) 	|             	| ✅            	|
+| Capturing QR Code                  	|             	| ✅            	|
 
+
+## Capturing QR Code
+
+An event is emitted every time the QR code is received by the system. You can grab hold of this event emitter by importing ```ev```
+
+```javascript
+import { ev } from 'sulla-hotfix';
+const fs = require('fs');
+
+ev.on('qr', async qrcode => {
+  //qrcode is base64 encoded qr code image
+  //now you can do whatever you want with it
+  const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
+  fs.writeFileSync('qr_code.png', imageBuffer);
+});
+```
+You can see a live implementation of this on ```demo/index.ts```. Give it a spin! :D
 
 ## Decrypting Media
 
