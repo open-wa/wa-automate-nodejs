@@ -1,7 +1,9 @@
 var path = require('path');
 const puppeteerConfig = {
   whatsappUrl: 'https://web.whatsapp.com',
-  chroniumArgs: [
+  width: 1440,
+  height: 900,
+  chromiumArgs: [
     // `--app=${whatsappUrl}`,
     '--log-level=3', // fatal only
     //'--start-maximized',
@@ -40,7 +42,10 @@ const puppeteerConfig = {
 };
 
 export const useragent =
-'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36';
-  // 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36';
+// 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36';
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36';
 
 export { puppeteerConfig };
+
+export const width = puppeteerConfig.width;
+export const height = puppeteerConfig.height;

@@ -3,8 +3,10 @@ import * as puppeteer from 'puppeteer';
 import * as qrcode from 'qrcode-terminal';
 import { from, merge } from 'rxjs';
 import { take } from 'rxjs/operators';
-
+import { width, height } from '../config/puppeteer.config';
 const spinner = ora();
+import EventEmitter from 'events';
+export const ev = new EventEmitter();
 
 /**
  * Validates if client is authenticated
@@ -41,19 +43,38 @@ export const isInsideChat = (waPage: puppeteer.Page) => {
 export async function retrieveQR(waPage: puppeteer.Page) {
   spinner.start('Loading QR');
   await waPage.waitForSelector("img[alt='Scan me!']", { timeout: 0 });
-  const qrImage = await waPage.evaluate(
+  const qrData = await waPage.evaluate(
     `document.querySelector("img[alt='Scan me!']").parentElement.getAttribute("data-ref")`
   );
+  const qrImage = await waPage.evaluate(
+    `document.querySelector("img[alt='Scan me!']").getAttribute("src")`
+  );
   spinner.succeed();
-  qrcode.generate(qrImage, {
+  ev.emit('qr', qrImage);
+  qrcode.generate(qrData, {
     small: true
   });
-
   return true;
 }
 
-export async function keepHere(waPage: puppeteer.Page){
-  await waPage.waitForFunction(`[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML=="Use Here"})`, { timeout: 0 });
-  await waPage.evaluate(`[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML=="Use Here"}).click()`);
+export async function keepHere(waPage: puppeteer.Page) {
+  await waPage.waitForFunction(
+    `[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML=="Use Here"})`,
+    { timeout: 0 }
+  );
+  await waPage.evaluate(
+    `[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML=="Use Here"}).click()`
+  );
   await keepHere(waPage);
+}
+
+export async function randomMouseMovements(waPage: puppeteer.Page) {
+  var twoPI = Math.PI * 2.0;
+  var h = (height / 2 - 10) / 2;
+  var w = width / 2;
+  for (var x = 0; x < w; x++) {
+    const y = h * Math.sin((twoPI * x) / width) + h;
+    await waPage.mouse.move(x + 500, y);
+  }
+  return true;
 }

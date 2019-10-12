@@ -1,5 +1,6 @@
 import * as path from 'path';
 const fs = require('fs');
+const {installMouseHelper} = require('./mouse-helper');
 // import opuppeteer from 'puppeteer';
 // puppeteer-extra is a drop-in replacement for puppeteer,
 // it augments the installed puppeteer with plugin functionality
@@ -7,17 +8,24 @@ const puppeteer = require('puppeteer-extra');
 // add stealth plugin and use defaults (all evasion techniques)
 const pluginStealth = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(pluginStealth());
-import { puppeteerConfig, useragent } from '../config/puppeteer.config';
+import { puppeteerConfig, useragent, width, height} from '../config/puppeteer.config';
 //@ts-ignore
 import { Browser, Page } from '@types/puppeteer';
+import { randomMouseMovements } from './auth';
 const ON_DEATH = require('death'); //this is intentionally ugly
 let browser;
 export async function initWhatsapp() {
   browser = await initBrowser();
   const waPage = await getWhatsappPage(browser);
   await waPage.setUserAgent(useragent);
-
+await waPage.setViewport({
+  width,
+  height,
+  deviceScaleFactor: 1,
+});
+  // await installMouseHelper(waPage);
   await waPage.goto(puppeteerConfig.whatsappUrl);
+  await randomMouseMovements(waPage)
   return waPage;
 }
 
@@ -41,7 +49,7 @@ async function initBrowser() {
     devtools: false,
     // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     userDataDir: path.join(process.cwd(), 'session'),
-    args: [...puppeteerConfig.chroniumArgs]
+    args: [...puppeteerConfig.chromiumArgs]
   });
   return browser;
 }

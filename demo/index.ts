@@ -1,9 +1,15 @@
 // const sulla = require('../dist/index');
 // var create = require("sulla").create;
 // import { create, Whatsapp, decryptMedia} from 'sulla-hotfix';
-import { create, Whatsapp, decryptMedia } from '../src/index';
+import { create, Whatsapp, decryptMedia, ev } from '../src/index';
 const mime = require('mime-types');
 const fs = require('fs');
+
+ev.on('qr', async qrcode => {
+  //base64 encoded qr code image
+  const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
+  fs.writeFileSync('qr_code.png', imageBuffer);
+});
 
 function start(client: Whatsapp) {
   client.onMessage(async message => {
