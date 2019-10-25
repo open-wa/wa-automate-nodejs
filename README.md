@@ -17,7 +17,7 @@
 ## Usage
 
 ```javascript
-// import { create, Whatsapp } from 'sulla';
+// import { create, Whatsapp } from 'sulla-hotfix';
 const sulla = require('sulla-hotfix');
 
 sulla.create().then(client => start(client));
