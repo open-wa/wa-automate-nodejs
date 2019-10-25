@@ -71,7 +71,7 @@ You can see a live implementation of this on ```demo/index.ts```. Give it a spin
 
 ## Decrypting Media
 
-Here is a sample of how to decrypt media. This has been tested on images, videos, documents, audio.
+Here is a sample of how to decrypt media. This has been tested on images, videos, documents, audio and voice notes.
 
 ```javascript
 import { create, Whatsapp, decryptMedia} from 'sulla-hotfix';
