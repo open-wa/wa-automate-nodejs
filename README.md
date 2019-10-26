@@ -46,7 +46,7 @@ function start(client) {
 | Send contact                      	|             	| ✅           	|
 | Get contact detail                	|             	| ✅           	|
 | Send Images (image)    	            |             	| ✅             |
-| Send media (audio, doc, video)    	|             	|             	 |
+| Send media (audio, doc, video)    	|             	| ✅            	|
 | Send stickers                     	|             	|             	 |
 | Decrypt media (image, audio, doc) 	|             	| ✅            	|
 | Capturing QR Code                  	|             	| ✅            	|

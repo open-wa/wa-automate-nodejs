@@ -19,6 +19,7 @@ function start(client: Whatsapp) {
     if (message.mimetype) {
       const filename = `${message.t}.${mime.extension(message.mimetype)}`;
       const mediaData = await decryptMedia(message);
+      // you can send a file also with sendImage or await client.sendFile
       await client.sendImage(
         message.from,
         `data:${message.mimetype};base64,${mediaData.toString('base64')}`,
