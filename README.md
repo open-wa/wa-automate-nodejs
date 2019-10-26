@@ -50,6 +50,8 @@ function start(client) {
 | Send stickers                     	|             	|             	 |
 | Decrypt media (image, audio, doc) 	|             	| ✅            	|
 | Capturing QR Code                  	|             	| ✅            	|
+| Multiple Sessions                  	|             	| ✅            	|
+| Last seen & isOnline (beta)       	|             	| ✅            	|
 
 
 ## Capturing QR Code
@@ -101,6 +103,31 @@ function start(client: Whatsapp) {
 
 create().then(client => start(client));
 ```
+
+## Managing multiple sessions at once
+
+With v1.2.4, you can now run multiple sessions of sulla-hotfix in the same 'app'. This allows you to do interesting things for example:
+
+1. Design and run automated tests for you WA bot.
+2. Connect two or more whatsapp numbers to a single (or multiple) message handler(s)
+3. Use one client to make sure another one is alive by pinging it.
+
+Please see demo/index.ts for a working example
+
+NOTE: DO NOT CREATE TWO SESSIONS WITH THE SAME SESSIONID.
+
+```javascript
+import { create, Whatsapp} from 'sulla-hotfix';
+
+function start(client: Whatsapp) {
+  ...
+}
+
+create().then(client => start(client));
+
+create('another session').then(client => start(client));
+```
+
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
