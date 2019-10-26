@@ -31,4 +31,6 @@ export interface Contact {
   type: string;
   verifiedLevel: any;
   verifiedName: any;
+  isOnline?:any;
+  lastSeen?:any;
 }

@@ -94,22 +94,24 @@ window.WAPI._serializeChatObj = (obj) => {
     if (obj == undefined) {
         return null;
     }
-
+    console.log("TCL: window.WAPI._serializeChatObj -> obj", obj)
     return Object.assign(window.WAPI._serializeRawObj(obj), {
         kind         : obj.kind,
         isGroup      : obj.isGroup,
         contact      : obj['contact'] ? window.WAPI._serializeContactObj(obj['contact'])        : null,
         groupMetadata: obj["groupMetadata"] ? window.WAPI._serializeRawObj(obj["groupMetadata"]): null,
         presence     : obj["presence"] ? window.WAPI._serializeRawObj(obj["presence"])          : null,
-        msgs         : null
+        msgs         : null,
+    isOnline           : obj.__x_presence.attributes.isOnline|| null,
+    lastSeen           : obj.previewMessage.__x_ephemeralStartTimestamp*1000 || null
     });
 };
 
 window.WAPI._serializeContactObj = (obj) => {
+    console.log("TCL: window.WAPI._serializeContactObj -> obj", JSON.stringify(obj))
     if (obj == undefined) {
         return null;
     }
-
     return Object.assign(window.WAPI._serializeRawObj(obj), {
         formattedName      : obj.formattedName,
         isHighLevelVerified: obj.isHighLevelVerified,
@@ -129,7 +131,8 @@ window.WAPI._serializeMessageObj = (obj) => {
     if (obj == undefined) {
         return null;
     }
-
+    const _chat = WAPI._serializeChatObj(obj['chat']);
+    console.log("TCL: window.WAPI._serializeMessageObj -> _chat", _chat)
     return Object.assign(window.WAPI._serializeRawObj(obj), {
         id            : obj.id._serialized,
         sender        : obj["senderObj"] ? WAPI._serializeContactObj(obj["senderObj"]): null,
@@ -142,7 +145,9 @@ window.WAPI._serializeMessageObj = (obj) => {
         isNotification: obj.isNotification,
         isPSA         : obj.isPSA,
         type          : obj.type,
-        chat          : WAPI._serializeChatObj(obj['chat']),
+        chat          : _chat,
+        isOnline      : _chat.isOnline,
+        lastSeen      : _chat.lastSeen,
         chatId        : obj.id.remote,
         quotedMsgObj  : WAPI._serializeMessageObj(obj['_quotedMsgObj']),
         mediaData     : window.WAPI._serializeRawObj(obj['mediaData'])
@@ -355,6 +360,7 @@ window.WAPI.getNewId = function () {
 
 window.WAPI.getChatById = function (id, done) {
     let found = WAPI.getChat(id);
+    console.log("TCL: window.WAPI.getChatById -> found", found)
     if (found) {
         found = WAPI._serializeChatObj(found);
     } else {
@@ -826,12 +832,12 @@ window.WAPI.sendSeen = function (id, done) {
     var chat = window.WAPI.getChat(id);
     if (chat !== undefined) {
         if (done !== undefined) {
-            Store.SendSeen(Store.Chat.models[0], false).then(function () {
+            Store.SendSeen(chat, false).then(function () {
                 done(true);
             });
             return true;
         } else {
-            Store.SendSeen(Store.Chat.models[0], false);
+            Store.SendSeen(chat, false);
             return true;
         }
     }
@@ -1208,16 +1214,12 @@ window.WAPI.getBufferedNewMessages = function (done) {
 /** End new messages observable functions **/
 
 window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
-console.log("TCL: window.WAPI.sendImage -> sendImage")
 //var idUser = new window.Store.UserConstructor(chatid);
 var idUser = new window.Store.UserConstructor(chatid, { intentionallyUsePrivateConstructor: true });
-console.log("TCL: window.WAPI.sendImage -> idUser", idUser)
 // create new chat
 return Store.Chat.find(idUser).then((chat) => {
     var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
-console.log("TCL: window.WAPI.sendImage -> chat")
-var mc = new Store.MediaCollection();
-    console.log("TCL: window.WAPI.sendImage -> mc", mc)
+    var mc = new Store.MediaCollection();
     mc.processFiles([mediaBlob], chat, 1).then(() => {
         var media = mc.models[0];
         media.sendToChat(chat, { caption: caption });

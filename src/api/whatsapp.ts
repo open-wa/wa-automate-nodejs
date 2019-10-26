@@ -21,6 +21,7 @@ declare module WAPI {
   const getAllGroups: () => Chat[];
   const getGroupParticipantIDs: (groupId: string) => Id[];
   const getContact: (contactId: string) => Contact;
+  const getChatById: (contactId: string) => Chat;
   const sendContact: (to: string, contact: string | string[]) => any;
 }
 
@@ -67,7 +68,6 @@ export class Whatsapp {
            filename: string,
            caption: string
          ) {
-           console.log('TCL: sendImage -> sendImage');
            return await this.page.evaluate(
              ({ to, base64, filename, caption }) => {
                WAPI.sendImage(base64, to, filename, caption);
@@ -154,9 +154,21 @@ export class Whatsapp {
           * @returns contact detial as promise
           */
          public async getContact(contactId: string) {
-           return await this.page.evaluate(
-             contactId => WAPI.getContact(contactId),
-             contactId
-           );
-         }
+          return await this.page.evaluate(
+            contactId => WAPI.getContact(contactId),
+            contactId
+          );
+        }
+
+        /**
+         * Retrieves chat object of given contact id
+         * @param contactId
+         * @returns contact detial as promise
+         */
+        public async getChatById(contactId: string) {
+          return await this.page.evaluate(
+            contactId => WAPI.getChatById(contactId),
+            contactId
+          );
+        }
        }
