@@ -48,7 +48,7 @@ async function initBrowser(sessionId?: string) {
     headless: true,
     devtools: false,
     // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    userDataDir: path.join(process.cwd(), sessionId | 'session'),
+    userDataDir: path.join(process.cwd(), sessionId || 'session'),
     args: [...puppeteerConfig.chromiumArgs]
   });
   return browser;

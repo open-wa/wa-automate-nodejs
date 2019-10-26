@@ -6,14 +6,15 @@ const mime = require('mime-types');
 const fs = require('fs');
 
 ev.on('qr', async qrcode => {
-                              // sendQrToSlack(qrcode);
-                              //base64 encoded qr code image
-                      // const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
-      // fs.writeFileSync('qr_code.png', imageBuffer);
-    });
+  // sendQrToSlack(qrcode);
+  //base64 encoded qr code image
+  // const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
+  // fs.writeFileSync('qr_code.png', imageBuffer);
+});
 
 function start(client: Whatsapp) {
-  client.onMessage(async message => {     console.log('TCL: start -> message', JSON.stringify(message));
+  client.onMessage(async message => {
+    console.log('TCL: start -> message', JSON.stringify(message));
     // console.log(client.getChatsById(message.from))
     if (message.mimetype) {
       const filename = `${message.t}.${mime.extension(message.mimetype)}`;
