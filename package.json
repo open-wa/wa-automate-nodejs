@@ -16,7 +16,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run precise-commits"
+      "pre-commit": ""
     }
   },
   "repository": {
