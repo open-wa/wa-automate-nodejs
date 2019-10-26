@@ -25,7 +25,7 @@ export interface Chat {
   presence: any;
   t: number;
   unreadCount: number;
-  ack?:any;
-  isOnline?:any;
-  lastSeen?:any;
+  ack?: any;
+  isOnline?: any;
+  lastSeen?: any;
 }

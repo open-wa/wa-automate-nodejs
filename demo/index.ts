@@ -2,21 +2,19 @@
 // var create = require("sulla").create;
 // import { create, Whatsapp, decryptMedia} from 'sulla-hotfix';
 import { create, Whatsapp, decryptMedia, ev } from '../src/index';
-import { sendQrToSlack } from './req';
 const mime = require('mime-types');
 const fs = require('fs');
 
 ev.on('qr', async qrcode => {
-  // sendQrToSlack(qrcode); 
-  //base64 encoded qr code image
-  // const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
-  // fs.writeFileSync('qr_code.png', imageBuffer);
-});
+                              // sendQrToSlack(qrcode);
+                              //base64 encoded qr code image
+                      // const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
+      // fs.writeFileSync('qr_code.png', imageBuffer);
+    });
 
 function start(client: Whatsapp) {
-  client.onMessage(async message => {
-  console.log("TCL: start -> message", JSON.stringify(message))
-  // console.log(client.getChatsById(message.from))
+  client.onMessage(async message => {     console.log('TCL: start -> message', JSON.stringify(message));
+    // console.log(client.getChatsById(message.from))
     if (message.mimetype) {
       const filename = `${message.t}.${mime.extension(message.mimetype)}`;
       const mediaData = await decryptMedia(message);

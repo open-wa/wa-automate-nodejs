@@ -153,22 +153,23 @@ export class Whatsapp {
           * @param contactId
           * @returns contact detial as promise
           */
+         //@ts-ignore
          public async getContact(contactId: string) {
-          return await this.page.evaluate(
-            contactId => WAPI.getContact(contactId),
-            contactId
-          );
-        }
+           return await this.page.evaluate(
+             contactId => WAPI.getContact(contactId),
+             contactId
+           );
+         }
 
-        /**
-         * Retrieves chat object of given contact id
-         * @param contactId
-         * @returns contact detial as promise
-         */
-        public async getChatById(contactId: string) {
-          return await this.page.evaluate(
-            contactId => WAPI.getChatById(contactId),
-            contactId
-          );
-        }
+         /**
+          * Retrieves chat object of given contact id
+          * @param contactId
+          * @returns contact detial as promise
+          */
+         public async getChatById(contactId: string) {
+           return await this.page.evaluate(
+             contactId => WAPI.getChatById(contactId),
+             contactId
+           );
+         }
        }
