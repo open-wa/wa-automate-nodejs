@@ -153,6 +153,38 @@ create().then(client => start(client));
 create('another session').then(client => start(client));
 ```
 
+## Custom Set Up
+
+With v.1.2.6 you can now forward custom arguments through the library to pupeteer. This includes the any overrides to the pupeteer config and the user agent.
+
+Note: If you want to change the user agent but leave the puppeteer config the same then just pass {} to the pupeteer config. Also if you don't want to use a custom session then just use 'session' for the first argument.
+
+As with session name segment, these are all optional parameters.
+
+Why should you use a custom user agent?
+
+Users of these whatsapp injection libraries should use different user agents (preferably copy the one you have one your own pc) because then it makes it harder for whatsapp to break the mecahnism to restart sessions for this library.
+
+Example:
+
+```javascript
+import { create, Whatsapp} from 'sulla-hotfix';
+
+function start(client: Whatsapp) {
+  ...
+}
+
+create().then(client => start(client));
+
+//1st argument is the session name
+//2nd argument is the puppeteer config override
+//3rd argument is the user agent override
+
+create('session', {
+  headless: false
+}, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36').then(client => start(client));
+```
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

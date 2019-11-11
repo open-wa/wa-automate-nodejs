@@ -14,10 +14,11 @@ import { Browser, Page } from '@types/puppeteer';
 import { randomMouseMovements } from './auth';
 const ON_DEATH = require('death'); //this is intentionally ugly
 let browser;
-export async function initWhatsapp(sessionId?: string) {
-  browser = await initBrowser(sessionId);
+
+export async function initWhatsapp(sessionId?: string, puppeteerConfigOverride?:any, customUserAgent?:string) {
+  browser = await initBrowser(sessionId,puppeteerConfigOverride);
   const waPage = await getWhatsappPage(browser);
-  await waPage.setUserAgent(useragent);
+  await waPage.setUserAgent(customUserAgent||useragent);
   await waPage.setViewport({
     width,
     height,
@@ -42,14 +43,14 @@ export async function injectApi(page: Page) {
   return page;
 }
 
-async function initBrowser(sessionId?: string) {
+async function initBrowser(sessionId?: string, puppeteerConfigOverride:any={}) {
   const browser = await puppeteer.launch({
-    // headless: false,
     headless: true,
     devtools: false,
     // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     userDataDir: path.join(process.cwd(), sessionId || 'session'),
-    args: [...puppeteerConfig.chromiumArgs]
+    args: [...puppeteerConfig.chromiumArgs],
+    ...puppeteerConfigOverride
   });
   return browser;
 }

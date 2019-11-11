@@ -11,7 +11,8 @@ export const mediaTypes = {
   VIDEO: 'Video',
   AUDIO: 'Audio',
   PTT: 'Audio',
-  DOCUMENT: 'Document'
+  DOCUMENT: 'Document',
+  STICKER: 'Image'
 };
 
 export const decryptMedia = async (message: any) => {

@@ -94,7 +94,6 @@ window.WAPI._serializeChatObj = (obj) => {
     if (obj == undefined) {
         return null;
     }
-    console.log("TCL: window.WAPI._serializeChatObj -> obj", obj)
     return Object.assign(window.WAPI._serializeRawObj(obj), {
         kind         : obj.kind,
         isGroup      : obj.isGroup,
@@ -108,7 +107,6 @@ window.WAPI._serializeChatObj = (obj) => {
 };
 
 window.WAPI._serializeContactObj = (obj) => {
-    console.log("TCL: window.WAPI._serializeContactObj -> obj", JSON.stringify(obj))
     if (obj == undefined) {
         return null;
     }
@@ -132,7 +130,6 @@ window.WAPI._serializeMessageObj = (obj) => {
         return null;
     }
     const _chat = WAPI._serializeChatObj(obj['chat']);
-    console.log("TCL: window.WAPI._serializeMessageObj -> _chat", _chat)
     return Object.assign(window.WAPI._serializeRawObj(obj), {
         id            : obj.id._serialized,
         sender        : obj["senderObj"] ? WAPI._serializeContactObj(obj["senderObj"]): null,
@@ -360,7 +357,6 @@ window.WAPI.getNewId = function () {
 
 window.WAPI.getChatById = function (id, done) {
     let found = WAPI.getChat(id);
-    console.log("TCL: window.WAPI.getChatById -> found", found)
     if (found) {
         found = WAPI._serializeChatObj(found);
     } else {

@@ -7,10 +7,10 @@ const spinner = ora();
 /**
  * Should be called to initialize whatsapp client
  */
-export async function create(sessionId?: string) {
+export async function create(sessionId?: string, puppeteerConfigOverride?:any, customUserAgent?:string) {
   if (!sessionId) sessionId = 'session';
   spinner.start('Initializing whatsapp');
-  let waPage = await initWhatsapp(sessionId);
+  let waPage = await initWhatsapp(sessionId, puppeteerConfigOverride, customUserAgent);
   spinner.succeed();
 
   spinner.start('Authenticating');

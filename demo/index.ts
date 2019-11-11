@@ -43,7 +43,7 @@ function start(client: Whatsapp) {
 create().then(client => start(client));
 
 //or you can set a 'session id'
-create('newsession').then(client => start(client));
+// create('newsession').then(client => start(client));
 
 //DO NOT HAVE TO SESSIONS WITH THE SAME ID
 
