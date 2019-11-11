@@ -155,7 +155,7 @@ create('another session').then(client => start(client));
 
 ## Custom Set Up
 
-With v.1.2.6 you can now forward custom arguments through the library to pupeteer. This includes the any overrides to the pupeteer config and the user agent.
+With v.1.2.6 you can now forward custom arguments through the library to puppeteer. This includes any overrides to the pupeteer config and a custom useragent.
 
 Note: If you want to change the user agent but leave the puppeteer config the same then just pass {} to the pupeteer config. Also if you don't want to use a custom session then just use 'session' for the first argument.
 
@@ -180,9 +180,12 @@ create().then(client => start(client));
 //2nd argument is the puppeteer config override
 //3rd argument is the user agent override
 
-create('session', {
+create('session',
+{
   headless: false
-}, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36').then(client => start(client));
+},
+'some custom user agent')
+.then(client => start(client));
 ```
 
 ## Contributing
