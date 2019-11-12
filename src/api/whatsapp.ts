@@ -29,6 +29,11 @@ declare module WAPI {
   const getContact: (contactId: string) => Contact;
   const getChatById: (contactId: string) => Chat;
   const sendContact: (to: string, contact: string | string[]) => any;
+  const getUnreadMessages:  (
+    includeMe: boolean,
+    includeNotifications: boolean,
+    use_unread_count: boolean
+  ) => any;
 }
 
 export class Whatsapp {
@@ -200,5 +205,19 @@ export class Whatsapp {
              contactId => WAPI.getChatById(contactId),
              contactId
            );
+         }
+
+         /**
+          * Retrieves all undread Messages
+          * @param includeMe
+          * @param includeNotifications
+          * @param use_unread_count
+          * @returns any
+          */
+         public async getUnreadMessages(includeMe: boolean, includeNotifications: boolean, use_unread_count: boolean) {
+          return await this.page.evaluate(
+            ({includeMe,includeNotifications,use_unread_count}) => WAPI.getUnreadMessages(includeMe,includeNotifications,use_unread_count),
+            {includeMe,includeNotifications,use_unread_count}
+          );
          }
        }
