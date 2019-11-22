@@ -64,4 +64,5 @@ async function getWhatsappPage(browser: Browser) {
 ON_DEATH(async (signal, err) => {
   //clean up code here
   if (browser) await browser.close();
+  console.log('broswerclosed')
 });

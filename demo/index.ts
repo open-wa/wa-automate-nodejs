@@ -14,6 +14,7 @@ ev.on('qr', async qrcode => {
 
 function start(client: Whatsapp) {
   client.onMessage(async message => {
+    try {
     console.log('TCL: start -> message', JSON.stringify(message));
     // console.log(client.getChatsById(message.from))
     if (message.mimetype) {
@@ -32,6 +33,11 @@ function start(client: Whatsapp) {
         }
         console.log('The file was saved!');
       });
+    } else {
+      await client.sendText(message.from, message.body);
+    }
+    } catch (error) {
+    console.log("TCL: start -> error", error)
     }
   });
 }
