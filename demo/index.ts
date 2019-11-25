@@ -6,10 +6,9 @@ const mime = require('mime-types');
 const fs = require('fs');
 
 ev.on('qr', async qrcode => {
-  // sendQrToSlack(qrcode);
   //base64 encoded qr code image
-  // const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
-  // fs.writeFileSync('qr_code.png', imageBuffer);
+  const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
+  fs.writeFileSync('qr_code.png', imageBuffer);
 });
 
 function start(client: Whatsapp) {
@@ -46,7 +45,9 @@ function start(client: Whatsapp) {
 //two the same message handler
 
 //it can be null, which will default to 'session' folder
-create().then(client => start(client));
+create('session',{
+  executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+}).then(client => start(client));
 
 //or you can set a 'session id'
 // create('newsession').then(client => start(client));

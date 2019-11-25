@@ -129,6 +129,20 @@ await client.sendFile('xyz@c.us',[BASE64 FILE DATA],'some file.pdf', `Hello this
 create().then(client => start(client));
 ```
 
+## Sending Video
+
+If you intend to use video via sulla-hotfix, you need to use a chrome instance with puppeteer instead of the default chromium instance. This is becase chromium does not have any relevant video codecs needed for new whatsapp web video sending features.
+
+You will need to make sure that you have a valid chrome instance on your machine then use the following to tell puppeteer where it can find your chrome isntance. The below demo is an example for mac.
+
+```javascript
+
+create('session',{
+  executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+}).then(client => start(client));
+
+```
+
 ## Managing multiple sessions at once
 
 With v1.2.4, you can now run multiple sessions of sulla-hotfix in the same 'app'. This allows you to do interesting things for example:

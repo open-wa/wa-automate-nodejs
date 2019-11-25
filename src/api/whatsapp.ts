@@ -29,6 +29,7 @@ declare module WAPI {
   const getContact: (contactId: string) => Contact;
   const getChatById: (contactId: string) => Chat;
   const sendContact: (to: string, contact: string | string[]) => any;
+  const isConnected : () => Boolean;
   const getUnreadMessages:  (
     includeMe: boolean,
     includeNotifications: boolean,
@@ -128,6 +129,14 @@ export class Whatsapp {
           */
          public async getAllContacts() {
            return await this.page.evaluate(() => WAPI.getAllContacts());
+         }
+
+         /**
+          * Retrieves if the phone is online. Please note that this may not be real time.
+          * @returns Boolean
+          */
+         public async isConnected() {
+           return await this.page.evaluate(() => WAPI.isConnected());
          }
 
          /**
