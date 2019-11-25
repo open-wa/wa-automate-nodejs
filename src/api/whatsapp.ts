@@ -27,6 +27,7 @@ declare module WAPI {
   const getAllGroups: () => Chat[];
   const getGroupParticipantIDs: (groupId: string) => Id[];
   const getContact: (contactId: string) => Contact;
+  const checkNumberStatus:  (contactId: string) => any;
   const getChatById: (contactId: string) => Chat;
   const sendContact: (to: string, contact: string | string[]) => any;
   const isConnected : () => Boolean;
@@ -35,6 +36,11 @@ declare module WAPI {
     includeNotifications: boolean,
     use_unread_count: boolean
   ) => any;
+  const getAllMessagesInChat: (
+    chatId: string,
+    includeMe: boolean,
+    includeNotifications: boolean,
+   ) => [Message]
 }
 
 export class Whatsapp {
@@ -217,6 +223,18 @@ export class Whatsapp {
          }
 
          /**
+          * Checks if a number is a valid whatsapp number
+          * @param contactId, you need to include the @c.us at the end.
+          * @returns contact detial as promise
+          */
+         public async checkNumberStatus(contactId: string) {
+          return await this.page.evaluate(
+            contactId => WAPI.checkNumberStatus(contactId),
+            contactId
+          );
+        }
+         
+         /**
           * Retrieves all undread Messages
           * @param includeMe
           * @param includeNotifications
@@ -227,6 +245,22 @@ export class Whatsapp {
           return await this.page.evaluate(
             ({includeMe,includeNotifications,use_unread_count}) => WAPI.getUnreadMessages(includeMe,includeNotifications,use_unread_count),
             {includeMe,includeNotifications,use_unread_count}
+          );
+         }
+
+
+         /**
+          * Retrieves all Messages in a chat
+          * @param chatId, the chat to get the messages from
+          * @param includeMe, include my own messages? boolean
+          * @param includeNotifications
+          * @returns any
+          */
+
+         public async getAllMessagesInChat(chatId: string, includeMe: boolean, includeNotifications: boolean) {
+          return await this.page.evaluate(
+            ({chatId, includeMe,includeNotifications}) => WAPI.getAllMessagesInChat(chatId, includeMe,includeNotifications),
+            {chatId, includeMe,includeNotifications}
           );
          }
        }
