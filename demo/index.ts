@@ -14,8 +14,8 @@ ev.on('qr', async qrcode => {
 function start(client: Whatsapp) {
   client.onMessage(async message => {
     try {
-    console.log('TCL: start -> message', JSON.stringify(message));
-    // console.log(client.getChatsById(message.from))
+    const isConnected = await client.isConnected();
+    console.log("TCL: start -> isConnected", isConnected)
     if (message.mimetype) {
       const filename = `${message.t}.${mime.extension(message.mimetype)}`;
       const mediaData = await decryptMedia(message);
