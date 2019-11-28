@@ -16,6 +16,7 @@ export interface Message {
   broadcast: boolean;
   isForwarded: boolean;
   labels: any[];
+  caption: string;
   sender: {
     id: string;
     name: string;
