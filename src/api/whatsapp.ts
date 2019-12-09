@@ -29,6 +29,7 @@ declare module WAPI {
   const getContact: (contactId: string) => Contact;
   const checkNumberStatus:  (contactId: string) => any;
   const getChatById: (contactId: string) => Chat;
+  const deleteMessagesById: (messageId: [string] | string) => any;
   const sendContact: (to: string, contact: string | string[]) => any;
   const isConnected : () => Boolean;
   const getUnreadMessages:  (
@@ -216,11 +217,24 @@ export class Whatsapp {
           * @returns contact detial as promise
           */
          public async getChatById(contactId: string) {
-           return await this.page.evaluate(
-             contactId => WAPI.getChatById(contactId),
-             contactId
-           );
-         }
+          return await this.page.evaluate(
+            contactId => WAPI.getChatById(contactId),
+            contactId
+          );
+        }
+
+
+        /**
+         * Deletes message of given message id
+         * @param messageId
+         * @returns nothing
+         */
+        public async deleteMessagesById(messageId: [string] | string) {
+          return await this.page.evaluate(
+            messageId => WAPI.deleteMessagesById(messageId),
+            messageId
+          );
+        }
 
          /**
           * Checks if a number is a valid whatsapp number

@@ -1098,6 +1098,23 @@ window.WAPI.deleteMessage = function (chatId, messageArray, revoke = false, done
     return true;
 };
 
+
+window.WAPI.deleteMessagesById = function (messageArray, done) {
+    if (!Array.isArray(messageArray)) {
+        messageArray = [messageArray];
+    }
+
+    messageArray.forEach(msgId => {
+        window.Store.Msg.get(msgId).delete()
+    })
+
+    if (done !== undefined) {
+        done(true);
+    }
+
+    return true;
+};
+
 window.WAPI.checkNumberStatus = async function (id, done) {
     try {
         const result = await window.Store.WapQuery.queryExist(id);
