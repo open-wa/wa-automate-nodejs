@@ -1082,13 +1082,13 @@ window.WAPI.deleteMessage = function (chatId, messageArray, revoke = false, done
     if (!Array.isArray(messageArray)) {
         messageArray = [messageArray];
     }
-
+    
+    let messagesToDelete = messageArray.map(msgId => window.Store.Msg.get(msgId));
+    
     if (revoke) {
-        conversation.sendRevokeMsgs(messageArray, conversation);
+        conversation.sendRevokeMsgs(messagesToDelete, conversation);    
     } else {
-        messageArray.forEach(msgId => {
-            window.Store.Msg.get(msgId).delete()
-        })
+        conversation.sendDeleteMsgs(messagesToDelete, conversation);
     }
 
     if (done !== undefined) {
@@ -1098,22 +1098,6 @@ window.WAPI.deleteMessage = function (chatId, messageArray, revoke = false, done
     return true;
 };
 
-
-window.WAPI.deleteMessagesById = function (messageArray, done) {
-    if (!Array.isArray(messageArray)) {
-        messageArray = [messageArray];
-    }
-
-    messageArray.forEach(msgId => {
-        window.Store.Msg.get(msgId).delete()
-    })
-
-    if (done !== undefined) {
-        done(true);
-    }
-
-    return true;
-};
 
 window.WAPI.checkNumberStatus = async function (id, done) {
     try {
