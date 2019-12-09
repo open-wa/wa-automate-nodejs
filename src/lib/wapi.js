@@ -1086,9 +1086,10 @@ window.WAPI.deleteMessage = function (chatId, messageArray, revoke = false, done
     if (revoke) {
         conversation.sendRevokeMsgs(messageArray, conversation);
     } else {
-        conversation.sendDeleteMsgs(messageArray, conversation);
+        messageArray.forEach(msgId => {
+            window.Store.Msg.get(msgId).delete()
+        })
     }
-
 
     if (done !== undefined) {
         done(true);
