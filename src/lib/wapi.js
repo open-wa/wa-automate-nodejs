@@ -1282,6 +1282,37 @@ window.WAPI.getNewMessageId = function (chatId) {
 };
 
 /**
+ * Send location
+ *
+ * @param {string} chatId '000000000000@c.us'
+ * @param {string} lat latitude
+ * @param {string} lng longitude
+ * @param {string} loc Text to go with the location message
+ */
+window.WAPI.sendLocation = function (chatId,lat,lng,loc) {
+    var chat = Store.Chat.get(chatId);
+    var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe)[0]);
+    var newId = window.WAPI.getNewMessageId(chatId);
+
+    var extend = {
+        ack: 0,
+        id: newId,
+        local: !0,
+        self: "out",
+        t: parseInt(new Date().getTime() / 1000),
+        to: chatId,
+        isNewMsg: !0,
+        type : "location",
+        lat,
+        lng,
+        loc
+    };
+    Object.assign(tempMsg, extend);
+    chat.msgs.add(tempMsg);
+};
+
+
+/**
  * Send Customized VCard without the necessity of contact be a Whatsapp Contact
  *
  * @param {string} chatId '000000000000@c.us'
