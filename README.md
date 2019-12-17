@@ -144,7 +144,7 @@ create('session',{
 
 ```
 
-## Sending Video
+## Sending Location
 
 As of version 1.3.0 you can now send location!! You can't even do this in normal whatsapp web interface.
 
