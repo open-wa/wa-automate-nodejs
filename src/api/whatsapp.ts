@@ -32,6 +32,7 @@ declare module WAPI {
   const getChatById: (contactId: string) => Chat;
   const deleteMessage: (contactId: string, messageId: [string] | string, revoke ?: boolean) => any;
   const sendContact: (to: string, contact: string | string[]) => any;
+  const simulateTyping: (to: string, on: boolean) => void;
   const isConnected : () => Boolean;
   const getUnreadMessages:  (
     includeMe: boolean,
@@ -136,17 +137,30 @@ export class Whatsapp {
         }
 
 
-         /**
-          * Sends contact card to given chat id
-          * @param {string} to 'xxxx@c.us'
-          * @param {string|array} contact 'xxxx@c.us' | ['xxxx@c.us', 'yyyy@c.us', ...]
-          */
-         public async sendContact(to: string, contactId: string | string[]) {
-           return await this.page.evaluate(
-             ({ to, contactId }) => WAPI.sendContact(to, contactId),
-             { to, contactId }
-           );
-         }
+        /**
+         * Sends contact card to given chat id
+         * @param {string} to 'xxxx@c.us'
+         * @param {string|array} contact 'xxxx@c.us' | ['xxxx@c.us', 'yyyy@c.us', ...]
+         */
+        public async sendContact(to: string, contactId: string | string[]) {
+          return await this.page.evaluate(
+            ({ to, contactId }) => WAPI.sendContact(to, contactId),
+            { to, contactId }
+          );
+        }
+
+
+        /**
+         * Simulate '...typing' in chat
+         * @param {string} to 'xxxx@c.us'
+         * @param {boolean} on turn on similated typing, false to turn it off you need to manually turn this off.
+         */
+        public async simulateTyping(to: string, on: boolean) {
+          return await this.page.evaluate(
+            ({ to, on }) => WAPI.simulateTyping(to, on),
+            { to, on }
+          );
+        }
 
          /**
           * Retrieves all contacts
