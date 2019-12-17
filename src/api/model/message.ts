@@ -3,6 +3,9 @@ export interface Message {
   body: string;
   type: string;
   mimetype?: string;
+  lat?: string;
+  lng?: string;
+  loc?: string;
   t: number;
   notifyName: string;
   from: string;

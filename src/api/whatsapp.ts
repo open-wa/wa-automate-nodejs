@@ -8,6 +8,7 @@ import { Id } from './model/id';
 declare module WAPI {
   const waitNewMessages: (rmCallback: boolean, callback: Function) => void;
   const sendMessage: (to: string, content: string) => void;
+  const sendLocation: (to: string, lat: any,lng: any,loc:string) => void;
   const sendSeen: (to: string) => void;
   const sendImage: (
     base64: string,
@@ -73,6 +74,23 @@ export class Whatsapp {
              { to, content }
            );
          }
+
+
+         /**
+          * Sends a location message to given chat
+          * @param to chat id: xxxxx@c.us
+          * @param lat latitude: '51.5074'
+          * @param lng longitude: '0.1278'
+          * @param loc location text: 'LONDON!'
+          */
+         public async sendLocation(to: string, lat: any,lng: any,loc: string) {
+          return await this.page.evaluate(
+            ({ to, lat, lng, loc }) => {
+              WAPI.sendLocation(to, lat, lng, loc );
+            },
+            { to, lat, lng, loc }
+          );
+        }
 
          /**
           * Sends a image to given chat, with caption or not, using base64

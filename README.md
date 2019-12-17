@@ -53,6 +53,7 @@ function start(client) {
 | Capturing QR Code                 |             | ✅          |
 | Multiple Sessions                 |             | ✅          |
 | Last seen & isOnline (beta)       |             | ✅          |
+| 📍 SEND LOCATION!! (beta)         |             | ✅          |
 
 ## Capturing QR Code
 
@@ -141,6 +142,23 @@ create('session',{
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
 }).then(client => start(client));
 
+```
+
+## Sending Video
+
+As of version 1.3.0 you can now send location!! You can't even do this in normal whatsapp web interface.
+
+You need to send the function:
+
+- chat id: xxxxx@us.c
+- latitude: '51.5074'
+- longitude: '0.1278'
+- ocation text: 'LONDON!'
+
+Here's how you do it:
+
+```javascript
+await client.sendLocation('xxxxx@c.us', '51.5074', '0.1278',  'LONDON!')
 ```
 
 ## Managing multiple sessions at once

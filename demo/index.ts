@@ -32,6 +32,9 @@ function start(client: Whatsapp) {
         }
         console.log('The file was saved!');
       });
+    } else if (message.type==="location") {
+      console.log("TCL: location -> message", message.lat, message.lng, message.loc)
+      await client.sendLocation(message.from, `${message.lat}`, `${message.lng}`, `Youre are at ${message.loc}`)
     } else {
       await client.sendText(message.from, message.body);
     }

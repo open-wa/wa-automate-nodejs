@@ -1082,11 +1082,11 @@ window.WAPI.deleteMessage = function (chatId, messageArray, revoke = false, done
     if (!Array.isArray(messageArray)) {
         messageArray = [messageArray];
     }
-    
+
     let messagesToDelete = messageArray.map(msgId => window.Store.Msg.get(msgId));
-    
+
     if (revoke) {
-        conversation.sendRevokeMsgs(messagesToDelete, conversation);    
+        conversation.sendRevokeMsgs(messagesToDelete, conversation);
     } else {
         conversation.sendDeleteMsgs(messagesToDelete, conversation);
     }
@@ -1289,11 +1289,10 @@ window.WAPI.getNewMessageId = function (chatId) {
  * @param {string} lng longitude
  * @param {string} loc Text to go with the location message
  */
-window.WAPI.sendLocation = function (chatId,lat,lng,loc) {
+window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
     var chat = Store.Chat.get(chatId);
-    var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe)[0]);
+    var tempMsg = Object.create(chat.msgs.filter(msg => msg.__x_isSentByMe)[0]);
     var newId = window.WAPI.getNewMessageId(chatId);
-
     var extend = {
         ack: 0,
         id: newId,
@@ -1302,13 +1301,13 @@ window.WAPI.sendLocation = function (chatId,lat,lng,loc) {
         t: parseInt(new Date().getTime() / 1000),
         to: chatId,
         isNewMsg: !0,
-        type : "location",
+        type: "location",
         lat,
         lng,
         loc
     };
     Object.assign(tempMsg, extend);
-    Store.beta.addAndSendMsgToChat(chat,tempMsg)
+    await Store.beta.addAndSendMsgToChat(chat, tempMsg)
 };
 
 
@@ -1352,7 +1351,7 @@ window.WAPI.sendVCard = function (chatId, vcard) {
 
     Object.assign(tempMsg, extend);
 
-    Store.beta.addAndSendMsgToChat(chat,tempMsg)
+    Store.beta.addAndSendMsgToChat(chat, tempMsg)
 };
 /**
  * Block contact 
