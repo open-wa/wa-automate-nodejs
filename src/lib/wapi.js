@@ -70,7 +70,7 @@ if (!window.Store) {
         webpackJsonp([], { 'parasite': (x, y, z) => getStore(z) }, ['parasite']);
     })();
 }
-
+window.Store.beta = webpackJsonp([], null, ["cgddafdgie"]);
 window.WAPI = {
     lastRead: {}
 };
@@ -1308,7 +1308,7 @@ window.WAPI.sendLocation = function (chatId,lat,lng,loc) {
         loc
     };
     Object.assign(tempMsg, extend);
-    chat.msgs.add(tempMsg);
+    Store.beta.addAndSendMsgToChat(chat,tempMsg)
 };
 
 
@@ -1352,7 +1352,7 @@ window.WAPI.sendVCard = function (chatId, vcard) {
 
     Object.assign(tempMsg, extend);
 
-    chat.addAndSendMsg(tempMsg);
+    Store.beta.addAndSendMsgToChat(chat,tempMsg)
 };
 /**
  * Block contact 
