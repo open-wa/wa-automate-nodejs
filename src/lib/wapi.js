@@ -1281,6 +1281,18 @@ window.WAPI.getNewMessageId = function (chatId) {
     return newMsgId;
 };
 
+
+/**
+ * Simulate '...typing' in the chat.
+ *
+ * @param {string} chatId '000000000000@c.us'
+ * @param {boolean} on true to turn on similated typing, false to turn it off //you need to manually turn this off.
+ */
+window.WAPI.simulateTyping = async function (chatId, on) {
+    if (on) await Store.WapQuery.sendChatstateComposing(chatId)
+    else await Store.WapQuery.sendChatstateComposing(chatId)
+};
+
 /**
  * Send location
  *
