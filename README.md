@@ -54,6 +54,7 @@ function start(client) {
 | Multiple Sessions                 |             | ✅          |
 | Last seen & isOnline (beta)       |             | ✅          |
 | 📍 SEND LOCATION!! (beta)         |             | ✅          |
+| Simulated '...typing'             |             | ✅          |
 
 ## Capturing QR Code
 
@@ -160,6 +161,27 @@ Here's how you do it:
 ```javascript
 await client.sendLocation('xxxxx@c.us', '51.5074', '0.1278',  'LONDON!')
 ```
+
+## Simulate typing
+
+As of version 1.3.1 you can now simulate '...typing'
+
+You need to pass the following params:
+
+- chat id: xxxxx@us.c
+- on: true or false
+
+Note: You need to manually turn this off!!!
+
+```javascript
+//start '...typing'
+await client.simulateTyping('xxxxx@c.us',true)
+//wait 3 seconds
+
+//stop '...typing'
+await client.simulateTyping('xxxxx@c.us',false)
+```
+
 
 ## Managing multiple sessions at once
 
