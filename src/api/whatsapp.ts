@@ -311,6 +311,18 @@ export class Whatsapp {
          }
 
 
+        //  WAPI.getAllChatsWithNewMsg().map(c=>WAPI.getChat(c.id._serialized)).map(c=>c.msgs._models.filter(x=>x.isNewMsg))
+         /**
+          * Retrieves all new Messages
+          * @returns list of messages
+          */
+         public async getAllNewMessages() {
+          return await this.page.evaluate(
+            () => WAPI.getAllChatsWithNewMsg().map(c=>WAPI.getChat(c.id._serialized)).map(c=>c.msgs._models.filter((x:any)=>x.isNewMsg)),
+          );
+         }
+
+
          /**
           * Retrieves all Messages in a chat
           * @param chatId, the chat to get the messages from
