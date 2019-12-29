@@ -1230,6 +1230,22 @@ window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
     });
 }
 
+window.WAPI.sendGif = function (imgBase64, chatid, filename, caption, done) {
+    //var idUser = new window.Store.UserConstructor(chatid);
+    var idUser = new window.Store.UserConstructor(chatid, { intentionallyUsePrivateConstructor: true });
+    // create new chat
+    return Store.Chat.find(idUser).then((chat) => {
+        var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
+        var mc = new Store.MediaCollection();
+        mc.processFiles([mediaBlob], chat, 1).then(() => {
+            var media = mc.models[0];
+            media.isGif = true;
+            media.sendToChat(chat, { caption: caption, isGif: true });
+            if (done !== undefined) done(true);
+        });
+    });
+}
+
 window.WAPI.base64ImageToFile = function (b64Data, filename) {
     var arr = b64Data.split(',');
     var mime = arr[0].match(/:(.*?);/)[1];

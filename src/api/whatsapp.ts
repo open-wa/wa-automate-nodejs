@@ -24,6 +24,8 @@ declare module WAPI {
   ) => void;
   const getAllContacts: () => Contact[];
   const getAllChats: () => Chat[];
+  const getChat: (contactId: string) => Chat;
+  const getAllChatIds: () => string[];
   const getAllChatsWithNewMsg: () => Chat[];
   const getAllGroups: () => Chat[];
   const getGroupParticipantIDs: (groupId: string) => Id[];
@@ -189,6 +191,20 @@ export class Whatsapp {
              );
            } else {
              return await this.page.evaluate(() => WAPI.getAllChats());
+           }
+         }
+
+         /**
+          * Retrieves all chats with messages
+          * @returns array of [Chat]
+          */
+         public async getAllChatsWithMessages(withNewMessageOnly = false) {
+           if (withNewMessageOnly) {
+             return await this.page.evaluate(() =>
+              WAPI.getAllChatsWithNewMsg().map(c=>WAPI.getChat(c.id._serialized))
+             );
+           } else {
+             return await this.page.evaluate(() => WAPI.getAllChatIds().map((c:string)=> WAPI.getChat(c)));
            }
          }
 
