@@ -11,7 +11,17 @@ ev.on('qr', async qrcode => {
   fs.writeFileSync('qr_code.png', imageBuffer);
 });
 
-function start(client: Whatsapp) {
+async function start(client: Whatsapp) {
+  const chats = await client.getAllChatsWithMessages(false);
+  console.log("TCL: start -> chats", chats)
+  console.log("TCL: getAllChatsWithMessages ->", chats.length, chats[0]);
+  console.log("TCL: start ->chats", chats[0].msgs);
+
+  const newMessages = await client.getAllUnreadMessages();
+  console.log("TCL: start -> newMessages", newMessages)
+  console.log("TCL: getAllNewMessages ->", newMessages.length, newMessages[0]);
+
+
   client.onMessage(async message => {
     try {
     const isConnected = await client.isConnected();
@@ -50,6 +60,7 @@ function start(client: Whatsapp) {
 //it can be null, which will default to 'session' folder
 create('session',{
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  headless: false
 }).then(client => start(client));
 
 //or you can set a 'session id'

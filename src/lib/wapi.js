@@ -101,7 +101,7 @@ window.WAPI._serializeChatObj = (obj) => {
         presence: obj["presence"] ? window.WAPI._serializeRawObj(obj["presence"]) : null,
         msgs: null,
         isOnline: obj.__x_presence.attributes.isOnline || null,
-        lastSeen: obj.previewMessage.__x_ephemeralStartTimestamp * 1000 || null
+        lastSeen: (obj && obj.previewMessage && obj.previewMessage.__x_ephemeralStartTimestamp) ? obj.previewMessage.__x_ephemeralStartTimestamp * 1000 : null
     });
 };
 
@@ -262,6 +262,25 @@ window.WAPI.getAllChatIds = function (done) {
     if (done !== undefined) done(chatIds);
     return chatIds;
 };
+
+window.WAPI.getAllNewMessages = async function () {
+    return JSON.stringify(WAPI.getAllChatsWithNewMsg().map(c=>WAPI.getChat(c.id._serialized)).map(c=>c.msgs._models.filter(x=>x.isNewMsg))||[])
+}
+
+// x.ack==-1
+window.WAPI.getAllUnreadMessages = async function () {
+    return JSON.stringify(WAPI.getAllChatsWithNewMsg().map(c=>WAPI.getChat(c.id._serialized)).map(c=>c.msgs._models.filter(x=>x.ack==-1)).flatMap(x=>x)||[])
+}
+
+window.WAPI.getAllChatsWithMessages= async function (onlyNew,done){
+let x = [];
+    if(onlyNew) {x.push(WAPI.getAllChatsWithNewMsg().map(c=>WAPI.getChat(c.id._serialized)));}
+    else {
+        x.push(WAPI.getAllChatIds().map((c)=> WAPI.getChat(c)));
+    }
+    const result = (await Promise.all(x)).flatMap(x=>x);
+    return JSON.stringify(result);
+}
 
 /**
  * Fetches all groups objects from store

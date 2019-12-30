@@ -23,10 +23,13 @@ declare module WAPI {
     caption: string
   ) => void;
   const getAllContacts: () => Contact[];
-  const getAllChats: () => Chat[];
+  const getAllUnreadMessages: () => any;
+  const getAllChatsWithMessages: (withNewMessageOnly?:boolean) => any;
+  const getAllChats: () => any;
   const getChat: (contactId: string) => Chat;
   const getAllChatIds: () => string[];
   const getAllChatsWithNewMsg: () => Chat[];
+  const getAllNewMessages: () => any;
   const getAllGroups: () => Chat[];
   const getGroupParticipantIDs: (groupId: string) => Id[];
   const getContact: (contactId: string) => Contact;
@@ -199,14 +202,8 @@ export class Whatsapp {
           * @returns array of [Chat]
           */
          public async getAllChatsWithMessages(withNewMessageOnly = false) {
-           if (withNewMessageOnly) {
-             return await this.page.evaluate(() =>
-              WAPI.getAllChatsWithNewMsg().map(c=>WAPI.getChat(c.id._serialized))
-             );
-           } else {
-             return await this.page.evaluate(() => WAPI.getAllChatIds().map((c:string)=> WAPI.getChat(c)));
-           }
-         }
+          return JSON.parse(await this.page.evaluate(withNewMessageOnly => WAPI.getAllChatsWithMessages(withNewMessageOnly),withNewMessageOnly));
+        }
 
          /**
           * Retrieve all groups
@@ -271,6 +268,18 @@ export class Whatsapp {
           );
         }
 
+        /**
+         * Retrieves chat object of given contact id
+         * @param contactId
+         * @returns contact detial as promise
+         */
+        public async getChat(contactId: string) {
+         return await this.page.evaluate(
+           contactId => WAPI.getChat(contactId),
+           contactId
+         );
+       }
+
 
         /**
          * Deletes message of given message id
@@ -311,17 +320,21 @@ export class Whatsapp {
          }
 
 
-        //  WAPI.getAllChatsWithNewMsg().map(c=>WAPI.getChat(c.id._serialized)).map(c=>c.msgs._models.filter(x=>x.isNewMsg))
          /**
-          * Retrieves all new Messages
+          * Retrieves all new Messages. where isNewMsg==true
           * @returns list of messages
           */
          public async getAllNewMessages() {
-          return await this.page.evaluate(
-            () => WAPI.getAllChatsWithNewMsg().map(c=>WAPI.getChat(c.id._serialized)).map(c=>c.msgs._models.filter((x:any)=>x.isNewMsg)),
-          );
-         }
+          return JSON.parse(await this.page.evaluate(()=>WAPI.getAllNewMessages()));
+        }
 
+        /**
+         * Retrieves all unread Messages. where ack==-1
+         * @returns list of messages
+         */
+        public async getAllUnreadMessages() {
+          return JSON.parse(await this.page.evaluate(()=>WAPI.getAllUnreadMessages()));
+        }
 
          /**
           * Retrieves all Messages in a chat
