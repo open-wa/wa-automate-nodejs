@@ -21,7 +21,7 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     spinner.succeed();
   } else {
     spinner.info('Authenticate to continue');
-    await retrieveQR(waPage);
+    await retrieveQR(waPage,sessionId);
 
     // Wait til inside chat
     await isInsideChat(waPage).toPromise();

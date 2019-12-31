@@ -5,10 +5,12 @@ import { create, Whatsapp, decryptMedia, ev } from '../src/index';
 const mime = require('mime-types');
 const fs = require('fs');
 
-ev.on('qr', async qrcode => {
+ev.on('qr.**', async (qrcode,sessionId) => {
+  console.log("TCL: qrcode", qrcode)
+      console.log("TCL: qrcode,sessioId", qrcode,sessionId)
   //base64 encoded qr code image
   const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
-  fs.writeFileSync('qr_code.png', imageBuffer);
+  fs.writeFileSync(`qr_code${sessionId?'_'+sessionId:''}.png`, imageBuffer);
 });
 
 async function start(client: Whatsapp) {
@@ -60,11 +62,10 @@ async function start(client: Whatsapp) {
 //it can be null, which will default to 'session' folder
 create('session',{
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  headless: false
 }).then(client => start(client));
 
 //or you can set a 'session id'
-// create('newsession').then(client => start(client));
+create('newsession').then(client => start(client));
 
 //DO NOT HAVE TO SESSIONS WITH THE SAME ID
 

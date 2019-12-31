@@ -5,8 +5,10 @@ import { from, merge } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { width, height } from '../config/puppeteer.config';
 const spinner = ora();
-import EventEmitter from 'events';
-export const ev = new EventEmitter();
+import {EventEmitter2} from 'EventEmitter2';
+export const ev = new EventEmitter2({
+  wildcard:true,
+});
 
 /**
  * Validates if client is authenticated
@@ -40,17 +42,18 @@ export const isInsideChat = (waPage: puppeteer.Page) => {
   );
 };
 
-export async function retrieveQR(waPage: puppeteer.Page) {
+export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string) {
   spinner.start('Loading QR');
   await waPage.waitForSelector("img[alt='Scan me!']", { timeout: 0 });
   const qrData = await waPage.evaluate(
     `document.querySelector("img[alt='Scan me!']").parentElement.getAttribute("data-ref")`
   );
-  const qrImage = await waPage.evaluate(
+  const qrCode = await waPage.evaluate(
     `document.querySelector("img[alt='Scan me!']").getAttribute("src")`
   );
   spinner.succeed();
-  ev.emit('qr', qrImage);
+  ev.emit(`qr${sessionId?`.${sessionId}`:``}`, qrCode, sessionId);
+  // ev.emit(`qr${sessionId?`.${sessionId}`:``}`, sessionId? {qrImage,sessionId}:qrImage);
   qrcode.generate(qrData, {
     small: true
   });
