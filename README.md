@@ -182,7 +182,6 @@ await client.simulateTyping('xxxxx@c.us',true)
 await client.simulateTyping('xxxxx@c.us',false)
 ```
 
-
 ## Managing multiple sessions at once
 
 With v1.2.4, you can now run multiple sessions of sulla-hotfix in the same 'app'. This allows you to do interesting things for example:
@@ -193,7 +192,7 @@ With v1.2.4, you can now run multiple sessions of sulla-hotfix in the same 'app'
 
 Please see demo/index.ts for a working example
 
-NOTE: DO NOT CREATE TWO SESSIONS WITH THE SAME SESSIONID.
+NOTE: DO NOT CREATE TWO SESSIONS WITH THE SAME SESSIONID. DO NOT ALLOW SPACES AS SESSION ID.
 
 ```javascript
 import { create, Whatsapp} from 'sulla-hotfix';
@@ -204,8 +203,22 @@ function start(client: Whatsapp) {
 
 create().then(client => start(client));
 
-create('another session').then(client => start(client));
+create('another_session').then(client => start(client));
 ```
+
+You can then capture the QR Code for each session using the following event listener code:
+
+```javascript
+//events are fired with the ev namespace then the session Id. e.g "qr.another_session"
+//You can however use the wildcard operator with the new event listener and capture the session Id as a parameter instead.
+ev.on('qr.**', async (qrcode,sessionId) => {
+  console.log("TCL: qrcode,sessioId", qrcode,sessionId)
+  //base64 encoded qr code image
+  const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
+  fs.writeFileSync(`qr_code${sessionId?'_'+sessionId:''}.png`, imageBuffer);
+});
+```
+
 
 ## Custom Set Up
 
