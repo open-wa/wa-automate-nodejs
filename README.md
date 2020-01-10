@@ -148,22 +148,22 @@ create('session',{
 
 ## Sending Gifs
 
-Extending the functionality of sending videos. Version 1.4.0 brings with it the ability to send GIFs!!!! This was super annoying to figure out, as I was sent on a wild goose chase but it turned out that the answer was just 2 simple lines.
+Extending the functionality of sending videos, version 1.4.0 brings with it the ability to send GIFs!!!! This was super annoying to figure out, as I was sent on a wild goose chase but it turned out that the answer was just 2 simple lines.
 
 There are two ways to send GIFs - by Video or by giphy link.
 
 1. Sending Video as a GIF.
   
-  WhatsApp doesn't actually mess around with the .gif format - probably due to how inefficient it is as a filetype - they instead convert GIFs to video then process them.
+  WhatsApp doesn't actually support the .gif format - probably due to how inefficient it is as a filetype - they instead convert GIFs to video then process them.
 
-  You can do this yourself now with the following method
+  In order to send gifs you need to do the same (convert the gif to an mp4 file) then use the following method:
 
 ```javascript
 
 import { create, Whatsapp} from 'sulla-hotfix';
 
 function start(client: Whatsapp) {
-await client.sendVideAsGif('xyz@c.us',[BASE64 Video FILE DATA],'some file.mp4', `Hello this is the caption`);
+await client.sendVideoAsGif('xyz@c.us',[BASE64 Video FILE DATA],'some file.mp4', `Hello this is the caption`);
 }
 
 create('session',{
