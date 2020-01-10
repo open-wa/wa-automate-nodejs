@@ -4,6 +4,20 @@ import { Chat } from './model/chat';
 import { Contact } from './model/contact';
 import { Message } from './model/message';
 import { Id } from './model/id';
+import axios from 'axios';
+
+export const getBase64 = async (url:string) => {
+  try{
+    const res = await axios
+    .get(url, {
+      responseType: 'arraybuffer'
+    });
+    return `data:${res.headers['content-type']};base64,${Buffer.from(res.data, 'binary').toString('base64')}`
+    // return Buffer.from(response.data, 'binary').toString('base64')
+  }catch(error){
+  console.log("TCL: getBase64 -> error", error)
+  }
+}
 
 declare module WAPI {
   const waitNewMessages: (rmCallback: boolean, callback: Function) => void;
@@ -17,6 +31,12 @@ declare module WAPI {
     caption: string
   ) => void;
   const sendFile: (
+    base64: string,
+    to: string,
+    filename: string,
+    caption: string
+  ) => void;
+  const sendVideoAsGif: (
     base64: string,
     to: string,
     filename: string,
@@ -120,27 +140,77 @@ export class Whatsapp {
         }
 
 
-         /**
-          * Sends a file to given chat, with caption or not, using base64. This is exactly the same as sendImage
-          * @param to chat id xxxxx@us.c
-          * @param base64 base64 data:image/xxx;base64,xxx
-          * @param filename string xxxxx
-          * @param caption string xxxxx
-          */
-         public async sendFile(
-          to: string,
-          base64: string,
-          filename: string,
-          caption: string
-        ) {
-          return await this.page.evaluate(
-            ({ to, base64, filename, caption }) => {
-              WAPI.sendImage(base64, to, filename, caption);
-            },
-            { to, base64, filename, caption }
-          );
-        }
+        /**
+         * Sends a file to given chat, with caption or not, using base64. This is exactly the same as sendImage
+         * @param to chat id xxxxx@us.c
+         * @param base64 base64 data:image/xxx;base64,xxx
+         * @param filename string xxxxx
+         * @param caption string xxxxx
+         */
+        public async sendFile(
+         to: string,
+         base64: string,
+         filename: string,
+         caption: string
+       ) {
+         return await this.page.evaluate(
+           ({ to, base64, filename, caption }) => {
+             WAPI.sendImage(base64, to, filename, caption);
+           },
+           { to, base64, filename, caption }
+         );
+       }
 
+
+       /**
+        * Sends a video to given chat as a gif, with caption or not, using base64
+        * @param to chat id xxxxx@us.c
+        * @param base64 base64 data:video/xxx;base64,xxx
+        * @param filename string xxxxx
+        * @param caption string xxxxx
+        */
+       public async sendVideoAsGif(
+        to: string,
+        base64: string,
+        filename: string,
+        caption: string
+      ) {
+        return await this.page.evaluate(
+          ({ to, base64, filename, caption }) => {
+            WAPI.sendVideoAsGif(base64, to, filename, caption);
+          },
+          { to, base64, filename, caption }
+        );
+      }
+
+       /**
+        * Sends a video to given chat as a gif by using a giphy link, with caption or not, using base64
+        * @param to chat id xxxxx@us.c
+        * @param giphyMediaUrl string https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif => https://i.giphy.com/media/oYtVHSxngR3lC/200w.mp4
+        * @param caption string xxxxx
+        */
+       public async sendGiphy(
+        to: string,
+        giphyMediaUrl: string,
+        caption: string
+      ) {
+    var ue = /^https?:\/\/media\.giphy\.com\/media\/([a-zA-Z0-9]+)/
+    var n = ue.exec(giphyMediaUrl);
+    if (n) {
+        const r = `https://i.giphy.com/${n[1]}.mp4`;
+        const filename = `${n[1]}.mp4`
+        const base64 = await getBase64(r);
+        return await this.page.evaluate(
+        ({ to, base64, filename, caption }) => {
+          WAPI.sendVideoAsGif(base64, to, filename, caption);
+        },
+        { to, base64, filename, caption }
+      );
+    } else {
+      console.log('something is wrong with this giphy link');
+      return;
+    }
+      }
 
         /**
          * Sends contact card to given chat id

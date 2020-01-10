@@ -6,22 +6,22 @@ const mime = require('mime-types');
 const fs = require('fs');
 
 ev.on('qr.**', async (qrcode,sessionId) => {
-  console.log("TCL: qrcode", qrcode)
-      console.log("TCL: qrcode,sessioId", qrcode,sessionId)
+  // console.log("TCL: qrcode", qrcode)
+  //     console.log("TCL: qrcode,sessioId", qrcode,sessionId)
   //base64 encoded qr code image
   const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
   fs.writeFileSync(`qr_code${sessionId?'_'+sessionId:''}.png`, imageBuffer);
 });
 
 async function start(client: Whatsapp) {
-  const chats = await client.getAllChatsWithMessages(false);
-  console.log("TCL: start -> chats", chats)
-  console.log("TCL: getAllChatsWithMessages ->", chats.length, chats[0]);
-  console.log("TCL: start ->chats", chats[0].msgs);
+  // const chats = await client.getAllChatsWithMessages(false);
+  // console.log("TCL: start -> chats", chats)
+  // console.log("TCL: getAllChatsWithMessages ->", chats.length, chats[0]);
+  // console.log("TCL: start ->chats", chats[0].msgs);
 
-  const newMessages = await client.getAllUnreadMessages();
-  console.log("TCL: start -> newMessages", newMessages)
-  console.log("TCL: getAllNewMessages ->", newMessages.length, newMessages[0]);
+  // const newMessages = await client.getAllUnreadMessages();
+  // console.log("TCL: start -> newMessages", newMessages)
+  // console.log("TCL: getAllNewMessages ->", newMessages.length, newMessages[0]);
 
 
   client.onMessage(async message => {
@@ -49,6 +49,7 @@ async function start(client: Whatsapp) {
       await client.sendLocation(message.from, `${message.lat}`, `${message.lng}`, `Youre are at ${message.loc}`)
     } else {
       await client.sendText(message.from, message.body);
+      await client.sendGiphy(message.from,'https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif','Oh my god it works');
     }
     } catch (error) {
     console.log("TCL: start -> error", error)
@@ -65,7 +66,7 @@ create('session',{
 }).then(client => start(client));
 
 //or you can set a 'session id'
-create('newsession').then(client => start(client));
+// create('newsession').then(client => start(client));
 
 //DO NOT HAVE TO SESSIONS WITH THE SAME ID
 
