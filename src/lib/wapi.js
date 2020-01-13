@@ -71,6 +71,12 @@ if (!window.Store) {
     })();
 }
 window.Store.beta = webpackJsonp([], null, ["cgddafdgie"]);
+window.Store.Catalog = webpackJsonp([], null, ["ejegihaeh"]);
+// window.Store.superman = webpackJsonp([], null, ["ehfgacedb"]);
+// window.Store.sm = webpackJsonp([], null, ["jjgaeci"]);
+
+
+
 window.WAPI = {
     lastRead: {}
 };
@@ -1266,6 +1272,69 @@ window.WAPI.sendVideoAsGif = function (imgBase64, chatid, filename, caption, don
     });
 }
 
+
+/**
+ * Find any product listings of the given number. Use this to query a catalog
+ *
+ * @param id id of buseinss profile (i.e the number with @c.us)
+ * @param done Optional callback function for async execution
+ * @returns None
+ */
+window.WAPI.getBusinessProfilesProducts = function (id, done) {
+    Store.Catalog.default._find(id).then(resp => {
+        if(resp._products && resp._products.length) 
+        return resp.productCollection._models;
+        done();
+    })
+};
+
+/**
+ * Sends product with image to chat
+ * @param imgBase64 Base64 image data
+ * @param chatid string the id of the chat that you want to send this product to
+ * @param caption string the caption you want to add to this message
+ * @param bizNumber string the @c.us number of the business account from which you want to grab the product
+ * @param productId string the id of the product within the main catalog of the aforementioned business
+ * @param done - function - Callback function to be called contained the buffered messages.
+ * @returns {Array}
+ */
+window.WAPI.sendImageWithProduct = function (imgBase64,chatid,caption,bizNumber,productId,done) {
+    Store.Catalog.default.findCarouselCatalog(bizNumber).then(cat=>{
+        if(cat&&cat[0]){
+            const product =cat[0].productCollection.get(productId);
+            const temp = {
+                productMsgOptions:   {
+                    businessOwnerJid: product.catalogWid.toString({
+                        legacy: !0
+                    }),
+                    productId: product.id.toString(),
+                    url: product.url,
+                    productImageCount: product.productImageCollection.length,
+                    title: product.name,
+                    description: product.description,
+                    currencyCode: product.currency,
+                    priceAmount1000: product.priceAmount1000,
+                    type: "product"
+                    },
+                caption
+            }
+
+            var idUser = new window.Store.UserConstructor(chatid, { intentionallyUsePrivateConstructor: true });
+
+    return Store.Chat.find(idUser).then((chat) => {
+        var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
+        var mc = new Store.MediaCollection();
+        mc.processFiles([mediaBlob], chat, 1).then(() => {
+            var media = mc.models[0];
+            Object.entries(temp.productMsgOptions).map(([k,v])=>media.mediaPrep._mediaData[k]=v)
+            media.mediaPrep.sendToChat(chat, temp);
+            if (done !== undefined) done(true);
+        });
+    });
+        }
+    })
+}
+
 window.WAPI.base64ImageToFile = function (b64Data, filename) {
     var arr = b64Data.split(',');
     var mime = arr[0].match(/:(.*?);/)[1];
@@ -1357,7 +1426,6 @@ window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
     Object.assign(tempMsg, extend);
     await Store.beta.addAndSendMsgToChat(chat, tempMsg)
 };
-
 
 /**
  * Send Payment Request
