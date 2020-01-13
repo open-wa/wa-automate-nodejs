@@ -38,6 +38,19 @@ async function start(client: Whatsapp) {
         filename,
         `You just sent me this ${message.type}`
       );
+
+
+      //get this numbers products
+      const products = await client.getBusinessProfilesProducts(message.to);
+
+      //send a product from this number to that number
+      await client.sendImageWithProduct(
+        `data:${message.mimetype};base64,${mediaData.toString('base64')}`,
+        message.from,
+        'check out this product',
+        message.to,
+        products[0].id)
+
       fs.writeFile(filename, mediaData, function(err) {
         if (err) {
           return console.log(err);
@@ -49,6 +62,7 @@ async function start(client: Whatsapp) {
       await client.sendLocation(message.from, `${message.lat}`, `${message.lng}`, `Youre are at ${message.loc}`)
     } else {
       await client.sendText(message.from, message.body);
+      //send a giphy gif
       await client.sendGiphy(message.from,'https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif','Oh my god it works');
     }
     } catch (error) {

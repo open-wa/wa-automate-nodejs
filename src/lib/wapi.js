@@ -1303,7 +1303,7 @@ window.WAPI.getBusinessProfilesProducts = function (id, done) {
  * @param bizNumber string the @c.us number of the business account from which you want to grab the product
  * @param productId string the id of the product within the main catalog of the aforementioned business
  * @param done - function - Callback function to be called contained the buffered messages.
- * @returns {Array}
+ * @returns 
  */
 window.WAPI.sendImageWithProduct = function (imgBase64,chatid,caption,bizNumber,productId,done) {
     Store.Catalog.default.findCarouselCatalog(bizNumber).then(cat=>{
