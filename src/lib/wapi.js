@@ -74,6 +74,10 @@ window.Store.beta = webpackJsonp([], null, ["cgddafdgie"]);
 window.Store.Catalog = webpackJsonp([], null, ["ejegihaeh"]);
 // window.Store.superman = webpackJsonp([], null, ["ehfgacedb"]);
 // window.Store.sm = webpackJsonp([], null, ["jjgaeci"]);
+// window.Store.a = webpackJsonp([], null, ["bhgfchijhg"]);
+// window.Store.b = webpackJsonp([], null, ["cfegjiegcd"]);
+// window.Store.c = webpackJsonp([], null, ["cjcghajbag"]);
+// window.Store.d = webpackJsonp([], null, ["dbdfbgehgj"]);
 
 
 
@@ -1281,10 +1285,13 @@ window.WAPI.sendVideoAsGif = function (imgBase64, chatid, filename, caption, don
  * @returns None
  */
 window.WAPI.getBusinessProfilesProducts = function (id, done) {
-    Store.Catalog.default._find(id).then(resp => {
-        if(resp._products && resp._products.length) 
-        return resp.productCollection._models;
+    return Store.Catalog.default.find(id).then(resp => {
+        if(resp.msgProductCollection && resp.msgProductCollection._models.length) 
         done();
+        return resp.productCollection._models;
+    }).catch(error=>{
+        done();
+        return error.model._products;
     })
 };
 
