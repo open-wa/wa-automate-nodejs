@@ -136,19 +136,22 @@ create().then(client => start(client));
 
 If you intend to use video via sulla-hotfix, you need to use a chrome instance with puppeteer instead of the default chromium instance. This is becase chromium does not have any relevant video codecs needed for new whatsapp web video sending features.
 
-You will need to make sure that you have a valid chrome instance on your machine then use the following to tell puppeteer where it can find your chrome isntance. The below demo is an example for mac.
+You will need to make sure that you have a valid chrome instance on your machine then use the following to tell puppeteer where it can find your chrome isntance. The below demo is an example for mac & windows. For linux based hosts, you can find the chrome path with ```whereis google-chrome```, it should be something like ```/usr/bin/google-chrome```
 
 ```javascript
 
 create('session',{
+  // For Mac:
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  // For Windows:
+  // executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
 }).then(client => start(client));
 
 ```
 
 ## Sending Gifs
 
-Extending the functionality of sending videos, version 1.4.0 brings with it the ability to send GIFs!!!! This was super annoying to figure out, as I was sent on a wild goose chase but it turned out that the answer was just 2 simple lines.
+Extending the functionality of sending videos, version 1.4.2 brings with it the ability to send GIFs!!!! This was super annoying to figure out, as I was sent on a wild goose chase but it turned out that the answer was just 2 simple lines.
 
 There are two ways to send GIFs - by Video or by giphy link.
 
@@ -166,8 +169,12 @@ function start(client: Whatsapp) {
 await client.sendVideoAsGif('xyz@c.us',[BASE64 Video FILE DATA],'some file.mp4', `Hello this is the caption`);
 }
 
+///IMPORTANT! Please make sure to point to your chrome installation and make sure your host has ffmpeg support
 create('session',{
+  // For Mac:
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  // For Windows:
+  // executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
 }).then(client => start(client));
 
 ```
