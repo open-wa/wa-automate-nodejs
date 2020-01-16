@@ -44,12 +44,12 @@ export const isInsideChat = (waPage: puppeteer.Page) => {
 
 export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string) {
   spinner.start('Loading QR');
-  await waPage.waitForSelector("img[alt='Scan me!']", { timeout: 0 });
+  await waPage.waitForSelector("canvas[aria-label='Scan me!']", { timeout: 0 });
   const qrData = await waPage.evaluate(
-    `document.querySelector("img[alt='Scan me!']").parentElement.getAttribute("data-ref")`
+    `document.querySelector("canvas[aria-label='Scan me!']").parentElement.getAttribute("data-ref")`
   );
   const qrCode = await waPage.evaluate(
-    `document.querySelector("img[alt='Scan me!']").getAttribute("src")`
+    `document.querySelector("canvas[aria-label='Scan me!']").getAttribute("src")`
   );
   spinner.succeed();
   ev.emit(`qr${sessionId?`.${sessionId}`:``}`, qrCode, sessionId);
