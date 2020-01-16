@@ -268,6 +268,14 @@ Here's how you do it.
 client.onAck((msg:any) => console.log(msg.id.toString(),msg.body,msg.ack))
 ```
 
+ack represents the acknoledgement state, of which there are 3.
+
+1 => Message Sent (1 tick)
+2 => Message Received by Recipient (2 ticks)
+3 => Message Read Receipt Confirmed (2 blue ticks)
+
+Note: You won't get 3 if the recipient has read receipts off.
+
 ## Managing multiple sessions at once
 
 With v1.2.4, you can now run multiple sessions of sulla-hotfix in the same 'app'. This allows you to do interesting things for example:
