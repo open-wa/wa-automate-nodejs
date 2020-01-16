@@ -4,6 +4,9 @@
 import { create, Whatsapp, decryptMedia, ev } from '../src/index';
 const mime = require('mime-types');
 const fs = require('fs');
+// const uaOverride = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36';
+const uaOverride = 'WhatsApp/2.16.352 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Safari/605.1.15';
+
 
 ev.on('qr.**', async (qrcode,sessionId) => {
   // console.log("TCL: qrcode", qrcode)
@@ -30,7 +33,7 @@ async function start(client: Whatsapp) {
     console.log("TCL: start -> isConnected", isConnected)
     if (message.mimetype) {
       const filename = `${message.t}.${mime.extension(message.mimetype)}`;
-      const mediaData = await decryptMedia(message);
+      const mediaData = await decryptMedia(message, uaOverride);
       // you can send a file also with sendImage or await client.sendFile
       await client.sendImage(
         message.from,
@@ -41,16 +44,19 @@ async function start(client: Whatsapp) {
 
 
       //get this numbers products
-      const products = await client.getBusinessProfilesProducts(message.to);
+      // const products = await client.getBusinessProfilesProducts(message.to);
 
-      //send a product from this number to that number
-      await client.sendImageWithProduct(
-        `data:${message.mimetype};base64,${mediaData.toString('base64')}`,
-        message.from,
-        'check out this product',
-        message.to,
-        products[0].id)
+      // //send a product from this number to that number
+      //  await client.sendImageWithProduct(
+      //   `data:${message.mimetype};base64,${mediaData.toString('base64')}`,
+      //   message.from,
+      //   'check out this product',
+      //   message.to,
+      //   products[0].id)
 
+        // await client.forwardMessages(message.from,message,false);
+
+        await client.forwardMessages(message.from,message,false);
       fs.writeFile(filename, mediaData, function(err) {
         if (err) {
           return console.log(err);
@@ -63,6 +69,7 @@ async function start(client: Whatsapp) {
     } else {
       await client.sendText(message.from, message.body);
       //send a giphy gif
+        await client.forwardMessages(message.from,message,false);
       await client.sendGiphy(message.from,'https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif','Oh my god it works');
     }
     } catch (error) {
@@ -82,10 +89,10 @@ async function start(client: Whatsapp) {
  */
 create('session',
 {
-  // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   headless:false
 },
-// 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36'
+uaOverride
 ).then(client => start(client));
 
 //or you can set a 'session id'

@@ -1387,6 +1387,33 @@ window.WAPI.sendContact = function (to, contact) {
     }
 };
 
+
+/**
+ * Forward an array of messages to a specific chat using the message ids or Objects
+ *
+ * @param {string} to '000000000000@c.us'
+ * @param {string|array[Message | string]} messages this can be any mixture of message ids or message objects
+ * @param {boolean} skipMyMessages This indicates whether or not to skip your own messages from the array
+ */
+window.WAPI.forwardMessages = async function (to, messages, skipMyMessages) {
+    if (!Array.isArray(messages)) {
+        messages = [messages];
+    }
+    const finalForwardMessages = messages.map(msg=> {
+        if(typeof msg == 'string'){
+            //msg is string, get the message object
+            return window.Store.Msg.get(msg);
+        } else {
+            console.log("TCL: messages", messages)
+            return window.Store.Msg.get(msg.id);
+        }
+    }).filter(msg => skipMyMessages?!msg.__x_isSentByMe:true);
+
+    // let userId = new window.Store.UserConstructor(to);
+    let conversation = window.Store.Chat.get(to);
+    return await conversation.forwardMessages(finalForwardMessages)
+};
+
 /**
  * Create an chat ID based in a cloned one
  *

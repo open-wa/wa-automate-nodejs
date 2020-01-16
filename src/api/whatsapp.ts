@@ -22,6 +22,7 @@ export const getBase64 = async (url: string) => {
 declare module WAPI {
   const waitNewMessages: (rmCallback: boolean, callback: Function) => void;
   const sendMessage: (to: string, content: string) => void;
+  const forwardMessages: (to: string, messages: string|[string|Message], skipMyMessages:boolean) => any;
   const sendLocation: (to: string, lat: any, lng: any, loc: string) => void;
   const sendSeen: (to: string) => void;
   const sendImage: (
@@ -282,6 +283,23 @@ export class Whatsapp {
     );
   }
 
+
+/**
+ * Forward an array of messages to a specific chat using the message ids or Objects
+ *
+ * @param {string} to '000000000000@c.us'
+ * @param {string|array[Message | string]} messages this can be any mixture of message ids or message objects
+ * @param {boolean} skipMyMessages This indicates whether or not to skip your own messages from the array
+ */
+
+ 
+  public async forwardMessages(to: string, messages: any, skipMyMessages:boolean) {
+    return await this.page.evaluate(
+      ({ to, messages, skipMyMessages }) => WAPI.forwardMessages( to, messages, skipMyMessages),
+      { to, messages, skipMyMessages }
+    );
+  }
+
   /**
    * Retrieves all contacts
    * @returns array of [Contact]
@@ -466,3 +484,5 @@ export class Whatsapp {
     );
   }
 }
+
+export { useragent } from '../config/puppeteer.config'

@@ -2,8 +2,6 @@ import crypto from 'crypto';
 import hkdf from 'futoin-hkdf';
 import atob from 'atob';
 var rp = require('request-promise');
-// import imageType from 'image-type';
-import { useragent } from '../config/puppeteer.config';
 
 const timeout = ms => new Promise(res => setTimeout(res, ms));
 export const mediaTypes = {
@@ -15,14 +13,16 @@ export const mediaTypes = {
   STICKER: 'Image'
 };
 
-export const decryptMedia = async (message: any) => {
+export const decryptMedia = async (message: any, useragentOverride?: string) => {
+  let ua = useragentOverride||'WhatsApp/2.16.352 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36';
+  if (!ua.includes('WhatsApp')) ua = "WhatsApp/2.16.352 "+ua;
   const options = {
     url: message.clientUrl.trim(),
     encoding: null,
     simple: false,
     resolveWithFullResponse: true,
     headers: {
-      'User-Agent': useragent
+      'User-Agent': ua
     }
   };
   let haventGottenImageYet = true;
@@ -63,7 +63,6 @@ const magix = (fileData: any, mediaKeyBase64: any, mediaType: any) => {
   // console.log("decoded:  (" + decoded.length + " bytes)");
   const mediaDataBuffer = Buffer.from(decoded, 'utf-8');
   // const isimg = imageType(imageDataBuffer);
-  // console.log("TCL: isimg", isimg)
   return mediaDataBuffer;
 };
 
