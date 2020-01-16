@@ -74,10 +74,19 @@ async function start(client: Whatsapp) {
 //you can now create two sessions pointing 
 //two the same message handler
 
-//it can be null, which will default to 'session' folder
-create('session',{
-  executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-}).then(client => start(client));
+
+/**
+ * it can be null, which will default to 'session' folder.
+ * You can also override some puppeteer configs, set an executable path for your instance of chrome for ffmpeg (video+GIF) support
+ * and you can AND SHOULD override the user agent.
+ */
+create('session',
+{
+  // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  headless:false
+},
+// 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36'
+).then(client => start(client));
 
 //or you can set a 'session id'
 // create('newsession').then(client => start(client));
