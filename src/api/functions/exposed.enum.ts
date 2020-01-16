@@ -1,3 +1,4 @@
 export enum ExposedFn {
-  OnMessage = 'onMessage'
+  OnMessage = 'onMessage',
+  onAck = 'onAck',
 }

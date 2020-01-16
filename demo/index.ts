@@ -26,7 +26,8 @@ async function start(client: Whatsapp) {
   // console.log("TCL: start -> newMessages", newMessages)
   // console.log("TCL: getAllNewMessages ->", newMessages.length, newMessages[0]);
 
-
+  client.onAck((c:any) => console.log(c.id.toString(),c.body,c.ack))
+  
   client.onMessage(async message => {
     try {
     const isConnected = await client.isConnected();

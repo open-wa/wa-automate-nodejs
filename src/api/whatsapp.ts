@@ -89,6 +89,17 @@ export class Whatsapp {
     );
   }
 
+
+  /**
+   * Listens to messages acknowledgement Changes
+   * @returns Observable stream of messages
+   */
+  public onAck(fn: (message: Message) => void) {
+    this.page.exposeFunction(ExposedFn.onAck, (message: Message) =>
+      fn(message)
+    );
+  }
+
   /**
    * Sends a text message to given chat
    * @param to chat id: xxxxx@us.c
@@ -459,6 +470,12 @@ export class Whatsapp {
    */
   public async getAllNewMessages() {
     return JSON.parse(await this.page.evaluate(() => WAPI.getAllNewMessages()));
+  }
+
+  public setAckCallback(callback:any){
+    return this.page.evaluate(
+      callback => WAPI.setAckCallback(callback),
+      callback)
   }
 
   /**

@@ -33,6 +33,7 @@ if (!window.Store) {
                     if ((typeof first === "object") && (first.exports)) {
                         for (let idx2 in modules[idx]) {
                             let module = modules(idx2);
+                            console.log("TCL: getStore -> module", module)
                             if (!module) {
                                 continue;
                             }
@@ -1239,6 +1240,17 @@ window.WAPI.waitNewMessages = function (rmCallbackAfterUse = true, done) {
     return true;
 };
 
+
+/**
+ * Registers a callback to be called when a the acknowledgement state of a message changes.
+ * @param callback - function - Callback function to be called when a message acknowledgement changes.
+ * @returns {boolean}
+ */
+window.WAPI.waitNewAcknowledgements = function (callback){
+    Store.Msg.on("change:ack", callback);
+    return true;
+}
+
 /**
  * Reads buffered new messages.
  * @param done - function - Callback function to be called contained the buffered messages.
@@ -1404,7 +1416,6 @@ window.WAPI.forwardMessages = async function (to, messages, skipMyMessages) {
             //msg is string, get the message object
             return window.Store.Msg.get(msg);
         } else {
-            console.log("TCL: messages", messages)
             return window.Store.Msg.get(msg.id);
         }
     }).filter(msg => skipMyMessages?!msg.__x_isSentByMe:true);
