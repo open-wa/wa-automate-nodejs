@@ -472,12 +472,6 @@ export class Whatsapp {
     return JSON.parse(await this.page.evaluate(() => WAPI.getAllNewMessages()));
   }
 
-  public setAckCallback(callback:any){
-    return this.page.evaluate(
-      callback => WAPI.setAckCallback(callback),
-      callback)
-  }
-
   /**
    * Retrieves all unread Messages. where ack==-1
    * @returns list of messages
