@@ -56,6 +56,7 @@ function start(client) {
 | 📍 SEND LOCATION!! (beta)         |             | ✅          |
 | Simulated '...typing'             |             | ✅          |
 | Send GIFs!                        |             | ✅          |
+| Forward Messages                  |             | ✅          |
 
 ## Capturing QR Code
 
@@ -232,6 +233,26 @@ await client.simulateTyping('xxxxx@c.us',true)
 
 //stop '...typing'
 await client.simulateTyping('xxxxx@c.us',false)
+```
+
+## Forward Messages
+
+As of version 1.5.1 you can now forward messages. This has been tested on most types of messages.
+
+You need to pass the following params:
+
+- chat to forward messages to : xxxxx@us.c
+- messages: a single or array of message ids or message objects
+- skipMyMessages: true or false, if true it will filter out messages sent by you from the list of messages, default false.
+
+Note: You need to manually turn this off!!!
+
+```javascript
+//forward messages
+await client.forwardMessages('xxxxx@c.us',[...],true)
+
+//forward single message by id
+await client.forwardMessages('xxxxx@c.us,"...",true)
 ```
 
 ## Managing multiple sessions at once
