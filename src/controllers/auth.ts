@@ -49,7 +49,7 @@ export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string) {
     `document.querySelector("canvas[aria-label='Scan me!']").parentElement.getAttribute("data-ref")`
   );
   const qrCode = await waPage.evaluate(
-    `document.querySelector("canvas[aria-label='Scan me!']").getAttribute("src")`
+    `document.querySelector("canvas[aria-label='Scan me!']").toDataURL()`
   );
   spinner.succeed();
   ev.emit(`qr${sessionId?`.${sessionId}`:``}`, qrCode, sessionId);
