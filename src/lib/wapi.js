@@ -1252,6 +1252,30 @@ window.WAPI.waitNewAcknowledgements = function (callback){
 }
 
 /**
+ * Registers a callback to participant changes on a certain, specific group
+ * @param groupId - string - The id of the group that you want to attach the callback to.
+ * @param callback - function - Callback function to be called when a message acknowledgement changes. The callback returns 3 variables
+ * @returns {boolean}
+ */
+window.WAPI.onParticipantsChanged = function (groupId, callback){
+    const chat = window.Store.Chat.get(groupId);
+    chat.on("change:groupMetadata.participants", 
+    _=>chat.on("all",(x,y)=>{
+        const {previewMessage} = y;
+        if(x==="change" && previewMessage && previewMessage.type==="gp2" && (previewMessage.subtype==="add"||previewMessage.subtype==="remove")){
+            const {subtype,from,recipients} = previewMessage;
+            // // previewMessage.from.toString()
+            // x removed y
+            // x added y
+            callback(from.toString(),subtype,recipients[0].toString());
+            chat.off("all")
+        }
+    })
+    )
+    return true;
+}
+
+/**
  * Reads buffered new messages.
  * @param done - function - Callback function to be called contained the buffered messages.
  * @returns {Array}
