@@ -46,18 +46,19 @@ function start(client) {
 | Get group members                 |             | ✅          |
 | Send contact                      |             | ✅          |
 | Get contact detail                |             | ✅          |
-| Send Images (image)               |             | ✅          |
-| Send media (audio, doc, video)    |             | ✅          |
+| [Send Images (image)](#sending-mediafiles)               |             | ✅          |
+| [Send media (audio, doc)](#sending-mediafiles)  |             | ✅          |
+| [Send media (video)](#sending-video)  |             | ✅          |
 | Send stickers                     |             |             |
 | [Decrypt media (image, audio, doc)](#decrypting-media) |             | ✅          |
-| Capturing QR Code                 |             | ✅          |
-| Multiple Sessions                 |             | ✅          |
-| Last seen & isOnline (beta)       |             | ✅          |
-| 📍 SEND LOCATION!! (beta)         |             | ✅          |
-| Simulated '...typing'             |             | ✅          |
-| Send GIFs!                        |             | ✅          |
-| Forward Messages                  |             | ✅          |
-| Listen to Read Receipts           |             | ✅          |
+| [Capturing QR Code](#capturing-qr-code)                 |             | ✅          |
+| [Multiple Sessions](#managing-multiple-sessions-at-once)                 |             | ✅          |
+| [Last seen & isOnline (beta)]      |             | ✅          |
+| [📍 SEND LOCATION!! (beta)](#sending-location)         |             | ✅          |
+| [Simulated '...typing'](#simulate-typing)             |             | ✅          |
+| [Send GIFs!](#sending-gifs)                       |             | ✅          |
+| [Forward Messages](#sending-gifs)                  |             | ✅          |
+| [Listen to Read Receipts](#sending-gifs)           |             | ✅          |
 | [Group participant changes](#group-participant-changes)         |             | ✅          |
 
 ## Capturing QR Code
@@ -264,7 +265,7 @@ As of version 1.5.6 you can now listen in on changes to group participants. You 
 ```javascript
 client.onParticipantsChanged("XXXXXXXX-YYYYYYYY@g.us", (participantChangedEvent:any) => console.log("participant changed for group", participantChangedEvent));
 
-//returns
+//participantChangedEvent returns
 {
   by: 'XXXXXXXXXXX@c.us', //who performed the action
   action: 'remove',
