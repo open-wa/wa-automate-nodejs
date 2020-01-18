@@ -25,7 +25,9 @@ if (!window.Store) {
                 { id: "UserConstructor", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.isServer && module.default.prototype.isUser) ? module.default : null },
                 { id: "SendTextMsgToChat", conditions: (module) => (module.sendTextMsgToChat) ? module.sendTextMsgToChat : null },
                 { id: "SendSeen", conditions: (module) => (module.sendSeen) ? module.sendSeen : null },
-                { id: "sendDelete", conditions: (module) => (module.sendDelete) ? module.sendDelete : null }
+                { id: "sendDelete", conditions: (module) => (module.sendDelete) ? module.sendDelete : null },
+                { id: "addAndSendMsgToChat", conditions: (module) => (module.addAndSendMsgToChat) ? module.addAndSendMsgToChat : null },
+                { id: "Catalog", conditions: (module) => (module.Catalog) ? module.Catalog : null }
             ];
             for (let idx in modules) {
                 if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
@@ -33,7 +35,7 @@ if (!window.Store) {
                     if ((typeof first === "object") && (first.exports)) {
                         for (let idx2 in modules[idx]) {
                             let module = modules(idx2);
-                            console.log("TCL: getStore -> module", module)
+                            console.log("TCL: getStore -> module", module?module.default||module:"")
                             if (!module) {
                                 continue;
                             }
@@ -71,8 +73,6 @@ if (!window.Store) {
         webpackJsonp([], { 'parasite': (x, y, z) => getStore(z) }, ['parasite']);
     })();
 }
-window.Store.beta = webpackJsonp([], null, ["cgddafdgie"]);
-window.Store.Catalog = webpackJsonp([], null, ["ejegihaeh"]);
 // window.Store.superman = webpackJsonp([], null, ["ehfgacedb"]);
 // window.Store.sm = webpackJsonp([], null, ["jjgaeci"]);
 // window.Store.a = webpackJsonp([], null, ["bhgfchijhg"]);
@@ -90,7 +90,6 @@ window.Store.Catalog = webpackJsonp([], null, ["ejegihaeh"]);
  * Store.K.default.run()
  * ...maybe this should be the default thing that is run as soon as sulla is started 
  */
-
 
 window.WAPI = {
     lastRead: {}
@@ -1257,18 +1256,47 @@ window.WAPI.waitNewAcknowledgements = function (callback){
  * @param callback - function - Callback function to be called when a message acknowledgement changes. The callback returns 3 variables
  * @returns {boolean}
  */
+let groupParticpiantsEvents = {};
 window.WAPI.onParticipantsChanged = function (groupId, callback){
     const chat = window.Store.Chat.get(groupId);
+    //attach all group Participants to the events object as 'add'
+    const metadata = window.Store.GroupMetadata.get(groupId);
+    if(!groupParticpiantsEvents[groupId]) {
+        groupParticpiantsEvents[groupId] = {};
+        metadata.participants.forEach(participant=> {
+            groupParticpiantsEvents[groupId][participant.id.toString()] = {
+                subtype:"add",
+                from:metadata.owner
+            }
+        });
+        }
+        let i = 0;
     chat.on("change:groupMetadata.participants", 
     _=>chat.on("all",(x,y)=>{
         const {previewMessage} = y;
         if(x==="change" && previewMessage && previewMessage.type==="gp2" && (previewMessage.subtype==="add"||previewMessage.subtype==="remove")){
             const {subtype,from,recipients} = previewMessage;
-            // // previewMessage.from.toString()
-            // x removed y
-            // x added y
-            callback(from.toString(),subtype,recipients[0].toString());
-            chat.off("all")
+            const rec = recipients[0].toString();
+            if(groupParticpiantsEvents[groupId][rec] && groupParticpiantsEvents[groupId][recipients[0]].subtype==subtype) {
+                //ignore, this is a duplicate entry
+                // console.log('duplicate event')
+            } else {
+                //ignore the first message
+                if(i==0){
+                    //ignore it, plus 1,
+                    i++;
+                } else {
+
+                    groupParticpiantsEvents[groupId][rec] = {subtype,from};
+                    //fire the callback
+                    // // previewMessage.from.toString()
+                    // x removed y
+                    // x added y
+                    callback(from.toString(),subtype,rec);
+                    chat.off("all",this)
+                    i=0;
+                }
+            }
         }
     })
     )
@@ -1331,7 +1359,7 @@ window.WAPI.sendVideoAsGif = function (imgBase64, chatid, filename, caption, don
  * @returns None
  */
 window.WAPI.getBusinessProfilesProducts = function (id, done) {
-    return Store.Catalog.default.find(id).then(resp => {
+    return Store.Catalog.find(id).then(resp => {
         if(resp.msgProductCollection && resp.msgProductCollection._models.length) 
         done();
         return resp.productCollection._models;
@@ -1352,7 +1380,7 @@ window.WAPI.getBusinessProfilesProducts = function (id, done) {
  * @returns 
  */
 window.WAPI.sendImageWithProduct = function (imgBase64,chatid,caption,bizNumber,productId,done) {
-    Store.Catalog.default.findCarouselCatalog(bizNumber).then(cat=>{
+    Store.Catalog.findCarouselCatalog(bizNumber).then(cat=>{
         if(cat&&cat[0]){
             const product =cat[0].productCollection.get(productId);
             const temp = {
@@ -1503,7 +1531,7 @@ window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
         loc
     };
     Object.assign(tempMsg, extend);
-    await Store.beta.addAndSendMsgToChat(chat, tempMsg)
+    await Store.addAndSendMsgToChat(chat, tempMsg)
 };
 
 /**
@@ -1535,7 +1563,7 @@ window.WAPI.sendPaymentRequest = async function (chatId, amount1000, currency, n
         expiryTimestamp: parseInt(new Date(new Date().setDate(new Date().getDate() + 1)).getTime() / 1000)
     };
     Object.assign(tempMsg, extend);
-    await Store.beta.addAndSendMsgToChat(chat, tempMsg)
+    await Store.addAndSendMsgToChat(chat, tempMsg)
 };
 
 
@@ -1580,7 +1608,7 @@ window.WAPI.sendVCard = function (chatId, vcard) {
 
     Object.assign(tempMsg, extend);
 
-    Store.beta.addAndSendMsgToChat(chat, tempMsg)
+    Store.addAndSendMsgToChat(chat, tempMsg)
 };
 /**
  * Block contact 
