@@ -4,7 +4,6 @@
 import { create, Whatsapp, decryptMedia, ev } from '../src/index';
 const mime = require('mime-types');
 const fs = require('fs');
-// const uaOverride = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36';
 const uaOverride = 'WhatsApp/2.16.352 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Safari/605.1.15';
 
 
@@ -26,7 +25,9 @@ async function start(client: Whatsapp) {
   // console.log("TCL: start -> newMessages", newMessages)
   // console.log("TCL: getAllNewMessages ->", newMessages.length, newMessages[0]);
 
-  client.onAck((c:any) => console.log(c.id.toString(),c.body,c.ack))
+  client.onAck((c:any) => console.log(c.id.toString(),c.body,c.ack));
+
+  // client.onParticipantsChanged("XXXXXXXX-YYYYYYYY@g.us", (participantChangedEvent:any) => console.log("participant changed for group", participantChangedEvent));
   
   client.onMessage(async message => {
     try {

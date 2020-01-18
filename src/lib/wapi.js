@@ -1273,8 +1273,8 @@ window.WAPI.onParticipantsChanged = function (groupId, callback){
         let i = 0;
     chat.on("change:groupMetadata.participants", 
     _=>chat.on("all",(x,y)=>{
-        const {previewMessage} = y;
-        if(x==="change" && previewMessage && previewMessage.type==="gp2" && (previewMessage.subtype==="add"||previewMessage.subtype==="remove")){
+        const {isGroup,previewMessage} = y;
+        if(isGroup&&x==="change" && previewMessage && previewMessage.type==="gp2" && (previewMessage.subtype==="add"||previewMessage.subtype==="remove")){
             const {subtype,from,recipients} = previewMessage;
             const rec = recipients[0].toString();
             if(groupParticpiantsEvents[groupId][rec] && groupParticpiantsEvents[groupId][recipients[0]].subtype==subtype) {
@@ -1286,13 +1286,16 @@ window.WAPI.onParticipantsChanged = function (groupId, callback){
                     //ignore it, plus 1,
                     i++;
                 } else {
-
                     groupParticpiantsEvents[groupId][rec] = {subtype,from};
                     //fire the callback
                     // // previewMessage.from.toString()
                     // x removed y
                     // x added y
-                    callback(from.toString(),subtype,rec);
+                    callback({
+                        by: from.toString(),
+                        action:subtype,
+                        who: recipients
+                    });
                     chat.off("all",this)
                     i=0;
                 }

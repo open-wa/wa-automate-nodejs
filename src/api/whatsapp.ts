@@ -5,6 +5,7 @@ import { Contact } from './model/contact';
 import { Message } from './model/message';
 import { Id } from './model/id';
 import axios from 'axios';
+import { participantChangedEventModel } from './model/group-metadata';
 
 export const getBase64 = async (url: string) => {
   try {
@@ -21,8 +22,9 @@ export const getBase64 = async (url: string) => {
 
 declare module WAPI {
   const waitNewMessages: (rmCallback: boolean, callback: Function) => void;
+  const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const sendMessage: (to: string, content: string) => void;
-  const forwardMessages: (to: string, messages: string|[string|Message], skipMyMessages:boolean) => any;
+  const forwardMessages: (to: string, messages: string | [string | Message], skipMyMessages: boolean) => any;
   const sendLocation: (to: string, lat: any, lng: any, loc: string) => void;
   const sendSeen: (to: string) => void;
   const sendImage: (
@@ -32,7 +34,7 @@ declare module WAPI {
     caption: string
   ) => void;
   const getBusinessProfilesProducts: (to: string) => any;
-  const sendImageWithProduct: (base64:string, to:string, caption:string,bizNumber:string,productId:string)=>any;
+  const sendImageWithProduct: (base64: string, to: string, caption: string, bizNumber: string, productId: string) => any;
   const sendFile: (
     base64: string,
     to: string,
@@ -98,6 +100,25 @@ export class Whatsapp {
     this.page.exposeFunction(ExposedFn.onAck, (message: Message) =>
       fn(message)
     );
+  }
+
+  /**
+   * Listens to add and remove evevnts on Groups
+   * @param to group id: xxxxx-yyyy@us.c
+   * @param to callback
+   * @returns Observable stream of participantChangedEvent
+   */
+  public onParticipantsChanged(groupId: string, fn: (participantChangedEvent: participantChangedEventModel) => void) {
+    const funcName = "onParticipantsChanged_"+ groupId.replace('_',"").replace('_',"");
+    return this.page.exposeFunction(funcName, (participantChangedEvent: participantChangedEventModel) =>
+      fn(participantChangedEvent)
+    )
+    .then(_ => this.page.evaluate(
+      ({ groupId }) => {
+        WAPI.onParticipantsChanged(groupId, window[funcName]);
+      },
+      { groupId }
+    ));
   }
 
   /**
@@ -228,13 +249,13 @@ export class Whatsapp {
 
 
 
-/**
- * Find any product listings of the given number. Use this to query a catalog
- *
- * @param id id of buseinss profile (i.e the number with @c.us)
- * @param done Optional callback function for async execution
- * @returns None
- */
+  /**
+   * Find any product listings of the given number. Use this to query a catalog
+   *
+   * @param id id of buseinss profile (i.e the number with @c.us)
+   * @param done Optional callback function for async execution
+   * @returns None
+   */
   public async getBusinessProfilesProducts(id: string) {
     return await this.page.evaluate(
       ({ id }) => {
@@ -244,28 +265,28 @@ export class Whatsapp {
     );
   }
 
-/**
- * Sends product with image to chat
- * @param imgBase64 Base64 image data
- * @param chatid string the id of the chat that you want to send this product to
- * @param caption string the caption you want to add to this message
- * @param bizNumber string the @c.us number of the business account from which you want to grab the product
- * @param productId string the id of the product within the main catalog of the aforementioned business
- * @param done - function - Callback function to be called contained the buffered messages.
- * @returns 
- */
+  /**
+   * Sends product with image to chat
+   * @param imgBase64 Base64 image data
+   * @param chatid string the id of the chat that you want to send this product to
+   * @param caption string the caption you want to add to this message
+   * @param bizNumber string the @c.us number of the business account from which you want to grab the product
+   * @param productId string the id of the product within the main catalog of the aforementioned business
+   * @param done - function - Callback function to be called contained the buffered messages.
+   * @returns 
+   */
   public async sendImageWithProduct(
     to: string,
     base64: string,
     caption: string,
     bizNumber: string,
-    productId:string
+    productId: string
   ) {
     return await this.page.evaluate(
-      ({ to, base64, bizNumber, caption ,productId}) => {
-        WAPI.sendImageWithProduct(base64, to, caption,bizNumber,productId);
+      ({ to, base64, bizNumber, caption, productId }) => {
+        WAPI.sendImageWithProduct(base64, to, caption, bizNumber, productId);
       },
-      { to, base64, bizNumber, caption ,productId}
+      { to, base64, bizNumber, caption, productId }
     );
   }
 
@@ -295,18 +316,18 @@ export class Whatsapp {
   }
 
 
-/**
- * Forward an array of messages to a specific chat using the message ids or Objects
- *
- * @param {string} to '000000000000@c.us'
- * @param {string|array[Message | string]} messages this can be any mixture of message ids or message objects
- * @param {boolean} skipMyMessages This indicates whether or not to skip your own messages from the array
- */
+  /**
+   * Forward an array of messages to a specific chat using the message ids or Objects
+   *
+   * @param {string} to '000000000000@c.us'
+   * @param {string|array[Message | string]} messages this can be any mixture of message ids or message objects
+   * @param {boolean} skipMyMessages This indicates whether or not to skip your own messages from the array
+   */
 
- 
-  public async forwardMessages(to: string, messages: any, skipMyMessages:boolean) {
+
+  public async forwardMessages(to: string, messages: any, skipMyMessages: boolean) {
     return await this.page.evaluate(
-      ({ to, messages, skipMyMessages }) => WAPI.forwardMessages( to, messages, skipMyMessages),
+      ({ to, messages, skipMyMessages }) => WAPI.forwardMessages(to, messages, skipMyMessages),
       { to, messages, skipMyMessages }
     );
   }

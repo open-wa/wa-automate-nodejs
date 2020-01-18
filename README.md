@@ -49,7 +49,7 @@ function start(client) {
 | Send Images (image)               |             | ✅          |
 | Send media (audio, doc, video)    |             | ✅          |
 | Send stickers                     |             |             |
-| Decrypt media (image, audio, doc) |             | ✅          |
+| [Decrypt media (image, audio, doc)](#decrypting-media) |             | ✅          |
 | Capturing QR Code                 |             | ✅          |
 | Multiple Sessions                 |             | ✅          |
 | Last seen & isOnline (beta)       |             | ✅          |
@@ -58,6 +58,7 @@ function start(client) {
 | Send GIFs!                        |             | ✅          |
 | Forward Messages                  |             | ✅          |
 | Listen to Read Receipts           |             | ✅          |
+| [Group participant changes](#group-participant-changes)         |             | ✅          |
 
 ## Capturing QR Code
 
@@ -256,6 +257,23 @@ await client.forwardMessages('xxxxx@c.us',[...],true)
 await client.forwardMessages('xxxxx@c.us,"...",true)
 ```
 
+## Group participant changes
+
+As of version 1.5.6 you can now listen in on changes to group participants. You can react to when participants are added and removed.
+
+```javascript
+client.onParticipantsChanged("XXXXXXXX-YYYYYYYY@g.us", (participantChangedEvent:any) => console.log("participant changed for group", participantChangedEvent));
+
+//returns
+{
+  by: 'XXXXXXXXXXX@c.us', //who performed the action
+  action: 'remove',
+  who: [ 'XXXXXXXXX@c.us' ] //all the numbers the action effects.
+}
+```
+
+This solution can result in some false positives and misfires however a lot of effort has been made to mitigate this to a reasonable level. Best practice is to maintian a seperate registry of participants and go from that.
+
 ## Listen to Read Receipts
 
 As of version 1.5.3 you can now listen in on the read state (or technically acknowledgement state) of the messages. As of writing the limitation is presumed to be on sent messages.
@@ -270,9 +288,13 @@ client.onAck((msg:any) => console.log(msg.id.toString(),msg.body,msg.ack))
 
 ack represents the acknoledgement state, of which there are 3.
 
+```javascript
 1 => Message Sent (1 tick)
+
 2 => Message Received by Recipient (2 ticks)
+
 3 => Message Read Receipt Confirmed (2 blue ticks)
+```
 
 Note: You won't get 3 if the recipient has read receipts off.
 

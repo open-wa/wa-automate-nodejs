@@ -11,3 +11,15 @@ export interface GroupMetadata {
   participants: any[];
   pendingParticipants: any[];
 }
+
+export enum groupChangeEvent {
+  remove = 'remove',
+  add = 'add'
+}
+
+
+export interface participantChangedEventModel {
+  by: Id,
+  action: groupChangeEvent,
+  who: [Id]
+}
