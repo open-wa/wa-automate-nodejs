@@ -8,10 +8,15 @@
 
 declare module WAPI {
   const waitNewMessages: (rmCallback: boolean, callback: Function) => void;
+  const waitNewAcknowledgements: (callback: Function) => void;
 }
 
+
+//THIS SHOULD BE IDENTICAL TO /api/functions/exposed.enum.ts
 enum ExposedFn {
-  OnMessage = 'onMessage'
+  OnMessage = 'onMessage',
+  onAck = 'onAck',
+  onParticipantsChanged = 'onParticipantsChanged',
 }
 
 /**
@@ -22,3 +27,12 @@ WAPI.waitNewMessages(false, data => {
     window[ExposedFn.OnMessage](message);
   });
 });
+
+WAPI.waitNewAcknowledgements(function (data) {
+  if (!Array.isArray(data)) {
+      data = [data];
+  }
+  data.forEach(function (message) {
+      window[ExposedFn.onAck](message);
+  });
+}) 
