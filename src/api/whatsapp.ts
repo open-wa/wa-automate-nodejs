@@ -33,6 +33,13 @@ declare module WAPI {
     filename: string,
     caption: string
   ) => void;
+  const sendMessageWithThumb: (
+    thumb:string,
+    url:string, 
+    title:string, 
+    description:string, 
+    chatId:string
+    ) => void;
   const getBusinessProfilesProducts: (to: string) => any;
   const sendImageWithProduct: (base64: string, to: string, caption: string, bizNumber: string, productId: string) => any;
   const sendFile: (
@@ -133,6 +140,36 @@ export class Whatsapp {
         WAPI.sendMessage(to, content);
       },
       { to, content }
+    );
+  }
+
+  public async sendMessageWithThumb(
+    thumb:string,
+    url:string, 
+    title:string, 
+    description:string, 
+    chatId:string){
+    return await this.page.evaluate(
+      ({ thumb,
+        url,
+        title,
+        description,
+        chatId
+      }) => {
+        WAPI.sendMessageWithThumb(thumb,
+          url,
+          title,
+          description,
+          chatId);
+      },
+      {
+        thumb,
+url,
+title,
+description,
+chatId
+
+      }
     );
   }
 
