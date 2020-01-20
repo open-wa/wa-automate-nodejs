@@ -5,6 +5,7 @@
  * Specifically the [ExposedFn] enum.
  * Maybe by creating a webpack/rollup task
  */
+//THIS SHOULD BE IDENTICAL TO /api/functions/exposed.enum.ts
 var ExposedFn;
 (function (ExposedFn) {
     ExposedFn["OnMessage"] = "onMessage";
