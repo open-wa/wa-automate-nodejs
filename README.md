@@ -122,7 +122,9 @@ It is always preferable to keep projects smaller than needed so you can now use 
 
 You can install that using 
 
-```npm i --save wa-decrypt``
+```bash
+> npm i --save wa-decrypt
+```
 
 and import it like so:
 
