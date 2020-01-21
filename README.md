@@ -118,6 +118,20 @@ function start(client: Whatsapp) {
 create().then(client => start(client));
 ```
 
+It is always preferable to keep projects smaller than needed so you can now use a lightweight library called wa-decrypt for projects that do not need all of sulla-hotfix.
+
+You can install that using 
+
+```npm i --save wa-decrypt``
+
+and import it like so:
+
+```javascript
+import { decryptMedia } from 'wa-decrypt';
+```
+
+[Learn more about wa-decrypt here](https://github.com/smashah/wa-decrypt#readme)
+
 ## Sending Media/Files
 
 Here is a sample of how to send media. This has been tested on images, videos, documents, audio and voice notes.
