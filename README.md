@@ -365,6 +365,8 @@ Why should you use a custom user agent?
 
 Users of these whatsapp injection libraries should use different user agents (preferably copy the one you have one your own pc) because then it makes it harder for whatsapp to break the mecahnism to restart sessions for this library.
 
+Setting up your client in ```headless:false``` mode ensures you can easily visually debug any issues.
+
 Example:
 
 ```javascript
@@ -382,6 +384,60 @@ create().then(client => start(client));
 
 create('session',
 {
+  headless: false
+},
+'some custom user agent')
+.then(client => start(client));
+```
+
+## Best Practice
+
+Since this is not an officially sanctioned solution it is tempermental to say the least. Here are some best practices:
+
+1. Keep the session alive
+2. Offload most work off of your sulla-hotfix setup (i.e forward all events to a pubsub or something)
+3. Keep the phone nearby just in case you need to reauthenticate
+4. Use a chrome instance instead of the default chromium instance
+5. Use headless: false for easy & quick visual debugging
+6. Implement the unread messages functionality on creation of a session so you don't miss any messages upon any downtime.
+7. Implement a [promise-queue](https://github.com/sindresorhus/p-queue)
+8. Use a unique and valid custom user-agent
+
+```javascript
+import { create, Whatsapp} from 'sulla-hotfix';
+const { default: PQueue } = require("p-queue");
+
+const queue = new PQueue({
+  concurrency: 4,
+  autoStart:false
+   });
+
+const processMessage = message => {
+  return queue.add(message=> {
+    ...
+  })
+}
+
+function start(client: Whatsapp) {
+  const unreadMessages = await client.getAllUnreadMessages();
+  unreadMessages.forEach(processMessage)
+  ...
+  client.onMessage(processMessage);
+  queue.start();
+}
+
+create().then(client => start(client));
+
+//1st argument is the session name
+//2nd argument is the puppeteer config override
+//3rd argument is the user agent override
+
+create('session',
+{
+  // For Mac:
+  executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  // For Windows:
+  // executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
   headless: false
 },
 'some custom user agent')
