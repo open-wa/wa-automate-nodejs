@@ -414,6 +414,7 @@ Since this is not an officially sanctioned solution it is tempermental to say th
 6. Implement the unread messages functionality on creation of a session so you don't miss any messages upon any downtime.
 7. Implement a [promise-queue](https://github.com/sindresorhus/p-queue)
 8. Use a unique and valid custom user-agent
+9. ```await``` all sulla-hotfix methods just in case
 
 ```javascript
 import { create, Whatsapp} from 'sulla-hotfix';
