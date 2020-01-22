@@ -136,7 +136,7 @@ import { decryptMedia } from 'wa-decrypt';
 
 ## Issues with decyption
 
-If you are having issues with decryption it may be due to an issue with the user agent being used by the decrypt method.
+If you are having issues with decryption it may be due to the user agent being used by the decrypt method.
 You can remedy this by passing a custom user agent as a second parameter to the decrypt method. Now there is a convenience method on the WhatsApp class to allow you to easily get a compatible user agent shown below. This feature is available in v.1.5.8 and above.
 
 ```javascript
