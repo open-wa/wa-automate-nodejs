@@ -367,6 +367,15 @@ window.WAPI.sendImageFromDatabasePicBot = function (picId, chatId, caption) {
     return true;
 };
 
+window.WAPI.getGeneratedUserAgent = function(useragent) {
+        if(!useragent.includes('WhatsApp')) return 'WhatsApp/0.4.315 ' + useragent;
+        return useragent.replace(useragent.match(/WhatsApp\/([.\d])*/g)[0].match(/[.\d]*/g).find(x=>x),window.Debug.VERSION)
+}
+
+window.WAPI.getWAVersion = function(){
+    return window.DEBUG.VERSION;
+}
+
 window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, chatId, done) {
     var chatSend = WAPI.getChat(chatId);
     if (chatSend === undefined) {

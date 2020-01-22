@@ -6,6 +6,7 @@ import { Message } from './model/message';
 import { Id } from './model/id';
 import axios from 'axios';
 import { participantChangedEventModel } from './model/group-metadata';
+import {useragent} from '../config/puppeteer.config'
 
 export const getBase64 = async (url: string) => {
   try {
@@ -24,6 +25,7 @@ declare module WAPI {
   const waitNewMessages: (rmCallback: boolean, callback: Function) => void;
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const sendMessage: (to: string, content: string) => void;
+  const getGeneratedUserAgent: (userAgent?:string) => string;
   const forwardMessages: (to: string, messages: string | [string | Message], skipMyMessages: boolean) => any;
   const sendLocation: (to: string, lat: any, lng: any, loc: string) => void;
   const sendSeen: (to: string) => void;
@@ -55,6 +57,7 @@ declare module WAPI {
     caption: string
   ) => void;
   const getAllContacts: () => Contact[];
+  const getWAVersion: () => String;
   const getAllUnreadMessages: () => any;
   const getAllChatsWithMessages: (withNewMessageOnly?: boolean) => any;
   const getAllChats: () => any;
@@ -189,6 +192,22 @@ chatId
       { to, lat, lng, loc }
     );
   }
+
+  /**
+   * Get the generated user agent, this is so you can send it to the decryption module.
+   * @returns String useragent of wa-web session
+   */
+  public async getGeneratedUserAgent(userA?:string) {
+    let ua = userA || useragent;
+    return await this.page.evaluate(
+      (ua) => {
+        WAPI.getGeneratedUserAgent(ua);
+      },
+      {ua}
+    );
+  }
+
+
 
   /**
    * Sends a image to given chat, with caption or not, using base64
@@ -375,6 +394,10 @@ chatId
    */
   public async getAllContacts() {
     return await this.page.evaluate(() => WAPI.getAllContacts());
+  }
+
+  public async getWAVersion() {
+    return await this.page.evaluate(() => WAPI.getWAVersion());
   }
 
   /**
