@@ -118,15 +118,6 @@ function start(client: Whatsapp) {
 create().then(client => start(client));
 ```
 
-If you are having issues with decryption it may be due to an issue with the user agent being used by the decrypt method.
-You can remedy this by passing a custom user agent as a second parameter to the decrypt method. Now there is a convenience method on the WhatsApp class to allow you to easily get a compatible user agent shown below. This feature is available in v.1.5.8 and above.
-
-```javascript
-...
-      const generatedUa = await client.getGeneratedUserAgent(); //you can optionally pass your custom user agent in here also getGeneratedUserAgent('...');
-      const mediaData = await decryptMedia(message,generatedUa);
-...
-```
 It is always preferable to keep projects smaller than needed so you can now use a lightweight library called wa-decrypt for projects that do not need all of sulla-hotfix.
 
 You can install that using:
@@ -142,6 +133,18 @@ import { decryptMedia } from 'wa-decrypt';
 ```
 
 [Learn more about wa-decrypt here](https://github.com/smashah/wa-decrypt#readme)
+
+## Issues with decyption
+
+If you are having issues with decryption it may be due to an issue with the user agent being used by the decrypt method.
+You can remedy this by passing a custom user agent as a second parameter to the decrypt method. Now there is a convenience method on the WhatsApp class to allow you to easily get a compatible user agent shown below. This feature is available in v.1.5.8 and above.
+
+```javascript
+...
+      const generatedUa = await client.getGeneratedUserAgent(); //you can optionally pass your custom user agent in here also getGeneratedUserAgent('...');
+      const mediaData = await decryptMedia(message,generatedUa);
+...
+```
 
 ## Sending Media/Files
 
