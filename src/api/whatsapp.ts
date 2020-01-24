@@ -23,6 +23,7 @@ export const getBase64 = async (url: string) => {
 
 declare module WAPI {
   const waitNewMessages: (rmCallback: boolean, callback: Function) => void;
+  const addAllNewMessagesListener: (callback: Function) => void;
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const sendMessage: (to: string, content: string) => void;
   const getGeneratedUserAgent: (userAgent?:string) => string;
@@ -75,12 +76,19 @@ declare module WAPI {
   const simulateTyping: (to: string, on: boolean) => void;
   const isConnected: () => Boolean;
   const loadEarlierMessages: (contactId: string) => Message[];
+  const loadAllEarlierMessages: (contactId: string) => void;
+  const asyncLoadAllEarlierMessages: (contactId: string) => void;
   const getUnreadMessages: (
     includeMe: boolean,
     includeNotifications: boolean,
     use_unread_count: boolean
   ) => any;
   const getAllMessagesInChat: (
+    chatId: string,
+    includeMe: boolean,
+    includeNotifications: boolean,
+  ) => [Message];
+  const loadAndGetAllMessagesInChat: (
     chatId: string,
     includeMe: boolean,
     includeNotifications: boolean,
@@ -139,6 +147,24 @@ export class Whatsapp {
         WAPI.onParticipantsChanged(groupId, window[funcName]);
       },
       { groupId }
+    ));
+  }
+
+  /**
+   * Listens to all new messages
+   * @param to callback
+   * @returns 
+   */
+  public onAnyMessage(fn: (message: Message) => void) {
+    const funcName = "onAnyMessage";
+    return this.page.exposeFunction(funcName,(message: Message) =>
+    fn(message)
+  )
+    .then(_ => this.page.evaluate(
+      () => {
+        WAPI.addAllNewMessagesListener(window[funcName]);
+      },
+      {}
     ));
   }
 
@@ -530,6 +556,30 @@ chatId
   }
 
   /**
+    * Load all messages in chat object from server.
+   * @param contactId
+   * @returns contact detial as promise
+   */
+  public async asyncLoadAllEarlierMessages(contactId: string) {
+    return await this.page.evaluate(
+      contactId => WAPI.asyncLoadAllEarlierMessages(contactId),
+      contactId
+    );
+  }
+
+  /**
+    * Load all messages in chat object from server.
+   * @param contactId
+   * @returns contact detial as promise
+   */
+  public async loadAllEarlierMessages(contactId: string) {
+    return await this.page.evaluate(
+      contactId => WAPI.loadAllEarlierMessages(contactId),
+      contactId
+    );
+  }
+
+  /**
    * Deletes message of given message id
    * @param messageId
    * @returns nothing
@@ -598,6 +648,23 @@ chatId
       { chatId, includeMe, includeNotifications }
     );
   }
+
+  /**
+   * loads and Retrieves all Messages in a chat
+   * @param chatId, the chat to get the messages from
+   * @param includeMe, include my own messages? boolean
+   * @param includeNotifications
+   * @returns any
+   */
+
+  public async loadAndGetAllMessagesInChat(chatId: string, includeMe: boolean, includeNotifications: boolean) {
+    return await this.page.evaluate(
+      ({ chatId, includeMe, includeNotifications }) => WAPI.loadAndGetAllMessagesInChat(chatId, includeMe, includeNotifications),
+      { chatId, includeMe, includeNotifications }
+    );
+  }
+
+
 }
 
 export { useragent } from '../config/puppeteer.config'

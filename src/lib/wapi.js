@@ -499,16 +499,24 @@ window.WAPI.loadEarlierMessages = function (id, done) {
  * @param done Optional callback function for async execution
  * @returns None
  */
-window.WAPI.loadAllEarlierMessages = function (id, done) {
+window.WAPI.loadAllEarlierMessages = async function (id, done) {
     const found = WAPI.getChat(id);
-    x = function () {
-        if (!found.msgs.msgLoadState.noEarlierMsgs) {
-            found.loadEarlierMsgs().then(x);
-        } else if (done) {
-            done();
-        }
-    };
-    x();
+    while(!found.msgs.msgLoadState.noEarlierMsgs) {
+        console.log('loading more messages')
+        await found.loadEarlierMsgs();
+    }
+    console.log('done');
+    return true
+    // x = function () {
+    //     if (!found.msgs.msgLoadState.noEarlierMsgs) {
+    //         console.log('loading more messages')
+    //         found.loadEarlierMsgs().then(x);
+    //     } else if (done) {
+    //         done();
+    //         return true
+    //     }
+    // };
+    // return x();
 };
 
 window.WAPI.asyncLoadAllEarlierMessages = function (id, done) {
@@ -678,6 +686,27 @@ window.WAPI.getAllMessagesInChat = function (id, includeMe, includeNotifications
     }
     if (done !== undefined) done(output);
     return output;
+};
+
+window.WAPI.loadAndGetAllMessagesInChat = function (id, includeMe, includeNotifications, done) {
+    return WAPI.loadAllEarlierMessages(id).then(_=>{
+    const chat = WAPI.getChat(id);
+    let output = [];
+    const messages = chat.msgs._models;
+
+    for (const i in messages) {
+        if (i === "remove") {
+            continue;
+        }
+        const messageObj = messages[i];
+
+        let message = WAPI.processMessageObj(messageObj, includeMe, includeNotifications)
+        if (message)
+            output.push(message);
+    }
+    if (done !== undefined) done(output);
+    return output;
+    })
 };
 
 window.WAPI.getAllMessageIdsInChat = function (id, includeMe, includeNotifications, done) {
@@ -1216,6 +1245,20 @@ window.WAPI._newMessagesListener = window.Store.Msg.on('add', (newMessage) => {
         }
     }
 });
+
+
+window.WAPI.addAllNewMessagesListener = callback => window.Store.Msg.on('add', (newMessage) => {
+    if (newMessage && newMessage.isNewMsg) {
+        let message = window.WAPI.processMessageObj(newMessage, true, false);
+        if (message) {
+            console.log("TCL: message", message)
+            // window.WAPI._newMessagesQueue.push(message);
+            // window.WAPI._newMessagesBuffer.push(message);
+        }
+    }
+});
+
+
 
 window.WAPI._unloadInform = (event) => {
     // Save in the buffer the ungot unreaded messages
