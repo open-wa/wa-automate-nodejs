@@ -235,7 +235,7 @@ As of version 1.3.0 you can now send location!! You can't even do this in normal
 
 You need to pass the following params:
 
-- chat id: xxxxx@us.c
+- chat id: xxxxx@c.us
 - latitude: '51.5074'
 - longitude: '0.1278'
 - location text: 'LONDON!'
@@ -252,7 +252,7 @@ As of version 1.3.1 you can now simulate '...typing'
 
 You need to pass the following params:
 
-- chat id: xxxxx@us.c
+- chat id: xxxxx@c.us
 - on: true or false
 
 Note: You need to manually turn this off!!!
@@ -272,7 +272,7 @@ As of version 1.5.1 you can now forward messages. This has been tested on most t
 
 You need to pass the following params:
 
-- chat to forward messages to : xxxxx@us.c
+- chat to forward messages to : xxxxx@c.us
 - messages: a single or array of message ids or message objects
 - skipMyMessages: true or false, if true it will filter out messages sent by you from the list of messages, default false.
 
