@@ -32,7 +32,7 @@
     "automatization",
     "puppeteer"
   ],
-  "author": "Mohammed Shah & Daniel Cardenas",
+  "author": "Mohammed Shah <@smashah>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/smashah/sulla/issues"
