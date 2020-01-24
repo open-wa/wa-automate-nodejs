@@ -16,6 +16,7 @@ ev.on('qr.**', async (qrcode,sessionId) => {
 });
 
 async function start(client: Whatsapp) {
+  console.log('starting');
   // const chats = await client.getAllChatsWithMessages(false);
   // console.log("TCL: start -> chats", chats)
   // console.log("TCL: getAllChatsWithMessages ->", chats.length, chats[0]);
@@ -25,7 +26,7 @@ async function start(client: Whatsapp) {
   // console.log("TCL: start -> newMessages", newMessages)
   // console.log("TCL: getAllNewMessages ->", newMessages.length, newMessages[0]);
 
-  client.onAck((c:any) => console.log(c.id.toString(),c.body,c.ack));
+  // client.onAck((c:any) => console.log(c.id._serialized,c.body,c.ack));
 
   // client.onParticipantsChanged("XXXXXXXX-YYYYYYYY@g.us", (participantChangedEvent:any) => console.log("participant changed for group", participantChangedEvent));
   
@@ -101,7 +102,7 @@ create('session',
   headless:false
 },
 uaOverride
-).then(client => start(client));
+).then(async client => await start(client));
 
 //or you can set a 'session id'
 // create('newsession').then(client => start(client));

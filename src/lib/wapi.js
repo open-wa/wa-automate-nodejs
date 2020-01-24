@@ -81,19 +81,10 @@ if (!window.Store) {
 // window.Store.d = webpackJsonp([], null, ["dbdfbgehgj"]);
 // window.Store.e = webpackJsonp([], null, ["bbchdeehff"]);
 
-/**
- * How to refresh QR code after timeout:
- * This solution may be limited to newer versions of WAWEB
- * May be suitable for bypassing user agent check
- * window.Store.K = webpackJsonp([], null, ["eaaehfdjdg"]);
- * Store.State.default.state="UNPAIRED"
- * Store.K.default.run()
- * ...maybe this should be the default thing that is run as soon as sulla is started 
- */
-
 window.WAPI = {
     lastRead: {}
 };
+
 
 window.WAPI._serializeRawObj = (obj) => {
     if (obj) {

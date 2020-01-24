@@ -43,7 +43,15 @@ export const isInsideChat = (waPage: puppeteer.Page) => {
 };
 
 export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string) {
-  spinner.start('Loading QR');
+  await waPage.evaluate(() => {
+    //@ts-ignore
+    if(!window.K)window.K = webpackJsonp([], null, ["eaaehfdjdg"]);
+    //@ts-ignore
+    window.K.default.state="UNPAIRED"
+    //@ts-ignore
+    window.K.default.run();
+  });
+
   await waPage.waitForSelector("canvas[aria-label='Scan me!']", { timeout: 0 });
   const qrData = await waPage.evaluate(
     `document.querySelector("canvas[aria-label='Scan me!']").parentElement.getAttribute("data-ref")`
@@ -51,7 +59,7 @@ export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string) {
   const qrCode = await waPage.evaluate(
     `document.querySelector("canvas[aria-label='Scan me!']").toDataURL()`
   );
-  spinner.succeed();
+  
   ev.emit(`qr${sessionId?`.${sessionId}`:``}`, qrCode, sessionId);
   // ev.emit(`qr${sessionId?`.${sessionId}`:``}`, sessionId? {qrImage,sessionId}:qrImage);
   qrcode.generate(qrData, {
