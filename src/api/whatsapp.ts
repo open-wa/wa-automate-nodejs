@@ -74,6 +74,7 @@ declare module WAPI {
   const sendContact: (to: string, contact: string | string[]) => any;
   const simulateTyping: (to: string, on: boolean) => void;
   const isConnected: () => Boolean;
+  const loadEarlierMessages: (contactId: string) => Message[];
   const getUnreadMessages: (
     includeMe: boolean,
     includeNotifications: boolean,
@@ -505,6 +506,18 @@ chatId
     );
   }
 
+
+  /**
+    * Load more messages in chat object from server. Use this in a while loop
+   * @param contactId
+   * @returns contact detial as promise
+   */
+  public async loadEarlierMessages(contactId: string) {
+    return await this.page.evaluate(
+      contactId => WAPI.loadEarlierMessages(contactId),
+      contactId
+    );
+  }
 
   /**
    * Deletes message of given message id
