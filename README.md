@@ -39,6 +39,7 @@ function start(client) {
 | Function                          | Description | Implemented |
 | --------------------------------- | ----------- | ----------- |
 | Receive message                   |             | ✅          |
+| Automatic QR Refresh              |             | ✅          |
 | Send text                         |             | ✅          |
 | Get contacts                      |             | ✅          |
 | Get chats                         |             | ✅          |
