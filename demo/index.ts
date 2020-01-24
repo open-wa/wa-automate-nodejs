@@ -32,8 +32,8 @@ async function start(client: Whatsapp) {
   //Returns 'CONNECTED' or 'TIMEOUT'
   client.onStateChanged(state=>console.log('statechanged', state));
 
-  const allmsgs = await client.loadAndGetAllMessagesInChat('447460975810@c.us',true,false);
-  console.log("TCL: start -> allMessages", allmsgs.length);
+  // const allmsgs = await client.loadAndGetAllMessagesInChat('XXXXXXXX-YYYYYYYY@g.us",true,false);
+  // console.log("TCL: start -> allMessages", allmsgs.length);
   
   client.onMessage(async message => {
     try {
