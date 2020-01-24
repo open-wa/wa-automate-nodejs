@@ -29,6 +29,9 @@ async function start(client: Whatsapp) {
 
   // client.onParticipantsChanged("XXXXXXXX-YYYYYYYY@g.us", (participantChangedEvent:any) => console.log("participant changed for group", participantChangedEvent));
   
+  //Returns 'CONNECTED' or 'TIMEOUT'
+  client.onStateChanged(state=>console.log('statechanged', state));
+
   client.onMessage(async message => {
     try {
     const isConnected = await client.isConnected();

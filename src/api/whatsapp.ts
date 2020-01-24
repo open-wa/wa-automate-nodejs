@@ -104,6 +104,16 @@ export class Whatsapp {
 
 
   /**
+   * Listens to messages received
+   * @returns Observable stream of messages
+   */
+  public onStateChanged(fn: (state: string) => void) {
+    this.page.exposeFunction(ExposedFn.onStateChanged, (state: string) =>
+      fn(state)
+    );
+  }
+
+  /**
    * Listens to messages acknowledgement Changes
    * @returns Observable stream of messages
    */

@@ -1247,6 +1247,16 @@ window.WAPI.waitNewMessages = function (rmCallbackAfterUse = true, done) {
     return true;
 };
 
+/**
+ * Registers a callback to be called when a the acknowledgement state of the phone connection.
+ * @param callback - function - Callback function to be called when the device state changes. this returns 'CONNECTED' or 'TIMEOUT'
+ * @returns {boolean}
+ */
+window.WAPI.onStateChanged = function(callback) {
+    // (x,y)=>console.log('statechanged',x,x.state)
+    window.Store.State.default.on('change:state',callback)
+    return true;
+}
 
 /**
  * Registers a callback to be called when a the acknowledgement state of a message changes.
