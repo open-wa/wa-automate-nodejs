@@ -68,17 +68,6 @@ export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string) {
   return true;
 }
 
-export async function keepHere(waPage: puppeteer.Page) {
-  await waPage.waitForFunction(
-    `[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML=="Use Here"})`,
-    { timeout: 0 }
-  );
-  await waPage.evaluate(
-    `[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML=="Use Here"}).click()`
-  );
-  await keepHere(waPage);
-}
-
 export async function randomMouseMovements(waPage: puppeteer.Page) {
   var twoPI = Math.PI * 2.0;
   var h = (height / 2 - 10) / 2;

@@ -30,8 +30,11 @@ async function start(client: Whatsapp) {
 
   // client.onParticipantsChanged("XXXXXXXX-YYYYYYYY@g.us", (participantChangedEvent:any) => console.log("participant changed for group", participantChangedEvent));
   
-  //Returns 'CONNECTED' or 'TIMEOUT'
-  client.onStateChanged(state=>console.log('statechanged', state));
+  //Returns 'CONNECTED' or 'TIMEOUT' or 'CONFLICT' (if user opens whatsapp web somewhere else)
+  client.onStateChanged(state=>{
+    console.log('statechanged', state)
+    if(state==="CONFLICT") client.forceRefocus();
+  });
 
   // setTimeout(_=> client.kill(), 3000);
 

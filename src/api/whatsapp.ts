@@ -143,6 +143,16 @@ export class Whatsapp {
   return true;
   }
 
+  public async forceRefocus() {
+    await this.page.waitForFunction(
+      `[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML.toLowerCase()=="use here" || e.innerHTML.toLowerCase()=="utiliser ici"})`,
+      { timeout: 0 }
+    );
+    await this.page.evaluate(
+      `[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML.toLowerCase()=="use here" || e.innerHTML.toLowerCase()=="utiliser ici"}).click()`
+    );
+  }
+
   /**
    * Listens to add and remove evevnts on Groups
    * @param to group id: xxxxx-yyyy@us.c
