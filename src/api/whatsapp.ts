@@ -63,6 +63,7 @@ declare module WAPI {
   const getAllChatsWithMessages: (withNewMessageOnly?: boolean) => any;
   const getAllChats: () => any;
   const getChat: (contactId: string) => Chat;
+  const getProfilePicFromServer: (chatId: string) => any;
   const getAllChatIds: () => string[];
   const getAllChatsWithNewMsg: () => Chat[];
   const getAllNewMessages: () => any;
@@ -539,6 +540,18 @@ chatId
     return await this.page.evaluate(
       contactId => WAPI.getChat(contactId),
       contactId
+    );
+  }
+
+  /**
+   * Retrieves chat picture
+   * @param chatId
+   * @returns Url of the chat picture or undefined if there is no picture for the chat.
+   */
+  public async getProfilePicFromServer(chatId: string) {
+    return await this.page.evaluate(
+      chatId => WAPI.getProfilePicFromServer(chatId),
+      chatId
     );
   }
 

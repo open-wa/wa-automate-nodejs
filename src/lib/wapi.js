@@ -1019,6 +1019,9 @@ window.WAPI.getCommonGroups = async function (id, done) {
     return output;
 };
 
+window.WAPI.getProfilePicFromServer = function(id) {
+    return Store.WapQuery.profilePicFind(id).then(x=>x.eurl);
+}
 
 window.WAPI.getProfilePicSmallFromId = function (id, done) {
     window.Store.ProfilePicThumb.find(id).then(function (d) {
