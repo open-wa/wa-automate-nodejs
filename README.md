@@ -83,6 +83,38 @@ ev.on('qr', async qrcode => {
 
 You can see a live implementation of this on `demo/index.ts`. Give it a spin! :D
 
+## Refreshing QRCode
+
+In version v1.6.6^, sulla automatically refreshes the QR code every 10 seconds. No extra implmentation required.
+
+## Kill the session
+
+As of v1.6.6^ you can now kill the session when required. Best practice is to manage trycatch-es yourself and kill the client on catch.
+
+```javascript
+try{
+...
+await client.sendMessage(...
+...
+} catch(error){
+client.kill();
+//maybe restart the session then
+}
+```
+
+## Force Refocus and reacting to state
+
+When a user starts using whatsapp web in a different browser, sulla-hotfix will be left on a screen prompting you to click 'Use here'. As of v1.6.6^ you can now force the client to press 'Use here' everytime the state has changed to 'CONFLICT'. onStateChanged results in 'UNPAIRED', 'CONNECTED' or 'CONFLICT';
+
+```javascript
+client.onStateChanged(state=>{
+    console.log('statechanged', state)
+    if(state==="CONFLICT") client.forceRefocus();
+  });
+
+```
+
+
 ## Decrypting Media
 
 Here is a sample of how to decrypt media. This has been tested on images, videos, documents, audio and voice notes.
@@ -265,6 +297,14 @@ await client.simulateTyping('xxxxx@c.us',true)
 
 //stop '...typing'
 await client.simulateTyping('xxxxx@c.us',false)
+```
+
+## Load profile pics from server
+
+Generally, after the 20th chat in your whatsapp, getChat methods do not retreive the chat picture. You need to get these from the WhatsApp servers. This is how you do it in v1.6.6^:
+
+```javascript
+client.getProfilePicFromServer('XXXXXXX-YYYYY@c.us')
 ```
 
 ## Forward Messages
