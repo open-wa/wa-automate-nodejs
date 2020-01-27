@@ -133,6 +133,17 @@ export class Whatsapp {
   }
 
   /**
+   * Shuts down the page and browser
+   * @returns true
+   */
+  public async kill() {
+  console.log('Shutting Down');
+  if(this.page) await this.page.close();
+  if(this.page.browser) await this.page.browser().close();
+  return true;
+  }
+
+  /**
    * Listens to add and remove evevnts on Groups
    * @param to group id: xxxxx-yyyy@us.c
    * @param to callback

@@ -33,6 +33,8 @@ async function start(client: Whatsapp) {
   //Returns 'CONNECTED' or 'TIMEOUT'
   client.onStateChanged(state=>console.log('statechanged', state));
 
+  // setTimeout(_=> client.kill(), 3000);
+
   // const allmsgs = await client.loadAndGetAllMessagesInChat('XXXXXXXX-YYYYYYYY@g.us",true,false);
   // console.log("TCL: start -> allMessages", allmsgs.length);
   
