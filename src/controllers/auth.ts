@@ -42,10 +42,6 @@ export const isInsideChat = (waPage: puppeteer.Page) => {
   );
 };
 
-export async checkForTosBlock(waPage: puppeteer.Page){
-  
-}
-
 export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string) {
   await waPage.evaluate(() => {
     //@ts-ignore
