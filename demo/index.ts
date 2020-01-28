@@ -1,7 +1,7 @@
 // const sulla = require('../dist/index');
 // var create = require("sulla").create;
-// import { create, Whatsapp, decryptMedia} from 'sulla-hotfix';
-import { create, Whatsapp, decryptMedia, ev } from '../src/index';
+import { create, Whatsapp, decryptMedia, ev } from '../dist/index';
+// import { create, Whatsapp, decryptMedia, ev } from '../src/index';
 const mime = require('mime-types');
 const fs = require('fs');
 const uaOverride = 'WhatsApp/2.16.352 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Safari/605.1.15';
@@ -104,10 +104,13 @@ async function start(client: Whatsapp) {
 create('session',
 {
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  headless:false
+  headless:false,
+  qrRefreshS:30 //please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.
 },
 uaOverride
-).then(async client => await start(client));
+)
+// create()
+.then(async client => await start(client));
 
 //or you can set a 'session id'
 // create('newsession').then(client => start(client));

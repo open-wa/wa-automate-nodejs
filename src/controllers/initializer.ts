@@ -27,7 +27,7 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     console.log(' ')
     await retrieveQR(waPage,sessionId);
     console.log(' ')
-    await timeout(10000);
+    await timeout((puppeteerConfigOverride.qrRefreshS || 10)*1000);
     qrLoop();
   };
 
