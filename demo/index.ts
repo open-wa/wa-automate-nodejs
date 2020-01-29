@@ -105,6 +105,7 @@ create('session',
 {
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   headless:false,
+  autoRefresh:false, //default to true
   qrRefreshS:30 //please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.
 },
 uaOverride

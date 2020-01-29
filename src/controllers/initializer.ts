@@ -21,14 +21,14 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
 
   spinner.start('Authenticating');
   let authenticated = await isAuthenticated(waPage);
-
+  let autoRefresh = !(puppeteerConfigOverride.autoRefresh==false);
   const qrLoop = async () => {
     if(!shouldLoop) return;
     console.log(' ')
-    await retrieveQR(waPage,sessionId);
+    await retrieveQR(waPage,sessionId,autoRefresh);
     console.log(' ')
     await timeout((puppeteerConfigOverride.qrRefreshS || 10)*1000);
-    qrLoop();
+    if(autoRefresh)qrLoop();
   };
 
   if (authenticated) {
