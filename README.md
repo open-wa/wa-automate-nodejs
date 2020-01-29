@@ -476,11 +476,11 @@ const proc = async message => {
 
 const processMessage = message => queue.add(proc(message));
 
-function start(client: Whatsapp) {
+async function start(client: Whatsapp) {
   const unreadMessages = await client.getAllUnreadMessages();
   unreadMessages.forEach(processMessage)
   ...
-  client.onMessage(processMessage);
+  await client.onMessage(processMessage);
   queue.start();
 }
 
