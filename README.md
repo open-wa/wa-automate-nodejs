@@ -468,11 +468,13 @@ const queue = new PQueue({
   autoStart:false
    });
 
-const processMessage = message => {
-  return queue.add(message=> {
-    ...
-  })
+const proc = async message => {
+  //do something with the message here
+    console.log(message)
+    return true;
 }
+
+const processMessage = message => queue.add(proc(message));
 
 function start(client: Whatsapp) {
   const unreadMessages = await client.getAllUnreadMessages();
