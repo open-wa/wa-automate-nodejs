@@ -111,7 +111,6 @@ export class Whatsapp {
     );
   }
 
-
   /**
    * Listens to messages received
    * @returns Observable stream of messages
@@ -120,6 +119,15 @@ export class Whatsapp {
     this.page.exposeFunction(ExposedFn.onStateChanged, (state: string) =>
       fn(state)
     );
+  }
+
+  /**
+   * Returns the connecction state
+   * @returns Any of OPENING, PAIRING, UNPAIRED, UNPAIRED_IDLE, CONNECTED, TIMEOUT, CONFLICT, UNLAUNCHED, PROXYBLOCK, TOS_BLOCK, SMB_TOS_BLOCK, DEPRECATED_VERSION
+   */
+  public async getConnectionState() {
+    //@ts-ignore
+    return await this.page.evaluate(()=>{return Store.State.default.state})
   }
 
   /**
