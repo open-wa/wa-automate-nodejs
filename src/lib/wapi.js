@@ -1382,7 +1382,7 @@ window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
     // create new chat
     return Store.Chat.find(idUser).then((chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
-        var mc = new Store.MediaCollection();
+        var mc = new Store.MediaCollection(chat);
         mc.processFiles([mediaBlob], chat, 1).then(() => {
             var media = mc.models[0];
             media.sendToChat(chat, { caption: caption });
@@ -1397,7 +1397,7 @@ window.WAPI.sendVideoAsGif = function (imgBase64, chatid, filename, caption, don
     // create new chat
     return Store.Chat.find(idUser).then((chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
-        var mc = new Store.MediaCollection();
+        var mc = new Store.MediaCollection(chat);
         mc.processFiles([mediaBlob], chat, 1).then(() => {
             var media = mc.models[0];
             media.mediaPrep._mediaData.isGif=true;
@@ -1462,7 +1462,7 @@ window.WAPI.sendImageWithProduct = function (imgBase64,chatid,caption,bizNumber,
 
     return Store.Chat.find(idUser).then((chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
-        var mc = new Store.MediaCollection();
+        var mc = new Store.MediaCollection(chat);
         mc.processFiles([mediaBlob], chat, 1).then(() => {
             var media = mc.models[0];
             Object.entries(temp.productMsgOptions).map(([k,v])=>media.mediaPrep._mediaData[k]=v)
