@@ -18,6 +18,14 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
   let waPage = await initWhatsapp(sessionId, puppeteerConfigOverride, customUserAgent);
   spinner.succeed();
 
+  const PAGE_UA =  await waPage.evaluate('navigator.userAgent');
+  //@ts-ignore
+  const WA_VERSION = await waPage.evaluate(()=>window.Debug?window.Debug.VERSION:'I think you have been TOS_BLOCKed')
+  
+  console.log('Debug Info', {
+    WA_VERSION,
+    PAGE_UA
+  })
 
   spinner.start('Authenticating');
   let authenticated = await isAuthenticated(waPage);

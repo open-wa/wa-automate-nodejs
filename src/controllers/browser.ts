@@ -6,8 +6,8 @@ const {installMouseHelper} = require('./mouse-helper');
 // it augments the installed puppeteer with plugin functionality
 const puppeteer = require('puppeteer-extra');
 // add stealth plugin and use defaults (all evasion techniques)
-const pluginStealth = require('puppeteer-extra-plugin-stealth');
-puppeteer.use(pluginStealth());
+const StealthPlugin = require('puppeteer-extra-plugin-stealth')
+puppeteer.use(StealthPlugin());
 import { puppeteerConfig, useragent, width, height} from '../config/puppeteer.config';
 //@ts-ignore
 import { Browser, Page } from '@types/puppeteer';
