@@ -85,7 +85,14 @@ You can see a live implementation of this on `demo/index.ts`. Give it a spin! :D
 
 ## Refreshing QRCode
 
-In version v1.6.6^, sulla automatically refreshes the QR code every 10 seconds. No extra implmentation required.
+In version v1.6.13^, sulla can refresh the QR code every 10 seconds (you can change the interval).
+
+```javascript
+create('session',{
+    autoRefresh:false, //default to true
+    qrRefreshS:30 //please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.
+}).then(async client => await start(client));
+```
 
 ## Kill the session
 
@@ -496,7 +503,8 @@ create('session',
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   // For Windows:
   // executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-  headless: false
+  headless: false,
+  autoRefresh:true
 },
 'some custom user agent')
 .then(client => start(client));

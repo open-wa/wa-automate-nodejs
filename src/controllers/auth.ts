@@ -42,7 +42,7 @@ export const isInsideChat = (waPage: puppeteer.Page) => {
   );
 };
 
-export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, autoRefresh:boolean=true) {
+export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, autoRefresh:boolean=false) {
   if(autoRefresh)
   await waPage.evaluate(() => {
     //@ts-ignore

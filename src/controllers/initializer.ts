@@ -29,7 +29,7 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
 
   spinner.start('Authenticating');
   let authenticated = await isAuthenticated(waPage);
-  let autoRefresh = !(puppeteerConfigOverride.autoRefresh==false);
+  let autoRefresh = puppeteerConfigOverride? !(puppeteerConfigOverride.autoRefresh==false):false;
   const qrLoop = async () => {
     if(!shouldLoop) return;
     console.log(' ')
