@@ -46,7 +46,7 @@ export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, auto
   if(autoRefresh)
   await waPage.evaluate(() => {
     //@ts-ignore
-    if(!window.K) {if(webpackJsonp) window.K = webpackJsonp([], null, ["eaaehfdjdg"]); else {console.log('Seems as though you have been TOS_BLOCKed, unable to refresh QR Code. Please see https://github.com/smashah/sulla#best-practice for information on how to prevent this from happeing. You will most likely not get a QR Code');return;};}
+    if(!window.K) {if(typeof webpackJsonp !== "undefined") window.K = webpackJsonp([], null, ["eaaehfdjdg"]); else {console.log('Seems as though you have been TOS_BLOCKed, unable to refresh QR Code. Please see https://github.com/smashah/sulla#best-practice for information on how to prevent this from happeing. You will most likely not get a QR Code');return;};}
     //@ts-ignore
     window.K.default.state="UNPAIRED"
     //@ts-ignore
