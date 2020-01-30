@@ -16,11 +16,13 @@ var ExposedFn;
 /**
  * Exposes [OnMessage] function
  */
+
 WAPI.waitNewMessages(false, function (data) {
     data.forEach(function (message) {
         window[ExposedFn.OnMessage](message);
     });
 });
+
 WAPI.waitNewAcknowledgements(function (data) {
     if (!Array.isArray(data)) {
         data = [data];
@@ -29,4 +31,5 @@ WAPI.waitNewAcknowledgements(function (data) {
         window[ExposedFn.onAck](message);
     });
 });
+
 WAPI.onStateChanged(function (s) { return window[ExposedFn.onStateChanged](s.state); });

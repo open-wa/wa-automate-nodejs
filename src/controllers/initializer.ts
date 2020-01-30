@@ -21,21 +21,32 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
   const PAGE_UA =  await waPage.evaluate('navigator.userAgent');
   //@ts-ignore
   const WA_VERSION = await waPage.evaluate(()=>window.Debug?window.Debug.VERSION:'I think you have been TOS_BLOCKed')
-  
   console.log('Debug Info', {
     WA_VERSION,
     PAGE_UA
   })
 
+  //check if you can inject early
+  //@ts-ignore
+  const canInjectEarly = await waPage.evaluate(() => {return (typeof webpackJsonp !== "undefined")});
+  if(canInjectEarly) {
+    spinner.start('Injecting api');
+    waPage = await injectApi(waPage);
+    spinner.start('WAPI injected');
+  } else {
+    console.log('Possilby TOS_BLOCKed')
+  }
+
   spinner.start('Authenticating');
   let authenticated = await isAuthenticated(waPage);
-  let autoRefresh = puppeteerConfigOverride? !(puppeteerConfigOverride.autoRefresh==false):false;
+  let autoRefresh = puppeteerConfigOverride ? puppeteerConfigOverride.autoRefresh : false;
+  let qrTimeout;
   const qrLoop = async () => {
     if(!shouldLoop) return;
     console.log(' ')
     await retrieveQR(waPage,sessionId,autoRefresh);
     console.log(' ')
-    await timeout((puppeteerConfigOverride.qrRefreshS || 10)*1000);
+    qrTimeout = await timeout((puppeteerConfigOverride?(puppeteerConfigOverride.qrRefreshS || 10):10)*1000);
     if(autoRefresh)qrLoop();
   };
 
@@ -49,13 +60,27 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     qrLoop();
     await isInsideChat(waPage).toPromise();
     shouldLoop = false;
+    clearTimeout(qrTimeout);
     spinner.succeed();
   }
+  if(canInjectEarly) {
+    spinner.start('Almost Done');
+  } else {
+    spinner.start('Injecting api');
+    waPage = await injectApi(waPage);
+  }
 
-  spinner.start('Injecting api');
-  waPage = await injectApi(waPage);
-  
-  spinner.succeed('Whatsapp is ready');
-
-  return new Whatsapp(waPage);
+  //check if page is valid.
+  //@ts-ignore
+  const VALID_SESSION = await waPage.evaluate(()=>window.Store&&window.Store.Msg?true:false);
+  if(VALID_SESSION)  {
+    spinner.succeed('Whatsapp is ready');
+    return new Whatsapp(waPage);
+  }
+  else {
+    spinner.fail('The session is invalid. Retrying')
+    await waPage.close();
+    await waPage.browser().close();
+    return await create(sessionId,puppeteerConfigOverride,customUserAgent);
+  }
 }

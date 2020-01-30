@@ -1311,7 +1311,7 @@ window.WAPI.waitNewAcknowledgements = function (callback){
  * @param callback - function - Callback function to be called when a message acknowledgement changes. The callback returns 3 variables
  * @returns {boolean}
  */
-let groupParticpiantsEvents = {};
+var groupParticpiantsEvents = {};
 window.WAPI.onParticipantsChanged = function (groupId, callback){
     const chat = window.Store.Chat.get(groupId);
     //attach all group Participants to the events object as 'add'
