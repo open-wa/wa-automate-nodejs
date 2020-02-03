@@ -5,6 +5,7 @@ import { isAuthenticated, isInsideChat, retrieveQR, randomMouseMovements } from 
 import { initWhatsapp, injectApi } from './browser';
 const spinner = ora();
 let shouldLoop = true;
+var pjson = require('../../package.json');
 const timeout = ms => {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -19,11 +20,15 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
   spinner.succeed();
 
   const PAGE_UA =  await waPage.evaluate('navigator.userAgent');
+  const BROWSER_VERSION = await waPage.browser().version();
+  const SULLA_HOTFIX_VERSION = pjson.version;
   //@ts-ignore
   const WA_VERSION = await waPage.evaluate(()=>window.Debug?window.Debug.VERSION:'I think you have been TOS_BLOCKed')
   console.log('Debug Info', {
     WA_VERSION,
-    PAGE_UA
+    PAGE_UA,
+    SULLA_HOTFIX_VERSION,
+    BROWSER_VERSION
   })
 
   //check if you can inject early
@@ -64,13 +69,14 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     spinner.succeed();
   }
   if(canInjectEarly) {
-    spinner.start('Almost Done');
+    //check if page is valid after 5 seconds
+    spinner.start('Checking if session is valid');
+    await timeout(5000);
   } else {
     spinner.start('Injecting api');
     waPage = await injectApi(waPage);
   }
 
-  //check if page is valid.
   //@ts-ignore
   const VALID_SESSION = await waPage.evaluate(()=>window.Store&&window.Store.Msg?true:false);
   if(VALID_SESSION)  {

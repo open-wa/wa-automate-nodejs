@@ -10,15 +10,17 @@ declare module WAPI {
   const waitNewMessages: (rmCallback: boolean, callback: Function) => void;
   const waitNewAcknowledgements: (callback: Function) => void;
   const onStateChanged: (callback: Function) => void;
+  const addAllNewMessagesListener: (callback: Function) => void;
 }
 
 
 //THIS SHOULD BE IDENTICAL TO /api/functions/exposed.enum.ts
 enum ExposedFn {
   OnMessage = 'onMessage',
-  onAck = 'onAck',
-  onParticipantsChanged = 'onParticipantsChanged',
-  onStateChanged = 'onStateChanged',
+  OnAck = 'onAck',
+  OnAnyMessage = 'onAnyMessage',
+  OnParticipantsChanged = 'onParticipantsChanged',
+  OnStateChanged = 'onStateChanged',
 }
 
 /**
@@ -35,8 +37,12 @@ WAPI.waitNewAcknowledgements(function (data) {
       data = [data];
   }
   data.forEach(function (message) {
-      window[ExposedFn.onAck](message);
+      if(window[ExposedFn.OnAck])window[ExposedFn.OnAck](message);
   });
 })
 
-WAPI.onStateChanged(s => window[ExposedFn.onStateChanged](s.state));
+WAPI.onStateChanged(s => window[ExposedFn.OnStateChanged](s.state));
+
+WAPI.addAllNewMessagesListener(_=> {
+  window[ExposedFn.OnAnyMessage](_)
+})

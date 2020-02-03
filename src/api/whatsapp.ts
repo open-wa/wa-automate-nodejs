@@ -112,6 +112,23 @@ export class Whatsapp {
   }
 
   /**
+   * Listens to all new messages
+   * @param to callback
+   * @returns 
+   */
+  public onAnyMessage(fn: (message: Message) => void) {
+    this.page.exposeFunction(ExposedFn.OnAnyMessage,(message: Message) =>
+    fn(message)
+  )
+    // .then(_ => this.page.evaluate(
+    //   () => {
+    //     WAPI.addAllNewMessagesListener(window["onAnyMessage"]);
+    //   },
+    //   {}
+    // ));
+  }
+
+  /**
    * Listens to messages received
    * @returns Observable stream of messages
    */
@@ -178,24 +195,6 @@ export class Whatsapp {
         WAPI.onParticipantsChanged(groupId, window[funcName]);
       },
       { groupId }
-    ));
-  }
-
-  /**
-   * Listens to all new messages
-   * @param to callback
-   * @returns 
-   */
-  public onAnyMessage(fn: (message: Message) => void) {
-    const funcName = "onAnyMessage";
-    return this.page.exposeFunction(funcName,(message: Message) =>
-    fn(message)
-  )
-    .then(_ => this.page.evaluate(
-      () => {
-        WAPI.addAllNewMessagesListener(window[funcName]);
-      },
-      {}
     ));
   }
 

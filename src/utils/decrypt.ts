@@ -14,7 +14,7 @@ export const mediaTypes = {
 };
 
 export const decryptMedia = async (message: any, useragentOverride?: string) => {
-  let ua = useragentOverride||'WhatsApp/2.16.352 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36';
+  let ua = useragentOverride||"WhatsApp/2.16.352 Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:72.0) Gecko/20100101 Firefox/72.0";
   if (!ua.includes('WhatsApp')) ua = "WhatsApp/2.16.352 "+ua;
   const options = {
     url: message.clientUrl.trim(),

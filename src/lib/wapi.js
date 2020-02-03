@@ -1241,18 +1241,6 @@ window.WAPI._newMessagesListener = window.Store.Msg.on('add', (newMessage) => {
 });
 
 
-window.WAPI.addAllNewMessagesListener = callback => window.Store.Msg.on('add', (newMessage) => {
-    if (newMessage && newMessage.isNewMsg) {
-        let message = window.WAPI.processMessageObj(newMessage, true, false);
-        if (message) {
-            console.log("TCL: message", message)
-            // window.WAPI._newMessagesQueue.push(message);
-            // window.WAPI._newMessagesBuffer.push(message);
-        }
-    }
-});
-
-
 
 window.WAPI._unloadInform = (event) => {
     // Save in the buffer the ungot unreaded messages
@@ -1283,6 +1271,16 @@ window.WAPI.waitNewMessages = function (rmCallbackAfterUse = true, done) {
     window.WAPI._newMessagesCallbacks.push({ callback: done, rmAfterUse: rmCallbackAfterUse });
     return true;
 };
+
+
+window.WAPI.addAllNewMessagesListener = callback => window.Store.Msg.on('add', (newMessage) => {
+    if (newMessage && newMessage.isNewMsg) {
+        let message = window.WAPI.processMessageObj(newMessage, true, false);
+        if (message) {
+            callback(message)
+        }
+    }
+});
 
 /**
  * Registers a callback to be called when a the acknowledgement state of the phone connection.
