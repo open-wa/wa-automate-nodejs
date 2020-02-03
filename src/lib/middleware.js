@@ -33,6 +33,5 @@ WAPI.waitNewAcknowledgements(function (data) {
 });
 WAPI.onStateChanged(function (s) { return window[ExposedFn.OnStateChanged](s.state); });
 WAPI.addAllNewMessagesListener(function (_) {
-    console.log('hellooo', _);
     window[ExposedFn.OnAnyMessage](_);
 });
