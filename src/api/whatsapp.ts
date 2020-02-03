@@ -26,6 +26,7 @@ declare module WAPI {
   const addAllNewMessagesListener: (callback: Function) => void;
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const sendMessage: (to: string, content: string) => void;
+  const reply: (to: string, content: string, quotedMsg: string |Message) => void;
   const getGeneratedUserAgent: (userAgent?:string) => string;
   const forwardMessages: (to: string, messages: string | [string | Message], skipMyMessages: boolean) => any;
   const sendLocation: (to: string, lat: any, lng: any, loc: string) => void;
@@ -297,6 +298,20 @@ chatId
     );
   }
 
+  /**
+   * 
+   * @param to string chatid
+   * @param content string reply text
+   * @param quotedMsg string | Message the msg object or id to reply to.
+   */
+  public async reply(to: string, content: string, quotedMsg: any){
+    return await this.page.evaluate(
+      ({to,content,quotedMsg}) => {
+        WAPI.reply(to,content,quotedMsg)
+      },
+      {to,content,quotedMsg}
+    )
+  }
 
   /**
    * Sends a file to given chat, with caption or not, using base64. This is exactly the same as sendImage

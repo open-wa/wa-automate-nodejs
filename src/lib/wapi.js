@@ -157,7 +157,8 @@ window.WAPI._serializeMessageObj = (obj) => {
         lastSeen: _chat.lastSeen,
         chatId: obj.id.remote,
         quotedMsgObj: WAPI._serializeMessageObj(obj['_quotedMsgObj']),
-        mediaData: window.WAPI._serializeRawObj(obj['mediaData'])
+        mediaData: window.WAPI._serializeRawObj(obj['mediaData']),
+        reply: body => window.WAPI.reply(_chat.id._serialized, body, obj)
     });
 };
 
@@ -1588,6 +1589,28 @@ window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
     };
     Object.assign(tempMsg, extend);
     await Store.addAndSendMsgToChat(chat, tempMsg)
+};
+
+
+window.WAPI.reply = async function (chatId, body, quotedMsg) {
+    if(typeof quotedMsg !=="object") quotedMsg = Store.Msg.get(quotedMsg)
+    var chat = Store.Chat.get(chatId);
+    var tempMsg = Object.create(chat.msgs.filter(msg => msg.__x_isSentByMe)[0]);
+    var newId = window.WAPI.getNewMessageId(chatId);
+    var extend = {
+        ack: 0,
+        id: newId,
+        local: !0,
+        self: "out",
+        t: parseInt(new Date().getTime() / 1000),
+        to: chatId,
+        isNewMsg: !0,
+        type: "chat",
+        quotedMsg,
+        body
+    };
+    Object.assign(tempMsg, extend);
+        await Store.addAndSendMsgToChat(chat, tempMsg)
 };
 
 /**
