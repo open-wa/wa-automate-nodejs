@@ -350,6 +350,19 @@ As of version 1.6.17, you can now reply to specific messages.
 ...
 ```
 
+## Group participants [beta]
+
+As of v1.7.0 you can now add, remove, promote & demote participants for groups. The first parameter is the chat id for the group. The second parameter is the number to which you are conducting the action to.
+
+```javascript
+...
+  client.addParticipant('XXXXXXX-YYYYYY@c.us','ZZZZZZZZZ@c.us')
+  client.removeParticipant('XXXXXXX-YYYYYY@c.us','ZZZZZZZZZ@c.us')
+  client.promoteParticipant('XXXXXXX-YYYYYY@c.us','ZZZZZZZZZ@c.us')
+  client.demoteParticipant('XXXXXXX-YYYYYY@c.us','ZZZZZZZZZ@c.us')
+...
+```
+
 ## Group participant changes
 
 As of version 1.5.6 you can now listen in on changes to group participants. You can react to when participants are added and removed.
