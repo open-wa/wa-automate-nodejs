@@ -334,6 +334,22 @@ await client.forwardMessages('xxxxx@c.us',[...],true)
 await client.forwardMessages('xxxxx@c.us,"...",true)
 ```
 
+## Reply to messages
+
+As of version 1.6.17, you can now reply to specific messages.
+
+```javascript
+...
+/**
+   * @param to string chatid
+   * @param content string reply text
+   * @param quotedMsg string | Message the msg object or id to reply to.
+   */
+
+      await client.reply('xxxxx@c.us','This is the reply',message);
+...
+```
+
 ## Group participant changes
 
 As of version 1.5.6 you can now listen in on changes to group participants. You can react to when participants are added and removed.
