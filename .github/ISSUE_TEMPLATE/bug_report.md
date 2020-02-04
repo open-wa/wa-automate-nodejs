@@ -1,3 +1,9 @@
+<!-- READ THIS FIRST:
+  - Make sure you are running the latest version of sulla-hotfix before reporting an issue.
+  - Provide as many details as possible. Paste logs, configuration samples and code into the backticks.
+  DO NOT DELETE ANY TEXT from this template! Otherwise, your issue may be closed without comment.
+-->
+
 ---
 name: Bug report
 about: Create a report to help us improve
