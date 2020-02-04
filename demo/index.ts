@@ -6,6 +6,13 @@ const mime = require('mime-types');
 const fs = require('fs');
 const uaOverride = 'WhatsApp/2.16.352 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Safari/605.1.15';
 const tosBlockGuaranteed = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/79.0.3945.88 Safari/537.36";
+const ON_DEATH = require('death');
+let globalClient:Whatsapp;
+
+ON_DEATH(async function(signal, err) {
+  console.log('killing session');
+  await globalClient.kill();
+})
 
 
 ev.on('qr.**', async (qrcode,sessionId) => {
@@ -17,6 +24,7 @@ ev.on('qr.**', async (qrcode,sessionId) => {
 });
 
 async function start(client: Whatsapp) {
+  globalClient=client;
   console.log('starting');
   // const chats = await client.getAllChatsWithMessages(false);
   // console.log("TCL: start -> chats", chats)

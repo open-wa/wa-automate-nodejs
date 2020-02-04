@@ -36,7 +36,7 @@ if (!window.Store) {
                     if ((typeof first === "object") && (first.exports)) {
                         for (let idx2 in modules[idx]) {
                             let module = modules(idx2);
-                            console.log("TCL: getStore -> module", module ? module.default || module : "")
+                            console.log("TCL: getStore -> module", module ? Object.getOwnPropertyNames(module.default || module).filter(item => typeof (module.default || module)[item] === 'function').length ? module.default || module : "":'')
                             if (!module) {
                                 continue;
                             }
@@ -1596,6 +1596,13 @@ window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
 window.WAPI.reply = async function (chatId, body, quotedMsg) {
     if (typeof quotedMsg !== "object") quotedMsg = Store.Msg.get(quotedMsg)
     var chat = Store.Chat.get(chatId);
+    let extras = {};
+    if(chat.isGroup){
+        extras = {
+            quotedParticipant: quotedMsg.author,
+            quotedStanzaID:quotedMsg.id.id
+        }
+    }
     var tempMsg = Object.create(chat.msgs.filter(msg => msg.__x_isSentByMe)[0]);
     var newId = window.WAPI.getNewMessageId(chatId);
     var extend = {
@@ -1608,7 +1615,8 @@ window.WAPI.reply = async function (chatId, body, quotedMsg) {
         isNewMsg: !0,
         type: "chat",
         quotedMsg,
-        body
+        body,
+        ...extras
     };
     Object.assign(tempMsg, extend);
     await Store.addAndSendMsgToChat(chat, tempMsg)
