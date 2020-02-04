@@ -61,6 +61,8 @@ function start(client) {
 | [Forward Messages](#sending-gifs)                  |             | ✅          |
 | [Listen to Read Receipts](#sending-gifs)           |             | ✅          |
 | [Group participant changes](#group-participant-changes)         |             | ✅          |
+| [Create Groups](#create-group)         |             | ✅          |
+| [add, remove, promote, demote participants](##group-participants-beta)         |             | ✅          |
 
 ## Capturing QR Code
 
@@ -347,6 +349,16 @@ As of version 1.6.17, you can now reply to specific messages.
    */
 
       await client.reply('xxxxx@c.us','This is the reply',message);
+...
+```
+
+## Create group
+
+As of v1.7.2 you can now create a new group. The first parameter is the group name, the second parameter is the contact ids to add as participants
+
+```javascript
+...
+  client.createGroup('Cool new group','xxxxxxxxx@c.us') //you can also send an array of ids.
 ...
 ```
 
