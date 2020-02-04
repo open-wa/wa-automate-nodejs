@@ -196,7 +196,7 @@ window.WAPI.createGroup = function (name, contactsId) {
         contactsId = [contactsId];
     }
 
-    return window.Store.Wap.createGroup(name, contactsId);
+    return window.Store.WapQuery.createGroup(name, contactsId);
 };
 
 window.WAPI.leaveGroup = function (groupId) {

@@ -34,6 +34,7 @@ declare module WAPI {
   const removeParticipant: (groupId: string, contactId: string) => void;
   const promoteParticipant: (groupId: string, contactId: string) => void;
   const demoteParticipant: (groupId: string, contactId: string) => void;
+  const createGroup: (groupName: string, contactId: string|[string]) => void;
   const sendSeen: (to: string) => void;
   const sendImage: (
     base64: string,
@@ -725,7 +726,19 @@ export class Whatsapp {
     );
   }
 
-
+  /**
+   * Sends a text message to given chat
+   * @param to group name: 'New group'
+   * @param contacts: A single contact id or an array of contact ids.
+   */
+  public async createGroup(groupName:string,contacts:string|[string]){
+    return await this.page.evaluate(
+      ({ groupName, contacts }) => {
+        WAPI.createGroup(groupName, contacts);
+      },
+      { groupName, contacts }
+    );
+  }
 
   /**
    * Remove participant of Group
