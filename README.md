@@ -352,7 +352,7 @@ As of version 1.6.17, you can now reply to specific messages.
 
 ## Group participants [beta]
 
-As of v1.7.0 you can now add, remove, promote & demote participants for groups. The first parameter is the chat id for the group. The second parameter is the number to which you are conducting the action to.
+As of v1.7.0 you can now add, remove, promote & demote participants for groups. The first parameter is the chat id for the group. The second parameter is the number to which you are conducting the action.
 
 ```javascript
 ...
