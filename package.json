@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc && npm run build:middleware && npm run build:lib",
+    "build": "rm -rf dist/ && tsc && npm run build:middleware && npm run build:lib",
     "build:skipmid": "tsc && npm run build:lib",
     "build:lib": "ts-node prebuild.ts",
     "build:middleware": "tsc --out src/lib/middleware.js src/middleware/middleware.ts --module amd",
