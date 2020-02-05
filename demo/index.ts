@@ -11,7 +11,7 @@ let globalClient:Whatsapp;
 
 ON_DEATH(async function(signal, err) {
   console.log('killing session');
-  await globalClient.kill();
+  if(globalClient)await globalClient.kill();
 })
 
 
@@ -115,15 +115,15 @@ async function start(client: Whatsapp) {
  * You can also override some puppeteer configs, set an executable path for your instance of chrome for ffmpeg (video+GIF) support
  * and you can AND SHOULD override the user agent.
  */
-create('session',
-{
-  executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  headless:false,
-  // autoRefresh:true, //default to true
-  // qrRefreshS:15 //please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.
-}
-)
-// create()
+// create('session',
+// {
+//   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+//   headless:false,
+//   // autoRefresh:true, //default to true
+//   // qrRefreshS:15 //please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.
+// }
+// )
+create()
 .then(async client => await start(client));
 
 //or you can set a 'session id'
