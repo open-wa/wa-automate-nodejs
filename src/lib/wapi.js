@@ -28,6 +28,10 @@ if (!window.Store) {
                 { id: "sendDelete", conditions: (module) => (module.sendDelete) ? module.sendDelete : null },
                 { id: "addAndSendMsgToChat", conditions: (module) => (module.addAndSendMsgToChat) ? module.addAndSendMsgToChat : null },
                 { id: "Catalog", conditions: (module) => (module.Catalog) ? module.Catalog : null },
+                { id: "Parser", conditions: (module) => (module.convertToTextWithoutSpecialEmojis) ? module.default : null },
+                { id: "Builders", conditions: (module) => (module.TemplateMessage && module.HydratedFourRowTemplate) ? module : null },
+                { id: "Identity", conditions: (module) => (module.queryIdentity && module.updateIdentity) ? module : null },
+                { id: "Features", conditions: (module) => (module.FEATURE_CHANGE_EVENT && module.features) ? module : null },
                 { id: "Participants", conditions: (module) => (module.addParticipants && module.removeParticipants && module.promoteParticipants && module.demoteParticipants) ? module : null }
             ];
             for (let idx in modules) {
@@ -81,6 +85,7 @@ if (!window.Store) {
 // window.Store.c = webpackJsonp([], null, ["cjcghajbag"]);
 // window.Store.d = webpackJsonp([], null, ["dbdfbgehgj"]);
 // window.Store.e = webpackJsonp([], null, ["bbchdeehff"]);
+// window.Store.buttons = webpackJsonp([], null, ["cdaaeifjfh"]);
 
 window.WAPI = {
     lastRead: {}
@@ -1591,6 +1596,140 @@ window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
     Object.assign(tempMsg, extend);
     await Store.addAndSendMsgToChat(chat, tempMsg)
 };
+
+
+window.WAPI.sendButtons = async function (chatId) {
+    var chat = Store.Chat.get(chatId);
+    var tempMsg = Object.create(chat.msgs.filter(msg => msg.__x_isSentByMe)[0]);
+    var newId = window.WAPI.getNewMessageId(chatId);
+    var extend = {
+        ack: 0,
+        id: newId,
+        local: !0,
+        self: "out",
+        t: parseInt(new Date().getTime() / 1000),
+        to: chat.id,
+        isNewMsg: !0,
+        type: "template",
+        subtype:"text",
+        body:'test',
+        caption:'test',
+        isForwarded:false,
+        broadcast:false,
+        isQuotedMsgAvailable:true,
+        shouldEnableHsm:false,
+        __x_hasTemplateButtons:true,
+        invis:true
+    };
+
+    Object.assign(tempMsg, extend);
+    Store.Parser.parseTemplateMessage(tempMsg,{
+hydratedButtons:[
+
+      {
+        "id": "0",
+        "displayText": "Informar dados",
+        "subtype": "quick_reply",
+              "quickReplyButton":true,
+        "selectionId": "{\"eventName\":\"inform\"}"
+      },
+      {
+        "id": "1",
+        "displayText": "Enviar foto RG",
+              "quickReplyButton":true,
+        "subtype": "quick_reply",
+        "selectionId": "{\"eventName\":\"event-rg\"}"
+      },
+      {
+        "id": "2",
+              "quickReplyButton":true,
+        "displayText": "Enviar foto CNH",
+        "subtype": "quick_reply",
+        "selectionId": "{\"eventName\":\"event-cnh\"}"
+      }
+
+            // {
+            //   "id": "0",
+            //   "displayText": "Information!",
+            //   "actionText": "Information!",
+            //   "subtype": "quick_reply",
+            //   "quickReplyButton":true,
+            //   "selectionId": "{\"eventName\":\"inform\"}"
+            // },
+            // {
+            //   "id": "1",
+            //   "displayText": "Send a photo",
+            //   "actionText": "Information!",
+            //   "subtype": "call",
+            //   "callButton":true,
+            //   "phoneNumber":"+441231231232",
+            //   "selectionId": "{\"eventName\":\"event-rg\"}"
+            // },
+            // {
+            //   "id": "2",
+            //   "displayText": "Send license",
+            //   "actionText": "Information!",
+            //   "urlButton":true,
+            //   "subtype": "url",
+            //   "url":"https://google.com",
+            //   "selectionId": "{\"eventName\":\"event-cnh\"}"
+            // }
+        ],
+hydratedContentText:'hellllloooowww',
+// hydratedFooterText:"asdasd",
+// hydratedTitleText:"asdasd232"
+})
+
+    tempMsg._minEphemeralExpirationTimestamp()
+    tempMsg.senderObj.isBusiness=true;
+    tempMsg.senderObj.isEnterprise=true;
+    await Store.addAndSendMsgToChat(chat, tempMsg)
+};
+
+window.WAPI.sendButtons2 = async function(chatId){
+    var chat = Store.Chat.get(chatId);
+    var tempMsg = Object.create(chat.msgs.filter(msg => msg.__x_isSentByMe)[0]);
+    var newId = window.WAPI.getNewMessageId(chatId);
+    var extend = {
+        ack: 0,
+        id: newId,
+        local: !0,
+        self: "out",
+        t: parseInt(new Date().getTime() / 1000),
+        to: chat.id,
+        isNewMsg: !0,
+        type: "template",
+        subtype:"text",
+        body:'body text',
+        isForwarded:false,
+        broadcast:false,
+        isQuotedMsgAvailable:true,
+        shouldEnableHsm:true,
+        __x_hasTemplateButtons:false,
+        invis:true
+    };
+
+    Object.assign(tempMsg, extend);
+
+    var btns = new Store.Builders.HydratedFourRowTemplate({
+hydratedButtons:[
+    {quickReplyButton:new Store.Builders.HydratedQuickReplyButton({displayText:'test',id:1,quickReplyButton:true})},
+    {callButton:new Store.Builders.HydratedCallButton({displayText:'test call',phoneNumber:"4477777777777"})},
+    {urlButton:new Store.Builders.HydratedURLButton({displayText:'test url',url:"https://google.com"})}
+],
+hydratedContentText:'hellllloooowww'
+});
+
+
+    Store.Parser.parseTemplateMessage(tempMsg,btns);
+    // tempMsg._minEphemeralExpirationTimestamp()
+    // tempMsg.senderObj.isBusiness=true;
+    // tempMsg.senderObj.isEnterprise=true;
+    await Store.addAndSendMsgToChat(chat, tempMsg)
+
+}
+
+
 
 
 window.WAPI.reply = async function (chatId, body, quotedMsg) {
