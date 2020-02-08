@@ -7,16 +7,17 @@ const spinner = ora();
 let shouldLoop = true;
 var pjson = require('../../package.json');
 const timeout = ms => {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 }
-
+let waPage;
+let qrTimeout;
 /**
  * Should be called to initialize whatsapp client
  */
 export async function create(sessionId?: string, puppeteerConfigOverride?:any, customUserAgent?:string) {
   if (!sessionId) sessionId = 'session';
   spinner.start('Initializing whatsapp');
-  let waPage = await initWhatsapp(sessionId, puppeteerConfigOverride, customUserAgent);
+  waPage = await initWhatsapp(sessionId, puppeteerConfigOverride, customUserAgent);
   spinner.succeed();
 
   const PAGE_UA =  await waPage.evaluate('navigator.userAgent');
@@ -45,13 +46,14 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
   spinner.start('Authenticating');
   let authenticated = await isAuthenticated(waPage);
   let autoRefresh = puppeteerConfigOverride ? puppeteerConfigOverride.autoRefresh : false;
-  let qrTimeout;
+ 
   const qrLoop = async () => {
     if(!shouldLoop) return;
     console.log(' ')
     await retrieveQR(waPage,sessionId,autoRefresh);
     console.log(' ')
-    qrTimeout = await timeout((puppeteerConfigOverride?(puppeteerConfigOverride.qrRefreshS || 10):10)*1000);
+    qrTimeout = timeout((puppeteerConfigOverride?(puppeteerConfigOverride.qrRefreshS || 10):10)*1000);
+    await qrTimeout;
     if(autoRefresh)qrLoop();
   };
 
@@ -63,7 +65,18 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     qrSpin.start('Loading QR');
     qrSpin.succeed();
     qrLoop();
-    await isInsideChat(waPage).toPromise();
+    const race = [];
+    race.push(isInsideChat(waPage).toPromise());
+    if(puppeteerConfigOverride.killTimer){
+      race.push(timeout(puppeteerConfigOverride.killTimer*1000))
+    }
+    const result = await Promise.race(race);
+    if(result=='timeout') {
+      console.log('Session timed out. Shutting down')
+      await kill();
+      throw new Error('QR Timeout');
+      
+    }
     shouldLoop = false;
     clearTimeout(qrTimeout);
     spinner.succeed();
@@ -85,8 +98,14 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
   }
   else {
     spinner.fail('The session is invalid. Retrying')
-    await waPage.close();
-    await waPage.browser().close();
+    await kill()
     return await create(sessionId,puppeteerConfigOverride,customUserAgent);
   }
+}
+
+const kill = async () => {
+  shouldLoop = false;
+if(qrTimeout) clearTimeout(qrTimeout);
+  await waPage.close();
+  await waPage.browser().close();
 }
