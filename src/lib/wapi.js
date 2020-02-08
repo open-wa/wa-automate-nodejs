@@ -34,7 +34,8 @@ if (!window.Store) {
                 { id: "Identity", conditions: (module) => (module.queryIdentity && module.updateIdentity) ? module : null },
                 { id: "Features", conditions: (module) => (module.FEATURE_CHANGE_EVENT && module.features) ? module : null },
                 { id: "MessageUtils", conditions: (module) => (module.storeMessages && module.appendMessage) ? module : null },
-                { id: "Participants", conditions: (module) => (module.addParticipants && module.removeParticipants && module.promoteParticipants && module.demoteParticipants) ? module : null }
+                { id: "Participants", conditions: (module) => (module.addParticipants && module.removeParticipants && module.promoteParticipants && module.demoteParticipants) ? module : null },
+                { id: "Base", conditions: (module) => (module.setSubProtocol && module.binSend && module.actionNode) ? module : null }
             ];
             for (let idx in modules) {
                 if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
@@ -1712,7 +1713,6 @@ window.WAPI.sendButtons2 = async function(chatId){
         shouldEnableHsm:true,
         __x_hasTemplateButtons:true,
         invis:true,
-        body: 'body text'
     };
 
     Object.assign(tempMsg, extend);
@@ -1730,7 +1730,7 @@ hydratedTitleText:"asdasd232"
 
     Store.Parser.parseTemplateMessage(t2,btns);
     tempMsg.buttons=t2.buttons;
-    tempMsg.mediaData = {};
+    tempMsg.mediaData = undefined;
     tempMsg._minEphemeralExpirationTimestamp()
     // tempMsg.senderObj.isBusiness=true;
     // tempMsg.senderObj.isEnterprise=true;
@@ -1738,7 +1738,7 @@ hydratedTitleText:"asdasd232"
       ...tempMsg.senderObj,
       isBusiness:true,
       isEnterprise:true,
-      notifyName:"pow.bike",
+      notifyName:"button test",
       mentionName:"Button Test",
       displayName:"Button Test",
       searchName:"button test",
@@ -1749,14 +1749,23 @@ hydratedTitleText:"asdasd232"
       formattedUser:"Button test",
       
     }
+    tempMsg.body='12355';
     await Store.MessageUtils.appendMessage(chat,tempMsg)
     var t = Store.Msg.add(tempMsg)[0]
     await chat.sendQueue.enqueue(chat.addQueue.enqueue(t.waitForPrep().then(_=>t)).then(t=>chat.msgs.add(t)).catch(e=>console.log(e))).then(e => {
         var t = e[0];
         console.log('t',t)
         //comment the next line to see the buttons. the next line will send the message but whatsapp wil sanitize it of all the buttony goodness
-        return Store.sendMsgRecord(t)
-        // return Store.WapQuery.msgCreateRecord(tempMsg)
+        // return Store.sendMsgRecord(t)
+        //or 
+        /**
+         * var ccc=webpackJsonp([],null,['bdeabjehdj'])
+         * var bp = webpackJsonp([],null,['dajcegbdcc'])
+         * ccc.BinaryProtocol = new bp.default();
+         * ccc.msgCreateRecord(tempMsg)
+         * check WebMessageInfo
+         */
+        return Store.WapQuery.msgCreateRecord(tempMsg)
     })
 }
 
