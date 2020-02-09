@@ -10,7 +10,6 @@ var ExposedFn;
 (function (ExposedFn) {
     ExposedFn["OnMessage"] = "onMessage";
     ExposedFn["OnAck"] = "onAck";
-    ExposedFn["OnAnyMessage"] = "onAnyMessage";
     ExposedFn["OnParticipantsChanged"] = "onParticipantsChanged";
     ExposedFn["OnStateChanged"] = "onStateChanged";
 })(ExposedFn || (ExposedFn = {}));
@@ -32,6 +31,3 @@ WAPI.waitNewAcknowledgements(function (data) {
     });
 });
 WAPI.onStateChanged(function (s) { return window[ExposedFn.OnStateChanged](s.state); });
-WAPI.addAllNewMessagesListener(function (_) {
-    window[ExposedFn.OnAnyMessage](_);
-});
