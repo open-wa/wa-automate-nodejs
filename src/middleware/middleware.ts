@@ -18,7 +18,6 @@ declare module WAPI {
 enum ExposedFn {
   OnMessage = 'onMessage',
   OnAck = 'onAck',
-  OnAnyMessage = 'onAnyMessage',
   OnParticipantsChanged = 'onParticipantsChanged',
   OnStateChanged = 'onStateChanged',
 }
@@ -42,7 +41,3 @@ WAPI.waitNewAcknowledgements(function (data) {
 })
 
 WAPI.onStateChanged(s => window[ExposedFn.OnStateChanged](s.state));
-
-WAPI.addAllNewMessagesListener(_=> {
-  window[ExposedFn.OnAnyMessage](_)
-})

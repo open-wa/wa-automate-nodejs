@@ -122,16 +122,13 @@ export class Whatsapp {
    * @param to callback
    * @returns 
    */
-  public onAnyMessage(fn: (message: Message) => void) {
+  public async onAnyMessage(fn: (message: Message) => void) {
     this.page.exposeFunction(ExposedFn.OnAnyMessage, (message: Message) =>
       fn(message)
-    )
-    // .then(_ => this.page.evaluate(
-    //   () => {
-    //     WAPI.addAllNewMessagesListener(window["onAnyMessage"]);
-    //   },
-    //   {}
-    // ));
+    ).then(_ => this.page.evaluate(
+      () => {
+        WAPI.addAllNewMessagesListener(window["onAnyMessage"]);
+      }));
   }
 
   /**

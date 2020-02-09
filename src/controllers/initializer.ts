@@ -67,7 +67,7 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     qrLoop();
     const race = [];
     race.push(isInsideChat(waPage).toPromise());
-    if(puppeteerConfigOverride.killTimer){
+    if(puppeteerConfigOverride&&puppeteerConfigOverride.killTimer){
       race.push(timeout(puppeteerConfigOverride.killTimer*1000))
     }
     const result = await Promise.race(race);
