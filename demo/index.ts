@@ -50,7 +50,7 @@ async function start(client: Whatsapp) {
   // const allmsgs = await client.loadAndGetAllMessagesInChat('XXXXXXXX-YYYYYYYY@g.us",true,false);
   // console.log("TCL: start -> allMessages", allmsgs.length);
 
-  client.onAnyMessage(message=>console.log(message.id.toString()));
+  client.onAnyMessage(message=>console.log(message.type));
 
   client.onMessage(async message => {
     try {

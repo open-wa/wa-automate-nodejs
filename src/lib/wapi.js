@@ -34,8 +34,13 @@ if (!window.Store) {
                 { id: "Identity", conditions: (module) => (module.queryIdentity && module.updateIdentity) ? module : null },
                 { id: "Features", conditions: (module) => (module.FEATURE_CHANGE_EVENT && module.features) ? module : null },
                 { id: "MessageUtils", conditions: (module) => (module.storeMessages && module.appendMessage) ? module : null },
+                { id: "WebMessageInfo", conditions: (module) => (module.WebMessageInfo && module.WebFeatures) ? module.WebMessageInfo : null },
+                { id: "createMessageKey", conditions: (module) => (module.createMessageKey && module.createDeviceSentMessage) ? module.createMessageKey : null },
                 { id: "Participants", conditions: (module) => (module.addParticipants && module.removeParticipants && module.promoteParticipants && module.demoteParticipants) ? module : null },
-                { id: "Base", conditions: (module) => (module.setSubProtocol && module.binSend && module.actionNode) ? module : null }
+                { id: "WidFactory", conditions: (module) => (module.numberToWid && module.createWid && module.createWidFromWidLike) ? module : null },
+                { id: "Base", conditions: (module) => (module.setSubProtocol && module.binSend && module.actionNode) ? module : null },
+                { id: "Base2", conditions: (module) => (module.supportsFeatureFlags && module.parseMsgStubProto && module.binSend && module.subscribeLiveLocation) ? module : null },
+                { id: "Versions", conditions: (module) => (module.loadProtoVersions && module.default["15"] && module.default["16"] && module.default["17"]) ? module : null }
             ];
             for (let idx in modules) {
                 if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
@@ -90,6 +95,8 @@ if (!window.Store) {
 // window.Store.e = webpackJsonp([], null, ["bbchdeehff"]);
 // window.Store.buttons = webpackJsonp([], null, ["cdaaeifjfh"]);
 window.Store.sendMsgRecord=webpackJsonp([],null,['cjafhagbj']).sendMsgRecord;
+window.Store.bp = webpackJsonp([],null,['eaigijhjei']);
+window.Store.MsgKey = webpackJsonp([],null,['cffajefeag']).default;
 
 window.WAPI = {
     lastRead: {}
@@ -97,7 +104,7 @@ window.WAPI = {
 
 
 window.WAPI._serializeRawObj = (obj) => {
-    if (obj) {
+    if (obj && obj.toJSON) {
         return obj.toJSON();
     }
     return {}
@@ -1550,7 +1557,8 @@ window.WAPI.forwardMessages = async function (to, messages, skipMyMessages) {
  * @param {string} chatId '000000000000@c.us'
  */
 window.WAPI.getNewMessageId = function (chatId) {
-    var newMsgId = Store.Msg.models[0].__x_id.clone();
+    var newMsgId = new Store.MsgKey(Object.assign({}, Store.Msg.models[0].__x_id))
+    // .clone();
 
     newMsgId.fromMe = true;
     newMsgId.id = WAPI.getNewId().toUpperCase();
@@ -1601,99 +1609,10 @@ window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
     await Store.addAndSendMsgToChat(chat, tempMsg)
 };
 
-
-window.WAPI.sendButtons = async function (chatId) {
+window.WAPI.sendButtons = async function(chatId){
     var chat = Store.Chat.get(chatId);
-    var tempMsg = Object.create(chat.msgs.filter(msg => msg.__x_isSentByMe)[0]);
-    var newId = window.WAPI.getNewMessageId(chatId);
-    var extend = {
-        ack: 0,
-        id: newId,
-        local: !0,
-        self: "out",
-        t: parseInt(new Date().getTime() / 1000),
-        to: chat.id,
-        isNewMsg: !0,
-        type: "template",
-        subtype:"text",
-        body:'test',
-        caption:'test',
-        isForwarded:false,
-        broadcast:false,
-        isQuotedMsgAvailable:true,
-        shouldEnableHsm:false,
-        __x_hasTemplateButtons:true,
-        invis:true
-    };
-
-    Object.assign(tempMsg, extend);
-    Store.Parser.parseTemplateMessage(tempMsg,{
-hydratedButtons:[
-
-      {
-        "id": "0",
-        "displayText": "Informar dados",
-        "subtype": "quick_reply",
-              "quickReplyButton":true,
-        "selectionId": "{\"eventName\":\"inform\"}"
-      },
-      {
-        "id": "1",
-        "displayText": "Enviar foto RG",
-              "quickReplyButton":true,
-        "subtype": "quick_reply",
-        "selectionId": "{\"eventName\":\"event-rg\"}"
-      },
-      {
-        "id": "2",
-              "quickReplyButton":true,
-        "displayText": "Enviar foto CNH",
-        "subtype": "quick_reply",
-        "selectionId": "{\"eventName\":\"event-cnh\"}"
-      }
-
-            // {
-            //   "id": "0",
-            //   "displayText": "Information!",
-            //   "actionText": "Information!",
-            //   "subtype": "quick_reply",
-            //   "quickReplyButton":true,
-            //   "selectionId": "{\"eventName\":\"inform\"}"
-            // },
-            // {
-            //   "id": "1",
-            //   "displayText": "Send a photo",
-            //   "actionText": "Information!",
-            //   "subtype": "call",
-            //   "callButton":true,
-            //   "phoneNumber":"+441231231232",
-            //   "selectionId": "{\"eventName\":\"event-rg\"}"
-            // },
-            // {
-            //   "id": "2",
-            //   "displayText": "Send license",
-            //   "actionText": "Information!",
-            //   "urlButton":true,
-            //   "subtype": "url",
-            //   "url":"https://google.com",
-            //   "selectionId": "{\"eventName\":\"event-cnh\"}"
-            // }
-        ],
-hydratedContentText:'hellllloooowww',
-// hydratedFooterText:"asdasd",
-// hydratedTitleText:"asdasd232"
-})
-
-    tempMsg._minEphemeralExpirationTimestamp()
-    tempMsg.senderObj.isBusiness=true;
-    tempMsg.senderObj.isEnterprise=true;
-    await Store.addAndSendMsgToChat(chat, tempMsg)
-};
-
-window.WAPI.sendButtons2 = async function(chatId){
-    var chat = Store.Chat.get(chatId);
-    var tempMsg = Object.create(chat.msgs.filter(msg => msg.__x_isSentByMe && msg.type=="chat")[0]);
-    var t2 = Object.create(chat.msgs.filter(msg => msg.__x_isSentByMe)[0]);
+    var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.to._serialized===chatId&&msg.__x_isSentByMe&& msg.type=='chat' && !msg.quotedStanzaID)[0])
+    var t2 = Object.create(Store.Msg.filter(x=>x.type=='template'&!x.id.fromMe)[0]);
     var newId = window.WAPI.getNewMessageId(chatId);
     delete tempMsg.hasTemplateButtons;
     var extend = {
@@ -1703,13 +1622,14 @@ window.WAPI.sendButtons2 = async function(chatId){
         self: "out",
         t: parseInt(new Date().getTime() / 1000),
         to: chat.id,
-        isNewMsg: !0,
+        isNewMsg: false,
+        // isNewMsg: !0,
         type: "template",
         subtype:"text",
         body:'body text',
         isForwarded:false,
         broadcast:false,
-        isQuotedMsgAvailable:true,
+        isQuotedMsgAvailable:false,
         shouldEnableHsm:true,
         __x_hasTemplateButtons:true,
         invis:true,
@@ -1719,9 +1639,9 @@ window.WAPI.sendButtons2 = async function(chatId){
 
     var btns = new Store.Builders.HydratedFourRowTemplate({
 hydratedButtons:[
-    {quickReplyButton:new Store.Builders.HydratedQuickReplyButton({displayText:'test',id:1,quickReplyButton:true})},
-    {callButton:new Store.Builders.HydratedCallButton({displayText:'test call',phoneNumber:"4477777777777"})},
-    {urlButton:new Store.Builders.HydratedURLButton({displayText:'test url',url:"https://google.com"})}
+    new Store.Builders.HydratedTemplateButton({quickReplyButton:new Store.Builders.HydratedQuickReplyButton({displayText:'test',id: "{\"eventName\":\"inform\"}",quickReplyButton:true}),index:0}),
+    new Store.Builders.HydratedTemplateButton({callButton:new Store.Builders.HydratedCallButton({displayText:'test call',phoneNumber:"4477777777777"}),index:1}),
+    new Store.Builders.HydratedTemplateButton({urlButton:new Store.Builders.HydratedURLButton({displayText:'test url',url:"https://google.com"}),index:2})
 ],
 hydratedContentText:'hellllloooowww',
 hydratedFooterText:"asdasd",
@@ -1730,10 +1650,12 @@ hydratedTitleText:"asdasd232"
 
     Store.Parser.parseTemplateMessage(t2,btns);
     tempMsg.buttons=t2.buttons;
+    console.log('t2',t2.body);
     tempMsg.mediaData = undefined;
+    tempMsg.mediaObject=undefined;
     tempMsg._minEphemeralExpirationTimestamp()
-    // tempMsg.senderObj.isBusiness=true;
-    // tempMsg.senderObj.isEnterprise=true;
+    tempMsg.senderObj.isBusiness=true;
+    tempMsg.senderObj.isEnterprise=true;
     tempMsg.senderObj = {
       ...tempMsg.senderObj,
       isBusiness:true,
@@ -1749,25 +1671,178 @@ hydratedTitleText:"asdasd232"
       formattedUser:"Button test",
       
     }
-    tempMsg.body='12355';
-    await Store.MessageUtils.appendMessage(chat,tempMsg)
-    var t = Store.Msg.add(tempMsg)[0]
-    await chat.sendQueue.enqueue(chat.addQueue.enqueue(t.waitForPrep().then(_=>t)).then(t=>chat.msgs.add(t)).catch(e=>console.log(e))).then(e => {
-        var t = e[0];
-        console.log('t',t)
-        //comment the next line to see the buttons. the next line will send the message but whatsapp wil sanitize it of all the buttony goodness
-        // return Store.sendMsgRecord(t)
-        //or 
-        /**
-         * var ccc=webpackJsonp([],null,['bdeabjehdj'])
-         * var bp = webpackJsonp([],null,['dajcegbdcc'])
-         * ccc.BinaryProtocol = new bp.default();
-         * ccc.msgCreateRecord(tempMsg)
-         * check WebMessageInfo
-         */
-        return Store.WapQuery.msgCreateRecord(tempMsg)
+    tempMsg.body=t2.body;
+    tempMsg.to=tempMsg.from;
+    tempMsg.caption=tempMsg.body;
+    console.log('tempMsg',tempMsg)
+    return chat.sendQueue.enqueue(chat.addQueue.enqueue(
+        Store.MessageUtils.appendMessage(chat,tempMsg).then(()=>{
+            var e = Store.Msg.add(tempMsg)[0];
+            console.log('e ',e );
+            if(e) {
+                return e.waitForPrep().then(()=>{
+                    return e;
+                })
+            }
+        })
+    ).then(t=>chat.msgs.add(t)).catch(e=>console.log(e))).then(t => {
+        var e = t[0];
+        const s = Store.Base2;
+        if(!s.BinaryProtocol)
+        window.Store.Base2.BinaryProtocol = new window.Store.bp.default(11);
+        var idUser = new window.Store.UserConstructor(chatId, { intentionallyUsePrivateConstructor: true });
+        var k = Store.createMessageKey({
+            ...e,
+            to:idUser,
+            id:e.__x_id
+            });
+        console.log('key',k)
+var wm = new Store.WebMessageInfo({
+        message:new Store.Builders.Message({
+            // conversation:'okhellowhi',
+            templateMessage:new Store.Builders.TemplateMessage({hydratedFourRowTemplate:btns,hydratedTemplate:btns})
+        }),
+        key:k,
+        messageTimestamp:e.t,
+        multicast:undefined,
+        url:undefined,
+        urlNumber:undefined,
+        clearMedia:undefined,
+        ephemeralDuration:undefined
+        });
+console.log('wm',wm)
+var action = s.actionNode('relay',[['message', null, Store.WebMessageInfo.encode(wm).readBuffer()]]);
+console.log('action',action)
+var a =e.id.id;
+return new Promise(function(resolve, reject) {
+    console.log('yo')
+    return s.binSend("send", action, reject, {
+        tag: a,
+        onSend: s.wrap(_=>{console.log('onsend',_);resolve(_);}),
+        onDrop: s.wrap(_=>{console.log('ondrop',_);reject(_);}),
+        retryOn5xx: !0,
+        resendGuard: function(_) {
+            var t = Store.Msg.get(e.id);
+            console.log('in resend', _)
+            return "protocol" === e.type || t && t.id.equals(e.id)
+        }
+    }, {
+        debugString: ["action", "message", e.type, e.subtype, a].join(),
+        debugObj: {
+            xml: action,
+            pb: wm
+        },
+        metricName: "MESSAGE",
+        ackRequest: !1
+    })
+})
+
     })
 }
+
+window.WAPI.sendButtons2 = async function(chatId){
+    var chat = Store.Chat.get(chatId);
+    var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.to._serialized===chatId&&msg.__x_isSentByMe&& msg.type=='chat' && !msg.quotedStanzaID)[0])
+    var t2 = Object.create(Store.Msg.models.filter(msg => msg.to._serialized===chatId&&msg.__x_isSentByMe&& msg.type=='chat' && !msg.quotedStanzaID)[0]);
+    var newId = window.WAPI.getNewMessageId(chatId);
+    delete tempMsg.hasTemplateButtons;
+    var extend = {
+        ack: 0,
+        id: newId,
+        local: !0,
+        self: "out",
+        t: parseInt(new Date().getTime() / 1000),
+        to: Store.WidFactory.createWid(chatId),
+        isNewMsg: !0,
+        type: "template",
+        subtype:"text",
+        broadcast:false,
+        isQuotedMsgAvailable:false,
+        shouldEnableHsm:true,
+        __x_hasTemplateButtons:true,
+        invis:false,
+    };
+
+    Object.assign(tempMsg, extend);
+
+    var btns = new Store.Builders.HydratedFourRowTemplate({
+hydratedButtons:[
+    new Store.Builders.HydratedTemplateButton({quickReplyButton:new Store.Builders.HydratedQuickReplyButton({displayText:'test',id: "{\"eventName\":\"inform\"}",quickReplyButton:true}),index:0}),
+    new Store.Builders.HydratedTemplateButton({callButton:new Store.Builders.HydratedCallButton({displayText:'test call',phoneNumber:"4477777777777"}),index:1}),
+    new Store.Builders.HydratedTemplateButton({callButton:new Store.Builders.HydratedCallButton({displayText:'test call',phoneNumber:"4477777777777"}),index:2}),
+    new Store.Builders.HydratedTemplateButton({urlButton:new Store.Builders.HydratedURLButton({displayText:'test url',url:"https://google.com"}),index:3})
+],
+hydratedContentText:'hellllloooowww',
+hydratedFooterText:"asdasd",
+hydratedTitleText:"asdasd232"
+});
+
+    Store.Parser.parseTemplateMessage(t2,btns);
+    tempMsg.buttons=t2.buttons;
+    console.log('t2',t2.body);
+    console.log('tempMsg',tempMsg)
+    
+    return chat.sendQueue.enqueue(chat.addQueue.enqueue(
+        Store.MessageUtils.appendMessage(chat,tempMsg).then(()=>{
+            var e = Store.Msg.add(tempMsg)[0];
+            console.log('e ',e );
+            if(e) {
+                return e.waitForPrep().then(()=>{
+                    return e;
+                })
+            }
+        })
+    ).then(t=>chat.msgs.add(t)).catch(e=>console.log(e))).then(t => {
+        var e = t[0];
+        console.log('e',e)
+        const s = Store.Base2;
+        if(!s.BinaryProtocol)
+        window.Store.Base2.BinaryProtocol = new window.Store.bp.default(11);
+        var idUser = new Store.WidFactory.createWid(chatId);
+        var k = Store.createMessageKey({
+            ...e,
+            to:idUser,
+            id:e.__x_id
+            });
+        console.log('key',k)
+var wm = new Store.WebMessageInfo({
+        message:new Store.Builders.Message({
+            //if you uncomment the next line then the message gets sent properly as a text
+            // conversation:'okhellowhi',
+            templateMessage:new Store.Builders.TemplateMessage({hydratedFourRowTemplate:btns,hydratedTemplate:btns})
+        }),
+        key:k,
+        messageTimestamp:e.t,
+        });
+console.log('wm',wm)
+var action = s.actionNode('relay',[['message', null, Store.WebMessageInfo.encode(wm).readBuffer()]]);
+console.log('action',action)
+var a =e.id.id;
+console.log('a',a);
+return new Promise(function(resolve, reject) {
+    console.log('yo')
+    return s.binSend("send", action, reject, {
+        tag: a,
+        onSend: s.wrap(resolve),
+        onDrop: s.wrap(reject),
+        retryOn5xx: !0,
+        resendGuard: function(_) {
+            var t = Store.Msg.get(e.id);
+            return "protocol" === e.type || t && t.id.equals(e.id)
+        }
+    }, {
+        debugString: ["action", "message", 'chat', 'null', a].join(),
+        debugObj: {
+            xml: action,
+            pb: wm
+        },
+        metricName: "MESSAGE",
+        ackRequest: !1
+    })
+})
+    })
+}
+
 
 window.WAPI.reply = async function (chatId, body, quotedMsg) {
     if (typeof quotedMsg !== "object") quotedMsg = Store.Msg.get(quotedMsg)
