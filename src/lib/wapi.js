@@ -1915,7 +1915,7 @@ window.WAPI.sendPaymentRequest = async function (chatId, amount1000, currency, n
  */
 window.WAPI.sendVCard = function (chatId, vcard) {
     var chat = Store.Chat.get(chatId);
-    var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe)[0]);
+    var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe && !msg.quotedMsg)[0]);
     var newId = window.WAPI.getNewMessageId(chatId);
 
     var extend = {
@@ -1926,6 +1926,7 @@ window.WAPI.sendVCard = function (chatId, vcard) {
         t: parseInt(new Date().getTime() / 1000),
         to: chatId,
         isNewMsg: !0,
+        isQuotedMsgAvailable:false,
     };
 
     if (Array.isArray(vcard)) {
