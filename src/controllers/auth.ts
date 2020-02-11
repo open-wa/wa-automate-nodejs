@@ -42,7 +42,7 @@ export const isInsideChat = (waPage: puppeteer.Page) => {
   );
 };
 
-export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, autoRefresh:boolean=false) {
+export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, autoRefresh:boolean=false,throwErrorOnTosBlock:boolean=false) {
   if(autoRefresh) {
   const evalResult = await waPage.evaluate(() => {
     //@ts-ignore
@@ -53,7 +53,12 @@ export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, auto
     window.Store.State.default.run();
     return true;
   });
-  if(evalResult===false) console.log('Seems as though you have been TOS_BLOCKed, unable to refresh QR Code. Please see https://github.com/smashah/sulla#best-practice for information on how to prevent this from happeing. You will most likely not get a QR Code')
+  if(evalResult===false) 
+  {
+    const em = 'Seems as though you have been TOS_BLOCKed, unable to refresh QR Code. Please see https://github.com/smashah/sulla#best-practice for information on how to prevent this from happeing. You will most likely not get a QR Code';
+    console.log(em)
+    if(throwErrorOnTosBlock) throw new Error('TOSBLOCK')
+}
   }
   await waPage.waitForSelector("canvas[aria-label='Scan me!']", { timeout: 0 });
   const qrData = await waPage.evaluate(

@@ -50,7 +50,7 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
   const qrLoop = async () => {
     if(!shouldLoop) return;
     console.log(' ')
-    await retrieveQR(waPage,sessionId,autoRefresh);
+    await retrieveQR(waPage,sessionId,autoRefresh,puppeteerConfigOverride&&puppeteerConfigOverride.throwErrorOnTosBlock==true);
     console.log(' ')
     qrTimeout = timeout((puppeteerConfigOverride?(puppeteerConfigOverride.qrRefreshS || 10):10)*1000);
     await qrTimeout;
