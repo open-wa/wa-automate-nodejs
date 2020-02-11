@@ -19,7 +19,6 @@ enum ExposedFn {
   OnMessage = 'onMessage',
   OnAck = 'onAck',
   OnParticipantsChanged = 'onParticipantsChanged',
-  OnStateChanged = 'onStateChanged',
 }
 
 /**
@@ -40,4 +39,4 @@ WAPI.waitNewAcknowledgements(function (data) {
   });
 })
 
-WAPI.onStateChanged(s => window[ExposedFn.OnStateChanged](s.state));
+// WAPI.onStateChanged(s => window[ExposedFn.OnStateChanged](s.state));

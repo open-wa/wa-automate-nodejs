@@ -1394,7 +1394,7 @@ window.WAPI.getBufferedNewMessages = function (done) {
 
 window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
     //var idUser = new window.Store.UserConstructor(chatid);
-    var idUser = new window.Store.UserConstructor(chatid, { intentionallyUsePrivateConstructor: true });
+    var idUser = new Store.WidFactory.createWid(chatId);
     // create new chat
     return Store.Chat.find(idUser).then((chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
@@ -1409,7 +1409,7 @@ window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
 
 window.WAPI.sendVideoAsGif = function (imgBase64, chatid, filename, caption, done) {
     //var idUser = new window.Store.UserConstructor(chatid);
-    var idUser = new window.Store.UserConstructor(chatid, { intentionallyUsePrivateConstructor: true });
+    var idUser = new Store.WidFactory.createWid(chatId);
     // create new chat
     return Store.Chat.find(idUser).then((chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
@@ -1474,7 +1474,7 @@ window.WAPI.sendImageWithProduct = function (imgBase64, chatid, caption, bizNumb
                 caption
             }
 
-            var idUser = new window.Store.UserConstructor(chatid, { intentionallyUsePrivateConstructor: true });
+            var idUser = new Store.WidFactory.createWid(chatId);
 
             return Store.Chat.find(idUser).then((chat) => {
                 var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
@@ -1690,7 +1690,7 @@ hydratedTitleText:"asdasd232"
         const s = Store.Base2;
         if(!s.BinaryProtocol)
         window.Store.Base2.BinaryProtocol = new window.Store.bp.default(11);
-        var idUser = new window.Store.UserConstructor(chatId, { intentionallyUsePrivateConstructor: true });
+        var idUser = new Store.WidFactory.createWid(chatId);
         var k = Store.createMessageKey({
             ...e,
             to:idUser,

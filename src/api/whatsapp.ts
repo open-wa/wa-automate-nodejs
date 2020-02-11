@@ -24,6 +24,7 @@ export const getBase64 = async (url: string) => {
 declare module WAPI {
   const waitNewMessages: (rmCallback: boolean, callback: Function) => void;
   const addAllNewMessagesListener: (callback: Function) => void;
+  const onStateChanged: (callback: Function) => void;
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const sendMessage: (to: string, content: string) => void;
   const reply: (to: string, content: string, quotedMsg: string | Message) => void;
@@ -138,7 +139,10 @@ export class Whatsapp {
   public onStateChanged(fn: (state: string) => void) {
     this.page.exposeFunction(ExposedFn.onStateChanged, (state: string) =>
       fn(state)
-    );
+    ).then(_ => this.page.evaluate(
+      () => {
+        WAPI.onStateChanged(s => window['onStateChanged'](s.state))
+      }));
   }
 
   /**

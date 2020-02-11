@@ -11,7 +11,6 @@ var ExposedFn;
     ExposedFn["OnMessage"] = "onMessage";
     ExposedFn["OnAck"] = "onAck";
     ExposedFn["OnParticipantsChanged"] = "onParticipantsChanged";
-    ExposedFn["OnStateChanged"] = "onStateChanged";
 })(ExposedFn || (ExposedFn = {}));
 /**
  * Exposes [OnMessage] function
@@ -30,4 +29,4 @@ WAPI.waitNewAcknowledgements(function (data) {
             window[ExposedFn.OnAck](message);
     });
 });
-WAPI.onStateChanged(function (s) { return window[ExposedFn.OnStateChanged](s.state); });
+// WAPI.onStateChanged(s => window[ExposedFn.OnStateChanged](s.state));
