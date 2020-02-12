@@ -1,11 +1,11 @@
-import ora from 'ora';
 import { Whatsapp } from '../api/whatsapp';
 import * as path from 'path';
 import { isAuthenticated, isInsideChat, retrieveQR, randomMouseMovements } from './auth';
 import { initWhatsapp, injectApi } from './browser';
 import { EventEmitter2 } from 'eventemitter2';
+import * as spinner from './step';
+import * as qrSpin from './step';
 
-const spinner = ora();
 let shouldLoop = true;
 var pjson = require('../../package.json');
 
@@ -20,16 +20,14 @@ export const evCreate = new EventEmitter2({
   wildcard: true
 });
 
-
 /**
  * Should be called to initialize whatsapp client
  */
 export async function create(sessionId?: string, puppeteerConfigOverride?:any, customUserAgent?:string) {
   if (!sessionId) sessionId = 'session';
   
-  let msg = 'Initializing whatsapp';
-  spinner.start(msg);
-  evCreate.emit(sessionId, msg);
+  spinner.eventEmitter(sessionId, evCreate); 
+  spinner.start('Initializing whatsapp');
   
   waPage = await initWhatsapp(sessionId, puppeteerConfigOverride, customUserAgent);
   spinner.succeed();
@@ -46,34 +44,26 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     SULLA_HOTFIX_VERSION,
     BROWSER_VERSION
   })
-  evCreate.emit(sessionId, 'Debug Info', {
+  evCreate.emit(sessionId, 'Debug Info' + JSON.stringify({
     WA_VERSION,
     PAGE_UA,
     SULLA_HOTFIX_VERSION,
     BROWSER_VERSION
-  });
+  }));
 
   //check if you can inject early
   //@ts-ignore
   const canInjectEarly = await waPage.evaluate(() => {return (typeof webpackJsonp !== "undefined")});
   if(canInjectEarly) {
-	msg = 'Injecting api';
-    spinner.start(msg);	
-	evCreate.emit(sessionId, msg);
-	
+    spinner.start('Injecting api');	
     waPage = await injectApi(waPage);
-	msg ='WAPI injected';
-    spinner.start(msg);
-	evCreate.emit(sessionId, msg);
-	
+    spinner.start('WAPI injected');
   } else {
     console.log('Possilby TOS_BLOCKED')
-	evCreate.emit(sessionId, msg);
+	evCreate.emit(sessionId, 'Possilby TOS_BLOCKED');
   }  
 
-  msg = 'Authenticating';
-  spinner.start(msg);  
-  evCreate.emit(sessionId, msg);
+  spinner.start('Authenticating');  
   
   let authenticated = await isAuthenticated(waPage);
   let autoRefresh = puppeteerConfigOverride ? puppeteerConfigOverride.autoRefresh : false;
@@ -91,17 +81,15 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
   if (authenticated) {
     spinner.succeed();
   } else {
-    msg = 'Authenticate to continue';
-	spinner.info(msg);
-	evCreate.emit(sessionId, msg);
-    const qrSpin = ora();
-	msg = 'Loading QR';
-    qrSpin.start(msg);
-	evCreate.emit(sessionId, msg);
+	spinner.info('Authenticate to continue');
+	
+    //const qrSpin = ora();
+	qrSpin.eventEmitter(sessionId, evCreate);
+    qrSpin.start('Loading QR');
     qrSpin.succeed();
     qrLoop().catch(e => {
 		if(e.message === 'TOSBLOCK')
-		kill();			
+		return;
 		throw new Error(e.message)
 	});
     const race = [];
@@ -111,9 +99,8 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     }
     const result = await Promise.race(race);
     if(result=='timeout') {
-	  msg = 'QR Session timed out. Shutting down';
-      console.log(msg)
-	  evCreate.emit(sessionId, msg);
+      console.log('QR Session timed out. Shutting down')
+	  evCreate.emit(sessionId, 'QR Session timed out. Shutting down');
       await kill();
       throw new Error('QR Timeout');
       
@@ -124,29 +111,21 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
   }
   if(canInjectEarly) {
     //check if page is valid after 5 seconds
-	msg = 'Checking if session is valid';
-    spinner.start(msg);
-	evCreate.emit(sessionId, msg);
+    spinner.start('Checking if session is valid');
     await timeout(5000);
   } else {
-	msg = 'Injecting api';
     spinner.start('Injecting api');
-	evCreate.emit(sessionId, msg);
     waPage = await injectApi(waPage);
   }
 
   //@ts-ignore
   const VALID_SESSION = await waPage.evaluate(()=>window.Store&&window.Store.Msg?true:false);
   if(VALID_SESSION)  {
-	msg = 'Whatsapp is ready';
-    spinner.succeed(msg);
-	evCreate.emit(sessionId, msg);
+    spinner.succeed('Whatsapp is ready');
     return new Whatsapp(waPage);
   }
   else {
-	msg = 'The session is invalid. Retrying';
-    spinner.fail(msg);
-	evCreate.emit(sessionId, msg);
+    spinner.fail('The session is invalid. Retrying');
     await kill()
     return await create(sessionId,puppeteerConfigOverride,customUserAgent);
   }
