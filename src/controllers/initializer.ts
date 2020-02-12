@@ -3,20 +3,34 @@ import { Whatsapp } from '../api/whatsapp';
 import * as path from 'path';
 import { isAuthenticated, isInsideChat, retrieveQR, randomMouseMovements } from './auth';
 import { initWhatsapp, injectApi } from './browser';
+import { EventEmitter2 } from 'eventemitter2';
+
 const spinner = ora();
 let shouldLoop = true;
 var pjson = require('../../package.json');
+
 const timeout = ms => {
   return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 }
 let waPage;
 let qrTimeout;
+
+
+export const evCreate = new EventEmitter2({
+  wildcard: true
+});
+
+
 /**
  * Should be called to initialize whatsapp client
  */
 export async function create(sessionId?: string, puppeteerConfigOverride?:any, customUserAgent?:string) {
   if (!sessionId) sessionId = 'session';
-  spinner.start('Initializing whatsapp');
+  
+  let msg = 'Initializing whatsapp';
+  spinner.start(msg);
+  evCreate.emit(sessionId, msg);
+  
   waPage = await initWhatsapp(sessionId, puppeteerConfigOverride, customUserAgent);
   spinner.succeed();
 
@@ -25,25 +39,42 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
   const SULLA_HOTFIX_VERSION = pjson.version;
   //@ts-ignore
   const WA_VERSION = await waPage.evaluate(()=>window.Debug?window.Debug.VERSION:'I think you have been TOS_BLOCKed')
+  
   console.log('Debug Info', {
     WA_VERSION,
     PAGE_UA,
     SULLA_HOTFIX_VERSION,
     BROWSER_VERSION
   })
+  evCreate.emit(sessionId, 'Debug Info', {
+    WA_VERSION,
+    PAGE_UA,
+    SULLA_HOTFIX_VERSION,
+    BROWSER_VERSION
+  });
 
   //check if you can inject early
   //@ts-ignore
   const canInjectEarly = await waPage.evaluate(() => {return (typeof webpackJsonp !== "undefined")});
   if(canInjectEarly) {
-    spinner.start('Injecting api');
+	msg = 'Injecting api';
+    spinner.start(msg);	
+	evCreate.emit(sessionId, msg);
+	
     waPage = await injectApi(waPage);
-    spinner.start('WAPI injected');
+	msg ='WAPI injected';
+    spinner.start(msg);
+	evCreate.emit(sessionId, msg);
+	
   } else {
-    console.log('Possilby TOS_BLOCKed')
-  }
+    console.log('Possilby TOS_BLOCKED')
+	evCreate.emit(sessionId, msg);
+  }  
 
-  spinner.start('Authenticating');
+  msg = 'Authenticating';
+  spinner.start(msg);  
+  evCreate.emit(sessionId, msg);
+  
   let authenticated = await isAuthenticated(waPage);
   let autoRefresh = puppeteerConfigOverride ? puppeteerConfigOverride.autoRefresh : false;
  
@@ -54,17 +85,25 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     console.log(' ')
     qrTimeout = timeout((puppeteerConfigOverride?(puppeteerConfigOverride.qrRefreshS || 10):10)*1000);
     await qrTimeout;
-    if(autoRefresh)qrLoop();
+    if(autoRefresh) qrLoop();
   };
 
   if (authenticated) {
     spinner.succeed();
   } else {
-    spinner.info('Authenticate to continue');
+    msg = 'Authenticate to continue';
+	spinner.info(msg);
+	evCreate.emit(sessionId, msg);
     const qrSpin = ora();
-    qrSpin.start('Loading QR');
+	msg = 'Loading QR';
+    qrSpin.start(msg);
+	evCreate.emit(sessionId, msg);
     qrSpin.succeed();
-    qrLoop();
+    qrLoop().catch(e => {
+		if(e.message === 'TOSBLOCK')
+		kill();			
+		throw new Error(e.message)
+	});
     const race = [];
     race.push(isInsideChat(waPage).toPromise());
     if(puppeteerConfigOverride&&puppeteerConfigOverride.killTimer){
@@ -72,7 +111,9 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     }
     const result = await Promise.race(race);
     if(result=='timeout') {
-      console.log('Session timed out. Shutting down')
+	  msg = 'QR Session timed out. Shutting down';
+      console.log(msg)
+	  evCreate.emit(sessionId, msg);
       await kill();
       throw new Error('QR Timeout');
       
@@ -83,21 +124,29 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
   }
   if(canInjectEarly) {
     //check if page is valid after 5 seconds
-    spinner.start('Checking if session is valid');
+	msg = 'Checking if session is valid';
+    spinner.start(msg);
+	evCreate.emit(sessionId, msg);
     await timeout(5000);
   } else {
+	msg = 'Injecting api';
     spinner.start('Injecting api');
+	evCreate.emit(sessionId, msg);
     waPage = await injectApi(waPage);
   }
 
   //@ts-ignore
   const VALID_SESSION = await waPage.evaluate(()=>window.Store&&window.Store.Msg?true:false);
   if(VALID_SESSION)  {
-    spinner.succeed('Whatsapp is ready');
+	msg = 'Whatsapp is ready';
+    spinner.succeed(msg);
+	evCreate.emit(sessionId, msg);
     return new Whatsapp(waPage);
   }
   else {
-    spinner.fail('The session is invalid. Retrying')
+	msg = 'The session is invalid. Retrying';
+    spinner.fail(msg);
+	evCreate.emit(sessionId, msg);
     await kill()
     return await create(sessionId,puppeteerConfigOverride,customUserAgent);
   }

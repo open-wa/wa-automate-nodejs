@@ -5,9 +5,9 @@ import { from, merge } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { width, height } from '../config/puppeteer.config';
 const spinner = ora();
-import {EventEmitter2} from 'eventemitter2';
+import { EventEmitter2 } from 'eventemitter2';
 export const ev = new EventEmitter2({
-  wildcard:true,
+  wildcard: true
 });
 
 /**
@@ -42,23 +42,31 @@ export const isInsideChat = (waPage: puppeteer.Page) => {
   );
 };
 
-export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, autoRefresh:boolean=false,throwErrorOnTosBlock:boolean=false) {
-  if(autoRefresh) {
-  const evalResult = await waPage.evaluate(() => {
-    //@ts-ignore
-    if(!window.Store || !window.Store.State) return false;
-    //@ts-ignore
-    window.Store.State.default.state="UNPAIRED"
-    //@ts-ignore
-    window.Store.State.default.run();
-    return true;
-  });
-  if(evalResult===false) 
-  {
-    const em = 'Seems as though you have been TOS_BLOCKed, unable to refresh QR Code. Please see https://github.com/smashah/sulla#best-practice for information on how to prevent this from happeing. You will most likely not get a QR Code';
-    console.log(em)
-    if(throwErrorOnTosBlock) throw new Error('TOSBLOCK')
-}
+export async function retrieveQR(
+  waPage: puppeteer.Page,
+  sessionId?: string,
+  autoRefresh: boolean = false,
+  throwErrorOnTosBlock: boolean = false
+) {
+  if (autoRefresh) {
+    const evalResult = await waPage.evaluate(() => {
+      //@ts-ignore
+      if (!window.Store || !window.Store.State) return false;
+      //@ts-ignore
+      window.Store.State.default.state = 'UNPAIRED';
+      //@ts-ignore
+      window.Store.State.default.run();
+      return true;
+    });
+    if (evalResult === false) {
+      const em =
+        'Seems as though you have been TOS_BLOCKed, unable to refresh QR Code. Please see https://github.com/smashah/sulla#best-practice for information on how to prevent this from happeing. You will most likely not get a QR Code';
+      console.log(em);
+      if (throwErrorOnTosBlock) {
+        ev.emit(`error${sessionId ? `.${sessionId}` : ``}`, 'TOSBLOCK');
+        throw new Error('TOSBLOCK');
+      }
+    }
   }
   await waPage.waitForSelector("canvas[aria-label='Scan me!']", { timeout: 0 });
   const qrData = await waPage.evaluate(
@@ -67,8 +75,8 @@ export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, auto
   const qrCode = await waPage.evaluate(
     `document.querySelector("canvas[aria-label='Scan me!']").toDataURL()`
   );
-  
-  ev.emit(`qr${sessionId?`.${sessionId}`:``}`, qrCode, sessionId);
+
+  ev.emit(`qr${sessionId ? `.${sessionId}` : ``}`, qrCode, sessionId);
   // ev.emit(`qr${sessionId?`.${sessionId}`:``}`, sessionId? {qrImage,sessionId}:qrImage);
   qrcode.generate(qrData, {
     small: true
