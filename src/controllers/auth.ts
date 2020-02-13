@@ -44,17 +44,9 @@ export const isInsideChat = (waPage: puppeteer.Page) => {
 
 export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, autoRefresh:boolean=false,throwErrorOnTosBlock:boolean=false) {
   if(autoRefresh) {
-  const evalResult = await waPage.evaluate(() => {
     //@ts-ignore
-    if(!window.Store || !window.Store.State) return false;
-    //@ts-ignore
-    window.Store.State.default.state="UNPAIRED"
-    //@ts-ignore
-    window.Store.State.default.run();
-    return true;
-  });
-  if(evalResult===false) 
-  {
+  const evalResult = await waPage.evaluate(() => {if(window.Store && window.Store.State) {window.Store.State.default.state="UNPAIRED";window.Store.State.default.run();return true;} else {return false;}});
+    if(evalResult===false) {
     const em = 'Seems as though you have been TOS_BLOCKed, unable to refresh QR Code. Please see https://github.com/smashah/sulla#best-practice for information on how to prevent this from happeing. You will most likely not get a QR Code';
     console.log(em)
     if(throwErrorOnTosBlock) throw new Error('TOSBLOCK')

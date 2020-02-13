@@ -6,7 +6,8 @@
  * Auto discovery the webpack object references of instances that contains all functions used by the WAPI
  * functions and creates the Store object.
  */
-if (!window.Store) {
+
+if (!window.Store||!window.Store.Msg) {
     (function () {
         function getStore(modules) {
             let foundCount = 0;
@@ -29,6 +30,8 @@ if (!window.Store) {
                 { id: "addAndSendMsgToChat", conditions: (module) => (module.addAndSendMsgToChat) ? module.addAndSendMsgToChat : null },
                 { id: "sendMsgToChat", conditions: (module) => (module.sendMsgToChat) ? module.sendMsgToChat : null },
                 { id: "Catalog", conditions: (module) => (module.Catalog) ? module.Catalog : null },
+                { id: "bp", conditions: (module) => (module.default&&module.default.toString().includes('binaryProtocol deprecated version')) ? module.default : null },
+                { id: "MsgKey", conditions: (module) => (module.default&&module.default.toString().includes('MsgKey error: id is already a MsgKey')) ? module.default : null },
                 { id: "Parser", conditions: (module) => (module.convertToTextWithoutSpecialEmojis) ? module.default : null },
                 { id: "Builders", conditions: (module) => (module.TemplateMessage && module.HydratedFourRowTemplate) ? module : null },
                 { id: "Identity", conditions: (module) => (module.queryIdentity && module.updateIdentity) ? module : null },
@@ -48,7 +51,7 @@ if (!window.Store) {
                     if ((typeof first === "object") && (first.exports)) {
                         for (let idx2 in modules[idx]) {
                             let module = modules(idx2);
-                            console.log("TCL: getStore -> module", module ? Object.getOwnPropertyNames(module.default || module).filter(item => typeof (module.default || module)[item] === 'function').length ? module.default || module : "":'')
+                            // console.log("TCL: getStore -> module", module ? Object.getOwnPropertyNames(module.default || module).filter(item => typeof (module.default || module)[item] === 'function').length ? module.default || module : "":'')
                             if (!module) {
                                 continue;
                             }
@@ -82,21 +85,10 @@ if (!window.Store) {
                 }
             }
         }
-
-        webpackJsonp([], { 'parasite': (x, y, z) => getStore(z) }, ['parasite']);
+        const parasite = `parasite${Date.now()}`
+        webpackJsonp([], { [parasite]: (x, y, z) => getStore(z) }, [parasite]);
     })();
 }
-// window.Store.superman = webpackJsonp([], null, ["ehfgacedb"]);
-// window.Store.sm = webpackJsonp([], null, ["jjgaeci"]);
-// window.Store.a = webpackJsonp([], null, ["bhgfchijhg"]);
-// window.Store.b = webpackJsonp([], null, ["cfegjiegcd"]);
-// window.Store.c = webpackJsonp([], null, ["cjcghajbag"]);
-// window.Store.d = webpackJsonp([], null, ["dbdfbgehgj"]);
-// window.Store.e = webpackJsonp([], null, ["bbchdeehff"]);
-// window.Store.buttons = webpackJsonp([], null, ["cdaaeifjfh"]);
-window.Store.sendMsgRecord=webpackJsonp([],null,['cjafhagbj']).sendMsgRecord;
-window.Store.bp = webpackJsonp([],null,['eaigijhjei']);
-window.Store.MsgKey = webpackJsonp([],null,['cffajefeag']).default;
 
 window.WAPI = {
     lastRead: {}
@@ -1394,7 +1386,7 @@ window.WAPI.getBufferedNewMessages = function (done) {
 
 window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
     //var idUser = new window.Store.UserConstructor(chatid);
-    var idUser = new Store.WidFactory.createWid(chatId);
+    var idUser = new Store.WidFactory.createWid(chatid);
     // create new chat
     return Store.Chat.find(idUser).then((chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
@@ -1409,7 +1401,7 @@ window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
 
 window.WAPI.sendVideoAsGif = function (imgBase64, chatid, filename, caption, done) {
     //var idUser = new window.Store.UserConstructor(chatid);
-    var idUser = new Store.WidFactory.createWid(chatId);
+    var idUser = new Store.WidFactory.createWid(chatid);
     // create new chat
     return Store.Chat.find(idUser).then((chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
@@ -1474,7 +1466,7 @@ window.WAPI.sendImageWithProduct = function (imgBase64, chatid, caption, bizNumb
                 caption
             }
 
-            var idUser = new Store.WidFactory.createWid(chatId);
+            var idUser = new Store.WidFactory.createWid(chatid);
 
             return Store.Chat.find(idUser).then((chat) => {
                 var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
@@ -1689,7 +1681,7 @@ hydratedTitleText:"asdasd232"
         var e = t[0];
         const s = Store.Base2;
         if(!s.BinaryProtocol)
-        window.Store.Base2.BinaryProtocol = new window.Store.bp.default(11);
+        window.Store.Base2.BinaryProtocol = new window.Store.bp(11);
         var idUser = new Store.WidFactory.createWid(chatId);
         var k = Store.createMessageKey({
             ...e,
@@ -1797,7 +1789,7 @@ hydratedTitleText:"asdasd232"
         console.log('e',e)
         const s = Store.Base2;
         if(!s.BinaryProtocol)
-        window.Store.Base2.BinaryProtocol = new window.Store.bp.default(11);
+        window.Store.Base2.BinaryProtocol = new window.Store.bp(11);
         var idUser = new Store.WidFactory.createWid(chatId);
         var k = Store.createMessageKey({
             ...e,

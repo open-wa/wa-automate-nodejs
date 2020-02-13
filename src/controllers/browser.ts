@@ -25,6 +25,8 @@ export async function initWhatsapp(sessionId?: string, puppeteerConfigOverride?:
     deviceScaleFactor: 1
   });
   // await installMouseHelper(waPage);
+  const cacheEnabled = puppeteerConfigOverride&&puppeteerConfigOverride.cacheEnabled? puppeteerConfigOverride.cacheEnabled :true
+  await waPage.setCacheEnabled(cacheEnabled);
   await waPage.goto(puppeteerConfig.whatsappUrl);
   await randomMouseMovements(waPage);
   return waPage;

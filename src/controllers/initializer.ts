@@ -32,7 +32,6 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     BROWSER_VERSION
   })
 
-  //check if you can inject early
   //@ts-ignore
   const canInjectEarly = await waPage.evaluate(() => {return (typeof webpackJsonp !== "undefined")});
   if(canInjectEarly) {
@@ -58,7 +57,7 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
   };
 
   if (authenticated) {
-    spinner.succeed();
+    spinner.succeed('Authenticated');
   } else {
     spinner.info('Authenticate to continue');
     const qrSpin = ora();
@@ -81,13 +80,15 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     clearTimeout(qrTimeout);
     spinner.succeed();
   }
+  const pre = canInjectEarly? 'Rei':'I';
+  spinner.start(`${pre}njecting api`);
+  waPage = await injectApi(waPage);
+  spinner.succeed(`WAPI ${pre}njected`);
+
   if(canInjectEarly) {
     //check if page is valid after 5 seconds
     spinner.start('Checking if session is valid');
     await timeout(5000);
-  } else {
-    spinner.start('Injecting api');
-    waPage = await injectApi(waPage);
   }
 
   //@ts-ignore

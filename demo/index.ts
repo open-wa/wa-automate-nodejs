@@ -122,12 +122,21 @@ create('session',
   throwErrorOnTosBlock:true,
   killTimer:40,
   autoRefresh:true, //default to true
-  qrRefreshS:15 //please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.
-},
-tosBlockGuaranteed
+  qrRefreshS:15, //please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.
+  //example chrome args. THIS WILL BREAK YOUR APP !!!ONLY FOR TESTING!!!.
+  cacheEnabled:false,
+  chromiumArgs:[
+    '--aggressive-cache-discard',
+    '--disable-cache',
+    '--disable-application-cache',
+    '--disable-offline-load-stale-cache',
+    '--disk-cache-size=0'
+  ]
+}
 )
 // create()
-.then(async client => await start(client)).catch(e=>{
+.then(async client => await start(client))
+.catch(e=>{
   console.log(e);
   // process.exit();
 });
