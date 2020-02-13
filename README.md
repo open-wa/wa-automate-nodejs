@@ -64,6 +64,11 @@ function start(client) {
 | [Create Groups](#create-group)         |             | ✅          |
 | [add, remove, promote, demote participants](##group-participants-beta)         |             | ✅          |
 
+## Starting a conversation
+
+As a matter of principle, this library will not develop any functionality to start new chats. If you want to start a conversation with a recipient I suggest using [whatsapp links](https://faq.whatsapp.com/en/26000030/) or add [whatsapp-button](https://www.producthunt.com/posts/whatsapp-button-2) to your website ([github link](https://github.com/smashah/whatsapp-button?ref=producthunt)).
+
+
 ## Capturing QR Code
 
 An event is emitted every time the QR code is received by the system. You can grab hold of this event emitter by importing `ev`
