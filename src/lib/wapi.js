@@ -1392,7 +1392,7 @@ window.WAPI.getBufferedNewMessages = function (done) {
 };
 /** End new messages observable functions **/
 
-window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
+window.WAPI.sendImage = function (imgBase64, chatId, filename, caption, done) {
     //var idUser = new window.Store.UserConstructor(chatid);
     var idUser = new Store.WidFactory.createWid(chatId);
     // create new chat
@@ -1407,7 +1407,7 @@ window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
     });
 }
 
-window.WAPI.sendVideoAsGif = function (imgBase64, chatid, filename, caption, done) {
+window.WAPI.sendVideoAsGif = function (imgBase64, chatId, filename, caption, done) {
     //var idUser = new window.Store.UserConstructor(chatid);
     var idUser = new Store.WidFactory.createWid(chatId);
     // create new chat
@@ -1446,14 +1446,14 @@ window.WAPI.getBusinessProfilesProducts = function (id, done) {
 /**
  * Sends product with image to chat
  * @param imgBase64 Base64 image data
- * @param chatid string the id of the chat that you want to send this product to
+ * @param chatId string the id of the chat that you want to send this product to
  * @param caption string the caption you want to add to this message
  * @param bizNumber string the @c.us number of the business account from which you want to grab the product
  * @param productId string the id of the product within the main catalog of the aforementioned business
  * @param done - function - Callback function to be called contained the buffered messages.
  * @returns 
  */
-window.WAPI.sendImageWithProduct = function (imgBase64, chatid, caption, bizNumber, productId, done) {
+window.WAPI.sendImageWithProduct = function (imgBase64, chatId, caption, bizNumber, productId, done) {
     Store.Catalog.findCarouselCatalog(bizNumber).then(cat => {
         if (cat && cat[0]) {
             const product = cat[0].productCollection.get(productId);
