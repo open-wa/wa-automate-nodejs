@@ -198,10 +198,11 @@ export class Whatsapp {
       fn(participantChangedEvent)
     )
       .then(_ => this.page.evaluate(
-        ({ groupId }) => {
+        ({ groupId,funcName }) => {
+        //@ts-ignore
           WAPI.onParticipantsChanged(groupId, window[funcName]);
         },
-        { groupId }
+        { groupId, funcName}
       ));
   }
 

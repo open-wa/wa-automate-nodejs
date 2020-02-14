@@ -51,7 +51,7 @@ async function start(client: Whatsapp) {
   // console.log("TCL: start -> allMessages", allmsgs.length);
 
   client.onAnyMessage(message=>console.log(message.type));
-
+  client.onParticipantsChanged("XXXXXXXXXX-YYYYYYYYY@g.us",x=>console.log(x))
   client.onMessage(async message => {
     try {
     const isConnected = await client.isConnected();
@@ -132,8 +132,7 @@ create('session',
     '--disable-offline-load-stale-cache',
     '--disk-cache-size=0'
   ]
-},
-tosBlockGuaranteed
+}
 )
 // create()
 .then(async client => await start(client))
