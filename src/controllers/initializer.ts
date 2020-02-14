@@ -67,7 +67,7 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
 	 
 	  const qrLoop = async () => {
 		if(!shouldLoop) return;
-		await retrieveQR(waPage,sessionId,autoRefresh,puppeteerConfigOverride&&puppeteerConfigOverride.throwErrorOnTosBlock==true);
+		await retrieveQR(waPage,sessionId,autoRefresh,throwOnError);
 		qrTimeout = timeout((puppeteerConfigOverride?(puppeteerConfigOverride.qrRefreshS || 10):10)*1000);
 		await qrTimeout;
 		if(autoRefresh) qrLoop();
@@ -139,7 +139,7 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
 		return await create(sessionId,puppeteerConfigOverride,customUserAgent);
 	  }
 	} catch (error) {
-		console.log('Error create: ', error.message);
+		//console.log('Error create: ', error.message);
 		evCreate.emit(sessionId, error.message);					
 		reject(error);
 		await kill();
