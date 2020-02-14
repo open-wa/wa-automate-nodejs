@@ -29,13 +29,13 @@ declare module WAPI {
   const sendMessage: (to: string, content: string) => void;
   const reply: (to: string, content: string, quotedMsg: string | Message) => void;
   const getGeneratedUserAgent: (userAgent?: string) => string;
-  const forwardMessages: (to: string, messages: string | [string | Message], skipMyMessages: boolean) => any;
+  const forwardMessages: (to: string, messages: string | (string | Message)[], skipMyMessages: boolean) => any;
   const sendLocation: (to: string, lat: any, lng: any, loc: string) => void;
   const addParticipant: (groupId: string, contactId: string) => void;
   const removeParticipant: (groupId: string, contactId: string) => void;
   const promoteParticipant: (groupId: string, contactId: string) => void;
   const demoteParticipant: (groupId: string, contactId: string) => void;
-  const createGroup: (groupName: string, contactId: string|[string]) => void;
+  const createGroup: (groupName: string, contactId: string|string[]) => void;
   const sendSeen: (to: string) => void;
   const sendImage: (
     base64: string,
@@ -79,7 +79,7 @@ declare module WAPI {
   const getContact: (contactId: string) => Contact;
   const checkNumberStatus: (contactId: string) => any;
   const getChatById: (contactId: string) => Chat;
-  const deleteMessage: (contactId: string, messageId: [string] | string, revoke?: boolean) => any;
+  const deleteMessage: (contactId: string, messageId: string[] | string, revoke?: boolean) => any;
   const sendContact: (to: string, contact: string | string[]) => any;
   const simulateTyping: (to: string, on: boolean) => void;
   const isConnected: () => Boolean;
@@ -648,7 +648,7 @@ export class Whatsapp {
    * @param messageId
    * @returns nothing
    */
-  public async deleteMessage(contactId: string, messageId: [string] | string, revoke?: boolean) {
+  public async deleteMessage(contactId: string, messageId: string[] | string, revoke?: boolean) {
     return await this.page.evaluate(
       ({ contactId, messageId, revoke }) => WAPI.deleteMessage(contactId, messageId, revoke),
       { contactId, messageId, revoke }
@@ -733,7 +733,7 @@ export class Whatsapp {
    * @param to group name: 'New group'
    * @param contacts: A single contact id or an array of contact ids.
    */
-  public async createGroup(groupName:string,contacts:string|[string]){
+  public async createGroup(groupName:string,contacts:string|string[]){
     return await this.page.evaluate(
       ({ groupName, contacts }) => {
         WAPI.createGroup(groupName, contacts);
