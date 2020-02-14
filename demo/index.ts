@@ -132,13 +132,14 @@ create('session',
     '--disable-offline-load-stale-cache',
     '--disk-cache-size=0'
   ]
-}
+},
+tosBlockGuaranteed
 )
 // create()
 .then(async client => await start(client))
 .catch(e=>{
-  console.log(e);
-  // process.exit();
+  console.log('Error',e.message);
+  process.exit();
 });
 
 //or you can set a 'session id'

@@ -19,6 +19,7 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
   spinner.start('Initializing whatsapp');
   waPage = await initWhatsapp(sessionId, puppeteerConfigOverride, customUserAgent);
   spinner.succeed();
+  const throwOnError=puppeteerConfigOverride&&puppeteerConfigOverride.throwErrorOnTosBlock==true;
 
   const PAGE_UA =  await waPage.evaluate('navigator.userAgent');
   const BROWSER_VERSION = await waPage.browser().version();
@@ -39,6 +40,7 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     waPage = await injectApi(waPage);
     spinner.start('WAPI injected');
   } else {
+    if(throwOnError) throw Error('TOSBLOCK');
     console.log('Possilby TOS_BLOCKed')
   }
 
@@ -49,7 +51,7 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
   const qrLoop = async () => {
     if(!shouldLoop) return;
     console.log(' ')
-    await retrieveQR(waPage,sessionId,autoRefresh,puppeteerConfigOverride&&puppeteerConfigOverride.throwErrorOnTosBlock==true);
+    await retrieveQR(waPage,sessionId,autoRefresh,throwOnError);
     console.log(' ')
     qrTimeout = timeout((puppeteerConfigOverride?(puppeteerConfigOverride.qrRefreshS || 10):10)*1000);
     await qrTimeout;
