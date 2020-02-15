@@ -1321,6 +1321,14 @@ window.WAPI.waitNewAcknowledgements = function (callback) {
  */
 var groupParticpiantsEvents = {};
 window.WAPI.onParticipantsChanged = function (groupId, callback) {
+    const subtypeEvents = [
+        "invite" , 
+        "add" , 
+        "remove" ,
+        "leave" ,
+        "promote" ,
+        "demote"
+    ];
     const chat = window.Store.Chat.get(groupId);
     //attach all group Participants to the events object as 'add'
     const metadata = window.Store.GroupMetadata.get(groupId);
@@ -1337,7 +1345,7 @@ window.WAPI.onParticipantsChanged = function (groupId, callback) {
     chat.on("change:groupMetadata.participants",
         _ => chat.on("all", (x, y) => {
             const { isGroup, previewMessage } = y;
-            if (isGroup && x === "change" && previewMessage && previewMessage.type === "gp2" && (previewMessage.subtype === "invite" || previewMessage.subtype === "add" || previewMessage.subtype === "remove")) {
+            if (isGroup && x === "change" && previewMessage && previewMessage.type === "gp2" && subtypeEvents.includes(previewMessage.subtype)) {
                 const { subtype, from, recipients } = previewMessage;
                 const rec = recipients[0].toString();
                 if (groupParticpiantsEvents[groupId][rec] && groupParticpiantsEvents[groupId][recipients[0]].subtype == subtype) {
