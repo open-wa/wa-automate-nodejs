@@ -1337,7 +1337,7 @@ window.WAPI.onParticipantsChanged = function (groupId, callback) {
     chat.on("change:groupMetadata.participants",
         _ => chat.on("all", (x, y) => {
             const { isGroup, previewMessage } = y;
-            if (isGroup && x === "change" && previewMessage && previewMessage.type === "gp2" && (previewMessage.subtype === "add" || previewMessage.subtype === "remove")) {
+            if (isGroup && x === "change" && previewMessage && previewMessage.type === "gp2" && (previewMessage.subtype === "invite" || previewMessage.subtype === "add" || previewMessage.subtype === "remove")) {
                 const { subtype, from, recipients } = previewMessage;
                 const rec = recipients[0].toString();
                 if (groupParticpiantsEvents[groupId][rec] && groupParticpiantsEvents[groupId][recipients[0]].subtype == subtype) {
