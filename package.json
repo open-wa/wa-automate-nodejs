@@ -61,6 +61,7 @@
     "ora": "^4.0.2",
     "puppeteer": "2.0.0",
     "puppeteer-extra": "^2.1.3",
+    "puppeteer-extra-plugin-devtools": "^2.2.8",
     "puppeteer-extra-plugin-stealth": "^2.4.9",
     "qrcode-terminal": "^0.12.0",
     "request": "^2.88.0",

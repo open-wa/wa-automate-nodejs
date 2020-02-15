@@ -5,6 +5,8 @@ const {installMouseHelper} = require('./mouse-helper');
 // puppeteer-extra is a drop-in replacement for puppeteer,
 // it augments the installed puppeteer with plugin functionality
 const puppeteer = require('puppeteer-extra');
+const devtools = require('puppeteer-extra-plugin-devtools')()
+
 // add stealth plugin and use defaults (all evasion techniques)
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin());
@@ -54,6 +56,17 @@ async function initBrowser(sessionId?: string, puppeteerConfigOverride:any={}) {
     args: [...puppeteerConfig.chromiumArgs],
     ...puppeteerConfigOverride
   });
+  //devtools
+  if(puppeteerConfigOverride&&puppeteerConfigOverride.devtools){
+    if(puppeteerConfigOverride.devtools.user&&puppeteerConfigOverride.devtools.pass) devtools.setAuthCredentials(puppeteerConfigOverride.devtools.user, puppeteerConfigOverride.devtools.pass)
+    try {
+      // const tunnel = await devtools.createTunnel(browser);
+      const tunnel = devtools.getLocalDevToolsUrl(browser);
+      console.log('\ndevtools URL: '+tunnel);
+    } catch (error) {
+    console.log("TCL: initBrowser -> error", error)
+    }
+  }
   return browser;
 }
 
