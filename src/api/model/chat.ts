@@ -29,3 +29,13 @@ export interface Chat {
   isOnline?: any;
   lastSeen?: any;
 }
+
+export interface LiveLocationChangedEvent {
+  id: string,
+  lat: number,
+  lng: number,
+  speed: number,
+  lastUpdated: number,
+  accuracy: number,
+  degrees: any,
+}
