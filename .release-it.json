@@ -3,7 +3,7 @@
     "release": true
   },
   "hooks": {
-    "before:release": "npx auto-changelog --commit-limit false -t keepachangelog",
+    "before:release": "npx auto-changelog --commit-limit false -p -t keepachangelog",
     "after:release": "npm run release-image"
   },
   "git": {
