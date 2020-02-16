@@ -59,7 +59,8 @@ function start(client) {
 | [Simulated '...typing'](#simulate-typing)             |             | ✅          |
 | [Send GIFs!](#sending-gifs)                       |             | ✅          |
 | [Forward Messages](#sending-gifs)                  |             | ✅          |
-| [Listen to Read Receipts](#sending-gifs)           |             | ✅          |
+| [Listen to Read Receipts](#listen-to-read-receipts)           |             | ✅          |
+| [Listen to Live Locations](#listen-to-live-locations)           |             | ✅          |
 | [Group participant changes](#group-participant-changes)         |             | ✅          |
 | [Create Groups](#create-group)         |             | ✅          |
 | [add, remove, promote, demote participants](##group-participants-beta)         |             | ✅          |
@@ -396,6 +397,18 @@ client.onParticipantsChanged("XXXXXXXX-YYYYYYYY@g.us", (participantChangedEvent:
 ```
 
 This solution can result in some false positives and misfires however a lot of effort has been made to mitigate this to a reasonable level. Best practice is to maintian a seperate registry of participants and go from that.
+
+# Listen to Live Locations
+
+As of version 1.7.21 you can now listen to live locations from a specific chat. You can see the liveLocation callback object [here](https://github.com/smashah/sulla/blob/752adb1cb1664044f9f53410e723421131ecd81f/src/api/model/chat.ts#L33) 
+
+```javascript
+
+client.onLiveLocation('XXXXXXX-YYYYY@c.us', (liveLocation) => {
+  console.log('Someone moved',liveLocation)
+})
+
+```
 
 ## Listen to Read Receipts
 

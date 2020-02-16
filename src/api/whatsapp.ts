@@ -5,7 +5,7 @@ import { Contact } from './model/contact';
 import { Message } from './model/message';
 import { Id } from './model/id';
 import axios from 'axios';
-import { participantChangedEventModel, ParticipantChangedEventModel } from './model/group-metadata';
+import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent } from '../config/puppeteer.config'
 
 export const getBase64 = async (url: string) => {
@@ -215,7 +215,7 @@ export class Whatsapp {
    */
   public onParticipantsChanged(groupId: string, fn: (participantChangedEvent: ParticipantChangedEventModel) => void) {
     const funcName = "onParticipantsChanged_" + groupId.replace('_', "").replace('_', "");
-    return this.page.exposeFunction(funcName, (participantChangedEvent: participantChangedEventModel) =>
+    return this.page.exposeFunction(funcName, (participantChangedEvent: ParticipantChangedEventModel) =>
       fn(participantChangedEvent)
     )
       .then(_ => this.page.evaluate(
