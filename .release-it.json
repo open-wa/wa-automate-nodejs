@@ -1,5 +1,11 @@
 {
   "github": {
     "release": true
+  },
+  "hooks": {
+    "before:release": "npx auto-changelog -p"
+  },
+  "git": {
+    "changelog": "npx auto-changelog --stdout --commit-limit false --unreleased --template https://raw.githubusercontent.com/release-it/release-it/master/conf/changelog-compact.hbs"
   }
 }

@@ -43,6 +43,7 @@
     "@types/node": "^12.7.12",
     "@types/puppeteer": "^1.20.2",
     "@types/shelljs": "^0.8.5",
+    "auto-changelog": "^1.16.2",
     "husky": "^3.0.8",
     "precise-commits": "^1.0.2",
     "prettier": "^1.18.2",
