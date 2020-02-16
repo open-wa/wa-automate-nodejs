@@ -1148,6 +1148,33 @@ window.WAPI.deleteConversation = function (chatId, done) {
     return true;
 };
 
+window.WAPI.smartDeleteMessages = function (chatId, messageArray, done) {
+    var userId = new Store.WidFactory.createWid(chatId);
+    let conversation = WAPI.getChat(userId);
+    if (!conversation) {
+        if (done !== undefined) {
+            done(false);
+        }
+        return false;
+    }
+
+    if (!Array.isArray(messageArray)) {
+        messageArray = [messageArray];
+    }
+
+    let messagesToDelete = messageArray.map(msgId => (typeof msgId == 'string')?window.Store.Msg.get(msgId):msgId);
+    let jobs = [
+        conversation.sendRevokeMsgs(messagesToDelete.filter(msg=>msg.isSentByMe),conversation),
+        conversation.sendDeleteMsgs(messagesToDelete.filter(msg=>!msg.isSentByMe),conversation)
+    ]
+    Promise.all(jobs).then(_=>{
+        if (done !== undefined) {
+            done(true);
+        }
+        return true;
+    })
+};
+
 window.WAPI.deleteMessage = function (chatId, messageArray, revoke = false, done) {
     let userId = new window.Store.UserConstructor(chatId, { intentionallyUsePrivateConstructor: true });
     let conversation = WAPI.getChat(userId);

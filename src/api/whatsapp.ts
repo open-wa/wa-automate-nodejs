@@ -79,7 +79,7 @@ declare module WAPI {
   const getContact: (contactId: string) => Contact;
   const checkNumberStatus: (contactId: string) => any;
   const getChatById: (contactId: string) => Chat;
-  const deleteMessage: (contactId: string, messageId: string[] | string, revoke?: boolean) => any;
+  const smartDeleteMessages: (contactId: string, messageId: string[] | string) => any;
   const sendContact: (to: string, contact: string | string[]) => any;
   const simulateTyping: (to: string, on: boolean) => void;
   const isConnected: () => Boolean;
@@ -648,10 +648,10 @@ export class Whatsapp {
    * @param messageId
    * @returns nothing
    */
-  public async deleteMessage(contactId: string, messageId: string[] | string, revoke?: boolean) {
+  public async deleteMessage(contactId: string, messageId: string[] | string) {
     return await this.page.evaluate(
-      ({ contactId, messageId, revoke }) => WAPI.deleteMessage(contactId, messageId, revoke),
-      { contactId, messageId, revoke }
+      ({ contactId, messageId }) => WAPI.smartDeleteMessages(contactId, messageId),
+      { contactId, messageId }
     );
   }
 
