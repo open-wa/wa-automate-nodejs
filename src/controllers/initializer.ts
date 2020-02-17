@@ -21,6 +21,8 @@ export const evCreate = new EventEmitter2({
  * Should be called to initialize whatsapp client
  */
 export async function create(sessionId?: string, puppeteerConfigOverride?:any, customUserAgent?:string) {
+try{
+
   shouldLoop = true;
   if (!sessionId) sessionId = 'session';
   spinner.eventEmitter(sessionId, evCreate);
@@ -122,11 +124,20 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     await kill()
     return await create(sessionId,puppeteerConfigOverride,customUserAgent);
   }
+} catch(e) {
+	console.log('pegueii');
+	evCreate.emit(sessionId, e.message);
+	await kill();
+	throw e;
+}	
+  
 }
 
 const kill = async () => {
   shouldLoop = false;
-if(qrTimeout) clearTimeout(qrTimeout);
+  if(qrTimeout) clearTimeout(qrTimeout);
+  try{
   await waPage.close();
   await waPage.browser().close();
+  }catch(e) {}
 }
