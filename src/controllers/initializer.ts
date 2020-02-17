@@ -15,6 +15,7 @@ let qrTimeout;
  * Should be called to initialize whatsapp client
  */
 export async function create(sessionId?: string, puppeteerConfigOverride?:any, customUserAgent?:string) {
+  shouldLoop = true;
   if (!sessionId) sessionId = 'session';
   spinner.start('Initializing whatsapp');
   waPage = await initWhatsapp(sessionId, puppeteerConfigOverride, customUserAgent);
