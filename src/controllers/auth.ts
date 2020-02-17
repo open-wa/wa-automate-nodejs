@@ -4,7 +4,6 @@ import * as qrcode from 'qrcode-terminal';
 import { from, merge } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { width, height } from '../config/puppeteer.config';
-const spinner = ora();
 import {EventEmitter2} from 'eventemitter2';
 export const ev = new EventEmitter2({
   wildcard:true,
@@ -49,7 +48,10 @@ export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, auto
     if(evalResult===false) {
     const em = 'Seems as though you have been TOS_BLOCKed, unable to refresh QR Code. Please see https://github.com/smashah/sulla#best-practice for information on how to prevent this from happeing. You will most likely not get a QR Code';
     console.log(em)
-    if(throwErrorOnTosBlock) throw new Error('TOSBLOCK')
+    if(throwErrorOnTosBlock) {
+		ev.emit(`error${sessionId ? `.${sessionId}` : ``}`, 'TOSBLOCK');
+		throw new Error('TOSBLOCK');
+	}
 }
   }
   await waPage.waitForSelector("canvas[aria-label='Scan me!']", { timeout: 0 });

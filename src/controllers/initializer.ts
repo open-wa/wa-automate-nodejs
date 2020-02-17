@@ -1,22 +1,31 @@
-import ora from 'ora';
 import { Whatsapp } from '../api/whatsapp';
 import * as path from 'path';
 import { isAuthenticated, isInsideChat, retrieveQR, randomMouseMovements } from './auth';
 import { initWhatsapp, injectApi } from './browser';
-const spinner = ora();
-let shouldLoop = true;
+import { EventEmitter2 } from 'eventemitter2';
+import * as spinner from './step';
+import * as qrSpin from './step';
 var pjson = require('../../package.json');
 const timeout = ms => {
   return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 }
 let waPage;
 let qrTimeout;
+let shouldLoop = true;
+
+export const evCreate = new EventEmitter2({
+  wildcard: true
+});
+
 /**
  * Should be called to initialize whatsapp client
  */
 export async function create(sessionId?: string, puppeteerConfigOverride?:any, customUserAgent?:string) {
   shouldLoop = true;
   if (!sessionId) sessionId = 'session';
+  spinner.eventEmitter(sessionId, evCreate);
+  qrSpin.eventEmitter(sessionId, evCreate);  					
+	  
   spinner.start('Initializing whatsapp');
   waPage = await initWhatsapp(sessionId, puppeteerConfigOverride, customUserAgent);
   spinner.succeed();
@@ -33,6 +42,12 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     SULLA_HOTFIX_VERSION,
     BROWSER_VERSION
   })
+  evCreate.emit(sessionId, 'DebugInfo' + JSON.stringify({
+	WA_VERSION,
+	PAGE_UA,
+	SULLA_HOTFIX_VERSION,
+	BROWSER_VERSION
+  }));  
 
   //@ts-ignore
   const canInjectEarly = await waPage.evaluate(() => {return (typeof webpackJsonp !== "undefined")});
@@ -41,8 +56,9 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     waPage = await injectApi(waPage);
     spinner.start('WAPI injected');
   } else {
-    if(throwOnError) throw Error('TOSBLOCK');
     console.log('Possilby TOS_BLOCKed')
+	evCreate.emit(sessionId, 'Possilby TOS_BLOCKED');
+	if(throwOnError) throw Error('TOSBLOCK');
   }
 
   spinner.start('Authenticating');
@@ -63,7 +79,7 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     spinner.succeed('Authenticated');
   } else {
     spinner.info('Authenticate to continue');
-    const qrSpin = ora();
+    //const qrSpin = ora();
     qrSpin.start('Loading QR');
     qrSpin.succeed();
     qrLoop();
@@ -74,7 +90,8 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     }
     const result = await Promise.race(race);
     if(result=='timeout') {
-      console.log('Session timed out. Shutting down')
+      console.log('Session timed out. Shutting down');
+	  evCreate.emit(sessionId, 'QR Session timed out. Shutting down');	
       await kill();
       throw new Error('QR Timeout');
       
