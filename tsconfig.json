@@ -57,5 +57,28 @@
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
   },
   "include": ["src/**/*"],
-  "exclude": ["src/middleware/middleware.ts"]
+  "exclude": ["src/middleware/middleware.ts"],
+    "typedocOptions": {
+      "inputFiles": ["./src/api","./src/utils"],
+        "mode": "file",
+        "out": "docs",
+        "exclude":"**.config",
+        "excludeExternals":true,
+        "includeVersion":true,
+        "hideGenerator":true,
+        "readme":"./README.md",
+        "toc": [
+          "Whatsapp",
+          "Chat",
+          "Contact",
+          "GroupMetadata",
+          "Id",
+          "LiveLocationChangedEvent",
+          "Message",
+          "ParticipantChangedEventModel",
+          "decryptMedia",
+          "smartUserAgent",
+          "WAPI",
+        ]
+    }
 }
