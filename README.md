@@ -65,6 +65,8 @@ function start(client) {
 | [Create Groups](#create-group)         |             | ✅          |
 | [add, remove, promote, demote participants](##group-participants-beta)         |             | ✅          |
 
+[Checkout all the available functions here.](https://smashah.github.io/sulla/classes/whatsapp.html)
+
 ## Starting a conversation
 
 As a matter of principle, this library will not develop any functionality to start new chats. If you want to start a conversation with a recipient I suggest using [whatsapp links](https://faq.whatsapp.com/en/26000030/) or add [whatsapp-button](https://www.producthunt.com/posts/whatsapp-button-2) to your website ([github link](https://github.com/smashah/whatsapp-button?ref=producthunt)).
@@ -78,7 +80,7 @@ An event is emitted every time the QR code is received by the system. You can gr
 import { ev } from 'sulla-hotfix';
 const fs = require('fs');
 
-ev.on('qr', async qrcode => {
+ev.on('qr.**', async qrcode => {
   //qrcode is base64 encoded qr code image
   //now you can do whatever you want with it
   const imageBuffer = Buffer.from(
