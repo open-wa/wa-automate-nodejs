@@ -35,6 +35,7 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "Parser", conditions: (module) => (module.convertToTextWithoutSpecialEmojis) ? module.default : null },
                 { id: "Builders", conditions: (module) => (module.TemplateMessage && module.HydratedFourRowTemplate) ? module : null },
                 { id: "Identity", conditions: (module) => (module.queryIdentity && module.updateIdentity) ? module : null },
+                { id: "MyStatus", conditions: (module) => (module.getStatus && module.setMyStatus) ? module : null },
                 { id: "Features", conditions: (module) => (module.FEATURE_CHANGE_EVENT && module.features) ? module : null },
                 { id: "MessageUtils", conditions: (module) => (module.storeMessages && module.appendMessage) ? module : null },
                 { id: "WebMessageInfo", conditions: (module) => (module.WebMessageInfo && module.WebFeatures) ? module.WebMessageInfo : null },
@@ -1449,6 +1450,23 @@ window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
             if (done !== undefined) done(true);
         });
     });
+}
+
+/**
+ * This function sts the profile name of the number. For future reference, setProfilePic is for profile pic,
+ * @param newName - string the new name to set as profile name
+ */
+window.WAPI.setMyName = async function (newName) {
+    if(!Store.Versions.default[11].BinaryProtocol) Store.Versions.default[11].BinaryProtocol=new Store.bp(11);
+    return await Store.Versions.default[11].setPushname(newName);
+}
+
+/**
+* Update your status
+*   @param newStatus string new Status
+*/
+window.WAPI.setMyStatus = function (newStatus) {
+    return Store.MyStatus.setMyStatus(newStatus)
 }
 
 window.WAPI.sendVideoAsGif = function (imgBase64, chatid, filename, caption, done) {

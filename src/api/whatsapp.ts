@@ -36,6 +36,8 @@ declare module WAPI {
   const forwardMessages: (to: string, messages: string | (string | Message)[], skipMyMessages: boolean) => any;
   const sendLocation: (to: string, lat: any, lng: any, loc: string) => void;
   const addParticipant: (groupId: string, contactId: string) => void;
+  const setMyName: (newName: string) => void;
+  const setMyStatus: (newStatus: string) => void;
   const removeParticipant: (groupId: string, contactId: string) => void;
   const promoteParticipant: (groupId: string, contactId: string) => void;
   const demoteParticipant: (groupId: string, contactId: string) => void;
@@ -152,6 +154,28 @@ export class Whatsapp {
         WAPI.onStateChanged(s => window['onStateChanged'](s.state))
       }));
   }
+
+  /**
+   * set your about me
+   * @param newStatus String new profile status
+   */
+  public async setMyStatus(newStatus: string) {
+    return await this.page.evaluate(
+      ({newStatus}) => {WAPI.setMyStatus(newStatus)},
+      {newStatus}
+      )
+  }
+
+  /**
+   * Set your profile name
+   * @param newName String new name to set for your profile
+   */
+   public async setMyName(newName: string) {
+     return await this.page.evaluate(
+       ({newName}) => {WAPI.setMyName(newName)},
+       {newName}
+       )
+   }
 
   /**
    * Returns the connecction state
