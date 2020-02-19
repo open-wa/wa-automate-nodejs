@@ -60,7 +60,7 @@
   "exclude": ["src/middleware/middleware.ts"],
     "typedocOptions": {
       "inputFiles": ["./src/api","./src/utils"],
-      "includes"["./node_modules/puppeteer/lib"],
+      "includes":["./node_modules/puppeteer/lib"],
         "mode": "file",
         "out": "docs",
         "exclude":"**.config",
