@@ -1,4 +1,7 @@
 import { Page } from 'puppeteer';
+/**
+ * @private
+ */
 import { ExposedFn } from './functions/exposed.enum';
 import { Chat, LiveLocationChangedEvent } from './model/chat';
 import { Contact } from './model/contact';
@@ -105,6 +108,10 @@ declare module WAPI {
 }
 
 export class Whatsapp {
+
+  /**
+   * @param page: Page puppeteer page running web.whatsapp.com
+   */
   constructor(public page: Page) {
     this.page = page;
   }

@@ -38,6 +38,8 @@
 							</div>
 							<input type="checkbox" id="tsd-filter-inherited" checked />
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
 							<input type="checkbox" id="tsd-filter-only-exported" />
 							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
 						</div>
@@ -239,6 +241,7 @@ sulla.create().then(<span class="hljs-function"><span class="hljs-params">client
 							<td>✅</td>
 						</tr>
 				</tbody></table>
+				<p><a href="https://smashah.github.io/sulla/classes/whatsapp.html">Checkout all the available functions here.</a></p>
 				<a href="#starting-a-conversation" id="starting-a-conversation" style="color: inherit; text-decoration: none;">
 					<h2>Starting a conversation</h2>
 				</a>
@@ -250,7 +253,7 @@ sulla.create().then(<span class="hljs-function"><span class="hljs-params">client
 				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { ev } <span class="hljs-keyword">from</span> <span class="hljs-string">'sulla-hotfix'</span>;
 <span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
 
-ev.on(<span class="hljs-string">'qr'</span>, <span class="hljs-keyword">async</span> qrcode =&gt; {
+ev.on(<span class="hljs-string">'qr.**'</span>, <span class="hljs-keyword">async</span> qrcode =&gt; {
   <span class="hljs-comment">//qrcode is base64 encoded qr code image</span>
   <span class="hljs-comment">//now you can do whatever you want with it</span>
   <span class="hljs-keyword">const</span> imageBuffer = Buffer.from(

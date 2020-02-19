@@ -60,13 +60,15 @@
   "exclude": ["src/middleware/middleware.ts"],
     "typedocOptions": {
       "inputFiles": ["./src/api","./src/utils"],
+      "includes"["./node_modules/puppeteer/lib"],
         "mode": "file",
         "out": "docs",
         "exclude":"**.config",
-        "excludeExternals":true,
+        "excludeExternals":false,
         "includeVersion":true,
         "hideGenerator":true,
         "readme":"./README.md",
+        "excludePrivate":true,
         "toc": [
           "Whatsapp",
           "Chat",
@@ -79,6 +81,7 @@
           "decryptMedia",
           "smartUserAgent",
           "WAPI",
+          "Page"
         ]
     }
 }
