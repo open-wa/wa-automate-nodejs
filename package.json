@@ -40,6 +40,7 @@
     "url": "https://github.com/smashah/sulla/issues"
   },
   "homepage": "https://github.com/smashah/sulla#readme",
+  "publishConfig": { "registry": "https://npm.pkg.github.com/" },
   "devDependencies": {
     "@types/changelog-parser": "^2.7.1",
     "@types/command-line-args": "^5.0.0",
