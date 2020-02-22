@@ -72,6 +72,7 @@ declare module WAPI {
   ) => void;
   const getAllContacts: () => Contact[];
   const getWAVersion: () => String;
+  const getMe: () => any;
   const getAllUnreadMessages: () => any;
   const getAllChatsWithMessages: (withNewMessageOnly?: boolean) => any;
   const getAllChats: () => any;
@@ -445,6 +446,12 @@ export class Whatsapp {
     }
   }
 
+/**
+ * Returns an object with all of your host device details
+ */
+  public async getMe(){
+    return await this.page.evaluate(() => WAPI.getMe());
+  }
 
 
   /**

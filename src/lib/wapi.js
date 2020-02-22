@@ -34,6 +34,7 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "MsgKey", conditions: (module) => (module.default&&module.default.toString().includes('MsgKey error: id is already a MsgKey')) ? module.default : null },
                 { id: "Parser", conditions: (module) => (module.convertToTextWithoutSpecialEmojis) ? module.default : null },
                 { id: "Builders", conditions: (module) => (module.TemplateMessage && module.HydratedFourRowTemplate) ? module : null },
+                { id: "Me", conditions: (module) => (module.PLATFORMS && module.Conn) ? module.default : null },
                 { id: "Identity", conditions: (module) => (module.queryIdentity && module.updateIdentity) ? module : null },
                 { id: "MyStatus", conditions: (module) => (module.getStatus && module.setMyStatus) ? module : null },
                 { id: "GroupActions", conditions: (module) => (module.sendExitGroup && module.localExitGroup) ? module : null },
@@ -636,6 +637,14 @@ window.WAPI.getGroupAdmins = async function (id, done) {
     if (done !== undefined) done(output);
     return output;
 };
+
+/**
+ * Returns an object with all of your host device details
+ */
+window.WAPI.getMe = function(){
+    const me= Store.Me.serialize();
+    return me;
+}
 
 /**
  * Gets object representing the logged in user
