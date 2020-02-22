@@ -82,6 +82,7 @@ declare module WAPI {
   const getAllNewMessages: () => any;
   const getAllGroups: () => Chat[];
   const getGroupParticipantIDs: (groupId: string) => Id[];
+  const leaveGroup: (groupId: string) => Promise<void>;
   const getContact: (contactId: string) => Contact;
   const checkNumberStatus: (contactId: string) => any;
   const getChatById: (contactId: string) => Chat;
@@ -112,7 +113,7 @@ declare module WAPI {
 export class Whatsapp {
 
   /**
-   * @param page: Page puppeteer page running web.whatsapp.com
+   * @param page: [Page](https://pptr.dev/#?product=Puppeteer&version=v2.0.0&show=api-class-page) puppeteer page running web.whatsapp.com
    */
   constructor(public page: Page) {
     this.page = page;
@@ -584,6 +585,18 @@ export class Whatsapp {
       const chats = await this.page.evaluate(() => WAPI.getAllChats());
       return chats.filter(chat => chat.isGroup);
     }
+  }
+
+  /**
+   * Removes the host device from the group
+   * @param groupId group id
+   */
+  public async leaveGroup(groupId: string) {
+    return await this.page.evaluate(
+      groupId => WAPI.leaveGroup(groupId),
+      groupId
+    );
+  }
   }
 
   /**

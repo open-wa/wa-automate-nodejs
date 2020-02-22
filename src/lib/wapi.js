@@ -36,6 +36,7 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "Builders", conditions: (module) => (module.TemplateMessage && module.HydratedFourRowTemplate) ? module : null },
                 { id: "Identity", conditions: (module) => (module.queryIdentity && module.updateIdentity) ? module : null },
                 { id: "MyStatus", conditions: (module) => (module.getStatus && module.setMyStatus) ? module : null },
+                { id: "GroupActions", conditions: (module) => (module.sendExitGroup && module.localExitGroup) ? module : null },
                 { id: "Features", conditions: (module) => (module.FEATURE_CHANGE_EVENT && module.features) ? module : null },
                 { id: "MessageUtils", conditions: (module) => (module.storeMessages && module.appendMessage) ? module : null },
                 { id: "WebMessageInfo", conditions: (module) => (module.WebMessageInfo && module.WebFeatures) ? module.WebMessageInfo : null },
@@ -210,10 +211,15 @@ window.WAPI.createGroup = function (name, contactsId) {
     return window.Store.WapQuery.createGroup(name, contactsId);
 };
 
+/**
+ * Sends the command for your device to leave a group.
+ * @param groupId stirng, the is for the group.
+ * returns Promise<void>
+ */
 window.WAPI.leaveGroup = function (groupId) {
     groupId = typeof groupId == "string" ? groupId : groupId._serialized;
     var group = WAPI.getChat(groupId);
-    return group.sendExit()
+    return Store.GroupActions.sendExitGroup(group)
 };
 
 
