@@ -438,6 +438,18 @@ ack represents the acknoledgement state, of which there are 3.
 
 Note: You won't get 3 if the recipient has read receipts off.
 
+## Timing out an unpaired session
+
+If you want to kill the process after a certain amount of seconds due to an unscanned code, you can now set the killTimer parameter in the configuration object.
+
+```javascript
+create('session',
+{
+  killTimer: 30 //kills the session if the QR code is not scanned within 30 seconds.
+})
+.then(client => start(client));
+```
+
 ## Managing multiple sessions at once
 
 With v1.2.4, you can now run multiple sessions of sulla-hotfix in the same 'app'. This allows you to do interesting things for example:
