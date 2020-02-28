@@ -214,6 +214,8 @@ await client.sendFile('xyz@c.us',[BASE64 FILE DATA],'some file.pdf', `Hello this
 create().then(client => start(client));
 ```
 
+Please note sometimes short(<4s) voice notes sometimes do not decrypt properly and result in empty audio files.
+
 ## Sending Video
 
 If you intend to use video via sulla-hotfix, you need to use a chrome instance with puppeteer instead of the default chromium instance. This is becase chromium does not have any relevant video codecs needed for new whatsapp web video sending features.
