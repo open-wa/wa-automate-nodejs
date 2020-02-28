@@ -473,6 +473,15 @@ ev.on('qr.**', async (qrcode,sessionId) => {
 });
 ```
 
+## Manage page errors
+
+Since this project is built upon puppeteer, you can access the [Puppeteer Page](https://pptr.dev/#?product=Puppeteer&version=v2.0.0&show=api-class-page) instance by referencing `client.page`, and then therefore you can listen to any errors on the page like so:
+
+```javascript
+client.page.on('error', _=>{
+...
+}
+```
 
 ## Custom Set Up
 
