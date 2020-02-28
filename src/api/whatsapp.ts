@@ -677,6 +677,18 @@ export class Whatsapp {
     );
   }
 
+  
+  /**
+   * Sets a chat status to seen. Marks all messages as ack: 3
+   * @param chatId chat id: xxxxx@us.c
+   */
+  public async sendSeen(chatId: string) {
+    return await this.page.evaluate(
+     chatId => WAPI.sendSeen(chatId),
+      chatId
+    );
+  }
+
 
   /**
     * Load more messages in chat object from server. Use this in a while loop
