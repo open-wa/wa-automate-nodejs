@@ -1664,7 +1664,7 @@ window.WAPI.getNewMessageId = function (chatId) {
  */
 window.WAPI.simulateTyping = async function (chatId, on) {
     if (on) await Store.WapQuery.sendChatstateComposing(chatId)
-    else await Store.WapQuery.sendChatstateComposing(chatId)
+    else await Store.WapQuery.sendChatstatePaused(chatId)
 };
 
 /**
