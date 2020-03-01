@@ -1438,6 +1438,21 @@ window.WAPI.onParticipantsChanged = function (groupId, callback) {
     return true;
 }
 
+
+/**
+ * Registers a callback that fires when your host phone is added to a group.
+ * @param callback - function - Callback function to be called when a message acknowledgement changes. The callback returns 3 variables
+ * @returns {boolean}
+ */
+window.WAPI.onAddedToGroup = function(callback){
+    Store.Chat.on('add',(chatObject)=>{
+        if(chatObject&&chatObject.isGroup){
+            callback(chatObject)
+        };
+    });
+    return true;
+}
+
 /**
  * Reads buffered new messages.
  * @param done - function - Callback function to be called contained the buffered messages.

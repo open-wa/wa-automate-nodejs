@@ -28,6 +28,7 @@ declare module WAPI {
   const waitNewMessages: (rmCallback: boolean, callback: Function) => void;
   const addAllNewMessagesListener: (callback: Function) => void;
   const onStateChanged: (callback: Function) => void;
+  const onAddedToGroup: (callback: Function) => any;
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const onLiveLocation: (chatId: string, callback: Function) => any;
   const sendMessage: (to: string, content: string) => void;
@@ -260,6 +261,27 @@ export class Whatsapp {
         { groupId, funcName}
       ));
   }
+
+
+  /**
+   * Fires callback with Chat object every time the host phone is added to a group.
+   * @param to callback
+   * @returns Observable stream of Chats
+   */
+  public onAddedToGroup(fn: (chat: Chat) => void) {
+    const funcName = "onAddedToGroup";
+    return this.page.exposeFunction(funcName, (chat: Chat) =>
+      fn(chat)
+    )
+      .then(_ => this.page.evaluate(
+        (funcName ) => {
+        //@ts-ignore
+          WAPI.onAddedToGroup(window[funcName]);
+        },
+        {funcName}
+      ));
+  }
+  
 
   /**
    * Sends a text message to given chat
