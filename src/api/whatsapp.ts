@@ -38,6 +38,7 @@ declare module WAPI {
   const addParticipant: (groupId: string, contactId: string) => void;
   const setMyName: (newName: string) => void;
   const setMyStatus: (newStatus: string) => void;
+  const getGroupAdmins: (groupId: string) => Contact[];
   const removeParticipant: (groupId: string, contactId: string) => void;
   const promoteParticipant: (groupId: string, contactId: string) => void;
   const demoteParticipant: (groupId: string, contactId: string) => void;
@@ -877,6 +878,17 @@ export class Whatsapp {
     return await this.page.evaluate(
       ({ idGroup, idParticipant }) => WAPI.demoteParticipant(idGroup, idParticipant),
       { idGroup, idParticipant }
+    );
+  }
+
+  /**
+  * Get Admins of a Group
+  * @param {*} idGroup '0000000000-00000000@g.us'
+  */
+  public async getGroupAdmins(idGroup: string) {
+    return await this.page.evaluate(
+      (idGroup) => WAPI.getGroupAdmins(idGroup),
+      idGroup
     );
   }
 }
