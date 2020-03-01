@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>sulla-hotfix - v1.7.29</title>
+	<title>sulla-hotfix - v1.7.30</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">sulla-hotfix - v1.7.29</a>
+					<a href="index.html" class="title">sulla-hotfix - v1.7.30</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -56,7 +56,7 @@
 					<a href="globals.html">Globals</a>
 				</li>
 			</ul>
-			<h1>sulla-hotfix - v1.7.29</h1>
+			<h1>sulla-hotfix - v1.7.30</h1>
 		</div>
 	</div>
 </header>
@@ -353,6 +353,7 @@ create().then(<span class="hljs-function"><span class="hljs-params">client</span
 }
 
 create().then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
+				<p>Please note sometimes short(&lt;4s) voice notes sometimes do not decrypt properly and result in empty audio files.</p>
 				<a href="#sending-video" id="sending-video" style="color: inherit; text-decoration: none;">
 					<h2>Sending Video</h2>
 				</a>
@@ -524,6 +525,15 @@ client.onLiveLocation(<span class="hljs-string">'XXXXXXX-YYYYY@c.us'</span>, (li
 
 <span class="hljs-number">3</span> =&gt; Message Read Receipt Confirmed (<span class="hljs-number">2</span> blue ticks)</code></pre>
 				<p>Note: You won&#39;t get 3 if the recipient has read receipts off.</p>
+				<a href="#timing-out-an-unpaired-session" id="timing-out-an-unpaired-session" style="color: inherit; text-decoration: none;">
+					<h2>Timing out an unpaired session</h2>
+				</a>
+				<p>If you want to kill the process after a certain amount of seconds due to an unscanned code, you can now set the killTimer parameter in the configuration object.</p>
+				<pre><code class="language-javascript">create(<span class="hljs-string">'session'</span>,
+{
+  <span class="hljs-attr">killTimer</span>: <span class="hljs-number">30</span> <span class="hljs-comment">//kills the session if the QR code is not scanned within 30 seconds.</span>
+})
+.then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
 				<a href="#managing-multiple-sessions-at-once" id="managing-multiple-sessions-at-once" style="color: inherit; text-decoration: none;">
 					<h2>Managing multiple sessions at once</h2>
 				</a>
@@ -553,6 +563,13 @@ ev.on(<span class="hljs-string">'qr.**'</span>, <span class="hljs-keyword">async
   <span class="hljs-keyword">const</span> imageBuffer = Buffer.from(qrcode.replace(<span class="hljs-string">'data:image/png;base64,'</span>,<span class="hljs-string">''</span>), <span class="hljs-string">'base64'</span>);
   fs.writeFileSync(<span class="hljs-string">`qr_code<span class="hljs-subst">${sessionId?<span class="hljs-string">'_'</span>+sessionId:<span class="hljs-string">''</span>}</span>.png`</span>, imageBuffer);
 });</code></pre>
+				<a href="#manage-page-errors" id="manage-page-errors" style="color: inherit; text-decoration: none;">
+					<h2>Manage page errors</h2>
+				</a>
+				<p>Since this project is built upon puppeteer, you can access the <a href="https://pptr.dev/#?product=Puppeteer&amp;version=v2.0.0&amp;show=api-class-page">Puppeteer Page</a> instance by referencing <code>client.page</code>, and then therefore you can listen to any errors on the page like so:</p>
+				<pre><code class="language-javascript">client.page.on(<span class="hljs-string">'error'</span>, _=&gt;{
+...
+}</code></pre>
 				<a href="#custom-set-up" id="custom-set-up" style="color: inherit; text-decoration: none;">
 					<h2>Custom Set Up</h2>
 				</a>
