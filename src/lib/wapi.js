@@ -1934,13 +1934,10 @@ return new Promise(function(resolve, reject) {
 window.WAPI.reply = async function (chatId, body, quotedMsg) {
     if (typeof quotedMsg !== "object") quotedMsg = Store.Msg.get(quotedMsg)
     var chat = Store.Chat.get(chatId);
-    let extras = {};
-    if(chat.isGroup){
-        extras = {
-            quotedParticipant: quotedMsg.author,
+    let extras = {
+            quotedParticipant: quotedMsg.author || quotedMsg.from,
             quotedStanzaID:quotedMsg.id.id
-        }
-    }
+        };
     var tempMsg = Object.create(chat.msgs.filter(msg => msg.__x_isSentByMe)[0]);
     var newId = window.WAPI.getNewMessageId(chatId);
     var extend = {
