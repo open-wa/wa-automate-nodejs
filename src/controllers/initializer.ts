@@ -110,7 +110,7 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     const localStorage = JSON.parse(await waPage.evaluate(() => {
       return JSON.stringify(window.localStorage);
   }));
-  const sessionjsonpath = path.join(process.cwd(), sessionId || 'session','session.json');
+  const sessionjsonpath = path.join(process.cwd(), `${sessionId || 'session'}.data.json`);
   fs.writeFile(sessionjsonpath, JSON.stringify({
     WABrowserId: localStorage.WABrowserId,
     WASecretBundle: localStorage.WASecretBundle,
@@ -118,7 +118,6 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
     WAToken2: localStorage.WAToken2
 }), (err) => {
   if (err) {  console.error(err);  return; };
-  console.log("File has been created");
 });
     return new Whatsapp(waPage);
   }

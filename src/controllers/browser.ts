@@ -43,10 +43,9 @@ export async function initWhatsapp(sessionId?: string, puppeteerConfigOverride?:
   }
   );
   //check if [session].json exists in __dirname
-  const sessionjsonpath = path.join(process.cwd(), sessionId || 'session','session.json');
+  const sessionjsonpath = path.join(process.cwd(), `${sessionId || 'session'}.data.json`);
   if (fs.existsSync(sessionjsonpath)) {
     let sessionjson = JSON.parse(fs.readFileSync(sessionjsonpath));
-    console.log("sessionjson", sessionjson);
     await waPage.evaluateOnNewDocument(
       session => {
           localStorage.clear();
@@ -79,7 +78,7 @@ async function initBrowser(sessionId?: string, puppeteerConfigOverride:any={}) {
     headless: true,
     devtools: false,
     // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    userDataDir: path.join(process.cwd(), sessionId || 'session'),
+    // userDataDir: path.join(process.cwd(), sessionId || 'session'),
     args: [...puppeteerConfig.chromiumArgs],
     ...puppeteerConfigOverride
   });
