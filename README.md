@@ -1,6 +1,7 @@
 [![npm version](https://img.shields.io/npm/v/sulla-hotfix.svg?color=green)](https://www.npmjs.com/package/sulla-hotfix)
 [![Buy me a coffee][buymeacoffee-shield]][buymeacoffee]
 <a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a>
+
 # sulla-hotfix
 
 > Sulla is a javascript library which provides a high-level API control to Whatsapp so it can be configured to automatize resposes or any data that goes trough Whatsapp effortlessly.
@@ -65,6 +66,8 @@ function start(client) {
 | [Create Groups](#create-group)         |             | ✅          |
 | [add, remove, promote, demote participants](##group-participants-beta)         |             | ✅          |
 
+[Checkout all the available functions here.](https://smashah.github.io/sulla/classes/whatsapp.html)
+
 ## Starting a conversation
 
 As a matter of principle, this library will not develop any functionality to start new chats. If you want to start a conversation with a recipient I suggest using [whatsapp links](https://faq.whatsapp.com/en/26000030/) or add [whatsapp-button](https://www.producthunt.com/posts/whatsapp-button-2) to your website ([github link](https://github.com/smashah/whatsapp-button?ref=producthunt)).
@@ -78,7 +81,7 @@ An event is emitted every time the QR code is received by the system. You can gr
 import { ev } from 'sulla-hotfix';
 const fs = require('fs');
 
-ev.on('qr', async qrcode => {
+ev.on('qr.**', async qrcode => {
   //qrcode is base64 encoded qr code image
   //now you can do whatever you want with it
   const imageBuffer = Buffer.from(
@@ -211,6 +214,8 @@ await client.sendFile('xyz@c.us',[BASE64 FILE DATA],'some file.pdf', `Hello this
 
 create().then(client => start(client));
 ```
+
+Please note sometimes short(<4s) voice notes sometimes do not decrypt properly and result in empty audio files.
 
 ## Sending Video
 
@@ -434,6 +439,18 @@ ack represents the acknoledgement state, of which there are 3.
 
 Note: You won't get 3 if the recipient has read receipts off.
 
+## Timing out an unpaired session
+
+If you want to kill the process after a certain amount of seconds due to an unscanned code, you can now set the killTimer parameter in the configuration object.
+
+```javascript
+create('session',
+{
+  killTimer: 30 //kills the session if the QR code is not scanned within 30 seconds.
+})
+.then(client => start(client));
+```
+
 ## Managing multiple sessions at once
 
 With v1.2.4, you can now run multiple sessions of sulla-hotfix in the same 'app'. This allows you to do interesting things for example:
@@ -471,6 +488,15 @@ ev.on('qr.**', async (qrcode,sessionId) => {
 });
 ```
 
+## Manage page errors
+
+Since this project is built upon puppeteer, you can access the [Puppeteer Page](https://pptr.dev/#?product=Puppeteer&version=v2.0.0&show=api-class-page) instance by referencing `client.page`, and then therefore you can listen to any errors on the page like so:
+
+```javascript
+client.page.on('error', _=>{
+...
+}
+```
 
 ## Custom Set Up
 

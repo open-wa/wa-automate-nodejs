@@ -2,7 +2,7 @@ node_modules
 dist
 session
 newsession
-assets
+
 
 **req.ts
 

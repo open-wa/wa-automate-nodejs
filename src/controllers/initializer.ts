@@ -21,8 +21,10 @@ export const evCreate = new EventEmitter2({
  * Should be called to initialize whatsapp client
  */
 export async function create(sessionId?: string, puppeteerConfigOverride?:any, customUserAgent?:string) {
-try{
 
+try{
+  waPage = undefined;
+  qrTimeout = undefined;
   shouldLoop = true;
   if (!sessionId) sessionId = 'session';
   spinner.eventEmitter(sessionId, evCreate);
