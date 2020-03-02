@@ -42,9 +42,21 @@ export async function initWhatsapp(sessionId?: string, puppeteerConfigOverride?:
       interceptedRequest.continue({headers});
   }
   );
-  
+  //check if [session].json exists in __dirname
+  const sessionjsonpath = path.join(process.cwd(), `${sessionId || 'session'}.data.json`);
+  if (fs.existsSync(sessionjsonpath)) {
+    let sessionjson = JSON.parse(fs.readFileSync(sessionjsonpath));
+    await waPage.evaluateOnNewDocument(
+      session => {
+          localStorage.clear();
+          localStorage.setItem('WABrowserId', session.WABrowserId);
+          localStorage.setItem('WASecretBundle', session.WASecretBundle);
+          localStorage.setItem('WAToken1', session.WAToken1);
+          localStorage.setItem('WAToken2', session.WAToken2);
+      }, sessionjson);
+  }
   await waPage.goto(puppeteerConfig.whatsappUrl);
-  await randomMouseMovements(waPage);
+  // await randomMouseMovements(waPage);
   return waPage;
 }
 
@@ -66,7 +78,7 @@ async function initBrowser(sessionId?: string, puppeteerConfigOverride:any={}) {
     headless: true,
     devtools: false,
     // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    userDataDir: path.join(process.cwd(), sessionId || 'session'),
+    // userDataDir: path.join(process.cwd(), sessionId || 'session'),
     args: [...puppeteerConfig.chromiumArgs],
     ...puppeteerConfigOverride
   });
