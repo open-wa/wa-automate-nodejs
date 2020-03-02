@@ -1,0 +1,790 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>sulla-hotfix - v1.7.35</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">sulla-hotfix - v1.7.35</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1>sulla-hotfix - v1.7.35</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<p><a href="https://www.npmjs.com/package/sulla-hotfix"><img src="https://img.shields.io/npm/v/sulla-hotfix.svg?color=green" alt="npm version"></a>
+					<a href="https://www.buymeacoffee.com/smashah"><img src="https://www.buymeacoffee.com/assets/img/guidelines/download-assets-sm-2.svg" alt="Buy me a coffee"></a>
+				<a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a></p>
+				<a href="#sulla-hotfix" id="sulla-hotfix" style="color: inherit; text-decoration: none;">
+					<h1>sulla-hotfix</h1>
+				</a>
+				<blockquote>
+					<p>Sulla is a javascript library which provides a high-level API control to Whatsapp so it can be configured to automatize resposes or any data that goes trough Whatsapp effortlessly.</p>
+					<p>It is built using <a href="https://github.com/GoogleChrome/puppeteer">puppeteer</a> and based on <a href="https://github.com/mukulhase/WebWhatsapp-Wrapper">this python wrapper</a></p>
+				</blockquote>
+				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+					<h2>Installation</h2>
+				</a>
+				<pre><code class="language-bash">&gt; npm i --save sulla-hotfix</code></pre>
+				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+					<h2>Usage</h2>
+				</a>
+				<pre><code class="language-javascript"><span class="hljs-comment">// import { create, Whatsapp } from 'sulla-hotfix';</span>
+<span class="hljs-keyword">const</span> sulla = <span class="hljs-built_in">require</span>(<span class="hljs-string">'sulla-hotfix'</span>);
+
+sulla.create().then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client</span>) </span>{
+  client.onMessage(<span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> {
+    <span class="hljs-keyword">if</span> (message.body === <span class="hljs-string">'Hi'</span>) {
+      client.sendText(message.from, <span class="hljs-string">'👋 Hello from sulla!'</span>);
+    }
+  });
+}</code></pre>
+				<a href="#after-executing-codecreatecode-function-strongsullastrong-will-create-an-instance-of-whatsapp-web-if-you-are-not-logged-in-it-will-print-a-qr-code-in-the-a-hrefhttpsiimgurcomg8qveripngterminala-scan-it-with-your-phone-and-you-are-ready-to-go" id="after-executing-codecreatecode-function-strongsullastrong-will-create-an-instance-of-whatsapp-web-if-you-are-not-logged-in-it-will-print-a-qr-code-in-the-a-hrefhttpsiimgurcomg8qveripngterminala-scan-it-with-your-phone-and-you-are-ready-to-go" style="color: inherit; text-decoration: none;">
+					<h6>After executing <code>create()</code> function, <strong>sulla</strong> will create an instance of whatsapp web. If you are not logged in, it will print a QR code in the <a href="https://i.imgur.com/g8QvERI.png">terminal</a>. Scan it with your phone and you are ready to go!</h6>
+				</a>
+				<a href="#sulla-will-remember-the-session-so-there-is-no-need-to-authenticate-everytime" id="sulla-will-remember-the-session-so-there-is-no-need-to-authenticate-everytime" style="color: inherit; text-decoration: none;">
+					<h6>sulla will remember the session so there is no need to authenticate everytime.</h6>
+				</a>
+				<a href="#functions-list" id="functions-list" style="color: inherit; text-decoration: none;">
+					<h3>Functions list</h3>
+				</a>
+				<table>
+					<thead>
+						<tr>
+							<th>Function</th>
+							<th>Description</th>
+							<th>Implemented</th>
+						</tr>
+					</thead>
+					<tbody><tr>
+							<td>Receive message</td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td>Automatic QR Refresh</td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td>Send text</td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td>Get contacts</td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td>Get chats</td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td>Get groups</td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td>Get group members</td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td>Send contact</td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td>Get contact detail</td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td><a href="#sending-mediafiles">Send Images (image)</a></td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td><a href="#sending-mediafiles">Send media (audio, doc)</a></td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td><a href="#sending-video">Send media (video)</a></td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td>Send stickers</td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td><a href="#decrypting-media">Decrypt media (image, audio, doc)</a></td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td><a href="#capturing-qr-code">Capturing QR Code</a></td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td><a href="#managing-multiple-sessions-at-once">Multiple Sessions</a></td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td>[Last seen &amp; isOnline (beta)]</td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td><a href="#sending-location">📍 SEND LOCATION!! (beta)</a></td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td><a href="#simulate-typing">Simulated &#39;...typing&#39;</a></td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td><a href="#sending-gifs">Send GIFs!</a></td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td><a href="#sending-gifs">Forward Messages</a></td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td><a href="#listen-to-read-receipts">Listen to Read Receipts</a></td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td><a href="#listen-to-live-locations">Listen to Live Locations</a></td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td><a href="#group-participant-changes">Group participant changes</a></td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td><a href="#create-group">Create Groups</a></td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+						<tr>
+							<td><a href="##group-participants-beta">add, remove, promote, demote participants</a></td>
+							<td></td>
+							<td>✅</td>
+						</tr>
+				</tbody></table>
+				<p><a href="https://smashah.github.io/sulla/classes/whatsapp.html">Checkout all the available functions here.</a></p>
+				<a href="#starting-a-conversation" id="starting-a-conversation" style="color: inherit; text-decoration: none;">
+					<h2>Starting a conversation</h2>
+				</a>
+				<p>As a matter of principle, this library will not develop any functionality to start new chats. If you want to start a conversation with a recipient I suggest using <a href="https://faq.whatsapp.com/en/26000030/">whatsapp links</a> or add <a href="https://www.producthunt.com/posts/whatsapp-button-2">whatsapp-button</a> to your website (<a href="https://github.com/smashah/whatsapp-button?ref=producthunt">github link</a>).</p>
+				<a href="#capturing-qr-code" id="capturing-qr-code" style="color: inherit; text-decoration: none;">
+					<h2>Capturing QR Code</h2>
+				</a>
+				<p>An event is emitted every time the QR code is received by the system. You can grab hold of this event emitter by importing <code>ev</code></p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { ev } <span class="hljs-keyword">from</span> <span class="hljs-string">'sulla-hotfix'</span>;
+<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+
+ev.on(<span class="hljs-string">'qr.**'</span>, <span class="hljs-keyword">async</span> qrcode =&gt; {
+  <span class="hljs-comment">//qrcode is base64 encoded qr code image</span>
+  <span class="hljs-comment">//now you can do whatever you want with it</span>
+  <span class="hljs-keyword">const</span> imageBuffer = Buffer.from(
+    qrcode.replace(<span class="hljs-string">'data:image/png;base64,'</span>, <span class="hljs-string">''</span>),
+    <span class="hljs-string">'base64'</span>
+  );
+  fs.writeFileSync(<span class="hljs-string">'qr_code.png'</span>, imageBuffer);
+});</code></pre>
+				<p>You can see a live implementation of this on <code>demo/index.ts</code>. Give it a spin! :D</p>
+				<a href="#refreshing-qrcode" id="refreshing-qrcode" style="color: inherit; text-decoration: none;">
+					<h2>Refreshing QRCode</h2>
+				</a>
+				<p>In version v1.6.13^, sulla can refresh the QR code every 10 seconds (you can change the interval).</p>
+				<pre><code class="language-javascript">create(<span class="hljs-string">'session'</span>,{
+    <span class="hljs-attr">autoRefresh</span>:<span class="hljs-literal">false</span>, <span class="hljs-comment">//default to true</span>
+    <span class="hljs-attr">qrRefreshS</span>:<span class="hljs-number">30</span> <span class="hljs-comment">//please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.</span>
+}).then(<span class="hljs-keyword">async</span> client =&gt; <span class="hljs-keyword">await</span> start(client));</code></pre>
+				<a href="#kill-the-session" id="kill-the-session" style="color: inherit; text-decoration: none;">
+					<h2>Kill the session</h2>
+				</a>
+				<p>As of v1.6.6^ you can now kill the session when required. Best practice is to manage trycatch-es yourself and kill the client on catch.</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">try</span>{
+...
+await client.sendMessage(...
+...
+} <span class="hljs-keyword">catch</span>(error){
+client.kill();
+<span class="hljs-comment">//maybe restart the session then</span>
+}</code></pre>
+				<a href="#force-refocus-and-reacting-to-state" id="force-refocus-and-reacting-to-state" style="color: inherit; text-decoration: none;">
+					<h2>Force Refocus and reacting to state</h2>
+				</a>
+				<p>When a user starts using whatsapp web in a different browser, sulla-hotfix will be left on a screen prompting you to click &#39;Use here&#39;. As of v1.6.6^ you can now force the client to press &#39;Use here&#39; everytime the state has changed to &#39;CONFLICT&#39;. onStateChanged results in &#39;UNPAIRED&#39;, &#39;CONNECTED&#39; or &#39;CONFLICT&#39;;</p>
+				<pre><code class="language-javascript">client.onStateChanged(<span class="hljs-function"><span class="hljs-params">state</span>=&gt;</span>{
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'statechanged'</span>, state)
+    <span class="hljs-keyword">if</span>(state===<span class="hljs-string">"CONFLICT"</span>) client.forceRefocus();
+  });
+</code></pre>
+				<a href="#decrypting-media" id="decrypting-media" style="color: inherit; text-decoration: none;">
+					<h2>Decrypting Media</h2>
+				</a>
+				<p>Here is a sample of how to decrypt media. This has been tested on images, videos, documents, audio and voice notes.</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Whatsapp, decryptMedia } <span class="hljs-keyword">from</span> <span class="hljs-string">'sulla-hotfix'</span>;
+<span class="hljs-keyword">const</span> mime = <span class="hljs-built_in">require</span>(<span class="hljs-string">'mime-types'</span>);
+<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Whatsapp</span>) </span>{
+  client.onMessage(<span class="hljs-keyword">async</span> message =&gt; {
+    <span class="hljs-keyword">if</span> (message.mimetype) {
+      <span class="hljs-keyword">const</span> filename = <span class="hljs-string">`<span class="hljs-subst">${message.t}</span>.<span class="hljs-subst">${mime.extension(message.mimetype)}</span>`</span>;
+      <span class="hljs-keyword">const</span> mediaData = <span class="hljs-keyword">await</span> decryptMedia(message);
+      <span class="hljs-keyword">const</span> imageBase64 = <span class="hljs-string">`data:<span class="hljs-subst">${message.mimetype}</span>;base64,<span class="hljs-subst">${mediaData.toString(
+        <span class="hljs-string">'base64'</span>
+      )}</span>`</span>;
+      <span class="hljs-keyword">await</span> client.sendImage(
+        message.from,
+        imageBase64,
+        filename,
+        <span class="hljs-string">`You just sent me this <span class="hljs-subst">${message.type}</span>`</span>
+      );
+      fs.writeFile(filename, mediaData, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+        <span class="hljs-keyword">if</span> (err) {
+          <span class="hljs-keyword">return</span> <span class="hljs-built_in">console</span>.log(err);
+        }
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'The file was saved!'</span>);
+      });
+    }
+  });
+}
+
+create().then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
+				<p>It is always preferable to keep projects smaller than needed so you can now use a lightweight library called wa-decrypt for projects that do not need all of sulla-hotfix.</p>
+				<p>You can install that using:</p>
+				<pre><code class="language-bash">&gt; npm i --save wa-decrypt</code></pre>
+				<p>and import it like so:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { decryptMedia } <span class="hljs-keyword">from</span> <span class="hljs-string">'wa-decrypt'</span>;</code></pre>
+				<p><a href="https://github.com/smashah/wa-decrypt#readme">Learn more about wa-decrypt here</a></p>
+				<a href="#issues-with-decyption" id="issues-with-decyption" style="color: inherit; text-decoration: none;">
+					<h2>Issues with decyption</h2>
+				</a>
+				<p>If you are having issues with decryption it may be due to the user agent being used by the decrypt method.
+				You can remedy this by passing a custom user agent as a second parameter to the decrypt method. Now there is a convenience method on the WhatsApp class to allow you to easily get a compatible user agent shown below. This feature is available in v.1.5.8 and above.</p>
+				<pre><code class="language-javascript">...
+      const generatedUa = <span class="hljs-keyword">await</span> client.getGeneratedUserAgent(); <span class="hljs-comment">//you can optionally pass your custom user agent in here also getGeneratedUserAgent('...');</span>
+      <span class="hljs-keyword">const</span> mediaData = <span class="hljs-keyword">await</span> decryptMedia(message,generatedUa);
+...</code></pre>
+				<a href="#sending-mediafiles" id="sending-mediafiles" style="color: inherit; text-decoration: none;">
+					<h2>Sending Media/Files</h2>
+				</a>
+				<p>Here is a sample of how to send media. This has been tested on images, videos, documents, audio and voice notes.</p>
+				<p>Interestingly sendImage has always worked for sending any type of file.</p>
+				<p>An example of sending a is shown in the Decrypting Media secion above also.</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'sulla-hotfix'</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Whatsapp</span>) </span>{
+<span class="hljs-keyword">await</span> client.sendFile(<span class="hljs-string">'xyz@c.us'</span>,[BASE64 FILE DATA],<span class="hljs-string">'some file.pdf'</span>, <span class="hljs-string">`Hello this is the caption`</span>);
+}
+
+create().then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
+				<p>Please note sometimes short(&lt;4s) voice notes sometimes do not decrypt properly and result in empty audio files.</p>
+				<a href="#sending-video" id="sending-video" style="color: inherit; text-decoration: none;">
+					<h2>Sending Video</h2>
+				</a>
+				<p>If you intend to use video via sulla-hotfix, you need to use a chrome instance with puppeteer instead of the default chromium instance. This is becase chromium does not have any relevant video codecs needed for new whatsapp web video sending features.</p>
+				<p>You will need to make sure that you have a valid chrome instance on your machine then use the following to tell puppeteer where it can find your chrome isntance. The below demo is an example for mac &amp; windows. For linux based hosts, you can find the chrome path with <code>whereis google-chrome</code>, it should be something like <code>/usr/bin/google-chrome</code></p>
+				<pre><code class="language-javascript">
+create(<span class="hljs-string">'session'</span>,{
+  <span class="hljs-comment">// For Mac:</span>
+  <span class="hljs-attr">executablePath</span>: <span class="hljs-string">'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'</span>,
+  <span class="hljs-comment">// For Windows:</span>
+  <span class="hljs-comment">// executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',</span>
+}).then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
+</code></pre>
+				<a href="#sending-gifs" id="sending-gifs" style="color: inherit; text-decoration: none;">
+					<h2>Sending Gifs</h2>
+				</a>
+				<p>Extending the functionality of sending videos, version 1.4.2 brings with it the ability to send GIFs!!!! This was super annoying to figure out, as I was sent on a wild goose chase but it turned out that the answer was just 2 simple lines.</p>
+				<p>There are two ways to send GIFs - by Video or by giphy link.</p>
+				<ol>
+					<li><p>Sending Video as a GIF.</p>
+						<p>WhatsApp doesn&#39;t actually support the .gif format - probably due to how inefficient it is as a filetype - they instead convert GIFs to video then process them.</p>
+						<p>In order to send gifs you need to do the same (convert the gif to an mp4 file) then use the following method:</p>
+					</li>
+				</ol>
+				<pre><code class="language-javascript">
+<span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'sulla-hotfix'</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Whatsapp</span>) </span>{
+<span class="hljs-keyword">await</span> client.sendVideoAsGif(<span class="hljs-string">'xyz@c.us'</span>,[BASE64 Video FILE DATA],<span class="hljs-string">'some file.mp4'</span>, <span class="hljs-string">`Hello this is the caption`</span>);
+}
+
+<span class="hljs-comment">///IMPORTANT! Please make sure to point to your chrome installation and make sure your host has ffmpeg support</span>
+create(<span class="hljs-string">'session'</span>,{
+  <span class="hljs-comment">// For Mac:</span>
+  <span class="hljs-attr">executablePath</span>: <span class="hljs-string">'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'</span>,
+  <span class="hljs-comment">// For Windows:</span>
+  <span class="hljs-comment">// executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',</span>
+}).then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
+</code></pre>
+				<ol start="2">
+					<li><p>Sending a Giphy Media Link</p>
+						<p>This is a convenience method to make it easier to send gifs from the website <a href="https://giphy.com">GIPHY</a>. You need to make sure you use a giphy media link as shown below.</p>
+					</li>
+				</ol>
+				<pre><code class="language-javascript">
+<span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'sulla-hotfix'</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Whatsapp</span>) </span>{
+<span class="hljs-keyword">await</span> client.sendGiphy(<span class="hljs-string">'xyz@c.us'</span>,<span class="hljs-string">'https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif'</span>, <span class="hljs-string">`Hello this is the caption`</span>);
+}
+
+create(<span class="hljs-string">'session'</span>,{
+  <span class="hljs-attr">executablePath</span>: <span class="hljs-string">'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'</span>,
+}).then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
+</code></pre>
+				<a href="#sending-location" id="sending-location" style="color: inherit; text-decoration: none;">
+					<h2>Sending Location</h2>
+				</a>
+				<p>As of version 1.3.0 you can now send location!! You can&#39;t even do this in normal whatsapp web interface.</p>
+				<p>You need to pass the following params:</p>
+				<ul>
+					<li>chat id: <a href="mailto:xxxxx@c.us">xxxxx@c.us</a></li>
+					<li>latitude: &#39;51.5074&#39;</li>
+					<li>longitude: &#39;0.1278&#39;</li>
+					<li>location text: &#39;LONDON!&#39;</li>
+				</ul>
+				<p>Here&#39;s how you do it:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">await</span> client.sendLocation(<span class="hljs-string">'xxxxx@c.us'</span>, <span class="hljs-string">'51.5074'</span>, <span class="hljs-string">'0.1278'</span>,  <span class="hljs-string">'LONDON!'</span>)</code></pre>
+				<a href="#simulate-typing" id="simulate-typing" style="color: inherit; text-decoration: none;">
+					<h2>Simulate typing</h2>
+				</a>
+				<p>As of version 1.3.1 you can now simulate &#39;...typing&#39;</p>
+				<p>You need to pass the following params:</p>
+				<ul>
+					<li>chat id: <a href="mailto:xxxxx@c.us">xxxxx@c.us</a></li>
+					<li>on: true or false</li>
+				</ul>
+				<p>Note: You need to manually turn this off!!!</p>
+				<pre><code class="language-javascript"><span class="hljs-comment">//start '...typing'</span>
+<span class="hljs-keyword">await</span> client.simulateTyping(<span class="hljs-string">'xxxxx@c.us'</span>,<span class="hljs-literal">true</span>)
+<span class="hljs-comment">//wait 3 seconds</span>
+
+<span class="hljs-comment">//stop '...typing'</span>
+<span class="hljs-keyword">await</span> client.simulateTyping(<span class="hljs-string">'xxxxx@c.us'</span>,<span class="hljs-literal">false</span>)</code></pre>
+				<a href="#load-profile-pics-from-server" id="load-profile-pics-from-server" style="color: inherit; text-decoration: none;">
+					<h2>Load profile pics from server</h2>
+				</a>
+				<p>Generally, after the 20th chat in your whatsapp, getChat methods do not retreive the chat picture. You need to get these from the WhatsApp servers. This is how you do it in v1.6.6^:</p>
+				<pre><code class="language-javascript">client.getProfilePicFromServer(<span class="hljs-string">'XXXXXXX-YYYYY@c.us'</span>)</code></pre>
+				<a href="#forward-messages" id="forward-messages" style="color: inherit; text-decoration: none;">
+					<h2>Forward Messages</h2>
+				</a>
+				<p>As of version 1.5.1 you can now forward messages. This has been tested on most types of messages.</p>
+				<p>You need to pass the following params:</p>
+				<ul>
+					<li>chat to forward messages to : <a href="mailto:xxxxx@c.us">xxxxx@c.us</a></li>
+					<li>messages: a single or array of message ids or message objects</li>
+					<li>skipMyMessages: true or false, if true it will filter out messages sent by you from the list of messages, default false.</li>
+				</ul>
+				<p>Note: You need to manually turn this off!!!</p>
+				<pre><code class="language-javascript"><span class="hljs-comment">//forward messages</span>
+<span class="hljs-keyword">await</span> client.forwardMessages(<span class="hljs-string">'xxxxx@c.us'</span>,[...],<span class="hljs-literal">true</span>)
+
+<span class="hljs-comment">//forward single message by id</span>
+<span class="hljs-keyword">await</span> client.forwardMessages(<span class="hljs-string">'xxxxx@c.us,"...",true)</span></code></pre>
+				<a href="#reply-to-messages" id="reply-to-messages" style="color: inherit; text-decoration: none;">
+					<h2>Reply to messages</h2>
+				</a>
+				<p>As of version 1.6.17, you can now reply to specific messages.</p>
+				<pre><code class="language-javascript">...
+<span class="hljs-comment">/**
+   * <span class="hljs-doctag">@param </span>to string chatid
+   * <span class="hljs-doctag">@param </span>content string reply text
+   * <span class="hljs-doctag">@param </span>quotedMsg string | Message the msg object or id to reply to.
+   */</span>
+
+      <span class="hljs-keyword">await</span> client.reply(<span class="hljs-string">'xxxxx@c.us'</span>,<span class="hljs-string">'This is the reply'</span>,message);
+...</code></pre>
+				<a href="#create-group" id="create-group" style="color: inherit; text-decoration: none;">
+					<h2>Create group</h2>
+				</a>
+				<p>As of v1.7.2 you can now create a new group. The first parameter is the group name, the second parameter is the contact ids to add as participants</p>
+				<pre><code class="language-javascript">...
+  client.createGroup(<span class="hljs-string">'Cool new group'</span>,<span class="hljs-string">'xxxxxxxxx@c.us'</span>) <span class="hljs-comment">//you can also send an array of ids.</span>
+...</code></pre>
+				<a href="#group-participants-beta" id="group-participants-beta" style="color: inherit; text-decoration: none;">
+					<h2>Group participants [beta]</h2>
+				</a>
+				<p>As of v1.7.0 you can now add, remove, promote &amp; demote participants for groups. The first parameter is the chat id for the group. The second parameter is the number to which you are conducting the action.</p>
+				<pre><code class="language-javascript">...
+  client.addParticipant(<span class="hljs-string">'XXXXXXX-YYYYYY@c.us'</span>,<span class="hljs-string">'ZZZZZZZZZ@c.us'</span>)
+  client.removeParticipant(<span class="hljs-string">'XXXXXXX-YYYYYY@c.us'</span>,<span class="hljs-string">'ZZZZZZZZZ@c.us'</span>)
+  client.promoteParticipant(<span class="hljs-string">'XXXXXXX-YYYYYY@c.us'</span>,<span class="hljs-string">'ZZZZZZZZZ@c.us'</span>)
+  client.demoteParticipant(<span class="hljs-string">'XXXXXXX-YYYYYY@c.us'</span>,<span class="hljs-string">'ZZZZZZZZZ@c.us'</span>)
+...</code></pre>
+				<a href="#group-participant-changes" id="group-participant-changes" style="color: inherit; text-decoration: none;">
+					<h2>Group participant changes</h2>
+				</a>
+				<p>As of version 1.5.6 you can now listen in on changes to group participants. You can react to when participants are added and removed.</p>
+				<pre><code class="language-javascript">client.onParticipantsChanged(<span class="hljs-string">"XXXXXXXX-YYYYYYYY@g.us"</span>, (participantChangedEvent:any) =&gt; <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"participant changed for group"</span>, participantChangedEvent));
+
+<span class="hljs-comment">//participantChangedEvent returns</span>
+{
+  <span class="hljs-attr">by</span>: <span class="hljs-string">'XXXXXXXXXXX@c.us'</span>, <span class="hljs-comment">//who performed the action</span>
+  <span class="hljs-attr">action</span>: <span class="hljs-string">'remove'</span>,
+  <span class="hljs-attr">who</span>: [ <span class="hljs-string">'XXXXXXXXX@c.us'</span> ] <span class="hljs-comment">//all the numbers the action effects.</span>
+}</code></pre>
+				<p>This solution can result in some false positives and misfires however a lot of effort has been made to mitigate this to a reasonable level. Best practice is to maintian a seperate registry of participants and go from that.</p>
+				<a href="#listen-to-live-locations" id="listen-to-live-locations" style="color: inherit; text-decoration: none;">
+					<h1>Listen to Live Locations</h1>
+				</a>
+				<p>As of version 1.7.21 you can now listen to live locations from a specific chat. You can see the liveLocation callback object <a href="https://github.com/smashah/sulla/blob/752adb1cb1664044f9f53410e723421131ecd81f/src/api/model/chat.ts#L33">here</a> </p>
+				<pre><code class="language-javascript">
+client.onLiveLocation(<span class="hljs-string">'XXXXXXX-YYYYY@c.us'</span>, (liveLocation) =&gt; {
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Someone moved'</span>,liveLocation)
+})
+</code></pre>
+				<a href="#listen-to-read-receipts" id="listen-to-read-receipts" style="color: inherit; text-decoration: none;">
+					<h2>Listen to Read Receipts</h2>
+				</a>
+				<p>As of version 1.5.3 you can now listen in on the read state (or technically acknowledgement state) of the messages. As of writing the limitation is presumed to be on sent messages.</p>
+				<p>The callback you set returns the whole raw message object.</p>
+				<p>Here&#39;s how you do it.</p>
+				<pre><code class="language-javascript">client.onAck(<span class="hljs-function">(<span class="hljs-params">msg:any</span>) =&gt;</span> <span class="hljs-built_in">console</span>.log(msg.id.toString(),msg.body,msg.ack))</code></pre>
+				<p>ack represents the acknoledgement state, of which there are 3.</p>
+				<pre><code class="language-javascript"><span class="hljs-number">1</span> =&gt; Message Sent (<span class="hljs-number">1</span> tick)
+
+<span class="hljs-number">2</span> =&gt; Message Received by Recipient (<span class="hljs-number">2</span> ticks)
+
+<span class="hljs-number">3</span> =&gt; Message Read Receipt Confirmed (<span class="hljs-number">2</span> blue ticks)</code></pre>
+				<p>Note: You won&#39;t get 3 if the recipient has read receipts off.</p>
+				<a href="#timing-out-an-unpaired-session" id="timing-out-an-unpaired-session" style="color: inherit; text-decoration: none;">
+					<h2>Timing out an unpaired session</h2>
+				</a>
+				<p>If you want to kill the process after a certain amount of seconds due to an unscanned code, you can now set the killTimer parameter in the configuration object.</p>
+				<pre><code class="language-javascript">create(<span class="hljs-string">'session'</span>,
+{
+  <span class="hljs-attr">killTimer</span>: <span class="hljs-number">30</span> <span class="hljs-comment">//kills the session if the QR code is not scanned within 30 seconds.</span>
+})
+.then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
+				<a href="#managing-multiple-sessions-at-once" id="managing-multiple-sessions-at-once" style="color: inherit; text-decoration: none;">
+					<h2>Managing multiple sessions at once</h2>
+				</a>
+				<p>With v1.2.4, you can now run multiple sessions of sulla-hotfix in the same &#39;app&#39;. This allows you to do interesting things for example:</p>
+				<ol>
+					<li>Design and run automated tests for you WA bot.</li>
+					<li>Connect two or more whatsapp numbers to a single (or multiple) message handler(s)</li>
+					<li>Use one client to make sure another one is alive by pinging it.</li>
+				</ol>
+				<p>Please see demo/index.ts for a working example</p>
+				<p>NOTE: DO NOT CREATE TWO SESSIONS WITH THE SAME SESSIONID. DO NOT ALLOW SPACES AS SESSION ID.</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'sulla-hotfix'</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Whatsapp</span>) </span>{
+  ...
+}
+
+create().then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
+
+create(<span class="hljs-string">'another_session'</span>).then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
+				<p>You can then capture the QR Code for each session using the following event listener code:</p>
+				<pre><code class="language-javascript"><span class="hljs-comment">//events are fired with the ev namespace then the session Id. e.g "qr.another_session"</span>
+<span class="hljs-comment">//You can however use the wildcard operator with the new event listener and capture the session Id as a parameter instead.</span>
+ev.on(<span class="hljs-string">'qr.**'</span>, <span class="hljs-keyword">async</span> (qrcode,sessionId) =&gt; {
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"TCL: qrcode,sessioId"</span>, qrcode,sessionId)
+  <span class="hljs-comment">//base64 encoded qr code image</span>
+  <span class="hljs-keyword">const</span> imageBuffer = Buffer.from(qrcode.replace(<span class="hljs-string">'data:image/png;base64,'</span>,<span class="hljs-string">''</span>), <span class="hljs-string">'base64'</span>);
+  fs.writeFileSync(<span class="hljs-string">`qr_code<span class="hljs-subst">${sessionId?<span class="hljs-string">'_'</span>+sessionId:<span class="hljs-string">''</span>}</span>.png`</span>, imageBuffer);
+});</code></pre>
+				<a href="#manage-page-errors" id="manage-page-errors" style="color: inherit; text-decoration: none;">
+					<h2>Manage page errors</h2>
+				</a>
+				<p>Since this project is built upon puppeteer, you can access the <a href="https://pptr.dev/#?product=Puppeteer&amp;version=v2.0.0&amp;show=api-class-page">Puppeteer Page</a> instance by referencing <code>client.page</code>, and then therefore you can listen to any errors on the page like so:</p>
+				<pre><code class="language-javascript">client.page.on(<span class="hljs-string">'error'</span>, _=&gt;{
+...
+}</code></pre>
+				<a href="#custom-set-up" id="custom-set-up" style="color: inherit; text-decoration: none;">
+					<h2>Custom Set Up</h2>
+				</a>
+				<p>With v.1.2.6 you can now forward custom arguments through the library to puppeteer. This includes any overrides to the pupeteer config and a custom useragent.</p>
+				<p>Note: If you want to change the user agent but leave the puppeteer config the same then just pass {} to the pupeteer config. Also if you don&#39;t want to use a custom session then just use &#39;session&#39; for the first argument.</p>
+				<p>As with session name segment, these are all optional parameters.</p>
+				<p>Why should you use a custom user agent?</p>
+				<p>Users of these whatsapp injection libraries should use different user agents (preferably copy the one you have one your own pc) because then it makes it harder for whatsapp to break the mecahnism to restart sessions for this library.</p>
+				<p>Setting up your client in <code>headless:false</code> mode ensures you can easily visually debug any issues.</p>
+				<p>Example:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'sulla-hotfix'</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Whatsapp</span>) </span>{
+  ...
+}
+
+create().then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
+
+<span class="hljs-comment">//1st argument is the session name</span>
+<span class="hljs-comment">//2nd argument is the puppeteer config override</span>
+<span class="hljs-comment">//3rd argument is the user agent override</span>
+
+create(<span class="hljs-string">'session'</span>,
+{
+  <span class="hljs-attr">headless</span>: <span class="hljs-literal">false</span>
+},
+<span class="hljs-string">'some custom user agent'</span>)
+.then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
+				<a href="#best-practice" id="best-practice" style="color: inherit; text-decoration: none;">
+					<h2>Best Practice</h2>
+				</a>
+				<p>Since this is not an officially sanctioned solution it is tempermental to say the least. Here are some best practices:</p>
+				<ol>
+					<li>Keep the session alive</li>
+					<li>Offload most work off of your sulla-hotfix setup (i.e forward all events to a pubsub or something)</li>
+					<li>Keep the phone nearby just in case you need to reauthenticate</li>
+					<li>Use a chrome instance instead of the default chromium instance</li>
+					<li>Use headless: false for easy &amp; quick visual debugging</li>
+					<li>Implement the unread messages functionality on creation of a session so you don&#39;t miss any messages upon any downtime.</li>
+					<li>Implement a <a href="https://github.com/sindresorhus/p-queue">promise-queue</a></li>
+					<li>Use a unique and valid custom user-agent</li>
+					<li><code>await</code> all sulla-hotfix methods just in case</li>
+					<li>Do not run your sulla-hotfix instance on a Windows machine.</li>
+					<li>Always <a href="https://github.com/smashah/sulla#kill-the-session">kill the session safely</a> upon error or SIGINT.</li>
+				</ol>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'sulla-hotfix'</span>;
+<span class="hljs-keyword">const</span> { <span class="hljs-attr">default</span>: PQueue } = <span class="hljs-built_in">require</span>(<span class="hljs-string">"p-queue"</span>);
+
+<span class="hljs-keyword">const</span> queue = <span class="hljs-keyword">new</span> PQueue({
+  <span class="hljs-attr">concurrency</span>: <span class="hljs-number">4</span>,
+  <span class="hljs-attr">autoStart</span>:<span class="hljs-literal">false</span>
+   });
+
+<span class="hljs-keyword">const</span> proc = <span class="hljs-keyword">async</span> message =&gt; {
+  <span class="hljs-comment">//do something with the message here</span>
+    <span class="hljs-built_in">console</span>.log(message)
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+}
+
+<span class="hljs-keyword">const</span> processMessage = <span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> queue.add(proc(message));
+
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Whatsapp</span>) </span>{
+  <span class="hljs-keyword">const</span> unreadMessages = <span class="hljs-keyword">await</span> client.getAllUnreadMessages();
+  unreadMessages.forEach(processMessage)
+  ...
+  await client.onMessage(processMessage);
+  queue.start();
+}
+
+create().then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
+
+<span class="hljs-comment">//1st argument is the session name</span>
+<span class="hljs-comment">//2nd argument is the puppeteer config override</span>
+<span class="hljs-comment">//3rd argument is the user agent override</span>
+
+create(<span class="hljs-string">'session'</span>,
+{
+  <span class="hljs-comment">// For Mac:</span>
+  <span class="hljs-attr">executablePath</span>: <span class="hljs-string">'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'</span>,
+  <span class="hljs-comment">// For Windows:</span>
+  <span class="hljs-comment">// executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',</span>
+  <span class="hljs-attr">headless</span>: <span class="hljs-literal">false</span>,
+  <span class="hljs-attr">autoRefresh</span>:<span class="hljs-literal">true</span>
+},
+<span class="hljs-string">'some custom user agent'</span>)
+.then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
+				<a href="#contributing" id="contributing" style="color: inherit; text-decoration: none;">
+					<h2>Contributing</h2>
+				</a>
+				<p>Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.</p>
+				<a href="#license" id="license" style="color: inherit; text-decoration: none;">
+					<h2>License</h2>
+				</a>
+				<p><a href="https://choosealicense.com/licenses/mit/">MIT</a></p>
+				<a href="#legal" id="legal" style="color: inherit; text-decoration: none;">
+					<h2>Legal</h2>
+				</a>
+				<p>This code is in no way affiliated with, authorized, maintained, sponsored or endorsed by WhatsApp or any of its affiliates or subsidiaries. This is an independent and unofficial software. Use at your own risk.</p>
+				<a href="#cryptography-notice" id="cryptography-notice" style="color: inherit; text-decoration: none;">
+					<h2>Cryptography Notice</h2>
+				</a>
+				<p>This distribution includes cryptographic software. The country in which you currently reside may have restrictions on the import, possession, use, and/or re-export to another country, of encryption software. BEFORE using any encryption software, please check your country&#39;s laws, regulations and policies concerning the import, possession, or use, and re-export of encryption software, to see if this is permitted. See <a href="http://www.wassenaar.org/">http://www.wassenaar.org/</a> for more information.</p>
+				<p>The U.S. Government Department of Commerce, Bureau of Industry and Security (BIS), has classified this software as Export Commodity Control Number (ECCN) 5D002.C.1, which includes information security software using or performing cryptographic functions with asymmetric algorithms. The form and manner of this distribution makes it eligible for export under the License Exception ENC Technology Software Unrestricted (TSU) exception (see the BIS Export Administration Regulations, Section 740.13) for both object code and source code.</p>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/wapi.html">WAPI</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class">
+						<a href="classes/whatsapp.html" class="tsd-kind-icon">Whatsapp</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/chat.html" class="tsd-kind-icon">Chat</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/contact.html" class="tsd-kind-icon">Contact</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/groupmetadata.html" class="tsd-kind-icon">Group<wbr>Metadata</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/id.html" class="tsd-kind-icon">Id</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/livelocationchangedevent.html" class="tsd-kind-icon">Live<wbr>Location<wbr>Changed<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/message.html" class="tsd-kind-icon">Message</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/participantchangedeventmodel.html" class="tsd-kind-icon">Participant<wbr>Changed<wbr>Event<wbr>Model</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#decryptmedia" class="tsd-kind-icon">decrypt<wbr>Media</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#smartuseragent" class="tsd-kind-icon">smart<wbr>User<wbr>Agent</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer>
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>

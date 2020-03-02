@@ -51,7 +51,7 @@ async function start(client: Whatsapp) {
   // console.log("TCL: start -> allMessages", allmsgs.length);
 
   client.onAnyMessage(message=>console.log(message.type));
-
+  // client.onParticipantsChanged("XXXXXXXXXX-YYYYYYYYY@g.us",x=>console.log(x))
   client.onMessage(async message => {
     try {
     const isConnected = await client.isConnected();
@@ -124,6 +124,13 @@ create('session',
   autoRefresh:true, //default to true
   qrRefreshS:15, //please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.
   cacheEnabled:false,
+  devtools:true,
+  blockCrashLogs:true,
+  //OR
+  // devtools:{
+  //   user:'admin',
+  //   pass:'root'
+  // },
   //example chrome args. THIS MAY BREAK YOUR APP !!!ONLY FOR TESTING FOR NOW!!!.
   chromiumArgs:[
     '--aggressive-cache-discard',
@@ -137,8 +144,8 @@ create('session',
 // create()
 .then(async client => await start(client))
 .catch(e=>{
-  console.log(e);
-  // process.exit();
+  console.log('Error',e.message);
+  process.exit();
 });
 
 //or you can set a 'session id'

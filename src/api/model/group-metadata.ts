@@ -18,7 +18,7 @@ export enum groupChangeEvent {
 }
 
 
-export interface participantChangedEventModel {
+export interface ParticipantChangedEventModel {
   by: Id,
   action: groupChangeEvent,
   who: [Id]

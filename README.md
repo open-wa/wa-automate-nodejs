@@ -1,6 +1,7 @@
 [![npm version](https://img.shields.io/npm/v/sulla-hotfix.svg?color=green)](https://www.npmjs.com/package/sulla-hotfix)
 [![Buy me a coffee][buymeacoffee-shield]][buymeacoffee]
 <a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a>
+
 # sulla-hotfix
 
 > Sulla is a javascript library which provides a high-level API control to Whatsapp so it can be configured to automatize resposes or any data that goes trough Whatsapp effortlessly.
@@ -59,10 +60,13 @@ function start(client) {
 | [Simulated '...typing'](#simulate-typing)             |             | ✅          |
 | [Send GIFs!](#sending-gifs)                       |             | ✅          |
 | [Forward Messages](#sending-gifs)                  |             | ✅          |
-| [Listen to Read Receipts](#sending-gifs)           |             | ✅          |
+| [Listen to Read Receipts](#listen-to-read-receipts)           |             | ✅          |
+| [Listen to Live Locations](#listen-to-live-locations)           |             | ✅          |
 | [Group participant changes](#group-participant-changes)         |             | ✅          |
 | [Create Groups](#create-group)         |             | ✅          |
 | [add, remove, promote, demote participants](##group-participants-beta)         |             | ✅          |
+
+[Checkout all the available functions here.](https://smashah.github.io/sulla/classes/whatsapp.html)
 
 ## Starting a conversation
 
@@ -77,7 +81,7 @@ An event is emitted every time the QR code is received by the system. You can gr
 import { ev } from 'sulla-hotfix';
 const fs = require('fs');
 
-ev.on('qr', async qrcode => {
+ev.on('qr.**', async qrcode => {
   //qrcode is base64 encoded qr code image
   //now you can do whatever you want with it
   const imageBuffer = Buffer.from(
@@ -210,6 +214,8 @@ await client.sendFile('xyz@c.us',[BASE64 FILE DATA],'some file.pdf', `Hello this
 
 create().then(client => start(client));
 ```
+
+Please note sometimes short(<4s) voice notes sometimes do not decrypt properly and result in empty audio files.
 
 ## Sending Video
 
@@ -397,6 +403,18 @@ client.onParticipantsChanged("XXXXXXXX-YYYYYYYY@g.us", (participantChangedEvent:
 
 This solution can result in some false positives and misfires however a lot of effort has been made to mitigate this to a reasonable level. Best practice is to maintian a seperate registry of participants and go from that.
 
+# Listen to Live Locations
+
+As of version 1.7.21 you can now listen to live locations from a specific chat. You can see the liveLocation callback object [here](https://github.com/smashah/sulla/blob/752adb1cb1664044f9f53410e723421131ecd81f/src/api/model/chat.ts#L33) 
+
+```javascript
+
+client.onLiveLocation('XXXXXXX-YYYYY@c.us', (liveLocation) => {
+  console.log('Someone moved',liveLocation)
+})
+
+```
+
 ## Listen to Read Receipts
 
 As of version 1.5.3 you can now listen in on the read state (or technically acknowledgement state) of the messages. As of writing the limitation is presumed to be on sent messages.
@@ -420,6 +438,18 @@ ack represents the acknoledgement state, of which there are 3.
 ```
 
 Note: You won't get 3 if the recipient has read receipts off.
+
+## Timing out an unpaired session
+
+If you want to kill the process after a certain amount of seconds due to an unscanned code, you can now set the killTimer parameter in the configuration object.
+
+```javascript
+create('session',
+{
+  killTimer: 30 //kills the session if the QR code is not scanned within 30 seconds.
+})
+.then(client => start(client));
+```
 
 ## Managing multiple sessions at once
 
@@ -458,6 +488,15 @@ ev.on('qr.**', async (qrcode,sessionId) => {
 });
 ```
 
+## Manage page errors
+
+Since this project is built upon puppeteer, you can access the [Puppeteer Page](https://pptr.dev/#?product=Puppeteer&version=v2.0.0&show=api-class-page) instance by referencing `client.page`, and then therefore you can listen to any errors on the page like so:
+
+```javascript
+client.page.on('error', _=>{
+...
+}
+```
 
 ## Custom Set Up
 

@@ -57,5 +57,31 @@
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
   },
   "include": ["src/**/*"],
-  "exclude": ["src/middleware/middleware.ts"]
+  "exclude": ["src/middleware/middleware.ts"],
+    "typedocOptions": {
+      "inputFiles": ["./src/api","./src/utils"],
+      "includes":["./node_modules/puppeteer/lib"],
+        "mode": "file",
+        "out": "docs",
+        "exclude":"**.config",
+        "excludeExternals":false,
+        "includeVersion":true,
+        "hideGenerator":true,
+        "readme":"./README.md",
+        "excludePrivate":true,
+        "toc": [
+          "Whatsapp",
+          "Chat",
+          "Contact",
+          "GroupMetadata",
+          "Id",
+          "LiveLocationChangedEvent",
+          "Message",
+          "ParticipantChangedEventModel",
+          "decryptMedia",
+          "smartUserAgent",
+          "WAPI",
+          "Page"
+        ]
+    }
 }

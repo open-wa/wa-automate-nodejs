@@ -15,30 +15,41 @@ let qrTimeout;
  * Should be called to initialize whatsapp client
  */
 export async function create(sessionId?: string, puppeteerConfigOverride?:any, customUserAgent?:string) {
+  waPage = undefined;
+  qrTimeout = undefined;
+  shouldLoop = true;
   if (!sessionId) sessionId = 'session';
   spinner.start('Initializing whatsapp');
   waPage = await initWhatsapp(sessionId, puppeteerConfigOverride, customUserAgent);
   spinner.succeed();
+  const throwOnError=puppeteerConfigOverride&&puppeteerConfigOverride.throwErrorOnTosBlock==true;
 
   const PAGE_UA =  await waPage.evaluate('navigator.userAgent');
   const BROWSER_VERSION = await waPage.browser().version();
   const SULLA_HOTFIX_VERSION = pjson.version;
   //@ts-ignore
   const WA_VERSION = await waPage.evaluate(()=>window.Debug?window.Debug.VERSION:'I think you have been TOS_BLOCKed')
+  
+
+  //@ts-ignore
+  const canInjectEarly = await waPage.evaluate(() => {return (typeof webpackJsonp !== "undefined")});
+  //@ts-ignore
+  const BROWSER_ID = canInjectEarly?await waPage.evaluate(() => {return webpackJsonp([],null,['bhaehigaaa'])?webpackJsonp([],null,['bhaehigaaa']).default.getBrowserId():''}):'';
+  
   console.log('Debug Info', {
     WA_VERSION,
     PAGE_UA,
     SULLA_HOTFIX_VERSION,
-    BROWSER_VERSION
-  })
-
-  //@ts-ignore
-  const canInjectEarly = await waPage.evaluate(() => {return (typeof webpackJsonp !== "undefined")});
+    BROWSER_VERSION,
+    BROWSER_ID
+  });
+  
   if(canInjectEarly) {
     spinner.start('Injecting api');
     waPage = await injectApi(waPage);
     spinner.start('WAPI injected');
   } else {
+    if(throwOnError) throw Error('TOSBLOCK');
     console.log('Possilby TOS_BLOCKed')
   }
 
@@ -49,7 +60,7 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
   const qrLoop = async () => {
     if(!shouldLoop) return;
     console.log(' ')
-    await retrieveQR(waPage,sessionId,autoRefresh,puppeteerConfigOverride&&puppeteerConfigOverride.throwErrorOnTosBlock==true);
+    await retrieveQR(waPage,sessionId,autoRefresh,throwOnError);
     console.log(' ')
     qrTimeout = timeout((puppeteerConfigOverride?(puppeteerConfigOverride.qrRefreshS || 10):10)*1000);
     await qrTimeout;

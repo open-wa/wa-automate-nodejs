@@ -5,6 +5,8 @@ const {installMouseHelper} = require('./mouse-helper');
 // puppeteer-extra is a drop-in replacement for puppeteer,
 // it augments the installed puppeteer with plugin functionality
 const puppeteer = require('puppeteer-extra');
+const devtools = require('puppeteer-extra-plugin-devtools')()
+
 // add stealth plugin and use defaults (all evasion techniques)
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin());
@@ -26,7 +28,21 @@ export async function initWhatsapp(sessionId?: string, puppeteerConfigOverride?:
   });
   // await installMouseHelper(waPage);
   const cacheEnabled = puppeteerConfigOverride&&puppeteerConfigOverride.cacheEnabled? puppeteerConfigOverride.cacheEnabled :true
+  const blockCrashLogs = puppeteerConfigOverride&&puppeteerConfigOverride.blockCrashLogs? puppeteerConfigOverride.blockCrashLogs :false;
   await waPage.setCacheEnabled(cacheEnabled);
+  await waPage.setRequestInterception(true);
+  waPage.on('request', interceptedRequest => {
+  const headers = Object.assign({}, interceptedRequest.headers(), {
+    DNT:1
+  });
+    if (interceptedRequest.url().includes('https://crashlogs.whatsapp.net/') && blockCrashLogs){
+      interceptedRequest.abort();
+    }
+    else
+      interceptedRequest.continue({headers});
+  }
+  );
+  
   await waPage.goto(puppeteerConfig.whatsappUrl);
   await randomMouseMovements(waPage);
   return waPage;
@@ -54,6 +70,17 @@ async function initBrowser(sessionId?: string, puppeteerConfigOverride:any={}) {
     args: [...puppeteerConfig.chromiumArgs],
     ...puppeteerConfigOverride
   });
+  //devtools
+  if(puppeteerConfigOverride&&puppeteerConfigOverride.devtools){
+    if(puppeteerConfigOverride.devtools.user&&puppeteerConfigOverride.devtools.pass) devtools.setAuthCredentials(puppeteerConfigOverride.devtools.user, puppeteerConfigOverride.devtools.pass)
+    try {
+      // const tunnel = await devtools.createTunnel(browser);
+      const tunnel = devtools.getLocalDevToolsUrl(browser);
+      console.log('\ndevtools URL: '+tunnel);
+    } catch (error) {
+    console.log("TCL: initBrowser -> error", error)
+    }
+  }
   return browser;
 }
 

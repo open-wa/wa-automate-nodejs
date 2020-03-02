@@ -2,9 +2,10 @@ node_modules
 dist
 session
 newsession
-assets
+
 
 **req.ts
 
 **qr_code_session.png
 **.re.js
+release.png

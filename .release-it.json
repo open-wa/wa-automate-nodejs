@@ -1,5 +1,12 @@
 {
   "github": {
     "release": true
+  },
+  "hooks": {
+    "after:bump": "npm run build && npx auto-changelog --commit-limit false -p -t keepachangelog && typedoc",
+    "after:release": "npm run release-image"
+  },
+  "git": {
+    "changelog": "npx auto-changelog --stdout --commit-limit false --unreleased --template https://raw.githubusercontent.com/release-it/release-it/master/conf/changelog-compact.hbs"
   }
 }
