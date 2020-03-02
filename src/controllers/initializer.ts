@@ -29,15 +29,21 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
   const SULLA_HOTFIX_VERSION = pjson.version;
   //@ts-ignore
   const WA_VERSION = await waPage.evaluate(()=>window.Debug?window.Debug.VERSION:'I think you have been TOS_BLOCKed')
+  
+
+  //@ts-ignore
+  const canInjectEarly = await waPage.evaluate(() => {return (typeof webpackJsonp !== "undefined")});
+  //@ts-ignore
+  const BROWSER_ID = canInjectEarly?await waPage.evaluate(() => {return webpackJsonp([],null,['bhaehigaaa'])?webpackJsonp([],null,['bhaehigaaa']).default.getBrowserId():''}):'';
+  
   console.log('Debug Info', {
     WA_VERSION,
     PAGE_UA,
     SULLA_HOTFIX_VERSION,
-    BROWSER_VERSION
-  })
-
-  //@ts-ignore
-  const canInjectEarly = await waPage.evaluate(() => {return (typeof webpackJsonp !== "undefined")});
+    BROWSER_VERSION,
+    BROWSER_ID
+  });
+  
   if(canInjectEarly) {
     spinner.start('Injecting api');
     waPage = await injectApi(waPage);
