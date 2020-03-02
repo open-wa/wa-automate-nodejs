@@ -123,29 +123,29 @@ create('session',
   killTimer:40,
   autoRefresh:true, //default to true
   qrRefreshS:15, //please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.
-  cacheEnabled:false,
-  devtools:true,
-  blockCrashLogs:true,
+  // cacheEnabled:false,
+  // devtools:true,
+  // blockCrashLogs:true,
   //OR
   // devtools:{
   //   user:'admin',
   //   pass:'root'
   // },
   //example chrome args. THIS MAY BREAK YOUR APP !!!ONLY FOR TESTING FOR NOW!!!.
-  chromiumArgs:[
-    '--aggressive-cache-discard',
-    '--disable-cache',
-    '--disable-application-cache',
-    '--disable-offline-load-stale-cache',
-    '--disk-cache-size=0'
-  ]
+  // chromiumArgs:[
+  //   '--aggressive-cache-discard',
+  //   '--disable-cache',
+  //   '--disable-application-cache',
+  //   '--disable-offline-load-stale-cache',
+  //   '--disk-cache-size=0'
+  // ]
 }
 )
 // create()
 .then(async client => await start(client))
 .catch(e=>{
   console.log('Error',e.message);
-  process.exit();
+  // process.exit();
 });
 
 //or you can set a 'session id'

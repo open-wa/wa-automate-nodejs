@@ -5,6 +5,7 @@ import { isAuthenticated, isInsideChat, retrieveQR, randomMouseMovements } from 
 import { initWhatsapp, injectApi } from './browser';
 const spinner = ora();
 let shouldLoop = true;
+const fs = require('fs');
 var pjson = require('../../package.json');
 const timeout = ms => {
   return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
@@ -106,6 +107,19 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
   const VALID_SESSION = await waPage.evaluate(()=>window.Store&&window.Store.Msg?true:false);
   if(VALID_SESSION)  {
     spinner.succeed('Whatsapp is ready');
+    const localStorage = JSON.parse(await waPage.evaluate(() => {
+      return JSON.stringify(window.localStorage);
+  }));
+  const sessionjsonpath = path.join(process.cwd(), sessionId || 'session','session.json');
+  fs.writeFile(sessionjsonpath, JSON.stringify({
+    WABrowserId: localStorage.WABrowserId,
+    WASecretBundle: localStorage.WASecretBundle,
+    WAToken1: localStorage.WAToken1,
+    WAToken2: localStorage.WAToken2
+}), (err) => {
+  if (err) {  console.error(err);  return; };
+  console.log("File has been created");
+});
     return new Whatsapp(waPage);
   }
   else {
