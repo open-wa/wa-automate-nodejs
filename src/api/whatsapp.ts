@@ -39,6 +39,7 @@ declare module WAPI {
   const addParticipant: (groupId: string, contactId: string) => void;
   const setMyName: (newName: string) => void;
   const setMyStatus: (newStatus: string) => void;
+  const getStatus: (contactId: string) => void;
   const getGroupAdmins: (groupId: string) => Contact[];
   const removeParticipant: (groupId: string, contactId: string) => void;
   const promoteParticipant: (groupId: string, contactId: string) => void;
@@ -724,6 +725,19 @@ export class Whatsapp {
       contactId
     );
   }
+
+/**
+ * Get the status of a contact
+ * @param contactId {string} to '000000000000@c.us'
+ * returns: {id: string,status: string}
+ */
+
+public async getStatus(contactId: string) {
+  return await this.page.evaluate(
+    contactId => WAPI.getStatus(contactId),
+    contactId
+  );
+}
 
   /**
     * Load all messages in chat object from server.

@@ -341,6 +341,15 @@ window.WAPI.getChat = function (id, done) {
     return found;
 }
 
+/**
+ * Get your status
+ * @param {string} to '000000000000@c.us'
+ * returns: {string,string} and string -"Hi, I am using WhatsApp"
+ */
+window.WAPI.getStatus = async (id) => {
+return await Store.MyStatus.getStatus(id)
+}
+
 window.WAPI.getChatByName = function (name, done) {
     const found = window.Store.Chat.find((chat) => chat.name === name);
     if (done !== undefined) done(found);
