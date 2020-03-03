@@ -891,12 +891,12 @@ window.WAPI.sendMessageToID = function (id, message, done) {
 
 window.WAPI.sendMessage = function (id, message, done) {
     var chat = WAPI.getChat(id);
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
     if (chat !== undefined) {
         if (done !== undefined) {
             chat.sendMessage(message).then(function () {
-                function sleep(ms) {
-                    return new Promise(resolve => setTimeout(resolve, ms));
-                }
 
                 var trials = 0;
 
@@ -923,7 +923,7 @@ window.WAPI.sendMessage = function (id, message, done) {
             return true;
         } else {
             return chat.sendMessage(message).then(_=>{
-                return chat.msgs.models.filter(m=>m.body==message).sort((a, b) => b.t - a.t)[0].id._serialized;
+                return sleep(250).then(_=>{const msg = chat.msgs.models.filter(m=>m.body==message).sort((a, b) => b.t - a.t)[0]; return msg ? msg.id._serialized : false});
             });
         }
     } else {
@@ -1200,7 +1200,7 @@ window.WAPI.deleteConversation = function (chatId, done) {
     return true;
 };
 
-window.WAPI.smartDeleteMessages = function (chatId, messageArray, done) {
+window.WAPI.smartDeleteMessages = function (chatId, messageArray, onlyLocal, done) {
     var userId = new Store.WidFactory.createWid(chatId);
     let conversation = WAPI.getChat(userId);
     if (!conversation) {
@@ -1215,7 +1215,7 @@ window.WAPI.smartDeleteMessages = function (chatId, messageArray, done) {
     }
 
     let messagesToDelete = messageArray.map(msgId => (typeof msgId == 'string')?window.Store.Msg.get(msgId):msgId);
-    let jobs = [
+    let jobs = onlyLocal ? [conversation.sendDeleteMsgs(messagesToDelete,conversation)] :[
         conversation.sendRevokeMsgs(messagesToDelete.filter(msg=>msg.isSentByMe),conversation),
         conversation.sendDeleteMsgs(messagesToDelete.filter(msg=>!msg.isSentByMe),conversation)
     ]
