@@ -37,6 +37,7 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "Me", conditions: (module) => (module.PLATFORMS && module.Conn) ? module.default : null },
                 { id: "Identity", conditions: (module) => (module.queryIdentity && module.updateIdentity) ? module : null },
                 { id: "MyStatus", conditions: (module) => (module.getStatus && module.setMyStatus) ? module : null },
+                { id: "ChatStates", conditions: (module) => (module.sendChatStatePaused && module.sendChatStateRecording && module.sendChatStateComposing) ? module : null },
                 { id: "GroupActions", conditions: (module) => (module.sendExitGroup && module.localExitGroup) ? module : null },
                 { id: "Features", conditions: (module) => (module.FEATURE_CHANGE_EVENT && module.features) ? module : null },
                 { id: "MessageUtils", conditions: (module) => (module.storeMessages && module.appendMessage) ? module : null },
@@ -335,13 +336,13 @@ window.WAPI.getAllGroups = function (done) {
 window.WAPI.sendChatstate = async function (state, chatId) {
     switch(state) {
         case 0:
-            await window.Store.Wap.sendChatstateComposing(chatId);
+            await window.Store.ChatStates.sendChatStateComposing(chatId);
             break;
         case 1:
-            await window.Store.Wap.sendChatstateRecording(chatId);
+            await window.Store.ChatStates.sendChatStateRecording(chatId);
             break;
         case 2:
-            await window.Store.Wap.sendChatstatePaused(chatId);
+            await window.Store.ChatStates.sendChatStatePaused(chatId);
             break;
         default:
             return false
@@ -1710,8 +1711,8 @@ window.WAPI.getNewMessageId = function (chatId) {
  * @param {boolean} on true to turn on similated typing, false to turn it off //you need to manually turn this off.
  */
 window.WAPI.simulateTyping = async function (chatId, on) {
-    if (on) await Store.WapQuery.sendChatstateComposing(chatId)
-    else await Store.WapQuery.sendChatstatePaused(chatId)
+    if (on) await Store.ChatStates.sendChatStateComposing(chatId)
+    else await Store.ChatStates.sendChatStatePaused(chatId)
 };
 
 /**
@@ -2165,7 +2166,7 @@ window.WAPI.demoteParticipant = function (idGroup, idParticipant, done) {
     window.Store.WapQuery.demoteParticipants(idGroup, [idParticipant]).then(() => {
         const chat = Store.Chat.get(idGroup);
         const demote = chat.groupMetadata.participants.get(idParticipant);
-        window.Store.Participants.de(chat, [demote]).then(() => {
+        window.Store.Participants.demoteParticipants(chat, [demote]).then(() => {
             done(true); return true;
         })
     })

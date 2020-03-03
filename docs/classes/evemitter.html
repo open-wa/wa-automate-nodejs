@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>GroupMetadata | sulla-hotfix - v1.8.4</title>
+	<title>EvEmitter | sulla-hotfix - v1.8.4</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,10 +56,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="groupmetadata.html">GroupMetadata</a>
+					<a href="evemitter.html">EvEmitter</a>
 				</li>
 			</ul>
-			<h1>Interface GroupMetadata</h1>
+			<h1>Class EvEmitter</h1>
 		</div>
 	</div>
 </header>
@@ -70,7 +70,12 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">GroupMetadata</span>
+						<span class="target">EvEmitter</span>
+						<ul class="tsd-hierarchy">
+							<li>
+								<a href="spin.html" class="tsd-signature-type">Spin</a>
+							</li>
+						</ul>
 					</li>
 				</ul>
 			</section>
@@ -79,83 +84,106 @@
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="evemitter.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="groupmetadata.html#creation" class="tsd-kind-icon">creation</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="groupmetadata.html#id" class="tsd-kind-icon">id</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="groupmetadata.html#owner" class="tsd-kind-icon">owner</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="groupmetadata.html#participants" class="tsd-kind-icon">participants</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="groupmetadata.html#pendingparticipants" class="tsd-kind-icon">pending<wbr>Participants</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="evemitter.html#eventnamespace" class="tsd-kind-icon">event<wbr>Namespace</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="evemitter.html#sessionid" class="tsd-kind-icon">session<wbr>Id</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="evemitter.html#emit" class="tsd-kind-icon">emit</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>EvEmitter<span class="tsd-signature-symbol">(</span>sessionId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, eventNamespace<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="evemitter.html" class="tsd-signature-type">EvEmitter</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/0dc711c/src/controllers/events.ts#L11">controllers/events.ts:11</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>sessionId: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>eventNamespace: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="evemitter.html" class="tsd-signature-type">EvEmitter</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="creation" class="tsd-anchor"></a>
-					<h3>creation</h3>
-					<div class="tsd-signature tsd-kind-icon">creation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="eventnamespace" class="tsd-anchor"></a>
+					<h3>event<wbr>Namespace</h3>
+					<div class="tsd-signature tsd-kind-icon">event<wbr>Namespace<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/0dc711c/src/api/model/group-metadata.ts#L5">api/model/group-metadata.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/0dc711c/src/controllers/events.ts#L11">controllers/events.ts:11</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="id" class="tsd-anchor"></a>
-					<h3>id</h3>
-					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <a href="id.html" class="tsd-signature-type">Id</a></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="sessionid" class="tsd-anchor"></a>
+					<h3>session<wbr>Id</h3>
+					<div class="tsd-signature tsd-kind-icon">session<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/0dc711c/src/api/model/group-metadata.ts#L4">api/model/group-metadata.ts:4</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/0dc711c/src/controllers/events.ts#L10">controllers/events.ts:10</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="owner" class="tsd-anchor"></a>
-					<h3>owner</h3>
-					<div class="tsd-signature tsd-kind-icon">owner<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>_serialized<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>server<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>user<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/0dc711c/src/api/model/group-metadata.ts#L6">api/model/group-metadata.ts:6</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-type-declaration">
-						<h4>Type declaration</h4>
-						<ul class="tsd-parameters">
-							<li class="tsd-parameter">
-								<h5>_serialized<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-							</li>
-							<li class="tsd-parameter">
-								<h5>server<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-							</li>
-							<li class="tsd-parameter">
-								<h5>user<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-							</li>
-						</ul>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="participants" class="tsd-anchor"></a>
-					<h3>participants</h3>
-					<div class="tsd-signature tsd-kind-icon">participants<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/0dc711c/src/api/model/group-metadata.ts#L11">api/model/group-metadata.ts:11</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="pendingparticipants" class="tsd-anchor"></a>
-					<h3>pending<wbr>Participants</h3>
-					<div class="tsd-signature tsd-kind-icon">pending<wbr>Participants<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/0dc711c/src/api/model/group-metadata.ts#L12">api/model/group-metadata.ts:12</a></li>
-						</ul>
-					</aside>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="emit" class="tsd-anchor"></a>
+					<h3>emit</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">emit<span class="tsd-signature-symbol">(</span>data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, eventNamespaceOverride<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/0dc711c/src/controllers/events.ts#L18">controllers/events.ts:18</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>data: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> eventNamespaceOverride: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
 				</section>
 			</section>
 		</div>
@@ -171,23 +199,20 @@
 				<ul class="before-current">
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-interface">
-						<a href="groupmetadata.html" class="tsd-kind-icon">Group<wbr>Metadata</a>
+					<li class="current tsd-kind-class">
+						<a href="evemitter.html" class="tsd-kind-icon">Ev<wbr>Emitter</a>
 						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="groupmetadata.html#creation" class="tsd-kind-icon">creation</a>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="evemitter.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="groupmetadata.html#id" class="tsd-kind-icon">id</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="evemitter.html#eventnamespace" class="tsd-kind-icon">event<wbr>Namespace</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="groupmetadata.html#owner" class="tsd-kind-icon">owner</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="evemitter.html#sessionid" class="tsd-kind-icon">session<wbr>Id</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="groupmetadata.html#participants" class="tsd-kind-icon">participants</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="groupmetadata.html#pendingparticipants" class="tsd-kind-icon">pending<wbr>Participants</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="evemitter.html#emit" class="tsd-kind-icon">emit</a>
 							</li>
 						</ul>
 					</li>

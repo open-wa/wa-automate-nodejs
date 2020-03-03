@@ -1,6 +1,6 @@
 {
   "name": "sulla-hotfix",
-  "version": "1.8.2",
+  "version": "1.8.4",
   "description": "Javascript whatsapp framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -69,6 +69,7 @@
     "eventemitter2": "^6.0.0",
     "futoin-hkdf": "^1.2.1",
     "image-type": "^4.1.0",
+    "lodash.uniq": "^4.5.0",
     "ora": "^4.0.2",
     "puppeteer": "^2.1.1",
     "puppeteer-extra": "^2.1.3",
