@@ -4,8 +4,6 @@ import * as path from 'path';
 import { isAuthenticated, isInsideChat, retrieveQR, randomMouseMovements } from './auth';
 import { initWhatsapp, injectApi } from './browser';
 import {Spin} from './events'
-import { S_IFBLK } from 'constants';
-
 var uniq = require('lodash.uniq');
 
 let shouldLoop = true;
@@ -25,6 +23,7 @@ let qrTimeout;
  */
 export async function create(sessionId?: string, config?:ConfigObject, customUserAgent?:string) {
   const spinner = new Spin(sessionId,'STARTUP');
+  try{
 
   waPage = undefined;
   qrTimeout = undefined;
@@ -152,6 +151,11 @@ if(BROKEN_METHODS.length>0) console.log("!!!!!BROKEN METHODS DETECTED!!!!\n\n\nP
     await kill()
     return await create(sessionId,config,customUserAgent);
   }
+} catch(error){
+  spinner.emit(error.message);
+	await kill();
+	throw error;
+}
 }
 
 const kill = async () => {
