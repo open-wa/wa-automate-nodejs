@@ -69,7 +69,7 @@ app.get('/getAllNewMessages', async (req, res) => {
 
 app.get('/getBatteryLevel', async (req, res) => {
   const getBatteryLevel = await globalClient.getBatteryLevel();
-  return res.send(getBatteryLevel);
+  return res.send("battery: "+getBatteryLevel);
 })
 
 app.get('/isConnected', async (req, res) => {
@@ -90,5 +90,5 @@ app.post('/sendText' , async (req,res) => {
 })
 
 app.listen(8081, function () {
-  console.log('Listening on port 8081!');
+  console.log('\n• Listening on port 8081!');
 });
