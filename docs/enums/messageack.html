@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Id | sulla-hotfix - v1.8.1</title>
+	<title>MessageAck | sulla-hotfix - v1.8.1</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,68 +56,107 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="id.html">Id</a>
+					<a href="messageack.html">MessageAck</a>
 				</li>
 			</ul>
-			<h1>Interface Id</h1>
+			<h1>Enumeration MessageAck</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-hierarchy">
-				<h3>Hierarchy</h3>
-				<ul class="tsd-hierarchy">
-					<li>
-						<span class="target">Id</span>
-					</li>
-				</ul>
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Message ACK</p>
+					</div>
+					<dl class="tsd-comment-tags">
+						<dt>readonly</dt>
+						<dd></dd>
+						<dt>enum</dt>
+						<dd><p>{number}</p>
+						</dd>
+					</dl>
+				</div>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Properties</h3>
+							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="id.html#_serialized" class="tsd-kind-icon">_serialized</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="id.html#server" class="tsd-kind-icon">server</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="id.html#user" class="tsd-kind-icon">user</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messageack.html#ack_device" class="tsd-kind-icon">ACK_<wbr>DEVICE</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messageack.html#ack_error" class="tsd-kind-icon">ACK_<wbr>ERROR</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messageack.html#ack_pending" class="tsd-kind-icon">ACK_<wbr>PENDING</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messageack.html#ack_played" class="tsd-kind-icon">ACK_<wbr>PLAYED</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messageack.html#ack_read" class="tsd-kind-icon">ACK_<wbr>READ</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messageack.html#ack_server" class="tsd-kind-icon">ACK_<wbr>SERVER</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="_serialized" class="tsd-anchor"></a>
-					<h3>_serialized</h3>
-					<div class="tsd-signature tsd-kind-icon">_serialized<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+				<h2>Enumeration members</h2>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="ack_device" class="tsd-anchor"></a>
+					<h3>ACK_<wbr>DEVICE</h3>
+					<div class="tsd-signature tsd-kind-icon">ACK_<wbr>DEVICE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 2</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/id.ts#L4">api/model/id.ts:4</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L136">api/model/message.ts:136</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="server" class="tsd-anchor"></a>
-					<h3>server</h3>
-					<div class="tsd-signature tsd-kind-icon">server<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="ack_error" class="tsd-anchor"></a>
+					<h3>ACK_<wbr>ERROR</h3>
+					<div class="tsd-signature tsd-kind-icon">ACK_<wbr>ERROR<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = -1</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/id.ts#L2">api/model/id.ts:2</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L133">api/model/message.ts:133</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="user" class="tsd-anchor"></a>
-					<h3>user</h3>
-					<div class="tsd-signature tsd-kind-icon">user<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="ack_pending" class="tsd-anchor"></a>
+					<h3>ACK_<wbr>PENDING</h3>
+					<div class="tsd-signature tsd-kind-icon">ACK_<wbr>PENDING<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 0</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/id.ts#L3">api/model/id.ts:3</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L134">api/model/message.ts:134</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="ack_played" class="tsd-anchor"></a>
+					<h3>ACK_<wbr>PLAYED</h3>
+					<div class="tsd-signature tsd-kind-icon">ACK_<wbr>PLAYED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 4</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L138">api/model/message.ts:138</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="ack_read" class="tsd-anchor"></a>
+					<h3>ACK_<wbr>READ</h3>
+					<div class="tsd-signature tsd-kind-icon">ACK_<wbr>READ<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 3</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L137">api/model/message.ts:137</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="ack_server" class="tsd-anchor"></a>
+					<h3>ACK_<wbr>SERVER</h3>
+					<div class="tsd-signature tsd-kind-icon">ACK_<wbr>SERVER<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 1</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L135">api/model/message.ts:135</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -137,40 +176,25 @@
 						<a href="../classes/whatsapp.html" class="tsd-kind-icon">Whatsapp</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="chat.html" class="tsd-kind-icon">Chat</a>
+						<a href="../interfaces/chat.html" class="tsd-kind-icon">Chat</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="contact.html" class="tsd-kind-icon">Contact</a>
+						<a href="../interfaces/contact.html" class="tsd-kind-icon">Contact</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="groupmetadata.html" class="tsd-kind-icon">Group<wbr>Metadata</a>
-					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-interface">
-						<a href="id.html" class="tsd-kind-icon">Id</a>
-						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="id.html#_serialized" class="tsd-kind-icon">_serialized</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="id.html#server" class="tsd-kind-icon">server</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="id.html#user" class="tsd-kind-icon">user</a>
-							</li>
-						</ul>
-					</li>
-				</ul>
-				<ul class="after-current">
-					<li class=" tsd-kind-interface">
-						<a href="livelocationchangedevent.html" class="tsd-kind-icon">Live<wbr>Location<wbr>Changed<wbr>Event</a>
+						<a href="../interfaces/groupmetadata.html" class="tsd-kind-icon">Group<wbr>Metadata</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="message.html" class="tsd-kind-icon">Message</a>
+						<a href="../interfaces/id.html" class="tsd-kind-icon">Id</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="participantchangedeventmodel.html" class="tsd-kind-icon">Participant<wbr>Changed<wbr>Event<wbr>Model</a>
+						<a href="../interfaces/livelocationchangedevent.html" class="tsd-kind-icon">Live<wbr>Location<wbr>Changed<wbr>Event</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/message.html" class="tsd-kind-icon">Message</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/participantchangedeventmodel.html" class="tsd-kind-icon">Participant<wbr>Changed<wbr>Event<wbr>Model</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="../globals.html#decryptmedia" class="tsd-kind-icon">decrypt<wbr>Media</a>

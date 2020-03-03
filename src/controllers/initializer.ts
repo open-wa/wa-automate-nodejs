@@ -1,10 +1,16 @@
 import { Whatsapp } from '../api/whatsapp';
+import {ConfigObject} from '../api/model/index';
 import * as path from 'path';
 import { isAuthenticated, isInsideChat, retrieveQR, randomMouseMovements } from './auth';
 import { initWhatsapp, injectApi } from './browser';
+
 import { EventEmitter2 } from 'eventemitter2';
 import * as spinner from './step';
 import * as qrSpin from './step';
+
+import {ev} from './events';
+const fs = require('fs');
+
 var pjson = require('../../package.json');
 const timeout = ms => {
   return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
@@ -17,11 +23,11 @@ export const evCreate = new EventEmitter2({
   wildcard: true
 });
 
+
 /**
  * Should be called to initialize whatsapp client
  */
-export async function create(sessionId?: string, puppeteerConfigOverride?:any, customUserAgent?:string) {
-
+export async function create(sessionId?: string, puppeteerConfigOverride?:ConfigObject, customUserAgent?:string) {
 try{
   waPage = undefined;
   qrTimeout = undefined;
@@ -40,6 +46,7 @@ try{
   const SULLA_HOTFIX_VERSION = pjson.version;
   //@ts-ignore
   const WA_VERSION = await waPage.evaluate(()=>window.Debug?window.Debug.VERSION:'I think you have been TOS_BLOCKed')
+  
   console.log('Debug Info', {
     WA_VERSION,
     PAGE_UA,
@@ -52,9 +59,13 @@ try{
 	SULLA_HOTFIX_VERSION,
 	BROWSER_VERSION
   }));  
+  
 
   //@ts-ignore
   const canInjectEarly = await waPage.evaluate(() => {return (typeof webpackJsonp !== "undefined")});
+  //@ts-ignore
+  const BROWSER_ID = canInjectEarly?await waPage.evaluate(() => {return webpackJsonp([],null,['bhaehigaaa'])?webpackJsonp([],null,['bhaehigaaa']).default.getBrowserId():''}):'';
+    
   if(canInjectEarly) {
     spinner.start('Injecting api');
     waPage = await injectApi(waPage);
@@ -119,6 +130,22 @@ try{
   const VALID_SESSION = await waPage.evaluate(()=>window.Store&&window.Store.Msg?true:false);
   if(VALID_SESSION)  {
     spinner.succeed('Whatsapp is ready');
+    const localStorage = JSON.parse(await waPage.evaluate(() => {
+      return JSON.stringify(window.localStorage);
+  }));
+  const sessionjsonpath = path.join(process.cwd(), `${sessionId || 'session'}.data.json`);
+  const sessionData = {
+    WABrowserId: localStorage.WABrowserId,
+    WASecretBundle: localStorage.WASecretBundle,
+    WAToken1: localStorage.WAToken1,
+    WAToken2: localStorage.WAToken2
+};
+
+ev.emit(`sessionData${sessionId?`.${sessionId}`:``}`, sessionData, sessionId);
+
+  fs.writeFile(sessionjsonpath, JSON.stringify(sessionData), (err) => {
+  if (err) {  console.error(err);  return; };
+});
     return new Whatsapp(waPage);
   }
   else {

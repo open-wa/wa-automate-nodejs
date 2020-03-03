@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ExposedFn | sulla-hotfix - v1.8.1</title>
+	<title>WAState | sulla-hotfix - v1.8.1</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,16 +56,30 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="exposedfn.html">ExposedFn</a>
+					<a href="wastate.html">WAState</a>
 				</li>
 			</ul>
-			<h1>Enumeration ExposedFn</h1>
+			<h1>Enumeration WAState</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>WhatsApp state</p>
+					</div>
+					<dl class="tsd-comment-tags">
+						<dt>readonly</dt>
+						<dd></dd>
+						<dt>enum</dt>
+						<dd><p>{string}</p>
+						</dd>
+					</dl>
+				</div>
+			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
@@ -73,11 +87,18 @@
 						<section class="tsd-index-section ">
 							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="exposedfn.html#onanymessage" class="tsd-kind-icon">On<wbr>Any<wbr>Message</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="exposedfn.html#onmessage" class="tsd-kind-icon">On<wbr>Message</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="exposedfn.html#onack" class="tsd-kind-icon">on<wbr>Ack</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="exposedfn.html#onparticipantschanged" class="tsd-kind-icon">on<wbr>Participants<wbr>Changed</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="exposedfn.html#onstatechanged" class="tsd-kind-icon">on<wbr>State<wbr>Changed</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="wastate.html#conflict" class="tsd-kind-icon">CONFLICT</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="wastate.html#connected" class="tsd-kind-icon">CONNECTED</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="wastate.html#deprecated_version" class="tsd-kind-icon">DEPRECATED_<wbr>VERSION</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="wastate.html#opening" class="tsd-kind-icon">OPENING</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="wastate.html#pairing" class="tsd-kind-icon">PAIRING</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="wastate.html#proxyblock" class="tsd-kind-icon">PROXYBLOCK</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="wastate.html#smb_tos_block" class="tsd-kind-icon">SMB_<wbr>TOS_<wbr>BLOCK</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="wastate.html#timeout" class="tsd-kind-icon">TIMEOUT</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="wastate.html#tos_block" class="tsd-kind-icon">TOS_<wbr>BLOCK</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="wastate.html#unlaunched" class="tsd-kind-icon">UNLAUNCHED</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="wastate.html#unpaired" class="tsd-kind-icon">UNPAIRED</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="wastate.html#unpaired_idle" class="tsd-kind-icon">UNPAIRED_<wbr>IDLE</a></li>
 							</ul>
 						</section>
 					</div>
@@ -86,52 +107,122 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Enumeration members</h2>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="onanymessage" class="tsd-anchor"></a>
-					<h3>On<wbr>Any<wbr>Message</h3>
-					<div class="tsd-signature tsd-kind-icon">On<wbr>Any<wbr>Message<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;onAnyMessage&quot;</span></div>
+					<a name="conflict" class="tsd-anchor"></a>
+					<h3>CONFLICT</h3>
+					<div class="tsd-signature tsd-kind-icon">CONFLICT<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;CONFLICT&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/functions/exposed.enum.ts#L3">api/functions/exposed.enum.ts:3</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L45">api/model/index.ts:45</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="onmessage" class="tsd-anchor"></a>
-					<h3>On<wbr>Message</h3>
-					<div class="tsd-signature tsd-kind-icon">On<wbr>Message<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;onMessage&quot;</span></div>
+					<a name="connected" class="tsd-anchor"></a>
+					<h3>CONNECTED</h3>
+					<div class="tsd-signature tsd-kind-icon">CONNECTED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;CONNECTED&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/functions/exposed.enum.ts#L2">api/functions/exposed.enum.ts:2</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L46">api/model/index.ts:46</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="onack" class="tsd-anchor"></a>
-					<h3>on<wbr>Ack</h3>
-					<div class="tsd-signature tsd-kind-icon">on<wbr>Ack<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;onAck&quot;</span></div>
+					<a name="deprecated_version" class="tsd-anchor"></a>
+					<h3>DEPRECATED_<wbr>VERSION</h3>
+					<div class="tsd-signature tsd-kind-icon">DEPRECATED_<wbr>VERSION<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;DEPRECATED_VERSION&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/functions/exposed.enum.ts#L4">api/functions/exposed.enum.ts:4</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L47">api/model/index.ts:47</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="onparticipantschanged" class="tsd-anchor"></a>
-					<h3>on<wbr>Participants<wbr>Changed</h3>
-					<div class="tsd-signature tsd-kind-icon">on<wbr>Participants<wbr>Changed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;onParticipantsChanged&quot;</span></div>
+					<a name="opening" class="tsd-anchor"></a>
+					<h3>OPENING</h3>
+					<div class="tsd-signature tsd-kind-icon">OPENING<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;OPENING&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/functions/exposed.enum.ts#L5">api/functions/exposed.enum.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L48">api/model/index.ts:48</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="onstatechanged" class="tsd-anchor"></a>
-					<h3>on<wbr>State<wbr>Changed</h3>
-					<div class="tsd-signature tsd-kind-icon">on<wbr>State<wbr>Changed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;onStateChanged&quot;</span></div>
+					<a name="pairing" class="tsd-anchor"></a>
+					<h3>PAIRING</h3>
+					<div class="tsd-signature tsd-kind-icon">PAIRING<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;PAIRING&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/functions/exposed.enum.ts#L6">api/functions/exposed.enum.ts:6</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L49">api/model/index.ts:49</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="proxyblock" class="tsd-anchor"></a>
+					<h3>PROXYBLOCK</h3>
+					<div class="tsd-signature tsd-kind-icon">PROXYBLOCK<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;PROXYBLOCK&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L50">api/model/index.ts:50</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="smb_tos_block" class="tsd-anchor"></a>
+					<h3>SMB_<wbr>TOS_<wbr>BLOCK</h3>
+					<div class="tsd-signature tsd-kind-icon">SMB_<wbr>TOS_<wbr>BLOCK<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;SMB_TOS_BLOCK&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L51">api/model/index.ts:51</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="timeout" class="tsd-anchor"></a>
+					<h3>TIMEOUT</h3>
+					<div class="tsd-signature tsd-kind-icon">TIMEOUT<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;TIMEOUT&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L52">api/model/index.ts:52</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="tos_block" class="tsd-anchor"></a>
+					<h3>TOS_<wbr>BLOCK</h3>
+					<div class="tsd-signature tsd-kind-icon">TOS_<wbr>BLOCK<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;TOS_BLOCK&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L53">api/model/index.ts:53</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="unlaunched" class="tsd-anchor"></a>
+					<h3>UNLAUNCHED</h3>
+					<div class="tsd-signature tsd-kind-icon">UNLAUNCHED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;UNLAUNCHED&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L54">api/model/index.ts:54</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="unpaired" class="tsd-anchor"></a>
+					<h3>UNPAIRED</h3>
+					<div class="tsd-signature tsd-kind-icon">UNPAIRED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;UNPAIRED&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L55">api/model/index.ts:55</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="unpaired_idle" class="tsd-anchor"></a>
+					<h3>UNPAIRED_<wbr>IDLE</h3>
+					<div class="tsd-signature tsd-kind-icon">UNPAIRED_<wbr>IDLE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;UNPAIRED_IDLE&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L56">api/model/index.ts:56</a></li>
 						</ul>
 					</aside>
 				</section>

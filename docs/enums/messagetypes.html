@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ExposedFn | sulla-hotfix - v1.8.1</title>
+	<title>MessageTypes | sulla-hotfix - v1.8.1</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,16 +56,30 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="exposedfn.html">ExposedFn</a>
+					<a href="messagetypes.html">MessageTypes</a>
 				</li>
 			</ul>
-			<h1>Enumeration ExposedFn</h1>
+			<h1>Enumeration MessageTypes</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Message types</p>
+					</div>
+					<dl class="tsd-comment-tags">
+						<dt>readonly</dt>
+						<dd></dd>
+						<dt>enum</dt>
+						<dd><p>{string}</p>
+						</dd>
+					</dl>
+				</div>
+			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
@@ -73,11 +87,18 @@
 						<section class="tsd-index-section ">
 							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="exposedfn.html#onanymessage" class="tsd-kind-icon">On<wbr>Any<wbr>Message</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="exposedfn.html#onmessage" class="tsd-kind-icon">On<wbr>Message</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="exposedfn.html#onack" class="tsd-kind-icon">on<wbr>Ack</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="exposedfn.html#onparticipantschanged" class="tsd-kind-icon">on<wbr>Participants<wbr>Changed</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="exposedfn.html#onstatechanged" class="tsd-kind-icon">on<wbr>State<wbr>Changed</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messagetypes.html#audio" class="tsd-kind-icon">AUDIO</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messagetypes.html#contact_card" class="tsd-kind-icon">CONTACT_<wbr>CARD</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messagetypes.html#contact_card_multi" class="tsd-kind-icon">CONTACT_<wbr>CARD_<wbr>MULTI</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messagetypes.html#document" class="tsd-kind-icon">DOCUMENT</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messagetypes.html#image" class="tsd-kind-icon">IMAGE</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messagetypes.html#location" class="tsd-kind-icon">LOCATION</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messagetypes.html#revoked" class="tsd-kind-icon">REVOKED</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messagetypes.html#sticker" class="tsd-kind-icon">STICKER</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messagetypes.html#text" class="tsd-kind-icon">TEXT</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messagetypes.html#unknown" class="tsd-kind-icon">UNKNOWN</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messagetypes.html#video" class="tsd-kind-icon">VIDEO</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="messagetypes.html#voice" class="tsd-kind-icon">VOICE</a></li>
 							</ul>
 						</section>
 					</div>
@@ -86,52 +107,122 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Enumeration members</h2>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="onanymessage" class="tsd-anchor"></a>
-					<h3>On<wbr>Any<wbr>Message</h3>
-					<div class="tsd-signature tsd-kind-icon">On<wbr>Any<wbr>Message<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;onAnyMessage&quot;</span></div>
+					<a name="audio" class="tsd-anchor"></a>
+					<h3>AUDIO</h3>
+					<div class="tsd-signature tsd-kind-icon">AUDIO<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;audio&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/functions/exposed.enum.ts#L3">api/functions/exposed.enum.ts:3</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L114">api/model/message.ts:114</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="onmessage" class="tsd-anchor"></a>
-					<h3>On<wbr>Message</h3>
-					<div class="tsd-signature tsd-kind-icon">On<wbr>Message<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;onMessage&quot;</span></div>
+					<a name="contact_card" class="tsd-anchor"></a>
+					<h3>CONTACT_<wbr>CARD</h3>
+					<div class="tsd-signature tsd-kind-icon">CONTACT_<wbr>CARD<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;vcard&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/functions/exposed.enum.ts#L2">api/functions/exposed.enum.ts:2</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L121">api/model/message.ts:121</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="onack" class="tsd-anchor"></a>
-					<h3>on<wbr>Ack</h3>
-					<div class="tsd-signature tsd-kind-icon">on<wbr>Ack<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;onAck&quot;</span></div>
+					<a name="contact_card_multi" class="tsd-anchor"></a>
+					<h3>CONTACT_<wbr>CARD_<wbr>MULTI</h3>
+					<div class="tsd-signature tsd-kind-icon">CONTACT_<wbr>CARD_<wbr>MULTI<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;multi_vcard&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/functions/exposed.enum.ts#L4">api/functions/exposed.enum.ts:4</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L122">api/model/message.ts:122</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="onparticipantschanged" class="tsd-anchor"></a>
-					<h3>on<wbr>Participants<wbr>Changed</h3>
-					<div class="tsd-signature tsd-kind-icon">on<wbr>Participants<wbr>Changed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;onParticipantsChanged&quot;</span></div>
+					<a name="document" class="tsd-anchor"></a>
+					<h3>DOCUMENT</h3>
+					<div class="tsd-signature tsd-kind-icon">DOCUMENT<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;document&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/functions/exposed.enum.ts#L5">api/functions/exposed.enum.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L118">api/model/message.ts:118</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="onstatechanged" class="tsd-anchor"></a>
-					<h3>on<wbr>State<wbr>Changed</h3>
-					<div class="tsd-signature tsd-kind-icon">on<wbr>State<wbr>Changed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;onStateChanged&quot;</span></div>
+					<a name="image" class="tsd-anchor"></a>
+					<h3>IMAGE</h3>
+					<div class="tsd-signature tsd-kind-icon">IMAGE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;image&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/functions/exposed.enum.ts#L6">api/functions/exposed.enum.ts:6</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L116">api/model/message.ts:116</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="location" class="tsd-anchor"></a>
+					<h3>LOCATION</h3>
+					<div class="tsd-signature tsd-kind-icon">LOCATION<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;location&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L120">api/model/message.ts:120</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="revoked" class="tsd-anchor"></a>
+					<h3>REVOKED</h3>
+					<div class="tsd-signature tsd-kind-icon">REVOKED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;revoked&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L123">api/model/message.ts:123</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="sticker" class="tsd-anchor"></a>
+					<h3>STICKER</h3>
+					<div class="tsd-signature tsd-kind-icon">STICKER<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;sticker&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L119">api/model/message.ts:119</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="text" class="tsd-anchor"></a>
+					<h3>TEXT</h3>
+					<div class="tsd-signature tsd-kind-icon">TEXT<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;chat&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L113">api/model/message.ts:113</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="unknown" class="tsd-anchor"></a>
+					<h3>UNKNOWN</h3>
+					<div class="tsd-signature tsd-kind-icon">UNKNOWN<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;unknown&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L124">api/model/message.ts:124</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="video" class="tsd-anchor"></a>
+					<h3>VIDEO</h3>
+					<div class="tsd-signature tsd-kind-icon">VIDEO<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;video&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L117">api/model/message.ts:117</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="voice" class="tsd-anchor"></a>
+					<h3>VOICE</h3>
+					<div class="tsd-signature tsd-kind-icon">VOICE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;ptt&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/message.ts#L115">api/model/message.ts:115</a></li>
 						</ul>
 					</aside>
 				</section>

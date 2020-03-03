@@ -3,7 +3,7 @@ import { Page } from 'puppeteer';
  * @private
  */
 import { ExposedFn } from './functions/exposed.enum';
-import { Chat, LiveLocationChangedEvent } from './model/chat';
+import { Chat, LiveLocationChangedEvent, ChatState } from './model/chat';
 import { Contact } from './model/contact';
 import { Message } from './model/message';
 import { Id } from './model/id';
@@ -32,6 +32,7 @@ declare module WAPI {
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const onLiveLocation: (chatId: string, callback: Function) => any;
   const sendMessage: (to: string, content: string) => void;
+  const setChatState: (chatState: ChatState, chatId: string) => void;
   const reply: (to: string, content: string, quotedMsg: string | Message) => void;
   const getGeneratedUserAgent: (userAgent?: string) => string;
   const forwardMessages: (to: string, messages: string | (string | Message)[], skipMyMessages: boolean) => any;
@@ -117,7 +118,7 @@ declare module WAPI {
 export class Whatsapp {
 
   /**
-   * @param page: Page puppeteer page running web.whatsapp.com
+   * @param page [Page] [Puppeteer Page]{@link https://pptr.dev/#?product=Puppeteer&version=v2.1.1&show=api-class-page} running web.whatsapp.com
    */
   constructor(public page: Page) {
     this.page = page;
@@ -182,6 +183,19 @@ export class Whatsapp {
        )
    }
 
+   /**
+    * Sets the chat state
+    * @param {ChatState|0|1|2} chatState The state you want to set for the chat. Can be TYPING (0), RECRDING (1) or PAUSED (2).
+    * @param {String} chatId 
+    */
+   public async setChatState(chatState: ChatState, chatId: String) {
+    return await this.page.evaluate(
+      ({chatState, chatId}) => {WAPI.setChatState(chatState, chatId)},
+      //@ts-ignore
+      {chatState, chatId}
+      )
+  }
+    
   /**
    * Returns the connecction state
    * @returns Any of OPENING, PAIRING, UNPAIRED, UNPAIRED_IDLE, CONNECTED, TIMEOUT, CONFLICT, UNLAUNCHED, PROXYBLOCK, TOS_BLOCK, SMB_TOS_BLOCK, DEPRECATED_VERSION
