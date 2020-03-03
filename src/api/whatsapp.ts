@@ -308,7 +308,7 @@ export class Whatsapp {
     return await this.page.evaluate(
       ({ to, content }) => {
         WAPI.sendSeen(to);
-        WAPI.sendMessage(to, content);
+        return WAPI.sendMessage(to, content);
       },
       { to, content }
     );

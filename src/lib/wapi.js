@@ -922,8 +922,9 @@ window.WAPI.sendMessage = function (id, message, done) {
             });
             return true;
         } else {
-            chat.sendMessage(message);
-            return true;
+            return chat.sendMessage(message).then(_=>{
+                return chat.msgs.models.filter(m=>m.body==message).sort((a, b) => b.t - a.t)[0].id._serialized;
+            });
         }
     } else {
         if (done !== undefined) done(false);
