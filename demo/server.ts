@@ -82,10 +82,11 @@ app.get('/getAllGroups', async (req, res) => {
   return res.send(getAllGroups);
 })
 
+//Content-Type: application/json
+//{"to": "whatsapp_number@c.us", "msg": "emoji 👍"}
 app.post('/sendText' , async (req,res) => {
-  console.log('body is ',req.body);
-  const {message} = req.body;
-  const newMessage = await globalClient.sendText(message.from, message.body);
+  console.log('• sendText body = ',req.body);
+  const newMessage = await globalClient.sendText(req.body.to, req.body.msg);
   return res.send(newMessage);
 })
 
