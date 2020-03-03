@@ -59,7 +59,7 @@
   "include": ["src/**/*"],
   "exclude": ["src/middleware/middleware.ts"],
     "typedocOptions": {
-      "inputFiles": ["./src/api","./src/utils"],
+      "inputFiles": ["./src/api","./src/utils","./src/controllers"],
       "includes":["./node_modules/puppeteer/lib"],
         "mode": "file",
         "out": "docs",
@@ -81,7 +81,10 @@
           "decryptMedia",
           "smartUserAgent",
           "WAPI",
-          "Page"
+          "Page",
+          "ConfigObject",
+          "SessionData",
+          "create"
         ]
     }
 }

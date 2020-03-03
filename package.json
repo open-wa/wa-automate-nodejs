@@ -1,6 +1,6 @@
 {
   "name": "sulla-hotfix",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "Javascript whatsapp framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -53,7 +53,7 @@
     "command-line-args": "^5.1.1",
     "husky": "^3.0.8",
     "line-reader": "^0.4.0",
-    "marked": "^0.6.3",
+    "marked": "^0.8.0",
     "precise-commits": "^1.0.2",
     "prettier": "^1.18.2",
     "release-it": "^12.4.3",
