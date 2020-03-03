@@ -64,21 +64,72 @@ export interface SessionData {
 }
 
 export interface DevTools {
+    /**
+     * Username for devtools
+     */
     user : String,
+    /**
+     * Password for devtools
+     */
     pass : String
 }
 
 export interface ConfigObject {
+    /**
+     * JSON object that is required to migrate a session from one instance to another or ot just restart an existing instance.
+     * This sessionData is provided in a generated JSON file upon QR scan or an event.
+     * You can capture the event like so:
+     * ```javascript
+     * import {create, ev} from 'sulla-hotfix';
+     * ev.on('sessionData', async (sessionData, sessionId) =>{
+     *          console.log(sessionId, sessionData)
+     *      })
+     * ```
+     * 
+     */
     sessionData ?: SessionData,
+    /**
+     * This allows you to pass any array of custom chrome/chromium argument strings to the puppeteer instance.
+     * You can find all possible arguements [here](https://peter.sh/experiments/chromium-command-line-switches/).
+     */
     chromiumArgs ?: string[],
+    /**
+     * You can enable remote devtools by setting this to trye. If you set this to true there will be security on the devtools url.
+     * If you want, you can also pass a username & password.
+     */
     devtools ?: boolean | DevTools,
+    /**
+     * Setting this to true will block any network calls to WhatsApp's crash log servers. This should keep anything you do under the radar.
+     */
     blockCrashLogs ?: boolean,
+    /**
+     * Setting this to false turn off the cache. This may improve memory usage.
+     */
     cacheEnabled ?: boolean,
+    /**
+     * Setting this to true will throw an error if a session is not able to get a QR code or is unable to restart a session.
+     */
     throwErrorOnTosBlock ?: boolean,
+    /**
+     * By default, all instances of sulla are headless (i.e you don't see a chrome window open), you can set this to false to show the chrome/chromium window.
+     */
     headless ?: boolean,
+    /**
+     * Setting this to true will result in new QR codes being generated if the end user takes too long to scan the QR code.
+     */
     autoRefresh ?: boolean,
+    /**
+     * This determines the interval at which to refresh the QR code.
+     */
     qrRefreshS ?: number,
+    /**
+     * This determines how long the process should wait for a QR code to be scanned before killing the process entirely.
+     */
     killTimer ?: number,
+    /**
+     * Some features, like video upload, do not work without a chrome instance. Puppeteer only provides a chromium instance out of the box. Set this to the path of your chrome instance.
+     */
     executablePath ?: string,
+    // @private
     [x: string]: any 
 }
