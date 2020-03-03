@@ -7,6 +7,7 @@ import { initWhatsapp, injectApi } from './browser';
 import { EventEmitter2 } from 'eventemitter2';
 import * as spinner from './step';
 import * as qrSpin from './step';
+import {ev} from './events'
 
 import {ev} from './events';
 const fs = require('fs');
@@ -26,6 +27,9 @@ export const evCreate = new EventEmitter2({
 
 /**
  * Should be called to initialize whatsapp client
+ * @param sessionId Custom id for the session, every phone should have it's own sessionId.
+ * @param config The extended custom configuration
+ * @param customUserAgent A custom user agent to set on the browser page.
  */
 export async function create(sessionId?: string, puppeteerConfigOverride?:ConfigObject, customUserAgent?:string) {
 try{
@@ -37,9 +41,9 @@ try{
   qrSpin.eventEmitter(sessionId, evCreate);  					
 	  
   spinner.start('Initializing whatsapp');
-  waPage = await initWhatsapp(sessionId, puppeteerConfigOverride, customUserAgent);
+  waPage = await initWhatsapp(sessionId, config, customUserAgent);
   spinner.succeed();
-  const throwOnError=puppeteerConfigOverride&&puppeteerConfigOverride.throwErrorOnTosBlock==true;
+  const throwOnError=config&&config.throwErrorOnTosBlock==true;
 
   const PAGE_UA =  await waPage.evaluate('navigator.userAgent');
   const BROWSER_VERSION = await waPage.browser().version();
@@ -60,7 +64,6 @@ try{
 	BROWSER_VERSION
   }));  
   
-
   //@ts-ignore
   const canInjectEarly = await waPage.evaluate(() => {return (typeof webpackJsonp !== "undefined")});
   //@ts-ignore
@@ -78,14 +81,14 @@ try{
 
   spinner.start('Authenticating');
   let authenticated = await isAuthenticated(waPage);
-  let autoRefresh = puppeteerConfigOverride ? puppeteerConfigOverride.autoRefresh : false;
+  let autoRefresh = config ? config.autoRefresh : false;
  
   const qrLoop = async () => {
     if(!shouldLoop) return;
     console.log(' ')
     await retrieveQR(waPage,sessionId,autoRefresh,throwOnError);
     console.log(' ')
-    qrTimeout = timeout((puppeteerConfigOverride?(puppeteerConfigOverride.qrRefreshS || 10):10)*1000);
+    qrTimeout = timeout((config?(config.qrRefreshS || 10):10)*1000);
     await qrTimeout;
     if(autoRefresh)qrLoop();
   };
@@ -100,8 +103,8 @@ try{
     qrLoop();
     const race = [];
     race.push(isInsideChat(waPage).toPromise());
-    if(puppeteerConfigOverride&&puppeteerConfigOverride.killTimer){
-      race.push(timeout(puppeteerConfigOverride.killTimer*1000))
+    if(config&&config.killTimer){
+      race.push(timeout(config.killTimer*1000))
     }
     const result = await Promise.race(race);
     if(result=='timeout') {
@@ -151,7 +154,7 @@ ev.emit(`sessionData${sessionId?`.${sessionId}`:``}`, sessionData, sessionId);
   else {
     spinner.fail('The session is invalid. Retrying')
     await kill()
-    return await create(sessionId,puppeteerConfigOverride,customUserAgent);
+    return await create(sessionId,config,customUserAgent);
   }
 } catch(e) {
 	console.log('pegueii');
