@@ -1,4 +1,3 @@
-import ora from 'ora';
 import * as puppeteer from 'puppeteer';
 import * as qrcode from 'qrcode-terminal';
 import { from, merge } from 'rxjs';

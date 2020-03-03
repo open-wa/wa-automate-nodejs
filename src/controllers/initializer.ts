@@ -1,10 +1,12 @@
-import ora from 'ora';
 import { Whatsapp } from '../api/whatsapp';
 import {ConfigObject} from '../api/model/index';
 import * as path from 'path';
 import { isAuthenticated, isInsideChat, retrieveQR, randomMouseMovements } from './auth';
 import { initWhatsapp, injectApi } from './browser';
 import {Spin} from './events'
+import { S_IFBLK } from 'constants';
+
+var uniq = require('lodash.uniq');
 
 let shouldLoop = true;
 const fs = require('fs');
@@ -23,6 +25,7 @@ let qrTimeout;
  */
 export async function create(sessionId?: string, config?:ConfigObject, customUserAgent?:string) {
   const spinner = new Spin(sessionId,'STARTUP');
+
   waPage = undefined;
   qrTimeout = undefined;
   shouldLoop = true;
@@ -126,6 +129,22 @@ spinner.emit(sessionData,"sessionData");
   fs.writeFile(sessionjsonpath, JSON.stringify(sessionData), (err) => {
   if (err) {  console.error(err);  return; };
 });
+
+/**
+ * now test to see if all features are functioning as expected
+ * 1. Open wapi.js as text file
+ * 2. Regex match all relevant functions
+ * 3. remove brackets
+ * 4. go through each and test if exists.
+*/
+const BROKEN_METHODS = await waPage.evaluate((checkList)=>{
+  return checkList.filter(check=> {
+    return eval(check)?false:true;
+  })
+},uniq(fs.readFileSync(path.join(__dirname, '../lib', 'wapi.js'), 'utf8').match(/(Store[.\w]*)\(/g).map((x:string)=>x.replace("(",""))));
+if(BROKEN_METHODS.length>0) console.log("!!!!!BROKEN METHODS DETECTED!!!!\n\n\nPlease make a new issue in:\n\n https://github.com/smashah/sulla/issues \n\nwith the following title:\n\nBROKEN METHODS: ",WA_VERSION,"\n\nAdd this to the body of the issue:\n\n",BROKEN_METHODS,"\n\n\n!!!!!BROKEN METHODS DETECTED!!!!")
+
+
     return new Whatsapp(waPage);
   }
   else {
