@@ -4,8 +4,7 @@ import * as qrcode from 'qrcode-terminal';
 import { from, merge } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { width, height } from '../config/puppeteer.config';
-const spinner = ora();
-import {ev} from './events';
+import {EvEmitter} from './events'
 
 /**
  * Validates if client is authenticated
@@ -40,6 +39,7 @@ export const isInsideChat = (waPage: puppeteer.Page) => {
 };
 
 export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, autoRefresh:boolean=false,throwErrorOnTosBlock:boolean=false) {
+const qrEv = new EvEmitter(sessionId,'qr')
   if(autoRefresh) {
     //@ts-ignore
   const evalResult = await waPage.evaluate(() => {if(window.Store && window.Store.State) {window.Store.State.default.state="UNPAIRED";window.Store.State.default.run();return true;} else {return false;}});
@@ -57,8 +57,7 @@ export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, auto
     `document.querySelector("canvas[aria-label='Scan me!']").toDataURL()`
   );
   
-  ev.emit(`qr${sessionId?`.${sessionId}`:``}`, qrCode, sessionId);
-  // ev.emit(`qr${sessionId?`.${sessionId}`:``}`, sessionId? {qrImage,sessionId}:qrImage);
+  qrEv.emit(qrCode);
   qrcode.generate(qrData, {
     small: true
   });

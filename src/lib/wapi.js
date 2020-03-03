@@ -2165,7 +2165,7 @@ window.WAPI.demoteParticipant = function (idGroup, idParticipant, done) {
     window.Store.WapQuery.demoteParticipants(idGroup, [idParticipant]).then(() => {
         const chat = Store.Chat.get(idGroup);
         const demote = chat.groupMetadata.participants.get(idParticipant);
-        window.Store.Participants.de(chat, [demote]).then(() => {
+        window.Store.Participants.demoteParticipants(chat, [demote]).then(() => {
             done(true); return true;
         })
     })

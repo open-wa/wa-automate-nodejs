@@ -4,9 +4,7 @@ import {ConfigObject} from '../api/model/index';
 import * as path from 'path';
 import { isAuthenticated, isInsideChat, retrieveQR, randomMouseMovements } from './auth';
 import { initWhatsapp, injectApi } from './browser';
-const spinner = ora();
-
-import {ev} from './events'
+import {Spin} from './events'
 
 let shouldLoop = true;
 const fs = require('fs');
@@ -24,6 +22,7 @@ let qrTimeout;
  * @param customUserAgent A custom user agent to set on the browser page.
  */
 export async function create(sessionId?: string, config?:ConfigObject, customUserAgent?:string) {
+  const spinner = new Spin(sessionId,'STARTUP');
   waPage = undefined;
   qrTimeout = undefined;
   shouldLoop = true;
@@ -38,20 +37,16 @@ export async function create(sessionId?: string, config?:ConfigObject, customUse
   const SULLA_HOTFIX_VERSION = pjson.version;
   //@ts-ignore
   const WA_VERSION = await waPage.evaluate(()=>window.Debug?window.Debug.VERSION:'I think you have been TOS_BLOCKed')
-  
-
   //@ts-ignore
   const canInjectEarly = await waPage.evaluate(() => {return (typeof webpackJsonp !== "undefined")});
-  //@ts-ignore
-  const BROWSER_ID = canInjectEarly?await waPage.evaluate(() => {return webpackJsonp([],null,['bhaehigaaa'])?webpackJsonp([],null,['bhaehigaaa']).default.getBrowserId():''}):'';
-  
-  console.log('Debug Info', {
+  const debugInfo = {
     WA_VERSION,
     PAGE_UA,
     SULLA_HOTFIX_VERSION,
     BROWSER_VERSION,
-    BROWSER_ID
-  });
+  };
+  spinner.emit(debugInfo,"DebugInfo");
+  console.log('Debug Info', debugInfo);
   
   if(canInjectEarly) {
     spinner.start('Injecting api');
@@ -80,7 +75,7 @@ export async function create(sessionId?: string, config?:ConfigObject, customUse
     spinner.succeed('Authenticated');
   } else {
     spinner.info('Authenticate to continue');
-    const qrSpin = ora();
+    const qrSpin = new Spin(sessionId,'QR');
     qrSpin.start('Loading QR');
     qrSpin.succeed();
     qrLoop();
@@ -126,7 +121,7 @@ export async function create(sessionId?: string, config?:ConfigObject, customUse
     WAToken2: localStorage.WAToken2
 };
 
-ev.emit(`sessionData${sessionId?`.${sessionId}`:``}`, sessionData, sessionId);
+spinner.emit(sessionData,"sessionData");
 
   fs.writeFile(sessionjsonpath, JSON.stringify(sessionData), (err) => {
   if (err) {  console.error(err);  return; };
