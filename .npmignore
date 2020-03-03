@@ -3,3 +3,11 @@ src
 session
 assets
 demo
+
+session
+newsession
+**req.ts
+**qr_code_session.png
+**.re.js
+release.png
+**.data.json
