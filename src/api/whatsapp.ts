@@ -31,7 +31,7 @@ declare module WAPI {
   const onAddedToGroup: (callback: Function) => any;
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const onLiveLocation: (chatId: string, callback: Function) => any;
-  const sendMessage: (to: string, content: string) => void;
+  const sendMessage: (to: string, content: string) => string;
   const setChatState: (chatState: ChatState, chatId: string) => void;
   const reply: (to: string, content: string, quotedMsg: string | Message) => void;
   const getGeneratedUserAgent: (userAgent?: string) => string;
@@ -92,7 +92,7 @@ declare module WAPI {
   const getContact: (contactId: string) => Contact;
   const checkNumberStatus: (contactId: string) => any;
   const getChatById: (contactId: string) => Chat;
-  const smartDeleteMessages: (contactId: string, messageId: string[] | string) => any;
+  const smartDeleteMessages: (contactId: string, messageId: string[] | string, onlyLocal:boolean) => any;
   const sendContact: (to: string, contact: string | string[]) => any;
   const simulateTyping: (to: string, on: boolean) => void;
   const isConnected: () => Boolean;
@@ -788,13 +788,15 @@ public async getStatus(contactId: string) {
 
   /**
    * Deletes message of given message id
-   * @param messageId
+   * @param contactId The chat id from which to delete the message.
+   * @param messageId The specific message id of the message to be deleted
+   * @param onlyLocal If it should only delete locally (message remains on the other recipienct's phone). Defaults to false.
    * @returns nothing
    */
-  public async deleteMessage(contactId: string, messageId: string[] | string) {
+  public async deleteMessage(contactId: string, messageId: string[] | string, onlyLocal : boolean = false) {
     return await this.page.evaluate(
-      ({ contactId, messageId }) => WAPI.smartDeleteMessages(contactId, messageId),
-      { contactId, messageId }
+      ({ contactId, messageId, onlyLocal }) => WAPI.smartDeleteMessages(contactId, messageId, onlyLocal),
+      { contactId, messageId, onlyLocal }
     );
   }
 

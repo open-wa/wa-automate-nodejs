@@ -1200,7 +1200,7 @@ window.WAPI.deleteConversation = function (chatId, done) {
     return true;
 };
 
-window.WAPI.smartDeleteMessages = function (chatId, messageArray, done) {
+window.WAPI.smartDeleteMessages = function (chatId, messageArray, onlyLocal, done) {
     var userId = new Store.WidFactory.createWid(chatId);
     let conversation = WAPI.getChat(userId);
     if (!conversation) {
@@ -1215,7 +1215,7 @@ window.WAPI.smartDeleteMessages = function (chatId, messageArray, done) {
     }
 
     let messagesToDelete = messageArray.map(msgId => (typeof msgId == 'string')?window.Store.Msg.get(msgId):msgId);
-    let jobs = [
+    let jobs = onlyLocal ? [conversation.sendDeleteMsgs(messagesToDelete,conversation)] :[
         conversation.sendRevokeMsgs(messagesToDelete.filter(msg=>msg.isSentByMe),conversation),
         conversation.sendDeleteMsgs(messagesToDelete.filter(msg=>!msg.isSentByMe),conversation)
     ]
