@@ -39,3 +39,9 @@ export interface LiveLocationChangedEvent {
   accuracy: number,
   degrees: any,
 }
+
+export enum ChatState {
+  TYPING,
+  RECORDING,
+  PAUSED
+}
