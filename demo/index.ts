@@ -23,6 +23,10 @@ ev.on('qr.**', async (qrcode,sessionId) => {
   fs.writeFileSync(`qr_code${sessionId?'_'+sessionId:''}.png`, imageBuffer);
 });
 
+ev.on('sessionData', async (sessionData, sessionId) =>{
+  console.log(sessionId, sessionData)
+})
+
 async function start(client: Whatsapp) {
   globalClient=client;
   console.log('starting');

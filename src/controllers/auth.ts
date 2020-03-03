@@ -5,10 +5,7 @@ import { from, merge } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { width, height } from '../config/puppeteer.config';
 const spinner = ora();
-import {EventEmitter2} from 'eventemitter2';
-export const ev = new EventEmitter2({
-  wildcard:true,
-});
+import {ev} from './events';
 
 /**
  * Validates if client is authenticated

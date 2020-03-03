@@ -55,3 +55,30 @@ export enum WAState {
     UNPAIRED = 'UNPAIRED',
     UNPAIRED_IDLE = 'UNPAIRED_IDLE'
 };
+
+export interface SessionData {
+    WABrowserId ?: String,
+    WASecretBundle ?: String,
+    WAToken1 ?: String,
+    WAToken2 ?: String,
+}
+
+export interface DevTools {
+    user : String,
+    pass : String
+}
+
+export interface ConfigObject {
+    sessionData ?: SessionData,
+    chromiumArgs ?: string[],
+    devtools ?: boolean | DevTools,
+    blockCrashLogs ?: boolean,
+    cacheEnabled ?: boolean,
+    throwErrorOnTosBlock ?: boolean,
+    headless ?: boolean,
+    autoRefresh ?: boolean,
+    qrRefreshS ?: number,
+    killTimer ?: number,
+    executablePath ?: string,
+    [x: string]: any 
+}

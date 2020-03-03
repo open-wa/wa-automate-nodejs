@@ -1,9 +1,13 @@
 import ora from 'ora';
 import { Whatsapp } from '../api/whatsapp';
+import {ConfigObject} from '../api/model/index';
 import * as path from 'path';
 import { isAuthenticated, isInsideChat, retrieveQR, randomMouseMovements } from './auth';
 import { initWhatsapp, injectApi } from './browser';
 const spinner = ora();
+
+import {ev} from './events';
+
 let shouldLoop = true;
 const fs = require('fs');
 var pjson = require('../../package.json');
@@ -12,10 +16,11 @@ const timeout = ms => {
 }
 let waPage;
 let qrTimeout;
+
 /**
  * Should be called to initialize whatsapp client
  */
-export async function create(sessionId?: string, puppeteerConfigOverride?:any, customUserAgent?:string) {
+export async function create(sessionId?: string, puppeteerConfigOverride?:ConfigObject, customUserAgent?:string) {
   waPage = undefined;
   qrTimeout = undefined;
   shouldLoop = true;
@@ -111,12 +116,16 @@ export async function create(sessionId?: string, puppeteerConfigOverride?:any, c
       return JSON.stringify(window.localStorage);
   }));
   const sessionjsonpath = path.join(process.cwd(), `${sessionId || 'session'}.data.json`);
-  fs.writeFile(sessionjsonpath, JSON.stringify({
+  const sessionData = {
     WABrowserId: localStorage.WABrowserId,
     WASecretBundle: localStorage.WASecretBundle,
     WAToken1: localStorage.WAToken1,
     WAToken2: localStorage.WAToken2
-}), (err) => {
+};
+
+ev.emit(`sessionData${sessionId?`.${sessionId}`:``}`, sessionData, sessionId);
+
+  fs.writeFile(sessionjsonpath, JSON.stringify(sessionData), (err) => {
   if (err) {  console.error(err);  return; };
 });
     return new Whatsapp(waPage);
