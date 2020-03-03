@@ -1,4 +1,5 @@
 const express = require('express')
+const path = require("path");
 
 const sulla = require('sulla-hotfix');
 import { Whatsapp, decryptMedia, ev} from 'sulla-hotfix';
@@ -6,7 +7,6 @@ const mime = require('mime-types');
 const fs = require('fs');
 
 const uaOverride = 'WhatsApp/2.16.352 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Safari/605.1.15';
-const tosBlockGuaranteed = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/79.0.3945.88 Safari/537.36";
 const ON_DEATH = require('death');
 let globalClient:Whatsapp;
 
@@ -38,23 +38,22 @@ async function start(client: Whatsapp) {
   client.onAnyMessage(message=>console.log(message.type));
   client.onMessage(async message => {
     try {
-    const isConnected = await client.isConnected();
-    console.log("TCL: start -> isConnected", isConnected)
+    await client.isConnected();
     if (message.mimetype) {
       const filename = `${message.t}.${mime.extension(message.mimetype)}`;
       const mediaData = await decryptMedia(message, uaOverride);
-      //client.sendImage(message.from,`data:${message.mimetype};base64,${mediaData.toString('base64')}`,filename,`You just sent me this ${message.type}`);
-      //client.forwardMessages(message.from,message,false);
       fs.writeFile(filename, mediaData, function(err) {
         if (err) { return console.log(err); }
         console.log('The file was saved!');
       });
     } else if (message.type==="location") {
         console.log("TCL: location -> message", message.lat, message.lng, message.loc)
-        await client.sendLocation(message.from, `${message.lat}`, `${message.lng}`, `You are at ${message.loc}`)
+    } else if (message.body.indexOf("!location") > -1){
+	    await client.sendLocation(message.from, 37.422, -122.084, "Googleplex\nGoogle Headquarters")
+	} else if (message.body.indexOf("!gif") > -1){
+        await client.sendGiphy(message.from,'https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif','Oh my god it works');
     } else {
-        //client.sendText(message.from, message.body);
-        //client.sendGiphy(message.from,'https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif','Oh my god it works');
+        //do nothing
     }
     } catch (error) {
       console.log("TCL: start -> error", error)
@@ -87,6 +86,24 @@ app.get('/getAllGroups', async (req, res) => {
 app.post('/sendText' , async (req,res) => {
   console.log('• sendText body = ',req.body);
   const newMessage = await globalClient.sendText(req.body.to, req.body.msg);
+  return res.send(newMessage);
+})
+
+//Content-Type: application/json
+//{"to": "whatsapp_number@c.us", "pdf": "/path/to/file.pdf", "cap": "emoji 👍"}
+app.post('/sendPDF' , async (req,res) => {
+  console.log('• sendPDF body = ',req.body);
+  const pdf_buffer  = fs.readFileSync(req.body.pdf);
+  const newMessage = await globalClient.sendFile(req.body.to, `data:application/pdf;base64,${pdf_buffer.toString('base64')}`, path.basename(req.body.pdf), req.body.cap);
+  return res.send(newMessage);
+})
+
+//Content-Type: application/json
+//{"to": "whatsapp_number@c.us", "png": "/path/to/file.png", "cap": "emoji 👍"}
+app.post('/sendPNG' , async (req,res) => {
+  console.log('• sendPNG body = ',req.body);
+  const png_buffer  = fs.readFileSync(req.body.png);
+  const newMessage = await globalClient.sendFile(req.body.to, `data:image/png;base64,${png_buffer.toString('base64')}`, path.basename(req.body.png), req.body.cap);
   return res.send(newMessage);
 })
 
