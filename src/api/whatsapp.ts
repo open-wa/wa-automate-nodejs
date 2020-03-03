@@ -80,6 +80,7 @@ declare module WAPI {
   const getAllUnreadMessages: () => any;
   const getAllChatsWithMessages: (withNewMessageOnly?: boolean) => any;
   const getAllChats: () => any;
+  const getBatteryLevel: () => Number;
   const getChat: (contactId: string) => Chat;
   const getProfilePicFromServer: (chatId: string) => any;
   const getAllChatIds: () => string[];
@@ -593,6 +594,14 @@ export class Whatsapp {
    */
   public async isConnected() {
     return await this.page.evaluate(() => WAPI.isConnected());
+  }
+
+  /**
+   * Retrieves Battery Level
+   * @returns Number
+   */
+  public async getBatteryLevel() {
+    return await this.page.evaluate(() => WAPI.getBatteryLevel());
   }
 
   /**

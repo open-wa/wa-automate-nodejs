@@ -25,7 +25,11 @@ ev.on('qr.**', async (qrcode,sessionId) => {
   fs.writeFileSync(`qr_code${sessionId?'_'+sessionId:''}.png`, imageBuffer);
 });
 
-function start(client) {
+ev.on('sessionData', async (sessionData, sessionId) =>{
+  console.log(sessionId, sessionData)
+})
+
+async function start(client: Whatsapp) {
   globalClient = client;
   client.onStateChanged(state=>{
     console.log('statechanged', state)
@@ -58,9 +62,24 @@ function start(client) {
   });
 }
 
-app.get('/getAllUnreadMessages', async (req, res) => {
-  const newMessages = await globalClient.getAllUnreadMessages();
-  return res.send(newMessages)
+app.get('/getAllNewMessages', async (req, res) => {
+  const newMessages = await globalClient.getAllNewMessages();
+  return res.send(newMessages);
+})
+
+app.get('/getBatteryLevel', async (req, res) => {
+  const getBatteryLevel = await globalClient.getBatteryLevel();
+  return res.send(getBatteryLevel);
+})
+
+app.get('/isConnected', async (req, res) => {
+  const isConnected = await globalClient.isConnected();
+  return res.send(isConnected);
+})
+
+app.get('/getAllGroups', async (req, res) => {
+  const getAllGroups = await globalClient.getAllGroups();
+  return res.send(getAllGroups);
 })
 
 app.post('/sendText' , async (req,res) => {
@@ -70,6 +89,6 @@ app.post('/sendText' , async (req,res) => {
   return res.send(newMessage);
 })
 
-app.listen(80, function () {
-  console.log('Example app listening on port 80!');
+app.listen(8081, function () {
+  console.log('Listening on port 8081!');
 });
