@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ExposedFn | sulla-hotfix - v1.8.1</title>
+	<title>Events | sulla-hotfix - v1.8.1</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,16 +56,30 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="exposedfn.html">ExposedFn</a>
+					<a href="events.html">Events</a>
 				</li>
 			</ul>
-			<h1>Enumeration ExposedFn</h1>
+			<h1>Enumeration Events</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Events that can be emitted by the client</p>
+					</div>
+					<dl class="tsd-comment-tags">
+						<dt>readonly</dt>
+						<dd></dd>
+						<dt>enum</dt>
+						<dd><p>{string}</p>
+						</dd>
+					</dl>
+				</div>
+			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
@@ -73,11 +87,20 @@
 						<section class="tsd-index-section ">
 							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="exposedfn.html#onanymessage" class="tsd-kind-icon">On<wbr>Any<wbr>Message</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="exposedfn.html#onmessage" class="tsd-kind-icon">On<wbr>Message</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="exposedfn.html#onack" class="tsd-kind-icon">on<wbr>Ack</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="exposedfn.html#onparticipantschanged" class="tsd-kind-icon">on<wbr>Participants<wbr>Changed</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="exposedfn.html#onstatechanged" class="tsd-kind-icon">on<wbr>State<wbr>Changed</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="events.html#authenticated" class="tsd-kind-icon">AUTHENTICATED</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="events.html#authentication_failure" class="tsd-kind-icon">AUTHENTICATION_<wbr>FAILURE</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="events.html#disconnected" class="tsd-kind-icon">DISCONNECTED</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="events.html#group_join" class="tsd-kind-icon">GROUP_<wbr>JOIN</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="events.html#group_leave" class="tsd-kind-icon">GROUP_<wbr>LEAVE</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="events.html#group_update" class="tsd-kind-icon">GROUP_<wbr>UPDATE</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="events.html#message_ack" class="tsd-kind-icon">MESSAGE_<wbr>ACK</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="events.html#message_create" class="tsd-kind-icon">MESSAGE_<wbr>CREATE</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="events.html#message_received" class="tsd-kind-icon">MESSAGE_<wbr>RECEIVED</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="events.html#message_revoked_everyone" class="tsd-kind-icon">MESSAGE_<wbr>REVOKED_<wbr>EVERYONE</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="events.html#message_revoked_me" class="tsd-kind-icon">MESSAGE_<wbr>REVOKED_<wbr>ME</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="events.html#qr_received" class="tsd-kind-icon">QR_<wbr>RECEIVED</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="events.html#ready" class="tsd-kind-icon">READY</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="events.html#state_changed" class="tsd-kind-icon">STATE_<wbr>CHANGED</a></li>
 							</ul>
 						</section>
 					</div>
@@ -86,52 +109,142 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Enumeration members</h2>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="onanymessage" class="tsd-anchor"></a>
-					<h3>On<wbr>Any<wbr>Message</h3>
-					<div class="tsd-signature tsd-kind-icon">On<wbr>Any<wbr>Message<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;onAnyMessage&quot;</span></div>
+					<a name="authenticated" class="tsd-anchor"></a>
+					<h3>AUTHENTICATED</h3>
+					<div class="tsd-signature tsd-kind-icon">AUTHENTICATED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;authenticated&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/functions/exposed.enum.ts#L3">api/functions/exposed.enum.ts:3</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L23">api/model/index.ts:23</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="onmessage" class="tsd-anchor"></a>
-					<h3>On<wbr>Message</h3>
-					<div class="tsd-signature tsd-kind-icon">On<wbr>Message<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;onMessage&quot;</span></div>
+					<a name="authentication_failure" class="tsd-anchor"></a>
+					<h3>AUTHENTICATION_<wbr>FAILURE</h3>
+					<div class="tsd-signature tsd-kind-icon">AUTHENTICATION_<wbr>FAILURE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;auth_failure&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/functions/exposed.enum.ts#L2">api/functions/exposed.enum.ts:2</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L24">api/model/index.ts:24</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="onack" class="tsd-anchor"></a>
-					<h3>on<wbr>Ack</h3>
-					<div class="tsd-signature tsd-kind-icon">on<wbr>Ack<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;onAck&quot;</span></div>
+					<a name="disconnected" class="tsd-anchor"></a>
+					<h3>DISCONNECTED</h3>
+					<div class="tsd-signature tsd-kind-icon">DISCONNECTED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;disconnected&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/functions/exposed.enum.ts#L4">api/functions/exposed.enum.ts:4</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L35">api/model/index.ts:35</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="onparticipantschanged" class="tsd-anchor"></a>
-					<h3>on<wbr>Participants<wbr>Changed</h3>
-					<div class="tsd-signature tsd-kind-icon">on<wbr>Participants<wbr>Changed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;onParticipantsChanged&quot;</span></div>
+					<a name="group_join" class="tsd-anchor"></a>
+					<h3>GROUP_<wbr>JOIN</h3>
+					<div class="tsd-signature tsd-kind-icon">GROUP_<wbr>JOIN<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;group_join&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/functions/exposed.enum.ts#L5">api/functions/exposed.enum.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L31">api/model/index.ts:31</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="onstatechanged" class="tsd-anchor"></a>
-					<h3>on<wbr>State<wbr>Changed</h3>
-					<div class="tsd-signature tsd-kind-icon">on<wbr>State<wbr>Changed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;onStateChanged&quot;</span></div>
+					<a name="group_leave" class="tsd-anchor"></a>
+					<h3>GROUP_<wbr>LEAVE</h3>
+					<div class="tsd-signature tsd-kind-icon">GROUP_<wbr>LEAVE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;group_leave&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/functions/exposed.enum.ts#L6">api/functions/exposed.enum.ts:6</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L32">api/model/index.ts:32</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="group_update" class="tsd-anchor"></a>
+					<h3>GROUP_<wbr>UPDATE</h3>
+					<div class="tsd-signature tsd-kind-icon">GROUP_<wbr>UPDATE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;group_update&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L33">api/model/index.ts:33</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="message_ack" class="tsd-anchor"></a>
+					<h3>MESSAGE_<wbr>ACK</h3>
+					<div class="tsd-signature tsd-kind-icon">MESSAGE_<wbr>ACK<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;message_ack&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L30">api/model/index.ts:30</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="message_create" class="tsd-anchor"></a>
+					<h3>MESSAGE_<wbr>CREATE</h3>
+					<div class="tsd-signature tsd-kind-icon">MESSAGE_<wbr>CREATE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;message_create&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L27">api/model/index.ts:27</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="message_received" class="tsd-anchor"></a>
+					<h3>MESSAGE_<wbr>RECEIVED</h3>
+					<div class="tsd-signature tsd-kind-icon">MESSAGE_<wbr>RECEIVED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;message&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L26">api/model/index.ts:26</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="message_revoked_everyone" class="tsd-anchor"></a>
+					<h3>MESSAGE_<wbr>REVOKED_<wbr>EVERYONE</h3>
+					<div class="tsd-signature tsd-kind-icon">MESSAGE_<wbr>REVOKED_<wbr>EVERYONE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;message_revoke_everyone&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L28">api/model/index.ts:28</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="message_revoked_me" class="tsd-anchor"></a>
+					<h3>MESSAGE_<wbr>REVOKED_<wbr>ME</h3>
+					<div class="tsd-signature tsd-kind-icon">MESSAGE_<wbr>REVOKED_<wbr>ME<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;message_revoke_me&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L29">api/model/index.ts:29</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="qr_received" class="tsd-anchor"></a>
+					<h3>QR_<wbr>RECEIVED</h3>
+					<div class="tsd-signature tsd-kind-icon">QR_<wbr>RECEIVED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;qr&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L34">api/model/index.ts:34</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="ready" class="tsd-anchor"></a>
+					<h3>READY</h3>
+					<div class="tsd-signature tsd-kind-icon">READY<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;ready&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L25">api/model/index.ts:25</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="state_changed" class="tsd-anchor"></a>
+					<h3>STATE_<wbr>CHANGED</h3>
+					<div class="tsd-signature tsd-kind-icon">STATE_<wbr>CHANGED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;change_state&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/c87aaaf/src/api/model/index.ts#L36">api/model/index.ts:36</a></li>
 						</ul>
 					</aside>
 				</section>

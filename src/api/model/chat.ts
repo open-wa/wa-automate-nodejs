@@ -45,3 +45,14 @@ export enum ChatState {
   RECORDING,
   PAUSED
 }
+
+/**
+ * Chat types
+ * @readonly
+ * @enum {string}
+ */
+export enum ChatTypes {
+  SOLO = 'solo',
+  GROUP = 'group',
+  UNKNOWN = 'unknown'
+};

@@ -118,7 +118,7 @@ declare module WAPI {
 export class Whatsapp {
 
   /**
-   * @param {Page} page: Page puppeteer page running web.whatsapp.com
+   * @param page [Page] [Puppeteer Page]{@link https://pptr.dev/#?product=Puppeteer&version=v2.1.1&show=api-class-page} running web.whatsapp.com
    */
   constructor(public page: Page) {
     this.page = page;
