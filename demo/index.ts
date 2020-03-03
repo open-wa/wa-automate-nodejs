@@ -105,7 +105,8 @@ async function start(client: Whatsapp) {
       console.log("TCL: location -> message", message.lat, message.lng, message.loc)
       await client.sendLocation(message.from, `${message.lat}`, `${message.lng}`, `Youre are at ${message.loc}`)
     } else {
-      await client.sendText(message.from, message.body);
+      var sentMessageId = await client.sendText(message.from, message.body);
+      console.log("start -> sentMessageId", sentMessageId)
       //send a giphy gif
         await client.forwardMessages(message.from,message,false);
       await client.sendGiphy(message.from,'https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif','Oh my god it works');
