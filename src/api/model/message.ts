@@ -102,3 +102,39 @@ export interface Message {
   quotedMsgObj: any;
   mediaData: {};
 }
+
+
+/**
+ * Message types
+ * @readonly
+ * @enum {string}
+ */
+export enum MessageTypes {
+  TEXT = 'chat',
+  AUDIO = 'audio',
+  VOICE = 'ptt',
+  IMAGE = 'image',
+  VIDEO = 'video',
+  DOCUMENT = 'document',
+  STICKER = 'sticker',
+  LOCATION = 'location',
+  CONTACT_CARD = 'vcard',
+  CONTACT_CARD_MULTI = 'multi_vcard',
+  REVOKED = 'revoked',
+  UNKNOWN = 'unknown'
+};
+
+/**
+ * Message ACK
+ * @readonly
+ * @enum {number}
+ */
+export enum MessageAck {
+  ACK_ERROR = -1,
+  ACK_PENDING = 0,
+  ACK_SERVER = 1,
+  ACK_DEVICE = 2,
+  ACK_READ = 3,
+  ACK_PLAYED = 4,
+};
+

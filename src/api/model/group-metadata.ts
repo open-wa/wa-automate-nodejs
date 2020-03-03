@@ -23,3 +23,20 @@ export interface ParticipantChangedEventModel {
   action: groupChangeEvent,
   who: [Id]
 }
+
+/**
+ * Group notification types
+ * @readonly
+ * @enum {string}
+ */
+export enum GroupNotificationTypes {
+  ADD = 'add',
+  INVITE = 'invite',
+  REMOVE = 'remove',
+  LEAVE = 'leave',
+  SUBJECT = 'subject',
+  DESCRIPTION = 'description',
+  PICTURE = 'picture',
+  ANNOUNCE = 'announce',
+  RESTRICT = 'restrict',
+};

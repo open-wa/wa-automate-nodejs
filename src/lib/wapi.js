@@ -327,6 +327,29 @@ window.WAPI.getAllGroups = function (done) {
 };
 
 /**
+ * Sets the chat state
+ * 
+ * @param {0|1|2} chatState The state you want to set for the chat. Can be TYPING (1), RECRDING (2) or PAUSED (3);
+ * returns {boolean}
+ */
+window.WAPI.sendChatstate = async function (state, chatId) {
+    switch(state) {
+        case 0:
+            await window.Store.Wap.sendChatstateComposing(chatId);
+            break;
+        case 1:
+            await window.Store.Wap.sendChatstateRecording(chatId);
+            break;
+        case 2:
+            await window.Store.Wap.sendChatstatePaused(chatId);
+            break;
+        default:
+            return false
+    }
+    return true;
+};
+
+/**
  * Fetches chat object from store by ID
  *
  * @param id ID of chat
