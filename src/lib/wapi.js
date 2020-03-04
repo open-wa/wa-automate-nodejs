@@ -84,7 +84,6 @@ if (!window.Store||!window.Store.Msg) {
                         window.Store.sendMessage = function (e) {
                             return window.Store.SendTextMsgToChat(this, ...arguments);
                         }
-
                         window.Store.MediaCollection.prototype.processFiles = window.Store.MediaCollection.prototype.processFiles || window.Store.MediaCollection.prototype.processAttachments;
                         return window.Store;
                     }
@@ -675,8 +674,7 @@ window.WAPI.getGroupAdmins = async function (id, done) {
  * Returns an object with all of your host device details
  */
 window.WAPI.getMe = function(){
-    const me= Store.Me.serialize();
-    return me;
+    return Store.Me.attributes;
 }
 
 /**
@@ -889,6 +887,29 @@ window.WAPI.sendMessageToID = function (id, message, done) {
     return false;
 }
 
+window.WAPI.sendMessageReturnId = async function (ch, body) {
+    var chat = ch.id ? ch : Store.Chat.get(ch);
+    var chatId = chat.id._serialized;
+    var tempMsg = Object.create(chat.msgs.filter(msg => msg.__x_isSentByMe)[0]);
+    var newId = window.WAPI.getNewMessageId(chatId);
+    var extend = {
+        ack: 0,
+        id: newId,
+        local: !0,
+        self: "out",
+        t: parseInt(new Date().getTime() / 1000),
+        to: chatId,
+        isNewMsg: !0,
+        type: "chat",
+        body,
+        quotedMsg:null
+    };
+    Object.assign(tempMsg, extend);
+    await Store.addAndSendMsgToChat(chat, tempMsg)
+    return newId._serialized;
+}
+
+
 window.WAPI.sendMessage = function (id, message, done) {
     var chat = WAPI.getChat(id);
     function sleep(ms) {
@@ -922,9 +943,10 @@ window.WAPI.sendMessage = function (id, message, done) {
             });
             return true;
         } else {
-            return chat.sendMessage(message).then(_=>{
-                return sleep(250).then(_=>{const msg = chat.msgs.models.filter(m=>m.body==message).sort((a, b) => b.t - a.t)[0]; return msg ? msg.id._serialized : false});
-            });
+            return WAPI.sendMessageReturnId(chat,message).then(id=>{return id})
+            // return chat.sendMessage(message).then(_=>{
+            //     return sleep(250).then(_=>{const msg = chat.msgs.models.filter(m=>m.body==message).sort((a, b) => b.t - a.t)[0]; return msg ? msg.id._serialized : false});
+            // });
         }
     } else {
         if (done !== undefined) done(false);
