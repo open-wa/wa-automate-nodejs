@@ -160,7 +160,7 @@ if(BROKEN_METHODS.length>0) console.log("!!!!!BROKEN METHODS DETECTED!!!!\n\n\nP
 
 const kill = async () => {
   shouldLoop = false;
-if(qrTimeout) clearTimeout(qrTimeout);
-  await waPage.close();
-  await waPage.browser().close();
+  if(qrTimeout) clearTimeout(qrTimeout);
+  if(waPage)await waPage.close();
+  if(waPage.browser())await waPage.browser().close();
 }
