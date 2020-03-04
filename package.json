@@ -45,7 +45,7 @@
     "@types/command-line-args": "^5.0.0",
     "@types/line-reader": "0.0.28",
     "@types/marked": "^0.7.2",
-    "@types/node": "^12.7.12",
+    "@types/node": "^13.7.7",
     "@types/puppeteer": "^1.20.2",
     "@types/shelljs": "^0.8.5",
     "auto-changelog": "^1.16.2",
