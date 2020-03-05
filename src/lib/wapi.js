@@ -2201,7 +2201,7 @@ window.WAPI.demoteParticipant = function (idGroup, idParticipant, done) {
  * Send Sticker
  * @param {*} sticker 
  * @param {*} chatId '000000000000@c.us'
- * @param {*} done - function - Callback function to be called when a new message arrives.
+ * @param {*} done - function - Callback function to for async execution.
  */
 window.WAPI.sendSticker = function ({sticker, chatid}, done) {
 	var idUser = new window.Store.UserConstructor(chatid, { intentionallyUsePrivateConstructor: true });
