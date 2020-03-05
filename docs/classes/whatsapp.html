@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Whatsapp | sulla-hotfix - v1.8.7</title>
+	<title>Whatsapp | sulla-hotfix - v1.8.10</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">sulla-hotfix - v1.8.7</a>
+					<a href="../index.html" class="title">sulla-hotfix - v1.8.10</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -85,6 +85,18 @@
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
+							<h3>Events</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-event tsd-parent-kind-class"><a href="whatsapp.html#onack" class="tsd-kind-icon">on<wbr>Ack</a></li>
+								<li class="tsd-kind-event tsd-parent-kind-class"><a href="whatsapp.html#onaddedtogroup" class="tsd-kind-icon">on<wbr>Added<wbr>ToGroup</a></li>
+								<li class="tsd-kind-event tsd-parent-kind-class"><a href="whatsapp.html#onanymessage" class="tsd-kind-icon">on<wbr>Any<wbr>Message</a></li>
+								<li class="tsd-kind-event tsd-parent-kind-class"><a href="whatsapp.html#onlivelocation" class="tsd-kind-icon">on<wbr>Live<wbr>Location</a></li>
+								<li class="tsd-kind-event tsd-parent-kind-class"><a href="whatsapp.html#onmessage" class="tsd-kind-icon">on<wbr>Message</a></li>
+								<li class="tsd-kind-event tsd-parent-kind-class"><a href="whatsapp.html#onparticipantschanged" class="tsd-kind-icon">on<wbr>Participants<wbr>Changed</a></li>
+								<li class="tsd-kind-event tsd-parent-kind-class"><a href="whatsapp.html#onstatechanged" class="tsd-kind-icon">on<wbr>State<wbr>Changed</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="whatsapp.html#page" class="tsd-kind-icon">page</a></li>
@@ -129,13 +141,6 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="whatsapp.html#loadallearliermessages" class="tsd-kind-icon">load<wbr>All<wbr>Earlier<wbr>Messages</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="whatsapp.html#loadandgetallmessagesinchat" class="tsd-kind-icon">load<wbr>And<wbr>Get<wbr>All<wbr>Messages<wbr>InChat</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="whatsapp.html#loadearliermessages" class="tsd-kind-icon">load<wbr>Earlier<wbr>Messages</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="whatsapp.html#onack" class="tsd-kind-icon">on<wbr>Ack</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="whatsapp.html#onaddedtogroup" class="tsd-kind-icon">on<wbr>Added<wbr>ToGroup</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="whatsapp.html#onanymessage" class="tsd-kind-icon">on<wbr>Any<wbr>Message</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="whatsapp.html#onlivelocation" class="tsd-kind-icon">on<wbr>Live<wbr>Location</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="whatsapp.html#onmessage" class="tsd-kind-icon">on<wbr>Message</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="whatsapp.html#onparticipantschanged" class="tsd-kind-icon">on<wbr>Participants<wbr>Changed</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="whatsapp.html#onstatechanged" class="tsd-kind-icon">on<wbr>State<wbr>Changed</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="whatsapp.html#promoteparticipant" class="tsd-kind-icon">promote<wbr>Participant</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="whatsapp.html#removeparticipant" class="tsd-kind-icon">remove<wbr>Participant</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="whatsapp.html#reply" class="tsd-kind-icon">reply</a></li>
@@ -170,7 +175,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L119">api/whatsapp.ts:119</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L119">api/whatsapp.ts:119</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -192,6 +197,342 @@
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Events</h2>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class">
+					<a name="onack" class="tsd-anchor"></a>
+					<h3>on<wbr>Ack</h3>
+					<ul class="tsd-signatures tsd-kind-event tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">on<wbr>Ack<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L213">api/whatsapp.ts:213</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>fn: <span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-signature">
+											<ul class="tsd-signatures tsd-kind-type-literal">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-parameters-title">Parameters</h4>
+													<ul class="tsd-parameters">
+														<li>
+															<h5>message: <a href="../interfaces/message.html" class="tsd-signature-type">Message</a></h5>
+														</li>
+													</ul>
+													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+							<p>Observable stream of messages</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class">
+					<a name="onaddedtogroup" class="tsd-anchor"></a>
+					<h3>on<wbr>Added<wbr>ToGroup</h3>
+					<ul class="tsd-signatures tsd-kind-event tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">on<wbr>Added<wbr>ToGroup<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>chat<span class="tsd-signature-symbol">: </span><a href="../interfaces/chat.html" class="tsd-signature-type">Chat</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L288">api/whatsapp.ts:288</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>fn: <span class="tsd-signature-symbol">(</span>chat<span class="tsd-signature-symbol">: </span><a href="../interfaces/chat.html" class="tsd-signature-type">Chat</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-signature">
+											<ul class="tsd-signatures tsd-kind-type-literal">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>chat<span class="tsd-signature-symbol">: </span><a href="../interfaces/chat.html" class="tsd-signature-type">Chat</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-parameters-title">Parameters</h4>
+													<ul class="tsd-parameters">
+														<li>
+															<h5>chat: <a href="../interfaces/chat.html" class="tsd-signature-type">Chat</a></h5>
+														</li>
+													</ul>
+													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>Observable stream of Chats</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class">
+					<a name="onanymessage" class="tsd-anchor"></a>
+					<h3>on<wbr>Any<wbr>Message</h3>
+					<ul class="tsd-signatures tsd-kind-event tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">on<wbr>Any<wbr>Message<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L143">api/whatsapp.ts:143</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>fires</dt>
+									<dd><p>Message</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>fn: <span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-signature">
+											<ul class="tsd-signatures tsd-kind-type-literal">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-parameters-title">Parameters</h4>
+													<ul class="tsd-parameters">
+														<li>
+															<h5>message: <a href="../interfaces/message.html" class="tsd-signature-type">Message</a></h5>
+														</li>
+													</ul>
+													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class">
+					<a name="onlivelocation" class="tsd-anchor"></a>
+					<h3>on<wbr>Live<wbr>Location</h3>
+					<ul class="tsd-signatures tsd-kind-event tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">on<wbr>Live<wbr>Location<span class="tsd-signature-symbol">(</span>chatId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>liveLocationChangedEvent<span class="tsd-signature-symbol">: </span><a href="../interfaces/livelocationchangedevent.html" class="tsd-signature-type">LiveLocationChangedEvent</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L248">api/whatsapp.ts:248</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>emits</dt>
+									<dd><p><LiveLocationChangedEvent> LiveLocationChangedEvent</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>chatId: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the chat from which you want to subscribes to live location updates</p>
+									</div>
+								</li>
+								<li>
+									<h5>fn: <span class="tsd-signature-symbol">(</span>liveLocationChangedEvent<span class="tsd-signature-symbol">: </span><a href="../interfaces/livelocationchangedevent.html" class="tsd-signature-type">LiveLocationChangedEvent</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>callback that takes in a LiveLocationChangedEvent</p>
+									</div>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-signature">
+											<ul class="tsd-signatures tsd-kind-type-literal">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>liveLocationChangedEvent<span class="tsd-signature-symbol">: </span><a href="../interfaces/livelocationchangedevent.html" class="tsd-signature-type">LiveLocationChangedEvent</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-parameters-title">Parameters</h4>
+													<ul class="tsd-parameters">
+														<li>
+															<h5>liveLocationChangedEvent: <a href="../interfaces/livelocationchangedevent.html" class="tsd-signature-type">LiveLocationChangedEvent</a></h5>
+														</li>
+													</ul>
+													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>boolean, if returns false then there were no valid live locations in the chat of chatId</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class">
+					<a name="onmessage" class="tsd-anchor"></a>
+					<h3>on<wbr>Message</h3>
+					<ul class="tsd-signatures tsd-kind-event tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">on<wbr>Message<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L132">api/whatsapp.ts:132</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>fires</dt>
+									<dd><p>Observable stream of messages</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>fn: <span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-signature">
+											<ul class="tsd-signatures tsd-kind-type-literal">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-parameters-title">Parameters</h4>
+													<ul class="tsd-parameters">
+														<li>
+															<h5>message: <a href="../interfaces/message.html" class="tsd-signature-type">Message</a></h5>
+														</li>
+													</ul>
+													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class">
+					<a name="onparticipantschanged" class="tsd-anchor"></a>
+					<h3>on<wbr>Participants<wbr>Changed</h3>
+					<ul class="tsd-signatures tsd-kind-event tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">on<wbr>Participants<wbr>Changed<span class="tsd-signature-symbol">(</span>groupId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>participantChangedEvent<span class="tsd-signature-symbol">: </span><a href="../interfaces/participantchangedeventmodel.html" class="tsd-signature-type">ParticipantChangedEventModel</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L268">api/whatsapp.ts:268</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>groupId: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>fn: <span class="tsd-signature-symbol">(</span>participantChangedEvent<span class="tsd-signature-symbol">: </span><a href="../interfaces/participantchangedeventmodel.html" class="tsd-signature-type">ParticipantChangedEventModel</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-signature">
+											<ul class="tsd-signatures tsd-kind-type-literal">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>participantChangedEvent<span class="tsd-signature-symbol">: </span><a href="../interfaces/participantchangedeventmodel.html" class="tsd-signature-type">ParticipantChangedEventModel</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-parameters-title">Parameters</h4>
+													<ul class="tsd-parameters">
+														<li>
+															<h5>participantChangedEvent: <a href="../interfaces/participantchangedeventmodel.html" class="tsd-signature-type">ParticipantChangedEventModel</a></h5>
+														</li>
+													</ul>
+													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>Observable stream of participantChangedEvent</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class">
+					<a name="onstatechanged" class="tsd-anchor"></a>
+					<h3>on<wbr>State<wbr>Changed</h3>
+					<ul class="tsd-signatures tsd-kind-event tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">on<wbr>State<wbr>Changed<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>state<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L156">api/whatsapp.ts:156</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>fn: <span class="tsd-signature-symbol">(</span>state<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-signature">
+											<ul class="tsd-signatures tsd-kind-type-literal">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>state<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-parameters-title">Parameters</h4>
+													<ul class="tsd-parameters">
+														<li>
+															<h5>state: <span class="tsd-signature-type">string</span></h5>
+														</li>
+													</ul>
+													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+							<p>Observable stream of messages</p>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="page" class="tsd-anchor"></a>
@@ -199,7 +540,7 @@
 					<div class="tsd-signature tsd-kind-icon">page<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Page</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L124">api/whatsapp.ts:124</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L124">api/whatsapp.ts:124</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -221,7 +562,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L911">api/whatsapp.ts:911</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L914">api/whatsapp.ts:914</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -258,7 +599,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L770">api/whatsapp.ts:770</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L773">api/whatsapp.ts:773</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -287,7 +628,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L808">api/whatsapp.ts:808</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L811">api/whatsapp.ts:811</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -316,7 +657,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L881">api/whatsapp.ts:881</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L884">api/whatsapp.ts:884</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -347,7 +688,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L796">api/whatsapp.ts:796</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L799">api/whatsapp.ts:799</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -391,7 +732,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L938">api/whatsapp.ts:938</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L941">api/whatsapp.ts:941</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -428,7 +769,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L230">api/whatsapp.ts:230</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L230">api/whatsapp.ts:230</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -445,7 +786,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L572">api/whatsapp.ts:572</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L575">api/whatsapp.ts:575</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -488,7 +829,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L611">api/whatsapp.ts:611</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L614">api/whatsapp.ts:614</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -517,7 +858,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L625">api/whatsapp.ts:625</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L628">api/whatsapp.ts:628</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -546,7 +887,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L583">api/whatsapp.ts:583</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L586">api/whatsapp.ts:586</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -569,7 +910,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L633">api/whatsapp.ts:633</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L636">api/whatsapp.ts:636</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -598,7 +939,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L854">api/whatsapp.ts:854</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L857">api/whatsapp.ts:857</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -633,7 +974,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L834">api/whatsapp.ts:834</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L837">api/whatsapp.ts:837</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -656,7 +997,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L842">api/whatsapp.ts:842</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L845">api/whatsapp.ts:845</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -679,7 +1020,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L603">api/whatsapp.ts:603</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L606">api/whatsapp.ts:606</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -702,7 +1043,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L503">api/whatsapp.ts:503</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L506">api/whatsapp.ts:506</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -734,7 +1075,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L708">api/whatsapp.ts:708</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L711">api/whatsapp.ts:711</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -763,7 +1104,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L696">api/whatsapp.ts:696</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L699">api/whatsapp.ts:699</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -792,7 +1133,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L204">api/whatsapp.ts:204</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L204">api/whatsapp.ts:204</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -815,7 +1156,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L684">api/whatsapp.ts:684</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L687">api/whatsapp.ts:687</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -844,7 +1185,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L368">api/whatsapp.ts:368</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L369">api/whatsapp.ts:369</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -873,7 +1214,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L949">api/whatsapp.ts:949</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L952">api/whatsapp.ts:952</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -904,7 +1245,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L670">api/whatsapp.ts:670</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L673">api/whatsapp.ts:673</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -934,7 +1275,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L648">api/whatsapp.ts:648</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L651">api/whatsapp.ts:651</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -965,7 +1306,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L491">api/whatsapp.ts:491</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L492">api/whatsapp.ts:492</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -987,7 +1328,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L720">api/whatsapp.ts:720</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L723">api/whatsapp.ts:723</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1016,7 +1357,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L758">api/whatsapp.ts:758</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L761">api/whatsapp.ts:761</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1048,7 +1389,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L822">api/whatsapp.ts:822</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L825">api/whatsapp.ts:825</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1083,7 +1424,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L587">api/whatsapp.ts:587</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L590">api/whatsapp.ts:590</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">String</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -1100,7 +1441,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L595">api/whatsapp.ts:595</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L598">api/whatsapp.ts:598</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1123,7 +1464,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L223">api/whatsapp.ts:223</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L223">api/whatsapp.ts:223</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1146,7 +1487,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L659">api/whatsapp.ts:659</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L662">api/whatsapp.ts:662</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1177,7 +1518,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L782">api/whatsapp.ts:782</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L785">api/whatsapp.ts:785</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1206,7 +1547,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L869">api/whatsapp.ts:869</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L872">api/whatsapp.ts:872</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1241,7 +1582,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L745">api/whatsapp.ts:745</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L748">api/whatsapp.ts:748</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1261,346 +1602,6 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="onack" class="tsd-anchor"></a>
-					<h3>on<wbr>Ack</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">on<wbr>Ack<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L213">api/whatsapp.ts:213</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Listens to messages acknowledgement Changes</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>fn: <span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
-									<ul class="tsd-parameters">
-										<li class="tsd-parameter-siganture">
-											<ul class="tsd-signatures tsd-kind-type-literal">
-												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-											</ul>
-											<ul class="tsd-descriptions">
-												<li class="tsd-description">
-													<h4 class="tsd-parameters-title">Parameters</h4>
-													<ul class="tsd-parameters">
-														<li>
-															<h5>message: <a href="../interfaces/message.html" class="tsd-signature-type">Message</a></h5>
-														</li>
-													</ul>
-													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-												</li>
-											</ul>
-										</li>
-									</ul>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-							<p>Observable stream of messages</p>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="onaddedtogroup" class="tsd-anchor"></a>
-					<h3>on<wbr>Added<wbr>ToGroup</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">on<wbr>Added<wbr>ToGroup<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>chat<span class="tsd-signature-symbol">: </span><a href="../interfaces/chat.html" class="tsd-signature-type">Chat</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L287">api/whatsapp.ts:287</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Fires callback with Chat object every time the host phone is added to a group.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>fn: <span class="tsd-signature-symbol">(</span>chat<span class="tsd-signature-symbol">: </span><a href="../interfaces/chat.html" class="tsd-signature-type">Chat</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
-									<ul class="tsd-parameters">
-										<li class="tsd-parameter-siganture">
-											<ul class="tsd-signatures tsd-kind-type-literal">
-												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>chat<span class="tsd-signature-symbol">: </span><a href="../interfaces/chat.html" class="tsd-signature-type">Chat</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-											</ul>
-											<ul class="tsd-descriptions">
-												<li class="tsd-description">
-													<h4 class="tsd-parameters-title">Parameters</h4>
-													<ul class="tsd-parameters">
-														<li>
-															<h5>chat: <a href="../interfaces/chat.html" class="tsd-signature-type">Chat</a></h5>
-														</li>
-													</ul>
-													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-												</li>
-											</ul>
-										</li>
-									</ul>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							<p>Observable stream of Chats</p>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="onanymessage" class="tsd-anchor"></a>
-					<h3>on<wbr>Any<wbr>Message</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">on<wbr>Any<wbr>Message<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L143">api/whatsapp.ts:143</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Listens to all new messages</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>fn: <span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
-									<ul class="tsd-parameters">
-										<li class="tsd-parameter-siganture">
-											<ul class="tsd-signatures tsd-kind-type-literal">
-												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-											</ul>
-											<ul class="tsd-descriptions">
-												<li class="tsd-description">
-													<h4 class="tsd-parameters-title">Parameters</h4>
-													<ul class="tsd-parameters">
-														<li>
-															<h5>message: <a href="../interfaces/message.html" class="tsd-signature-type">Message</a></h5>
-														</li>
-													</ul>
-													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-												</li>
-											</ul>
-										</li>
-									</ul>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="onlivelocation" class="tsd-anchor"></a>
-					<h3>on<wbr>Live<wbr>Location</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">on<wbr>Live<wbr>Location<span class="tsd-signature-symbol">(</span>chatId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>liveLocationChangedEvent<span class="tsd-signature-symbol">: </span><a href="../interfaces/livelocationchangedevent.html" class="tsd-signature-type">LiveLocationChangedEvent</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L247">api/whatsapp.ts:247</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Listens to live locations from a chat that already has valid live locations</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>chatId: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>the chat from which you want to subscribes to live location updates</p>
-									</div>
-								</li>
-								<li>
-									<h5>fn: <span class="tsd-signature-symbol">(</span>liveLocationChangedEvent<span class="tsd-signature-symbol">: </span><a href="../interfaces/livelocationchangedevent.html" class="tsd-signature-type">LiveLocationChangedEvent</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>callback that takes in a LiveLocationChangedEvent</p>
-									</div>
-									<ul class="tsd-parameters">
-										<li class="tsd-parameter-siganture">
-											<ul class="tsd-signatures tsd-kind-type-literal">
-												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>liveLocationChangedEvent<span class="tsd-signature-symbol">: </span><a href="../interfaces/livelocationchangedevent.html" class="tsd-signature-type">LiveLocationChangedEvent</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-											</ul>
-											<ul class="tsd-descriptions">
-												<li class="tsd-description">
-													<h4 class="tsd-parameters-title">Parameters</h4>
-													<ul class="tsd-parameters">
-														<li>
-															<h5>liveLocationChangedEvent: <a href="../interfaces/livelocationchangedevent.html" class="tsd-signature-type">LiveLocationChangedEvent</a></h5>
-														</li>
-													</ul>
-													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-												</li>
-											</ul>
-										</li>
-									</ul>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							<p>boolean, if returns false then there were no valid live locations in the chat of chatId</p>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="onmessage" class="tsd-anchor"></a>
-					<h3>on<wbr>Message</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">on<wbr>Message<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L132">api/whatsapp.ts:132</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Listens to messages received</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>fn: <span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
-									<ul class="tsd-parameters">
-										<li class="tsd-parameter-siganture">
-											<ul class="tsd-signatures tsd-kind-type-literal">
-												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-											</ul>
-											<ul class="tsd-descriptions">
-												<li class="tsd-description">
-													<h4 class="tsd-parameters-title">Parameters</h4>
-													<ul class="tsd-parameters">
-														<li>
-															<h5>message: <a href="../interfaces/message.html" class="tsd-signature-type">Message</a></h5>
-														</li>
-													</ul>
-													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-												</li>
-											</ul>
-										</li>
-									</ul>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-							<p>Observable stream of messages</p>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="onparticipantschanged" class="tsd-anchor"></a>
-					<h3>on<wbr>Participants<wbr>Changed</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">on<wbr>Participants<wbr>Changed<span class="tsd-signature-symbol">(</span>groupId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>participantChangedEvent<span class="tsd-signature-symbol">: </span><a href="../interfaces/participantchangedeventmodel.html" class="tsd-signature-type">ParticipantChangedEventModel</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L267">api/whatsapp.ts:267</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Listens to add and remove evevnts on Groups</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>groupId: <span class="tsd-signature-type">string</span></h5>
-								</li>
-								<li>
-									<h5>fn: <span class="tsd-signature-symbol">(</span>participantChangedEvent<span class="tsd-signature-symbol">: </span><a href="../interfaces/participantchangedeventmodel.html" class="tsd-signature-type">ParticipantChangedEventModel</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
-									<ul class="tsd-parameters">
-										<li class="tsd-parameter-siganture">
-											<ul class="tsd-signatures tsd-kind-type-literal">
-												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>participantChangedEvent<span class="tsd-signature-symbol">: </span><a href="../interfaces/participantchangedeventmodel.html" class="tsd-signature-type">ParticipantChangedEventModel</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-											</ul>
-											<ul class="tsd-descriptions">
-												<li class="tsd-description">
-													<h4 class="tsd-parameters-title">Parameters</h4>
-													<ul class="tsd-parameters">
-														<li>
-															<h5>participantChangedEvent: <a href="../interfaces/participantchangedeventmodel.html" class="tsd-signature-type">ParticipantChangedEventModel</a></h5>
-														</li>
-													</ul>
-													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-												</li>
-											</ul>
-										</li>
-									</ul>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							<p>Observable stream of participantChangedEvent</p>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="onstatechanged" class="tsd-anchor"></a>
-					<h3>on<wbr>State<wbr>Changed</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">on<wbr>State<wbr>Changed<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>state<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L156">api/whatsapp.ts:156</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Listens to messages received</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>fn: <span class="tsd-signature-symbol">(</span>state<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
-									<ul class="tsd-parameters">
-										<li class="tsd-parameter-siganture">
-											<ul class="tsd-signatures tsd-kind-type-literal">
-												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>state<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-											</ul>
-											<ul class="tsd-descriptions">
-												<li class="tsd-description">
-													<h4 class="tsd-parameters-title">Parameters</h4>
-													<ul class="tsd-parameters">
-														<li>
-															<h5>state: <span class="tsd-signature-type">string</span></h5>
-														</li>
-													</ul>
-													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-												</li>
-											</ul>
-										</li>
-									</ul>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-							<p>Observable stream of messages</p>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="promoteparticipant" class="tsd-anchor"></a>
 					<h3>promote<wbr>Participant</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1610,7 +1611,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L925">api/whatsapp.ts:925</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L928">api/whatsapp.ts:928</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1647,7 +1648,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L897">api/whatsapp.ts:897</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L900">api/whatsapp.ts:900</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1684,7 +1685,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L407">api/whatsapp.ts:407</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L408">api/whatsapp.ts:408</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1724,7 +1725,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L542">api/whatsapp.ts:542</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L545">api/whatsapp.ts:545</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1758,7 +1759,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L423">api/whatsapp.ts:423</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L424">api/whatsapp.ts:424</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1807,7 +1808,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L465">api/whatsapp.ts:465</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L466">api/whatsapp.ts:466</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1850,7 +1851,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L387">api/whatsapp.ts:387</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L388">api/whatsapp.ts:388</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1899,7 +1900,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L522">api/whatsapp.ts:522</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L525">api/whatsapp.ts:525</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1948,7 +1949,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L355">api/whatsapp.ts:355</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L356">api/whatsapp.ts:356</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1997,7 +1998,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L317">api/whatsapp.ts:317</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L318">api/whatsapp.ts:318</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2032,7 +2033,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L732">api/whatsapp.ts:732</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L735">api/whatsapp.ts:735</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2063,7 +2064,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L307">api/whatsapp.ts:307</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L308">api/whatsapp.ts:308</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2100,7 +2101,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L445">api/whatsapp.ts:445</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L446">api/whatsapp.ts:446</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2149,7 +2150,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L192">api/whatsapp.ts:192</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L192">api/whatsapp.ts:192</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2185,7 +2186,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L180">api/whatsapp.ts:180</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L180">api/whatsapp.ts:180</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2216,7 +2217,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L169">api/whatsapp.ts:169</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L169">api/whatsapp.ts:169</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2247,7 +2248,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/6bd4f7a/src/api/whatsapp.ts#L555">api/whatsapp.ts:555</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/880aaa8/src/api/whatsapp.ts#L558">api/whatsapp.ts:558</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2293,6 +2294,27 @@
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
 								<a href="whatsapp.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-event tsd-parent-kind-class">
+								<a href="whatsapp.html#onack" class="tsd-kind-icon">on<wbr>Ack</a>
+							</li>
+							<li class=" tsd-kind-event tsd-parent-kind-class">
+								<a href="whatsapp.html#onaddedtogroup" class="tsd-kind-icon">on<wbr>Added<wbr>ToGroup</a>
+							</li>
+							<li class=" tsd-kind-event tsd-parent-kind-class">
+								<a href="whatsapp.html#onanymessage" class="tsd-kind-icon">on<wbr>Any<wbr>Message</a>
+							</li>
+							<li class=" tsd-kind-event tsd-parent-kind-class">
+								<a href="whatsapp.html#onlivelocation" class="tsd-kind-icon">on<wbr>Live<wbr>Location</a>
+							</li>
+							<li class=" tsd-kind-event tsd-parent-kind-class">
+								<a href="whatsapp.html#onmessage" class="tsd-kind-icon">on<wbr>Message</a>
+							</li>
+							<li class=" tsd-kind-event tsd-parent-kind-class">
+								<a href="whatsapp.html#onparticipantschanged" class="tsd-kind-icon">on<wbr>Participants<wbr>Changed</a>
+							</li>
+							<li class=" tsd-kind-event tsd-parent-kind-class">
+								<a href="whatsapp.html#onstatechanged" class="tsd-kind-icon">on<wbr>State<wbr>Changed</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="whatsapp.html#page" class="tsd-kind-icon">page</a>
@@ -2404,27 +2426,6 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="whatsapp.html#loadearliermessages" class="tsd-kind-icon">load<wbr>Earlier<wbr>Messages</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="whatsapp.html#onack" class="tsd-kind-icon">on<wbr>Ack</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="whatsapp.html#onaddedtogroup" class="tsd-kind-icon">on<wbr>Added<wbr>ToGroup</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="whatsapp.html#onanymessage" class="tsd-kind-icon">on<wbr>Any<wbr>Message</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="whatsapp.html#onlivelocation" class="tsd-kind-icon">on<wbr>Live<wbr>Location</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="whatsapp.html#onmessage" class="tsd-kind-icon">on<wbr>Message</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="whatsapp.html#onparticipantschanged" class="tsd-kind-icon">on<wbr>Participants<wbr>Changed</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="whatsapp.html#onstatechanged" class="tsd-kind-icon">on<wbr>State<wbr>Changed</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="whatsapp.html#promoteparticipant" class="tsd-kind-icon">promote<wbr>Participant</a>

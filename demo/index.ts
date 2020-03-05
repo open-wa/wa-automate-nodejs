@@ -38,6 +38,8 @@ ev.on('sessionData.**', async (sessionData, sessionId) =>{
 async function start(client: Whatsapp) {
   globalClient=client;
   console.log('starting');
+  const me = await client.getMe();
+  console.log("start -> me", me)
   // const chats = await client.getAllChatsWithMessages(false);
   // console.log("TCL: start -> chats", chats)
   // console.log("TCL: getAllChatsWithMessages ->", chats.length, chats[0]);

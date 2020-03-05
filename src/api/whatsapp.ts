@@ -126,8 +126,8 @@ export class Whatsapp {
   }
 
   /**
-   * Listens to messages received
-   * @returns Observable stream of messages
+   * @event Listens to messages received
+   * @fires Observable stream of messages
    */
   public onMessage(fn: (message: Message) => void) {
     this.page.exposeFunction(ExposedFn.OnMessage, (message: Message) =>
@@ -136,9 +136,9 @@ export class Whatsapp {
   }
 
   /**
-   * Listens to all new messages
+   * @event Listens to all new messages
    * @param to callback
-   * @returns 
+   * @fires Message 
    */
   public async onAnyMessage(fn: (message: Message) => void) {
     this.page.exposeFunction(ExposedFn.OnAnyMessage, (message: Message) =>
@@ -150,7 +150,7 @@ export class Whatsapp {
   }
 
   /**
-   * Listens to messages received
+   * @event Listens to messages received
    * @returns Observable stream of messages
    */
   public onStateChanged(fn: (state: string) => void) {
@@ -207,7 +207,7 @@ export class Whatsapp {
   }
 
   /**
-   * Listens to messages acknowledgement Changes
+   * @event Listens to messages acknowledgement Changes
    * @returns Observable stream of messages
    */
   public onAck(fn: (message: Message) => void) {
@@ -239,10 +239,11 @@ export class Whatsapp {
   }
 
 /**
- * Listens to live locations from a chat that already has valid live locations
+ * @event Listens to live locations from a chat that already has valid live locations
  * @param chatId the chat from which you want to subscribes to live location updates
  * @param fn callback that takes in a LiveLocationChangedEvent
  * @returns boolean, if returns false then there were no valid live locations in the chat of chatId
+ * @emits <LiveLocationChangedEvent> LiveLocationChangedEvent
  */
   public onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveLocationChangedEvent) => void) {
     const funcName = "onLiveLocation_" + chatId.replace('_', "").replace('_', "");
@@ -259,7 +260,7 @@ export class Whatsapp {
   }
 
   /**
-   * Listens to add and remove evevnts on Groups
+   * @event Listens to add and remove evevnts on Groups
    * @param to group id: xxxxx-yyyy@us.c
    * @param to callback
    * @returns Observable stream of participantChangedEvent
@@ -280,7 +281,7 @@ export class Whatsapp {
 
 
   /**
-   * Fires callback with Chat object every time the host phone is added to a group.
+   * @event Fires callback with Chat object every time the host phone is added to a group.
    * @param to callback
    * @returns Observable stream of Chats
    */
@@ -489,7 +490,9 @@ export class Whatsapp {
  * Returns an object with all of your host device details
  */
   public async getMe(){
-    return await this.page.evaluate(() => WAPI.getMe());
+    // return await this.page.evaluate(() => WAPI.getMe());
+    //@ts-ignore
+    return await this.page.evaluate(() => Store.Me.attributes);
   }
 
 
