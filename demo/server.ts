@@ -1,5 +1,6 @@
 const express = require('express')
 const path = require("path");
+const https = require('https')
 
 const sulla = require('sulla-hotfix');
 import { Whatsapp, decryptMedia, ev} from 'sulla-hotfix';
@@ -52,6 +53,19 @@ async function start(client: Whatsapp) {
 	    await client.sendLocation(message.from, 37.422, -122.084, "Googleplex\nGoogle Headquarters")
 	} else if (message.body.indexOf("!gif") > -1){
         await client.sendGiphy(message.from,'https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif','Oh my god it works');
+	} else if ((message.body.indexOf("!dollar") > -1) && (message.body.length >= 10)){
+		const currency = message.body.substring(message.body.indexOf("!dollar",0)+8)
+		console.log("Getting currency: " + currency);
+		var url = 'https://mattdavenport.net/currency/cache/latest.json';
+        https.get(url, (resp) => {
+          let data = '';
+          resp.on('data', (chunk) => { data += chunk; });
+          resp.on('end', async () => {
+	        const rates = 'rates';
+	        var dolarResponse = "💵 1 USD = " + JSON.parse(data)[rates][currency] + " " + currency;
+	        await client.reply(message.from, dolarResponse, message.id.toString());	  
+	      });
+        }).on("error", (err) => { console.log("Error: " + err.message); } );
     } else {
         //do nothing
     }
@@ -107,6 +121,6 @@ app.post('/sendPNG' , async (req,res) => {
   return res.send(newMessage);
 })
 
-app.listen(8081, function () {
+app.listen(8082, function () {
   console.log('\n• Listening on port 8081!');
 });
