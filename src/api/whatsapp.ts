@@ -489,7 +489,9 @@ export class Whatsapp {
  * Returns an object with all of your host device details
  */
   public async getMe(){
-    return await this.page.evaluate(() => WAPI.getMe());
+    // return await this.page.evaluate(() => WAPI.getMe());
+    //@ts-ignore
+    return await this.page.evaluate(() => Store.Me.attributes);
   }
 
 
