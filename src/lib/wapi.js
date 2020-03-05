@@ -890,7 +890,9 @@ window.WAPI.sendMessageToID = function (id, message, done) {
 window.WAPI.sendMessageReturnId = async function (ch, body) {
     var chat = ch.id ? ch : Store.Chat.get(ch);
     var chatId = chat.id._serialized;
-    var tempMsg = Object.create(chat.msgs.filter(msg => msg.__x_isSentByMe)[0]);
+    var msgIveSent = chat.msgs.filter(msg => msg.__x_isSentByMe)[0];
+    if(!msgIveSent) return chat.sendMessage(body);
+    var tempMsg = Object.create(msgIveSent);
     var newId = window.WAPI.getNewMessageId(chatId);
     var extend = {
         ack: 0,
@@ -1241,7 +1243,7 @@ window.WAPI.smartDeleteMessages = function (chatId, messageArray, onlyLocal, don
         conversation.sendRevokeMsgs(messagesToDelete.filter(msg=>msg.isSentByMe),conversation),
         conversation.sendDeleteMsgs(messagesToDelete.filter(msg=>!msg.isSentByMe),conversation)
     ]
-    Promise.all(jobs).then(_=>{
+    return Promise.all(jobs).then(_=>{
         if (done !== undefined) {
             done(true);
         }
