@@ -2203,22 +2203,22 @@ window.WAPI.demoteParticipant = function (idGroup, idParticipant, done) {
  * @param {*} chatId '000000000000@c.us'
  * @param {*} done - function - Callback function to for async execution.
  */
-window.WAPI.sendSticker = function ({sticker, chatid}, done) {
+window.WAPI.sendSticker = function (sticker, chatid, done) {
 	var idUser = new window.Store.UserConstructor(chatid, { intentionallyUsePrivateConstructor: true });
 	return window.Store.Chat.find(idUser).then(async (chat) => {
-		let stick = new window.Store.Sticker.modelClass();		
-		stick.__x_clientUrl = sticker.url;
-		stick.__x_filehash = sticker.filehash;
-		stick.__x_id = sticker.filehash;
-		stick.__x_uploadhash = sticker.uploadhash;
-		stick.__x_mediaKey = sticker.mediaKey;
-		stick.__x_initialized = false;
-		stick.__x_mediaData.mediaStage = 'INIT';
-		stick.mimetype = 'image/webp';
-		stick.height = 512;
-		stick.width = 512;
-		await stick.initialize();
-		await stick.sendToChat(chat);
+		// let stick = new window.Store.Sticker.modelClass();		
+		// stick.__x_clientUrl = sticker.url;
+		// stick.__x_filehash = sticker.filehash;
+		// stick.__x_id = sticker.filehash;
+		// stick.__x_uploadhash = sticker.uploadhash;
+		// stick.__x_mediaKey = sticker.mediaKey;
+		// stick.__x_initialized = false;
+		// stick.__x_mediaData.mediaStage = 'INIT';
+		// stick.mimetype = 'image/webp';
+		// stick.height = 512;
+		// stick.width = 512;
+		await sticker.initialize();
+		await sticker.sendToChat(chat);
 		if (done !== undefined) done(true);
 	})
 	.catch(e => {
@@ -2226,3 +2226,13 @@ window.WAPI.sendSticker = function ({sticker, chatid}, done) {
 	});
 };
 
+/**
+This will dump all possible stickers into the chat. ONLY FOR TESTING. THIS IS REALLY ANNOYING!!
+ */
+window.WAPI._STICKERDUMP = async function (chatId) {
+    var chat = Store.Chat.get(chatId);
+	let prIdx = await Store.StickerPack.pageWithIndex(0);
+	await Store.StickerPack.fetchAt(0);        
+	await Store.StickerPack._pageFetchPromises[prIdx];
+    return await Promise.race(Store.StickerPack.models.forEach(pack=>pack.stickers.fetch().then(_=>pack.stickers.models.forEach(stkr => stkr.sendToChat(chat))))).catch(e=>{})
+}

@@ -9,6 +9,7 @@ await Store.Chat.find('000000000000@c.us').then(async (chat) => {
 		console.log('Total Packages = '+Store.StickerPack._models.length);
 		for (let PackageId = 0; PackageId <= (Store.StickerPack._models.length-1); PackageId++) {	
 			console.log('Package = ' + Store.StickerPack._models[PackageId].__x_name);
+			await Store.StickerPack._models[PackageId].stickers.fetch();
 			let packageSticker = Store.StickerPack.where({ name: Store.StickerPack._models[PackageId].__x_name})[0];
 			console.log('Total Sticker in package = '+packageSticker.__x_stickers._models.length);
 			let sendOne = true;
@@ -16,17 +17,7 @@ await Store.Chat.find('000000000000@c.us').then(async (chat) => {
 				if ( (sendOne==true) && (stickerId==1) ) {
 					sendOne = false;
 					console.log(packageSticker.__x_stickers._models[stickerId].__x_clientUrl);
-					await window.WAPI.sendSticker({
-						sticker:{
-							'mimeType':packageSticker.__x_stickers._models[stickerId].__x_mimetype,
-							'type':'sticker',
-							'url':packageSticker.__x_stickers._models[stickerId].__x_clientUrl,
-							'mediaKey':packageSticker.__x_stickers._models[stickerId].__x_mediaKey,
-							'filehash':packageSticker.__x_stickers._models[stickerId].__x_filehash,
-							'uploadhash':packageSticker.__x_stickers._models[stickerId].__x_uploadhash
-						},
-						chatid:chat.__x_id._serialized
-					});					
+					await window.WAPI.sendSticker(packageSticker.__x_stickers._models[stickerId],chat.__x_id._serialized);
 				}
 			}
 		}		
