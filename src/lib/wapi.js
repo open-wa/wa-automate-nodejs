@@ -2196,3 +2196,33 @@ window.WAPI.demoteParticipant = function (idGroup, idParticipant, done) {
         })
     })
 }
+
+/**
+ * Send Sticker
+ * @param {*} sticker 
+ * @param {*} chatId '000000000000@c.us'
+ * @param {*} done - function - Callback function to for async execution.
+ */
+window.WAPI.sendSticker = function ({sticker, chatid}, done) {
+	var idUser = new window.Store.UserConstructor(chatid, { intentionallyUsePrivateConstructor: true });
+	return window.Store.Chat.find(idUser).then(async (chat) => {
+		let stick = new window.Store.Sticker.modelClass();		
+		stick.__x_clientUrl = sticker.url;
+		stick.__x_filehash = sticker.filehash;
+		stick.__x_id = sticker.filehash;
+		stick.__x_uploadhash = sticker.uploadhash;
+		stick.__x_mediaKey = sticker.mediaKey;
+		stick.__x_initialized = false;
+		stick.__x_mediaData.mediaStage = 'INIT';
+		stick.mimetype = 'image/webp';
+		stick.height = 512;
+		stick.width = 512;
+		await stick.initialize();
+		await stick.sendToChat(chat);
+		if (done !== undefined) done(true);
+	})
+	.catch(e => {
+		if (done !== undefined) done(false);
+	});
+};
+
