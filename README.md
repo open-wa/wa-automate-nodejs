@@ -14,6 +14,19 @@
 > npm i --save sulla-hotfix
 ```
 
+## Running the demo
+
+You can clone this repo and run the demo, but you will need to use typescript/ts-node:
+
+```bash
+> git clone https://github.com/smashah/sulla.git
+> cd sulla
+> npm i
+> npm i -g ts-node typescript
+> cd demo
+> ts-node index.ts
+```
+
 ## Usage
 
 ```javascript
