@@ -1,5 +1,6 @@
 [![npm version](https://img.shields.io/npm/v/sulla-hotfix.svg?color=green)](https://www.npmjs.com/package/sulla-hotfix)
 [![Buy me a coffee][buymeacoffee-shield]][buymeacoffee]
+[![Consulting Request][consult-shield]][consult]
 <a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 0.4.1296](https://img.shields.io/badge/WhatsApp_Web-0.4.1296-brightgreen.svg)
 
 # sulla-hotfix
@@ -629,3 +630,5 @@ The U.S. Government Department of Commerce, Bureau of Industry and Security (BIS
 
 [buymeacoffee-shield]: https://www.buymeacoffee.com/assets/img/guidelines/download-assets-sm-2.svg
 [buymeacoffee]: https://www.buymeacoffee.com/smashah
+[consult-shield]: https://img.shields.io/badge/Require%20Paid%20Support%20or%20Consulting%3F-Click%20Here-blue?style=for-the-badge&logo=paypal
+[consult]: mailto:shah@idk.uno?subject=WhatsApp%20Consulting
