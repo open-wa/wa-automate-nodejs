@@ -640,6 +640,15 @@ ul.tsd-descriptions > li > :last-child > :last-child > :last-child {
 .tsd-kind-interface.tsd-has-type-parameter.tsd-is-private > .tsd-kind-icon:before {
   background-position: -34px -85px; }
 
+.tsd-kind-namespace > .tsd-kind-icon:before {
+  background-position: 0px -102px; }
+
+.tsd-kind-namespace.tsd-is-protected > .tsd-kind-icon:before {
+  background-position: -17px -102px; }
+
+.tsd-kind-namespace.tsd-is-private > .tsd-kind-icon:before {
+  background-position: -34px -102px; }
+
 .tsd-kind-module > .tsd-kind-icon:before {
   background-position: 0px -102px; }
 
@@ -647,15 +656,6 @@ ul.tsd-descriptions > li > :last-child > :last-child > :last-child {
   background-position: -17px -102px; }
 
 .tsd-kind-module.tsd-is-private > .tsd-kind-icon:before {
-  background-position: -34px -102px; }
-
-.tsd-kind-external-module > .tsd-kind-icon:before {
-  background-position: 0px -102px; }
-
-.tsd-kind-external-module.tsd-is-protected > .tsd-kind-icon:before {
-  background-position: -17px -102px; }
-
-.tsd-kind-external-module.tsd-is-private > .tsd-kind-icon:before {
   background-position: -34px -102px; }
 
 .tsd-kind-enum > .tsd-kind-icon:before {
@@ -2162,8 +2162,8 @@ ul.tsd-type-parameters {
   list-style: square;
   margin: 0;
   padding-left: 20px; }
-  ul.tsd-parameters > li.tsd-parameter-siganture,
-  ul.tsd-type-parameters > li.tsd-parameter-siganture {
+  ul.tsd-parameters > li.tsd-parameter-signature,
+  ul.tsd-type-parameters > li.tsd-parameter-signature {
     list-style: none;
     margin-left: -20px; }
   ul.tsd-parameters h5,

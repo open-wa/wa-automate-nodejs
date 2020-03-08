@@ -880,6 +880,21 @@ public async getStatus(contactId: string) {
    * Sends a text message to given chat
    * @param to group name: 'New group'
    * @param contacts: A single contact id or an array of contact ids.
+   * @returns Promise<GroupCreationResponse> :
+   * ```javascript
+   * {
+   *   status: 200,
+   *   gid: {
+   *     server: 'g.us',
+   *     user: '447777777777-1583678870',
+   *     _serialized: '447777777777-1583678870@g.us'
+   *   },
+   *   participants: [
+   *     { '447777777777@c.us': [Object] },
+   *     { '447444444444@c.us': [Object] }
+   *   ]
+   * }
+   * ```
    */
   public async createGroup(groupName:string,contacts:string|string[]){
     return await this.page.evaluate(
