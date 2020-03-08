@@ -204,12 +204,12 @@ window.WAPI._serializeProfilePicThumb = (obj) => {
     });
 }
 
-window.WAPI.createGroup = function (name, contactsId) {
+window.WAPI.createGroup = async function (name, contactsId) {
     if (!Array.isArray(contactsId)) {
         contactsId = [contactsId];
     }
 
-    return window.Store.WapQuery.createGroup(name, contactsId);
+    return await window.Store.WapQuery.createGroup(name, contactsId);
 };
 
 /**

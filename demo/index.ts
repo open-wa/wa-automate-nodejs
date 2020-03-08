@@ -39,7 +39,7 @@ async function start(client: Whatsapp) {
   globalClient=client;
   console.log('starting');
   const me = await client.getMe();
-  console.log("start -> me", me)
+  console.log("start -> me", me);
   // const chats = await client.getAllChatsWithMessages(false);
   // console.log("TCL: start -> chats", chats)
   // console.log("TCL: getAllChatsWithMessages ->", chats.length, chats[0]);
@@ -119,6 +119,11 @@ async function start(client: Whatsapp) {
     console.log("TCL: start -> error", error)
     }
   });
+
+    const groupCreationEvent = await client.createGroup('coolnewgroup','0000000000@c.us');
+    console.log("start -> groupCreationEvent", groupCreationEvent)
+  //wait a few seconds and make a group
+
 }
 
 //you can now create two sessions pointing 
