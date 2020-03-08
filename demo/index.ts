@@ -132,7 +132,8 @@ async function start(client: Whatsapp) {
  */
 create('session',
 {
-  executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  useChrome: true,
   headless:true,
   throwErrorOnTosBlock:true,
   killTimer:40,

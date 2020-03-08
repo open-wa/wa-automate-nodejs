@@ -1,6 +1,7 @@
 import * as path from 'path';
 const fs = require('fs');
 const {installMouseHelper} = require('./mouse-helper');
+const ChromeLauncher = require('chrome-launcher');
 // import opuppeteer from 'puppeteer';
 // puppeteer-extra is a drop-in replacement for puppeteer,
 // it augments the installed puppeteer with plugin functionality
@@ -73,6 +74,12 @@ export async function injectApi(page: Page) {
 }
 
 async function initBrowser(sessionId?: string, puppeteerConfigOverride:any={}) {
+
+  if(puppeteerConfigOverride?.useChrome) {
+    puppeteerConfigOverride.executablePath = ChromeLauncher.Launcher.getInstallations()[0];
+    console.log('Found chrome', puppeteerConfigOverride.executablePath)
+  }
+
   const browser = await puppeteer.launch({
     headless: true,
     devtools: false,
