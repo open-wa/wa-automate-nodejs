@@ -15,6 +15,7 @@
     "precise-commits": "precise-commits",
     "test": "echo \"No tests yet\"",
     "release": "release-it",
+    "release-ci": "release-it --ci",
     "release-image": "node release-image.js"
   },
   "husky": {
