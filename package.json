@@ -56,7 +56,7 @@
     "marked": "^0.8.0",
     "precise-commits": "^1.0.2",
     "prettier": "^1.18.2",
-    "release-it": "^12.4.3",
+    "release-it": "^13.0.0",
     "ts-node": "^8.4.1",
     "tsc-watch": "^4.0.0",
     "typedoc": "^0.16.10",
