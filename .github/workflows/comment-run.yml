@@ -15,3 +15,5 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         allowed-associations: '["OWNER"]'
+      env:
+        NPM_TOKEN: ${{secrets.NPM_TOKEN}}
