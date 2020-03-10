@@ -13,8 +13,8 @@ jobs:
         fetch-depth: 0
     - uses: nwtgck/actions-comment-run@v1.0
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ secrets.CUSTOM_GH_TOKEN }}
         allowed-associations: '["OWNER"]'
       env:
         NPM_TOKEN: ${{secrets.NPM_TOKEN}}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.CUSTOM_GH_TOKEN }}
