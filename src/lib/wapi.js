@@ -2220,11 +2220,16 @@ window.WAPI.demoteParticipant = function (idGroup, idParticipant, done) {
  * @param {*} sticker 
  * @param {*} chatId '000000000000@c.us'
  */
-window.WAPI.sendSticker = function (sticker, chatid) {
-	var idUser = new window.Store.UserConstructor(chatid, { intentionallyUsePrivateConstructor: true });
-	return window.Store.Chat.find(idUser).then(async (chat) => {
+window.WAPI.sendSticker = async function ({sticker, chatid}) {
+    // console.log(sticker);
+    // console.log(chatid);
+    var chat = Store.Chat.get(chatid)
+    console.log(chat);
+	// var idUser = new window.Store.UserConstructor(chatid, { intentionallyUsePrivateConstructor: true });
+	// return  (chat) => {
+        // ephemeralStartTimestamp
 		let stick = new window.Store.Sticker.modelClass();		
-		stick.__x_clientUrl = sticker.url;
+		stick.__x_clientUrl = sticker.clientUrl;
 		stick.__x_filehash = sticker.filehash;
 		stick.__x_id = sticker.filehash;
 		stick.__x_uploadhash = sticker.uploadhash;
@@ -2234,13 +2239,14 @@ window.WAPI.sendSticker = function (sticker, chatid) {
 		stick.mimetype = 'image/webp';
 		stick.height = 512;
 		stick.width = 512;
-		await sticker.initialize();
-		await sticker.sendToChat(chat);
-		if (done !== undefined) done(true);
-	})
-	.catch(e => {
-		if (done !== undefined) done(false);
-	});
+        console.log("window.WAPI.getMessageById -> stick", stick)
+		await stick.initialize();
+		return await stick.sendToChat(chat);
+		// if (done !== undefined) done(true);
+	// })
+	// .catch(e => {
+    //     console.log(e)
+	// });
 };
 
 window.WAPI.getFileHash = async (data) => {
@@ -2286,7 +2292,7 @@ window.WAPI.encryptAndUploadFile = async function ({ type, data }) {
  * @param {*} imageBase64 
  * @param {*} chatId '000000000000@c.us'
  */
-window.WAPI.sendImageAsStricker = async function (imageBase64,chatId) {
+window.WAPI.sendImageAsSticker = async function (imageBase64,chatId) {
 
     let mediaBlob = await window.WAPI.base64ImageToFile(
         'data:image/webp;base64,'+imageBase64,
@@ -2297,7 +2303,7 @@ window.WAPI.sendImageAsStricker = async function (imageBase64,chatId) {
         type: "sticker",
         data: mediaBlob
     });
-    
+    console.log("encrypted", encrypted)
     let image = {};
     image.url = encrypted.clientUrl;
     image.mediaKey = encrypted.mediaKey;
@@ -2306,13 +2312,7 @@ window.WAPI.sendImageAsStricker = async function (imageBase64,chatId) {
     image.uploadhash = encrypted.uploadhash;
     image.directPath = encrypted.directPath;
      
-    let result = await window.WAPI.sendSticker({ sticker: image, chatid: chatId }, async (result) => {
-        if (result) {
-            return true;
-        } else {
-            return false;
-        }
-    });
+    return await window.WAPI.sendSticker({ sticker: encrypted, chatid: chatId })
 	
 };
 
