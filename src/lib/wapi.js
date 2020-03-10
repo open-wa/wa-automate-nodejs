@@ -55,7 +55,7 @@ if (!window.Store||!window.Store.Msg) {
                     if ((typeof first === "object") && (first.exports)) {
                         for (let idx2 in modules[idx]) {
                             let module = modules(idx2);
-                            // console.log("TCL: getStore -> module", module ? Object.getOwnPropertyNames(module.default || module).filter(item => typeof (module.default || module)[item] === 'function').length ? module.default || module : "":'')
+                            //console.log("TCL: getStore -> module", module ? Object.getOwnPropertyNames(module.default || module).filter(item => typeof (module.default || module)[item] === 'function').length ? module.default || module : "":'')
                             if (!module) {
                                 continue;
                             }
@@ -1763,15 +1763,29 @@ window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
         type: "location",
         lat,
         lng,
-        loc
+        loc,
+        clientUrl:undefined,
+        directPath:undefined,
+        filehash:undefined,
+        uploadhash:undefined,
+        mediaKey:undefined,
+        isQuotedMsgAvailable:false,
+        invis:false,
+        mediaKeyTimestamp:undefined,
+        mimetype:undefined,
+        height:undefined,
+        width:undefined,
+        ephemeralStartTimestamp:undefined,
+        mediaData:undefined
     };
     Object.assign(tempMsg, extend);
-    await Store.addAndSendMsgToChat(chat, tempMsg)
+    await Promise.all(Store.addAndSendMsgToChat(chat, tempMsg))
 };
 
 window.WAPI.sendButtons = async function(chatId){
     var chat = Store.Chat.get(chatId);
-    var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.to._serialized===chatId&&msg.__x_isSentByMe&& msg.type=='chat' && !msg.quotedStanzaID)[0])
+    var tempMsg = Object.create(chat.msgs.filter(msg => msg.__x_isSentByMe)[0]);
+    // var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.to._serialized===chatId&&msg.__x_isSentByMe&& msg.type=='chat' && !msg.quotedStanzaID)[0])
     var t2 = Object.create(Store.Msg.filter(x=>x.type=='template'&!x.id.fromMe)[0]);
     var newId = window.WAPI.getNewMessageId(chatId);
     delete tempMsg.hasTemplateButtons;
@@ -2002,6 +2016,7 @@ return new Promise(function(resolve, reject) {
 })
     })
 }
+
 
 
 window.WAPI.reply = async function (chatId, body, quotedMsg) {

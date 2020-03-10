@@ -120,8 +120,8 @@ async function start(client: Whatsapp) {
     }
   });
 
-    const groupCreationEvent = await client.createGroup('coolnewgroup','0000000000@c.us');
-    console.log("start -> groupCreationEvent", groupCreationEvent)
+    // const groupCreationEvent = await client.createGroup('coolnewgroup','0000000000@c.us');
+    // console.log("start -> groupCreationEvent", groupCreationEvent)
   //wait a few seconds and make a group
 
 }
