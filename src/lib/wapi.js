@@ -47,7 +47,10 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "WidFactory", conditions: (module) => (module.numberToWid && module.createWid && module.createWidFromWidLike) ? module : null },
                 { id: "Base", conditions: (module) => (module.setSubProtocol && module.binSend && module.actionNode) ? module : null },
                 { id: "Base2", conditions: (module) => (module.supportsFeatureFlags && module.parseMsgStubProto && module.binSend && module.subscribeLiveLocation) ? module : null },
-                { id: "Versions", conditions: (module) => (module.loadProtoVersions && module.default["15"] && module.default["16"] && module.default["17"]) ? module : null }
+                { id: "Versions", conditions: (module) => (module.loadProtoVersions && module.default["15"] && module.default["16"] && module.default["17"]) ? module : null },
+		{ id: "Sticker", conditions: (module) => (module.default && module.default.Sticker) ? module.default.Sticker : null },
+                { id: "MediaUpload", conditions: (module) => (module.default && module.default.mediaUpload) ? module.default : null },
+                { id: "UploadUtils", conditions: (module) => (module.default && module.default.encryptAndUpload) ? module.default : null }
             ];
             for (let idx in modules) {
                 if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
@@ -2216,22 +2219,21 @@ window.WAPI.demoteParticipant = function (idGroup, idParticipant, done) {
  * Send Sticker
  * @param {*} sticker 
  * @param {*} chatId '000000000000@c.us'
- * @param {*} done - function - Callback function to for async execution.
  */
-window.WAPI.sendSticker = function (sticker, chatid, done) {
+window.WAPI.sendSticker = function (sticker, chatid) {
 	var idUser = new window.Store.UserConstructor(chatid, { intentionallyUsePrivateConstructor: true });
 	return window.Store.Chat.find(idUser).then(async (chat) => {
-		// let stick = new window.Store.Sticker.modelClass();		
-		// stick.__x_clientUrl = sticker.url;
-		// stick.__x_filehash = sticker.filehash;
-		// stick.__x_id = sticker.filehash;
-		// stick.__x_uploadhash = sticker.uploadhash;
-		// stick.__x_mediaKey = sticker.mediaKey;
-		// stick.__x_initialized = false;
-		// stick.__x_mediaData.mediaStage = 'INIT';
-		// stick.mimetype = 'image/webp';
-		// stick.height = 512;
-		// stick.width = 512;
+		let stick = new window.Store.Sticker.modelClass();		
+		stick.__x_clientUrl = sticker.url;
+		stick.__x_filehash = sticker.filehash;
+		stick.__x_id = sticker.filehash;
+		stick.__x_uploadhash = sticker.uploadhash;
+		stick.__x_mediaKey = sticker.mediaKey;
+		stick.__x_initialized = false;
+		stick.__x_mediaData.mediaStage = 'INIT';
+		stick.mimetype = 'image/webp';
+		stick.height = 512;
+		stick.width = 512;
 		await sticker.initialize();
 		await sticker.sendToChat(chat);
 		if (done !== undefined) done(true);
@@ -2239,6 +2241,79 @@ window.WAPI.sendSticker = function (sticker, chatid, done) {
 	.catch(e => {
 		if (done !== undefined) done(false);
 	});
+};
+
+window.WAPI.getFileHash = async (data) => {
+	let buffer = await data.arrayBuffer();
+	var sha = new jsSHA("SHA-256", "ARRAYBUFFER");
+	sha.update(buffer);
+	return sha.getHash("B64");
+};
+
+window.WAPI.generateMediaKey = async (length) => {
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+};
+
+window.WAPI.encryptAndUploadFile = async function ({ type, data }) {	
+    let filehash = await window.WAPI.getFileHash(data);	
+    let mediaKey = await window.WAPI.generateMediaKey(32);
+    let controller = new AbortController();
+    let signal = controller.signal;
+    let encrypted = await window.Store.UploadUtils.encryptAndUpload({
+        blob: data,
+        type,
+        signal,
+        mediaKey
+    });
+    return {
+        clientUrl: encrypted.url,
+        mediaKey: encrypted.mediaKey,
+        mediaKeyTimestamp: encrypted.mediaKeyTimestamp,
+        filehash,
+        uploadhash: encrypted.encFilehash,
+        directPath: encrypted.directPath,
+    };
+};
+
+/**
+ * Send Image As Sticker
+ * @param {*} imageBase64 
+ * @param {*} chatId '000000000000@c.us'
+ */
+window.WAPI.sendImageAsStricker = async function (imageBase64,chatId) {
+
+    let mediaBlob = await window.WAPI.base64ImageToFile(
+        'data:image/webp;base64,'+imageBase64,
+        'file.webp'
+    );
+
+    let encrypted = await window.WAPI.encryptAndUploadFile({
+        type: "sticker",
+        data: mediaBlob
+    });
+    
+    let image = {};
+    image.url = encrypted.clientUrl;
+    image.mediaKey = encrypted.mediaKey;
+    image.mediaKeyTimestamp = encrypted.mediaKeyTimestamp;
+    image.filehash = encrypted.filehash;
+    image.uploadhash = encrypted.uploadhash;
+    image.directPath = encrypted.directPath;
+     
+    let result = await window.WAPI.sendSticker({ sticker: image, chatid: chatId }, async (result) => {
+        if (result) {
+            return true;
+        } else {
+            return false;
+        }
+    });
+	
 };
 
 /**
