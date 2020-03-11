@@ -987,6 +987,12 @@ public async getStatus(contactId: string) {
     );
   }
 
+  /**
+   * This function takes an image and sends it as a sticker to the recipient. This is helpful for sending semi-ephemeral things like QR codes. 
+   * The advantage is that it will not show up in the recipients gallery. This function automatiicaly converts images to the required webp format.
+   * @param b64: This is the base64 string formatted with data URI. You can also send a plain base64 string but it may result in an error as the function will not be able to determine the filetype before sending.
+   * @param to: The recipient id.
+   */
   public async sendImageAsSticker(b64: string,to: string){
     const buff = Buffer.from(b64.replace(/^data:image\/(png|gif|jpeg);base64,/,''), 'base64');
     const mimeInfo = base64MimeType(b64);
