@@ -998,9 +998,10 @@ public async getStatus(contactId: string) {
     const mimeInfo = base64MimeType(b64);
     if(!mimeInfo || mimeInfo.includes("image")){
       //non matter what, convert to webp, resize + autoscale to width 512 px
-      const webp = sharp(buff,{ failOnError: false })
-      .webp()
-      .resize({ width: 512 });
+      const scaledImageBuffer = await sharp(buff,{ failOnError: false })
+      .resize({ width: 512, height: 512 })
+      .toBuffer();
+      const webp = sharp(scaledImageBuffer,{ failOnError: false }).webp();
       const metadata : any= await webp.metadata();
       const webpBase64 = (await webp.toBuffer()).toString('base64');
       return await this.page.evaluate(
