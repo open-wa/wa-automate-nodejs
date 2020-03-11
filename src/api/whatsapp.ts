@@ -10,6 +10,7 @@ import { Id } from './model/id';
 import axios from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent } from '../config/puppeteer.config'
+import sharp from 'sharp';
 
 export const getBase64 = async (url: string) => {
   try {
@@ -22,6 +23,22 @@ export const getBase64 = async (url: string) => {
   } catch (error) {
     console.log("TCL: getBase64 -> error", error)
   }
+}
+
+function base64MimeType(encoded) {
+  var result = null;
+
+  if (typeof encoded !== 'string') {
+    return result;
+  }
+
+  var mime = encoded.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
+
+  if (mime && mime.length) {
+    result = mime[1];
+  }
+
+  return result;
 }
 
 declare module WAPI {
@@ -45,6 +62,7 @@ declare module WAPI {
   const removeParticipant: (groupId: string, contactId: string) => void;
   const promoteParticipant: (groupId: string, contactId: string) => void;
   const demoteParticipant: (groupId: string, contactId: string) => void;
+  const sendImageAsSticker: (webpBase64: string, to: string) => void;
   const createGroup: (groupName: string, contactId: string|string[]) => Promise<any>;
   const sendSeen: (to: string) => void;
   const sendImage: (
@@ -967,6 +985,25 @@ public async getStatus(contactId: string) {
       (idGroup) => WAPI.getGroupAdmins(idGroup),
       idGroup
     );
+  }
+
+  public async sendImageAsSticker(b64: string,to: string){
+    const buff = Buffer.from(b64.replace(/^data:image\/(png|gif|jpeg);base64,/,''), 'base64');
+    const mimeInfo = base64MimeType(b64);
+    if(!mimeInfo || mimeInfo.includes("image")){
+      //non matter what, convert to webp, resize + autoscale to width 512 px
+     var webpBase64 = (await sharp(buff,{ failOnError: false })
+     .webp()
+     .resize({ width: 512 })
+     .toBuffer()).toString('base64');
+    return await this.page.evaluate(
+      ({ webpBase64,to }) => WAPI.sendImageAsSticker(webpBase64,to),
+      { webpBase64,to }
+    );
+    } else {
+      console.log('Not an image');
+      return false;
+    }
   }
 }
 

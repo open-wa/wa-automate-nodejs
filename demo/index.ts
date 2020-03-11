@@ -81,7 +81,9 @@ async function start(client: Whatsapp) {
         filename,
         `You just sent me this ${message.type}`
       );
-
+      
+      //send the whole data URI so the mimetype can be checked.
+      await client.sendImageAsSticker(`data:${message.mimetype};base64,${mediaData.toString('base64')}`, message.from)
 
       //get this numbers products
       // const products = await client.getBusinessProfilesProducts(message.to);
