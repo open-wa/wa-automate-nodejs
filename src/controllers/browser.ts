@@ -63,9 +63,9 @@ export async function initWhatsapp(sessionId?: string, puppeteerConfigOverride?:
 export async function injectApi(page: Page) {
   // const preloadFile = fs.readFileSync('./preload', 'utf8');
   // await page.evaluateOnNewDocument(preloadFile);
-  await page.addScriptTag({
-    path: require.resolve(path.join(__dirname, '../lib', 'sha256.js'))
-  });  
+  // await page.addScriptTag({
+  //   path: require.resolve(path.join(__dirname, '../lib', 'sha256.js'))
+  // });  
   await page.addScriptTag({
     path: require.resolve(path.join(__dirname, '../lib', 'wapi.js'))
   });
