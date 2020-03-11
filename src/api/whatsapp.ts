@@ -62,7 +62,7 @@ declare module WAPI {
   const removeParticipant: (groupId: string, contactId: string) => void;
   const promoteParticipant: (groupId: string, contactId: string) => void;
   const demoteParticipant: (groupId: string, contactId: string) => void;
-  const sendImageAsSticker: (webpBase64: string, to: string) => void;
+  const sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => void;
   const createGroup: (groupName: string, contactId: string|string[]) => Promise<any>;
   const sendSeen: (to: string) => void;
   const sendImage: (
@@ -998,14 +998,15 @@ public async getStatus(contactId: string) {
     const mimeInfo = base64MimeType(b64);
     if(!mimeInfo || mimeInfo.includes("image")){
       //non matter what, convert to webp, resize + autoscale to width 512 px
-     var webpBase64 = (await sharp(buff,{ failOnError: false })
-     .webp()
-     .resize({ width: 512 })
-     .toBuffer()).toString('base64');
-    return await this.page.evaluate(
-      ({ webpBase64,to }) => WAPI.sendImageAsSticker(webpBase64,to),
-      { webpBase64,to }
-    );
+      const webp = sharp(buff,{ failOnError: false })
+      .webp()
+      .resize({ width: 512 });
+      const metadata : any= await webp.metadata();
+      const webpBase64 = (await webp.toBuffer()).toString('base64');
+      return await this.page.evaluate(
+        ({ webpBase64,to, metadata }) => WAPI.sendImageAsSticker(webpBase64,to, metadata),
+        { webpBase64,to, metadata }
+      );
     } else {
       console.log('Not an image');
       return false;

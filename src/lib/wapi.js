@@ -2220,8 +2220,9 @@ window.WAPI.demoteParticipant = function (idGroup, idParticipant, done) {
  * Send Sticker
  * @param {*} sticker 
  * @param {*} chatId '000000000000@c.us'
+ * @param metadata about the image. Based on [sharp metadata](https://sharp.pixelplumbing.com/api-input#metadata)
  */
-window.WAPI._sendSticker = async function (sticker, chatId) {
+window.WAPI._sendSticker = async function (sticker, chatId, metadata) {
     var chat = Store.Chat.get(chatId)
         let stick = new window.Store.Sticker.modelClass();
 		stick.__x_clientUrl = sticker.clientUrl;
@@ -2232,8 +2233,8 @@ window.WAPI._sendSticker = async function (sticker, chatId) {
 		stick.__x_initialized = false;
 		stick.__x_mediaData.mediaStage = 'INIT';
 		stick.mimetype = 'image/webp';
-		stick.height = 512;
-		stick.width = 512;
+		stick.height = (metadata && metadata.height) ?  metadata.height : 512;
+		stick.width = (metadata && metadata.width) ?  metadata.width : 512;
 		await stick.initialize();
 		return await stick.sendToChat(chat);
 };
@@ -2283,14 +2284,15 @@ window.WAPI.encryptAndUploadFile = async function (type, blob) {
  * Send Image As Sticker
  * @param {*} imageBase64 A valid webp image is required.
  * @param {*} chatId '000000000000@c.us'
+ * @param metadata about the image. Based on [sharp metadata](https://sharp.pixelplumbing.com/api-input#metadata)
  */
-window.WAPI.sendImageAsSticker = async function (imageBase64,chatId) {
+window.WAPI.sendImageAsSticker = async function (imageBase64,chatId, metadata) {
     let mediaBlob = await window.WAPI.base64ImageToFile(
         'data:image/webp;base64,'+imageBase64,
         'file.webp'
     );
     let encrypted = await window.WAPI.encryptAndUploadFile("sticker", mediaBlob);
-    return await window.WAPI._sendSticker(encrypted, chatId );
+    return await window.WAPI._sendSticker(encrypted, chatId, metadata);
 };
 
 /**

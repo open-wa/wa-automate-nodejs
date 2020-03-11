@@ -75,12 +75,12 @@ async function start(client: Whatsapp) {
       const filename = `${message.t}.${mime.extension(message.mimetype)}`;
       const mediaData = await decryptMedia(message, uaOverride);
       // you can send a file also with sendImage or await client.sendFile
-      await client.sendImage(
-        message.from,
-        `data:${message.mimetype};base64,${mediaData.toString('base64')}`,
-        filename,
-        `You just sent me this ${message.type}`
-      );
+      // await client.sendImage(
+      //   message.from,
+      //   `data:${message.mimetype};base64,${mediaData.toString('base64')}`,
+      //   filename,
+      //   `You just sent me this ${message.type}`
+      // );
       
       //send the whole data URI so the mimetype can be checked.
       await client.sendImageAsSticker(`data:${message.mimetype};base64,${mediaData.toString('base64')}`, message.from)
@@ -109,13 +109,13 @@ async function start(client: Whatsapp) {
       console.log("TCL: location -> message", message.lat, message.lng, message.loc)
       await client.sendLocation(message.from, `${message.lat}`, `${message.lng}`, `Youre are at ${message.loc}`)
     } else {
-      var sentMessageId = await client.sendText(message.from, message.body);
-      console.log("start -> sentMessageId", sentMessageId)
-      //send a giphy gif
-        await client.forwardMessages(message.from,message,false);
-      await client.sendGiphy(message.from,'https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif','Oh my god it works');
-      console.log("TCL: start -> message.from,message.body,message.id.toString()", message.from,message.body,message.id.toString())
-      await client.reply(message.from,message.body,message);
+      // var sentMessageId = await client.sendText(message.from, message.body);
+      // console.log("start -> sentMessageId", sentMessageId)
+      // //send a giphy gif
+      //   await client.forwardMessages(message.from,message,false);
+      // await client.sendGiphy(message.from,'https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif','Oh my god it works');
+      // console.log("TCL: start -> message.from,message.body,message.id.toString()", message.from,message.body,message.id.toString())
+      // await client.reply(message.from,message.body,message);
     }
     } catch (error) {
     console.log("TCL: start -> error", error)
