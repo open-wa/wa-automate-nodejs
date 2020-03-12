@@ -1,6 +1,6 @@
 {
   "name": "sulla-hotfix",
-  "version": "1.8.18",
+  "version": "1.8.19",
   "description": "Javascript whatsapp framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
