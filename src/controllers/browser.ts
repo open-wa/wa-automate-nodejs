@@ -75,7 +75,7 @@ async function initBrowser(sessionId?: string, puppeteerConfigOverride:any={}) {
 
   if(puppeteerConfigOverride?.useChrome) {
     puppeteerConfigOverride.executablePath = ChromeLauncher.Launcher.getInstallations()[0];
-    console.log('Found chrome', puppeteerConfigOverride.executablePath)
+    console.log('\nFound chrome', puppeteerConfigOverride.executablePath)
   }
 
   const browser = await puppeteer.launch({

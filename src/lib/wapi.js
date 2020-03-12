@@ -903,7 +903,7 @@ window.WAPI.sendMessageReturnId = async function (ch, body) {
         local: !0,
         self: "out",
         t: parseInt(new Date().getTime() / 1000),
-        to: chatId,
+        to: new Store.WidFactory.createWid(chatId),
         isNewMsg: !0,
         type: "chat",
         body,
@@ -948,10 +948,8 @@ window.WAPI.sendMessage = function (id, message, done) {
             });
             return true;
         } else {
-            return WAPI.sendMessageReturnId(chat,message).then(id=>{return id})
-            // return chat.sendMessage(message).then(_=>{
-            //     return sleep(250).then(_=>{const msg = chat.msgs.models.filter(m=>m.body==message).sort((a, b) => b.t - a.t)[0]; return msg ? msg.id._serialized : false});
-            // });
+            // return WAPI.sendMessageReturnId(chat,message).then(id=>{return id})
+            return chat.sendMessage(message).then(_=>chat.lastReceivedKey._serialized);
         }
     } else {
         if (done !== undefined) done(false);
@@ -1762,7 +1760,7 @@ window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
         local: !0,
         self: "out",
         t: parseInt(new Date().getTime() / 1000),
-        to: chatId,
+        to: new Store.WidFactory.createWid(chatId),
         isNewMsg: !0,
         type: "location",
         lat,
@@ -1783,7 +1781,7 @@ window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
         mediaData:undefined
     };
     Object.assign(tempMsg, extend);
-    await Promise.all(Store.addAndSendMsgToChat(chat, tempMsg))
+    return await Promise.all(Store.addAndSendMsgToChat(chat, tempMsg))
 };
 
 window.WAPI.sendButtons = async function(chatId){
