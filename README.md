@@ -1,5 +1,7 @@
 [![npm version](https://img.shields.io/npm/v/sulla-hotfix.svg?color=green)](https://www.npmjs.com/package/sulla-hotfix)
+![node](https://img.shields.io/node/v/sulla-hotfix)
 [![Buy me a coffee][buymeacoffee-shield]][buymeacoffee]
+[![Consulting Request][consult-shield]][consult]
 <a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 0.4.1296](https://img.shields.io/badge/WhatsApp_Web-0.4.1296-brightgreen.svg)
 
 # sulla-hotfix
@@ -12,6 +14,19 @@
 
 ```bash
 > npm i --save sulla-hotfix
+```
+
+## Running the demo
+
+You can clone this repo and run the demo, but you will need to use typescript/ts-node:
+
+```bash
+> git clone https://github.com/smashah/sulla.git
+> cd sulla
+> npm i
+> npm i -g ts-node typescript
+> cd demo
+> ts-node index.ts
 ```
 
 ## Usage
@@ -51,7 +66,7 @@ function start(client) {
 | [Send Images (image)](#sending-mediafiles)               |             | ✅          |
 | [Send media (audio, doc)](#sending-mediafiles)  |             | ✅          |
 | [Send media (video)](#sending-video)  |             | ✅          |
-| Send stickers                     |             |             |
+| Send stickers                     |             |✅           |
 | [Decrypt media (image, audio, doc)](#decrypting-media) |             | ✅          |
 | [Capturing QR Code](#capturing-qr-code)                 |             | ✅          |
 | [Multiple Sessions](#managing-multiple-sessions-at-once)                 |             | ✅          |
@@ -616,3 +631,5 @@ The U.S. Government Department of Commerce, Bureau of Industry and Security (BIS
 
 [buymeacoffee-shield]: https://www.buymeacoffee.com/assets/img/guidelines/download-assets-sm-2.svg
 [buymeacoffee]: https://www.buymeacoffee.com/smashah
+[consult-shield]: https://img.shields.io/badge/Require%20Paid%20Support%20or%20Consulting%3F-Click%20Here-blue?style=for-the-badge&logo=paypal
+[consult]: mailto:shah@idk.uno?subject=WhatsApp%20Consulting

@@ -1,6 +1,6 @@
 {
   "name": "sulla-hotfix",
-  "version": "1.8.10",
+  "version": "1.8.19",
   "description": "Javascript whatsapp framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -15,6 +15,7 @@
     "precise-commits": "precise-commits",
     "test": "echo \"No tests yet\"",
     "release": "release-it",
+    "release-ci": "release-it --ci",
     "release-image": "node release-image.js"
   },
   "husky": {
@@ -40,31 +41,36 @@
     "url": "https://github.com/smashah/sulla/issues"
   },
   "homepage": "https://github.com/smashah/sulla#readme",
+  "engines": {
+    "node": ">=10.0.0"
+  },
   "devDependencies": {
     "@types/changelog-parser": "^2.7.1",
     "@types/command-line-args": "^5.0.0",
     "@types/line-reader": "0.0.28",
     "@types/marked": "^0.7.2",
     "@types/node": "^13.7.7",
-    "@types/puppeteer": "^1.20.2",
+    "@types/puppeteer": "^2.0.1",
     "@types/shelljs": "^0.8.5",
     "auto-changelog": "^1.16.2",
     "changelog-parser": "^2.8.0",
     "command-line-args": "^5.1.1",
-    "husky": "^3.0.8",
+    "husky": "^4.2.3",
     "line-reader": "^0.4.0",
     "marked": "^0.8.0",
     "precise-commits": "^1.0.2",
     "prettier": "^1.18.2",
-    "release-it": "^12.4.3",
+    "release-it": "^13.0.1",
     "ts-node": "^8.4.1",
     "tsc-watch": "^4.0.0",
     "typedoc": "^0.16.10",
     "typescript": "^3.6.4"
   },
   "dependencies": {
+    "@types/sharp": "^0.24.0",
     "atob": "^2.1.2",
     "axios": "^0.19.1",
+    "chrome-launcher": "^0.13.0",
     "death": "^1.1.0",
     "eventemitter2": "^6.0.0",
     "futoin-hkdf": "^1.2.1",
@@ -72,13 +78,14 @@
     "lodash.uniq": "^4.5.0",
     "ora": "^4.0.2",
     "puppeteer": "^2.1.1",
-    "puppeteer-extra": "^2.1.3",
+    "puppeteer-extra": "^3.1.9",
     "puppeteer-extra-plugin-devtools": "^2.2.8",
     "puppeteer-extra-plugin-stealth": "^2.4.9",
     "qrcode-terminal": "^0.12.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "rxjs": "^6.5.3",
+    "sharp": "^0.25.1",
     "shelljs": "^0.8.3"
   }
 }

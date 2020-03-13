@@ -1,6 +1,7 @@
 import * as path from 'path';
 const fs = require('fs');
 const {installMouseHelper} = require('./mouse-helper');
+const ChromeLauncher = require('chrome-launcher');
 // import opuppeteer from 'puppeteer';
 // puppeteer-extra is a drop-in replacement for puppeteer,
 // it augments the installed puppeteer with plugin functionality
@@ -43,7 +44,7 @@ export async function initWhatsapp(sessionId?: string, puppeteerConfigOverride?:
   );
   //check if [session].json exists in __dirname
   const sessionjsonpath = path.join(process.cwd(), `${sessionId || 'session'}.data.json`);
-  let sessionjson = puppeteerConfigOverride.sessionData;
+  let sessionjson = puppeteerConfigOverride?.sessionData;
   if (fs.existsSync(sessionjsonpath)) sessionjson = JSON.parse(fs.readFileSync(sessionjsonpath));
   if(sessionjson) await waPage.evaluateOnNewDocument(
     session => {
@@ -60,8 +61,6 @@ export async function initWhatsapp(sessionId?: string, puppeteerConfigOverride?:
 }
 
 export async function injectApi(page: Page) {
-  // const preloadFile = fs.readFileSync('./preload', 'utf8');
-  // await page.evaluateOnNewDocument(preloadFile);
   await page.addScriptTag({
     path: require.resolve(path.join(__dirname, '../lib', 'wapi.js'))
   });
@@ -73,6 +72,12 @@ export async function injectApi(page: Page) {
 }
 
 async function initBrowser(sessionId?: string, puppeteerConfigOverride:any={}) {
+
+  if(puppeteerConfigOverride?.useChrome) {
+    puppeteerConfigOverride.executablePath = ChromeLauncher.Launcher.getInstallations()[0];
+    console.log('\nFound chrome', puppeteerConfigOverride.executablePath)
+  }
+
   const browser = await puppeteer.launch({
     headless: true,
     devtools: false,

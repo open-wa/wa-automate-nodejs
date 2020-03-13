@@ -10,6 +10,7 @@ import { Id } from './model/id';
 import axios from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent } from '../config/puppeteer.config'
+import sharp from 'sharp';
 
 export const getBase64 = async (url: string) => {
   try {
@@ -22,6 +23,22 @@ export const getBase64 = async (url: string) => {
   } catch (error) {
     console.log("TCL: getBase64 -> error", error)
   }
+}
+
+function base64MimeType(encoded) {
+  var result = null;
+
+  if (typeof encoded !== 'string') {
+    return result;
+  }
+
+  var mime = encoded.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
+
+  if (mime && mime.length) {
+    result = mime[1];
+  }
+
+  return result;
 }
 
 declare module WAPI {
@@ -45,7 +62,8 @@ declare module WAPI {
   const removeParticipant: (groupId: string, contactId: string) => void;
   const promoteParticipant: (groupId: string, contactId: string) => void;
   const demoteParticipant: (groupId: string, contactId: string) => void;
-  const createGroup: (groupName: string, contactId: string|string[]) => void;
+  const sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => void;
+  const createGroup: (groupName: string, contactId: string|string[]) => Promise<any>;
   const sendSeen: (to: string) => void;
   const sendImage: (
     base64: string,
@@ -880,12 +898,25 @@ public async getStatus(contactId: string) {
    * Sends a text message to given chat
    * @param to group name: 'New group'
    * @param contacts: A single contact id or an array of contact ids.
+   * @returns Promise<GroupCreationResponse> :
+   * ```javascript
+   * {
+   *   status: 200,
+   *   gid: {
+   *     server: 'g.us',
+   *     user: '447777777777-1583678870',
+   *     _serialized: '447777777777-1583678870@g.us'
+   *   },
+   *   participants: [
+   *     { '447777777777@c.us': [Object] },
+   *     { '447444444444@c.us': [Object] }
+   *   ]
+   * }
+   * ```
    */
   public async createGroup(groupName:string,contacts:string|string[]){
     return await this.page.evaluate(
-      ({ groupName, contacts }) => {
-        WAPI.createGroup(groupName, contacts);
-      },
+      ({ groupName, contacts }) => WAPI.createGroup(groupName, contacts),
       { groupName, contacts }
     );
   }
@@ -954,6 +985,33 @@ public async getStatus(contactId: string) {
       (idGroup) => WAPI.getGroupAdmins(idGroup),
       idGroup
     );
+  }
+
+  /**
+   * This function takes an image and sends it as a sticker to the recipient. This is helpful for sending semi-ephemeral things like QR codes. 
+   * The advantage is that it will not show up in the recipients gallery. This function automatiicaly converts images to the required webp format.
+   * @param b64: This is the base64 string formatted with data URI. You can also send a plain base64 string but it may result in an error as the function will not be able to determine the filetype before sending.
+   * @param to: The recipient id.
+   */
+  public async sendImageAsSticker(b64: string,to: string){
+    const buff = Buffer.from(b64.replace(/^data:image\/(png|gif|jpeg);base64,/,''), 'base64');
+    const mimeInfo = base64MimeType(b64);
+    if(!mimeInfo || mimeInfo.includes("image")){
+      //non matter what, convert to webp, resize + autoscale to width 512 px
+      const scaledImageBuffer = await sharp(buff,{ failOnError: false })
+      .resize({ width: 512, height: 512 })
+      .toBuffer();
+      const webp = sharp(scaledImageBuffer,{ failOnError: false }).webp();
+      const metadata : any= await webp.metadata();
+      const webpBase64 = (await webp.toBuffer()).toString('base64');
+      return await this.page.evaluate(
+        ({ webpBase64,to, metadata }) => WAPI.sendImageAsSticker(webpBase64,to, metadata),
+        { webpBase64,to, metadata }
+      );
+    } else {
+      console.log('Not an image');
+      return false;
+    }
   }
 }
 

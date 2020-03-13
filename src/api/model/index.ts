@@ -127,9 +127,13 @@ export interface ConfigObject {
      */
     killTimer ?: number,
     /**
-     * Some features, like video upload, do not work without a chrome instance. Puppeteer only provides a chromium instance out of the box. Set this to the path of your chrome instance.
+     * Some features, like video upload, do not work without a chrome instance. Puppeteer only provides a chromium instance out of the box. Set this to the path of your chrome instance or you can use `useChrome:true` to automatically detect a chrome instance for you.
      */
     executablePath ?: string,
+    /**
+     * If true, the program will automatically try to detect the instance of chorme on the machine. Please note this overrides executablePath.
+     */
+    useChrome ?: boolean,
     // @private
     [x: string]: any 
 }
