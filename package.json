@@ -63,7 +63,7 @@
     "release-it": "^13.0.1",
     "ts-node": "^8.4.1",
     "tsc-watch": "^4.0.0",
-    "typedoc": "^0.16.10",
+    "typedoc": "^0.17.0",
     "typescript": "^3.6.4"
   },
   "dependencies": {
