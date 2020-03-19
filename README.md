@@ -2,7 +2,7 @@
 ![node](https://img.shields.io/node/v/sulla-hotfix)
 [![Buy me a coffee][buymeacoffee-shield]][buymeacoffee]
 [![Consulting Request][consult-shield]][consult]
-<a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 0.4.1296](https://img.shields.io/badge/WhatsApp_Web-0.4.1296-brightgreen.svg)
+<a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 0.4.1302](https://img.shields.io/badge/WhatsApp_Web-0.4.1302-brightgreen.svg)
 
 # sulla-hotfix
 
