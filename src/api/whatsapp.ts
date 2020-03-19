@@ -303,17 +303,16 @@ export class Whatsapp {
    * @param to callback
    * @returns Observable stream of Chats
    */
-  public onAddedToGroup(fn: (chat: Chat) => void) {
+  public onAddedToGroup(fn: (chat: Chat) => any) {
     const funcName = "onAddedToGroup";
-    return this.page.exposeFunction(funcName, (chat: Chat) =>
+    return this.page.exposeFunction(funcName, (chat: any) =>
       fn(chat)
     )
       .then(_ => this.page.evaluate(
-        (funcName ) => {
+        () => {
         //@ts-ignore
-          WAPI.onAddedToGroup(window[funcName]);
-        },
-        {funcName}
+          WAPI.onAddedToGroup(window.onAddedToGroup);
+        }
       ));
   }
   

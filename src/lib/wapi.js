@@ -1760,7 +1760,7 @@ window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
         local: !0,
         self: "out",
         t: parseInt(new Date().getTime() / 1000),
-        to: new Store.WidFactory.createWid(chatId),
+        to: chatId,
         isNewMsg: !0,
         type: "location",
         lat,
@@ -1778,7 +1778,9 @@ window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
         height:undefined,
         width:undefined,
         ephemeralStartTimestamp:undefined,
-        mediaData:undefined
+        body:undefined,
+        mediaData:undefined,
+        isQuotedMsgAvailable: false
     };
     Object.assign(tempMsg, extend);
     return await Promise.all(Store.addAndSendMsgToChat(chat, tempMsg))

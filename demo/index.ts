@@ -51,6 +51,8 @@ async function start(client: Whatsapp) {
 
   // client.onAck((c:any) => console.log(c.id._serialized,c.body,c.ack));
 
+    client.onAddedToGroup(newGroup => console.log('Added to new Group', newGroup.id));
+
   // client.onParticipantsChanged("XXXXXXXX-YYYYYYYY@g.us", (participantChangedEvent:any) => console.log("participant changed for group", participantChangedEvent));
   
   //Returns 'CONNECTED' or 'TIMEOUT' or 'CONFLICT' (if user opens whatsapp web somewhere else)
