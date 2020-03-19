@@ -141,6 +141,7 @@ const BROKEN_METHODS = await waPage.evaluate((checkList)=>{
     return eval(check)?false:true;
   })
 },uniq(fs.readFileSync(path.join(__dirname, '../lib', 'wapi.js'), 'utf8').match(/(Store[.\w]*)\(/g).map((x:string)=>x.replace("(",""))));
+//@ts-ignore
 const LANG_CHECK = await waPage.evaluate(()=>{if(window.l10n.localeStrings['en'])return window.l10n.localeStrings['en'][0].findIndex((x)=>x.toLowerCase()=='use here')==257;else return false;})
 if(BROKEN_METHODS.length>0) console.log("!!!!!BROKEN METHODS DETECTED!!!!\n\n\nPlease make a new issue in:\n\n https://github.com/smashah/sulla/issues \n\nwith the following title:\n\nBROKEN METHODS: ",WA_VERSION,"\n\nAdd this to the body of the issue:\n\n",BROKEN_METHODS,"\n\n\n!!!!!BROKEN METHODS DETECTED!!!!")
 if(!LANG_CHECK) console.log('Some language based features (e.g forceRefocus) are broken. Please report this in Github.')
