@@ -49,6 +49,7 @@ declare module WAPI {
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const onLiveLocation: (chatId: string, callback: Function) => any;
   const sendMessage: (to: string, content: string) => string;
+  const sendMessageWithMentions: (to: string, content: string) => string;
   const setChatState: (chatState: ChatState, chatId: string) => void;
   const reply: (to: string, content: string, quotedMsg: string | Message) => void;
   const getGeneratedUserAgent: (userAgent?: string) => string;
@@ -327,6 +328,22 @@ export class Whatsapp {
       ({ to, content }) => {
         WAPI.sendSeen(to);
         return WAPI.sendMessage(to, content);
+      },
+      { to, content }
+    );
+  }
+  
+
+  /**
+   * Sends a text message to given chat that includes mentions.
+   * @param to chat id: xxxxx@us.c
+   * @param content text message
+   */
+  public async sendTextWithMentions(to: string, content: string) {
+    return await this.page.evaluate(
+      ({ to, content }) => {
+        WAPI.sendSeen(to);
+        return WAPI.sendMessageWithMentions(to, content);
       },
       { to, content }
     );
