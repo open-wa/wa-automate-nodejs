@@ -405,7 +405,6 @@ export class Whatsapp {
    */
   public async getGeneratedUserAgent(userA?: string) {
     let ua = userA || useragent;
-    console.log("getGeneratedUserAgent -> ua", ua)
     return await this.page.evaluate(
       ({ua}) => WAPI.getGeneratedUserAgent(ua),
       { ua }
