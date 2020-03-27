@@ -336,6 +336,9 @@ export class Whatsapp {
 
   /**
    * Sends a text message to given chat that includes mentions.
+   * In order to use this method correctly you will need to send the text like this:
+   * "@4474747474747 how are you?"
+   * Basically, add a @ symbol before the number of the contact you want to mention.
    * @param to chat id: xxxxx@us.c
    * @param content text message
    */
