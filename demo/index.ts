@@ -143,7 +143,7 @@ create({
   sessionId:'session',
   // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   useChrome: true,
-  headless:true,
+  headless:false,
   throwErrorOnTosBlock:true,
   killTimer:40,
   autoRefresh:true, //default to true
@@ -165,7 +165,7 @@ create({
   //   '--disk-cache-size=0'
   // ]
 })
-create()
+// create()
 .then(async client => await start(client))
 .catch(e=>{
   console.log('Error',e.message);
