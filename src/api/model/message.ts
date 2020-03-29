@@ -101,6 +101,7 @@ export interface Message {
   };
   chatId: string;
   quotedMsg: any;
+  quotedMsgObj: any;
   mediaData: {};
 }
 

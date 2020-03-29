@@ -72,7 +72,7 @@ async function start(client: Whatsapp) {
     try {
     const isConnected = await client.isConnected();
     console.log("TCL: start -> isConnected", isConnected)
-
+    console.log(message.body, message.id, message?.quotedMsgObj?.id);
     if (message.mimetype) {
       const filename = `${message.t}.${mime.extension(message.mimetype)}`;
       const mediaData = await decryptMedia(message, uaOverride);

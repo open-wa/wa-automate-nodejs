@@ -159,6 +159,7 @@ window.WAPI._serializeMessageObj = (obj) => {
         return null;
     }
     const _chat = WAPI._serializeChatObj(obj['chat']);
+    if(obj.quotedMsg) obj.quotedMsgObj();
     return Object.assign(window.WAPI._serializeRawObj(obj), {
         id: obj.id._serialized,
         sender: obj["senderObj"] ? WAPI._serializeContactObj(obj["senderObj"]) : null,
