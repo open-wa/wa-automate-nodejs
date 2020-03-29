@@ -94,6 +94,14 @@ export interface ConfigObject {
      */
     chromiumArgs ?: string[],
     /**
+     * This is the name of the session. You have to make sure that this is unique for every session.
+     */
+    sessionId ?: string,
+    /**
+     * You may set a custom user agent to prevent detection by WhatsApp. However, due to recent developments, this is not really neccessary any more.
+     */
+    customUserAgent ?: string,
+    /**
      * You can enable remote devtools by setting this to trye. If you set this to true there will be security on the devtools url.
      * If you want, you can also pass a username & password.
      */

@@ -139,8 +139,8 @@ async function start(client: Whatsapp) {
  * You can also override some puppeteer configs, set an executable path for your instance of chrome for ffmpeg (video+GIF) support
  * and you can AND SHOULD override the user agent.
  */
-create('session',
-{
+create({
+  sessionId:'session',
   // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   useChrome: true,
   headless:true,
@@ -164,9 +164,8 @@ create('session',
   //   '--disable-offline-load-stale-cache',
   //   '--disk-cache-size=0'
   // ]
-}
-)
-// create()
+})
+create()
 .then(async client => await start(client))
 .catch(e=>{
   console.log('Error',e.message);

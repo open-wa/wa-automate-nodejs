@@ -16,19 +16,38 @@ let waPage;
 let qrTimeout;
 
 /**
- * Should be called to initialize whatsapp client
- * @param sessionId Custom id for the session, every phone should have it's own sessionId.
+ * Should be called to initialize whatsapp client.
+ * *Note* You can send all params as a single object with the new [ConfigObject](https://smashah.github.io/sulla/interfaces/configobject.html) that includes both [sessionId](https://smashah.github.io/sulla/interfaces/configobject.html#sessionId) and [customUseragent](ttps://smashah.github.io/sulla/interfaces/configobject.html#customUseragent).
+ * 
+ * e.g
+ * 
+ * ```javascript
+ * create({
+ * sessionId: 'main',
+ * customUserAgent: ' 'WhatsApp/2.16.352 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Safari/605.1.15',
+ * blockCrashLogs true,
+ * ...
+ * })....
+ * ```
+ * @param sessionId [string | ConfigObject ]Custom id for the session, every phone should have it's own sessionId. THIS CAN BE THE CONFIG OBJECT INSTEAD
  * @param config The extended custom configuration
  * @param customUserAgent A custom user agent to set on the browser page.
  */
-export async function create(sessionId?: string, config?:ConfigObject, customUserAgent?:string) {
+//export async function create(sessionId?: string, config?:ConfigObject, customUserAgent?:string) {
+  //@ts-ignore
+  export async function create(sessionId?: any | ConfigObject, config?:ConfigObject, customUserAgent?:string) : Promise<Whatsapp> {
+    
+    if(typeof sessionId === 'object' && (sessionId as ConfigObject)) {
+    config = sessionId;
+    sessionId = config.sessionId;
+    customUserAgent = config.customUserAgent;
+    }
+    if (!sessionId) sessionId = 'session';
   const spinner = new Spin(sessionId,'STARTUP');
   try{
-
-  waPage = undefined;
-  qrTimeout = undefined;
-  shouldLoop = true;
-  if (!sessionId) sessionId = 'session';
+    waPage = undefined;
+    qrTimeout = undefined;
+    shouldLoop = true;
   spinner.start('Initializing whatsapp');
   waPage = await initWhatsapp(sessionId, config, customUserAgent);
   spinner.succeed();
