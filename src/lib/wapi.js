@@ -626,17 +626,9 @@ window.WAPI.getAllGroupMetadata = function (done) {
  * @returns {T|*} Group metadata object
  */
 window.WAPI.getGroupMetadata = async function (id, done) {
-    let output = window.Store.GroupMetadata.get(id);
-
-    if (output !== undefined) {
-        if (output.stale) {
-            await output.update();
-        }
-    }
-
+    let output = window.Store.GroupMetadata.find(id);
     if (done !== undefined) done(output);
     return output;
-
 };
 
 
