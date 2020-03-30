@@ -66,6 +66,7 @@ declare module WAPI {
   const sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => void;
   const createGroup: (groupName: string, contactId: string|string[]) => Promise<any>;
   const sendSeen: (to: string) => void;
+  const deleteConversation: (chatId: string) => boolean;
   const sendImage: (
     base64: string,
     to: string,
@@ -821,6 +822,18 @@ public async getStatus(contactId: string) {
     return await this.page.evaluate(
       contactId => WAPI.loadAllEarlierMessages(contactId),
       contactId
+    );
+  }
+
+  /**
+    * Delete the conversation from your whatsapp
+   * @param chatId
+   * @returns boolean
+   */
+  public async deleteChat(chatId: string) {
+    return await this.page.evaluate(
+      chatId => WAPI.deleteConversation(chatId),
+      chatId
     );
   }
 
