@@ -15,6 +15,7 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "Store", conditions: (module) => (module.Chat && module.Msg) ? module : null },
                 { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && (module.default.prototype.processFiles !== undefined||module.default.prototype.processAttachments !== undefined)) ? module.default : null },
                 { id: "MediaProcess", conditions: (module) => (module.BLOB) ? module : null },
+                { id: "ChatUtil", conditions: (module) => (module.sendClear) ? module : null },
                 { id: "Wap", conditions: (module) => (module.createGroup) ? module : null },
                 { id: "ServiceWorker", conditions: (module) => (module.default && module.default.killServiceWorker) ? module : null },
                 { id: "State", conditions: (module) => (module.STATE && module.STREAM) ? module : null },
@@ -1305,6 +1306,9 @@ window.WAPI.deleteMessage = function (chatId, messageArray, revoke = false, done
     return true;
 };
 
+window.WAPI.clearChat = async function (id) {
+    return await Store.ChatUtil.sendClear(Store.Chat.get(id),true);
+}
 
 window.WAPI.checkNumberStatus = async function (id, done) {
     try {

@@ -67,6 +67,7 @@ declare module WAPI {
   const createGroup: (groupName: string, contactId: string|string[]) => Promise<any>;
   const sendSeen: (to: string) => void;
   const deleteConversation: (chatId: string) => boolean;
+  const clearChat: (chatId: string) => void;
   const sendImage: (
     base64: string,
     to: string,
@@ -833,6 +834,18 @@ public async getStatus(contactId: string) {
   public async deleteChat(chatId: string) {
     return await this.page.evaluate(
       chatId => WAPI.deleteConversation(chatId),
+      chatId
+    );
+  }
+
+  /**
+    * Ddelete all messages from the chat.
+   * @param chatId
+   * @returns boolean
+   */
+  public async clearChat(chatId: string) {
+    return await this.page.evaluate(
+      chatId => WAPI.clearChat(chatId),
       chatId
     );
   }
