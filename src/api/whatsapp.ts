@@ -68,6 +68,7 @@ declare module WAPI {
   const sendSeen: (to: string) => void;
   const deleteConversation: (chatId: string) => boolean;
   const clearChat: (chatId: string) => void;
+  const getGroupInviteLink: (chatId: string) => Promise<string> | boolean;
   const sendImage: (
     base64: string,
     to: string,
@@ -839,13 +840,25 @@ public async getStatus(contactId: string) {
   }
 
   /**
-    * Ddelete all messages from the chat.
+    * Delete all messages from the chat.
    * @param chatId
    * @returns boolean
    */
   public async clearChat(chatId: string) {
     return await this.page.evaluate(
       chatId => WAPI.clearChat(chatId),
+      chatId
+    );
+  }
+
+  /**
+    * Retreives an invite link for a group chat. returns false if chat is not a group.
+   * @param chatId
+   * @returns Promise<string>
+   */
+  public async getGroupInviteLink(chatId: string) {
+    return await this.page.evaluate(
+      chatId => WAPI.getGroupInviteLink(chatId),
       chatId
     );
   }

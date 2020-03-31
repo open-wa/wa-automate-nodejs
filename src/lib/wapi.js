@@ -16,6 +16,7 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && (module.default.prototype.processFiles !== undefined||module.default.prototype.processAttachments !== undefined)) ? module.default : null },
                 { id: "MediaProcess", conditions: (module) => (module.BLOB) ? module : null },
                 { id: "ChatUtil", conditions: (module) => (module.sendClear) ? module : null },
+                { id: "GroupInvite", conditions: (module) => (module.queryGroupInviteCode) ? module : null },
                 { id: "Wap", conditions: (module) => (module.createGroup) ? module : null },
                 { id: "ServiceWorker", conditions: (module) => (module.default && module.default.killServiceWorker) ? module : null },
                 { id: "State", conditions: (module) => (module.STATE && module.STREAM) ? module : null },
@@ -59,7 +60,7 @@ if (!window.Store||!window.Store.Msg) {
                     if ((typeof first === "object") && (first.exports)) {
                         for (let idx2 in modules[idx]) {
                             let module = modules(idx2);
-                            //console.log("TCL: getStore -> module", module ? Object.getOwnPropertyNames(module.default || module).filter(item => typeof (module.default || module)[item] === 'function').length ? module.default || module : "":'')
+                            // console.log("TCL: getStore -> module", module ? Object.getOwnPropertyNames(module.default || module).filter(item => typeof (module.default || module)[item] === 'function').length ? module.default || module : "":'')
                             if (!module) {
                                 continue;
                             }
@@ -443,6 +444,14 @@ window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, cha
     if (done !== undefined) done(true);
     return true;
 };
+
+
+window.WAPI.getGroupInviteLink = async function (chatId) {
+    var chat = Store.Chat.get(chatId);
+    if(!chat.isGroup) return false;
+    await Store.GroupInvite.queryGroupInviteCode(chat);
+    return `https://chat.whatsapp.com/${chat.inviteCode}`
+}
 
 window.WAPI.getNewId = function () {
     var text = "";
