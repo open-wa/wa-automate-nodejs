@@ -37,6 +37,7 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "Parser", conditions: (module) => (module.convertToTextWithoutSpecialEmojis) ? module.default : null },
                 { id: "Builders", conditions: (module) => (module.TemplateMessage && module.HydratedFourRowTemplate) ? module : null },
                 { id: "Me", conditions: (module) => (module.PLATFORMS && module.Conn) ? module.default : null },
+                { id: "CallUtils", conditions: (module) => (module.sendCallEnd && module.parseCall) ? module : null },
                 { id: "Identity", conditions: (module) => (module.queryIdentity && module.updateIdentity) ? module : null },
                 { id: "MyStatus", conditions: (module) => (module.getStatus && module.setMyStatus) ? module : null },
                 { id: "ChatStates", conditions: (module) => (module.sendChatStatePaused && module.sendChatStateRecording && module.sendChatStateComposing) ? module : null },
@@ -445,6 +446,12 @@ window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, cha
     return true;
 };
 
+window.WAPI.revokeGroupInviteLink = async function (chatId) {
+    var chat = Store.Chat.get(chatId);
+    if(!chat.isGroup) return false;
+    await Store.GroupInvite.revokeGroupInvite(chat);
+    return true;
+}
 
 window.WAPI.getGroupInviteLink = async function (chatId) {
     var chat = Store.Chat.get(chatId);

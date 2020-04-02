@@ -68,7 +68,8 @@ declare module WAPI {
   const sendSeen: (to: string) => void;
   const deleteConversation: (chatId: string) => boolean;
   const clearChat: (chatId: string) => void;
-  const getGroupInviteLink: (chatId: string) => Promise<string> | boolean;
+  const revokeGroupInviteLink: (chatId: string) => Promise<string> | boolean;
+  const getGroupInviteLink: (chatId: string) => boolean;
   const sendImage: (
     base64: string,
     to: string,
@@ -859,6 +860,18 @@ public async getStatus(contactId: string) {
   public async getGroupInviteLink(chatId: string) {
     return await this.page.evaluate(
       chatId => WAPI.getGroupInviteLink(chatId),
+      chatId
+    );
+  }
+
+  /**
+    * Revokes the current invite link for a group chat. Any previous links will stop working
+   * @param chatId
+   * @returns Promise<boolean>
+   */
+  public async revokeGroupInviteLink(chatId: string) {
+    return await this.page.evaluate(
+      chatId => WAPI.revokeGroupInviteLink(chatId),
       chatId
     );
   }
