@@ -2,13 +2,13 @@
 ![node](https://img.shields.io/node/v/sulla-hotfix)
 [![Buy me a coffee][buymeacoffee-shield]][buymeacoffee]
 [![Consulting Request][consult-shield]][consult]
-<a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 0.4.2080](https://img.shields.io/badge/WhatsApp_Web-0.4.1302-brightgreen.svg)
+<a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 0.4.2081](https://img.shields.io/badge/WhatsApp_Web-0.4.2081-brightgreen.svg)
 
 # sulla-hotfix
 
-> Sulla is a javascript library which provides a high-level API control to Whatsapp so it can be configured to automatize resposes or any data that goes trough Whatsapp effortlessly.
+> Sulla-hotfix is an advanced NodeJS library which provides a high-level API control to Whatsapp.
 >
-> It is built using [puppeteer](https://github.com/GoogleChrome/puppeteer) and based on [this python wrapper](https://github.com/mukulhase/WebWhatsapp-Wrapper)
+> It is built using [puppeteer](https://github.com/GoogleChrome/puppeteer), based on [this python wrapper](https://github.com/mukulhase/WebWhatsapp-Wrapper) and is an extension of the work done in [this base project](https://github.com/danielcardeenas/sulla)
 
 ## Installation
 
