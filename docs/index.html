@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>sulla-hotfix - v1.8.31</title>
+	<title>sulla-hotfix - v1.8.32</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">sulla-hotfix - v1.8.31</a>
+					<a href="index.html" class="title">sulla-hotfix - v1.8.32</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -56,7 +56,7 @@
 					<a href="globals.html">Globals</a>
 				</li>
 			</ul>
-			<h1>sulla-hotfix - v1.8.31</h1>
+			<h1>sulla-hotfix - v1.8.32</h1>
 		</div>
 	</div>
 </header>
@@ -64,32 +64,24 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<p><a href="https://www.npmjs.com/package/sulla-hotfix"><img src="https://img.shields.io/npm/v/sulla-hotfix.svg?color=green" alt="npm version"></a>
-					<img src="https://img.shields.io/node/v/sulla-hotfix" alt="node">
-					<a href="https://www.buymeacoffee.com/smashah"><img src="https://www.buymeacoffee.com/assets/img/guidelines/download-assets-sm-2.svg" alt="Buy me a coffee"></a>
-					<a href="mailto:shah@idk.uno?subject=WhatsApp%20Consulting"><img src="https://img.shields.io/badge/Require%20Paid%20Support%20or%20Consulting%3F-Click%20Here-blue?style=for-the-badge&logo=paypal" alt="Consulting Request"></a>
-				<a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> <img src="https://img.shields.io/badge/WhatsApp_Web-0.4.2081-brightgreen.svg" alt="WhatsApp_Web 0.4.2081"></p>
-				<a href="#sulla-hotfix" id="sulla-hotfix" style="color: inherit; text-decoration: none;">
-					<h1>sulla-hotfix</h1>
-				</a>
-				<blockquote>
-					<p>Sulla-hotfix is an advanced NodeJS library which provides a high-level API control to Whatsapp.</p>
-					<p>It is built using <a href="https://github.com/GoogleChrome/puppeteer">puppeteer</a>, based on <a href="https://github.com/mukulhase/WebWhatsapp-Wrapper">this python wrapper</a> and is an extension of the work done in <a href="https://github.com/danielcardeenas/sulla">this base project</a></p>
-				</blockquote>
+				<div align="center">
+					<a href="#sulla-hotfix" id="sulla-hotfix" style="color: inherit; text-decoration: none;">
+						<h1>sulla-hotfix</h1>
+					</a>
+					<blockquote>
+						<p>Sulla-hotfix is the most advanced NodeJS library which provides a high-level API control to Whatsapp.</p>
+						<p>It is built using <a href="https://github.com/GoogleChrome/puppeteer">puppeteer</a>, based on <a href="https://github.com/mukulhase/WebWhatsapp-Wrapper">this python wrapper</a> and is an extension of the work done in <a href="https://github.com/danielcardeenas/sulla">this base project</a></p>
+					</blockquote>
+					<p><a href="https://www.npmjs.com/package/sulla-hotfix"><img src="https://img.shields.io/npm/v/sulla-hotfix.svg?color=green" alt="npm version"></a>
+						<img src="https://img.shields.io/node/v/sulla-hotfix" alt="node">
+					<a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> <img src="https://img.shields.io/badge/WhatsApp_Web-0.4.2088-brightgreen.svg" alt="WhatsApp_Web 0.4.2088"></p>
+					<p><a href="https://www.buymeacoffee.com/smashah"><img src="https://www.buymeacoffee.com/assets/img/guidelines/download-assets-sm-2.svg" alt="Buy me a coffee"></a>
+					<a href="mailto:shah@idk.uno?subject=WhatsApp%20Consulting"><img src="https://img.shields.io/badge/Require%20Paid%20Support%20or%20Consulting%3F-Click%20Here-blue?style=for-the-badge&logo=paypal" alt="Consulting Request"></a></p>
+				</div>
 				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
 					<h2>Installation</h2>
 				</a>
 				<pre><code class="language-bash">&gt; npm i --save sulla-hotfix</code></pre>
-				<a href="#running-the-demo" id="running-the-demo" style="color: inherit; text-decoration: none;">
-					<h2>Running the demo</h2>
-				</a>
-				<p>You can clone this repo and run the demo, but you will need to use typescript/ts-node:</p>
-				<pre><code class="language-bash">&gt; git <span class="hljs-built_in">clone</span> https://github.com/smashah/sulla.git
-&gt; <span class="hljs-built_in">cd</span> sulla
-&gt; npm i
-&gt; npm i -g ts-node typescript
-&gt; <span class="hljs-built_in">cd</span> demo
-&gt; ts-node index.ts</code></pre>
 				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
 					<h2>Usage</h2>
 				</a>
@@ -101,7 +93,7 @@ sulla.create().then(<span class="hljs-function"><span class="hljs-params">client
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client</span>) </span>{
   client.onMessage(<span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> {
     <span class="hljs-keyword">if</span> (message.body === <span class="hljs-string">'Hi'</span>) {
-      client.sendText(message.from, <span class="hljs-string">'👋 Hello from sulla!'</span>);
+      client.sendText(message.from, <span class="hljs-string">'👋 Hello!'</span>);
     }
   });
 }</code></pre>
@@ -258,6 +250,60 @@ sulla.create().then(<span class="hljs-function"><span class="hljs-params">client
 					<h2>Starting a conversation</h2>
 				</a>
 				<p>As a matter of principle, this library will not develop any functionality to start new chats. If you want to start a conversation with a recipient I suggest using <a href="https://faq.whatsapp.com/en/26000030/">whatsapp links</a> or add <a href="https://www.producthunt.com/posts/whatsapp-button-2">whatsapp-button</a> to your website (<a href="https://github.com/smashah/whatsapp-button?ref=producthunt">github link</a>).</p>
+				<p>There are 3 ways to start a chat with a new number:</p>
+				<ol>
+					<li><p><a href="https://faq.whatsapp.com/en/26000030/">WhatsApp Links</a> </p>
+						<p>   You can send a special link to the person you want to start a chat with. This will open a conversation with your number on their phone. This way you can insure that they have explicitly started a conversation with you.</p>
+					</li>
+					<li><p><a href="https://github.com/smashah/whatsapp-button?ref=producthunt">WhatsApp Buttons</a></p>
+						<p>   You can add this button to your website which, when clicked, will open a chat with you in the same way as above.</p>
+					</li>
+					<li><p>With a License Key</p>
+						<p>  In order to unlock the functionality to send texts to unknown numbers through sulla-hotfix itself, you will need an License key.</p>
+						<p>  One License Key is valid for one number. Each License Key is £5 per month or £50 per year.</p>
+						<p>  For now the process happens through <a href="https://www.buymeacoffee.com/smashah">Buy Me A Coffee (BMAC)</a></p>
+						<p>  How to get an License key:</p>
+						<ol>
+							<li><p>Go to <a href="https://www.buymeacoffee.com/smashah">BMAC</a>.</p>
+							</li>
+							<li><p>Click on &#39;Membership&#39;.</p>
+							</li>
+							<li><p>Select your payment preference (monthly/annually).</p>
+							</li>
+							<li><p>Add the number you want to assign to the License Key in the notes, along with the use case for this functionality</p>
+							</li>
+							<li><p>Select &quot;Make this message private.&quot;</p>
+							</li>
+							<li><p>Complete the process for membership.</p>
+							</li>
+							<li><p>You will receive your License key via email.</p>
+							</li>
+							<li><p>Add licenseKey to your config:</p>
+								<pre><code class="language-javascript">...
+create({
+<span class="hljs-attr">licenseKey</span>: <span class="hljs-string">"..."</span>
+})
+...</code></pre>
+								<p>Notes:</p>
+							</li>
+						</ol>
+						<ul>
+							<li>You can change the number assigned to a specific License Key at any time.</li>
+							<li>In order to cancel your License Key, simply stop your membership.</li>
+							<li>Apart from adding your licenseKey to your config, you will need to change nothing else in your code.</li>
+						</ul>
+					</li>
+				</ol>
+				<a href="#running-the-demo" id="running-the-demo" style="color: inherit; text-decoration: none;">
+					<h2>Running the demo</h2>
+				</a>
+				<p>You can clone this repo and run the demo, but you will need to use typescript/ts-node:</p>
+				<pre><code class="language-bash">&gt; git <span class="hljs-built_in">clone</span> https://github.com/smashah/sulla.git
+&gt; <span class="hljs-built_in">cd</span> sulla
+&gt; npm i
+&gt; npm i -g ts-node typescript
+&gt; <span class="hljs-built_in">cd</span> demo
+&gt; ts-node index.ts</code></pre>
 				<a href="#capturing-qr-code" id="capturing-qr-code" style="color: inherit; text-decoration: none;">
 					<h2>Capturing QR Code</h2>
 				</a>
@@ -675,7 +721,7 @@ create(<span class="hljs-string">'session'</span>,
 				<a href="#license" id="license" style="color: inherit; text-decoration: none;">
 					<h2>License</h2>
 				</a>
-				<p><a href="https://choosealicense.com/licenses/mit/">MIT</a></p>
+				<p><a href="https://github.com/smashah/sulla/blob/master/LICENSE">Hippocratic + Do Not Harm Version 1.0</a></p>
 				<a href="#legal" id="legal" style="color: inherit; text-decoration: none;">
 					<h2>Legal</h2>
 				</a>
