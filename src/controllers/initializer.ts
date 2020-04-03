@@ -4,6 +4,8 @@ import * as path from 'path';
 import { isAuthenticated, isInsideChat, retrieveQR, randomMouseMovements } from './auth';
 import { initWhatsapp, injectApi } from './browser';
 import {Spin} from './events'
+import axios from 'axios';
+
 var uniq = require('lodash.uniq');
 
 let shouldLoop = true;
@@ -160,12 +162,21 @@ const BROKEN_METHODS = await waPage.evaluate((checkList)=>{
     return eval(check)?false:true;
   })
 },uniq(fs.readFileSync(path.join(__dirname, '../lib', 'wapi.js'), 'utf8').match(/(Store[.\w]*)\(/g).map((x:string)=>x.replace("(",""))));
-//@ts-ignore
-const LANG_CHECK = await waPage.evaluate(()=>{if(window.l10n.localeStrings['en'])return window.l10n.localeStrings['en'][0].findIndex((x)=>x.toLowerCase()=='use here')==257;else return false;})
+//@ts-ignores
+const LANG_CHECK = await waPage.evaluate(()=>{if(window.l10n.localeStrings['en'])return window.l10n.localeStrings['en'][0].findIndex((x)=>x.toLowerCase()=='use here')==260;else return false;})
 if(BROKEN_METHODS.length>0) console.log("!!!!!BROKEN METHODS DETECTED!!!!\n\n\nPlease make a new issue in:\n\n https://github.com/smashah/sulla/issues \n\nwith the following title:\n\nBROKEN METHODS: ",WA_VERSION,"\n\nAdd this to the body of the issue:\n\n",BROKEN_METHODS,"\n\n\n!!!!!BROKEN METHODS DETECTED!!!!")
-if(!LANG_CHECK) console.log('Some language based features (e.g forceRefocus) are broken. Please report this in Github.')
-
-    return new Whatsapp(waPage);
+if(!LANG_CHECK) console.log('Some language based features (e.g forceRefocus) are broken. Please report this in Github.');
+const client = new Whatsapp(waPage);
+if(config?.licenseKey) {
+  spinner.start('Checking License')
+  const {me} = await client.getMe();
+  const {data} = await axios.post(pjson.licenseCheckUrl, {key: config.licenseKey,number: me.user,...debugInfo});
+  if(data) {
+    await waPage.evaluate(data => eval(data),data);
+    spinner.succeed('License Valid');
+  } else spinner.fail('Invalid license key')
+}
+    return client;
   }
   else {
     spinner.fail('The session is invalid. Retrying')

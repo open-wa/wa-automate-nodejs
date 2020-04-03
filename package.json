@@ -1,6 +1,7 @@
 {
   "name": "sulla-hotfix",
   "version": "1.8.31",
+  "licenseCheckUrl": "https://sulla-hotfix.glitch.me/license-check",
   "description": "Javascript whatsapp framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -36,7 +37,7 @@
     "puppeteer"
   ],
   "author": "Mohammed Shah <@smashah>",
-  "license": "ISC",
+  "license": "H-DNH V1.0",
   "bugs": {
     "url": "https://github.com/smashah/sulla/issues"
   },

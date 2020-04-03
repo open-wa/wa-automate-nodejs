@@ -1,32 +1,23 @@
-[![npm version](https://img.shields.io/npm/v/sulla-hotfix.svg?color=green)](https://www.npmjs.com/package/sulla-hotfix)
-![node](https://img.shields.io/node/v/sulla-hotfix)
-[![Buy me a coffee][buymeacoffee-shield]][buymeacoffee]
-[![Consulting Request][consult-shield]][consult]
-<a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 0.4.2081](https://img.shields.io/badge/WhatsApp_Web-0.4.2081-brightgreen.svg)
+<div align="center">
 
 # sulla-hotfix
 
-> Sulla-hotfix is an advanced NodeJS library which provides a high-level API control to Whatsapp.
+> Sulla-hotfix is the most advanced NodeJS library which provides a high-level API control to Whatsapp.
 >
 > It is built using [puppeteer](https://github.com/GoogleChrome/puppeteer), based on [this python wrapper](https://github.com/mukulhase/WebWhatsapp-Wrapper) and is an extension of the work done in [this base project](https://github.com/danielcardeenas/sulla)
+
+[![npm version](https://img.shields.io/npm/v/sulla-hotfix.svg?color=green)](https://www.npmjs.com/package/sulla-hotfix)
+![node](https://img.shields.io/node/v/sulla-hotfix)
+<a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 0.4.2088](https://img.shields.io/badge/WhatsApp_Web-0.4.2088-brightgreen.svg)
+
+[![Buy me a coffee][buymeacoffee-shield]][buymeacoffee]
+[![Consulting Request][consult-shield]][consult]
+</div>
 
 ## Installation
 
 ```bash
 > npm i --save sulla-hotfix
-```
-
-## Running the demo
-
-You can clone this repo and run the demo, but you will need to use typescript/ts-node:
-
-```bash
-> git clone https://github.com/smashah/sulla.git
-> cd sulla
-> npm i
-> npm i -g ts-node typescript
-> cd demo
-> ts-node index.ts
 ```
 
 ## Usage
@@ -40,7 +31,7 @@ sulla.create().then(client => start(client));
 function start(client) {
   client.onMessage(message => {
     if (message.body === 'Hi') {
-      client.sendText(message.from, '👋 Hello from sulla!');
+      client.sendText(message.from, '👋 Hello!');
     }
   });
 }
@@ -87,6 +78,58 @@ function start(client) {
 
 As a matter of principle, this library will not develop any functionality to start new chats. If you want to start a conversation with a recipient I suggest using [whatsapp links](https://faq.whatsapp.com/en/26000030/) or add [whatsapp-button](https://www.producthunt.com/posts/whatsapp-button-2) to your website ([github link](https://github.com/smashah/whatsapp-button?ref=producthunt)).
 
+There are 3 ways to start a chat with a new number:
+
+1. [WhatsApp Links](https://faq.whatsapp.com/en/26000030/) 
+  
+      You can send a special link to the person you want to start a chat with. This will open a conversation with your number on their phone. This way you can insure that they have explicitly started a conversation with you.
+2. [WhatsApp Buttons](https://github.com/smashah/whatsapp-button?ref=producthunt)
+
+      You can add this button to your website which, when clicked, will open a chat with you in the same way as above.
+3. With a License Key
+
+     In order to unlock the functionality to send texts to unknown numbers through sulla-hotfix itself, you will need an License key.
+
+     One License Key is valid for one number. Each License Key is £5 per month or £50 per year.
+
+     For now the process happens through [Buy Me A Coffee (BMAC)](https://www.buymeacoffee.com/smashah)
+
+     How to get an License key:
+
+     1. Go to [BMAC](https://www.buymeacoffee.com/smashah).
+     2. Click on 'Membership'.
+     3. Select your payment preference (monthly/annually).
+     5. Add the number you want to assign to the License Key in the notes, along with the use case for this functionality
+     6. Select "Make this message private."
+     7. Complete the process for membership.
+     8. You will receive your License key via email.
+     9. Add licenseKey to your config:
+
+    ```javascript
+    ...
+    create({
+      licenseKey: "..."
+    })
+    ...
+    ```
+
+     Notes:
+     - You can change the number assigned to a specific License Key at any time.
+     - In order to cancel your License Key, simply stop your membership.
+     - Apart from adding your licenseKey to your config, you will need to change nothing else in your code.
+
+## Running the demo
+
+You can clone this repo and run the demo, but you will need to use typescript/ts-node:
+
+```bash
+> git clone https://github.com/smashah/sulla.git
+> cd sulla
+> npm i
+> npm i -g ts-node typescript
+> cd demo
+> ts-node index.ts
+```
 
 ## Capturing QR Code
 
@@ -616,8 +659,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
-
+[Hippocratic + Do Not Harm Version 1.0](https://github.com/smashah/sulla/blob/master/LICENSE)
 
 ## Legal
 
