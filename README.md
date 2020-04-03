@@ -76,11 +76,9 @@ function start(client) {
 
 ## Starting a conversation
 
-As a matter of principle, this library will not develop any functionality to start new chats. If you want to start a conversation with a recipient I suggest using [whatsapp links](https://faq.whatsapp.com/en/26000030/) or add [whatsapp-button](https://www.producthunt.com/posts/whatsapp-button-2) to your website ([github link](https://github.com/smashah/whatsapp-button?ref=producthunt)).
-
 There are 3 ways to start a chat with a new number:
 
-1. [WhatsApp Links](https://faq.whatsapp.com/en/26000030/) 
+1. [WhatsApp Links](https://faq.whatsapp.com/en/26000030/)
   
       You can send a special link to the person you want to start a chat with. This will open a conversation with your number on their phone. This way you can insure that they have explicitly started a conversation with you.
 2. [WhatsApp Buttons](https://github.com/smashah/whatsapp-button?ref=producthunt)
@@ -659,7 +657,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## License
 
-[Hippocratic + Do Not Harm Version 1.0](https://github.com/smashah/sulla/blob/master/LICENSE)
+[Hippocratic + Do Not Harm Version 1.0](https://github.com/smashah/sulla/blob/master/LICENSE.md)
 
 ## Legal
 
