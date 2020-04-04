@@ -122,5 +122,5 @@ app.post('/sendPNG' , async (req,res) => {
 })
 
 app.listen(8082, function () {
-  console.log('\n• Listening on port 8081!');
+  console.log('\n• Listening on port 8082!');
 });
