@@ -425,7 +425,7 @@ window.WAPI.getGeneratedUserAgent = function (useragent) {
 }
 
 window.WAPI.getWAVersion = function () {
-    return window.DEBUG.VERSION;
+    return window.Debug.VERSION;
 }
 
 window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, chatId, done) {
