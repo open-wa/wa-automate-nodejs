@@ -1,5 +1,6 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/smashah/resources/hotfix-logo.png" width="96" height="96"/>
+<img src="https://raw.githubusercontent.com/smashah/sulla/master/resources/hotfix-logo.png" width="128" height="128"/>
+
 
 # sulla-hotfix
 
