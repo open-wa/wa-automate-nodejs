@@ -1,4 +1,5 @@
 <div align="center">
+<img src="https://raw.githubusercontent.com/smashah/resources/hotfix-logo.png" width="96" height="96"/>
 
 # sulla-hotfix
 
