@@ -119,6 +119,7 @@ There are 3 ways to start a chat with a new number:
      - You can change the number assigned to a specific License Key at any time.
      - In order to cancel your License Key, simply stop your membership.
      - Apart from adding your licenseKey to your config, you will need to change nothing else in your code.
+     - An added benefit for members is priority on issues.
 
 ## Running the demo
 
