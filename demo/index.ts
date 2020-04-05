@@ -53,6 +53,8 @@ async function start(client: Whatsapp) {
 
     client.onAddedToGroup(newGroup => console.log('Added to new Group', newGroup.id));
 
+    client.onIncomingCall(call=>console.log('newcall',call));
+
   // client.onParticipantsChanged("XXXXXXXX-YYYYYYYY@g.us", (participantChangedEvent:any) => console.log("participant changed for group", participantChangedEvent));
   
   //Returns 'CONNECTED' or 'TIMEOUT' or 'CONFLICT' (if user opens whatsapp web somewhere else)
@@ -140,7 +142,7 @@ async function start(client: Whatsapp) {
  * and you can AND SHOULD override the user agent.
  */
 create({
-  sessionId:'session',
+  sessionId:'session1',
   // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   useChrome: true,
   headless:false,

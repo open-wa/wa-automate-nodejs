@@ -1,7 +1,6 @@
 <div align="center">
 <img src="https://raw.githubusercontent.com/smashah/sulla/master/resources/hotfix-logo.png" width="128" height="128"/>
 
-
 # sulla-hotfix
 
 > Sulla-hotfix is the most advanced NodeJS library which provides a high-level API control to Whatsapp.
@@ -10,10 +9,13 @@
 
 [![npm version](https://img.shields.io/npm/v/sulla-hotfix.svg?color=green)](https://www.npmjs.com/package/sulla-hotfix)
 ![node](https://img.shields.io/node/v/sulla-hotfix)
+[![Downloads](https://img.shields.io/npm/dm/sulla-hotfix.svg)](https://www.npmjs.com/package/sulla-hotfix)
+
 <a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 0.4.2088](https://img.shields.io/badge/WhatsApp_Web-0.4.2088-brightgreen.svg)
 
 [![Buy me a coffee][buymeacoffee-shield]][buymeacoffee]
 [![Consulting Request][consult-shield]][consult]
+
 </div>
 
 ## Installation
@@ -42,6 +44,11 @@ function start(client) {
 ###### After executing `create()` function, **sulla** will create an instance of whatsapp web. If you are not logged in, it will print a QR code in the [terminal](https://i.imgur.com/g8QvERI.png). Scan it with your phone and you are ready to go!
 
 ###### sulla will remember the session so there is no need to authenticate everytime.
+
+## Latest Realease Change Log
+<div align="center">
+<img src="https://raw.githubusercontent.com/smashah/sulla/master/release.png" width="128" height="128"/>
+</div>
 
 ### Functions list
 

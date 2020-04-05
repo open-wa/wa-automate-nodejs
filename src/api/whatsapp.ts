@@ -45,6 +45,7 @@ declare module WAPI {
   const waitNewMessages: (rmCallback: boolean, callback: Function) => void;
   const addAllNewMessagesListener: (callback: Function) => void;
   const onStateChanged: (callback: Function) => void;
+  const onIncomingCall: (callback: Function) => any;
   const onAddedToGroup: (callback: Function) => any;
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const onLiveLocation: (chatId: string, callback: Function) => any;
@@ -185,6 +186,21 @@ export class Whatsapp {
       }));
   }
 
+
+  /**
+   * @event Listens to new incoming calls
+   * @returns Observable stream of call request objects
+   */
+  public onIncomingCall(fn: (call: any) => void) {
+    this.page.exposeFunction('onIncomingCall', (call: any) =>
+      fn(call)
+    ).then(_ => this.page.evaluate(
+      () => {
+        WAPI.onIncomingCall(call => window['onIncomingCall'](call))
+      }));
+  }
+
+
   /**
    * set your about me
    * @param newStatus String new profile status
@@ -238,6 +254,7 @@ export class Whatsapp {
       fn(message)
     );
   }
+
 
   /**
    * Shuts down the page and browser

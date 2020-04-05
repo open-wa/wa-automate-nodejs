@@ -1451,6 +1451,16 @@ window.WAPI.onStateChanged = function (callback) {
 }
 
 /**
+ * Registers a callback to be called when your phone receives a new call request.
+ * @param callback - function - Callback function to be called upon a new call. returns a call object.
+ * @returns {boolean}
+ */
+window.WAPI.onIncomingCall = function (callback) {
+    window.Store.Call.on('add',callback);
+    return true;
+}
+
+/**
  * Registers a callback to be called when a the acknowledgement state of a message changes.
  * @param callback - function - Callback function to be called when a message acknowledgement changes.
  * @returns {boolean}
