@@ -47,7 +47,7 @@ function start(client) {
 
 ## Latest Realease Change Log
 <div align="center">
-<img src="https://raw.githubusercontent.com/smashah/sulla/master/release.png" width="128" height="128"/>
+<img src="https://raw.githubusercontent.com/smashah/sulla/master/release.png"/>
 </div>
 
 ### Functions list
