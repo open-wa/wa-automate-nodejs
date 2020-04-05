@@ -15,6 +15,7 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "Store", conditions: (module) => (module.Chat && module.Msg) ? module : null },
                 { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && (module.default.prototype.processFiles !== undefined||module.default.prototype.processAttachments !== undefined)) ? module.default : null },
                 { id: "MediaProcess", conditions: (module) => (module.BLOB) ? module : null },
+                { id: "Block", conditions: (module) => (module.blockContact && module.unblockContact) ? module : null },
                 { id: "ChatUtil", conditions: (module) => (module.sendClear) ? module : null },
                 { id: "GroupInvite", conditions: (module) => (module.queryGroupInviteCode) ? module : null },
                 { id: "Wap", conditions: (module) => (module.createGroup) ? module : null },
@@ -2196,34 +2197,29 @@ window.WAPI.sendVCard = function (chatId, vcard) {
 
     Store.addAndSendMsgToChat(chat, tempMsg)
 };
+
 /**
  * Block contact 
  * @param {string} id '000000000000@c.us'
- * @param {*} done - function - Callback function to be called when a new message arrives.
  */
-window.WAPI.contactBlock = function (id, done) {
+window.WAPI.contactBlock = async function (id) {
     const contact = window.Store.Contact.get(id);
     if (contact !== undefined) {
-        contact.setBlock(!0);
-        done(true);
+        await Store.Block.blockContact(contact)
         return true;
     }
-    done(false);
     return false;
 }
 /**
- * unBlock contact 
+ * Unblock contact 
  * @param {string} id '000000000000@c.us'
- * @param {*} done - function - Callback function to be called when a new message arrives.
  */
-window.WAPI.contactUnblock = function (id, done) {
+window.WAPI.contactUnblock = async function (id) {
     const contact = window.Store.Contact.get(id);
     if (contact !== undefined) {
-        contact.setBlock(!1);
-        done(true);
+        await Store.Block.unblockContact(contact)
         return true;
     }
-    done(false);
     return false;
 }
 

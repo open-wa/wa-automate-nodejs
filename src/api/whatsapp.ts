@@ -69,6 +69,8 @@ declare module WAPI {
   const sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => void;
   const createGroup: (groupName: string, contactId: string|string[]) => Promise<any>;
   const sendSeen: (to: string) => void;
+  const contactBlock: (id: string) => void;
+  const contactUnblock: (id: string) => void;
   const deleteConversation: (chatId: string) => boolean;
   const clearChat: (chatId: string) => void;
   const revokeGroupInviteLink: (chatId: string) => Promise<string> | boolean;
@@ -227,7 +229,7 @@ export class Whatsapp {
   /**
    * Adds label from chat, message or contact. Only for business accounts.
    * @param label: either the id or the name of the label. id will be something simple like anhy nnumber from 1-10, name is the label of the label if that makes sense.
-   * @param to The Chat, message or contact id to which you want to add a label
+   * @param id The Chat, message or contact id to which you want to add a label
    */
   public async addLabel(label: string, id: string) {
     return await this.page.evaluate(
@@ -239,7 +241,7 @@ export class Whatsapp {
   /**
    * Removes label from chat, message or contact. Only for business accounts.
    * @param label: either the id or the name of the label. id will be something simple like anhy nnumber from 1-10, name is the label of the label if that makes sense.
-   * @param to The Chat, message or contact id to which you want to add a label
+   * @param id The Chat, message or contact id to which you want to add a label
    */
   public async removeLabel(label: string, id: string) {
     return await this.page.evaluate(
@@ -746,6 +748,23 @@ export class Whatsapp {
       groupId
     );
   }
+
+
+/**
+ * Block contact 
+ * @param {string} id '000000000000@c.us'
+ */
+public async contactBlock(id: string) {
+  return await this.page.evaluate(id => WAPI.contactBlock(id),id)
+}
+
+/**
+ * Unblock contact 
+ * @param {string} id '000000000000@c.us'
+ */
+public async contactUnblock(id: string) {
+  return await this.page.evaluate(id => WAPI.contactUnblock(id),id)
+}
 
   /**
    * Removes the host device from the group
