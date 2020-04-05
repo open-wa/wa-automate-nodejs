@@ -63,6 +63,7 @@ declare module WAPI {
   const getStatus: (contactId: string) => void;
   const getGroupAdmins: (groupId: string) => Contact[];
   const removeParticipant: (groupId: string, contactId: string) => void;
+  const addOrRemoveLabels: (label: string, id: string, type: string) => Promise<boolean>;
   const promoteParticipant: (groupId: string, contactId: string) => void;
   const demoteParticipant: (groupId: string, contactId: string) => void;
   const sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => void;
@@ -220,6 +221,30 @@ export class Whatsapp {
     return await this.page.evaluate(
       ({newStatus}) => {WAPI.setMyStatus(newStatus)},
       {newStatus}
+      )
+  }
+
+  /**
+   * Adds label from chat, message or contact. Only for business accounts.
+   * @param label: either the id or the name of the label. id will be something simple like anhy nnumber from 1-10, name is the label of the label if that makes sense.
+   * @param to The Chat, message or contact id to which you want to add a label
+   */
+  public async addLabel(label: string, id: string) {
+    return await this.page.evaluate(
+      ({label, id}) => {WAPI.addOrRemoveLabels(label, id, 'add')},
+      {label, id}
+      )
+  }
+
+  /**
+   * Removes label from chat, message or contact. Only for business accounts.
+   * @param label: either the id or the name of the label. id will be something simple like anhy nnumber from 1-10, name is the label of the label if that makes sense.
+   * @param to The Chat, message or contact id to which you want to add a label
+   */
+  public async removeLabel(label: string, id: string) {
+    return await this.page.evaluate(
+      ({label, id}) => {WAPI.addOrRemoveLabels(label, id, 'remove')},
+      {label, id}
       )
   }
 
