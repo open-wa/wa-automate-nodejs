@@ -1,6 +1,6 @@
 {
   "name": "sulla-hotfix",
-  "version": "1.8.33",
+  "version": "1.8.34",
   "licenseCheckUrl": "https://sulla-hotfix.glitch.me/license-check",
   "description": "Javascript whatsapp framework",
   "main": "dist/index.js",
