@@ -59,6 +59,7 @@ declare module WAPI {
   const addParticipant: (groupId: string, contactId: string) => void;
   const setMyName: (newName: string) => void;
   const setMyStatus: (newStatus: string) => void;
+  const setPresence: (available: boolean) => void;
   const getStatus: (contactId: string) => void;
   const getGroupAdmins: (groupId: string) => Contact[];
   const removeParticipant: (groupId: string, contactId: string) => void;
@@ -200,6 +201,16 @@ export class Whatsapp {
       }));
   }
 
+  /**
+   * Set presence to available or unavailable.
+   * @param available if true it will set your presence to 'online', false will set to unabailable (i.e no 'online' on recipients' phone);
+   */
+  public async setPresence(available: boolean) {
+    return await this.page.evaluate(
+      available => {WAPI.setPresence(available)},
+      available
+      )
+  }
 
   /**
    * set your about me

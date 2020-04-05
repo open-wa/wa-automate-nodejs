@@ -11,6 +11,8 @@ const uaOverride = 'WhatsApp/2.16.352 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_
 const ON_DEATH = require('death');
 let globalClient:Whatsapp;
 
+const PORT = 8082;
+
 const app = express()
 app.use(express.json())
 
@@ -121,6 +123,6 @@ app.post('/sendPNG' , async (req,res) => {
   return res.send(newMessage);
 })
 
-app.listen(8082, function () {
-  console.log('\n• Listening on port 8082!');
+app.listen(PORT, function () {
+  console.log(`\n• Listening on port ${PORT}!`);
 });
