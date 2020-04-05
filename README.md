@@ -45,7 +45,7 @@ function start(client) {
 
 ###### sulla will remember the session so there is no need to authenticate everytime.
 
-## Latest Realease Change Log
+## Latest Release Changelog
 <div align="center">
 <img src="https://raw.githubusercontent.com/smashah/sulla/master/release.png"/>
 </div>
