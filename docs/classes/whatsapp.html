@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Whatsapp | sulla-hotfix - v1.8.32</title>
+	<title>Whatsapp | sulla-hotfix - v1.8.33</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">sulla-hotfix - v1.8.32</a>
+					<a href="../index.html" class="title">sulla-hotfix - v1.8.33</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -90,6 +90,7 @@
 								<li class="tsd-kind-event tsd-parent-kind-class"><a href="whatsapp.html#onack" class="tsd-kind-icon">on<wbr>Ack</a></li>
 								<li class="tsd-kind-event tsd-parent-kind-class"><a href="whatsapp.html#onaddedtogroup" class="tsd-kind-icon">on<wbr>Added<wbr>ToGroup</a></li>
 								<li class="tsd-kind-event tsd-parent-kind-class"><a href="whatsapp.html#onanymessage" class="tsd-kind-icon">on<wbr>Any<wbr>Message</a></li>
+								<li class="tsd-kind-event tsd-parent-kind-class"><a href="whatsapp.html#onincomingcall" class="tsd-kind-icon">on<wbr>Incoming<wbr>Call</a></li>
 								<li class="tsd-kind-event tsd-parent-kind-class"><a href="whatsapp.html#onlivelocation" class="tsd-kind-icon">on<wbr>Live<wbr>Location</a></li>
 								<li class="tsd-kind-event tsd-parent-kind-class"><a href="whatsapp.html#onmessage" class="tsd-kind-icon">on<wbr>Message</a></li>
 								<li class="tsd-kind-event tsd-parent-kind-class"><a href="whatsapp.html#onparticipantschanged" class="tsd-kind-icon">on<wbr>Participants<wbr>Changed</a></li>
@@ -181,7 +182,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L142">api/whatsapp.ts:142</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L143">api/whatsapp.ts:143</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -214,7 +215,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L236">api/whatsapp.ts:236</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L252">api/whatsapp.ts:252</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -258,7 +259,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L311">api/whatsapp.ts:311</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L328">api/whatsapp.ts:328</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -302,7 +303,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L166">api/whatsapp.ts:166</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L167">api/whatsapp.ts:167</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -341,6 +342,50 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class">
+					<a name="onincomingcall" class="tsd-anchor"></a>
+					<h3>on<wbr>Incoming<wbr>Call</h3>
+					<ul class="tsd-signatures tsd-kind-event tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">on<wbr>Incoming<wbr>Call<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>call<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L194">api/whatsapp.ts:194</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>fn: <span class="tsd-signature-symbol">(</span>call<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-signature">
+											<ul class="tsd-signatures tsd-kind-type-literal">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>call<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-parameters-title">Parameters</h4>
+													<ul class="tsd-parameters">
+														<li>
+															<h5>call: <span class="tsd-signature-type">any</span></h5>
+														</li>
+													</ul>
+													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+							<p>Observable stream of call request objects</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class">
 					<a name="onlivelocation" class="tsd-anchor"></a>
 					<h3>on<wbr>Live<wbr>Location</h3>
 					<ul class="tsd-signatures tsd-kind-event tsd-parent-kind-class">
@@ -350,7 +395,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L271">api/whatsapp.ts:271</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L288">api/whatsapp.ts:288</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -408,7 +453,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L155">api/whatsapp.ts:155</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L156">api/whatsapp.ts:156</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -456,7 +501,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L291">api/whatsapp.ts:291</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L308">api/whatsapp.ts:308</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -503,7 +548,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L179">api/whatsapp.ts:179</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L180">api/whatsapp.ts:180</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -546,7 +591,7 @@
 					<div class="tsd-signature tsd-kind-icon">page<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Page</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L147">api/whatsapp.ts:147</a></li>
+							<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L148">api/whatsapp.ts:148</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -568,7 +613,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L1014">api/whatsapp.ts:1014</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L1031">api/whatsapp.ts:1031</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -605,7 +650,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L812">api/whatsapp.ts:812</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L829">api/whatsapp.ts:829</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -634,7 +679,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L898">api/whatsapp.ts:898</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L915">api/whatsapp.ts:915</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -663,7 +708,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L848">api/whatsapp.ts:848</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L865">api/whatsapp.ts:865</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -692,7 +737,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L986">api/whatsapp.ts:986</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L1003">api/whatsapp.ts:1003</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -736,7 +781,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L836">api/whatsapp.ts:836</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L853">api/whatsapp.ts:853</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -765,7 +810,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L886">api/whatsapp.ts:886</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L903">api/whatsapp.ts:903</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -809,7 +854,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L1041">api/whatsapp.ts:1041</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L1058">api/whatsapp.ts:1058</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -846,7 +891,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L253">api/whatsapp.ts:253</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L270">api/whatsapp.ts:270</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -863,7 +908,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L614">api/whatsapp.ts:614</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L631">api/whatsapp.ts:631</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -906,7 +951,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L653">api/whatsapp.ts:653</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L670">api/whatsapp.ts:670</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -935,7 +980,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L667">api/whatsapp.ts:667</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L684">api/whatsapp.ts:684</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -964,7 +1009,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L625">api/whatsapp.ts:625</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L642">api/whatsapp.ts:642</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -987,7 +1032,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L675">api/whatsapp.ts:675</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L692">api/whatsapp.ts:692</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1016,7 +1061,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L944">api/whatsapp.ts:944</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L961">api/whatsapp.ts:961</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1051,7 +1096,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L924">api/whatsapp.ts:924</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L941">api/whatsapp.ts:941</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1074,7 +1119,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L932">api/whatsapp.ts:932</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L949">api/whatsapp.ts:949</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1097,7 +1142,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L645">api/whatsapp.ts:645</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L662">api/whatsapp.ts:662</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1120,7 +1165,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L545">api/whatsapp.ts:545</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L562">api/whatsapp.ts:562</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1152,7 +1197,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L750">api/whatsapp.ts:750</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L767">api/whatsapp.ts:767</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1181,7 +1226,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L738">api/whatsapp.ts:738</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L755">api/whatsapp.ts:755</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1210,7 +1255,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L227">api/whatsapp.ts:227</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L243">api/whatsapp.ts:243</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1233,7 +1278,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L726">api/whatsapp.ts:726</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L743">api/whatsapp.ts:743</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1262,7 +1307,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L410">api/whatsapp.ts:410</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L427">api/whatsapp.ts:427</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1291,7 +1336,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L1052">api/whatsapp.ts:1052</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L1069">api/whatsapp.ts:1069</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1322,7 +1367,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L860">api/whatsapp.ts:860</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L877">api/whatsapp.ts:877</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1351,7 +1396,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L712">api/whatsapp.ts:712</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L729">api/whatsapp.ts:729</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1381,7 +1426,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L690">api/whatsapp.ts:690</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L707">api/whatsapp.ts:707</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1412,7 +1457,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L531">api/whatsapp.ts:531</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L548">api/whatsapp.ts:548</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1434,7 +1479,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L762">api/whatsapp.ts:762</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L779">api/whatsapp.ts:779</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1463,7 +1508,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L800">api/whatsapp.ts:800</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L817">api/whatsapp.ts:817</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1495,7 +1540,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L912">api/whatsapp.ts:912</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L929">api/whatsapp.ts:929</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1530,7 +1575,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L629">api/whatsapp.ts:629</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L646">api/whatsapp.ts:646</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">String</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -1547,7 +1592,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L637">api/whatsapp.ts:637</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L654">api/whatsapp.ts:654</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1570,7 +1615,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L246">api/whatsapp.ts:246</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L263">api/whatsapp.ts:263</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1593,7 +1638,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L701">api/whatsapp.ts:701</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L718">api/whatsapp.ts:718</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1624,7 +1669,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L824">api/whatsapp.ts:824</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L841">api/whatsapp.ts:841</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1653,7 +1698,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L959">api/whatsapp.ts:959</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L976">api/whatsapp.ts:976</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1688,7 +1733,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L787">api/whatsapp.ts:787</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L804">api/whatsapp.ts:804</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1717,7 +1762,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L1028">api/whatsapp.ts:1028</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L1045">api/whatsapp.ts:1045</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1754,7 +1799,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L1000">api/whatsapp.ts:1000</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L1017">api/whatsapp.ts:1017</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1791,7 +1836,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L447">api/whatsapp.ts:447</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L464">api/whatsapp.ts:464</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1831,7 +1876,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L872">api/whatsapp.ts:872</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L889">api/whatsapp.ts:889</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1860,7 +1905,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L584">api/whatsapp.ts:584</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L601">api/whatsapp.ts:601</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1894,7 +1939,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L463">api/whatsapp.ts:463</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L480">api/whatsapp.ts:480</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1943,7 +1988,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L505">api/whatsapp.ts:505</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L522">api/whatsapp.ts:522</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1986,7 +2031,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L427">api/whatsapp.ts:427</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L444">api/whatsapp.ts:444</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2035,7 +2080,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L1065">api/whatsapp.ts:1065</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L1082">api/whatsapp.ts:1082</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2067,7 +2112,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L564">api/whatsapp.ts:564</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L581">api/whatsapp.ts:581</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2116,7 +2161,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L397">api/whatsapp.ts:397</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L414">api/whatsapp.ts:414</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2165,7 +2210,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L359">api/whatsapp.ts:359</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L376">api/whatsapp.ts:376</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2200,7 +2245,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L774">api/whatsapp.ts:774</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L791">api/whatsapp.ts:791</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2231,7 +2276,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L330">api/whatsapp.ts:330</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L347">api/whatsapp.ts:347</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2268,7 +2313,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L349">api/whatsapp.ts:349</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L366">api/whatsapp.ts:366</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2308,7 +2353,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L485">api/whatsapp.ts:485</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L502">api/whatsapp.ts:502</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2357,7 +2402,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L215">api/whatsapp.ts:215</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L231">api/whatsapp.ts:231</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2393,7 +2438,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L203">api/whatsapp.ts:203</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L219">api/whatsapp.ts:219</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2424,7 +2469,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L192">api/whatsapp.ts:192</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L208">api/whatsapp.ts:208</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2455,7 +2500,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/smashah/sulla/blob/2831417/src/api/whatsapp.ts#L597">api/whatsapp.ts:597</a></li>
+									<li>Defined in <a href="https://github.com/smashah/sulla/blob/334dc2b/src/api/whatsapp.ts#L614">api/whatsapp.ts:614</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2510,6 +2555,9 @@
 							</li>
 							<li class=" tsd-kind-event tsd-parent-kind-class">
 								<a href="whatsapp.html#onanymessage" class="tsd-kind-icon">on<wbr>Any<wbr>Message</a>
+							</li>
+							<li class=" tsd-kind-event tsd-parent-kind-class">
+								<a href="whatsapp.html#onincomingcall" class="tsd-kind-icon">on<wbr>Incoming<wbr>Call</a>
 							</li>
 							<li class=" tsd-kind-event tsd-parent-kind-class">
 								<a href="whatsapp.html#onlivelocation" class="tsd-kind-icon">on<wbr>Live<wbr>Location</a>
