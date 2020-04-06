@@ -2207,7 +2207,7 @@ window.WAPI.sendPaymentRequest = async function (chatId, amount1000, currency, n
  * @param {string} chatId '000000000000@c.us'
  * @param {object|array} vcard { displayName: 'Contact Name', vcard: 'BEGIN:VCARD\nVERSION:3.0\nN:;Contact Name;;;\nEND:VCARD' } | [{ displayName: 'Contact Name 1', vcard: 'BEGIN:VCARD\nVERSION:3.0\nN:;Contact Name 1;;;\nEND:VCARD' }, { displayName: 'Contact Name 2', vcard: 'BEGIN:VCARD\nVERSION:3.0\nN:;Contact Name 2;;;\nEND:VCARD' }]
  */
-window.WAPI.sendVCard = function (chatId, vcard) {
+window.WAPI._sendVCard = function (chatId, vcard) {
     var chat = Store.Chat.get(chatId);
     var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe && !msg.quotedMsg)[0]);
     var newId = window.WAPI.getNewMessageId(chatId);
