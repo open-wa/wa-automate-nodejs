@@ -69,6 +69,7 @@ declare module WAPI {
   const sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => void;
   const createGroup: (groupName: string, contactId: string|string[]) => Promise<any>;
   const sendSeen: (to: string) => void;
+  const isChatOnline: (id: string) => Promise<boolean>;
   const contactBlock: (id: string) => void;
   const contactUnblock: (id: string) => void;
   const deleteConversation: (chatId: string) => boolean;
@@ -846,6 +847,17 @@ public async contactUnblock(id: string) {
   public async sendSeen(chatId: string) {
     return await this.page.evaluate(
      chatId => WAPI.sendSeen(chatId),
+      chatId
+    );
+  }
+  
+  /**
+   * SChecks if a chat contact is online. Not entirely sure if this works with groups.
+   * @param chatId chat id: xxxxx@us.c
+   */
+  public async isChatOnline(chatId: string) {
+    return await this.page.evaluate(
+     chatId => WAPI.isChatOnline(chatId),
       chatId
     );
   }

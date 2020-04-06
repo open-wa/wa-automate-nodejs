@@ -159,6 +159,7 @@ window.WAPI._serializeContactObj = (obj) => {
     });
 };
 
+
 window.WAPI._serializeMessageObj = (obj) => {
     if (obj == undefined) {
         return null;
@@ -721,6 +722,11 @@ window.WAPI.isConnected = function (done) {
     if (done !== undefined) done(isConnected);
     return isConnected;
 };
+
+//I dont think this will work for group chats.
+window.WAPI.isChatOnline = async function (id) {
+    return await Store.Chat.get(id).presence.subscribe().then(_=>Store.Chat.get(id).presence.attributes.isOnline);
+}
 
 window.WAPI.processMessageObj = function (messageObj, includeMe, includeNotifications) {
     if (messageObj.isNotification) {
