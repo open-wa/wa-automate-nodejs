@@ -1863,6 +1863,47 @@ window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
     return await Promise.all(Store.addAndSendMsgToChat(chat, tempMsg))
 };
 
+/**
+ * Send VCARD
+ *
+ * @param {string} chatId '000000000000@c.us'
+ * @param {string} vcard vcard as a string
+ * @param {string} contactName The display name for the contact. CANNOT BE NULL OTHERWISE IT WILL SEND SOME RANDOM CONTACT FROM YOUR ADDRESS BOOK.
+ */
+window.WAPI.sendVCard = async function (chatId, vcard, contactName) {
+    var chat = Store.Chat.get(chatId);
+    var tempMsg = Object.create(chat.msgs.filter(msg => msg.__x_isSentByMe)[0]);
+    var newId = window.WAPI.getNewMessageId(chatId);
+    var extend = {
+        ack: 0,
+        id: newId,
+        local: !0,
+        self: "out",
+        t: parseInt(new Date().getTime() / 1000),
+        to: chatId,
+        isNewMsg: !0,
+        type: "vcard",
+        clientUrl:undefined,
+        directPath:undefined,
+        filehash:undefined,
+        uploadhash:undefined,
+        mediaKey:undefined,
+        isQuotedMsgAvailable:false,
+        invis:false,
+        mediaKeyTimestamp:undefined,
+        mimetype:undefined,
+        height:undefined,
+        width:undefined,
+        ephemeralStartTimestamp:undefined,
+        body:vcard,
+        mediaData:undefined,
+        isQuotedMsgAvailable: false,
+        subtype: contactName
+    };
+    Object.assign(tempMsg, extend);
+    return (await Promise.all(Store.addAndSendMsgToChat(chat, tempMsg)))[1]=="success"
+};
+
 window.WAPI.sendButtons = async function(chatId){
     var chat = Store.Chat.get(chatId);
     var tempMsg = Object.create(chat.msgs.filter(msg => msg.__x_isSentByMe)[0]);

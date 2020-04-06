@@ -91,6 +91,7 @@ declare module WAPI {
   ) => void;
   const getBusinessProfilesProducts: (to: string) => any;
   const sendImageWithProduct: (base64: string, to: string, caption: string, bizNumber: string, productId: string) => any;
+  const sendVCard: (chatId: string, vcardString: string, contactName: string) => Promise<boolean>;
   const sendFile: (
     base64: string,
     to: string,
@@ -248,6 +249,20 @@ export class Whatsapp {
     return await this.page.evaluate(
       ({label, id}) => {WAPI.addOrRemoveLabels(label, id, 'remove')},
       {label, id}
+      )
+  }
+
+/**
+ * Send VCARD
+ *
+ * @param {string} chatId '000000000000@c.us'
+ * @param {string} vcard vcard as a string
+ * @param {string} contactName The display name for the contact. CANNOT BE NULL OTHERWISE IT WILL SEND SOME RANDOM CONTACT FROM YOUR ADDRESS BOOK.
+ */
+  public async sendVCard(chatId: string, vcard: string, contactName:string) {
+    return await this.page.evaluate(
+      ({chatId, vcard, contactName}) => {WAPI.sendVCard(chatId, vcard,contactName)},
+      {chatId, vcard, contactName}
       )
   }
 
