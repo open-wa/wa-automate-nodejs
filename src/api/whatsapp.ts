@@ -47,6 +47,7 @@ declare module WAPI {
   const onStateChanged: (callback: Function) => void;
   const onIncomingCall: (callback: Function) => any;
   const onAddedToGroup: (callback: Function) => any;
+  const onBattery: (callback: Function) => any;
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const onLiveLocation: (chatId: string, callback: Function) => any;
   const sendMessage: (to: string, content: string) => string;
@@ -176,6 +177,19 @@ export class Whatsapp {
     ).then(_ => this.page.evaluate(
       () => {
         WAPI.addAllNewMessagesListener(window["onAnyMessage"]);
+      }));
+  }
+
+  /** @event Listens to battery changes
+   * @param fn callback
+   * @fires number
+   */
+  public async onBattery(fn: (battery:number) => void) {
+    this.page.exposeFunction('onBattery', (battery: number) =>
+      fn(battery)
+    ).then(_ => this.page.evaluate(
+      () => {
+        WAPI.onBattery(window["onBattery"]);
       }));
   }
 
