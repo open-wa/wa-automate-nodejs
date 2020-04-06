@@ -1467,13 +1467,13 @@ window.WAPI.onIncomingCall = function (callback) {
 
 /**
  * @param label: either the id or the name of the label. id will be something simple like anhy nnumber from 1-10, name is the label of the label if that makes sense.
- * @param to The Chat, message or contact id to which you want to add a label
+ * @param objectId The Chat, message or contact id to which you want to add a label
  * @param type The type of the action. It can be either "add" or "remove"
  * @returns boolean true if it worked otherwise false
  */
-window.WAPI.addOrRemoveLabels = async function (label, id, type) {
-    var id = Store.labels.models.find(x=>x.id==label||x.name==label)
-    var to = Store.Chat.get(id) || Store.Msg.get(id) || Store.Contact.get(id);
+window.WAPI.addOrRemoveLabels = async function (label, objectId, type) {
+    var {id} = Store.Label.models.find(x=>x.id==label||x.name==label)
+    var to = Store.Chat.get(objectId) || Store.Msg.get(objectId) || Store.Contact.get(objectId);
     if(!id || !to) return false;
     const {status} = await Store.Label.addOrRemoveLabels([{id,type}],[to]);
     return status===200;
