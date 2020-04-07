@@ -50,6 +50,17 @@ let qrTimeout;
     waPage = undefined;
     qrTimeout = undefined;
     shouldLoop = true;
+    let version = require('../../package.json').version
+    var logo = `
+███████╗██╗   ██╗██╗     ██╗      █████╗       ██╗  ██╗ ██████╗ ████████╗███████╗██╗██╗  ██╗
+██╔════╝██║   ██║██║     ██║     ██╔══██╗      ██║  ██║██╔═══██╗╚══██╔══╝██╔════╝██║╚██╗██╔╝
+███████╗██║   ██║██║     ██║     ███████║█████╗███████║██║   ██║   ██║   █████╗  ██║ ╚███╔╝ 
+╚════██║██║   ██║██║     ██║     ██╔══██║╚════╝██╔══██║██║   ██║   ██║   ██╔══╝  ██║ ██╔██╗ 
+███████║╚██████╔╝███████╗███████╗██║  ██║      ██║  ██║╚██████╔╝   ██║   ██║     ██║██╔╝ ██╗
+╚══════╝ ╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝      ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝     ╚═╝╚═╝  ╚═╝                                    
+`;
+  console.log(logo);
+  console.log(`Version ${version}`);	  
   spinner.start('Initializing whatsapp');
   waPage = await initWhatsapp(sessionId, config, customUserAgent);
   spinner.succeed();
