@@ -103,9 +103,11 @@ There are 3 ways to start a chat with a new number:
      3. Select your payment preference (monthly/annually).
      5. Add the phone number you want to assign to the License Key in the notes, along with the use case for this functionality
      6. Select "Make this message private."
-     <div align="center">
-<img src="https://raw.githubusercontent.com/smashah/sulla/master/resources/membership.png"/>
-</div>
+
+        <div align="center">
+        <img src="https://raw.githubusercontent.com/smashah/sulla/master/resources/membership.png"/>
+        </div>
+        
      7. Complete the process for membership.
      8. You will receive your License key via email.
      9. Add licenseKey to your config:
