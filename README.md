@@ -1,7 +1,7 @@
 <div align="center">
 <img src="https://raw.githubusercontent.com/smashah/sulla/master/resources/hotfix-logo.png" width="128" height="128"/>
 
-# sulla-hotfix
+# wa-automate-nodejs
 
 > Sulla-hotfix is the most advanced NodeJS library which provides a high-level API control to Whatsapp.
 >
@@ -107,7 +107,7 @@ There are 3 ways to start a chat with a new number:
         <div align="center">
         <img src="https://raw.githubusercontent.com/smashah/sulla/master/resources/membership.png"/>
         </div>
-        
+
      7. Complete the process for membership.
      8. You will receive your License key via email.
      9. Add licenseKey to your config:
