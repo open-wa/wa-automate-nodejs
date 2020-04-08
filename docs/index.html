@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>sulla-hotfix - v1.8.42</title>
-	<meta name="description" content="Documentation for sulla-hotfix - v1.8.42">
+	<title>@open-wa/wa-automate - v1.8.43</title>
+	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
 </head>
@@ -13,7 +13,7 @@
 	<div class="tsd-page-toolbar">
 		<div class="container">
 			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
 					<div class="field">
 						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
 						<input id="tsd-search-field" type="text" />
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">sulla-hotfix - v1.8.42</a>
+					<a href="index.html" class="title">@open-wa/wa-automate - v1.8.43</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -56,7 +56,7 @@
 					<a href="globals.html">Globals</a>
 				</li>
 			</ul>
-			<h1>sulla-hotfix - v1.8.42</h1>
+			<h1>@open-wa/wa-automate - v1.8.43</h1>
 		</div>
 	</div>
 </header>
@@ -65,17 +65,17 @@
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
 				<div align="center">
-					<img src="https://raw.githubusercontent.com/smashah/sulla/master/resources/hotfix-logo.png" width="128" height="128"/>
-					<a href="#sulla-hotfix" id="sulla-hotfix" style="color: inherit; text-decoration: none;">
-						<h1>sulla-hotfix</h1>
+					<img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/hotfix-logo.png" width="128" height="128"/>
+					<a href="#wa-automate-nodejs" id="wa-automate-nodejs" style="color: inherit; text-decoration: none;">
+						<h1>wa-automate-nodejs</h1>
 					</a>
 					<blockquote>
-						<p>Sulla-hotfix is the most advanced NodeJS library which provides a high-level API control to Whatsapp.</p>
-						<p>It is built using <a href="https://github.com/GoogleChrome/puppeteer">puppeteer</a>, based on <a href="https://github.com/mukulhase/WebWhatsapp-Wrapper">this python wrapper</a> and is an extension of the work done in <a href="https://github.com/danielcardeenas/sulla">this base project</a></p>
+						<p>wa-automate-nodejs is the most advanced NodeJS library which provides a high-level API control to Whatsapp.</p>
+						<p>It is built using <a href="https://github.com/GoogleChrome/puppeteer">puppeteer</a>, based on <a href="https://github.com/mukulhase/WebWhatsapp-Wrapper">this python wrapper</a>.</p>
 					</blockquote>
-					<p><a href="https://www.npmjs.com/package/sulla-hotfix"><img src="https://img.shields.io/npm/v/sulla-hotfix.svg?color=green" alt="npm version"></a>
-						<img src="https://img.shields.io/node/v/sulla-hotfix" alt="node">
-					<a href="https://www.npmjs.com/package/sulla-hotfix"><img src="https://img.shields.io/npm/dm/sulla-hotfix.svg" alt="Downloads"></a></p>
+					<p><a href="https://www.npmjs.com/package/@open-wa/wa-automate"><img src="https://img.shields.io/npm/v/@open-wa/wa-automate.svg?color=green" alt="npm version"></a>
+						<img src="https://img.shields.io/node/v/@open-wa/wa-automate" alt="node">
+					<a href="https://www.npmjs.com/package/@open-wa/wa-automate"><img src="https://img.shields.io/npm/dm/@open-wa/wa-automate.svg" alt="Downloads"></a></p>
 					<p><a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> <img src="https://img.shields.io/badge/WhatsApp_Web-0.4.2088-brightgreen.svg" alt="WhatsApp_Web 0.4.2088"></p>
 					<p><a href="https://www.buymeacoffee.com/smashah"><img src="https://www.buymeacoffee.com/assets/img/guidelines/download-assets-sm-2.svg" alt="Buy me a coffee"></a>
 					<a href="mailto:shah@idk.uno?subject=WhatsApp%20Consulting"><img src="https://img.shields.io/badge/Require%20Paid%20Support%20or%20Consulting%3F-Click%20Here-blue?style=for-the-badge&logo=paypal" alt="Consulting Request"></a></p>
@@ -83,14 +83,14 @@
 				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
 					<h2>Installation</h2>
 				</a>
-				<pre><code class="language-bash">&gt; npm i --save sulla-hotfix</code></pre>
+				<pre><code class="language-bash">&gt; npm i --save @open-wa/wa-automate</code></pre>
 				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
 					<h2>Usage</h2>
 				</a>
-				<pre><code class="language-javascript"><span class="hljs-comment">// import { create, Whatsapp } from 'sulla-hotfix';</span>
-<span class="hljs-keyword">const</span> sulla = <span class="hljs-built_in">require</span>(<span class="hljs-string">'sulla-hotfix'</span>);
+				<pre><code class="language-javascript"><span class="hljs-comment">// import { create, Whatsapp } from '@open-wa/wa-automate';</span>
+<span class="hljs-keyword">const</span> wa = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@open-wa/wa-automate'</span>);
 
-sulla.create().then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
+wa.create().then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client</span>) </span>{
   client.onMessage(<span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> {
@@ -99,11 +99,11 @@ sulla.create().then(<span class="hljs-function"><span class="hljs-params">client
     }
   });
 }</code></pre>
-				<a href="#after-executing-create-function-sulla-will-create-an-instance-of-whatsapp-web-if-you-are-not-logged-in-it-will-print-a-qr-code-in-the-terminal-scan-it-with-your-phone-and-you-are-ready-to-go" id="after-executing-create-function-sulla-will-create-an-instance-of-whatsapp-web-if-you-are-not-logged-in-it-will-print-a-qr-code-in-the-terminal-scan-it-with-your-phone-and-you-are-ready-to-go" style="color: inherit; text-decoration: none;">
-					<h6>After executing <code>create()</code> function, <strong>sulla</strong> will create an instance of whatsapp web. If you are not logged in, it will print a QR code in the <a href="https://i.imgur.com/g8QvERI.png">terminal</a>. Scan it with your phone and you are ready to go!</h6>
+				<a href="#after-executing-codecreatecode-function-strongopen-wawa-automatestrong-will-create-an-instance-of-whatsapp-web-if-you-are-not-logged-in-it-will-print-a-qr-code-in-the-a-hrefhttpsiimgurcomg8qveripngterminala-scan-it-with-your-phone-and-you-are-ready-to-go" id="after-executing-codecreatecode-function-strongopen-wawa-automatestrong-will-create-an-instance-of-whatsapp-web-if-you-are-not-logged-in-it-will-print-a-qr-code-in-the-a-hrefhttpsiimgurcomg8qveripngterminala-scan-it-with-your-phone-and-you-are-ready-to-go" style="color: inherit; text-decoration: none;">
+					<h6>After executing <code>create()</code> function, <strong>@open-wa/wa-automate</strong> will create an instance of whatsapp web. If you are not logged in, it will print a QR code in the <a href="https://i.imgur.com/g8QvERI.png">terminal</a>. Scan it with your phone and you are ready to go!</h6>
 				</a>
-				<a href="#sulla-hotfix-will-remember-the-session-so-there-is-no-need-to-authenticate-everytime" id="sulla-hotfix-will-remember-the-session-so-there-is-no-need-to-authenticate-everytime" style="color: inherit; text-decoration: none;">
-					<h6>sulla-hotfix will remember the session so there is no need to authenticate everytime.</h6>
+				<a href="#open-wawa-automate-will-remember-the-session-so-there-is-no-need-to-authenticate-everytime" id="open-wawa-automate-will-remember-the-session-so-there-is-no-need-to-authenticate-everytime" style="color: inherit; text-decoration: none;">
+					<h6>@open-wa/wa-automate will remember the session so there is no need to authenticate everytime.</h6>
 				</a>
 				<a href="#functions-list" id="functions-list" style="color: inherit; text-decoration: none;">
 					<h3>Functions list</h3>
@@ -247,7 +247,7 @@ sulla.create().then(<span class="hljs-function"><span class="hljs-params">client
 							<td>✅</td>
 						</tr>
 				</tbody></table>
-				<p><a href="https://smashah.github.io/sulla/classes/whatsapp.html">Checkout all the available functions here.</a></p>
+				<p><a href="https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html">Checkout all the available functions here.</a></p>
 				<a href="#starting-a-conversation" id="starting-a-conversation" style="color: inherit; text-decoration: none;">
 					<h2>Starting a conversation</h2>
 				</a>
@@ -260,7 +260,7 @@ sulla.create().then(<span class="hljs-function"><span class="hljs-params">client
 						<p>   You can add this button to your website which, when clicked, will open a chat with you in the same way as above.</p>
 					</li>
 					<li><p>With a License Key</p>
-						<p>  In order to unlock the functionality to send texts to unknown numbers through sulla-hotfix itself, you will need an License key.</p>
+						<p>  In order to unlock the functionality to send texts to unknown numbers through @open-wa/wa-automate itself, you will need an License key.</p>
 						<p>  One License Key is valid for one number. Each License Key is £5 per month or £50 per year.</p>
 						<p>  For now the process happens through <a href="https://www.buymeacoffee.com/smashah">Buy Me A Coffee (BMAC)</a></p>
 						<p>  How to get an License key:</p>
@@ -275,7 +275,7 @@ sulla.create().then(<span class="hljs-function"><span class="hljs-params">client
 							</li>
 							<li><p>Select &quot;Make this message private.&quot;</p>
 								<div align="center">
-									<img src="https://raw.githubusercontent.com/smashah/sulla/master/resources/membership.png"/>
+									<img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/membership.png"/>
 								</div>
 							</li>
 							<li><p>Complete the process for membership.</p>
@@ -303,8 +303,8 @@ create({
 					<h2>Running the demo</h2>
 				</a>
 				<p>You can clone this repo and run the demo, but you will need to use typescript/ts-node:</p>
-				<pre><code class="language-bash">&gt; git <span class="hljs-built_in">clone</span> https://github.com/smashah/sulla.git
-&gt; <span class="hljs-built_in">cd</span> sulla
+				<pre><code class="language-bash">&gt; git <span class="hljs-built_in">clone</span> https://github.com/open-wa/wa-automate-nodejs.git
+&gt; <span class="hljs-built_in">cd</span> wa-automate-nodejs
 &gt; npm i
 &gt; npm i -g ts-node typescript
 &gt; <span class="hljs-built_in">cd</span> demo
@@ -313,7 +313,7 @@ create({
 					<h2>Capturing QR Code</h2>
 				</a>
 				<p>An event is emitted every time the QR code is received by the system. You can grab hold of this event emitter by importing <code>ev</code></p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { ev } <span class="hljs-keyword">from</span> <span class="hljs-string">'sulla-hotfix'</span>;
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { ev } <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
 <span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
 
 ev.on(<span class="hljs-string">'qr.**'</span>, <span class="hljs-keyword">async</span> qrcode =&gt; {
@@ -329,7 +329,7 @@ ev.on(<span class="hljs-string">'qr.**'</span>, <span class="hljs-keyword">async
 				<a href="#refreshing-qrcode" id="refreshing-qrcode" style="color: inherit; text-decoration: none;">
 					<h2>Refreshing QRCode</h2>
 				</a>
-				<p>In version v1.6.13^, sulla can refresh the QR code every 10 seconds (you can change the interval).</p>
+				<p>In version v1.6.13^, you can now refresh the QR code every 10 seconds (you can change the interval).</p>
 				<pre><code class="language-javascript">create(<span class="hljs-string">'session'</span>,{
     <span class="hljs-attr">autoRefresh</span>:<span class="hljs-literal">false</span>, <span class="hljs-comment">//default to true</span>
     <span class="hljs-attr">qrRefreshS</span>:<span class="hljs-number">30</span> <span class="hljs-comment">//please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.</span>
@@ -349,7 +349,7 @@ client.kill();
 				<a href="#force-refocus-and-reacting-to-state" id="force-refocus-and-reacting-to-state" style="color: inherit; text-decoration: none;">
 					<h2>Force Refocus and reacting to state</h2>
 				</a>
-				<p>When a user starts using whatsapp web in a different browser, sulla-hotfix will be left on a screen prompting you to click &#39;Use here&#39;. As of v1.6.6^ you can now force the client to press &#39;Use here&#39; everytime the state has changed to &#39;CONFLICT&#39;. onStateChanged results in &#39;UNPAIRED&#39;, &#39;CONNECTED&#39; or &#39;CONFLICT&#39;;</p>
+				<p>When a user starts using whatsapp web in a different browser, @open-wa/wa-automate will be left on a screen prompting you to click &#39;Use here&#39;. As of v1.6.6^ you can now force the client to press &#39;Use here&#39; everytime the state has changed to &#39;CONFLICT&#39;. onStateChanged results in &#39;UNPAIRED&#39;, &#39;CONNECTED&#39; or &#39;CONFLICT&#39;;</p>
 				<pre><code class="language-javascript">client.onStateChanged(<span class="hljs-function"><span class="hljs-params">state</span>=&gt;</span>{
     <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'statechanged'</span>, state)
     <span class="hljs-keyword">if</span>(state===<span class="hljs-string">"CONFLICT"</span>) client.forceRefocus();
@@ -359,7 +359,7 @@ client.kill();
 					<h2>Decrypting Media</h2>
 				</a>
 				<p>Here is a sample of how to decrypt media. This has been tested on images, videos, documents, audio and voice notes.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Whatsapp, decryptMedia } <span class="hljs-keyword">from</span> <span class="hljs-string">'sulla-hotfix'</span>;
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Whatsapp, decryptMedia } <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
 <span class="hljs-keyword">const</span> mime = <span class="hljs-built_in">require</span>(<span class="hljs-string">'mime-types'</span>);
 <span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
 
@@ -388,7 +388,7 @@ client.kill();
 }
 
 create().then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
-				<p>It is always preferable to keep projects smaller than needed so you can now use a lightweight library called wa-decrypt for projects that do not need all of sulla-hotfix.</p>
+				<p>It is always preferable to keep projects smaller than needed so you can now use a lightweight library called wa-decrypt for projects that do not need all of @open-wa/wa-automate.</p>
 				<p>You can install that using:</p>
 				<pre><code class="language-bash">&gt; npm i --save wa-decrypt</code></pre>
 				<p>and import it like so:</p>
@@ -409,7 +409,7 @@ create().then(<span class="hljs-function"><span class="hljs-params">client</span
 				<p>Here is a sample of how to send media. This has been tested on images, videos, documents, audio and voice notes.</p>
 				<p>Interestingly sendImage has always worked for sending any type of file.</p>
 				<p>An example of sending a is shown in the Decrypting Media secion above also.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'sulla-hotfix'</span>;
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Whatsapp</span>) </span>{
 <span class="hljs-keyword">await</span> client.sendFile(<span class="hljs-string">'xyz@c.us'</span>,[BASE64 FILE DATA],<span class="hljs-string">'some file.pdf'</span>, <span class="hljs-string">`Hello this is the caption`</span>);
@@ -420,7 +420,7 @@ create().then(<span class="hljs-function"><span class="hljs-params">client</span
 				<a href="#sending-video" id="sending-video" style="color: inherit; text-decoration: none;">
 					<h2>Sending Video</h2>
 				</a>
-				<p>If you intend to use video via sulla-hotfix, you need to use a chrome instance with puppeteer instead of the default chromium instance. This is becase chromium does not have any relevant video codecs needed for new whatsapp web video sending features.</p>
+				<p>If you intend to use video via @open-wa/wa-automate, you need to use a chrome instance with puppeteer instead of the default chromium instance. This is becase chromium does not have any relevant video codecs needed for new whatsapp web video sending features.</p>
 				<p>You will need to make sure that you have a valid chrome instance on your machine then use the following to tell puppeteer where it can find your chrome isntance. The below demo is an example for mac &amp; windows. For linux based hosts, you can find the chrome path with <code>whereis google-chrome</code>, it should be something like <code>/usr/bin/google-chrome</code></p>
 				<pre><code class="language-javascript">
 create(<span class="hljs-string">'session'</span>,{
@@ -442,7 +442,7 @@ create(<span class="hljs-string">'session'</span>,{
 					</li>
 				</ol>
 				<pre><code class="language-javascript">
-<span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'sulla-hotfix'</span>;
+<span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Whatsapp</span>) </span>{
 <span class="hljs-keyword">await</span> client.sendVideoAsGif(<span class="hljs-string">'xyz@c.us'</span>,[BASE64 Video FILE DATA],<span class="hljs-string">'some file.mp4'</span>, <span class="hljs-string">`Hello this is the caption`</span>);
@@ -462,7 +462,7 @@ create(<span class="hljs-string">'session'</span>,{
 					</li>
 				</ol>
 				<pre><code class="language-javascript">
-<span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'sulla-hotfix'</span>;
+<span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Whatsapp</span>) </span>{
 <span class="hljs-keyword">await</span> client.sendGiphy(<span class="hljs-string">'xyz@c.us'</span>,<span class="hljs-string">'https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif'</span>, <span class="hljs-string">`Hello this is the caption`</span>);
@@ -568,7 +568,7 @@ create(<span class="hljs-string">'session'</span>,{
 				<a href="#listen-to-live-locations" id="listen-to-live-locations" style="color: inherit; text-decoration: none;">
 					<h1>Listen to Live Locations</h1>
 				</a>
-				<p>As of version 1.7.21 you can now listen to live locations from a specific chat. You can see the liveLocation callback object <a href="https://github.com/smashah/sulla/blob/752adb1cb1664044f9f53410e723421131ecd81f/src/api/model/chat.ts#L33">here</a> </p>
+				<p>As of version 1.7.21 you can now listen to live locations from a specific chat. You can see the liveLocation callback object <a href="https://github.com/open-wa/wa-automate-nodejs/blob/752adb1cb1664044f9f53410e723421131ecd81f/src/api/model/chat.ts#L33">here</a> </p>
 				<pre><code class="language-javascript">
 client.onLiveLocation(<span class="hljs-string">'XXXXXXX-YYYYY@c.us'</span>, (liveLocation) =&gt; {
   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Someone moved'</span>,liveLocation)
@@ -600,7 +600,7 @@ client.onLiveLocation(<span class="hljs-string">'XXXXXXX-YYYYY@c.us'</span>, (li
 				<a href="#managing-multiple-sessions-at-once" id="managing-multiple-sessions-at-once" style="color: inherit; text-decoration: none;">
 					<h2>Managing multiple sessions at once</h2>
 				</a>
-				<p>With v1.2.4, you can now run multiple sessions of sulla-hotfix in the same &#39;app&#39;. This allows you to do interesting things for example:</p>
+				<p>With v1.2.4, you can now run multiple sessions of @open-wa/wa-automate in the same &#39;app&#39;. This allows you to do interesting things for example:</p>
 				<ol>
 					<li>Design and run automated tests for you WA bot.</li>
 					<li>Connect two or more whatsapp numbers to a single (or multiple) message handler(s)</li>
@@ -608,7 +608,7 @@ client.onLiveLocation(<span class="hljs-string">'XXXXXXX-YYYYY@c.us'</span>, (li
 				</ol>
 				<p>Please see demo/index.ts for a working example</p>
 				<p>NOTE: DO NOT CREATE TWO SESSIONS WITH THE SAME SESSIONID. DO NOT ALLOW SPACES AS SESSION ID.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'sulla-hotfix'</span>;
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Whatsapp</span>) </span>{
   ...
@@ -643,7 +643,7 @@ ev.on(<span class="hljs-string">'qr.**'</span>, <span class="hljs-keyword">async
 				<p>Users of these whatsapp injection libraries should use different user agents (preferably copy the one you have one your own pc) because then it makes it harder for whatsapp to break the mecahnism to restart sessions for this library.</p>
 				<p>Setting up your client in <code>headless:false</code> mode ensures you can easily visually debug any issues.</p>
 				<p>Example:</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'sulla-hotfix'</span>;
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Whatsapp</span>) </span>{
   ...
@@ -667,18 +667,18 @@ create(<span class="hljs-string">'session'</span>,
 				<p>Since this is not an officially sanctioned solution it is tempermental to say the least. Here are some best practices:</p>
 				<ol>
 					<li>Keep the session alive</li>
-					<li>Offload most work off of your sulla-hotfix setup (i.e forward all events to a pubsub or something)</li>
+					<li>Offload most work off of your @open-wa/wa-automate setup (i.e forward all events to a pubsub or something)</li>
 					<li>Keep the phone nearby just in case you need to reauthenticate</li>
 					<li>Use a chrome instance instead of the default chromium instance</li>
 					<li>Use headless: false for easy &amp; quick visual debugging</li>
 					<li>Implement the unread messages functionality on creation of a session so you don&#39;t miss any messages upon any downtime.</li>
 					<li>Implement a <a href="https://github.com/sindresorhus/p-queue">promise-queue</a></li>
 					<li>Use a unique and valid custom user-agent</li>
-					<li><code>await</code> all sulla-hotfix methods just in case</li>
-					<li>Do not run your sulla-hotfix instance on a Windows machine.</li>
-					<li>Always <a href="https://github.com/smashah/sulla#kill-the-session">kill the session safely</a> upon error or SIGINT.</li>
+					<li><code>await</code> all @open-wa/wa-automate methods just in case</li>
+					<li>Do not run your s@open-wa/wa-automate instance on a Windows machine.</li>
+					<li>Always <a href="https://github.com/open-wa/wa-automate-nodejs#kill-the-session">kill the session safely</a> upon error or SIGINT.</li>
 				</ol>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'sulla-hotfix'</span>;
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Whatsapp} <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
 <span class="hljs-keyword">const</span> { <span class="hljs-attr">default</span>: PQueue } = <span class="hljs-built_in">require</span>(<span class="hljs-string">"p-queue"</span>);
 
 <span class="hljs-keyword">const</span> queue = <span class="hljs-keyword">new</span> PQueue({
@@ -726,7 +726,7 @@ create(<span class="hljs-string">'session'</span>,
 				<a href="#license" id="license" style="color: inherit; text-decoration: none;">
 					<h2>License</h2>
 				</a>
-				<p><a href="https://github.com/smashah/sulla/blob/master/LICENSE.md">Hippocratic + Do Not Harm Version 1.0</a></p>
+				<p><a href="https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md">Hippocratic + Do Not Harm Version 1.0</a></p>
 				<a href="#legal" id="legal" style="color: inherit; text-decoration: none;">
 					<h2>Legal</h2>
 				</a>
