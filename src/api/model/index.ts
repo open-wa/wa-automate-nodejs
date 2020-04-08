@@ -80,7 +80,7 @@ export interface ConfigObject {
      * This sessionData is provided in a generated JSON file upon QR scan or an event.
      * You can capture the event like so:
      * ```javascript
-     * import {create, ev} from 'sulla-hotfix';
+     * import {create, ev} from '@open-wa/wa-automate';
      * ev.on('sessionData', async (sessionData, sessionId) =>{
      *          console.log(sessionId, sessionData)
      *      })
@@ -139,7 +139,7 @@ export interface ConfigObject {
      */
     throwErrorOnTosBlock ?: boolean,
     /**
-     * By default, all instances of sulla are headless (i.e you don't see a chrome window open), you can set this to false to show the chrome/chromium window.
+     * By default, all instances of @open-wa/wa-automate are headless (i.e you don't see a chrome window open), you can set this to false to show the chrome/chromium window.
      */
     headless ?: boolean,
     /**

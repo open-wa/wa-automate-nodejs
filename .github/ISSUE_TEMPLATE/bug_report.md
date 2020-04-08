@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 <!-- READ THIS FIRST:
-  - Make sure you are running the latest version of sulla-hotfix before reporting an issue.
+  - Make sure you are running the latest version of @open-wa/wa-automate before reporting an issue.
   - Provide as many details as possible. Paste logs, configuration samples and code into the backticks.
   DO NOT DELETE ANY TEXT from this template! Otherwise, your issue may be closed without comment.
 -->
@@ -26,7 +26,7 @@ Steps to reproduce the behavior:
 **create() code**
 This is the code you use to create the client. e.g
 ```javascript
-sulla.create(...)
+create(...)
 ```
 
 **Expected behavior**
@@ -38,7 +38,7 @@ This is the info printed to the console when you start your app. It should look 
 Debug Info {
   WA_VERSION: ...,
   PAGE_UA: ...,
-  SULLA_HOTFIX_VERSION: ...,
+  WA_AUTOMATE_VERSION: ...,
   BROWSER_VERSION: ...
 }
 ```

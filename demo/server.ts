@@ -2,8 +2,8 @@ const express = require('express')
 const path = require("path");
 const https = require('https')
 
-const sulla = require('sulla-hotfix');
-import { Whatsapp, decryptMedia, ev} from 'sulla-hotfix';
+const wa = require('@open-wa/wa-automate');
+import { Whatsapp, decryptMedia, ev} from '@open-wa/wa-automate';
 const mime = require('mime-types');
 const fs = require('fs');
 
@@ -21,7 +21,7 @@ ON_DEATH(async function(signal, err) {
   if(globalClient)await globalClient.kill();
 })
 
-sulla.create('session',{ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless:true, throwErrorOnTosBlock:true, killTimer:40, autoRefresh:true, qrRefreshS:15, cacheEnabled:false, }).then(client => start(client));
+wa.create('session',{ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless:true, throwErrorOnTosBlock:true, killTimer:40, autoRefresh:true, qrRefreshS:15, cacheEnabled:false, }).then(client => start(client));
 
 ev.on('qr.**', async (qrcode,sessionId) => {
   const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');

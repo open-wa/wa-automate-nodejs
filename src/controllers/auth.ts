@@ -43,7 +43,7 @@ const qrEv = new EvEmitter(sessionId,'qr')
     //@ts-ignore
   const evalResult = await waPage.evaluate(() => {if(window.Store && window.Store.State) {window.Store.State.default.state="UNPAIRED";window.Store.State.default.run();return true;} else {return false;}});
     if(evalResult===false) {
-    const em = 'Seems as though you have been TOS_BLOCKed, unable to refresh QR Code. Please see https://github.com/smashah/sulla#best-practice for information on how to prevent this from happeing. You will most likely not get a QR Code';
+    const em = 'Seems as though you have been TOS_BLOCKed, unable to refresh QR Code. Please see https://github.com/open-wa/wa-automate-nodejs#best-practice for information on how to prevent this from happeing. You will most likely not get a QR Code';
     console.log(em)
     if(throwErrorOnTosBlock) throw new Error('TOSBLOCK')
 }

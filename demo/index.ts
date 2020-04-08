@@ -1,5 +1,5 @@
-// const sulla = require('../dist/index');
-// var create = require("sulla").create;
+// const wa = require('../dist/index');
+// var create = require("@open-wa/wa-automate").create;
 // import { create, Whatsapp, decryptMedia, ev } from '../dist/index';
 import { create, Whatsapp, decryptMedia, ev, smartUserAgent } from '../src/index';
 const mime = require('mime-types');

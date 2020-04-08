@@ -1,8 +1,8 @@
 {
-  "name": "sulla-hotfix",
+  "name": "@open-wa/wa-automate",
   "version": "1.8.42",
   "licenseCheckUrl": "https://sulla-hotfix.glitch.me/license-check",
-  "description": "Javascript whatsapp framework",
+  "description": " 💬 🤖 The most advanced NodeJS whatsapp library for chatbots with advanced features.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -26,22 +26,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smashah/sulla.git"
+    "url": "git+https://github.com/open-wa/wa-automate-nodejs.git"
   },
   "keywords": [
     "whatsapp",
     "javascript",
     "bot",
     "typescript",
-    "automatization",
+    "automation",
     "puppeteer"
   ],
   "author": "Mohammed Shah <@smashah>",
   "license": "H-DNH V1.0",
   "bugs": {
-    "url": "https://github.com/smashah/sulla/issues"
+    "url": "https://github.com/open-wa/wa-automate-nodejs/issues"
   },
-  "homepage": "https://github.com/smashah/sulla#readme",
+  "homepage": "https://github.com/open-wa/wa-automate-nodejs#readme",
   "engines": {
     "node": ">=10.0.0"
   },

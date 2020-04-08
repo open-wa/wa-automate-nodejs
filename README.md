@@ -1,15 +1,15 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/smashah/sulla/master/resources/hotfix-logo.png" width="128" height="128"/>
+<img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/hotfix-logo.png" width="128" height="128"/>
 
 # wa-automate-nodejs
 
-> Sulla-hotfix is the most advanced NodeJS library which provides a high-level API control to Whatsapp.
+> wa-automate-nodejs is the most advanced NodeJS library which provides a high-level API control to Whatsapp.
 >
-> It is built using [puppeteer](https://github.com/GoogleChrome/puppeteer), based on [this python wrapper](https://github.com/mukulhase/WebWhatsapp-Wrapper) and is an extension of the work done in [this base project](https://github.com/danielcardeenas/sulla)
+> It is built using [puppeteer](https://github.com/GoogleChrome/puppeteer), based on [this python wrapper](https://github.com/mukulhase/WebWhatsapp-Wrapper).
 
-[![npm version](https://img.shields.io/npm/v/sulla-hotfix.svg?color=green)](https://www.npmjs.com/package/sulla-hotfix)
-![node](https://img.shields.io/node/v/sulla-hotfix)
-[![Downloads](https://img.shields.io/npm/dm/sulla-hotfix.svg)](https://www.npmjs.com/package/sulla-hotfix)
+[![npm version](https://img.shields.io/npm/v/@open-wa/wa-automate.svg?color=green)](https://www.npmjs.com/package/@open-wa/wa-automate)
+![node](https://img.shields.io/node/v/@open-wa/wa-automate)
+[![Downloads](https://img.shields.io/npm/dm/@open-wa/wa-automate.svg)](https://www.npmjs.com/package/@open-wa/wa-automate)
 
 <a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 0.4.2088](https://img.shields.io/badge/WhatsApp_Web-0.4.2088-brightgreen.svg)
 
@@ -21,16 +21,16 @@
 ## Installation
 
 ```bash
-> npm i --save sulla-hotfix
+> npm i --save @open-wa/wa-automate
 ```
 
 ## Usage
 
 ```javascript
-// import { create, Whatsapp } from 'sulla-hotfix';
-const sulla = require('sulla-hotfix');
+// import { create, Whatsapp } from '@open-wa/wa-automate';
+const wa = require('@open-wa/wa-automate');
 
-sulla.create().then(client => start(client));
+wa.create().then(client => start(client));
 
 function start(client) {
   client.onMessage(message => {
@@ -41,9 +41,9 @@ function start(client) {
 }
 ```
 
-###### After executing `create()` function, **sulla** will create an instance of whatsapp web. If you are not logged in, it will print a QR code in the [terminal](https://i.imgur.com/g8QvERI.png). Scan it with your phone and you are ready to go!
+###### After executing `create()` function, **@open-wa/wa-automate** will create an instance of whatsapp web. If you are not logged in, it will print a QR code in the [terminal](https://i.imgur.com/g8QvERI.png). Scan it with your phone and you are ready to go!
 
-###### sulla-hotfix will remember the session so there is no need to authenticate everytime.
+###### @open-wa/wa-automate will remember the session so there is no need to authenticate everytime.
 
 ### Functions list
 
@@ -76,7 +76,7 @@ function start(client) {
 | [Create Groups](#create-group)         |             | ✅          |
 | [add, remove, promote, demote participants](##group-participants-beta)         |             | ✅          |
 
-[Checkout all the available functions here.](https://smashah.github.io/sulla/classes/whatsapp.html)
+[Checkout all the available functions here.](https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html)
 
 ## Starting a conversation
 
@@ -90,7 +90,7 @@ There are 3 ways to start a chat with a new number:
       You can add this button to your website which, when clicked, will open a chat with you in the same way as above.
 3. With a License Key
 
-     In order to unlock the functionality to send texts to unknown numbers through sulla-hotfix itself, you will need an License key.
+     In order to unlock the functionality to send texts to unknown numbers through @open-wa/wa-automate itself, you will need an License key.
 
      One License Key is valid for one number. Each License Key is £5 per month or £50 per year.
 
@@ -105,7 +105,7 @@ There are 3 ways to start a chat with a new number:
      6. Select "Make this message private."
 
         <div align="center">
-        <img src="https://raw.githubusercontent.com/smashah/sulla/master/resources/membership.png"/>
+        <img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/membership.png"/>
         </div>
 
      7. Complete the process for membership.
@@ -131,8 +131,8 @@ There are 3 ways to start a chat with a new number:
 You can clone this repo and run the demo, but you will need to use typescript/ts-node:
 
 ```bash
-> git clone https://github.com/smashah/sulla.git
-> cd sulla
+> git clone https://github.com/open-wa/wa-automate-nodejs.git
+> cd wa-automate-nodejs
 > npm i
 > npm i -g ts-node typescript
 > cd demo
@@ -144,7 +144,7 @@ You can clone this repo and run the demo, but you will need to use typescript/ts
 An event is emitted every time the QR code is received by the system. You can grab hold of this event emitter by importing `ev`
 
 ```javascript
-import { ev } from 'sulla-hotfix';
+import { ev } from '@open-wa/wa-automate';
 const fs = require('fs');
 
 ev.on('qr.**', async qrcode => {
@@ -162,7 +162,7 @@ You can see a live implementation of this on `demo/index.ts`. Give it a spin! :D
 
 ## Refreshing QRCode
 
-In version v1.6.13^, sulla can refresh the QR code every 10 seconds (you can change the interval).
+In version v1.6.13^, you can now refresh the QR code every 10 seconds (you can change the interval).
 
 ```javascript
 create('session',{
@@ -188,7 +188,7 @@ client.kill();
 
 ## Force Refocus and reacting to state
 
-When a user starts using whatsapp web in a different browser, sulla-hotfix will be left on a screen prompting you to click 'Use here'. As of v1.6.6^ you can now force the client to press 'Use here' everytime the state has changed to 'CONFLICT'. onStateChanged results in 'UNPAIRED', 'CONNECTED' or 'CONFLICT';
+When a user starts using whatsapp web in a different browser, @open-wa/wa-automate will be left on a screen prompting you to click 'Use here'. As of v1.6.6^ you can now force the client to press 'Use here' everytime the state has changed to 'CONFLICT'. onStateChanged results in 'UNPAIRED', 'CONNECTED' or 'CONFLICT';
 
 ```javascript
 client.onStateChanged(state=>{
@@ -204,7 +204,7 @@ client.onStateChanged(state=>{
 Here is a sample of how to decrypt media. This has been tested on images, videos, documents, audio and voice notes.
 
 ```javascript
-import { create, Whatsapp, decryptMedia } from 'sulla-hotfix';
+import { create, Whatsapp, decryptMedia } from '@open-wa/wa-automate';
 const mime = require('mime-types');
 const fs = require('fs');
 
@@ -235,7 +235,7 @@ function start(client: Whatsapp) {
 create().then(client => start(client));
 ```
 
-It is always preferable to keep projects smaller than needed so you can now use a lightweight library called wa-decrypt for projects that do not need all of sulla-hotfix.
+It is always preferable to keep projects smaller than needed so you can now use a lightweight library called wa-decrypt for projects that do not need all of @open-wa/wa-automate.
 
 You can install that using:
 
@@ -272,7 +272,7 @@ Interestingly sendImage has always worked for sending any type of file.
 An example of sending a is shown in the Decrypting Media secion above also.
 
 ```javascript
-import { create, Whatsapp} from 'sulla-hotfix';
+import { create, Whatsapp} from '@open-wa/wa-automate';
 
 function start(client: Whatsapp) {
 await client.sendFile('xyz@c.us',[BASE64 FILE DATA],'some file.pdf', `Hello this is the caption`);
@@ -285,7 +285,7 @@ Please note sometimes short(<4s) voice notes sometimes do not decrypt properly a
 
 ## Sending Video
 
-If you intend to use video via sulla-hotfix, you need to use a chrome instance with puppeteer instead of the default chromium instance. This is becase chromium does not have any relevant video codecs needed for new whatsapp web video sending features.
+If you intend to use video via @open-wa/wa-automate, you need to use a chrome instance with puppeteer instead of the default chromium instance. This is becase chromium does not have any relevant video codecs needed for new whatsapp web video sending features.
 
 You will need to make sure that you have a valid chrome instance on your machine then use the following to tell puppeteer where it can find your chrome isntance. The below demo is an example for mac & windows. For linux based hosts, you can find the chrome path with ```whereis google-chrome```, it should be something like ```/usr/bin/google-chrome```
 
@@ -314,7 +314,7 @@ There are two ways to send GIFs - by Video or by giphy link.
 
 ```javascript
 
-import { create, Whatsapp} from 'sulla-hotfix';
+import { create, Whatsapp} from '@open-wa/wa-automate';
 
 function start(client: Whatsapp) {
 await client.sendVideoAsGif('xyz@c.us',[BASE64 Video FILE DATA],'some file.mp4', `Hello this is the caption`);
@@ -336,7 +336,7 @@ create('session',{
 
 ```javascript
 
-import { create, Whatsapp} from 'sulla-hotfix';
+import { create, Whatsapp} from '@open-wa/wa-automate';
 
 function start(client: Whatsapp) {
 await client.sendGiphy('xyz@c.us','https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif', `Hello this is the caption`);
@@ -471,7 +471,7 @@ This solution can result in some false positives and misfires however a lot of e
 
 # Listen to Live Locations
 
-As of version 1.7.21 you can now listen to live locations from a specific chat. You can see the liveLocation callback object [here](https://github.com/smashah/sulla/blob/752adb1cb1664044f9f53410e723421131ecd81f/src/api/model/chat.ts#L33) 
+As of version 1.7.21 you can now listen to live locations from a specific chat. You can see the liveLocation callback object [here](https://github.com/open-wa/wa-automate-nodejs/blob/752adb1cb1664044f9f53410e723421131ecd81f/src/api/model/chat.ts#L33) 
 
 ```javascript
 
@@ -519,7 +519,7 @@ create('session',
 
 ## Managing multiple sessions at once
 
-With v1.2.4, you can now run multiple sessions of sulla-hotfix in the same 'app'. This allows you to do interesting things for example:
+With v1.2.4, you can now run multiple sessions of @open-wa/wa-automate in the same 'app'. This allows you to do interesting things for example:
 
 1. Design and run automated tests for you WA bot.
 2. Connect two or more whatsapp numbers to a single (or multiple) message handler(s)
@@ -530,7 +530,7 @@ Please see demo/index.ts for a working example
 NOTE: DO NOT CREATE TWO SESSIONS WITH THE SAME SESSIONID. DO NOT ALLOW SPACES AS SESSION ID.
 
 ```javascript
-import { create, Whatsapp} from 'sulla-hotfix';
+import { create, Whatsapp} from '@open-wa/wa-automate';
 
 function start(client: Whatsapp) {
   ...
@@ -581,7 +581,7 @@ Setting up your client in ```headless:false``` mode ensures you can easily visua
 Example:
 
 ```javascript
-import { create, Whatsapp} from 'sulla-hotfix';
+import { create, Whatsapp} from '@open-wa/wa-automate';
 
 function start(client: Whatsapp) {
   ...
@@ -606,19 +606,19 @@ create('session',
 Since this is not an officially sanctioned solution it is tempermental to say the least. Here are some best practices:
 
 1. Keep the session alive
-2. Offload most work off of your sulla-hotfix setup (i.e forward all events to a pubsub or something)
+2. Offload most work off of your @open-wa/wa-automate setup (i.e forward all events to a pubsub or something)
 3. Keep the phone nearby just in case you need to reauthenticate
 4. Use a chrome instance instead of the default chromium instance
 5. Use headless: false for easy & quick visual debugging
 6. Implement the unread messages functionality on creation of a session so you don't miss any messages upon any downtime.
 7. Implement a [promise-queue](https://github.com/sindresorhus/p-queue)
 8. Use a unique and valid custom user-agent
-9. ```await``` all sulla-hotfix methods just in case
-10. Do not run your sulla-hotfix instance on a Windows machine.
-11. Always [kill the session safely](https://github.com/smashah/sulla#kill-the-session) upon error or SIGINT.
+9. ```await``` all @open-wa/wa-automate methods just in case
+10. Do not run your s@open-wa/wa-automate instance on a Windows machine.
+11. Always [kill the session safely](https://github.com/open-wa/wa-automate-nodejs#kill-the-session) upon error or SIGINT.
 
 ```javascript
-import { create, Whatsapp} from 'sulla-hotfix';
+import { create, Whatsapp} from '@open-wa/wa-automate';
 const { default: PQueue } = require("p-queue");
 
 const queue = new PQueue({
@@ -667,7 +667,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## License
 
-[Hippocratic + Do Not Harm Version 1.0](https://github.com/smashah/sulla/blob/master/LICENSE.md)
+[Hippocratic + Do Not Harm Version 1.0](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md)
 
 ## Legal
 
