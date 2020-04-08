@@ -1835,7 +1835,7 @@ window.WAPI.simulateTyping = async function (chatId, on) {
  */
 window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
     var chat = Store.Chat.get(chatId);
-    var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.x_isSentByMe && !msg.quotedMsg)[0]);
+    var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe && !msg.quotedMsg)[0]);
     var newId = window.WAPI.getNewMessageId(chatId);
     var extend = {
         ack: 0,
@@ -1878,7 +1878,7 @@ window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
  */
 window.WAPI.sendVCard = async function (chatId, vcard, contactName) {
     var chat = Store.Chat.get(chatId);
-    var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.x_isSentByMe && !msg.quotedMsg)[0]);
+    var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe && !msg.quotedMsg)[0]);
     var newId = window.WAPI.getNewMessageId(chatId);
     var extend = {
         ack: 0,
@@ -1912,7 +1912,7 @@ window.WAPI.sendVCard = async function (chatId, vcard, contactName) {
 
 window.WAPI.sendButtons = async function(chatId){
     var chat = Store.Chat.get(chatId);
-    var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.x_isSentByMe && !msg.quotedMsg)[0]);
+    var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe && !msg.quotedMsg)[0]);
     // var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.to._serialized===chatId&&msg.__x_isSentByMe&& msg.type=='chat' && !msg.quotedStanzaID)[0])
     var t2 = Object.create(Store.Msg.filter(x=>x.type=='template'&!x.id.fromMe)[0]);
     var newId = window.WAPI.getNewMessageId(chatId);
@@ -2154,7 +2154,7 @@ window.WAPI.reply = async function (chatId, body, quotedMsg) {
             quotedParticipant: quotedMsg.author || quotedMsg.from,
             quotedStanzaID:quotedMsg.id.id
         };
-    var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.x_isSentByMe && !msg.quotedMsg)[0]);
+    var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe && !msg.quotedMsg)[0]);
     var newId = window.WAPI.getNewMessageId(chatId);
     var extend = {
         ack: 0,
@@ -2183,7 +2183,7 @@ window.WAPI.reply = async function (chatId, body, quotedMsg) {
  */
 window.WAPI.sendPaymentRequest = async function (chatId, amount1000, currency, noteMessage) {
     var chat = Store.Chat.get(chatId);
-    var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.x_isSentByMe && !msg.quotedMsg)[0]);
+    var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe && !msg.quotedMsg)[0]);
     var newId = window.WAPI.getNewMessageId(chatId);
     var extend = {
         ack: 0,
