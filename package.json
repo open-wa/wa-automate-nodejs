@@ -37,6 +37,9 @@
     "puppeteer"
   ],
   "author": "Mohammed Shah <@smashah>",
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "H-DNH V1.0",
   "bugs": {
     "url": "https://github.com/open-wa/wa-automate-nodejs/issues"
