@@ -49,10 +49,7 @@ export async function initWhatsapp(sessionId?: string, puppeteerConfigOverride?:
   if(sessionjson) await waPage.evaluateOnNewDocument(
     session => {
         localStorage.clear();
-        localStorage.setItem('WABrowserId', session.WABrowserId);
-        localStorage.setItem('WASecretBundle', session.WASecretBundle);
-        localStorage.setItem('WAToken1', session.WAToken1);
-        localStorage.setItem('WAToken2', session.WAToken2);
+        Object.keys(session).forEach(key=>localStorage.setItem(key,session[key]));
     }, sessionjson);
     
   await waPage.goto(puppeteerConfig.whatsappUrl);

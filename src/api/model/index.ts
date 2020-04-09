@@ -81,7 +81,7 @@ export interface ConfigObject {
      * You can capture the event like so:
      * ```javascript
      * import {create, ev} from '@open-wa/wa-automate';
-     * ev.on('sessionData', async (sessionData, sessionId) =>{
+     * ev.on('sessionData.**', async (sessionData, sessionId) =>{
      *          console.log(sessionId, sessionData)
      *      })
      * ```
