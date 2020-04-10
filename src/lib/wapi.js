@@ -164,7 +164,7 @@ window.WAPI._serializeMessageObj = (obj) => {
     if (obj == undefined) {
         return null;
     }
-    const _chat = WAPI._serializeChatObj(obj['chat']);
+    const _chat = obj['chat'] ? WAPI._serializeChatObj(obj['chat']) : {};
     if(obj.quotedMsg) obj.quotedMsgObj();
     return Object.assign(window.WAPI._serializeRawObj(obj), {
         id: obj.id._serialized,
