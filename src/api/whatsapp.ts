@@ -1090,7 +1090,7 @@ public async getStatus(contactId: string) {
    * ```javascript
    * [{
    * "id": "000000000000@g.us", //the id of the chat
-   * "indicatedNewMessages": [] //arrau of messages, not incliding any messages by the host phone
+   * "indicatedNewMessages": [] //array of messages, not including any messages by the host phone
    * }]
    * ```
    * @returns list of messages
