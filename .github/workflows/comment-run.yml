@@ -14,7 +14,7 @@ jobs:
     - uses: nwtgck/actions-comment-run@v1.0
       with:
         github-token: ${{ secrets.CUSTOM_GH_TOKEN }}
-        allowed-associations: '["OWNER"]'
+        allowed-associations: '["OWNER", "COLLABORATOR"]'
       env:
         NPM_TOKEN: ${{secrets.NPM_TOKEN}}
         GITHUB_TOKEN: ${{ secrets.CUSTOM_GH_TOKEN }}
