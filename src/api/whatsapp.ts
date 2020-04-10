@@ -120,6 +120,7 @@ declare module WAPI {
   const getAllGroups: () => Chat[];
   const getGroupParticipantIDs: (groupId: string) => Id[];
   const leaveGroup: (groupId: string) => any;
+  const getVCards: (msgId: string) => any;
   const getContact: (contactId: string) => Contact;
   const checkNumberStatus: (contactId: string) => any;
   const getChatById: (contactId: string) => Chat;
@@ -818,6 +819,29 @@ public async contactUnblock(id: string) {
     return await this.page.evaluate(
       groupId => WAPI.leaveGroup(groupId),
       groupId
+    );
+  }
+
+/**
+ * Extracts vcards from a message.This works on messages of typ `vcard` or `multi_vcard`
+ * @param msgId string id of the message to extract the vcards from
+ * @returns [vcard] 
+ * ```
+ * [
+ * {
+ * displayName:"Contact name",
+ * vcard: "loong vcard string"
+ * }
+ * ]
+ * ``` 
+ * or false if no valid vcards found.
+ * 
+ * Please use [vcf](https://www.npmjs.com/package/vcf) to convert a vcard string into a json object
+ */
+  public async getVCards(msgId: string) {
+    return await this.page.evaluate(
+      msgId => WAPI.getVCards(msgId),
+      msgId
     );
   }
 

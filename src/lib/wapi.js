@@ -1348,6 +1348,37 @@ window.WAPI.archiveChat = async function (id, archive) {
     return await Store.Archive.setArchive(Store.Chat.get(id),archive).then(_=>true).catch(_=>false)
 }
 
+/**
+ * Extracts vcards from a message
+ * @param id string id of the message to extract the vcards from
+ * @returns [vcard] 
+ * ```
+ * [
+ * {
+ * displayName:"Contact name",
+ * vcard: "loong vcard string"
+ * }
+ * ]
+ * ``` or false if no valid vcards found
+ */
+window.WAPI.getVCards = function(id) {
+    var msg = Store.Msg.get(id);
+    if(msg) {
+        if(msg.type=='vcard') {
+            return [
+                {
+                    displayName:msg.subtype,
+                    vcard:msg.body
+                }
+            ]
+        } else if (msg.type=='multi_vcard') {
+            return msg.vcardList
+        } else return false;
+    } else {
+        return false
+    }
+}
+
 window.WAPI.checkNumberStatus = async function (id, done) {
     try {
         const result = await window.Store.WapQuery.queryExist(id);
