@@ -165,7 +165,7 @@ You can see a live implementation of this on `demo/index.ts`. Give it a spin! :D
 In version v1.6.13^, you can now refresh the QR code every 10 seconds (you can change the interval).
 
 ```javascript
-create('session',{
+create({
     autoRefresh:false, //default to true
     qrRefreshS:30 //please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.
 }).then(async client => await start(client));
@@ -291,7 +291,7 @@ You will need to make sure that you have a valid chrome instance on your machine
 
 ```javascript
 
-create('session',{
+create({
   // For Mac:
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   // For Windows:
@@ -321,7 +321,7 @@ await client.sendVideoAsGif('xyz@c.us',[BASE64 Video FILE DATA],'some file.mp4',
 }
 
 ///IMPORTANT! Please make sure to point to your chrome installation and make sure your host has ffmpeg support
-create('session',{
+create({
   // For Mac:
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   // For Windows:
@@ -342,7 +342,7 @@ function start(client: Whatsapp) {
 await client.sendGiphy('xyz@c.us','https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif', `Hello this is the caption`);
 }
 
-create('session',{
+create({
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
 }).then(client => start(client));
 
@@ -510,8 +510,7 @@ Note: You won't get 3 if the recipient has read receipts off.
 If you want to kill the process after a certain amount of seconds due to an unscanned code, you can now set the killTimer parameter in the configuration object.
 
 ```javascript
-create('session',
-{
+create({
   killTimer: 30 //kills the session if the QR code is not scanned within 30 seconds.
 })
 .then(client => start(client));
@@ -538,7 +537,9 @@ function start(client: Whatsapp) {
 
 create().then(client => start(client));
 
-create('another_session').then(client => start(client));
+create({
+  sessionId:'another_session'
+}).then(client => start(client));
 ```
 
 You can then capture the QR Code for each session using the following event listener code:
@@ -593,11 +594,10 @@ create().then(client => start(client));
 //2nd argument is the puppeteer config override
 //3rd argument is the user agent override
 
-create('session',
-{
-  headless: false
-},
-'some custom user agent')
+create({
+  headless: false,
+  customUserAgent: 'some custom user agent'
+})
 .then(client => start(client));
 ```
 
@@ -648,16 +648,15 @@ create().then(client => start(client));
 //2nd argument is the puppeteer config override
 //3rd argument is the user agent override
 
-create('session',
-{
+create({
   // For Mac:
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   // For Windows:
   // executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
   headless: false,
-  autoRefresh:true
-},
-'some custom user agent')
+  autoRefresh:true,
+  customUserAgent: 'some custom user agent'
+})
 .then(client => start(client));
 ```
 
