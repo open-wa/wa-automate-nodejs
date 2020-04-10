@@ -126,6 +126,7 @@ declare module WAPI {
   const smartDeleteMessages: (contactId: string, messageId: string[] | string, onlyLocal:boolean) => any;
   const sendContact: (to: string, contact: string | string[]) => any;
   const simulateTyping: (to: string, on: boolean) => void;
+  const archiveChat: (id: string, archive: boolean) => Promise<boolean>;
   const isConnected: () => Boolean;
   const loadEarlierMessages: (contactId: string) => Message[];
   const loadAllEarlierMessages: (contactId: string) => void;
@@ -683,6 +684,19 @@ export class Whatsapp {
     return await this.page.evaluate(
       ({ to, on }) => WAPI.simulateTyping(to, on),
       { to, on }
+    );
+  }
+
+
+  /**
+   * @param id The id of the conversation
+   * @param archive boolean true => archive, false => unarchive
+   * @return boolean true: worked, false: didnt work (probably already in desired state)
+   */
+  public async archiveChat(id: string, archive: boolean) {
+    return await this.page.evaluate(
+      ({ id, archive }) => WAPI.archiveChat(id, archive),
+      { id, archive }
     );
   }
 

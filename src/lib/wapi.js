@@ -15,6 +15,7 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "Store", conditions: (module) => (module.Chat && module.Msg) ? module : null },
                 { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && (module.default.prototype.processFiles !== undefined||module.default.prototype.processAttachments !== undefined)) ? module.default : null },
                 { id: "MediaProcess", conditions: (module) => (module.BLOB) ? module : null },
+                { id: "Archive", conditions: (module) => (module.setArchive) ? module : null },
                 { id: "Block", conditions: (module) => (module.blockContact && module.unblockContact) ? module : null },
                 { id: "ChatUtil", conditions: (module) => (module.sendClear) ? module : null },
                 { id: "GroupInvite", conditions: (module) => (module.queryGroupInviteCode) ? module : null },
@@ -102,6 +103,7 @@ if (!window.Store||!window.Store.Msg) {
         // webpackJsonp([], { [parasite]: (x, y, z) => getStore(z) }, [parasite]);
         if (typeof webpackJsonp === 'function') webpackJsonp([], {[parasite]: (x, y, z) => getStore(z)}, [parasite]); 
         else webpackJsonp.push([[parasite],{[parasite]: (x, y, z) => getStore(z)},[[parasite]]]);
+        
     })();
 }
 
@@ -1335,6 +1337,15 @@ window.WAPI.deleteMessage = function (chatId, messageArray, revoke = false, done
 
 window.WAPI.clearChat = async function (id) {
     return await Store.ChatUtil.sendClear(Store.Chat.get(id),true);
+}
+
+/**
+ * @param id The id of the conversation
+ * @param archive boolean true => archive, false => unarchive
+ * @return boolean true: worked, false: didnt work (probably already in desired state)
+ */
+window.WAPI.archiveChat = async function (id, archive) {
+    return await Store.Archive.setArchive(Store.Chat.get(id),archive).then(_=>true).catch(_=>false)
 }
 
 window.WAPI.checkNumberStatus = async function (id, done) {
