@@ -109,6 +109,7 @@ declare module WAPI {
   const getWAVersion: () => String;
   const getMe: () => any;
   const getAllUnreadMessages: () => any;
+  const getIndicatedNewMessages: () => any;
   const getAllChatsWithMessages: (withNewMessageOnly?: boolean) => any;
   const getAllChats: () => any;
   const getBatteryLevel: () => Number;
@@ -1082,6 +1083,20 @@ public async getStatus(contactId: string) {
    */
   public async getAllUnreadMessages() {
     return JSON.parse(await this.page.evaluate(() => WAPI.getAllUnreadMessages()));
+  }
+
+  /**
+   * Retrieves all unread Messages as indicated by the red dots in whatsapp web. This returns an array of objects and are structured like so:
+   * ```javascript
+   * [{
+   * "id": "000000000000@g.us", //the id of the chat
+   * "indicatedNewMessages": [] //arrau of messages, not incliding any messages by the host phone
+   * }]
+   * ```
+   * @returns list of messages
+   */
+  public async getIndicatedNewMessages() {
+    return JSON.parse(await this.page.evaluate(() => WAPI.getIndicatedNewMessages()));
   }
 
   /**
