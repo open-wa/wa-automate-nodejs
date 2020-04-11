@@ -924,7 +924,7 @@ window.WAPI.sendMessageWithMentions = async function (ch, body) {
     if(!msgIveSent) return chat.sendMessage(body);
     var tempMsg = Object.create(msgIveSent);
     var newId = window.WAPI.getNewMessageId(chatId);
-    var mentionedJidList = body.match(/@(\d*)/g).map(x=>new Store.WidFactory.createUserWid(x.replace("@",""))) || undefined;
+    var mentionedJidList = body.match(/@(\d*)/g).filter(x=>x.length>5).map(x=>new Store.WidFactory.createUserWid(x.replace("@",""))) || undefined;
     var extend = {
         ack: 0,
         id: newId,
@@ -1663,10 +1663,11 @@ window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
     // create new chat
     return Store.Chat.find(idUser).then((chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
-        window.WAPI.procFiles(chat,mediaBlob).then(mc => {
+        return window.WAPI.procFiles(chat,mediaBlob).then(mc => {
             var media = mc.models[0];
-            media.sendToChat(chat, { caption: caption });
+            media.sendToChat(chat, { caption });
             if (done !== undefined) done(true);
+            return chat.lastReceivedKey._serialized;
         });
     });
 }
