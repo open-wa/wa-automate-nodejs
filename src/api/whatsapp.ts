@@ -92,7 +92,7 @@ declare module WAPI {
   ) => void;
   const getBusinessProfilesProducts: (to: string) => any;
   const sendImageWithProduct: (base64: string, to: string, caption: string, bizNumber: string, productId: string) => any;
-  const sendVCard: (chatId: string, vcardString: string, contactName: string: contactNumber?: string) => Promise<boolean>;
+  const sendVCard: (chatId: string, vcardString: string, contactName: string, contactNumber?: string) => Promise<boolean>;
   const sendFile: (
     base64: string,
     to: string,
@@ -280,8 +280,8 @@ export class Whatsapp {
  */
   public async sendVCard(chatId: string, vcard: string, contactName:string,  contactNumber?: string) {
     return await this.page.evaluate(
-      ({chatId, vcard, contactName}) => {WAPI.sendVCard(chatId, vcard,contactName, contactNumber)},
-      {chatId, vcard, contactName}
+      ({chatId, vcard, contactName, contactNumber}) => {WAPI.sendVCard(chatId, vcard,contactName, contactNumber)},
+      {chatId, vcard, contactName, contactNumber}
       )
   }
 
