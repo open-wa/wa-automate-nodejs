@@ -94,6 +94,11 @@ export interface ConfigObject {
      */
     chromiumArgs ?: string[],
     /**
+     * If set to true, skipBrokenMethodsCheck will bypass the health check before startup. It is highly suggested to not set this to true.
+     * Default: false
+     */
+    skipBrokenMethodsCheck ?: boolean,
+    /**
      * This is the name of the session. You have to make sure that this is unique for every session.
      */
     sessionId ?: string,

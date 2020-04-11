@@ -157,9 +157,13 @@ spinner.emit(sessionData,"sessionData");
  * 3. remove brackets
  * 4. go through each and test if exists.
 */
-const BROKEN_METHODS = await waPage.evaluate((checkList)=>{
+const BROKEN_METHODS = config?.skipBrokenMethodsCheck ? [] : await waPage.evaluate((checkList)=>{
   return checkList.filter(check=> {
-    return eval(check)?false:true;
+    try{
+      return eval(check)?false:true;
+    } catch(error) {
+      return true;
+    }
   })
 },uniq(fs.readFileSync(path.join(__dirname, '../lib', 'wapi.js'), 'utf8').match(/(Store[.\w]*)\(/g).map((x:string)=>x.replace("(",""))));
 //@ts-ignores
