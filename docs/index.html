@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>@open-wa/wa-automate - v1.8.48</title>
+	<title>@open-wa/wa-automate - v1.8.49</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">@open-wa/wa-automate - v1.8.48</a>
+					<a href="index.html" class="title">@open-wa/wa-automate - v1.8.49</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -56,7 +56,7 @@
 					<a href="globals.html">Globals</a>
 				</li>
 			</ul>
-			<h1>@open-wa/wa-automate - v1.8.48</h1>
+			<h1>@open-wa/wa-automate - v1.8.49</h1>
 		</div>
 	</div>
 </header>
@@ -330,7 +330,7 @@ ev.on(<span class="hljs-string">'qr.**'</span>, <span class="hljs-keyword">async
 					<h2>Refreshing QRCode</h2>
 				</a>
 				<p>In version v1.6.13^, you can now refresh the QR code every 10 seconds (you can change the interval).</p>
-				<pre><code class="language-javascript">create(<span class="hljs-string">'session'</span>,{
+				<pre><code class="language-javascript">create({
     <span class="hljs-attr">autoRefresh</span>:<span class="hljs-literal">false</span>, <span class="hljs-comment">//default to true</span>
     <span class="hljs-attr">qrRefreshS</span>:<span class="hljs-number">30</span> <span class="hljs-comment">//please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.</span>
 }).then(<span class="hljs-keyword">async</span> client =&gt; <span class="hljs-keyword">await</span> start(client));</code></pre>
@@ -423,7 +423,7 @@ create().then(<span class="hljs-function"><span class="hljs-params">client</span
 				<p>If you intend to use video via @open-wa/wa-automate, you need to use a chrome instance with puppeteer instead of the default chromium instance. This is becase chromium does not have any relevant video codecs needed for new whatsapp web video sending features.</p>
 				<p>You will need to make sure that you have a valid chrome instance on your machine then use the following to tell puppeteer where it can find your chrome isntance. The below demo is an example for mac &amp; windows. For linux based hosts, you can find the chrome path with <code>whereis google-chrome</code>, it should be something like <code>/usr/bin/google-chrome</code></p>
 				<pre><code class="language-javascript">
-create(<span class="hljs-string">'session'</span>,{
+create({
   <span class="hljs-comment">// For Mac:</span>
   <span class="hljs-attr">executablePath</span>: <span class="hljs-string">'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'</span>,
   <span class="hljs-comment">// For Windows:</span>
@@ -449,7 +449,7 @@ create(<span class="hljs-string">'session'</span>,{
 }
 
 <span class="hljs-comment">///IMPORTANT! Please make sure to point to your chrome installation and make sure your host has ffmpeg support</span>
-create(<span class="hljs-string">'session'</span>,{
+create({
   <span class="hljs-comment">// For Mac:</span>
   <span class="hljs-attr">executablePath</span>: <span class="hljs-string">'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'</span>,
   <span class="hljs-comment">// For Windows:</span>
@@ -468,7 +468,7 @@ create(<span class="hljs-string">'session'</span>,{
 <span class="hljs-keyword">await</span> client.sendGiphy(<span class="hljs-string">'xyz@c.us'</span>,<span class="hljs-string">'https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif'</span>, <span class="hljs-string">`Hello this is the caption`</span>);
 }
 
-create(<span class="hljs-string">'session'</span>,{
+create({
   <span class="hljs-attr">executablePath</span>: <span class="hljs-string">'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'</span>,
 }).then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
 </code></pre>
@@ -592,8 +592,7 @@ client.onLiveLocation(<span class="hljs-string">'XXXXXXX-YYYYY@c.us'</span>, (li
 					<h2>Timing out an unpaired session</h2>
 				</a>
 				<p>If you want to kill the process after a certain amount of seconds due to an unscanned code, you can now set the killTimer parameter in the configuration object.</p>
-				<pre><code class="language-javascript">create(<span class="hljs-string">'session'</span>,
-{
+				<pre><code class="language-javascript">create({
   <span class="hljs-attr">killTimer</span>: <span class="hljs-number">30</span> <span class="hljs-comment">//kills the session if the QR code is not scanned within 30 seconds.</span>
 })
 .then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
@@ -616,7 +615,9 @@ client.onLiveLocation(<span class="hljs-string">'XXXXXXX-YYYYY@c.us'</span>, (li
 
 create().then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
 
-create(<span class="hljs-string">'another_session'</span>).then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
+create({
+  <span class="hljs-attr">sessionId</span>:<span class="hljs-string">'another_session'</span>
+}).then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
 				<p>You can then capture the QR Code for each session using the following event listener code:</p>
 				<pre><code class="language-javascript"><span class="hljs-comment">//events are fired with the ev namespace then the session Id. e.g "qr.another_session"</span>
 <span class="hljs-comment">//You can however use the wildcard operator with the new event listener and capture the session Id as a parameter instead.</span>
@@ -655,11 +656,10 @@ create().then(<span class="hljs-function"><span class="hljs-params">client</span
 <span class="hljs-comment">//2nd argument is the puppeteer config override</span>
 <span class="hljs-comment">//3rd argument is the user agent override</span>
 
-create(<span class="hljs-string">'session'</span>,
-{
-  <span class="hljs-attr">headless</span>: <span class="hljs-literal">false</span>
-},
-<span class="hljs-string">'some custom user agent'</span>)
+create({
+  <span class="hljs-attr">headless</span>: <span class="hljs-literal">false</span>,
+  <span class="hljs-attr">customUserAgent</span>: <span class="hljs-string">'some custom user agent'</span>
+})
 .then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
 				<a href="#best-practice" id="best-practice" style="color: inherit; text-decoration: none;">
 					<h2>Best Practice</h2>
@@ -708,16 +708,15 @@ create().then(<span class="hljs-function"><span class="hljs-params">client</span
 <span class="hljs-comment">//2nd argument is the puppeteer config override</span>
 <span class="hljs-comment">//3rd argument is the user agent override</span>
 
-create(<span class="hljs-string">'session'</span>,
-{
+create({
   <span class="hljs-comment">// For Mac:</span>
   <span class="hljs-attr">executablePath</span>: <span class="hljs-string">'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'</span>,
   <span class="hljs-comment">// For Windows:</span>
   <span class="hljs-comment">// executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',</span>
   <span class="hljs-attr">headless</span>: <span class="hljs-literal">false</span>,
-  <span class="hljs-attr">autoRefresh</span>:<span class="hljs-literal">true</span>
-},
-<span class="hljs-string">'some custom user agent'</span>)
+  <span class="hljs-attr">autoRefresh</span>:<span class="hljs-literal">true</span>,
+  <span class="hljs-attr">customUserAgent</span>: <span class="hljs-string">'some custom user agent'</span>
+})
 .then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
 				<a href="#contributing" id="contributing" style="color: inherit; text-decoration: none;">
 					<h2>Contributing</h2>
