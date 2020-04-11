@@ -92,7 +92,7 @@ declare module WAPI {
   ) => void;
   const getBusinessProfilesProducts: (to: string) => any;
   const sendImageWithProduct: (base64: string, to: string, caption: string, bizNumber: string, productId: string) => any;
-  const sendVCard: (chatId: string, vcardString: string, contactName: string) => Promise<boolean>;
+  const sendVCard: (chatId: string, vcardString: string, contactName: string: contactNumber?: string) => Promise<boolean>;
   const sendFile: (
     base64: string,
     to: string,
@@ -275,10 +275,12 @@ export class Whatsapp {
  * @param {string} chatId '000000000000@c.us'
  * @param {string} vcard vcard as a string
  * @param {string} contactName The display name for the contact. CANNOT BE NULL OTHERWISE IT WILL SEND SOME RANDOM CONTACT FROM YOUR ADDRESS BOOK.
+ * @param {string} contactNumber If supplied, this will be injected into the vcard (VERSION 3 ONLY FROM VCARDJS) with the whatsapp id to make it show up with the correct buttins on whatsapp. The format of this param should be including country code, without any other formating. e.g:
+ * `4477777777777`
  */
-  public async sendVCard(chatId: string, vcard: string, contactName:string) {
+  public async sendVCard(chatId: string, vcard: string, contactName:string,  contactNumber?: string) {
     return await this.page.evaluate(
-      ({chatId, vcard, contactName}) => {WAPI.sendVCard(chatId, vcard,contactName)},
+      ({chatId, vcard, contactName}) => {WAPI.sendVCard(chatId, vcard,contactName, contactNumber)},
       {chatId, vcard, contactName}
       )
   }

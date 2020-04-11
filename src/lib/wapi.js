@@ -1922,8 +1922,9 @@ window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
  * @param {string} chatId '000000000000@c.us'
  * @param {string} vcard vcard as a string
  * @param {string} contactName The display name for the contact. CANNOT BE NULL OTHERWISE IT WILL SEND SOME RANDOM CONTACT FROM YOUR ADDRESS BOOK.
+ * @param {string} contactNumber If supplied, this will be injected into the vcard (VERSION 3 ONLY FROM VCARDJS) with the whatsapp id to make it show up with the correct buttins on whatsapp.
  */
-window.WAPI.sendVCard = async function (chatId, vcard, contactName) {
+window.WAPI.sendVCard = async function (chatId, vcard, contactName, contactNumber) {
     var chat = Store.Chat.get(chatId);
     var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe && !msg.quotedMsg)[0]);
     var newId = window.WAPI.getNewMessageId(chatId);
@@ -1948,7 +1949,7 @@ window.WAPI.sendVCard = async function (chatId, vcard, contactName) {
         height:undefined,
         width:undefined,
         ephemeralStartTimestamp:undefined,
-        body:vcard,
+        body:contactNumber?vcard.replace('TEL;TYPE=WORK,VOICE:',`TEL;TYPE=WORK,VOICE;waid=${contactNumber}:`):vcard,
         mediaData:undefined,
         isQuotedMsgAvailable: false,
         subtype: contactName
