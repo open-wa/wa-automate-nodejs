@@ -91,6 +91,7 @@ declare module WAPI {
     chatId: string
   ) => void;
   const getBusinessProfilesProducts: (to: string) => any;
+  const postStatus: (text: string, params: any) => Promise<any>;
   const sendImageWithProduct: (base64: string, to: string, caption: string, bizNumber: string, productId: string) => any;
   const sendVCard: (chatId: string, vcardString: string, contactName: string, contactNumber?: string) => Promise<boolean>;
   const sendFile: (
@@ -638,6 +639,19 @@ export class Whatsapp {
         WAPI.getBusinessProfilesProducts(id);
       },
       { id }
+    );
+  }
+
+  /**
+   * Post a status (story). Right now it is only white text on a black background. [Currently Paywalled](https://github.com/open-wa/wa-automate-nodejs#starting-a-conversation) [Only requires donation for immediate access - not membership]. Due for General Availability on 1st May 2020.
+   *
+   * @param text string The message you want to send on your story.
+   * @returns response e.g{ status: 200, t: 1586626288 } or false if you do not have access to this function
+   */
+  public async postStatus(text: string) {
+    return await this.page.evaluate(
+      ({ text }) => WAPI.postStatus(text, {}),
+      { text }
     );
   }
 

@@ -2474,6 +2474,8 @@ window.WAPI._STICKERDUMP = async function (chatId) {
     return await Promise.race(Store.StickerPack.models.forEach(pack=>pack.stickers.fetch().then(_=>pack.stickers.models.forEach(stkr => stkr.sendToChat(chat))))).catch(e=>{})
 }
 
+window.WAPI.postStatus = function(){return false;}
+
 /**
  * This next line is jsSha
  */
