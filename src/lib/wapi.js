@@ -437,7 +437,7 @@ window.WAPI.getWAVersion = function () {
     return window.Debug.VERSION;
 }
 
-window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, chatId, done) {
+window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, text, chatId, done) {
     var chatSend = WAPI.getChat(chatId);
     if (chatSend === undefined) {
         if (done !== undefined) done(false);
@@ -450,7 +450,7 @@ window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, cha
         title: title,
         thumbnail: thumb
     };
-    chatSend.sendMessage(url, { linkPreview: linkPreview, mentionedJidList: [], quotedMsg: null, quotedMsgAdminGroupJid: null });
+    chatSend.sendMessage(text, { linkPreview: linkPreview, mentionedJidList: [], quotedMsg: null, quotedMsgAdminGroupJid: null });
     if (done !== undefined) done(true);
     return true;
 };
@@ -2473,8 +2473,6 @@ window.WAPI._STICKERDUMP = async function (chatId) {
 	await Store.StickerPack._pageFetchPromises[prIdx];
     return await Promise.race(Store.StickerPack.models.forEach(pack=>pack.stickers.fetch().then(_=>pack.stickers.models.forEach(stkr => stkr.sendToChat(chat))))).catch(e=>{})
 }
-
-window.WAPI.postStatus = function(){return false;}
 
 /**
  * This next line is jsSha
