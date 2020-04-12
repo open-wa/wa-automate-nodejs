@@ -1658,10 +1658,9 @@ window.WAPI.getBufferedNewMessages = function (done) {
 /** End new messages observable functions **/
 
 window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
-    //var idUser = new window.Store.UserConstructor(chatid);
-    var idUser = new Store.WidFactory.createWid(chatid);
+    // var idUser = new Store.WidFactory.createWid(chatid);
     // create new chat
-    return Store.Chat.find(idUser).then((chat) => {
+    return Store.Chat.find(chatid).then((chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
         return window.WAPI.procFiles(chat,mediaBlob).then(mc => {
             var media = mc.models[0];
@@ -1690,10 +1689,9 @@ window.WAPI.setMyStatus = function (newStatus) {
 }
 
 window.WAPI.sendVideoAsGif = function (imgBase64, chatid, filename, caption, done) {
-    //var idUser = new window.Store.UserConstructor(chatid);
-    var idUser = new Store.WidFactory.createWid(chatid);
+    // var idUser = new Store.WidFactory.createWid(chatid);
     // create new chat
-    return Store.Chat.find(idUser).then((chat) => {
+    return Store.Chat.find(chatid).then((chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
         var mc = new Store.MediaCollection(chat);
         window.WAPI.procFiles(chat,mediaBlob).then(mc => {
@@ -1765,9 +1763,9 @@ window.WAPI.sendImageWithProduct = function (imgBase64, chatid, caption, bizNumb
                 caption
             }
 
-            var idUser = new Store.WidFactory.createWid(chatid);
+            // var idUser = new Store.WidFactory.createWid(chatid);
 
-            return Store.Chat.find(idUser).then((chat) => {
+            return Store.Chat.find(chatid).then((chat) => {
                 var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
                 // var mc = new Store.MediaCollection(chat);
                 // mc.processFiles([mediaBlob], chat, 1)

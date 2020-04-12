@@ -82,7 +82,7 @@ declare module WAPI {
     to: string,
     filename: string,
     caption: string
-  ) => void;
+  ) => string;
   const sendMessageWithThumb: (
     thumb: string,
     url: string,
@@ -92,6 +92,7 @@ declare module WAPI {
   ) => void;
   const getBusinessProfilesProducts: (to: string) => any;
   const postStatus: (text: string, params: any) => Promise<any>;
+  const deleteStatus: (statusesToDelete: string | string[]) => Promise<any>;
   const sendImageWithProduct: (base64: string, to: string, caption: string, bizNumber: string, productId: string) => any;
   const sendVCard: (chatId: string, vcardString: string, contactName: string, contactNumber?: string) => Promise<boolean>;
   const sendFile: (
@@ -109,6 +110,8 @@ declare module WAPI {
   const getAllContacts: () => Contact[];
   const getWAVersion: () => String;
   const getMe: () => any;
+  const deleteAllStatus: () => Promise<boolean>;
+  const getMyStatusArray: () => Promise<any>;
   const getAllUnreadMessages: () => any;
   const getIndicatedNewMessages: () => any;
   const getAllChatsWithMessages: (withNewMessageOnly?: boolean) => any;
@@ -653,6 +656,33 @@ export class Whatsapp {
       ({ text }) => WAPI.postStatus(text, {}),
       { text }
     );
+  }
+
+/**
+ * Consumes a list of id strings of statuses to delete.
+ * @param statusesToDelete string [] | stringan array of ids of statuses to delete.
+ * @returns boolean. True if it worked.
+ */
+  public async deleteStatus(statusesToDelete: string | string []) {
+    return await this.page.evaluate(
+      ({ statusesToDelete }) => WAPI.deleteStatus(statusesToDelete),
+      { statusesToDelete }
+    );
+  }
+
+/**
+ * Deletes all your existing statuses.
+ * @returns boolean. True if it worked.
+ */
+  public async deleteAllStatus() {
+    return await this.page.evaluate(() => WAPI.deleteAllStatus());
+  }
+
+    /**
+     * Retreives all existing statuses.
+     */
+  public async getMyStatusArray() {
+    return await this.page.evaluate(() => WAPI.getMyStatusArray());
   }
 
   /**
