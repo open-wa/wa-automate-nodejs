@@ -448,7 +448,7 @@ window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, tex
         description: description,
         matchedText: url,
         title: title,
-        thumbnail: thumb
+        thumbnail: thumb // Thumbnail max size allowed: 200x200
     };
     chatSend.sendMessage(`${url} ${text}`, { linkPreview: linkPreview, mentionedJidList: [], quotedMsg: null, quotedMsgAdminGroupJid: null });
     if (done !== undefined) done(true);
