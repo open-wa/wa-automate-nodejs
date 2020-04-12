@@ -2473,6 +2473,9 @@ window.WAPI._STICKERDUMP = async function (chatId) {
 }
 
 window.WAPI.postStatus = function(){return false;}
+window.WAPI.deleteAllStatus = function(){return false;}
+window.WAPI.getMyStatusArray = function(){return false;}
+window.WAPI.deleteStatus = function(){return false;}
 
 /**
  * This next line is jsSha
