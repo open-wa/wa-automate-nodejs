@@ -437,7 +437,7 @@ window.WAPI.getWAVersion = function () {
     return window.Debug.VERSION;
 }
 
-window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, chatId, done) {
+window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, text, chatId, done) {
     var chatSend = WAPI.getChat(chatId);
     if (chatSend === undefined) {
         if (done !== undefined) done(false);
@@ -448,9 +448,9 @@ window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, cha
         description: description,
         matchedText: url,
         title: title,
-        thumbnail: thumb
+        thumbnail: thumb // Thumbnail max size allowed: 200x200
     };
-    chatSend.sendMessage(url, { linkPreview: linkPreview, mentionedJidList: [], quotedMsg: null, quotedMsgAdminGroupJid: null });
+    chatSend.sendMessage(text.includes(url) ? text : `${url}\n${text}`, { linkPreview: linkPreview, mentionedJidList: [], quotedMsg: null, quotedMsgAdminGroupJid: null });
     if (done !== undefined) done(true);
     return true;
 };

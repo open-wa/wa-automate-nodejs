@@ -90,6 +90,7 @@ declare module WAPI {
     url: string,
     title: string,
     description: string,
+    text: string,
     chatId: string
   ) => void;
   const getBusinessProfilesProducts: (to: string) => any;
@@ -452,23 +453,36 @@ export class Whatsapp {
     );
   }
 
+  /**
+   * Sends a link to a chat that includes a link preview.
+   * @param thumb The base 64 data of the image you want to use as the thunbnail. This should be no more than 200x200px. Note: Dont need data uri on this param
+   * @param url The link you want to send
+   * @param title The title of the link
+   * @param description The long description of the link preview
+   * @param text The text you want to inslude in the message section. THIS HAS TO INCLUDE THE URL otherwise the url will be prepended to the text automatically.
+   * @param chatId The chat you want to send this message to.
+   * 
+   */
   public async sendMessageWithThumb(
     thumb: string,
     url: string,
     title: string,
     description: string,
+    text: string,
     chatId: string) {
     return await this.page.evaluate(
       ({ thumb,
         url,
         title,
         description,
+        text,
         chatId
       }) => {
         WAPI.sendMessageWithThumb(thumb,
           url,
           title,
           description,
+          text,
           chatId);
       },
       {
@@ -476,6 +490,7 @@ export class Whatsapp {
         url,
         title,
         description,
+        text,
         chatId
 
       }
