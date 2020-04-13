@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>@open-wa/wa-automate - v1.8.54</title>
+	<title>@open-wa/wa-automate - v1.8.55</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">@open-wa/wa-automate - v1.8.54</a>
+					<a href="index.html" class="title">@open-wa/wa-automate - v1.8.55</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -56,7 +56,7 @@
 					<a href="globals.html">Globals</a>
 				</li>
 			</ul>
-			<h1>@open-wa/wa-automate - v1.8.54</h1>
+			<h1>@open-wa/wa-automate - v1.8.55</h1>
 		</div>
 	</div>
 </header>
@@ -248,6 +248,50 @@ wa.create().then(<span class="hljs-function"><span class="hljs-params">client</s
 						</tr>
 				</tbody></table>
 				<p><a href="https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html">Checkout all the available functions here.</a></p>
+				<a href="#insiders-program" id="insiders-program" style="color: inherit; text-decoration: none;">
+					<h3>Insiders Program</h3>
+				</a>
+				<p>open-wa is at the forefront of open source WhatsApp development. Some new features will be initially released through the insiders program and then released for general availability (GA) the following month. The following features are currently for insiders:</p>
+				<table>
+					<thead>
+						<tr>
+							<th>Function</th>
+							<th>Description</th>
+							<th>GA Release Date</th>
+						</tr>
+					</thead>
+					<tbody><tr>
+							<td><a href="https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#poststatus"><code>postStatus</code></a></td>
+							<td>Post a basic text only status (Story type)</td>
+							<td>1st May 2020</td>
+						</tr>
+						<tr>
+							<td><a href="https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#getMyStatusArray"><code>getMyStatusArray</code></a></td>
+							<td>Returns all statuses for host phone (Story type)</td>
+							<td>1st May 2020</td>
+						</tr>
+						<tr>
+							<td><a href="https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#deleteAllStatus"><code>deleteAllStatus</code></a></td>
+							<td>Clears your story - deletes all statuses (Story type)</td>
+							<td>1st May 2020</td>
+						</tr>
+						<tr>
+							<td><a href="https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#deleteStatus"><code>deleteStatus</code></a></td>
+							<td>Deletes a specific status (Story type)</td>
+							<td>1st May 2020</td>
+						</tr>
+						<tr>
+							<td><a href="https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#setGroupToAdminsOnly"><code>setGroupToAdminsOnly</code></a></td>
+							<td>Changes group setting so only admins can send messages</td>
+							<td>1st May 2020</td>
+						</tr>
+						<tr>
+							<td><a href="https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#setGroupEditToAdminsOnly"><code>setGroupEditToAdminsOnly</code></a></td>
+							<td>Changes group setting so only admins can edit group info</td>
+							<td>1st May 2020</td>
+						</tr>
+				</tbody></table>
+				<p><a href="https://github.com/open-wa/wa-automate-nodejs#license-key">Insiders need a license key.</a></p>
 				<a href="#starting-a-conversation" id="starting-a-conversation" style="color: inherit; text-decoration: none;">
 					<h2>Starting a conversation</h2>
 				</a>
@@ -259,46 +303,51 @@ wa.create().then(<span class="hljs-function"><span class="hljs-params">client</s
 					<li><p><a href="https://github.com/smashah/whatsapp-button?ref=producthunt">WhatsApp Buttons</a></p>
 						<p>   You can add this button to your website which, when clicked, will open a chat with you in the same way as above.</p>
 					</li>
-					<li><p>With a License Key</p>
+					<li><p><a href="https://github.com/open-wa/wa-automate-nodejs#license-key">With a License Key</a></p>
 						<p>  In order to unlock the functionality to send texts to unknown numbers through @open-wa/wa-automate itself, you will need an License key.</p>
-						<p>  One License Key is valid for one number. Each License Key is £5 per month or £50 per year.</p>
-						<p>  For now the process happens through <a href="https://www.buymeacoffee.com/smashah">Buy Me A Coffee (BMAC)</a></p>
-						<p>  How to get an License key:</p>
-						<ol>
-							<li><p>Go to <a href="https://www.buymeacoffee.com/smashah">BMAC</a>.</p>
-							</li>
-							<li><p>Click on &#39;Membership&#39;.</p>
-							</li>
-							<li><p>Select your payment preference (monthly/annually).</p>
-							</li>
-							<li><p>Add the phone number you want to assign to the License Key in the notes, along with the use case for this functionality</p>
-							</li>
-							<li><p>Select &quot;Make this message private.&quot;</p>
-								<div align="center">
-									<img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/membership.png"/>
-								</div>
-							</li>
-							<li><p>Complete the process for membership.</p>
-							</li>
-							<li><p>You will receive your License key via email.</p>
-							</li>
-							<li><p>Add licenseKey to your config:</p>
-								<pre><code class="language-javascript">...
-create({
-<span class="hljs-attr">licenseKey</span>: <span class="hljs-string">"..."</span>
-})
-...</code></pre>
-								<p>Notes:</p>
-							</li>
-						</ol>
-						<ul>
-							<li>You can change the number assigned to a specific License Key at any time.</li>
-							<li>In order to cancel your License Key, simply stop your membership.</li>
-							<li>Apart from adding your licenseKey to your config, you will need to change nothing else in your code.</li>
-							<li>An added benefit for members is priority on issues.</li>
-						</ul>
+						<p>  One License Key is valid for one number. Each License Key is £5 per month or £50 per year. <a href="https://github.com/open-wa/wa-automate-nodejs#license-key">Instructions below.</a></p>
 					</li>
 				</ol>
+				<a href="#license-key" id="license-key" style="color: inherit; text-decoration: none;">
+					<h2>License Key</h2>
+				</a>
+				<p>For now the process happens through <a href="https://www.buymeacoffee.com/smashah">Buy Me A Coffee (BMAC)</a></p>
+				<p>How to get an License key:</p>
+				<ol>
+					<li><p>Go to <a href="https://www.buymeacoffee.com/smashah">BMAC</a>.</p>
+					</li>
+					<li><p>Click on &#39;Membership&#39;. For the insiders program, you do <strong>not</strong> need to get a membership.</p>
+					</li>
+					<li><p>Select your payment preference (monthly/annually).</p>
+					</li>
+					<li><p>Add the phone number you want to assign to the License Key in the notes, along with the use case for this functionality</p>
+					</li>
+					<li><p>Select &quot;Make this message private.&quot;</p>
+						<div align="center">
+							<img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/membership.png"/>
+						</div>
+					</li>
+					<li><p>Complete the process for membership.</p>
+					</li>
+					<li><p>You will receive your License key via email.</p>
+					</li>
+					<li><p>Add licenseKey to your config:</p>
+					</li>
+				</ol>
+				<pre><code class="language-javascript">...
+create({
+  <span class="hljs-attr">licenseKey</span>: <span class="hljs-string">"..."</span>
+})
+...</code></pre>
+				<p>Notes:</p>
+				<ul>
+					<li>You can change the number assigned to a specific License Key at any time.</li>
+					<li>In order to cancel your License Key, simply stop your membership.</li>
+					<li>Apart from adding your licenseKey to your config, you will need to change nothing else in your code.</li>
+					<li>An added benefit for members is priority on issues.</li>
+					<li>License Keys for the insiders program expire after a month when the feature becomes GA.</li>
+					<li>License Key request may be rejected.</li>
+				</ul>
 				<a href="#running-the-demo" id="running-the-demo" style="color: inherit; text-decoration: none;">
 					<h2>Running the demo</h2>
 				</a>
