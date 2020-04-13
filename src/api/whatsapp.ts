@@ -232,7 +232,7 @@ export class Whatsapp {
 
   /**
    * Set presence to available or unavailable.
-   * @param available if true it will set your presence to 'online', false will set to unabailable (i.e no 'online' on recipients' phone);
+   * @param available if true it will set your presence to 'online', false will set to unavailable (i.e no 'online' on recipients' phone);
    */
   public async setPresence(available: boolean) {
     return await this.page.evaluate(
