@@ -78,6 +78,22 @@ function start(client) {
 
 [Checkout all the available functions here.](https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html)
 
+### Insiders Program
+
+open-wa is at the forefront of open source WhatsApp development. Some new features will be initially released through the insiders program and then released for general availability (GA) the following month. The following features are currently for insiders:
+
+
+| Function                          | Description | GA Release Date |
+| --------------------------------- | ----------- | ----------- |
+| [`postStatus`](https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#poststatus)                   | Post a basic text only status (Story type)            | 1st May 2020|
+| [`getMyStatusArray`](https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#getMyStatusArray)                   | Returns all statuses for host phone (Story type)           | 1st May 2020|
+| [`deleteAllStatus`](https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#deleteAllStatus)                   | Clears your story - deletes all statuses (Story type)           | 1st May 2020|
+| [`deleteStatus`](https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#deleteStatus)                   | Deletes a specific status (Story type)            | 1st May 2020|
+| [`setGroupToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#setGroupToAdminsOnly)                   | Changes group setting so only admins can send messages            | 1st May 2020|
+| [`setGroupEditToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#setGroupEditToAdminsOnly)                   | Changes group setting so only admins can edit group info            | 1st May 2020|
+
+[Insiders need a license key.](https://github.com/open-wa/wa-automate-nodejs#license-key)
+
 ## Starting a conversation
 
 There are 3 ways to start a chat with a new number:
@@ -88,43 +104,49 @@ There are 3 ways to start a chat with a new number:
 2. [WhatsApp Buttons](https://github.com/smashah/whatsapp-button?ref=producthunt)
 
       You can add this button to your website which, when clicked, will open a chat with you in the same way as above.
-3. With a License Key
+3. [With a License Key](https://github.com/open-wa/wa-automate-nodejs#license-key)
 
      In order to unlock the functionality to send texts to unknown numbers through @open-wa/wa-automate itself, you will need an License key.
 
-     One License Key is valid for one number. Each License Key is £5 per month or £50 per year.
+     One License Key is valid for one number. Each License Key is £5 per month or £50 per year. [Instructions below.](https://github.com/open-wa/wa-automate-nodejs#license-key)
 
-     For now the process happens through [Buy Me A Coffee (BMAC)](https://www.buymeacoffee.com/smashah)
+## License Key
 
-     How to get an License key:
+For now the process happens through [Buy Me A Coffee (BMAC)](https://www.buymeacoffee.com/smashah)
 
-     1. Go to [BMAC](https://www.buymeacoffee.com/smashah).
-     2. Click on 'Membership'.
-     3. Select your payment preference (monthly/annually).
-     5. Add the phone number you want to assign to the License Key in the notes, along with the use case for this functionality
-     6. Select "Make this message private."
+How to get an License key:
 
-        <div align="center">
-        <img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/membership.png"/>
-        </div>
+1. Go to [BMAC](https://www.buymeacoffee.com/smashah).
+2. Click on 'Membership'. For the insiders program, you do **not** need to get a membership.
+3. Select your payment preference (monthly/annually).
+5. Add the phone number you want to assign to the License Key in the notes, along with the use case for this functionality
+6. Select "Make this message private."
 
-     7. Complete the process for membership.
-     8. You will receive your License key via email.
-     9. Add licenseKey to your config:
+   <div align="center">
+   <img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/membership.png"/>
+   </div>
 
-    ```javascript
-    ...
-    create({
-      licenseKey: "..."
-    })
-    ...
-    ```
+7. Complete the process for membership.
+8. You will receive your License key via email.
+9. Add licenseKey to your config:
 
-     Notes:
-     - You can change the number assigned to a specific License Key at any time.
-     - In order to cancel your License Key, simply stop your membership.
-     - Apart from adding your licenseKey to your config, you will need to change nothing else in your code.
-     - An added benefit for members is priority on issues.
+```javascript
+...
+create({
+  licenseKey: "..."
+})
+...
+```
+
+Notes:
+
+- You can change the number assigned to a specific License Key at any time.
+- In order to cancel your License Key, simply stop your membership.
+- Apart from adding your licenseKey to your config, you will need to change nothing else in your code.
+- An added benefit for members is priority on issues.
+- License Keys for the insiders program expire after a month when the feature becomes GA.
+- License Key request may be rejected.
+
 
 ## Running the demo
 

@@ -67,6 +67,8 @@ declare module WAPI {
   const addOrRemoveLabels: (label: string, id: string, type: string) => Promise<boolean>;
   const promoteParticipant: (groupId: string, contactId: string) => void;
   const demoteParticipant: (groupId: string, contactId: string) => void;
+  const setGroupToAdminsOnly: (groupId: string, onlyAdmins: boolean) => Promise<boolean>;
+  const setGroupEditToAdminsOnly: (groupId: string, onlyAdmins: boolean) => Promise<boolean>;
   const sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => void;
   const createGroup: (groupName: string, contactId: string|string[]) => Promise<any>;
   const sendSeen: (to: string) => void;
@@ -1248,7 +1250,6 @@ public async getStatus(contactId: string) {
   * Demote Admin of Group
   * @param {*} idGroup '0000000000-00000000@g.us'
   * @param {*} idParticipant '000000000000@c.us'
-  * @param {*} done - function - Callback function to be called when a new message arrives.
   */
   public async demoteParticipant(idGroup: string, idParticipant: string) {
     return await this.page.evaluate(
@@ -1256,6 +1257,32 @@ public async getStatus(contactId: string) {
       { idGroup, idParticipant }
     );
   }
+
+  /**
+  * Change who can and cannot speak in a group
+  * @param groupId '0000000000-00000000@g.us' the group id.
+  * @param onlyAdmins boolean set to true if you want only admins to be able to speak in this group. false if you want to allow everyone to speak in the group
+  * @returns boolean true if action completed successfully.
+  */
+  public async setGroupToAdminsOnly(groupId: string, onlyAdmins: boolean) {
+    return await this.page.evaluate(
+      ({ groupId, onlyAdmins }) => WAPI.setGroupToAdminsOnly(groupId, onlyAdmins),
+      { groupId, onlyAdmins }
+    );
+  }
+
+  /**
+  * Change who can and cannot edit a groups details
+  * @param groupId '0000000000-00000000@g.us' the group id.
+  * @param onlyAdmins boolean set to true if you want only admins to be able to speak in this group. false if you want to allow everyone to speak in the group
+  * @returns boolean true if action completed successfully.
+  */
+ public async setGroupEditToAdminsOnly(groupId: string, onlyAdmins: boolean) {
+  return await this.page.evaluate(
+    ({ groupId, onlyAdmins }) => WAPI.setGroupEditToAdminsOnly(groupId, onlyAdmins),
+    { groupId, onlyAdmins }
+  );
+}
 
   /**
   * Get Admins of a Group
