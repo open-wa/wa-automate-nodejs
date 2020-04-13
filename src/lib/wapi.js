@@ -450,7 +450,7 @@ window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, tex
         title: title,
         thumbnail: thumb // Thumbnail max size allowed: 200x200
     };
-    chatSend.sendMessage(`${url} ${text}`, { linkPreview: linkPreview, mentionedJidList: [], quotedMsg: null, quotedMsgAdminGroupJid: null });
+    chatSend.sendMessage(text.includes(url) ? text : `${url}\n${text}`, { linkPreview: linkPreview, mentionedJidList: [], quotedMsg: null, quotedMsgAdminGroupJid: null });
     if (done !== undefined) done(true);
     return true;
 };
