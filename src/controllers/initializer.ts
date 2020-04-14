@@ -149,7 +149,11 @@ spinner.emit(sessionData,"sessionData");
   fs.writeFile(sessionjsonpath, JSON.stringify(sessionData), (err) => {
   if (err) {  console.error(err);  return; };
 });
-
+if(config?.restartOnCrash) waPage.on('error', async error => {
+  console.error('Page Crashed! Restarting...', error);
+  await kill();
+  await create(sessionId,config,customUserAgent).then(config.restartOnCrash);
+});
 /**
  * now test to see if all features are functioning as expected
  * 1. Open wapi.js as text file

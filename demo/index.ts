@@ -145,6 +145,7 @@ create({
   sessionId:'session1',
   // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   useChrome: true,
+  restartOnCrash: start,
   headless:false,
   throwErrorOnTosBlock:true,
   killTimer:40,
