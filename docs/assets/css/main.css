@@ -2372,6 +2372,7 @@ footer .tsd-legend {
   border: 1px solid #eee;
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
   font-size: 14px;
+  overflow-x: auto;
 }
 .tsd-signature.tsd-kind-icon {
   padding-left: 30px;
