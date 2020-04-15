@@ -556,14 +556,16 @@ window.WAPI.getUnreadMessagesInChat = function (id, includeMe, includeNotificati
  * @param done Optional callback function for async execution
  * @returns None
  */
-window.WAPI.loadEarlierMessages = function (id, done) {
+window.WAPI.loadEarlierMessages = async function (id, done) {
     const found = WAPI.getChat(id);
     if (done !== undefined) {
-        found.loadEarlierMsgs().then(function () {
+        return found.loadEarlierMsgs().then(function () {
             done()
         });
     } else {
-        found.loadEarlierMsgs();
+        
+        // return WAPI.quickClean(await found.loadEarlierMsgs());
+        return (await found.loadEarlierMsgs()).map(WAPI._serializeMessageObj);
     }
 };
 
@@ -2477,6 +2479,8 @@ window.WAPI.deleteAllStatus = function(){return false;}
 window.WAPI.getMyStatusArray = function(){return false;}
 window.WAPI.deleteStatus = function(){return false;}
 window.WAPI.setGroupToAdminsOnly = function(){return false;}
+
+window.WAPI.quickClean = function (ob) {return JSON.parse(JSON.stringify(ob))};
 
 /**
  * This next line is jsSha

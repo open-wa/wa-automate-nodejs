@@ -137,7 +137,7 @@ declare module WAPI {
   const simulateTyping: (to: string, on: boolean) => void;
   const archiveChat: (id: string, archive: boolean) => Promise<boolean>;
   const isConnected: () => Boolean;
-  const loadEarlierMessages: (contactId: string) => Message[];
+  const loadEarlierMessages: (contactId: string) => Message [];
   const loadAllEarlierMessages: (contactId: string) => void;
   const asyncLoadAllEarlierMessages: (contactId: string) => void;
   const getUnreadMessages: (
@@ -995,9 +995,9 @@ public async contactUnblock(id: string) {
 
 
   /**
-    * Load more messages in chat object from server. Use this in a while loop
+    * Load more messages in chat object from server. Use this in a while loop. This should return up to 50 messages at a time
    * @param contactId
-   * @returns contact detial as promise
+   * @returns Message []
    */
   public async loadEarlierMessages(contactId: string) {
     return await this.page.evaluate(
