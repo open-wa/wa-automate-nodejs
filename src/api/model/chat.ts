@@ -31,7 +31,7 @@ export interface Chat {
    */
   isOnline?: any;
   /**
-   * @deprecated This is unreliable. Use the method [`getLastSeen`](https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#getLastSeen) instead.
+   * @deprecated This is unreliable. Use the method [`getLastSeen`](https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#getlastseen) instead.
    */
   lastSeen?: any;
 }
