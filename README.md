@@ -45,6 +45,14 @@ function start(client) {
 
 ###### @open-wa/wa-automate will remember the session so there is no need to authenticate everytime.
 
+### Latest Changes
+
+With the constant updates from Whatsapp. It is advisable to always use the latest version of `@open-wa/wa-automate`.
+
+   <div align="center">
+   <img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/release.png"/>
+   </div>
+
 ### Functions list
 
 | Function                          | Description | Implemented |
@@ -119,7 +127,7 @@ How to get an License key:
 1. Go to [BMAC](https://www.buymeacoffee.com/smashah).
 2. Click on 'Membership'. For the insiders program, you do **not** need to get a membership.
 3. Select your payment preference (monthly/annually).
-5. Add the phone number you want to assign to the License Key in the notes, along with the use case for this functionality
+5. Add the phone number you want to assign to the License Key in the notes, along with the use case for this functionality and your github username
 6. Select "Make this message private."
 
    <div align="center">
