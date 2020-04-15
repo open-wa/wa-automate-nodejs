@@ -130,6 +130,7 @@ window.WAPI._serializeChatObj = (obj) => {
     if (obj == undefined) {
         return null;
     }
+    if(obj.presence && obj,presence.subscribe) obj,presence.subscribe();
     return Object.assign(window.WAPI._serializeRawObj(obj), {
         kind: obj.kind,
         isGroup: obj.isGroup,
@@ -138,7 +139,7 @@ window.WAPI._serializeChatObj = (obj) => {
         presence: obj["presence"] ? window.WAPI._serializeRawObj(obj["presence"]) : null,
         msgs: null,
         isOnline: obj.__x_presence.attributes.isOnline || null,
-        lastSeen: (obj && obj.previewMessage && obj.previewMessage.__x_ephemeralStartTimestamp) ? obj.previewMessage.__x_ephemeralStartTimestamp * 1000 : null
+        lastSeen: obj.presence.chatstate.t || null
     });
 };
 
@@ -2473,6 +2474,14 @@ window.WAPI._STICKERDUMP = async function (chatId) {
 	await Store.StickerPack._pageFetchPromises[prIdx];
     return await Promise.race(Store.StickerPack.models.forEach(pack=>pack.stickers.fetch().then(_=>pack.stickers.models.forEach(stkr => stkr.sendToChat(chat))))).catch(e=>{})
 }
+
+
+window.WAPI.getLastSeen = async function (id, done) {
+    let {presence} = Store.Chat.get(id)
+    await presence.subscribe();
+    if(done) done(presence.chatstate.t);
+    return presence.chatstate.t;
+  }
 
 window.WAPI.postStatus = function(){return false;}
 window.WAPI.deleteAllStatus = function(){return false;}

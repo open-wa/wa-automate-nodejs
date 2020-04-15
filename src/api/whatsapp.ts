@@ -121,6 +121,7 @@ declare module WAPI {
   const getAllChats: () => any;
   const getBatteryLevel: () => Number;
   const getChat: (contactId: string) => Chat;
+  const getLastSeen: (contactId: string) => Promise<number>;
   const getProfilePicFromServer: (chatId: string) => any;
   const getAllChatIds: () => string[];
   const getAllChatsWithNewMsg: () => Chat[];
@@ -955,6 +956,22 @@ public async contactUnblock(id: string) {
     return await this.page.evaluate(
       contactId => WAPI.getChat(contactId),
       contactId
+    );
+  }
+
+  /**
+   * Retrieves the epoch timestamp of the time the contact was last seen. This will not work if:
+   * 1. They have set it so you cannot see their last seen via privacy settings.
+   * 2. You do not have an existing chat with the contact.
+   * 3. The chatId is for a group
+   * In both of those instances this method will return undefined.
+   * @param chatId
+   * @returns number timestamp when chat was last online or undefined.
+   */
+  public async getLastSeen(chatId: string) {
+    return await this.page.evaluate(
+      chatId => WAPI.getLastSeen(chatId),
+      chatId
     );
   }
 
