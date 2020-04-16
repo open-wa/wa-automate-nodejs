@@ -51,7 +51,7 @@ declare module WAPI {
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const onLiveLocation: (chatId: string, callback: Function) => any;
   const sendMessage: (to: string, content: string) => string;
-  const sendMessageWithMentions: (to: string, content: string) => string;
+  const sendMessageWithMentions: (to: string, content: string) => Promise<string>;
   const setChatState: (chatState: ChatState, chatId: string) => void;
   const reply: (to: string, content: string, quotedMsg: string | Message) => void;
   const getGeneratedUserAgent: (userAgent?: string) => string;
@@ -62,29 +62,29 @@ declare module WAPI {
   const setMyStatus: (newStatus: string) => void;
   const setPresence: (available: boolean) => void;
   const getStatus: (contactId: string) => void;
-  const getGroupAdmins: (groupId: string) => Contact[];
-  const removeParticipant: (groupId: string, contactId: string) => void;
+  const getGroupAdmins: (groupId: string) => Promise<Contact[]>;
+  const removeParticipant: (groupId: string, contactId: string) => Promise<boolean>;
   const addOrRemoveLabels: (label: string, id: string, type: string) => Promise<boolean>;
-  const promoteParticipant: (groupId: string, contactId: string) => void;
-  const demoteParticipant: (groupId: string, contactId: string) => void;
+  const promoteParticipant: (groupId: string, contactId: string) => Promise<boolean>;
+  const demoteParticipant: (groupId: string, contactId: string) => Promise<boolean>;
   const setGroupToAdminsOnly: (groupId: string, onlyAdmins: boolean) => Promise<boolean>;
   const setGroupEditToAdminsOnly: (groupId: string, onlyAdmins: boolean) => Promise<boolean>;
-  const sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => void;
+  const sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => Promise<any>;
   const createGroup: (groupName: string, contactId: string|string[]) => Promise<any>;
-  const sendSeen: (to: string) => void;
+  const sendSeen: (to: string) => Promise<boolean>;
   const isChatOnline: (id: string) => Promise<boolean>;
-  const contactBlock: (id: string) => void;
-  const contactUnblock: (id: string) => void;
-  const deleteConversation: (chatId: string) => boolean;
-  const clearChat: (chatId: string) => void;
-  const revokeGroupInviteLink: (chatId: string) => Promise<string> | boolean;
-  const getGroupInviteLink: (chatId: string) => boolean;
+  const contactBlock: (id: string) => Promise<boolean>;
+  const contactUnblock: (id: string) => Promise<boolean>;
+  const deleteConversation: (chatId: string) => Promise<boolean>;
+  const clearChat: (chatId: string) => Promise<any>;
+  const revokeGroupInviteLink: (chatId: string) => Promise<string> | Promise<boolean>;
+  const getGroupInviteLink: (chatId: string) => Promise<string>;
   const sendImage: (
     base64: string,
     to: string,
     filename: string,
     caption: string
-  ) => string;
+  ) => Promise<string>;
   const sendMessageWithThumb: (
     thumb: string,
     url: string,
@@ -92,8 +92,8 @@ declare module WAPI {
     description: string,
     text: string,
     chatId: string
-  ) => void;
-  const getBusinessProfilesProducts: (to: string) => any;
+  ) => Promise<boolean>;
+  const getBusinessProfilesProducts: (to: string) => Promise<any>;
   const postStatus: (text: string, params: any) => Promise<any>;
   const deleteStatus: (statusesToDelete: string | string[]) => Promise<any>;
   const sendImageWithProduct: (base64: string, to: string, caption: string, bizNumber: string, productId: string) => any;
@@ -103,13 +103,13 @@ declare module WAPI {
     to: string,
     filename: string,
     caption: string
-  ) => void;
+  ) => Promise<string>;
   const sendVideoAsGif: (
     base64: string,
     to: string,
     filename: string,
     caption: string
-  ) => void;
+  ) => Promise<string>;
   const getAllContacts: () => Contact[];
   const getWAVersion: () => String;
   const getMe: () => any;
@@ -127,7 +127,7 @@ declare module WAPI {
   const getAllChatsWithNewMsg: () => Chat[];
   const getAllNewMessages: () => any;
   const getAllGroups: () => Chat[];
-  const getGroupParticipantIDs: (groupId: string) => Id[];
+  const getGroupParticipantIDs: (groupId: string) => Promise<Id[]>;
   const leaveGroup: (groupId: string) => any;
   const getVCards: (msgId: string) => any;
   const getContact: (contactId: string) => Contact;
@@ -138,9 +138,9 @@ declare module WAPI {
   const simulateTyping: (to: string, on: boolean) => void;
   const archiveChat: (id: string, archive: boolean) => Promise<boolean>;
   const isConnected: () => Boolean;
-  const loadEarlierMessages: (contactId: string) => Message [];
-  const loadAllEarlierMessages: (contactId: string) => void;
-  const asyncLoadAllEarlierMessages: (contactId: string) => void;
+  const loadEarlierMessages: (contactId: string) => Promise<Message []>;
+  const loadAllEarlierMessages: (contactId: string) => any;
+  const asyncLoadAllEarlierMessages: (contactId: string) => any;
   const getUnreadMessages: (
     includeMe: boolean,
     includeNotifications: boolean,

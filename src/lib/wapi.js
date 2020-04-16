@@ -220,7 +220,6 @@ window.WAPI.createGroup = async function (name, contactsId) {
     if (!Array.isArray(contactsId)) {
         contactsId = [contactsId];
     }
-
     return await window.Store.WapQuery.createGroup(name, contactsId);
 };
 
@@ -236,74 +235,54 @@ window.WAPI.leaveGroup = function (groupId) {
 };
 
 
-window.WAPI.getAllContacts = function (done) {
-    const contacts = window.Store.Contact.map((contact) => WAPI._serializeContactObj(contact));
-
-    if (done !== undefined) done(contacts);
-    return contacts;
+window.WAPI.getAllContacts = function () {
+    return window.Store.Contact.map((contact) => WAPI._serializeContactObj(contact));
 };
 
 /**
  * Fetches all contact objects from store, filters them
  *
- * @param done Optional callback function for async execution
  * @returns {Array|*} List of contacts
  */
-window.WAPI.getMyContacts = function (done) {
-    const contacts = window.Store.Contact.filter((contact) => contact.isMyContact === true).map((contact) => WAPI._serializeContactObj(contact));
-    if (done !== undefined) done(contacts);
-    return contacts;
+window.WAPI.getMyContacts = function () {
+    return window.Store.Contact.filter((contact) => contact.isMyContact === true).map((contact) => WAPI._serializeContactObj(contact));
 };
 
 /**
  * Fetches contact object from store by ID
  *
  * @param id ID of contact
- * @param done Optional callback function for async execution
  * @returns {T|*} Contact object
  */
-window.WAPI.getContact = function (id, done) {
+window.WAPI.getContact = function (id) {
     const found = window.Store.Contact.get(id);
-
-    if (done !== undefined) done(window.WAPI._serializeContactObj(found))
     return window.WAPI._serializeContactObj(found);
 };
 
 /**
  * Fetches all chat objects from store
  *
- * @param done Optional callback function for async execution
  * @returns {Array|*} List of chats
  */
-window.WAPI.getAllChats = function (done) {
-    const chats = window.Store.Chat.map((chat) => WAPI._serializeChatObj(chat));
-
-    if (done !== undefined) done(chats);
-    return chats;
+window.WAPI.getAllChats = function () {
+    return window.Store.Chat.map((chat) => WAPI._serializeChatObj(chat));
 };
 
 window.WAPI.haveNewMsg = function (chat) {
     return chat.unreadCount > 0;
 };
 
-window.WAPI.getAllChatsWithNewMsg = function (done) {
-    const chats = window.Store.Chat.filter(window.WAPI.haveNewMsg).map((chat) => WAPI._serializeChatObj(chat));
-
-    if (done !== undefined) done(chats);
-    return chats;
+window.WAPI.getAllChatsWithNewMsg = function () {
+    return window.Store.Chat.filter(window.WAPI.haveNewMsg).map((chat) => WAPI._serializeChatObj(chat));
 };
 
 /**
  * Fetches all chat IDs from store
  *
- * @param done Optional callback function for async execution
  * @returns {Array|*} List of chat id's
  */
-window.WAPI.getAllChatIds = function (done) {
-    const chatIds = window.Store.Chat.map((chat) => chat.id._serialized || chat.id);
-
-    if (done !== undefined) done(chatIds);
-    return chatIds;
+window.WAPI.getAllChatIds = function () {
+    return window.Store.Chat.map((chat) => chat.id._serialized || chat.id);
 };
 
 window.WAPI.getAllNewMessages = async function () {
@@ -319,7 +298,7 @@ window.WAPI.getIndicatedNewMessages = async function () {
     return JSON.stringify(Store.Chat.models.filter(chat=>chat.unreadCount).map(chat=>{return {id:chat.id,indicatedNewMessages: chat.msgs.models.slice(Math.max(chat.msgs.length - chat.unreadCount, 0)).filter(msg=>!msg.id.fromMe)}}))
 }
 
-window.WAPI.getAllChatsWithMessages = async function (onlyNew, done) {
+window.WAPI.getAllChatsWithMessages = async function (onlyNew) {
     let x = [];
     if (onlyNew) { x.push(WAPI.getAllChatsWithNewMsg().map(c => WAPI.getChat(c.id._serialized))); }
     else {
@@ -332,14 +311,10 @@ window.WAPI.getAllChatsWithMessages = async function (onlyNew, done) {
 /**
  * Fetches all groups objects from store
  *
- * @param done Optional callback function for async execution
  * @returns {Array|*} List of chats
  */
-window.WAPI.getAllGroups = function (done) {
-    const groups = window.Store.Chat.filter((chat) => chat.isGroup);
-
-    if (done !== undefined) done(groups);
-    return groups;
+window.WAPI.getAllGroups = function () {
+    return window.Store.Chat.filter((chat) => chat.isGroup);
 };
 
 /**
@@ -369,14 +344,12 @@ window.WAPI.sendChatstate = async function (state, chatId) {
  * Fetches chat object from store by ID
  *
  * @param id ID of chat
- * @param done Optional callback function for async execution
  * @returns {T|*} Chat object
  */
-window.WAPI.getChat = function (id, done) {
+window.WAPI.getChat = function (id) {
     id = typeof id == "string" ? id : id._serialized;
     const found = window.Store.Chat.get(id);
     if (found) found.sendMessage = (found.sendMessage) ? found.sendMessage : function () { return window.Store.sendMessage.apply(this, arguments); };
-    if (done !== undefined) done(found);
     return found;
 }
 
@@ -389,10 +362,8 @@ window.WAPI.getStatus = async (id) => {
 return await Store.MyStatus.getStatus(id)
 }
 
-window.WAPI.getChatByName = function (name, done) {
-    const found = window.Store.Chat.find((chat) => chat.name === name);
-    if (done !== undefined) done(found);
-    return found;
+window.WAPI.getChatByName = function (name) {
+    return window.Store.Chat.find((chat) => chat.name === name);
 };
 
 window.WAPI.sendImageFromDatabasePicBot = function (picId, chatId, caption) {
@@ -435,10 +406,9 @@ window.WAPI.getWAVersion = function () {
     return window.Debug.VERSION;
 }
 
-window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, text, chatId, done) {
+window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, text, chatId) {
     var chatSend = WAPI.getChat(chatId);
     if (chatSend === undefined) {
-        if (done !== undefined) done(false);
         return false;
     }
     var linkPreview = {
@@ -449,7 +419,6 @@ window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, tex
         thumbnail: thumb // Thumbnail max size allowed: 200x200
     };
     chatSend.sendMessage(text.includes(url) ? text : `${url}\n${text}`, { linkPreview: linkPreview, mentionedJidList: [], quotedMsg: null, quotedMsgAdminGroupJid: null });
-    if (done !== undefined) done(true);
     return true;
 };
 
@@ -476,15 +445,13 @@ window.WAPI.getNewId = function () {
     return text;
 };
 
-window.WAPI.getChatById = function (id, done) {
+window.WAPI.getChatById = function (id) {
     let found = WAPI.getChat(id);
     if (found) {
         found = WAPI._serializeChatObj(found);
     } else {
         found = false;
     }
-
-    if (done !== undefined) done(found);
     return found;
 };
 
@@ -501,13 +468,10 @@ window.WAPI.getChatById = function (id, done) {
  * :param includeNotifications: indicates if notifications have to be included
  * :type  includeNotifications: boolean
  *
- * :param done: callback passed by selenium
- * :type  done: function
- *
  * :returns: list of unread messages from asked chat
  * :rtype: object
  */
-window.WAPI.getUnreadMessagesInChat = function (id, includeMe, includeNotifications, done) {
+window.WAPI.getUnreadMessagesInChat = function (id, includeMe, includeNotifications) {
     // get chat and its messages
     let chat = WAPI.getChat(id);
     let messages = chat.msgs._models;
@@ -540,8 +504,6 @@ window.WAPI.getUnreadMessagesInChat = function (id, includeMe, includeNotificati
                 output.push(message);
         }
     }
-    // callback was passed: run it
-    if (done !== undefined) done(output);
     // return result list
     return output;
 };
@@ -551,61 +513,37 @@ window.WAPI.getUnreadMessagesInChat = function (id, includeMe, includeNotificati
  * Load more messages in chat object from server. Use this in a while loop
  *
  * @param id ID of chat
- * @param done Optional callback function for async execution
  * @returns None
  */
-window.WAPI.loadEarlierMessages = async function (id, done) {
+window.WAPI.loadEarlierMessages = async function (id) {
     const found = WAPI.getChat(id);
-    if (done !== undefined) {
-        return found.loadEarlierMsgs().then(function () {
-            done()
-        });
-    } else {
-        
-        // return WAPI.quickClean(await found.loadEarlierMsgs());
-        return (await found.loadEarlierMsgs()).map(WAPI._serializeMessageObj);
-    }
+    return found ? (await found.loadEarlierMsgs()).map(WAPI._serializeMessageObj): false;
 };
 
 /**
  * Load more messages in chat object from store by ID
  *
  * @param id ID of chat
- * @param done Optional callback function for async execution
  * @returns None
  */
-window.WAPI.loadAllEarlierMessages = async function (id, done) {
+window.WAPI.loadAllEarlierMessages = async function (id) {
     const found = WAPI.getChat(id);
     while (!found.msgs.msgLoadState.noEarlierMsgs) {
         console.log('loading more messages')
         await found.loadEarlierMsgs();
     }
-    console.log('done');
     return true
-    // x = function () {
-    //     if (!found.msgs.msgLoadState.noEarlierMsgs) {
-    //         console.log('loading more messages')
-    //         found.loadEarlierMsgs().then(x);
-    //     } else if (done) {
-    //         done();
-    //         return true
-    //     }
-    // };
-    // return x();
 };
 
-window.WAPI.asyncLoadAllEarlierMessages = function (id, done) {
-    done();
-    window.WAPI.loadAllEarlierMessages(id);
+window.WAPI.asyncLoadAllEarlierMessages = async function (id) {
+    return await window.WAPI.loadAllEarlierMessages(id);
 };
 
-window.WAPI.areAllMessagesLoaded = function (id, done) {
+window.WAPI.areAllMessagesLoaded = function (id) {
     const found = WAPI.getChat(id);
     if (!found.msgs.msgLoadState.noEarlierMsgs) {
-        if (done) done(false);
         return false
     }
-    if (done) done(true);
     return true
 };
 
@@ -614,47 +552,39 @@ window.WAPI.areAllMessagesLoaded = function (id, done) {
  *
  * @param id ID of chat
  * @param lastMessage UTC timestamp of last message to be loaded
- * @param done Optional callback function for async execution
  * @returns None
  */
 
-window.WAPI.loadEarlierMessagesTillDate = function (id, lastMessage, done) {
+window.WAPI.loadEarlierMessagesTillDate = async function (id, lastMessage) {
     const found = WAPI.getChat(id);
-    x = function () {
+    x = async function () {
         if (found.msgs.models[0].t > lastMessage && !found.msgs.msgLoadState.noEarlierMsgs) {
-            found.loadEarlierMsgs().then(x);
+            return await found.loadEarlierMsgs().then(x);
         } else {
-            done();
+            return true
         }
     };
-    x();
+    return await x();
 };
 
 
 /**
  * Fetches all group metadata objects from store
  *
- * @param done Optional callback function for async execution
  * @returns {Array|*} List of group metadata
  */
-window.WAPI.getAllGroupMetadata = function (done) {
-    const groupData = window.Store.GroupMetadata.map((groupData) => groupData.all);
-
-    if (done !== undefined) done(groupData);
-    return groupData;
+window.WAPI.getAllGroupMetadata = function () {
+    return window.Store.GroupMetadata.map((groupData) => groupData.all);
 };
 
 /**
  * Fetches group metadata object from store by ID
  *
  * @param id ID of group
- * @param done Optional callback function for async execution
  * @returns {T|*} Group metadata object
  */
-window.WAPI.getGroupMetadata = async function (id, done) {
-    let output = window.Store.GroupMetadata.find(id);
-    if (done !== undefined) done(output);
-    return output;
+window.WAPI.getGroupMetadata = async function (id) {
+    return window.Store.GroupMetadata.find(id);
 };
 
 
@@ -666,32 +596,24 @@ window.WAPI.getGroupMetadata = async function (id, done) {
  * @private
  */
 window.WAPI._getGroupParticipants = async function (id) {
-    const metadata = await WAPI.getGroupMetadata(id);
-    return metadata.participants;
+    return (await WAPI.getGroupMetadata(id)).participants;
 };
 
 /**
  * Fetches IDs of group participants
  *
  * @param id ID of group
- * @param done Optional callback function for async execution
  * @returns {Promise.<Array|*>} Yields list of IDs
  */
-window.WAPI.getGroupParticipantIDs = async function (id, done) {
-    const output = (await WAPI._getGroupParticipants(id))
+window.WAPI.getGroupParticipantIDs = async function (id) {
+    return (await WAPI._getGroupParticipants(id))
         .map((participant) => participant.id);
-
-    if (done !== undefined) done(output);
-    return output;
 };
 
-window.WAPI.getGroupAdmins = async function (id, done) {
-    const output = (await WAPI._getGroupParticipants(id))
+window.WAPI.getGroupAdmins = async function (id) {
+    return (await WAPI._getGroupParticipants(id))
         .filter((participant) => participant.isAdmin)
         .map((admin) => admin.id);
-
-    if (done !== undefined) done(output);
-    return output;
 };
 
 /**
@@ -706,26 +628,20 @@ window.WAPI.getMe = function(){
  *
  * @returns {Array|*|$q.all}
  */
-window.WAPI.getMe = function (done) {
+window.WAPI.getMe = function () {
     const rawMe = window.Store.Contact.get(window.Store.Conn.me);
-
-    if (done !== undefined) done(rawMe.all);
     return rawMe.all;
 };
 
-window.WAPI.isLoggedIn = function (done) {
+window.WAPI.isLoggedIn = function () {
     // Contact always exists when logged in
     const isLogged = window.Store.Contact && window.Store.Contact.checksum !== undefined;
-
-    if (done !== undefined) done(isLogged);
     return isLogged;
 };
 
-window.WAPI.isConnected = function (done) {
+window.WAPI.isConnected = function () {
     // Phone Disconnected icon appears when phone is disconnected from the tnternet
     const isConnected = document.querySelector('*[data-icon="alert-phone"]') !== null ? false : true;
-
-    if (done !== undefined) done(isConnected);
     return isConnected;
 };
 
@@ -748,7 +664,7 @@ window.WAPI.processMessageObj = function (messageObj, includeMe, includeNotifica
     return;
 };
 
-window.WAPI.getAllMessagesInChat = function (id, includeMe, includeNotifications, done) {
+window.WAPI.getAllMessagesInChat = function (id, includeMe, includeNotifications) {
     const chat = WAPI.getChat(id);
     let output = [];
     const messages = chat.msgs._models;
@@ -763,11 +679,10 @@ window.WAPI.getAllMessagesInChat = function (id, includeMe, includeNotifications
         if (message)
             output.push(message);
     }
-    if (done !== undefined) done(output);
     return output;
 };
 
-window.WAPI.loadAndGetAllMessagesInChat = function (id, includeMe, includeNotifications, done) {
+window.WAPI.loadAndGetAllMessagesInChat = function (id, includeMe, includeNotifications) {
     return WAPI.loadAllEarlierMessages(id).then(_ => {
         const chat = WAPI.getChat(id);
         let output = [];
@@ -783,12 +698,11 @@ window.WAPI.loadAndGetAllMessagesInChat = function (id, includeMe, includeNotifi
             if (message)
                 output.push(message);
         }
-        if (done !== undefined) done(output);
         return output;
     })
 };
 
-window.WAPI.getAllMessageIdsInChat = function (id, includeMe, includeNotifications, done) {
+window.WAPI.getAllMessageIdsInChat = function (id, includeMe, includeNotifications) {
     const chat = WAPI.getChat(id);
     let output = [];
     const messages = chat.msgs._models;
@@ -801,11 +715,10 @@ window.WAPI.getAllMessageIdsInChat = function (id, includeMe, includeNotificatio
         }
         output.push(messages[i].id._serialized);
     }
-    if (done !== undefined) done(output);
     return output;
 };
 
-window.WAPI.getMessageById = function (id, done) {
+window.WAPI.getMessageById = function (id) {
     let result = false;
     try {
         let msg = window.Store.Msg.get(id);
@@ -813,106 +726,54 @@ window.WAPI.getMessageById = function (id, done) {
             result = WAPI.processMessageObj(msg, true, true);
         }
     } catch (err) { }
-
-    if (done !== undefined) {
-        done(result);
-    } else {
         return result;
-    }
 };
 
-window.WAPI.ReplyMessage = function (idMessage, message, done) {
+window.WAPI.ReplyMessage = function (idMessage, message) {
     var messageObject = window.Store.Msg.get(idMessage);
     if (messageObject === undefined) {
-        if (done !== undefined) done(false);
         return false;
     }
     messageObject = messageObject.value();
-
     const chat = WAPI.getChat(messageObject.chat.id)
     if (chat !== undefined) {
-        if (done !== undefined) {
-            chat.sendMessage(message, null, messageObject).then(function () {
-                function sleep(ms) {
-                    return new Promise(resolve => setTimeout(resolve, ms));
-                }
-
-                var trials = 0;
-
-                function check() {
-                    for (let i = chat.msgs.models.length - 1; i >= 0; i--) {
-                        let msg = chat.msgs.models[i];
-
-                        if (!msg.senderObj.isMe || msg.body != message) {
-                            continue;
-                        }
-                        done(WAPI._serializeMessageObj(msg));
-                        return True;
-                    }
-                    trials += 1;
-                    console.log(trials);
-                    if (trials > 30) {
-                        done(true);
-                        return;
-                    }
-                    sleep(500).then(check);
-                }
-                check();
-            });
-            return true;
-        } else {
             chat.sendMessage(message, null, messageObject);
             return true;
-        }
     } else {
-        if (done !== undefined) done(false);
         return false;
     }
 };
 
-window.WAPI.sendMessageToID = function (id, message, done) {
+window.WAPI.sendMessageToID = function (id, message) {
     try {
         window.getContact = (id) => {
             return Store.WapQuery.queryExist(id);
         }
-        window.getContact(id).then(contact => {
+        return window.getContact(id).then(contact => {
             if (contact.status === 404) {
-                done(true);
+                return true
             } else {
                 Store.Chat.find(contact.jid).then(chat => {
                     chat.sendMessage(message);
                     return true;
                 }).catch(reject => {
                     if (WAPI.sendMessage(id, message)) {
-                        done(true);
                         return true;
                     } else {
-                        done(false);
                         return false;
                     }
                 });
             }
         });
     } catch (e) {
-        if (window.Store.Chat.length === 0)
-            return false;
-
+        if (window.Store.Chat.length === 0) return false;
         firstChat = Store.Chat.models[0];
         var originalID = firstChat.id;
         firstChat.id = typeof originalID === "string" ? id : new window.Store.UserConstructor(id, { intentionallyUsePrivateConstructor: true });
-        if (done !== undefined) {
-            firstChat.sendMessage(message).then(function () {
-                firstChat.id = originalID;
-                done(true);
-            });
-            return true;
-        } else {
             firstChat.sendMessage(message);
             firstChat.id = originalID;
             return true;
-        }
     }
-    if (done !== undefined) done(false);
     return false;
 }
 
@@ -968,83 +829,35 @@ window.WAPI.sendMessageReturnId = async function (ch, body) {
 }
 
 
-window.WAPI.sendMessage = function (id, message, done) {
+window.WAPI.sendMessage = async function (id, message) {
     var chat = WAPI.getChat(id);
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
     if (chat !== undefined) {
-        if (done !== undefined) {
-            chat.sendMessage(message).then(function () {
-
-                var trials = 0;
-
-                function check() {
-                    for (let i = chat.msgs.models.length - 1; i >= 0; i--) {
-                        let msg = chat.msgs.models[i];
-
-                        if (!msg.senderObj.isMe || msg.body != message) {
-                            continue;
-                        }
-                        done(WAPI._serializeMessageObj(msg));
-                        return True;
-                    }
-                    trials += 1;
-                    console.log(trials);
-                    if (trials > 30) {
-                        done(true);
-                        return;
-                    }
-                    sleep(500).then(check);
-                }
-                check();
-            });
-            return true;
-        } else {
             // return WAPI.sendMessageReturnId(chat,message).then(id=>{return id})
-            return chat.sendMessage(message).then(_=>chat.lastReceivedKey._serialized);
-        }
+            return await chat.sendMessage(message).then(_=>chat.lastReceivedKey._serialized);
     } else {
-        if (done !== undefined) done(false);
         return false;
     }
 };
 
-window.WAPI.sendMessage2 = function (id, message, done) {
+window.WAPI.sendMessage2 = function (id, message) {
     var chat = WAPI.getChat(id);
     if (chat !== undefined) {
         try {
-            if (done !== undefined) {
-                chat.sendMessage(message).then(function () {
-                    done(true);
-                });
-            } else {
                 chat.sendMessage(message);
-            }
             return true;
         } catch (error) {
-            if (done !== undefined) done(false)
             return false;
         }
     }
-    if (done !== undefined) done(false)
     return false;
 };
 
-window.WAPI.sendSeen = function (id, done) {
+window.WAPI.sendSeen = async function (id) {
     var chat = window.WAPI.getChat(id);
     if (chat !== undefined) {
-        if (done !== undefined) {
-            Store.SendSeen(chat, false).then(function () {
-                done(true);
-            });
+            await Store.SendSeen(chat, false);
             return true;
-        } else {
-            Store.SendSeen(chat, false);
-            return true;
-        }
     }
-    if (done !== undefined) done();
     return false;
 };
 
@@ -1065,7 +878,8 @@ window.WAPI.setPresence = function (available) {
     if(available)Store.Presence.setPresenceAvailable();
     else Store.Presence.setPresenceUnavailable();
 }
-window.WAPI.getUnreadMessages = function (includeMe, includeNotifications, use_unread_count, done) {
+
+window.WAPI.getUnreadMessages = function (includeMe, includeNotifications, use_unread_count) {
     const chats = window.Store.Chat.models;
     let output = [];
 
@@ -1123,22 +937,16 @@ window.WAPI.getUnreadMessages = function (includeMe, includeNotifications, use_u
             }
         }
     }
-    if (done !== undefined) {
-        done(output);
-    }
     return output;
 };
 
-window.WAPI.getGroupOwnerID = async function (id, done) {
+window.WAPI.getGroupOwnerID = async function (id) {
     const output = (await WAPI.getGroupMetadata(id)).owner.id;
-    if (done !== undefined) {
-        done(output);
-    }
     return output;
 
 };
 
-window.WAPI.getCommonGroups = async function (id, done) {
+window.WAPI.getCommonGroups = async function (id) {
     let output = [];
 
     groups = window.WAPI.getAllGroups();
@@ -1155,10 +963,6 @@ window.WAPI.getCommonGroups = async function (id, done) {
             console.log(err);
         }
     }
-
-    if (done !== undefined) {
-        done(output);
-    }
     return output;
 };
 
@@ -1166,130 +970,108 @@ window.WAPI.getProfilePicFromServer = function (id) {
     return Store.WapQuery.profilePicFind(id).then(x => x.eurl);
 }
 
-window.WAPI.getProfilePicSmallFromId = function (id, done) {
-    window.Store.ProfilePicThumb.find(id).then(function (d) {
+window.WAPI.getProfilePicSmallFromId = async function (id) {
+    return await window.Store.ProfilePicThumb.find(id).then(async d=> {
         if (d.img !== undefined) {
-            window.WAPI.downloadFileWithCredentials(d.img, done);
+            return await window.WAPI.downloadFileWithCredentials(d.img);
         } else {
-            done(false);
+            return false
         }
     }, function (e) {
-        done(false);
+        return false
     })
 };
 
-window.WAPI.getProfilePicFromId = function (id, done) {
-    window.Store.ProfilePicThumb.find(id).then(function (d) {
+window.WAPI.getProfilePicFromId = async function (id) {
+    return await window.Store.ProfilePicThumb.find(id).then(async d => {
         if (d.imgFull !== undefined) {
-            window.WAPI.downloadFileWithCredentials(d.imgFull, done);
+            return await window.WAPI.downloadFileWithCredentials(d.imgFull);
         } else {
-            done(false);
+            return false
         }
     }, function (e) {
-        done(false);
+        return false
     })
 };
 
-window.WAPI.downloadFileWithCredentials = function (url, done) {
-    let xhr = new XMLHttpRequest();
+window.WAPI.downloadFileWithCredentials = async function (url) {
+    return await new Promise((resolve,reject) => {
+        let xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    let reader = new FileReader();
+                    reader.readAsDataURL(xhr.response);
+                    reader.onload = function (e) {
+                        resolve(reader.result.substr(reader.result.indexOf(',') + 1));
+                    };
+                } else {
+                    console.error(xhr.statusText);
+                }
+            } else {
+                console.log(err);
+                resolve(false);
+            }
+        };
+        xhr.open("GET", url, true);
+        xhr.withCredentials = true;
+        xhr.responseType = 'blob';
+        xhr.send(null);
+    })
+};
 
+
+window.WAPI.downloadFile = async function (url) {
+    return await new Promise((resolve,reject) => {
+    let xhr = new XMLHttpRequest();
     xhr.onload = function () {
         if (xhr.readyState == 4) {
             if (xhr.status == 200) {
                 let reader = new FileReader();
                 reader.readAsDataURL(xhr.response);
                 reader.onload = function (e) {
-                    done(reader.result.substr(reader.result.indexOf(',') + 1))
+                    resolve(reader.result.substr(reader.result.indexOf(',') + 1))
                 };
             } else {
                 console.error(xhr.statusText);
             }
         } else {
             console.log(err);
-            done(false);
-        }
-    };
-
-    xhr.open("GET", url, true);
-    xhr.withCredentials = true;
-    xhr.responseType = 'blob';
-    xhr.send(null);
-};
-
-
-window.WAPI.downloadFile = function (url, done) {
-    let xhr = new XMLHttpRequest();
-
-
-    xhr.onload = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status == 200) {
-                let reader = new FileReader();
-                reader.readAsDataURL(xhr.response);
-                reader.onload = function (e) {
-                    done(reader.result.substr(reader.result.indexOf(',') + 1))
-                };
-            } else {
-                console.error(xhr.statusText);
-            }
-        } else {
-            console.log(err);
-            done(false);
+            resolve(false);
         }
     };
 
     xhr.open("GET", url, true);
     xhr.responseType = 'blob';
     xhr.send(null);
+})
 };
 
-window.WAPI.getBatteryLevel = function (done) {
+window.WAPI.getBatteryLevel = function () {
     if (window.Store.Conn.plugged) {
-        if (done !== undefined) {
-            done(100);
-        }
         return 100;
     }
     output = window.Store.Conn.battery;
-    if (done !== undefined) {
-        done(output);
-    }
     return output;
 };
 
-window.WAPI.deleteConversation = function (chatId, done) {
+window.WAPI.deleteConversation = async function (chatId) {
     let userId = new window.Store.UserConstructor(chatId, { intentionallyUsePrivateConstructor: true });
     let conversation = WAPI.getChat(userId);
-
     if (!conversation) {
-        if (done !== undefined) {
-            done(false);
-        }
         return false;
     }
-
-    window.Store.sendDelete(conversation, false).then(() => {
-        if (done !== undefined) {
-            done(true);
-        }
+    return await window.Store.sendDelete(conversation, false).then(() => {
+        return true;
     }).catch(() => {
-        if (done !== undefined) {
-            done(false);
-        }
+        return false;
     });
-
-    return true;
 };
 
-window.WAPI.smartDeleteMessages = function (chatId, messageArray, onlyLocal, done) {
+window.WAPI.smartDeleteMessages = async function (chatId, messageArray, onlyLocal) {
     var userId = new Store.WidFactory.createWid(chatId);
     let conversation = WAPI.getChat(userId);
-    if (!conversation) {
-        if (done !== undefined) {
-            done(false);
-        }
-        return false;
-    }
+    if (!conversation) return false;
 
     if (!Array.isArray(messageArray)) {
         messageArray = [messageArray];
@@ -1301,24 +1083,14 @@ window.WAPI.smartDeleteMessages = function (chatId, messageArray, onlyLocal, don
         conversation.sendRevokeMsgs(messagesToDelete.filter(msg=>msg.isSentByMe),conversation),
         conversation.sendDeleteMsgs(messagesToDelete.filter(msg=>!msg.isSentByMe),conversation)
     ]
-    return Promise.all(jobs).then(_=>{
-        if (done !== undefined) {
-            done(true);
-        }
-        return true;
-    })
+    return Promise.all(jobs).then(_=>true)
 };
 
-window.WAPI.deleteMessage = function (chatId, messageArray, revoke = false, done) {
+window.WAPI.deleteMessage = async function (chatId, messageArray, revoke = false) {
     let userId = new window.Store.UserConstructor(chatId, { intentionallyUsePrivateConstructor: true });
     let conversation = WAPI.getChat(userId);
 
-    if (!conversation) {
-        if (done !== undefined) {
-            done(false);
-        }
-        return false;
-    }
+    if (!conversation)return false;
 
     if (!Array.isArray(messageArray)) {
         messageArray = [messageArray];
@@ -1330,10 +1102,6 @@ window.WAPI.deleteMessage = function (chatId, messageArray, revoke = false, done
         conversation.sendRevokeMsgs(messagesToDelete, conversation);
     } else {
         conversation.sendDeleteMsgs(messagesToDelete, conversation);
-    }
-
-    if (done !== undefined) {
-        done(true);
     }
 
     return true;
@@ -1383,25 +1151,18 @@ window.WAPI.getVCards = function(id) {
     }
 }
 
-window.WAPI.checkNumberStatus = async function (id, done) {
+window.WAPI.checkNumberStatus = async function (id) {
     try {
         const result = await window.Store.WapQuery.queryExist(id);
         if (result.jid === undefined) throw 404;
         const data = window.WAPI._serializeNumberStatusObj(result);
         if (data.status == 200) data.numberExists = true
-        if (done !== undefined) {
-            done(window.WAPI._serializeNumberStatusObj(result));
-            done(data);
-        }
         return data;
     } catch (e) {
-        if (done !== undefined) {
-            done(window.WAPI._serializeNumberStatusObj({
+            return window.WAPI._serializeNumberStatusObj({
                 status: e,
                 jid: id
-            }));
-        }
-        return e;
+            });
     }
 };
 
@@ -1478,11 +1239,11 @@ window.addEventListener("pageunload", window.WAPI._unloadInform, false);
 /**
  * Registers a callback to be called when a new message arrives the WAPI.
  * @param rmCallbackAfterUse - Boolean - Specify if the callback need to be executed only once
- * @param done - function - Callback function to be called when a new message arrives.
+ * @param callback - function - Callback function to be called when a new message arrives.
  * @returns {boolean}
  */
-window.WAPI.waitNewMessages = function (rmCallbackAfterUse = true, done) {
-    window.WAPI._newMessagesCallbacks.push({ callback: done, rmAfterUse: rmCallbackAfterUse });
+window.WAPI.waitNewMessages = function (rmCallbackAfterUse = true, callback) {
+    window.WAPI._newMessagesCallbacks.push({ callback, rmAfterUse: rmCallbackAfterUse });
     return true;
 };
 
@@ -1644,28 +1405,23 @@ window.WAPI.onAddedToGroup = function(callback){
 
 /**
  * Reads buffered new messages.
- * @param done - function - Callback function to be called contained the buffered messages.
  * @returns {Array}
  */
-window.WAPI.getBufferedNewMessages = function (done) {
+window.WAPI.getBufferedNewMessages = function () {
     let bufferedMessages = window.WAPI._newMessagesBuffer;
     window.WAPI._newMessagesBuffer = [];
-    if (done !== undefined) {
-        done(bufferedMessages);
-    }
     return bufferedMessages;
 };
 /** End new messages observable functions **/
 
-window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
+window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption) {
     // var idUser = new Store.WidFactory.createWid(chatid);
     // create new chat
-    return Store.Chat.find(chatid).then((chat) => {
+    return await Store.Chat.find(chatid).then(async (chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
-        return window.WAPI.procFiles(chat,mediaBlob).then(mc => {
+        return await window.WAPI.procFiles(chat,mediaBlob).then(async mc => {
             var media = mc.models[0];
-            media.sendToChat(chat, { caption });
-            if (done !== undefined) done(true);
+            await media.sendToChat(chat, { caption });
             return chat.lastReceivedKey._serialized;
         });
     });
@@ -1688,18 +1444,18 @@ window.WAPI.setMyStatus = function (newStatus) {
     return Store.MyStatus.setMyStatus(newStatus)
 }
 
-window.WAPI.sendVideoAsGif = function (imgBase64, chatid, filename, caption, done) {
+window.WAPI.sendVideoAsGif = async function (imgBase64, chatid, filename, caption) {
     // var idUser = new Store.WidFactory.createWid(chatid);
     // create new chat
-    return Store.Chat.find(chatid).then((chat) => {
+    return await Store.Chat.find(chatid).then(async (chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
         var mc = new Store.MediaCollection(chat);
-        window.WAPI.procFiles(chat,mediaBlob).then(mc => {
+        return await window.WAPI.procFiles(chat,mediaBlob).then(async mc => {
             var media = mc.models[0];
             media.mediaPrep._mediaData.isGif = true;
             media.mediaPrep._mediaData.gifAttribution = 1;
-            media.mediaPrep.sendToChat(chat, { caption: caption });
-            if (done !== undefined) done(true);
+            await media.mediaPrep.sendToChat(chat, { caption: caption });
+            return chat.lastReceivedKey._serialized;
         });
     });
 }
@@ -1709,16 +1465,13 @@ window.WAPI.sendVideoAsGif = function (imgBase64, chatid, filename, caption, don
  * Find any product listings of the given number. Use this to query a catalog
  *
  * @param id id of buseinss profile (i.e the number with @c.us)
- * @param done Optional callback function for async execution
  * @returns None
  */
-window.WAPI.getBusinessProfilesProducts = function (id, done) {
-    return Store.Catalog.find(id).then(resp => {
+window.WAPI.getBusinessProfilesProducts = async function (id) {
+    return await Store.Catalog.find(id).then(resp => {
         if (resp.msgProductCollection && resp.msgProductCollection._models.length)
-            done();
         return resp.productCollection._models;
     }).catch(error => {
-        done();
         return error.model._products;
     })
 };
@@ -1739,11 +1492,10 @@ window.WAPI.procFiles= async function(chat, blobs) {
  * @param caption string the caption you want to add to this message
  * @param bizNumber string the @c.us number of the business account from which you want to grab the product
  * @param productId string the id of the product within the main catalog of the aforementioned business
- * @param done - function - Callback function to be called contained the buffered messages.
  * @returns 
  */
-window.WAPI.sendImageWithProduct = function (imgBase64, chatid, caption, bizNumber, productId, done) {
-    Store.Catalog.findCarouselCatalog(bizNumber).then(cat => {
+window.WAPI.sendImageWithProduct = async function (imgBase64, chatid, caption, bizNumber, productId) {
+    return await Store.Catalog.findCarouselCatalog(bizNumber).then(async cat => {
         if (cat && cat[0]) {
             const product = cat[0].productCollection.get(productId);
             const temp = {
@@ -1765,15 +1517,15 @@ window.WAPI.sendImageWithProduct = function (imgBase64, chatid, caption, bizNumb
 
             // var idUser = new Store.WidFactory.createWid(chatid);
 
-            return Store.Chat.find(chatid).then((chat) => {
+            return Store.Chat.find(chatid).then(async (chat) => {
                 var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
                 // var mc = new Store.MediaCollection(chat);
                 // mc.processFiles([mediaBlob], chat, 1)
-                window.WAPI.procFiles(chat,mediaBlob).then(mc => {
+                return await window.WAPI.procFiles(chat,mediaBlob).then(async mc => {
                     var media = mc.models[0];
                     Object.entries(temp.productMsgOptions).map(([k, v]) => media.mediaPrep._mediaData[k] = v)
-                    media.mediaPrep.sendToChat(chat, temp);
-                    if (done !== undefined) done(true);
+                    await media.mediaPrep.sendToChat(chat, temp);
+                    return chat.lastReceivedKey._serialized;
                 });
             });
         }
@@ -2326,14 +2078,12 @@ window.WAPI.contactUnblock = async function (id) {
  * Remove participant of Group
  * @param {*} idGroup '0000000000-00000000@g.us'
  * @param {*} idParticipant '000000000000@c.us'
- * @param {*} done - function - Callback function to be called when a new message arrives.
  */
-window.WAPI.removeParticipant = function (idGroup, idParticipant, done) {
+window.WAPI.removeParticipant = async function (idGroup, idParticipant) {
     const chat = Store.Chat.get(idGroup);
     const rm = chat.groupMetadata.participants.get(idParticipant);
-    window.Store.Participants.removeParticipants(chat, [rm]).then(() => {
-        done(true); return true;
-    })
+    await window.Store.Participants.removeParticipants(chat, [rm]);
+    return true;
 }
 
 
@@ -2341,44 +2091,38 @@ window.WAPI.removeParticipant = function (idGroup, idParticipant, done) {
  * Add participant to Group
  * @param {*} idGroup '0000000000-00000000@g.us'
  * @param {*} idParticipant '000000000000@c.us'
- * @param {*} done - function - Callback function to be called when a new message arrives.
  */
-window.WAPI.addParticipant = function (idGroup, idParticipant, done) {
+window.WAPI.addParticipant = async function (idGroup, idParticipant) {
     const chat = Store.Chat.get(idGroup);
     const add = Store.Contact.get(idParticipant);
-    window.Store.Participants.addParticipants(chat, [add]).then(() => {
-        done(true); return true;
-    })
+    await window.Store.Participants.addParticipants(chat, [add]);
+    return true;
 }
 
 /**
  * Promote Participant to Admin in Group
  * @param {*} idGroup '0000000000-00000000@g.us'
  * @param {*} idParticipant '000000000000@c.us'
- * @param {*} done - function - Callback function to be called when a new message arrives.
  */
-window.WAPI.promoteParticipant = function (idGroup, idParticipant, done) {
+window.WAPI.promoteParticipant = async function (idGroup, idParticipant) {
     const chat = Store.Chat.get(idGroup);
     const promote = chat.groupMetadata.participants.get(idParticipant);
-    window.Store.Participants.promoteParticipants(chat, [promote]).then(() => {
-        done(true); return true;
-    })
+    await window.Store.Participants.promoteParticipants(chat, [promote]);
+    return true;
 }
 
 /**
  * Demote Admin of Group
  * @param {*} idGroup '0000000000-00000000@g.us'
  * @param {*} idParticipant '000000000000@c.us'
- * @param {*} done - function - Callback function to be called when a new message arrives.
  */
-window.WAPI.demoteParticipant = function (idGroup, idParticipant, done) {
-    window.Store.WapQuery.demoteParticipants(idGroup, [idParticipant]).then(() => {
-        const chat = Store.Chat.get(idGroup);
-        const demote = chat.groupMetadata.participants.get(idParticipant);
-        window.Store.Participants.demoteParticipants(chat, [demote]).then(() => {
-            done(true); return true;
-        })
-    })
+window.WAPI.demoteParticipant = async function (idGroup, idParticipant) {
+    await window.Store.WapQuery.demoteParticipants(idGroup, [idParticipant])
+    const chat = Store.Chat.get(idGroup);
+    const demote = chat.groupMetadata.participants.get(idParticipant);
+    await window.Store.Participants.demoteParticipants(chat, [demote])
+    return true
+   
 }
 
 /**
@@ -2473,10 +2217,9 @@ window.WAPI._STICKERDUMP = async function (chatId) {
 }
 
 
-window.WAPI.getLastSeen = async function (id, done) {
+window.WAPI.getLastSeen = async function (id) {
     let {presence} = Store.Chat.get(id)
     await presence.subscribe();
-    if(done) done(presence.chatstate.t);
     return presence.chatstate.t;
   }
 
