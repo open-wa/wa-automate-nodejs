@@ -2231,6 +2231,10 @@ window.WAPI.setGroupToAdminsOnly = function(){return false;}
 
 window.WAPI.quickClean = function (ob) {return JSON.parse(JSON.stringify(ob))};
 
+window.WAPI.pyFunc = async function (fn, done) {
+    return done(await fn())
+}
+
 /**
  * This next line is jsSha
  */
