@@ -1604,7 +1604,7 @@ window.WAPI.getNewMessageId = function (chatId) {
 
     newMsgId.fromMe = true;
     newMsgId.id = WAPI.getNewId().toUpperCase();
-    newMsgId.remote = chatId;
+    newMsgId.remote = new Store.WidFactory.createWid(chatId);
     newMsgId._serialized = `${newMsgId.fromMe}_${newMsgId.remote}_${newMsgId.id}`
 
     return newMsgId;
@@ -1949,6 +1949,7 @@ return new Promise(function(resolve, reject) {
 window.WAPI.reply = async function (chatId, body, quotedMsg) {
     if (typeof quotedMsg !== "object") quotedMsg = Store.Msg.get(quotedMsg)
     var chat = Store.Chat.get(chatId);
+    if(!chat) return false;
     let extras = {
             quotedParticipant: quotedMsg.author || quotedMsg.from,
             quotedStanzaID:quotedMsg.id.id
@@ -1961,7 +1962,7 @@ window.WAPI.reply = async function (chatId, body, quotedMsg) {
         local: !0,
         self: "out",
         t: parseInt(new Date().getTime() / 1000),
-        to: chatId,
+        to:  new Store.WidFactory.createWid(chatId),
         isNewMsg: !0,
         type: "chat",
         quotedMsg,
@@ -1969,7 +1970,9 @@ window.WAPI.reply = async function (chatId, body, quotedMsg) {
         ...extras
     };
     Object.assign(tempMsg, extend);
-    await Store.addAndSendMsgToChat(chat, tempMsg)
+    const res = await Promise.all(await Store.addAndSendMsgToChat(chat, tempMsg));
+    if(res[1]!='success') return false;
+    return res[0].id._serialized
 };
 
 /**
