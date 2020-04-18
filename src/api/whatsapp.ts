@@ -83,7 +83,8 @@ declare module WAPI {
     base64: string,
     to: string,
     filename: string,
-    caption: string
+    caption: string,
+    quotedMsgId?: string
   ) => Promise<string>;
   const sendMessageWithThumb: (
     thumb: string,
@@ -108,7 +109,8 @@ declare module WAPI {
     base64: string,
     to: string,
     filename: string,
-    caption: string
+    caption: string,
+    quotedMsgId?: string
   ) => Promise<string>;
   const getAllContacts: () => Contact[];
   const getWAVersion: () => String;
@@ -542,13 +544,14 @@ export class Whatsapp {
     to: string,
     base64: string,
     filename: string,
-    caption: string
+    caption: string,
+    quotedMsgId?: string
   ) {
     return await this.page.evaluate(
-      ({ to, base64, filename, caption }) => {
-        WAPI.sendImage(base64, to, filename, caption);
+      ({ to, base64, filename, caption, quotedMsgId }) => {
+        WAPI.sendImage(base64, to, filename, caption, quotedMsgId);
       },
-      { to, base64, filename, caption }
+      { to, base64, filename, caption, quotedMsgId }
     );
   }
 
@@ -578,13 +581,14 @@ export class Whatsapp {
     to: string,
     base64: string,
     filename: string,
-    caption: string
+    caption: string,
+    quotedMsgId?: string
   ) {
     return await this.page.evaluate(
-      ({ to, base64, filename, caption }) => {
-        WAPI.sendImage(base64, to, filename, caption);
+      ({ to, base64, filename, caption, quotedMsgId }) => {
+        WAPI.sendImage(base64, to, filename, caption, quotedMsgId);
       },
-      { to, base64, filename, caption }
+      { to, base64, filename, caption, quotedMsgId }
     );
   }
 
@@ -600,13 +604,14 @@ export class Whatsapp {
     to: string,
     base64: string,
     filename: string,
-    caption: string
+    caption: string,
+    quotedMsgId?: string
   ) {
     return await this.page.evaluate(
-      ({ to, base64, filename, caption }) => {
-        WAPI.sendVideoAsGif(base64, to, filename, caption);
+      ({ to, base64, filename, caption, quotedMsgId  }) => {
+        WAPI.sendVideoAsGif(base64, to, filename, caption, quotedMsgId );
       },
-      { to, base64, filename, caption }
+      { to, base64, filename, caption, quotedMsgId }
     );
   }
 

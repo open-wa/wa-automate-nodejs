@@ -1414,14 +1414,23 @@ window.WAPI.getBufferedNewMessages = function () {
 };
 /** End new messages observable functions **/
 
-window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption) {
+window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, quotedMsg) {
+    let extras = {};
+    if(quotedMsg){
+        if (typeof quotedMsg !== "object") quotedMsg = Store.Msg.get(quotedMsg);
+        extras = {
+            quotedMsg,
+            quotedParticipant: quotedMsg.author || quotedMsg.from,
+            quotedStanzaID:quotedMsg.id.id
+        };
+    }
     // var idUser = new Store.WidFactory.createWid(chatid);
     // create new chat
     return await Store.Chat.find(chatid).then(async (chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
         return await window.WAPI.procFiles(chat,mediaBlob).then(async mc => {
             var media = mc.models[0];
-            await media.sendToChat(chat, { caption });
+            await media.sendToChat(chat, { caption,...extras });
             return chat.lastReceivedKey._serialized;
         });
     });
@@ -1444,8 +1453,16 @@ window.WAPI.setMyStatus = function (newStatus) {
     return Store.MyStatus.setMyStatus(newStatus)
 }
 
-window.WAPI.sendVideoAsGif = async function (imgBase64, chatid, filename, caption) {
-    // var idUser = new Store.WidFactory.createWid(chatid);
+window.WAPI.sendVideoAsGif = async function (imgBase64, chatid, filename, caption, quotedMsg) {
+    let extras = {};
+    if(quotedMsg){
+        if (typeof quotedMsg !== "object") quotedMsg = Store.Msg.get(quotedMsg);
+        extras = {
+            quotedMsg,
+            quotedParticipant: quotedMsg.author || quotedMsg.from,
+            quotedStanzaID:quotedMsg.id.id
+        };
+    }
     // create new chat
     return await Store.Chat.find(chatid).then(async (chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
@@ -1454,7 +1471,7 @@ window.WAPI.sendVideoAsGif = async function (imgBase64, chatid, filename, captio
             var media = mc.models[0];
             media.mediaPrep._mediaData.isGif = true;
             media.mediaPrep._mediaData.gifAttribution = 1;
-            await media.mediaPrep.sendToChat(chat, { caption: caption });
+            await media.mediaPrep.sendToChat(chat, { caption,...extras });
             return chat.lastReceivedKey._serialized;
         });
     });
