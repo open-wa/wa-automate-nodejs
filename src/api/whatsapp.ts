@@ -79,6 +79,7 @@ declare module WAPI {
   const createGroup: (groupName: string, contactId: string|string[]) => Promise<any>;
   const sendSeen: (to: string) => Promise<boolean>;
   const isChatOnline: (id: string) => Promise<boolean>;
+  const sendLinkWithAutoPreview: (to: string,url: string,text: string) => Promise<boolean>;
   const contactBlock: (id: string) => Promise<boolean>;
   const contactUnblock: (id: string) => Promise<boolean>;
   const deleteConversation: (chatId: string) => Promise<boolean>;
@@ -558,6 +559,36 @@ export class Whatsapp {
         WAPI.sendImage(base64, to, filename, caption, quotedMsgId);
       },
       { to, base64, filename, caption, quotedMsgId }
+    );
+  }
+
+  
+/**
+ * Automatically sends a youtube link with the auto generated link preview. You can also add a custom message.
+ * @param chatId 
+ * @param url string A youtube link.
+ * @param text string Custom text as body of the message, this needs to include the link or it will be appended after the link.
+ */
+  public async sendYoutubeLink(to: string, url: string, text?: string,) {
+    return this.sendLinkWithAutoPreview(to,url,text);
+  }
+
+/**
+ * Automatically sends a link with the auto generated link preview. You can also add a custom message.
+ * @param chatId 
+ * @param url string A link.
+ * @param text string Custom text as body of the message, this needs to include the link or it will be appended after the link.
+ */
+  public async sendLinkWithAutoPreview(
+    to: string,
+    url: string,
+    text?: string,
+  ) {
+    return await this.page.evaluate(
+      ({ to,url, text }) => {
+        WAPI.sendLinkWithAutoPreview(to,url,text);
+      },
+      { to,url, text }
     );
   }
 
