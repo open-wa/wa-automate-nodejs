@@ -12,10 +12,16 @@ import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent } from '../config/puppeteer.config'
 import sharp from 'sharp';
 
-export const getBase64 = async (url: string) => {
+export const getBase64 = async (url: string, optionsOverride: any = {} ) => {
   try {
-    const res = await axios
-      .get(url, {
+    const res = await axios({
+        method:"get",
+        url,
+        headers: {
+          'DNT':1,
+          'Upgrade-Insecure-Requests':1
+        },
+        ...optionsOverride,
         responseType: 'arraybuffer'
       });
     return `data:${res.headers['content-type']};base64,${Buffer.from(res.data, 'binary').toString('base64')}`
@@ -644,6 +650,35 @@ export class Whatsapp {
     }
   }
 
+
+  /**
+   * Sends a file by Url or custom options
+   * @param to chat id xxxxx@us.c
+   * @param url string https://i.giphy.com/media/oYtVHSxngR3lC/200w.mp4
+   * @param filename string 'video.mp4'
+   * @param caption string xxxxx
+   * @param requestConfig {} By default the request is a get request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
+   */
+  public async sendFileFromUrl(
+    to: string,
+    url: string,
+    filename: string,
+    caption: string,
+    requestConfig: any = {}
+  ) {
+    try {
+     const base64 = await getBase64(url, requestConfig);
+      return await this.page.evaluate(
+        ({ to, base64, filename, caption }) => {
+          WAPI.sendImage(base64, to, filename, caption);
+        },
+        { to, base64, filename, caption }
+      );
+    } catch(error) {
+      console.log('Something went wrong', error);
+      return error;
+    }
+  }
 /**
  * Returns an object with all of your host device details
  */

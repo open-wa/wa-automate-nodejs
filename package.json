@@ -53,7 +53,7 @@
     "@types/command-line-args": "^5.0.0",
     "@types/line-reader": "0.0.28",
     "@types/marked": "^0.7.2",
-    "@types/node": "^13.7.7",
+    "@types/node": "^13.13.0",
     "@types/puppeteer": "^2.0.1",
     "@types/shelljs": "^0.8.5",
     "auto-changelog": "^2.0.0",
