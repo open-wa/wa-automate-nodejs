@@ -11,7 +11,7 @@
 ![node](https://img.shields.io/node/v/@open-wa/wa-automate)
 [![Downloads](https://img.shields.io/npm/dm/@open-wa/wa-automate.svg)](https://www.npmjs.com/package/@open-wa/wa-automate)
 
-<a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 2.2013.6](https://img.shields.io/badge/WhatsApp_Web-2.2013.6-brightgreen.svg)
+<a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 2.2013.7](https://img.shields.io/badge/WhatsApp_Web-2.2013.7-brightgreen.svg)
 
 [![Buy me a coffee][buymeacoffee-shield]][buymeacoffee]
 [![Consulting Request][consult-shield]][consult]

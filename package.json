@@ -71,7 +71,7 @@
     "typescript": "^3.6.4"
   },
   "dependencies": {
-    "@open-wa/wa-decrypt": "github:open-wa/wa-decrypt",
+    "@open-wa/wa-decrypt": "^1.1.2",
     "@types/sharp": "^0.24.0",
     "atob": "^2.1.2",
     "axios": "^0.19.1",
