@@ -71,6 +71,7 @@
     "typescript": "^3.6.4"
   },
   "dependencies": {
+    "@open-wa/wa-decrypt": "github:open-wa/wa-decrypt",
     "@types/sharp": "^0.24.0",
     "atob": "^2.1.2",
     "axios": "^0.19.1",
@@ -86,8 +87,6 @@
     "puppeteer-extra-plugin-devtools": "^2.2.8",
     "puppeteer-extra-plugin-stealth": "^2.4.9",
     "qrcode-terminal": "^0.12.0",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.4",
     "rxjs": "^6.5.3",
     "sharp": "^0.25.1",
     "shelljs": "^0.8.3"
