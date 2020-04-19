@@ -1429,6 +1429,25 @@ window.WAPI.getBufferedNewMessages = function () {
 };
 /** End new messages observable functions **/
 
+/** Joins a group via the invite link, code, or message
+ * @param link This param is the string which includes the invite link or code. The following work:
+ * - Follow this link to join my WhatsApp group: https://chat.whatsapp.com/DHTGJUfFJAV9MxOpZO1fBZ
+ * - https://chat.whatsapp.com/DHTGJUfFJAV9MxOpZO1fBZ
+ * - DHTGJUfFJAV9MxOpZO1fBZ
+ * @returns Promise<string | boolean> Either false if it didn't work, or the group id.
+ */
+window.WAPI.joinGroupViaLink = async function(link){
+    let code = link;
+    //is it a link? if not, assume it's a code, otherwise, process the link to get the code.
+    if(link.includes('chat.whatsapp.com')) {
+        if(!link.match(/chat.whatsapp.com\/([\w\d]*)/g).length) return false;
+        code = link.match(/chat.whatsapp.com\/([\w\d]*)/g)[0].replace('chat.whatsapp.com\/','');
+    }
+    const group = await Store.GroupInvite.joinGroupViaInvite(code);
+    if(!group.id) return false;
+    return group.id._serialized
+}
+
 window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, quotedMsg) {
     let extras = {};
     if(quotedMsg){

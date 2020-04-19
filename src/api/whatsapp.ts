@@ -137,6 +137,7 @@ declare module WAPI {
   const getAllNewMessages: () => any;
   const getAllGroups: () => Chat[];
   const getGroupParticipantIDs: (groupId: string) => Promise<Id[]>;
+  const joinGroupViaLink: (link: string) => Promise<string | boolean>;
   const leaveGroup: (groupId: string) => any;
   const getVCards: (msgId: string) => any;
   const getContact: (contactId: string) => Contact;
@@ -928,6 +929,21 @@ export class Whatsapp {
     return await this.page.evaluate(
       groupId => WAPI.getGroupParticipantIDs(groupId),
       groupId
+    );
+  }
+
+  
+/** Joins a group via the invite link, code, or message
+ * @param link This param is the string which includes the invite link or code. The following work:
+ * - Follow this link to join my WhatsApp group: https://chat.whatsapp.com/DHTGJUfFJAV9MxOpZO1fBZ
+ * - https://chat.whatsapp.com/DHTGJUfFJAV9MxOpZO1fBZ
+ * - DHTGJUfFJAV9MxOpZO1fBZ
+ * @returns Promise<string | boolean> Either false if it didn't work, or the group id.
+ */
+  public async joinGroupViaLink(link: string) {
+    return await this.page.evaluate(
+      link => WAPI.joinGroupViaLink(link),
+      link
     );
   }
 
