@@ -613,6 +613,7 @@ export class Whatsapp {
    * @param base64 base64 data:image/xxx;base64,xxx
    * @param filename string xxxxx
    * @param caption string xxxxx
+   * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
    */
   public async sendFile(
     to: string,
@@ -636,6 +637,7 @@ export class Whatsapp {
    * @param base64 base64 data:video/xxx;base64,xxx
    * @param filename string xxxxx
    * @param caption string xxxxx
+   * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
    */
   public async sendVideoAsGif(
     to: string,
@@ -688,6 +690,7 @@ export class Whatsapp {
    * @param url string https://i.giphy.com/media/oYtVHSxngR3lC/200w.mp4
    * @param filename string 'video.mp4'
    * @param caption string xxxxx
+   * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
    * @param requestConfig {} By default the request is a get request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
    */
   public async sendFileFromUrl(
@@ -695,16 +698,12 @@ export class Whatsapp {
     url: string,
     filename: string,
     caption: string,
+    quotedMsgId?: string,
     requestConfig: any = {}
   ) {
     try {
      const base64 = await getBase64(url, requestConfig);
-      return await this.page.evaluate(
-        ({ to, base64, filename, caption }) => {
-          WAPI.sendImage(base64, to, filename, caption);
-        },
-        { to, base64, filename, caption }
-      );
+      return await this.sendFile(to,base64,filename,caption,quotedMsgId)
     } catch(error) {
       console.log('Something went wrong', error);
       return error;
