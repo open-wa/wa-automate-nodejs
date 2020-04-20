@@ -29,24 +29,9 @@ const stripMarkdown = (text) => {
     var str = String(text).replace(/__|\*|\#|(?:\[([^\]]*)\]\([^)]*\))/gm, '$1');
     return str;
 };
-exports.run = async () => {
-    const options = commandLineArgs(optionDefinitions);
-    const filename = options.file || 'CHANGELOG.md';
-    const version = options.version;
-    const packageJson = JSON.parse(await readFile(path.join(path.dirname(filename), 'package.json'), { encoding: 'utf-8' }));
-    const packageName = packageJson.name;
-    console.log(`Reading ${packageName} release ${version} from ${filename}`);
-    const changelog = (await parseChangelog({
-        filePath: filename,
-        removeMarkdown: true,
-    }));
-    const release = await getRelease(changelog, version);
-    if (release === undefined) {
-        throw new Error('no release found');
-    }
-    const body = marked(release.body);
+
     // colors taken from https://github.com/dracula/dracula-theme
-    const html = `
+const html = body => `
     <!doctype html>
     <html>
       <head>
@@ -86,33 +71,50 @@ exports.run = async () => {
       </body>
     </html>
   `;
-    const browser = await puppeteer.launch({ headless: true });
-    const page = await browser.newPage();
-    await page.setViewport({ width: 800, height: 800, deviceScaleFactor: 2 });
-    await page.setContent(html);
-    await page.evaluate(`document.fonts.ready`);
-    const bounds = await page.evaluate(`
-    document.documentElement.getBoundingClientRect().toJSON()
-  `);
-    await page.screenshot({
-        path: 'release.png',
-        encoding: 'binary',
-        type: 'png',
-        clip: {
-            x: bounds.x,
-            y: bounds.y,
-            width: bounds.width,
-            height: bounds.height,
-        },
-    });
-    console.log('Wrote screenshot to release.png');
-    await browser.close();
-    process.exit();
-};
+
 const latestVersion = {};
 const getRelease = async (changelog, version = latestVersion) => {
     return changelog.versions.find((r) => (r.version !== null && version === latestVersion) ||
         r.version === version ||
         (r.version === null && version === undefined));
 };
+
+const screenShotOptions = async page => {
+  await page.setViewport({ width: 800, height: 800, deviceScaleFactor: 2 });
+  await page.setContent(html(marked(release.body)));
+  await page.evaluate(`document.fonts.ready`);
+  const bounds = await page.evaluate(`document.documentElement.getBoundingClientRect().toJSON()`);
+  return {
+    path: 'release.png',
+    encoding: 'binary',
+    type: 'png',
+    clip: {
+        x: bounds.x,
+        y: bounds.y,
+        width: bounds.width,
+        height: bounds.height,
+    },
+}
+}
+
+exports.run = async () => {
+    const options = commandLineArgs(optionDefinitions);
+    const filename = options.file || 'CHANGELOG.md';
+    const version = options.version;
+    const packageName = JSON.parse(await readFile(path.join(path.dirname(filename), 'package.json'), { encoding: 'utf-8' })).name;
+    console.log(`Reading ${packageName} release ${version} from ${filename}`);
+    const changelog = (await parseChangelog({
+        filePath: filename,
+        removeMarkdown: true,
+    }));
+    const release = await getRelease(changelog, version);
+    if (release === undefined) throw new Error('no release found');
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+    await page.screenshot((await screenShotOptions(page)));
+    console.log('Wrote screenshot to release.png');
+    await browser.close();
+    process.exit();
+};
+
 exports.run();

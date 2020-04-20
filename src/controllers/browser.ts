@@ -1,19 +1,13 @@
 import * as path from 'path';
 const fs = require('fs');
-const {installMouseHelper} = require('./mouse-helper');
 const ChromeLauncher = require('chrome-launcher');
-// import opuppeteer from 'puppeteer';
-// puppeteer-extra is a drop-in replacement for puppeteer,
-// it augments the installed puppeteer with plugin functionality
 const puppeteer = require('puppeteer-extra');
 const devtools = require('puppeteer-extra-plugin-devtools')()
-// add stealth plugin and use defaults (all evasion techniques)
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin());
 import { puppeteerConfig, useragent, width, height} from '../config/puppeteer.config';
 //@ts-ignore
 import { Browser, Page } from '@types/puppeteer';
-import { randomMouseMovements } from './auth';
 const ON_DEATH = require('death'); //this is intentionally ugly
 let browser;
 
@@ -26,7 +20,6 @@ export async function initWhatsapp(sessionId?: string, puppeteerConfigOverride?:
     height,
     deviceScaleFactor: 1
   });
-  // await installMouseHelper(waPage);
   const cacheEnabled = puppeteerConfigOverride&&puppeteerConfigOverride.cacheEnabled? puppeteerConfigOverride.cacheEnabled :true
   const blockCrashLogs = puppeteerConfigOverride&&puppeteerConfigOverride.blockCrashLogs? puppeteerConfigOverride.blockCrashLogs :false;
   await waPage.setCacheEnabled(cacheEnabled);
@@ -53,7 +46,6 @@ export async function initWhatsapp(sessionId?: string, puppeteerConfigOverride?:
     }, sessionjson);
     
   await waPage.goto(puppeteerConfig.whatsappUrl);
-  // await randomMouseMovements(waPage);
   return waPage;
 }
 

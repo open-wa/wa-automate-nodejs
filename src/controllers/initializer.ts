@@ -1,7 +1,7 @@
 import { Whatsapp } from '../api/whatsapp';
 import {ConfigObject} from '../api/model/index';
 import * as path from 'path';
-import { isAuthenticated, isInsideChat, retrieveQR, randomMouseMovements } from './auth';
+import { isAuthenticated, isInsideChat, retrieveQR } from './auth';
 import { initWhatsapp, injectApi } from './browser';
 import {Spin} from './events'
 import axios from 'axios';
