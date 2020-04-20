@@ -68,6 +68,7 @@ declare module WAPI {
   const setMyStatus: (newStatus: string) => void;
   const setPresence: (available: boolean) => void;
   const getStatus: (contactId: string) => void;
+  const setGroupIcon: (groupId: string, imgData: string) => Promise<boolean>;
   const getGroupAdmins: (groupId: string) => Promise<Contact[]>;
   const removeParticipant: (groupId: string, contactId: string) => Promise<boolean>;
   const addOrRemoveLabels: (label: string, id: string, type: string) => Promise<boolean>;
@@ -710,6 +711,7 @@ export class Whatsapp {
       return error;
     }
   }
+
 /**
  * Returns an object with all of your host device details
  */
@@ -1330,12 +1332,38 @@ public async getStatus(contactId: string) {
    * @param {*} idParticipant '000000000000@c.us'
    * @param {*} done - function - Callback function to be called when a new message arrives.
    */
-
   public async removeParticipant(idGroup: string, idParticipant: string) {
     return await this.page.evaluate(
       ({ idGroup, idParticipant }) => WAPI.removeParticipant(idGroup, idParticipant),
       { idGroup, idParticipant }
     );
+  }
+
+/** Change the icon for the group chat
+ * @param groupId 123123123123_1312313123@g.us The id of the group
+ * @param imgData 'data:image/jpeg;base64,...` The base 64 data uri. Make sure this is a small img (128x128), otherwise it will fail.
+ * @returns boolean true if it was set, false if it didn't work. It usually doesn't work if the image file is too big.
+ */
+  public async setGroupIcon(groupId: string, imgData: string) {
+    return await this.page.evaluate(
+      ({ groupId, imgData }) => WAPI.setGroupIcon(groupId, imgData),
+      { groupId, imgData }
+    );
+  }
+
+/** Change the icon for the group chat
+ * @param groupId 123123123123_1312313123@g.us The id of the group
+ * @param url'https://upload.wikimedia.org/wikipedia/commons/3/38/JPEG_example_JPG_RIP_001.jpg' The url of the image. Make sure this is a small img (128x128), otherwise it will fail.
+ * @param requestConfig {} By default the request is a get request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
+ * @returns boolean true if it was set, false if it didn't work. It usually doesn't work if the image file is too big.
+ */
+  public async setGroupIconByUrl(groupId: string, url: string, requestConfig: any = {}) {
+    try {
+      const base64 = await getBase64(url, requestConfig);
+       return await this.setGroupIcon(groupId,base64);
+     } catch(error) {
+       return error;
+     }
   }
 
   /**

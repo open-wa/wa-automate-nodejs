@@ -1479,6 +1479,16 @@ window.WAPI.setMyName = async function (newName) {
     return await Store.Versions.default[11].setPushname(newName);
 }
 
+/** Change the icon for the group chat
+ * @param groupId 123123123123_1312313123@g.us The id of the group
+ * @param imgData 'data:image/jpeg;base64,...` The base 64 data uri
+ * @returns boolean true if it was set, false if it didn't work. It usually doesn't work if the image file is too big.
+ */
+window.WAPI.setGroupIcon = async function(groupId, imgData) {
+    const {status} = await Store.WapQuery.sendSetPicture(groupId,imgData,imgData);
+    return status==200;
+}
+
 /**
 * Update your status
 *   @param newStatus string new Status
