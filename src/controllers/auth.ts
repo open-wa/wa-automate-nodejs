@@ -47,10 +47,14 @@ export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, auto
   let targetElementFound;
   while (!targetElementFound) {
     targetElementFound = await waPage.waitForSelector( "canvas[aria-label='Scan me!']",{
-        timeout: 1000
+      timeout: 10000,
+      visible: true,
       });
   }
-  const qrData = await waPage.evaluate(`document.querySelector("canvas[aria-label='Scan me!']").parentElement.getAttribute("data-ref")`);
+  let qrData;
+  while(!qrData){
+    qrData = await waPage.evaluate(`document.querySelector("canvas[aria-label='Scan me!']")?document.querySelector("canvas[aria-label='Scan me!']").parentElement.getAttribute("data-ref"):false`);
+  }
   const qrCode = await waPage.evaluate(`document.querySelector("canvas[aria-label='Scan me!']").toDataURL()`);
   qrEv.emit(qrCode);
   qrcode.generate(qrData,{small: true});
