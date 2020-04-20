@@ -31,7 +31,7 @@ const stripMarkdown = (text) => {
 };
 
     // colors taken from https://github.com/dracula/dracula-theme
-const html = body => `
+const html = (body,packageName,release) => `
     <!doctype html>
     <html>
       <head>
@@ -80,9 +80,6 @@ const getRelease = async (changelog, version = latestVersion) => {
 };
 
 const screenShotOptions = async page => {
-  await page.setViewport({ width: 800, height: 800, deviceScaleFactor: 2 });
-  await page.setContent(html(marked(release.body)));
-  await page.evaluate(`document.fonts.ready`);
   const bounds = await page.evaluate(`document.documentElement.getBoundingClientRect().toJSON()`);
   return {
     path: 'release.png',
@@ -111,6 +108,9 @@ exports.run = async () => {
     if (release === undefined) throw new Error('no release found');
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
+    await page.setViewport({ width: 800, height: 800, deviceScaleFactor: 2 });
+    await page.setContent(html(marked(release.body),packageName,release));
+    await page.evaluate(`document.fonts.ready`);
     await page.screenshot((await screenShotOptions(page)));
     console.log('Wrote screenshot to release.png');
     await browser.close();
