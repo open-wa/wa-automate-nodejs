@@ -1761,6 +1761,7 @@ window.WAPI.simulateTyping = async function (chatId, on) {
  */
 window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
     var chat = Store.Chat.get(chatId);
+    if(!chat) return false;
     var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe && !msg.quotedMsg)[0]);
     var newId = window.WAPI.getNewMessageId(chatId);
     var extend = {
