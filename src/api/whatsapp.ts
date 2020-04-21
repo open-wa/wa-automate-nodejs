@@ -1344,11 +1344,23 @@ public async getStatus(contactId: string) {
  * @param imgData 'data:image/jpeg;base64,...` The base 64 data uri. Make sure this is a small img (128x128), otherwise it will fail.
  * @returns boolean true if it was set, false if it didn't work. It usually doesn't work if the image file is too big.
  */
-  public async setGroupIcon(groupId: string, imgData: string) {
-    return await this.page.evaluate(
-      ({ groupId, imgData }) => WAPI.setGroupIcon(groupId, imgData),
-      { groupId, imgData }
-    );
+  public async setGroupIcon(groupId: string, b64: string) {
+    const buff = Buffer.from(b64.replace(/^data:image\/(png|gif|jpeg);base64,/,''), 'base64');
+    const mimeInfo = base64MimeType(b64);
+    console.log("setGroupIcon -> mimeInfo", mimeInfo)
+    if(!mimeInfo || mimeInfo.includes("image")){
+      //no matter what, convert to jpeg, resize + autoscale to width 48 px
+      const scaledImageBuffer = await sharp(buff,{ failOnError: false })
+      .resize({ height: 300 })
+      .toBuffer();
+      const jpeg = sharp(scaledImageBuffer,{ failOnError: false }).jpeg();
+      const imgData = `data:jpeg;base64,${(await jpeg.toBuffer()).toString('base64')}`;
+      console.log("setGroupIcon -> imgData", imgData)
+      return await this.page.evaluate(
+        ({ groupId, imgData }) => WAPI.setGroupIcon(groupId, imgData),
+        { groupId, imgData }
+      );
+    }
   }
 
 /** Change the icon for the group chat
