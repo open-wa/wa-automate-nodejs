@@ -133,6 +133,7 @@ window.WAPI._serializeChatObj = (obj) => {
     return Object.assign(window.WAPI._serializeRawObj(obj), {
         kind: obj.kind,
         isGroup: obj.isGroup,
+        formattedTitle: obj.formattedTitle,
         contact: obj['contact'] ? window.WAPI._serializeContactObj(obj['contact']) : null,
         groupMetadata: obj["groupMetadata"] ? window.WAPI._serializeRawObj(obj["groupMetadata"]) : null,
         presence: obj["presence"] ? window.WAPI._serializeRawObj(obj["presence"]) : null,
@@ -1447,11 +1448,16 @@ window.WAPI._onParticipantsChanged = function (groupId, callback) {
  * @returns {boolean}
  */
 window.WAPI.onAddedToGroup = function(callback){
-    Store.Chat.on('add',(chatObject)=>{
-        if(chatObject&&chatObject.isGroup){
-            callback(chatObject)
-        };
-    });
+    Store.Chat.on('change:previewMessage', async event => {
+        if(event.isGroup && event.previewMessage && event.previewMessage.type=='gp2' && event.previewMessage.subtype =='add' && event.previewMessage.recipients && event.previewMessage.recipients.map(x=>x._serialized).includes(Store.Me.wid._serialized)) {
+            const tdiff = (Date.now()-Store.Msg.get(event.previewMessage.id._serialized).t*1000)/1000;
+            if(tdiff<10.0) {
+                console.log('added', tdiff,'seconds ago')
+                await WAPI.sendSeen(event.id);
+                callback(WAPI._serializeChatObj(Store.Chat.get(event.id)));
+            } else console.log('Not a new group add', event.id._serialized)
+        }
+    })
     return true;
 }
 

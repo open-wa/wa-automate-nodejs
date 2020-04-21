@@ -10,6 +10,7 @@ export interface Chat {
   groupMetadata: GroupMetadata;
   id: Id;
   isAnnounceGrpRestrict: any;
+  formattedTitle?: string;
   isGroup: boolean;
   isReadOnly: boolean;
   kind: string;
