@@ -662,7 +662,7 @@ window.WAPI.isConnected = function () {
 
 //I dont think this will work for group chats.
 window.WAPI.isChatOnline = async function (id) {
-    return await Store.Chat.get(id).presence.subscribe().then(_=>Store.Chat.get(id).presence.attributes.isOnline);
+    return Store.Chat.get(id)?await Store.Chat.get(id).presence.subscribe().then(_=>Store.Chat.get(id).presence.attributes.isOnline):false;
 }
 
 window.WAPI.processMessageObj = function (messageObj, includeMe, includeNotifications) {
@@ -2283,6 +2283,7 @@ window.WAPI._STICKERDUMP = async function (chatId) {
 
 
 window.WAPI.getLastSeen = async function (id) {
+    if(!Store.Chat.get(id)) return false;
     let {presence} = Store.Chat.get(id)
     await presence.subscribe();
     return presence.chatstate.t;

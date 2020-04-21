@@ -131,7 +131,7 @@ declare module WAPI {
   const getAllChats: () => any;
   const getBatteryLevel: () => Number;
   const getChat: (contactId: string) => Chat;
-  const getLastSeen: (contactId: string) => Promise<number>;
+  const getLastSeen: (contactId: string) => Promise<number | boolean>;
   const getProfilePicFromServer: (chatId: string) => any;
   const getAllChatIds: () => string[];
   const getAllChatsWithNewMsg: () => Chat[];
@@ -1055,7 +1055,7 @@ public async contactUnblock(id: string) {
    * 2. You do not have an existing chat with the contact.
    * 3. The chatId is for a group
    * In both of those instances this method will return undefined.
-   * @param chatId
+   * @param chatId The id of the chat.
    * @returns number timestamp when chat was last online or undefined.
    */
   public async getLastSeen(chatId: string) {
@@ -1090,7 +1090,7 @@ public async contactUnblock(id: string) {
   }
   
   /**
-   * SChecks if a chat contact is online. Not entirely sure if this works with groups.
+   * Checks if a CHAT contact is online. Not entirely sure if this works with groups.
    * @param chatId chat id: xxxxx@us.c
    */
   public async isChatOnline(chatId: string) {
