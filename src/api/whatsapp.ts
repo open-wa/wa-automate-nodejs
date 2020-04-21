@@ -395,7 +395,7 @@ export class Whatsapp {
   }
 
   /**
-   * @event Listens to add and remove evevnts on Groups
+   * @event Listens to add and remove events on Groups. This can no longer determine who commited the action and only reports the following events add, remove, promote, demote
    * @param to group id: xxxxx-yyyy@us.c
    * @param to callback
    * @returns Observable stream of participantChangedEvent

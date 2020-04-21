@@ -1345,8 +1345,45 @@ window.WAPI.onBattery = function(callback) {
  * @param callback - function - Callback function to be called when a message acknowledgement changes. The callback returns 3 variables
  * @returns {boolean}
  */
-var groupParticpiantsEvents = {};
 window.WAPI.onParticipantsChanged = function (groupId, callback) {
+    const subtypeEvents = [
+        "invite" , 
+        "add" , 
+        "remove" ,
+        "leave" ,
+        "promote" ,
+        "demote"
+    ];
+    const events = [
+        'change:isAdmin',
+        'remove',
+        'add'
+    ]
+    const chat = window.Store.Chat.get(groupId);
+    chat.groupMetadata.participants.on('all', (eventName, eventData, extra) => {
+        console.log('mhmm',eventName, eventData, extra)
+        if(events.includes(eventName)) {
+            let action = eventName;
+            if(eventName=='change:isAdmin') {
+                action = extra ? 'promote' : 'demote';
+            }
+        callback({
+            by: undefined,
+            action: action,
+            who: eventData.id._serialized
+        });
+        }
+    })
+}
+
+/**
+ * Registers a callback to participant changes on a certain, specific group
+ * @param groupId - string - The id of the group that you want to attach the callback to.
+ * @param callback - function - Callback function to be called when a message acknowledgement changes. The callback returns 3 variables
+ * @returns {boolean}
+ */
+var groupParticpiantsEvents = {};
+window.WAPI._onParticipantsChanged = function (groupId, callback) {
     const subtypeEvents = [
         "invite" , 
         "add" , 
@@ -1372,7 +1409,7 @@ window.WAPI.onParticipantsChanged = function (groupId, callback) {
         _ => chat.on("all", (x, y) => {
             const { isGroup, previewMessage } = y;
             if (isGroup && x === "change" && previewMessage && previewMessage.type === "gp2" && subtypeEvents.includes(previewMessage.subtype)) {
-                const { subtype, from, recipients } = previewMessage;
+                const { subtype, author, recipients } = previewMessage;
                 const rec = recipients[0].toString();
                 if (groupParticpiantsEvents[groupId][rec] && groupParticpiantsEvents[groupId][recipients[0]].subtype == subtype) {
                     //ignore, this is a duplicate entry
@@ -1383,13 +1420,13 @@ window.WAPI.onParticipantsChanged = function (groupId, callback) {
                         //ignore it, plus 1,
                         i++;
                     } else {
-                        groupParticpiantsEvents[groupId][rec] = { subtype, from };
+                        groupParticpiantsEvents[groupId][rec] = { subtype, author };
                         //fire the callback
                         // // previewMessage.from.toString()
                         // x removed y
                         // x added y
                         callback({
-                            by: from.toString(),
+                            by: author.toString(),
                             action: subtype,
                             who: recipients
                         });
