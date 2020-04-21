@@ -85,6 +85,7 @@ declare module WAPI {
   const contactUnblock: (id: string) => Promise<boolean>;
   const deleteConversation: (chatId: string) => Promise<boolean>;
   const clearChat: (chatId: string) => Promise<any>;
+  const ghostForward: (chatId: string, messageId: string) => Promise<boolean>;
   const revokeGroupInviteLink: (chatId: string) => Promise<string> | Promise<boolean>;
   const getGroupInviteLink: (chatId: string) => Promise<string>;
   const sendImage: (
@@ -849,12 +850,24 @@ export class Whatsapp {
    * @param {string|array[Message | string]} messages this can be any mixture of message ids or message objects
    * @param {boolean} skipMyMessages This indicates whether or not to skip your own messages from the array
    */
-
-
   public async forwardMessages(to: string, messages: any, skipMyMessages: boolean) {
     return await this.page.evaluate(
       ({ to, messages, skipMyMessages }) => WAPI.forwardMessages(to, messages, skipMyMessages),
       { to, messages, skipMyMessages }
+    );
+  }
+
+/**
+ * Ghost forwarding is like a normal forward but as if it were sent from the host phone [i.e it doesn't show up as forwarded.]
+ * Any potential abuse of this method will see it become paywalled.
+ * @param to: Chat id to forward the message to
+ * @param messageId: message id of the message to forward. Please note that if it is not loaded, this will return false - even if it exists.
+ * @returns Promise<boolean>
+ */
+  public async ghostForward(to: string, messageId: string) {
+    return await this.page.evaluate(
+      ({ to, messageId }) => WAPI.ghostForward(to, messageId),
+      { to, messageId }
     );
   }
 

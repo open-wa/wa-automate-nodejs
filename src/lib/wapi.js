@@ -1628,6 +1628,30 @@ window.WAPI.sendContact = function (to, contact) {
     }
 };
 
+/**
+ * Ghost forwarding is like a normal forward but as if it were sent from the host phone.
+ */
+window.WAPI.ghostForward = async function(chatId, messageId) {
+    var chat = Store.Chat.get(chatId);
+    if(!Store.Msg.get(messageId)) return false;
+    var tempMsg = Object.create(Store.Msg.get(messageId));
+    var newId = window.WAPI.getNewMessageId(chatId);
+    var extend = {
+        ...JSON.parse(JSON.stringify(tempMsg)),
+        ack: 0,
+        id: newId,
+        local: !0,
+        self: "out",
+        t: parseInt(new Date().getTime() / 1000),
+        to: new Store.WidFactory.createWid(chatId),
+        from: Store.Me.wid,
+        isNewMsg: true
+    };
+    Object.assign(tempMsg, extend);
+    const res = await Promise.all(Store.addAndSendMsgToChat(chat, extend))
+    return res[1]=='success';
+}
+
 
 /**
  * Forward an array of messages to a specific chat using the message ids or Objects
