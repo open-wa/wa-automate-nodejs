@@ -1362,7 +1362,6 @@ window.WAPI.onParticipantsChanged = function (groupId, callback) {
     ]
     const chat = window.Store.Chat.get(groupId);
     chat.groupMetadata.participants.on('all', (eventName, eventData, extra) => {
-        console.log('mhmm',eventName, eventData, extra)
         if(events.includes(eventName)) {
             let action = eventName;
             if(eventName=='change:isAdmin') {

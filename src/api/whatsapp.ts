@@ -59,7 +59,7 @@ declare module WAPI {
   const sendMessage: (to: string, content: string) => string;
   const sendMessageWithMentions: (to: string, content: string) => Promise<string>;
   const setChatState: (chatState: ChatState, chatId: string) => void;
-  const reply: (to: string, content: string, quotedMsg: string | Message) => void;
+  const reply: (to: string, content: string, quotedMsg: string | Message) => Promise<string|boolean>;
   const getGeneratedUserAgent: (userAgent?: string) => string;
   const forwardMessages: (to: string, messages: string | (string | Message)[], skipMyMessages: boolean) => any;
   const sendLocation: (to: string, lat: any, lng: any, loc: string) => void;
@@ -600,12 +600,11 @@ export class Whatsapp {
    * @param to string chatid
    * @param content string reply text
    * @param quotedMsg string | Message the msg object or id to reply to.
+   * @returns Promise<string | boolean> false if didn't work, otherwise returns message id.
    */
   public async reply(to: string, content: string, quotedMsg: any) {
     return await this.page.evaluate(
-      ({ to, content, quotedMsg }) => {
-        WAPI.reply(to, content, quotedMsg)
-      },
+      ({ to, content, quotedMsg }) =>WAPI.reply(to, content, quotedMsg),
       { to, content, quotedMsg }
     )
   }
