@@ -1,5 +1,17 @@
 import {EventEmitter2} from 'eventemitter2';
-import ora from 'ora';
+import Spinnies from "spinnies";
+const spinner = { 
+  "interval": 80,
+  "frames": [
+    "🌑 ",
+    "🌒 ",
+    "🌓 ",
+    "🌔 ",
+    "🌕 ",
+    "🌖 ",
+    "🌗 ",
+    "🌘 "
+  ]}
 
 export const ev = new EventEmitter2({
   wildcard:true,
@@ -22,25 +34,25 @@ export class EvEmitter {
 }
 
 export class Spin extends EvEmitter{
-  spinner = ora();
+  spinner = new Spinnies({ color: 'blue', succeedColor: 'green', spinner });
   
   start(eventMessage:string){
-    this.spinner.start(eventMessage);
+    this.spinner.add(this.sessionId, { text: eventMessage });
     this.emit(eventMessage);
   }
 
   info(eventMessage:string){
-    this.spinner.info(eventMessage);
+    this.spinner.update(this.sessionId, { text: eventMessage });
     this.emit(eventMessage);
   }
 
   fail(eventMessage:string){
-    this.spinner.fail(eventMessage);
+    this.spinner.fail(this.sessionId, { text: eventMessage });
     this.emit(eventMessage);
   }
   
   succeed(eventMessage ?: string){
-    this.spinner.succeed(eventMessage);
+    this.spinner.succeed(this.sessionId, { text: eventMessage });
     this.emit(eventMessage||'SUCCESS');
   }
 }

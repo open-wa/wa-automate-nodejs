@@ -81,7 +81,6 @@
     "futoin-hkdf": "^1.2.1",
     "image-type": "^4.1.0",
     "lodash.uniq": "^4.5.0",
-    "ora": "^4.0.2",
     "puppeteer": "^3.0.0",
     "puppeteer-extra": "^3.1.9",
     "puppeteer-extra-plugin-devtools": "^2.2.8",
@@ -90,6 +89,7 @@
     "rxjs": "^6.5.3",
     "sharp": "^0.25.1",
     "shelljs": "^0.8.3",
+    "spinnies": "^0.5.1",
     "update-notifier": "^4.1.0"
   }
 }
