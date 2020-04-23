@@ -56,7 +56,7 @@ declare module WAPI {
   const onBattery: (callback: Function) => any;
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const onLiveLocation: (chatId: string, callback: Function) => any;
-  const sendMessage: (to: string, content: string) => string;
+  const sendMessage: (to: string, content: string) => Promise<string>;
   const sendMessageWithMentions: (to: string, content: string) => Promise<string>;
   const setChatState: (chatState: ChatState, chatId: string) => void;
   const reply: (to: string, content: string, quotedMsg: string | Message) => Promise<string|boolean>;
