@@ -72,7 +72,7 @@
   },
   "dependencies": {
     "@open-wa/wa-decrypt": "^1.1.3",
-    "@types/sharp": "^0.24.0",
+    "@types/sharp": "^0.25.0",
     "atob": "^2.1.2",
     "axios": "^0.19.1",
     "chrome-launcher": "^0.13.0",
