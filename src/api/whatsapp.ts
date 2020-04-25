@@ -95,7 +95,7 @@ declare module WAPI {
     filename: string,
     caption: string,
     quotedMsgId?: string,
-    waitForId: boolean
+    waitForId?: boolean
   ) => Promise<string>;
   const sendMessageWithThumb: (
     thumb: string,
@@ -560,7 +560,7 @@ export class Whatsapp {
     filename: string,
     caption: string,
     quotedMsgId?: string,
-    waitForId: boolean = false
+    waitForId?: boolean
   ) {
     return await this.page.evaluate(
       ({ to, base64, filename, caption, quotedMsgId, waitForId }) =>  WAPI.sendImage(base64, to, filename, caption, quotedMsgId, waitForId),
@@ -628,9 +628,9 @@ export class Whatsapp {
     filename: string,
     caption: string,
     quotedMsgId?: string,
-    waitForId: boolean = false
+    waitForId?: boolean
   ) {
-    reurn this.sendImage(to, base64, filename, caption, quotedMsgId, waitForId);
+    return this.sendImage(to, base64, filename, caption, quotedMsgId, waitForId);
   }
 
 
