@@ -846,14 +846,18 @@ window.WAPI.sendMessageReturnId = async function (ch, body) {
 
 
 window.WAPI.sendMessage = async function (id, message) {
-    var chat = WAPI.getChat(id);
+    let chat = WAPI.getChat(id);
+    if(!chat && !id.includes('g')) {
+        var contact = WAPI.getContact(id)
+        if(!contact) return false;
+        chat = await Store.Chat.find(contact.id)
+    }
     if (chat !== undefined) {
             // return WAPI.sendMessageReturnId(chat,message).then(id=>{return id})
             return await chat.sendMessage(message).then(_=>chat.lastReceivedKey._serialized);
-    } else {
-        return false;
-    }
-};
+    } 
+    return false;
+    };
 
 window.WAPI.sendMessage2 = function (id, message) {
     var chat = WAPI.getChat(id);
