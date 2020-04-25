@@ -94,7 +94,8 @@ declare module WAPI {
     to: string,
     filename: string,
     caption: string,
-    quotedMsgId?: string
+    quotedMsgId?: string,
+    waitForId: boolean
   ) => Promise<string>;
   const sendMessageWithThumb: (
     thumb: string,
@@ -550,19 +551,20 @@ export class Whatsapp {
    * @param base64 base64 data:image/xxx;base64,xxx
    * @param filename string xxxxx
    * @param caption string xxxxx
+   * @param waitForKey boolean default: false set this to true if you want to wait for the id of the message. By default this is set to false as it will take a few seconds to retreive to the key of the message and this waiting may not be desirable for the majority of users.
+   * @returns Promise <boolean | string> This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
    */
   public async sendImage(
     to: string,
     base64: string,
     filename: string,
     caption: string,
-    quotedMsgId?: string
+    quotedMsgId?: string,
+    waitForId: boolean = false
   ) {
     return await this.page.evaluate(
-      ({ to, base64, filename, caption, quotedMsgId }) => {
-        WAPI.sendImage(base64, to, filename, caption, quotedMsgId);
-      },
-      { to, base64, filename, caption, quotedMsgId }
+      ({ to, base64, filename, caption, quotedMsgId, waitForId }) =>  WAPI.sendImage(base64, to, filename, caption, quotedMsgId, waitForId),
+      { to, base64, filename, caption, quotedMsgId, waitForId }
     );
   }
 
@@ -617,20 +619,18 @@ export class Whatsapp {
    * @param filename string xxxxx
    * @param caption string xxxxx
    * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
+   * @param waitForId boolean default: false set this to true if you want to wait for the id of the message. By default this is set to false as it will take a few seconds to retreive to the key of the message and this waiting may not be desirable for the majority of users.
+   * @returns Promise <boolean | string> This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
    */
   public async sendFile(
     to: string,
     base64: string,
     filename: string,
     caption: string,
-    quotedMsgId?: string
+    quotedMsgId?: string,
+    waitForId: boolean = false
   ) {
-    return await this.page.evaluate(
-      ({ to, base64, filename, caption, quotedMsgId }) => {
-        WAPI.sendImage(base64, to, filename, caption, quotedMsgId);
-      },
-      { to, base64, filename, caption, quotedMsgId }
-    );
+    reurn this.sendImage(to, base64, filename, caption, quotedMsgId, waitForId);
   }
 
 

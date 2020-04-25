@@ -1494,7 +1494,8 @@ window.WAPI.joinGroupViaLink = async function(link){
     return group.id._serialized
 }
 
-window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, quotedMsg) {
+window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, quotedMsg, waitForKey) {
+    const startSendImage = (Date.now()/1000)-1;
     let extras = {};
     if(quotedMsg){
         if (typeof quotedMsg !== "object") quotedMsg = Store.Msg.get(quotedMsg);
@@ -1504,15 +1505,24 @@ window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, qu
             quotedStanzaID:quotedMsg.id.id
         };
     }
-    // var idUser = new Store.WidFactory.createWid(chatid);
-    // create new chat
     return await Store.Chat.find(chatid).then(async (chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
-        return await window.WAPI.procFiles(chat,mediaBlob).then(async mc => {
+        return waitForKey ? await window.WAPI.procFiles(chat,mediaBlob).then(async mc => {
             var media = mc.models[0];
             await media.sendToChat(chat, { caption,...extras });
-            return chat.lastReceivedKey._serialized;
-        });
+            var i = 0;
+            return new Promise(async (resolve,reject) => {
+                const check = ()=>setTimeout(function () { 
+                    i++;
+                    let gotKey = Store.Msg.get(Store.Chat.get(chatid).lastReceivedKey).body===media.mediaPrep._mediaData.preview && Store.Msg.get(Store.Chat.get(chatid).lastReceivedKey).t > startSendImage;
+                    if(i>9) resolve(true);
+                    if(gotKey){
+                                resolve(Store.Chat.get(chatid).lastReceivedKey._serialized);
+                                } else check();
+                 }, 1000);
+                 return check();
+            })
+        }) : true;
     });
 }
 
