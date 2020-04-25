@@ -55,6 +55,7 @@ declare module WAPI {
   const onAddedToGroup: (callback: Function) => any;
   const onBattery: (callback: Function) => any;
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
+  const _onParticipantsChanged: (groupId: string, callback: Function) => any;
   const onLiveLocation: (chatId: string, callback: Function) => any;
   const sendMessage: (to: string, content: string) => Promise<string>;
   const sendMessageWithMentions: (to: string, content: string) => Promise<string>;
@@ -400,17 +401,17 @@ export class Whatsapp {
    * @param to callback
    * @returns Observable stream of participantChangedEvent
    */
-  public onParticipantsChanged(groupId: string, fn: (participantChangedEvent: ParticipantChangedEventModel) => void) {
+  public onParticipantsChanged(groupId: string, fn: (participantChangedEvent: ParticipantChangedEventModel) => void, useLegancyMethod : boolean = false) {
     const funcName = "onParticipantsChanged_" + groupId.replace('_', "").replace('_', "");
     return this.page.exposeFunction(funcName, (participantChangedEvent: ParticipantChangedEventModel) =>
       fn(participantChangedEvent)
     )
       .then(_ => this.page.evaluate(
-        ({ groupId,funcName }) => {
-        //@ts-ignore
-          WAPI.onParticipantsChanged(groupId, window[funcName]);
+        ({ groupId,funcName, useLegancyMethod }) => {
+          //@ts-ignore
+          if(useLegancyMethod) return WAPI._onParticipantsChanged(groupId, window[funcName]); else return WAPI.onParticipantsChanged(groupId, window[funcName]);
         },
-        { groupId, funcName}
+        { groupId, funcName, useLegancyMethod}
       ));
   }
 
