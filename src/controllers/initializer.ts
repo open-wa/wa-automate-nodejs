@@ -15,7 +15,6 @@ var pkg = require('../../package.json');
 const timeout = ms => {
   return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 }
-let waPage;
 let qrTimeout;
 
 /**
@@ -39,6 +38,7 @@ let qrTimeout;
 //export async function create(sessionId?: string, config?:ConfigObject, customUserAgent?:string) {
   //@ts-ignore
   export async function create(sessionId?: any | ConfigObject, config?:ConfigObject, customUserAgent?:string) : Promise<Whatsapp> {
+    let waPage = undefined;
     const notifier = await updateNotifier({
       pkg,
       updateCheckInterval: 0
@@ -54,7 +54,6 @@ let qrTimeout;
     if (!sessionId) sessionId = 'session';
   const spinner = new Spin(sessionId,'STARTUP');
   try{
-    waPage = undefined;
     qrTimeout = undefined;
     shouldLoop = true;
   spinner.start('Initializing whatsapp');
@@ -118,7 +117,7 @@ let qrTimeout;
     const result = await Promise.race(race);
     if(result=='timeout') {
       console.log('Session timed out. Shutting down')
-      await kill();
+      await kill(waPage);
       throw new Error('QR Timeout');
       
     }
@@ -159,7 +158,7 @@ spinner.emit(sessionData,"sessionData");
 });
 if(config?.restartOnCrash) waPage.on('error', async error => {
   console.error('Page Crashed! Restarting...', error);
-  await kill();
+  await kill(waPage);
   await create(sessionId,config,customUserAgent).then(config.restartOnCrash);
 });
 /**
@@ -196,21 +195,21 @@ if(config?.licenseKey) {
   }
   else {
     spinner.fail('The session is invalid. Retrying')
-    await kill()
+    await kill(waPage)
     return await create(sessionId,config,customUserAgent);
   }
 } catch(error){
   spinner.emit(error.message);
-	await kill();
+	await kill(waPage);
 	throw error;
 }
 }
 
-const kill = async () => {
+const kill = async (p) => {
   shouldLoop = false;
   if(qrTimeout) clearTimeout(qrTimeout);
-  if(waPage){
-    await waPage.close();
-    if(waPage.browser())await waPage.browser().close();
+  if(p){
+    await p.close();
+    if(p.browser())await p.browser().close();
   }
 }
