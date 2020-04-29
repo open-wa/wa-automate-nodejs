@@ -850,7 +850,8 @@ window.WAPI.sendMessage = async function (id, message) {
     if(!chat && !id.includes('g')) {
         var contact = WAPI.getContact(id)
         if(!contact) return false;
-        chat = await Store.Chat.find(contact.id)
+        await Store.Chat.find(contact.id)
+        chat = WAPI.getChat(id);
     }
     if (chat !== undefined) {
             // return WAPI.sendMessageReturnId(chat,message).then(id=>{return id})
