@@ -132,7 +132,8 @@ declare module WAPI {
   const getIndicatedNewMessages: () => any;
   const getAllChatsWithMessages: (withNewMessageOnly?: boolean) => any;
   const getAllChats: () => any;
-  const getBatteryLevel: () => Number;
+  const getBatteryLevel: () => number;
+  const getIsPlugged: () => boolean;
   const getChat: (contactId: string) => Chat;
   const getLastSeen: (contactId: string) => Promise<number | boolean>;
   const getProfilePicFromServer: (chatId: string) => any;
@@ -154,7 +155,6 @@ declare module WAPI {
   const isConnected: () => Boolean;
   const loadEarlierMessages: (contactId: string) => Promise<Message []>;
   const loadAllEarlierMessages: (contactId: string) => any;
-  const asyncLoadAllEarlierMessages: (contactId: string) => any;
   const getUnreadMessages: (
     includeMe: boolean,
     includeNotifications: boolean,
@@ -902,6 +902,14 @@ export class Whatsapp {
   }
 
   /**
+   * Retrieves whether or not phone is plugged in (i.e on charge)
+   * @returns Number
+   */
+  public async getIsPlugged() {
+    return await this.page.evaluate(() => WAPI.getIsPlugged());
+  }
+
+  /**
    * Retrieves all chats
    * @returns array of [Chat]
    */
@@ -1140,18 +1148,6 @@ public async getStatus(contactId: string) {
     contactId
   );
 }
-
-  /**
-    * Load all messages in chat object from server.
-   * @param contactId
-   * @returns contact detial as promise
-   */
-  public async asyncLoadAllEarlierMessages(contactId: string) {
-    return await this.page.evaluate(
-      contactId => WAPI.asyncLoadAllEarlierMessages(contactId),
-      contactId
-    );
-  }
 
   /**
     * Load all messages in chat object from server.

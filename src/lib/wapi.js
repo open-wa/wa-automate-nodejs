@@ -1010,11 +1010,11 @@ window.WAPI.downloadFile = async function (url) {
 };
 
 window.WAPI.getBatteryLevel = function () {
-    if (window.Store.Conn.plugged) {
-        return 100;
-    }
-    output = window.Store.Conn.battery;
-    return output;
+    return Store.Conn.battery;
+};
+
+window.WAPI.getIsPlugged = function () {
+    return Store.Conn.plugged;
 };
 
 window.WAPI.deleteConversation = async function (chatId) {
