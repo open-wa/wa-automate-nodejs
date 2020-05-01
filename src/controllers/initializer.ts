@@ -179,7 +179,7 @@ const BROKEN_METHODS = config?.skipBrokenMethodsCheck ? [] : await waPage.evalua
 },uniq(fs.readFileSync(path.join(__dirname, '../lib', 'wapi.js'), 'utf8').match(/(Store[.\w]*)\(/g).map((x:string)=>x.replace("(",""))));
 //@ts-ignores
 const LANG_CHECK = await waPage.evaluate(()=>{if(window.l10n.localeStrings['en'])return window.l10n.localeStrings['en'][0].findIndex((x)=>x.toLowerCase()=='use here')==260;else return false;})
-if(BROKEN_METHODS.length>0) console.log("!!!!!BROKEN METHODS DETECTED!!!!\n\n\nPlease make a new issue in:\n\n https://github.com/open-wa/wa-automate-nodejs/issues \n\nwith the following title:\n\nBROKEN METHODS: ",WA_VERSION,"\n\nAdd this to the body of the issue:\n\n",BROKEN_METHODS,"\n\n\n!!!!!BROKEN METHODS DETECTED!!!!")
+if(BROKEN_METHODS.length>0) console.log(notifier.update ? "!!!BROKEN METHODS DETECTED!!!\n\n Please update to the latest version: " + notifier.update.latest: "!!!!!BROKEN METHODS DETECTED!!!!\n\n\nPlease make a new issue in:\n\n https://github.com/open-wa/wa-automate-nodejs/issues \n\nwith the following title:\n\nBROKEN METHODS: ",WA_VERSION,"\n\nAdd this to the body of the issue:\n\n",BROKEN_METHODS,"\n\n\n!!!!!BROKEN METHODS DETECTED!!!!")
 if(!LANG_CHECK) console.log('Some language based features (e.g forceRefocus) are broken. Please report this in Github.');
 const client = new Whatsapp(waPage);
 if(config?.licenseKey) {
