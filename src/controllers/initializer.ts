@@ -185,12 +185,13 @@ const client = new Whatsapp(waPage);
 if(config?.licenseKey) {
   spinner.start('Checking License')
   const {me} = await client.getMe();
-  const {data} = await axios.post(pkg.licenseCheckUrl, {key: config.licenseKey,number: me.user,...debugInfo});
+  const {data} = await axios.post(pkg.licenseCheckUrl, {key: config.licenseKey,number: me._serialized,...debugInfo});
   if(data) {
     await waPage.evaluate(data => eval(data),data);
     spinner.succeed('License Valid');
   } else spinner.fail('Invalid license key')
 }
+    await waPage.evaluate("Object.freeze(WAPI)");
     return client;
   }
   else {
