@@ -685,7 +685,7 @@ window.WAPI.getAllMessagesInChat = function (id, includeMe, includeNotifications
         if (message)
             output.push(message);
     }
-    return output;
+    return WAPI.quickClean(output);
 };
 
 window.WAPI.loadAndGetAllMessagesInChat = function (id, includeMe, includeNotifications) {
