@@ -191,7 +191,6 @@ if(config?.licenseKey) {
     spinner.succeed('License Valid');
   } else spinner.fail('Invalid license key')
 }
-    await waPage.evaluate("Object.freeze(WAPI)");
     return client;
   }
   else {
