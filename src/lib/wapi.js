@@ -260,6 +260,11 @@ window.WAPI.getContact = function (id) {
     return window.WAPI._serializeContactObj(found);
 };
 
+window.WAPI.syncContacts = function() {
+    Store.Contact.sync()
+    return true;
+}
+
 /**
  * Fetches all chat objects from store
  *
