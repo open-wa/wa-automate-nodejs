@@ -537,8 +537,12 @@ window.WAPI.getUnreadMessagesInChat = function (id, includeMe, includeNotificati
  * @returns None
  */
 window.WAPI.loadEarlierMessages = async function (id) {
-    const found = WAPI.getChat(id);
-    return found ? (await found.loadEarlierMsgs()).map(WAPI._serializeMessageObj): false;
+    const chat = WAPI.getChat(id);
+    if(chat){
+        const someEarlierMessages = await chat.loadEarlierMsgs(); 
+        if(someEarlierMessages) return someEarlierMessages.map(WAPI._serializeMessageObj);
+    }
+    return false;
 };
 
 /**
