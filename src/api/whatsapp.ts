@@ -70,6 +70,7 @@ declare module WAPI {
   const setMyStatus: (newStatus: string) => void;
   const setPresence: (available: boolean) => void;
   const getStatus: (contactId: string) => void;
+  const forceUpdateLiveLocation: (chatId: string) => Promise<LiveLocationChangedEvent []> | boolean;
   const setGroupIcon: (groupId: string, imgData: string) => Promise<boolean>;
   const getGroupAdmins: (groupId: string) => Promise<Contact[]>;
   const removeParticipant: (groupId: string, contactId: string) => Promise<boolean>;
@@ -396,6 +397,19 @@ export class Whatsapp {
         },
         { chatId, funcName}
       ));
+  }
+  
+  /**
+   * A list of participants in the chat who have their live location on. If the chat does not exist, or the chat does not have any contacts actively sharing their live locations, it will return false. If it's a chat with a single contact, there will be only 1 value in the array if the contact has their livelocation on.
+   * Please note. This should only be called once every 30 or so seconds. This forces the phone to grab the latest live location data for the number. This can be used in conjunction with onLiveLocation (this will trigger onLiveLocation).
+   * @param chatId string Id of the chat you want to force the phone to get the livelocation data for.
+   * @returns Promise<LiveLocationChangedEvent []> | boolean 
+   */
+  public async forceUpdateLiveLocation(chatId: string) {
+    return await this.page.evaluate(
+      ({chatId}) => WAPI.forceUpdateLiveLocation(chatId),
+      { chatId }
+    );
   }
 
   /**

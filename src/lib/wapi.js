@@ -1282,11 +1282,22 @@ window.WAPI.waitNewAcknowledgements = function (callback) {
     return true;
 }
 
+//returns an array of liveLocationChangeObjects
+window.WAPI.forceUpdateLiveLocation = async function (chatId) {
+    if(!Store.LiveLocation.get(chatId)) return false;
+    return WAPI.quickClean(await Store.LiveLocation.update(chatId)).participants.map(l=>{
+        return {
+        ...l,
+        msgId:l.msg.id._serialized
+        }
+        });
+}
+
 window.WAPI.onLiveLocation = function (chatId, callback) {
     var lLChat = Store.LiveLocation.get(chatId);
     if(lLChat) {
         var validLocs = lLChat.participants.validLocations();
-        validLocs.map(x=>x.on('change:lastUpdated',(x,y,z)=>{console.log(x,y,z);
+        validLocs.map(x=>x.on('change:lastUpdated',(x,y,z)=>{
             const {id,lat,lng,accuracy,degrees,speed,lastUpdated}=x;
         const l = {
             id:id.toString(),lat,lng,accuracy,degrees,speed,lastUpdated};

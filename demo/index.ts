@@ -109,6 +109,7 @@ async function start(client: Whatsapp) {
         console.log('The file was saved!');
       });
     } else if (message.type==="location") {
+      if(message.shareDuration) console.log('This user has started sharing their live location', message.author || message.from)
       console.log("TCL: location -> message", message.lat, message.lng, message.loc)
       await client.sendLocation(message.from, `${message.lat}`, `${message.lng}`, `Youre are at ${message.loc}`)
     } else {
