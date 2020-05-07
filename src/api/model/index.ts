@@ -76,7 +76,7 @@ export interface DevTools {
     pass : String
 }
 
-export interface ProxyServerConfigCredentials {
+export interface ProxyServerCredentials {
     /**
     * Username for Proxy Server authentication
     */
@@ -87,17 +87,6 @@ export interface ProxyServerConfigCredentials {
     password : String,        
 }
     
-export interface ProxyServerConfig {
-    /**
-    * Proxy Server URL 
-    */
-    url : String,
-    /**
-    * Credentials Object
-    */
-    credentials ?: ProxyServerConfigCredentials
-}
-
 export interface ConfigObject {
     /**
      * JSON object that is required to migrate a session from one instance to another or ot just restart an existing instance.
@@ -192,9 +181,9 @@ export interface ConfigObject {
      */
     useChrome ?: boolean,
     /**
-     * If sent, sets the --proxy-server flag on chromiumArgs. If sent with credentials, calls waPage.authenticate with those parameters. Please note this overrides any --proxy-server flag defined on chromiumArgs.
+     * If sent, adds a call to waPage.authenticate with those credentials. Must be used in conjuction with --proxy-server=PROXY_SERVER_URL flag on chromiumArgs.
      */
-    proxyServerConfig ?: ProxyServerConfig,
+    proxyServerCredentials?: ProxyServerCredentials,
     /**
      * If set, the program will try to recreate itself when the page crashes. You have to pass the function that you want called upon restart. Please note that when the page crashes you may miss some messages.
      * E.g:

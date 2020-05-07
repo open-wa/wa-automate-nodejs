@@ -14,6 +14,9 @@ let browser;
 export async function initWhatsapp(sessionId?: string, puppeteerConfigOverride?:any, customUserAgent?:string) {
   browser = await initBrowser(sessionId,puppeteerConfigOverride);
   const waPage = await getWhatsappPage(browser);
+  if (puppeteerConfigOverride.proxyServerCredentials) {
+    await waPage.authenticate(puppeteerConfigOverride.proxyServerCredentials);
+  }
   await waPage.setUserAgent(customUserAgent||useragent);
   await waPage.setViewport({
     width,
