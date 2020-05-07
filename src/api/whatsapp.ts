@@ -65,6 +65,7 @@ declare module WAPI {
   const forwardMessages: (to: string, messages: string | (string | Message)[], skipMyMessages: boolean) => any;
   const sendLocation: (to: string, lat: any, lng: any, loc: string) => void;
   const addParticipant: (groupId: string, contactId: string) => void;
+  const getMessageById: (mesasgeId: string) => Message;
   const setMyName: (newName: string) => void;
   const setMyStatus: (newStatus: string) => void;
   const setPresence: (available: boolean) => void;
@@ -1065,6 +1066,18 @@ public async contactUnblock(id: string) {
     return await this.page.evaluate(
       contactId => WAPI.getChatById(contactId),
       contactId
+    );
+  }
+
+  /**
+   * Retrieves message object of given message id
+   * @param messageId
+   * @returns message object
+   */
+  public async getMessageById(messageId: string) {
+    return await this.page.evaluate(
+      messageId => WAPI.getMessageById(messageId),
+      messageId
     );
   }
 
