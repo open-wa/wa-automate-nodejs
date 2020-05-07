@@ -76,6 +76,28 @@ export interface DevTools {
     pass : String
 }
 
+export interface ProxyServerConfigCredentials {
+    /**
+    * Username for Proxy Server authentication
+    */
+    username : String,
+    /**
+    * Password for Proxy Server authentication
+    */
+    password : String,        
+}
+    
+export interface ProxyServerConfig {
+    /**
+    * Proxy Server URL 
+    */
+    url : String,
+    /**
+    * Credentials Object
+    */
+    credentials ?: ProxyServerConfigCredentials
+}
+
 export interface ConfigObject {
     /**
      * JSON object that is required to migrate a session from one instance to another or ot just restart an existing instance.
@@ -169,6 +191,10 @@ export interface ConfigObject {
      * If true, the program will automatically try to detect the instance of chorme on the machine. Please note this overrides executablePath.
      */
     useChrome ?: boolean,
+    /**
+     * If sent, sets the --proxy-server flag on chromiumArgs. If sent with credentials, calls waPage.authenticate with those parameters. Please note this overrides any --proxy-server flag defined on chromiumArgs.
+     */
+    proxyServerConfig ?: ProxyServerConfig,
     /**
      * If set, the program will try to recreate itself when the page crashes. You have to pass the function that you want called upon restart. Please note that when the page crashes you may miss some messages.
      * E.g:
