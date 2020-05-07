@@ -59,32 +59,36 @@ export enum WAState {
 };
 
 export interface SessionData {
-    WABrowserId ?: String,
-    WASecretBundle ?: String,
-    WAToken1 ?: String,
-    WAToken2 ?: String,
+    WABrowserId ?: string,
+    WASecretBundle ?: string,
+    WAToken1 ?: string,
+    WAToken2 ?: string,
 }
 
 export interface DevTools {
     /**
      * Username for devtools
      */
-    user : String,
+    user : string,
     /**
      * Password for devtools
      */
-    pass : String
+    pass : string
 }
 
 export interface ProxyServerCredentials {
     /**
     * Username for Proxy Server authentication
     */
-    username : String,
+    address: string,
+    /**
+    * Username for Proxy Server authentication
+    */
+    username : string,
     /**
     * Password for Proxy Server authentication
     */
-    password : String,        
+    password : string,        
 }
     
 export interface ConfigObject {
