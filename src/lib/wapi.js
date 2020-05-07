@@ -796,6 +796,7 @@ window.WAPI.sendMessageReturnId = async function (ch, body) {
 
 
 window.WAPI.sendMessage = async function (id, message) {
+    if(id==='status@broadcast') return false;
     let chat = WAPI.getChat(id);
     if(!chat && !id.includes('g')) {
         var contact = WAPI.getContact(id)
@@ -1221,11 +1222,19 @@ window.WAPI.waitNewMessages = function (rmCallbackAfterUse = true, callback) {
 
 window.WAPI.addAllNewMessagesListener = callback => window.Store.Msg.on('add', (newMessage) => {
     if (newMessage && newMessage.isNewMsg) {
+    if(!newMessage.clientUrl && newMessage.mediaKeyTimestamp){
+        //wait for mediaKey
+        //if it has a mediaOject, wait for the clientUrl
+        Store.Msg.on('change:phoneUploading',(msg) => {
+            if(msg.id._serialized === newMessage.id._serialized) callback(WAPI.processMessageObj(msg, true, false));
+            Store.Msg.off('change:phoneUploading',this);
+        })
+    } else {
         let message = window.WAPI.processMessageObj(newMessage, true, false);
         if (message) {
             callback(message)
         }
-    }
+    }}
 });
 
 /**
@@ -1463,7 +1472,7 @@ window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, qu
             var i = 0;
             const check = ()=>setTimeout(function () { 
                     i++;
-                    let gotKey = Store.Msg.get(Store.Chat.get(chatid).lastReceivedKey).body===media.mediaPrep._mediaData.preview && Store.Msg.get(Store.Chat.get(chatid).lastReceivedKey).t > startSendImage;
+                    let gotKey = Store.Msg.get(Store.Chat.get(chatid).lastReceivedKey)?Store.Msg.get(Store.Chat.get(chatid).lastReceivedKey).body===media.mediaPrep._mediaData.preview && Store.Msg.get(Store.Chat.get(chatid).lastReceivedKey).t > startSendImage: false;
                     if(i>9) resolve(true);
                     if(gotKey){
                                 resolve(Store.Chat.get(chatid).lastReceivedKey._serialized);
@@ -1804,10 +1813,13 @@ window.WAPI.reply = async function (chatId, body, quotedMsg) {
     if (typeof quotedMsg !== "object") quotedMsg = Store.Msg.get(quotedMsg)
     var chat = Store.Chat.get(chatId);
     if(!chat) return false;
-    let extras = {
-            quotedParticipant: quotedMsg.author || quotedMsg.from,
-            quotedStanzaID:quotedMsg.id.id
-        };
+        let extras = {};
+        if(quotedMsg) {
+            extras = {
+                quotedParticipant: quotedMsg.author || quotedMsg.from,
+                quotedStanzaID:quotedMsg.id.id
+            };
+        }
     var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe && !msg.quotedMsg)[0]);
     var newId = window.WAPI.getNewMessageId(chatId);
     var extend = {
