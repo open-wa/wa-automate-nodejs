@@ -78,7 +78,7 @@ export interface DevTools {
 
 export interface ProxyServerCredentials {
     /**
-    * Username for Proxy Server authentication
+    * Proxy Server address. This can include the port e.g '127.0.0.1:5005'
     */
     address: string,
     /**
@@ -185,7 +185,7 @@ export interface ConfigObject {
      */
     useChrome ?: boolean,
     /**
-     * If sent, adds a call to waPage.authenticate with those credentials. Must be used in conjuction with --proxy-server=PROXY_SERVER_URL flag on chromiumArgs.
+     * If sent, adds a call to waPage.authenticate with those credentials.
      */
     proxyServerCredentials?: ProxyServerCredentials,
     /**
