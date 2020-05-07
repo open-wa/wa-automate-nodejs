@@ -59,23 +59,38 @@ export enum WAState {
 };
 
 export interface SessionData {
-    WABrowserId ?: String,
-    WASecretBundle ?: String,
-    WAToken1 ?: String,
-    WAToken2 ?: String,
+    WABrowserId ?: string,
+    WASecretBundle ?: string,
+    WAToken1 ?: string,
+    WAToken2 ?: string,
 }
 
 export interface DevTools {
     /**
      * Username for devtools
      */
-    user : String,
+    user : string,
     /**
      * Password for devtools
      */
-    pass : String
+    pass : string
 }
 
+export interface ProxyServerCredentials {
+    /**
+    * Proxy Server address. This can include the port e.g '127.0.0.1:5005'
+    */
+    address: string,
+    /**
+    * Username for Proxy Server authentication
+    */
+    username : string,
+    /**
+    * Password for Proxy Server authentication
+    */
+    password : string,        
+}
+    
 export interface ConfigObject {
     /**
      * JSON object that is required to migrate a session from one instance to another or ot just restart an existing instance.
@@ -169,6 +184,10 @@ export interface ConfigObject {
      * If true, the program will automatically try to detect the instance of chorme on the machine. Please note this overrides executablePath.
      */
     useChrome ?: boolean,
+    /**
+     * If sent, adds a call to waPage.authenticate with those credentials.
+     */
+    proxyServerCredentials?: ProxyServerCredentials,
     /**
      * If set, the program will try to recreate itself when the page crashes. You have to pass the function that you want called upon restart. Please note that when the page crashes you may miss some messages.
      * E.g:

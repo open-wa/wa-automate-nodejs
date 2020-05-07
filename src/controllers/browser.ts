@@ -14,6 +14,9 @@ let browser;
 export async function initWhatsapp(sessionId?: string, puppeteerConfigOverride?:any, customUserAgent?:string) {
   browser = await initBrowser(sessionId,puppeteerConfigOverride);
   const waPage = await getWhatsappPage(browser);
+  if (puppeteerConfigOverride.proxyServerCredentials) {
+    await waPage.authenticate(puppeteerConfigOverride.proxyServerCredentials);
+  }
   await waPage.setUserAgent(customUserAgent||useragent);
   await waPage.setViewport({
     width,
@@ -66,7 +69,7 @@ async function initBrowser(sessionId?: string, puppeteerConfigOverride:any={}) {
     puppeteerConfigOverride.executablePath = ChromeLauncher.Launcher.getInstallations()[0];
     // console.log('\nFound chrome', puppeteerConfigOverride.executablePath)
   }
-
+  if(puppeteerConfigOverride.proxyServerCredentials.address) puppeteerConfig.chromiumArgs.push(`--proxy-server=${puppeteerConfigOverride.proxyServerCredentials.address}`)
   const browser = await puppeteer.launch({
     headless: true,
     devtools: false,
