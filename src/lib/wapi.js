@@ -1222,13 +1222,14 @@ window.WAPI.waitNewMessages = function (rmCallbackAfterUse = true, callback) {
 
 window.WAPI.addAllNewMessagesListener = callback => window.Store.Msg.on('add', (newMessage) => {
     if (newMessage && newMessage.isNewMsg) {
-    if(!newMessage.clientUrl && newMessage.mediaKeyTimestamp){
-        //wait for mediaKey
-        //if it has a mediaOject, wait for the clientUrl
-        Store.Msg.on('change:phoneUploading',(msg) => {
-            if(msg.id._serialized === newMessage.id._serialized) callback(WAPI.processMessageObj(msg, true, false));
-            Store.Msg.off('change:phoneUploading',this);
-        })
+    if(!newMessage.clientUrl && (newMessage.mediaKeyTimestamp || newMessage.filehash)){
+        const cb = (msg) => {
+            if(msg.id._serialized === newMessage.id._serialized && msg.clientUrl) {
+                callback(WAPI.processMessageObj(msg, true, false));
+                Store.Msg.off('change:isUnsentMedia',cb);
+            }
+        };
+        Store.Msg.on('change:isUnsentMedia',cb);
     } else {
         let message = window.WAPI.processMessageObj(newMessage, true, false);
         if (message) {
@@ -1468,17 +1469,12 @@ window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, qu
         return await window.WAPI.procFiles(chat,mediaBlob).then(async mc => {
             var media = mc.models[0];
             await media.sendToChat(chat, { caption,...extras });
-            return waitForKey ? new Promise(async (resolve,reject) => {
-            var i = 0;
-            const check = ()=>setTimeout(function () { 
-                    i++;
-                    let gotKey = Store.Msg.get(Store.Chat.get(chatid).lastReceivedKey)?Store.Msg.get(Store.Chat.get(chatid).lastReceivedKey).body===media.mediaPrep._mediaData.preview && Store.Msg.get(Store.Chat.get(chatid).lastReceivedKey).t > startSendImage: false;
-                    if(i>9) resolve(true);
-                    if(gotKey){
-                                resolve(Store.Chat.get(chatid).lastReceivedKey._serialized);
-                                } else check();
-                 }, 1000);
-                 return check();
+            return waitForKey ? await new Promise(async (resolve,reject) => {
+                const cb = msg=>{
+                    if(media.attributes.file.size === msg.size) resolve(msg.id._serialized);
+                    Store.Msg.off('change:clientUrl',cb);
+                };
+                Store.Msg.on('change:clientUrl',cb);
             }) : true
         });
     });
