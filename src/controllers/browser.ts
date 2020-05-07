@@ -69,7 +69,7 @@ async function initBrowser(sessionId?: string, puppeteerConfigOverride:any={}) {
     puppeteerConfigOverride.executablePath = ChromeLauncher.Launcher.getInstallations()[0];
     // console.log('\nFound chrome', puppeteerConfigOverride.executablePath)
   }
-
+  if(puppeteerConfigOverride.proxyServerCredentials.server) puppeteerConfig.chromiumArgs.push(`--proxy-server=${puppeteerConfigOverride.proxyServerCredentials.server}`)
   const browser = await puppeteer.launch({
     headless: true,
     devtools: false,
