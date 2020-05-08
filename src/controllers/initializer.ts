@@ -52,7 +52,7 @@ let qrTimeout;
     customUserAgent = config.customUserAgent;
     }
     if (!sessionId) sessionId = 'session';
-  const spinner = new Spin(sessionId,'STARTUP');
+  const spinner = new Spin(sessionId,'STARTUP',config?.disableSpins);
   try{
     qrTimeout = undefined;
     shouldLoop = true;

@@ -201,6 +201,11 @@ export interface ConfigObject {
      * ```
      */
     restartOnCrash ?: (value: Whatsapp) => any | Function,
+    /**
+     * default: false
+     * Setting this to true will simplify logs for use within docker containers by disabling spins (will still print raw messages).
+     */
+    disableSpins ?: boolean
     // @private
     [x: string]: any 
 }
