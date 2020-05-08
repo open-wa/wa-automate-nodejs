@@ -100,9 +100,12 @@ export interface Message {
     presence: { id: string; chatstates: any[] };
   };
   chatId: string;
+  author: string;
+  clientUrl: string;
   quotedMsg: any;
   quotedMsgObj: any;
   mediaData: {};
+  shareDuration: number;
 }
 
 

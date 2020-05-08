@@ -796,6 +796,7 @@ window.WAPI.sendMessageReturnId = async function (ch, body) {
 
 
 window.WAPI.sendMessage = async function (id, message) {
+    if(id==='status@broadcast') return false;
     let chat = WAPI.getChat(id);
     if(!chat && !id.includes('g')) {
         var contact = WAPI.getContact(id)
@@ -1221,11 +1222,20 @@ window.WAPI.waitNewMessages = function (rmCallbackAfterUse = true, callback) {
 
 window.WAPI.addAllNewMessagesListener = callback => window.Store.Msg.on('add', (newMessage) => {
     if (newMessage && newMessage.isNewMsg) {
+    if(!newMessage.clientUrl && (newMessage.mediaKeyTimestamp || newMessage.filehash)){
+        const cb = (msg) => {
+            if(msg.id._serialized === newMessage.id._serialized && msg.clientUrl) {
+                callback(WAPI.processMessageObj(msg, true, false));
+                Store.Msg.off('change:isUnsentMedia',cb);
+            }
+        };
+        Store.Msg.on('change:isUnsentMedia',cb);
+    } else {
         let message = window.WAPI.processMessageObj(newMessage, true, false);
         if (message) {
             callback(message)
         }
-    }
+    }}
 });
 
 /**
@@ -1272,11 +1282,22 @@ window.WAPI.waitNewAcknowledgements = function (callback) {
     return true;
 }
 
+//returns an array of liveLocationChangeObjects
+window.WAPI.forceUpdateLiveLocation = async function (chatId) {
+    if(!Store.LiveLocation.get(chatId)) return false;
+    return WAPI.quickClean(await Store.LiveLocation.update(chatId)).participants.map(l=>{
+        return {
+        ...l,
+        msgId:l.msg.id._serialized
+        }
+        });
+}
+
 window.WAPI.onLiveLocation = function (chatId, callback) {
     var lLChat = Store.LiveLocation.get(chatId);
     if(lLChat) {
         var validLocs = lLChat.participants.validLocations();
-        validLocs.map(x=>x.on('change:lastUpdated',(x,y,z)=>{console.log(x,y,z);
+        validLocs.map(x=>x.on('change:lastUpdated',(x,y,z)=>{
             const {id,lat,lng,accuracy,degrees,speed,lastUpdated}=x;
         const l = {
             id:id.toString(),lat,lng,accuracy,degrees,speed,lastUpdated};
@@ -1459,17 +1480,12 @@ window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, qu
         return await window.WAPI.procFiles(chat,mediaBlob).then(async mc => {
             var media = mc.models[0];
             await media.sendToChat(chat, { caption,...extras });
-            return waitForKey ? new Promise(async (resolve,reject) => {
-            var i = 0;
-            const check = ()=>setTimeout(function () { 
-                    i++;
-                    let gotKey = Store.Msg.get(Store.Chat.get(chatid).lastReceivedKey).body===media.mediaPrep._mediaData.preview && Store.Msg.get(Store.Chat.get(chatid).lastReceivedKey).t > startSendImage;
-                    if(i>9) resolve(true);
-                    if(gotKey){
-                                resolve(Store.Chat.get(chatid).lastReceivedKey._serialized);
-                                } else check();
-                 }, 1000);
-                 return check();
+            return waitForKey ? await new Promise(async (resolve,reject) => {
+                const cb = msg=>{
+                    if(media.attributes.file.size === msg.size) resolve(msg.id._serialized);
+                    Store.Msg.off('change:clientUrl',cb);
+                };
+                Store.Msg.on('change:clientUrl',cb);
             }) : true
         });
     });
@@ -1804,10 +1820,13 @@ window.WAPI.reply = async function (chatId, body, quotedMsg) {
     if (typeof quotedMsg !== "object") quotedMsg = Store.Msg.get(quotedMsg)
     var chat = Store.Chat.get(chatId);
     if(!chat) return false;
-    let extras = {
-            quotedParticipant: quotedMsg.author || quotedMsg.from,
-            quotedStanzaID:quotedMsg.id.id
-        };
+        let extras = {};
+        if(quotedMsg) {
+            extras = {
+                quotedParticipant: quotedMsg.author || quotedMsg.from,
+                quotedStanzaID:quotedMsg.id.id
+            };
+        }
     var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe && !msg.quotedMsg)[0]);
     var newId = window.WAPI.getNewMessageId(chatId);
     var extend = {

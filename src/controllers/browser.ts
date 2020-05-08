@@ -1,20 +1,22 @@
 import * as path from 'path';
+
+//@ts-ignore
+import { Browser, Page } from '@types/puppeteer';
+import { height, puppeteerConfig, useragent, width } from '../config/puppeteer.config';
+
 const fs = require('fs');
 const ChromeLauncher = require('chrome-launcher');
 const puppeteer = require('puppeteer-extra');
 const devtools = require('puppeteer-extra-plugin-devtools')()
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin());
-import { puppeteerConfig, useragent, width, height} from '../config/puppeteer.config';
-//@ts-ignore
-import { Browser, Page } from '@types/puppeteer';
 const ON_DEATH = require('death'); //this is intentionally ugly
 let browser;
 
 export async function initWhatsapp(sessionId?: string, puppeteerConfigOverride?:any, customUserAgent?:string) {
   browser = await initBrowser(sessionId,puppeteerConfigOverride);
   const waPage = await getWhatsappPage(browser);
-  if (puppeteerConfigOverride.proxyServerCredentials) {
+  if (puppeteerConfigOverride?.proxyServerCredentials) {
     await waPage.authenticate(puppeteerConfigOverride.proxyServerCredentials);
   }
   await waPage.setUserAgent(customUserAgent||useragent);
@@ -69,7 +71,7 @@ async function initBrowser(sessionId?: string, puppeteerConfigOverride:any={}) {
     puppeteerConfigOverride.executablePath = ChromeLauncher.Launcher.getInstallations()[0];
     // console.log('\nFound chrome', puppeteerConfigOverride.executablePath)
   }
-
+  if(puppeteerConfigOverride?.proxyServerCredentials?.address) puppeteerConfig.chromiumArgs.push(`--proxy-server=${puppeteerConfigOverride.proxyServerCredentials.address}`)
   const browser = await puppeteer.launch({
     headless: true,
     devtools: false,

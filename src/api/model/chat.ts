@@ -45,6 +45,10 @@ export interface LiveLocationChangedEvent {
   lastUpdated: number,
   accuracy: number,
   degrees: any,
+  /**
+   * The message id that was sent when the liveLocation session was started.
+   */
+  msgId?: string
 }
 
 export enum ChatState {

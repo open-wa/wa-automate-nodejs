@@ -59,32 +59,36 @@ export enum WAState {
 };
 
 export interface SessionData {
-    WABrowserId ?: String,
-    WASecretBundle ?: String,
-    WAToken1 ?: String,
-    WAToken2 ?: String,
+    WABrowserId ?: string,
+    WASecretBundle ?: string,
+    WAToken1 ?: string,
+    WAToken2 ?: string,
 }
 
 export interface DevTools {
     /**
      * Username for devtools
      */
-    user : String,
+    user : string,
     /**
      * Password for devtools
      */
-    pass : String
+    pass : string
 }
 
 export interface ProxyServerCredentials {
     /**
+    * Proxy Server address. This can include the port e.g '127.0.0.1:5005'
+    */
+    address: string,
+    /**
     * Username for Proxy Server authentication
     */
-    username : String,
+    username : string,
     /**
     * Password for Proxy Server authentication
     */
-    password : String,        
+    password : string,        
 }
     
 export interface ConfigObject {
@@ -181,7 +185,7 @@ export interface ConfigObject {
      */
     useChrome ?: boolean,
     /**
-     * If sent, adds a call to waPage.authenticate with those credentials. Must be used in conjuction with --proxy-server=PROXY_SERVER_URL flag on chromiumArgs.
+     * If sent, adds a call to waPage.authenticate with those credentials.
      */
     proxyServerCredentials?: ProxyServerCredentials,
     /**
@@ -197,6 +201,11 @@ export interface ConfigObject {
      * ```
      */
     restartOnCrash ?: (value: Whatsapp) => any | Function,
+    /**
+     * default: false
+     * Setting this to true will simplify logs for use within docker containers by disabling spins (will still print raw messages).
+     */
+    disableSpins ?: boolean
     // @private
     [x: string]: any 
 }

@@ -34,25 +34,31 @@ export class EvEmitter {
 }
 
 export class Spin extends EvEmitter{
-  spinner = new Spinnies({ color: 'blue', succeedColor: 'green', spinner });
+  _spinner : Spinnies.Spinner;
+
+  constructor(sessionId: string, eventNamespace: string, disableSpins: boolean = false){
+    super(sessionId,eventNamespace);
+    this._spinner = new Spinnies({ color: 'blue', succeedColor: 'green', spinner, disableSpins});
+  }
+  
   
   start(eventMessage:string){
-    this.spinner.add(this.sessionId, { text: eventMessage });
+    this._spinner.add(this.sessionId, { text: eventMessage });
     this.emit(eventMessage);
   }
 
   info(eventMessage:string){
-    this.spinner.update(this.sessionId, { text: eventMessage });
+    this._spinner.update(this.sessionId, { text: eventMessage });
     this.emit(eventMessage);
   }
 
   fail(eventMessage:string){
-    this.spinner.fail(this.sessionId, { text: eventMessage });
+    this._spinner.fail(this.sessionId, { text: eventMessage });
     this.emit(eventMessage);
   }
   
   succeed(eventMessage ?: string){
-    this.spinner.succeed(this.sessionId, { text: eventMessage });
+    this._spinner.succeed(this.sessionId, { text: eventMessage });
     this.emit(eventMessage||'SUCCESS');
   }
 }
