@@ -68,7 +68,10 @@ async function start(client: Whatsapp) {
   // const allmsgs = await client.loadAndGetAllMessagesInChat('XXXXXXXX-YYYYYYYY@g.us",true,false);
   // console.log("TCL: start -> allMessages", allmsgs.length);
 
-  client.onAnyMessage(message=>console.log(message.type));
+  client.onAnyMessage(message=>{
+    console.log(message.type)
+    if(message.body==='DELETE') client.deleteMessage(message.from,message.id,false)
+  });
   // client.onParticipantsChanged("XXXXXXXXXX-YYYYYYYYY@g.us",x=>console.log(x))
   client.onMessage(async message => {
     try {
