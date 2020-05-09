@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/wa-automate",
-  "version": "1.9.15",
+  "version": "1.9.17",
   "licenseCheckUrl": "https://open-wa.glitch.me/license-check",
   "description": " 💬 🤖 The most advanced NodeJS whatsapp library for chatbots with advanced features.",
   "main": "dist/index.js",
@@ -71,7 +71,7 @@
     "typescript": "^3.6.4"
   },
   "dependencies": {
-    "@open-wa/wa-decrypt": "^1.1.3",
+    "@open-wa/wa-decrypt": "^1.1.4",
     "@types/sharp": "^0.25.0",
     "atob": "^2.1.2",
     "axios": "^0.19.1",

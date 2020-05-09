@@ -292,6 +292,7 @@ export async function create(
   } catch (error) {
     spinner.emit(error.message);
     await kill(waPage);
+    spinner.remove()
     throw error;
   }
 }

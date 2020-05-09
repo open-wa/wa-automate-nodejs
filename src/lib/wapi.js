@@ -1542,6 +1542,14 @@ window.WAPI.sendVideoAsGif = async function (imgBase64, chatid, filename, captio
     });
 }
 
+window.WAPI.refreshBusinessProfileProducts = async function (){
+    await Promise.all(Store.BusinessProfile.models.map(async x=>{
+        try{
+        await Store.Catalog.findCarouselCatalog(x.id._serialized)
+        } catch(error){}
+        }));
+        return true;
+}
 
 /**
  * Find any product listings of the given number. Use this to query a catalog
@@ -1550,12 +1558,11 @@ window.WAPI.sendVideoAsGif = async function (imgBase64, chatid, filename, captio
  * @returns None
  */
 window.WAPI.getBusinessProfilesProducts = async function (id) {
-    return await Store.Catalog.find(id).then(resp => {
-        if (resp.msgProductCollection && resp.msgProductCollection._models.length)
-        return resp.productCollection._models;
-    }).catch(error => {
-        return error.model._products;
-    })
+    await WAPI.refreshBusinessProfileProducts();
+    if(!Store.Catalog.get(id)) await Store.Catalog.findCarouselCatalog(id)
+    const catalog = Store.Catalog.get(id);
+    if (catalog.productCollection && catalog.productCollection._models.length)
+    return catalog.productCollection._models;
 };
 
 
@@ -1577,6 +1584,7 @@ window.WAPI.procFiles= async function(chat, blobs) {
  * @returns 
  */
 window.WAPI.sendImageWithProduct = async function (imgBase64, chatid, caption, bizNumber, productId) {
+    await WAPI.refreshBusinessProfileProducts();
     return await Store.Catalog.findCarouselCatalog(bizNumber).then(async cat => {
         if (cat && cat[0]) {
             const product = cat[0].productCollection.get(productId);
@@ -1600,7 +1608,7 @@ window.WAPI.sendImageWithProduct = async function (imgBase64, chatid, caption, b
             // var idUser = new Store.WidFactory.createWid(chatid);
 
             return Store.Chat.find(chatid).then(async (chat) => {
-                var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
+                var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, "filename.jpg");
                 // var mc = new Store.MediaCollection(chat);
                 // mc.processFiles([mediaBlob], chat, 1)
                 return await window.WAPI.procFiles(chat,mediaBlob).then(async mc => {
