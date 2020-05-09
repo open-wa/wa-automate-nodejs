@@ -1,7 +1,7 @@
 import * as path from 'path';
 
 import { initWhatsapp, injectApi } from './browser';
-import { isAuthenticated, isInsideChat, retrieveQR } from './auth';
+import { isAuthenticated, isInsideChat, phoneIsOutOfReach, retrieveQR } from './auth';
 
 import { ConfigObject } from '../api/model/index';
 import { Spin } from './events';
@@ -110,13 +110,31 @@ export async function create(
     }
 
     spinner.start('Authenticating');
-    let authenticated = await isAuthenticated(waPage);
-    let autoRefresh = config ? config.autoRefresh : false;
 
+    let authenticated = null;
+
+    let authTimeout = config.authTimeout ? config.authTimeout * 1000 : 0;
+    
+    try {
+      authenticated = await isAuthenticated(waPage, authTimeout);
+    } catch (e) {
+      if (e.name === 'TimeoutError' && await phoneIsOutOfReach(waPage)) {
+        console.log('Phone seems to be out of reach. Aborting...');
+        await kill(waPage);
+        spinner.remove();
+        throw new Error('OUTOFREACH');
+      } else {
+        throw e
+      }
+    }
+    
+    let autoRefresh = config ? config.autoRefresh : false;
+    let qrLogSkip = config ? config.qrLogSkip : false;
+    
     const qrLoop = async () => {
       if (!shouldLoop) return;
       console.log(' ');
-      await retrieveQR(waPage, sessionId, autoRefresh, throwOnError);
+      await retrieveQR(waPage, sessionId, autoRefresh, throwOnError, qrLogSkip);
       console.log(' ');
       qrTimeout = timeout((config ? config.qrRefreshS || 10 : 10) * 1000);
       await qrTimeout;
@@ -282,8 +300,9 @@ const kill = async (p) => {
   shouldLoop = false;
   if (qrTimeout) clearTimeout(qrTimeout);
   if (p) {
-    const browser = await p.browser();
-    if (!p.isClosed()) await p.close();
+    const browser = p.browser();
+    if(!p.isClosed()) await p.close();
     if (browser) await browser.close();
+    p = null;
   }
 };

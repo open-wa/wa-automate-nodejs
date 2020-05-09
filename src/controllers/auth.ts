@@ -1,41 +1,52 @@
 import * as puppeteer from 'puppeteer';
 import * as qrcode from 'qrcode-terminal';
+
 import { from, merge } from 'rxjs';
-import { take } from 'rxjs/operators';
+
 import {EvEmitter} from './events'
+import { take } from 'rxjs/operators';
 
 /**
  * Validates if client is authenticated
  * @returns true if is authenticated, false otherwise
  * @param waPage
  */
-export const isAuthenticated = (waPage: puppeteer.Page) => merge(needsToScan(waPage), isInsideChat(waPage)).pipe(take(1)).toPromise()
+export const isAuthenticated = (waPage: puppeteer.Page, authTimeout?:number) => merge(needsToScan(waPage, authTimeout), isInsideChat(waPage, authTimeout)).pipe(take(1)).toPromise()
 
-export const needsToScan = (waPage: puppeteer.Page) => {
+export const needsToScan = (waPage: puppeteer.Page, authTimeout?:number) => {
   return from(
     waPage
       .waitForSelector('body > div > div > .landing-wrapper', {
-        timeout: 0
+        timeout: authTimeout || 0
       })
       .then(() => false)
   );
 };
 
-export const isInsideChat = (waPage: puppeteer.Page) => {
+export const isInsideChat = (waPage: puppeteer.Page, authTimeout?:number) => {
   return from(
     waPage
       .waitForFunction(
         "document.getElementsByClassName('app')[0] && document.getElementsByClassName('app')[0].attributes && !!document.getElementsByClassName('app')[0].attributes.tabindex",
-        { timeout: 0 }
+        { timeout: authTimeout || 0 }
       )
       .then(() => true)
   );
 };
 
+export const phoneIsOutOfReach = (waPage: puppeteer.Page) => {
+  return waPage
+    .waitForFunction(
+      'document.querySelector("body").innerText.includes("Trying to reach phone")',
+      { timeout: 0, polling: 'mutation' }
+    )
+    .then(() => true);
+};
+
     //@ts-ignore
 const checkIfCanAutoRefresh = (waPage: puppeteer.Page) => waPage.evaluate(() => {if(window.Store && window.Store.State) {window.Store.State.default.state="UNPAIRED";window.Store.State.default.run();return true;} else {return false;}})
 
-export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, autoRefresh:boolean=false,throwErrorOnTosBlock:boolean=false) {
+export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, autoRefresh:boolean=false,throwErrorOnTosBlock:boolean=false,qrLogSkip:boolean=false) {
   const qrEv = new EvEmitter(sessionId,'qr');
   if (autoRefresh) {
     const evalResult = await checkIfCanAutoRefresh(waPage)
@@ -57,6 +68,6 @@ export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, auto
   }
   const qrCode = await waPage.evaluate(`document.querySelector("canvas[aria-label='Scan me!']").toDataURL()`);
   qrEv.emit(qrCode);
-  qrcode.generate(qrData,{small: true});
+  if (!qrLogSkip) qrcode.generate(qrData, { small: true });
   return true;
 }
