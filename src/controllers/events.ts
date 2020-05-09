@@ -61,4 +61,8 @@ export class Spin extends EvEmitter{
     this._spinner.succeed(this.sessionId, { text: eventMessage });
     this.emit(eventMessage||'SUCCESS');
   }
+
+  remove() {
+    this._spinner.remove(this.sessionId);
+  }
 }

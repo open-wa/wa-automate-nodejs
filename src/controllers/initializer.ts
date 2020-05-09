@@ -83,8 +83,8 @@ let qrTimeout;
     waPage = await injectApi(waPage);
     spinner.start('WAPI injected');
   } else {
+    spinner.remove();
     if(throwOnError) throw Error('TOSBLOCK');
-    console.log('Possilby TOS_BLOCKed')
   }
 
   spinner.start('Authenticating');
@@ -118,8 +118,8 @@ let qrTimeout;
     if(result=='timeout') {
       console.log('Session timed out. Shutting down')
       await kill(waPage);
+      spinner.remove();
       throw new Error('QR Timeout');
-      
     }
     shouldLoop = false;
     clearTimeout(qrTimeout);
@@ -201,7 +201,8 @@ if(config?.licenseKey) {
 } catch(error){
   spinner.emit(error.message);
 	await kill(waPage);
-	throw error;
+  spinner.remove();
+  throw error;
 }
 }
 
@@ -209,7 +210,8 @@ const kill = async (p) => {
   shouldLoop = false;
   if(qrTimeout) clearTimeout(qrTimeout);
   if(p){
-    await p.close();
-    if(p.browser())await p.browser().close();
+    const browser = await p.browser();
+    if (!p.isClosed()) await p.close();
+    if (browser) await browser.close();
   }
 }

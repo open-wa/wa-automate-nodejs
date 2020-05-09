@@ -12,7 +12,5 @@ newsession
 **.data.json
 
 tempchangelog.txt
-
-
 .npmrc
-
+.DS_Store
