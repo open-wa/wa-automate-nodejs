@@ -757,9 +757,7 @@ public async syncContacts(){
    */
   public async getBusinessProfilesProducts(id: string) {
     return await this.page.evaluate(
-      ({ id }) => {
-        WAPI.getBusinessProfilesProducts(id);
-      },
+      ({ id }) => WAPI.getBusinessProfilesProducts(id),
       { id }
     );
   }
