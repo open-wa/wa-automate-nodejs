@@ -3,7 +3,7 @@ dist
 session
 newsession
 
-
+**buttons.js
 **req.ts
 
 **qr_code_session.png
@@ -14,3 +14,4 @@ newsession
 tempchangelog.txt
 .npmrc
 .DS_Store
+demo/buttons.js
