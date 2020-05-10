@@ -189,6 +189,10 @@ export interface ConfigObject {
      */
     proxyServerCredentials?: ProxyServerCredentials,
     /**
+     * If true, skips logging the QR Code to the console. Default is false.
+     */
+    qrLogSkip?: boolean;
+    /**
      * If set, the program will try to recreate itself when the page crashes. You have to pass the function that you want called upon restart. Please note that when the page crashes you may miss some messages.
      * E.g:
      * ```javascript

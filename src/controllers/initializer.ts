@@ -90,11 +90,12 @@ let qrTimeout;
   spinner.start('Authenticating');
   let authenticated = await isAuthenticated(waPage);
   let autoRefresh = config ? config.autoRefresh : false;
+  let qrLogSkip = config ? config.qrLogSkip : false;
  
   const qrLoop = async () => {
     if(!shouldLoop) return;
     console.log(' ')
-    await retrieveQR(waPage,sessionId,autoRefresh,throwOnError);
+    await retrieveQR(waPage,sessionId,autoRefresh,throwOnError, qrLogSkip);
     console.log(' ')
     qrTimeout = timeout((config?(config.qrRefreshS || 10):10)*1000);
     await qrTimeout;
