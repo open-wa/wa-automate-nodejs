@@ -121,24 +121,15 @@ export interface ConfigObject {
     sessionId ?: string,
     /**
      * In order to unlock the functionality to send texts to unknown numbers, you need an License key.
-     * One License Key is valid for each number. Each License Key is £5 per month or £50 per year.
+     * One License Key is valid for each number. Each License Key is £10 per month or £100 per year.
      * 
-     * For now the process happens through [Buy Me A Coffee](https://www.buymeacoffee.com/smashah) (BMAC)
-     * 
-     * How to get an License key:
-     * 1. Go to https://www.buymeacoffee.com/smashah
-     * 2. Click on 'Membership'.
-     * 3. Select your payment preference (monthly/annually)
-     * 5. Add the number you want to assign to the License Key in the notes, along with the use case for this functionality.
-     * 6. Select "Make this message private."
-     * 7. Complete the process for membership.
-     * 8. I will then send you the License key via email.
+     * Please check README for instructions on how to get a license key.
      * 
      * Notes:
-     * 1. You can change the number assigned to that License Key at any time, just message me the new number on the private discord channel or on BMAC.
+     * 1. You can change the number assigned to that License Key at any time, just message me the new number on the private discord channel.
      * 2. In order to cancel your License Key, simply stop your membership.
      */
-    licenseKey ?: string,
+    licenseKey ?: string | string[],
     /**
      * You may set a custom user agent to prevent detection by WhatsApp. However, due to recent developments, this is not really neccessary any more.
      */
