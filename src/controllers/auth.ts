@@ -32,13 +32,12 @@ export const isInsideChat = (waPage: puppeteer.Page) => {
   );
 };
 
-export const phoneIsOutOfReach = (waPage: puppeteer.Page) => {
-  return waPage
+export const phoneIsOutOfReach = async (waPage: puppeteer.Page) => {
+  return await waPage
     .waitForFunction(
       'document.querySelector("body").innerText.includes("Trying to reach phone")',
       { timeout: 0, polling: 'mutation' }
-    )
-    .then(() => true);
+    );
 };
 
     //@ts-ignore
