@@ -20,6 +20,10 @@ export interface Message {
   broadcast: boolean;
   isForwarded: boolean;
   labels: any[];
+  /**
+   * An array of all mentioned numbers in this message.
+   */
+  mentionedJidList: string[];
   caption: string;
   sender: {
     id: string;
