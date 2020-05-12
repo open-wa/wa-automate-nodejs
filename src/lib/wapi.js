@@ -1465,7 +1465,7 @@ window.WAPI.joinGroupViaLink = async function(link){
 }
 
 window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, quotedMsg, waitForKey) {
-    const startSendImage = (Date.now()/1000)-1;
+    if(!chatid.includes('g')||!chatid.includes('c')) return false;
     let extras = {};
     if(quotedMsg){
         if (typeof quotedMsg !== "object") quotedMsg = Store.Msg.get(quotedMsg);
@@ -2109,11 +2109,14 @@ window.WAPI.getLastSeen = async function (id) {
     return presence.chatstate.t;
   }
 
-window.WAPI.postStatus = function(){return false;}
+window.WAPI.getStoryStatusByTimeStamp = function(){return false;}
 window.WAPI.deleteAllStatus = function(){return false;}
 window.WAPI.getMyStatusArray = function(){return false;}
 window.WAPI.deleteStatus = function(){return false;}
 window.WAPI.setGroupToAdminsOnly = function(){return false;}
+window.WAPI.postTextStatus = function(){return false;}
+window.WAPI.postImageStatus = function(){return false;}
+window.WAPI.postVideoStatus = function(){return false;}
 
 window.WAPI.quickClean = function (ob) {return JSON.parse(JSON.stringify(ob))};
 

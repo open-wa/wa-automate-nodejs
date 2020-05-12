@@ -59,6 +59,9 @@ declare module WAPI {
   const onLiveLocation: (chatId: string, callback: Function) => any;
   const sendMessage: (to: string, content: string) => Promise<string>;
   const sendMessageWithMentions: (to: string, content: string) => Promise<string>;
+  const postTextStatus: (text: string, textRgba: string, backgroundRgba: string, font: string) => Promise<string | boolean>;
+  const postImageStatus: (data: string, caption: string) => Promise<string | boolean>;
+  const postVideoStatus: (data: string, caption: string) => Promise<string | boolean>;
   const setChatState: (chatState: ChatState, chatId: string) => void;
   const reply: (to: string, content: string, quotedMsg: string | Message) => Promise<string|boolean>;
   const getGeneratedUserAgent: (userAgent?: string) => string;
@@ -762,45 +765,6 @@ public async syncContacts(){
     );
   }
 
-  /**
-   * Post a status (story). Right now it is only white text on a black background. [Currently Paywalled](https://github.com/open-wa/wa-automate-nodejs#starting-a-conversation) [Only requires donation for immediate access - not membership]. Due for General Availability on 1st May 2020.
-   *
-   * @param text string The message you want to send on your story.
-   * @returns response e.g{ status: 200, t: 1586626288 } or false if you do not have access to this function
-   */
-  public async postStatus(text: string) {
-    return await this.page.evaluate(
-      ({ text }) => WAPI.postStatus(text, {}),
-      { text }
-    );
-  }
-
-/**
- * Consumes a list of id strings of statuses to delete.
- * @param statusesToDelete string [] | stringan array of ids of statuses to delete.
- * @returns boolean. True if it worked.
- */
-  public async deleteStatus(statusesToDelete: string | string []) {
-    return await this.page.evaluate(
-      ({ statusesToDelete }) => WAPI.deleteStatus(statusesToDelete),
-      { statusesToDelete }
-    );
-  }
-
-/**
- * Deletes all your existing statuses.
- * @returns boolean. True if it worked.
- */
-  public async deleteAllStatus() {
-    return await this.page.evaluate(() => WAPI.deleteAllStatus());
-  }
-
-    /**
-     * Retreives all existing statuses.
-     */
-  public async getMyStatusArray() {
-    return await this.page.evaluate(() => WAPI.getMyStatusArray());
-  }
 
   /**
    * Sends product with image to chat
@@ -1550,6 +1514,86 @@ public async getStatus(contactId: string) {
       return false;
     }
   }
+  
+  /**
+   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=1%20Restricted%20License%20Key)
+   * Sends a formatted text story.
+   * @param text The text to be displayed in the story 
+   * @param textRgba The colour of the text in the story in hex format, make sure to add the alpha value also. E.g "#FF00F4F2"
+   * @param backgroundRgba  The colour of the background in the story in hex format, make sure to add the alpha value also. E.g "#4FF31FF2"
+   * @param font The font of the text to be used in the story. This has to be a number. Each number refers to a specific predetermined font. Here are the fonts you can choose from:
+   * 0: Sans Serif
+   * 1: Serif
+   * 2: [Norican Regular](https://fonts.google.com/specimen/Norican)
+   * 3: [Bryndan Write](https://www.dafontfree.net/freefonts-bryndan-write-f160189.htm)
+   * 4: [Bebasneue Regular](https://www.dafont.com/bebas-neue.font)
+   * 5: [Oswald Heavy](https://www.fontsquirrel.com/fonts/oswald)
+   * @returns Promise<string | boolean> returns status id if it worked, false if it didn't
+   */
+  public async postTextStatus(text: string, textRgba: string, backgroundRgba: string, font: number){
+    return await this.page.evaluate(
+      ({ text, textRgba, backgroundRgba, font }) => WAPI.postTextStatus(text, textRgba, backgroundRgba, font),
+      { text, textRgba, backgroundRgba, font }
+    );
+  }
+
+  /**
+   * Posts an image story.
+   * @param data data uri string `data:[<MIME-type>][;charset=<encoding>][;base64],<data>`
+   * @param caption The caption for the story 
+   * @returns Promise<string | boolean> returns status id if it worked, false if it didn't
+   */
+  public async postImageStatus(data: string, caption: string){
+    return await this.page.evaluate(
+      ({data, caption}) => WAPI.postImageStatus(data, caption),
+      { data, caption }
+    );
+  }
+
+  /**
+   * Posts a video story.
+   * @param data data uri string `data:[<MIME-type>][;charset=<encoding>][;base64],<data>`
+   * @param caption The caption for the story 
+   * @returns Promise<string | boolean> returns status id if it worked, false if it didn't
+   */
+  public async postVideoStatus(data: string, caption: string){
+    return await this.page.evaluate(
+      ({data, caption}) => WAPI.postVideoStatus(data, caption),
+      { data, caption }
+    );
+  }
+
+
+/**
+ * Consumes a list of id strings of statuses to delete.
+ * @param statusesToDelete string [] | stringan array of ids of statuses to delete.
+ * @returns boolean. True if it worked.
+ */
+  public async deleteStatus(statusesToDelete: string | string []) {
+    return await this.page.evaluate(
+      ({ statusesToDelete }) => WAPI.deleteStatus(statusesToDelete),
+      { statusesToDelete }
+    );
+  }
+
+/**
+ * Deletes all your existing statuses.
+ * @returns boolean. True if it worked.
+ */
+  public async deleteAllStatus() {
+    return await this.page.evaluate(() => WAPI.deleteAllStatus());
+  }
+
+    /**
+     * Retreives all existing statuses.
+     */
+  public async getMyStatusArray() {
+    return await this.page.evaluate(() => WAPI.getMyStatusArray());
+  }
+
+
+
+
 }
 
 export { useragent } from '../config/puppeteer.config'
