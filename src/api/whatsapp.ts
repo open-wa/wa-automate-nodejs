@@ -457,6 +457,7 @@ export class Whatsapp {
 
   /**
    * Sends a text message to given chat
+   * If you need to send a message to new numbers please see these instructions: https://github.com/open-wa/wa-automate-nodejs#starting-a-conversation
    * @param to chat id: xxxxx@us.c
    * @param content text message
    */
@@ -1516,7 +1517,7 @@ public async getStatus(contactId: string) {
   }
   
   /**
-   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=1%20Restricted%20License%20Key)
+   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=1%20Text%20Story%20License%20Key)
    * Sends a formatted text story.
    * @param text The text to be displayed in the story 
    * @param textRgba The colour of the text in the story in hex format, make sure to add the alpha value also. E.g "#FF00F4F2"
@@ -1538,6 +1539,7 @@ public async getStatus(contactId: string) {
   }
 
   /**
+   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=1%20Image%20Story%20License%20Key)
    * Posts an image story.
    * @param data data uri string `data:[<MIME-type>][;charset=<encoding>][;base64],<data>`
    * @param caption The caption for the story 
@@ -1551,6 +1553,7 @@ public async getStatus(contactId: string) {
   }
 
   /**
+   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=1%20Video%20Story%20License%20Key)
    * Posts a video story.
    * @param data data uri string `data:[<MIME-type>][;charset=<encoding>][;base64],<data>`
    * @param caption The caption for the story 

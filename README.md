@@ -45,7 +45,7 @@ function start(client) {
 
 ###### After executing `create()` function, **@open-wa/wa-automate** will create an instance of whatsapp web. If you are not logged in, it will print a QR code in the [terminal](https://i.imgur.com/g8QvERI.png). Scan it with your phone and you are ready to go!
 
-###### @open-wa/wa-automate will remember the session so there is no need to authenticate everytime.
+###### @open-wa/wa-automate will remember the session so there is no need to authenticate every time
 
 ### Latest Changes
 
@@ -112,42 +112,47 @@ There are 3 ways to start a chat with a new number:
       You can add this button to your website which, when clicked, will open a chat with you in the same way as above.
 3. [With a License Key](https://github.com/open-wa/wa-automate-nodejs#license-key)
 
-     In order to unlock the functionality to send texts to unknown numbers through @open-wa/wa-automate itself, you will need an License key.
+     In order to unlock the functionality to send texts to unknown numbers through @open-wa/wa-automate itself, you will need a License key.
 
-     One License Key is valid for one number. Each License Key is £5 per month or £50 per year. [Instructions below.](https://github.com/open-wa/wa-automate-nodejs#license-key)
+     One License Key is valid for one number. Each License Key for this is £10 per month. [Instructions below.](https://github.com/open-wa/wa-automate-nodejs#license-key)
 
 ## License Key
 
-For now the process happens through [Buy Me A Coffee (BMAC)](https://www.buymeacoffee.com/smashah)
+For now the process happens through [Gumroad](https://gumroad.com/l/BTMt)
 
 How to get an License key:
 
-1. Go to [BMAC](https://www.buymeacoffee.com/smashah).
-2. Click on 'Membership'. For the insiders program, you do **not** need to get a membership.
-3. Select your payment preference (monthly/annually).
-5. Add the phone number you want to assign to the License Key in the notes, along with the use case for this functionality and your github username
-6. Select "Make this message private."
+1. Go to [Gumroad](https://gumroad.com/l/BTMt).
+2. Click on the type of license you require, in this case you will need `1 Restricted License Key`.
+3. In the checkout the phone number you want to assign to the License Key, along with the use case for this functionality and your github username. Please note, with this new system you'll only be able to change the number once.
+4. Complete the checkout process.
+5. You will instantly receive your License key on the screen and in your email.
 
    <div align="center">
    <img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/membership.png"/>
    </div>
 
-7. Complete the process for membership.
-8. You will receive your License key via email.
-9. Add licenseKey to your config:
+6. Add licenseKey to your config:
 
 ```javascript
 ...
 create({
   licenseKey: "..."
 })
+
+//or for multiple license keys to stack features.
+
+create({
+  licenseKey: ["...","..."]
+})
 ...
 ```
 
 Notes:
 
-- You can change the number assigned to a specific License Key at any time.
+- You can change the number assigned to a specific License Key once.
 - In order to cancel your License Key, simply stop your membership.
+- You can use multiple license keys for each number.
 - Apart from adding your licenseKey to your config, you will need to change nothing else in your code.
 - An added benefit for members is priority on issues.
 - License Keys for the insiders program expire after a month when the feature becomes GA.
@@ -226,7 +231,6 @@ client.onStateChanged(state=>{
 
 ```
 
-
 ## Decrypting Media
 
 Here is a sample of how to decrypt media. This has been tested on images, videos, documents, audio and voice notes.
@@ -279,7 +283,7 @@ import { decryptMedia } from 'wa-decrypt';
 
 [Learn more about wa-decrypt here](https://github.com/smashah/wa-decrypt#readme)
 
-## Issues with decyption
+## Issues with decryption
 
 If you are having issues with decryption it may be due to the user agent being used by the decrypt method.
 You can remedy this by passing a custom user agent as a second parameter to the decrypt method. Now there is a convenience method on the WhatsApp class to allow you to easily get a compatible user agent shown below. This feature is available in v.1.5.8 and above.
@@ -631,7 +635,7 @@ create({
 
 ## Best Practice
 
-Since this is not an officially sanctioned solution it is tempermental to say the least. Here are some best practices:
+Since this is not an officially sanctioned solution it is temperamental to say the least. Here are some best practices:
 
 1. Keep the session alive
 2. Offload most work off of your @open-wa/wa-automate setup (i.e forward all events to a pubsub or something)
