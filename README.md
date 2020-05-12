@@ -95,8 +95,8 @@ open-wa is at the forefront of open source WhatsApp development. Some new featur
 
 | Function                          | Description | GA Release Date |
 | --------------------------------- | ----------- | ----------- |
-| [`setGroupToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#setGroupToAdminsOnly)                   | Changes group setting so only admins can send messages            | 1st May 2020|
-| [`setGroupEditToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#setGroupEditToAdminsOnly)                   | Changes group setting so only admins can edit group info            | 1st May 2020|
+| [`setGroupToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#setGroupToAdminsOnly)                   | Changes group setting so only admins can send messages            | 31st May 2020|
+| [`setGroupEditToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#setGroupEditToAdminsOnly)                   | Changes group setting so only admins can edit group info            | 31st May 2020|
 
 [Insiders need a license key.](https://github.com/open-wa/wa-automate-nodejs#license-key)
 
