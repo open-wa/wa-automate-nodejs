@@ -118,10 +118,12 @@ let qrTimeout;
     const result = await Promise.race(race);
     if(result=='timeout') {
       console.log('Session timed out. Shutting down')
+      qrSpin.emit('qrTimeout');
       await kill(waPage);
       spinner.remove();
       throw new Error('QR Timeout');
     }
+    qrSpin.emit('successfulScan');
     shouldLoop = false;
     clearTimeout(qrTimeout);
     spinner.succeed();
