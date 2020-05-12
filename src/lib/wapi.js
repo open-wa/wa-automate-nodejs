@@ -1465,7 +1465,7 @@ window.WAPI.joinGroupViaLink = async function(link){
 }
 
 window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, quotedMsg, waitForKey) {
-    if(!chatid.includes('g')||!chatid.includes('c')) return false;
+    if(!chatid.includes('@g')||!chatid.includes('@c')) return false;
     let extras = {};
     if(quotedMsg){
         if (typeof quotedMsg !== "object") quotedMsg = Store.Msg.get(quotedMsg);
