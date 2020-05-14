@@ -59,6 +59,7 @@ export interface Message {
   isMedia: boolean;
   isNotification: boolean;
   isPSA: boolean;
+  fromMe: boolean;
   chat: {
     id: string;
     pendingMsgs: boolean;
