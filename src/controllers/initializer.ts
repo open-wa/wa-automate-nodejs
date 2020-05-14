@@ -159,6 +159,8 @@ spinner.emit(sessionData,"sessionData");
   fs.writeFile(sessionjsonpath, JSON.stringify(sessionData), (err) => {
   if (err) {  console.error(err);  return; };
 });
+if(config?.logConsole) waPage.on('console', msg => console.log(msg));
+if(config?.logConsoleErrors) waPage.on('error', error => console.log(error));
 if(config?.restartOnCrash) waPage.on('error', async error => {
   console.error('Page Crashed! Restarting...', error);
   await kill(waPage);

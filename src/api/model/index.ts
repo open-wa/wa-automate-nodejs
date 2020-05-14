@@ -200,7 +200,17 @@ export interface ConfigObject {
      * default: false
      * Setting this to true will simplify logs for use within docker containers by disabling spins (will still print raw messages).
      */
-    disableSpins ?: boolean
+    disableSpins ?: boolean,
+    /**
+     * default: false
+     * If true, this will log any console messages from the browser.
+     */
+    logConsole ?: boolean
+    /**
+     * default: false
+     * If true, this will log any error messages from the browser instance
+     */
+    logConsoleErrors ?: boolean
     // @private
     [x: string]: any 
 }
