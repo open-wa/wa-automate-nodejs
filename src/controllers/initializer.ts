@@ -101,7 +101,6 @@ let qrTimeout;
   }
   let autoRefresh = config ? config.autoRefresh : false;
   let qrLogSkip = config ? config.qrLogSkip : false;
-    spinner.start('333');
   const qrLoop = async () => {
     if(!shouldLoop) return;
     console.log(' ')
