@@ -88,9 +88,9 @@ export interface ProxyServerCredentials {
     /**
     * Password for Proxy Server authentication
     */
-    password : string,        
+    password : string,
 }
-    
+
 export interface ConfigObject {
     /**
      * JSON object that is required to migrate a session from one instance to another or ot just restart an existing instance.
@@ -102,7 +102,7 @@ export interface ConfigObject {
      *          console.log(sessionId, sessionData)
      *      })
      * ```
-     * 
+     *
      */
     sessionData ?: SessionData,
     /**
@@ -122,9 +122,9 @@ export interface ConfigObject {
     /**
      * In order to unlock the functionality to send texts to unknown numbers, you need an License key.
      * One License Key is valid for each number. Each License Key is £10 per month or £100 per year.
-     * 
+     *
      * Please check README for instructions on how to get a license key.
-     * 
+     *
      * Notes:
      * 1. You can change the number assigned to that License Key at any time, just message me the new number on the private discord channel.
      * 2. In order to cancel your License Key, simply stop your membership.
@@ -212,5 +212,9 @@ export interface ConfigObject {
      */
     logConsoleErrors ?: boolean
     // @private
-    [x: string]: any 
+    [x: string]: any,
+    /**
+     * This determines how long the process should wait for restore session before killing the process entirely.
+     */
+    restoreKillTimer ?: number,
 }
