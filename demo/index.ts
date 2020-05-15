@@ -56,7 +56,7 @@ async function start(client: Whatsapp) {
     client.onIncomingCall(call=>console.log('newcall',call));
 
   // client.onParticipantsChanged("XXXXXXXX-YYYYYYYY@g.us", (participantChangedEvent:any) => console.log("participant changed for group", participantChangedEvent));
-  
+
   //Returns 'CONNECTED' or 'TIMEOUT' or 'CONFLICT' (if user opens whatsapp web somewhere else)
   client.onStateChanged(state=>{
     console.log('statechanged', state)
@@ -88,7 +88,7 @@ async function start(client: Whatsapp) {
       //   filename,
       //   `You just sent me this ${message.type}`
       // );
-      
+
       //send the whole data URI so the mimetype can be checked.
       await client.sendImageAsSticker(message.from, `data:${message.mimetype};base64,${mediaData.toString('base64')}`)
       //get this numbers products
@@ -135,7 +135,7 @@ async function start(client: Whatsapp) {
 
 }
 
-//you can now create two sessions pointing 
+//you can now create two sessions pointing
 //two the same message handler
 
 
@@ -154,6 +154,7 @@ create({
   killTimer:40,
   autoRefresh:true, //default to true
   qrRefreshS:15, //please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.
+  // restoreKillTimer:60,
   // cacheEnabled:false,
   // devtools:true,
   // blockCrashLogs:true,
