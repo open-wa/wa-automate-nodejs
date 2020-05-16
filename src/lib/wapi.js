@@ -1662,6 +1662,7 @@ window.WAPI.sendContact = function (to, contact) {
  * Ghost forwarding is like a normal forward but as if it were sent from the host phone.
  */
 window.WAPI.ghostForward = async function(chatId, messageId) {
+    if(!chatId.includes('@g')&&!chatId.includes('@c')) return false;
     var chat = Store.Chat.get(chatId);
     if(!Store.Msg.get(messageId)) return false;
     var tempMsg = Object.create(Store.Msg.get(messageId));
