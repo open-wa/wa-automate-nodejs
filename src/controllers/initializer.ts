@@ -13,7 +13,7 @@ var pkg = require('../../package.json');
 const timeout = ms => {
   return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 }
-let qrTimeout;
+let qrDelayTimeout;
 
 /**
  * Should be called to initialize whatsapp client.
@@ -52,7 +52,7 @@ let qrTimeout;
     if (!sessionId) sessionId = 'session';
   const spinner = new Spin(sessionId,'STARTUP',config?.disableSpins);
   try{
-    qrTimeout = undefined;
+    qrDelayTimeout = undefined;
     shouldLoop = true;
   spinner.start('Initializing whatsapp');
   waPage = await initWhatsapp(sessionId, config, customUserAgent);
@@ -88,8 +88,8 @@ let qrTimeout;
   spinner.start('Authenticating');
   const authRace = [];
   authRace.push(isAuthenticated(waPage))
-  if(config?.qrTimeout){
-    authRace.push(timeout(config.qrTimeout*1000))
+  if(config?.authTimeout){
+    authRace.push(timeout(config.authTimeout*1000))
   }
 
   const authenticated = await Promise.race(authRace);
@@ -111,8 +111,8 @@ let qrTimeout;
     console.log(' ')
     await retrieveQR(waPage,sessionId,autoRefresh,throwOnError, qrLogSkip);
     console.log(' ')
-    qrTimeout = timeout((config?(config.qrRefreshS || 10):10)*1000);
-    await qrTimeout;
+    qrDelayTimeout = timeout((config?(config.qrRefreshS || 10):10)*1000);
+    await qrDelayTimeout;
     if(autoRefresh)qrLoop();
   };
 
@@ -139,7 +139,7 @@ let qrTimeout;
     }
     qrSpin.emit('successfulScan');
     shouldLoop = false;
-    clearTimeout(qrTimeout);
+    clearTimeout(qrDelayTimeout);
     spinner.succeed();
   }
   const pre = canInjectEarly? 'Rei':'I';
@@ -213,7 +213,7 @@ if(config?.licenseKey) {
 
 const kill = async (p) => {
   shouldLoop = false;
-  if(qrTimeout) clearTimeout(qrTimeout);
+  if(qrDelayTimeout) clearTimeout(qrDelayTimeout);
   if(p){
     const browser = await p.browser();
     if (!p.isClosed()) await p.close();
