@@ -40,7 +40,7 @@ export async function integrityCheck(waPage, notifier, spinner, debugInfo) {
       }
         spinner.fail(`Unable to repair broken methods. Sometimes this happens the first time after a new WA version, please try again. Please check the issues in the repo for updates: https://github.com/open-wa/wa-automate-nodejs/issues`);
         }
-    }
+    } else spinner.succeed('Session repaired.');
   } else spinner.succeed('Passed Integrity Test');
   return true;
 }
