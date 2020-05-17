@@ -2,7 +2,7 @@ import { Whatsapp } from '../api/whatsapp';
 import {ConfigObject} from '../api/model/index';
 import * as path from 'path';
 const fs = require('fs');
-import { isAuthenticated, isInsideChat, retrieveQR } from './auth';
+import { isAuthenticated, isInsideChat, retrieveQR, phoneIsOutOfReach } from './auth';
 import { initWhatsapp, injectApi } from './browser';
 import {Spin} from './events'
 import axios from 'axios';
@@ -95,11 +95,12 @@ let qrTimeout;
   const authenticated = await Promise.race(authRace);
 
   if(authenticated=='timeout') {
-    spinner.emit('authTimeout');
-    spinner.fail('Authentication timed out. Shutting down')
+    const outOfReach = await phoneIsOutOfReach(waPage);
+    spinner.emit(outOfReach ? 'appOffline' : 'authTimeout');
+    spinner.fail(outOfReach ? 'Authentication timed out. Please open the app on the phone. Shutting down' : 'Authentication timed out. Shutting down')
     await kill(waPage);
     spinner.remove();
-    throw new Error('Auth Timeout');
+    throw new Error(outOfReach ? 'App Offline' : 'Auth Timeout');
   }
 
   let autoRefresh = config ? config.autoRefresh : false;
@@ -130,8 +131,8 @@ let qrTimeout;
     }
     const result = await Promise.race(race);
     if(result=='timeout') {
-      qrSpin.fail('Session timed out. Shutting down')
       qrSpin.emit('qrTimeout');
+      qrSpin.fail('Session timed out. Shutting down');
       await kill(waPage);
       spinner.remove();
       throw new Error('QR Timeout');
