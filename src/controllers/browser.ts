@@ -11,9 +11,9 @@ import { Browser, Page } from '@types/puppeteer';
 const ON_DEATH = require('death'); //this is intentionally ugly
 let browser;
 
-export async function initWhatsapp(sessionId?: string, puppeteerConfigOverride?:any, customUserAgent?:string) {
+export async function initClient(sessionId?: string, puppeteerConfigOverride?:any, customUserAgent?:string) {
   browser = await initBrowser(sessionId,puppeteerConfigOverride);
-  const waPage = await getWhatsappPage(browser);
+  const waPage = await getWAPage(browser);
   if (puppeteerConfigOverride?.proxyServerCredentials) {
     await waPage.authenticate(puppeteerConfigOverride.proxyServerCredentials);
   }
@@ -48,7 +48,7 @@ export async function initWhatsapp(sessionId?: string, puppeteerConfigOverride?:
         Object.keys(session).forEach(key=>localStorage.setItem(key,session[key]));
     }, sessionjson);
     
-  await waPage.goto(puppeteerConfig.whatsappUrl);
+  await waPage.goto(puppeteerConfig.WAUrl);
   return waPage;
 }
 
@@ -92,7 +92,7 @@ async function initBrowser(sessionId?: string, puppeteerConfigOverride:any={}) {
   return browser;
 }
 
-async function getWhatsappPage(browser: Browser) {
+async function getWAPage(browser: Browser) {
   const pages = await browser.pages();
   console.assert(pages.length > 0);
   return pages[0];

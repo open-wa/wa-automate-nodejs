@@ -3,12 +3,12 @@ const path = require("path");
 import axios from 'axios';
 
 const wa = require('@open-wa/wa-automate');
-import { Whatsapp, decryptMedia, ev} from '@open-wa/wa-automate';
+import { Client, decryptMedia, ev} from '@open-wa/wa-automate';
 const mime = require('mime-types');
 const fs = require('fs');
 
 const ON_DEATH = require('death');
-let globalClient:Whatsapp;
+let globalClient:Client;
 
 const PORT = 8082;
 
@@ -50,7 +50,7 @@ const processCurrencyRequest = async message => {
     return true;
 }
 
-async function start(client: Whatsapp) {
+async function start(client: Client) {
   globalClient = client;
   client.onStateChanged(stateChanged);
   client.onAnyMessage(anyMessage);

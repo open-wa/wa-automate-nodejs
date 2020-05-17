@@ -1,4 +1,4 @@
-import { Whatsapp } from '../..';
+import { Client } from '../..';
 
 export { Chat } from './chat';
 export { Contact } from './contact';
@@ -39,7 +39,7 @@ export enum Events {
 };
 
 /**
- * WhatsApp state
+ * Session state
  * @readonly
  * @enum {string}
  */
@@ -131,7 +131,7 @@ export interface ConfigObject {
      */
     licenseKey ?: string | string[],
     /**
-     * You may set a custom user agent to prevent detection by WhatsApp. However, due to recent developments, this is not really neccessary any more.
+     * You may set a custom user agent. However, due to recent developments, this is not really neccessary any more.
      */
     customUserAgent ?: string,
     /**
@@ -140,7 +140,7 @@ export interface ConfigObject {
      */
     devtools ?: boolean | DevTools,
     /**
-     * Setting this to true will block any network calls to WhatsApp's crash log servers. This should keep anything you do under the radar.
+     * Setting this to true will block any network calls to crash log servers. This should keep anything you do under the radar.
      */
     blockCrashLogs ?: boolean,
     /**
@@ -187,7 +187,7 @@ export interface ConfigObject {
      * If set, the program will try to recreate itself when the page crashes. You have to pass the function that you want called upon restart. Please note that when the page crashes you may miss some messages.
      * E.g:
      * ```javascript
-     * const start  = async (client: Whatsapp) => {...}
+     * const start  = async (client: Client) => {...}
      * create({
      * ...
      * restartOnCrash: start,
@@ -195,7 +195,7 @@ export interface ConfigObject {
      * })
      * ```
      */
-    restartOnCrash ?: (value: Whatsapp) => any | Function,
+    restartOnCrash ?: (value: Client) => any | Function,
     /**
      * default: false
      * Setting this to true will simplify logs for use within docker containers by disabling spins (will still print raw messages).

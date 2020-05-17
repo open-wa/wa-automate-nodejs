@@ -178,11 +178,11 @@ declare module WAPI {
   ) => [Message]
 }
 
-export class Whatsapp {
+export class Client {
   _loadedModules: any[];
 
   /**
-   * @param page [Page] [Puppeteer Page]{@link https://pptr.dev/#?product=Puppeteer&version=v2.1.1&show=api-class-page} running web.whatsapp.com
+   * @param page [Page] [Puppeteer Page]{@link https://pptr.dev/#?product=Puppeteer&version=v2.1.1&show=api-class-page} running WA Web
    */
   constructor(public page: Page) {
     this.page = page;
@@ -305,7 +305,7 @@ export class Whatsapp {
  * @param {string} chatId '000000000000@c.us'
  * @param {string} vcard vcard as a string
  * @param {string} contactName The display name for the contact. CANNOT BE NULL OTHERWISE IT WILL SEND SOME RANDOM CONTACT FROM YOUR ADDRESS BOOK.
- * @param {string} contactNumber If supplied, this will be injected into the vcard (VERSION 3 ONLY FROM VCARDJS) with the whatsapp id to make it show up with the correct buttins on whatsapp. The format of this param should be including country code, without any other formating. e.g:
+ * @param {string} contactNumber If supplied, this will be injected into the vcard (VERSION 3 ONLY FROM VCARDJS) with the WA id to make it show up with the correct buttons on WA. The format of this param should be including country code, without any other formating. e.g:
  * `4477777777777`
  */
   public async sendVCard(chatId: string, vcard: string, contactName:string,  contactNumber?: string) {
@@ -946,7 +946,7 @@ public async syncContacts(){
   
 /** Joins a group via the invite link, code, or message
  * @param link This param is the string which includes the invite link or code. The following work:
- * - Follow this link to join my WhatsApp group: https://chat.whatsapp.com/DHTGJUfFJAV9MxOpZO1fBZ
+ * - Follow this link to join my WA group: https://chat.whatsapp.com/DHTGJUfFJAV9MxOpZO1fBZ
  * - https://chat.whatsapp.com/DHTGJUfFJAV9MxOpZO1fBZ
  * - DHTGJUfFJAV9MxOpZO1fBZ
  * @returns Promise<string | boolean> Either false if it didn't work, or the group id.
@@ -1160,7 +1160,7 @@ public async getStatus(contactId: string) {
   }
 
   /**
-    * Delete the conversation from your whatsapp
+    * Delete the conversation from your WA
    * @param chatId
    * @returns boolean
    */
@@ -1222,7 +1222,7 @@ public async getStatus(contactId: string) {
   }
 
   /**
-   * Checks if a number is a valid whatsapp number
+   * Checks if a number is a valid WA number
    * @param contactId, you need to include the @c.us at the end.
    * @returns contact detial as promise
    */
@@ -1265,7 +1265,7 @@ public async getStatus(contactId: string) {
   }
 
   /**
-   * Retrieves all unread Messages as indicated by the red dots in whatsapp web. This returns an array of objects and are structured like so:
+   * Retrieves all unread Messages as indicated by the red dots in WA web. This returns an array of objects and are structured like so:
    * ```javascript
    * [{
    * "id": "000000000000@g.us", //the id of the chat

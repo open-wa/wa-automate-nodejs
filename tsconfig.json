@@ -70,7 +70,7 @@
         "readme":"./README.md",
         "excludePrivate":true,
         "toc": [
-          "Whatsapp",
+          "Client",
           "Chat",
           "Call",
           "Contact",

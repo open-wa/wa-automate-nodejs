@@ -1,9 +1,9 @@
-import { Whatsapp } from '../api/whatsapp';
+import { Client } from '../api/Client';
 import {ConfigObject} from '../api/model/index';
 import * as path from 'path';
 const fs = require('fs');
 import { isAuthenticated, isInsideChat, retrieveQR, phoneIsOutOfReach } from './auth';
-import { initWhatsapp, injectApi } from './browser';
+import { initClient, injectApi } from './browser';
 import {Spin} from './events'
 import axios from 'axios';
 import { logoText, integrityCheck } from './launch_checks';
@@ -35,7 +35,7 @@ let qrDelayTimeout;
  */
 //export async function create(sessionId?: string, config?:ConfigObject, customUserAgent?:string) {
   //@ts-ignore
-  export async function create(sessionId?: any | ConfigObject, config?:ConfigObject, customUserAgent?:string) : Promise<Whatsapp> {
+  export async function create(sessionId?: any | ConfigObject, config?:ConfigObject, customUserAgent?:string) : Promise<Client> {
     let waPage = undefined;
     const notifier = await updateNotifier({
       pkg,
@@ -54,8 +54,8 @@ let qrDelayTimeout;
   try{
     qrDelayTimeout = undefined;
     shouldLoop = true;
-  spinner.start('Initializing whatsapp');
-  waPage = await initWhatsapp(sessionId, config, customUserAgent);
+  spinner.start('Initializing WA');
+  waPage = await initClient(sessionId, config, customUserAgent);
   spinner.succeed();
   const throwOnError=config&&config.throwErrorOnTosBlock==true;
 
@@ -155,7 +155,7 @@ let qrDelayTimeout;
   //@ts-ignore
   const VALID_SESSION = await waPage.evaluate(()=>window.Store&&window.Store.Msg?true:false);
   if(VALID_SESSION)  {
-    spinner.succeed('Whatsapp is ready');
+    spinner.succeed('Client is ready');
     const localStorage = JSON.parse(await waPage.evaluate(() => {
       return JSON.stringify(window.localStorage);
   }));
@@ -186,7 +186,7 @@ if( config?.skipBrokenMethodsCheck !== true) await integrityCheck(waPage, notifi
     const LANG_CHECK = await waPage.evaluate(()=>{if(window.l10n.localeStrings['en'])return window.l10n.localeStrings['en'][0].findIndex((x)=>x.toLowerCase()=='use here')==260;else return false;})
     if(!LANG_CHECK) console.log('Some language based features (e.g forceRefocus) are broken. Please report this in Github.');
     
-const client = new Whatsapp(waPage);
+const client = new Client(waPage);
 if(config?.licenseKey) {
   spinner.start('Checking License')
   const {me} = await client.getMe();

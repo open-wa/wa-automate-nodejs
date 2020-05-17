@@ -3,7 +3,7 @@
 
 # wa-automate-nodejs
 
-> wa-automate-nodejs is the most advanced NodeJS library which provides a high-level API control to Whatsapp.
+> wa-automate-nodejs is the most advanced NodeJS library which provides a high-level API control to WA.
 >
 > It is built using [puppeteer](https://github.com/GoogleChrome/puppeteer), based on [this python wrapper](https://github.com/mukulhase/WebWhatsapp-Wrapper).
 
@@ -29,7 +29,7 @@
 ## Usage
 
 ```javascript
-// import { create, Whatsapp } from '@open-wa/wa-automate';
+// import { create, Client } from '@open-wa/wa-automate';
 const wa = require('@open-wa/wa-automate');
 
 wa.create().then(client => start(client));
@@ -43,13 +43,13 @@ function start(client) {
 }
 ```
 
-###### After executing `create()` function, **@open-wa/wa-automate** will create an instance of whatsapp web. If you are not logged in, it will print a QR code in the [terminal](https://i.imgur.com/g8QvERI.png). Scan it with your phone and you are ready to go!
+###### After executing `create()` function, **@open-wa/wa-automate** will create an instance of WA web. If you are not logged in, it will print a QR code in the [terminal](https://i.imgur.com/g8QvERI.png). Scan it with your phone and you are ready to go!
 
 ###### @open-wa/wa-automate will remember the session so there is no need to authenticate every time
 
 ### Latest Changes
 
-With the constant updates from Whatsapp. It is advisable to always use the latest version of `@open-wa/wa-automate`.
+With the constant updates from WA. It is advisable to always use the latest version of `@open-wa/wa-automate`.
 
    <div align="center">
    <img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/release.png"/>
@@ -86,17 +86,17 @@ With the constant updates from Whatsapp. It is advisable to always use the lates
 | [Create Groups](#create-group)         |             | ✅          |
 | [add, remove, promote, demote participants](##group-participants-beta)         |             | ✅          |
 
-[Checkout all the available functions here.](https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html)
+[Checkout all the available functions here.](https://open-wa.github.io/wa-automate-nodejs/classes/client.html)
 
 ### Insiders Program
 
-open-wa is at the forefront of open source WhatsApp development. Some new features will be initially released through the insiders program and then released for general availability (GA) the following month. The following features are currently for insiders:
+open-wa is at the forefront of open source WA development. Some new features will be initially released through the insiders program and then released for general availability (GA) the following month. The following features are currently for insiders:
 
 
 | Function                          | Description | GA Release Date |
 | --------------------------------- | ----------- | ----------- |
-| [`setGroupToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#setGroupToAdminsOnly)                   | Changes group setting so only admins can send messages            | 31st May 2020|
-| [`setGroupEditToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/whatsapp.html#setGroupEditToAdminsOnly)                   | Changes group setting so only admins can edit group info            | 31st May 2020|
+| [`setGroupToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#setGroupToAdminsOnly)                   | Changes group setting so only admins can send messages            | 31st May 2020|
+| [`setGroupEditToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#setGroupEditToAdminsOnly)                   | Changes group setting so only admins can edit group info            | 31st May 2020|
 
 [Insiders need a license key.](https://github.com/open-wa/wa-automate-nodejs#license-key)
 
@@ -104,10 +104,10 @@ open-wa is at the forefront of open source WhatsApp development. Some new featur
 
 There are 3 ways to start a chat with a new number:
 
-1. [WhatsApp Links](https://faq.whatsapp.com/en/26000030/)
+1. [WA Links](https://faq.whatsapp.com/en/26000030/)
   
       You can send a special link to the person you want to start a chat with. This will open a conversation with your number on their phone. This way you can insure that they have explicitly started a conversation with you.
-2. [WhatsApp Buttons](https://github.com/smashah/whatsapp-button?ref=producthunt)
+2. [WA Buttons](https://github.com/smashah/whatsapp-button?ref=producthunt)
 
       You can add this button to your website which, when clicked, will open a chat with you in the same way as above.
 3. [With a License Key](https://github.com/open-wa/wa-automate-nodejs#license-key)
@@ -221,7 +221,7 @@ client.kill();
 
 ## Force Refocus and reacting to state
 
-When a user starts using whatsapp web in a different browser, @open-wa/wa-automate will be left on a screen prompting you to click 'Use here'. As of v1.6.6^ you can now force the client to press 'Use here' everytime the state has changed to 'CONFLICT'. onStateChanged results in 'UNPAIRED', 'CONNECTED' or 'CONFLICT';
+When a user starts using WA web in a different browser, @open-wa/wa-automate will be left on a screen prompting you to click 'Use here'. As of v1.6.6^ you can now force the client to press 'Use here' everytime the state has changed to 'CONFLICT'. onStateChanged results in 'UNPAIRED', 'CONNECTED' or 'CONFLICT';
 
 ```javascript
 client.onStateChanged(state=>{
@@ -236,11 +236,11 @@ client.onStateChanged(state=>{
 Here is a sample of how to decrypt media. This has been tested on images, videos, documents, audio and voice notes.
 
 ```javascript
-import { create, Whatsapp, decryptMedia } from '@open-wa/wa-automate';
+import { create, Client, decryptMedia } from '@open-wa/wa-automate';
 const mime = require('mime-types');
 const fs = require('fs');
 
-function start(client: Whatsapp) {
+function start(client: Client) {
   client.onMessage(async message => {
     if (message.mimetype) {
       const filename = `${message.t}.${mime.extension(message.mimetype)}`;
@@ -286,7 +286,7 @@ import { decryptMedia } from 'wa-decrypt';
 ## Issues with decryption
 
 If you are having issues with decryption it may be due to the user agent being used by the decrypt method.
-You can remedy this by passing a custom user agent as a second parameter to the decrypt method. Now there is a convenience method on the WhatsApp class to allow you to easily get a compatible user agent shown below. This feature is available in v.1.5.8 and above.
+You can remedy this by passing a custom user agent as a second parameter to the decrypt method. Now there is a convenience method on the WA class to allow you to easily get a compatible user agent shown below. This feature is available in v.1.5.8 and above.
 
 ```javascript
 ...
@@ -304,9 +304,9 @@ Interestingly sendImage has always worked for sending any type of file.
 An example of sending a is shown in the Decrypting Media secion above also.
 
 ```javascript
-import { create, Whatsapp} from '@open-wa/wa-automate';
+import { create, Client} from '@open-wa/wa-automate';
 
-function start(client: Whatsapp) {
+function start(client: Client) {
 await client.sendFile('xyz@c.us',[BASE64 FILE DATA],'some file.pdf', `Hello this is the caption`);
 }
 
@@ -317,7 +317,7 @@ Please note sometimes short(<4s) voice notes sometimes do not decrypt properly a
 
 ## Sending Video
 
-If you intend to use video via @open-wa/wa-automate, you need to use a chrome instance with puppeteer instead of the default chromium instance. This is becase chromium does not have any relevant video codecs needed for new whatsapp web video sending features.
+If you intend to use video via @open-wa/wa-automate, you need to use a chrome instance with puppeteer instead of the default chromium instance. This is becase chromium does not have any relevant video codecs needed for new WA web video sending features.
 
 You will need to make sure that you have a valid chrome instance on your machine then use the following to tell puppeteer where it can find your chrome isntance. The below demo is an example for mac & windows. For linux based hosts, you can find the chrome path with ```whereis google-chrome```, it should be something like ```/usr/bin/google-chrome```
 
@@ -340,15 +340,15 @@ There are two ways to send GIFs - by Video or by giphy link.
 
 1. Sending Video as a GIF.
   
-  WhatsApp doesn't actually support the .gif format - probably due to how inefficient it is as a filetype - they instead convert GIFs to video then process them.
+  WA doesn't actually support the .gif format - probably due to how inefficient it is as a filetype - they instead convert GIFs to video then process them.
 
   In order to send gifs you need to do the same (convert the gif to an mp4 file) then use the following method:
 
 ```javascript
 
-import { create, Whatsapp} from '@open-wa/wa-automate';
+import { create, Client} from '@open-wa/wa-automate';
 
-function start(client: Whatsapp) {
+function start(client: Client) {
 await client.sendVideoAsGif('xyz@c.us',[BASE64 Video FILE DATA],'some file.mp4', `Hello this is the caption`);
 }
 
@@ -368,9 +368,9 @@ create({
 
 ```javascript
 
-import { create, Whatsapp} from '@open-wa/wa-automate';
+import { create, Client} from '@open-wa/wa-automate';
 
-function start(client: Whatsapp) {
+function start(client: Client) {
 await client.sendGiphy('xyz@c.us','https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif', `Hello this is the caption`);
 }
 
@@ -382,7 +382,7 @@ create({
 
 ## Sending Location
 
-As of version 1.3.0 you can now send location!! You can't even do this in normal whatsapp web interface.
+As of version 1.3.0 you can now send location!! You can't even do this in normal WA web interface.
 
 You need to pass the following params:
 
@@ -419,7 +419,7 @@ await client.simulateTyping('xxxxx@c.us',false)
 
 ## Load profile pics from server
 
-Generally, after the 20th chat in your whatsapp, getChat methods do not retreive the chat picture. You need to get these from the WhatsApp servers. This is how you do it in v1.6.6^:
+Generally, after the 20th chat in your WA, getChat methods do not retreive the chat picture. You need to get these from the WA servers. This is how you do it in v1.6.6^:
 
 ```javascript
 client.getProfilePicFromServer('XXXXXXX-YYYYY@c.us')
@@ -554,7 +554,7 @@ create({
 With v1.2.4, you can now run multiple sessions of @open-wa/wa-automate in the same 'app'. This allows you to do interesting things for example:
 
 1. Design and run automated tests for you WA bot.
-2. Connect two or more whatsapp numbers to a single (or multiple) message handler(s)
+2. Connect two or more WA numbers to a single (or multiple) message handler(s)
 3. Use one client to make sure another one is alive by pinging it.
 
 Please see demo/index.ts for a working example
@@ -562,9 +562,9 @@ Please see demo/index.ts for a working example
 NOTE: DO NOT CREATE TWO SESSIONS WITH THE SAME SESSIONID. DO NOT ALLOW SPACES AS SESSION ID.
 
 ```javascript
-import { create, Whatsapp} from '@open-wa/wa-automate';
+import { create, Client} from '@open-wa/wa-automate';
 
-function start(client: Whatsapp) {
+function start(client: Client) {
   ...
 }
 
@@ -608,16 +608,16 @@ As with session name segment, these are all optional parameters.
 
 Why should you use a custom user agent?
 
-Users of these whatsapp injection libraries should use different user agents (preferably copy the one you have one your own pc) because then it makes it harder for whatsapp to break the mecahnism to restart sessions for this library.
+Users of these WA injection libraries should use different user agents (preferably copy the one you have one your own pc) because then it makes it harder for WA to break the mecahnism to restart sessions for this library.
 
 Setting up your client in ```headless:false``` mode ensures you can easily visually debug any issues.
 
 Example:
 
 ```javascript
-import { create, Whatsapp} from '@open-wa/wa-automate';
+import { create, Client} from '@open-wa/wa-automate';
 
-function start(client: Whatsapp) {
+function start(client: Client) {
   ...
 }
 
@@ -651,7 +651,7 @@ Since this is not an officially sanctioned solution it is temperamental to say t
 11. Always [kill the session safely](https://github.com/open-wa/wa-automate-nodejs#kill-the-session) upon error or SIGINT.
 
 ```javascript
-import { create, Whatsapp} from '@open-wa/wa-automate';
+import { create, Client} from '@open-wa/wa-automate';
 const { default: PQueue } = require("p-queue");
 
 const queue = new PQueue({
@@ -667,7 +667,7 @@ const proc = async message => {
 
 const processMessage = message => queue.add(proc(message));
 
-async function start(client: Whatsapp) {
+async function start(client: Client) {
   const unreadMessages = await client.getAllUnreadMessages();
   unreadMessages.forEach(processMessage)
   ...
@@ -703,7 +703,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## Legal
 
-This code is in no way affiliated with, authorized, maintained, sponsored or endorsed by WhatsApp or any of its affiliates or subsidiaries. This is an independent and unofficial software. Use at your own risk.
+This code is in no way affiliated with, authorized, maintained, sponsored or endorsed by WA or any of its affiliates or subsidiaries. This is an independent and unofficial software. Use at your own risk.
 
 ## Cryptography Notice
 

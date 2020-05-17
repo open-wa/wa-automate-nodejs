@@ -1,5 +1,5 @@
 /**
- * Middleware between web api driver and whatsappJS.
+ * Middleware between web api driver and WAJS.
  * Right now this file should not import nor export anything.
  * Until I figure out how to compile this file with the imports inlined.
  * Specifically the [ExposedFn] enum.

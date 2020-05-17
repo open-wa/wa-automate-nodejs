@@ -1,10 +1,10 @@
 var path = require('path');
 const puppeteerConfig = {
-  whatsappUrl: 'https://web.whatsapp.com',
+  WAUrl: 'https://web.whatsapp.com',
   width: 1440,
   height: 900,
   chromiumArgs: [
-    // `--app=${whatsappUrl}`,
+    // `--app=${WAUrl}`,
     '--log-level=3', // fatal only
     //'--start-maximized',
     '--no-default-browser-check',

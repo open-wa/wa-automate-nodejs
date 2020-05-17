@@ -363,7 +363,7 @@ window.WAPI.getChat = function (id) {
 /**
  * Get your status
  * @param {string} to '000000000000@c.us'
- * returns: {string,string} and string -"Hi, I am using WhatsApp"
+ * returns: {string,string} and string -"Hi, I am using WA"
  */
 window.WAPI.getStatus = async (id) => {
 return await Store.MyStatus.getStatus(id)
@@ -1448,7 +1448,7 @@ window.WAPI.getBufferedNewMessages = function () {
 
 /** Joins a group via the invite link, code, or message
  * @param link This param is the string which includes the invite link or code. The following work:
- * - Follow this link to join my WhatsApp group: https://chat.whatsapp.com/DHTGJUfFJAV9MxOpZO1fBZ
+ * - Follow this link to join my WA group: https://chat.whatsapp.com/DHTGJUfFJAV9MxOpZO1fBZ
  * - https://chat.whatsapp.com/DHTGJUfFJAV9MxOpZO1fBZ
  * - DHTGJUfFJAV9MxOpZO1fBZ
  * @returns Promise<string | boolean> Either false if it didn't work, or the group id.
@@ -1790,7 +1790,7 @@ window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
  * @param {string} chatId '000000000000@c.us'
  * @param {string} vcard vcard as a string
  * @param {string} contactName The display name for the contact. CANNOT BE NULL OTHERWISE IT WILL SEND SOME RANDOM CONTACT FROM YOUR ADDRESS BOOK.
- * @param {string} contactNumber If supplied, this will be injected into the vcard (VERSION 3 ONLY FROM VCARDJS) with the whatsapp id to make it show up with the correct buttins on whatsapp.
+ * @param {string} contactNumber If supplied, this will be injected into the vcard (VERSION 3 ONLY FROM VCARDJS) with the WA id to make it show up with the correct buttons on WA.
  */
 window.WAPI.sendVCard = async function (chatId, vcard, contactName, contactNumber) {
     var chat = Store.Chat.get(chatId);
@@ -1893,7 +1893,7 @@ window.WAPI.sendPaymentRequest = async function (chatId, amount1000, currency, n
 
 
 /**
- * Send Customized VCard without the necessity of contact be a Whatsapp Contact
+ * Send Customized VCard without the necessity of contact be a WA Contact
  *
  * @param {string} chatId '000000000000@c.us'
  * @param {object|array} vcard { displayName: 'Contact Name', vcard: 'BEGIN:VCARD\nVERSION:3.0\nN:;Contact Name;;;\nEND:VCARD' } | [{ displayName: 'Contact Name 1', vcard: 'BEGIN:VCARD\nVERSION:3.0\nN:;Contact Name 1;;;\nEND:VCARD' }, { displayName: 'Contact Name 2', vcard: 'BEGIN:VCARD\nVERSION:3.0\nN:;Contact Name 2;;;\nEND:VCARD' }]

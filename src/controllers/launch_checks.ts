@@ -36,9 +36,9 @@ export async function integrityCheck(waPage, notifier, spinner, debugInfo) {
           //hmm latest version
       const report : any = await axios.post(pkg.brokenMethodReportUrl, {...debugInfo,BROKEN_METHODS}).catch(e=>false);
       if(report?.data) {
-        spinner.fail(`Unable to repair broken methods. Sometimes this happens the first time after a new Whatsapp version, please try again. An issue has been created, add more detail if required: ${report?.data}` );
+        spinner.fail(`Unable to repair broken methods. Sometimes this happens the first time after a new WA version, please try again. An issue has been created, add more detail if required: ${report?.data}` );
       }
-        spinner.fail(`Unable to repair broken methods. Sometimes this happens the first time after a new Whatsapp version, please try again. Please check the issues in the repo for updates: https://github.com/open-wa/wa-automate-nodejs/issues`);
+        spinner.fail(`Unable to repair broken methods. Sometimes this happens the first time after a new WA version, please try again. Please check the issues in the repo for updates: https://github.com/open-wa/wa-automate-nodejs/issues`);
         }
     }
   } else spinner.succeed('Passed Integrity Test');
