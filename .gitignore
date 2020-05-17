@@ -15,3 +15,5 @@ tempchangelog.txt
 .npmrc
 .DS_Store
 demo/buttons.js
+
+**.ignore.ts

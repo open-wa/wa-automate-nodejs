@@ -97,9 +97,9 @@ let qrDelayTimeout;
   if(authenticated=='timeout') {
     const outOfReach = await phoneIsOutOfReach(waPage);
     spinner.emit(outOfReach ? 'appOffline' : 'authTimeout');
-    spinner.fail(outOfReach ? 'Authentication timed out. Please open the app on the phone. Shutting down' : 'Authentication timed out. Shutting down')
+    spinner.fail(outOfReach ? 'Authentication timed out. Please open the app on the phone. Shutting down' : 'Authentication timed out. Shutting down');
+    // spinner.remove();
     await kill(waPage);
-    spinner.remove();
     throw new Error(outOfReach ? 'App Offline' : 'Auth Timeout');
   }
 
@@ -131,10 +131,10 @@ let qrDelayTimeout;
     }
     const result = await Promise.race(race);
     if(result=='timeout') {
-      qrSpin.emit('qrTimeout');
-      qrSpin.fail('Session timed out. Shutting down');
+      spinner.emit('qrTimeout');
+      spinner.fail('Session timed out. Shutting down');
       await kill(waPage);
-      spinner.remove();
+      // qrSpin.remove();
       throw new Error('QR Timeout');
     }
     qrSpin.emit('successfulScan');
