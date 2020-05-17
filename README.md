@@ -539,11 +539,12 @@ Note: You won't get 3 if the recipient has read receipts off.
 
 ## Timing out an unpaired session
 
-If you want to kill the process after a certain amount of seconds due to an unscanned code, you can now set the killTimer parameter in the configuration object.
+If you want to kill the process after a certain amount of seconds due to an unscanned code, you can now set the qrTimeout parameter in the configuration object. You can also use authTimeout if you want to wait only a certain period of time to wait for the session to connect to the phone.
 
 ```javascript
 create({
-  killTimer: 30 //kills the session if the QR code is not scanned within 30 seconds.
+  qrTimeout: 30 //kills the session if the QR code is not scanned within 30 seconds.
+  authTimeout: 30 //kills the session if the session hasn't authentication 30 seconds (e.g If the session has the right credentials but the phone is off).
 })
 .then(client => start(client));
 ```
