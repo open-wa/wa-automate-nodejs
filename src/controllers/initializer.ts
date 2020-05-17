@@ -125,8 +125,8 @@ let qrTimeout;
     qrLoop();
     const race = [];
     race.push(isInsideChat(waPage).toPromise());
-    if(config&&config.killTimer){
-      race.push(timeout(config.killTimer*1000))
+    if(config?.qrTimeout){
+      race.push(timeout(config.qrTimeout*1000))
     }
     const result = await Promise.race(race);
     if(result=='timeout') {

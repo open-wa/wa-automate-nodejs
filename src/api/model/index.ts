@@ -166,7 +166,7 @@ export interface ConfigObject {
     /**
      * This determines how long the process should wait for a QR code to be scanned before killing the process entirely.
      */
-    killTimer ?: number,
+    qrTimeout ?: number,
     /**
      * Some features, like video upload, do not work without a chrome instance. Puppeteer only provides a chromium instance out of the box. Set this to the path of your chrome instance or you can use `useChrome:true` to automatically detect a chrome instance for you.
      */
