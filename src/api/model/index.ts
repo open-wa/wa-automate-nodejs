@@ -210,7 +210,11 @@ export interface ConfigObject {
      * default: false
      * If true, this will log any error messages from the browser instance
      */
-    logConsoleErrors ?: boolean
+    logConsoleErrors ?: boolean,
+    /**
+    *This determines how long the process should wait for the session authentication. If exceeded, checks if phone is out of reach (turned of or without internet connection) and throws an error.
+    */
+    authTimeout?: number;
     // @private
     [x: string]: any 
 }

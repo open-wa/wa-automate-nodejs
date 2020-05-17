@@ -86,7 +86,22 @@ let qrTimeout;
   }
 
   spinner.start('Authenticating');
-  let authenticated = await isAuthenticated(waPage);
+  const authRace = [];
+  authRace.push(isAuthenticated(waPage))
+  if(config?.qrTimeout){
+    authRace.push(timeout(config.qrTimeout*1000))
+  }
+
+  const authenticated = await Promise.race(authRace);
+
+  if(authenticated=='timeout') {
+    spinner.emit('authTimeout');
+    spinner.fail('Authentication timed out. Shutting down')
+    await kill(waPage);
+    spinner.remove();
+    throw new Error('Auth Timeout');
+  }
+
   let autoRefresh = config ? config.autoRefresh : false;
   let qrLogSkip = config ? config.qrLogSkip : false;
  
@@ -115,7 +130,7 @@ let qrTimeout;
     }
     const result = await Promise.race(race);
     if(result=='timeout') {
-      console.log('Session timed out. Shutting down')
+      qrSpin.fail('Session timed out. Shutting down')
       qrSpin.emit('qrTimeout');
       await kill(waPage);
       spinner.remove();
