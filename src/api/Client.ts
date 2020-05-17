@@ -58,6 +58,7 @@ declare module WAPI {
   const _onParticipantsChanged: (groupId: string, callback: Function) => any;
   const onLiveLocation: (chatId: string, callback: Function) => any;
   const sendMessage: (to: string, content: string) => Promise<string>;
+  const downloadFileWithCredentials: (url: string) => Promise<string>;
   const sendMessageWithMentions: (to: string, content: string) => Promise<string>;
   const postTextStatus: (text: string, textRgba: string, backgroundRgba: string, font: string) => Promise<string | boolean>;
   const postImageStatus: (data: string, caption: string) => Promise<string | boolean>;
@@ -1593,10 +1594,31 @@ public async getStatus(contactId: string) {
   public async getMyStatusArray() {
     return await this.page.evaluate(() => WAPI.getMyStatusArray());
   }
+  /**
+   * Download profile pics from the message object.
+   * ```javascript
+   *  const filename = `profilepic_${message.from}.jpeg`;
+   *  const data = await client.downloadProfilePicFromMessage(message);
+   *  const dataUri = `data:image/jpeg;base64,${data}`;
+   *  fs.writeFile(filename, mData, 'base64', function(err) {
+   *    if (err) {
+   *      return console.log(err);
+   *    }
+   *    console.log('The file was saved!');
+   *  });
+   * ```
+   */
+  public async downloadProfilePicFromMessage(message: Message) {
+    return await this.downloadFileWithCredentials(message.sender.profilePicThumbObj.imgFull);
+  }
 
-
-
-
+  /**
+   * Download via the browsers authenticated session via URL.
+   * @returns base64 string (non-data uri)
+   */
+  public async downloadFileWithCredentials(url: string){
+    return await this.page.evaluate(({ url }) => WAPI.downloadFileWithCredentials(url),{url});
+  }
 }
 
 export { useragent } from '../config/puppeteer.config'
