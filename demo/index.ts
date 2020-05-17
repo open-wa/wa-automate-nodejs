@@ -151,7 +151,7 @@ create({
   restartOnCrash: start,
   headless:false,
   throwErrorOnTosBlock:true,
-  killTimer:40,
+  qrTimeout:40,
   autoRefresh:true, //default to true
   qrRefreshS:15, //please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.
   // cacheEnabled:false,
