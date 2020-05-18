@@ -107,10 +107,8 @@ if (!window.Store||!window.Store.Msg) {
     })();
 }
 
-window.WAPI = {
-    lastRead: {}
-};
-
+window.WAPI = {};
+window._WAPI = {};
 
 window.WAPI._serializeRawObj = (obj) => {
     if (obj && obj.toJSON) {
@@ -1121,34 +1119,34 @@ window.WAPI.checkNumberStatus = async function (id) {
 /**
  * New messages observable functions.
  */
-window.WAPI._newMessagesQueue = [];
-window.WAPI._newMessagesBuffer = (sessionStorage.getItem('saved_msgs') != null) ? JSON.parse(sessionStorage.getItem('saved_msgs')) : [];
-window.WAPI._newMessagesDebouncer = null;
-window.WAPI._newMessagesCallbacks = [];
+window._WAPI._newMessagesQueue = [];
+window._WAPI._newMessagesBuffer = (sessionStorage.getItem('saved_msgs') != null) ? JSON.parse(sessionStorage.getItem('saved_msgs')) : [];
+window._WAPI._newMessagesDebouncer = null;
+window._WAPI._newMessagesCallbacks = [];
 
 window.Store.Msg.off('add');
 sessionStorage.removeItem('saved_msgs');
 
-window.WAPI._newMessagesListener = window.Store.Msg.on('add', (newMessage) => {
+window._WAPI._newMessagesListener = window.Store.Msg.on('add', (newMessage) => {
     if (newMessage && newMessage.isNewMsg && !newMessage.isSentByMe && !newMessage.isStatusV3) {
         let message = window.WAPI.processMessageObj(newMessage, false, false);
         if (message) {
-            window.WAPI._newMessagesQueue.push(message);
-            window.WAPI._newMessagesBuffer.push(message);
+            window._WAPI._newMessagesQueue.push(message);
+            window._WAPI._newMessagesBuffer.push(message);
         }
 
         // Starts debouncer time to don't call a callback for each message if more than one message arrives
         // in the same second
-        if (!window.WAPI._newMessagesDebouncer && window.WAPI._newMessagesQueue.length > 0) {
-            window.WAPI._newMessagesDebouncer = setTimeout(() => {
-                let queuedMessages = window.WAPI._newMessagesQueue;
+        if (!window._WAPI._newMessagesDebouncer && window._WAPI._newMessagesQueue.length > 0) {
+            window._WAPI._newMessagesDebouncer = setTimeout(() => {
+                let queuedMessages = window._WAPI._newMessagesQueue;
 
-                window.WAPI._newMessagesDebouncer = null;
-                window.WAPI._newMessagesQueue = [];
+                window._WAPI._newMessagesDebouncer = null;
+                window._WAPI._newMessagesQueue = [];
 
                 let removeCallbacks = [];
 
-                window.WAPI._newMessagesCallbacks.forEach(function (callbackObj) {
+                window._WAPI._newMessagesCallbacks.forEach(function (callbackObj) {
                     if (callbackObj.callback !== undefined) {
                         callbackObj.callback(queuedMessages);
                     }
@@ -1159,8 +1157,8 @@ window.WAPI._newMessagesListener = window.Store.Msg.on('add', (newMessage) => {
 
                 // Remove removable callbacks.
                 removeCallbacks.forEach(function (rmCallbackObj) {
-                    let callbackIndex = window.WAPI._newMessagesCallbacks.indexOf(rmCallbackObj);
-                    window.WAPI._newMessagesCallbacks.splice(callbackIndex, 1);
+                    let callbackIndex = window._WAPI._newMessagesCallbacks.indexOf(rmCallbackObj);
+                    window._WAPI._newMessagesCallbacks.splice(callbackIndex, 1);
                 });
             }, 1000);
         }
@@ -1171,13 +1169,13 @@ window.WAPI._newMessagesListener = window.Store.Msg.on('add', (newMessage) => {
 
 window.WAPI._unloadInform = (event) => {
     // Save in the buffer the ungot unreaded messages
-    window.WAPI._newMessagesBuffer.forEach((message) => {
+    window._WAPI._newMessagesBuffer.forEach((message) => {
         Object.keys(message).forEach(key => message[key] === undefined ? delete message[key] : '');
     });
-    sessionStorage.setItem("saved_msgs", JSON.stringify(window.WAPI._newMessagesBuffer));
+    sessionStorage.setItem("saved_msgs", JSON.stringify(window._WAPI._newMessagesBuffer));
 
     // Inform callbacks that the page will be reloaded.
-    window.WAPI._newMessagesCallbacks.forEach(function (callbackObj) {
+    window._WAPI._newMessagesCallbacks.forEach(function (callbackObj) {
         if (callbackObj.callback !== undefined) {
             callbackObj.callback({ status: -1, message: 'page will be reloaded, wait and register callback again.' });
         }
@@ -1195,7 +1193,7 @@ window.addEventListener("pageunload", window.WAPI._unloadInform, false);
  * @returns {boolean}
  */
 window.WAPI.waitNewMessages = function (rmCallbackAfterUse = true, callback) {
-    window.WAPI._newMessagesCallbacks.push({ callback, rmAfterUse: rmCallbackAfterUse });
+    window._WAPI._newMessagesCallbacks.push({ callback, rmAfterUse: rmCallbackAfterUse });
     return true;
 };
 
@@ -1419,8 +1417,8 @@ window.WAPI.onAddedToGroup = function(callback){
  * @returns {Array}
  */
 window.WAPI.getBufferedNewMessages = function () {
-    let bufferedMessages = window.WAPI._newMessagesBuffer;
-    window.WAPI._newMessagesBuffer = [];
+    let bufferedMessages = window._WAPI._newMessagesBuffer;
+    window._WAPI._newMessagesBuffer = [];
     return bufferedMessages;
 };
 /** End new messages observable functions **/
