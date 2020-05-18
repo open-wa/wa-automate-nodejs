@@ -140,7 +140,7 @@ export interface ConfigObject {
      */
     devtools ?: boolean | DevTools,
     /**
-     * Setting this to true will block any network calls to crash log servers. This should keep anything you do under the radar.
+     * Setting this to true will block any network calls to crash log servers. This should keep anything you do under the radar. default is true
      */
     blockCrashLogs ?: boolean,
     /**

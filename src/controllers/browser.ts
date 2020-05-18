@@ -24,7 +24,7 @@ export async function initClient(sessionId?: string, puppeteerConfigOverride?:an
     deviceScaleFactor: 1
   });
   const cacheEnabled = puppeteerConfigOverride&&puppeteerConfigOverride.cacheEnabled? puppeteerConfigOverride.cacheEnabled :true
-  const blockCrashLogs = puppeteerConfigOverride&&puppeteerConfigOverride.blockCrashLogs? puppeteerConfigOverride.blockCrashLogs :false;
+  const blockCrashLogs = puppeteerConfigOverride?.blockCrashLogs === false ? false : true;
   await waPage.setCacheEnabled(cacheEnabled);
   await waPage.setRequestInterception(true);
   waPage.on('request', interceptedRequest => {
