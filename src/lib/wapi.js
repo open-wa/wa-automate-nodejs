@@ -1444,7 +1444,7 @@ window.WAPI.joinGroupViaLink = async function(link){
     return group.id._serialized
 }
 
-window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, quotedMsg, waitForKey) {
+window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, quotedMsg, waitForKey, ptt) {
     if(!chatid.includes('@g')&&!chatid.includes('@c')) return false;
     let extras = {};
     if(quotedMsg){
@@ -1459,6 +1459,7 @@ window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, qu
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
         return await window.WAPI.procFiles(chat,mediaBlob).then(async mc => {
             var media = mc.models[0];
+            if(ptt) media.mediaPrep._mediaData.type = 'ptt';
             await media.sendToChat(chat, { caption,...extras });
             return waitForKey ? await new Promise(async (resolve,reject) => {
                 const cb = msg=>{
