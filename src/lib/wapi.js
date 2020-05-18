@@ -966,7 +966,7 @@ window.WAPI.getProfilePicFromId = async function (id) {
 };
 
 window.WAPI.downloadFileWithCredentials = async function (url) {
-    if(!axios) return false;
+    if(!axios || !url) return false;
     const ab = (await axios.get(url,{responseType: 'arraybuffer'})).data
     return btoa(new Uint8Array(ab).reduce((data, byte) => data + String.fromCharCode(byte), ''));
 };
@@ -1471,7 +1471,7 @@ window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, qu
 }
 
 /**
- * This function sts the profile name of the number. For future reference, setProfilePic is for profile pic,
+ * This function sts the profile name of the number.
  * @param newName - string the new name to set as profile name
  */
 window.WAPI.setMyName = async function (newName) {
@@ -2094,9 +2094,11 @@ window.WAPI.deleteAllStatus = function(){return false;}
 window.WAPI.getMyStatusArray = function(){return false;}
 window.WAPI.deleteStatus = function(){return false;}
 window.WAPI.setGroupToAdminsOnly = function(){return false;}
+window.WAPI.setGroupEditToAdminsOnly = function(){return false;}
 window.WAPI.postTextStatus = function(){return false;}
 window.WAPI.postImageStatus = function(){return false;}
 window.WAPI.postVideoStatus = function(){return false;}
+window.WAPI.onAddedToGroup = function(){return false;}
 
 window.WAPI.quickClean = function (ob) {return JSON.parse(JSON.stringify(ob))};
 

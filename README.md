@@ -90,15 +90,17 @@ With the constant updates from WA. It is advisable to always use the latest vers
 
 ### Insiders Program
 
-open-wa is at the forefront of open source WA development. Some new features will be initially released through the insiders program and then released for general availability (GA) the following month. The following features are currently for insiders:
+open-wa is at the forefront of open source WA developmentand runs on donations from backers. To encourage donations, backers have access to exclusive features with an [Insiders Program license key](https://gumroad.com/l/BTMt?tier=Insiders%20Program).
 
 
-| Function                          | Description | GA Release Date |
-| --------------------------------- | ----------- | ----------- |
-| [`setGroupToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#setGroupToAdminsOnly)                   | Changes group setting so only admins can send messages            | 31st May 2020|
-| [`setGroupEditToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#setGroupEditToAdminsOnly)                   | Changes group setting so only admins can edit group info            | 31st May 2020|
+| Function                          | Description |
+| --------------------------------- | ----------- |
+| [`setGroupToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#setGroupToAdminsOnly)                   | Changes group setting so only admins can send messages            |
+| [`setGroupEditToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#setGroupEditToAdminsOnly)                   | Changes group setting so only admins can edit group info            |
+| [`setProfilePic`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#setProfilePic)                   | Change the host phones profile picture           |
+| [`onRemovedFromGroup`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#onRemovedFromGroup)                   | Detecet when host phone is removed from a group           |
 
-[Insiders need a license key.](https://github.com/open-wa/wa-automate-nodejs#license-key)
+[Learn more about license keys.](https://github.com/open-wa/wa-automate-nodejs#license-key)
 
 ## Starting a conversation
 
@@ -155,7 +157,6 @@ Notes:
 - You can use multiple license keys for each number.
 - Apart from adding your licenseKey to your config, you will need to change nothing else in your code.
 - An added benefit for members is priority on issues.
-- License Keys for the insiders program expire after a month when the feature becomes GA.
 - License Key request may be rejected.
 
 

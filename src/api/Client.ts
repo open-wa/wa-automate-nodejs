@@ -72,6 +72,7 @@ declare module WAPI {
   const getMessageById: (mesasgeId: string) => Message;
   const setMyName: (newName: string) => void;
   const setMyStatus: (newStatus: string) => void;
+  const setProfilePic: (data: string) => Promise<boolean>;
   const setPresence: (available: boolean) => void;
   const getStatus: (contactId: string) => void;
   const forceUpdateLiveLocation: (chatId: string) => Promise<LiveLocationChangedEvent []> | boolean;
@@ -456,6 +457,26 @@ export class Client {
       ));
   }
   
+
+  /**
+   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * @event Fires callback with Chat object every time the host phone is added to a group.
+   * @param to callback
+   * @returns Observable stream of Chats
+   */
+  public onRemovedFromGroup(fn: (chat: Chat) => any) {
+    const funcName = "onRemovedFromGroup";
+    return this.page.exposeFunction(funcName, (chat: any) =>
+      fn(chat)
+    )
+      .then(_ => this.page.evaluate(
+        () => {
+        //@ts-ignore
+          WAPI.onRemovedFromGroup(window.onRemovedFromGroup);
+        }
+      ));
+  }
+
 
   /**
    * Sends a text message to given chat
@@ -1461,6 +1482,7 @@ public async getStatus(contactId: string) {
   }
 
   /**
+   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
   * Change who can and cannot edit a groups details
   * @param groupId '0000000000-00000000@g.us' the group id.
   * @param onlyAdmins boolean set to true if you want only admins to be able to speak in this group. false if you want to allow everyone to speak in the group
@@ -1474,6 +1496,7 @@ public async getStatus(contactId: string) {
 }
 
   /**
+   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
   * Get Admins of a Group
   * @param {*} idGroup '0000000000-00000000@g.us'
   */
@@ -1636,8 +1659,21 @@ public async getStatus(contactId: string) {
    * @returns base64 string (non-data uri)
    */
   public async downloadFileWithCredentials(url: string){
+    if(!url) throw new Error('Missing URL');
     return await this.page.evaluate(({ url }) => WAPI.downloadFileWithCredentials(url),{url});
   }
+  
+
+  /**
+   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * Sets the profile pic of the host number.
+   * @param data string data uri image string.
+   * @returns Promise<boolean> success if true
+   */
+  public async setProfilePic(data: string){
+    return await this.page.evaluate(({ data }) => WAPI.setProfilePic(data),{data});
+  }
+
 }
 
 export { useragent } from '../config/puppeteer.config'
