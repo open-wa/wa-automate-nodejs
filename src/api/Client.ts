@@ -376,7 +376,7 @@ export class Client {
   public async forceRefocus() {
     //255 is the address of 'use here'
     //@ts-ignore
-    const useHere: string = await this.page.evaluate(() => { return window.l10n.localeStrings[window.l10n._locale.l][0][window.l10n.localeStrings['en']?.[0].findIndex((x:string)=>x.toLowerCase()=='use here') || 260] });
+    const useHere: string = await this.page.evaluate(() => { return window.l10n.localeStrings[window.l10n._locale.l][0][window.l10n.localeStrings['en']?.[0].findIndex((x:string)=>x.toLowerCase()=='use here') || 272] });
     await this.page.waitForFunction(
       `[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML.toLowerCase()==="${useHere.toLowerCase()}"})`,
       { timeout: 0 }
