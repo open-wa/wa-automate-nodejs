@@ -98,7 +98,7 @@ open-wa is at the forefront of open source WA developmentand runs on donations f
 | [`setGroupToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#setGroupToAdminsOnly)                   | Changes group setting so only admins can send messages            |
 | [`setGroupEditToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#setGroupEditToAdminsOnly)                   | Changes group setting so only admins can edit group info            |
 | [`setProfilePic`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#setProfilePic)                   | Change the host phones profile picture           |
-| [`onRemovedFromGroup`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#onRemovedFromGroup)                   | Detecet when host phone is removed from a group           |
+| [`onRemovedFromGroup`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#onRemovedFromGroup)                   | Detect when host phone is removed from a group           |
 
 [Learn more about license keys.](https://github.com/open-wa/wa-automate-nodejs#license-key)
 
@@ -125,8 +125,8 @@ For now the process happens through [Gumroad](https://gumroad.com/l/BTMt)
 How to get an License key:
 
 1. Go to [Gumroad](https://gumroad.com/l/BTMt).
-2. Click on the type of license you require, in this case you will need `1 Restricted License Key`.
-3. In the checkout the phone number you want to assign to the License Key, along with the use case for this functionality and your github username. Please note, with this new system you'll only be able to change the number once.
+2. Click on the type of license you require.
+3. In the checkout, ***enter the host phone number you want to assign to the License Key (the one you will be using with open-wa, not your personal number)*** , along with the use case for this functionality and your github username. Please note, with this new system you'll only be able to change the number once.
 4. Complete the checkout process.
 5. You will instantly receive your License key on the screen and in your email.
 
@@ -154,11 +154,10 @@ Notes:
 
 - You can change the number assigned to a specific License Key once.
 - In order to cancel your License Key, simply stop your membership.
-- You can use multiple license keys for each number.
+- You can use multiple license keys for each host number.
 - Apart from adding your licenseKey to your config, you will need to change nothing else in your code.
 - An added benefit for members is priority on issues.
-- License Key request may be rejected.
-
+- License Key requests may be rejected.
 
 ## Running the demo
 
@@ -544,7 +543,7 @@ If you want to kill the process after a certain amount of seconds due to an unsc
 
 ```javascript
 create({
-  qrTimeout: 30 //kills the session if the QR code is not scanned within 30 seconds.
+  qrTimeout: 30, //kills the session if the QR code is not scanned within 30 seconds.
   authTimeout: 30 //kills the session if the session hasn't authentication 30 seconds (e.g If the session has the right credentials but the phone is off).
 })
 .then(client => start(client));
@@ -650,6 +649,8 @@ Since this is not an officially sanctioned solution it is temperamental to say t
 9. ```await``` all @open-wa/wa-automate methods just in case
 10. Do not run your s@open-wa/wa-automate instance on a Windows machine.
 11. Always [kill the session safely](https://github.com/open-wa/wa-automate-nodejs#kill-the-session) upon error or SIGINT.
+12. Regularly restart your process to manage memory consumption
+13. If memory leaks continue to be an issue then use `cacheEnabled:false` in the config to disable the cache on the page.
 
 ```javascript
 import { create, Client} from '@open-wa/wa-automate';
@@ -666,7 +667,7 @@ const proc = async message => {
     return true;
 }
 
-const processMessage = message => queue.add(proc(message));
+const processMessage = message => queue.add(()=>proc(message));
 
 async function start(client: Client) {
   const unreadMessages = await client.getAllUnreadMessages();
@@ -689,6 +690,7 @@ create({
   // executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
   headless: false,
   autoRefresh:true,
+  cacheEnabled:false,
   customUserAgent: 'some custom user agent'
 })
 .then(client => start(client));
