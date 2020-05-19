@@ -106,6 +106,10 @@ export interface ConfigObject {
      */
     sessionData ?: SessionData,
     /**
+     * The path relative to the current working directory (i.e where you run the command to start your process). This will be used to store and read your `.data.json` files. defualt to ''
+     */
+    sessionDataPath ?: string,
+    /**
      * This allows you to pass any array of custom chrome/chromium argument strings to the puppeteer instance.
      * You can find all possible arguements [here](https://peter.sh/experiments/chromium-command-line-switches/).
      */

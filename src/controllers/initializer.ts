@@ -157,7 +157,7 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
       const localStorage = JSON.parse(await waPage.evaluate(() => {
         return JSON.stringify(window.localStorage);
       }));
-      const sessionjsonpath = path.join(process.cwd(), `${sessionId || 'session'}.data.json`);
+      const sessionjsonpath = path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
       const sessionData = {
         WABrowserId: localStorage.WABrowserId,
         WASecretBundle: localStorage.WASecretBundle,

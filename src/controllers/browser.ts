@@ -39,7 +39,7 @@ export async function initClient(sessionId?: string, puppeteerConfigOverride?:an
   }
   );
   //check if [session].json exists in __dirname
-  const sessionjsonpath = path.join(process.cwd(), `${sessionId || 'session'}.data.json`);
+  const sessionjsonpath = path.join(path.resolve(process.cwd(),puppeteerConfigOverride?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
   let sessionjson = puppeteerConfigOverride?.sessionData;
   if (fs.existsSync(sessionjsonpath)) sessionjson = JSON.parse(fs.readFileSync(sessionjsonpath));
   if(sessionjson) await waPage.evaluateOnNewDocument(
