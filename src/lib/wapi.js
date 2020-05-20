@@ -750,7 +750,7 @@ window.WAPI.sendMessageWithMentions = async function (ch, body) {
     if(!msgIveSent) return chat.sendMessage(body);
     var tempMsg = Object.create(msgIveSent);
     var newId = window.WAPI.getNewMessageId(chatId);
-    var mentionedJidList = body.match(/@(\d*)/g).filter(x=>x.length>5).map(x=>new Store.WidFactory.createUserWid(x.replace("@",""))) || undefined;
+    var mentionedJidList = body.match(/@(\d*)/g).filter(x=>x.length>5).map(x=>Store.Contact.get(x.replace("@","")+"@c.us") ? new Store.WidFactory.createUserWid(x.replace("@","")) : '') || undefined;
     var extend = {
         ack: 0,
         id: newId,
