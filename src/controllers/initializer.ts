@@ -179,11 +179,6 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
       });
 
       if (config?.skipBrokenMethodsCheck !== true) await integrityCheck(waPage, notifier, spinner, debugInfo);
-
-      //@ts-ignore
-      const LANG_CHECK = await waPage.evaluate(() => { if (window.l10n.localeStrings['en']) return window.l10n.localeStrings['en'][0].findIndex((x) => x.toLowerCase() == 'use here') == 272; else return false; })
-      if (!LANG_CHECK && !notifier.update) console.log('Some language based features (e.g forceRefocus) are broken. Please report this in Github.');
-
       const client = new Client(waPage);
       if (config?.licenseKey) {
         spinner.start('Checking License')
