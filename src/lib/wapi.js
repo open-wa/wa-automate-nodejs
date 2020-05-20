@@ -2089,6 +2089,15 @@ window.WAPI.getLastSeen = async function (id) {
     return presence.chatstate.t;
   }
 
+window.WAPI.getUseHereString = async function() { 
+    if (!window.l10n.localeStrings['en']){
+    const originalLocale = window.l10n.getLocale();
+    await window.l10n.init('en');
+    await window.l10n.init(originalLocale)
+  } 
+  return window.l10n.localeStrings[window.l10n.getLocale()][0][window.l10n.localeStrings.en[0].findIndex(x=>x.toLowerCase()==='use here')]
+ }
+
 window.WAPI.getStoryStatusByTimeStamp = function(){return false;}
 window.WAPI.deleteAllStatus = function(){return false;}
 window.WAPI.getMyStatusArray = function(){return false;}
