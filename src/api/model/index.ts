@@ -110,6 +110,10 @@ export interface ConfigObject {
      */
     sessionDataPath ?: string,
     /**
+     * Disable cors see: https://pptr.dev/#?product=Puppeteer&version=v3.0.4&show=api-pagesetbypasscspenabled If you are having an issue with sending media try to set this to true. Otherwise leave it set to falsedefualt to false
+     */
+    bypassCSP ?: boolean,
+    /**
      * This allows you to pass any array of custom chrome/chromium argument strings to the puppeteer instance.
      * You can find all possible arguements [here](https://peter.sh/experiments/chromium-command-line-switches/).
      */
