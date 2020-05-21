@@ -25,7 +25,7 @@ export async function initClient(sessionId?: string, config?:any, customUserAgen
   });
   const cacheEnabled = config?.cacheEnabled === false ? false : true;
   const blockCrashLogs = config?.blockCrashLogs === false ? false : true;
-  await waPage.setBypassCSP(config?.bypassCSP);
+  await waPage.setBypassCSP(config?.bypassCSP || false);
   await waPage.setCacheEnabled(cacheEnabled);
   await waPage.setRequestInterception(true);
   waPage.on('request', interceptedRequest => {

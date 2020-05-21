@@ -54,10 +54,12 @@ export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, auto
   }
   let targetElementFound;
   while (!targetElementFound) {
-    targetElementFound = await waPage.waitForSelector( "canvas[aria-label='Scan me!']",{
-      timeout: 10000,
-      visible: true,
-      });
+    try {
+      targetElementFound = await waPage.waitForSelector( "canvas[aria-label='Scan me!']",{
+        timeout: 10000,
+        visible: true,
+        });
+    } catch(error) {}
   }
   let qrData;
   while(!qrData){
