@@ -2118,6 +2118,7 @@ window.WAPI.postImageStatus = function(){return false;}
 window.WAPI.postVideoStatus = function(){return false;}
 window.WAPI.onAddedToGroup = function(){return false;}
 window.WAPI.sendReplyWithMentions = function(){return false;}
+window.WAPI.clearAllChats = function(){return false;}
 
 window.WAPI.quickClean = function (ob) {return JSON.parse(JSON.stringify(ob))};
 

@@ -145,6 +145,7 @@ declare module WAPI {
   const getAllChats: () => any;
   const getBatteryLevel: () => number;
   const getIsPlugged: () => boolean;
+  const clearAllChats: () => Promise<boolean>;
   const getChat: (contactId: string) => Chat;
   const getLastSeen: (contactId: string) => Promise<number | boolean>;
   const getProfilePicFromServer: (chatId: string) => any;
@@ -1669,6 +1670,15 @@ public async getStatus(contactId: string) {
   public async getMyStatusArray() {
     return await this.page.evaluate(() => WAPI.getMyStatusArray());
   }
+
+    /**
+     * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+     * Clears all chats of all messages. This does not delete chats. Please be careful with this as it will remove all messages from whatsapp web and the host device. This feature is great for privacy focussed bots.
+     */
+  public async clearAllChats() {
+    return await this.page.evaluate(() => WAPI.clearAllChats());
+  }
+  
   /**
    * Download profile pics from the message object.
    * ```javascript
