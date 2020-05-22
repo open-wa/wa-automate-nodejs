@@ -12,10 +12,16 @@ const spinner = {
     "🌗 ",
     "🌘 "
   ]}
-
 export const ev = new EventEmitter2({
   wildcard:true,
 });
+let globalSpinner;
+
+
+const getGlobalSpinner = (disableSpins: boolean = false) => {
+  if(!globalSpinner) globalSpinner = new Spinnies({ color: 'blue', succeedColor: 'green', spinner, disableSpins});
+  return globalSpinner;
+}
 
 export class EvEmitter {
 
@@ -35,31 +41,33 @@ export class EvEmitter {
 
 export class Spin extends EvEmitter{
   _spinner : Spinnies.Spinner;
+  _shouldEmit: boolean;
 
-  constructor(sessionId: string, eventNamespace: string, disableSpins: boolean = false){
+  constructor(sessionId: string, eventNamespace: string, disableSpins: boolean = false, shouldEmit:boolean = true){
     super(sessionId,eventNamespace);
-    this._spinner = new Spinnies({ color: 'blue', succeedColor: 'green', spinner, disableSpins});
+    this._spinner = getGlobalSpinner(disableSpins);
+    this._shouldEmit = shouldEmit
   }
   
   
   start(eventMessage:string){
     this._spinner.add(this.sessionId, { text: eventMessage });
-    this.emit(eventMessage);
+    if(this._shouldEmit) this.emit(eventMessage);
   }
 
   info(eventMessage:string){
     this._spinner.update(this.sessionId, { text: eventMessage });
-    this.emit(eventMessage);
+    if(this._shouldEmit) this.emit(eventMessage);
   }
 
   fail(eventMessage:string){
     this._spinner.fail(this.sessionId, { text: eventMessage });
-    this.emit(eventMessage);
+    if(this._shouldEmit) this.emit(eventMessage);
   }
   
   succeed(eventMessage ?: string){
     this._spinner.succeed(this.sessionId, { text: eventMessage });
-    this.emit(eventMessage||'SUCCESS');
+    if(this._shouldEmit) this.emit(eventMessage||'SUCCESS');
   }
 
   remove() {
