@@ -42,7 +42,7 @@ export async function initClient(sessionId?: string, config?:any, customUserAgen
   );
   //check if [session].json exists in __dirname
   const sessionjsonpath = path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
-  let sessionjson = config?.sessionData;
+  let sessionjson = process.env[`${sessionId.toUpperCase()}_DATA_JSON`] ? JSON.parse(process.env[`${sessionId.toUpperCase()}_DATA_JSON`]) : config?.sessionData;
   if (fs.existsSync(sessionjsonpath)) sessionjson = JSON.parse(fs.readFileSync(sessionjsonpath));
   if(sessionjson) await waPage.evaluateOnNewDocument(
     session => {
