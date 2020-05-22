@@ -2107,6 +2107,7 @@ window.WAPI.getUseHereString = async function() {
   return window.l10n.localeStrings[window.l10n.getLocale()][0][window.l10n.localeStrings.en[0].findIndex(x=>x.toLowerCase()==='use here')]
  }
 
+//All of the following features can be unlocked using a license key: https://github.com/open-wa/wa-automate-nodejs#license-key
 window.WAPI.getStoryStatusByTimeStamp = function(){return false;}
 window.WAPI.deleteAllStatus = function(){return false;}
 window.WAPI.getMyStatusArray = function(){return false;}
@@ -2116,7 +2117,7 @@ window.WAPI.setGroupEditToAdminsOnly = function(){return false;}
 window.WAPI.postTextStatus = function(){return false;}
 window.WAPI.postImageStatus = function(){return false;}
 window.WAPI.postVideoStatus = function(){return false;}
-window.WAPI.onAddedToGroup = function(){return false;}
+window.WAPI.onRemovedFromGroup = function(){return false;}
 window.WAPI.sendReplyWithMentions = function(){return false;}
 window.WAPI.clearAllChats = function(){return false;}
 window.WAPI.getCommonGroups = function(){return false;}
