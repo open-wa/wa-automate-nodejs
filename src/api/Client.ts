@@ -1674,7 +1674,64 @@ public async getStatus(contactId: string) {
   }
 
   /**
-   * The requests will be 
+   * This exposes a simple express middlware that will allow users to quickly boot up an api based off this client. Checkout demo/index.ts for an example
+   * How to use the middleware:
+   * 
+   * ```javascript
+   * 
+   * import { create } from '@open-wa/wa-automate';
+   * const express = require('express')
+   * const app = express()
+   * app.use(express.json())
+   * const PORT = 8082;
+   * 
+   * function start(client){
+   *   app.use(client.middleware);
+   *   app.listen(PORT, function () {
+   *     console.log(`\n• Listening on port ${PORT}!`);
+   *   });
+   *   ...
+   * }
+   * 
+   * 
+   * create({
+   *   sessionId:'session1'
+   * }).then(start)
+   * 
+   * ```
+   * 
+   * All requests need to be `POST` requests. You use the API the same way you would with `client`. The method can be the path or the method param in the post body. The arguments for the method should be properly ordered in the args array in the JSON post body.
+   * 
+   * Example:
+   * 
+   * ```javascript
+   *   await client.sendText('4477777777777@c.us','test')
+   *   //returns "true_4477777777777@c.us_3EB0645E623D91006252"
+   * ```
+   * as a request with a path:
+   * 
+   * ```javascript
+   * const axios = require('axios').default;
+   * axios.post('localhost:8082/sendText', {
+   *     args: [
+   *        "4477777777777@c.us",    
+   *        "test"    
+   *         ]
+   *   })
+   * ```
+   * 
+   * or as a request without a path:
+   * 
+   * ```javascript
+   * const axios = require('axios').default;
+   * axios.post('localhost:8082', {
+   *     method:'sendText',
+   *     args: [
+   *        "4477777777777@c.us",    
+   *        "test"   
+   *         ]
+   * })
+   * ```
    */
   middleware = async (req,res,next) => {
     if(req.method==='POST') {
