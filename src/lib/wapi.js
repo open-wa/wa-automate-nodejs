@@ -826,7 +826,7 @@ window.WAPI.sendMessage2 = function (id, message) {
 window.WAPI.sendSeen = async function (id) {
     var chat = window.WAPI.getChat(id);
     if (chat !== undefined) {
-            await Store.ReadSeen.SendSeen(chat, false);
+            await Store.ReadSeen.sendSeen(chat, false);
             return true;
     }
     return false;
