@@ -76,6 +76,7 @@ declare module WAPI {
   const setProfilePic: (data: string) => Promise<boolean>;
   const setPresence: (available: boolean) => void;
   const getStatus: (contactId: string) => void;
+  const getCommonGroups: (contactId: string) => Promise<{id:string,title:string}[]>;
   const forceUpdateLiveLocation: (chatId: string) => Promise<LiveLocationChangedEvent []> | boolean;
   const setGroupIcon: (groupId: string, imgData: string) => Promise<boolean>;
   const getGroupAdmins: (groupId: string) => Promise<Contact[]>;
@@ -1129,6 +1130,21 @@ public async contactUnblock(id: string) {
   public async getChat(contactId: string) {
     return await this.page.evaluate(
       contactId => WAPI.getChat(contactId),
+      contactId
+    );
+  }
+
+  /**
+   * Retrieves the groups that you have in common with a contact
+   * @param contactId
+   * @returns Promise returning an array of common groups {
+   * id:string,
+   * title:string
+   * }
+   */
+  public async getCommonGroups(contactId: string) {
+    return await this.page.evaluate(
+      contactId => WAPI.getCommonGroups(contactId),
       contactId
     );
   }
