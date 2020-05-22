@@ -1673,6 +1673,26 @@ public async getStatus(contactId: string) {
     return await this.page.evaluate(({ data }) => WAPI.setProfilePic(data),{data});
   }
 
+  /**
+   * The requests will be 
+   */
+  middleware = async (req,res,next) => {
+    if(req.method==='POST') {
+      let {method,args} = req.body
+      if(!args) args = [];
+      const m = method || req.path.replace('/','');
+      if(this[m]){
+        const response = await this[m](...args);
+        return res.send({
+          success:true,
+          response
+        })
+      }
+      return res.status(404).send('Cannot find method')
+    }
+    return next();
+  }
+
 }
 
 export { useragent } from '../config/puppeteer.config'
