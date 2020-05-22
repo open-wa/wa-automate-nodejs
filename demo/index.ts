@@ -8,6 +8,13 @@ const uaOverride = 'WhatsApp/2.16.352 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_
 const tosBlockGuaranteed = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/79.0.3945.88 Safari/537.36";
 const ON_DEATH = require('death');
 let globalClient:Client;
+const express = require('express')
+
+const app = express()
+app.use(express.json())
+
+const PORT = 8082;
+
 
 ON_DEATH(async function(signal, err) {
   console.log('killing session');
@@ -36,6 +43,12 @@ ev.on('sessionData.**', async (sessionData, sessionId) =>{
 })
 
 async function start(client: Client) {
+  app.use(client.middleware);
+
+app.listen(PORT, function () {
+  console.log(`\n• Listening on port ${PORT}!`);
+});
+
   globalClient=client;
   console.log('starting');
   const me = await client.getMe();
