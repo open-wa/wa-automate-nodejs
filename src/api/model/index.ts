@@ -103,11 +103,14 @@ export interface ConfigObject {
      *      })
      * ```
      *  NOTE: You can set sessionData as an evironmental variable also! The variable name has to be [sessionId (default = 'session) in all caps]_DATA_JSON. You have to make sure to surround your session data with single quotes to maintain the formatting.
+     * 
      * For example:
+     * 
      * sessionId = 'session'
+     * 
      * To set env var:
      * ```bash
-     *    export SESSION1_DATA_JSON=`...`
+     *    export SESSION_DATA_JSON=`...`
      * ```
      * where ... is copied from session.data.json
      * Again - YOU NEED THE ' as it maintains the formatting from the json file. Otherwise it will not work.
