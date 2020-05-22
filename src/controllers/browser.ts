@@ -8,6 +8,7 @@ puppeteer.use(StealthPlugin());
 import { puppeteerConfig, useragent, width, height} from '../config/puppeteer.config';
 //@ts-ignore
 import { Browser, Page } from '@types/puppeteer';
+import { Spin } from './events';
 const ON_DEATH = require('death'); //this is intentionally ugly
 let browser;
 
@@ -67,11 +68,29 @@ export async function injectApi(page: Page) {
 }
 
 async function initBrowser(sessionId?: string, config:any={}) {
-
   if(config?.useChrome) {
     config.executablePath = ChromeLauncher.Launcher.getInstallations()[0];
     // console.log('\nFound chrome', config.executablePath)
   }
+
+  if(config?.browserRevision) {
+    const browserFetcher = puppeteer.createBrowserFetcher();
+    const browserDownloadSpinner = new Spin(sessionId+'_browser', 'Browser',false,false);
+    try {
+      browserDownloadSpinner.start('Downloading browser revision: ' + config.browserRevision);
+      const revisionInfo = await browserFetcher.download('737027', function(downloadedBytes,totalBytes){
+      browserDownloadSpinner.info(`Downloading Browser: ${Math.round(downloadedBytes/1000000)}/${Math.round(totalBytes/1000000)}`);
+      });
+      if(revisionInfo.executablePath) {
+        config.executablePath = revisionInfo.executablePath;
+        // config.pipe = true;
+      }
+      browserDownloadSpinner.succeed('Browser downloaded successfully');
+    } catch (error){
+      browserDownloadSpinner.succeed('Something went wrong while downloading the browser');
+    }
+  }
+  
   if(config?.proxyServerCredentials?.address) puppeteerConfig.chromiumArgs.push(`--proxy-server=${config.proxyServerCredentials.address}`)
   const browser = await puppeteer.launch({
     headless: true,
@@ -104,5 +123,4 @@ async function getWAPage(browser: Browser) {
 ON_DEATH(async (signal, err) => {
   //clean up code here
   if (browser) await browser.close();
-  console.log('broswerclosed')
 });
