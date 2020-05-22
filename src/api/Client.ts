@@ -60,6 +60,7 @@ declare module WAPI {
   const sendMessage: (to: string, content: string) => Promise<string>;
   const downloadFileWithCredentials: (url: string) => Promise<string>;
   const sendMessageWithMentions: (to: string, content: string) => Promise<string>;
+  const sendReplyWithMentions: (to: string, content: string, replyMessageId: string) => Promise<string>;
   const postTextStatus: (text: string, textRgba: string, backgroundRgba: string, font: string) => Promise<string | boolean>;
   const postImageStatus: (data: string, caption: string) => Promise<string | boolean>;
   const postVideoStatus: (data: string, caption: string) => Promise<string | boolean>;
@@ -510,6 +511,26 @@ export class Client {
         return WAPI.sendMessageWithMentions(to, content);
       },
       { to, content }
+    );
+  }
+
+  /**
+   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * Sends a reply to given chat that includes mentions, replying to the provided replyMessageId.
+   * In order to use this method correctly you will need to send the text like this:
+   * "@4474747474747 how are you?"
+   * Basically, add a @ symbol before the number of the contact you want to mention.
+   * @param to chat id: xxxxx@us.c
+   * @param content text message
+   * @param replyMessageId id of message to reply to
+   */
+  public async sendReplyWithMentions(to: string, content: string, replyMessageId: string) {
+    return await this.page.evaluate(
+      ({ to, content, replyMessageId }) => {
+        WAPI.sendSeen(to);
+        return WAPI.sendReplyWithMentions(to, content, replyMessageId);
+      },
+      { to, content, replyMessageId }
     );
   }
 
