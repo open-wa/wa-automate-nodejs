@@ -87,6 +87,7 @@ declare module WAPI {
   const sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => Promise<any>;
   const createGroup: (groupName: string, contactId: string|string[]) => Promise<any>;
   const sendSeen: (to: string) => Promise<boolean>;
+  const markAsUnread: (to: string) => Promise<boolean>;
   const isChatOnline: (id: string) => Promise<boolean>;
   const sendLinkWithAutoPreview: (to: string,url: string,text: string) => Promise<boolean>;
   const contactBlock: (id: string) => Promise<boolean>;
@@ -1146,6 +1147,18 @@ public async contactUnblock(id: string) {
   public async sendSeen(chatId: string) {
     return await this.page.evaluate(
      chatId => WAPI.sendSeen(chatId),
+      chatId
+    );
+  }
+
+  
+  /**
+   * Sets a chat status to unread. May be useful to get host's attention
+   * @param chatId chat id: xxxxx@us.c
+   */
+  public async markAsUnread(chatId: string) {
+    return await this.page.evaluate(
+     chatId => WAPI.markAsUnread(chatId),
       chatId
     );
   }

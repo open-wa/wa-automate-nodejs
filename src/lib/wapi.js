@@ -30,7 +30,7 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "OpenChat", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.openChat) ? module.default : null },
                 { id: "UserConstructor", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.isServer && module.default.prototype.isUser) ? module.default : null },
                 { id: "SendTextMsgToChat", conditions: (module) => (module.sendTextMsgToChat) ? module.sendTextMsgToChat : null },
-                { id: "SendSeen", conditions: (module) => (module.sendSeen) ? module.sendSeen : null },
+                { id: "ReadSeen", conditions: (module) => (module.sendSeen) ? module : null },
                 { id: "sendDelete", conditions: (module) => (module.sendDelete) ? module.sendDelete : null },
                 { id: "addAndSendMsgToChat", conditions: (module) => (module.addAndSendMsgToChat) ? module.addAndSendMsgToChat : null },
                 { id: "sendMsgToChat", conditions: (module) => (module.sendMsgToChat) ? module.sendMsgToChat : null },
@@ -826,7 +826,16 @@ window.WAPI.sendMessage2 = function (id, message) {
 window.WAPI.sendSeen = async function (id) {
     var chat = window.WAPI.getChat(id);
     if (chat !== undefined) {
-            await Store.SendSeen(chat, false);
+            await Store.ReadSeen.SendSeen(chat, false);
+            return true;
+    }
+    return false;
+};
+
+window.WAPI.markAsUnread = async function (id) {
+    var chat = window.WAPI.getChat(id);
+    if (chat !== undefined) {
+            await Store.ReadSeen.markUnread(chat, true);
             return true;
     }
     return false;
