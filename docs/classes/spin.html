@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Spin | @open-wa/wa-automate - v1.9.35</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v1.9.35">
+	<title>Spin | @open-wa/wa-automate - v1.9.36</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v1.9.36">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 </head>
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v1.9.35</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v1.9.36</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -92,6 +92,7 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="spin.html#_shouldemit" class="tsd-kind-icon">_should<wbr>Emit</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="spin.html#_spinner" class="tsd-kind-icon">_spinner</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="spin.html#eventnamespace" class="tsd-kind-icon">event<wbr>Namespace</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="spin.html#sessionid" class="tsd-kind-icon">session<wbr>Id</a></li>
@@ -117,14 +118,14 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Spin<span class="tsd-signature-symbol">(</span>sessionId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, eventNamespace<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, disableSpins<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="spin.html" class="tsd-signature-type">Spin</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Spin<span class="tsd-signature-symbol">(</span>sessionId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, eventNamespace<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, disableSpins<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, shouldEmit<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="spin.html" class="tsd-signature-type">Spin</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides <a href="evemitter.html">EvEmitter</a>.<a href="evemitter.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/5945f50/src/controllers/events.ts#L37">controllers/events.ts:37</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/controllers/events.ts#L44">controllers/events.ts:44</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -138,6 +139,9 @@
 								<li>
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> disableSpins: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></h5>
 								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> shouldEmit: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="spin.html" class="tsd-signature-type">Spin</a></h4>
 						</li>
@@ -147,12 +151,22 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="_shouldemit" class="tsd-anchor"></a>
+					<h3>_should<wbr>Emit</h3>
+					<div class="tsd-signature tsd-kind-icon">_should<wbr>Emit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/controllers/events.ts#L44">controllers/events.ts:44</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="_spinner" class="tsd-anchor"></a>
 					<h3>_spinner</h3>
 					<div class="tsd-signature tsd-kind-icon">_spinner<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Spinnies.Spinner</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/5945f50/src/controllers/events.ts#L37">controllers/events.ts:37</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/controllers/events.ts#L43">controllers/events.ts:43</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -163,7 +177,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="evemitter.html">EvEmitter</a>.<a href="evemitter.html#eventnamespace">eventNamespace</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/5945f50/src/controllers/events.ts#L23">controllers/events.ts:23</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/controllers/events.ts#L29">controllers/events.ts:29</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -174,7 +188,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="evemitter.html">EvEmitter</a>.<a href="evemitter.html#sessionid">sessionId</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/5945f50/src/controllers/events.ts#L22">controllers/events.ts:22</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/controllers/events.ts#L28">controllers/events.ts:28</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -192,7 +206,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="evemitter.html">EvEmitter</a>.<a href="evemitter.html#emit">emit</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/5945f50/src/controllers/events.ts#L30">controllers/events.ts:30</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/controllers/events.ts#L36">controllers/events.ts:36</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -218,7 +232,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/5945f50/src/controllers/events.ts#L55">controllers/events.ts:55</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/controllers/events.ts#L63">controllers/events.ts:63</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -241,7 +255,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/5945f50/src/controllers/events.ts#L50">controllers/events.ts:50</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/controllers/events.ts#L58">controllers/events.ts:58</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -264,7 +278,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/5945f50/src/controllers/events.ts#L65">controllers/events.ts:65</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/controllers/events.ts#L73">controllers/events.ts:73</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -281,7 +295,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/5945f50/src/controllers/events.ts#L45">controllers/events.ts:45</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/controllers/events.ts#L53">controllers/events.ts:53</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -304,7 +318,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/5945f50/src/controllers/events.ts#L60">controllers/events.ts:60</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/controllers/events.ts#L68">controllers/events.ts:68</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -336,6 +350,9 @@
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
 								<a href="spin.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="spin.html#_shouldemit" class="tsd-kind-icon">_should<wbr>Emit</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="spin.html#_spinner" class="tsd-kind-icon">_spinner</a>

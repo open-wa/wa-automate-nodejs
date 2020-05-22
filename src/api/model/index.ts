@@ -156,6 +156,14 @@ export interface ConfigObject {
      */
     cacheEnabled ?: boolean,
     /**
+     * This is the specific browser revision to be downlaoded and used. You can find browser revision strings here: http://omahaproxy.appspot.com/
+     * Learn more about it here: https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-browserfetcher
+     * If you're having trouble with sending images, try '737027'.
+     * If you go too far back things will start breaking !!!!!!
+     * NOTE: THIS WILL OVERRIDE useChrome and executablePath. ONLY USE THIS IF YOU KNOW WHAT YOU ARE DOING.
+     */
+    browserRevision ?: string,
+    /**
      * Setting this to true will throw an error if a session is not able to get a QR code or is unable to restart a session.
      */
     throwErrorOnTosBlock ?: boolean,
