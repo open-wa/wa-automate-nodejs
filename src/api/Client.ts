@@ -55,6 +55,7 @@ declare module WAPI {
   const onAddedToGroup: (callback: Function) => any;
   const onBattery: (callback: Function) => any;
   const onPlugged: (callback: Function) => any;
+  const setChatBackgroundColourHex: (hex: string) => boolean;
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const _onParticipantsChanged: (groupId: string, callback: Function) => any;
   const onLiveLocation: (chatId: string, callback: Function) => any;
@@ -1601,6 +1602,19 @@ public async getStatus(contactId: string) {
     return await this.page.evaluate(
       (idGroup) => WAPI.getGroupAdmins(idGroup),
       idGroup
+    );
+  }
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * 
+   * Set the wallpaper background colour
+   * @param {string} hex '#FFF123'
+  */
+  public async setChatBackgroundColourHex(hex: string) {
+    return await this.page.evaluate(
+      (hex) => WAPI.setChatBackgroundColourHex(hex),
+      hex
     );
   }
 

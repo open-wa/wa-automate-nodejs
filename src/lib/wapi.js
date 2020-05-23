@@ -2136,6 +2136,7 @@ window.WAPI.onContactAdded = function(){return false;}
 window.WAPI.sendReplyWithMentions = function(){return false;}
 window.WAPI.clearAllChats = function(){return false;}
 window.WAPI.getCommonGroups = function(){return false;}
+window.WAPI.setChatBackgroundColourHex = function(){return false;}
 
 window.WAPI.quickClean = function (ob) {return JSON.parse(JSON.stringify(ob))};
 
