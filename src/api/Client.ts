@@ -463,7 +463,8 @@ export class Client {
   
 
   /**
-   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * 
    * @event Fires callback with Chat object every time the host phone is added to a group.
    * @param to callback
    * @returns Observable stream of Chats
@@ -482,7 +483,8 @@ export class Client {
   }
 
   /**
-   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * 
    * @event Fires callback with contact id when a new contact is added on the host phone.
    * @param to callback
    * @returns Observable stream of contact ids
@@ -536,7 +538,8 @@ export class Client {
   }
 
   /**
-   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * 
    * Sends a reply to given chat that includes mentions, replying to the provided replyMessageId.
    * In order to use this method correctly you will need to send the text like this:
    * "@4474747474747 how are you?"
@@ -1559,7 +1562,8 @@ public async getStatus(contactId: string) {
   }
 
   /**
-   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * 
   * Change who can and cannot edit a groups details
   * @param groupId '0000000000-00000000@g.us' the group id.
   * @param onlyAdmins boolean set to true if you want only admins to be able to speak in this group. false if you want to allow everyone to speak in the group
@@ -1573,7 +1577,8 @@ public async getStatus(contactId: string) {
 }
 
   /**
-   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * 
   * Get Admins of a Group
   * @param {*} idGroup '0000000000-00000000@g.us'
   */
@@ -1637,7 +1642,8 @@ public async getStatus(contactId: string) {
   }
   
   /**
-   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=1%20Text%20Story%20License%20Key)
+   * [REQUIRES A TEST STORY LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * 
    * Sends a formatted text story.
    * @param text The text to be displayed in the story 
    * @param textRgba The colour of the text in the story in hex format, make sure to add the alpha value also. E.g "#FF00F4F2"
@@ -1659,7 +1665,8 @@ public async getStatus(contactId: string) {
   }
 
   /**
-   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=1%20Image%20Story%20License%20Key)
+   * [REQUIRES AN IMAGE STORY LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * 
    * Posts an image story.
    * @param data data uri string `data:[<MIME-type>][;charset=<encoding>][;base64],<data>`
    * @param caption The caption for the story 
@@ -1673,7 +1680,8 @@ public async getStatus(contactId: string) {
   }
 
   /**
-   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=1%20Video%20Story%20License%20Key)
+   * [REQUIRES A VIDEO STORY LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * 
    * Posts a video story.
    * @param data data uri string `data:[<MIME-type>][;charset=<encoding>][;base64],<data>`
    * @param caption The caption for the story 
@@ -1715,7 +1723,8 @@ public async getStatus(contactId: string) {
   }
 
     /**
-     * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+     * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+     * 
      * Clears all chats of all messages. This does not delete chats. Please be careful with this as it will remove all messages from whatsapp web and the host device. This feature is great for privacy focussed bots.
      */
   public async clearAllChats() {
@@ -1751,7 +1760,8 @@ public async getStatus(contactId: string) {
   
 
   /**
-   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * 
    * Sets the profile pic of the host number.
    * @param data string data uri image string.
    * @returns Promise<boolean> success if true

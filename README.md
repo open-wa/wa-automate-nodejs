@@ -90,7 +90,7 @@ With the constant updates from WA. It is advisable to always use the latest vers
 
 ### Insiders Program
 
-open-wa is at the forefront of open source WA developmentand runs on donations from backers. To encourage donations, backers have access to exclusive features with an [Insiders Program license key](https://gumroad.com/l/BTMt?tier=Insiders%20Program).
+open-wa is at the forefront of open source WA developmentand runs on donations from backers. To encourage donations, backers have access to exclusive features with an [Insiders Program license key](https://gumroad.com/l/BTMt).
 
 
 | Function                          | Description |
