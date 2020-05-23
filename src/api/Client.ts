@@ -54,6 +54,7 @@ declare module WAPI {
   const onIncomingCall: (callback: Function) => any;
   const onAddedToGroup: (callback: Function) => any;
   const onBattery: (callback: Function) => any;
+  const onPlugged: (callback: Function) => any;
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const _onParticipantsChanged: (groupId: string, callback: Function) => any;
   const onLiveLocation: (chatId: string, callback: Function) => any;
@@ -233,6 +234,19 @@ export class Client {
     ).then(_ => this.page.evaluate(
       () => {
         WAPI.onBattery(window["onBattery"]);
+      }));
+  }
+
+  /** @event Listens to when host device is plugged/unplugged
+   * @param fn callback
+   * @fires boolean true if plugged, false if unplugged
+   */
+  public async onPlugged(fn: (plugged: boolean) => void) {
+    this.page.exposeFunction('onPlugged', (plugged: boolean) =>
+      fn(plugged)
+    ).then(_ => this.page.evaluate(
+      () => {
+        WAPI.onPlugged(window["onPlugged"]);
       }));
   }
 

@@ -1301,6 +1301,11 @@ window.WAPI.onBattery = function(callback) {
     return true;
 }
 
+window.WAPI.onPlugged = function(callback) {
+    window.Store.Conn.on('change:plugged', ({plugged}) =>  callback(plugged));
+    return true;
+}
+
 /**
  * Registers a callback to participant changes on a certain, specific group
  * @param groupId - string - The id of the group that you want to attach the callback to.
@@ -2127,6 +2132,7 @@ window.WAPI.postTextStatus = function(){return false;}
 window.WAPI.postImageStatus = function(){return false;}
 window.WAPI.postVideoStatus = function(){return false;}
 window.WAPI.onRemovedFromGroup = function(){return false;}
+window.WAPI.onContactAdded = function(){return false;}
 window.WAPI.sendReplyWithMentions = function(){return false;}
 window.WAPI.clearAllChats = function(){return false;}
 window.WAPI.getCommonGroups = function(){return false;}
