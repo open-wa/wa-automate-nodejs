@@ -56,6 +56,7 @@ declare module WAPI {
   const onBattery: (callback: Function) => any;
   const onPlugged: (callback: Function) => any;
   const setChatBackgroundColourHex: (hex: string) => boolean;
+  const darkMode: (activate: boolean) => boolean;
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const _onParticipantsChanged: (groupId: string, callback: Function) => any;
   const onLiveLocation: (chatId: string, callback: Function) => any;
@@ -1615,6 +1616,19 @@ public async getStatus(contactId: string) {
     return await this.page.evaluate(
       (hex) => WAPI.setChatBackgroundColourHex(hex),
       hex
+    );
+  }
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * 
+   * Start dark mode
+   * @param {boolean} activate true to activate dark mode, false to deactivate
+  */
+  public async darkMode(activate: boolean) {
+    return await this.page.evaluate(
+      (activate) => WAPI.darkMode(activate),
+      activate
     );
   }
 
