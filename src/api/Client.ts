@@ -148,6 +148,7 @@ declare module WAPI {
   const getBatteryLevel: () => number;
   const getIsPlugged: () => boolean;
   const clearAllChats: () => Promise<boolean>;
+  const cutMsgCache: () => boolean;
   const getChat: (contactId: string) => Chat;
   const getLastSeen: (contactId: string) => Promise<number | boolean>;
   const getProfilePicFromServer: (chatId: string) => any;
@@ -1729,6 +1730,16 @@ public async getStatus(contactId: string) {
      */
   public async clearAllChats() {
     return await this.page.evaluate(() => WAPI.clearAllChats());
+  }
+  
+
+    /**
+     * This simple function halves the amount of messages in your session message cache. This does not delete messages off your phone. If over a day you've processed 4000 messages this will possibly result in 4000 messages being present in your session.
+     * Calling this method will cut the message cache to 2000 messages, therefore reducing the memory usage of your process.
+     * You should use this in conjunction with `getAmountOfLoadedMessages` to intelligently control the session message cache.
+     */
+  public async cutMsgCache() {
+    return await this.page.evaluate(() => WAPI.cutMsgCache());
   }
   
   /**

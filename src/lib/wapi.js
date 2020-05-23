@@ -2110,6 +2110,12 @@ window.WAPI.getUseHereString = async function() {
  window.WAPI.getAmountOfLoadedMessages = function() {
     return Store.Msg.models.length;
 }
+
+window.WAPI.cutMsgCache = function (){
+    Store.Msg.models.map(msg=>Store.Msg.remove(msg));
+    return true;
+}
+
 //All of the following features can be unlocked using a license key: https://github.com/open-wa/wa-automate-nodejs#license-key
 window.WAPI.getStoryStatusByTimeStamp = function(){return false;}
 window.WAPI.deleteAllStatus = function(){return false;}
