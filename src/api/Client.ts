@@ -481,6 +481,24 @@ export class Client {
       ));
   }
 
+  /**
+   * [REQUIRES A LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * @event Fires callback with contact id when a new contact is added on the host phone.
+   * @param to callback
+   * @returns Observable stream of contact ids
+   */
+  public onContactAdded(fn: (chat: Chat) => any) {
+    const funcName = "onContactAdded";
+    return this.page.exposeFunction(funcName, (chat: any) =>
+      fn(chat)
+    )
+      .then(_ => this.page.evaluate(
+        () => {
+        //@ts-ignore
+          WAPI.onContactAdded(window.onContactAdded);
+        }
+      ));
+  }
 
   /**
    * Sends a text message to given chat
