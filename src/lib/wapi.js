@@ -2107,6 +2107,9 @@ window.WAPI.getUseHereString = async function() {
   return window.l10n.localeStrings[window.l10n.getLocale()][0][window.l10n.localeStrings.en[0].findIndex(x=>x.toLowerCase()==='use here')]
  }
 
+ window.WAPI.getAmountOfLoadedMessages = function() {
+    return Store.Msg.models.length;
+}
 //All of the following features can be unlocked using a license key: https://github.com/open-wa/wa-automate-nodejs#license-key
 window.WAPI.getStoryStatusByTimeStamp = function(){return false;}
 window.WAPI.deleteAllStatus = function(){return false;}

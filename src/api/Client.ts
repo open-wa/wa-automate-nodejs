@@ -138,6 +138,7 @@ declare module WAPI {
   const getWAVersion: () => String;
   const getMe: () => any;
   const syncContacts: () => boolean;
+  const getAmountOfLoadedMessages: () => number;
   const deleteAllStatus: () => Promise<boolean>;
   const getMyStatusArray: () => Promise<any>;
   const getAllUnreadMessages: () => any;
@@ -808,13 +809,21 @@ export class Client {
     return await this.page.evaluate(() => Store.Me.attributes);
   }
 
-/**
- * Syncs contacts with phone. This promise does not resolve so it will instantly return true.
- */
-public async syncContacts(){
-  //@ts-ignore
-  return await this.page.evaluate(() => WAPI.syncContacts());
-}
+  /**
+   * Syncs contacts with phone. This promise does not resolve so it will instantly return true.
+   */
+  public async syncContacts(){
+    //@ts-ignore
+    return await this.page.evaluate(() => WAPI.syncContacts());
+  }
+
+   /**
+    * SEasily get the amount of messages loaded up in the session. This will allow you to determine when to clear chats/cache.
+    */
+   public async getAmountOfLoadedMessages(){
+     return await this.page.evaluate(() => WAPI.getAmountOfLoadedMessages());
+   }
+
 
   /**
    * Find any product listings of the given number. Use this to query a catalog
