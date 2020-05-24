@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ConfigObject | @open-wa/wa-automate - v1.9.36</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v1.9.36">
+	<title>ConfigObject | @open-wa/wa-automate - v1.9.46</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v1.9.46">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 </head>
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v1.9.36</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v1.9.46</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -89,6 +89,7 @@
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#autorefresh" class="tsd-kind-icon">auto<wbr>Refresh</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#blockcrashlogs" class="tsd-kind-icon">block<wbr>Crash<wbr>Logs</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#browserrevision" class="tsd-kind-icon">browser<wbr>Revision</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#browserwsendpoint" class="tsd-kind-icon">browserWSEndpoint</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#bypasscsp" class="tsd-kind-icon">bypassCSP</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#cacheenabled" class="tsd-kind-icon">cache<wbr>Enabled</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#chromiumargs" class="tsd-kind-icon">chromium<wbr>Args</a></li>
@@ -124,7 +125,7 @@
 					<div class="tsd-signature tsd-kind-icon">auth<wbr>Timeout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L233">api/model/index.ts:233</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L255">api/model/index.ts:255</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -139,7 +140,7 @@
 					<div class="tsd-signature tsd-kind-icon">auto<wbr>Refresh<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L177">api/model/index.ts:177</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L199">api/model/index.ts:199</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -154,7 +155,7 @@
 					<div class="tsd-signature tsd-kind-icon">block<wbr>Crash<wbr>Logs<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L153">api/model/index.ts:153</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L175">api/model/index.ts:175</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -169,7 +170,7 @@
 					<div class="tsd-signature tsd-kind-icon">browser<wbr>Revision<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L165">api/model/index.ts:165</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L187">api/model/index.ts:187</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -183,12 +184,30 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="browserwsendpoint" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> browserWSEndpoint</h3>
+					<div class="tsd-signature tsd-kind-icon">browserWSEndpoint<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L129">api/model/index.ts:129</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>ALPHA EXPERIMENTAL FEATURE! DO NOT USE IN PRODUCTION, REQUIRES TESTING.</p>
+						</div>
+						<p>Learn more:</p>
+						<p><a href="https://pptr.dev/#?product=Puppeteer&amp;version=v3.1.0&amp;show=api-puppeteerconnectoptions">https://pptr.dev/#?product=Puppeteer&amp;version=v3.1.0&amp;show=api-puppeteerconnectoptions</a></p>
+						<p><a href="https://medium.com/@jaredpotter1/connecting-puppeteer-to-existing-chrome-window-8a10828149e0">https://medium.com/@jaredpotter1/connecting-puppeteer-to-existing-chrome-window-8a10828149e0</a></p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="bypasscsp" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> bypassCSP</h3>
 					<div class="tsd-signature tsd-kind-icon">bypassCSP<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L115">api/model/index.ts:115</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L137">api/model/index.ts:137</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -203,7 +222,7 @@
 					<div class="tsd-signature tsd-kind-icon">cache<wbr>Enabled<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L157">api/model/index.ts:157</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L179">api/model/index.ts:179</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -218,7 +237,7 @@
 					<div class="tsd-signature tsd-kind-icon">chromium<wbr>Args<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L120">api/model/index.ts:120</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L142">api/model/index.ts:142</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -234,7 +253,7 @@
 					<div class="tsd-signature tsd-kind-icon">custom<wbr>User<wbr>Agent<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L144">api/model/index.ts:144</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L166">api/model/index.ts:166</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -249,7 +268,7 @@
 					<div class="tsd-signature tsd-kind-icon">devtools<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><a href="devtools.html" class="tsd-signature-type">DevTools</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L149">api/model/index.ts:149</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L171">api/model/index.ts:171</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -265,7 +284,7 @@
 					<div class="tsd-signature tsd-kind-icon">disable<wbr>Spins<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L219">api/model/index.ts:219</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L241">api/model/index.ts:241</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -281,7 +300,7 @@
 					<div class="tsd-signature tsd-kind-icon">executable<wbr>Path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L189">api/model/index.ts:189</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L211">api/model/index.ts:211</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -296,7 +315,7 @@
 					<div class="tsd-signature tsd-kind-icon">headless<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L173">api/model/index.ts:173</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L195">api/model/index.ts:195</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -311,7 +330,7 @@
 					<div class="tsd-signature tsd-kind-icon">license<wbr>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L140">api/model/index.ts:140</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L162">api/model/index.ts:162</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -333,7 +352,7 @@
 					<div class="tsd-signature tsd-kind-icon">log<wbr>Console<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L224">api/model/index.ts:224</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L246">api/model/index.ts:246</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -349,7 +368,7 @@
 					<div class="tsd-signature tsd-kind-icon">log<wbr>Console<wbr>Errors<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L229">api/model/index.ts:229</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L251">api/model/index.ts:251</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -365,7 +384,7 @@
 					<div class="tsd-signature tsd-kind-icon">proxy<wbr>Server<wbr>Credentials<span class="tsd-signature-symbol">:</span> <a href="proxyservercredentials.html" class="tsd-signature-type">ProxyServerCredentials</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L197">api/model/index.ts:197</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L219">api/model/index.ts:219</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -380,7 +399,7 @@
 					<div class="tsd-signature tsd-kind-icon">qr<wbr>Log<wbr>Skip<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L201">api/model/index.ts:201</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L223">api/model/index.ts:223</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -395,7 +414,7 @@
 					<div class="tsd-signature tsd-kind-icon">qr<wbr>RefreshS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L181">api/model/index.ts:181</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L203">api/model/index.ts:203</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -410,7 +429,7 @@
 					<div class="tsd-signature tsd-kind-icon">qr<wbr>Timeout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L185">api/model/index.ts:185</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L207">api/model/index.ts:207</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -425,7 +444,7 @@
 					<div class="tsd-signature tsd-kind-icon">restart<wbr>OnCrash<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><a href="../classes/client.html" class="tsd-signature-type">Client</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Function</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L214">api/model/index.ts:214</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L236">api/model/index.ts:236</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -468,7 +487,7 @@ restartOnCrash: start,
 					<div class="tsd-signature tsd-kind-icon">session<wbr>Data<span class="tsd-signature-symbol">:</span> <a href="sessiondata.html" class="tsd-signature-type">SessionData</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L107">api/model/index.ts:107</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L119">api/model/index.ts:119</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -480,7 +499,15 @@ restartOnCrash: start,
 ev.on(<span class="hljs-string">'sessionData.**'</span>, <span class="hljs-keyword">async</span> (sessionData, sessionId) =&gt;{
          <span class="hljs-built_in">console</span>.log(sessionId, sessionData)
      })</code></pre>
+							<p> NOTE: You can set sessionData as an evironmental variable also! The variable name has to be [sessionId (default = &#39;session) in all caps]_DATA_JSON. You have to make sure to surround your session data with single quotes to maintain the formatting.</p>
 						</div>
+						<p>For example:</p>
+						<p>sessionId = &#39;session&#39;</p>
+						<p>To set env var:</p>
+						<pre><code class="language-bash">   <span class="hljs-built_in">export</span> SESSION_DATA_JSON=`...`</code></pre>
+						<p>where ... is copied from session.data.json
+							Again - YOU NEED THE &#39; as it maintains the formatting from the json file. Otherwise it will not work.
+						Setting the sessionData in the environmental variable will override the sessionData object in the config.</p>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
@@ -489,7 +516,7 @@ ev.on(<span class="hljs-string">'sessionData.**'</span>, <span class="hljs-keywo
 					<div class="tsd-signature tsd-kind-icon">session<wbr>Data<wbr>Path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L111">api/model/index.ts:111</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L133">api/model/index.ts:133</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -504,7 +531,7 @@ ev.on(<span class="hljs-string">'sessionData.**'</span>, <span class="hljs-keywo
 					<div class="tsd-signature tsd-kind-icon">session<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L129">api/model/index.ts:129</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L151">api/model/index.ts:151</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -519,7 +546,7 @@ ev.on(<span class="hljs-string">'sessionData.**'</span>, <span class="hljs-keywo
 					<div class="tsd-signature tsd-kind-icon">skip<wbr>Broken<wbr>Methods<wbr>Check<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L125">api/model/index.ts:125</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L147">api/model/index.ts:147</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -535,7 +562,7 @@ ev.on(<span class="hljs-string">'sessionData.**'</span>, <span class="hljs-keywo
 					<div class="tsd-signature tsd-kind-icon">throw<wbr>Error<wbr>OnTos<wbr>Block<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L169">api/model/index.ts:169</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L191">api/model/index.ts:191</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -550,7 +577,7 @@ ev.on(<span class="hljs-string">'sessionData.**'</span>, <span class="hljs-keywo
 					<div class="tsd-signature tsd-kind-icon">use<wbr>Chrome<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/6300e70/src/api/model/index.ts#L193">api/model/index.ts:193</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/9942a76/src/api/model/index.ts#L215">api/model/index.ts:215</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -587,6 +614,9 @@ ev.on(<span class="hljs-string">'sessionData.**'</span>, <span class="hljs-keywo
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="configobject.html#browserrevision" class="tsd-kind-icon">browser<wbr>Revision</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="configobject.html#browserwsendpoint" class="tsd-kind-icon">browserWSEndpoint</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="configobject.html#bypasscsp" class="tsd-kind-icon">bypassCSP</a>

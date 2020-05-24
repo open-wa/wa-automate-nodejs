@@ -30,7 +30,7 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "OpenChat", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.openChat) ? module.default : null },
                 { id: "UserConstructor", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.isServer && module.default.prototype.isUser) ? module.default : null },
                 { id: "SendTextMsgToChat", conditions: (module) => (module.sendTextMsgToChat) ? module.sendTextMsgToChat : null },
-                { id: "SendSeen", conditions: (module) => (module.sendSeen) ? module.sendSeen : null },
+                { id: "ReadSeen", conditions: (module) => (module.sendSeen) ? module : null },
                 { id: "sendDelete", conditions: (module) => (module.sendDelete) ? module.sendDelete : null },
                 { id: "addAndSendMsgToChat", conditions: (module) => (module.addAndSendMsgToChat) ? module.addAndSendMsgToChat : null },
                 { id: "sendMsgToChat", conditions: (module) => (module.sendMsgToChat) ? module.sendMsgToChat : null },
@@ -826,7 +826,16 @@ window.WAPI.sendMessage2 = function (id, message) {
 window.WAPI.sendSeen = async function (id) {
     var chat = window.WAPI.getChat(id);
     if (chat !== undefined) {
-            await Store.SendSeen(chat, false);
+            await Store.ReadSeen.sendSeen(chat, false);
+            return true;
+    }
+    return false;
+};
+
+window.WAPI.markAsUnread = async function (id) {
+    var chat = window.WAPI.getChat(id);
+    if (chat !== undefined) {
+            await Store.ReadSeen.markUnread(chat, true);
             return true;
     }
     return false;
@@ -1289,6 +1298,11 @@ window.WAPI.onLiveLocation = function (chatId, callback) {
 
 window.WAPI.onBattery = function(callback) {
     window.Store.Conn.on('change:battery', ({battery}) =>  callback(battery));
+    return true;
+}
+
+window.WAPI.onPlugged = function(callback) {
+    window.Store.Conn.on('change:plugged', ({plugged}) =>  callback(plugged));
     return true;
 }
 
@@ -2098,6 +2112,16 @@ window.WAPI.getUseHereString = async function() {
   return window.l10n.localeStrings[window.l10n.getLocale()][0][window.l10n.localeStrings.en[0].findIndex(x=>x.toLowerCase()==='use here')]
  }
 
+ window.WAPI.getAmountOfLoadedMessages = function() {
+    return Store.Msg.models.length;
+}
+
+window.WAPI.cutMsgCache = function (){
+    Store.Msg.models.map(msg=>Store.Msg.remove(msg));
+    return true;
+}
+
+//All of the following features can be unlocked using a license key: https://github.com/open-wa/wa-automate-nodejs#license-key
 window.WAPI.getStoryStatusByTimeStamp = function(){return false;}
 window.WAPI.deleteAllStatus = function(){return false;}
 window.WAPI.getMyStatusArray = function(){return false;}
@@ -2107,7 +2131,13 @@ window.WAPI.setGroupEditToAdminsOnly = function(){return false;}
 window.WAPI.postTextStatus = function(){return false;}
 window.WAPI.postImageStatus = function(){return false;}
 window.WAPI.postVideoStatus = function(){return false;}
-window.WAPI.onAddedToGroup = function(){return false;}
+window.WAPI.onRemovedFromGroup = function(){return false;}
+window.WAPI.onContactAdded = function(){return false;}
+window.WAPI.sendReplyWithMentions = function(){return false;}
+window.WAPI.clearAllChats = function(){return false;}
+window.WAPI.getCommonGroups = function(){return false;}
+window.WAPI.setChatBackgroundColourHex = function(){return false;}
+window.WAPI.darkMode = function(){return false;}
 
 window.WAPI.quickClean = function (ob) {return JSON.parse(JSON.stringify(ob))};
 

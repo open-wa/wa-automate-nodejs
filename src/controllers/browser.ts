@@ -42,7 +42,7 @@ export async function initClient(sessionId?: string, config?:any, customUserAgen
   );
   //check if [session].json exists in __dirname
   const sessionjsonpath = path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
-  let sessionjson = config?.sessionData;
+  let sessionjson = process.env[`${sessionId.toUpperCase()}_DATA_JSON`] ? JSON.parse(process.env[`${sessionId.toUpperCase()}_DATA_JSON`]) : config?.sessionData;
   if (fs.existsSync(sessionjsonpath)) sessionjson = JSON.parse(fs.readFileSync(sessionjsonpath));
   if(sessionjson) await waPage.evaluateOnNewDocument(
     session => {
@@ -92,11 +92,9 @@ async function initBrowser(sessionId?: string, config:any={}) {
   }
   
   if(config?.proxyServerCredentials?.address) puppeteerConfig.chromiumArgs.push(`--proxy-server=${config.proxyServerCredentials.address}`)
-  const browser = await puppeteer.launch({
+  const browser = (config?.browserWSEndpoint) ? await puppeteer.connect({...config}): await puppeteer.launch({
     headless: true,
     devtools: false,
-    // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    // userDataDir: path.join(process.cwd(), sessionId || 'session'),
     args: [...puppeteerConfig.chromiumArgs],
     ...config
   });
