@@ -118,6 +118,16 @@ export interface ConfigObject {
      */
     sessionData ?: SessionData,
     /**
+     * ALPHA EXPERIMENTAL FEATURE! DO NOT USE IN PRODUCTION, REQUIRES TESTING.
+     * 
+     * Learn more:
+     * 
+     * https://pptr.dev/#?product=Puppeteer&version=v3.1.0&show=api-puppeteerconnectoptions
+     * 
+     * https://medium.com/@jaredpotter1/connecting-puppeteer-to-existing-chrome-window-8a10828149e0
+     */
+    browserWSEndpoint ?: string,
+    /**
      * The path relative to the current working directory (i.e where you run the command to start your process). This will be used to store and read your `.data.json` files. defualt to ''
      */
     sessionDataPath ?: string,

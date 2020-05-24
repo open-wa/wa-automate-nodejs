@@ -92,11 +92,9 @@ async function initBrowser(sessionId?: string, config:any={}) {
   }
   
   if(config?.proxyServerCredentials?.address) puppeteerConfig.chromiumArgs.push(`--proxy-server=${config.proxyServerCredentials.address}`)
-  const browser = await puppeteer.launch({
+  const browser = (config?.browserWSEndpoint) ? await puppeteer.connect({...config}): await puppeteer.launch({
     headless: true,
     devtools: false,
-    // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    // userDataDir: path.join(process.cwd(), sessionId || 'session'),
     args: [...puppeteerConfig.chromiumArgs],
     ...config
   });
