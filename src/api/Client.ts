@@ -842,9 +842,9 @@ export class Client {
  * Returns an object with all of your host device details
  */
   public async getMe(){
-    // return await this.page.evaluate(() => WAPI.getMe());
+    return await this.page.evaluate(() => WAPI.getMe());
     //@ts-ignore
-    return await this.page.evaluate(() => Store.Me.attributes);
+    // return await this.page.evaluate(() => Store.Me.attributes);
   }
 
   /**
@@ -1594,8 +1594,6 @@ public async getStatus(contactId: string) {
 }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
-   * 
   * Get Admins of a Group
   * @param {*} idGroup '0000000000-00000000@g.us'
   */
