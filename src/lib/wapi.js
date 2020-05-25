@@ -352,6 +352,7 @@ window.WAPI.sendChatstate = async function (state, chatId) {
  * @returns {T|*} Chat object
  */
 window.WAPI.getChat = function (id) {
+    if (!id) return false;
     id = typeof id == "string" ? id : id._serialized;
     const found = window.Store.Chat.get(id);
     if (found) found.sendMessage = (found.sendMessage) ? found.sendMessage : function () { return window.Store.sendMessage.apply(this, arguments); };
@@ -827,6 +828,7 @@ window.WAPI.sendMessage2 = function (id, message) {
 };
 
 window.WAPI.sendSeen = async function (id) {
+    if (!id) return false;
     var chat = window.WAPI.getChat(id);
     if (chat !== undefined) {
             await Store.ReadSeen.sendSeen(chat, false);
