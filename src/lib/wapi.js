@@ -1621,7 +1621,7 @@ window.WAPI.sendImageWithProduct = async function (imgBase64, chatid, caption, b
 window.WAPI.base64ImageToFile = function (b64Data, filename) {
     var arr = b64Data.split(',');
     var mime = arr[0].match(/:(.*?);/)[1];
-    var bstr = atob(arr[1]);
+    var bstr = Base64 ? Base64.atob(arr[1]) : atob(arr[1]);
     var n = bstr.length;
     var u8arr = new Uint8Array(n);
 
