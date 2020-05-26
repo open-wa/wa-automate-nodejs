@@ -645,10 +645,11 @@ window.WAPI.getGroupAdmins = async function (id) {
  * Returns an object with all of your host device details
  */
 window.WAPI.getMe = function(){
-    return WAPI.quickClean({
+    return {...WAPI.quickClean({
         ...Store.Contact.get(Store.Me.wid).attributes,
         ...Store.Me.attributes
-    });
+    }),
+    me:Store.Me.me};
 }
 
 window.WAPI.isLoggedIn = function () {
