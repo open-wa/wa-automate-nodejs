@@ -352,6 +352,7 @@ window.WAPI.sendChatstate = async function (state, chatId) {
  * @returns {T|*} Chat object
  */
 window.WAPI.getChat = function (id) {
+    if (!id) return false;
     id = typeof id == "string" ? id : id._serialized;
     const found = window.Store.Chat.get(id);
     if (found) found.sendMessage = (found.sendMessage) ? found.sendMessage : function () { return window.Store.sendMessage.apply(this, arguments); };
@@ -644,7 +645,11 @@ window.WAPI.getGroupAdmins = async function (id) {
  * Returns an object with all of your host device details
  */
 window.WAPI.getMe = function(){
-    return Store.Me.attributes;
+    return {...WAPI.quickClean({
+        ...Store.Contact.get(Store.Me.wid).attributes,
+        ...Store.Me.attributes
+    }),
+    me:Store.Me.me};
 }
 
 window.WAPI.isLoggedIn = function () {
@@ -824,6 +829,7 @@ window.WAPI.sendMessage2 = function (id, message) {
 };
 
 window.WAPI.sendSeen = async function (id) {
+    if (!id) return false;
     var chat = window.WAPI.getChat(id);
     if (chat !== undefined) {
             await Store.ReadSeen.sendSeen(chat, false);
@@ -1618,7 +1624,7 @@ window.WAPI.sendImageWithProduct = async function (imgBase64, chatid, caption, b
 window.WAPI.base64ImageToFile = function (b64Data, filename) {
     var arr = b64Data.split(',');
     var mime = arr[0].match(/:(.*?);/)[1];
-    var bstr = atob(arr[1]);
+    var bstr = Base64 ? Base64.atob(arr[1]) : atob(arr[1]);
     var n = bstr.length;
     var u8arr = new Uint8Array(n);
 
