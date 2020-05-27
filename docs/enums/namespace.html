@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>GroupMetadata | @open-wa/wa-automate - v1.9.54</title>
+	<title>namespace | @open-wa/wa-automate - v1.9.54</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,104 +56,71 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="groupmetadata.html">GroupMetadata</a>
+					<a href="namespace.html">namespace</a>
 				</li>
 			</ul>
-			<h1>Interface GroupMetadata</h1>
+			<h1>Enumeration namespace</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-hierarchy">
-				<h3>Hierarchy</h3>
-				<ul class="tsd-hierarchy">
-					<li>
-						<span class="target">GroupMetadata</span>
-					</li>
-				</ul>
-			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Properties</h3>
+							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="groupmetadata.html#creation" class="tsd-kind-icon">creation</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="groupmetadata.html#id" class="tsd-kind-icon">id</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="groupmetadata.html#owner" class="tsd-kind-icon">owner</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="groupmetadata.html#participants" class="tsd-kind-icon">participants</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="groupmetadata.html#pendingparticipants" class="tsd-kind-icon">pending<wbr>Participants</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="namespace.html#chat" class="tsd-kind-icon">Chat</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="namespace.html#contact" class="tsd-kind-icon">Contact</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="namespace.html#groupmetadata" class="tsd-kind-icon">Group<wbr>Metadata</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="namespace.html#msg" class="tsd-kind-icon">Msg</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="creation" class="tsd-anchor"></a>
-					<h3>creation</h3>
-					<div class="tsd-signature tsd-kind-icon">creation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+				<h2>Enumeration members</h2>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="chat" class="tsd-anchor"></a>
+					<h3>Chat</h3>
+					<div class="tsd-signature tsd-kind-icon">Chat<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;Chat&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/b28beeb/src/api/model/group-metadata.ts#L5">api/model/group-metadata.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/b28beeb/src/api/Client.ts#L16">api/Client.ts:16</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="id" class="tsd-anchor"></a>
-					<h3>id</h3>
-					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <a href="id.html" class="tsd-signature-type">Id</a></div>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="contact" class="tsd-anchor"></a>
+					<h3>Contact</h3>
+					<div class="tsd-signature tsd-kind-icon">Contact<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;Contact&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/b28beeb/src/api/model/group-metadata.ts#L4">api/model/group-metadata.ts:4</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/b28beeb/src/api/Client.ts#L18">api/Client.ts:18</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="owner" class="tsd-anchor"></a>
-					<h3>owner</h3>
-					<div class="tsd-signature tsd-kind-icon">owner<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>_serialized<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>server<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>user<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="groupmetadata" class="tsd-anchor"></a>
+					<h3>Group<wbr>Metadata</h3>
+					<div class="tsd-signature tsd-kind-icon">Group<wbr>Metadata<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;GroupMetadata&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/b28beeb/src/api/model/group-metadata.ts#L6">api/model/group-metadata.ts:6</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-type-declaration">
-						<h4>Type declaration</h4>
-						<ul class="tsd-parameters">
-							<li class="tsd-parameter">
-								<h5>_serialized<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-							</li>
-							<li class="tsd-parameter">
-								<h5>server<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-							</li>
-							<li class="tsd-parameter">
-								<h5>user<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-							</li>
-						</ul>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="participants" class="tsd-anchor"></a>
-					<h3>participants</h3>
-					<div class="tsd-signature tsd-kind-icon">participants<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/b28beeb/src/api/model/group-metadata.ts#L11">api/model/group-metadata.ts:11</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/b28beeb/src/api/Client.ts#L19">api/Client.ts:19</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="pendingparticipants" class="tsd-anchor"></a>
-					<h3>pending<wbr>Participants</h3>
-					<div class="tsd-signature tsd-kind-icon">pending<wbr>Participants<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="msg" class="tsd-anchor"></a>
+					<h3>Msg</h3>
+					<div class="tsd-signature tsd-kind-icon">Msg<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;Msg&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/b28beeb/src/api/model/group-metadata.ts#L12">api/model/group-metadata.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/b28beeb/src/api/Client.ts#L17">api/Client.ts:17</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -171,23 +138,20 @@
 				<ul class="before-current">
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-interface">
-						<a href="groupmetadata.html" class="tsd-kind-icon">Group<wbr>Metadata</a>
+					<li class="current tsd-kind-enum">
+						<a href="namespace.html" class="tsd-kind-icon">namespace</a>
 						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="groupmetadata.html#creation" class="tsd-kind-icon">creation</a>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="namespace.html#chat" class="tsd-kind-icon">Chat</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="groupmetadata.html#id" class="tsd-kind-icon">id</a>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="namespace.html#contact" class="tsd-kind-icon">Contact</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="groupmetadata.html#owner" class="tsd-kind-icon">owner</a>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="namespace.html#groupmetadata" class="tsd-kind-icon">Group<wbr>Metadata</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="groupmetadata.html#participants" class="tsd-kind-icon">participants</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="groupmetadata.html#pendingparticipants" class="tsd-kind-icon">pending<wbr>Participants</a>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="namespace.html#msg" class="tsd-kind-icon">Msg</a>
 							</li>
 						</ul>
 					</li>
