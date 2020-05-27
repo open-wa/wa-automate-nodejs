@@ -294,9 +294,9 @@ window.WAPI.getAllNewMessages = async function () {
     return JSON.stringify(WAPI.getAllChatsWithNewMsg().map(c => WAPI.getChat(c.id._serialized)).map(c => c.msgs._models.filter(x => x.isNewMsg)) || [])
 }
 
-// x.ack==-1
+// nnoo longer determined by x.ack==-1
 window.WAPI.getAllUnreadMessages = async function () {
-    return JSON.stringify(WAPI.getAllChatsWithNewMsg().map(c => WAPI.getChat(c.id._serialized)).map(c => c.msgs._models.filter(x => x.ack == -1)).flatMap(x => x) || [])
+    return Store.Chat.models.filter(chat=>chat.unreadCount&&chat.unreadCount>0).map(unreadChat=>unreadChat.msgs.models.slice(-1*unreadChat.unreadCount)).flat().map(WAPI._serializeMessageObj)
 }
 
 window.WAPI.getIndicatedNewMessages = async function () {
