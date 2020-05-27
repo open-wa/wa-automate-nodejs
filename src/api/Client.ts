@@ -1407,7 +1407,7 @@ public async getStatus(contactId: string) {
    * @returns list of messages
    */
   public async getAllUnreadMessages() {
-    return JSON.parse(await this.page.evaluate(() => WAPI.getAllUnreadMessages()));
+    return await this.page.evaluate(() => WAPI.getAllUnreadMessages());
   }
 
   /**
