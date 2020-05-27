@@ -1,8 +1,9 @@
-const express = require('express')
+import { create, Client, decryptMedia, ev } from '../src/index';
+//const express = require('express')
 const path = require("path");
 import axios from 'axios';
 
-const wa = require('@open-wa/wa-automate');
+//const wa = require('@open-wa/wa-automate');
 import { Client, decryptMedia, ev} from '@open-wa/wa-automate';
 const mime = require('mime-types');
 const fs = require('fs');
@@ -20,7 +21,11 @@ ON_DEATH(async function(signal, err) {
   if(globalClient)await globalClient.kill();
 })
 
-wa.create('session',{ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless:true, throwErrorOnTosBlock:true, killTimer:40, autoRefresh:true, qrRefreshS:15, cacheEnabled:false, }).then(client => start(client));
+//MAC
+//create('session',{ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless:true, throwErrorOnTosBlock:true, killTimer:40, autoRefresh:true, qrRefreshS:15, cacheEnabled:false, }).then(client => start(client));
+
+//Linux
+create('session',{ executablePath: '/usr/bin/google-chrome', headless:true, throwErrorOnTosBlock:true, killTimer:40, autoRefresh:true, qrRefreshS:15, cacheEnabled:false, }).then(client => start(client));
 
 ev.on('qr.**', async (qrcode,sessionId) => {
   const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
