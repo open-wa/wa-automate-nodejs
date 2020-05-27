@@ -1,10 +1,10 @@
 import { create, Client, decryptMedia, ev } from '../src/index';
-//const express = require('express')
+const express = require('express')
 const path = require("path");
 import axios from 'axios';
 
 //const wa = require('@open-wa/wa-automate');
-import { Client, decryptMedia, ev} from '@open-wa/wa-automate';
+//import { Client, decryptMedia, ev} from '@open-wa/wa-automate';
 const mime = require('mime-types');
 const fs = require('fs');
 
