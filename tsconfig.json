@@ -86,6 +86,7 @@
           "ConfigObject",
           "SessionData",
           "create"
+          "namespace"
         ]
     }
 }
