@@ -127,6 +127,13 @@ app.post('/sendPNG' , async (req,res) => {
   return res.send(newMessage);
 })
 
+//{"to": "whatsapp_number@c.us", "sticker": "https://www.google.com.br/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"}
+app.post('/sendStickerfromUrl' , async (req,res) => {
+  console.log('• sendStickerfromUrl body = ',req.body);
+  const newMessage = await globalClient.sendStickerfromUrl(req.body.to, req.body.sticker);
+  return res.send(newMessage);
+})
+
 app.listen(PORT, function () {
   console.log(`\n• Listening on port ${PORT}!`);
 });
