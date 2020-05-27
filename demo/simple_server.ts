@@ -1,3 +1,5 @@
+//Please see these docs: https://open-wa.github.io/wa-automate-nodejs/classes/client.html#middleware
+
 // import { create, Client } from '@open-wa/wa-automate';
 import { create, Client } from '../src/index';
 const axios = require('axios').default;
