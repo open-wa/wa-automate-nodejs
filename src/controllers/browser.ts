@@ -81,7 +81,7 @@ async function initBrowser(sessionId?: string, config:any={}) {
     const browserDownloadSpinner = new Spin(sessionId+'_browser', 'Browser',false,false);
     try {
       browserDownloadSpinner.start('Downloading browser revision: ' + config.browserRevision);
-      const revisionInfo = await browserFetcher.download('737027', function(downloadedBytes,totalBytes){
+      const revisionInfo = await browserFetcher.download(config.browserRevision, function(downloadedBytes,totalBytes){
       browserDownloadSpinner.info(`Downloading Browser: ${Math.round(downloadedBytes/1000000)}/${Math.round(totalBytes/1000000)}`);
       });
       if(revisionInfo.executablePath) {
