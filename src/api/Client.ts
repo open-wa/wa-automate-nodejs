@@ -469,7 +469,9 @@ export class Client {
 
 
   /**
-   * @event Fires callback with Chat object every time the host phone is added to a group.
+   * Fires callback with Chat object every time the host phone is added to a group.
+   * 
+   * @event 
    * @param to callback
    * @returns Observable stream of Chats
    */
@@ -490,7 +492,9 @@ export class Client {
   /**
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
    * 
-   * @event Fires callback with Chat object every time the host phone is added to a group.
+   * Fires callback with Chat object every time the host phone is added to a group.
+   * 
+   * @event 
    * @param to callback
    * @returns Observable stream of Chats
    */
@@ -510,7 +514,9 @@ export class Client {
   /**
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
    * 
-   * @event Fires callback with the relevant chat id every time the user clicks on a chat. This will only work in headful mode.
+   * Fires callback with the relevant chat id every time the user clicks on a chat. This will only work in headful mode.
+   * 
+   * @event 
    * @param to callback
    * @returns Observable stream of Chat ids.
    */
@@ -530,7 +536,9 @@ export class Client {
   /**
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
    * 
-   * @event Fires callback with contact id when a new contact is added on the host phone.
+   * Fires callback with contact id when a new contact is added on the host phone.
+   * 
+   * @event 
    * @param to callback
    * @returns Observable stream of contact ids
    */
