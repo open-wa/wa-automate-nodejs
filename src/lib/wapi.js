@@ -2154,6 +2154,7 @@ window.WAPI.clearAllChats = function(){return false;}
 window.WAPI.getCommonGroups = function(){return false;}
 window.WAPI.setChatBackgroundColourHex = function(){return false;}
 window.WAPI.darkMode = function(){return false;}
+window.WAPI.onChatOpened = function(){return false;}
 
 window.WAPI.quickClean = function (ob) {return JSON.parse(JSON.stringify(ob))};
 

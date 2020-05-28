@@ -510,6 +510,26 @@ export class Client {
   /**
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
    * 
+   * @event Fires callback with the relevant chat id every time the user clicks on a chat. This will only work in headful mode.
+   * @param to callback
+   * @returns Observable stream of Chat ids.
+   */
+  public onChatOpened(fn: (chat: Chat) => any) {
+    const funcName = "onChatOpened";
+    return this.page.exposeFunction(funcName, (chat: any) =>
+      fn(chat)
+    )
+      .then(_ => this.page.evaluate(
+        () => {
+        //@ts-ignore
+          WAPI.onChatOpened(window.onChatOpened);
+        }
+      ));
+  }
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * 
    * @event Fires callback with contact id when a new contact is added on the host phone.
    * @param to callback
    * @returns Observable stream of contact ids
