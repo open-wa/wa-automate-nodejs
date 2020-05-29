@@ -469,7 +469,9 @@ export class Client {
 
 
   /**
-   * @event Fires callback with Chat object every time the host phone is added to a group.
+   * Fires callback with Chat object every time the host phone is added to a group.
+   * 
+   * @event 
    * @param to callback
    * @returns Observable stream of Chats
    */
@@ -490,7 +492,9 @@ export class Client {
   /**
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
    * 
-   * @event Fires callback with Chat object every time the host phone is added to a group.
+   * Fires callback with Chat object every time the host phone is added to a group.
+   * 
+   * @event 
    * @param to callback
    * @returns Observable stream of Chats
    */
@@ -510,7 +514,31 @@ export class Client {
   /**
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
    * 
-   * @event Fires callback with contact id when a new contact is added on the host phone.
+   * Fires callback with the relevant chat id every time the user clicks on a chat. This will only work in headful mode.
+   * 
+   * @event 
+   * @param to callback
+   * @returns Observable stream of Chat ids.
+   */
+  public onChatOpened(fn: (chat: Chat) => any) {
+    const funcName = "onChatOpened";
+    return this.page.exposeFunction(funcName, (chat: any) =>
+      fn(chat)
+    )
+      .then(_ => this.page.evaluate(
+        () => {
+        //@ts-ignore
+          WAPI.onChatOpened(window.onChatOpened);
+        }
+      ));
+  }
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * 
+   * Fires callback with contact id when a new contact is added on the host phone.
+   * 
+   * @event 
    * @param to callback
    * @returns Observable stream of contact ids
    */
@@ -1407,7 +1435,7 @@ public async getStatus(contactId: string) {
    * @returns list of messages
    */
   public async getAllUnreadMessages() {
-    return JSON.parse(await this.page.evaluate(() => WAPI.getAllUnreadMessages()));
+    return await this.page.evaluate(() => WAPI.getAllUnreadMessages());
   }
 
   /**

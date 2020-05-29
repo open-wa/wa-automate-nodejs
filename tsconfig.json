@@ -85,7 +85,8 @@
           "Page",
           "ConfigObject",
           "SessionData",
-          "create"
+          "create",
+          "namespace"
         ]
     }
 }
