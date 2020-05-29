@@ -3,7 +3,7 @@ const fs = require('fs');
 const ChromeLauncher = require('chrome-launcher');
 const puppeteer = require('puppeteer-extra');
 const devtools = require('puppeteer-extra-plugin-devtools')()
-const StealthPlugin = require('puppeteer-extra-plugin-stealth')
+const StealthPlugin = require('puppeteer-extra-plugin-stealth-hotfix')
 puppeteer.use(StealthPlugin());
 import { puppeteerConfig, useragent, width, height} from '../config/puppeteer.config';
 //@ts-ignore
