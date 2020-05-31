@@ -31,14 +31,11 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
   await waPage.setCacheEnabled(cacheEnabled);
   await waPage.setRequestInterception(true);
   waPage.on('request', interceptedRequest => {
-  const headers = Object.assign({}, interceptedRequest.headers(), {
-    DNT:1
-  });
     if (interceptedRequest.url().includes('https://crashlogs.whatsapp.net/') && blockCrashLogs){
       interceptedRequest.abort();
     }
     else
-      interceptedRequest.continue({headers});
+      interceptedRequest.continue();
   }
   );
   //check if [session].json exists in __dirname
