@@ -62,6 +62,7 @@ declare module WAPI {
   const onAddedToGroup: (callback: Function) => any;
   const onBattery: (callback: Function) => any;
   const onPlugged: (callback: Function) => any;
+  const onStory: (callback: Function) => any;
   const setChatBackgroundColourHex: (hex: string) => boolean;
   const darkMode: (activate: boolean) => boolean;
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
@@ -257,6 +258,25 @@ export class Client {
     ).then(_ => this.page.evaluate(
       () => {
         WAPI.onPlugged(window["onPlugged"]);
+      }));
+  }
+
+  /**
+   * @event
+   * Requires a Story License Key 
+   * Listens to when a contact posts a new story.
+   * @param fn callback
+   * @fires e.g {
+   * from: '123456789@c.us'
+   * id: 'false_132234234234234@status.broadcast'
+   * }
+   */
+  public async onStory(fn: (story: any) => void) {
+    this.page.exposeFunction('onStory', (story: any) =>
+      fn(story)
+    ).then(_ => this.page.evaluate(
+      () => {
+        WAPI.onStory(window["onStory"]);
       }));
   }
 
