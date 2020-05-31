@@ -128,6 +128,10 @@ export interface ConfigObject {
      */
     browserWSEndpoint ?: string,
     /**
+     * This flag allows you to disable or enable the use of the puppeteer stealth plugin. It is a good idea to use it, however it can cause issues sometimes. Set this to false if you are experiencing `browser.setMaxListeneres` issue. For now the default for this is false.
+     */
+    useStealth ?: boolean,
+    /**
      * The path relative to the current working directory (i.e where you run the command to start your process). This will be used to store and read your `.data.json` files. defualt to ''
      */
     sessionDataPath ?: string,

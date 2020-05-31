@@ -4,15 +4,16 @@ const ChromeLauncher = require('chrome-launcher');
 const puppeteer = require('puppeteer-extra');
 const devtools = require('puppeteer-extra-plugin-devtools')()
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
-puppeteer.use(StealthPlugin());
 import { puppeteerConfig, useragent, width, height} from '../config/puppeteer.config';
 //@ts-ignore
 import { Browser, Page } from '@types/puppeteer';
 import { Spin } from './events';
+import { ConfigObject } from '../api/model';
 const ON_DEATH = require('death'); //this is intentionally ugly
 let browser;
 
-export async function initClient(sessionId?: string, config?:any, customUserAgent?:string) {
+export async function initClient(sessionId?: string, config?:ConfigObject, customUserAgent?:string) {
+  if(config?.useStealth) puppeteer.use(StealthPlugin());
   browser = await initBrowser(sessionId,config);
   const waPage = await getWAPage(browser);
   if (config?.proxyServerCredentials) {
