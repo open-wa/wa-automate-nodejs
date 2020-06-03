@@ -876,6 +876,8 @@ export class Client {
    * @param caption string xxxxx
    * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
    * @param requestConfig {} By default the request is a get request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
+   * @param waitForId boolean default: false set this to true if you want to wait for the id of the message. By default this is set to false as it will take a few seconds to retreive to the key of the message and this waiting may not be desirable for the majority of users.
+
    */
   public async sendFileFromUrl(
     to: string,
@@ -883,11 +885,12 @@ export class Client {
     filename: string,
     caption: string,
     quotedMsgId?: string,
-    requestConfig: any = {}
+    requestConfig: any = {},
+    waitForId?: boolean
   ) {
     try {
      const base64 = await getBase64(url, requestConfig);
-      return await this.sendFile(to,base64,filename,caption,quotedMsgId)
+      return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId)
     } catch(error) {
       console.log('Something went wrong', error);
       return error;
