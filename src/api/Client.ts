@@ -764,15 +764,15 @@ export class Client {
    * 
    * @param to string chatid
    * @param content string reply text
-   * @param quotedMsg string | Message the msg object or id to reply to.
+   * @param quotedMsgId string the msg id to reply to.
    * @param sendSeen boolean If set to true, the chat will 'blue tick' all messages before sending the reply
    * @returns Promise<string | boolean> false if didn't work, otherwise returns message id.
    */
-  public async reply(to: string, content: string, quotedMsg: any, sendSeen?: boolean) {
+  public async reply(to: string, content: string, quotedMsgId: string, sendSeen?: boolean) {
     if(sendSeen) await this.sendSeen(to);
     return await this.page.evaluate(
-      ({ to, content, quotedMsg }) =>WAPI.reply(to, content, quotedMsg),
-      { to, content, quotedMsg }
+      ({ to, content, quotedMsgId }) =>WAPI.reply(to, content, quotedMsgId),
+      { to, content, quotedMsgId }
     )
   }
 
