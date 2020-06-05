@@ -22,7 +22,7 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "Wap", conditions: (module) => (module.createGroup) ? module : null },
                 { id: "ServiceWorker", conditions: (module) => (module.default && module.default.killServiceWorker) ? module : null },
                 { id: "State", conditions: (module) => (module.STATE && module.STREAM) ? module : null },
-                { id: "Presence", conditions: (module) => (module.setPresenceAvailable && module.setPresenceUnavailable) ? module : null },
+                { id: "_Presence", conditions: (module) => (module.setPresenceAvailable && module.setPresenceUnavailable) ? module : null },
                 { id: "WapDelete", conditions: (module) => (module.sendConversationDelete && module.sendConversationDelete.length == 2) ? module : null },
                 { id: "Conn", conditions: (module) => (module.default && module.default.ref && module.default.refTTL) ? module.default : null },
                 { id: "WapQuery", conditions: (module) => (module.queryExist) ? module : ((module.default && module.default.queryExist) ? module.default : null) },
@@ -870,8 +870,8 @@ function isChatMessage(message) {
 }
 
 window.WAPI.setPresence = function (available) {
-    if(available)Store.Presence.setPresenceAvailable();
-    else Store.Presence.setPresenceUnavailable();
+    if(available)Store._Presence.setPresenceAvailable();
+    else Store._Presence.setPresenceUnavailable();
 }
 
 window.WAPI.getUnreadMessages = function (includeMe, includeNotifications, use_unread_count) {
