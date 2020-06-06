@@ -163,6 +163,8 @@ Notes:
 - Apart from adding your licenseKey to your config, you will need to change nothing else in your code.
 - An added benefit for members is priority on issues.
 - License Key requests may be rejected.
+- All code you will receive from the license server is closed-sourced and is under the same license as this project. You will not be able to read it. It is not transferrable to another number or another project.
+- A restricted key does not provide any access to any other features listed in Gumroad.
 
 ## Running the demo
 
