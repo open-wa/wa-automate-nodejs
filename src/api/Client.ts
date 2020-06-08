@@ -1476,7 +1476,10 @@ public async getStatus(contactId: string) {
   }
 
   /**
-   * Retrieves all Messages in a chat
+   * Retrieves all Messages in a chat that have been loaded within the WA web instance.
+   * 
+   * This does not load every single message in the chat history.
+   * 
    * @param chatId, the chat to get the messages from
    * @param includeMe, include my own messages? boolean
    * @param includeNotifications
