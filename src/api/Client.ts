@@ -737,7 +737,7 @@ export class Client {
  * @param url string A youtube link.
  * @param text string Custom text as body of the message, this needs to include the link or it will be appended after the link.
  */
-  public async sendYoutubeLink(to: string, url: string, text?: string,) {
+  public async sendYoutubeLink(to: string, url: string, text: string = '') {
     return this.sendLinkWithAutoPreview(to,url,text);
   }
 

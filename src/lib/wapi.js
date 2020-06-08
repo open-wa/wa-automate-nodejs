@@ -428,6 +428,7 @@ window.WAPI.getWAVersion = function () {
  * @param text string Custom text as body of the message, this needs to include the link or it will be appended after the link.
  */
 window.WAPI.sendLinkWithAutoPreview = async function (chatId, url, text) {
+    text = text || '';
     var chatSend = WAPI.getChat(chatId);
     if (chatSend === undefined) {
         return false;
@@ -1755,6 +1756,7 @@ window.WAPI.simulateTyping = async function (chatId, on) {
  * @param {string} loc Text to go with the location message
  */
 window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
+    loc = loc || '';
     var chat = Store.Chat.get(chatId);
     if(!chat) return false;
     var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe && !msg.quotedMsg)[0]);
