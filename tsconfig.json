@@ -86,7 +86,8 @@
           "ConfigObject",
           "SessionData",
           "create",
-          "namespace"
+          "namespace",
+          "AvailableWebhooks"
         ]
     }
 }
