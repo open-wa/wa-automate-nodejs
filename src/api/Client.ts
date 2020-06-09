@@ -12,11 +12,33 @@ import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent } from '../config/puppeteer.config'
 import sharp from 'sharp';
 
-enum namespace {
+const { default: PQueue } = require("p-queue");
+
+
+export enum namespace {
   Chat = 'Chat',
   Msg = 'Msg',
   Contact = 'Contact',
   GroupMetadata = 'GroupMetadata'
+}
+
+export enum AvailableWebhooks {
+  Message = 'onMessage',
+  AnyMessage = 'onAnyMessage',
+  Ack = 'onAck',
+  AddedToGroup = 'onAddedToGroup',
+  Battery = 'onBattery',
+  ChatOpened = 'onChatOpened',
+  IncomingCall = 'onIncomingCall',
+  // Next two require extra params so not available to use via webhook register
+  // LiveLocation = 'onLiveLocation',
+  // ParticipantsChanged = 'onParticipantsChanged',
+  Plugged = 'onPlugged',
+  StateChanged = 'onStateChanged',
+  //require licences
+  Story = 'onStory',
+  RemovedFromGroup = 'onRemovedFromGroup',
+  ContactAdded = 'onContactAdded',
 }
 
 export const getBase64 = async (url: string, optionsOverride: any = {} ) => {
@@ -202,6 +224,8 @@ declare module WAPI {
 
 export class Client {
   _loadedModules: any[];
+  _registeredWebhooks: any;
+  _webhookQueue: any;
 
   /**
    * @param page [Page] [Puppeteer Page]{@link https://pptr.dev/#?product=Puppeteer&version=v2.1.1&show=api-class-page} running WA Web
@@ -1981,6 +2005,37 @@ public async getStatus(contactId: string) {
     return next();
   }
 
+  /**
+   * The client can now automatically handle webhooks. Use this method to register webhooks.
+   * 
+   * @param event use AvailableWebhooks enum
+   * @param url The webhook url
+   * @param requestConfig {} By default the request is a post request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
+   * @param concurrency the amount of concurrent requests to be handled by the built in queue. Default is 5.
+   */
+  public async registerWebhook(event: AvailableWebhooks, url: string, requestConfig: any = {}, concurrency: number = 5) {
+    if(!this._webhookQueue) this._webhookQueue = new PQueue({ concurrency });
+    if(this[event]){
+      if(!this._registeredWebhooks) this._registeredWebhooks={};
+      if(this._registeredWebhooks[event]) {
+        console.log('webhook already registered');
+        return false;
+      }
+      this._registeredWebhooks[event] = this[event](async _data=>await this._webhookQueue.add(async () => await axios({
+        method: 'post',
+        url,
+        data: {
+        ts: Date.now(),
+        event,
+        data:_data
+        },
+        ...requestConfig
+      })));
+      return this._registeredWebhooks[event];
+    }
+    console.log('Invalid lisetner', event);
+    return false;
+  }
 }
 
 export { useragent } from '../config/puppeteer.config'
