@@ -124,37 +124,39 @@ window.WAPI._serializeRawObj = (obj) => {
  */
 
 window.WAPI._serializeChatObj = (obj) => {
-    if (obj == undefined) {
-        return null;
-    }
-    return Object.assign(window.WAPI._serializeRawObj(obj), {
-        kind: obj.kind,
-        isGroup: obj.isGroup,
-        formattedTitle: obj.formattedTitle,
-        contact: obj['contact'] ? window.WAPI._serializeContactObj(obj['contact']) : null,
-        groupMetadata: obj["groupMetadata"] ? window.WAPI._serializeRawObj(obj["groupMetadata"]) : null,
-        presence: obj["presence"] ? window.WAPI._serializeRawObj(obj["presence"]) : null,
-        msgs: null
-    });
+  if (obj == undefined) {
+    return null;
+  }
+  return Object.assign(window.WAPI._serializeRawObj(obj), {
+    id: obj.id._serialized,
+    kind: obj.kind,
+    isGroup: obj.isGroup,
+    formattedTitle: obj.formattedTitle,
+    contact: obj['contact'] ? window.WAPI._serializeContactObj(obj['contact']) : null,
+    groupMetadata: obj["groupMetadata"] ? window.WAPI._serializeRawObj(obj["groupMetadata"]) : null,
+    presence: obj["presence"] ? window.WAPI._serializeRawObj(obj["presence"]) : null,
+    msgs: null
+  });
 };
 
 window.WAPI._serializeContactObj = (obj) => {
-    if (obj == undefined) {
-        return null;
-    }
-    return Object.assign(window.WAPI._serializeRawObj(obj), {
-        formattedName: obj.formattedName,
-        isHighLevelVerified: obj.isHighLevelVerified,
-        isMe: obj.isMe,
-        isMyContact: obj.isMyContact,
-        isPSA: obj.isPSA,
-        isUser: obj.isUser,
-        isVerified: obj.isVerified,
-        isWAContact: obj.isWAContact,
-        profilePicThumbObj: obj.profilePicThumb ? WAPI._serializeProfilePicThumb(obj.profilePicThumb) : {},
-        statusMute: obj.statusMute,
-        msgs: null
-    });
+  if (obj == undefined) {
+    return null;
+  }
+  return Object.assign(window.WAPI._serializeRawObj(obj), {
+    id: obj.id._serialized,
+    formattedName: obj.formattedName,
+    isHighLevelVerified: obj.isHighLevelVerified,
+    isMe: obj.isMe,
+    isMyContact: obj.isMyContact,
+    isPSA: obj.isPSA,
+    isUser: obj.isUser,
+    isVerified: obj.isVerified,
+    isWAContact: obj.isWAContact,
+    profilePicThumbObj: obj.profilePicThumb ? WAPI._serializeProfilePicThumb(obj.profilePicThumb) : {},
+    statusMute: obj.statusMute,
+    msgs: null
+  });
 };
 
 
@@ -328,7 +330,7 @@ window.WAPI.getAllChatsWithMessages = async function (onlyNew) {
  * @returns {Array|*} List of chats
  */
 window.WAPI.getAllGroups = function () {
-    return window.Store.Chat.filter((chat) => chat.isGroup);
+  return window.WAPI.getAllChats().filter((chat) => chat.isGroup);
 };
 
 /**
@@ -378,7 +380,7 @@ return await Store.MyStatus.getStatus(id)
 }
 
 window.WAPI.getChatByName = function (name) {
-    return window.Store.Chat.find((chat) => chat.name === name);
+  return window.WAPI.getAllChats().find(chat => chat.name === name);
 };
 
 window.WAPI.sendImageFromDatabasePicBot = function (picId, chatId, caption) {
@@ -641,14 +643,14 @@ window.WAPI._getGroupParticipants = async function (id) {
  * @returns {Promise.<Array|*>} Yields list of IDs
  */
 window.WAPI.getGroupParticipantIDs = async function (id) {
-    return (await WAPI._getGroupParticipants(id))
-        .map((participant) => participant.id);
+  return (await WAPI._getGroupParticipants(id))
+    .map((participant) => participant.id._serialized);
 };
 
 window.WAPI.getGroupAdmins = async function (id) {
-    return (await WAPI._getGroupParticipants(id))
-        .filter((participant) => participant.isAdmin)
-        .map((admin) => admin.id);
+  return (await WAPI._getGroupParticipants(id))
+    .filter((participant) => participant.isAdmin)
+    .map((admin) => admin.id._serialized);
 };
 
 /**
@@ -824,19 +826,6 @@ window.WAPI.sendMessage = async function (id, message) {
     } 
     return false;
     };
-
-window.WAPI.sendMessage2 = function (id, message) {
-    var chat = WAPI.getChat(id);
-    if (chat !== undefined) {
-        try {
-                chat.sendMessage(message);
-            return true;
-        } catch (error) {
-            return false;
-        }
-    }
-    return false;
-};
 
 window.WAPI.sendSeen = async function (id) {
     if (!id) return false;
@@ -1541,8 +1530,8 @@ window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, qu
  * @param newName - string the new name to set as profile name
  */
 window.WAPI.setMyName = async function (newName) {
-    if(!Store.Versions.default[11].BinaryProtocol) Store.Versions.default[11].BinaryProtocol=new Store.bp(11);
-    return await Store.Versions.default[11].setPushname(newName);
+  if (!Store.Base.BinaryProtocol) Store.Base.setSubProtocol(11);
+  return await Store.Base.setPushname(newName);
 }
 
 /** Change the icon for the group chat
@@ -2148,13 +2137,19 @@ window.WAPI._STICKERDUMP = async function (chatId) {
     return await Promise.race(Store.StickerPack.models.forEach(pack=>pack.stickers.fetch().then(_=>pack.stickers.models.forEach(stkr => stkr.sendToChat(chat))))).catch(e=>{})
 }
 
-
 window.WAPI.getLastSeen = async function (id) {
-    if(!Store.Chat.get(id)) return false;
-    let {presence} = Store.Chat.get(id)
-    await presence.subscribe();
-    return presence.chatstate.t;
-  }
+  return new Promise(function (resolve, reject) {
+    let presence = Store.Chat.get(id).presence;
+    if (presence.chatstate.t) {
+      resolve(presence.chatstate.t)
+    } else {
+      presence.on('change:chatstate.t', (data) => {
+        resolve(data.t)
+      });
+      presence.subscribe()
+    }
+  });
+}
 
 window.WAPI.getUseHereString = async function() { 
     if (!window.l10n.localeStrings['en']){
@@ -2172,6 +2167,12 @@ window.WAPI.getUseHereString = async function() {
 window.WAPI.cutMsgCache = function (){
     Store.Msg.models.map(msg=>Store.Msg.remove(msg));
     return true;
+}
+
+WAPI.openChat = function (chatId) {
+  if (WAPI.getAllChatIds().includes(chatId)) {
+    new Store.OpenChat().openChat(chatId)
+  }
 }
 
 //All of the following features can be unlocked using a license key: https://github.com/open-wa/wa-automate-nodejs#license-key
