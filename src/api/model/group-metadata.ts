@@ -22,6 +22,7 @@ export interface ParticipantChangedEventModel {
   by: Id,
   action: groupChangeEvent,
   who: [Id]
+  chat: Id
 }
 
 /**

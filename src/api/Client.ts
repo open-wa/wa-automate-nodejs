@@ -30,6 +30,7 @@ export enum AvailableWebhooks {
   Battery = 'onBattery',
   ChatOpened = 'onChatOpened',
   IncomingCall = 'onIncomingCall',
+  GlobalParicipantsChanged = 'onGlobalParicipantsChanged',
   // Next two require extra params so not available to use via webhook register
   // LiveLocation = 'onLiveLocation',
   // ParticipantsChanged = 'onParticipantsChanged',
@@ -84,6 +85,7 @@ declare module WAPI {
   const onAddedToGroup: (callback: Function) => any;
   const onBattery: (callback: Function) => any;
   const onPlugged: (callback: Function) => any;
+  const onGlobalParicipantsChanged: (callback: Function) => any;
   const onStory: (callback: Function) => any;
   const setChatBackgroundColourHex: (hex: string) => boolean;
   const darkMode: (activate: boolean) => boolean;
@@ -511,6 +513,25 @@ export class Client {
       ));
   }
 
+  /**
+   * @event Listens to add and remove events on Groups on a global level. It is memory efficient and doesn't require a specific group id to listen to.
+   * @param to callback
+   * @returns Observable stream of participantChangedEvent
+   */
+  public async onGlobalParicipantsChanged(fn: (participantChangedEvent: ParticipantChangedEventModel) => void) {
+    const funcName = "onGlobalParicipantsChanged";
+    return await this.page.exposeFunction(funcName, (participantChangedEvent: ParticipantChangedEventModel) =>
+      fn(participantChangedEvent)
+    )
+      .then(_ => this.page.evaluate(
+        ({ funcName }) => {
+          //@ts-ignore
+          return WAPI.onGlobalParicipantsChanged(window[funcName]);
+        },
+        { funcName }
+      ));
+  }
+  
 
   /**
    * Fires callback with Chat object every time the host phone is added to a group.

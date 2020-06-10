@@ -1323,6 +1323,42 @@ window.WAPI.onPlugged = function(callback) {
 }
 
 /**
+ * A new approach to listening to add and remove events from groups. This takes only a callback and is prevents memory leaks
+ */
+WAPI.onGlobalParicipantsChanged = function(callback) {
+    const events = [
+        'change:isAdmin',
+        'remove',
+        'add'
+    ]
+    //const id = eventName.replace('group_participant_change','');
+    const chats = Store.GroupMetadata.models
+        //.filter(group=>group.participants.models.find(participant=>participant.id._serialized===id))
+        .filter(x => x.id.server !== 'broadcast').map(group => window.Store.Chat.get(group.id._serialized));
+    const cb = (eventName, eventData, extra) => {
+        if (events.includes(eventName)) {
+            let action = eventName;
+            if (eventName == 'change:isAdmin') {
+                action = extra ? 'promote' : 'demote';
+            }
+            callback({
+                by: undefined,
+                action: action,
+                who: eventData.id._serialized,
+                chat: extra.parent.id._serialized
+            });
+            chats.map(chat => {
+                chat.groupMetadata.participants.off('all', cb)
+                chat.groupMetadata.participants.off(cb)
+            });
+        }
+    }
+    chats.map(chat => chat.groupMetadata.participants.on('all', cb));
+    Store.GroupMetadata.on('all', (eventName, groupId) => chats.map(chat => chat.groupMetadata.participants.on('all', cb)))
+    return true;
+}
+
+/**
  * Registers a callback to participant changes on a certain, specific group
  * @param groupId - string - The id of the group that you want to attach the callback to.
  * @param callback - function - Callback function to be called when a message acknowledgement changes. The callback returns 3 variables
