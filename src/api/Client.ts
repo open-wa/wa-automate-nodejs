@@ -494,7 +494,8 @@ export class Client {
   }
 
   /**
-   * @event Listens to add and remove events on Groups. This can no longer determine who commited the action and only reports the following events add, remove, promote, demote
+   * @event 
+   * Listens to add and remove events on Groups. This can no longer determine who commited the action and only reports the following events add, remove, promote, demote
    * @param to group id: xxxxx-yyyy@us.c
    * @param to callback
    * @returns Observable stream of participantChangedEvent
@@ -514,7 +515,8 @@ export class Client {
   }
 
   /**
-   * @event Listens to add and remove events on Groups on a global level. It is memory efficient and doesn't require a specific group id to listen to.
+   * @event
+   * Listens to add and remove events on Groups on a global level. It is memory efficient and doesn't require a specific group id to listen to.
    * @param to callback
    * @returns Observable stream of participantChangedEvent
    */
