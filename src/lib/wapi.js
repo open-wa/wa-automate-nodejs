@@ -128,6 +128,7 @@ window.WAPI._serializeChatObj = (obj) => {
         return null;
     }
     return Object.assign(window.WAPI._serializeRawObj(obj), {
+        id: obj.id._serialized,
         kind: obj.kind,
         isGroup: obj.isGroup,
         formattedTitle: obj.formattedTitle,
@@ -143,6 +144,7 @@ window.WAPI._serializeContactObj = (obj) => {
         return null;
     }
     return Object.assign(window.WAPI._serializeRawObj(obj), {
+        id: obj.id._serialized,
         formattedName: obj.formattedName,
         isHighLevelVerified: obj.isHighLevelVerified,
         isMe: obj.isMe,
@@ -328,7 +330,7 @@ window.WAPI.getAllChatsWithMessages = async function (onlyNew) {
  * @returns {Array|*} List of chats
  */
 window.WAPI.getAllGroups = function () {
-    return window.Store.Chat.filter((chat) => chat.isGroup);
+    return window.WAPI.getAllChats().filter((chat) => chat.isGroup);
 };
 
 /**
@@ -378,7 +380,7 @@ return await Store.MyStatus.getStatus(id)
 }
 
 window.WAPI.getChatByName = function (name) {
-    return window.Store.Chat.find((chat) => chat.name === name);
+    return window.WAPI.getAllChats().find((chat) => chat.name === name);
 };
 
 window.WAPI.sendImageFromDatabasePicBot = function (picId, chatId, caption) {
@@ -642,13 +644,13 @@ window.WAPI._getGroupParticipants = async function (id) {
  */
 window.WAPI.getGroupParticipantIDs = async function (id) {
     return (await WAPI._getGroupParticipants(id))
-        .map((participant) => participant.id);
+        .map((participant) => participant.id._serialized);
 };
 
 window.WAPI.getGroupAdmins = async function (id) {
     return (await WAPI._getGroupParticipants(id))
         .filter((participant) => participant.isAdmin)
-        .map((admin) => admin.id);
+        .map((admin) => admin.id._serialized);
 };
 
 /**
@@ -825,18 +827,6 @@ window.WAPI.sendMessage = async function (id, message) {
     return false;
     };
 
-window.WAPI.sendMessage2 = function (id, message) {
-    var chat = WAPI.getChat(id);
-    if (chat !== undefined) {
-        try {
-                chat.sendMessage(message);
-            return true;
-        } catch (error) {
-            return false;
-        }
-    }
-    return false;
-};
 
 window.WAPI.sendSeen = async function (id) {
     if (!id) return false;
