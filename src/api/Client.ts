@@ -11,7 +11,7 @@ import axios from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent } from '../config/puppeteer.config'
 import sharp from 'sharp';
-
+const parseFunction = require('parse-function');
 const { default: PQueue } = require("p-queue");
 
 
@@ -2010,12 +2010,28 @@ public async getStatus(contactId: string) {
    *         ]
    * })
    * ```
+   * 
+   * As of 1.9.69, you can also send the argyments as an object with the keys mirroring the paramater names of the relative client functions
+   * 
+   * Example:
+   * 
+   * ```javascript
+   * const axios = require('axios').default;
+   * axios.post('localhost:8082', {
+   *     method:'sendText',
+   *     args: {
+   *        "to":"4477777777777@c.us",    
+   *        "content":"test"   
+   *         }
+   * })
+   * ```
    */
   middleware = async (req,res,next) => {
     if(req.method==='POST') {
       let {method,args} = req.body
-      if(!args) args = [];
       const m = method || req.path.replace('/','');
+      if(args && !Array.isArray(args)) args = parseFunction().parse(this[m]).args.map(argName=> args[argName]);
+      else if(!args) args = [];
       if(this[m]){
         const response = await this[m](...args);
         return res.send({
