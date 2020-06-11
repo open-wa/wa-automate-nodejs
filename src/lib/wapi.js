@@ -2140,11 +2140,19 @@ window.WAPI._STICKERDUMP = async function (chatId) {
 
 
 window.WAPI.getLastSeen = async function (id) {
-    if(!Store.Chat.get(id)) return false;
-    let {presence} = Store.Chat.get(id)
-    await presence.subscribe();
-    return presence.chatstate.t;
-  }
+  return new Promise(function (resolve, reject) {
+    let presence = Store.Chat.get(id).presence;
+    if (presence.chatstate.t) {
+      resolve(presence.chatstate.t)
+    } else {
+      presence.on('change:chatstate.t', (data) => {
+        resolve(data.t)
+      });
+      setTimeout(() => resolve(false), 3000)
+      presence.subscribe()
+    }
+  });
+}
 
 window.WAPI.getUseHereString = async function() { 
     if (!window.l10n.localeStrings['en']){
