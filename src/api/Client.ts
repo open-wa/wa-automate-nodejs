@@ -193,7 +193,7 @@ declare module WAPI {
   const getAllNewMessages: () => any;
   const getUseHereString: () => Promise<string>;
   const getAllGroups: () => Chat[];
-  const getGroupParticipantIDs: (groupId: string) => Promise<Id[]>;
+  const getGroupParticipantIDs: (groupId: string) => Promise<string[]>;
   const joinGroupViaLink: (link: string) => Promise<string | boolean>;
   const leaveGroup: (groupId: string) => any;
   const getVCards: (msgId: string) => any;
@@ -1233,7 +1233,7 @@ public async contactUnblock(id: string) {
   public async getGroupMembers(groupId: string) {
     const membersIds = await this.getGroupMembersId(groupId);
     const actions = membersIds.map(memberId => {
-      return this.getContact(memberId._serialized);
+      return this.getContact(memberId);
     });
     return await Promise.all(actions);
   }
