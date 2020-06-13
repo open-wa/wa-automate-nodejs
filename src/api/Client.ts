@@ -104,7 +104,7 @@ declare module WAPI {
   const reply: (to: string, content: string, quotedMsg: string | Message) => Promise<string|boolean>;
   const getGeneratedUserAgent: (userAgent?: string) => string;
   const forwardMessages: (to: string, messages: string | (string | Message)[], skipMyMessages: boolean) => any;
-  const sendLocation: (to: string, lat: any, lng: any, loc: string) => void;
+  const sendLocation: (to: string, lat: any, lng: any, loc: string) => Promise<string>;
   const addParticipant: (groupId: string, contactId: string) => void;
   const getMessageById: (mesasgeId: string) => Message;
   const setMyName: (newName: string) => void;

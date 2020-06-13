@@ -1816,7 +1816,7 @@ window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
         isQuotedMsgAvailable: false
     };
     Object.assign(tempMsg, extend);
-    return await Promise.all(Store.addAndSendMsgToChat(chat, tempMsg))
+    return (await Promise.all(Store.addAndSendMsgToChat(chat, tempMsg)))[1]==='success' ? newId._serialized : false;
 };
 
 /**
