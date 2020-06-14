@@ -179,7 +179,7 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
       });
 
       if (config?.skipBrokenMethodsCheck !== true) await integrityCheck(waPage, notifier, spinner, debugInfo);
-      const client = new Client(waPage);
+      const client = new Client(waPage, config);
       if (config?.licenseKey) {
         spinner.start('Checking License')
         const { me } = await client.getMe();

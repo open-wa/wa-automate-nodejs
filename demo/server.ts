@@ -18,7 +18,7 @@ const WEBHOOK_ADDRESS = 'PASTE_WEBHOOK_DOT_SITE_UNIQUE_URL_HERE'
 
 create({ sessionId:'session1'})
   .then(async (client:Client) => {
-    app.use(client.middleware);
+    app.use(client.middleware());
     Object.keys(AvailableWebhooks).map(eventKey=>client.registerWebhook(AvailableWebhooks[eventKey],WEBHOOK_ADDRESS))
     app.listen(PORT, ()=>console.log(`\n• Listening on port ${PORT}!`));
   })

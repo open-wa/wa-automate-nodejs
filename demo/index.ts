@@ -43,7 +43,7 @@ ev.on('sessionData.**', async (sessionData, sessionId) =>{
 })
 
 async function start(client: Client) {
-  app.use(client.middleware);
+  app.use(client.middleware(true));
 
 app.listen(PORT, function () {
   console.log(`\n• Listening on port ${PORT}!`);

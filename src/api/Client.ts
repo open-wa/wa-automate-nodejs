@@ -11,6 +11,7 @@ import axios from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent } from '../config/puppeteer.config'
 import sharp from 'sharp';
+import { ConfigObject } from './model';
 const parseFunction = require('parse-function');
 const { default: PQueue } = require("p-queue");
 
@@ -228,12 +229,14 @@ export class Client {
   _loadedModules: any[];
   _registeredWebhooks: any;
   _webhookQueue: any;
+  _createConfig: ConfigObject;
 
   /**
    * @param page [Page] [Puppeteer Page]{@link https://pptr.dev/#?product=Puppeteer&version=v2.1.1&show=api-class-page} running WA Web
    */
-  constructor(public page: Page) {
+  constructor(public page: Page, createConfig: ConfigObject) {
     this.page = page;
+    this._createConfig = createConfig;
     this._loadedModules = [];
   }
 
@@ -2025,11 +2028,15 @@ public async getStatus(contactId: string) {
    *         }
    * })
    * ```
+   * @param useSessionIdInPath boolean Set this to true if you want to keep each session in it's own path.
+   * 
+   * For example, if you have a session with id  `host` if you set useSessionIdInPath to true, then all requests will need to be prefixed with the path `host`. E.g `localhost:8082/sendText` becomes `localhost:8082/host/sendText`
    */
-  middleware = async (req,res,next) => {
+  middleware = (useSessionIdInPath: boolean = false) => async (req,res,next) => {
+    if(useSessionIdInPath && !req.path.includes(this._createConfig.sessionId) && this._createConfig.sessionId!== 'session') return next();
     if(req.method==='POST') {
       let {method,args} = req.body
-      const m = method || req.path.replace('/','');
+      const m = method || this._createConfig.sessionId && this._createConfig.sessionId!== 'session' && req.path.includes(this._createConfig.sessionId) ? req.path.replace(`/${this._createConfig.sessionId}/`,'') :  req.path.replace('/','');
       if(args && !Array.isArray(args)) args = parseFunction().parse(this[m]).args.map(argName=> args[argName]);
       else if(!args) args = [];
       if(this[m]){
