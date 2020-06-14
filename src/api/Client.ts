@@ -735,9 +735,7 @@ export class Client {
    */
   public async sendLocation(to: string, lat: any, lng: any, loc: string) {
     return await this.page.evaluate(
-      ({ to, lat, lng, loc }) => {
-        WAPI.sendLocation(to, lat, lng, loc);
-      },
+      ({ to, lat, lng, loc }) => WAPI.sendLocation(to, lat, lng, loc),
       { to, lat, lng, loc }
     );
   }
@@ -1967,7 +1965,7 @@ public async getStatus(contactId: string) {
    * const PORT = 8082;
    * 
    * function start(client){
-   *   app.use(client.middleware);
+   *   app.use(client.middleware()); //or client.middleware(true) if you require the session id to be part of the path (so localhost:8082/sendText beccomes localhost:8082/sessionId/sendText)
    *   app.listen(PORT, function () {
    *     console.log(`\n• Listening on port ${PORT}!`);
    *   });
