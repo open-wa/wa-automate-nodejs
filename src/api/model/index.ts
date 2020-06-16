@@ -257,6 +257,10 @@ export interface ConfigObject {
     *This determines how long the process should wait for the session authentication. If exceeded, checks if phone is out of reach (turned of or without internet connection) and throws an error.
     */
     authTimeout?: number;
+    /**
+     * Setting this to `true` will kill the whole process when the client is disconnected from the page or if the browser is closed. defaults to `true`
+     */
+    killProcessOnBrowserClose ?: boolean
     // @private
     [x: string]: any 
 }

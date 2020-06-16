@@ -238,6 +238,10 @@ export class Client {
     this.page = page;
     this._createConfig = createConfig;
     this._loadedModules = [];
+    page.on('close',()=>{
+      this.kill();
+      if(!(this._createConfig?.killProcessOnBrowserClose===false)) process.exit();
+    })
   }
 
   /**
@@ -448,8 +452,10 @@ export class Client {
    */
   public async kill() {
     console.log('Shutting Down');
-    if (this.page) await this.page.close();
-    if (this.page.browser) await this.page.browser().close();
+    try{
+      if (this.page && !this.page.isClosed()) await this.page.close();
+      if (this.page && !this.page.isClosed() && this.page.browser) await this.page.browser().close();
+    } catch(error){}
     return true;
   }
 
