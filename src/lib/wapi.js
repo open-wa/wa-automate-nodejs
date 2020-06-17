@@ -2189,3 +2189,35 @@ window.WAPI.quickClean = function (ob) {return JSON.parse(JSON.stringify(ob))};
 window.WAPI.pyFunc = async function (fn, done) {
     return done(await fn())
 }
+
+/**
+ * If you're using WAPI.js outside of open-wa: https://github.com/open-wa/wa-automate-nodejs/ then you can use the following code to enable the locked features above if you've got a license keu.
+ * 
+ * THIS WILL NOT WORK OUT OF THE BOX. YOU WILL NEED TO DISAVLE CONTENT SECURITY POLICY (WHICH IS HIGHLY DISCOURAGED AND THE MAINTAINERS OF THIS CODE ASSUME NO RESPONSIBILITY FOR AY SECURITY VUNERABILITIES RESULTING IN DISABLING CSP)
+ * 
+ * This is meant to act as an example of how to enable new features in wapi.js. You should implement this outside of the WA WEB browser context.
+ * 
+ * Please use google to find out how to disable CSP. You can also use this extension: https://chrome.google.com/webstore/detail/disable-content-security/ieelmcmcagommplceebfedjlakkhpden/related?hl=en
+ */
+window.WAPI.addLicenseKey = async function (key){
+    const pkgR =  await fetch('https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/package.json');
+    const pkg = await pkgR.json();
+    const body = JSON.stringify({
+            number: Store.Me.me._serialized,
+            key
+        });
+    const r = await fetch(pkg.licenseCheckUrl, {
+        method: 'POST', 
+        mode: 'cors', 
+        cache: 'no-cache',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin', 
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer', 
+        body
+      })
+      const x = await r.text()
+      return eval(x);
+    }
