@@ -297,7 +297,7 @@ window.WAPI.getAllChatIds = function () {
 };
 
 window.WAPI.getAllNewMessages = async function () {
-    return JSON.stringify(WAPI.getAllChatsWithNewMsg().map(c => WAPI.getChat(c.id._serialized)).map(c => c.msgs._models.filter(x => x.isNewMsg)) || [])
+    return WAPI.getAllChatsWithNewMsg().map(c => WAPI.getChat(c.id)).flatMap(c => c.msgs._models.filter(x => x.isNewMsg)).map(WAPI._serializeMessageObj) || [];
 }
 
 // nnoo longer determined by x.ack==-1

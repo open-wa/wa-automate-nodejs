@@ -1504,7 +1504,7 @@ public async getStatus(contactId: string) {
    * @returns list of messages
    */
   public async getAllNewMessages() {
-    return JSON.parse(await this.page.evaluate(() => WAPI.getAllNewMessages()));
+    return await this.page.evaluate(() => WAPI.getAllNewMessages());
   }
 
   /**
