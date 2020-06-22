@@ -54,7 +54,7 @@
     "@types/command-line-args": "^5.0.0",
     "@types/express": "^4.17.6",
     "@types/line-reader": "0.0.29",
-    "@types/marked": "^0.7.2",
+    "@types/marked": "^1.1.0",
     "@types/node": "^14.0.1",
     "@types/puppeteer": "^3.0.0",
     "@types/shelljs": "^0.8.5",
