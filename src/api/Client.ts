@@ -1125,7 +1125,7 @@ export class Client {
    * @returns Number
    */
   public async getHostNumber() {
-    return await this.page.evaluate(() => WAPI.getIsPlugged());
+    return await this.page.evaluate(() => WAPI.getHostNumber());
   }
 
   /**
