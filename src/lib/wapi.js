@@ -2164,6 +2164,10 @@ window.WAPI.cutMsgCache = function (){
     return true;
 }
 
+window.WAPI.getHostNumber = function() {
+    return WAPI.getMe().me.user;
+}
+
 //All of the following features can be unlocked using a license key: https://github.com/open-wa/wa-automate-nodejs#license-key
 window.WAPI.getStoryStatusByTimeStamp = function(){return false;}
 window.WAPI.deleteAllStatus = function(){return false;}
