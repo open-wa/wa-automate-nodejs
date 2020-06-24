@@ -1,4 +1,4 @@
-import { Page } from 'puppeteer';
+import { Page, EvaluateFn } from 'puppeteer';
 /**
  * @private
  */
@@ -11,7 +11,7 @@ import axios from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent } from '../config/puppeteer.config'
 import sharp from 'sharp';
-import { ConfigObject } from './model';
+import { ConfigObject, STATE } from './model';
 const parseFunction = require('parse-function');
 const { default: PQueue } = require("p-queue");
 
@@ -182,6 +182,7 @@ declare module WAPI {
   const getIndicatedNewMessages: () => any;
   const getAllChatsWithMessages: (withNewMessageOnly?: boolean) => any;
   const getAllChats: () => any;
+  const getState: () => string;
   const getBatteryLevel: () => number;
   const getIsPlugged: () => boolean;
   const clearAllChats: () => Promise<boolean>;
@@ -245,6 +246,13 @@ export class Client {
     })
   }
 
+  private async pup(pageFunction:EvaluateFn<any>, ...args) {
+    if(this._createConfig.safeMode && (!this.page || this.page.isClosed())) throw 'page closed';
+    const state = await this.getConnectionState();
+    if(state!==STATE.CONNECTED) throw `state: ${state}`
+    return this.page.evaluate(pageFunction, ...args)
+  }
+
   /**
    * @event Listens to messages received
    * @fires Observable stream of messages
@@ -263,7 +271,7 @@ export class Client {
   public async onAnyMessage(fn: (message: Message) => void) {
     this.page.exposeFunction(ExposedFn.OnAnyMessage, (message: Message) =>
       fn(message)
-    ).then(_ => this.page.evaluate(
+    ).then(_ => this.pup(
       () => {
         WAPI.addAllNewMessagesListener(window["onAnyMessage"]);
       }));
@@ -276,7 +284,7 @@ export class Client {
   public async onBattery(fn: (battery:number) => void) {
     this.page.exposeFunction('onBattery', (battery: number) =>
       fn(battery)
-    ).then(_ => this.page.evaluate(
+    ).then(_ => this.pup(
       () => {
         WAPI.onBattery(window["onBattery"]);
       }));
@@ -289,7 +297,7 @@ export class Client {
   public async onPlugged(fn: (plugged: boolean) => void) {
     this.page.exposeFunction('onPlugged', (plugged: boolean) =>
       fn(plugged)
-    ).then(_ => this.page.evaluate(
+    ).then(_ => this.pup(
       () => {
         WAPI.onPlugged(window["onPlugged"]);
       }));
@@ -308,7 +316,7 @@ export class Client {
   public async onStory(fn: (story: any) => void) {
     this.page.exposeFunction('onStory', (story: any) =>
       fn(story)
-    ).then(_ => this.page.evaluate(
+    ).then(_ => this.pup(
       () => {
         WAPI.onStory(window["onStory"]);
       }));
@@ -321,7 +329,7 @@ export class Client {
   public onStateChanged(fn: (state: string) => void) {
     this.page.exposeFunction(ExposedFn.onStateChanged, (state: string) =>
       fn(state)
-    ).then(_ => this.page.evaluate(
+    ).then(_ => this.pup(
       () => {
         WAPI.onStateChanged(s => window['onStateChanged'](s.state))
       }));
@@ -335,7 +343,7 @@ export class Client {
   public onIncomingCall(fn: (call: any) => void) {
     this.page.exposeFunction('onIncomingCall', (call: any) =>
       fn(call)
-    ).then(_ => this.page.evaluate(
+    ).then(_ => this.pup(
       () => {
         WAPI.onIncomingCall(call => window['onIncomingCall'](call))
       }));
@@ -346,7 +354,7 @@ export class Client {
    * @param available if true it will set your presence to 'online', false will set to unavailable (i.e no 'online' on recipients' phone);
    */
   public async setPresence(available: boolean) {
-    return await this.page.evaluate(
+    return await this.pup(
       available => {WAPI.setPresence(available)},
       available
       )
@@ -357,7 +365,7 @@ export class Client {
    * @param newStatus String new profile status
    */
   public async setMyStatus(newStatus: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({newStatus}) => {WAPI.setMyStatus(newStatus)},
       {newStatus}
       )
@@ -369,7 +377,7 @@ export class Client {
    * @param id The Chat, message or contact id to which you want to add a label
    */
   public async addLabel(label: string, id: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({label, id}) => {WAPI.addOrRemoveLabels(label, id, 'add')},
       {label, id}
       )
@@ -381,7 +389,7 @@ export class Client {
    * @param id The Chat, message or contact id to which you want to add a label
    */
   public async removeLabel(label: string, id: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({label, id}) => {WAPI.addOrRemoveLabels(label, id, 'remove')},
       {label, id}
       )
@@ -397,7 +405,7 @@ export class Client {
  * `4477777777777`
  */
   public async sendVCard(chatId: string, vcard: string, contactName:string,  contactNumber?: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({chatId, vcard, contactName, contactNumber}) => {WAPI.sendVCard(chatId, vcard,contactName, contactNumber)},
       {chatId, vcard, contactName, contactNumber}
       )
@@ -408,7 +416,7 @@ export class Client {
    * @param newName String new name to set for your profile
    */
    public async setMyName(newName: string) {
-     return await this.page.evaluate(
+     return await this.pup(
        ({newName}) => {WAPI.setMyName(newName)},
        {newName}
        )
@@ -420,7 +428,7 @@ export class Client {
     * @param {String} chatId 
     */
    public async setChatState(chatState: ChatState, chatId: String) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({chatState, chatId}) => {WAPI.setChatState(chatState, chatId)},
       //@ts-ignore
       {chatState, chatId}
@@ -432,8 +440,7 @@ export class Client {
    * @returns Any of OPENING, PAIRING, UNPAIRED, UNPAIRED_IDLE, CONNECTED, TIMEOUT, CONFLICT, UNLAUNCHED, PROXYBLOCK, TOS_BLOCK, SMB_TOS_BLOCK, DEPRECATED_VERSION
    */
   public async getConnectionState() {
-    //@ts-ignore
-    return await this.page.evaluate(() => { return Store.State.default.state })
+    return await this.page.evaluate(() => WAPI.getState())
   }
 
   /**
@@ -466,7 +473,7 @@ export class Client {
       `[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML.toLowerCase()==="${useHere.toLowerCase()}"})`,
       { timeout: 0 }
     );
-    await this.page.evaluate(`[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML.toLowerCase()=="${useHere.toLowerCase()}"}).click()`);
+    return await this.page.evaluate(`[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML.toLowerCase()=="${useHere.toLowerCase()}"}).click()`);
   }
 
 /**
@@ -481,7 +488,7 @@ export class Client {
     return this.page.exposeFunction(funcName, (liveLocationChangedEvent: LiveLocationChangedEvent) =>
       fn(liveLocationChangedEvent)
     )
-      .then(_ => this.page.evaluate(
+      .then(_ => this.pup(
         ({ chatId,funcName }) => {
         //@ts-ignore
           return WAPI.onLiveLocation(chatId, window[funcName]);
@@ -497,7 +504,7 @@ export class Client {
    * @returns Promise<LiveLocationChangedEvent []> | boolean 
    */
   public async forceUpdateLiveLocation(chatId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({chatId}) => WAPI.forceUpdateLiveLocation(chatId),
       { chatId }
     );
@@ -515,7 +522,7 @@ export class Client {
     return this.page.exposeFunction(funcName, (participantChangedEvent: ParticipantChangedEventModel) =>
       fn(participantChangedEvent)
     )
-      .then(_ => this.page.evaluate(
+      .then(_ => this.pup(
         ({ groupId,funcName, useLegancyMethod }) => {
           //@ts-ignore
           if(useLegancyMethod) return WAPI._onParticipantsChanged(groupId, window[funcName]); else return WAPI.onParticipantsChanged(groupId, window[funcName]);
@@ -535,7 +542,7 @@ export class Client {
     return await this.page.exposeFunction(funcName, (participantChangedEvent: ParticipantChangedEventModel) =>
       fn(participantChangedEvent)
     )
-      .then(_ => this.page.evaluate(
+      .then(_ => this.pup(
         ({ funcName }) => {
           //@ts-ignore
           return WAPI.onGlobalParicipantsChanged(window[funcName]);
@@ -557,7 +564,7 @@ export class Client {
     return this.page.exposeFunction(funcName, (chat: any) =>
       fn(chat)
     )
-      .then(_ => this.page.evaluate(
+      .then(_ => this.pup(
         () => {
         //@ts-ignore
           WAPI.onAddedToGroup(window.onAddedToGroup);
@@ -580,7 +587,7 @@ export class Client {
     return this.page.exposeFunction(funcName, (chat: any) =>
       fn(chat)
     )
-      .then(_ => this.page.evaluate(
+      .then(_ => this.pup(
         () => {
         //@ts-ignore
           WAPI.onRemovedFromGroup(window.onRemovedFromGroup);
@@ -602,7 +609,7 @@ export class Client {
     return this.page.exposeFunction(funcName, (chat: any) =>
       fn(chat)
     )
-      .then(_ => this.page.evaluate(
+      .then(_ => this.pup(
         () => {
         //@ts-ignore
           WAPI.onChatOpened(window.onChatOpened);
@@ -624,7 +631,7 @@ export class Client {
     return this.page.exposeFunction(funcName, (chat: any) =>
       fn(chat)
     )
-      .then(_ => this.page.evaluate(
+      .then(_ => this.pup(
         () => {
         //@ts-ignore
           WAPI.onContactAdded(window.onContactAdded);
@@ -639,7 +646,7 @@ export class Client {
    * @param content text message
    */
   public async sendText(to: string, content: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ to, content }) => {
         WAPI.sendSeen(to);
         return WAPI.sendMessage(to, content);
@@ -658,7 +665,7 @@ export class Client {
    * @param content text message
    */
   public async sendTextWithMentions(to: string, content: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ to, content }) => {
         WAPI.sendSeen(to);
         return WAPI.sendMessageWithMentions(to, content);
@@ -679,7 +686,7 @@ export class Client {
    * @param replyMessageId id of message to reply to
    */
   public async sendReplyWithMentions(to: string, content: string, replyMessageId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ to, content, replyMessageId }) => {
         WAPI.sendSeen(to);
         return WAPI.sendReplyWithMentions(to, content, replyMessageId);
@@ -705,7 +712,7 @@ export class Client {
     description: string,
     text: string,
     chatId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ thumb,
         url,
         title,
@@ -741,7 +748,7 @@ export class Client {
    * @param loc location text: 'LONDON!'
    */
   public async sendLocation(to: string, lat: any, lng: any, loc: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ to, lat, lng, loc }) => WAPI.sendLocation(to, lat, lng, loc),
       { to, lat, lng, loc }
     );
@@ -753,7 +760,7 @@ export class Client {
    */
   public async getGeneratedUserAgent(userA?: string) {
     let ua = userA || useragent;
-    return await this.page.evaluate(
+    return await this.pup(
       ({ua}) => WAPI.getGeneratedUserAgent(ua),
       { ua }
     );
@@ -779,7 +786,7 @@ export class Client {
     waitForId?: boolean,
     ptt?:boolean
   ) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ to, base64, filename, caption, quotedMsgId, waitForId, ptt}) =>  WAPI.sendImage(base64, to, filename, caption, quotedMsgId, waitForId, ptt),
       { to, base64, filename, caption, quotedMsgId, waitForId, ptt }
     );
@@ -807,7 +814,7 @@ export class Client {
     url: string,
     text?: string,
   ) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ to,url, text }) => {
         WAPI.sendLinkWithAutoPreview(to,url,text);
       },
@@ -825,7 +832,7 @@ export class Client {
    */
   public async reply(to: string, content: string, quotedMsgId: string, sendSeen?: boolean) {
     if(sendSeen) await this.sendSeen(to);
-    return await this.page.evaluate(
+    return await this.pup(
       ({ to, content, quotedMsgId }) =>WAPI.reply(to, content, quotedMsgId),
       { to, content, quotedMsgId }
     )
@@ -885,7 +892,7 @@ export class Client {
     caption: string,
     quotedMsgId?: string
   ) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ to, base64, filename, caption, quotedMsgId  }) => {
         WAPI.sendVideoAsGif(base64, to, filename, caption, quotedMsgId );
       },
@@ -910,7 +917,7 @@ export class Client {
       const r = `https://i.giphy.com/${n[1]}.mp4`;
       const filename = `${n[1]}.mp4`
       const base64 = await getBase64(r);
-      return await this.page.evaluate(
+      return await this.pup(
         ({ to, base64, filename, caption }) => {
           WAPI.sendVideoAsGif(base64, to, filename, caption);
         },
@@ -948,7 +955,7 @@ export class Client {
       return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId)
     } catch(error) {
       console.log('Something went wrong', error);
-      return error;
+      throw error;
     }
   }
 
@@ -956,9 +963,9 @@ export class Client {
  * Returns an object with all of your host device details
  */
   public async getMe(){
-    return await this.page.evaluate(() => WAPI.getMe());
+    return await this.pup(() => WAPI.getMe());
     //@ts-ignore
-    // return await this.page.evaluate(() => Store.Me.attributes);
+    // return await this.pup(() => Store.Me.attributes);
   }
 
   /**
@@ -966,14 +973,14 @@ export class Client {
    */
   public async syncContacts(){
     //@ts-ignore
-    return await this.page.evaluate(() => WAPI.syncContacts());
+    return await this.pup(() => WAPI.syncContacts());
   }
 
    /**
     * SEasily get the amount of messages loaded up in the session. This will allow you to determine when to clear chats/cache.
     */
    public async getAmountOfLoadedMessages(){
-     return await this.page.evaluate(() => WAPI.getAmountOfLoadedMessages());
+     return await this.pup(() => WAPI.getAmountOfLoadedMessages());
    }
 
 
@@ -985,7 +992,7 @@ export class Client {
    * @returns None
    */
   public async getBusinessProfilesProducts(id: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ id }) => WAPI.getBusinessProfilesProducts(id),
       { id }
     );
@@ -1009,7 +1016,7 @@ export class Client {
     bizNumber: string,
     productId: string
   ) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ to, base64, bizNumber, caption, productId }) => {
         WAPI.sendImageWithProduct(base64, to, caption, bizNumber, productId);
       },
@@ -1023,7 +1030,7 @@ export class Client {
    * @param {string|array} contact 'xxxx@c.us' | ['xxxx@c.us', 'yyyy@c.us', ...]
    */
   public async sendContact(to: string, contactId: string | string[]) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ to, contactId }) => WAPI.sendContact(to, contactId),
       { to, contactId }
     );
@@ -1036,7 +1043,7 @@ export class Client {
    * @param {boolean} on turn on similated typing, false to turn it off you need to manually turn this off.
    */
   public async simulateTyping(to: string, on: boolean) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ to, on }) => WAPI.simulateTyping(to, on),
       { to, on }
     );
@@ -1049,7 +1056,7 @@ export class Client {
    * @return boolean true: worked, false: didnt work (probably already in desired state)
    */
   public async archiveChat(id: string, archive: boolean) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ id, archive }) => WAPI.archiveChat(id, archive),
       { id, archive }
     );
@@ -1064,7 +1071,7 @@ export class Client {
    * @param {boolean} skipMyMessages This indicates whether or not to skip your own messages from the array
    */
   public async forwardMessages(to: string, messages: any, skipMyMessages: boolean) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ to, messages, skipMyMessages }) => WAPI.forwardMessages(to, messages, skipMyMessages),
       { to, messages, skipMyMessages }
     );
@@ -1078,7 +1085,7 @@ export class Client {
  * @returns Promise<boolean>
  */
   public async ghostForward(to: string, messageId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ to, messageId }) => WAPI.ghostForward(to, messageId),
       { to, messageId }
     );
@@ -1089,11 +1096,11 @@ export class Client {
    * @returns array of [Contact]
    */
   public async getAllContacts() {
-    return await this.page.evaluate(() => WAPI.getAllContacts());
+    return await this.pup(() => WAPI.getAllContacts());
   }
 
   public async getWAVersion() {
-    return await this.page.evaluate(() => WAPI.getWAVersion());
+    return await this.pup(() => WAPI.getWAVersion());
   }
 
   /**
@@ -1101,7 +1108,7 @@ export class Client {
    * @returns Boolean
    */
   public async isConnected() {
-    return await this.page.evaluate(() => WAPI.isConnected());
+    return await this.pup(() => WAPI.isConnected());
   }
 
   /**
@@ -1109,7 +1116,7 @@ export class Client {
    * @returns Number
    */
   public async getBatteryLevel() {
-    return await this.page.evaluate(() => WAPI.getBatteryLevel());
+    return await this.pup(() => WAPI.getBatteryLevel());
   }
 
   /**
@@ -1117,7 +1124,7 @@ export class Client {
    * @returns Number
    */
   public async getIsPlugged() {
-    return await this.page.evaluate(() => WAPI.getIsPlugged());
+    return await this.pup(() => WAPI.getIsPlugged());
   }
 
   /**
@@ -1125,7 +1132,7 @@ export class Client {
    * @returns Number
    */
   public async getHostNumber() {
-    return await this.page.evaluate(() => WAPI.getHostNumber());
+    return await this.pup(() => WAPI.getHostNumber());
   }
 
   /**
@@ -1134,11 +1141,11 @@ export class Client {
    */
   public async getAllChats(withNewMessageOnly = false) {
     if (withNewMessageOnly) {
-      return await this.page.evaluate(() =>
+      return await this.pup(() =>
         WAPI.getAllChatsWithNewMsg()
       );
     } else {
-      return await this.page.evaluate(() => WAPI.getAllChats());
+      return await this.pup(() => WAPI.getAllChats());
     }
   }
 
@@ -1147,7 +1154,7 @@ export class Client {
    * @returns array of [Chat]
    */
   public async getAllChatsWithMessages(withNewMessageOnly = false) {
-    return JSON.parse(await this.page.evaluate(withNewMessageOnly => WAPI.getAllChatsWithMessages(withNewMessageOnly), withNewMessageOnly));
+    return JSON.parse(await this.pup(withNewMessageOnly => WAPI.getAllChatsWithMessages(withNewMessageOnly), withNewMessageOnly));
   }
 
   /**
@@ -1157,10 +1164,10 @@ export class Client {
   public async getAllGroups(withNewMessagesOnly = false) {
     if (withNewMessagesOnly) {
       // prettier-ignore
-      const chats = await this.page.evaluate(() => WAPI.getAllChatsWithNewMsg());
+      const chats = await this.pup(() => WAPI.getAllChatsWithNewMsg());
       return chats.filter(chat => chat.isGroup);
     } else {
-      const chats = await this.page.evaluate(() => WAPI.getAllChats());
+      const chats = await this.pup(() => WAPI.getAllChats());
       return chats.filter(chat => chat.isGroup);
     }
   }
@@ -1170,7 +1177,7 @@ export class Client {
    * @param groupId group id
    */
   public async getGroupMembersId(groupId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       groupId => WAPI.getGroupParticipantIDs(groupId),
       groupId
     );
@@ -1185,7 +1192,7 @@ export class Client {
  * @returns Promise<string | boolean> Either false if it didn't work, or the group id.
  */
   public async joinGroupViaLink(link: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       link => WAPI.joinGroupViaLink(link),
       link
     );
@@ -1197,7 +1204,7 @@ export class Client {
  * @param {string} id '000000000000@c.us'
  */
 public async contactBlock(id: string) {
-  return await this.page.evaluate(id => WAPI.contactBlock(id),id)
+  return await this.pup(id => WAPI.contactBlock(id),id)
 }
 
 /**
@@ -1205,7 +1212,7 @@ public async contactBlock(id: string) {
  * @param {string} id '000000000000@c.us'
  */
 public async contactUnblock(id: string) {
-  return await this.page.evaluate(id => WAPI.contactUnblock(id),id)
+  return await this.pup(id => WAPI.contactUnblock(id),id)
 }
 
   /**
@@ -1213,7 +1220,7 @@ public async contactUnblock(id: string) {
    * @param groupId group id
    */
   public async leaveGroup(groupId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       groupId => WAPI.leaveGroup(groupId),
       groupId
     );
@@ -1236,7 +1243,7 @@ public async contactUnblock(id: string) {
  * Please use [vcf](https://www.npmjs.com/package/vcf) to convert a vcard string into a json object
  */
   public async getVCards(msgId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       msgId => WAPI.getVCards(msgId),
       msgId
     );
@@ -1261,7 +1268,7 @@ public async contactUnblock(id: string) {
    */
   //@ts-ignore
   public async getContact(contactId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       contactId => WAPI.getContact(contactId),
       contactId
     );
@@ -1273,7 +1280,7 @@ public async contactUnblock(id: string) {
    * @returns contact detial as promise
    */
   public async getChatById(contactId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       contactId => WAPI.getChatById(contactId),
       contactId
     );
@@ -1285,7 +1292,7 @@ public async contactUnblock(id: string) {
    * @returns message object
    */
   public async getMessageById(messageId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       messageId => WAPI.getMessageById(messageId),
       messageId
     );
@@ -1297,7 +1304,7 @@ public async contactUnblock(id: string) {
    * @returns contact detial as promise
    */
   public async getChat(contactId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       contactId => WAPI.getChat(contactId),
       contactId
     );
@@ -1312,7 +1319,7 @@ public async contactUnblock(id: string) {
    * }
    */
   public async getCommonGroups(contactId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       contactId => WAPI.getCommonGroups(contactId),
       contactId
     );
@@ -1328,7 +1335,7 @@ public async contactUnblock(id: string) {
    * @returns number timestamp when chat was last online or undefined.
    */
   public async getLastSeen(chatId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       chatId => WAPI.getLastSeen(chatId),
       chatId
     );
@@ -1340,7 +1347,7 @@ public async contactUnblock(id: string) {
    * @returns Url of the chat picture or undefined if there is no picture for the chat.
    */
   public async getProfilePicFromServer(chatId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       chatId => WAPI.getProfilePicFromServer(chatId),
       chatId
     );
@@ -1352,7 +1359,7 @@ public async contactUnblock(id: string) {
    * @param chatId chat id: xxxxx@us.c
    */
   public async sendSeen(chatId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
      chatId => WAPI.sendSeen(chatId),
       chatId
     );
@@ -1364,7 +1371,7 @@ public async contactUnblock(id: string) {
    * @param chatId chat id: xxxxx@us.c
    */
   public async markAsUnread(chatId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
      chatId => WAPI.markAsUnread(chatId),
       chatId
     );
@@ -1375,7 +1382,7 @@ public async contactUnblock(id: string) {
    * @param chatId chat id: xxxxx@us.c
    */
   public async isChatOnline(chatId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
      chatId => WAPI.isChatOnline(chatId),
       chatId
     );
@@ -1388,7 +1395,7 @@ public async contactUnblock(id: string) {
    * @returns Message []
    */
   public async loadEarlierMessages(contactId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       contactId => WAPI.loadEarlierMessages(contactId),
       contactId
     );
@@ -1401,7 +1408,7 @@ public async contactUnblock(id: string) {
  */
 
 public async getStatus(contactId: string) {
-  return await this.page.evaluate(
+  return await this.pup(
     contactId => WAPI.getStatus(contactId),
     contactId
   );
@@ -1413,7 +1420,7 @@ public async getStatus(contactId: string) {
    * @returns contact detial as promise
    */
   public async loadAllEarlierMessages(contactId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       contactId => WAPI.loadAllEarlierMessages(contactId),
       contactId
     );
@@ -1425,7 +1432,7 @@ public async getStatus(contactId: string) {
    * @returns boolean
    */
   public async deleteChat(chatId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       chatId => WAPI.deleteConversation(chatId),
       chatId
     );
@@ -1437,7 +1444,7 @@ public async getStatus(contactId: string) {
    * @returns boolean
    */
   public async clearChat(chatId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       chatId => WAPI.clearChat(chatId),
       chatId
     );
@@ -1449,7 +1456,7 @@ public async getStatus(contactId: string) {
    * @returns Promise<string>
    */
   public async getGroupInviteLink(chatId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       chatId => WAPI.getGroupInviteLink(chatId),
       chatId
     );
@@ -1461,7 +1468,7 @@ public async getStatus(contactId: string) {
    * @returns Promise<boolean>
    */
   public async revokeGroupInviteLink(chatId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       chatId => WAPI.revokeGroupInviteLink(chatId),
       chatId
     );
@@ -1475,7 +1482,7 @@ public async getStatus(contactId: string) {
    * @returns nothing
    */
   public async deleteMessage(contactId: string, messageId: string[] | string, onlyLocal : boolean = false) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ contactId, messageId, onlyLocal }) => WAPI.smartDeleteMessages(contactId, messageId, onlyLocal),
       { contactId, messageId, onlyLocal }
     );
@@ -1487,7 +1494,7 @@ public async getStatus(contactId: string) {
    * @returns contact detial as promise
    */
   public async checkNumberStatus(contactId: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       contactId => WAPI.checkNumberStatus(contactId),
       contactId
     );
@@ -1501,7 +1508,7 @@ public async getStatus(contactId: string) {
    * @returns any
    */
   public async getUnreadMessages(includeMe: boolean, includeNotifications: boolean, use_unread_count: boolean) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ includeMe, includeNotifications, use_unread_count }) => WAPI.getUnreadMessages(includeMe, includeNotifications, use_unread_count),
       { includeMe, includeNotifications, use_unread_count }
     );
@@ -1513,7 +1520,7 @@ public async getStatus(contactId: string) {
    * @returns list of messages
    */
   public async getAllNewMessages() {
-    return await this.page.evaluate(() => WAPI.getAllNewMessages());
+    return await this.pup(() => WAPI.getAllNewMessages());
   }
 
   /**
@@ -1521,7 +1528,7 @@ public async getStatus(contactId: string) {
    * @returns list of messages
    */
   public async getAllUnreadMessages() {
-    return await this.page.evaluate(() => WAPI.getAllUnreadMessages());
+    return await this.pup(() => WAPI.getAllUnreadMessages());
   }
 
   /**
@@ -1535,7 +1542,7 @@ public async getStatus(contactId: string) {
    * @returns list of messages
    */
   public async getIndicatedNewMessages() {
-    return JSON.parse(await this.page.evaluate(() => WAPI.getIndicatedNewMessages()));
+    return JSON.parse(await this.pup(() => WAPI.getIndicatedNewMessages()));
   }
 
   /**
@@ -1550,7 +1557,7 @@ public async getStatus(contactId: string) {
    */
 
   public async getAllMessagesInChat(chatId: string, includeMe: boolean, includeNotifications: boolean) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ chatId, includeMe, includeNotifications }) => WAPI.getAllMessagesInChat(chatId, includeMe, includeNotifications),
       { chatId, includeMe, includeNotifications }
     );
@@ -1565,7 +1572,7 @@ public async getStatus(contactId: string) {
    */
 
   public async loadAndGetAllMessagesInChat(chatId: string, includeMe: boolean, includeNotifications: boolean) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ chatId, includeMe, includeNotifications }) => WAPI.loadAndGetAllMessagesInChat(chatId, includeMe, includeNotifications),
       { chatId, includeMe, includeNotifications }
     );
@@ -1592,7 +1599,7 @@ public async getStatus(contactId: string) {
    * ```
    */
   public async createGroup(groupName:string,contacts:string|string[]){
-    return await this.page.evaluate(
+    return await this.pup(
       ({ groupName, contacts }) => WAPI.createGroup(groupName, contacts),
       { groupName, contacts }
     );
@@ -1605,7 +1612,7 @@ public async getStatus(contactId: string) {
    * @param {*} done - function - Callback function to be called when a new message arrives.
    */
   public async removeParticipant(idGroup: string, idParticipant: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ idGroup, idParticipant }) => WAPI.removeParticipant(idGroup, idParticipant),
       { idGroup, idParticipant }
     );
@@ -1628,7 +1635,7 @@ public async getStatus(contactId: string) {
       const jpeg = sharp(scaledImageBuffer,{ failOnError: false }).jpeg();
       const imgData = `data:jpeg;base64,${(await jpeg.toBuffer()).toString('base64')}`;
       console.log("setGroupIcon -> imgData", imgData)
-      return await this.page.evaluate(
+      return await this.pup(
         ({ groupId, imgData }) => WAPI.setGroupIcon(groupId, imgData),
         { groupId, imgData }
       );
@@ -1646,7 +1653,7 @@ public async getStatus(contactId: string) {
       const base64 = await getBase64(url, requestConfig);
        return await this.setGroupIcon(groupId,base64);
      } catch(error) {
-       return error;
+       throw error;
      }
   }
 
@@ -1658,7 +1665,7 @@ public async getStatus(contactId: string) {
   */
 
   public async addParticipant(idGroup: string, idParticipant: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ idGroup, idParticipant }) => WAPI.addParticipant(idGroup, idParticipant),
       { idGroup, idParticipant }
     );
@@ -1672,7 +1679,7 @@ public async getStatus(contactId: string) {
   */
 
   public async promoteParticipant(idGroup: string, idParticipant: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ idGroup, idParticipant }) => WAPI.promoteParticipant(idGroup, idParticipant),
       { idGroup, idParticipant }
     );
@@ -1684,7 +1691,7 @@ public async getStatus(contactId: string) {
   * @param {*} idParticipant '000000000000@c.us'
   */
   public async demoteParticipant(idGroup: string, idParticipant: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ idGroup, idParticipant }) => WAPI.demoteParticipant(idGroup, idParticipant),
       { idGroup, idParticipant }
     );
@@ -1697,7 +1704,7 @@ public async getStatus(contactId: string) {
   * @returns boolean true if action completed successfully.
   */
   public async setGroupToAdminsOnly(groupId: string, onlyAdmins: boolean) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ groupId, onlyAdmins }) => WAPI.setGroupToAdminsOnly(groupId, onlyAdmins),
       { groupId, onlyAdmins }
     );
@@ -1712,7 +1719,7 @@ public async getStatus(contactId: string) {
   * @returns boolean true if action completed successfully.
   */
  public async setGroupEditToAdminsOnly(groupId: string, onlyAdmins: boolean) {
-  return await this.page.evaluate(
+  return await this.pup(
     ({ groupId, onlyAdmins }) => WAPI.setGroupEditToAdminsOnly(groupId, onlyAdmins),
     { groupId, onlyAdmins }
   );
@@ -1723,7 +1730,7 @@ public async getStatus(contactId: string) {
   * @param {*} idGroup '0000000000-00000000@g.us'
   */
   public async getGroupAdmins(idGroup: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       (idGroup) => WAPI.getGroupAdmins(idGroup),
       idGroup
     );
@@ -1736,7 +1743,7 @@ public async getStatus(contactId: string) {
    * @param {string} hex '#FFF123'
   */
   public async setChatBackgroundColourHex(hex: string) {
-    return await this.page.evaluate(
+    return await this.pup(
       (hex) => WAPI.setChatBackgroundColourHex(hex),
       hex
     );
@@ -1749,7 +1756,7 @@ public async getStatus(contactId: string) {
    * @param {boolean} activate true to activate dark mode, false to deactivate
   */
   public async darkMode(activate: boolean) {
-    return await this.page.evaluate(
+    return await this.pup(
       (activate) => WAPI.darkMode(activate),
       activate
     );
@@ -1767,7 +1774,7 @@ public async getStatus(contactId: string) {
       return await this.sendImageAsSticker(to, base64);
      } catch(error) {
        console.log('Something went wrong', error);
-       return error;
+       throw error;
      }
   }
 
@@ -1785,7 +1792,7 @@ public async getStatus(contactId: string) {
    * @returns any If the property or the id cannot be found, it will return a 404
    */
   public async getSingleProperty(namespace: namespace, id: string, property : string) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ namespace, id, property }) => WAPI.getSingleProperty(namespace, id, property),
       { namespace, id, property }
     );
@@ -1793,7 +1800,7 @@ public async getStatus(contactId: string) {
   }
 
   public async injectJsSha(){
-      await this.page.evaluate(x=>eval(x),`'use strict';(function(I){function w(c,a,d){var l=0,b=[],g=0,f,n,k,e,h,q,y,p,m=!1,t=[],r=[],u,z=!1;d=d||{};f=d.encoding||"UTF8";u=d.numRounds||1;if(u!==parseInt(u,10)||1>u)throw Error("numRounds must a integer >= 1");if(0===c.lastIndexOf("SHA-",0))if(q=function(b,a){return A(b,a,c)},y=function(b,a,l,f){var g,e;if("SHA-224"===c||"SHA-256"===c)g=(a+65>>>9<<4)+15,e=16;else throw Error("Unexpected error in SHA-2 implementation");for(;b.length<=g;)b.push(0);b[a>>>5]|=128<<24-a%32;a=a+l;b[g]=a&4294967295;b[g-1]=a/4294967296|0;l=b.length;for(a=0;a<l;a+=e)f=A(b.slice(a,a+e),f,c);if("SHA-224"===c)b=[f[0],f[1],f[2],f[3],f[4],f[5],f[6]];else if("SHA-256"===c)b=f;else throw Error("Unexpected error in SHA-2 implementation");return b},p=function(b){return b.slice()},"SHA-224"===c)h=512,e=224;else if("SHA-256"===c)h=512,e=256;else throw Error("Chosen SHA variant is not supported");else throw Error("Chosen SHA variant is not supported");k=B(a,f);n=x(c);this.setHMACKey=function(b,a,g){var e;if(!0===m)throw Error("HMAC key already set");if(!0===z)throw Error("Cannot set HMAC key after calling update");f=(g||{}).encoding||"UTF8";a=B(a,f)(b);b=a.binLen;a=a.value;e=h>>>3;g=e/4-1;if(e<b/8){for(a=y(a,b,0,x(c));a.length<=g;)a.push(0);a[g]&=4294967040}else if(e>b/8){for(;a.length<=g;)a.push(0);a[g]&=4294967040}for(b=0;b<=g;b+=1)t[b]=a[b]^909522486,r[b]=a[b]^1549556828;n=q(t,n);l=h;m=!0};this.update=function(a){var c,f,e,d=0,p=h>>>5;c=k(a,b,g);a=c.binLen;f=c.value;c=a>>>5;for(e=0;e<c;e+=p)d+h<=a&&(n=q(f.slice(e,e+p),n),d+=h);l+=d;b=f.slice(d>>>5);g=a%h;z=!0};this.getHash=function(a,f){var d,h,k,q;if(!0===m)throw Error("Cannot call getHash after setting HMAC key");k=C(f);switch(a){case"HEX":d=function(a){return D(a,e,k)};break;case"B64":d=function(a){return E(a,e,k)};break;case"BYTES":d=function(a){return F(a,e)};break;case"ARRAYBUFFER":try{h=new ArrayBuffer(0)}catch(v){throw Error("ARRAYBUFFER not supported by this environment");}d=function(a){return G(a,e)};break;default:throw Error("format must be HEX, B64, BYTES, or ARRAYBUFFER");}q=y(b.slice(),g,l,p(n));for(h=1;h<u;h+=1)q=y(q,e,0,x(c));return d(q)};this.getHMAC=function(a,f){var d,k,t,u;if(!1===m)throw Error("Cannot call getHMAC without first setting HMAC key");t=C(f);switch(a){case"HEX":d=function(a){return D(a,e,t)};break;case"B64":d=function(a){return E(a,e,t)};break;case"BYTES":d=function(a){return F(a,e)};break;case"ARRAYBUFFER":try{d=new ArrayBuffer(0)}catch(v){throw Error("ARRAYBUFFER not supported by this environment");}d=function(a){return G(a,e)};break;default:throw Error("outputFormat must be HEX, B64, BYTES, or ARRAYBUFFER");}k=y(b.slice(),g,l,p(n));u=q(r,x(c));u=y(k,e,h,u);return d(u)}}function m(){}function D(c,a,d){var l="";a/=8;var b,g;for(b=0;b<a;b+=1)g=c[b>>>2]>>>8*(3+b%4*-1),l+="0123456789abcdef".charAt(g>>>4&15)+"0123456789abcdef".charAt(g&15);return d.outputUpper?l.toUpperCase():l}function E(c,a,d){var l="",b=a/8,g,f,n;for(g=0;g<b;g+=3)for(f=g+1<b?c[g+1>>>2]:0,n=g+2<b?c[g+2>>>2]:0,n=(c[g>>>2]>>>8*(3+g%4*-1)&255)<<16|(f>>>8*(3+(g+1)%4*-1)&255)<<8|n>>>8*(3+(g+2)%4*-1)&255,f=0;4>f;f+=1)8*g+6*f<=a?l+="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(n>>>6*(3-f)&63):l+=d.b64Pad;return l}function F(c,a){var d="",l=a/8,b,g;for(b=0;b<l;b+=1)g=c[b>>>2]>>>8*(3+b%4*-1)&255,d+=String.fromCharCode(g);return d}function G(c,a){var d=a/8,l,b=new ArrayBuffer(d),g;g=new Uint8Array(b);for(l=0;l<d;l+=1)g[l]=c[l>>>2]>>>8*(3+l%4*-1)&255;return b}function C(c){var a={outputUpper:!1,b64Pad:"=",shakeLen:-1};c=c||{};a.outputUpper=c.outputUpper||!1;!0===c.hasOwnProperty("b64Pad")&&(a.b64Pad=c.b64Pad);if("boolean"!==typeof a.outputUpper)throw Error("Invalid outputUpper formatting option");if("string"!==typeof a.b64Pad)throw Error("Invalid b64Pad formatting option");return a}function B(c,a){var d;switch(a){case"UTF8":case"UTF16BE":case"UTF16LE":break;default:throw Error("encoding must be UTF8, UTF16BE, or UTF16LE");}switch(c){case"HEX":d=function(a,b,c){var f=a.length,d,k,e,h,q;if(0!==f%2)throw Error("String of HEX type must be in byte increments");b=b||[0];c=c||0;q=c>>>3;for(d=0;d<f;d+=2){k=parseInt(a.substr(d,2),16);if(isNaN(k))throw Error("String of HEX type contains invalid characters");h=(d>>>1)+q;for(e=h>>>2;b.length<=e;)b.push(0);b[e]|=k<<8*(3+h%4*-1)}return{value:b,binLen:4*f+c}};break;case"TEXT":d=function(c,b,d){var f,n,k=0,e,h,q,m,p,r;b=b||[0];d=d||0;q=d>>>3;if("UTF8"===a)for(r=3,e=0;e<c.length;e+=1)for(f=c.charCodeAt(e),n=[],128>f?n.push(f):2048>f?(n.push(192|f>>>6),n.push(128|f&63)):55296>f||57344<=f?n.push(224|f>>>12,128|f>>>6&63,128|f&63):(e+=1,f=65536+((f&1023)<<10|c.charCodeAt(e)&1023),n.push(240|f>>>18,128|f>>>12&63,128|f>>>6&63,128|f&63)),h=0;h<n.length;h+=1){p=k+q;for(m=p>>>2;b.length<=m;)b.push(0);b[m]|=n[h]<<8*(r+p%4*-1);k+=1}else if("UTF16BE"===a||"UTF16LE"===a)for(r=2,n="UTF16LE"===a&&!0||"UTF16LE"!==a&&!1,e=0;e<c.length;e+=1){f=c.charCodeAt(e);!0===n&&(h=f&255,f=h<<8|f>>>8);p=k+q;for(m=p>>>2;b.length<=m;)b.push(0);b[m]|=f<<8*(r+p%4*-1);k+=2}return{value:b,binLen:8*k+d}};break;case"B64":d=function(a,b,c){var f=0,d,k,e,h,q,m,p;if(-1===a.search(/^[a-zA-Z0-9=+\/]+$/))throw Error("Invalid character in base-64 string");k=a.indexOf("=");a=a.replace(/\=/g,"");if(-1!==k&&k<a.length)throw Error("Invalid '=' found in base-64 string");b=b||[0];c=c||0;m=c>>>3;for(k=0;k<a.length;k+=4){q=a.substr(k,4);for(e=h=0;e<q.length;e+=1)d="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".indexOf(q[e]),h|=d<<18-6*e;for(e=0;e<q.length-1;e+=1){p=f+m;for(d=p>>>2;b.length<=d;)b.push(0);b[d]|=(h>>>16-8*e&255)<<8*(3+p%4*-1);f+=1}}return{value:b,binLen:8*f+c}};break;case"BYTES":d=function(a,b,c){var d,n,k,e,h;b=b||[0];c=c||0;k=c>>>3;for(n=0;n<a.length;n+=1)d=a.charCodeAt(n),h=n+k,e=h>>>2,b.length<=e&&b.push(0),b[e]|=d<<8*(3+h%4*-1);return{value:b,binLen:8*a.length+c}};break;case"ARRAYBUFFER":try{d=new ArrayBuffer(0)}catch(l){throw Error("ARRAYBUFFER not supported by this environment");}d=function(a,b,c){var d,n,k,e,h;b=b||[0];c=c||0;n=c>>>3;h=new Uint8Array(a);for(d=0;d<a.byteLength;d+=1)e=d+n,k=e>>>2,b.length<=k&&b.push(0),b[k]|=h[d]<<8*(3+e%4*-1);return{value:b,binLen:8*a.byteLength+c}};break;default:throw Error("format must be HEX, TEXT, B64, BYTES, or ARRAYBUFFER");}return d}function r(c,a){return c>>>a|c<<32-a}function J(c,a,d){return c&a^~c&d}function K(c,a,d){return c&a^c&d^a&d}function L(c){return r(c,2)^r(c,13)^r(c,22)}function M(c){return r(c,6)^r(c,11)^r(c,25)}function N(c){return r(c,7)^r(c,18)^c>>>3}function O(c){return r(c,17)^r(c,19)^c>>>10}function P(c,a){var d=(c&65535)+(a&65535);return((c>>>16)+(a>>>16)+(d>>>16)&65535)<<16|d&65535}function Q(c,a,d,l){var b=(c&65535)+(a&65535)+(d&65535)+(l&65535);return((c>>>16)+(a>>>16)+(d>>>16)+(l>>>16)+(b>>>16)&65535)<<16|b&65535}function R(c,a,d,l,b){var g=(c&65535)+(a&65535)+(d&65535)+(l&65535)+(b&65535);return((c>>>16)+(a>>>16)+(d>>>16)+(l>>>16)+(b>>>16)+(g>>>16)&65535)<<16|g&65535}function x(c){var a=[],d;if(0===c.lastIndexOf("SHA-",0))switch(a=[3238371032,914150663,812702999,4144912697,4290775857,1750603025,1694076839,3204075428],d=[1779033703,3144134277,1013904242,2773480762,1359893119,2600822924,528734635,1541459225],c){case"SHA-224":break;case"SHA-256":a=d;break;case"SHA-384":a=[new m,new m,new m,new m,new m,new m,new m,new m];break;case"SHA-512":a=[new m,new m,new m,new m,new m,new m,new m,new m];break;default:throw Error("Unknown SHA variant");}else throw Error("No SHA variants supported");return a}function A(c,a,d){var l,b,g,f,n,k,e,h,m,r,p,w,t,x,u,z,A,B,C,D,E,F,v=[],G;if("SHA-224"===d||"SHA-256"===d)r=64,w=1,F=Number,t=P,x=Q,u=R,z=N,A=O,B=L,C=M,E=K,D=J,G=H;else throw Error("Unexpected error in SHA-2 implementation");d=a[0];l=a[1];b=a[2];g=a[3];f=a[4];n=a[5];k=a[6];e=a[7];for(p=0;p<r;p+=1)16>p?(m=p*w,h=c.length<=m?0:c[m],m=c.length<=m+1?0:c[m+1],v[p]=new F(h,m)):v[p]=x(A(v[p-2]),v[p-7],z(v[p-15]),v[p-16]),h=u(e,C(f),D(f,n,k),G[p],v[p]),m=t(B(d),E(d,l,b)),e=k,k=n,n=f,f=t(g,h),g=b,b=l,l=d,d=t(h,m);a[0]=t(d,a[0]);a[1]=t(l,a[1]);a[2]=t(b,a[2]);a[3]=t(g,a[3]);a[4]=t(f,a[4]);a[5]=t(n,a[5]);a[6]=t(k,a[6]);a[7]=t(e,a[7]);return a}var H;H=[1116352408,1899447441,3049323471,3921009573,961987163,1508970993,2453635748,2870763221,3624381080,310598401,607225278,1426881987,1925078388,2162078206,2614888103,3248222580,3835390401,4022224774,264347078,604807628,770255983,1249150122,1555081692,1996064986,2554220882,2821834349,2952996808,3210313671,3336571891,3584528711,113926993,338241895,666307205,773529912,1294757372,1396182291,1695183700,1986661051,2177026350,2456956037,2730485921,2820302411,3259730800,3345764771,3516065817,3600352804,4094571909,275423344,430227734,506948616,659060556,883997877,958139571,1322822218,1537002063,1747873779,1955562222,2024104815,2227730452,2361852424,2428436474,2756734187,3204031479,3329325298];"function"===typeof define&&define.amd?define(function(){return w}):"undefined"!==typeof exports?("undefined"!==typeof module&&module.exports&&(module.exports=w),exports=w):I.jsSHA=w})(this);`)
+      await this.pup(x=>eval(x),`'use strict';(function(I){function w(c,a,d){var l=0,b=[],g=0,f,n,k,e,h,q,y,p,m=!1,t=[],r=[],u,z=!1;d=d||{};f=d.encoding||"UTF8";u=d.numRounds||1;if(u!==parseInt(u,10)||1>u)throw Error("numRounds must a integer >= 1");if(0===c.lastIndexOf("SHA-",0))if(q=function(b,a){return A(b,a,c)},y=function(b,a,l,f){var g,e;if("SHA-224"===c||"SHA-256"===c)g=(a+65>>>9<<4)+15,e=16;else throw Error("Unexpected error in SHA-2 implementation");for(;b.length<=g;)b.push(0);b[a>>>5]|=128<<24-a%32;a=a+l;b[g]=a&4294967295;b[g-1]=a/4294967296|0;l=b.length;for(a=0;a<l;a+=e)f=A(b.slice(a,a+e),f,c);if("SHA-224"===c)b=[f[0],f[1],f[2],f[3],f[4],f[5],f[6]];else if("SHA-256"===c)b=f;else throw Error("Unexpected error in SHA-2 implementation");return b},p=function(b){return b.slice()},"SHA-224"===c)h=512,e=224;else if("SHA-256"===c)h=512,e=256;else throw Error("Chosen SHA variant is not supported");else throw Error("Chosen SHA variant is not supported");k=B(a,f);n=x(c);this.setHMACKey=function(b,a,g){var e;if(!0===m)throw Error("HMAC key already set");if(!0===z)throw Error("Cannot set HMAC key after calling update");f=(g||{}).encoding||"UTF8";a=B(a,f)(b);b=a.binLen;a=a.value;e=h>>>3;g=e/4-1;if(e<b/8){for(a=y(a,b,0,x(c));a.length<=g;)a.push(0);a[g]&=4294967040}else if(e>b/8){for(;a.length<=g;)a.push(0);a[g]&=4294967040}for(b=0;b<=g;b+=1)t[b]=a[b]^909522486,r[b]=a[b]^1549556828;n=q(t,n);l=h;m=!0};this.update=function(a){var c,f,e,d=0,p=h>>>5;c=k(a,b,g);a=c.binLen;f=c.value;c=a>>>5;for(e=0;e<c;e+=p)d+h<=a&&(n=q(f.slice(e,e+p),n),d+=h);l+=d;b=f.slice(d>>>5);g=a%h;z=!0};this.getHash=function(a,f){var d,h,k,q;if(!0===m)throw Error("Cannot call getHash after setting HMAC key");k=C(f);switch(a){case"HEX":d=function(a){return D(a,e,k)};break;case"B64":d=function(a){return E(a,e,k)};break;case"BYTES":d=function(a){return F(a,e)};break;case"ARRAYBUFFER":try{h=new ArrayBuffer(0)}catch(v){throw Error("ARRAYBUFFER not supported by this environment");}d=function(a){return G(a,e)};break;default:throw Error("format must be HEX, B64, BYTES, or ARRAYBUFFER");}q=y(b.slice(),g,l,p(n));for(h=1;h<u;h+=1)q=y(q,e,0,x(c));return d(q)};this.getHMAC=function(a,f){var d,k,t,u;if(!1===m)throw Error("Cannot call getHMAC without first setting HMAC key");t=C(f);switch(a){case"HEX":d=function(a){return D(a,e,t)};break;case"B64":d=function(a){return E(a,e,t)};break;case"BYTES":d=function(a){return F(a,e)};break;case"ARRAYBUFFER":try{d=new ArrayBuffer(0)}catch(v){throw Error("ARRAYBUFFER not supported by this environment");}d=function(a){return G(a,e)};break;default:throw Error("outputFormat must be HEX, B64, BYTES, or ARRAYBUFFER");}k=y(b.slice(),g,l,p(n));u=q(r,x(c));u=y(k,e,h,u);return d(u)}}function m(){}function D(c,a,d){var l="";a/=8;var b,g;for(b=0;b<a;b+=1)g=c[b>>>2]>>>8*(3+b%4*-1),l+="0123456789abcdef".charAt(g>>>4&15)+"0123456789abcdef".charAt(g&15);return d.outputUpper?l.toUpperCase():l}function E(c,a,d){var l="",b=a/8,g,f,n;for(g=0;g<b;g+=3)for(f=g+1<b?c[g+1>>>2]:0,n=g+2<b?c[g+2>>>2]:0,n=(c[g>>>2]>>>8*(3+g%4*-1)&255)<<16|(f>>>8*(3+(g+1)%4*-1)&255)<<8|n>>>8*(3+(g+2)%4*-1)&255,f=0;4>f;f+=1)8*g+6*f<=a?l+="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(n>>>6*(3-f)&63):l+=d.b64Pad;return l}function F(c,a){var d="",l=a/8,b,g;for(b=0;b<l;b+=1)g=c[b>>>2]>>>8*(3+b%4*-1)&255,d+=String.fromCharCode(g);return d}function G(c,a){var d=a/8,l,b=new ArrayBuffer(d),g;g=new Uint8Array(b);for(l=0;l<d;l+=1)g[l]=c[l>>>2]>>>8*(3+l%4*-1)&255;return b}function C(c){var a={outputUpper:!1,b64Pad:"=",shakeLen:-1};c=c||{};a.outputUpper=c.outputUpper||!1;!0===c.hasOwnProperty("b64Pad")&&(a.b64Pad=c.b64Pad);if("boolean"!==typeof a.outputUpper)throw Error("Invalid outputUpper formatting option");if("string"!==typeof a.b64Pad)throw Error("Invalid b64Pad formatting option");return a}function B(c,a){var d;switch(a){case"UTF8":case"UTF16BE":case"UTF16LE":break;default:throw Error("encoding must be UTF8, UTF16BE, or UTF16LE");}switch(c){case"HEX":d=function(a,b,c){var f=a.length,d,k,e,h,q;if(0!==f%2)throw Error("String of HEX type must be in byte increments");b=b||[0];c=c||0;q=c>>>3;for(d=0;d<f;d+=2){k=parseInt(a.substr(d,2),16);if(isNaN(k))throw Error("String of HEX type contains invalid characters");h=(d>>>1)+q;for(e=h>>>2;b.length<=e;)b.push(0);b[e]|=k<<8*(3+h%4*-1)}return{value:b,binLen:4*f+c}};break;case"TEXT":d=function(c,b,d){var f,n,k=0,e,h,q,m,p,r;b=b||[0];d=d||0;q=d>>>3;if("UTF8"===a)for(r=3,e=0;e<c.length;e+=1)for(f=c.charCodeAt(e),n=[],128>f?n.push(f):2048>f?(n.push(192|f>>>6),n.push(128|f&63)):55296>f||57344<=f?n.push(224|f>>>12,128|f>>>6&63,128|f&63):(e+=1,f=65536+((f&1023)<<10|c.charCodeAt(e)&1023),n.push(240|f>>>18,128|f>>>12&63,128|f>>>6&63,128|f&63)),h=0;h<n.length;h+=1){p=k+q;for(m=p>>>2;b.length<=m;)b.push(0);b[m]|=n[h]<<8*(r+p%4*-1);k+=1}else if("UTF16BE"===a||"UTF16LE"===a)for(r=2,n="UTF16LE"===a&&!0||"UTF16LE"!==a&&!1,e=0;e<c.length;e+=1){f=c.charCodeAt(e);!0===n&&(h=f&255,f=h<<8|f>>>8);p=k+q;for(m=p>>>2;b.length<=m;)b.push(0);b[m]|=f<<8*(r+p%4*-1);k+=2}return{value:b,binLen:8*k+d}};break;case"B64":d=function(a,b,c){var f=0,d,k,e,h,q,m,p;if(-1===a.search(/^[a-zA-Z0-9=+\/]+$/))throw Error("Invalid character in base-64 string");k=a.indexOf("=");a=a.replace(/\=/g,"");if(-1!==k&&k<a.length)throw Error("Invalid '=' found in base-64 string");b=b||[0];c=c||0;m=c>>>3;for(k=0;k<a.length;k+=4){q=a.substr(k,4);for(e=h=0;e<q.length;e+=1)d="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".indexOf(q[e]),h|=d<<18-6*e;for(e=0;e<q.length-1;e+=1){p=f+m;for(d=p>>>2;b.length<=d;)b.push(0);b[d]|=(h>>>16-8*e&255)<<8*(3+p%4*-1);f+=1}}return{value:b,binLen:8*f+c}};break;case"BYTES":d=function(a,b,c){var d,n,k,e,h;b=b||[0];c=c||0;k=c>>>3;for(n=0;n<a.length;n+=1)d=a.charCodeAt(n),h=n+k,e=h>>>2,b.length<=e&&b.push(0),b[e]|=d<<8*(3+h%4*-1);return{value:b,binLen:8*a.length+c}};break;case"ARRAYBUFFER":try{d=new ArrayBuffer(0)}catch(l){throw Error("ARRAYBUFFER not supported by this environment");}d=function(a,b,c){var d,n,k,e,h;b=b||[0];c=c||0;n=c>>>3;h=new Uint8Array(a);for(d=0;d<a.byteLength;d+=1)e=d+n,k=e>>>2,b.length<=k&&b.push(0),b[k]|=h[d]<<8*(3+e%4*-1);return{value:b,binLen:8*a.byteLength+c}};break;default:throw Error("format must be HEX, TEXT, B64, BYTES, or ARRAYBUFFER");}return d}function r(c,a){return c>>>a|c<<32-a}function J(c,a,d){return c&a^~c&d}function K(c,a,d){return c&a^c&d^a&d}function L(c){return r(c,2)^r(c,13)^r(c,22)}function M(c){return r(c,6)^r(c,11)^r(c,25)}function N(c){return r(c,7)^r(c,18)^c>>>3}function O(c){return r(c,17)^r(c,19)^c>>>10}function P(c,a){var d=(c&65535)+(a&65535);return((c>>>16)+(a>>>16)+(d>>>16)&65535)<<16|d&65535}function Q(c,a,d,l){var b=(c&65535)+(a&65535)+(d&65535)+(l&65535);return((c>>>16)+(a>>>16)+(d>>>16)+(l>>>16)+(b>>>16)&65535)<<16|b&65535}function R(c,a,d,l,b){var g=(c&65535)+(a&65535)+(d&65535)+(l&65535)+(b&65535);return((c>>>16)+(a>>>16)+(d>>>16)+(l>>>16)+(b>>>16)+(g>>>16)&65535)<<16|g&65535}function x(c){var a=[],d;if(0===c.lastIndexOf("SHA-",0))switch(a=[3238371032,914150663,812702999,4144912697,4290775857,1750603025,1694076839,3204075428],d=[1779033703,3144134277,1013904242,2773480762,1359893119,2600822924,528734635,1541459225],c){case"SHA-224":break;case"SHA-256":a=d;break;case"SHA-384":a=[new m,new m,new m,new m,new m,new m,new m,new m];break;case"SHA-512":a=[new m,new m,new m,new m,new m,new m,new m,new m];break;default:throw Error("Unknown SHA variant");}else throw Error("No SHA variants supported");return a}function A(c,a,d){var l,b,g,f,n,k,e,h,m,r,p,w,t,x,u,z,A,B,C,D,E,F,v=[],G;if("SHA-224"===d||"SHA-256"===d)r=64,w=1,F=Number,t=P,x=Q,u=R,z=N,A=O,B=L,C=M,E=K,D=J,G=H;else throw Error("Unexpected error in SHA-2 implementation");d=a[0];l=a[1];b=a[2];g=a[3];f=a[4];n=a[5];k=a[6];e=a[7];for(p=0;p<r;p+=1)16>p?(m=p*w,h=c.length<=m?0:c[m],m=c.length<=m+1?0:c[m+1],v[p]=new F(h,m)):v[p]=x(A(v[p-2]),v[p-7],z(v[p-15]),v[p-16]),h=u(e,C(f),D(f,n,k),G[p],v[p]),m=t(B(d),E(d,l,b)),e=k,k=n,n=f,f=t(g,h),g=b,b=l,l=d,d=t(h,m);a[0]=t(d,a[0]);a[1]=t(l,a[1]);a[2]=t(b,a[2]);a[3]=t(g,a[3]);a[4]=t(f,a[4]);a[5]=t(n,a[5]);a[6]=t(k,a[6]);a[7]=t(e,a[7]);return a}var H;H=[1116352408,1899447441,3049323471,3921009573,961987163,1508970993,2453635748,2870763221,3624381080,310598401,607225278,1426881987,1925078388,2162078206,2614888103,3248222580,3835390401,4022224774,264347078,604807628,770255983,1249150122,1555081692,1996064986,2554220882,2821834349,2952996808,3210313671,3336571891,3584528711,113926993,338241895,666307205,773529912,1294757372,1396182291,1695183700,1986661051,2177026350,2456956037,2730485921,2820302411,3259730800,3345764771,3516065817,3600352804,4094571909,275423344,430227734,506948616,659060556,883997877,958139571,1322822218,1537002063,1747873779,1955562222,2024104815,2227730452,2361852424,2428436474,2756734187,3204031479,3329325298];"function"===typeof define&&define.amd?define(function(){return w}):"undefined"!==typeof exports?("undefined"!==typeof module&&module.exports&&(module.exports=w),exports=w):I.jsSHA=w})(this);`)
       return true;
     }
 
@@ -1818,7 +1825,7 @@ public async getStatus(contactId: string) {
       const webp = sharp(scaledImageBuffer,{ failOnError: false }).webp();
       const metadata : any= await webp.metadata();
       const webpBase64 = (await webp.toBuffer()).toString('base64');
-      return await this.page.evaluate(
+      return await this.pup(
         ({ webpBase64,to, metadata }) => WAPI.sendImageAsSticker(webpBase64,to, metadata),
         { webpBase64,to, metadata }
       );
@@ -1845,7 +1852,7 @@ public async getStatus(contactId: string) {
    * @returns Promise<string | boolean> returns status id if it worked, false if it didn't
    */
   public async postTextStatus(text: string, textRgba: string, backgroundRgba: string, font: number){
-    return await this.page.evaluate(
+    return await this.pup(
       ({ text, textRgba, backgroundRgba, font }) => WAPI.postTextStatus(text, textRgba, backgroundRgba, font),
       { text, textRgba, backgroundRgba, font }
     );
@@ -1860,7 +1867,7 @@ public async getStatus(contactId: string) {
    * @returns Promise<string | boolean> returns status id if it worked, false if it didn't
    */
   public async postImageStatus(data: string, caption: string){
-    return await this.page.evaluate(
+    return await this.pup(
       ({data, caption}) => WAPI.postImageStatus(data, caption),
       { data, caption }
     );
@@ -1875,7 +1882,7 @@ public async getStatus(contactId: string) {
    * @returns Promise<string | boolean> returns status id if it worked, false if it didn't
    */
   public async postVideoStatus(data: string, caption: string){
-    return await this.page.evaluate(
+    return await this.pup(
       ({data, caption}) => WAPI.postVideoStatus(data, caption),
       { data, caption }
     );
@@ -1888,7 +1895,7 @@ public async getStatus(contactId: string) {
  * @returns boolean. True if it worked.
  */
   public async deleteStatus(statusesToDelete: string | string []) {
-    return await this.page.evaluate(
+    return await this.pup(
       ({ statusesToDelete }) => WAPI.deleteStatus(statusesToDelete),
       { statusesToDelete }
     );
@@ -1899,14 +1906,14 @@ public async getStatus(contactId: string) {
  * @returns boolean. True if it worked.
  */
   public async deleteAllStatus() {
-    return await this.page.evaluate(() => WAPI.deleteAllStatus());
+    return await this.pup(() => WAPI.deleteAllStatus());
   }
 
     /**
      * Retreives all existing statuses.
      */
   public async getMyStatusArray() {
-    return await this.page.evaluate(() => WAPI.getMyStatusArray());
+    return await this.pup(() => WAPI.getMyStatusArray());
   }
 
     /**
@@ -1915,7 +1922,7 @@ public async getStatus(contactId: string) {
      * Clears all chats of all messages. This does not delete chats. Please be careful with this as it will remove all messages from whatsapp web and the host device. This feature is great for privacy focussed bots.
      */
   public async clearAllChats() {
-    return await this.page.evaluate(() => WAPI.clearAllChats());
+    return await this.pup(() => WAPI.clearAllChats());
   }
   
 
@@ -1925,7 +1932,7 @@ public async getStatus(contactId: string) {
      * You should use this in conjunction with `getAmountOfLoadedMessages` to intelligently control the session message cache.
      */
   public async cutMsgCache() {
-    return await this.page.evaluate(() => WAPI.cutMsgCache());
+    return await this.pup(() => WAPI.cutMsgCache());
   }
   
   /**
@@ -1952,7 +1959,7 @@ public async getStatus(contactId: string) {
    */
   public async downloadFileWithCredentials(url: string){
     if(!url) throw new Error('Missing URL');
-    return await this.page.evaluate(({ url }) => WAPI.downloadFileWithCredentials(url),{url});
+    return await this.pup(({ url }) => WAPI.downloadFileWithCredentials(url),{url});
   }
   
 
@@ -1964,7 +1971,7 @@ public async getStatus(contactId: string) {
    * @returns Promise<boolean> success if true
    */
   public async setProfilePic(data: string){
-    return await this.page.evaluate(({ data }) => WAPI.setProfilePic(data),{data});
+    return await this.pup(({ data }) => WAPI.setProfilePic(data),{data});
   }
 
   /**
@@ -2053,11 +2060,19 @@ public async getStatus(contactId: string) {
       if(args && !Array.isArray(args)) args = parseFunction().parse(this[m]).args.map(argName=> args[argName]);
       else if(!args) args = [];
       if(this[m]){
+        try {
         const response = await this[m](...args);
         return res.send({
           success:true,
           response
         })
+        } catch (error) {
+        console.log("middleware -> error", error)
+        return res.send({
+          success:false,
+          error
+        })
+        }
       }
       return res.status(404).send('Cannot find method')
     }

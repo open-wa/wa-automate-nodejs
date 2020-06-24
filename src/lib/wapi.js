@@ -1242,6 +1242,25 @@ window.WAPI.onStateChanged = function (callback) {
 }
 
 /**
+ * Returns the current state of the session. Possible state values:
+ * "CONFLICT"
+ * "CONNECTED"
+ * "DEPRECATED_VERSION"
+ * "OPENING"
+ * "PAIRING"
+ * "PROXYBLOCK"
+ * "SMB_TOS_BLOCK"
+ * "TIMEOUT"
+ * "TOS_BLOCK"
+ * "UNLAUNCHED"
+ * "UNPAIRED"
+ * "UNPAIRED_IDLE"
+ */
+window.WAPI.getState = function (){
+    return Store.State.default.state;
+}
+
+/**
  * Registers a callback to be called when your phone receives a new call request.
  * @param callback - function - Callback function to be called upon a new call. returns a call object.
  * @returns {boolean}

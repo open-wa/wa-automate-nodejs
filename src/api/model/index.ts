@@ -43,7 +43,7 @@ export enum Events {
  * @readonly
  * @enum {string}
  */
-export enum WAState {
+export enum STATE {
     CONFLICT = 'CONFLICT',
     CONNECTED = 'CONNECTED',
     DEPRECATED_VERSION = 'DEPRECATED_VERSION',
@@ -260,7 +260,11 @@ export interface ConfigObject {
     /**
      * Setting this to `true` will kill the whole process when the client is disconnected from the page or if the browser is closed. defaults to `true`
      */
-    killProcessOnBrowserClose ?: boolean
+    killProcessOnBrowserClose ?: boolean;
+    /**
+     * If true, client will check if the page is valid before each command. If page is not valid, it will throw an error.
+     */
+    safeMode ?: boolean;
     // @private
     [x: string]: any 
 }

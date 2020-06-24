@@ -73,7 +73,7 @@ app.listen(PORT, function () {
   //Returns 'CONNECTED' or 'TIMEOUT' or 'CONFLICT' (if user opens whatsapp web somewhere else)
   client.onStateChanged(state=>{
     console.log('statechanged', state)
-    if(state==="CONFLICT") client.forceRefocus();
+    if(state==="CONFLICT" || state==="UNLAUNCHED") client.forceRefocus();
   });
 
   // setTimeout(_=> client.kill(), 3000);
@@ -169,6 +169,7 @@ create({
   killProcessOnBrowserClose: true,
   autoRefresh:true, //default to true
   qrRefreshS:15, //please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.
+  safeMode: true
   // cacheEnabled:false,
   // devtools:true,
   //OR
