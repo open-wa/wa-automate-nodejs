@@ -38,7 +38,12 @@ const puppeteerConfig = {
     '--disable-accelerated-mjpeg-decode',
     '--disable-app-list-dismiss-on-blur',
     '--disable-accelerated-video-decode',
-    '--disable-dev-shm-usage'
+    '--disable-dev-shm-usage',
+    //suggested in #563
+    '--single-process',
+    '--no-zygote',
+    '--renderer-process-limit=1',
+    '--no-first-run'
   ]
 };
 

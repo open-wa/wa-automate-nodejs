@@ -14,7 +14,7 @@ import sharp from 'sharp';
 import { ConfigObject, STATE } from './model';
 const parseFunction = require('parse-function');
 const { default: PQueue } = require("p-queue");
-
+import treekill from 'tree-kill';
 
 export enum namespace {
   Chat = 'Chat',
@@ -468,9 +468,11 @@ export class Client {
    */
   public async kill() {
     console.log('Shutting Down');
+    const {pid} = (await this.page.browser()).process()
     try{
       if (this.page && !this.page.isClosed()) await this.page.close();
       if (this.page && this.page.browser) await this.page.browser().close();
+      treekill(pid, 'SIGKILL')
     } catch(error){}
     return true;
   }
