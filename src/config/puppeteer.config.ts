@@ -40,7 +40,7 @@ const puppeteerConfig = {
     '--disable-accelerated-video-decode',
     '--disable-dev-shm-usage',
     //suggested in #563
-    '--single-process',
+    // '--single-process',
     '--no-zygote',
     '--renderer-process-limit=1',
     '--no-first-run'
