@@ -174,6 +174,7 @@ declare module WAPI {
   const getAllContacts: () => Contact[];
   const getWAVersion: () => String;
   const getMe: () => any;
+  const getChatWithNonContacts: () => Contact[];
   const syncContacts: () => boolean;
   const getAmountOfLoadedMessages: () => number;
   const deleteAllStatus: () => Promise<boolean>;
@@ -440,7 +441,14 @@ export class Client {
    * @returns Any of OPENING, PAIRING, UNPAIRED, UNPAIRED_IDLE, CONNECTED, TIMEOUT, CONFLICT, UNLAUNCHED, PROXYBLOCK, TOS_BLOCK, SMB_TOS_BLOCK, DEPRECATED_VERSION
    */
   public async getConnectionState() {
-    return await this.page.evaluate(() => WAPI.getState())
+    return await this.page.evaluate(() => WAPI.getState());
+  }
+
+  /**
+   * Returns a list of contact with whom the host number has an existing chat who are also not contacts.
+   */
+  public async getChatWithNonContacts(){
+    return await this.page.evaluate(() => WAPI.getChatWithNonContacts());
   }
 
   /**

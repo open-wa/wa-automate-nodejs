@@ -2178,6 +2178,10 @@ window.WAPI.getUseHereString = async function() {
     return Store.Msg.models.length;
 }
 
+WAPI.getChatWithNonContacts = async function(){
+    return Store.Chat.models.map(chat=>chat.contact && !chat.contact.isMyContact ?chat.contact :null).filter(x=>x && !x.isGroup).map(WAPI._serializeContactObj)
+}
+
 window.WAPI.cutMsgCache = function (){
     Store.Msg.models.map(msg=>Store.Msg.remove(msg));
     return true;
