@@ -41,9 +41,9 @@ const puppeteerConfig = {
     '--disable-dev-shm-usage',
     //suggested in #563
     // '--single-process',
-    '--no-zygote',
-    '--renderer-process-limit=1',
-    '--no-first-run'
+    // '--no-zygote',
+    // '--renderer-process-limit=1',
+    // '--no-first-run'
   ]
 };
 
