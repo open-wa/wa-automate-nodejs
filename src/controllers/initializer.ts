@@ -14,6 +14,7 @@ const timeout = ms => {
   return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 }
 let qrDelayTimeout;
+import treekill from 'tree-kill';
 
 /**
  * Should be called to initialize whatsapp client.
@@ -210,7 +211,9 @@ const kill = async (p) => {
   if (qrDelayTimeout) clearTimeout(qrDelayTimeout);
   if (p) {
     const browser = await p.browser();
+    const {pid} = browser.process();
     if (!p.isClosed()) await p.close();
     if (browser) await browser.close();
+    treekill(pid, 'SIGKILL')
   }
 }
