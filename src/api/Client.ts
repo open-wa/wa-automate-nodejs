@@ -173,7 +173,7 @@ declare module WAPI {
   ) => Promise<string>;
   const getAllContacts: () => Contact[];
   const getWAVersion: () => String;
-  const getReadOfStory: () => Promise<String[]>;
+  const getStoryViewers: () => Promise<String[]>;
   const getMe: () => any;
   const getChatWithNonContacts: () => Contact[];
   const syncContacts: () => boolean;
@@ -1922,22 +1922,23 @@ public async getStatus(contactId: string) {
     return await this.pup(() => WAPI.deleteAllStatus());
   }
 
-    /**
-     * Retreives an array of user ids that have 'read' your story.
-     * 
-     * Only works with a Story License Key
-     */
-  public async getMyStatusArray() {
-    return await this.pup(() => WAPI.getMyStatusArray());
-  }
-
   /**
    * Retreives all existing statuses.
    *
    * Only works with a Story License Key
    */
-  public async getReadOfStory() {
-    return await this.pup(() => WAPI.getReadOfStory());
+  public async getMyStatusArray() {
+    return await this.pup(() => WAPI.getMyStatusArray());
+  }
+
+
+    /**
+     * Retreives an array of user ids that have 'read' your story.
+     * 
+     * Only works with a Story License Key
+     */
+  public async getStoryViewers() {
+    return await this.pup(() => WAPI.getStoryViewers());
   }
   
 
