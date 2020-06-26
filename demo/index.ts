@@ -11,7 +11,7 @@ let globalClient:Client;
 const express = require('express')
 
 const app = express()
-app.use(express.json())
+app.use(express.json({limit: '200mb'})) //add the limit option so we can send base64 data through the api
 
 const PORT = 8082;
 
