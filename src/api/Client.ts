@@ -1163,7 +1163,12 @@ export class Client {
   }
 
   /**
+   * @deprecated
+   * 
    * Retrieves all chats with messages
+   * 
+   * Please use `getAllUnreadMessages` instead of this to see all messages indicated by the green dots in the chat.
+   * 
    * @returns array of [Chat]
    */
   public async getAllChatsWithMessages(withNewMessageOnly = false) {
