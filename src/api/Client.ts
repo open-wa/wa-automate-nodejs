@@ -173,7 +173,7 @@ declare module WAPI {
   ) => Promise<string>;
   const getAllContacts: () => Contact[];
   const getWAVersion: () => String;
-  const getStoryViewers: () => Promise<String[]>;
+  const getStoryViewers: (id: string) => Promise<String[]>;
   const getMe: () => any;
   const getChatWithNonContacts: () => Contact[];
   const syncContacts: () => boolean;
@@ -1931,15 +1931,17 @@ public async getStatus(contactId: string) {
     return await this.pup(() => WAPI.getMyStatusArray());
   }
 
-
-    /**
+    
+  /**
      * Retreives an array of user ids that have 'read' your story.
+     * 
+     * @param id string The id of the story
      * 
      * Only works with a Story License Key
      */
-  public async getStoryViewers() {
-    return await this.pup(() => WAPI.getStoryViewers());
-  }
+    public async getStoryViewers(id: string) {
+      return await this.pup(({ id }) => WAPI.getStoryViewers(id),{id});
+    }
   
 
     /**
@@ -1988,7 +1990,7 @@ public async getStatus(contactId: string) {
     return await this.pup(({ url }) => WAPI.downloadFileWithCredentials(url),{url});
   }
   
-
+    
   /**
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
    * 
