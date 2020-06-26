@@ -149,7 +149,7 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
     if (canInjectEarly) {
       //check if page is valid after 5 seconds
       spinner.start('Checking if session is valid');
-      await timeout(5000);
+      if(config.safeMode) await timeout(5000);
     }
     //@ts-ignore
     const VALID_SESSION = await waPage.evaluate(() => window.Store && window.Store.Msg ? true : false);
