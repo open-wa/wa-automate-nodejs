@@ -98,9 +98,9 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
     if (authenticated == 'timeout') {
       const outOfReach = await phoneIsOutOfReach(waPage);
       spinner.emit(outOfReach ? 'appOffline' : 'authTimeout');
-      spinner.fail(outOfReach ? 'Authentication timed out. Please open the app on the phone. Shutting down' : 'Authentication timed out. Shutting down');
+      spinner.fail(outOfReach ? 'Authentication timed out. Please open the app on the phone. Shutting down' : 'Authentication timed out. Shutting down. Consider increasing authTimeout config variable: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#authtimeout');
       await kill(waPage);
-      throw new Error(outOfReach ? 'App Offline' : 'Auth Timeout');
+      throw new Error(outOfReach ? 'App Offline' : 'Auth Timeout. Consider increasing authTimeout config variable: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#authtimeout');
     }
 
     let autoRefresh = config ? config.autoRefresh : false;
@@ -132,7 +132,7 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
       const result = await Promise.race(race);
       if (result == 'timeout') {
         spinner.emit('qrTimeout');
-        spinner.fail('Session timed out. Shutting down');
+        spinner.fail('QR scan took too long. Session Timed Out. Shutting down. Consider increasing qrTimeout config variable: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#qrtimeout');
         await kill(waPage);
         throw new Error('QR Timeout');
       }
