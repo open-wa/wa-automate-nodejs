@@ -1842,6 +1842,7 @@ public async getStatus(contactId: string) {
       .toBuffer();
       const webp = sharp(scaledImageBuffer,{ failOnError: false }).webp();
       const metadata : any= await webp.metadata();
+      console.log("sendImageAsSticker -> metadata", metadata)
       const webpBase64 = (await webp.toBuffer()).toString('base64');
       return await this.pup(
         ({ webpBase64,to, metadata }) => WAPI.sendImageAsSticker(webpBase64,to, metadata),
@@ -1851,6 +1852,27 @@ public async getStatus(contactId: string) {
       console.log('Not an image');
       return false;
     }
+  }
+
+  /**
+   * WORK IN PROGRESS
+   */
+  public async sendRawWebpAsSticker(to: string, webpBase64: string){
+    if(!this._loadedModules.includes('jsSha')) {
+      await this.injectJsSha();
+      this._loadedModules.push('jsSha');
+    }
+
+    let metadata =  {
+  format: 'webp',
+  width: 512,
+  height: 512,
+  animated: true,
+    }
+    return await this.pup(
+      ({ webpBase64,to, metadata }) => WAPI.sendImageAsSticker(webpBase64,to, metadata),
+      { webpBase64,to, metadata }
+    );
   }
   
   /**
