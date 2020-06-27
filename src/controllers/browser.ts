@@ -56,9 +56,9 @@ export async function injectApi(page: Page) {
   await page.addScriptTag({
     path: require.resolve(path.join(__dirname, '../lib', 'wapi.js'))
   });
-  await page.addScriptTag({
-    path: require.resolve(path.join(__dirname, '../lib', 'middleware.js'))
-  });
+  // await page.addScriptTag({
+  //   path: require.resolve(path.join(__dirname, '../lib', 'middleware.js'))
+  // });
   await page.addScriptTag({
     path: require.resolve(path.join(__dirname, '../lib', 'axios.min.js'))
   });
