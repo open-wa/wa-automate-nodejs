@@ -104,6 +104,7 @@ open-wa is at the forefront of open source WA developmentand runs on donations f
 | [`clearAllChats`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#clearAllChats)                   | Easily clear memory by clearing all chats of all messages on the host device and WA Web           |
 | [`sendReplyWithMentions`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendReplyWithMentions)                   | Send a reply to a message with mentions           |
 | [`onChatOpened`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#onChatOpened)                   | Detect when a chat is selected in the UI           |
+| [`onChatState`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#onChatState)                   | Detect when someone is typing or recording a voicenote           |
 
 [Learn more about license keys.](https://github.com/open-wa/wa-automate-nodejs#license-key)
 

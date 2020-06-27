@@ -35,6 +35,7 @@ export enum SimpleListener {
   ChatOpened = 'onChatOpened',
   IncomingCall = 'onIncomingCall',
   GlobalParicipantsChanged = 'onGlobalParicipantsChanged',
+  ChatState = 'onChatState',
   // Next two require extra params so not available to use via webhook register
   // LiveLocation = 'onLiveLocation',
   // ParticipantsChanged = 'onParticipantsChanged',
@@ -86,6 +87,7 @@ declare module WAPI {
   const waitNewAcknowledgements: (callback: Function) => void;
   const addAllNewMessagesListener: (callback: Function) => void;
   const onStateChanged: (callback: Function) => void;
+  const onChatState: (callback: Function) => any;
   const onIncomingCall: (callback: Function) => any;
   const onAddedToGroup: (callback: Function) => any;
   const onBattery: (callback: Function) => any;
@@ -434,6 +436,26 @@ export class Client {
    */
   public async onIncomingCall(fn: (call: any) => void) {
     return this.registerListener(SimpleListener.IncomingCall, fn);
+  }
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * 
+   * @event 
+   * Listens to chat state, including when a specific user is recording and typing within a group chat.
+   * 
+   * Here is an example of the fired object:
+   * 
+   * ```javascript
+   * {
+   * "chat": "00000000000-1111111111@g.us", //the chat in which this state is occuring
+   * "chat": "22222222222@c.us", //the user that is causing this state
+   * "state": "composing, //can also be 'available', 'unavailable', 'recording'
+   * }
+   * @returns Observable stream of chatState update objects
+   */
+  public async onChatState(fn: (chatState: any) => void) {
+    return this.registerListener(SimpleListener.ChatState, fn);
   }
 
   /**
