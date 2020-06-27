@@ -307,12 +307,14 @@ export class Client {
    * @fires Message 
    */
   public async onAnyMessage(fn: (message: Message) => void) {
-    this.page.exposeFunction(ExposedFn.OnAnyMessage, (message: Message) =>
+    let funcName = ExposedFn.OnAnyMessage;
+    this.page.exposeFunction(funcName, (message: Message) =>
       fn(message)
     ).then(_ => this.pup(
-      () => {
-        WAPI.addAllNewMessagesListener(window["onAnyMessage"]);
-      }));
+      ({funcName}) => {
+        //@ts-ignore
+        WAPI.addAllNewMessagesListener(window[funcName]);
+      },{funcName}));
   }
 
   /** @event Listens to battery changes
