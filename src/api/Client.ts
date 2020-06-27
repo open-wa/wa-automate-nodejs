@@ -1576,18 +1576,6 @@ public async getStatus(contactId: string) {
   }
 
   /**
-    * Joins a groip using a link or a code.
-   * @param link This can be an invite link or invite code
-   * @returns Either the group id or an error code if something went wrong
-   */
-  public async joinGroupViaInviteLink(link: string) {
-    return await this.pup(
-      link => WAPI.joinGroupViaInviteLink(link),
-      link
-    );
-  }
-
-  /**
     * Get the details of a group through the invite link
    * @param link This can be an invite link or invite code
    * @returns 
