@@ -1228,7 +1228,7 @@ window.WAPI.addAllNewMessagesListener = callback => window.Store.Msg.on('add', (
         };
         Store.Msg.on('change:isUnsentMedia',cb);
     } else {
-        let message = window.WAPI.processMessageObj(newMessage, true, false);
+        let message = WAPI.quickClean(window.WAPI.processMessageObj(newMessage, true, false) || newMessage.attributes);
         if (message) {
             callback(message)
         }
@@ -2216,7 +2216,15 @@ window.WAPI.onChatOpened = function(){return false;}
 window.WAPI.onStory = function(){return false;}
 window.WAPI.getStoryViewers = function(){return false;}
 
-window.WAPI.quickClean = function (ob) {return JSON.parse(JSON.stringify(ob))};
+window.WAPI.quickClean = function (ob) {
+    var r = JSON.parse(JSON.stringify(ob));
+    if(r.mediaData && Object.keys(r.mediaData).length==0) delete r.mediaData;
+    if(r.chat && Object.keys(r.chat).length==0) delete r.chat;
+    Object.keys(r).filter(k=>r[k]==""||r[k]==[]||r[k]=={}||r[k]==null).forEach(k=>delete r[k]);
+    Object.keys(r).filter(k=>r[k]?r[k].id:false).forEach(k=>r[k]=r[k].id);
+    Object.keys(r).filter(k=>r[k]?r[k]._serialized:false).forEach(k=>r[k]=r[k]._serialized);
+    return r;
+};
 
 window.WAPI.pyFunc = async function (fn, done) {
     return done(await fn())
