@@ -409,21 +409,27 @@ export class Client {
   }
 
   /**
-   * @event
    * Requires a Story License Key 
    * Listens to when a contact posts a new story.
+   * @event
+   * 
    * @param fn callback
-   * @fires e.g {
+   * @fires e.g 
+   * 
+   * ```javascript
+   * {
    * from: '123456789@c.us'
    * id: 'false_132234234234234@status.broadcast'
    * }
+   * ```
    */
   public async onStory(fn: (story: any) => void) {
     return this.registerListener(SimpleListener.Story, fn);
   }
 
   /**
-   * @event Listens to messages received
+   * Listens to messages received
+   * @event 
    * @returns Observable stream of messages
    */
   public async onStateChanged(fn: (state: string) => void) {
@@ -431,7 +437,8 @@ export class Client {
   }
 
   /**
-   * @event Listens to new incoming calls
+   * Listens to new incoming calls
+   * @event 
    * @returns Observable stream of call request objects
    */
   public async onIncomingCall(fn: (call: any) => void) {
@@ -441,25 +448,28 @@ export class Client {
   /**
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
    * 
-   * @event 
    * Listens to chat state, including when a specific user is recording and typing within a group chat.
+   * 
+   * @event 
    * 
    * Here is an example of the fired object:
    * 
-   * ```javascript
+   * @fires ```javascript
    * {
    * "chat": "00000000000-1111111111@g.us", //the chat in which this state is occuring
    * "chat": "22222222222@c.us", //the user that is causing this state
    * "state": "composing, //can also be 'available', 'unavailable', 'recording'
    * }
-   * @returns Observable stream of chatState update objects
+   * ```
    */
   public async onChatState(fn: (chatState: any) => void) {
     return this.registerListener(SimpleListener.ChatState, fn);
   }
 
   /**
-   * @event Listens to messages acknowledgement Changes
+   * Listens to messages acknowledgement Changes
+   * 
+   * @event 
    * @returns Observable stream of messages
    */
   public async onAck(fn: (message: Message) => void) {
@@ -467,8 +477,9 @@ export class Client {
   }
 
   /**
-   * @event
    * Listens to add and remove events on Groups on a global level. It is memory efficient and doesn't require a specific group id to listen to.
+   * 
+   * @event
    * @param to callback
    * @returns Observable stream of participantChangedEvent
    */
