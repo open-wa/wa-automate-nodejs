@@ -81,6 +81,7 @@ function base64MimeType(encoded) {
 
 declare module WAPI {
   const waitNewMessages: (rmCallback: boolean, callback: Function) => void;
+  const waitNewAcknowledgements: (callback: Function) => void;
   const addAllNewMessagesListener: (callback: Function) => void;
   const onStateChanged: (callback: Function) => void;
   const onIncomingCall: (callback: Function) => any;
@@ -492,9 +493,18 @@ export class Client {
    * @returns Observable stream of messages
    */
   public onAck(fn: (message: Message) => void) {
-    this.page.exposeFunction(ExposedFn.onAck, (message: Message) =>
+    const funcName = ExposedFn.onAck
+    this.page.exposeFunction(funcName, (message: Message) =>
       fn(message)
-    );
+    ).then(_=> this.pup(({funcName})=>WAPI.waitNewAcknowledgements(function (data) {
+      if (!Array.isArray(data)) {
+          data = [data];
+      }
+      data.forEach(function (message) {
+        //@ts-ignore
+          if(window[funcName])window[funcName](message);
+      });
+    }),{funcName}));
   }
 
 
