@@ -235,18 +235,24 @@ export class Client {
   _registeredWebhooks: any;
   _webhookQueue: any;
   _createConfig: ConfigObject;
+  _sessionInfo: any;
 
   /**
    * @param page [Page] [Puppeteer Page]{@link https://pptr.dev/#?product=Puppeteer&version=v2.1.1&show=api-class-page} running WA Web
    */
-  constructor(public page: Page, createConfig: ConfigObject) {
+  constructor(public page: Page, createConfig: ConfigObject, sessionInfo: any) {
     this.page = page;
     this._createConfig = createConfig;
     this._loadedModules = [];
+    this._sessionInfo = sessionInfo;
     page.on('close',()=>{
       this.kill();
       if(!(this._createConfig?.killProcessOnBrowserClose===false)) process.exit();
     })
+  }
+
+  public getSessionInfo() {
+    return this._sessionInfo;
   }
 
   private async pup(pageFunction:EvaluateFn<any>, ...args) {
