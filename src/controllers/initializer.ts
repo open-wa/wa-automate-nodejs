@@ -10,6 +10,7 @@ import { logoText, integrityCheck } from './launch_checks';
 const updateNotifier = require('update-notifier');
 let shouldLoop = true;
 var pkg = require('../../package.json');
+export const {licenseCheckUrl} = pkg;
 const timeout = ms => {
   return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 }
