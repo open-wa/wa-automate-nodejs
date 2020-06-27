@@ -175,6 +175,7 @@ declare module WAPI {
   const getWAVersion: () => String;
   const getStoryViewers: (id: string) => Promise<String[]>;
   const getMe: () => any;
+  const iAmAdmin: () => Promise<String[]>;
   const getChatWithNonContacts: () => Contact[];
   const syncContacts: () => boolean;
   const getAmountOfLoadedMessages: () => number;
@@ -980,6 +981,13 @@ export class Client {
     //@ts-ignore
     // return await this.pup(() => Store.Me.attributes);
   }
+
+/**
+ * Returns an array of group ids where the host device is admin
+ */
+public async iAmAdmin(){
+  return await this.pup(() => WAPI.iAmAdmin());
+}
 
   /**
    * Syncs contacts with phone. This promise does not resolve so it will instantly return true.

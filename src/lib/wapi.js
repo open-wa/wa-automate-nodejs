@@ -653,6 +653,10 @@ window.WAPI.getGroupAdmins = async function (id) {
         .map((admin) => admin.id._serialized);
 };
 
+WAPI.iAmAdmin = function(){
+    return Store.GroupMetadata.models.filter(({participants})=>participants.iAmAdmin()).map(({id})=>id._serialized);
+}
+
 /**
  * Returns an object with all of your host device details
  */
