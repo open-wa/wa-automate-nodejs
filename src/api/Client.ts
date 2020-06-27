@@ -266,17 +266,19 @@ export class Client {
     this.page = await injectApi(this.page)
   }
 
+  private async _reRegisterListeners(){
+    return Object.keys(this._listeners).forEach((listenerName: SimpleListener)=>this[listenerName](this._listeners[listenerName]));
+  }
+
   /**
    * Refreshes the page and reinjects all necessary files. This may be useful for when trying to save memory
+   * This will attempt to re register all listeners EXCEPT onLiveLocation and onParticipantChanged
    */
    public async refresh(){
-     //reload
+     console.log('Refreshing')
      await this.page.goto(puppeteerConfig.WAUrl);
-
      await isAuthenticated(this.page);
-     //inject wapi
      await this._reInjectWapi();
-     //check license
      if (this._createConfig?.licenseKey) {
       const { me } = await this.getMe();
       const { data } = await axios.post(licenseCheckUrl, { key: this._createConfig.licenseKey, number: me._serialized, ...this._sessionInfo });
@@ -285,7 +287,8 @@ export class Client {
         console.log('License Valid');
       } else console.log('Invalid license key');
     }
-    await this.page.evaluate('Object.freeze(window.WAPI)')
+    await this.page.evaluate('Object.freeze(window.WAPI)');
+    await this._reRegisterListeners();
     return true;
    }
 
@@ -328,13 +331,20 @@ export class Client {
   /**
    * ////////////////////////  LISTENERS
    */
-  private registerListener(funcName:SimpleListener, fn: any){
+
+   /**
+    * 
+    */
+  private async registerListener(funcName:SimpleListener, fn: any){
     //add a reference to this callback
+    const set = () => this.pup(({funcName}) => {
+      //@ts-ignore
+      return window[funcName] ? WAPI[funcName](obj => window[funcName](obj)) : false
+    },{funcName});
     this._listeners[funcName] = fn;
-    return this.page.exposeFunction(funcName, (obj: any) =>fn(obj)).then(_ => this.pup(({funcName}) => {
-        //@ts-ignore
-        WAPI[funcName](obj => window[funcName](obj))
-      },{funcName}));
+    const exists = await this.pup(({funcName})=>window[funcName]?true:false,{funcName});
+    if(exists) return await set();
+    return this.page.exposeFunction(funcName, (obj: any) =>fn(obj)).then(set).catch(e=>set);
   }
   
   // NON-STAMDARD LISTENERS
@@ -343,11 +353,10 @@ export class Client {
    * @event Listens to messages received
    * @fires Observable stream of messages
    */
-  public onMessage(fn: (message: Message) => void) {
+  public async onMessage(fn: (message: Message) => void) {
     let funcName = SimpleListener.Message;
-    this.page.exposeFunction(funcName, (message: Message) =>
-      fn(message)
-    ).then(_ => this.pup(
+    this._listeners[funcName] = fn;
+    const set = () => this.pup(
       ({funcName}) => {
         WAPI.waitNewMessages(false, data => {
           data.forEach(message => {
@@ -355,7 +364,10 @@ export class Client {
             window[funcName](message);
           });
         });
-      },{funcName}));
+      },{funcName})
+      const exists = await this.pup(({funcName})=>window[funcName]?true:false,{funcName});
+      if(exists) return await set();
+    this.page.exposeFunction(funcName, (message: Message) =>fn(message)).then(set).catch(e=>set);
   }
 
   /**
@@ -365,13 +377,16 @@ export class Client {
    */
   public async onAnyMessage(fn: (message: Message) => void) {
     let funcName = SimpleListener.AnyMessage;
-    this.page.exposeFunction(funcName, (message: Message) =>
-      fn(message)
-    ).then(_ => this.pup(
+    this._listeners[funcName] = fn;
+    console.log("Client -> onAnyMessage -> funcName", funcName)
+    const set = () => this.pup(
       ({funcName}) => {
         //@ts-ignore
         WAPI.addAllNewMessagesListener(window[funcName]);
-      },{funcName}));
+      },{funcName});
+      const exists = await this.pup(({funcName})=>window[funcName]?true:false,{funcName});
+      if(exists) return await set();
+    this.page.exposeFunction(funcName, (message: Message) =>fn(message)).then(set).catch(e=>set);
   }
 
   // STANDARD SIMPLE LISTENERS
@@ -380,7 +395,7 @@ export class Client {
    * @param fn callback
    * @fires number
    */
-  public onBattery(fn: (battery:number) => void) {
+  public async onBattery(fn: (battery:number) => void) {
     return this.registerListener(SimpleListener.Battery, fn);
   }
 
@@ -410,7 +425,7 @@ export class Client {
    * @event Listens to messages received
    * @returns Observable stream of messages
    */
-  public onStateChanged(fn: (state: string) => void) {
+  public async onStateChanged(fn: (state: string) => void) {
     return this.registerListener(SimpleListener.StateChanged, fn);
   }
 
@@ -418,7 +433,7 @@ export class Client {
    * @event Listens to new incoming calls
    * @returns Observable stream of call request objects
    */
-  public onIncomingCall(fn: (call: any) => void) {
+  public async onIncomingCall(fn: (call: any) => void) {
     return this.registerListener(SimpleListener.IncomingCall, fn);
   }
 
@@ -426,7 +441,7 @@ export class Client {
    * @event Listens to messages acknowledgement Changes
    * @returns Observable stream of messages
    */
-  public onAck(fn: (message: Message) => void) {
+  public async onAck(fn: (message: Message) => void) {
     return this.registerListener(SimpleListener.Ack, fn);
   }
 
@@ -448,7 +463,7 @@ export class Client {
    * @param to callback
    * @returns Observable stream of Chats
    */
-  public onAddedToGroup(fn: (chat: Chat) => any) {
+  public async onAddedToGroup(fn: (chat: Chat) => any) {
     return this.registerListener(SimpleListener.AddedToGroup, fn);
   }
   
@@ -462,7 +477,7 @@ export class Client {
    * @param to callback
    * @returns Observable stream of Chats
    */
-  public onRemovedFromGroup(fn: (chat: Chat) => any) {
+  public async onRemovedFromGroup(fn: (chat: Chat) => any) {
     return this.registerListener(SimpleListener.RemovedFromGroup, fn);
   }
 
@@ -475,7 +490,7 @@ export class Client {
    * @param to callback
    * @returns Observable stream of Chat ids.
    */
-  public onChatOpened(fn: (chat: Chat) => any) {
+  public async onChatOpened(fn: (chat: Chat) => any) {
     return this.registerListener(SimpleListener.ChatOpened, fn);
   }
 
@@ -488,7 +503,7 @@ export class Client {
    * @param to callback
    * @returns Observable stream of contact ids
    */
-  public onContactAdded(fn: (chat: Chat) => any) {
+  public async onContactAdded(fn: (chat: Chat) => any) {
     return this.registerListener(SimpleListener.ChatOpened, fn);
   }
 
@@ -501,7 +516,7 @@ export class Client {
    * @param to callback
    * @returns Observable stream of participantChangedEvent
    */
-  public onParticipantsChanged(groupId: string, fn: (participantChangedEvent: ParticipantChangedEventModel) => void, useLegancyMethod : boolean = false) {
+  public async onParticipantsChanged(groupId: string, fn: (participantChangedEvent: ParticipantChangedEventModel) => void, useLegancyMethod : boolean = false) {
     const funcName = "onParticipantsChanged_" + groupId.replace('_', "").replace('_', "");
     return this.page.exposeFunction(funcName, (participantChangedEvent: ParticipantChangedEventModel) =>
       fn(participantChangedEvent)
@@ -522,7 +537,7 @@ export class Client {
  * @returns boolean, if returns false then there were no valid live locations in the chat of chatId
  * @emits <LiveLocationChangedEvent> LiveLocationChangedEvent
  */
-public onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveLocationChangedEvent) => void) {
+public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveLocationChangedEvent) => void) {
   const funcName = "onLiveLocation_" + chatId.replace('_', "").replace('_', "");
   return this.page.exposeFunction(funcName, (liveLocationChangedEvent: LiveLocationChangedEvent) =>
     fn(liveLocationChangedEvent)

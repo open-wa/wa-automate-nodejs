@@ -1245,7 +1245,7 @@ window.WAPI.addAllNewMessagesListener = callback => window.Store.Msg.on('add', (
  * @returns {boolean}
  */
 window.WAPI.onStateChanged = function (callback) {
-    window.Store.State.default.on('change:state', callback)
+    window.Store.State.default.on('change:state', ({state})=>callback(state))
     return true;
 }
 
