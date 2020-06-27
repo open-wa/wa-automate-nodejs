@@ -15,6 +15,7 @@ import { ConfigObject, STATE } from './model';
 const parseFunction = require('parse-function');
 const { default: PQueue } = require("p-queue");
 import treekill from 'tree-kill';
+import { SessionInfo } from './model/sessionInfo';
 
 export enum namespace {
   Chat = 'Chat',
@@ -133,6 +134,8 @@ declare module WAPI {
   const contactUnblock: (id: string) => Promise<boolean>;
   const deleteConversation: (chatId: string) => Promise<boolean>;
   const clearChat: (chatId: string) => Promise<any>;
+  const joinGroupViaInviteLink: (link: string) => Promise<string | number>;
+  const inviteInfo: (link: string) => Promise<any>;
   const ghostForward: (chatId: string, messageId: string) => Promise<boolean>;
   const revokeGroupInviteLink: (chatId: string) => Promise<string> | Promise<boolean>;
   const getGroupInviteLink: (chatId: string) => Promise<string>;
@@ -235,7 +238,7 @@ export class Client {
   _registeredWebhooks: any;
   _webhookQueue: any;
   _createConfig: ConfigObject;
-  _sessionInfo: any;
+  _sessionInfo: SessionInfo;
 
   /**
    * @param page [Page] [Puppeteer Page]{@link https://pptr.dev/#?product=Puppeteer&version=v2.1.1&show=api-class-page} running WA Web
@@ -251,9 +254,32 @@ export class Client {
     })
   }
 
+  /**
+   * Get the session info
+   * 
+   * @returns SessionInfo
+   */
   public getSessionInfo() {
     return this._sessionInfo;
   }
+
+  /**
+   * Get the config which was used to set up the client. Sensitive details (like devTools username and password, and browserWSEndpoint) are scrubbed
+   * 
+   * @returns SessionInfo
+   */
+  public getConfig() {
+    const {
+      devtools,
+      browserWSEndpoint,
+      sessionData,
+      proxyServerCredentials,
+      restartOnCrash,
+      ...rest
+    } = this._createConfig;
+    return rest
+  }
+
 
   private async pup(pageFunction:EvaluateFn<any>, ...args) {
     if(this._createConfig.safeMode) {
@@ -1493,6 +1519,31 @@ public async getStatus(contactId: string) {
       chatId
     );
   }
+
+  /**
+    * Joins a groip using a link or a code.
+   * @param link This can be an invite link or invite code
+   * @returns Either the group id or an error code if something went wrong
+   */
+  public async joinGroupViaInviteLink(link: string) {
+    return await this.pup(
+      link => WAPI.joinGroupViaInviteLink(link),
+      link
+    );
+  }
+
+  /**
+    * Get the details of a group through the invite link
+   * @param link This can be an invite link or invite code
+   * @returns 
+   */
+  public async inviteInfo(link: string) {
+    return await this.pup(
+      link => WAPI.inviteInfo(link),
+      link
+    );
+  }
+
 
   /**
     * Revokes the current invite link for a group chat. Any previous links will stop working

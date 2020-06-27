@@ -469,6 +469,14 @@ window.WAPI.getGroupInviteLink = async function (chatId) {
     return `https://chat.whatsapp.com/${chat.inviteCode}`
 }
 
+window.WAPI.joinGroupViaInviteLink = async function (link) {
+        return await Store.WapQuery.acceptGroupInvite(link.split('\/').pop()).then(res=>res.status===200?res.gid._serialized:res.status);
+}
+
+window.WAPI.inviteInfo = async function(link){
+    return await Store.WapQuery.groupInviteInfo(link.split('\/').pop()).then(r=>r.status===200?WAPI.quickClean(r):r.status);
+}
+
 window.WAPI.getNewId = function () {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
