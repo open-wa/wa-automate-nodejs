@@ -378,7 +378,6 @@ export class Client {
   public async onAnyMessage(fn: (message: Message) => void) {
     let funcName = SimpleListener.AnyMessage;
     this._listeners[funcName] = fn;
-    console.log("Client -> onAnyMessage -> funcName", funcName)
     const set = () => this.pup(
       ({funcName}) => {
         //@ts-ignore
