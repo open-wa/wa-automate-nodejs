@@ -1,5 +1,5 @@
 export { Chat, Contact, Message } from './api/model';
-export { Client, AvailableWebhooks } from './api/Client';
+export { Client, SimpleListener } from './api/Client';
 export { create } from './controllers/initializer';
 export * from '@open-wa/wa-decrypt';
 export { ev } from './controllers/events'

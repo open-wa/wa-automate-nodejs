@@ -87,7 +87,7 @@
           "SessionData",
           "create",
           "namespace",
-          "AvailableWebhooks",
+          "SimpleListener",
           "SessionInfo"
         ]
     }

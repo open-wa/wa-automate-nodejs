@@ -27,7 +27,7 @@ export enum namespace {
   GroupMetadata = 'GroupMetadata'
 }
 
-export enum AvailableWebhooks {
+export enum SimpleListener {
   Message = 'onMessage',
   AnyMessage = 'onAnyMessage',
   Ack = 'onAck',
@@ -2245,12 +2245,12 @@ public async getStatus(contactId: string) {
   /**
    * The client can now automatically handle webhooks. Use this method to register webhooks.
    * 
-   * @param event use AvailableWebhooks enum
+   * @param event use SimpleListener enum
    * @param url The webhook url
    * @param requestConfig {} By default the request is a post request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
    * @param concurrency the amount of concurrent requests to be handled by the built in queue. Default is 5.
    */
-  public async registerWebhook(event: AvailableWebhooks, url: string, requestConfig: any = {}, concurrency: number = 5) {
+  public async registerWebhook(event: SimpleListener, url: string, requestConfig: any = {}, concurrency: number = 5) {
     if(!this._webhookQueue) this._webhookQueue = new PQueue({ concurrency });
     if(this[event]){
       if(!this._registeredWebhooks) this._registeredWebhooks={};
