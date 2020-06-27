@@ -241,7 +241,7 @@ export class Client {
   _webhookQueue: any;
   _createConfig: ConfigObject;
   _sessionInfo: SessionInfo;
-  _listeners: any[];
+  _listeners: any;
 
   /**
    * @param page [Page] [Puppeteer Page]{@link https://pptr.dev/#?product=Puppeteer&version=v2.1.1&show=api-class-page} running WA Web
@@ -251,7 +251,7 @@ export class Client {
     this._createConfig = createConfig;
     this._loadedModules = [];
     this._sessionInfo = sessionInfo;
-    this._listeners = [];
+    this._listeners = {};
     this._setOnClose();
   }
 
@@ -326,6 +326,20 @@ export class Client {
   }
 
   /**
+   * ////////////////////////  LISTENERS
+   */
+  private registerListener(funcName:SimpleListener, fn: any){
+    //add a reference to this callback
+    this._listeners[funcName] = fn;
+    return this.page.exposeFunction(funcName, (obj: any) =>fn(obj)).then(_ => this.pup(({funcName}) => {
+        //@ts-ignore
+        WAPI[funcName](obj => window[funcName](obj))
+      },{funcName}));
+  }
+  
+  // NON-STAMDARD LISTENERS
+
+  /**
    * @event Listens to messages received
    * @fires Observable stream of messages
    */
@@ -360,19 +374,14 @@ export class Client {
       },{funcName}));
   }
 
+  // STANDARD SIMPLE LISTENERS
+
   /** @event Listens to battery changes
    * @param fn callback
    * @fires number
    */
-  public async onBattery(fn: (battery:number) => void) {
-    let funcName = SimpleListener.Battery;
-    this.page.exposeFunction(funcName, (battery: number) =>
-      fn(battery)
-    ).then(_ => this.pup(
-      ({funcName}) => {
-        //@ts-ignore
-        WAPI.onBattery(window[funcName]);
-      },{funcName}));
+  public onBattery(fn: (battery:number) => void) {
+    return this.registerListener(SimpleListener.Battery, fn);
   }
 
   /** @event Listens to when host device is plugged/unplugged
@@ -380,13 +389,7 @@ export class Client {
    * @fires boolean true if plugged, false if unplugged
    */
   public async onPlugged(fn: (plugged: boolean) => void) {
-    let funcName = SimpleListener.Battery;
-    this.page.exposeFunction(funcName, (plugged: boolean) =>
-      fn(plugged)
-    ).then(_ => this.pup(
-      ({funcName}) => {
-        WAPI.onPlugged(window["onPlugged"]);
-      },{funcName}));
+    return this.registerListener(SimpleListener.Plugged, fn);
   }
 
   /**
@@ -400,13 +403,7 @@ export class Client {
    * }
    */
   public async onStory(fn: (story: any) => void) {
-    const funcName = SimpleListener.Story;
-    this.page.exposeFunction(funcName, (story: any) =>
-      fn(story)
-    ).then(_ => this.pup(
-      (funcName) => {
-        WAPI.onStory(window["onStory"]);
-      },{funcName}));
+    return this.registerListener(SimpleListener.Story, fn);
   }
 
   /**
@@ -414,31 +411,130 @@ export class Client {
    * @returns Observable stream of messages
    */
   public onStateChanged(fn: (state: string) => void) {
-    const funcName = SimpleListener.StateChanged;
-    this.page.exposeFunction(funcName, (state: string) =>
-      fn(state)
-    ).then(_ => this.pup(
-      ({funcName}) => {
-        //@ts-ignore
-        WAPI.onStateChanged(s => window[funcName](s.state))
-      },{funcName}));
+    return this.registerListener(SimpleListener.StateChanged, fn);
   }
-
 
   /**
    * @event Listens to new incoming calls
    * @returns Observable stream of call request objects
    */
   public onIncomingCall(fn: (call: any) => void) {
-    const funcName = SimpleListener.IncomingCall;
-    this.page.exposeFunction(funcName, (call: any) =>
-      fn(call)
-    ).then(_ => this.pup(
-      ({funcName}) => {
-        //@ts-ignore
-        WAPI.onIncomingCall(call => window[funcName](call))
-      },{funcName}));
+    return this.registerListener(SimpleListener.IncomingCall, fn);
   }
+
+  /**
+   * @event Listens to messages acknowledgement Changes
+   * @returns Observable stream of messages
+   */
+  public onAck(fn: (message: Message) => void) {
+    return this.registerListener(SimpleListener.Ack, fn);
+  }
+
+  /**
+   * @event
+   * Listens to add and remove events on Groups on a global level. It is memory efficient and doesn't require a specific group id to listen to.
+   * @param to callback
+   * @returns Observable stream of participantChangedEvent
+   */
+  public async onGlobalParicipantsChanged(fn: (participantChangedEvent: ParticipantChangedEventModel) => void) {
+    return this.registerListener(SimpleListener.GlobalParicipantsChanged, fn);
+  }
+
+
+  /**
+   * Fires callback with Chat object every time the host phone is added to a group.
+   * 
+   * @event 
+   * @param to callback
+   * @returns Observable stream of Chats
+   */
+  public onAddedToGroup(fn: (chat: Chat) => any) {
+    return this.registerListener(SimpleListener.AddedToGroup, fn);
+  }
+  
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * 
+   * Fires callback with Chat object every time the host phone is added to a group.
+   * 
+   * @event 
+   * @param to callback
+   * @returns Observable stream of Chats
+   */
+  public onRemovedFromGroup(fn: (chat: Chat) => any) {
+    return this.registerListener(SimpleListener.RemovedFromGroup, fn);
+  }
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * 
+   * Fires callback with the relevant chat id every time the user clicks on a chat. This will only work in headful mode.
+   * 
+   * @event 
+   * @param to callback
+   * @returns Observable stream of Chat ids.
+   */
+  public onChatOpened(fn: (chat: Chat) => any) {
+    return this.registerListener(SimpleListener.ChatOpened, fn);
+  }
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * 
+   * Fires callback with contact id when a new contact is added on the host phone.
+   * 
+   * @event 
+   * @param to callback
+   * @returns Observable stream of contact ids
+   */
+  public onContactAdded(fn: (chat: Chat) => any) {
+    return this.registerListener(SimpleListener.ChatOpened, fn);
+  }
+
+  // cOMPLEX LISTENERS
+
+  /**
+   * @event 
+   * Listens to add and remove events on Groups. This can no longer determine who commited the action and only reports the following events add, remove, promote, demote
+   * @param to group id: xxxxx-yyyy@us.c
+   * @param to callback
+   * @returns Observable stream of participantChangedEvent
+   */
+  public onParticipantsChanged(groupId: string, fn: (participantChangedEvent: ParticipantChangedEventModel) => void, useLegancyMethod : boolean = false) {
+    const funcName = "onParticipantsChanged_" + groupId.replace('_', "").replace('_', "");
+    return this.page.exposeFunction(funcName, (participantChangedEvent: ParticipantChangedEventModel) =>
+      fn(participantChangedEvent)
+    )
+      .then(_ => this.pup(
+        ({ groupId,funcName, useLegancyMethod }) => {
+          //@ts-ignore
+          if(useLegancyMethod) return WAPI._onParticipantsChanged(groupId, window[funcName]); else return WAPI.onParticipantsChanged(groupId, window[funcName]);
+        },
+        { groupId, funcName, useLegancyMethod}
+      ));
+  }
+
+/**
+ * @event Listens to live locations from a chat that already has valid live locations
+ * @param chatId the chat from which you want to subscribes to live location updates
+ * @param fn callback that takes in a LiveLocationChangedEvent
+ * @returns boolean, if returns false then there were no valid live locations in the chat of chatId
+ * @emits <LiveLocationChangedEvent> LiveLocationChangedEvent
+ */
+public onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveLocationChangedEvent) => void) {
+  const funcName = "onLiveLocation_" + chatId.replace('_', "").replace('_', "");
+  return this.page.exposeFunction(funcName, (liveLocationChangedEvent: LiveLocationChangedEvent) =>
+    fn(liveLocationChangedEvent)
+  )
+    .then(_ => this.pup(
+      ({ chatId,funcName }) => {
+      //@ts-ignore
+        return WAPI.onLiveLocation(chatId, window[funcName]);
+      },
+      { chatId, funcName}
+    ));
+}
 
   /**
    * Set presence to available or unavailable.
@@ -542,25 +638,6 @@ export class Client {
   }
 
   /**
-   * @event Listens to messages acknowledgement Changes
-   * @returns Observable stream of messages
-   */
-  public onAck(fn: (message: Message) => void) {
-    const funcName = SimpleListener.Ack;
-    this.page.exposeFunction(funcName, (message: Message) =>
-      fn(message)
-    ).then(_=> this.pup(({funcName})=>WAPI.waitNewAcknowledgements(function (data) {
-      if (!Array.isArray(data)) {
-          data = [data];
-      }
-      data.forEach(function (message) {
-        //@ts-ignore
-          if(window[funcName])window[funcName](message);
-      });
-    }),{funcName}));
-  }
-
-  /**
    * Shuts down the page and browser
    * @returns true
    */
@@ -584,26 +661,6 @@ export class Client {
     return await this.page.evaluate(`[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML.toLowerCase()=="${useHere.toLowerCase()}"}).click()`);
   }
 
-/**
- * @event Listens to live locations from a chat that already has valid live locations
- * @param chatId the chat from which you want to subscribes to live location updates
- * @param fn callback that takes in a LiveLocationChangedEvent
- * @returns boolean, if returns false then there were no valid live locations in the chat of chatId
- * @emits <LiveLocationChangedEvent> LiveLocationChangedEvent
- */
-  public onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveLocationChangedEvent) => void) {
-    const funcName = "onLiveLocation_" + chatId.replace('_', "").replace('_', "");
-    return this.page.exposeFunction(funcName, (liveLocationChangedEvent: LiveLocationChangedEvent) =>
-      fn(liveLocationChangedEvent)
-    )
-      .then(_ => this.pup(
-        ({ chatId,funcName }) => {
-        //@ts-ignore
-          return WAPI.onLiveLocation(chatId, window[funcName]);
-        },
-        { chatId, funcName}
-      ));
-  }
   
   /**
    * A list of participants in the chat who have their live location on. If the chat does not exist, or the chat does not have any contacts actively sharing their live locations, it will return false. If it's a chat with a single contact, there will be only 1 value in the array if the contact has their livelocation on.
@@ -618,134 +675,8 @@ export class Client {
     );
   }
 
-  /**
-   * @event 
-   * Listens to add and remove events on Groups. This can no longer determine who commited the action and only reports the following events add, remove, promote, demote
-   * @param to group id: xxxxx-yyyy@us.c
-   * @param to callback
-   * @returns Observable stream of participantChangedEvent
-   */
-  public onParticipantsChanged(groupId: string, fn: (participantChangedEvent: ParticipantChangedEventModel) => void, useLegancyMethod : boolean = false) {
-    const funcName = "onParticipantsChanged_" + groupId.replace('_', "").replace('_', "");
-    return this.page.exposeFunction(funcName, (participantChangedEvent: ParticipantChangedEventModel) =>
-      fn(participantChangedEvent)
-    )
-      .then(_ => this.pup(
-        ({ groupId,funcName, useLegancyMethod }) => {
-          //@ts-ignore
-          if(useLegancyMethod) return WAPI._onParticipantsChanged(groupId, window[funcName]); else return WAPI.onParticipantsChanged(groupId, window[funcName]);
-        },
-        { groupId, funcName, useLegancyMethod}
-      ));
-  }
 
-  /**
-   * @event
-   * Listens to add and remove events on Groups on a global level. It is memory efficient and doesn't require a specific group id to listen to.
-   * @param to callback
-   * @returns Observable stream of participantChangedEvent
-   */
-  public async onGlobalParicipantsChanged(fn: (participantChangedEvent: ParticipantChangedEventModel) => void) {
-    const funcName = SimpleListener.GlobalParicipantsChanged;
-    return await this.page.exposeFunction(funcName, (participantChangedEvent: ParticipantChangedEventModel) =>
-      fn(participantChangedEvent)
-    )
-      .then(_ => this.pup(
-        ({ funcName }) => {
-          //@ts-ignore
-          return WAPI.onGlobalParicipantsChanged(window[funcName]);
-        },
-        { funcName }
-      ));
-  }
   
-
-  /**
-   * Fires callback with Chat object every time the host phone is added to a group.
-   * 
-   * @event 
-   * @param to callback
-   * @returns Observable stream of Chats
-   */
-  public onAddedToGroup(fn: (chat: Chat) => any) {
-    const funcName = SimpleListener.AddedToGroup;
-    return this.page.exposeFunction(funcName, (chat: any) =>
-      fn(chat)
-    )
-      .then(_ => this.pup(
-        () => {
-        //@ts-ignore
-          WAPI.onAddedToGroup(window.onAddedToGroup);
-        }
-      ));
-  }
-  
-
-  /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
-   * 
-   * Fires callback with Chat object every time the host phone is added to a group.
-   * 
-   * @event 
-   * @param to callback
-   * @returns Observable stream of Chats
-   */
-  public onRemovedFromGroup(fn: (chat: Chat) => any) {
-    const funcName = SimpleListener.RemovedFromGroup;
-    return this.page.exposeFunction(funcName, (chat: any) =>
-      fn(chat)
-    )
-      .then(_ => this.pup(
-        () => {
-        //@ts-ignore
-          WAPI.onRemovedFromGroup(window.onRemovedFromGroup);
-        }
-      ));
-  }
-
-  /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
-   * 
-   * Fires callback with the relevant chat id every time the user clicks on a chat. This will only work in headful mode.
-   * 
-   * @event 
-   * @param to callback
-   * @returns Observable stream of Chat ids.
-   */
-  public onChatOpened(fn: (chat: Chat) => any) {
-    const funcName = SimpleListener.ChatOpened;
-    return this.page.exposeFunction(funcName, (chat: any) =>
-      fn(chat)
-    )
-      .then(_ => this.pup(
-        () => {
-        //@ts-ignore
-          WAPI.onChatOpened(window.onChatOpened);
-        }
-      ));
-  }
-
-  /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
-   * 
-   * Fires callback with contact id when a new contact is added on the host phone.
-   * 
-   * @event 
-   * @param to callback
-   * @returns Observable stream of contact ids
-   */
-  public onContactAdded(fn: (chat: Chat) => any) {
-    const funcName = SimpleListener.ContactAdded;
-    return this.page.exposeFunction(funcName, (chat: any) =>
-      fn(chat)
-    )
-      .then(_ => this.pup(
-        () => {
-        //@ts-ignore
-          WAPI.onContactAdded(window.onContactAdded);
-        }
-      ));
-  }
 
   /**
    * Sends a text message to given chat
