@@ -642,7 +642,7 @@ export class Client {
    * @returns Observable stream of participantChangedEvent
    */
   public async onGlobalParicipantsChanged(fn: (participantChangedEvent: ParticipantChangedEventModel) => void) {
-    const funcName = "onGlobalParicipantsChanged";
+    const funcName = SimpleListener.GlobalParicipantsChanged;
     return await this.page.exposeFunction(funcName, (participantChangedEvent: ParticipantChangedEventModel) =>
       fn(participantChangedEvent)
     )
@@ -664,7 +664,7 @@ export class Client {
    * @returns Observable stream of Chats
    */
   public onAddedToGroup(fn: (chat: Chat) => any) {
-    const funcName = "onAddedToGroup";
+    const funcName = SimpleListener.AddedToGroup;
     return this.page.exposeFunction(funcName, (chat: any) =>
       fn(chat)
     )
@@ -687,7 +687,7 @@ export class Client {
    * @returns Observable stream of Chats
    */
   public onRemovedFromGroup(fn: (chat: Chat) => any) {
-    const funcName = "onRemovedFromGroup";
+    const funcName = SimpleListener.RemovedFromGroup;
     return this.page.exposeFunction(funcName, (chat: any) =>
       fn(chat)
     )
@@ -709,7 +709,7 @@ export class Client {
    * @returns Observable stream of Chat ids.
    */
   public onChatOpened(fn: (chat: Chat) => any) {
-    const funcName = "onChatOpened";
+    const funcName = SimpleListener.ChatOpened;
     return this.page.exposeFunction(funcName, (chat: any) =>
       fn(chat)
     )
@@ -731,7 +731,7 @@ export class Client {
    * @returns Observable stream of contact ids
    */
   public onContactAdded(fn: (chat: Chat) => any) {
-    const funcName = "onContactAdded";
+    const funcName = SimpleListener.ContactAdded;
     return this.page.exposeFunction(funcName, (chat: any) =>
       fn(chat)
     )
