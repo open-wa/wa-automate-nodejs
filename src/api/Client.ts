@@ -301,9 +301,18 @@ export class Client {
    * @fires Observable stream of messages
    */
   public onMessage(fn: (message: Message) => void) {
-    this.page.exposeFunction(ExposedFn.OnMessage, (message: Message) =>
+    let funcName = ExposedFn.OnMessage;
+    this.page.exposeFunction(funcName, (message: Message) =>
       fn(message)
-    );
+    ).then(_ => this.pup(
+      ({funcName}) => {
+        WAPI.waitNewMessages(false, data => {
+          data.forEach(message => {
+            //@ts-ignore
+            window[funcName](message);
+          });
+        });
+      },{funcName}));
   }
 
   /**
