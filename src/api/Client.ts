@@ -249,7 +249,12 @@ export class Client {
     this._createConfig = createConfig;
     this._loadedModules = [];
     this._sessionInfo = sessionInfo;
-    page.on('close',()=>{
+    this._listeners = [];
+    this._setOnClose();
+  }
+
+  private _setOnClose(){
+    this.page.on('close',()=>{
       this.kill();
       if(!(this._createConfig?.killProcessOnBrowserClose===false)) process.exit();
     })
