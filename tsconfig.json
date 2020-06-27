@@ -87,7 +87,8 @@
           "SessionData",
           "create",
           "namespace",
-          "AvailableWebhooks"
+          "AvailableWebhooks",
+          "SessionInfo"
         ]
     }
 }

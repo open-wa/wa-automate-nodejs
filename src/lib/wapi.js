@@ -469,10 +469,6 @@ window.WAPI.getGroupInviteLink = async function (chatId) {
     return `https://chat.whatsapp.com/${chat.inviteCode}`
 }
 
-window.WAPI.joinGroupViaInviteLink = async function (link) {
-        return await Store.WapQuery.acceptGroupInvite(link.split('\/').pop()).then(res=>res.status===200?res.gid._serialized:res.status);
-}
-
 window.WAPI.inviteInfo = async function(link){
     return await Store.WapQuery.groupInviteInfo(link.split('\/').pop()).then(r=>r.status===200?WAPI.quickClean(r):r.status);
 }
@@ -1518,6 +1514,7 @@ window.WAPI.getBufferedNewMessages = function () {
  * @returns Promise<string | boolean> Either false if it didn't work, or the group id.
  */
 window.WAPI.joinGroupViaLink = async function(link){
+    return await Store.WapQuery.acceptGroupInvite(link.split('\/').pop()).then(res=>res.status===200?res.gid._serialized:res.status);
     let code = link;
     //is it a link? if not, assume it's a code, otherwise, process the link to get the code.
     if(link.includes('chat.whatsapp.com')) {
