@@ -365,12 +365,14 @@ export class Client {
    * @fires number
    */
   public async onBattery(fn: (battery:number) => void) {
-    this.page.exposeFunction('onBattery', (battery: number) =>
+    let funcName = SimpleListener.Battery;
+    this.page.exposeFunction(funcName, (battery: number) =>
       fn(battery)
     ).then(_ => this.pup(
-      () => {
-        WAPI.onBattery(window["onBattery"]);
-      }));
+      ({funcName}) => {
+        //@ts-ignore
+        WAPI.onBattery(window[funcName]);
+      },{funcName}));
   }
 
   /** @event Listens to when host device is plugged/unplugged
@@ -378,12 +380,13 @@ export class Client {
    * @fires boolean true if plugged, false if unplugged
    */
   public async onPlugged(fn: (plugged: boolean) => void) {
-    this.page.exposeFunction('onPlugged', (plugged: boolean) =>
+    let funcName = SimpleListener.Battery;
+    this.page.exposeFunction(funcName, (plugged: boolean) =>
       fn(plugged)
     ).then(_ => this.pup(
-      () => {
+      ({funcName}) => {
         WAPI.onPlugged(window["onPlugged"]);
-      }));
+      },{funcName}));
   }
 
   /**
@@ -397,12 +400,13 @@ export class Client {
    * }
    */
   public async onStory(fn: (story: any) => void) {
-    this.page.exposeFunction('onStory', (story: any) =>
+    const funcName = SimpleListener.Story;
+    this.page.exposeFunction(funcName, (story: any) =>
       fn(story)
     ).then(_ => this.pup(
-      () => {
+      (funcName) => {
         WAPI.onStory(window["onStory"]);
-      }));
+      },{funcName}));
   }
 
   /**
