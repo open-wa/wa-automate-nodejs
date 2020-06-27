@@ -9,13 +9,16 @@ import { Message } from './model/message';
 import { Id } from './model/id';
 import axios from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
-import { useragent } from '../config/puppeteer.config'
+import { useragent, puppeteerConfig } from '../config/puppeteer.config'
 import sharp from 'sharp';
 import { ConfigObject, STATE } from './model';
 const parseFunction = require('parse-function');
 const { default: PQueue } = require("p-queue");
 import treekill from 'tree-kill';
 import { SessionInfo } from './model/sessionInfo';
+import { injectApi } from '../controllers/browser';
+import { licenseCheckUrl } from '../controllers/initializer';
+import { isAuthenticated } from '../controllers/auth';
 
 export enum namespace {
   Chat = 'Chat',
@@ -135,7 +138,6 @@ declare module WAPI {
   const contactUnblock: (id: string) => Promise<boolean>;
   const deleteConversation: (chatId: string) => Promise<boolean>;
   const clearChat: (chatId: string) => Promise<any>;
-  const joinGroupViaInviteLink: (link: string) => Promise<string | number>;
   const inviteInfo: (link: string) => Promise<any>;
   const ghostForward: (chatId: string, messageId: string) => Promise<boolean>;
   const revokeGroupInviteLink: (chatId: string) => Promise<string> | Promise<boolean>;
@@ -204,7 +206,7 @@ declare module WAPI {
   const getHostNumber: () => string;
   const getAllGroups: () => Chat[];
   const getGroupParticipantIDs: (groupId: string) => Promise<string[]>;
-  const joinGroupViaLink: (link: string) => Promise<string | boolean>;
+  const joinGroupViaLink: (link: string) => Promise<string | boolean | number>;
   const leaveGroup: (groupId: string) => any;
   const getVCards: (msgId: string) => any;
   const getContact: (contactId: string) => Contact;
@@ -240,6 +242,7 @@ export class Client {
   _webhookQueue: any;
   _createConfig: ConfigObject;
   _sessionInfo: SessionInfo;
+  _listeners: any[];
 
   /**
    * @param page [Page] [Puppeteer Page]{@link https://pptr.dev/#?product=Puppeteer&version=v2.1.1&show=api-class-page} running WA Web
@@ -259,6 +262,33 @@ export class Client {
       if(!(this._createConfig?.killProcessOnBrowserClose===false)) process.exit();
     })
   }
+
+  private async _reInjectWapi(){
+    this.page = await injectApi(this.page)
+  }
+
+  /**
+   * Refreshes the page and reinjects all necessary files. This may be useful for when trying to save memory
+   */
+   public async refresh(){
+     //reload
+     await this.page.goto(puppeteerConfig.WAUrl);
+
+     await isAuthenticated(this.page);
+     //inject wapi
+     await this._reInjectWapi();
+     //check license
+     if (this._createConfig?.licenseKey) {
+      const { me } = await this.getMe();
+      const { data } = await axios.post(licenseCheckUrl, { key: this._createConfig.licenseKey, number: me._serialized, ...this._sessionInfo });
+      if (data) {
+        await this.page.evaluate(data => eval(data), data);
+        console.log('License Valid');
+      } else console.log('Invalid license key');
+    }
+    await this.page.evaluate('Object.freeze(window.WAPI)')
+    return true;
+   }
 
   /**
    * Get the session info
@@ -522,7 +552,6 @@ export class Client {
       });
     }),{funcName}));
   }
-
 
   /**
    * Shuts down the page and browser
