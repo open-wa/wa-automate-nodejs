@@ -2,7 +2,6 @@ import { Page, EvaluateFn } from 'puppeteer';
 /**
  * @private
  */
-import { ExposedFn } from './functions/exposed.enum';
 import { Chat, LiveLocationChangedEvent, ChatState } from './model/chat';
 import { Contact } from './model/contact';
 import { Message } from './model/message';
@@ -331,7 +330,7 @@ export class Client {
    * @fires Observable stream of messages
    */
   public onMessage(fn: (message: Message) => void) {
-    let funcName = ExposedFn.OnMessage;
+    let funcName = SimpleListener.Message;
     this.page.exposeFunction(funcName, (message: Message) =>
       fn(message)
     ).then(_ => this.pup(
@@ -351,7 +350,7 @@ export class Client {
    * @fires Message 
    */
   public async onAnyMessage(fn: (message: Message) => void) {
-    let funcName = ExposedFn.OnAnyMessage;
+    let funcName = SimpleListener.AnyMessage;
     this.page.exposeFunction(funcName, (message: Message) =>
       fn(message)
     ).then(_ => this.pup(
@@ -411,12 +410,14 @@ export class Client {
    * @returns Observable stream of messages
    */
   public onStateChanged(fn: (state: string) => void) {
-    this.page.exposeFunction(ExposedFn.onStateChanged, (state: string) =>
+    const funcName = SimpleListener.StateChanged;
+    this.page.exposeFunction(funcName, (state: string) =>
       fn(state)
     ).then(_ => this.pup(
-      () => {
-        WAPI.onStateChanged(s => window['onStateChanged'](s.state))
-      }));
+      ({funcName}) => {
+        //@ts-ignore
+        WAPI.onStateChanged(s => window[funcName](s.state))
+      },{funcName}));
   }
 
 
@@ -425,12 +426,14 @@ export class Client {
    * @returns Observable stream of call request objects
    */
   public onIncomingCall(fn: (call: any) => void) {
-    this.page.exposeFunction('onIncomingCall', (call: any) =>
+    const funcName = SimpleListener.IncomingCall;
+    this.page.exposeFunction(funcName, (call: any) =>
       fn(call)
     ).then(_ => this.pup(
-      () => {
-        WAPI.onIncomingCall(call => window['onIncomingCall'](call))
-      }));
+      ({funcName}) => {
+        //@ts-ignore
+        WAPI.onIncomingCall(call => window[funcName](call))
+      },{funcName}));
   }
 
   /**
@@ -539,7 +542,7 @@ export class Client {
    * @returns Observable stream of messages
    */
   public onAck(fn: (message: Message) => void) {
-    const funcName = ExposedFn.onAck
+    const funcName = SimpleListener.Ack;
     this.page.exposeFunction(funcName, (message: Message) =>
       fn(message)
     ).then(_=> this.pup(({funcName})=>WAPI.waitNewAcknowledgements(function (data) {
