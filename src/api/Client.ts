@@ -250,7 +250,7 @@ export class Client {
    */
   constructor(public page: Page, createConfig: ConfigObject, sessionInfo: SessionInfo) {
     this.page = page;
-    this._createConfig = createConfig;
+    this._createConfig = createConfig || {};
     this._loadedModules = [];
     this._sessionInfo = sessionInfo;
     this._listeners = {};
@@ -322,7 +322,7 @@ export class Client {
 
 
   private async pup(pageFunction:EvaluateFn<any>, ...args) {
-    if(this._createConfig.safeMode) {
+    if(this._createConfig?.safeMode) {
       if(!this.page || this.page.isClosed()) throw 'page closed';
       const state = await this.getConnectionState();
       if(state!==STATE.CONNECTED) throw `state: ${state}`
