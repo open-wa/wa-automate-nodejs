@@ -657,8 +657,8 @@ window.WAPI.getGroupAdmins = async function (id) {
         .map((admin) => admin.id._serialized);
 };
 
-WAPI.iAmAdmin = function(){
-    return Store.GroupMetadata.models.filter(({participants})=>participants.iAmAdmin()).map(({id})=>id._serialized);
+WAPI.iAmAdmin = async function(){
+    return (await Promise.all(Store.GroupMetadata.models.map(({id})=>Store.GroupMetadata.find(id)))).filter(({participants})=>participants.iAmAdmin()||participants.iAmSuperAdmin()).map(({id})=>id._serialized);
 }
 
 /**
