@@ -714,11 +714,11 @@ window.WAPI.getAllMessagesInChat = function (id, includeMe, includeNotifications
         }
         const messageObj = messages[i];
 
-        let message = WAPI.processMessageObj(messageObj, includeMe, includeNotifications)
+        let message = WAPI.quickClean(WAPI.processMessageObj(messageObj, includeMe, includeNotifications))
         if (message)
             output.push(message);
     }
-    return WAPI.quickClean(output);
+    return output;
 };
 
 window.WAPI.loadAndGetAllMessagesInChat = function (id, includeMe, includeNotifications) {
