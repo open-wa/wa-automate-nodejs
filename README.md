@@ -128,7 +128,7 @@ There are 3 ways to start a chat with a new number:
 
 For now the process happens through [Gumroad](https://gumroad.com/l/BTMt)
 
-How to get an License key:
+How to get a License key:
 
 1. Go to [Gumroad](https://gumroad.com/l/BTMt).
 2. Click on the type of license you require.

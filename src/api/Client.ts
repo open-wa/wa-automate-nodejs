@@ -446,7 +446,7 @@ export class Client {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
    * 
    * Listens to chat state, including when a specific user is recording and typing within a group chat.
    * 
@@ -501,7 +501,7 @@ export class Client {
   
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
    * 
    * Fires callback with Chat object every time the host phone is added to a group.
    * 
@@ -514,7 +514,7 @@ export class Client {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
    * 
    * Fires callback with the relevant chat id every time the user clicks on a chat. This will only work in headful mode.
    * 
@@ -527,7 +527,7 @@ export class Client {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
    * 
    * Fires callback with contact id when a new contact is added on the host phone.
    * 
@@ -761,7 +761,7 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
    * 
    * Sends a reply to given chat that includes mentions, replying to the provided replyMessageId.
    * In order to use this method correctly you will need to send the text like this:
@@ -1822,7 +1822,7 @@ public async getStatus(contactId: string) {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
    * 
   * Change who can and cannot edit a groups details
   * @param groupId '0000000000-00000000@g.us' the group id.
@@ -1848,7 +1848,7 @@ public async getStatus(contactId: string) {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
    * 
    * Set the wallpaper background colour
    * @param {string} hex '#FFF123'
@@ -1861,7 +1861,7 @@ public async getStatus(contactId: string) {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
    * 
    * Start dark mode
    * @param {boolean} activate true to activate dark mode, false to deactivate
@@ -2065,7 +2065,7 @@ public async getStatus(contactId: string) {
   
 
     /**
-     * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+     * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
      * 
      * Clears all chats of all messages. This does not delete chats. Please be careful with this as it will remove all messages from whatsapp web and the host device. This feature is great for privacy focussed bots.
      */
@@ -2112,7 +2112,7 @@ public async getStatus(contactId: string) {
   
     
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
    * 
    * Sets the profile pic of the host number.
    * @param data string data uri image string.
