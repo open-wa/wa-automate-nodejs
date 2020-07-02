@@ -705,12 +705,10 @@ window.WAPI.processMessageObj = function (messageObj, includeMe, includeNotifica
 
 window.WAPI.getAllMessagesInChat = function (id, includeMe = false, includeNotifications = false) {
     const chat = WAPI.getChat(id);
-    const messages = chat.msgs._models;
-    return messages
-    // .map(m=>WAPI.processMessageObj(m,includeMe,includeNotifications))
-    // .filter(x=>x)
-    .filter(x=> (x.isNotification == includeNotifications) && (x.id.fromMe == includeMe))
-    .map(WAPI.quickClean) || [];
+    let output = chat.msgs._models || [];
+    if(!includeMe) output =  output.filter(m=> !m.id.fromMe)
+    if(!includeNotifications) output = output.filter(m=> !m.isNotification)
+    return output.map(WAPI.quickClean) || [];
 };
 
 window.WAPI.loadAndGetAllMessagesInChat = function (id, includeMe, includeNotifications) {
