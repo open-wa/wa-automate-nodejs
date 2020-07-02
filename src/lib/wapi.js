@@ -814,10 +814,10 @@ window.WAPI.sendMessageReturnId = async function (ch, body) {
 window.WAPI.sendMessage = async function (id, message) {
     if(id==='status@broadcast') return false;
     let chat = WAPI.getChat(id);
-    if(!chat && !id.includes('g')) {
+    if((!chat && !id.includes('g') || chat.msgs.models.length == 0)) {
         var contact = WAPI.getContact(id)
-        if(!contact) return false;
-        await Store.Chat.find(contact.id)
+        if(!contact || !contact.isMyContact) return false;
+        await Store.Chat.find(Store.Contact.get(id).id)
         chat = WAPI.getChat(id);
     }
     if (chat !== undefined) {
