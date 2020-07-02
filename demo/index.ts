@@ -62,7 +62,7 @@ app.listen(PORT, function () {
   // console.log("TCL: start -> newMessages", newMessages)
   // console.log("TCL: getAllNewMessages ->", newMessages.length, newMessages[0]);
 
-  // client.onAck((c:any) => console.log(c.id._serialized,c.body,c.ack));
+  client.onAck((c:any) => console.log(c.id,c.body,c.ack));
 
     client.onAddedToGroup(newGroup => console.log('Added to new Group', newGroup.id));
 

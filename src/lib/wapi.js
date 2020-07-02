@@ -1289,8 +1289,8 @@ window.WAPI.addOrRemoveLabels = async function (label, objectId, type) {
  * @param callback - function - Callback function to be called when a message acknowledgement changes.
  * @returns {boolean}
  */
-window.WAPI.waitNewAcknowledgements = function (callback) {
-    Store.Msg.on("change:ack", callback);
+window.WAPI.onAck = function (callback) {
+    Store.Msg.on("change:ack", m=>callback(WAPI.quickClean(m)));
     return true;
 }
 
