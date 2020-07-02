@@ -68,6 +68,11 @@ app.listen(PORT, function () {
 
     client.onIncomingCall(call=>console.log('newcall',call));
 
+
+    const prods = await client.getBusinessProfilesProducts(me.wid)
+    console.log(prods)
+
+
   // client.onParticipantsChanged("XXXXXXXX-YYYYYYYY@g.us", (participantChangedEvent:any) => console.log("participant changed for group", participantChangedEvent));
   
   //Returns 'CONNECTED' or 'TIMEOUT' or 'CONFLICT' (if user opens whatsapp web somewhere else)

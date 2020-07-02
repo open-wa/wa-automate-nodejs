@@ -1613,11 +1613,16 @@ window.WAPI.refreshBusinessProfileProducts = async function (){
  * @returns None
  */
 window.WAPI.getBusinessProfilesProducts = async function (id) {
-    await WAPI.refreshBusinessProfileProducts();
-    if(!Store.Catalog.get(id)) await Store.Catalog.findCarouselCatalog(id)
-    const catalog = Store.Catalog.get(id);
-    if (catalog.productCollection && catalog.productCollection._models.length)
-    return catalog.productCollection._models;
+    try{
+        await WAPI.refreshBusinessProfileProducts();
+        if(!Store.Catalog.get(id)) await Store.Catalog.findCarouselCatalog(id)
+        const catalog = Store.Catalog.get(id);
+        if (catalog.productCollection && catalog.productCollection._models.length)
+        return JSON.parse(JSON.stringify(catalog.productCollection._models));
+        else return [];
+    } catch(error){
+        return false;
+    }
 };
 
 
