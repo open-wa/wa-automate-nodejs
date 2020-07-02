@@ -690,11 +690,12 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
    */
   public async kill() {
     console.log('Shutting Down');
-    const {pid} = (await this.page.browser()).process()
+    const browser = await this.page.browser()
+    const pid = browser.process() ? browser.process().pid : null;
     try{
       if (this.page && !this.page.isClosed()) await this.page.close();
       if (this.page && this.page.browser) await this.page.browser().close();
-      treekill(pid, 'SIGKILL')
+      if(pid) treekill(pid, 'SIGKILL')
     } catch(error){}
     return true;
   }
