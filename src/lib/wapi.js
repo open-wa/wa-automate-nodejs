@@ -703,22 +703,14 @@ window.WAPI.processMessageObj = function (messageObj, includeMe, includeNotifica
     return;
 };
 
-window.WAPI.getAllMessagesInChat = function (id, includeMe, includeNotifications) {
+window.WAPI.getAllMessagesInChat = function (id, includeMe = false, includeNotifications = false) {
     const chat = WAPI.getChat(id);
-    let output = [];
     const messages = chat.msgs._models;
-
-    for (const i in messages) {
-        if (i === "remove") {
-            continue;
-        }
-        const messageObj = messages[i];
-
-        let message = WAPI.quickClean(WAPI.processMessageObj(messageObj, includeMe, includeNotifications))
-        if (message)
-            output.push(message);
-    }
-    return output;
+    return messages
+    // .map(m=>WAPI.processMessageObj(m,includeMe,includeNotifications))
+    // .filter(x=>x)
+    .filter(x=> (x.isNotification == includeNotifications) && (x.id.fromMe == includeMe))
+    .map(WAPI.quickClean) || [];
 };
 
 window.WAPI.loadAndGetAllMessagesInChat = function (id, includeMe, includeNotifications) {
@@ -2227,8 +2219,8 @@ window.WAPI.quickClean = function (ob) {
     if(r.mediaData && Object.keys(r.mediaData).length==0) delete r.mediaData;
     if(r.chat && Object.keys(r.chat).length==0) delete r.chat;
     Object.keys(r).filter(k=>r[k]==""||r[k]==[]||r[k]=={}||r[k]==null).forEach(k=>delete r[k]);
-    Object.keys(r).filter(k=>r[k]?r[k].id:false).forEach(k=>r[k]=r[k].id);
     Object.keys(r).filter(k=>r[k]?r[k]._serialized:false).forEach(k=>r[k]=r[k]._serialized);
+    Object.keys(r).filter(k=>r[k]?r[k].id:false).forEach(k=>r[k]=r[k].id);
     return r;
 };
 
