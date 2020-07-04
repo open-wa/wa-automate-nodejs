@@ -352,7 +352,9 @@ export class Client {
   // NON-STAMDARD LISTENERS
 
   /**
-   * @event Listens to messages received
+   * Listens to messages received
+   * 
+   * @event 
    * @fires Observable stream of messages
    */
   public async onMessage(fn: (message: Message) => void) {
@@ -372,27 +374,25 @@ export class Client {
     this.page.exposeFunction(funcName, (message: Message) =>fn(message)).then(set).catch(e=>set);
   }
 
-  /**
-   * @event Listens to all new messages
+ 
+
+  // STANDARD SIMPLE LISTENERS
+
+   /**
+   * Listens to all new messages
+   * 
+   * @event 
    * @param to callback
    * @fires Message 
    */
   public async onAnyMessage(fn: (message: Message) => void) {
-    let funcName = SimpleListener.AnyMessage;
-    this._listeners[funcName] = fn;
-    const set = () => this.pup(
-      ({funcName}) => {
-        //@ts-ignore
-        WAPI.addAllNewMessagesListener(window[funcName]);
-      },{funcName});
-      const exists = await this.pup(({funcName})=>window[funcName]?true:false,{funcName});
-      if(exists) return await set();
-    this.page.exposeFunction(funcName, (message: Message) =>fn(message)).then(set).catch(e=>set);
+    return this.registerListener(SimpleListener.AnyMessage, fn);
   }
 
-  // STANDARD SIMPLE LISTENERS
-
-  /** @event Listens to battery changes
+  /** 
+   * Listens to battery changes
+   * 
+   * @event 
    * @param fn callback
    * @fires number
    */
@@ -400,7 +400,10 @@ export class Client {
     return this.registerListener(SimpleListener.Battery, fn);
   }
 
-  /** @event Listens to when host device is plugged/unplugged
+  /** 
+   * Listens to when host device is plugged/unplugged
+   * @event 
+   * 
    * @param fn callback
    * @fires boolean true if plugged, false if unplugged
    */

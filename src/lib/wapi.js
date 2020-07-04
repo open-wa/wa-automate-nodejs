@@ -1161,7 +1161,7 @@ window._WAPI._newMessagesListener = window.Store.Msg.on('add', (newMessage) => {
 
                 window._WAPI._newMessagesCallbacks.forEach(function (callbackObj) {
                     if (callbackObj.callback !== undefined) {
-                        callbackObj.callback(queuedMessages);
+                        callbackObj.callback(JSON.parse(JSON.stringify(queuedMessages)));
                     }
                     if (callbackObj.rmAfterUse === true) {
                         removeCallbacks.push(callbackObj);
@@ -1211,7 +1211,7 @@ window.WAPI.waitNewMessages = function (rmCallbackAfterUse = true, callback) {
 };
 
 
-window.WAPI.addAllNewMessagesListener = callback => window.Store.Msg.on('add', (newMessage) => {
+window.WAPI.onAnyMessage = callback => window.Store.Msg.on('add', (newMessage) => {
     if (newMessage && newMessage.isNewMsg) {
     if(!newMessage.clientUrl && (newMessage.mediaKeyTimestamp || newMessage.filehash)){
         const cb = (msg) => {
@@ -1222,7 +1222,8 @@ window.WAPI.addAllNewMessagesListener = callback => window.Store.Msg.on('add', (
         };
         Store.Msg.on('change:isUnsentMedia',cb);
     } else {
-        let message = WAPI.quickClean(window.WAPI.processMessageObj(newMessage, true, false) || newMessage.attributes);
+        let pm = window.WAPI.processMessageObj(newMessage, true, true);
+        let message = pm? JSON.parse(JSON.stringify(pm)) : WAPI.quickClean(newMessage.attributes);
         if (message) {
             callback(message)
         }
