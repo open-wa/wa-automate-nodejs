@@ -169,7 +169,7 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
 
       spinner.emit(sessionData, "sessionData");
 
-      fs.writeFile(sessionjsonpath, JSON.stringify(sessionData), (err) => {
+      if(!config?.skipSessionSave) fs.writeFile(sessionjsonpath, JSON.stringify(sessionData), (err) => {
         if (err) { console.error(err); return; };
       });
       if (config?.logConsole) waPage.on('console', msg => console.log(msg));

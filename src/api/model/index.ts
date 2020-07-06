@@ -265,6 +265,10 @@ export interface ConfigObject {
      * If true, client will check if the page is valid before each command. If page is not valid, it will throw an error.
      */
     safeMode ?: boolean;
+    /**
+     * If true, the process will not save a data.json file. This means that sessions will not be saved and you will need to pass sessionData as a config param or create the session data.json file yourself
+     */
+    skipSessionSave ?: boolean;
     // @private
     [x: string]: any 
 }
