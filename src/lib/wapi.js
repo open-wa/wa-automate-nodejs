@@ -1613,7 +1613,6 @@ window.WAPI.refreshBusinessProfileProducts = async function (){
  */
 window.WAPI.getBusinessProfilesProducts = async function (id) {
     try{
-        await WAPI.refreshBusinessProfileProducts();
         if(!Store.Catalog.get(id)) await Store.Catalog.findCarouselCatalog(id)
         const catalog = Store.Catalog.get(id);
         if (catalog.productCollection && catalog.productCollection._models.length)
