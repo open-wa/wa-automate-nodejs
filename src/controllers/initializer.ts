@@ -6,7 +6,7 @@ import { isAuthenticated, isInsideChat, retrieveQR, phoneIsOutOfReach } from './
 import { initClient, injectApi } from './browser';
 import { Spin } from './events'
 import axios from 'axios';
-import { logoText, integrityCheck } from './launch_checks';
+import { integrityCheck } from './launch_checks';
 const updateNotifier = require('update-notifier');
 let shouldLoop = true;
 var pkg = require('../../package.json');
@@ -16,6 +16,7 @@ const timeout = ms => {
 }
 let qrDelayTimeout;
 import treekill from 'tree-kill';
+import CFonts from 'cfonts';
 
 /**
  * Should be called to initialize whatsapp client.
@@ -44,7 +45,15 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
     updateCheckInterval: 0
   });
   notifier.notify();
-  console.log(logoText, 'background: #000; color: #F0F; padding: 6px;');
+
+  const prettyFont = CFonts.render(('@OPEN-WA|WHATSAPP|AUTOMATOR'), {
+    font: '3d',
+    color: 'candy',
+    align: 'center',
+    gradient: ["red","#f80"],
+    lineHeight: 3
+  });
+  console.log(prettyFont.string)
 
   if (typeof sessionId === 'object' && (sessionId as ConfigObject)) {
     config = sessionId;
