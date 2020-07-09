@@ -17,6 +17,7 @@ const timeout = ms => {
 let qrDelayTimeout;
 import treekill from 'tree-kill';
 import CFonts from 'cfonts';
+import { popup } from './popup';
 const boxen = require('boxen');
 
 /**
@@ -69,6 +70,9 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
     `Check out the latest changes: https://github.com/open-wa/wa-automate-nodejs#latest-changes   `,
   ].join('\n'), {padding: 1, borderColor: 'yellow', borderStyle: 'bold'}) : prettyFont.string)
   
+  if(config?.popup) {
+    const popupaddr = await popup(config?.popup);
+    console.log(`You can also authenticate the session at: ${popupaddr}`)
   }
   if (!sessionId) sessionId = 'session';
   const spinner = new Spin(sessionId, 'STARTUP', config?.disableSpins);
