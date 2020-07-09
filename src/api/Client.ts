@@ -431,9 +431,10 @@ export class Client {
   }
 
   /**
-   * Listens to messages received
+   * Listens to changes in state
+   * 
    * @event 
-   * @returns Observable stream of messages
+   * @fires STATE observable sream of states
    */
   public async onStateChanged(fn: (state: string) => void) {
     return this.registerListener(SimpleListener.StateChanged, fn);
