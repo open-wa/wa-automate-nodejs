@@ -14,7 +14,7 @@ import { SessionInfo } from './model/sessionInfo';
 import { injectApi } from '../controllers/browser';
 import { licenseCheckUrl } from '../controllers/initializer';
 import { isAuthenticated } from '../controllers/auth';
-import * as alias from './model/aliases'
+import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL } from './model/aliases';
 
 export enum namespace {
   Chat = 'Chat',
@@ -235,14 +235,15 @@ declare module WAPI {
 }
 
 export class Client {
-  _loadedModules: any[];
-  _registeredWebhooks: any;
-  _webhookQueue: any;
-  _createConfig: ConfigObject;
-  _sessionInfo: SessionInfo;
-  _listeners: any;
+  private _loadedModules: any[];
+  private _registeredWebhooks: any;
+  private _webhookQueue: any;
+  private _createConfig: ConfigObject;
+  private _sessionInfo: SessionInfo;
+  private _listeners: any;
 
   /**
+   * @ignore
    * @param page [Page] [Puppeteer Page]{@link https://pptr.dev/#?product=Puppeteer&version=v2.1.1&show=api-class-page} running WA Web
    */
   constructor(public page: Page, createConfig: ConfigObject, sessionInfo: SessionInfo) {
@@ -255,14 +256,14 @@ export class Client {
   }
 
   private _setOnClose(){
-    this.page.on('close',()=>{
+    this._page.on('close',()=>{
       this.kill();
       if(!(this._createConfig?.killProcessOnBrowserClose===false)) process.exit();
     })
   }
 
   private async _reInjectWapi(){
-    this.page = await injectApi(this.page)
+    this._page = await injectApi(this._page)
   }
 
   private async _reRegisterListeners(){
@@ -275,18 +276,18 @@ export class Client {
    */
    public async refresh(){
      console.log('Refreshing')
-     await this.page.goto(puppeteerConfig.WAUrl);
-     await isAuthenticated(this.page);
+     await this._page.goto(puppeteerConfig.WAUrl);
+     await isAuthenticated(this._page);
      await this._reInjectWapi();
      if (this._createConfig?.licenseKey) {
       const { me } = await this.getMe();
       const { data } = await axios.post(licenseCheckUrl, { key: this._createConfig.licenseKey, number: me._serialized, ...this._sessionInfo });
       if (data) {
-        await this.page.evaluate(data => eval(data), data);
+        await this._page.evaluate(data => eval(data), data);
         console.log('License Valid');
       } else console.log('Invalid license key');
     }
-    await this.page.evaluate('Object.freeze(window.WAPI)');
+    await this._page.evaluate('Object.freeze(window.WAPI)');
     await this._reRegisterListeners();
     return true;
    }
@@ -320,11 +321,11 @@ export class Client {
 
   private async pup(pageFunction:EvaluateFn<any>, ...args) {
     if(this._createConfig?.safeMode) {
-      if(!this.page || this.page.isClosed()) throw 'page closed';
+      if(!this._page || this._page.isClosed()) throw 'page closed';
       const state = await this.getConnectionState();
       if(state!==STATE.CONNECTED) throw `state: ${state}`
     }
-    return this.page.evaluate(pageFunction, ...args)
+    return this._page.evaluate(pageFunction, ...args)
   }
 
   /**
@@ -343,7 +344,7 @@ export class Client {
     this._listeners[funcName] = fn;
     const exists = await this.pup(({funcName})=>window[funcName]?true:false,{funcName});
     if(exists) return await set();
-    return this.page.exposeFunction(funcName, (obj: any) =>fn(obj)).then(set).catch(e=>set);
+    return this._page.exposeFunction(funcName, (obj: any) =>fn(obj)).then(set).catch(e=>set);
   }
   
   // NON-STAMDARD LISTENERS
@@ -368,7 +369,7 @@ export class Client {
       },{funcName})
       const exists = await this.pup(({funcName})=>window[funcName]?true:false,{funcName});
       if(exists) return await set();
-    this.page.exposeFunction(funcName, (message: Message) =>fn(message)).then(set).catch(e=>set);
+    this._page.exposeFunction(funcName, (message: Message) =>fn(message)).then(set).catch(e=>set);
   }
 
  
@@ -549,9 +550,9 @@ export class Client {
    * @param to callback
    * @returns Observable stream of participantChangedEvent
    */
-  public async onParticipantsChanged(groupId: string, fn: (participantChangedEvent: ParticipantChangedEventModel) => void, useLegancyMethod : boolean = false) {
+  public async onParticipantsChanged(groupId: GroupChatId, fn: (participantChangedEvent: ParticipantChangedEventModel) => void, useLegancyMethod : boolean = false) {
     const funcName = "onParticipantsChanged_" + groupId.replace('_', "").replace('_', "");
-    return this.page.exposeFunction(funcName, (participantChangedEvent: ParticipantChangedEventModel) =>
+    return this._page.exposeFunction(funcName, (participantChangedEvent: ParticipantChangedEventModel) =>
       fn(participantChangedEvent)
     )
       .then(_ => this.pup(
@@ -570,9 +571,9 @@ export class Client {
  * @returns boolean, if returns false then there were no valid live locations in the chat of chatId
  * @emits <LiveLocationChangedEvent> LiveLocationChangedEvent
  */
-public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveLocationChangedEvent) => void) {
+public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveLocationChangedEvent) => void) {
   const funcName = "onLiveLocation_" + chatId.replace('_', "").replace('_', "");
-  return this.page.exposeFunction(funcName, (liveLocationChangedEvent: LiveLocationChangedEvent) =>
+  return this._page.exposeFunction(funcName, (liveLocationChangedEvent: LiveLocationChangedEvent) =>
     fn(liveLocationChangedEvent)
   )
     .then(_ => this.pup(
@@ -639,7 +640,7 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
  * @param {string} contactNumber If supplied, this will be injected into the vcard (VERSION 3 ONLY FROM VCARDJS) with the WA id to make it show up with the correct buttons on WA. The format of this param should be including country code, without any other formating. e.g:
  * `4477777777777`
  */
-  public async sendVCard(chatId: string, vcard: string, contactName:string,  contactNumber?: string) {
+  public async sendVCard(chatId: ChatId, vcard: string, contactName:string,  contactNumber?: string) {
     return await this.pup(
       ({chatId, vcard, contactName, contactNumber}) => {WAPI.sendVCard(chatId, vcard,contactName, contactNumber)},
       {chatId, vcard, contactName, contactNumber}
@@ -662,7 +663,7 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
     * @param {ChatState|0|1|2} chatState The state you want to set for the chat. Can be TYPING (0), RECRDING (1) or PAUSED (2).
     * @param {String} chatId 
     */
-   public async setChatState(chatState: ChatState, chatId: String) {
+   public async setChatState(chatState: ChatState, chatId: ChatId) {
     return await this.pup(
       ({chatState, chatId}) => {WAPI.setChatState(chatState, chatId)},
       //@ts-ignore
@@ -675,14 +676,14 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
    * @returns Any of OPENING, PAIRING, UNPAIRED, UNPAIRED_IDLE, CONNECTED, TIMEOUT, CONFLICT, UNLAUNCHED, PROXYBLOCK, TOS_BLOCK, SMB_TOS_BLOCK, DEPRECATED_VERSION
    */
   public async getConnectionState() {
-    return await this.page.evaluate(() => WAPI.getState());
+    return await this._page.evaluate(() => WAPI.getState());
   }
 
   /**
    * Returns a list of contact with whom the host number has an existing chat who are also not contacts.
    */
   public async getChatWithNonContacts(){
-    return await this.page.evaluate(() => WAPI.getChatWithNonContacts());
+    return await this._page.evaluate(() => WAPI.getChatWithNonContacts());
   }
 
   /**
@@ -691,23 +692,23 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
    */
   public async kill() {
     console.log('Shutting Down');
-    const browser = await this.page.browser()
+    const browser = await this._page.browser()
     const pid = browser.process() ? browser.process().pid : null;
     try{
-      if (this.page && !this.page.isClosed()) await this.page.close();
-      if (this.page && this.page.browser) await this.page.browser().close();
+      if (this._page && !this._page.isClosed()) await this._page.close();
+      if (this._page && this._page.browser) await this._page.browser().close();
       if(pid) treekill(pid, 'SIGKILL')
     } catch(error){}
     return true;
   }
 
   public async forceRefocus() {
-    const useHere: string = await this.page.evaluate(()=>WAPI.getUseHereString());
-    await this.page.waitForFunction(
+    const useHere: string = await this._page.evaluate(()=>WAPI.getUseHereString());
+    await this._page.waitForFunction(
       `[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML.toLowerCase()==="${useHere.toLowerCase()}"})`,
       { timeout: 0 }
     );
-    return await this.page.evaluate(`[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML.toLowerCase()=="${useHere.toLowerCase()}"}).click()`);
+    return await this._page.evaluate(`[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML.toLowerCase()=="${useHere.toLowerCase()}"}).click()`);
   }
 
   
@@ -717,7 +718,7 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
    * @param chatId string Id of the chat you want to force the phone to get the livelocation data for.
    * @returns Promise<LiveLocationChangedEvent []> | boolean 
    */
-  public async forceUpdateLiveLocation(chatId: string) {
+  public async forceUpdateLiveLocation(chatId: ChatId) {
     return await this.pup(
       ({chatId}) => WAPI.forceUpdateLiveLocation(chatId),
       { chatId }
@@ -733,7 +734,7 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
    * @param to chat id: xxxxx@us.c
    * @param content text message
    */
-  public async sendText(to: string, content: string) {
+  public async sendText(to: ChatId, content: Content) {
     return await this.pup(
       ({ to, content }) => {
         WAPI.sendSeen(to);
@@ -752,7 +753,7 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
    * @param to chat id: xxxxx@us.c
    * @param content text message
    */
-  public async sendTextWithMentions(to: string, content: string) {
+  public async sendTextWithMentions(to: ChatId, content: Content) {
     return await this.pup(
       ({ to, content }) => {
         WAPI.sendSeen(to);
@@ -773,7 +774,7 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
    * @param content text message
    * @param replyMessageId id of message to reply to
    */
-  public async sendReplyWithMentions(to: string, content: string, replyMessageId: string) {
+  public async sendReplyWithMentions(to: ChatId, content: Contact, replyMessageId: MessageId) {
     return await this.pup(
       ({ to, content, replyMessageId }) => {
         WAPI.sendSeen(to);
@@ -785,7 +786,7 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Sends a link to a chat that includes a link preview.
-   * @param thumb The base 64 data of the image you want to use as the thunbnail. This should be no more than 200x200px. Note: Dont need data uri on this param
+   * @param thumb The base 64 data of the image you want to use as the thunbnail. This should be no more than 200x200px. Note: Dont need data url on this param
    * @param url The link you want to send
    * @param title The title of the link
    * @param description The long description of the link preview
@@ -798,8 +799,8 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
     url: string,
     title: string,
     description: string,
-    text: string,
-    chatId: string) {
+    text: Content,
+    chatId: ChatId) {
     return await this.pup(
       ({ thumb,
         url,
@@ -835,7 +836,7 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
    * @param lng longitude: '0.1278'
    * @param loc location text: 'LONDON!'
    */
-  public async sendLocation(to: string, lat: any, lng: any, loc: string) {
+  public async sendLocation(to: ChatId, lat: any, lng: any, loc: string) {
     return await this.pup(
       ({ to, lat, lng, loc }) => WAPI.sendLocation(to, lat, lng, loc),
       { to, lat, lng, loc }
@@ -866,11 +867,11 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
    * @returns Promise <boolean | string> This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
    */
   public async sendImage(
-    to: string,
-    base64: string,
+    to: ChatId,
+    base64: Base64,
     filename: string,
-    caption: string,
-    quotedMsgId?: string,
+    caption: Content,
+    quotedMsgId?: MessageId,
     waitForId?: boolean,
     ptt?:boolean
   ) {
@@ -887,7 +888,7 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
  * @param url string A youtube link.
  * @param text string Custom text as body of the message, this needs to include the link or it will be appended after the link.
  */
-  public async sendYoutubeLink(to: string, url: string, text: string = '') {
+  public async sendYoutubeLink(to: ChatId, url: string, text: Content = '') {
     return this.sendLinkWithAutoPreview(to,url,text);
   }
 
@@ -898,9 +899,9 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
  * @param text string Custom text as body of the message, this needs to include the link or it will be appended after the link.
  */
   public async sendLinkWithAutoPreview(
-    to: string,
+    to: ChatId,
     url: string,
-    text?: string,
+    text?: Content,
   ) {
     return await this.pup(
       ({ to,url, text }) => {
@@ -918,7 +919,7 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
    * @param sendSeen boolean If set to true, the chat will 'blue tick' all messages before sending the reply
    * @returns Promise<string | boolean> false if didn't work, otherwise returns message id.
    */
-  public async reply(to: string, content: string, quotedMsgId: string, sendSeen?: boolean) {
+  public async reply(to: ChatId, content: Content, quotedMsgId: MessageId, sendSeen?: boolean) {
     if(sendSeen) await this.sendSeen(to);
     return await this.pup(
       ({ to, content, quotedMsgId }) =>WAPI.reply(to, content, quotedMsgId),
@@ -937,11 +938,11 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
    * @returns Promise <boolean | string> This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
    */
   public async sendFile(
-    to: string,
-    base64: string,
+    to: ChatId,
+    base64: Base64,
     filename: string,
-    caption: string,
-    quotedMsgId?: string,
+    caption: Content,
+    quotedMsgId?: MessageId,
     waitForId?: boolean
   ) {
     return this.sendImage(to, base64, filename, caption, quotedMsgId, waitForId);
@@ -956,9 +957,9 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
    * @returns Promise <boolean | string> This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
    */
   public async sendPtt(
-    to: string,
-    base64: string,
-    quotedMsgId: string,
+    to: ChatId,
+    base64: Base64,
+    quotedMsgId: MessageId,
   ) {
     return this.sendImage(to, base64, 'ptt.ogg', '', quotedMsgId, true);
   }
@@ -974,11 +975,11 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
    * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
    */
   public async sendVideoAsGif(
-    to: string,
-    base64: string,
+    to: ChatId,
+    base64: Base64,
     filename: string,
-    caption: string,
-    quotedMsgId?: string
+    caption: Content,
+    quotedMsgId?: MessageId
   ) {
     return await this.pup(
       ({ to, base64, filename, caption, quotedMsgId  }) => {
@@ -995,9 +996,9 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
    * @param caption string xxxxx
    */
   public async sendGiphy(
-    to: string,
+    to: ChatId,
     giphyMediaUrl: string,
-    caption: string
+    caption: Content
   ) {
     var ue = /^https?:\/\/media\.giphy\.com\/media\/([a-zA-Z0-9]+)/
     var n = ue.exec(giphyMediaUrl);
@@ -1030,11 +1031,11 @@ public async onLiveLocation(chatId: string, fn: (liveLocationChangedEvent: LiveL
 
    */
   public async sendFileFromUrl(
-    to: string,
+    to: ChatId,
     url: string,
     filename: string,
-    caption: string,
-    quotedMsgId?: string,
+    caption: Content,
+    quotedMsgId?: MessageId,
     requestConfig: any = {},
     waitForId?: boolean
   ) {
@@ -1086,7 +1087,7 @@ public async iAmAdmin(){
    * @param done Optional callback function for async execution
    * @returns None
    */
-  public async getBusinessProfilesProducts(id: string) {
+  public async getBusinessProfilesProducts(id: ContactId) {
     return await this.pup(
       ({ id }) => WAPI.getBusinessProfilesProducts(id),
       { id }
@@ -1105,10 +1106,10 @@ public async iAmAdmin(){
    * @returns 
    */
   public async sendImageWithProduct(
-    to: string,
-    base64: string,
-    caption: string,
-    bizNumber: string,
+    to: ChatId,
+    base64: Base64,
+    caption: Content,
+    bizNumber: ContactId,
     productId: string
   ) {
     return await this.pup(
@@ -1124,7 +1125,7 @@ public async iAmAdmin(){
    * @param {string} to 'xxxx@c.us'
    * @param {string|array} contact 'xxxx@c.us' | ['xxxx@c.us', 'yyyy@c.us', ...]
    */
-  public async sendContact(to: string, contactId: string | string[]) {
+  public async sendContact(to: ChatId, contactId: ContactId | ContactId[]) {
     return await this.pup(
       ({ to, contactId }) => WAPI.sendContact(to, contactId),
       { to, contactId }
@@ -1137,7 +1138,7 @@ public async iAmAdmin(){
    * @param {string} to 'xxxx@c.us'
    * @param {boolean} on turn on similated typing, false to turn it off you need to manually turn this off.
    */
-  public async simulateTyping(to: string, on: boolean) {
+  public async simulateTyping(to: ChatId, on: boolean) {
     return await this.pup(
       ({ to, on }) => WAPI.simulateTyping(to, on),
       { to, on }
@@ -1150,7 +1151,7 @@ public async iAmAdmin(){
    * @param archive boolean true => archive, false => unarchive
    * @return boolean true: worked, false: didnt work (probably already in desired state)
    */
-  public async archiveChat(id: string, archive: boolean) {
+  public async archiveChat(id: ChatId, archive: boolean) {
     return await this.pup(
       ({ id, archive }) => WAPI.archiveChat(id, archive),
       { id, archive }
@@ -1161,11 +1162,11 @@ public async iAmAdmin(){
   /**
    * Forward an array of messages to a specific chat using the message ids or Objects
    *
-   * @param {string} to '000000000000@c.us'
-   * @param {string|array[Message | string]} messages this can be any mixture of message ids or message objects
-   * @param {boolean} skipMyMessages This indicates whether or not to skip your own messages from the array
+   * @param to '000000000000@c.us'
+   * @param messages this can be any mixture of message ids or message objects
+   * @param skipMyMessages This indicates whether or not to skip your own messages from the array
    */
-  public async forwardMessages(to: string, messages: any, skipMyMessages: boolean) {
+  public async forwardMessages(to: ChatId, messages: MessageId | MessageId[], skipMyMessages: boolean) {
     return await this.pup(
       ({ to, messages, skipMyMessages }) => WAPI.forwardMessages(to, messages, skipMyMessages),
       { to, messages, skipMyMessages }
@@ -1179,7 +1180,7 @@ public async iAmAdmin(){
  * @param messageId: message id of the message to forward. Please note that if it is not loaded, this will return false - even if it exists.
  * @returns Promise<boolean>
  */
-  public async ghostForward(to: string, messageId: string) {
+  public async ghostForward(to: ChatId, messageId: MessageId) {
     return await this.pup(
       ({ to, messageId }) => WAPI.ghostForward(to, messageId),
       { to, messageId }
@@ -1276,7 +1277,7 @@ public async iAmAdmin(){
    * Retrieves group members as [Id] objects
    * @param groupId group id
    */
-  public async getGroupMembersId(groupId: string) {
+  public async getGroupMembersId(groupId: GroupChatId) {
     return await this.pup(
       groupId => WAPI.getGroupParticipantIDs(groupId),
       groupId
@@ -1303,7 +1304,7 @@ public async iAmAdmin(){
  * Block contact 
  * @param {string} id '000000000000@c.us'
  */
-public async contactBlock(id: string) {
+public async contactBlock(id: ContactId) {
   return await this.pup(id => WAPI.contactBlock(id),id)
 }
 
@@ -1311,7 +1312,7 @@ public async contactBlock(id: string) {
  * Unblock contact 
  * @param {string} id '000000000000@c.us'
  */
-public async contactUnblock(id: string) {
+public async contactUnblock(id: ContactId) {
   return await this.pup(id => WAPI.contactUnblock(id),id)
 }
 
@@ -1319,7 +1320,7 @@ public async contactUnblock(id: string) {
    * Removes the host device from the group
    * @param groupId group id
    */
-  public async leaveGroup(groupId: string) {
+  public async leaveGroup(groupId: GroupChatId) {
     return await this.pup(
       groupId => WAPI.leaveGroup(groupId),
       groupId
@@ -1342,7 +1343,7 @@ public async contactUnblock(id: string) {
  * 
  * Please use [vcf](https://www.npmjs.com/package/vcf) to convert a vcard string into a json object
  */
-  public async getVCards(msgId: string) {
+  public async getVCards(msgId: MessageId) {
     return await this.pup(
       msgId => WAPI.getVCards(msgId),
       msgId
@@ -1353,7 +1354,7 @@ public async contactUnblock(id: string) {
    * Returns group members [Contact] objects
    * @param groupId
    */
-  public async getGroupMembers(groupId: string) {
+  public async getGroupMembers(groupId: GroupChatId) {
     const membersIds = await this.getGroupMembersId(groupId);
     const actions = membersIds.map(memberId => {
       return this.getContact(memberId);
@@ -1367,7 +1368,7 @@ public async contactUnblock(id: string) {
    * @returns contact detial as promise
    */
   //@ts-ignore
-  public async getContact(contactId: alias.ContactId) {
+  public async getContact(contactId: ContactId) {
     return await this.pup(
       contactId => WAPI.getContact(contactId),
       contactId
@@ -1379,7 +1380,7 @@ public async contactUnblock(id: string) {
    * @param contactId
    * @returns contact detial as promise
    */
-  public async getChatById(contactId: string) {
+  public async getChatById(contactId: ContactId) {
     return await this.pup(
       contactId => WAPI.getChatById(contactId),
       contactId
@@ -1391,7 +1392,7 @@ public async contactUnblock(id: string) {
    * @param messageId
    * @returns message object
    */
-  public async getMessageById(messageId: string) {
+  public async getMessageById(messageId: MessageId) {
     return await this.pup(
       messageId => WAPI.getMessageById(messageId),
       messageId
@@ -1403,7 +1404,7 @@ public async contactUnblock(id: string) {
    * @param contactId
    * @returns contact detial as promise
    */
-  public async getChat(contactId: string) {
+  public async getChat(contactId: ContactId) {
     return await this.pup(
       contactId => WAPI.getChat(contactId),
       contactId
@@ -1418,7 +1419,7 @@ public async contactUnblock(id: string) {
    * title:string
    * }
    */
-  public async getCommonGroups(contactId: string) {
+  public async getCommonGroups(contactId: ContactId) {
     return await this.pup(
       contactId => WAPI.getCommonGroups(contactId),
       contactId
@@ -1434,7 +1435,7 @@ public async contactUnblock(id: string) {
    * @param chatId The id of the chat.
    * @returns number timestamp when chat was last online or undefined.
    */
-  public async getLastSeen(chatId: string) {
+  public async getLastSeen(chatId: ChatId) {
     return await this.pup(
       chatId => WAPI.getLastSeen(chatId),
       chatId
@@ -1446,7 +1447,7 @@ public async contactUnblock(id: string) {
    * @param chatId
    * @returns Url of the chat picture or undefined if there is no picture for the chat.
    */
-  public async getProfilePicFromServer(chatId: string) {
+  public async getProfilePicFromServer(chatId: ChatId) {
     return await this.pup(
       chatId => WAPI.getProfilePicFromServer(chatId),
       chatId
@@ -1458,7 +1459,7 @@ public async contactUnblock(id: string) {
    * Sets a chat status to seen. Marks all messages as ack: 3
    * @param chatId chat id: xxxxx@us.c
    */
-  public async sendSeen(chatId: string) {
+  public async sendSeen(chatId: ChatId) {
     return await this.pup(
      chatId => WAPI.sendSeen(chatId),
       chatId
@@ -1470,7 +1471,7 @@ public async contactUnblock(id: string) {
    * Sets a chat status to unread. May be useful to get host's attention
    * @param chatId chat id: xxxxx@us.c
    */
-  public async markAsUnread(chatId: string) {
+  public async markAsUnread(chatId: ChatId) {
     return await this.pup(
      chatId => WAPI.markAsUnread(chatId),
       chatId
@@ -1481,7 +1482,7 @@ public async contactUnblock(id: string) {
    * Checks if a CHAT contact is online. Not entirely sure if this works with groups.
    * @param chatId chat id: xxxxx@us.c
    */
-  public async isChatOnline(chatId: string) {
+  public async isChatOnline(chatId: ChatId) {
     return await this.pup(
      chatId => WAPI.isChatOnline(chatId),
       chatId
@@ -1494,7 +1495,7 @@ public async contactUnblock(id: string) {
    * @param contactId
    * @returns Message []
    */
-  public async loadEarlierMessages(contactId: string) {
+  public async loadEarlierMessages(contactId: ContactId) {
     return await this.pup(
       contactId => WAPI.loadEarlierMessages(contactId),
       contactId
@@ -1507,7 +1508,7 @@ public async contactUnblock(id: string) {
  * returns: {id: string,status: string}
  */
 
-public async getStatus(contactId: string) {
+public async getStatus(contactId: ContactId) {
   return await this.pup(
     contactId => WAPI.getStatus(contactId),
     contactId
@@ -1519,7 +1520,7 @@ public async getStatus(contactId: string) {
    * @param contactId
    * @returns contact detial as promise
    */
-  public async loadAllEarlierMessages(contactId: string) {
+  public async loadAllEarlierMessages(contactId: ContactId) {
     return await this.pup(
       contactId => WAPI.loadAllEarlierMessages(contactId),
       contactId
@@ -1531,7 +1532,7 @@ public async getStatus(contactId: string) {
    * @param chatId
    * @returns boolean
    */
-  public async deleteChat(chatId: string) {
+  public async deleteChat(chatId: ChatId) {
     return await this.pup(
       chatId => WAPI.deleteConversation(chatId),
       chatId
@@ -1543,7 +1544,7 @@ public async getStatus(contactId: string) {
    * @param chatId
    * @returns boolean
    */
-  public async clearChat(chatId: string) {
+  public async clearChat(chatId: ChatId) {
     return await this.pup(
       chatId => WAPI.clearChat(chatId),
       chatId
@@ -1555,7 +1556,7 @@ public async getStatus(contactId: string) {
    * @param chatId
    * @returns Promise<string>
    */
-  public async getGroupInviteLink(chatId: string) {
+  public async getGroupInviteLink(chatId: ChatId) {
     return await this.pup(
       chatId => WAPI.getGroupInviteLink(chatId),
       chatId
@@ -1580,7 +1581,7 @@ public async getStatus(contactId: string) {
    * @param chatId
    * @returns Promise<boolean>
    */
-  public async revokeGroupInviteLink(chatId: string) {
+  public async revokeGroupInviteLink(chatId: ChatId) {
     return await this.pup(
       chatId => WAPI.revokeGroupInviteLink(chatId),
       chatId
@@ -1594,7 +1595,7 @@ public async getStatus(contactId: string) {
    * @param onlyLocal If it should only delete locally (message remains on the other recipienct's phone). Defaults to false.
    * @returns nothing
    */
-  public async deleteMessage(contactId: string, messageId: string[] | string, onlyLocal : boolean = false) {
+  public async deleteMessage(contactId: ContactId, messageId: MessageId[] | MessageId, onlyLocal : boolean = false) {
     return await this.pup(
       ({ contactId, messageId, onlyLocal }) => WAPI.smartDeleteMessages(contactId, messageId, onlyLocal),
       { contactId, messageId, onlyLocal }
@@ -1606,7 +1607,7 @@ public async getStatus(contactId: string) {
    * @param contactId, you need to include the @c.us at the end.
    * @returns contact detial as promise
    */
-  public async checkNumberStatus(contactId: string) {
+  public async checkNumberStatus(contactId: ContactId) {
     return await this.pup(
       contactId => WAPI.checkNumberStatus(contactId),
       contactId
@@ -1669,7 +1670,7 @@ public async getStatus(contactId: string) {
    * @returns any
    */
 
-  public async getAllMessagesInChat(chatId: string, includeMe: boolean, includeNotifications: boolean) {
+  public async getAllMessagesInChat(chatId: ChatId, includeMe: boolean, includeNotifications: boolean) {
     return await this.pup(
       ({ chatId, includeMe, includeNotifications }) => WAPI.getAllMessagesInChat(chatId, includeMe, includeNotifications),
       { chatId, includeMe, includeNotifications }
@@ -1684,7 +1685,7 @@ public async getStatus(contactId: string) {
    * @returns any
    */
 
-  public async loadAndGetAllMessagesInChat(chatId: string, includeMe: boolean, includeNotifications: boolean) {
+  public async loadAndGetAllMessagesInChat(chatId: ChatId, includeMe: boolean, includeNotifications: boolean) {
     return await this.pup(
       ({ chatId, includeMe, includeNotifications }) => WAPI.loadAndGetAllMessagesInChat(chatId, includeMe, includeNotifications),
       { chatId, includeMe, includeNotifications }
@@ -1711,7 +1712,7 @@ public async getStatus(contactId: string) {
    * }
    * ```
    */
-  public async createGroup(groupName:string,contacts:string|string[]){
+  public async createGroup(groupName:string,contacts:ContactId|ContactId[]){
     return await this.pup(
       ({ groupName, contacts }) => WAPI.createGroup(groupName, contacts),
       { groupName, contacts }
@@ -1720,23 +1721,23 @@ public async getStatus(contactId: string) {
 
   /**
    * Remove participant of Group
-   * @param {*} idGroup '0000000000-00000000@g.us'
-   * @param {*} idParticipant '000000000000@c.us'
+   * @param {*} groupId '0000000000-00000000@g.us'
+   * @param {*} participantId '000000000000@c.us'
    * @param {*} done - function - Callback function to be called when a new message arrives.
    */
-  public async removeParticipant(idGroup: string, idParticipant: string) {
+  public async removeParticipant(groupId: GroupChatId, participantId: ContactId) {
     return await this.pup(
-      ({ idGroup, idParticipant }) => WAPI.removeParticipant(idGroup, idParticipant),
-      { idGroup, idParticipant }
+      ({ groupId, participantId }) => WAPI.removeParticipant(groupId, participantId),
+      { groupId, participantId }
     );
   }
 
 /** Change the icon for the group chat
  * @param groupId 123123123123_1312313123@g.us The id of the group
- * @param imgData 'data:image/jpeg;base64,...` The base 64 data uri. Make sure this is a small img (128x128), otherwise it will fail.
+ * @param imgData 'data:image/jpeg;base64,...` The base 64 data url. Make sure this is a small img (128x128), otherwise it will fail.
  * @returns boolean true if it was set, false if it didn't work. It usually doesn't work if the image file is too big.
  */
-  public async setGroupIcon(groupId: string, b64: string) {
+  public async setGroupIcon(groupId: GroupChatId, b64: Base64) {
     const buff = Buffer.from(b64.replace(/^data:image\/(png|gif|jpeg);base64,/,''), 'base64');
     const mimeInfo = base64MimeType(b64);
     console.log("setGroupIcon -> mimeInfo", mimeInfo)
@@ -1761,7 +1762,7 @@ public async getStatus(contactId: string) {
  * @param requestConfig {} By default the request is a get request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
  * @returns boolean true if it was set, false if it didn't work. It usually doesn't work if the image file is too big.
  */
-  public async setGroupIconByUrl(groupId: string, url: string, requestConfig: any = {}) {
+  public async setGroupIconByUrl(groupId: GroupChatId, url: string, requestConfig: any = {}) {
     try {
       const base64 = await getBase64(url, requestConfig);
        return await this.setGroupIcon(groupId,base64);
@@ -1772,41 +1773,41 @@ public async getStatus(contactId: string) {
 
   /**
   * Add participant to Group
-  * @param {*} idGroup '0000000000-00000000@g.us'
-  * @param {*} idParticipant '000000000000@c.us'
+  * @param {*} groupId '0000000000-00000000@g.us'
+  * @param {*} participantId '000000000000@c.us'
   * @param {*} done - function - Callback function to be called when a new message arrives.
   */
 
-  public async addParticipant(idGroup: string, idParticipant: string) {
+  public async addParticipant(groupId: GroupChatId, participantId: ContactId) {
     return await this.pup(
-      ({ idGroup, idParticipant }) => WAPI.addParticipant(idGroup, idParticipant),
-      { idGroup, idParticipant }
+      ({ groupId, participantId }) => WAPI.addParticipant(groupId, participantId),
+      { groupId, participantId }
     );
   }
 
   /**
   * Promote Participant to Admin in Group
-  * @param {*} idGroup '0000000000-00000000@g.us'
-  * @param {*} idParticipant '000000000000@c.us'
+  * @param {*} groupId '0000000000-00000000@g.us'
+  * @param {*} participantId '000000000000@c.us'
   * @param {*} done - function - Callback function to be called when a new message arrives.
   */
 
-  public async promoteParticipant(idGroup: string, idParticipant: string) {
+  public async promoteParticipant(groupId: GroupChatId, participantId: ContactId) {
     return await this.pup(
-      ({ idGroup, idParticipant }) => WAPI.promoteParticipant(idGroup, idParticipant),
-      { idGroup, idParticipant }
+      ({ groupId, participantId }) => WAPI.promoteParticipant(groupId, participantId),
+      { groupId, participantId }
     );
   }
 
   /**
   * Demote Admin of Group
-  * @param {*} idGroup '0000000000-00000000@g.us'
-  * @param {*} idParticipant '000000000000@c.us'
+  * @param {*} groupId '0000000000-00000000@g.us'
+  * @param {*} participantId '000000000000@c.us'
   */
-  public async demoteParticipant(idGroup: string, idParticipant: string) {
+  public async demoteParticipant(groupId: GroupChatId, participantId: ContactId) {
     return await this.pup(
-      ({ idGroup, idParticipant }) => WAPI.demoteParticipant(idGroup, idParticipant),
-      { idGroup, idParticipant }
+      ({ groupId, participantId }) => WAPI.demoteParticipant(groupId, participantId),
+      { groupId, participantId }
     );
   }
 
@@ -1816,7 +1817,7 @@ public async getStatus(contactId: string) {
   * @param onlyAdmins boolean set to true if you want only admins to be able to speak in this group. false if you want to allow everyone to speak in the group
   * @returns boolean true if action completed successfully.
   */
-  public async setGroupToAdminsOnly(groupId: string, onlyAdmins: boolean) {
+  public async setGroupToAdminsOnly(groupId: GroupChatId, onlyAdmins: boolean) {
     return await this.pup(
       ({ groupId, onlyAdmins }) => WAPI.setGroupToAdminsOnly(groupId, onlyAdmins),
       { groupId, onlyAdmins }
@@ -1831,7 +1832,7 @@ public async getStatus(contactId: string) {
   * @param onlyAdmins boolean set to true if you want only admins to be able to speak in this group. false if you want to allow everyone to speak in the group
   * @returns boolean true if action completed successfully.
   */
- public async setGroupEditToAdminsOnly(groupId: string, onlyAdmins: boolean) {
+ public async setGroupEditToAdminsOnly(groupId: GroupChatId, onlyAdmins: boolean) {
   return await this.pup(
     ({ groupId, onlyAdmins }) => WAPI.setGroupEditToAdminsOnly(groupId, onlyAdmins),
     { groupId, onlyAdmins }
@@ -1840,12 +1841,12 @@ public async getStatus(contactId: string) {
 
   /**
   * Get Admins of a Group
-  * @param {*} idGroup '0000000000-00000000@g.us'
+  * @param {*} groupId '0000000000-00000000@g.us'
   */
-  public async getGroupAdmins(idGroup: string) {
+  public async getGroupAdmins(groupId: GroupChatId) {
     return await this.pup(
-      (idGroup) => WAPI.getGroupAdmins(idGroup),
-      idGroup
+      (groupId) => WAPI.getGroupAdmins(groupId),
+      groupId
     );
   }
 
@@ -1881,7 +1882,7 @@ public async getStatus(contactId: string) {
    * @param url: The url of the image
    * @param requestConfig {} By default the request is a get request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
    */
-  public async sendStickerfromUrl(to: string, url: string, requestConfig: any = {}) {
+  public async sendStickerfromUrl(to: ChatId, url: string, requestConfig: any = {}) {
     try {
       const base64 = await getBase64(url, requestConfig);
       return await this.sendImageAsSticker(to, base64);
@@ -1923,7 +1924,7 @@ public async getStatus(contactId: string) {
    * @param to: The recipient id.
    * @param b64: This is the base64 string formatted with data URI. You can also send a plain base64 string but it may result in an error as the function will not be able to determine the filetype before sending.
    */
-  public async sendImageAsSticker(to: string, b64: string){
+  public async sendImageAsSticker(to: ChatId, b64: string){
     if(!this._loadedModules.includes('jsSha')) {
       await this.injectJsSha();
       this._loadedModules.push('jsSha');
@@ -1952,7 +1953,7 @@ public async getStatus(contactId: string) {
   /**
    * WORK IN PROGRESS
    */
-  public async sendRawWebpAsSticker(to: string, webpBase64: string){
+  public async sendRawWebpAsSticker(to: ChatId, webpBase64: Base64){
     if(!this._loadedModules.includes('jsSha')) {
       await this.injectJsSha();
       this._loadedModules.push('jsSha');
@@ -1986,7 +1987,7 @@ public async getStatus(contactId: string) {
    * 5: [Oswald Heavy](https://www.fontsquirrel.com/fonts/oswald)
    * @returns Promise<string | boolean> returns status id if it worked, false if it didn't
    */
-  public async postTextStatus(text: string, textRgba: string, backgroundRgba: string, font: number){
+  public async postTextStatus(text: Content, textRgba: string, backgroundRgba: string, font: number){
     return await this.pup(
       ({ text, textRgba, backgroundRgba, font }) => WAPI.postTextStatus(text, textRgba, backgroundRgba, font),
       { text, textRgba, backgroundRgba, font }
@@ -1997,11 +1998,11 @@ public async getStatus(contactId: string) {
    * [REQUIRES AN IMAGE STORY LICENSE-KEY](https://gumroad.com/l/BTMt)
    * 
    * Posts an image story.
-   * @param data data uri string `data:[<MIME-type>][;charset=<encoding>][;base64],<data>`
+   * @param data data url string `data:[<MIME-type>][;charset=<encoding>][;base64],<data>`
    * @param caption The caption for the story 
    * @returns Promise<string | boolean> returns status id if it worked, false if it didn't
    */
-  public async postImageStatus(data: string, caption: string){
+  public async postImageStatus(data: DataURL, caption: Content){
     return await this.pup(
       ({data, caption}) => WAPI.postImageStatus(data, caption),
       { data, caption }
@@ -2012,11 +2013,11 @@ public async getStatus(contactId: string) {
    * [REQUIRES A VIDEO STORY LICENSE-KEY](https://gumroad.com/l/BTMt)
    * 
    * Posts a video story.
-   * @param data data uri string `data:[<MIME-type>][;charset=<encoding>][;base64],<data>`
+   * @param data data url string `data:[<MIME-type>][;charset=<encoding>][;base64],<data>`
    * @param caption The caption for the story 
    * @returns Promise<string | boolean> returns status id if it worked, false if it didn't
    */
-  public async postVideoStatus(data: string, caption: string){
+  public async postVideoStatus(data: DataURL, caption: Content){
     return await this.pup(
       ({data, caption}) => WAPI.postVideoStatus(data, caption),
       { data, caption }
@@ -2105,7 +2106,7 @@ public async getStatus(contactId: string) {
 
   /**
    * Download via the browsers authenticated session via URL.
-   * @returns base64 string (non-data uri)
+   * @returns base64 string (non-data url)
    */
   public async downloadFileWithCredentials(url: string){
     if(!url) throw new Error('Missing URL');
@@ -2117,10 +2118,10 @@ public async getStatus(contactId: string) {
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
    * 
    * Sets the profile pic of the host number.
-   * @param data string data uri image string.
+   * @param data string data url image string.
    * @returns Promise<boolean> success if true
    */
-  public async setProfilePic(data: string){
+  public async setProfilePic(data: DataURL){
     return await this.pup(({ data }) => WAPI.setProfilePic(data),{data});
   }
 

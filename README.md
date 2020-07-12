@@ -3,9 +3,9 @@
 
 # wa-automate-nodejs
 
-> wa-automate-nodejs is the most advanced NodeJS library which provides a high-level API control to WA.
+> wa-automate-nodejs is the most advanced NodeJS library which provides a high-level API to control WA.
 >
-> It is built using [puppeteer](https://github.com/GoogleChrome/puppeteer), based on [this python wrapper](https://github.com/mukulhase/WebWhatsapp-Wrapper).
+>
 
 [![npm version](https://img.shields.io/npm/v/@open-wa/wa-automate.svg?color=green)](https://www.npmjs.com/package/@open-wa/wa-automate)
 ![node](https://img.shields.io/node/v/@open-wa/wa-automate)

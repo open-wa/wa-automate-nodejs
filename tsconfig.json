@@ -66,8 +66,37 @@
         "excludeExternals":false,
         "includeVersion":true,
         "hideGenerator":true,
+        // "plugin":"typedoc-neo-theme"
         "readme":"./README.md",
+        "theme":"node_modules/typedoc-neo-theme/bin/default",
         "excludePrivate":true,
+        "links": [{
+          "label": "Guides",
+          "url": "/"
+        }, {
+          "label": "License Keys",
+          "url": "/"
+        }],
+        "outline": [{
+          "Getting Started": {
+            "Installation": "/",
+            "Docker": "/"
+          },
+          "The Client": {
+            "Overview": "/",
+            "Events": "/",
+            "Methods": "/"
+          },
+          "API": {
+            "Setup": "",
+            "Postman Generator": "",
+          },
+          "Prenium Features": {
+            "Overview": "/",
+            "Getting Started": "/",
+            "Perks": "/"
+          },
+        }],
         "toc": [
           "Client",
           "Chat",
@@ -87,7 +116,7 @@
           "create",
           "namespace",
           "SimpleListener",
-          "SessionInfo"
+          "SessionInfo",
         ]
     }
 }

@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>ConfigObject | @open-wa/wa-automate - v1.9.98</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v1.9.98">
+	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 </head>
@@ -13,7 +13,7 @@
 	<div class="tsd-page-toolbar">
 		<div class="container">
 			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
 					<div class="field">
 						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
 						<input id="tsd-search-field" type="text" />
@@ -22,7 +22,11 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
+					<ul class="results-priority" style="display:none">
+					</ul>
 					<a href="../index.html" class="title">@open-wa/wa-automate - v1.9.98</a>
+					&emsp;<a href="/" class="title">Guides</a>
+					&emsp;<a href="/" class="title">License Keys</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -53,19 +57,24 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="../globals.html">Globals</a>
-				</li>
-				<li>
 					<a href="configobject.html">ConfigObject</a>
 				</li>
 			</ul>
-			<h1>Interface ConfigObject</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
-		<div class="col-8 col-content">
+		<div class="col-3 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation outline primary">
+				<a style="margin-left:0em" href="../globals.html">Globals</a>
+				<ul style="display:none">
+					{&quot;Getting Started&quot;:{&quot;Installation&quot;:&quot;/&quot;,&quot;Docker&quot;:&quot;/&quot;},&quot;The Client&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Events&quot;:&quot;/&quot;,&quot;Methods&quot;:&quot;/&quot;},&quot;API&quot;:{&quot;Setup&quot;:&quot;&quot;,&quot;Postman Generator&quot;:&quot;&quot;},&quot;Prenium Features&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Getting Started&quot;:&quot;/&quot;,&quot;Perks&quot;:&quot;/&quot;}}
+				</ul>
+			</nav>
+		</div>
+		<div class="col-7 offset-3 col-content">
+			<h1>Interface ConfigObject</h1>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
@@ -79,47 +88,46 @@
 				<div class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">[</span>x: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">any</span></div>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
-				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#authtimeout" class="tsd-kind-icon">auth<wbr>Timeout</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#autorefresh" class="tsd-kind-icon">auto<wbr>Refresh</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#blockcrashlogs" class="tsd-kind-icon">block<wbr>Crash<wbr>Logs</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#browserrevision" class="tsd-kind-icon">browser<wbr>Revision</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#authtimeout" class="tsd-kind-icon">authTimeout</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#autorefresh" class="tsd-kind-icon">autoRefresh</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#blockcrashlogs" class="tsd-kind-icon">blockCrashLogs</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#browserrevision" class="tsd-kind-icon">browserRevision</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#browserwsendpoint" class="tsd-kind-icon">browserWSEndpoint</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#bypasscsp" class="tsd-kind-icon">bypassCSP</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#cacheenabled" class="tsd-kind-icon">cache<wbr>Enabled</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#chromiumargs" class="tsd-kind-icon">chromium<wbr>Args</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#customuseragent" class="tsd-kind-icon">custom<wbr>User<wbr>Agent</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#cacheenabled" class="tsd-kind-icon">cacheEnabled</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#chromiumargs" class="tsd-kind-icon">chromiumArgs</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#customuseragent" class="tsd-kind-icon">customUserAgent</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#devtools" class="tsd-kind-icon">devtools</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#disablespins" class="tsd-kind-icon">disable<wbr>Spins</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#executablepath" class="tsd-kind-icon">executable<wbr>Path</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#disablespins" class="tsd-kind-icon">disableSpins</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#executablepath" class="tsd-kind-icon">executablePath</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#headless" class="tsd-kind-icon">headless</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#indocker" class="tsd-kind-icon">in<wbr>Docker</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#killprocessonbrowserclose" class="tsd-kind-icon">kill<wbr>Process<wbr>OnBrowser<wbr>Close</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#licensekey" class="tsd-kind-icon">license<wbr>Key</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#logconsole" class="tsd-kind-icon">log<wbr>Console</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#logconsoleerrors" class="tsd-kind-icon">log<wbr>Console<wbr>Errors</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#indocker" class="tsd-kind-icon">inDocker</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#killprocessonbrowserclose" class="tsd-kind-icon">killProcessOnBrowserClose</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#licensekey" class="tsd-kind-icon">licenseKey</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#logconsole" class="tsd-kind-icon">logConsole</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#logconsoleerrors" class="tsd-kind-icon">logConsoleErrors</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#popup" class="tsd-kind-icon">popup</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#proxyservercredentials" class="tsd-kind-icon">proxy<wbr>Server<wbr>Credentials</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#qrformat" class="tsd-kind-icon">qr<wbr>Format</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#qrlogskip" class="tsd-kind-icon">qr<wbr>Log<wbr>Skip</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#qrquality" class="tsd-kind-icon">qr<wbr>Quality</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#qrrefreshs" class="tsd-kind-icon">qr<wbr>RefreshS</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#qrtimeout" class="tsd-kind-icon">qr<wbr>Timeout</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#restartoncrash" class="tsd-kind-icon">restart<wbr>OnCrash</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#safemode" class="tsd-kind-icon">safe<wbr>Mode</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#sessiondata" class="tsd-kind-icon">session<wbr>Data</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#sessiondatapath" class="tsd-kind-icon">session<wbr>Data<wbr>Path</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#sessionid" class="tsd-kind-icon">session<wbr>Id</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#skipbrokenmethodscheck" class="tsd-kind-icon">skip<wbr>Broken<wbr>Methods<wbr>Check</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#skipsessionsave" class="tsd-kind-icon">skip<wbr>Session<wbr>Save</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#throwerrorontosblock" class="tsd-kind-icon">throw<wbr>Error<wbr>OnTos<wbr>Block</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#usechrome" class="tsd-kind-icon">use<wbr>Chrome</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#usestealth" class="tsd-kind-icon">use<wbr>Stealth</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#proxyservercredentials" class="tsd-kind-icon">proxyServerCredentials</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#qrformat" class="tsd-kind-icon">qrFormat</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#qrlogskip" class="tsd-kind-icon">qrLogSkip</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#qrquality" class="tsd-kind-icon">qrQuality</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#qrrefreshs" class="tsd-kind-icon">qrRefreshS</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#qrtimeout" class="tsd-kind-icon">qrTimeout</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#restartoncrash" class="tsd-kind-icon">restartOnCrash</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#safemode" class="tsd-kind-icon">safeMode</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#sessiondata" class="tsd-kind-icon">sessionData</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#sessiondatapath" class="tsd-kind-icon">sessionDataPath</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#sessionid" class="tsd-kind-icon">sessionId</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#skipbrokenmethodscheck" class="tsd-kind-icon">skipBrokenMethodsCheck</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#skipsessionsave" class="tsd-kind-icon">skipSessionSave</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#throwerrorontosblock" class="tsd-kind-icon">throwErrorOnTosBlock</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#usechrome" class="tsd-kind-icon">useChrome</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="configobject.html#usestealth" class="tsd-kind-icon">useStealth</a></li>
 							</ul>
 						</section>
 					</div>
@@ -133,10 +141,10 @@
 					<div class="tsd-signature tsd-kind-icon">auth<wbr>Timeout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L225">api/model/config.ts:225</a></li>
+							<li>Defined in api/model/config.ts:225</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>This determines how long the process should wait for the session authentication. If exceeded, checks if phone is out of reach (turned of or without internet connection) and throws an error.</p>
 						</div>
@@ -148,10 +156,10 @@
 					<div class="tsd-signature tsd-kind-icon">auto<wbr>Refresh<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L169">api/model/config.ts:169</a></li>
+							<li>Defined in api/model/config.ts:169</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>Setting this to true will result in new QR codes being generated if the end user takes too long to scan the QR code.</p>
 						</div>
@@ -163,10 +171,10 @@
 					<div class="tsd-signature tsd-kind-icon">block<wbr>Crash<wbr>Logs<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L145">api/model/config.ts:145</a></li>
+							<li>Defined in api/model/config.ts:145</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>Setting this to true will block any network calls to crash log servers. This should keep anything you do under the radar. default is true</p>
 						</div>
@@ -178,10 +186,10 @@
 					<div class="tsd-signature tsd-kind-icon">browser<wbr>Revision<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L157">api/model/config.ts:157</a></li>
+							<li>Defined in api/model/config.ts:157</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>This is the specific browser revision to be downlaoded and used. You can find browser revision strings here: <a href="http://omahaproxy.appspot.com/">http://omahaproxy.appspot.com/</a>
 								Learn more about it here: <a href="https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-browserfetcher">https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-browserfetcher</a>
@@ -197,13 +205,14 @@
 					<div class="tsd-signature tsd-kind-icon">browserWSEndpoint<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L95">api/model/config.ts:95</a></li>
+							<li>Defined in api/model/config.ts:95</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>ALPHA EXPERIMENTAL FEATURE! DO NOT USE IN PRODUCTION, REQUIRES TESTING.</p>
 						</div>
+						</div><div class="tsd-comment tsd-typography tsd-comment-text">
 						<p>Learn more:</p>
 						<p><a href="https://pptr.dev/#?product=Puppeteer&amp;version=v3.1.0&amp;show=api-puppeteerconnectoptions">https://pptr.dev/#?product=Puppeteer&amp;version=v3.1.0&amp;show=api-puppeteerconnectoptions</a></p>
 						<p><a href="https://medium.com/@jaredpotter1/connecting-puppeteer-to-existing-chrome-window-8a10828149e0">https://medium.com/@jaredpotter1/connecting-puppeteer-to-existing-chrome-window-8a10828149e0</a></p>
@@ -215,10 +224,10 @@
 					<div class="tsd-signature tsd-kind-icon">bypassCSP<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L107">api/model/config.ts:107</a></li>
+							<li>Defined in api/model/config.ts:107</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>Disable cors see: <a href="https://pptr.dev/#?product=Puppeteer&amp;version=v3.0.4&amp;show=api-pagesetbypasscspenabled">https://pptr.dev/#?product=Puppeteer&amp;version=v3.0.4&amp;show=api-pagesetbypasscspenabled</a> If you are having an issue with sending media try to set this to true. Otherwise leave it set to falsedefualt to false</p>
 						</div>
@@ -230,10 +239,10 @@
 					<div class="tsd-signature tsd-kind-icon">cache<wbr>Enabled<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L149">api/model/config.ts:149</a></li>
+							<li>Defined in api/model/config.ts:149</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>Setting this to false turn off the cache. This may improve memory usage.</p>
 						</div>
@@ -245,10 +254,10 @@
 					<div class="tsd-signature tsd-kind-icon">chromium<wbr>Args<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L112">api/model/config.ts:112</a></li>
+							<li>Defined in api/model/config.ts:112</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>This allows you to pass any array of custom chrome/chromium argument strings to the puppeteer instance.
 							You can find all possible arguements <a href="https://peter.sh/experiments/chromium-command-line-switches/">here</a>.</p>
@@ -261,10 +270,10 @@
 					<div class="tsd-signature tsd-kind-icon">custom<wbr>User<wbr>Agent<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L136">api/model/config.ts:136</a></li>
+							<li>Defined in api/model/config.ts:136</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>You may set a custom user agent. However, due to recent developments, this is not really neccessary any more.</p>
 						</div>
@@ -276,10 +285,10 @@
 					<div class="tsd-signature tsd-kind-icon">devtools<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><a href="devtools.html" class="tsd-signature-type">DevTools</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L141">api/model/config.ts:141</a></li>
+							<li>Defined in api/model/config.ts:141</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>You can enable remote devtools by setting this to trye. If you set this to true there will be security on the devtools url.
 							If you want, you can also pass a username &amp; password.</p>
@@ -292,10 +301,10 @@
 					<div class="tsd-signature tsd-kind-icon">disable<wbr>Spins<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L211">api/model/config.ts:211</a></li>
+							<li>Defined in api/model/config.ts:211</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>default: false
 							Setting this to true will simplify logs for use within docker containers by disabling spins (will still print raw messages).</p>
@@ -308,10 +317,10 @@
 					<div class="tsd-signature tsd-kind-icon">executable<wbr>Path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L181">api/model/config.ts:181</a></li>
+							<li>Defined in api/model/config.ts:181</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>Some features, like video upload, do not work without a chrome instance. Puppeteer only provides a chromium instance out of the box. Set this to the path of your chrome instance or you can use <code>useChrome:true</code> to automatically detect a chrome instance for you.</p>
 						</div>
@@ -323,10 +332,10 @@
 					<div class="tsd-signature tsd-kind-icon">headless<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L165">api/model/config.ts:165</a></li>
+							<li>Defined in api/model/config.ts:165</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>By default, all instances of @open-wa/wa-automate are headless (i.e you don&#39;t see a chrome window open), you can set this to false to show the chrome/chromium window.</p>
 						</div>
@@ -338,10 +347,10 @@
 					<div class="tsd-signature tsd-kind-icon">in<wbr>Docker<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L245">api/model/config.ts:245</a></li>
+							<li>Defined in api/model/config.ts:245</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>If true, the process will try infer all config variables from the process environment. WIP</p>
 						</div>
@@ -353,10 +362,10 @@
 					<div class="tsd-signature tsd-kind-icon">kill<wbr>Process<wbr>OnBrowser<wbr>Close<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L229">api/model/config.ts:229</a></li>
+							<li>Defined in api/model/config.ts:229</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>Setting this to <code>true</code> will kill the whole process when the client is disconnected from the page or if the browser is closed. defaults to <code>true</code></p>
 						</div>
@@ -368,14 +377,15 @@
 					<div class="tsd-signature tsd-kind-icon">license<wbr>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L132">api/model/config.ts:132</a></li>
+							<li>Defined in api/model/config.ts:132</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>In order to unlock the functionality to send texts to unknown numbers, you need an License key.
 							One License Key is valid for each number. Each License Key is £10 per month or £100 per year.</p>
 						</div>
+						</div><div class="tsd-comment tsd-typography tsd-comment-text">
 						<p>Please check README for instructions on how to get a license key.</p>
 						<p>Notes:</p>
 						<ol>
@@ -390,10 +400,10 @@
 					<div class="tsd-signature tsd-kind-icon">log<wbr>Console<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L216">api/model/config.ts:216</a></li>
+							<li>Defined in api/model/config.ts:216</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>default: false
 							If true, this will log any console messages from the browser.</p>
@@ -406,10 +416,10 @@
 					<div class="tsd-signature tsd-kind-icon">log<wbr>Console<wbr>Errors<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L221">api/model/config.ts:221</a></li>
+							<li>Defined in api/model/config.ts:221</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>default: false
 							If true, this will log any error messages from the browser instance</p>
@@ -422,10 +432,10 @@
 					<div class="tsd-signature tsd-kind-icon">popup<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L241">api/model/config.ts:241</a></li>
+							<li>Defined in api/model/config.ts:241</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>If true, the process will open a browser window where you will see basic event logs and QR codes to authenticate the session. Usually it will open on port 3000. It can also be set to a preferred port.</p>
 						</div>
@@ -437,10 +447,10 @@
 					<div class="tsd-signature tsd-kind-icon">proxy<wbr>Server<wbr>Credentials<span class="tsd-signature-symbol">:</span> <a href="proxyservercredentials.html" class="tsd-signature-type">ProxyServerCredentials</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L189">api/model/config.ts:189</a></li>
+							<li>Defined in api/model/config.ts:189</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>If sent, adds a call to waPage.authenticate with those credentials.</p>
 						</div>
@@ -452,10 +462,10 @@
 					<div class="tsd-signature tsd-kind-icon">qr<wbr>Format<span class="tsd-signature-symbol">:</span> <a href="../enums/qrformat.html" class="tsd-signature-type">QRFormat</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L253">api/model/config.ts:253</a></li>
+							<li>Defined in api/model/config.ts:253</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>The output format of the qr code. <code>png</code>, <code>jpeg</code> or <code>webm</code>. Defaults to <code>png</code></p>
 						</div>
@@ -467,10 +477,10 @@
 					<div class="tsd-signature tsd-kind-icon">qr<wbr>Log<wbr>Skip<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L193">api/model/config.ts:193</a></li>
+							<li>Defined in api/model/config.ts:193</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>If true, skips logging the QR Code to the console. Default is false.</p>
 						</div>
@@ -482,10 +492,10 @@
 					<div class="tsd-signature tsd-kind-icon">qr<wbr>Quality<span class="tsd-signature-symbol">:</span> <a href="../enums/qrquality.html" class="tsd-signature-type">QRQuality</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L249">api/model/config.ts:249</a></li>
+							<li>Defined in api/model/config.ts:249</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>The output quality of the qr code during authentication. This can be any increment of 0.1 from 0.1 to 1.0. defaults to 1.0</p>
 						</div>
@@ -497,10 +507,10 @@
 					<div class="tsd-signature tsd-kind-icon">qr<wbr>RefreshS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L173">api/model/config.ts:173</a></li>
+							<li>Defined in api/model/config.ts:173</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>This determines the interval at which to refresh the QR code.</p>
 						</div>
@@ -512,10 +522,10 @@
 					<div class="tsd-signature tsd-kind-icon">qr<wbr>Timeout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L177">api/model/config.ts:177</a></li>
+							<li>Defined in api/model/config.ts:177</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>This determines how long the process should wait for a QR code to be scanned before killing the process entirely.</p>
 						</div>
@@ -527,10 +537,10 @@
 					<div class="tsd-signature tsd-kind-icon">restart<wbr>OnCrash<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L206">api/model/config.ts:206</a></li>
+							<li>Defined in api/model/config.ts:206</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>If set, the program will try to recreate itself when the page crashes. You have to pass the function that you want called upon restart. Please note that when the page crashes you may miss some messages.
 							E.g:</p>
@@ -549,10 +559,10 @@ restartOnCrash: start,
 					<div class="tsd-signature tsd-kind-icon">safe<wbr>Mode<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L233">api/model/config.ts:233</a></li>
+							<li>Defined in api/model/config.ts:233</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>If true, client will check if the page is valid before each command. If page is not valid, it will throw an error.</p>
 						</div>
@@ -564,10 +574,10 @@ restartOnCrash: start,
 					<div class="tsd-signature tsd-kind-icon">session<wbr>Data<span class="tsd-signature-symbol">:</span> <a href="sessiondata.html" class="tsd-signature-type">SessionData</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L85">api/model/config.ts:85</a></li>
+							<li>Defined in api/model/config.ts:85</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>JSON object that is required to migrate a session from one instance to another or ot just restart an existing instance.
 								This sessionData is provided in a generated JSON file upon QR scan or an event.
@@ -578,6 +588,7 @@ ev.on(<span class="hljs-string">&#x27;sessionData.**&#x27;</span>, <span class="
      })</code></pre>
 							<p> NOTE: You can set sessionData as an evironmental variable also! The variable name has to be [sessionId (default = &#39;session) in all caps]_DATA_JSON. You have to make sure to surround your session data with single quotes to maintain the formatting.</p>
 						</div>
+						</div><div class="tsd-comment tsd-typography tsd-comment-text">
 						<p>For example:</p>
 						<p>sessionId = &#39;session&#39;</p>
 						<p>To set env var:</p>
@@ -593,10 +604,10 @@ ev.on(<span class="hljs-string">&#x27;sessionData.**&#x27;</span>, <span class="
 					<div class="tsd-signature tsd-kind-icon">session<wbr>Data<wbr>Path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L103">api/model/config.ts:103</a></li>
+							<li>Defined in api/model/config.ts:103</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>The path relative to the current working directory (i.e where you run the command to start your process). This will be used to store and read your <code>.data.json</code> files. defualt to &#39;&#39;</p>
 						</div>
@@ -608,10 +619,10 @@ ev.on(<span class="hljs-string">&#x27;sessionData.**&#x27;</span>, <span class="
 					<div class="tsd-signature tsd-kind-icon">session<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L121">api/model/config.ts:121</a></li>
+							<li>Defined in api/model/config.ts:121</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>This is the name of the session. You have to make sure that this is unique for every session.</p>
 						</div>
@@ -623,10 +634,10 @@ ev.on(<span class="hljs-string">&#x27;sessionData.**&#x27;</span>, <span class="
 					<div class="tsd-signature tsd-kind-icon">skip<wbr>Broken<wbr>Methods<wbr>Check<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L117">api/model/config.ts:117</a></li>
+							<li>Defined in api/model/config.ts:117</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>If set to true, skipBrokenMethodsCheck will bypass the health check before startup. It is highly suggested to not set this to true.
 							Default: false</p>
@@ -639,10 +650,10 @@ ev.on(<span class="hljs-string">&#x27;sessionData.**&#x27;</span>, <span class="
 					<div class="tsd-signature tsd-kind-icon">skip<wbr>Session<wbr>Save<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L237">api/model/config.ts:237</a></li>
+							<li>Defined in api/model/config.ts:237</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>If true, the process will not save a data.json file. This means that sessions will not be saved and you will need to pass sessionData as a config param or create the session data.json file yourself</p>
 						</div>
@@ -654,10 +665,10 @@ ev.on(<span class="hljs-string">&#x27;sessionData.**&#x27;</span>, <span class="
 					<div class="tsd-signature tsd-kind-icon">throw<wbr>Error<wbr>OnTos<wbr>Block<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L161">api/model/config.ts:161</a></li>
+							<li>Defined in api/model/config.ts:161</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>Setting this to true will throw an error if a session is not able to get a QR code or is unable to restart a session.</p>
 						</div>
@@ -669,10 +680,10 @@ ev.on(<span class="hljs-string">&#x27;sessionData.**&#x27;</span>, <span class="
 					<div class="tsd-signature tsd-kind-icon">use<wbr>Chrome<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L185">api/model/config.ts:185</a></li>
+							<li>Defined in api/model/config.ts:185</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>If true, the program will automatically try to detect the instance of chorme on the machine. Please note this overrides executablePath.</p>
 						</div>
@@ -684,30 +695,24 @@ ev.on(<span class="hljs-string">&#x27;sessionData.**&#x27;</span>, <span class="
 					<div class="tsd-signature tsd-kind-icon">use<wbr>Stealth<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/4c3bfc7/src/api/model/config.ts#L99">api/model/config.ts:99</a></li>
+							<li>Defined in api/model/config.ts:99</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>This flag allows you to disable or enable the use of the puppeteer stealth plugin. It is a good idea to use it, however it can cause issues sometimes. Set this to false if you are experiencing <code>browser.setMaxListeneres</code> issue. For now the default for this is false.</p>
 						</div>
 					</div>
 				</section>
 			</section>
+			<!--{&quot;options&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;tsconfig&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;inputFiles&quot;:[&quot;./src/api&quot;,&quot;./src/utils&quot;,&quot;./src/controllers&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;**.config&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludePrivate&quot;:true,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;./node_modules/puppeteer/lib&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:true,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;./README.md&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:true,&quot;toc&quot;:[&quot;Client&quot;,&quot;Chat&quot;,&quot;Call&quot;,&quot;Contact&quot;,&quot;GroupMetadata&quot;,&quot;Id&quot;,&quot;LiveLocationChangedEvent&quot;,&quot;Message&quot;,&quot;ParticipantChangedEventModel&quot;,&quot;decryptMedia&quot;,&quot;smartUserAgent&quot;,&quot;WAPI&quot;,&quot;Page&quot;,&quot;ConfigObject&quot;,&quot;SessionData&quot;,&quot;create&quot;,&quot;namespace&quot;,&quot;SimpleListener&quot;,&quot;SessionInfo&quot;],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false,&quot;links&quot;:[{&quot;label&quot;:&quot;Guides&quot;,&quot;url&quot;:&quot;/&quot;},{&quot;label&quot;:&quot;License Keys&quot;,&quot;url&quot;:&quot;/&quot;}],&quot;outline&quot;:[{&quot;Getting Started&quot;:{&quot;Installation&quot;:&quot;/&quot;,&quot;Docker&quot;:&quot;/&quot;},&quot;The Client&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Events&quot;:&quot;/&quot;,&quot;Methods&quot;:&quot;/&quot;},&quot;API&quot;:{&quot;Setup&quot;:&quot;&quot;,&quot;Postman Generator&quot;:&quot;&quot;},&quot;Prenium Features&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Getting Started&quot;:&quot;/&quot;,&quot;Perks&quot;:&quot;/&quot;}}]}-->
 		</div>
-		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
-			<nav class="tsd-navigation primary">
-				<ul>
-					<li class="globals  ">
-						<a href="../globals.html"><em>Globals</em></a>
-					</li>
-				</ul>
-			</nav>
+		<div class="col-2 col-menu secondary-menu">
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-interface">
+					<li class="current tsd-kind-interface root">
 						<a href="configobject.html" class="tsd-kind-icon">Config<wbr>Object</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
@@ -825,25 +830,9 @@ ev.on(<span class="hljs-string">&#x27;sessionData.**&#x27;</span>, <span class="
 	</div>
 </div>
 <footer>
-	<div class="container">
-		<h2>Legend</h2>
-		<div class="tsd-legend-group">
-			<ul class="tsd-legend">
-				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
-			</ul>
-		</div>
-	</div>
 </footer>
 <div class="overlay"></div>
 <script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
 </body>
 </html>
