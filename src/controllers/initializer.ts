@@ -133,7 +133,7 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
     const qrLoop = async () => {
       if (!shouldLoop) return;
       console.log(' ')
-      await retrieveQR(waPage, sessionId, autoRefresh, throwOnError, qrLogSkip);
+      await retrieveQR(waPage, sessionId, autoRefresh, throwOnError, qrLogSkip, config?.qrFormat, config?.qrQuality);
       console.log(' ')
       qrDelayTimeout = timeout((config ? (config.qrRefreshS || 10) : 10) * 1000);
       await qrDelayTimeout;

@@ -3,6 +3,7 @@ import * as qrcode from 'qrcode-terminal';
 import { from, merge } from 'rxjs';
 import { take } from 'rxjs/operators';
 import {EvEmitter} from './events'
+import { QRFormat, QRQuality } from '../api/model';
 
 /**
  * Validates if client is authenticated
@@ -43,7 +44,7 @@ export const phoneIsOutOfReach = async (waPage: puppeteer.Page) => {
     //@ts-ignore
 const checkIfCanAutoRefresh = (waPage: puppeteer.Page) => waPage.evaluate(() => {if(window.Store && window.Store.State) {window.Store.State.default.state="UNPAIRED";window.Store.State.default.run();return true;} else {return false;}})
 
-export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, autoRefresh:boolean=false,throwErrorOnTosBlock:boolean=false, qrLogSkip: boolean = false) {
+export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, autoRefresh:boolean=false,throwErrorOnTosBlock:boolean=false, qrLogSkip: boolean = false, format: QRFormat = QRFormat.PNG, quality: QRQuality = QRQuality.TEN) {
   const qrEv = new EvEmitter(sessionId,'qr');
   if (autoRefresh) {
     const evalResult = await checkIfCanAutoRefresh(waPage)
@@ -65,7 +66,7 @@ export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, auto
   while(!qrData){
     qrData = await waPage.evaluate(`document.querySelector("canvas[aria-label='Scan me!']")?document.querySelector("canvas[aria-label='Scan me!']").parentElement.getAttribute("data-ref"):false`);
   }
-  const qrCode = await waPage.evaluate(`document.querySelector("canvas[aria-label='Scan me!']").toDataURL()`);
+  const qrCode = await waPage.evaluate(`document.querySelector("canvas[aria-label='Scan me!']").toDataURL('image/${format}', ${quality})`);
   qrEv.emit(qrCode);
   if(!qrLogSkip) qrcode.generate(qrData,{small: true});
   return true;
