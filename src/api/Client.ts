@@ -1,11 +1,7 @@
 import { Page, EvaluateFn } from 'puppeteer';
-/**
- * @private
- */
 import { Chat, LiveLocationChangedEvent, ChatState } from './model/chat';
 import { Contact } from './model/contact';
 import { Message } from './model/message';
-import { Id } from './model/id';
 import axios from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent, puppeteerConfig } from '../config/puppeteer.config'
@@ -18,6 +14,7 @@ import { SessionInfo } from './model/sessionInfo';
 import { injectApi } from '../controllers/browser';
 import { licenseCheckUrl } from '../controllers/initializer';
 import { isAuthenticated } from '../controllers/auth';
+import * as alias from './model/aliases'
 
 export enum namespace {
   Chat = 'Chat',
@@ -1370,7 +1367,7 @@ public async contactUnblock(id: string) {
    * @returns contact detial as promise
    */
   //@ts-ignore
-  public async getContact(contactId: string) {
+  public async getContact(contactId: alias.ContactId) {
     return await this.pup(
       contactId => WAPI.getContact(contactId),
       contactId
