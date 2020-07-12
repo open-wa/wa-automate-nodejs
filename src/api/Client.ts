@@ -241,18 +241,23 @@ export class Client {
   private _createConfig: ConfigObject;
   private _sessionInfo: SessionInfo;
   private _listeners: any;
+  private _page: Page;
 
   /**
    * @ignore
    * @param page [Page] [Puppeteer Page]{@link https://pptr.dev/#?product=Puppeteer&version=v2.1.1&show=api-class-page} running WA Web
    */
-  constructor(public page: Page, createConfig: ConfigObject, sessionInfo: SessionInfo) {
-    this.page = page;
+  constructor(page: Page, createConfig: ConfigObject, sessionInfo: SessionInfo) {
+    this._page = page;
     this._createConfig = createConfig || {};
     this._loadedModules = [];
     this._sessionInfo = sessionInfo;
     this._listeners = {};
     this._setOnClose();
+  }
+
+  getPage(){
+    return this._page;
   }
 
   private _setOnClose(){
