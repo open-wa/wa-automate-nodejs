@@ -1,5 +1,6 @@
 import {EventEmitter2} from 'eventemitter2';
 import Spinnies from "spinnies";
+import { throws } from 'assert';
 const spinner = { 
   "interval": 80,
   "frames": [
@@ -58,16 +59,19 @@ export class Spin extends EvEmitter{
   }
 
   info(eventMessage:string){
+    if(!this._spinner.pick(this._spinId)) this.start('');
     this._spinner.update(this._spinId, { text: eventMessage });
     if(this._shouldEmit) this.emit(eventMessage);
   }
 
   fail(eventMessage:string){
+    if(!this._spinner.pick(this._spinId)) this.start('');
     this._spinner.fail(this._spinId, { text: eventMessage });
     if(this._shouldEmit) this.emit(eventMessage);
   }
   
   succeed(eventMessage ?: string){
+    if(!this._spinner.pick(this._spinId)) this.start('');
     this._spinner.succeed(this._spinId, { text: eventMessage });
     if(this._shouldEmit) this.emit(eventMessage||'SUCCESS');
   }
