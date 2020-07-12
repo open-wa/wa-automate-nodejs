@@ -17,7 +17,8 @@
     "test": "echo \"No tests yet\"",
     "release": "release-it",
     "release-ci": "release-it --ci",
-    "release-image": "node release-image.js"
+    "release-image": "node release-image.js",
+    "docwatch": "onchange 'src/**/*.ts' -- typedoc"
   },
   "husky": {
     "hooks": {
@@ -64,6 +65,7 @@
     "husky": "^4.2.3",
     "line-reader": "^0.4.0",
     "marked": "^1.0.0",
+    "onchange": "^7.0.2",
     "precise-commits": "^1.0.2",
     "prettier": "^2.0.1",
     "release-it": "^13.0.1",
@@ -101,6 +103,7 @@
     "socket.io": "^2.3.0",
     "spinnies": "^0.5.1",
     "tree-kill": "^1.2.2",
+    "typedoc-neo-theme": "^1.0.9",
     "update-notifier": "^4.1.0"
   }
 }
