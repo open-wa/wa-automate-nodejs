@@ -141,7 +141,7 @@
 					<div class="tsd-signature tsd-kind-icon">auth<wbr>Timeout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in api/model/config.ts:225</li>
+							<li>Defined in api/model/config.ts:222</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
@@ -301,13 +301,12 @@
 					<div class="tsd-signature tsd-kind-icon">disable<wbr>Spins<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in api/model/config.ts:211</li>
+							<li>Defined in api/model/config.ts:210</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
-							<p>default: false
-							Setting this to true will simplify logs for use within docker containers by disabling spins (will still print raw messages).</p>
+							<p>Setting this to true will simplify logs for use within docker containers by disabling spins (will still print raw messages).</p>
 						</div>
 					</div>
 				</section>
@@ -344,15 +343,33 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="indocker" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> in<wbr>Docker</h3>
-					<div class="tsd-signature tsd-kind-icon">in<wbr>Docker<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
+					<div class="tsd-signature tsd-kind-icon">in<wbr>Docker<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in api/model/config.ts:245</li>
+							<li>Defined in api/model/config.ts:262</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
-							<p>If true, the process will try infer all config variables from the process environment. WIP</p>
+							<p>If true, the process will try infer as many config variables as possible from the environment variables. The format of the variables are as below:</p>
+							<pre><code><span class="hljs-attr">sessionDataPath</span> ==&gt;     WA_SESSION_DATA_PATH
+<span class="hljs-attr">sessionId</span>       ==&gt;     WA_SESSION_ID
+<span class="hljs-attr">customUserAgent</span> ==&gt;     WA_CUSTOM_USER_AGENT
+<span class="hljs-attr">blockCrashLogs</span>  ==&gt;     WA_BLOCK_CRASH_LOGS
+<span class="hljs-attr">cacheEnabled</span>    ==&gt;     WA_CACHE_ENABLED
+<span class="hljs-attr">headless</span>        ==&gt;     WA_HEADLESS
+<span class="hljs-attr">autoRefresh</span>     ==&gt;     WA_AUTO_REFRESH
+<span class="hljs-attr">qrRefreshS</span>      ==&gt;     WA_QR_REFRESH_S
+<span class="hljs-attr">qrTimeout</span>       ==&gt;     WA_QR_TIMEOUT
+<span class="hljs-attr">useChrome</span>       ==&gt;     WA_USE_CHROME
+<span class="hljs-attr">qrLogSkip</span>       ==&gt;     WA_QR_LOG_SKIP
+<span class="hljs-attr">disableSpins</span>    ==&gt;     WA_DISABLE_SPINS
+<span class="hljs-attr">logConsole</span>      ==&gt;     WA_LOG_CONSOLE
+<span class="hljs-attr">logConsoleErrors</span>==&gt;     WA_LOG_CONSOLE_ERRORS
+<span class="hljs-attr">authTimeout</span>     ==&gt;     WA_AUTH_TIMEOUT
+<span class="hljs-attr">safeMode</span>        ==&gt;     WA_SAFE_MODE
+<span class="hljs-attr">skipSessionSave</span> ==&gt;     WA_SKIP_SESSION_SAVE
+<span class="hljs-attr">popup</span>           ==&gt;     WA_POPUP</code></pre>
 						</div>
 					</div>
 				</section>
@@ -362,7 +379,7 @@
 					<div class="tsd-signature tsd-kind-icon">kill<wbr>Process<wbr>OnBrowser<wbr>Close<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in api/model/config.ts:229</li>
+							<li>Defined in api/model/config.ts:226</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
@@ -400,13 +417,12 @@
 					<div class="tsd-signature tsd-kind-icon">log<wbr>Console<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in api/model/config.ts:216</li>
+							<li>Defined in api/model/config.ts:214</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
-							<p>default: false
-							If true, this will log any console messages from the browser.</p>
+							<p>If true, this will log any console messages from the browser.</p>
 						</div>
 					</div>
 				</section>
@@ -416,13 +432,12 @@
 					<div class="tsd-signature tsd-kind-icon">log<wbr>Console<wbr>Errors<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in api/model/config.ts:221</li>
+							<li>Defined in api/model/config.ts:218</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
-							<p>default: false
-							If true, this will log any error messages from the browser instance</p>
+							<p>If true, this will log any error messages from the browser instance</p>
 						</div>
 					</div>
 				</section>
@@ -432,7 +447,7 @@
 					<div class="tsd-signature tsd-kind-icon">popup<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in api/model/config.ts:241</li>
+							<li>Defined in api/model/config.ts:238</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
@@ -462,7 +477,7 @@
 					<div class="tsd-signature tsd-kind-icon">qr<wbr>Format<span class="tsd-signature-symbol">:</span> <a href="../enums/qrformat.html" class="tsd-signature-type">QRFormat</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in api/model/config.ts:253</li>
+							<li>Defined in api/model/config.ts:270</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
@@ -492,7 +507,7 @@
 					<div class="tsd-signature tsd-kind-icon">qr<wbr>Quality<span class="tsd-signature-symbol">:</span> <a href="../enums/qrquality.html" class="tsd-signature-type">QRQuality</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in api/model/config.ts:249</li>
+							<li>Defined in api/model/config.ts:266</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
@@ -559,7 +574,7 @@ restartOnCrash: start,
 					<div class="tsd-signature tsd-kind-icon">safe<wbr>Mode<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in api/model/config.ts:233</li>
+							<li>Defined in api/model/config.ts:230</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
@@ -582,8 +597,8 @@ restartOnCrash: start,
 							<p>JSON object that is required to migrate a session from one instance to another or ot just restart an existing instance.
 								This sessionData is provided in a generated JSON file upon QR scan or an event.
 							You can capture the event like so:</p>
-							<pre><code class="language-javascript"><span class="hljs-keyword">import</span> {create, ev} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>;
-ev.on(<span class="hljs-string">&#x27;sessionData.**&#x27;</span>, <span class="hljs-keyword">async</span> (sessionData, sessionId) =&gt;{
+							<pre><code class="language-javascript"><span class="hljs-keyword">import</span> {create, ev} <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
+ev.on(<span class="hljs-string">'sessionData.**'</span>, <span class="hljs-keyword">async</span> (sessionData, sessionId) =&gt;{
          <span class="hljs-built_in">console</span>.log(sessionId, sessionData)
      })</code></pre>
 							<p> NOTE: You can set sessionData as an evironmental variable also! The variable name has to be [sessionId (default = &#39;session) in all caps]_DATA_JSON. You have to make sure to surround your session data with single quotes to maintain the formatting.</p>
@@ -650,7 +665,7 @@ ev.on(<span class="hljs-string">&#x27;sessionData.**&#x27;</span>, <span class="
 					<div class="tsd-signature tsd-kind-icon">skip<wbr>Session<wbr>Save<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in api/model/config.ts:237</li>
+							<li>Defined in api/model/config.ts:234</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
@@ -705,7 +720,7 @@ ev.on(<span class="hljs-string">&#x27;sessionData.**&#x27;</span>, <span class="
 					</div>
 				</section>
 			</section>
-			<!--{&quot;options&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;tsconfig&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;inputFiles&quot;:[&quot;./src/api&quot;,&quot;./src/utils&quot;,&quot;./src/controllers&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;**.config&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludePrivate&quot;:true,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;./node_modules/puppeteer/lib&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:true,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;./README.md&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:true,&quot;toc&quot;:[&quot;Client&quot;,&quot;Chat&quot;,&quot;Call&quot;,&quot;Contact&quot;,&quot;GroupMetadata&quot;,&quot;Id&quot;,&quot;LiveLocationChangedEvent&quot;,&quot;Message&quot;,&quot;ParticipantChangedEventModel&quot;,&quot;decryptMedia&quot;,&quot;smartUserAgent&quot;,&quot;WAPI&quot;,&quot;Page&quot;,&quot;ConfigObject&quot;,&quot;SessionData&quot;,&quot;create&quot;,&quot;namespace&quot;,&quot;SimpleListener&quot;,&quot;SessionInfo&quot;],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false,&quot;links&quot;:[{&quot;label&quot;:&quot;Guides&quot;,&quot;url&quot;:&quot;/&quot;},{&quot;label&quot;:&quot;License Keys&quot;,&quot;url&quot;:&quot;/&quot;}],&quot;outline&quot;:[{&quot;Getting Started&quot;:{&quot;Installation&quot;:&quot;/&quot;,&quot;Docker&quot;:&quot;/&quot;},&quot;The Client&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Events&quot;:&quot;/&quot;,&quot;Methods&quot;:&quot;/&quot;},&quot;API&quot;:{&quot;Setup&quot;:&quot;&quot;,&quot;Postman Generator&quot;:&quot;&quot;},&quot;Prenium Features&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Getting Started&quot;:&quot;/&quot;,&quot;Perks&quot;:&quot;/&quot;}}]}-->
+			<!--{&quot;options&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;tsconfig&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;inputFiles&quot;:[&quot;./src/api&quot;,&quot;./src/utils&quot;,&quot;./src/controllers&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;**.config&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludePrivate&quot;:true,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;./node_modules/puppeteer/lib&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:true,&quot;readme&quot;:&quot;./README.md&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:true,&quot;toc&quot;:[&quot;Client&quot;,&quot;Chat&quot;,&quot;Call&quot;,&quot;Contact&quot;,&quot;GroupMetadata&quot;,&quot;Id&quot;,&quot;LiveLocationChangedEvent&quot;,&quot;Message&quot;,&quot;ParticipantChangedEventModel&quot;,&quot;decryptMedia&quot;,&quot;smartUserAgent&quot;,&quot;WAPI&quot;,&quot;Page&quot;,&quot;ConfigObject&quot;,&quot;SessionData&quot;,&quot;create&quot;,&quot;namespace&quot;,&quot;SimpleListener&quot;,&quot;SessionInfo&quot;],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false,&quot;links&quot;:[{&quot;label&quot;:&quot;Guides&quot;,&quot;url&quot;:&quot;/&quot;},{&quot;label&quot;:&quot;License Keys&quot;,&quot;url&quot;:&quot;/&quot;}],&quot;outline&quot;:[{&quot;Getting Started&quot;:{&quot;Installation&quot;:&quot;/&quot;,&quot;Docker&quot;:&quot;/&quot;},&quot;The Client&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Events&quot;:&quot;/&quot;,&quot;Methods&quot;:&quot;/&quot;},&quot;API&quot;:{&quot;Setup&quot;:&quot;&quot;,&quot;Postman Generator&quot;:&quot;&quot;},&quot;Prenium Features&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Getting Started&quot;:&quot;/&quot;,&quot;Perks&quot;:&quot;/&quot;}}]}-->
 		</div>
 		<div class="col-2 col-menu secondary-menu">
 			<nav class="tsd-navigation secondary menu-sticky">

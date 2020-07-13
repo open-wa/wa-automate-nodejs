@@ -166,6 +166,7 @@
 								<li class="tsd-kind-variable"><a href="globals.html#qrdelaytimeout" class="tsd-kind-icon">qrDelayTimeout</a></li>
 								<li class="tsd-kind-variable"><a href="globals.html#server" class="tsd-kind-icon">server</a></li>
 								<li class="tsd-kind-variable"><a href="globals.html#shouldloop" class="tsd-kind-icon">shouldLoop</a></li>
+								<li class="tsd-kind-variable"><a href="globals.html#tsj" class="tsd-kind-icon">tsj</a></li>
 								<li class="tsd-kind-variable"><a href="globals.html#uniq" class="tsd-kind-icon">uniq</a></li>
 								<li class="tsd-kind-variable"><a href="globals.html#updatenotifier" class="tsd-kind-icon">updateNotifier</a></li>
 								<li class="tsd-kind-variable tsd-is-external"><a href="globals.html#useragent" class="tsd-kind-icon">useragent</a></li>
@@ -181,6 +182,8 @@
 								<li class="tsd-kind-function"><a href="globals.html#create" class="tsd-kind-icon">create</a></li>
 								<li class="tsd-kind-function tsd-is-external"><a href="globals.html#createuseragent" class="tsd-kind-icon">createUserAgent</a></li>
 								<li class="tsd-kind-function"><a href="globals.html#getbase64" class="tsd-kind-icon">getBase64</a></li>
+								<li class="tsd-kind-function"><a href="globals.html#getconfigfromprocessenv" class="tsd-kind-icon">getConfigFromProcessEnv</a></li>
+								<li class="tsd-kind-function"><a href="globals.html#getconfigwithcase" class="tsd-kind-icon">getConfigWithCase</a></li>
 								<li class="tsd-kind-function"><a href="globals.html#getglobalspinner" class="tsd-kind-icon">getGlobalSpinner</a></li>
 								<li class="tsd-kind-function"><a href="globals.html#getwapage" class="tsd-kind-icon">getWAPage</a></li>
 								<li class="tsd-kind-function"><a href="globals.html#initbrowser" class="tsd-kind-icon">initBrowser</a></li>
@@ -201,6 +204,7 @@
 						<section class="tsd-index-section ">
 							<h3>Object literals</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-object-literal"><a href="globals.html#defaultconfig" class="tsd-kind-icon">defaultConfig</a></li>
 								<li class="tsd-kind-object-literal tsd-is-external"><a href="globals.html#puppeteerconfig" class="tsd-kind-icon">puppeteerConfig</a></li>
 								<li class="tsd-kind-object-literal"><a href="globals.html#spinner" class="tsd-kind-icon">spinner</a></li>
 							</ul>
@@ -401,7 +405,7 @@
 					<div class="tsd-signature tsd-kind-icon">boxen<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = require(&#x27;boxen&#x27;)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in controllers/initializer.ts:21</li>
+							<li>Defined in controllers/initializer.ts:22</li>
 						</ul>
 					</aside>
 				</section>
@@ -604,6 +608,16 @@
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable">
+					<a name="tsj" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> tsj</h3>
+					<div class="tsd-signature tsd-kind-icon">tsj<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = require(&quot;ts-json-schema-generator&quot;)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in utils/configSchema.ts:2</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable">
 					<a name="uniq" class="tsd-anchor"></a>
 					<h3>uniq</h3>
 					<div class="tsd-signature tsd-kind-icon">uniq<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = require(&#x27;lodash.uniq&#x27;)</span></div>
@@ -728,7 +742,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in controllers/initializer.ts:43</li>
+									<li>Defined in controllers/initializer.ts:44</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
@@ -739,8 +753,8 @@
 								</div><div class="tsd-comment tsd-typography tsd-comment-text">
 								<p>e.g</p>
 								<pre><code class="language-javascript">create({
-sessionId: &#x27;main&#x27;,
-customUserAgent: &#x27; &#x27;WhatsApp/2.16.352 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Safari/605.1.15&#x27;,
+sessionId: &#39;main&#39;,
+customUserAgent: &#39; &#39;WhatsApp/2.16.352 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Safari/605.1.15&#39;,
 blockCrashLogs true,
 ...
 })....</code></pre>
@@ -816,6 +830,76 @@ blockCrashLogs true,
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="getconfigfromprocessenv" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> get<wbr>Config<wbr>From<wbr>Process<wbr>Env</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Config<wbr>From<wbr>Process<wbr>Env<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in utils/configSchema.ts:36</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> config: <span class="tsd-signature-type">object</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter">
+											<h5>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>tsconfig<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+							<ul class="tsd-parameters">
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="getconfigwithcase" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> get<wbr>Config<wbr>With<wbr>Case</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Config<wbr>With<wbr>Case<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in utils/configSchema.ts:11</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> config: <span class="tsd-signature-type">object</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter">
+											<h5>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>tsconfig<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -1041,7 +1125,7 @@ blockCrashLogs true,
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in controllers/initializer.ts:234</li>
+									<li>Defined in controllers/initializer.ts:246</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1246,6 +1330,46 @@ blockCrashLogs true,
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Object literals</h2>
+				<section class="tsd-panel tsd-member tsd-kind-object-literal">
+					<a name="defaultconfig" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> default<wbr>Config</h3>
+					<div class="tsd-signature tsd-kind-icon">default<wbr>Config<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in utils/configSchema.ts:5</li>
+						</ul>
+					</aside>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="defaultconfig.path" class="tsd-anchor"></a>
+						<h3>path</h3>
+						<div class="tsd-signature tsd-kind-icon">path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;../api/model/config.ts&quot;</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in utils/configSchema.ts:6</li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="defaultconfig.tsconfig" class="tsd-anchor"></a>
+						<h3>tsconfig</h3>
+						<div class="tsd-signature tsd-kind-icon">tsconfig<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;../../tsconfig.json&quot;</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in utils/configSchema.ts:7</li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="defaultconfig.type" class="tsd-anchor"></a>
+						<h3>type</h3>
+						<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;ConfigObject&quot;</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in utils/configSchema.ts:8</li>
+							</ul>
+						</aside>
+					</section>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-is-external">
 					<a name="puppeteerconfig" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> puppeteer<wbr>Config</h3>
@@ -1327,7 +1451,7 @@ blockCrashLogs true,
 					</section>
 				</section>
 			</section>
-			<!--{&quot;options&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;tsconfig&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;inputFiles&quot;:[&quot;./src/api&quot;,&quot;./src/utils&quot;,&quot;./src/controllers&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;**.config&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludePrivate&quot;:true,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;./node_modules/puppeteer/lib&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:true,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;./README.md&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:true,&quot;toc&quot;:[&quot;Client&quot;,&quot;Chat&quot;,&quot;Call&quot;,&quot;Contact&quot;,&quot;GroupMetadata&quot;,&quot;Id&quot;,&quot;LiveLocationChangedEvent&quot;,&quot;Message&quot;,&quot;ParticipantChangedEventModel&quot;,&quot;decryptMedia&quot;,&quot;smartUserAgent&quot;,&quot;WAPI&quot;,&quot;Page&quot;,&quot;ConfigObject&quot;,&quot;SessionData&quot;,&quot;create&quot;,&quot;namespace&quot;,&quot;SimpleListener&quot;,&quot;SessionInfo&quot;],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false,&quot;links&quot;:[{&quot;label&quot;:&quot;Guides&quot;,&quot;url&quot;:&quot;/&quot;},{&quot;label&quot;:&quot;License Keys&quot;,&quot;url&quot;:&quot;/&quot;}],&quot;outline&quot;:[{&quot;Getting Started&quot;:{&quot;Installation&quot;:&quot;/&quot;,&quot;Docker&quot;:&quot;/&quot;},&quot;The Client&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Events&quot;:&quot;/&quot;,&quot;Methods&quot;:&quot;/&quot;},&quot;API&quot;:{&quot;Setup&quot;:&quot;&quot;,&quot;Postman Generator&quot;:&quot;&quot;},&quot;Prenium Features&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Getting Started&quot;:&quot;/&quot;,&quot;Perks&quot;:&quot;/&quot;}}]}-->
+			<!--{&quot;options&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;tsconfig&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;inputFiles&quot;:[&quot;./src/api&quot;,&quot;./src/utils&quot;,&quot;./src/controllers&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;**.config&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludePrivate&quot;:true,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;./node_modules/puppeteer/lib&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:true,&quot;readme&quot;:&quot;./README.md&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:true,&quot;toc&quot;:[&quot;Client&quot;,&quot;Chat&quot;,&quot;Call&quot;,&quot;Contact&quot;,&quot;GroupMetadata&quot;,&quot;Id&quot;,&quot;LiveLocationChangedEvent&quot;,&quot;Message&quot;,&quot;ParticipantChangedEventModel&quot;,&quot;decryptMedia&quot;,&quot;smartUserAgent&quot;,&quot;WAPI&quot;,&quot;Page&quot;,&quot;ConfigObject&quot;,&quot;SessionData&quot;,&quot;create&quot;,&quot;namespace&quot;,&quot;SimpleListener&quot;,&quot;SessionInfo&quot;],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false,&quot;links&quot;:[{&quot;label&quot;:&quot;Guides&quot;,&quot;url&quot;:&quot;/&quot;},{&quot;label&quot;:&quot;License Keys&quot;,&quot;url&quot;:&quot;/&quot;}],&quot;outline&quot;:[{&quot;Getting Started&quot;:{&quot;Installation&quot;:&quot;/&quot;,&quot;Docker&quot;:&quot;/&quot;},&quot;The Client&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Events&quot;:&quot;/&quot;,&quot;Methods&quot;:&quot;/&quot;},&quot;API&quot;:{&quot;Setup&quot;:&quot;&quot;,&quot;Postman Generator&quot;:&quot;&quot;},&quot;Prenium Features&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Getting Started&quot;:&quot;/&quot;,&quot;Perks&quot;:&quot;/&quot;}}]}-->
 		</div>
 		<div class="col-2 col-menu secondary-menu">
 			<nav class="tsd-navigation secondary menu-sticky">

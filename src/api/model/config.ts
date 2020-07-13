@@ -205,17 +205,14 @@ export interface ConfigObject {
      */
     restartOnCrash ?: any,
     /**
-     * default: false
      * Setting this to true will simplify logs for use within docker containers by disabling spins (will still print raw messages).
      */
     disableSpins ?: boolean,
     /**
-     * default: false
      * If true, this will log any console messages from the browser.
      */
     logConsole ?: boolean
     /**
-     * default: false
      * If true, this will log any error messages from the browser instance
      */
     logConsoleErrors ?: boolean,
@@ -240,9 +237,29 @@ export interface ConfigObject {
      */
     popup ?: boolean | number;
     /**
-     * If true, the process will try infer all config variables from the process environment. WIP
+     * If true, the process will try infer as many config variables as possible from the environment variables. The format of the variables are as below:
+     * ```
+     * sessionDataPath ==>     WA_SESSION_DATA_PATH
+     * sessionId       ==>     WA_SESSION_ID
+     * customUserAgent ==>     WA_CUSTOM_USER_AGENT
+     * blockCrashLogs  ==>     WA_BLOCK_CRASH_LOGS
+     * cacheEnabled    ==>     WA_CACHE_ENABLED
+     * headless        ==>     WA_HEADLESS
+     * autoRefresh     ==>     WA_AUTO_REFRESH
+     * qrRefreshS      ==>     WA_QR_REFRESH_S
+     * qrTimeout       ==>     WA_QR_TIMEOUT
+     * useChrome       ==>     WA_USE_CHROME
+     * qrLogSkip       ==>     WA_QR_LOG_SKIP
+     * disableSpins    ==>     WA_DISABLE_SPINS
+     * logConsole      ==>     WA_LOG_CONSOLE
+     * logConsoleErrors==>     WA_LOG_CONSOLE_ERRORS
+     * authTimeout     ==>     WA_AUTH_TIMEOUT
+     * safeMode        ==>     WA_SAFE_MODE
+     * skipSessionSave ==>     WA_SKIP_SESSION_SAVE
+     * popup           ==>     WA_POPUP 
+     * ```
      */
-    inDocker ?: boolean | number;
+    inDocker ?: boolean;
     /**
      * The output quality of the qr code during authentication. This can be any increment of 0.1 from 0.1 to 1.0. defaults to 1.0
      */

@@ -502,7 +502,7 @@
 									<dd><pre><code class="language-javascript">{
 &quot;chat&quot;: &quot;00000000000-1111111111@g.us&quot;, //the chat in which this state is occuring
 &quot;chat&quot;: &quot;22222222222@c.us&quot;, //the user that is causing this state
-&quot;state&quot;: &quot;composing, //can also be &#x27;available&#x27;, &#x27;unavailable&#x27;, &#x27;recording&#x27;
+&quot;state&quot;: &quot;composing, //can also be &#39;available&#39;, &#39;unavailable&#39;, &#39;recording&#39;
 }</code></pre>
 								</dd></dl>
 							</div>
@@ -1005,8 +1005,8 @@
 								<dl class="tsd-comment-tags"><dt>fires</dt>
 									<dd><p>e.g</p>
 										<pre><code class="language-javascript">{
-<span class="hljs-attr">from</span>: <span class="hljs-string">&#x27;123456789@c.us&#x27;</span>
-<span class="hljs-attr">id</span>: <span class="hljs-string">&#x27;false_132234234234234@status.broadcast&#x27;</span>
+<span class="hljs-attr">from</span>: <span class="hljs-string">'123456789@c.us'</span>
+<span class="hljs-attr">id</span>: <span class="hljs-string">'false_132234234234234@status.broadcast'</span>
 }</code></pre>
 								</dd></dl>
 							</div>
@@ -1324,13 +1324,13 @@
 							<pre><code class="language-javascript">{
   <span class="hljs-attr">status</span>: <span class="hljs-number">200</span>,
   <span class="hljs-attr">gid</span>: {
-    <span class="hljs-attr">server</span>: <span class="hljs-string">&#x27;g.us&#x27;</span>,
-    <span class="hljs-attr">user</span>: <span class="hljs-string">&#x27;447777777777-1583678870&#x27;</span>,
-    <span class="hljs-attr">_serialized</span>: <span class="hljs-string">&#x27;447777777777-1583678870@g.us&#x27;</span>
+    <span class="hljs-attr">server</span>: <span class="hljs-string">'g.us'</span>,
+    <span class="hljs-attr">user</span>: <span class="hljs-string">'447777777777-1583678870'</span>,
+    <span class="hljs-attr">_serialized</span>: <span class="hljs-string">'447777777777-1583678870@g.us'</span>
   },
   <span class="hljs-attr">participants</span>: [
-    { <span class="hljs-string">&#x27;447777777777@c.us&#x27;</span>: [<span class="hljs-built_in">Object</span>] },
-    { <span class="hljs-string">&#x27;447444444444@c.us&#x27;</span>: [<span class="hljs-built_in">Object</span>] }
+    { <span class="hljs-string">'447777777777@c.us'</span>: [<span class="hljs-built_in">Object</span>] },
+    { <span class="hljs-string">'447444444444@c.us'</span>: [<span class="hljs-built_in">Object</span>] }
   ]
 }</code></pre>
 						</li>
@@ -1606,11 +1606,11 @@
 									<pre><code class="language-javascript"> <span class="hljs-keyword">const</span> filename = <span class="hljs-string">`profilepic_<span class="hljs-subst">${message.<span class="hljs-keyword">from</span>}</span>.jpeg`</span>;
  <span class="hljs-keyword">const</span> data = <span class="hljs-keyword">await</span> client.downloadProfilePicFromMessage(message);
  <span class="hljs-keyword">const</span> dataUri = <span class="hljs-string">`data:image/jpeg;base64,<span class="hljs-subst">${data}</span>`</span>;
- fs.writeFile(filename, mData, <span class="hljs-string">&#x27;base64&#x27;</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+ fs.writeFile(filename, mData, <span class="hljs-string">'base64'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
    <span class="hljs-keyword">if</span> (err) {
      <span class="hljs-keyword">return</span> <span class="hljs-built_in">console</span>.log(err);
    }
-   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;The file was saved!&#x27;</span>);
+   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'The file was saved!'</span>);
  });</code></pre>
 								</div>
 							</div>
@@ -2365,8 +2365,8 @@
 								<div class="lead">
 									<p>Retrieves all unread Messages as indicated by the red dots in WA web. This returns an array of objects and are structured like so:</p>
 									<pre><code class="language-javascript">[{
-<span class="hljs-string">&quot;id&quot;</span>: <span class="hljs-string">&quot;000000000000@g.us&quot;</span>, <span class="hljs-comment">//the id of the chat</span>
-<span class="hljs-string">&quot;indicatedNewMessages&quot;</span>: [] <span class="hljs-comment">//array of messages, not including any messages by the host phone</span>
+<span class="hljs-string">"id"</span>: <span class="hljs-string">"000000000000@g.us"</span>, <span class="hljs-comment">//the id of the chat</span>
+<span class="hljs-string">"indicatedNewMessages"</span>: [] <span class="hljs-comment">//array of messages, not including any messages by the host phone</span>
 }]</code></pre>
 								</div>
 							</div>
@@ -2599,7 +2599,7 @@
 								</div>
 								</div><div class="tsd-comment tsd-typography tsd-comment-text">
 								<p>Example - get message read state (ack):</p>
-								<pre><code class="language-javascript"><span class="hljs-keyword">const</span> ack  = <span class="hljs-keyword">await</span> client.getSingleProperty(<span class="hljs-string">&#x27;Msg&#x27;</span>,<span class="hljs-string">&quot;true_12345678912@c.us_9C4D0965EA5C09D591334AB6BDB07FEB&quot;</span>,<span class="hljs-string">&#x27;ack&#x27;</span>)</code></pre>
+								<pre><code class="language-javascript"><span class="hljs-keyword">const</span> ack  = <span class="hljs-keyword">await</span> client.getSingleProperty(<span class="hljs-string">'Msg'</span>,<span class="hljs-string">"true_12345678912@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"</span>,<span class="hljs-string">'ack'</span>)</code></pre>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -2753,8 +2753,8 @@
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
 							<pre><code>[
 {
-<span class="hljs-symbol">displayName:</span><span class="hljs-string">&quot;Contact name&quot;</span>,
-<span class="hljs-symbol">vcard:</span> <span class="hljs-string">&quot;loong vcard string&quot;</span>
+<span class="hljs-symbol">displayName:</span><span class="hljs-string">"Contact name"</span>,
+<span class="hljs-symbol">vcard:</span> <span class="hljs-string">"loong vcard string"</span>
 }
 ]</code></pre><p>or false if no valid vcards found.</p>
 							<p>Please use <a href="https://www.npmjs.com/package/vcf">vcf</a> to convert a vcard string into a json object</p>
@@ -2904,7 +2904,7 @@
 								<li>
 									<h5>chatId: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p>chat id: <a href="mailto:&#120;&#x78;&#x78;&#120;&#x78;&#x40;&#117;&#x73;&#46;&#99;">&#120;&#x78;&#x78;&#120;&#x78;&#x40;&#117;&#x73;&#46;&#99;</a></p>
+										<p>chat id: <a href="mailto:xxxxx@us.c">xxxxx@us.c</a></p>
 									</div>
 								</li>
 							</ul>
@@ -3142,7 +3142,7 @@
 								<li>
 									<h5>chatId: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p>chat id: <a href="mailto:&#x78;&#x78;&#x78;&#x78;&#120;&#x40;&#x75;&#115;&#x2e;&#99;">&#x78;&#x78;&#x78;&#x78;&#120;&#x40;&#x75;&#115;&#x2e;&#99;</a></p>
+										<p>chat id: <a href="mailto:xxxxx@us.c">xxxxx@us.c</a></p>
 									</div>
 								</li>
 							</ul>
@@ -3170,8 +3170,8 @@
 								</div>
 								</div><div class="tsd-comment tsd-typography tsd-comment-text">
 								<pre><code class="language-javascript">
-<span class="hljs-keyword">import</span> { create } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>;
-<span class="hljs-keyword">const</span> express = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;express&#x27;</span>)
+<span class="hljs-keyword">import</span> { create } <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
+<span class="hljs-keyword">const</span> express = <span class="hljs-built_in">require</span>(<span class="hljs-string">'express'</span>)
 <span class="hljs-keyword">const</span> app = express()
 app.use(express.json())
 <span class="hljs-keyword">const</span> PORT = <span class="hljs-number">8082</span>;
@@ -3186,38 +3186,38 @@ app.use(express.json())
 
 
 create({
-  <span class="hljs-attr">sessionId</span>:<span class="hljs-string">&#x27;session1&#x27;</span>
+  <span class="hljs-attr">sessionId</span>:<span class="hljs-string">'session1'</span>
 }).then(start)
 </code></pre>
 								<p>All requests need to be <code>POST</code> requests. You use the API the same way you would with <code>client</code>. The method can be the path or the method param in the post body. The arguments for the method should be properly ordered in the args array in the JSON post body.</p>
 								<p>Example:</p>
-								<pre><code class="language-javascript">  <span class="hljs-keyword">await</span> client.sendText(<span class="hljs-string">&#x27;4477777777777@c.us&#x27;</span>,<span class="hljs-string">&#x27;test&#x27;</span>)
-  <span class="hljs-comment">//returns &quot;true_4477777777777@c.us_3EB0645E623D91006252&quot;</span></code></pre>
+								<pre><code class="language-javascript">  <span class="hljs-keyword">await</span> client.sendText(<span class="hljs-string">'4477777777777@c.us'</span>,<span class="hljs-string">'test'</span>)
+  <span class="hljs-comment">//returns "true_4477777777777@c.us_3EB0645E623D91006252"</span></code></pre>
 								<p>as a request with a path:</p>
-								<pre><code class="language-javascript"><span class="hljs-keyword">const</span> axios = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;axios&#x27;</span>).default;
-axios.post(<span class="hljs-string">&#x27;localhost:8082/sendText&#x27;</span>, {
+								<pre><code class="language-javascript"><span class="hljs-keyword">const</span> axios = <span class="hljs-built_in">require</span>(<span class="hljs-string">'axios'</span>).default;
+axios.post(<span class="hljs-string">'localhost:8082/sendText'</span>, {
     <span class="hljs-attr">args</span>: [
-       <span class="hljs-string">&quot;4477777777777@c.us&quot;</span>,
-       <span class="hljs-string">&quot;test&quot;</span>
+       <span class="hljs-string">"4477777777777@c.us"</span>,
+       <span class="hljs-string">"test"</span>
         ]
   })</code></pre>
 								<p>or as a request without a path:</p>
-								<pre><code class="language-javascript"><span class="hljs-keyword">const</span> axios = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;axios&#x27;</span>).default;
-axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
-    <span class="hljs-attr">method</span>:<span class="hljs-string">&#x27;sendText&#x27;</span>,
+								<pre><code class="language-javascript"><span class="hljs-keyword">const</span> axios = <span class="hljs-built_in">require</span>(<span class="hljs-string">'axios'</span>).default;
+axios.post(<span class="hljs-string">'localhost:8082'</span>, {
+    <span class="hljs-attr">method</span>:<span class="hljs-string">'sendText'</span>,
     <span class="hljs-attr">args</span>: [
-       <span class="hljs-string">&quot;4477777777777@c.us&quot;</span>,
-       <span class="hljs-string">&quot;test&quot;</span>
+       <span class="hljs-string">"4477777777777@c.us"</span>,
+       <span class="hljs-string">"test"</span>
         ]
 })</code></pre>
 								<p>As of 1.9.69, you can also send the argyments as an object with the keys mirroring the paramater names of the relative client functions</p>
 								<p>Example:</p>
-								<pre><code class="language-javascript"><span class="hljs-keyword">const</span> axios = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;axios&#x27;</span>).default;
-axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
-    <span class="hljs-attr">method</span>:<span class="hljs-string">&#x27;sendText&#x27;</span>,
+								<pre><code class="language-javascript"><span class="hljs-keyword">const</span> axios = <span class="hljs-built_in">require</span>(<span class="hljs-string">'axios'</span>).default;
+axios.post(<span class="hljs-string">'localhost:8082'</span>, {
+    <span class="hljs-attr">method</span>:<span class="hljs-string">'sendText'</span>,
     <span class="hljs-attr">args</span>: {
-       <span class="hljs-string">&quot;to&quot;</span>:<span class="hljs-string">&quot;4477777777777@c.us&quot;</span>,
-       <span class="hljs-string">&quot;content&quot;</span>:<span class="hljs-string">&quot;test&quot;</span>
+       <span class="hljs-string">"to"</span>:<span class="hljs-string">"4477777777777@c.us"</span>,
+       <span class="hljs-string">"content"</span>:<span class="hljs-string">"test"</span>
         }
 })</code></pre>
 							</div>
@@ -3686,7 +3686,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p>chat id <a href="mailto:&#x78;&#x78;&#x78;&#x78;&#x78;&#x40;&#117;&#x73;&#46;&#99;">&#x78;&#x78;&#x78;&#x78;&#x78;&#x40;&#117;&#x73;&#46;&#99;</a></p>
+										<p>chat id <a href="mailto:xxxxx@us.c">xxxxx@us.c</a></p>
 									</div>
 								</li>
 								<li>
@@ -3710,7 +3710,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> quotedMsgId: <a href="../globals.html#messageid" class="tsd-signature-type">MessageId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p>string <a href="mailto:&#116;&#x72;&#x75;&#x65;&#95;&#48;&#48;&#x30;&#48;&#48;&#48;&#48;&#x30;&#48;&#x30;&#x40;&#99;&#x2e;&#117;&#115;&#x5f;&#74;&#72;&#x42;&#50;&#x48;&#x42;&#x32;&#x33;&#x48;&#x4a;&#52;&#66;&#50;&#51;&#52;&#72;&#x4a;&#x42;">&#116;&#x72;&#x75;&#x65;&#95;&#48;&#48;&#x30;&#48;&#48;&#48;&#48;&#x30;&#48;&#x30;&#x40;&#99;&#x2e;&#117;&#115;&#x5f;&#74;&#72;&#x42;&#50;&#x48;&#x42;&#x32;&#x33;&#x48;&#x4a;&#52;&#66;&#50;&#51;&#52;&#72;&#x4a;&#x42;</a> to send as a reply to a message</p>
+										<p>string <a href="mailto:true_0000000000@c.us_JHB2HB23HJ4B234HJB">true_0000000000@c.us_JHB2HB23HJ4B234HJB</a> to send as a reply to a message</p>
 									</div>
 								</li>
 								<li>
@@ -3748,7 +3748,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p>chat id <a href="mailto:&#x78;&#120;&#120;&#120;&#x78;&#x40;&#117;&#115;&#x2e;&#x63;">&#x78;&#120;&#120;&#120;&#x78;&#x40;&#117;&#115;&#x2e;&#x63;</a></p>
+										<p>chat id <a href="mailto:xxxxx@us.c">xxxxx@us.c</a></p>
 									</div>
 								</li>
 								<li>
@@ -3772,7 +3772,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> quotedMsgId: <a href="../globals.html#messageid" class="tsd-signature-type">MessageId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p>string <a href="mailto:&#116;&#114;&#117;&#101;&#95;&#48;&#48;&#x30;&#x30;&#48;&#48;&#48;&#48;&#x30;&#48;&#x40;&#x63;&#46;&#x75;&#115;&#x5f;&#x4a;&#x48;&#66;&#50;&#72;&#66;&#x32;&#51;&#x48;&#74;&#52;&#x42;&#x32;&#x33;&#x34;&#x48;&#74;&#x42;">&#116;&#114;&#117;&#101;&#95;&#48;&#48;&#x30;&#x30;&#48;&#48;&#48;&#48;&#x30;&#48;&#x40;&#x63;&#46;&#x75;&#115;&#x5f;&#x4a;&#x48;&#66;&#50;&#72;&#66;&#x32;&#51;&#x48;&#74;&#52;&#x42;&#x32;&#x33;&#x34;&#x48;&#74;&#x42;</a> to send as a reply to a message</p>
+										<p>string <a href="mailto:true_0000000000@c.us_JHB2HB23HJ4B234HJB">true_0000000000@c.us_JHB2HB23HJ4B234HJB</a> to send as a reply to a message</p>
 									</div>
 								</li>
 								<li>
@@ -3815,7 +3815,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p>chat id <a href="mailto:&#120;&#x78;&#120;&#x78;&#120;&#x40;&#x75;&#115;&#46;&#99;">&#120;&#x78;&#120;&#x78;&#120;&#x40;&#x75;&#115;&#46;&#99;</a></p>
+										<p>chat id <a href="mailto:xxxxx@us.c">xxxxx@us.c</a></p>
 									</div>
 								</li>
 								<li>
@@ -3858,7 +3858,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p>chat id <a href="mailto:&#x78;&#x78;&#120;&#x78;&#120;&#x40;&#117;&#115;&#46;&#x63;">&#x78;&#x78;&#120;&#x78;&#120;&#x40;&#117;&#115;&#46;&#x63;</a></p>
+										<p>chat id <a href="mailto:xxxxx@us.c">xxxxx@us.c</a></p>
 									</div>
 								</li>
 								<li>
@@ -4038,7 +4038,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p>chat id: <a href="mailto:&#x78;&#120;&#120;&#120;&#x78;&#64;&#x63;&#x2e;&#117;&#x73;">&#x78;&#120;&#120;&#120;&#x78;&#64;&#x63;&#x2e;&#117;&#x73;</a></p>
+										<p>chat id: <a href="mailto:xxxxx@c.us">xxxxx@c.us</a></p>
 									</div>
 								</li>
 								<li>
@@ -4148,7 +4148,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p>chat id <a href="mailto:&#120;&#120;&#x78;&#120;&#x78;&#x40;&#117;&#x73;&#x2e;&#x63;">&#120;&#120;&#x78;&#120;&#x78;&#x40;&#117;&#x73;&#x2e;&#x63;</a></p>
+										<p>chat id <a href="mailto:xxxxx@us.c">xxxxx@us.c</a></p>
 									</div>
 								</li>
 								<li>
@@ -4160,7 +4160,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>quotedMsgId: <a href="../globals.html#messageid" class="tsd-signature-type">MessageId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p>string <a href="mailto:&#x74;&#114;&#x75;&#101;&#x5f;&#48;&#x30;&#x30;&#48;&#48;&#x30;&#48;&#48;&#x30;&#48;&#64;&#99;&#x2e;&#x75;&#115;&#95;&#x4a;&#72;&#x42;&#50;&#72;&#x42;&#x32;&#x33;&#x48;&#x4a;&#x34;&#x42;&#50;&#51;&#x34;&#72;&#x4a;&#66;">&#x74;&#114;&#x75;&#101;&#x5f;&#48;&#x30;&#x30;&#48;&#48;&#x30;&#48;&#48;&#x30;&#48;&#64;&#99;&#x2e;&#x75;&#115;&#95;&#x4a;&#72;&#x42;&#50;&#72;&#x42;&#x32;&#x33;&#x48;&#x4a;&#x34;&#x42;&#50;&#51;&#x34;&#72;&#x4a;&#66;</a> to send as a reply to a message</p>
+										<p>string <a href="mailto:true_0000000000@c.us_JHB2HB23HJ4B234HJB">true_0000000000@c.us_JHB2HB23HJ4B234HJB</a> to send as a reply to a message</p>
 									</div>
 								</li>
 							</ul>
@@ -4228,7 +4228,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p>chat id: <a href="mailto:&#120;&#x78;&#x78;&#x78;&#x78;&#64;&#x75;&#115;&#x2e;&#x63;">&#120;&#x78;&#x78;&#x78;&#x78;&#64;&#x75;&#115;&#x2e;&#x63;</a></p>
+										<p>chat id: <a href="mailto:xxxxx@us.c">xxxxx@us.c</a></p>
 									</div>
 								</li>
 								<li>
@@ -4271,7 +4271,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>chatId: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p>chat id: <a href="mailto:&#120;&#120;&#120;&#120;&#x78;&#64;&#117;&#115;&#46;&#x63;">&#120;&#120;&#120;&#120;&#x78;&#64;&#117;&#115;&#46;&#x63;</a></p>
+										<p>chat id: <a href="mailto:xxxxx@us.c">xxxxx@us.c</a></p>
 									</div>
 								</li>
 							</ul>
@@ -4340,7 +4340,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p>chat id: <a href="mailto:&#x78;&#x78;&#120;&#120;&#120;&#64;&#117;&#x73;&#x2e;&#99;">&#x78;&#x78;&#120;&#120;&#120;&#64;&#117;&#x73;&#x2e;&#99;</a></p>
+										<p>chat id: <a href="mailto:xxxxx@us.c">xxxxx@us.c</a></p>
 									</div>
 								</li>
 								<li>
@@ -4380,7 +4380,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p>chat id: <a href="mailto:&#x78;&#x78;&#120;&#x78;&#120;&#x40;&#x75;&#x73;&#x2e;&#x63;">&#x78;&#x78;&#120;&#x78;&#120;&#x40;&#x75;&#x73;&#x2e;&#x63;</a></p>
+										<p>chat id: <a href="mailto:xxxxx@us.c">xxxxx@us.c</a></p>
 									</div>
 								</li>
 								<li>
@@ -4467,7 +4467,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p>chat id <a href="mailto:&#x78;&#120;&#x78;&#x78;&#x78;&#64;&#x75;&#x73;&#x2e;&#x63;">&#x78;&#120;&#x78;&#x78;&#x78;&#64;&#x75;&#x73;&#x2e;&#x63;</a></p>
+										<p>chat id <a href="mailto:xxxxx@us.c">xxxxx@us.c</a></p>
 									</div>
 								</li>
 								<li>
@@ -4491,7 +4491,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> quotedMsgId: <a href="../globals.html#messageid" class="tsd-signature-type">MessageId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p>string <a href="mailto:&#116;&#114;&#x75;&#101;&#95;&#48;&#48;&#48;&#48;&#x30;&#48;&#x30;&#48;&#x30;&#48;&#x40;&#x63;&#x2e;&#x75;&#x73;&#95;&#x4a;&#x48;&#66;&#x32;&#x48;&#66;&#x32;&#x33;&#72;&#74;&#52;&#x42;&#50;&#x33;&#52;&#x48;&#x4a;&#x42;">&#116;&#114;&#x75;&#101;&#95;&#48;&#48;&#48;&#48;&#x30;&#48;&#x30;&#48;&#x30;&#48;&#x40;&#x63;&#x2e;&#x75;&#x73;&#95;&#x4a;&#x48;&#66;&#x32;&#x48;&#66;&#x32;&#x33;&#72;&#74;&#52;&#x42;&#50;&#x33;&#52;&#x48;&#x4a;&#x42;</a> to send as a reply to a message</p>
+										<p>string <a href="mailto:true_0000000000@c.us_JHB2HB23HJ4B234HJB">true_0000000000@c.us_JHB2HB23HJ4B234HJB</a> to send as a reply to a message</p>
 									</div>
 								</li>
 							</ul>
@@ -4671,7 +4671,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>groupId: <a href="../globals.html#groupchatid" class="tsd-signature-type">GroupChatId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p><a href="mailto:&#x31;&#x32;&#x33;&#49;&#x32;&#51;&#49;&#50;&#x33;&#x31;&#50;&#x33;&#x5f;&#x31;&#51;&#49;&#x32;&#51;&#49;&#x33;&#x31;&#x32;&#51;&#x40;&#x67;&#x2e;&#117;&#115;">&#x31;&#x32;&#x33;&#49;&#x32;&#51;&#49;&#50;&#x33;&#x31;&#50;&#x33;&#x5f;&#x31;&#51;&#49;&#x32;&#51;&#49;&#x33;&#x31;&#x32;&#51;&#x40;&#x67;&#x2e;&#117;&#115;</a> The id of the group</p>
+										<p><a href="mailto:123123123123_1312313123@g.us">123123123123_1312313123@g.us</a> The id of the group</p>
 									</div>
 								</li>
 								<li>
@@ -4706,7 +4706,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>groupId: <a href="../globals.html#groupchatid" class="tsd-signature-type">GroupChatId</a></h5>
 									<div class="tsd-comment tsd-typography tsd-comment-text">
-										<p><a href="mailto:&#49;&#x32;&#x33;&#x31;&#50;&#51;&#x31;&#x32;&#x33;&#49;&#x32;&#51;&#95;&#49;&#x33;&#49;&#50;&#x33;&#49;&#x33;&#49;&#x32;&#x33;&#64;&#103;&#x2e;&#117;&#115;">&#49;&#x32;&#x33;&#x31;&#50;&#51;&#x31;&#x32;&#x33;&#49;&#x32;&#51;&#95;&#49;&#x33;&#49;&#50;&#x33;&#49;&#x33;&#49;&#x32;&#x33;&#64;&#103;&#x2e;&#117;&#115;</a> The id of the group</p>
+										<p><a href="mailto:123123123123_1312313123@g.us">123123123123_1312313123@g.us</a> The id of the group</p>
 									</div>
 								</li>
 								<li>
@@ -4949,7 +4949,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 					</ul>
 				</section>
 			</section>
-			<!--{&quot;options&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;tsconfig&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;inputFiles&quot;:[&quot;./src/api&quot;,&quot;./src/utils&quot;,&quot;./src/controllers&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;**.config&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludePrivate&quot;:true,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;./node_modules/puppeteer/lib&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:true,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;./README.md&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:true,&quot;toc&quot;:[&quot;Client&quot;,&quot;Chat&quot;,&quot;Call&quot;,&quot;Contact&quot;,&quot;GroupMetadata&quot;,&quot;Id&quot;,&quot;LiveLocationChangedEvent&quot;,&quot;Message&quot;,&quot;ParticipantChangedEventModel&quot;,&quot;decryptMedia&quot;,&quot;smartUserAgent&quot;,&quot;WAPI&quot;,&quot;Page&quot;,&quot;ConfigObject&quot;,&quot;SessionData&quot;,&quot;create&quot;,&quot;namespace&quot;,&quot;SimpleListener&quot;,&quot;SessionInfo&quot;],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false,&quot;links&quot;:[{&quot;label&quot;:&quot;Guides&quot;,&quot;url&quot;:&quot;/&quot;},{&quot;label&quot;:&quot;License Keys&quot;,&quot;url&quot;:&quot;/&quot;}],&quot;outline&quot;:[{&quot;Getting Started&quot;:{&quot;Installation&quot;:&quot;/&quot;,&quot;Docker&quot;:&quot;/&quot;},&quot;The Client&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Events&quot;:&quot;/&quot;,&quot;Methods&quot;:&quot;/&quot;},&quot;API&quot;:{&quot;Setup&quot;:&quot;&quot;,&quot;Postman Generator&quot;:&quot;&quot;},&quot;Prenium Features&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Getting Started&quot;:&quot;/&quot;,&quot;Perks&quot;:&quot;/&quot;}}]}-->
+			<!--{&quot;options&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;tsconfig&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;inputFiles&quot;:[&quot;./src/api&quot;,&quot;./src/utils&quot;,&quot;./src/controllers&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;**.config&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludePrivate&quot;:true,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;./node_modules/puppeteer/lib&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:true,&quot;readme&quot;:&quot;./README.md&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:true,&quot;toc&quot;:[&quot;Client&quot;,&quot;Chat&quot;,&quot;Call&quot;,&quot;Contact&quot;,&quot;GroupMetadata&quot;,&quot;Id&quot;,&quot;LiveLocationChangedEvent&quot;,&quot;Message&quot;,&quot;ParticipantChangedEventModel&quot;,&quot;decryptMedia&quot;,&quot;smartUserAgent&quot;,&quot;WAPI&quot;,&quot;Page&quot;,&quot;ConfigObject&quot;,&quot;SessionData&quot;,&quot;create&quot;,&quot;namespace&quot;,&quot;SimpleListener&quot;,&quot;SessionInfo&quot;],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false,&quot;links&quot;:[{&quot;label&quot;:&quot;Guides&quot;,&quot;url&quot;:&quot;/&quot;},{&quot;label&quot;:&quot;License Keys&quot;,&quot;url&quot;:&quot;/&quot;}],&quot;outline&quot;:[{&quot;Getting Started&quot;:{&quot;Installation&quot;:&quot;/&quot;,&quot;Docker&quot;:&quot;/&quot;},&quot;The Client&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Events&quot;:&quot;/&quot;,&quot;Methods&quot;:&quot;/&quot;},&quot;API&quot;:{&quot;Setup&quot;:&quot;&quot;,&quot;Postman Generator&quot;:&quot;&quot;},&quot;Prenium Features&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Getting Started&quot;:&quot;/&quot;,&quot;Perks&quot;:&quot;/&quot;}}]}-->
 		</div>
 		<div class="col-2 col-menu secondary-menu">
 			<nav class="tsd-navigation secondary menu-sticky">

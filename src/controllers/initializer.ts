@@ -18,6 +18,7 @@ let qrDelayTimeout;
 import treekill from 'tree-kill';
 import CFonts from 'cfonts';
 import { popup } from './popup';
+import { getConfigWithCase } from '../utils/configSchema';
 const boxen = require('boxen');
 
 /**
@@ -53,6 +54,17 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
     config = sessionId;
     sessionId = config.sessionId;
     customUserAgent = config.customUserAgent;
+  }
+
+  if(config?.inDocker) {
+    //try to infer config variables from process.env
+    config = {
+      ...config,
+      ...getConfigWithCase({
+	      path: "../api/model/config.ts",
+	      tsconfig: "../../tsconfig.json",
+	      type: "ConfigObject", 
+    })}
   }
 
   const prettyFont = CFonts.render(('@OPEN-WA|WHATSAPP|AUTOMATOR'), {
