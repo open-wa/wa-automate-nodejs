@@ -221,7 +221,7 @@ export interface ConfigObject {
     */
     authTimeout?: number;
     /**
-     * Setting this to `true` will kill the whole process when the client is disconnected from the page or if the browser is closed. defaults to `true`
+     * Setting this to `true` will kill the whole process when the client is disconnected from the page or if the browser is closed. defaults to `false`
      */
     killProcessOnBrowserClose ?: boolean;
     /**

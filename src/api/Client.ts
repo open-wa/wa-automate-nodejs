@@ -263,7 +263,7 @@ export class Client {
   private _setOnClose(){
     this._page.on('close',()=>{
       this.kill();
-      if(!(this._createConfig?.killProcessOnBrowserClose===false)) process.exit();
+      if(this._createConfig?.killProcessOnBrowserClose) process.exit();
     })
   }
 
