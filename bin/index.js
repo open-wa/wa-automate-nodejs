@@ -1,6 +1,7 @@
-import meow from 'meow';
-import { create, SimpleListener, getConfigWithCase } from '@open-wa/wa-automate';
-import path from 'path';
+const meow = require('meow');
+const wa = require('@open-wa/wa-automate');
+const { create, SimpleListener, getConfigWithCase } = wa;
+const path = require('path');
 const express = require('express');
 const app = express();
 const fs = require('fs');
@@ -85,9 +86,9 @@ app.use(express.json({ limit: '200mb' })) //add the limit option so we can send 
 const c = cli.flags;
 const PORT = c.port;
 let config = {};
-if (c?.config) {
+if (c && c.config) {
 	//get the config file
-	const configJsonPath = path.join(path.resolve(process.cwd()), c?.config || `config.json`);
+	const configJsonPath = path.join(path.resolve(process.cwd()), c.config || `config.json`);
 	if (fs.existsSync(configJsonPath)) {
 		try {
 			config = JSON.parse(fs.readFileSync(configJsonPath));
@@ -101,15 +102,15 @@ if (c?.config) {
 	};
 }
 
-if (c?.session) {
+if (c && c.session) {
 	try {
-		let sessionData = JSON.parse(fs.readFileSync(c?.session));
+		let sessionData = JSON.parse(fs.readFileSync(c.session));
 	} catch (error) {
 		throw `Unable to parse session data string as JSON`;
 	}
 }
 
-if (c?.licenseKey) {
+if (c && c.licenseKey) {
 	config = {
 		...config,
 		licenseKey: c.licenseKey
@@ -123,18 +124,18 @@ if (!(c.key == null) && c.key == "") {
 
 create({ ...config })
 	.then(async (client) => {
-		if (c?.webhook) Object.keys(SimpleListener).map(eventKey => client.registerWebhook(SimpleListener[eventKey], c?.webhook))
+		if (c && c.webhook) Object.keys(SimpleListener).map(eventKey => client.registerWebhook(SimpleListener[eventKey], c.webhook))
 
-		if(c?.keepAlive) client.onStateChanged(state=>{
+		if(c && c.keepAlive) client.onStateChanged(state=>{
 			if(state==="CONFLICT" || state==="UNLAUNCHED") client.forceRefocus();
 		  });
 
-		if (!c?.noApi) {
-			if(c?.key) {
+		if (!(c && c.noApi)) {
+			if(c && c.key) {
 				console.log(`Please use the following api key for requests as a header:\nkey: ${c.key}`)
 				app.use((req, res, next) => {
 					const apiKey = req.get('key')
-					if (!apiKey || apiKey !== c?.key) {
+					if (!apiKey || apiKey !== c.key) {
 					  res.status(401).json({error: 'unauthorised'})
 					} else {
 					  next()
