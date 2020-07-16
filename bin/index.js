@@ -1,18 +1,16 @@
 const meow = require('meow');
 const wa = require('@open-wa/wa-automate');
-const { create, SimpleListener, getConfigWithCase } = wa;
+const { create, SimpleListener } = wa;
 const path = require('path');
 const express = require('express');
 const app = express();
 const fs = require('fs');
 const uuidAPIKey = require('uuid-apikey');
 
+// let jsonData = require('./config-schema.json');
+
 const extraFlags = {};
-const configWithCases = getConfigWithCase({
-	path: "../src/api/model/config.ts",
-	tsconfig: "../tsconfig.json",
-	type: "ConfigObject",
-});
+const configWithCases = require('./config-schema.json');
 
 configWithCases.map(({ type, key }) => {
 	if (key === "popup") type = "number"; extraFlags[key] = {
