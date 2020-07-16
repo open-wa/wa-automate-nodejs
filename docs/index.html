@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>@open-wa/wa-automate - v1.9.98</title>
+	<title>@open-wa/wa-automate - v1.9.99</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
@@ -24,7 +24,7 @@
 					</ul>
 					<ul class="results-priority" style="display:none">
 					</ul>
-					<a href="index.html" class="title">@open-wa/wa-automate - v1.9.98</a>
+					<a href="index.html" class="title">@open-wa/wa-automate - v1.9.99</a>
 					&emsp;<a href="/" class="title">Guides</a>
 					&emsp;<a href="/" class="title">License Keys</a>
 				</div>
@@ -71,7 +71,7 @@
 			</nav>
 		</div>
 		<div class="col-7 offset-3 col-content">
-			<h1>@open-wa/wa-automate - v1.9.98</h1>
+			<h1>@open-wa/wa-automate - v1.9.99</h1>
 			<div class="tsd-panel tsd-typography">
 				<div align="center">
 					<img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/hotfix-logo.png" width="128" height="128"/>
@@ -86,7 +86,7 @@
 						<a href="https://www.npmjs.com/package/@open-wa/wa-automate"><img src="https://img.shields.io/npm/dm/@open-wa/wa-automate.svg" alt="Downloads"></a>
 						<a href="http://isitmaintained.com/project/open-wa/wa-automate-nodejs" title="Average time to resolve an issue"><img src="http://isitmaintained.com/badge/resolution/open-wa/wa-automate-nodejs.svg" alt="Average time to resolve an issue"></a>
 					<a href="http://isitmaintained.com/project/open-wa/wa-automate-nodejs" title="Percentage of issues still open"><img src="http://isitmaintained.com/badge/open/open-wa/wa-automate-nodejs.svg" alt="Percentage of issues still open"></a></p>
-					<p><a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> <img src="https://img.shields.io/badge/WhatsApp_Web-2.2027.10-brightgreen.svg" alt="WhatsApp_Web 2.2027.10"></p>
+					<p><a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> <img src="https://img.shields.io/badge/WhatsApp_Web-2.2029.4-brightgreen.svg" alt="WhatsApp_Web 2.2029.4"></p>
 					<p><a href="https://www.buymeacoffee.com/smashah"><img src="https://www.buymeacoffee.com/assets/img/guidelines/download-assets-sm-2.svg" alt="Buy me a coffee"></a>
 					<a href="mailto:shah@idk.uno?subject=WhatsApp%20Consulting"><img src="https://img.shields.io/badge/Require%20Paid%20Support%20or%20Consulting%3F-Click%20Here-blue?style=for-the-badge&logo=paypal" alt="Consulting Request"></a></p>
 				</div>
@@ -97,19 +97,19 @@
 				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
 					<h2>Usage</h2>
 				</a>
-				<pre><code class="language-javascript"><span class="hljs-comment">// import { create, Client } from '@open-wa/wa-automate';</span>
-<span class="hljs-keyword">const</span> wa = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@open-wa/wa-automate'</span>);
+				<pre><code class="language-javascript"><span class="hljs-comment">// import { create, Client } from &#x27;@open-wa/wa-automate&#x27;;</span>
+<span class="hljs-keyword">const</span> wa = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>);
 
 wa.create().then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client</span>) </span>{
   client.onMessage(<span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> {
-    <span class="hljs-keyword">if</span> (message.body === <span class="hljs-string">'Hi'</span>) {
-      client.sendText(message.from, <span class="hljs-string">'👋 Hello!'</span>);
+    <span class="hljs-keyword">if</span> (message.body === <span class="hljs-string">&#x27;Hi&#x27;</span>) {
+      client.sendText(message.from, <span class="hljs-string">&#x27;👋 Hello!&#x27;</span>);
     }
   });
 }</code></pre>
-				<a href="#after-executing-codecreatecode-function-strongopen-wawa-automatestrong-will-create-an-instance-of-wa-web-if-you-are-not-logged-in-it-will-print-a-qr-code-in-the-a-hrefhttpsiimgurcomg8qveripngterminala-scan-it-with-your-phone-and-you-are-ready-to-go" id="after-executing-codecreatecode-function-strongopen-wawa-automatestrong-will-create-an-instance-of-wa-web-if-you-are-not-logged-in-it-will-print-a-qr-code-in-the-a-hrefhttpsiimgurcomg8qveripngterminala-scan-it-with-your-phone-and-you-are-ready-to-go" style="color: inherit; text-decoration: none;">
+				<a href="#after-executing-create-function-open-wawa-automate-will-create-an-instance-of-wa-web-if-you-are-not-logged-in-it-will-print-a-qr-code-in-the-terminal-scan-it-with-your-phone-and-you-are-ready-to-go" id="after-executing-create-function-open-wawa-automate-will-create-an-instance-of-wa-web-if-you-are-not-logged-in-it-will-print-a-qr-code-in-the-terminal-scan-it-with-your-phone-and-you-are-ready-to-go" style="color: inherit; text-decoration: none;">
 					<h6>After executing <code>create()</code> function, <strong>@open-wa/wa-automate</strong> will create an instance of WA web. If you are not logged in, it will print a QR code in the <a href="https://i.imgur.com/g8QvERI.png">terminal</a>. Scan it with your phone and you are ready to go!</h6>
 				</a>
 				<a href="#open-wawa-automate-will-remember-the-session-so-there-is-no-need-to-authenticate-every-time" id="open-wawa-automate-will-remember-the-session-so-there-is-no-need-to-authenticate-every-time" style="color: inherit; text-decoration: none;">
@@ -358,13 +358,13 @@ wa.create().then(<span class="hljs-function"><span class="hljs-params">client</s
 				</ol>
 				<pre><code class="language-javascript">...
 create({
-  <span class="hljs-attr">licenseKey</span>: <span class="hljs-string">"..."</span>
+  <span class="hljs-attr">licenseKey</span>: <span class="hljs-string">&quot;...&quot;</span>
 })
 
 <span class="hljs-comment">//or for multiple license keys to stack features.</span>
 
 create({
-  <span class="hljs-attr">licenseKey</span>: [<span class="hljs-string">"..."</span>,<span class="hljs-string">"..."</span>]
+  <span class="hljs-attr">licenseKey</span>: [<span class="hljs-string">&quot;...&quot;</span>,<span class="hljs-string">&quot;...&quot;</span>]
 })
 ...</code></pre>
 				<p>Notes:</p>
@@ -392,17 +392,17 @@ create({
 					<h2>Capturing QR Code</h2>
 				</a>
 				<p>An event is emitted every time the QR code is received by the system. You can grab hold of this event emitter by importing <code>ev</code></p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { ev } <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
-<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { ev } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>;
+<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;fs&#x27;</span>);
 
-ev.on(<span class="hljs-string">'qr.**'</span>, <span class="hljs-keyword">async</span> qrcode =&gt; {
+ev.on(<span class="hljs-string">&#x27;qr.**&#x27;</span>, <span class="hljs-keyword">async</span> qrcode =&gt; {
   <span class="hljs-comment">//qrcode is base64 encoded qr code image</span>
   <span class="hljs-comment">//now you can do whatever you want with it</span>
   <span class="hljs-keyword">const</span> imageBuffer = Buffer.from(
-    qrcode.replace(<span class="hljs-string">'data:image/png;base64,'</span>, <span class="hljs-string">''</span>),
-    <span class="hljs-string">'base64'</span>
+    qrcode.replace(<span class="hljs-string">&#x27;data:image/png;base64,&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>),
+    <span class="hljs-string">&#x27;base64&#x27;</span>
   );
-  fs.writeFileSync(<span class="hljs-string">'qr_code.png'</span>, imageBuffer);
+  fs.writeFileSync(<span class="hljs-string">&#x27;qr_code.png&#x27;</span>, imageBuffer);
 });</code></pre>
 				<p>You can see a live implementation of this on <code>demo/index.ts</code>. Give it a spin! :D</p>
 				<a href="#refreshing-qrcode" id="refreshing-qrcode" style="color: inherit; text-decoration: none;">
@@ -430,17 +430,17 @@ client.kill();
 				</a>
 				<p>When a user starts using WA web in a different browser, @open-wa/wa-automate will be left on a screen prompting you to click &#39;Use here&#39;. As of v1.6.6^ you can now force the client to press &#39;Use here&#39; everytime the state has changed to &#39;CONFLICT&#39;. onStateChanged results in &#39;UNPAIRED&#39;, &#39;CONNECTED&#39; or &#39;CONFLICT&#39;;</p>
 				<pre><code class="language-javascript">client.onStateChanged(<span class="hljs-function"><span class="hljs-params">state</span>=&gt;</span>{
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'statechanged'</span>, state)
-    <span class="hljs-keyword">if</span>(state===<span class="hljs-string">"CONFLICT"</span>) client.forceRefocus();
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;statechanged&#x27;</span>, state)
+    <span class="hljs-keyword">if</span>(state===<span class="hljs-string">&quot;CONFLICT&quot;</span>) client.forceRefocus();
   });
 </code></pre>
 				<a href="#decrypting-media" id="decrypting-media" style="color: inherit; text-decoration: none;">
 					<h2>Decrypting Media</h2>
 				</a>
 				<p>Here is a sample of how to decrypt media. This has been tested on images, videos, documents, audio and voice notes.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Client, decryptMedia } <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
-<span class="hljs-keyword">const</span> mime = <span class="hljs-built_in">require</span>(<span class="hljs-string">'mime-types'</span>);
-<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Client, decryptMedia } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>;
+<span class="hljs-keyword">const</span> mime = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;mime-types&#x27;</span>);
+<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;fs&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Client</span>) </span>{
   client.onMessage(<span class="hljs-keyword">async</span> message =&gt; {
@@ -448,7 +448,7 @@ client.kill();
       <span class="hljs-keyword">const</span> filename = <span class="hljs-string">`<span class="hljs-subst">${message.t}</span>.<span class="hljs-subst">${mime.extension(message.mimetype)}</span>`</span>;
       <span class="hljs-keyword">const</span> mediaData = <span class="hljs-keyword">await</span> decryptMedia(message);
       <span class="hljs-keyword">const</span> imageBase64 = <span class="hljs-string">`data:<span class="hljs-subst">${message.mimetype}</span>;base64,<span class="hljs-subst">${mediaData.toString(
-        <span class="hljs-string">'base64'</span>
+        <span class="hljs-string">&#x27;base64&#x27;</span>
       )}</span>`</span>;
       <span class="hljs-keyword">await</span> client.sendImage(
         message.from,
@@ -460,7 +460,7 @@ client.kill();
         <span class="hljs-keyword">if</span> (err) {
           <span class="hljs-keyword">return</span> <span class="hljs-built_in">console</span>.log(err);
         }
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'The file was saved!'</span>);
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;The file was saved!&#x27;</span>);
       });
     }
   });
@@ -471,7 +471,7 @@ create().then(<span class="hljs-function"><span class="hljs-params">client</span
 				<p>You can install that using:</p>
 				<pre><code class="language-bash">&gt; npm i --save wa-decrypt</code></pre>
 				<p>and import it like so:</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { decryptMedia } <span class="hljs-keyword">from</span> <span class="hljs-string">'wa-decrypt'</span>;</code></pre>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { decryptMedia } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;wa-decrypt&#x27;</span>;</code></pre>
 				<p><a href="https://github.com/smashah/wa-decrypt#readme">Learn more about wa-decrypt here</a></p>
 				<a href="#issues-with-decryption" id="issues-with-decryption" style="color: inherit; text-decoration: none;">
 					<h2>Issues with decryption</h2>
@@ -479,7 +479,7 @@ create().then(<span class="hljs-function"><span class="hljs-params">client</span
 				<p>If you are having issues with decryption it may be due to the user agent being used by the decrypt method.
 				You can remedy this by passing a custom user agent as a second parameter to the decrypt method. Now there is a convenience method on the WA class to allow you to easily get a compatible user agent shown below. This feature is available in v.1.5.8 and above.</p>
 				<pre><code class="language-javascript">...
-      const generatedUa = <span class="hljs-keyword">await</span> client.getGeneratedUserAgent(); <span class="hljs-comment">//you can optionally pass your custom user agent in here also getGeneratedUserAgent('...');</span>
+      const generatedUa = <span class="hljs-keyword">await</span> client.getGeneratedUserAgent(); <span class="hljs-comment">//you can optionally pass your custom user agent in here also getGeneratedUserAgent(&#x27;...&#x27;);</span>
       <span class="hljs-keyword">const</span> mediaData = <span class="hljs-keyword">await</span> decryptMedia(message,generatedUa);
 ...</code></pre>
 				<a href="#sending-mediafiles" id="sending-mediafiles" style="color: inherit; text-decoration: none;">
@@ -488,10 +488,10 @@ create().then(<span class="hljs-function"><span class="hljs-params">client</span
 				<p>Here is a sample of how to send media. This has been tested on images, videos, documents, audio and voice notes.</p>
 				<p>Interestingly sendImage has always worked for sending any type of file.</p>
 				<p>An example of sending a is shown in the Decrypting Media secion above also.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Client} <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Client} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>;
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Client</span>) </span>{
-<span class="hljs-keyword">await</span> client.sendFile(<span class="hljs-string">'xyz@c.us'</span>,[BASE64 FILE DATA],<span class="hljs-string">'some file.pdf'</span>, <span class="hljs-string">`Hello this is the caption`</span>);
+<span class="hljs-keyword">await</span> client.sendFile(<span class="hljs-string">&#x27;xyz@c.us&#x27;</span>,[BASE64 FILE DATA],<span class="hljs-string">&#x27;some file.pdf&#x27;</span>, <span class="hljs-string">`Hello this is the caption`</span>);
 }
 
 create().then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
@@ -504,9 +504,9 @@ create().then(<span class="hljs-function"><span class="hljs-params">client</span
 				<pre><code class="language-javascript">
 create({
   <span class="hljs-comment">// For Mac:</span>
-  <span class="hljs-attr">executablePath</span>: <span class="hljs-string">'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'</span>,
+  <span class="hljs-attr">executablePath</span>: <span class="hljs-string">&#x27;/Applications/Google Chrome.app/Contents/MacOS/Google Chrome&#x27;</span>,
   <span class="hljs-comment">// For Windows:</span>
-  <span class="hljs-comment">// executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',</span>
+  <span class="hljs-comment">// executablePath: &#x27;C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe&#x27;,</span>
 }).then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
 </code></pre>
 				<a href="#sending-gifs" id="sending-gifs" style="color: inherit; text-decoration: none;">
@@ -521,18 +521,18 @@ create({
 					</li>
 				</ol>
 				<pre><code class="language-javascript">
-<span class="hljs-keyword">import</span> { create, Client} <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
+<span class="hljs-keyword">import</span> { create, Client} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>;
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Client</span>) </span>{
-<span class="hljs-keyword">await</span> client.sendVideoAsGif(<span class="hljs-string">'xyz@c.us'</span>,[BASE64 Video FILE DATA],<span class="hljs-string">'some file.mp4'</span>, <span class="hljs-string">`Hello this is the caption`</span>);
+<span class="hljs-keyword">await</span> client.sendVideoAsGif(<span class="hljs-string">&#x27;xyz@c.us&#x27;</span>,[BASE64 Video FILE DATA],<span class="hljs-string">&#x27;some file.mp4&#x27;</span>, <span class="hljs-string">`Hello this is the caption`</span>);
 }
 
 <span class="hljs-comment">///IMPORTANT! Please make sure to point to your chrome installation and make sure your host has ffmpeg support</span>
 create({
   <span class="hljs-comment">// For Mac:</span>
-  <span class="hljs-attr">executablePath</span>: <span class="hljs-string">'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'</span>,
+  <span class="hljs-attr">executablePath</span>: <span class="hljs-string">&#x27;/Applications/Google Chrome.app/Contents/MacOS/Google Chrome&#x27;</span>,
   <span class="hljs-comment">// For Windows:</span>
-  <span class="hljs-comment">// executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',</span>
+  <span class="hljs-comment">// executablePath: &#x27;C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe&#x27;,</span>
 }).then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
 </code></pre>
 				<ol start="2">
@@ -541,14 +541,14 @@ create({
 					</li>
 				</ol>
 				<pre><code class="language-javascript">
-<span class="hljs-keyword">import</span> { create, Client} <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
+<span class="hljs-keyword">import</span> { create, Client} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>;
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Client</span>) </span>{
-<span class="hljs-keyword">await</span> client.sendGiphy(<span class="hljs-string">'xyz@c.us'</span>,<span class="hljs-string">'https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif'</span>, <span class="hljs-string">`Hello this is the caption`</span>);
+<span class="hljs-keyword">await</span> client.sendGiphy(<span class="hljs-string">&#x27;xyz@c.us&#x27;</span>,<span class="hljs-string">&#x27;https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif&#x27;</span>, <span class="hljs-string">`Hello this is the caption`</span>);
 }
 
 create({
-  <span class="hljs-attr">executablePath</span>: <span class="hljs-string">'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'</span>,
+  <span class="hljs-attr">executablePath</span>: <span class="hljs-string">&#x27;/Applications/Google Chrome.app/Contents/MacOS/Google Chrome&#x27;</span>,
 }).then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
 </code></pre>
 				<a href="#sending-location" id="sending-location" style="color: inherit; text-decoration: none;">
@@ -557,50 +557,50 @@ create({
 				<p>As of version 1.3.0 you can now send location!! You can&#39;t even do this in normal WA web interface.</p>
 				<p>You need to pass the following params:</p>
 				<ul>
-					<li>chat id: <a href="mailto:xxxxx@c.us">xxxxx@c.us</a></li>
+					<li>chat id: <a href="mailto:&#x78;&#x78;&#120;&#120;&#120;&#64;&#99;&#46;&#117;&#x73;">&#x78;&#x78;&#120;&#120;&#120;&#64;&#99;&#46;&#117;&#x73;</a></li>
 					<li>latitude: &#39;51.5074&#39;</li>
 					<li>longitude: &#39;0.1278&#39;</li>
 					<li>location text: &#39;LONDON!&#39;</li>
 				</ul>
 				<p>Here&#39;s how you do it:</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">await</span> client.sendLocation(<span class="hljs-string">'xxxxx@c.us'</span>, <span class="hljs-string">'51.5074'</span>, <span class="hljs-string">'0.1278'</span>,  <span class="hljs-string">'LONDON!'</span>)</code></pre>
+				<pre><code class="language-javascript"><span class="hljs-keyword">await</span> client.sendLocation(<span class="hljs-string">&#x27;xxxxx@c.us&#x27;</span>, <span class="hljs-string">&#x27;51.5074&#x27;</span>, <span class="hljs-string">&#x27;0.1278&#x27;</span>,  <span class="hljs-string">&#x27;LONDON!&#x27;</span>)</code></pre>
 				<a href="#simulate-typing" id="simulate-typing" style="color: inherit; text-decoration: none;">
 					<h2>Simulate typing</h2>
 				</a>
 				<p>As of version 1.3.1 you can now simulate &#39;...typing&#39;</p>
 				<p>You need to pass the following params:</p>
 				<ul>
-					<li>chat id: <a href="mailto:xxxxx@c.us">xxxxx@c.us</a></li>
+					<li>chat id: <a href="mailto:&#120;&#x78;&#120;&#x78;&#120;&#x40;&#x63;&#46;&#117;&#x73;">&#120;&#x78;&#120;&#x78;&#120;&#x40;&#x63;&#46;&#117;&#x73;</a></li>
 					<li>on: true or false</li>
 				</ul>
 				<p>Note: You need to manually turn this off!!!</p>
-				<pre><code class="language-javascript"><span class="hljs-comment">//start '...typing'</span>
-<span class="hljs-keyword">await</span> client.simulateTyping(<span class="hljs-string">'xxxxx@c.us'</span>,<span class="hljs-literal">true</span>)
+				<pre><code class="language-javascript"><span class="hljs-comment">//start &#x27;...typing&#x27;</span>
+<span class="hljs-keyword">await</span> client.simulateTyping(<span class="hljs-string">&#x27;xxxxx@c.us&#x27;</span>,<span class="hljs-literal">true</span>)
 <span class="hljs-comment">//wait 3 seconds</span>
 
-<span class="hljs-comment">//stop '...typing'</span>
-<span class="hljs-keyword">await</span> client.simulateTyping(<span class="hljs-string">'xxxxx@c.us'</span>,<span class="hljs-literal">false</span>)</code></pre>
+<span class="hljs-comment">//stop &#x27;...typing&#x27;</span>
+<span class="hljs-keyword">await</span> client.simulateTyping(<span class="hljs-string">&#x27;xxxxx@c.us&#x27;</span>,<span class="hljs-literal">false</span>)</code></pre>
 				<a href="#load-profile-pics-from-server" id="load-profile-pics-from-server" style="color: inherit; text-decoration: none;">
 					<h2>Load profile pics from server</h2>
 				</a>
 				<p>Generally, after the 20th chat in your WA, getChat methods do not retreive the chat picture. You need to get these from the WA servers. This is how you do it in v1.6.6^:</p>
-				<pre><code class="language-javascript">client.getProfilePicFromServer(<span class="hljs-string">'XXXXXXX-YYYYY@c.us'</span>)</code></pre>
+				<pre><code class="language-javascript">client.getProfilePicFromServer(<span class="hljs-string">&#x27;XXXXXXX-YYYYY@c.us&#x27;</span>)</code></pre>
 				<a href="#forward-messages" id="forward-messages" style="color: inherit; text-decoration: none;">
 					<h2>Forward Messages</h2>
 				</a>
 				<p>As of version 1.5.1 you can now forward messages. This has been tested on most types of messages.</p>
 				<p>You need to pass the following params:</p>
 				<ul>
-					<li>chat to forward messages to : <a href="mailto:xxxxx@c.us">xxxxx@c.us</a></li>
+					<li>chat to forward messages to : <a href="mailto:&#x78;&#x78;&#x78;&#x78;&#x78;&#64;&#x63;&#46;&#x75;&#115;">&#x78;&#x78;&#x78;&#x78;&#x78;&#64;&#x63;&#46;&#x75;&#115;</a></li>
 					<li>messages: a single or array of message ids or message objects</li>
 					<li>skipMyMessages: true or false, if true it will filter out messages sent by you from the list of messages, default false.</li>
 				</ul>
 				<p>Note: You need to manually turn this off!!!</p>
 				<pre><code class="language-javascript"><span class="hljs-comment">//forward messages</span>
-<span class="hljs-keyword">await</span> client.forwardMessages(<span class="hljs-string">'xxxxx@c.us'</span>,[...],<span class="hljs-literal">true</span>)
+<span class="hljs-keyword">await</span> client.forwardMessages(<span class="hljs-string">&#x27;xxxxx@c.us&#x27;</span>,[...],<span class="hljs-literal">true</span>)
 
 <span class="hljs-comment">//forward single message by id</span>
-<span class="hljs-keyword">await</span> client.forwardMessages(<span class="hljs-string">'xxxxx@c.us,"...",true)</span></code></pre>
+<span class="hljs-keyword">await</span> client.forwardMessages(<span class="hljs-string">&#x27;xxxxx@c.us,&quot;...&quot;,true)</span></code></pre>
 				<a href="#reply-to-messages" id="reply-to-messages" style="color: inherit; text-decoration: none;">
 					<h2>Reply to messages</h2>
 				</a>
@@ -612,36 +612,36 @@ create({
    * <span class="hljs-doctag">@param </span>quotedMsg string | Message the msg object or id to reply to.
    */</span>
 
-      <span class="hljs-keyword">await</span> client.reply(<span class="hljs-string">'xxxxx@c.us'</span>,<span class="hljs-string">'This is the reply'</span>,message);
+      <span class="hljs-keyword">await</span> client.reply(<span class="hljs-string">&#x27;xxxxx@c.us&#x27;</span>,<span class="hljs-string">&#x27;This is the reply&#x27;</span>,message);
 ...</code></pre>
 				<a href="#create-group" id="create-group" style="color: inherit; text-decoration: none;">
 					<h2>Create group</h2>
 				</a>
 				<p>As of v1.7.2 you can now create a new group. The first parameter is the group name, the second parameter is the contact ids to add as participants</p>
 				<pre><code class="language-javascript">...
-  client.createGroup(<span class="hljs-string">'Cool new group'</span>,<span class="hljs-string">'xxxxxxxxx@c.us'</span>) <span class="hljs-comment">//you can also send an array of ids.</span>
+  client.createGroup(<span class="hljs-string">&#x27;Cool new group&#x27;</span>,<span class="hljs-string">&#x27;xxxxxxxxx@c.us&#x27;</span>) <span class="hljs-comment">//you can also send an array of ids.</span>
 ...</code></pre>
 				<a href="#group-participants-beta" id="group-participants-beta" style="color: inherit; text-decoration: none;">
 					<h2>Group participants [beta]</h2>
 				</a>
 				<p>As of v1.7.0 you can now add, remove, promote &amp; demote participants for groups. The first parameter is the chat id for the group. The second parameter is the number to which you are conducting the action.</p>
 				<pre><code class="language-javascript">...
-  client.addParticipant(<span class="hljs-string">'XXXXXXX-YYYYYY@c.us'</span>,<span class="hljs-string">'ZZZZZZZZZ@c.us'</span>)
-  client.removeParticipant(<span class="hljs-string">'XXXXXXX-YYYYYY@c.us'</span>,<span class="hljs-string">'ZZZZZZZZZ@c.us'</span>)
-  client.promoteParticipant(<span class="hljs-string">'XXXXXXX-YYYYYY@c.us'</span>,<span class="hljs-string">'ZZZZZZZZZ@c.us'</span>)
-  client.demoteParticipant(<span class="hljs-string">'XXXXXXX-YYYYYY@c.us'</span>,<span class="hljs-string">'ZZZZZZZZZ@c.us'</span>)
+  client.addParticipant(<span class="hljs-string">&#x27;XXXXXXX-YYYYYY@c.us&#x27;</span>,<span class="hljs-string">&#x27;ZZZZZZZZZ@c.us&#x27;</span>)
+  client.removeParticipant(<span class="hljs-string">&#x27;XXXXXXX-YYYYYY@c.us&#x27;</span>,<span class="hljs-string">&#x27;ZZZZZZZZZ@c.us&#x27;</span>)
+  client.promoteParticipant(<span class="hljs-string">&#x27;XXXXXXX-YYYYYY@c.us&#x27;</span>,<span class="hljs-string">&#x27;ZZZZZZZZZ@c.us&#x27;</span>)
+  client.demoteParticipant(<span class="hljs-string">&#x27;XXXXXXX-YYYYYY@c.us&#x27;</span>,<span class="hljs-string">&#x27;ZZZZZZZZZ@c.us&#x27;</span>)
 ...</code></pre>
 				<a href="#group-participant-changes" id="group-participant-changes" style="color: inherit; text-decoration: none;">
 					<h2>Group participant changes</h2>
 				</a>
 				<p>As of version 1.5.6 you can now listen in on changes to group participants. You can react to when participants are added and removed.</p>
-				<pre><code class="language-javascript">client.onParticipantsChanged(<span class="hljs-string">"XXXXXXXX-YYYYYYYY@g.us"</span>, (participantChangedEvent:any) =&gt; <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"participant changed for group"</span>, participantChangedEvent));
+				<pre><code class="language-javascript">client.onParticipantsChanged(<span class="hljs-string">&quot;XXXXXXXX-YYYYYYYY@g.us&quot;</span>, <span class="hljs-function">(<span class="hljs-params">participantChangedEvent:any</span>) =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;participant changed for group&quot;</span>, participantChangedEvent));
 
 <span class="hljs-comment">//participantChangedEvent returns</span>
 {
-  <span class="hljs-attr">by</span>: <span class="hljs-string">'XXXXXXXXXXX@c.us'</span>, <span class="hljs-comment">//who performed the action</span>
-  <span class="hljs-attr">action</span>: <span class="hljs-string">'remove'</span>,
-  <span class="hljs-attr">who</span>: [ <span class="hljs-string">'XXXXXXXXX@c.us'</span> ] <span class="hljs-comment">//all the numbers the action effects.</span>
+  <span class="hljs-attr">by</span>: <span class="hljs-string">&#x27;XXXXXXXXXXX@c.us&#x27;</span>, <span class="hljs-comment">//who performed the action</span>
+  <span class="hljs-attr">action</span>: <span class="hljs-string">&#x27;remove&#x27;</span>,
+  <span class="hljs-attr">who</span>: [ <span class="hljs-string">&#x27;XXXXXXXXX@c.us&#x27;</span> ] <span class="hljs-comment">//all the numbers the action effects.</span>
 }</code></pre>
 				<p>This solution can result in some false positives and misfires however a lot of effort has been made to mitigate this to a reasonable level. Best practice is to maintian a seperate registry of participants and go from that.</p>
 				<a href="#listen-to-live-locations" id="listen-to-live-locations" style="color: inherit; text-decoration: none;">
@@ -649,8 +649,8 @@ create({
 				</a>
 				<p>As of version 1.7.21 you can now listen to live locations from a specific chat. You can see the liveLocation callback object <a href="https://github.com/open-wa/wa-automate-nodejs/blob/752adb1cb1664044f9f53410e723421131ecd81f/src/api/model/chat.ts#L33">here</a> </p>
 				<pre><code class="language-javascript">
-client.onLiveLocation(<span class="hljs-string">'XXXXXXX-YYYYY@c.us'</span>, (liveLocation) =&gt; {
-  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Someone moved'</span>,liveLocation)
+client.onLiveLocation(<span class="hljs-string">&#x27;XXXXXXX-YYYYY@c.us&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">liveLocation</span>) =&gt;</span> {
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;Someone moved&#x27;</span>,liveLocation)
 })
 </code></pre>
 				<a href="#listen-to-read-receipts" id="listen-to-read-receipts" style="color: inherit; text-decoration: none;">
@@ -673,7 +673,7 @@ client.onLiveLocation(<span class="hljs-string">'XXXXXXX-YYYYY@c.us'</span>, (li
 				<p>If you want to kill the process after a certain amount of seconds due to an unscanned code, you can now set the qrTimeout parameter in the configuration object. You can also use authTimeout if you want to wait only a certain period of time to wait for the session to connect to the phone.</p>
 				<pre><code class="language-javascript">create({
   <span class="hljs-attr">qrTimeout</span>: <span class="hljs-number">30</span>, <span class="hljs-comment">//kills the session if the QR code is not scanned within 30 seconds.</span>
-  <span class="hljs-attr">authTimeout</span>: <span class="hljs-number">30</span> <span class="hljs-comment">//kills the session if the session hasn't authentication 30 seconds (e.g If the session has the right credentials but the phone is off).</span>
+  <span class="hljs-attr">authTimeout</span>: <span class="hljs-number">30</span> <span class="hljs-comment">//kills the session if the session hasn&#x27;t authentication 30 seconds (e.g If the session has the right credentials but the phone is off).</span>
 })
 .then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
 				<a href="#managing-multiple-sessions-at-once" id="managing-multiple-sessions-at-once" style="color: inherit; text-decoration: none;">
@@ -687,7 +687,7 @@ client.onLiveLocation(<span class="hljs-string">'XXXXXXX-YYYYY@c.us'</span>, (li
 				</ol>
 				<p>Please see demo/index.ts for a working example</p>
 				<p>NOTE: DO NOT CREATE TWO SESSIONS WITH THE SAME SESSIONID. DO NOT ALLOW SPACES AS SESSION ID.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Client} <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Client} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>;
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Client</span>) </span>{
   ...
@@ -696,22 +696,22 @@ client.onLiveLocation(<span class="hljs-string">'XXXXXXX-YYYYY@c.us'</span>, (li
 create().then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
 
 create({
-  <span class="hljs-attr">sessionId</span>:<span class="hljs-string">'another_session'</span>
+  <span class="hljs-attr">sessionId</span>:<span class="hljs-string">&#x27;another_session&#x27;</span>
 }).then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
 				<p>You can then capture the QR Code for each session using the following event listener code:</p>
-				<pre><code class="language-javascript"><span class="hljs-comment">//events are fired with the ev namespace then the session Id. e.g "qr.another_session"</span>
+				<pre><code class="language-javascript"><span class="hljs-comment">//events are fired with the ev namespace then the session Id. e.g &quot;qr.another_session&quot;</span>
 <span class="hljs-comment">//You can however use the wildcard operator with the new event listener and capture the session Id as a parameter instead.</span>
-ev.on(<span class="hljs-string">'qr.**'</span>, <span class="hljs-keyword">async</span> (qrcode,sessionId) =&gt; {
-  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"TCL: qrcode,sessioId"</span>, qrcode,sessionId)
+ev.on(<span class="hljs-string">&#x27;qr.**&#x27;</span>, <span class="hljs-keyword">async</span> (qrcode,sessionId) =&gt; {
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;TCL: qrcode,sessioId&quot;</span>, qrcode,sessionId)
   <span class="hljs-comment">//base64 encoded qr code image</span>
-  <span class="hljs-keyword">const</span> imageBuffer = Buffer.from(qrcode.replace(<span class="hljs-string">'data:image/png;base64,'</span>,<span class="hljs-string">''</span>), <span class="hljs-string">'base64'</span>);
-  fs.writeFileSync(<span class="hljs-string">`qr_code<span class="hljs-subst">${sessionId?<span class="hljs-string">'_'</span>+sessionId:<span class="hljs-string">''</span>}</span>.png`</span>, imageBuffer);
+  <span class="hljs-keyword">const</span> imageBuffer = Buffer.from(qrcode.replace(<span class="hljs-string">&#x27;data:image/png;base64,&#x27;</span>,<span class="hljs-string">&#x27;&#x27;</span>), <span class="hljs-string">&#x27;base64&#x27;</span>);
+  fs.writeFileSync(<span class="hljs-string">`qr_code<span class="hljs-subst">${sessionId?<span class="hljs-string">&#x27;_&#x27;</span>+sessionId:<span class="hljs-string">&#x27;&#x27;</span>}</span>.png`</span>, imageBuffer);
 });</code></pre>
 				<a href="#manage-page-errors" id="manage-page-errors" style="color: inherit; text-decoration: none;">
 					<h2>Manage page errors</h2>
 				</a>
 				<p>Since this project is built upon puppeteer, you can access the <a href="https://pptr.dev/#?product=Puppeteer&amp;version=v2.0.0&amp;show=api-class-page">Puppeteer Page</a> instance by referencing <code>client.page</code>, and then therefore you can listen to any errors on the page like so:</p>
-				<pre><code class="language-javascript">client.page.on(<span class="hljs-string">'error'</span>, _=&gt;{
+				<pre><code class="language-javascript">client.page.on(<span class="hljs-string">&#x27;error&#x27;</span>, <span class="hljs-function"><span class="hljs-params">_</span>=&gt;</span>{
 ...
 }</code></pre>
 				<a href="#custom-set-up" id="custom-set-up" style="color: inherit; text-decoration: none;">
@@ -724,7 +724,7 @@ ev.on(<span class="hljs-string">'qr.**'</span>, <span class="hljs-keyword">async
 				<p>Users of these WA injection libraries should use different user agents (preferably copy the one you have one your own pc) because then it makes it harder for WA to break the mecahnism to restart sessions for this library.</p>
 				<p>Setting up your client in <code>headless:false</code> mode ensures you can easily visually debug any issues.</p>
 				<p>Example:</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Client} <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Client} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>;
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Client</span>) </span>{
   ...
@@ -738,7 +738,7 @@ create().then(<span class="hljs-function"><span class="hljs-params">client</span
 
 create({
   <span class="hljs-attr">headless</span>: <span class="hljs-literal">false</span>,
-  <span class="hljs-attr">customUserAgent</span>: <span class="hljs-string">'some custom user agent'</span>
+  <span class="hljs-attr">customUserAgent</span>: <span class="hljs-string">&#x27;some custom user agent&#x27;</span>
 })
 .then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
 				<a href="#best-practice" id="best-practice" style="color: inherit; text-decoration: none;">
@@ -760,8 +760,8 @@ create({
 					<li>Regularly restart your process to manage memory consumption</li>
 					<li>If memory leaks continue to be an issue then use <code>cacheEnabled:false</code> in the config to disable the cache on the page.</li>
 				</ol>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Client} <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
-<span class="hljs-keyword">const</span> { <span class="hljs-attr">default</span>: PQueue } = <span class="hljs-built_in">require</span>(<span class="hljs-string">"p-queue"</span>);
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Client} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>;
+<span class="hljs-keyword">const</span> { <span class="hljs-attr">default</span>: PQueue } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;p-queue&quot;</span>);
 
 <span class="hljs-keyword">const</span> queue = <span class="hljs-keyword">new</span> PQueue({
   <span class="hljs-attr">concurrency</span>: <span class="hljs-number">4</span>,
@@ -774,7 +774,7 @@ create({
     <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
 }
 
-<span class="hljs-keyword">const</span> processMessage = <span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> queue.add(<span class="hljs-function"><span class="hljs-params">()</span>=&gt;</span>proc(message));
+<span class="hljs-keyword">const</span> processMessage = <span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> queue.add(<span class="hljs-function">()=&gt;</span>proc(message));
 
 <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Client</span>) </span>{
   <span class="hljs-keyword">const</span> unreadMessages = <span class="hljs-keyword">await</span> client.getAllUnreadMessages();
@@ -792,13 +792,13 @@ create().then(<span class="hljs-function"><span class="hljs-params">client</span
 
 create({
   <span class="hljs-comment">// For Mac:</span>
-  <span class="hljs-attr">executablePath</span>: <span class="hljs-string">'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'</span>,
+  <span class="hljs-attr">executablePath</span>: <span class="hljs-string">&#x27;/Applications/Google Chrome.app/Contents/MacOS/Google Chrome&#x27;</span>,
   <span class="hljs-comment">// For Windows:</span>
-  <span class="hljs-comment">// executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',</span>
+  <span class="hljs-comment">// executablePath: &#x27;C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe&#x27;,</span>
   <span class="hljs-attr">headless</span>: <span class="hljs-literal">false</span>,
   <span class="hljs-attr">autoRefresh</span>:<span class="hljs-literal">true</span>,
   <span class="hljs-attr">cacheEnabled</span>:<span class="hljs-literal">false</span>,
-  <span class="hljs-attr">customUserAgent</span>: <span class="hljs-string">'some custom user agent'</span>
+  <span class="hljs-attr">customUserAgent</span>: <span class="hljs-string">&#x27;some custom user agent&#x27;</span>
 })
 .then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
 				<a href="#contributing" id="contributing" style="color: inherit; text-decoration: none;">
@@ -819,7 +819,7 @@ create({
 				<p>This distribution includes cryptographic software. The country in which you currently reside may have restrictions on the import, possession, use, and/or re-export to another country, of encryption software. BEFORE using any encryption software, please check your country&#39;s laws, regulations and policies concerning the import, possession, or use, and re-export of encryption software, to see if this is permitted. See <a href="http://www.wassenaar.org/">http://www.wassenaar.org/</a> for more information.</p>
 				<p>The U.S. Government Department of Commerce, Bureau of Industry and Security (BIS), has classified this software as Export Commodity Control Number (ECCN) 5D002.C.1, which includes information security software using or performing cryptographic functions with asymmetric algorithms. The form and manner of this distribution makes it eligible for export under the License Exception ENC Technology Software Unrestricted (TSU) exception (see the BIS Export Administration Regulations, Section 740.13) for both object code and source code.</p>
 			</div>
-			<!--{&quot;options&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;tsconfig&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;inputFiles&quot;:[&quot;./src/api&quot;,&quot;./src/utils&quot;,&quot;./src/controllers&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;**.config&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludePrivate&quot;:true,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;./node_modules/puppeteer/lib&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:true,&quot;readme&quot;:&quot;./README.md&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:true,&quot;toc&quot;:[&quot;Client&quot;,&quot;Chat&quot;,&quot;Call&quot;,&quot;Contact&quot;,&quot;GroupMetadata&quot;,&quot;Id&quot;,&quot;LiveLocationChangedEvent&quot;,&quot;Message&quot;,&quot;ParticipantChangedEventModel&quot;,&quot;decryptMedia&quot;,&quot;smartUserAgent&quot;,&quot;WAPI&quot;,&quot;Page&quot;,&quot;ConfigObject&quot;,&quot;SessionData&quot;,&quot;create&quot;,&quot;namespace&quot;,&quot;SimpleListener&quot;,&quot;SessionInfo&quot;],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false,&quot;links&quot;:[{&quot;label&quot;:&quot;Guides&quot;,&quot;url&quot;:&quot;/&quot;},{&quot;label&quot;:&quot;License Keys&quot;,&quot;url&quot;:&quot;/&quot;}],&quot;outline&quot;:[{&quot;Getting Started&quot;:{&quot;Installation&quot;:&quot;/&quot;,&quot;Docker&quot;:&quot;/&quot;},&quot;The Client&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Events&quot;:&quot;/&quot;,&quot;Methods&quot;:&quot;/&quot;},&quot;API&quot;:{&quot;Setup&quot;:&quot;&quot;,&quot;Postman Generator&quot;:&quot;&quot;},&quot;Prenium Features&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Getting Started&quot;:&quot;/&quot;,&quot;Perks&quot;:&quot;/&quot;}}]}-->
+			<!--{&quot;options&quot;:&quot;/home/runner/work/wa-automate-nodejs/wa-automate-nodejs&quot;,&quot;tsconfig&quot;:&quot;/home/runner/work/wa-automate-nodejs/wa-automate-nodejs&quot;,&quot;inputFiles&quot;:[&quot;./src/api&quot;,&quot;./src/utils&quot;,&quot;./src/controllers&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;**.config&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludePrivate&quot;:true,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;./node_modules/puppeteer/lib&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:true,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;./README.md&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:true,&quot;toc&quot;:[&quot;Client&quot;,&quot;Chat&quot;,&quot;Call&quot;,&quot;Contact&quot;,&quot;GroupMetadata&quot;,&quot;Id&quot;,&quot;LiveLocationChangedEvent&quot;,&quot;Message&quot;,&quot;ParticipantChangedEventModel&quot;,&quot;decryptMedia&quot;,&quot;smartUserAgent&quot;,&quot;WAPI&quot;,&quot;Page&quot;,&quot;ConfigObject&quot;,&quot;SessionData&quot;,&quot;create&quot;,&quot;namespace&quot;,&quot;SimpleListener&quot;,&quot;SessionInfo&quot;],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false,&quot;links&quot;:[{&quot;label&quot;:&quot;Guides&quot;,&quot;url&quot;:&quot;/&quot;},{&quot;label&quot;:&quot;License Keys&quot;,&quot;url&quot;:&quot;/&quot;}],&quot;outline&quot;:[{&quot;Getting Started&quot;:{&quot;Installation&quot;:&quot;/&quot;,&quot;Docker&quot;:&quot;/&quot;},&quot;The Client&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Events&quot;:&quot;/&quot;,&quot;Methods&quot;:&quot;/&quot;},&quot;API&quot;:{&quot;Setup&quot;:&quot;&quot;,&quot;Postman Generator&quot;:&quot;&quot;},&quot;Prenium Features&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Getting Started&quot;:&quot;/&quot;,&quot;Perks&quot;:&quot;/&quot;}}]}-->
 		</div>
 		<div class="col-2 col-menu secondary-menu">
 			<nav class="tsd-navigation secondary menu-sticky">

@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ConfigObject | @open-wa/wa-automate - v1.9.98</title>
+	<title>ConfigObject | @open-wa/wa-automate - v1.9.99</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -24,7 +24,7 @@
 					</ul>
 					<ul class="results-priority" style="display:none">
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v1.9.98</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v1.9.99</a>
 					&emsp;<a href="/" class="title">Guides</a>
 					&emsp;<a href="/" class="title">License Keys</a>
 				</div>
@@ -384,7 +384,7 @@
 					</aside>
 					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
-							<p>Setting this to <code>true</code> will kill the whole process when the client is disconnected from the page or if the browser is closed. defaults to <code>true</code></p>
+							<p>Setting this to <code>true</code> will kill the whole process when the client is disconnected from the page or if the browser is closed. defaults to <code>false</code></p>
 						</div>
 					</div>
 				</section>
@@ -597,8 +597,8 @@ restartOnCrash: start,
 							<p>JSON object that is required to migrate a session from one instance to another or ot just restart an existing instance.
 								This sessionData is provided in a generated JSON file upon QR scan or an event.
 							You can capture the event like so:</p>
-							<pre><code class="language-javascript"><span class="hljs-keyword">import</span> {create, ev} <span class="hljs-keyword">from</span> <span class="hljs-string">'@open-wa/wa-automate'</span>;
-ev.on(<span class="hljs-string">'sessionData.**'</span>, <span class="hljs-keyword">async</span> (sessionData, sessionId) =&gt;{
+							<pre><code class="language-javascript"><span class="hljs-keyword">import</span> {create, ev} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>;
+ev.on(<span class="hljs-string">&#x27;sessionData.**&#x27;</span>, <span class="hljs-keyword">async</span> (sessionData, sessionId) =&gt;{
          <span class="hljs-built_in">console</span>.log(sessionId, sessionData)
      })</code></pre>
 							<p> NOTE: You can set sessionData as an evironmental variable also! The variable name has to be [sessionId (default = &#39;session) in all caps]_DATA_JSON. You have to make sure to surround your session data with single quotes to maintain the formatting.</p>
@@ -720,7 +720,7 @@ ev.on(<span class="hljs-string">'sessionData.**'</span>, <span class="hljs-keywo
 					</div>
 				</section>
 			</section>
-			<!--{&quot;options&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;tsconfig&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;inputFiles&quot;:[&quot;./src/api&quot;,&quot;./src/utils&quot;,&quot;./src/controllers&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;**.config&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludePrivate&quot;:true,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;./node_modules/puppeteer/lib&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:true,&quot;readme&quot;:&quot;./README.md&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:true,&quot;toc&quot;:[&quot;Client&quot;,&quot;Chat&quot;,&quot;Call&quot;,&quot;Contact&quot;,&quot;GroupMetadata&quot;,&quot;Id&quot;,&quot;LiveLocationChangedEvent&quot;,&quot;Message&quot;,&quot;ParticipantChangedEventModel&quot;,&quot;decryptMedia&quot;,&quot;smartUserAgent&quot;,&quot;WAPI&quot;,&quot;Page&quot;,&quot;ConfigObject&quot;,&quot;SessionData&quot;,&quot;create&quot;,&quot;namespace&quot;,&quot;SimpleListener&quot;,&quot;SessionInfo&quot;],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false,&quot;links&quot;:[{&quot;label&quot;:&quot;Guides&quot;,&quot;url&quot;:&quot;/&quot;},{&quot;label&quot;:&quot;License Keys&quot;,&quot;url&quot;:&quot;/&quot;}],&quot;outline&quot;:[{&quot;Getting Started&quot;:{&quot;Installation&quot;:&quot;/&quot;,&quot;Docker&quot;:&quot;/&quot;},&quot;The Client&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Events&quot;:&quot;/&quot;,&quot;Methods&quot;:&quot;/&quot;},&quot;API&quot;:{&quot;Setup&quot;:&quot;&quot;,&quot;Postman Generator&quot;:&quot;&quot;},&quot;Prenium Features&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Getting Started&quot;:&quot;/&quot;,&quot;Perks&quot;:&quot;/&quot;}}]}-->
+			<!--{&quot;options&quot;:&quot;/home/runner/work/wa-automate-nodejs/wa-automate-nodejs&quot;,&quot;tsconfig&quot;:&quot;/home/runner/work/wa-automate-nodejs/wa-automate-nodejs&quot;,&quot;inputFiles&quot;:[&quot;./src/api&quot;,&quot;./src/utils&quot;,&quot;./src/controllers&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;**.config&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludePrivate&quot;:true,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;./node_modules/puppeteer/lib&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:true,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;./README.md&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:true,&quot;toc&quot;:[&quot;Client&quot;,&quot;Chat&quot;,&quot;Call&quot;,&quot;Contact&quot;,&quot;GroupMetadata&quot;,&quot;Id&quot;,&quot;LiveLocationChangedEvent&quot;,&quot;Message&quot;,&quot;ParticipantChangedEventModel&quot;,&quot;decryptMedia&quot;,&quot;smartUserAgent&quot;,&quot;WAPI&quot;,&quot;Page&quot;,&quot;ConfigObject&quot;,&quot;SessionData&quot;,&quot;create&quot;,&quot;namespace&quot;,&quot;SimpleListener&quot;,&quot;SessionInfo&quot;],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false,&quot;links&quot;:[{&quot;label&quot;:&quot;Guides&quot;,&quot;url&quot;:&quot;/&quot;},{&quot;label&quot;:&quot;License Keys&quot;,&quot;url&quot;:&quot;/&quot;}],&quot;outline&quot;:[{&quot;Getting Started&quot;:{&quot;Installation&quot;:&quot;/&quot;,&quot;Docker&quot;:&quot;/&quot;},&quot;The Client&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Events&quot;:&quot;/&quot;,&quot;Methods&quot;:&quot;/&quot;},&quot;API&quot;:{&quot;Setup&quot;:&quot;&quot;,&quot;Postman Generator&quot;:&quot;&quot;},&quot;Prenium Features&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Getting Started&quot;:&quot;/&quot;,&quot;Perks&quot;:&quot;/&quot;}}]}-->
 		</div>
 		<div class="col-2 col-menu secondary-menu">
 			<nav class="tsd-navigation secondary menu-sticky">
