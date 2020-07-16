@@ -1,8 +1,7 @@
 /// <reference types="node" />
 
 import meow from 'meow';
-import { getConfigWithCase } from '../src/utils/configSchema'
-import { create, Client, SimpleListener } from '../src/index';
+import { create, Client, SimpleListener, getConfigWithCase } from '@open-wa/wa-automate';
 import path from 'path';
 const express = require('express');
 const app = express();
