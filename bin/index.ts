@@ -1,3 +1,5 @@
+/// <reference types="node" />
+
 import meow from 'meow';
 import { getConfigWithCase } from '../src/utils/configSchema'
 import { create, Client, SimpleListener } from '../src/index';
