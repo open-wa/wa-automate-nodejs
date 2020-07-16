@@ -4,7 +4,6 @@ require('ts-node').register(
       {
         ignore: [/\.js/],
       },
-      require('../tsconfig.json'),
     ),
   );
 
