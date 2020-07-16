@@ -87,6 +87,7 @@
     "cfonts": "^2.8.5",
     "change-case": "^4.1.1",
     "chrome-launcher": "^0.13.0",
+    "express": "^4.17.1",
     "death": "^1.1.0",
     "eventemitter2": "^6.0.0",
     "futoin-hkdf": "^1.2.1",
