@@ -51,15 +51,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var meow_1 = __importDefault(require("meow"));
-var configSchema_1 = require("../src/utils/configSchema");
-var index_1 = require("../src/index");
+var wa_automate_1 = require("@open-wa/wa-automate");
 var path_1 = __importDefault(require("path"));
 var express = require('express');
 var app = express();
 var fs = require('fs');
 var uuidAPIKey = require('uuid-apikey');
 var extraFlags = {};
-var configWithCases = configSchema_1.getConfigWithCase({
+var configWithCases = wa_automate_1.getConfigWithCase({
     path: "../src/api/model/config.ts",
     tsconfig: "../tsconfig.json",
     type: "ConfigObject",
@@ -137,11 +136,11 @@ if (c === null || c === void 0 ? void 0 : c.licenseKey) {
 if (!(c.key == null) && c.key == "") {
     c.key = uuidAPIKey.create().apiKey;
 }
-index_1.create(__assign({}, config))
+wa_automate_1.create(__assign({}, config))
     .then(function (client) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         if (c === null || c === void 0 ? void 0 : c.webhook)
-            Object.keys(index_1.SimpleListener).map(function (eventKey) { return client.registerWebhook(index_1.SimpleListener[eventKey], c === null || c === void 0 ? void 0 : c.webhook); });
+            Object.keys(wa_automate_1.SimpleListener).map(function (eventKey) { return client.registerWebhook(wa_automate_1.SimpleListener[eventKey], c === null || c === void 0 ? void 0 : c.webhook); });
         if (c === null || c === void 0 ? void 0 : c.keepAlive)
             client.onStateChanged(function (state) {
                 if (state === "CONFLICT" || state === "UNLAUNCHED")
