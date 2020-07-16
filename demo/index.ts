@@ -123,7 +123,7 @@ app.listen(PORT, function () {
 
         // await client.forwardMessages(message.from,message,false);
 
-        await client.forwardMessages(message.from,message,false);
+        await client.forwardMessages(message.from,message.id,false);
       fs.writeFile(filename, mediaData, function(err) {
         if (err) {
           return console.log(err);
