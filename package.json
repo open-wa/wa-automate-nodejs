@@ -7,7 +7,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "open-wa": "./bin/server.js"
+    "@open-wa/wa-automate": "./bin/server.js"
   },
   "scripts": {
     "build": "rm -rf dist/ && tsc && npm run build:lib",
@@ -78,7 +78,7 @@
     "typescript": "^3.6.4"
   },
   "dependencies": {
-    "@open-wa/wa-decrypt": "^1.1.5",
+    "@open-wa/wa-decrypt": "^1.2.0",
     "@types/sharp": "^0.25.0",
     "atob": "^2.1.2",
     "axios": "^0.19.1",
