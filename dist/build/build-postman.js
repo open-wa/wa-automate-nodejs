@@ -161,8 +161,9 @@ var postmanRequestGeneratorGenerator = function (setup) {
         };
         if (!(setup === null || setup === void 0 ? void 0 : setup.key))
             delete request.auth;
-        if (method.parameters.length === 0)
-            request.body.raw = "{}";
+        if (method.parameters.length === 0) {
+            delete request.body;
+        }
         var resp = {
             name: name,
             "originalRequest": request,
