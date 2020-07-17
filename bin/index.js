@@ -7,11 +7,8 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 const uuidAPIKey = require('uuid-apikey');
-// const gp = require('../dist/build/build-postman');
 const p2s = require('postman-2-swagger');
 const swaggerUi = require('swagger-ui-express');
-
-// let jsonData = require('./config-schema.json');
 
 const extraFlags = {};
 const configWithCases = require('./config-schema.json');
@@ -170,14 +167,14 @@ create({ ...config })
 				});
 				console.log('Postman collection generated: open-wa.postman_collection.json');
 				const swCol = p2s.default(postmanCollection);
-				console.log("swCol", swCol.paths['/getConfig'])
+				/**
+				 * Fix swagger docs by removing the content type as a required paramater
+				 */
 				Object.keys(swCol.paths).forEach(p => {
 					let path = swCol.paths[p].post;
-                    console.log("path", path)
 					let index = [...path.parameters].findIndex(({name})=>name=="Content-Type");
 					if(index > -1) path.parameters.splice(index, 1);
 				});
-				// fs.writeFileSync('./sw.json', JSON.stringify(swCol));
 				app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swCol));
 			}
 			
