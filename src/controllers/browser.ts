@@ -66,8 +66,9 @@ export async function injectApi(page: Page) {
 }
 
 async function initBrowser(sessionId?: string, config:any={}) {
-  if(config?.useChrome) {
+  if(config?.useChrome && !config?.executablePath) {
     config.executablePath = ChromeLauncher.Launcher.getInstallations()[0];
+    console.log(`You have used the useChrome (--use-chrome) config option. In order to improve startup time please use "executablePath": "${config.executablePath}" to save a few seconds on next startup.`)
     // console.log('\nFound chrome', config.executablePath)
   }
 
