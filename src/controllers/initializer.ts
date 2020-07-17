@@ -19,6 +19,7 @@ import treekill from 'tree-kill';
 import CFonts from 'cfonts';
 import { popup } from './popup';
 import { getConfigWithCase } from '../utils/configSchema';
+import { SessionInfo } from '../api/model/sessionInfo';
 const boxen = require('boxen');
 
 /**
@@ -42,6 +43,7 @@ const boxen = require('boxen');
 //export async function create(sessionId?: string, config?:ConfigObject, customUserAgent?:string) {
 //@ts-ignore
 export async function create(sessionId?: any | ConfigObject, config?: ConfigObject, customUserAgent?: string): Promise<Client> {
+  const START_TIME = Date.now();
   let waPage = undefined;
   const notifier = await updateNotifier({
     pkg,
@@ -104,14 +106,12 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
     const WA_VERSION = await waPage.evaluate(() => window.Debug ? window.Debug.VERSION : 'I think you have been TOS_BLOCKed')
     //@ts-ignore
     const canInjectEarly = await waPage.evaluate(() => { return (typeof webpackJsonp !== "undefined") });
-    const debugInfo = {
+    let debugInfo : SessionInfo = {
       WA_VERSION,
       PAGE_UA,
       WA_AUTOMATE_VERSION,
       BROWSER_VERSION,
     };
-    spinner.emit(debugInfo, "DebugInfo");
-    console.table(debugInfo);
 
     if (canInjectEarly) {
       spinner.start('Injecting api');
@@ -216,6 +216,10 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
       });
 
       if (config?.skipBrokenMethodsCheck !== true) await integrityCheck(waPage, notifier, spinner, debugInfo);
+      const LAUNCH_TIME_MS = Date.now() - START_TIME;
+      debugInfo = {...debugInfo, LAUNCH_TIME_MS};
+      spinner.emit(debugInfo, "DebugInfo");
+      console.table(debugInfo);
       const client = new Client(waPage, config, debugInfo);
       if (config?.licenseKey) {
         spinner.start('Checking License')

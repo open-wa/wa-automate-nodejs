@@ -1,6 +1,5 @@
 const meow = require('meow');
 const wa = require('../dist');
-// const wa = require('@open-wa/wa-automate');
 const { create, SimpleListener, generatePostmanJson } = wa;
 const path = require('path');
 const express = require('express');
