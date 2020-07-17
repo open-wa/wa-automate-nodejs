@@ -267,7 +267,11 @@ export interface ConfigObject {
     /**
      * The output format of the qr code. `png`, `jpeg` or `webm`. Defaults to `png`
      */
-    qrFormat ?:  QRFormat
+    qrFormat ?:  QRFormat;
+    /**
+     * Setting this to true will block all assets from loading onto the page. This may result in some load time impreovements but also increases instability. Default: false
+     */
+    blockAssets ?: boolean;
     // @private
     [x: string]: any 
 }
