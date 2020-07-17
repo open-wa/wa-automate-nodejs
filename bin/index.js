@@ -9,6 +9,7 @@ const fs = require('fs');
 const uuidAPIKey = require('uuid-apikey');
 const p2s = require('postman-2-swagger');
 const swaggerUi = require('swagger-ui-express');
+const terminalLink = require('terminal-link');
 
 const extraFlags = {};
 const configWithCases = require('./config-schema.json');
@@ -180,8 +181,9 @@ create({ ...config })
 			
 			app.use(client.middleware((c && c.useSessionIdInPath)));
 			app.listen(PORT, () => console.log(`\n• Listening on port ${PORT}!`));
-			
-			if(c && c.generateApiDocs)  console.log(`Check out the API docs here: ${c.host.includes('http') ? '' : 'http://'}${c.host}:${PORT}/api-docs`)
+			const apiDocsUrl = `${c.host.includes('http') ? '' : 'http://'}${c.host}:${PORT}/api-docs`;
+			const link = terminalLink('API Explorer', apiDocsUrl);
+			if(c && c.generateApiDocs)  console.log(`\nCheck out the API here: ${link}`)
 
 		}
 	})
