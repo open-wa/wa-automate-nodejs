@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>@open-wa/wa-automate - v1.9.100-0</title>
+	<title>@open-wa/wa-automate - v1.9.100</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
@@ -24,7 +24,7 @@
 					</ul>
 					<ul class="results-priority" style="display:none">
 					</ul>
-					<a href="index.html" class="title">@open-wa/wa-automate - v1.9.100-0</a>
+					<a href="index.html" class="title">@open-wa/wa-automate - v1.9.100</a>
 					&emsp;<a href="/" class="title">Guides</a>
 					&emsp;<a href="/" class="title">License Keys</a>
 				</div>
@@ -71,7 +71,7 @@
 			</nav>
 		</div>
 		<div class="col-7 offset-3 col-content">
-			<h1>@open-wa/wa-automate - v1.9.100-0</h1>
+			<h1>@open-wa/wa-automate - v1.9.100</h1>
 			<section class="tsd-panel-group tsd-index-group">
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
@@ -160,8 +160,10 @@
 								<li class="tsd-kind-variable"><a href="globals.html#licensecheckurl" class="tsd-kind-icon">licenseCheckUrl</a></li>
 								<li class="tsd-kind-variable"><a href="globals.html#open" class="tsd-kind-icon">open</a></li>
 								<li class="tsd-kind-variable"><a href="globals.html#parsefunction" class="tsd-kind-icon">parseFunction</a></li>
+								<li class="tsd-kind-variable tsd-is-external"><a href="globals.html#parser" class="tsd-kind-icon">parser</a></li>
 								<li class="tsd-kind-variable tsd-is-external"><a href="globals.html#path" class="tsd-kind-icon">path</a></li>
 								<li class="tsd-kind-variable"><a href="globals.html#pkg" class="tsd-kind-icon">pkg</a></li>
+								<li class="tsd-kind-variable tsd-is-external"><a href="globals.html#primatives" class="tsd-kind-icon">primatives</a></li>
 								<li class="tsd-kind-variable"><a href="globals.html#puppeteer" class="tsd-kind-icon">puppeteer</a></li>
 								<li class="tsd-kind-variable"><a href="globals.html#qrdelaytimeout" class="tsd-kind-icon">qrDelayTimeout</a></li>
 								<li class="tsd-kind-variable"><a href="globals.html#server" class="tsd-kind-icon">server</a></li>
@@ -181,6 +183,8 @@
 								<li class="tsd-kind-function"><a href="globals.html#checkifcanautorefresh" class="tsd-kind-icon">checkIfCanAutoRefresh</a></li>
 								<li class="tsd-kind-function"><a href="globals.html#create" class="tsd-kind-icon">create</a></li>
 								<li class="tsd-kind-function tsd-is-external"><a href="globals.html#createuseragent" class="tsd-kind-icon">createUserAgent</a></li>
+								<li class="tsd-kind-function tsd-is-external"><a href="globals.html#escape" class="tsd-kind-icon">escape</a></li>
+								<li class="tsd-kind-function tsd-is-external"><a href="globals.html#generatepostmanjson" class="tsd-kind-icon">generatePostmanJson</a></li>
 								<li class="tsd-kind-function"><a href="globals.html#getbase64" class="tsd-kind-icon">getBase64</a></li>
 								<li class="tsd-kind-function"><a href="globals.html#getconfigfromprocessenv" class="tsd-kind-icon">getConfigFromProcessEnv</a></li>
 								<li class="tsd-kind-function"><a href="globals.html#getconfigwithcase" class="tsd-kind-icon">getConfigWithCase</a></li>
@@ -196,6 +200,8 @@
 								<li class="tsd-kind-function"><a href="globals.html#needstoscan" class="tsd-kind-icon">needsToScan</a></li>
 								<li class="tsd-kind-function"><a href="globals.html#phoneisoutofreach" class="tsd-kind-icon">phoneIsOutOfReach</a></li>
 								<li class="tsd-kind-function"><a href="globals.html#popup" class="tsd-kind-icon">popup</a></li>
+								<li class="tsd-kind-function tsd-is-external"><a href="globals.html#postmanrequestgeneratorgenerator" class="tsd-kind-icon">postmanRequestGeneratorGenerator</a></li>
+								<li class="tsd-kind-function tsd-is-external"><a href="globals.html#postmanwrapgen" class="tsd-kind-icon">postmanWrapGen</a></li>
 								<li class="tsd-kind-function"><a href="globals.html#retrieveqr" class="tsd-kind-icon">retrieveQR</a></li>
 								<li class="tsd-kind-function"><a href="globals.html#smartuseragent" class="tsd-kind-icon">smartUserAgent</a></li>
 								<li class="tsd-kind-function"><a href="globals.html#timeout" class="tsd-kind-icon">timeout</a></li>
@@ -204,7 +210,9 @@
 						<section class="tsd-index-section ">
 							<h3>Object literals</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-object-literal tsd-is-external"><a href="globals.html#aliasexamples" class="tsd-kind-icon">aliasExamples</a></li>
 								<li class="tsd-kind-object-literal"><a href="globals.html#defaultconfig" class="tsd-kind-icon">defaultConfig</a></li>
+								<li class="tsd-kind-object-literal tsd-is-external"><a href="globals.html#paramnameexamples" class="tsd-kind-icon">paramNameExamples</a></li>
 								<li class="tsd-kind-object-literal tsd-is-external"><a href="globals.html#puppeteerconfig" class="tsd-kind-icon">puppeteerConfig</a></li>
 								<li class="tsd-kind-object-literal"><a href="globals.html#spinner" class="tsd-kind-icon">spinner</a></li>
 							</ul>
@@ -353,7 +361,6 @@
 					<aside class="tsd-sources">
 						<ul>
 							<li>Defined in controllers/browser.ts:3</li>
-							<li>Defined in controllers/browser.ignore.ts:3</li>
 						</ul>
 					</aside>
 				</section>
@@ -364,7 +371,6 @@
 					<aside class="tsd-sources">
 						<ul>
 							<li>Defined in controllers/browser.ts:12</li>
-							<li>Defined in controllers/browser.ignore.ts:10</li>
 						</ul>
 					</aside>
 				</section>
@@ -395,7 +401,6 @@
 					<aside class="tsd-sources">
 						<ul>
 							<li>Defined in controllers/browser.ts:6</li>
-							<li>Defined in controllers/browser.ignore.ts:6</li>
 						</ul>
 					</aside>
 				</section>
@@ -416,7 +421,6 @@
 					<aside class="tsd-sources">
 						<ul>
 							<li>Defined in controllers/browser.ts:13</li>
-							<li>Defined in controllers/browser.ignore.ts:11</li>
 						</ul>
 					</aside>
 				</section>
@@ -427,7 +431,6 @@
 					<aside class="tsd-sources">
 						<ul>
 							<li>Defined in controllers/browser.ts:5</li>
-							<li>Defined in controllers/browser.ignore.ts:5</li>
 						</ul>
 					</aside>
 				</section>
@@ -451,7 +454,7 @@
 							<li>Defined in controllers/launch_checks.ts:4</li>
 							<li>Defined in controllers/popup/index.ts:6</li>
 							<li>Defined in controllers/initializer.ts:4</li>
-							<li>Defined in controllers/browser.ignore.ts:2</li>
+							<li>Defined in build/build-postman.ts:1</li>
 						</ul>
 					</aside>
 				</section>
@@ -546,12 +549,23 @@
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-is-external">
+					<a name="parser" class="tsd-anchor"></a>
+					<h3>parser</h3>
+					<div class="tsd-signature tsd-kind-icon">parser<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">TypescriptParser</span><span class="tsd-signature-symbol"> = new TypescriptParser()</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in build/build-postman.ts:3</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-is-external">
 					<a name="path" class="tsd-anchor"></a>
-					<h3>path</h3>
-					<div class="tsd-signature tsd-kind-icon">path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = require(&#x27;path&#x27;)</span></div>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> path</h3>
+					<div class="tsd-signature tsd-kind-icon">path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = require(&quot;path&quot;)</span></div>
 					<aside class="tsd-sources">
 						<ul>
 							<li>Defined in config/puppeteer.config.ts:1</li>
+							<li>Defined in build/build-postman.ts:5</li>
 						</ul>
 					</aside>
 				</section>
@@ -566,6 +580,16 @@
 						</ul>
 					</aside>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-is-external">
+					<a name="primatives" class="tsd-anchor"></a>
+					<h3>primatives</h3>
+					<div class="tsd-signature tsd-kind-icon">primatives<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = [&#x27;number&#x27;,&#x27;string&#x27;,&#x27;boolean&#x27;]</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in build/build-postman.ts:20</li>
+						</ul>
+					</aside>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable">
 					<a name="puppeteer" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> puppeteer</h3>
@@ -573,7 +597,6 @@
 					<aside class="tsd-sources">
 						<ul>
 							<li>Defined in controllers/browser.ts:4</li>
-							<li>Defined in controllers/browser.ignore.ts:4</li>
 						</ul>
 					</aside>
 				</section>
@@ -804,6 +827,55 @@ blockCrashLogs true,
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-is-external">
+					<a name="escape" class="tsd-anchor"></a>
+					<h3>escape</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-is-external">
+						<li class="tsd-signature tsd-kind-icon">escape<span class="tsd-signature-symbol">(</span>key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, val<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in build/build-postman.ts:39</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>key: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>val: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-is-external">
+					<a name="generatepostmanjson" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> generate<wbr>Postman<wbr>Json</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-is-external">
+						<li class="tsd-signature tsd-kind-icon">generate<wbr>Postman<wbr>Json<span class="tsd-signature-symbol">(</span>setup<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in build/build-postman.ts:25</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> setup: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = {}</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -1207,6 +1279,52 @@ blockCrashLogs true,
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-is-external">
+					<a name="postmanrequestgeneratorgenerator" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> postman<wbr>Request<wbr>Generator<wbr>Generator</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-is-external">
+						<li class="tsd-signature tsd-kind-icon">postman<wbr>Request<wbr>Generator<wbr>Generator<span class="tsd-signature-symbol">(</span>setup<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">(Anonymous function)</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in build/build-postman.ts:54</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>setup: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">(Anonymous function)</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-is-external">
+					<a name="postmanwrapgen" class="tsd-anchor"></a>
+					<h3>postman<wbr>Wrap<wbr>Gen</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-is-external">
+						<li class="tsd-signature tsd-kind-icon">postman<wbr>Wrap<wbr>Gen<span class="tsd-signature-symbol">(</span>setup<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">(Anonymous function)</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in build/build-postman.ts:132</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>setup: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">(Anonymous function)</span></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function">
 					<a name="retrieveqr" class="tsd-anchor"></a>
 					<h3>retrieveQR</h3>
@@ -1330,6 +1448,86 @@ blockCrashLogs true,
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Object literals</h2>
+				<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-is-external">
+					<a name="aliasexamples" class="tsd-anchor"></a>
+					<h3>alias<wbr>Examples</h3>
+					<div class="tsd-signature tsd-kind-icon">alias<wbr>Examples<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in build/build-postman.ts:7</li>
+						</ul>
+					</aside>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-external">
+						<a name="aliasexamples.base64" class="tsd-anchor"></a>
+						<h3>Base64</h3>
+						<div class="tsd-signature tsd-kind-icon">Base64<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;Learn more here: https://developer.mozilla.org/en-US/docs/Glossary/Base64&quot;</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in build/build-postman.ts:12</li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-external">
+						<a name="aliasexamples.chatid" class="tsd-anchor"></a>
+						<h3>Chat<wbr>Id</h3>
+						<div class="tsd-signature tsd-kind-icon">Chat<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;00000000000@c.us or 00000000000-111111111@g.us&quot;</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in build/build-postman.ts:8</li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-external">
+						<a name="aliasexamples.contactid" class="tsd-anchor"></a>
+						<h3>Contact<wbr>Id</h3>
+						<div class="tsd-signature tsd-kind-icon">Contact<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;00000000000@c.us&quot;</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in build/build-postman.ts:14</li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-external">
+						<a name="aliasexamples.content" class="tsd-anchor"></a>
+						<h3>Content</h3>
+						<div class="tsd-signature tsd-kind-icon">Content<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;Hello World!&quot;</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in build/build-postman.ts:10</li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-external">
+						<a name="aliasexamples.dataurl" class="tsd-anchor"></a>
+						<h3>DataURL</h3>
+						<div class="tsd-signature tsd-kind-icon">DataURL<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;data:[&lt;mediatype&gt;][;base64],&lt;data&gt;&quot;</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in build/build-postman.ts:11</li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-external">
+						<a name="aliasexamples.groupchatid" class="tsd-anchor"></a>
+						<h3>Group<wbr>Chat<wbr>Id</h3>
+						<div class="tsd-signature tsd-kind-icon">Group<wbr>Chat<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;00000000000-111111111@g.us&quot;</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in build/build-postman.ts:9</li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-external">
+						<a name="aliasexamples.messageid" class="tsd-anchor"></a>
+						<h3>Message<wbr>Id</h3>
+						<div class="tsd-signature tsd-kind-icon">Message<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB&quot;</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in build/build-postman.ts:13</li>
+							</ul>
+						</aside>
+					</section>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-object-literal">
 					<a name="defaultconfig" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> default<wbr>Config</h3>
@@ -1366,6 +1564,26 @@ blockCrashLogs true,
 						<aside class="tsd-sources">
 							<ul>
 								<li>Defined in utils/configSchema.ts:8</li>
+							</ul>
+						</aside>
+					</section>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-is-external">
+					<a name="paramnameexamples" class="tsd-anchor"></a>
+					<h3>param<wbr>Name<wbr>Examples</h3>
+					<div class="tsd-signature tsd-kind-icon">param<wbr>Name<wbr>Examples<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in build/build-postman.ts:17</li>
+						</ul>
+					</aside>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-external">
+						<a name="paramnameexamples.chatid" class="tsd-anchor"></a>
+						<h3>Chat<wbr>Id</h3>
+						<div class="tsd-signature tsd-kind-icon">Chat<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;00000000000@c.us  or 00000000000-111111111@g.us&quot;</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in build/build-postman.ts:18</li>
 							</ul>
 						</aside>
 					</section>
@@ -1451,7 +1669,7 @@ blockCrashLogs true,
 					</section>
 				</section>
 			</section>
-			<!--{&quot;options&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;tsconfig&quot;:&quot;/Users/Mohammed/projects/tools/wa&quot;,&quot;inputFiles&quot;:[&quot;./src/api&quot;,&quot;./src/utils&quot;,&quot;./src/controllers&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;**.config&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludePrivate&quot;:true,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;./node_modules/puppeteer/lib&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:true,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;./README.md&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:true,&quot;toc&quot;:[&quot;Client&quot;,&quot;Chat&quot;,&quot;Call&quot;,&quot;Contact&quot;,&quot;GroupMetadata&quot;,&quot;Id&quot;,&quot;LiveLocationChangedEvent&quot;,&quot;Message&quot;,&quot;ParticipantChangedEventModel&quot;,&quot;decryptMedia&quot;,&quot;smartUserAgent&quot;,&quot;WAPI&quot;,&quot;Page&quot;,&quot;ConfigObject&quot;,&quot;SessionData&quot;,&quot;create&quot;,&quot;namespace&quot;,&quot;SimpleListener&quot;,&quot;SessionInfo&quot;],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false,&quot;links&quot;:[{&quot;label&quot;:&quot;Guides&quot;,&quot;url&quot;:&quot;/&quot;},{&quot;label&quot;:&quot;License Keys&quot;,&quot;url&quot;:&quot;/&quot;}],&quot;outline&quot;:[{&quot;Getting Started&quot;:{&quot;Installation&quot;:&quot;/&quot;,&quot;Docker&quot;:&quot;/&quot;},&quot;The Client&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Events&quot;:&quot;/&quot;,&quot;Methods&quot;:&quot;/&quot;},&quot;API&quot;:{&quot;Setup&quot;:&quot;&quot;,&quot;Postman Generator&quot;:&quot;&quot;},&quot;Prenium Features&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Getting Started&quot;:&quot;/&quot;,&quot;Perks&quot;:&quot;/&quot;}}]}-->
+			<!--{&quot;options&quot;:&quot;/home/runner/work/wa-automate-nodejs/wa-automate-nodejs&quot;,&quot;tsconfig&quot;:&quot;/home/runner/work/wa-automate-nodejs/wa-automate-nodejs&quot;,&quot;inputFiles&quot;:[&quot;./src/api&quot;,&quot;./src/utils&quot;,&quot;./src/controllers&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;**.config&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludePrivate&quot;:true,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;./node_modules/puppeteer/lib&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:true,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;./README.md&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:true,&quot;toc&quot;:[&quot;Client&quot;,&quot;Chat&quot;,&quot;Call&quot;,&quot;Contact&quot;,&quot;GroupMetadata&quot;,&quot;Id&quot;,&quot;LiveLocationChangedEvent&quot;,&quot;Message&quot;,&quot;ParticipantChangedEventModel&quot;,&quot;decryptMedia&quot;,&quot;smartUserAgent&quot;,&quot;WAPI&quot;,&quot;Page&quot;,&quot;ConfigObject&quot;,&quot;SessionData&quot;,&quot;create&quot;,&quot;namespace&quot;,&quot;SimpleListener&quot;,&quot;SessionInfo&quot;],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false,&quot;links&quot;:[{&quot;label&quot;:&quot;Guides&quot;,&quot;url&quot;:&quot;/&quot;},{&quot;label&quot;:&quot;License Keys&quot;,&quot;url&quot;:&quot;/&quot;}],&quot;outline&quot;:[{&quot;Getting Started&quot;:{&quot;Installation&quot;:&quot;/&quot;,&quot;Docker&quot;:&quot;/&quot;},&quot;The Client&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Events&quot;:&quot;/&quot;,&quot;Methods&quot;:&quot;/&quot;},&quot;API&quot;:{&quot;Setup&quot;:&quot;&quot;,&quot;Postman Generator&quot;:&quot;&quot;},&quot;Prenium Features&quot;:{&quot;Overview&quot;:&quot;/&quot;,&quot;Getting Started&quot;:&quot;/&quot;,&quot;Perks&quot;:&quot;/&quot;}}]}-->
 		</div>
 		<div class="col-2 col-menu secondary-menu">
 			<nav class="tsd-navigation secondary menu-sticky">
