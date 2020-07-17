@@ -708,7 +708,7 @@ window.WAPI.getAllMessagesInChat = function (id, includeMe = false, includeNotif
     let output = chat.msgs._models || [];
     if(!includeMe) output =  output.filter(m=> !m.id.fromMe)
     if(!includeNotifications) output = output.filter(m=> !m.isNotification)
-    return (clean ? output.map(WAPI.quickClean) : output) || [];
+    return (clean ? output.map(WAPI.quickClean) : output.map(WAPI._serializeMessageObj)) || [];
 };
 
 window.WAPI.loadAndGetAllMessagesInChat = function (id, includeMe, includeNotifications) {
