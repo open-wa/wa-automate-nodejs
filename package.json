@@ -20,7 +20,7 @@
     "test": "echo \"No tests yet\"",
     "release": "release-it",
     "release-ci": "release-it --ci",
-    "release-image": "node ./build/release-image.js",
+    "release-image": "node ./release-image.js",
     "docwatch": "onchange 'src/**/*.ts' -- typedoc",
     "build:config-for-bin": "cd build && ts-node build-config-json-for-bin.ts && cd .."
   },
@@ -112,7 +112,6 @@
     "swagger-ui-express": "^4.1.4",
     "tree-kill": "^1.2.2",
     "ts-json-schema-generator": "^0.70.2",
-    "ts-node": "^8.4.1",
     "typedoc-neo-theme": "^1.0.9",
     "typescript-parser": "^2.6.1",
     "update-notifier": "^4.1.0",
