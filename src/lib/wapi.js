@@ -703,12 +703,12 @@ window.WAPI.processMessageObj = function (messageObj, includeMe, includeNotifica
     return;
 };
 
-window.WAPI.getAllMessagesInChat = function (id, includeMe = false, includeNotifications = false) {
+window.WAPI.getAllMessagesInChat = function (id, includeMe = false, includeNotifications = false, clean = false) {
     const chat = WAPI.getChat(id);
     let output = chat.msgs._models || [];
     if(!includeMe) output =  output.filter(m=> !m.id.fromMe)
     if(!includeNotifications) output = output.filter(m=> !m.isNotification)
-    return output.map(WAPI.quickClean) || [];
+    return (clean ? output.map(WAPI.quickClean) : output) || [];
 };
 
 window.WAPI.loadAndGetAllMessagesInChat = function (id, includeMe, includeNotifications) {
