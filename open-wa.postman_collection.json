@@ -39,7 +39,11 @@
 					]
 				}
 			},
-			"response": []
+			"response": {
+				"200": {
+				  "description": "Just to make Swagger UI work"
+				}
+			  }
 		}
 	],
 	"event": [

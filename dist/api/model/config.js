@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.QRQuality = exports.QRFormat = void 0;
 var QRFormat;
 (function (QRFormat) {
     QRFormat["PNG"] = "png";

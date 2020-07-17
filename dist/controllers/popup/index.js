@@ -36,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.popup = void 0;
 var events_1 = require("../events");
 var http = require('http'), io = require('socket.io'), open = require('open'), fs = require('fs'), getPort = require('get-port'), gClient, PORT, server;
 var timeout = function (ms) {

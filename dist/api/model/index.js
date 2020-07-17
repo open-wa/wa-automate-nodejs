@@ -1,8 +1,16 @@
 "use strict";
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !exports.hasOwnProperty(p)) __createBinding(exports, m, p);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.STATE = exports.Events = exports.Status = void 0;
 var Status;
 (function (Status) {
     Status[Status["INITIALIZING"] = 0] = "INITIALIZING";
@@ -44,4 +52,4 @@ var STATE;
     STATE["UNPAIRED_IDLE"] = "UNPAIRED_IDLE";
 })(STATE = exports.STATE || (exports.STATE = {}));
 ;
-__export(require("./config"));
+__exportStar(require("./config"), exports);

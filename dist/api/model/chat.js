@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ChatTypes = exports.ChatState = void 0;
 var ChatState;
 (function (ChatState) {
     ChatState[ChatState["TYPING"] = 0] = "TYPING";

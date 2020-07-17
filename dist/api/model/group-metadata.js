@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.GroupNotificationTypes = exports.groupChangeEvent = void 0;
 var groupChangeEvent;
 (function (groupChangeEvent) {
     groupChangeEvent["remove"] = "remove";

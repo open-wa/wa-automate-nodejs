@@ -16,6 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Spin = exports.EvEmitter = exports.ev = void 0;
 var eventemitter2_1 = require("eventemitter2");
 var spinnies_1 = __importDefault(require("spinnies"));
 var spinner = {

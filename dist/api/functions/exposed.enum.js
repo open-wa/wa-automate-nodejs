@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ExposedFn = void 0;
 var ExposedFn;
 (function (ExposedFn) {
     ExposedFn["OnMessage"] = "onMessage";

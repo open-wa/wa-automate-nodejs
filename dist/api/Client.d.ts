@@ -189,7 +189,7 @@ export declare class Client {
     darkMode(activate: boolean): Promise<any>;
     sendStickerfromUrl(to: ChatId, url: string, requestConfig?: any): Promise<any>;
     getSingleProperty(namespace: namespace, id: string, property: string): Promise<any>;
-    injectJsSha(): Promise<boolean>;
+    private injectJsSha;
     sendImageAsSticker(to: ChatId, b64: string): Promise<any>;
     sendRawWebpAsSticker(to: ChatId, webpBase64: Base64): Promise<any>;
     postTextStatus(text: Content, textRgba: string, backgroundRgba: string, font: number): Promise<any>;

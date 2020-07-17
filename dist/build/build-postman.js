@@ -41,7 +41,7 @@ var fs = require('fs');
 var typescript_parser_1 = require("typescript-parser");
 var parser = new typescript_parser_1.TypescriptParser();
 var change_case_1 = require("change-case");
-var data = fs.readFileSync('../src/api/Client.ts', 'utf8');
+var path = require("path");
 var aliasExamples = {
     "ChatId": "00000000000@c.us or 00000000000-111111111@g.us",
     "GroupChatId": "00000000000-111111111@g.us",
@@ -61,14 +61,19 @@ var primatives = [
 ];
 exports.generatePostmanJson = function (setup) {
     if (setup === void 0) { setup = {}; }
-    return __awaiter(void 0, void 0, void 0, function () {
-        var parsed, x, postmanGen, pm, d, postmanWrap, res;
+    return __awaiter(this, void 0, void 0, function () {
+        var data, parsed, x, postmanGen, pm, d, postmanWrap, res;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4, parser.parseSource(data)];
+                case 0:
+                    data = fs.readFileSync(path.resolve(__dirname, '../api/Client.ts'), 'utf8');
+                    return [4, parser.parseSource(data)];
                 case 1:
                     parsed = _a.sent();
-                    x = parsed.declarations.find(function (x) { return x.name === 'Client'; }).methods.filter(function (_a) {
+                    x = parsed.declarations.find(function (_a) {
+                        var name = _a.name;
+                        return name === 'Client';
+                    }).methods.filter(function (_a) {
                         var visibility = _a.visibility;
                         return visibility == 2;
                     }).filter(function (_a) {
@@ -99,46 +104,13 @@ function escape(key, val) {
         .replace(/[\r]/g, '\\r')
         .replace(/[\t]/g, '\\t');
 }
-var postmanRequestGeneratorGenerator = function (setup) { return function (method) {
-    var args = {};
-    method.parameters.forEach(function (param) {
-        args[param.name] = aliasExamples[param.type] ? aliasExamples[param.type] : paramNameExamples[param.name] ? paramNameExamples[param.name] : primatives.includes(param.type) ? param.type : 'Check documentation in description';
-    });
-    var request = {
-        "auth": {
-            "type": "apikey",
-            "apikey": [
-                {
-                    "key": "value",
-                    "value": setup === null || setup === void 0 ? void 0 : setup.key,
-                    "type": "string"
-                },
-                {
-                    "key": "key",
-                    "value": "key",
-                    "type": "string"
-                }
-            ]
-        },
-        "method": "POST",
-        "header": [
-            {
-                "key": "Content-Type",
-                "name": "Content-Type",
-                "type": "text",
-                "value": "application/json"
-            }
-        ],
-        "body": {
-            "mode": "raw",
-            "raw": JSON.stringify({ args: args }, escape, 4),
-            "options": {
-                "raw": {
-                    "language": "json"
-                }
-            }
-        },
-        "url": {
+var postmanRequestGeneratorGenerator = function (setup) {
+    return function (method) {
+        var args = {};
+        method.parameters.forEach(function (param) {
+            args[param.name] = aliasExamples[param.type] ? aliasExamples[param.type] : paramNameExamples[param.name] ? paramNameExamples[param.name] : primatives.includes(param.type) ? param.type : 'Check documentation in description';
+        });
+        var url = {
             "raw": (setup === null || setup === void 0 ? void 0 : setup.useSessionIdInPath) ? "{{address}}:{{port}}/{{sessionId}}/" + method.name : "{{address}}:{{port}}/" + method.name,
             "host": [
                 "{{address}}"
@@ -148,68 +120,115 @@ var postmanRequestGeneratorGenerator = function (setup) { return function (metho
                 "{{sessionId}}",
                 "" + method.name
             ] : ["" + method.name]
-        },
-        "description": "https://open-wa.github.io/wa-automate-nodejs/classes/client.html#" + method.name.toLocaleLowerCase()
-    };
-    if (!(setup === null || setup === void 0 ? void 0 : setup.key))
-        delete request.auth;
-    if (method.parameters.length === 0)
-        delete request.body;
-    return {
-        "name": change_case_1.noCase(method.name).replace(/\b[a-z]|['_][a-z]|\B[A-Z]/g, function (x) { return x[0] === "'" || x[0] === "_" ? x : String.fromCharCode(x.charCodeAt(0) ^ 32); }),
-        request: request,
-        "response": []
-    };
-}; };
-var postmanWrapGen = function (setup) { return function (item) {
-    return {
-        "info": {
-            "_postman_id": "0df31aa3-b3ce-4f20-b042-0882db0fd3a2",
-            "name": "open-wa",
-            "description": "Requests for use with open-wa",
-            "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-        },
-        item: item,
-        "event": [
-            {
-                "listen": "prerequest",
-                "script": {
-                    "id": "d1f29ae1-7df9-46d0-8f67-4f53f562ad7e",
-                    "type": "text/javascript",
-                    "exec": [
-                        ""
-                    ]
+        };
+        var name = change_case_1.noCase(method.name).replace(/\b[a-z]|['_][a-z]|\B[A-Z]/g, function (x) { return x[0] === "'" || x[0] === "_" ? x : String.fromCharCode(x.charCodeAt(0) ^ 32); });
+        var request = {
+            "auth": {
+                "type": "apikey",
+                "apikey": [
+                    {
+                        "key": "value",
+                        "value": setup === null || setup === void 0 ? void 0 : setup.key,
+                        "type": "string"
+                    },
+                    {
+                        "key": "key",
+                        "value": "key",
+                        "type": "string"
+                    }
+                ]
+            },
+            "method": "POST",
+            "header": [
+                {
+                    "key": "Content-Type",
+                    "name": "Content-Type",
+                    "type": "text",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "mode": "raw",
+                "raw": JSON.stringify({ args: args }, escape, 4),
+                "options": {
+                    "raw": {
+                        "language": "json"
+                    }
                 }
             },
-            {
-                "listen": "test",
-                "script": {
-                    "id": "370a2b6c-41d3-418f-ad9b-0404865429ce",
-                    "type": "text/javascript",
-                    "exec": [
-                        ""
-                    ]
-                }
-            }
-        ],
-        "variable": [
-            {
-                "id": "43c133cc-7b9f-4dbe-a513-8832b664adb4",
-                "key": "address",
-                "value": (setup === null || setup === void 0 ? void 0 : setup.host) || "localhost"
-            },
-            {
-                "id": "fda078e5-712a-41bf-9da0-468fe3586d18",
-                "key": "port",
-                "value": (setup === null || setup === void 0 ? void 0 : setup.port) || "8008"
-            },
-            {
-                "id": "c1573a97-c016-4cf4-8b29-938c45146d04",
-                "key": "sessionId",
-                "value": (setup === null || setup === void 0 ? void 0 : setup.sessionId) || "session"
-            }
-        ],
-        "protocolProfileBehavior": {}
+            url: url,
+            "description": "https://open-wa.github.io/wa-automate-nodejs/classes/client.html#" + method.name.toLocaleLowerCase()
+        };
+        if (!(setup === null || setup === void 0 ? void 0 : setup.key))
+            delete request.auth;
+        if (method.parameters.length === 0)
+            request.body.raw = "{}";
+        var resp = {
+            name: name,
+            "originalRequest": request,
+            "code": 200,
+            "_postman_previewlanguage": "json",
+            "header": request.header,
+            "cookie": [],
+            "body": "{\n    \"success\": true\n}"
+        };
+        return {
+            name: name,
+            request: request,
+            "response": [resp]
+        };
     };
-}; };
-exports.generatePostmanJson();
+};
+var postmanWrapGen = function (setup) {
+    return function (item) {
+        return {
+            "info": {
+                "_postman_id": "0df31aa3-b3ce-4f20-b042-0882db0fd3a2",
+                "name": "open-wa",
+                "description": "Requests for use with open-wa",
+                "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+            },
+            item: item,
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "id": "d1f29ae1-7df9-46d0-8f67-4f53f562ad7e",
+                        "type": "text/javascript",
+                        "exec": [
+                            ""
+                        ]
+                    }
+                },
+                {
+                    "listen": "test",
+                    "script": {
+                        "id": "370a2b6c-41d3-418f-ad9b-0404865429ce",
+                        "type": "text/javascript",
+                        "exec": [
+                            ""
+                        ]
+                    }
+                }
+            ],
+            "variable": [
+                {
+                    "id": "43c133cc-7b9f-4dbe-a513-8832b664adb4",
+                    "key": "address",
+                    "value": (setup === null || setup === void 0 ? void 0 : setup.host) || "localhost"
+                },
+                {
+                    "id": "fda078e5-712a-41bf-9da0-468fe3586d18",
+                    "key": "port",
+                    "value": (setup === null || setup === void 0 ? void 0 : setup.port) || "8008"
+                },
+                {
+                    "id": "c1573a97-c016-4cf4-8b29-938c45146d04",
+                    "key": "sessionId",
+                    "value": (setup === null || setup === void 0 ? void 0 : setup.sessionId) || "session"
+                }
+            ],
+            "protocolProfileBehavior": {}
+        };
+    };
+};

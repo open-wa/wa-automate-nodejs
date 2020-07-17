@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.height = exports.width = exports.puppeteerConfig = exports.createUserAgent = exports.useragent = void 0;
 var path = require('path');
 var puppeteerConfig = {
     WAUrl: 'https://web.whatsapp.com',

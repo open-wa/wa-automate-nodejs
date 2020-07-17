@@ -68,6 +68,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Client = exports.getBase64 = exports.SimpleListener = exports.namespace = void 0;
 var axios_1 = __importDefault(require("axios"));
 var puppeteer_config_1 = require("../config/puppeteer.config");
 var sharp_1 = __importDefault(require("sharp"));
@@ -274,11 +275,11 @@ var Client = (function () {
         return rest;
     };
     Client.prototype.pup = function (pageFunction) {
+        var _a;
         var args = [];
         for (var _i = 1; _i < arguments.length; _i++) {
             args[_i - 1] = arguments[_i];
         }
-        var _a;
         return __awaiter(this, void 0, void 0, function () {
             var state;
             var _b;
@@ -1966,4 +1967,4 @@ var Client = (function () {
 }());
 exports.Client = Client;
 var puppeteer_config_2 = require("../config/puppeteer.config");
-exports.useragent = puppeteer_config_2.useragent;
+Object.defineProperty(exports, "useragent", { enumerable: true, get: function () { return puppeteer_config_2.useragent; } });

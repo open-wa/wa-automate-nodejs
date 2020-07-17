@@ -11,6 +11,7 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getConfigFromProcessEnv = exports.getConfigWithCase = void 0;
 var tsj = require("ts-json-schema-generator");
 var change_case_1 = require("change-case");
 var defaultConfig = {

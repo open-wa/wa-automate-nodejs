@@ -2,7 +2,7 @@ var fs = require('fs');
 import {TypescriptParser} from "typescript-parser"
 var parser = new TypescriptParser();
 import {noCase} from "change-case";
-var data = fs.readFileSync('../src/api/Client.ts', 'utf8');
+const path = require("path");
 
 var aliasExamples = {
     "ChatId": "00000000000@c.us or 00000000000-111111111@g.us",
@@ -23,7 +23,7 @@ var primatives = [
     'boolean'
 ];
 export const generatePostmanJson = async function (setup : any = {}) {
-
+    const data = fs.readFileSync(path.resolve(__dirname,'../api/Client.ts'), 'utf8');
     const parsed = await parser.parseSource(data);
     //@ts-ignore
     let x = parsed.declarations.find(({name})=>name==='Client').methods.filter(({visibility})=>visibility==2).filter(({name})=>!name.startsWith('on'));
@@ -49,6 +49,7 @@ function escape(key, val) {
         .replace(/[\r]/g, '\\r')
         .replace(/[\t]/g, '\\t');
 }
+
 
 const postmanRequestGeneratorGenerator = function (setup) { return function (method) {
     var args = {};
@@ -126,7 +127,7 @@ const postmanRequestGeneratorGenerator = function (setup) { return function (met
 };
 
 
-const postmanWrapGen = function (setup) { return function (item) {
+var postmanWrapGen = function (setup) { return function (item) {
     return {
         "info": {
             "_postman_id": "0df31aa3-b3ce-4f20-b042-0882db0fd3a2",

@@ -17,7 +17,7 @@ export declare const generatePostmanJson: (setup?: any) => Promise<{
     variable: {
         id: string;
         key: string;
-        value: string;
+        value: any;
     }[];
     protocolProfileBehavior: {};
 }>;
