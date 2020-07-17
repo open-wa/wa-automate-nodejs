@@ -108,8 +108,8 @@ const postmanRequestGeneratorGenerator = function (setup) { return function (met
     if (!(setup === null || setup === void 0 ? void 0 : setup.key))
         delete request.auth;
     if (method.parameters.length === 0){
-        // request.body.raw="{}";
-        delete request.body;
+        request.body.raw="{}";
+        // delete request.body;
     }
         const resp = {
             name,
