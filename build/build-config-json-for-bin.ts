@@ -8,5 +8,4 @@ const configWithCases = getConfigWithCase({
 	type: "ConfigObject",
 });
 
-let data = JSON.stringify(configWithCases);
-fs.writeFileSync('../bin/config-schema.json', data);
+fs.writeFileSync('../bin/config-schema.json', JSON.stringify(configWithCases));
