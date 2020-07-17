@@ -8,4 +8,5 @@
 import * as shell from 'shelljs';
 
 shell.cp('-R', './src/lib', 'dist');
+shell.cp('./src/api/Client.ts', 'dist/api');
 // shell.cp('-R', './src/api', 'dist');
