@@ -33,13 +33,9 @@ export const getConfigWithCase = (config ?: {
     return configWithCases;
 }
 
-export const getConfigFromProcessEnv = (config ?: {
-    path: string,
-    tsconfig: string,
-    type: string,
-}) => {
+export const getConfigFromProcessEnv = (json) => {
     let output = {};
-    Object.keys(getConfigWithCase(config)).forEach(_env=>{
+    Object.keys(json).forEach(_env=>{
         if(process.env[_env]) output[_env] = process.env[_env];
     });
     return output;

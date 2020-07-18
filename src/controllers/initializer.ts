@@ -18,9 +18,10 @@ let qrDelayTimeout;
 import treekill from 'tree-kill';
 import CFonts from 'cfonts';
 import { popup } from './popup';
-import { getConfigWithCase } from '../utils/configSchema';
+import { getConfigFromProcessEnv } from '../utils/configSchema';
 import { SessionInfo } from '../api/model/sessionInfo';
 const boxen = require('boxen');
+const configWithCases = require('../../bin/config-schema.json');
 
 /**
  * Should be called to initialize whatsapp client.
@@ -62,11 +63,8 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
     //try to infer config variables from process.env
     config = {
       ...config,
-      ...getConfigWithCase({
-	      path: "../api/model/config.ts",
-	      tsconfig: "../../tsconfig.json",
-	      type: "ConfigObject", 
-    })}
+      ...getConfigFromProcessEnv(configWithCases)
+  }
   }
 
   const prettyFont = CFonts.render(('@OPEN-WA|WHATSAPP|AUTOMATOR'), {
