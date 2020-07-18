@@ -7,7 +7,7 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 import { puppeteerConfig, useragent, width, height} from '../config/puppeteer.config';
 //@ts-ignore
 import { Browser, Page } from '@types/puppeteer';
-import { Spin } from './events';
+import { Spin, EvEmitter } from './events';
 import { ConfigObject } from '../api/model';
 const ON_DEATH = require('death'); //this is intentionally ugly
 let browser;
@@ -32,9 +32,18 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
   const _waPage : any = waPage;
   // await waPage.setRequestInterception(true);
   const blockAssets = !config?.headless ? false : config?.blockAssets || false;
+  const interceptAuthentication = !(config?.safeMode);
+  let quickAuthed = false;
 
   if (blockAssets || blockCrashLogs) {
     let patterns = [];
+    let authCompleteEv;
+    
+    if (interceptAuthentication) {
+      authCompleteEv = new EvEmitter(sessionId, 'AUTH');
+      patterns.push({ urlPattern: '*_priority_components*' });
+    }
+    
   
     if (blockCrashLogs) patterns.push({ urlPattern: '*crashlogs' });
   
@@ -105,6 +114,17 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
               interceptionId,
             }
           );
+
+          if (
+            interceptAuthentication &&
+            request.url.includes('_priority_components') &&
+            !quickAuthed
+          ) {
+            authCompleteEv.emit(true);
+            await waPage.evaluate('window.WA_AUTHENTICATED=true;');
+            quickAuthed = true;
+          }
+          
         }
       }
     );

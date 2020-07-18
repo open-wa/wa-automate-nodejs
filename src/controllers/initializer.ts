@@ -4,7 +4,7 @@ import * as path from 'path';
 const fs = require('fs');
 import { isAuthenticated, isInsideChat, retrieveQR, phoneIsOutOfReach } from './auth';
 import { initClient, injectApi } from './browser';
-import { Spin } from './events'
+import { Spin, ev } from './events'
 import axios from 'axios';
 import { integrityCheck } from './launch_checks';
 const updateNotifier = require('update-notifier');
@@ -93,9 +93,10 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
   try {
     qrDelayTimeout = undefined;
     shouldLoop = true;
+    ev.on('AUTH.**', (isAuthenticated, sessionId) => shouldLoop = false);
     spinner.start('Initializing WA');
     waPage = await initClient(sessionId, config, customUserAgent);
-    spinner.succeed();
+    spinner.succeed('Browser Launched');
     const throwOnError = config && config.throwErrorOnTosBlock == true;
 
     const PAGE_UA = await waPage.evaluate('navigator.userAgent');
