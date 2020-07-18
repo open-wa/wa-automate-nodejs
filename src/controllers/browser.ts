@@ -183,6 +183,7 @@ async function initBrowser(sessionId?: string, config:any={}) {
   }
   
   if(config?.proxyServerCredentials?.address) puppeteerConfig.chromiumArgs.push(`--proxy-server=${config.proxyServerCredentials.address}`)
+  if(config?.browserWsEndpoint) config.browserWSEndpoint = config.browserWsEndpoint;
   const browser = (config?.browserWSEndpoint) ? await puppeteer.connect({...config}): await puppeteer.launch({
     headless: true,
     devtools: false,

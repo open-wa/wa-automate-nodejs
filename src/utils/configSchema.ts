@@ -19,7 +19,6 @@ export const getConfigWithCase = (config ?: {
         'browserRevision',
         'useStealth',
         'chromiumArgs',
-        'browserWSEndpoint',
         'executablePath',
         'skipBrokenMethodsCheck',
         'inDocker',
