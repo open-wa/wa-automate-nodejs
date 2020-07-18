@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/wa-automate",
-  "version": "1.9.101-0",
+  "version": "1.9.101",
   "licenseCheckUrl": "https://openwa.web.app/license-check",
   "brokenMethodReportUrl": "https://openwa.web.app/report-bm",
   "description": " 💬 🤖 The most reliable NodeJS whatsapp library for chatbots with advanced features.",
