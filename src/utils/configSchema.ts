@@ -35,8 +35,9 @@ export const getConfigWithCase = (config ?: {
 
 export const getConfigFromProcessEnv = (json) => {
     let output = {};
-    Object.keys(json).forEach(_env=>{
-        if(process.env[_env]) output[_env] = process.env[_env];
+    json.forEach(({env,key})=>{
+        if(process.env[env]) output[key] = process.env[env];
+        if(process.env[env]==='true' || process.env[env]==='false') output[key] = Boolean(process.env[env]);
     });
     return output;
 }
