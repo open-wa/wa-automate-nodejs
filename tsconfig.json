@@ -60,19 +60,33 @@
     "typedocOptions": {
       "inputFiles": ["./src/api","./src/utils","./src/controllers"],
       "includes":["./node_modules/puppeteer/lib"],
+      "theme": "pages-plugin",
+      "pages": {
+        "groups": [
+        {
+            "title": "Example Page Group",
+            "pages": [
+              {
+                  "title": "Example Page",
+                  "source": "./docs-source/sample-page.md"
+              }
+            ]
+        }],
+        "output": "pages"
+    },
         "mode": "file",
         "out": "docs",
         "exclude":"**.config",
         "excludeExternals":false,
         "includeVersion":true,
         "hideGenerator":true,
-        // "plugin":"typedoc-neo-theme"
+        // "plugin":"typedoc-neo-theme",
         "readme":"./README.md",
-        "theme":"node_modules/typedoc-neo-theme/bin/default",
+        // "theme":"node_modules/typedoc-neo-theme/bin/default",
         "excludePrivate":true,
         "links": [{
           "label": "Guides",
-          "url": "/"
+          "url": "/guides"
         }, {
           "label": "License Keys",
           "url": "/"
@@ -91,7 +105,7 @@
             "Setup": "",
             "Postman Generator": "",
           },
-          "Prenium Features": {
+          "Premium Features": {
             "Overview": "/",
             "Getting Started": "/",
             "Perks": "/"

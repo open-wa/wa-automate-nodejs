@@ -1141,6 +1141,13 @@ window.Store.Msg.off('add');
 sessionStorage.removeItem('saved_msgs');
 
 window._WAPI._newMessagesListener = window.Store.Msg.on('add', (newMessage) => {
+    //This fixes messages so that they can be correctly decrypted
+    if(newMessage.type==='sticker') {
+        newMessage = {
+            ...newMessage,
+            ...newMessage.mediaObject._msgs[0][0].attributes
+        }
+    }
     if (newMessage && newMessage.isNewMsg && !newMessage.isSentByMe && !newMessage.isStatusV3) {
         let message = window.WAPI.processMessageObj(newMessage, false, false);
         if (message) {
