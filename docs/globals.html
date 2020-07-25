@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>@open-wa/wa-automate - v1.9.103</title>
+	<title>@open-wa/wa-automate - v1.9.104</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
@@ -24,7 +24,7 @@
 					</ul>
 					<ul class="results-priority" style="display:none">
 					</ul>
-					<a href="index.html" class="title">@open-wa/wa-automate - v1.9.103</a>
+					<a href="index.html" class="title">@open-wa/wa-automate - v1.9.104</a>
 					&emsp;<a href="/" class="title">Guides</a>
 					&emsp;<a href="/" class="title">License Keys</a>
 				</div>
@@ -71,7 +71,7 @@
 			</nav>
 		</div>
 		<div class="col-7 offset-3 col-content">
-			<h1>@open-wa/wa-automate - v1.9.103</h1>
+			<h1>@open-wa/wa-automate - v1.9.104</h1>
 			<section class="tsd-panel-group tsd-index-group">
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
@@ -172,6 +172,7 @@
 								<li class="tsd-kind-variable"><a href="globals.html#tsj" class="tsd-kind-icon">tsj</a></li>
 								<li class="tsd-kind-variable"><a href="globals.html#uniq" class="tsd-kind-icon">uniq</a></li>
 								<li class="tsd-kind-variable"><a href="globals.html#updatenotifier" class="tsd-kind-icon">updateNotifier</a></li>
+								<li class="tsd-kind-variable"><a href="globals.html#useproxy" class="tsd-kind-icon">useProxy</a></li>
 								<li class="tsd-kind-variable tsd-is-external"><a href="globals.html#useragent" class="tsd-kind-icon">useragent</a></li>
 								<li class="tsd-kind-variable tsd-is-external"><a href="globals.html#width" class="tsd-kind-icon">width</a></li>
 							</ul>
@@ -421,7 +422,7 @@
 					<div class="tsd-signature tsd-kind-icon">browser<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in controllers/browser.ts:13</li>
+							<li>Defined in controllers/browser.ts:14</li>
 						</ul>
 					</aside>
 				</section>
@@ -505,7 +506,7 @@
 					<div class="tsd-signature tsd-kind-icon">height<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = puppeteerConfig.height</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in config/puppeteer.config.ts:55</li>
+							<li>Defined in config/puppeteer.config.ts:54</li>
 						</ul>
 					</aside>
 				</section>
@@ -575,7 +576,6 @@
 					<div class="tsd-signature tsd-kind-icon">path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = require(&quot;path&quot;)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in config/puppeteer.config.ts:1</li>
 							<li>Defined in build/build-postman.ts:5</li>
 						</ul>
 					</aside>
@@ -671,13 +671,23 @@
 						</ul>
 					</aside>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable">
+					<a name="useproxy" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> use<wbr>Proxy</h3>
+					<div class="tsd-signature tsd-kind-icon">use<wbr>Proxy<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = require(&#x27;puppeteer-page-proxy&#x27;)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in controllers/browser.ts:13</li>
+						</ul>
+					</aside>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-is-external">
 					<a name="useragent" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> useragent</h3>
 					<div class="tsd-signature tsd-kind-icon">useragent<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"WhatsApp/2.2029.4 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"</span><span class="tsd-signature-symbol"> = &quot;WhatsApp/2.2029.4 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in config/puppeteer.config.ts:50</li>
+							<li>Defined in config/puppeteer.config.ts:49</li>
 						</ul>
 					</aside>
 				</section>
@@ -687,7 +697,7 @@
 					<div class="tsd-signature tsd-kind-icon">width<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = puppeteerConfig.width</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in config/puppeteer.config.ts:54</li>
+							<li>Defined in config/puppeteer.config.ts:53</li>
 						</ul>
 					</aside>
 				</section>
@@ -828,7 +838,7 @@ blockCrashLogs true,
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in config/puppeteer.config.ts:51</li>
+									<li>Defined in config/puppeteer.config.ts:50</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1008,7 +1018,7 @@ blockCrashLogs true,
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in controllers/browser.ts:207</li>
+									<li>Defined in controllers/browser.ts:218</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1031,7 +1041,7 @@ blockCrashLogs true,
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in controllers/browser.ts:160</li>
+									<li>Defined in controllers/browser.ts:171</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1057,7 +1067,7 @@ blockCrashLogs true,
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in controllers/browser.ts:15</li>
+									<li>Defined in controllers/browser.ts:16</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1086,7 +1096,7 @@ blockCrashLogs true,
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in controllers/browser.ts:147</li>
+									<li>Defined in controllers/browser.ts:158</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1594,7 +1604,7 @@ blockCrashLogs true,
 					<div class="tsd-signature tsd-kind-icon">puppeteer<wbr>Config<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in config/puppeteer.config.ts:2</li>
+							<li>Defined in config/puppeteer.config.ts:1</li>
 						</ul>
 					</aside>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-external">
@@ -1603,7 +1613,7 @@ blockCrashLogs true,
 						<div class="tsd-signature tsd-kind-icon">WAUrl<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;https://web.whatsapp.com&quot;</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in config/puppeteer.config.ts:3</li>
+								<li>Defined in config/puppeteer.config.ts:2</li>
 							</ul>
 						</aside>
 					</section>
@@ -1613,7 +1623,7 @@ blockCrashLogs true,
 						<div class="tsd-signature tsd-kind-icon">chromium<wbr>Args<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = [// &#x60;--app&#x3D;${WAUrl}&#x60;,&#x27;--log-level&#x3D;3&#x27;, // fatal only//&#x27;--start-maximized&#x27;,&#x27;--no-default-browser-check&#x27;,&#x27;--disable-site-isolation-trials&#x27;,&#x27;--no-experiments&#x27;,&#x27;--ignore-gpu-blacklist&#x27;,&#x27;--ignore-certificate-errors&#x27;,&#x27;--ignore-certificate-errors-spki-list&#x27;,&#x27;--disable-gpu&#x27;,&#x27;--disable-extensions&#x27;,&#x27;--disable-default-apps&#x27;,&#x27;--enable-features&#x3D;NetworkService&#x27;,&#x27;--disable-setuid-sandbox&#x27;,&#x27;--no-sandbox&#x27;,// Extras&#x27;--disable-webgl&#x27;,&#x27;--disable-infobars&#x27;,&#x27;--window-position&#x3D;0,0&#x27;,&#x27;--ignore-certifcate-errors&#x27;,&#x27;--ignore-certifcate-errors-spki-list&#x27;,&#x27;--disable-threaded-animation&#x27;,&#x27;--disable-threaded-scrolling&#x27;,&#x27;--disable-in-process-stack-traces&#x27;,&#x27;--disable-histogram-customizer&#x27;,&#x27;--disable-gl-extensions&#x27;,&#x27;--disable-composited-antialiasing&#x27;,&#x27;--disable-canvas-aa&#x27;,&#x27;--disable-3d-apis&#x27;,&#x27;--disable-accelerated-2d-canvas&#x27;,&#x27;--disable-accelerated-jpeg-decoding&#x27;,&#x27;--disable-accelerated-mjpeg-decode&#x27;,&#x27;--disable-app-list-dismiss-on-blur&#x27;,&#x27;--disable-accelerated-video-decode&#x27;,&#x27;--disable-dev-shm-usage&#x27;,//suggested in #563// &#x27;--single-process&#x27;,// &#x27;--no-zygote&#x27;,// &#x27;--renderer-process-limit&#x3D;1&#x27;,// &#x27;--no-first-run&#x27;]</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in config/puppeteer.config.ts:6</li>
+								<li>Defined in config/puppeteer.config.ts:5</li>
 							</ul>
 						</aside>
 					</section>
@@ -1623,7 +1633,7 @@ blockCrashLogs true,
 						<div class="tsd-signature tsd-kind-icon">height<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 900</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in config/puppeteer.config.ts:5</li>
+								<li>Defined in config/puppeteer.config.ts:4</li>
 							</ul>
 						</aside>
 					</section>
@@ -1633,7 +1643,7 @@ blockCrashLogs true,
 						<div class="tsd-signature tsd-kind-icon">width<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1440</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in config/puppeteer.config.ts:4</li>
+								<li>Defined in config/puppeteer.config.ts:3</li>
 							</ul>
 						</aside>
 					</section>
