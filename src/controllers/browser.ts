@@ -140,17 +140,18 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
         localStorage.clear();
         Object.keys(session).forEach(key=>localStorage.setItem(key,session[key]));
     }, sessionjson);
-    
-  if(config?.proxyServerCredentials) await useProxy(waPage, `${config.proxyServerCredentials?.username && config.proxyServerCredentials?.password ? `${config.proxyServerCredentials.protocol || 
-    config.proxyServerCredentials.address.includes('https') ? 'https' : 
-    config.proxyServerCredentials.address.includes('http') ? 'http' : 
-    config.proxyServerCredentials.address.includes('socks5') ? 'socks5' : 
-    config.proxyServerCredentials.address.includes('socks4') ? 'socks4' : 'http'}://${config.proxyServerCredentials.username}:${config.proxyServerCredentials.password}@${config.proxyServerCredentials.address
-    .replace('https', '')
-    .replace('http', '')
-    .replace('socks5', '')
-    .replace('socks4', '')
-    .replace('://', '')}` : config.proxyServerCredentials.address}`);
+    if(config?.proxyServerCredentials) {
+      await useProxy(waPage, `${config.proxyServerCredentials?.username && config.proxyServerCredentials?.password ? `${config.proxyServerCredentials.protocol || 
+        config.proxyServerCredentials.address.includes('https') ? 'https' : 
+        config.proxyServerCredentials.address.includes('http') ? 'http' : 
+        config.proxyServerCredentials.address.includes('socks5') ? 'socks5' : 
+        config.proxyServerCredentials.address.includes('socks4') ? 'socks4' : 'http'}://${config.proxyServerCredentials.username}:${config.proxyServerCredentials.password}@${config.proxyServerCredentials.address
+        .replace('https', '')
+        .replace('http', '')
+        .replace('socks5', '')
+        .replace('socks4', '')
+        .replace('://', '')}` : config.proxyServerCredentials.address}`);
+    }
   await waPage.goto(puppeteerConfig.WAUrl)
   return waPage;
 }
