@@ -1,4 +1,3 @@
-var path = require('path');
 const puppeteerConfig = {
   WAUrl: 'https://web.whatsapp.com',
   width: 1440,
