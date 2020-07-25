@@ -111,6 +111,7 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
       WA_AUTOMATE_VERSION,
       BROWSER_VERSION,
     };
+    console.table(debugInfo);
 
     if (canInjectEarly) {
       spinner.start('Injecting api');
@@ -218,7 +219,7 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
       const LAUNCH_TIME_MS = Date.now() - START_TIME;
       debugInfo = {...debugInfo, LAUNCH_TIME_MS};
       spinner.emit(debugInfo, "DebugInfo");
-      console.table(debugInfo);
+      spinner.succeed(`Client loaded in ${LAUNCH_TIME_MS/1000}s`);
       const client = new Client(waPage, config, debugInfo);
       if (config?.licenseKey) {
         spinner.start('Checking License')
