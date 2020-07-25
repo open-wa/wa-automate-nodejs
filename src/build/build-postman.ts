@@ -23,7 +23,7 @@ var primatives = [
     'boolean'
 ];
 export const generatePostmanJson = async function (setup : any = {}) {
-    const data = fs.readFileSync(path.resolve(__dirname,'../api/Client.ts'), 'utf8');
+    const data = fs.readFileSync(path.resolve(__dirname,'../api/_client_ts'), 'utf8');
     const parsed = await parser.parseSource(data);
     //@ts-ignore
     let x = parsed.declarations.find(({name})=>name==='Client').methods.filter(({visibility})=>visibility==2).filter(({name})=>!name.startsWith('on'));
