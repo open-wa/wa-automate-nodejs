@@ -39,10 +39,6 @@
 							</div>
 							<input type="checkbox" id="tsd-filter-inherited" checked />
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
-							<input type="checkbox" id="tsd-filter-externals" checked />
-							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
-							<input type="checkbox" id="tsd-filter-only-exported" />
-							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
 						</div>
 					</div>
 					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
@@ -549,7 +545,7 @@ create({
 				<p>As of version 1.3.0 you can now send location!! You can&#39;t even do this in normal WA web interface.</p>
 				<p>You need to pass the following params:</p>
 				<ul>
-					<li>chat id: <a href="mailto:&#x78;&#x78;&#x78;&#120;&#120;&#x40;&#x63;&#x2e;&#117;&#x73;">&#x78;&#x78;&#x78;&#120;&#120;&#x40;&#x63;&#x2e;&#117;&#x73;</a></li>
+					<li>chat id: <a href="mailto:&#120;&#x78;&#x78;&#x78;&#120;&#x40;&#99;&#x2e;&#117;&#115;">&#120;&#x78;&#x78;&#x78;&#120;&#x40;&#99;&#x2e;&#117;&#115;</a></li>
 					<li>latitude: &#39;51.5074&#39;</li>
 					<li>longitude: &#39;0.1278&#39;</li>
 					<li>location text: &#39;LONDON!&#39;</li>
@@ -562,7 +558,7 @@ create({
 				<p>As of version 1.3.1 you can now simulate &#39;...typing&#39;</p>
 				<p>You need to pass the following params:</p>
 				<ul>
-					<li>chat id: <a href="mailto:&#120;&#120;&#120;&#x78;&#120;&#64;&#x63;&#x2e;&#117;&#x73;">&#120;&#120;&#120;&#x78;&#120;&#64;&#x63;&#x2e;&#117;&#x73;</a></li>
+					<li>chat id: <a href="mailto:&#120;&#120;&#x78;&#120;&#120;&#x40;&#99;&#46;&#x75;&#115;">&#120;&#120;&#x78;&#120;&#120;&#x40;&#99;&#46;&#x75;&#115;</a></li>
 					<li>on: true or false</li>
 				</ul>
 				<p>Note: You need to manually turn this off!!!</p>
@@ -583,7 +579,7 @@ create({
 				<p>As of version 1.5.1 you can now forward messages. This has been tested on most types of messages.</p>
 				<p>You need to pass the following params:</p>
 				<ul>
-					<li>chat to forward messages to : <a href="mailto:&#x78;&#x78;&#x78;&#x78;&#x78;&#x40;&#x63;&#x2e;&#117;&#x73;">&#x78;&#x78;&#x78;&#x78;&#x78;&#x40;&#x63;&#x2e;&#117;&#x73;</a></li>
+					<li>chat to forward messages to : <a href="mailto:&#120;&#x78;&#x78;&#120;&#x78;&#64;&#x63;&#x2e;&#x75;&#x73;">&#120;&#x78;&#x78;&#120;&#x78;&#64;&#x63;&#x2e;&#x75;&#x73;</a></li>
 					<li>messages: a single or array of message ids or message objects</li>
 					<li>skipMyMessages: true or false, if true it will filter out messages sent by you from the list of messages, default false.</li>
 				</ul>
@@ -668,37 +664,6 @@ client.onLiveLocation(<span class="hljs-string">&#x27;XXXXXXX-YYYYY@c.us&#x27;</
   <span class="hljs-attr">authTimeout</span>: <span class="hljs-number">30</span> <span class="hljs-comment">//kills the session if the session hasn&#x27;t authentication 30 seconds (e.g If the session has the right credentials but the phone is off).</span>
 })
 .then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
-				<a href="#managing-multiple-sessions-at-once" id="managing-multiple-sessions-at-once" style="color: inherit; text-decoration: none;">
-					<h2>Managing multiple sessions at once</h2>
-				</a>
-				<p>With v1.2.4, you can now run multiple sessions of @open-wa/wa-automate in the same &#39;app&#39;. This allows you to do interesting things for example:</p>
-				<ol>
-					<li>Design and run automated tests for you WA bot.</li>
-					<li>Connect two or more WA numbers to a single (or multiple) message handler(s)</li>
-					<li>Use one client to make sure another one is alive by pinging it.</li>
-				</ol>
-				<p>Please see demo/index.ts for a working example</p>
-				<p>NOTE: DO NOT CREATE TWO SESSIONS WITH THE SAME SESSIONID. DO NOT ALLOW SPACES AS SESSION ID.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Client} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>;
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Client</span>) </span>{
-  ...
-}
-
-create().then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
-
-create({
-  <span class="hljs-attr">sessionId</span>:<span class="hljs-string">&#x27;another_session&#x27;</span>
-}).then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
-				<p>You can then capture the QR Code for each session using the following event listener code:</p>
-				<pre><code class="language-javascript"><span class="hljs-comment">//events are fired with the ev namespace then the session Id. e.g &quot;qr.another_session&quot;</span>
-<span class="hljs-comment">//You can however use the wildcard operator with the new event listener and capture the session Id as a parameter instead.</span>
-ev.on(<span class="hljs-string">&#x27;qr.**&#x27;</span>, <span class="hljs-keyword">async</span> (qrcode,sessionId) =&gt; {
-  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;TCL: qrcode,sessioId&quot;</span>, qrcode,sessionId)
-  <span class="hljs-comment">//base64 encoded qr code image</span>
-  <span class="hljs-keyword">const</span> imageBuffer = Buffer.from(qrcode.replace(<span class="hljs-string">&#x27;data:image/png;base64,&#x27;</span>,<span class="hljs-string">&#x27;&#x27;</span>), <span class="hljs-string">&#x27;base64&#x27;</span>);
-  fs.writeFileSync(<span class="hljs-string">`qr_code<span class="hljs-subst">${sessionId?<span class="hljs-string">&#x27;_&#x27;</span>+sessionId:<span class="hljs-string">&#x27;&#x27;</span>}</span>.png`</span>, imageBuffer);
-});</code></pre>
 				<a href="#manage-page-errors" id="manage-page-errors" style="color: inherit; text-decoration: none;">
 					<h2>Manage page errors</h2>
 				</a>
@@ -816,10 +781,28 @@ create({
 			<nav class="tsd-navigation primary">
 				<ul>
 					<li class="label pp-nav pp-group">
-						<span>Example <wbr>Page <wbr>Group</span>
+						<span>Getting <wbr>Started</span>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="pages/Example Page Group/sample-page.html">Example <wbr>Page</a>
+						<a href="pages/Getting Started/installation.html">Installation</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="pages/Getting Started/quick-run.html">Easy API</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="pages/Getting Started/docker.html">Docker</a>
+					</li>
+					<li class="label pp-nav pp-group">
+						<span>The <wbr>Client</span>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="pages/The Client/the-client.html">Creating a <wbr>Client</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="pages/The Client/config-object.html">The <wbr>Config <wbr>Object</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="pages/The Client/launch-events.html">Launch <wbr>Events</a>
 					</li>
 					<li class="label pp-nav pp-group">
 						<span>API</span>
@@ -879,9 +862,6 @@ create({
 					<li class=" tsd-kind-function">
 						<a href="globals.html#create" class="tsd-kind-icon">create</a>
 					</li>
-					<li class=" tsd-kind-function">
-						<a href="globals.html#smartuseragent" class="tsd-kind-icon">smart<wbr>User<wbr>Agent</a>
-					</li>
 				</ul>
 			</nav>
 		</div>
@@ -892,16 +872,10 @@ create({
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
-			</ul>
-			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
 			</ul>
 		</div>
 	</div>

@@ -1,3 +1,4 @@
+/** @internal *//** */
 import { ev } from "../events";
 
 var http = require('http'),

@@ -60,28 +60,64 @@
     "typedocOptions": {
       "inputFiles": ["./src/api","./src/utils","./src/controllers"],
       "includes":["./node_modules/puppeteer/lib"],
-      "theme": "pages-plugin",
       "pages": {
         "groups": [
-        {
-            "title": "Example Page Group",
-            "pages": [
-              {
-                  "title": "Example Page",
-                  "source": "./docs-source/sample-page.md"
-              }
-            ]
-        }],
+          {
+              "title": "Getting Started",
+              "pages": [
+                {
+                    "title": "Installation",
+                    "source": "./docs-source/getting-started/installation.md"
+                },
+                {
+                    "title": "Easy API",
+                    "source": "./docs-source/getting-started/quick-run.md"
+                },
+                {
+                    "title": "Docker",
+                    "source": "./docs-source/getting-started/docker.md"
+                }
+              ]
+          },
+          {
+              "title": "The Client",
+              "pages": [
+                {
+                    "title": "Creating a Client",
+                    "source": "./docs-source/configuration/the-client.md"
+                },
+                {
+                    "title": "The Config Object",
+                    "source": "./docs-source/configuration/config-object.md"
+                },
+                {
+                    "title": "Launch Events",
+                    "source": "./docs-source/configuration/launch-events.md"
+                }
+              ]
+          }],
         "output": "pages"
     },
         "mode": "file",
         "out": "docs",
-        "exclude":"**.config",
-        "excludeExternals":false,
+        "exclude":[
+          "**.config",
+          "**/**ignore**",
+          "**/**browser.ts",
+          "**/popup/**",
+          "**/utils/**",
+          "**/**auth**",
+          "**/**events**",
+          "**/**launch_checks**",
+          "**/**preload**",
+        ],
+        "excludeExternals":true,
         "includeVersion":true,
+        "stripInternal": true,
+        "excludeNotExported": "true",
         "hideGenerator":true,
-        // "plugin":"typedoc-neo-theme",
         "readme":"./README.md",
+        "theme": "pages-plugin",
         // "theme":"node_modules/typedoc-neo-theme/bin/default",
         "excludePrivate":true,
         "links": [{
@@ -93,8 +129,8 @@
         }],
         "outline": [{
           "Getting Started": {
-            "Installation": "/",
-            "Docker": "/"
+            "Installation": "/docs/pages/Getting%20Started/installation",
+            "Docker": "/docs/pages/Getting%20Started/docker"
           },
           "The Client": {
             "Overview": "/",

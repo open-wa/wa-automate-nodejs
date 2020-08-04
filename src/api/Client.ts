@@ -7,12 +7,13 @@ import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent, puppeteerConfig } from '../config/puppeteer.config'
 import sharp from 'sharp';
 import { ConfigObject, STATE } from './model';
-const parseFunction = require('parse-function');
-const { default: PQueue } = require("p-queue");
+import PQueue from 'p-queue'
+/** @ignore */
+const parseFunction = require('parse-function'),
+pkg = require('../../package.json');
 import treekill from 'tree-kill';
 import { SessionInfo } from './model/sessionInfo';
 import { injectApi } from '../controllers/browser';
-import { licenseCheckUrl } from '../controllers/initializer';
 import { isAuthenticated } from '../controllers/auth';
 import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL } from './model/aliases';
 
@@ -44,7 +45,13 @@ export enum SimpleListener {
   ContactAdded = 'onContactAdded',
 }
 
-export const getBase64 = async (url: string, optionsOverride: any = {} ) => {
+/**
+ * A convinience method to download the [[DataURL]] of a file
+ * @param url The url
+ * @param optionsOverride You can use this to override the [axios request config](https://github.com/axios/axios#request-config)
+ * @returns Promise<DataURL>
+ */
+const getDUrl  = async (url: string, optionsOverride: any = {} ) => {
   try {
     const res = await axios({
         method:"get",
@@ -56,10 +63,11 @@ export const getBase64 = async (url: string, optionsOverride: any = {} ) => {
         ...optionsOverride,
         responseType: 'arraybuffer'
       });
-    return `data:${res.headers['content-type']};base64,${Buffer.from(res.data, 'binary').toString('base64')}`
+    const dUrl : DataURL = `data:${res.headers['content-type']};base64,${Buffer.from(res.data, 'binary').toString('base64')}`;
+    return dUrl;
     // return Buffer.from(response.data, 'binary').toString('base64')
   } catch (error) {
-    console.log("TCL: getBase64 -> error", error)
+    console.log("TCL: getDUrl -> error", error)
   }
 }
 
@@ -286,7 +294,7 @@ export class Client {
      await this._reInjectWapi();
      if (this._createConfig?.licenseKey) {
       const { me } = await this.getMe();
-      const { data } = await axios.post(licenseCheckUrl, { key: this._createConfig.licenseKey, number: me._serialized, ...this._sessionInfo });
+      const { data } = await axios.post(pkg.licenseCheckUrl, { key: this._createConfig.licenseKey, number: me._serialized, ...this._sessionInfo });
       if (data) {
         await this._page.evaluate(data => eval(data), data);
         console.log('License Valid');
@@ -1019,7 +1027,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     if (n) {
       const r = `https://i.giphy.com/${n[1]}.mp4`;
       const filename = `${n[1]}.mp4`
-      const base64 = await getBase64(r);
+      const base64 = await getDUrl(r);
       return await this.pup(
         ({ to, base64, filename, caption }) => {
           WAPI.sendVideoAsGif(base64, to, filename, caption);
@@ -1054,7 +1062,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     waitForId?: boolean
   ) {
     try {
-     const base64 = await getBase64(url, requestConfig);
+     const base64 = await getDUrl(url, requestConfig);
       return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId)
     } catch(error) {
       console.log('Something went wrong', error);
@@ -1778,7 +1786,7 @@ public async getStatus(contactId: ContactId) {
  */
   public async setGroupIconByUrl(groupId: GroupChatId, url: string, requestConfig: any = {}) {
     try {
-      const base64 = await getBase64(url, requestConfig);
+      const base64 = await getDUrl(url, requestConfig);
        return await this.setGroupIcon(groupId,base64);
      } catch(error) {
        throw error;
@@ -1898,7 +1906,7 @@ public async getStatus(contactId: ContactId) {
    */
   public async sendStickerfromUrl(to: ChatId, url: string, requestConfig: any = {}) {
     try {
-      const base64 = await getBase64(url, requestConfig);
+      const base64 = await getDUrl(url, requestConfig);
       return await this.sendImageAsSticker(to, base64);
      } catch(error) {
        console.log('Something went wrong', error);

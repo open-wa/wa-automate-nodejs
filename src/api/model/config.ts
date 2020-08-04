@@ -95,6 +95,7 @@ export interface ConfigObject {
     browserWSEndpoint ?: string,
     /**
      * This flag allows you to disable or enable the use of the puppeteer stealth plugin. It is a good idea to use it, however it can cause issues sometimes. Set this to false if you are experiencing `browser.setMaxListeneres` issue. For now the default for this is false.
+     * @default `false`
      */
     useStealth ?: boolean,
     /**
@@ -102,7 +103,8 @@ export interface ConfigObject {
      */
     sessionDataPath ?: string,
     /**
-     * Disable cors see: https://pptr.dev/#?product=Puppeteer&version=v3.0.4&show=api-pagesetbypasscspenabled If you are having an issue with sending media try to set this to true. Otherwise leave it set to falsedefualt to false
+     * Disable cors see: https://pptr.dev/#?product=Puppeteer&version=v3.0.4&show=api-pagesetbypasscspenabled If you are having an issue with sending media try to set this to true. Otherwise leave it set to false.
+     * @default `false`
      */
     bypassCSP ?: boolean,
     /**
@@ -112,11 +114,12 @@ export interface ConfigObject {
     chromiumArgs ?: string[],
     /**
      * If set to true, skipBrokenMethodsCheck will bypass the health check before startup. It is highly suggested to not set this to true.
-     * Default: false
+     * @default `false`
      */
     skipBrokenMethodsCheck ?: boolean,
     /**
      * This is the name of the session. You have to make sure that this is unique for every session.
+     * @default `session`
      */
     sessionId ?: string,
     /**
@@ -140,11 +143,13 @@ export interface ConfigObject {
      */
     devtools ?: boolean | DevTools,
     /**
-     * Setting this to true will block any network calls to crash log servers. This should keep anything you do under the radar. default is true
+     * Setting this to true will block any network calls to crash log servers. This should keep anything you do under the radar. 
+     * @default `true`
      */
     blockCrashLogs ?: boolean,
     /**
      * Setting this to false turn off the cache. This may improve memory usage.
+     * @default `false`
      */
     cacheEnabled ?: boolean,
     /**
@@ -161,10 +166,12 @@ export interface ConfigObject {
     throwErrorOnTosBlock ?: boolean,
     /**
      * By default, all instances of @open-wa/wa-automate are headless (i.e you don't see a chrome window open), you can set this to false to show the chrome/chromium window.
+     * @default `true`
      */
     headless ?: boolean,
     /**
      * Setting this to true will result in new QR codes being generated if the end user takes too long to scan the QR code.
+     * @default false
      */
     autoRefresh ?: boolean,
     /**
@@ -181,6 +188,7 @@ export interface ConfigObject {
     executablePath ?: string,
     /**
      * If true, the program will automatically try to detect the instance of chorme on the machine. Please note this DOES NOT override executablePath.
+     * @default `false`
      */
     useChrome ?: boolean,
     /**
@@ -188,7 +196,8 @@ export interface ConfigObject {
      */
     proxyServerCredentials?: ProxyServerCredentials,
     /**
-     * If true, skips logging the QR Code to the console. Default is false.
+     * If true, skips logging the QR Code to the console. 
+     * @default `false`
      */
     qrLogSkip?: boolean;
     /**
@@ -206,14 +215,17 @@ export interface ConfigObject {
     restartOnCrash ?: any,
     /**
      * Setting this to true will simplify logs for use within docker containers by disabling spins (will still print raw messages).
+     * @default `false`
      */
     disableSpins ?: boolean,
     /**
      * If true, this will log any console messages from the browser.
+     * @default `false`
      */
     logConsole ?: boolean
     /**
      * If true, this will log any error messages from the browser instance
+     * @default `false`
      */
     logConsoleErrors ?: boolean,
     /**
@@ -221,19 +233,23 @@ export interface ConfigObject {
     */
     authTimeout?: number;
     /**
-     * Setting this to `true` will kill the whole process when the client is disconnected from the page or if the browser is closed. defaults to `false`
+     * Setting this to `true` will kill the whole process when the client is disconnected from the page or if the browser is closed. 
+     * @default `false`
      */
     killProcessOnBrowserClose ?: boolean;
     /**
      * If true, client will check if the page is valid before each command. If page is not valid, it will throw an error.
+     * @default `false`
      */
     safeMode ?: boolean;
     /**
      * If true, the process will not save a data.json file. This means that sessions will not be saved and you will need to pass sessionData as a config param or create the session data.json file yourself
+     * @default `false`
      */
     skipSessionSave ?: boolean;
     /**
      * If true, the process will open a browser window where you will see basic event logs and QR codes to authenticate the session. Usually it will open on port 3000. It can also be set to a preferred port.
+     * @default `false | 3000`
      */
     popup ?: boolean | number;
     /**
@@ -258,18 +274,23 @@ export interface ConfigObject {
      * skipSessionSave ==>     WA_SKIP_SESSION_SAVE
      * popup           ==>     WA_POPUP 
      * ```
+     * @default `false`
      */
     inDocker ?: boolean;
     /**
-     * The output quality of the qr code during authentication. This can be any increment of 0.1 from 0.1 to 1.0. defaults to 1.0
+     * The output quality of the qr code during authentication. This can be any increment of 0.1 from 0.1 to 1.0.
+     * @default `1.0`
      */
     qrQuality ?: QRQuality;
     /**
-     * The output format of the qr code. `png`, `jpeg` or `webm`. Defaults to `png`
+     * The output format of the qr code. `png`, `jpeg` or `webm`.
+     *  
+     * @default `png`
      */
     qrFormat ?:  QRFormat;
     /**
-     * Setting this to true will block all assets from loading onto the page. This may result in some load time impreovements but also increases instability. Default: false
+     * Setting this to true will block all assets from loading onto the page. This may result in some load time impreovements but also increases instability. 
+     * @default `false`
      */
     blockAssets ?: boolean;
     // @private

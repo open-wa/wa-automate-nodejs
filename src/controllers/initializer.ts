@@ -1,27 +1,29 @@
+
+/** @ignore */
+const fs = require('fs'),
+boxen = require('boxen'),
+configWithCases = require('../../bin/config-schema.json'),
+updateNotifier = require('update-notifier'),
+pkg = require('../../package.json'),
+timeout = ms => {
+  return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
+}
 import { Client } from '../api/Client';
 import { ConfigObject } from '../api/model/index';
 import * as path from 'path';
-const fs = require('fs');
 import { isAuthenticated, isInsideChat, retrieveQR, phoneIsOutOfReach } from './auth';
 import { initClient, injectApi } from './browser';
 import { Spin, ev } from './events'
 import axios from 'axios';
 import { integrityCheck } from './launch_checks';
-const updateNotifier = require('update-notifier');
-let shouldLoop = true;
-var pkg = require('../../package.json');
-export const {licenseCheckUrl} = pkg;
-const timeout = ms => {
-  return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
-}
-let qrDelayTimeout;
 import treekill from 'tree-kill';
 import CFonts from 'cfonts';
 import { popup } from './popup';
 import { getConfigFromProcessEnv } from '../utils/configSchema';
 import { SessionInfo } from '../api/model/sessionInfo';
-const boxen = require('boxen');
-const configWithCases = require('../../bin/config-schema.json');
+/** @ignore */
+let shouldLoop = true,
+qrDelayTimeout;
 
 /**
  * Should be called to initialize whatsapp client.
