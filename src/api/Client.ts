@@ -16,6 +16,7 @@ import { SessionInfo } from './model/sessionInfo';
 import { injectApi } from '../controllers/browser';
 import { isAuthenticated } from '../controllers/auth';
 import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL } from './model/aliases';
+import { bleachMessage } from '@open-wa/wa-decrypt';
 
 export enum namespace {
   Chat = 'Chat',
@@ -119,6 +120,7 @@ declare module WAPI {
   const sendLocation: (to: string, lat: any, lng: any, loc: string) => Promise<string>;
   const addParticipant: (groupId: string, contactId: string) => void;
   const getMessageById: (mesasgeId: string) => Message;
+  const getStickerDecryptable: (mesasgeId: string) => Message;
   const setMyName: (newName: string) => void;
   const setMyStatus: (newStatus: string) => void;
   const setProfilePic: (data: string) => Promise<boolean>;
@@ -1422,6 +1424,28 @@ public async contactUnblock(id: ContactId) {
   }
 
   /**
+   * 
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * 
+   * Retreives a message object which results in a valid sticker instead of a blank one. This also works with animated stickers.
+   * 
+   * @param messageId
+   * @returns message object
+   */
+  public async getStickerDecryptable(messageId: MessageId) {
+    const m = await this.pup(
+      messageId => WAPI.getStickerDecryptable(messageId),
+      messageId
+    );
+    if(!m) return false;
+    return {
+      t:m.t,
+      id:m.id,
+      ...bleachMessage(m)
+    };
+  }
+
+  /**
    * Retrieves chat object of given contact id
    * @param contactId
    * @returns contact detial as promise
@@ -1951,17 +1975,20 @@ public async getStatus(contactId: ContactId) {
       await this.injectJsSha();
       this._loadedModules.push('jsSha');
     }
-    const buff = Buffer.from(b64.replace(/^data:image\/(png|gif|jpeg);base64,/,''), 'base64');
+    const buff = Buffer.from(b64.replace(/^data:image\/(png|gif|jpeg|webp);base64,/,''), 'base64');
     const mimeInfo = base64MimeType(b64);
     if(!mimeInfo || mimeInfo.includes("image")){
+      let webpBase64 = b64;
+      let metadata : any = { width: 512, height: 512 };
+      if(!mimeInfo.includes('webp')) {
       //non matter what, convert to webp, resize + autoscale to width 512 px
       const scaledImageBuffer = await sharp(buff,{ failOnError: false })
       .resize({ width: 512, height: 512 })
       .toBuffer();
       const webp = sharp(scaledImageBuffer,{ failOnError: false }).webp();
-      const metadata : any= await webp.metadata();
-      console.log("sendImageAsSticker -> metadata", metadata)
-      const webpBase64 = (await webp.toBuffer()).toString('base64');
+      metadata = await webp.metadata();
+      webpBase64 = (await webp.toBuffer()).toString('base64');
+      }
       return await this.pup(
         ({ webpBase64,to, metadata }) => WAPI.sendImageAsSticker(webpBase64,to, metadata),
         { webpBase64,to, metadata }

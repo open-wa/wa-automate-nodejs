@@ -2223,6 +2223,7 @@ window.WAPI.onChatOpened = function(){return false;}
 window.WAPI.onStory = function(){return false;}
 window.WAPI.getStoryViewers = function(){return false;}
 window.WAPI.onChatState = function(){return false;}
+window.WAPI.getStickerDecryptable = function(){return false;}
 
 window.WAPI.quickClean = function (ob) {
     var r = JSON.parse(JSON.stringify(ob));
