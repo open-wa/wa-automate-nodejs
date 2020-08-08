@@ -93,7 +93,60 @@
                 {
                     "title": "Launch Events",
                     "source": "./docs-source/configuration/launch-events.md"
-                }
+                },
+                {
+                    "title": "Licensed Features",
+                    "source": "./docs-source/configuration/licensed-features.md"
+                },
+              ]
+          },
+          {
+              "title": "How to",
+              "pages": [
+                {
+                    "title": "Send Messages",
+                    "source": "./docs-source/how-to/send-messages.md"
+                },
+                {
+                    "title": "Receive Messages",
+                    "source": "./docs-source/how-to/receive-messages.md"
+                },
+                {
+                    "title": "Send Files",
+                    "source": "./docs-source/how-to/send-files.md"
+                },
+                {
+                    "title": "Sending & Receiving Location",
+                    "source": "./docs-source/how-to/location.md"
+                },
+                {
+                    "title": "React to group events",
+                    "source": "./docs-source/how-to/react-to-group-events.md"
+                },
+                {
+                    "title": "Create an API",
+                    "source": "./docs-source/how-to/create-api.md"
+                },
+                {
+                    "title": "Detect a logout",
+                    "source": "./docs-source/how-to/detect-logout.md"
+                },
+                {
+                    "title": "Handle Errors",
+                    "source": "./docs-source/how-to/handle-errors.md"
+                },
+                {
+                    "title": "Handle a disconnection",
+                    "source": "./docs-source/how-to/handle-disconnection.md"
+                },
+                {
+                    "title": "Decrypt media",
+                    "source": "./docs-source/how-to/decrypt-media.md"
+                },
+                {
+                    "title": "Detect Incoming Calls",
+                    "source": "./docs-source/how-to/incoming-calls.md"
+                },
               ]
           }],
         "output": "pages"
@@ -107,7 +160,6 @@
           "**/popup/**",
           "**/utils/**",
           "**/**auth**",
-          "**/**events**",
           "**/**launch_checks**",
           "**/**preload**",
         ],
