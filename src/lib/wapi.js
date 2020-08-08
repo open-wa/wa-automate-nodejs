@@ -1554,11 +1554,14 @@ window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, qu
 
 /**
  * This function sts the profile name of the number.
+ * 
+ * Please note this DOES NOT WORK ON BUSINESS ACCOUNTS!
+ * 
  * @param newName - string the new name to set as profile name
  */
 window.WAPI.setMyName = async function (newName) {
-    if(!Store.Versions.default[11].BinaryProtocol) Store.Versions.default[11].BinaryProtocol=new Store.bp(11);
-    return await Store.Versions.default[11].setPushname(newName);
+    if(!Store.Versions.default[12].BinaryProtocol) Store.Versions.default[12].BinaryProtocol=new Store.bp(Store.Me.binVersion);
+    return await Store.Versions.default[12].setPushname(newName);
 }
 
 /** Change the icon for the group chat
