@@ -47,12 +47,13 @@ export enum SimpleListener {
 }
 
 /**
+ * @internal
  * A convinience method to download the [[DataURL]] of a file
  * @param url The url
  * @param optionsOverride You can use this to override the [axios request config](https://github.com/axios/axios#request-config)
  * @returns Promise<DataURL>
  */
-const getDUrl  = async (url: string, optionsOverride: any = {} ) => {
+async function getDUrl(url: string, optionsOverride: any = {} ){
   try {
     const res = await axios({
         method:"get",
@@ -72,14 +73,18 @@ const getDUrl  = async (url: string, optionsOverride: any = {} ) => {
   }
 }
 
-function base64MimeType(encoded) {
+/**
+ * @internal
+ * Use this to extract the mime type from a [[DataURL]]
+ */
+function base64MimeType(dUrl : DataURL) {
   var result = null;
 
-  if (typeof encoded !== 'string') {
+  if (typeof dUrl !== 'string') {
     return result;
   }
 
-  var mime = encoded.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
+  var mime = dUrl.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
 
   if (mime && mime.length) {
     result = mime[1];
@@ -474,8 +479,8 @@ export class Client {
    * @fires ```javascript
    * {
    * "chat": "00000000000-1111111111@g.us", //the chat in which this state is occuring
-   * "chat": "22222222222@c.us", //the user that is causing this state
-   * "state": "composing, //can also be 'available', 'unavailable', 'recording'
+   * "user": "22222222222@c.us", //the user that is causing this state
+   * "state": "composing, //can also be 'available', 'unavailable', 'recording' or 'composing'
    * }
    * ```
    */
@@ -664,6 +669,9 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Set your profile name
+   * 
+   * Please note, this does not work on business accounts!
+   * 
    * @param newName String new name to set for your profile
    */
    public async setMyName(newName: string) {
@@ -892,7 +900,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
   public async sendImage(
     to: ChatId,
-    base64: Base64,
+    base64: DataURL,
     filename: string,
     caption: Content,
     quotedMsgId?: MessageId,
@@ -963,7 +971,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
   public async sendFile(
     to: ChatId,
-    base64: Base64,
+    base64: DataURL,
     filename: string,
     caption: Content,
     quotedMsgId?: MessageId,
@@ -982,7 +990,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
   public async sendPtt(
     to: ChatId,
-    base64: Base64,
+    base64: DataURL,
     quotedMsgId: MessageId,
   ) {
     return this.sendImage(to, base64, 'ptt.ogg', '', quotedMsgId, true);
@@ -1267,6 +1275,15 @@ public async iAmAdmin(){
     } else {
       return await this.pup(() => WAPI.getAllChats());
     }
+  }
+
+
+  /**
+   * Retreives all Chat Ids
+   * @returns array of [ChatId]
+   */
+  public async getAllChatIds() {
+      return await this.pup(() => WAPI.getAllChatIds());
   }
 
   /**
@@ -1970,7 +1987,7 @@ public async getStatus(contactId: ContactId) {
    * @param to: The recipient id.
    * @param b64: This is the base64 string formatted with data URI. You can also send a plain base64 string but it may result in an error as the function will not be able to determine the filetype before sending.
    */
-  public async sendImageAsSticker(to: ChatId, b64: string){
+  public async sendImageAsSticker(to: ChatId, b64: DataURL){
     if(!this._loadedModules.includes('jsSha')) {
       await this.injectJsSha();
       this._loadedModules.push('jsSha');
