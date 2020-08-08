@@ -127,8 +127,8 @@ export interface ConfigObject {
      */
     sessionId ?: string,
     /**
-     * In order to unlock the functionality to send texts to unknown numbers, you need an License key.
-     * One License Key is valid for each number. Each License Key is £10 per month or £100 per year.
+     * In order to unlock the functionality to send texts to unknown numbers, you need a License key.
+     * One License Key is valid for each number. Each License Key starts from £5 per month.
      * 
      * Please check README for instructions on how to get a license key.
      * 
@@ -297,6 +297,6 @@ export interface ConfigObject {
      * @default `false`
      */
     blockAssets ?: boolean;
-    // @private
+    /**@internal */
     [x: string]: any 
 }
