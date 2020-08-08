@@ -1,30 +1,83 @@
+import { ChatId } from "./aliases";
+
 export interface Message {
+  /**
+   * The id of the message
+   */
   id: string;
+  /**
+   * The body of the message. If the message type is `chat` , `body` will be the text of the chat. If the message type is some sort of media, then this body will be the thumbnail of the media.
+   */
   body: string;
-  type: string;
+  /**
+   * The type of the message, see [[MessageTypes]]
+   */
+  type: MessageTypes;
   mimetype?: string;
+  /**
+   * The latitude of a location message
+   */
   lat?: string;
+  /**
+   * The longitude of a location message
+   */
   lng?: string;
+  /**
+   * The text associated with a location message
+   */
   loc?: string;
+  /**
+   * The timestamp of the message
+   */
   t: number;
   notifyName: string;
-  from: string;
-  to: string;
-  self: string;
+  /**
+   * The chat from which the message was sent
+   */
+  from: ChatId;
+  /**
+   * The chat id to which the message is being sent
+   */
+  to: ChatId;
+  /**
+   * Indicates whether the message was sent by the host account
+   */
+  self: boolean;
+  /**
+   * The length of the media in the message, if it exists.
+   */
   duration?: string|number;
-  ack: number;
+  /**
+   * The acknolwedgement state of a message [[MessageAck]]
+   */
+  ack: MessageAck;
   invis: boolean;
   isNewMsg: boolean;
   star: boolean;
   recvFresh: boolean;
+  /**
+   * If the message is sent as a broadcast
+   */
   broadcast: boolean;
+  /**
+   * If the message has been forwarded
+   */
   isForwarded: boolean;
+  /**
+   * The labels associated with the message (used with business accounts)
+   */
   labels: any[];
   /**
    * An array of all mentioned numbers in this message.
    */
   mentionedJidList: string[];
+  /**
+   * If the message is of a media type, it may also have a caption
+   */
   caption: string;
+  /**
+   * The contact object of the account that sent the message
+   */
   sender: {
     id: string;
     name: string;
@@ -52,6 +105,9 @@ export interface Message {
     };
     msgs: any;
   };
+  /**
+   * the timestanmp of the message
+   */
   timestamp: number;
   content: string;
   isGroupMsg: boolean;
@@ -59,7 +115,13 @@ export interface Message {
   isMedia: boolean;
   isNotification: boolean;
   isPSA: boolean;
+  /**
+   * If the message is from the host account
+   */
   fromMe: boolean;
+  /**
+   * The chat object
+   */
   chat: {
     id: string;
     pendingMsgs: boolean;
