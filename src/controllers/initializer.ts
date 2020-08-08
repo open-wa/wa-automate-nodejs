@@ -248,7 +248,9 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
     throw error;
   }
 }
-
+/**
+ * @internal
+ */
 const kill = async (p) => {
   shouldLoop = false;
   if (qrDelayTimeout) clearTimeout(qrDelayTimeout);
