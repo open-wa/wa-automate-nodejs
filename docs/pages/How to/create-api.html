@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>The Config Object | @open-wa/wa-automate - v1.9.105</title>
+	<title>Create an API | @open-wa/wa-automate - v1.9.105</title>
 	<meta name="description" content="Documentation for @open-wa/wa-automate - v1.9.105">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../assets/css/main.css">
@@ -53,13 +53,13 @@
 					<a href="../../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="the-client.html">The Client</a>
+					<a href="send-messages.html">How to</a>
 				</li>
 				<li>
-					<a href="config-object.html">The Config Object</a>
+					<a href="create-api.html">Create an API</a>
 				</li>
 			</ul>
-			<h1>The Config Object</h1>
+			<h1>Create an API</h1>
 		</div>
 	</div>
 </header>
@@ -67,41 +67,19 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<a href="#configration" id="configration" style="color: inherit; text-decoration: none;">
-					<h1>Configration</h1>
+				<a href="#creating-an-api" id="creating-an-api" style="color: inherit; text-decoration: none;">
+					<h1>Creating an API</h1>
 				</a>
-				<p>There are quite a few ways you can customize your session.</p>
-				<p>Find out about all possible options here: <a href="../../interfaces/configobject.html">ConfigObject</a></p>
-				<p>Set the desired config options as parameter on <code>create</code>.</p>
-				<p>In the following example:</p>
+				<p>There are multiple convinient ways to create an API.</p>
 				<ol>
-					<li>The process tries to find and run a chrome installation instead of using the default chromium (chrome is required to send videos &amp; GIFS) <a href="../../interfaces/configobject.html#usechrome">useChrome</a></li>
-					<li>Automatically refreshes the QR code at regular intervals <a href="../../interfaces/configobject.html#autorefresh">ConfigObject.autoRefresh</a></li>
-					<li>Disables the cache (may be useful to optimize memory consumption) <a href="../../interfaces/configobject.html#cacheenabled">cacheEnabled</a></li>
-					<li>Sets the session Id to &#39;hr&#39; (this will result in a file called hr.data.json being saved to the process working directory) <a href="../../interfaces/configobject.html#sessionid">ConfigObject.sessionId</a></li>
+					<li>Use the ready-made API via npx</li>
 				</ol>
-				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> { create, Client } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>);
-<span class="hljs-comment">// or</span>
-<span class="hljs-comment">// import { create, Client } from &#x27;@open-wa/wa-automate&#x27;;</span>
-
-<span class="hljs-keyword">const</span> launchConfig = {
-    <span class="hljs-attr">useChrome</span>: <span class="hljs-literal">true</span>,
-    <span class="hljs-attr">autoRefresh</span>:<span class="hljs-literal">true</span>,
-    <span class="hljs-attr">cacheEnabled</span>:<span class="hljs-literal">false</span>,
-    <span class="hljs-attr">sessionId</span>: <span class="hljs-string">&#x27;hr&#x27;</span>
-};
-
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client</span>) </span>{
-  client.onMessage(<span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> {
-    <span class="hljs-keyword">if</span> (message.body === <span class="hljs-string">&#x27;Hi&#x27;</span>) {
-      client.sendText(message.from, <span class="hljs-string">&#x27;👋 Hello!&#x27;</span>);
-    }
-  });
-}
-
-create(launchConfig).then(start);
-</code></pre>
+				<p>Learn more here [[Easy API]]</p>
+				<ol start="2">
+					<li><p>Build your own API on express and just use the built in middleware</p>
+					</li>
+					<li></li>
+				</ol>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -123,52 +101,52 @@ create(launchConfig).then(start);
 						<span>The <wbr>Client</span>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="the-client.html">Creating a <wbr>Client</a>
-					</li>
-					<li class="current pp-nav pp-page">
-						<a href="config-object.html">The <wbr>Config <wbr>Object</a>
+						<a href="../The Client/the-client.html">Creating a <wbr>Client</a>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="launch-events.html">Launch <wbr>Events</a>
+						<a href="../The Client/config-object.html">The <wbr>Config <wbr>Object</a>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="licensed-features.html">Licensed <wbr>Features</a>
+						<a href="../The Client/launch-events.html">Launch <wbr>Events</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../The Client/licensed-features.html">Licensed <wbr>Features</a>
 					</li>
 					<li class="label pp-nav pp-group">
 						<span>How to</span>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="../How to/send-messages.html">Send <wbr>Messages</a>
+						<a href="send-messages.html">Send <wbr>Messages</a>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="../How to/receive-messages.html">Receive <wbr>Messages</a>
+						<a href="receive-messages.html">Receive <wbr>Messages</a>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="../How to/send-files.html">Send <wbr>Files</a>
+						<a href="send-files.html">Send <wbr>Files</a>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="../How to/location.html">Sending &amp; <wbr>Receiving <wbr>Location</a>
+						<a href="location.html">Sending &amp; <wbr>Receiving <wbr>Location</a>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="../How to/react-to-group-events.html">React to group events</a>
+						<a href="react-to-group-events.html">React to group events</a>
+					</li>
+					<li class="current pp-nav pp-page">
+						<a href="create-api.html">Create an API</a>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="../How to/create-api.html">Create an API</a>
+						<a href="detect-logout.html">Detect a logout</a>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="../How to/detect-logout.html">Detect a logout</a>
+						<a href="handle-errors.html">Handle <wbr>Errors</a>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="../How to/handle-errors.html">Handle <wbr>Errors</a>
+						<a href="handle-disconnection.html">Handle a disconnection</a>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="../How to/handle-disconnection.html">Handle a disconnection</a>
+						<a href="decrypt-media.html">Decrypt media</a>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="../How to/decrypt-media.html">Decrypt media</a>
-					</li>
-					<li class=" pp-nav pp-page">
-						<a href="../How to/incoming-calls.html">Detect <wbr>Incoming <wbr>Calls</a>
+						<a href="incoming-calls.html">Detect <wbr>Incoming <wbr>Calls</a>
 					</li>
 					<li class="label pp-nav pp-group">
 						<span>API</span>

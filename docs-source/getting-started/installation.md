@@ -37,8 +37,6 @@ or if you come accros permission issues:
 > sudo npm install @open-wa/wa-automate --unsafe-perm
 ```
 
-
-
 ## Installation when primarily using Chrome
 
 If you use chrome, by setting [[`ConfigObject.useChrome`]] or [[`ConfigObject.executablePath`]] then you don't need to install the whole of puppeteer (puppeteer installs a version of Chromium - not Chrome - by default).
@@ -48,3 +46,5 @@ If there are issues with installing the packages then try this:
 ```bash
 > npm install @open-wa/wa-automate --ignore-scripts
 ```
+
+Doing this saves time and memory.

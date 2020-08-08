@@ -66,7 +66,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Session state</p>
+						<p>The state of the WA Web session. You can listen to session state changes using <a href="../classes/client.html#onstatechanged">onStateChanged</a>. Just to be clear, some of these states aren&#39;t understood completely.</p>
 					</div>
 					<dl class="tsd-comment-tags">
 						<dt>readonly</dt>
@@ -106,9 +106,14 @@
 					<div class="tsd-signature tsd-kind-icon">CONFLICT<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;CONFLICT&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d88997b/src/api/model/index.ts#L47">api/model/index.ts:47</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/index.ts#L50">api/model/index.ts:50</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Another WA web session has been opened for this account somewhere else.</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
 					<a name="connected" class="tsd-anchor"></a>
@@ -116,9 +121,14 @@
 					<div class="tsd-signature tsd-kind-icon">CONNECTED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;CONNECTED&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d88997b/src/api/model/index.ts#L48">api/model/index.ts:48</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/index.ts#L54">api/model/index.ts:54</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The session is successfully connected and ready to send and receive messages.</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
 					<a name="deprecated_version" class="tsd-anchor"></a>
@@ -126,9 +136,14 @@
 					<div class="tsd-signature tsd-kind-icon">DEPRECATED_<wbr>VERSION<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;DEPRECATED_VERSION&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d88997b/src/api/model/index.ts#L49">api/model/index.ts:49</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/index.ts#L58">api/model/index.ts:58</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>WA web updates every fortnight (or so). This state would be emitted then.</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
 					<a name="opening" class="tsd-anchor"></a>
@@ -136,9 +151,14 @@
 					<div class="tsd-signature tsd-kind-icon">OPENING<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;OPENING&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d88997b/src/api/model/index.ts#L50">api/model/index.ts:50</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/index.ts#L62">api/model/index.ts:62</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This probably shows up when reloading an already authenticated session.</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
 					<a name="pairing" class="tsd-anchor"></a>
@@ -146,9 +166,14 @@
 					<div class="tsd-signature tsd-kind-icon">PAIRING<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;PAIRING&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d88997b/src/api/model/index.ts#L51">api/model/index.ts:51</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/index.ts#L66">api/model/index.ts:66</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This probably shows up immediately after the QR code is scanned</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
 					<a name="proxyblock" class="tsd-anchor"></a>
@@ -156,9 +181,14 @@
 					<div class="tsd-signature tsd-kind-icon">PROXYBLOCK<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;PROXYBLOCK&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d88997b/src/api/model/index.ts#L52">api/model/index.ts:52</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/index.ts#L70">api/model/index.ts:70</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This state probably represented a block on the proxy address your app is using.</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
 					<a name="smb_tos_block" class="tsd-anchor"></a>
@@ -166,9 +196,14 @@
 					<div class="tsd-signature tsd-kind-icon">SMB_<wbr>TOS_<wbr>BLOCK<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;SMB_TOS_BLOCK&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d88997b/src/api/model/index.ts#L53">api/model/index.ts:53</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/index.ts#L74">api/model/index.ts:74</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This usually shows up when the session has been blocked by WA due to some issue with the browser/user agent. This is a different version of a Terms of Service Block from what we know. It may also show up when the host account is banned.</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
 					<a name="timeout" class="tsd-anchor"></a>
@@ -176,9 +211,14 @@
 					<div class="tsd-signature tsd-kind-icon">TIMEOUT<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;TIMEOUT&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d88997b/src/api/model/index.ts#L54">api/model/index.ts:54</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/index.ts#L78">api/model/index.ts:78</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The trigger for this state is as of yet unknown</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
 					<a name="tos_block" class="tsd-anchor"></a>
@@ -186,9 +226,14 @@
 					<div class="tsd-signature tsd-kind-icon">TOS_<wbr>BLOCK<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;TOS_BLOCK&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d88997b/src/api/model/index.ts#L55">api/model/index.ts:55</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/index.ts#L82">api/model/index.ts:82</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This usually shows up when the session has been blocked by WA due to some issue with the browser/user agent. It literally stands for Terms of Service Block. It may also show up when the host account is banned.</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
 					<a name="unlaunched" class="tsd-anchor"></a>
@@ -196,9 +241,14 @@
 					<div class="tsd-signature tsd-kind-icon">UNLAUNCHED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;UNLAUNCHED&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d88997b/src/api/model/index.ts#L56">api/model/index.ts:56</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/index.ts#L86">api/model/index.ts:86</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Unknown, possibly when the session is deauthenticated.</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
 					<a name="unpaired" class="tsd-anchor"></a>
@@ -206,9 +256,14 @@
 					<div class="tsd-signature tsd-kind-icon">UNPAIRED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;UNPAIRED&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d88997b/src/api/model/index.ts#L57">api/model/index.ts:57</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/index.ts#L90">api/model/index.ts:90</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>When <code>UNPAIRED</code> the page is waiting for a QR Code scan. If your state becomes <code>UNPAIRED</code> then the session is most likely signed out by the host account.</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
 					<a name="unpaired_idle" class="tsd-anchor"></a>
@@ -216,9 +271,14 @@
 					<div class="tsd-signature tsd-kind-icon">UNPAIRED_<wbr>IDLE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;UNPAIRED_IDLE&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d88997b/src/api/model/index.ts#L58">api/model/index.ts:58</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/index.ts#L94">api/model/index.ts:94</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This state is fired when the QR code has not been scanned for a long time (about 1 minute). On the page it will show &quot;Click to reload QR code&quot;</p>
+						</div>
+					</div>
 				</section>
 			</section>
 		</div>
@@ -248,6 +308,45 @@
 					</li>
 					<li class=" pp-nav pp-page">
 						<a href="../pages/The Client/launch-events.html">Launch <wbr>Events</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/The Client/licensed-features.html">Licensed <wbr>Features</a>
+					</li>
+					<li class="label pp-nav pp-group">
+						<span>How to</span>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/send-messages.html">Send <wbr>Messages</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/receive-messages.html">Receive <wbr>Messages</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/send-files.html">Send <wbr>Files</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/location.html">Sending &amp; <wbr>Receiving <wbr>Location</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/react-to-group-events.html">React to group events</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/create-api.html">Create an API</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/detect-logout.html">Detect a logout</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/handle-errors.html">Handle <wbr>Errors</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/handle-disconnection.html">Handle a disconnection</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/decrypt-media.html">Decrypt media</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/incoming-calls.html">Detect <wbr>Incoming <wbr>Calls</a>
 					</li>
 					<li class="globals  ">
 						<a href="../globals.html"><em>Globals</em></a>
