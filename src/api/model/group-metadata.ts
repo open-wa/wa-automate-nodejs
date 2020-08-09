@@ -1,14 +1,30 @@
 import { Id } from './id';
+import { GroupChatId } from './aliases';
 
 export interface GroupMetadata {
-  id: Id;
+  /**
+   * The chat id of the group [[GroupChatId]]
+   */
+  id: GroupChatId;
+  /**
+   * The timestamp of when the group was created
+   */
   creation: number;
+  /**
+   * The id of the owner of the group [[ContactId]]
+   */
   owner: {
     server: string;
     user: string;
     _serialized: string;
   };
+  /**
+   * An array of participants in the group
+   */
   participants: any[];
+  /**
+   * Unknown.
+   */
   pendingParticipants: any[];
 }
 

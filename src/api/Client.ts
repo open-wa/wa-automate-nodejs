@@ -7,12 +7,13 @@ import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent, puppeteerConfig } from '../config/puppeteer.config'
 import sharp from 'sharp';
 import { ConfigObject, STATE } from './model';
-const parseFunction = require('parse-function');
-const { default: PQueue } = require("p-queue");
+import PQueue from 'p-queue'
+/** @ignore */
+const parseFunction = require('parse-function'),
+pkg = require('../../package.json');
 import treekill from 'tree-kill';
 import { SessionInfo } from './model/sessionInfo';
 import { injectApi } from '../controllers/browser';
-import { licenseCheckUrl } from '../controllers/initializer';
 import { isAuthenticated } from '../controllers/auth';
 import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL } from './model/aliases';
 import { bleachMessage } from '@open-wa/wa-decrypt';
@@ -45,7 +46,14 @@ export enum SimpleListener {
   ContactAdded = 'onContactAdded',
 }
 
-export const getBase64 = async (url: string, optionsOverride: any = {} ) => {
+/**
+ * @internal
+ * A convinience method to download the [[DataURL]] of a file
+ * @param url The url
+ * @param optionsOverride You can use this to override the [axios request config](https://github.com/axios/axios#request-config)
+ * @returns Promise<DataURL>
+ */
+async function getDUrl(url: string, optionsOverride: any = {} ){
   try {
     const res = await axios({
         method:"get",
@@ -57,21 +65,26 @@ export const getBase64 = async (url: string, optionsOverride: any = {} ) => {
         ...optionsOverride,
         responseType: 'arraybuffer'
       });
-    return `data:${res.headers['content-type']};base64,${Buffer.from(res.data, 'binary').toString('base64')}`
+    const dUrl : DataURL = `data:${res.headers['content-type']};base64,${Buffer.from(res.data, 'binary').toString('base64')}`;
+    return dUrl;
     // return Buffer.from(response.data, 'binary').toString('base64')
   } catch (error) {
-    console.log("TCL: getBase64 -> error", error)
+    console.log("TCL: getDUrl -> error", error)
   }
 }
 
-function base64MimeType(encoded) {
+/**
+ * @internal
+ * Use this to extract the mime type from a [[DataURL]]
+ */
+function base64MimeType(dUrl : DataURL) {
   var result = null;
 
-  if (typeof encoded !== 'string') {
+  if (typeof dUrl !== 'string') {
     return result;
   }
 
-  var mime = encoded.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
+  var mime = dUrl.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
 
   if (mime && mime.length) {
     result = mime[1];
@@ -288,7 +301,7 @@ export class Client {
      await this._reInjectWapi();
      if (this._createConfig?.licenseKey) {
       const { me } = await this.getMe();
-      const { data } = await axios.post(licenseCheckUrl, { key: this._createConfig.licenseKey, number: me._serialized, ...this._sessionInfo });
+      const { data } = await axios.post(pkg.licenseCheckUrl, { key: this._createConfig.licenseKey, number: me._serialized, ...this._sessionInfo });
       if (data) {
         await this._page.evaluate(data => eval(data), data);
         console.log('License Valid');
@@ -466,8 +479,8 @@ export class Client {
    * @fires ```javascript
    * {
    * "chat": "00000000000-1111111111@g.us", //the chat in which this state is occuring
-   * "chat": "22222222222@c.us", //the user that is causing this state
-   * "state": "composing, //can also be 'available', 'unavailable', 'recording'
+   * "user": "22222222222@c.us", //the user that is causing this state
+   * "state": "composing, //can also be 'available', 'unavailable', 'recording' or 'composing'
    * }
    * ```
    */
@@ -656,6 +669,9 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Set your profile name
+   * 
+   * Please note, this does not work on business accounts!
+   * 
    * @param newName String new name to set for your profile
    */
    public async setMyName(newName: string) {
@@ -884,7 +900,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
   public async sendImage(
     to: ChatId,
-    base64: Base64,
+    base64: DataURL,
     filename: string,
     caption: Content,
     quotedMsgId?: MessageId,
@@ -955,7 +971,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
   public async sendFile(
     to: ChatId,
-    base64: Base64,
+    base64: DataURL,
     filename: string,
     caption: Content,
     quotedMsgId?: MessageId,
@@ -974,7 +990,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
   public async sendPtt(
     to: ChatId,
-    base64: Base64,
+    base64: DataURL,
     quotedMsgId: MessageId,
   ) {
     return this.sendImage(to, base64, 'ptt.ogg', '', quotedMsgId, true);
@@ -1021,7 +1037,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     if (n) {
       const r = `https://i.giphy.com/${n[1]}.mp4`;
       const filename = `${n[1]}.mp4`
-      const base64 = await getBase64(r);
+      const base64 = await getDUrl(r);
       return await this.pup(
         ({ to, base64, filename, caption }) => {
           WAPI.sendVideoAsGif(base64, to, filename, caption);
@@ -1056,7 +1072,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     waitForId?: boolean
   ) {
     try {
-     const base64 = await getBase64(url, requestConfig);
+     const base64 = await getDUrl(url, requestConfig);
       return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId)
     } catch(error) {
       console.log('Something went wrong', error);
@@ -1259,6 +1275,15 @@ public async iAmAdmin(){
     } else {
       return await this.pup(() => WAPI.getAllChats());
     }
+  }
+
+
+  /**
+   * Retreives all Chat Ids
+   * @returns array of [ChatId]
+   */
+  public async getAllChatIds() {
+      return await this.pup(() => WAPI.getAllChatIds());
   }
 
   /**
@@ -1802,7 +1827,7 @@ public async getStatus(contactId: ContactId) {
  */
   public async setGroupIconByUrl(groupId: GroupChatId, url: string, requestConfig: any = {}) {
     try {
-      const base64 = await getBase64(url, requestConfig);
+      const base64 = await getDUrl(url, requestConfig);
        return await this.setGroupIcon(groupId,base64);
      } catch(error) {
        throw error;
@@ -1922,7 +1947,7 @@ public async getStatus(contactId: ContactId) {
    */
   public async sendStickerfromUrl(to: ChatId, url: string, requestConfig: any = {}) {
     try {
-      const base64 = await getBase64(url, requestConfig);
+      const base64 = await getDUrl(url, requestConfig);
       return await this.sendImageAsSticker(to, base64);
      } catch(error) {
        console.log('Something went wrong', error);
@@ -1962,7 +1987,7 @@ public async getStatus(contactId: ContactId) {
    * @param to: The recipient id.
    * @param b64: This is the base64 string formatted with data URI. You can also send a plain base64 string but it may result in an error as the function will not be able to determine the filetype before sending.
    */
-  public async sendImageAsSticker(to: ChatId, b64: string){
+  public async sendImageAsSticker(to: ChatId, b64: DataURL){
     if(!this._loadedModules.includes('jsSha')) {
       await this.injectJsSha();
       this._loadedModules.push('jsSha');

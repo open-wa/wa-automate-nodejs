@@ -60,27 +60,167 @@
     "typedocOptions": {
       "inputFiles": ["./src/api","./src/utils","./src/controllers"],
       "includes":["./node_modules/puppeteer/lib"],
+      "pages": {
+        "groups": [
+          {
+              "title": "Getting Started",
+              "pages": [
+                {
+                    "title": "Installation",
+                    "source": "./docs-source/getting-started/installation.md"
+                },
+                {
+                    "title": "Easy API",
+                    "source": "./docs-source/getting-started/quick-run.md"
+                },
+                {
+                    "title": "Docker",
+                    "source": "./docs-source/getting-started/docker.md"
+                }
+              ]
+          },
+          {
+              "title": "The Client",
+              "pages": [
+                {
+                    "title": "Creating a Client",
+                    "source": "./docs-source/configuration/the-client.md",
+                    "children": [
+                      {
+                          "title": "Multiple Sessions",
+                          "source": "./docs-source/configuration/multiple-sessions.md"
+                      }
+                  ]
+                },
+                {
+                    "title": "The Config Object",
+                    "source": "./docs-source/configuration/config-object.md"
+                },
+                {
+                    "title": "Launch Events",
+                    "source": "./docs-source/configuration/launch-events.md",
+                    "children": [
+                      {
+                          "title": "Capturing QR Code",
+                          "source": "./docs-source/configuration/capture-qr.md"
+                      },
+                      {
+                          "title": "Capturing Session Data",
+                          "source": "./docs-source/configuration/capture-sd.md"
+                      }
+                  ]
+                },
+                {
+                    "title": "Licensed Features",
+                    "source": "./docs-source/configuration/licensed-features.md"
+                },
+              ]
+          },
+          {
+              "title": "How to",
+              "pages": [
+                {
+                    "title": "Send Messages",
+                    "source": "./docs-source/how-to/send-messages.md"
+                },
+                {
+                    "title": "Receive Messages",
+                    "source": "./docs-source/how-to/receive-messages.md"
+                },
+                {
+                    "title": "Send Files",
+                    "source": "./docs-source/how-to/send-files.md",
+                    "children":[
+                      {
+                        "title": "Send Videos",
+                        "source": "./docs-source/how-to/send-videos.md",
+                    },
+                    ]
+                },
+                {
+                    "title": "Sending & Receiving Location",
+                    "source": "./docs-source/how-to/location.md"
+                },
+                {
+                    "title": "Groups",
+                    "source": "./docs-source/how-to/groups.md",
+                    "children":[
+                      {
+                        "title": "Manage Participants",
+                        "source": "./docs-source/how-to/manage-participants.md",
+                    },
+                    ]
+                },
+                {
+                    "title": "React to group events",
+                    "source": "./docs-source/how-to/react-to-group-events.md"
+                },
+                {
+                    "title": "Detect a logout",
+                    "source": "./docs-source/how-to/detect-logout.md"
+                },
+                {
+                    "title": "Handle Errors",
+                    "source": "./docs-source/how-to/handle-errors.md"
+                },
+                {
+                    "title": "Decrypt Media",
+                    "source": "./docs-source/how-to/decrypt-media.md"
+                },
+                {
+                    "title": "Detect Incoming Calls",
+                    "source": "./docs-source/how-to/incoming-calls.md"
+                },
+                {
+                    "title": "More Examples",
+                    "source": "./docs-source/how-to/misc.md"
+                },
+              ]
+          },
+          {
+              "title": "Advanced",
+              "pages": [
+                {
+                  "title": "Best Practices",
+                  "source": "./docs-source/advanced/best-practices.md"
+                }
+                            ]
+          }
+        ],
+        "output": "pages"
+    },
         "mode": "file",
         "out": "docs",
-        "exclude":"**.config",
-        "excludeExternals":false,
+        "exclude":[
+          "**.config",
+          "**/**ignore**",
+          "**/**browser.ts",
+          "**/popup/**",
+          "**/utils/**",
+          "**/**auth**",
+          "**/**launch_checks**",
+          "**/**preload**",
+        ],
+        "excludeExternals":true,
         "includeVersion":true,
+        "stripInternal": true,
+        "excludeNotExported": "true",
         "hideGenerator":true,
-        // "plugin":"typedoc-neo-theme"
         "readme":"./README.md",
-        "theme":"node_modules/typedoc-neo-theme/bin/default",
+        "theme": "pages-plugin",
+        // "theme":"node_modules/typedoc-neo-theme/bin/default",
         "excludePrivate":true,
         "links": [{
           "label": "Guides",
-          "url": "/"
+          "url": "/guides"
         }, {
           "label": "License Keys",
           "url": "/"
         }],
         "outline": [{
           "Getting Started": {
-            "Installation": "/",
-            "Docker": "/"
+            "Installation": "/docs/pages/Getting%20Started/installation",
+            "Docker": "/docs/pages/Getting%20Started/docker"
           },
           "The Client": {
             "Overview": "/",
@@ -91,7 +231,7 @@
             "Setup": "",
             "Postman Generator": "",
           },
-          "Prenium Features": {
+          "Premium Features": {
             "Overview": "/",
             "Getting Started": "/",
             "Perks": "/"

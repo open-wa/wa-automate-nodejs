@@ -1141,6 +1141,13 @@ window.Store.Msg.off('add');
 sessionStorage.removeItem('saved_msgs');
 
 window._WAPI._newMessagesListener = window.Store.Msg.on('add', (newMessage) => {
+    //This fixes messages so that they can be correctly decrypted
+    if(newMessage.type==='sticker') {
+        newMessage = {
+            ...newMessage,
+            ...newMessage.mediaObject._msgs[0][0].attributes
+        }
+    }
     if (newMessage && newMessage.isNewMsg && !newMessage.isSentByMe && !newMessage.isStatusV3) {
         let message = window.WAPI.processMessageObj(newMessage, false, false);
         if (message) {
@@ -1547,11 +1554,14 @@ window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, qu
 
 /**
  * This function sts the profile name of the number.
+ * 
+ * Please note this DOES NOT WORK ON BUSINESS ACCOUNTS!
+ * 
  * @param newName - string the new name to set as profile name
  */
 window.WAPI.setMyName = async function (newName) {
-    if(!Store.Versions.default[11].BinaryProtocol) Store.Versions.default[11].BinaryProtocol=new Store.bp(11);
-    return await Store.Versions.default[11].setPushname(newName);
+    if(!Store.Versions.default[12].BinaryProtocol) Store.Versions.default[12].BinaryProtocol=new Store.bp(Store.Me.binVersion);
+    return await Store.Versions.default[12].setPushname(newName);
 }
 
 /** Change the icon for the group chat

@@ -1,3 +1,7 @@
+ /**
+  * @hidden
+  */
+/** */
 import * as path from 'path';
 const fs = require('fs');
 const ChromeLauncher = require('chrome-launcher');

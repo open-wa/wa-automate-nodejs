@@ -51,9 +51,21 @@ export interface LiveLocationChangedEvent {
   msgId?: string
 }
 
+/**
+ * The ChatState represents the state you'd normally see represented under the chat name in the app.
+ */
 export enum ChatState {
+  /**
+   * `typing...`
+   */
   TYPING,
+  /**
+   * `recording audio...`
+   */
   RECORDING,
+  /**
+   * `online`
+   */
   PAUSED
 }
 

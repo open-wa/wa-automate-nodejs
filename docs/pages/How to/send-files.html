@@ -1,0 +1,257 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Send Files | @open-wa/wa-automate - v1.9.105</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v1.9.105">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../../assets/css/main.css">
+	<link rel="stylesheet" href="../../assets/css/pages.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../../assets/js/search.json" data-base="../..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../../index.html" class="title">@open-wa/wa-automate - v1.9.105</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="send-messages.html">How to</a>
+				</li>
+				<li>
+					<a href="send-files.html">Send Files</a>
+				</li>
+			</ul>
+			<h1>Send Files</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#sending-files" id="sending-files" style="color: inherit; text-decoration: none;">
+					<h1>Sending Files</h1>
+				</a>
+				<a href="#send-image" id="send-image" style="color: inherit; text-decoration: none;">
+					<h2>Send Image</h2>
+				</a>
+				<p><a href="../../classes/client.html#sendimage">sendImage</a></p>
+				<p>Make sure to use a <a href="../../globals.html#dataurl">DataURL</a> for the second parameter.</p>
+				<pre><code class="language-javascript">    client.sendImage(chatId, dataUrl, <span class="hljs-string">&#x27;filename.jpeg&#x27;</span>, <span class="hljs-string">&#x27;cool caption&#x27;</span>)
+
+    <span class="hljs-comment">//send image as a reply to another message quotedMessageId</span>
+    client.sendImage(chatId, dataUrl, <span class="hljs-string">&#x27;filename.jpeg&#x27;</span>, <span class="hljs-string">&#x27;cool caption&#x27;</span>, quotedMessageId)
+
+    <span class="hljs-comment">//wait for the Id to be returned</span>
+    client.sendImage(chatId, dataUrl, <span class="hljs-string">&#x27;filename.jpeg&#x27;</span>, <span class="hljs-string">&#x27;cool caption&#x27;</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">true</span>)
+</code></pre>
+				<a href="#send-audio" id="send-audio" style="color: inherit; text-decoration: none;">
+					<h2>Send Audio</h2>
+				</a>
+				<p><a href="../../classes/client.html#sendptt">sendPtt</a> sends an audio clip as a &#39;push to talk&#39; type file. This allows recipients to play the clip as they would any other voice note.</p>
+				<pre><code class="language-javascript">    client.sendFile(chatId, dataUrl)
+
+    <span class="hljs-comment">//Send the audio as reply to a message (quotedMessageId)</span>
+    client.sendFile(chatId, dataUrl, )quotedMessageId</code></pre>
+				<a href="#send-file" id="send-file" style="color: inherit; text-decoration: none;">
+					<h2>Send File</h2>
+				</a>
+				<p><a href="../../classes/client.html#sendfile">sendFile</a></p>
+				<p><a href="../../classes/client.html#sendfilefromurl">sendFileFromUrl</a></p>
+				<pre><code class="language-javascript">
+    client.sendFile(chatId, dataUrl, <span class="hljs-string">&#x27;file.pdf&#x27;</span>, <span class="hljs-string">&#x27;check this pdf&#x27;</span>)
+
+    <span class="hljs-comment">//Send the file as reply to a message (quotedMessageId)</span>
+    client.sendFile(chatId, dataUrl, <span class="hljs-string">&#x27;file.pdf&#x27;</span>, <span class="hljs-string">&#x27;check this pdf&#x27;</span>, quotedMessageId)
+
+    <span class="hljs-comment">//Send a file and wait for the message id to be returned</span>
+    client.sendFile(chatId, dataUrl, <span class="hljs-string">&#x27;file.pdf&#x27;</span>, <span class="hljs-string">&#x27;check this pdf&#x27;</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">true</span>)
+
+    <span class="hljs-comment">//or from URL</span>
+    client.sendFileFromUrl(chatId, url);</code></pre>
+				<a href="#send-stickers" id="send-stickers" style="color: inherit; text-decoration: none;">
+					<h2>Send Stickers</h2>
+				</a>
+				<p><a href="../../classes/client.html#sendimageassticker">sendImageAsSticker</a></p>
+				<p><a href="../../classes/client.html#sendstickerfromurl">sendStickerfromUrl</a></p>
+				<pre><code class="language-javascript">    client.sendImageAsSticker(chatId, dataUrl);
+
+    <span class="hljs-comment">//or from a URL</span>
+    client.sendStickerfromUrl(chatId, url);</code></pre>
+				<a href="#sending-gifs" id="sending-gifs" style="color: inherit; text-decoration: none;">
+					<h2>Sending Gifs</h2>
+				</a>
+				<p>There are two ways to send GIFs - by Video or by giphy link.</p>
+				<p>  WA doesn&#39;t actually support the .gif format - probably due to how inefficient it is as a filetype - they instead convert GIFs to video then process them.</p>
+				<p>  In order to send gifs you need to do the same (convert the gif to an mp4 file) then use <a href="../../classes/client.html#sendvideoasgif">sendVideoAsGif</a></p>
+				<p>  <a href="../../classes/client.html#sendgiphy">sendGiphy</a> is a convenience method to make it easier to send gifs from the website <a href="https://giphy.com">GIPHY</a>. You need to make sure you use a giphy media link as shown below.</p>
+				<pre><code class="language-javascript">
+<span class="hljs-keyword">import</span> { create, Client} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Client</span>) </span>{
+<span class="hljs-keyword">await</span> client.sendVideoAsGif(<span class="hljs-string">&#x27;xyz@c.us&#x27;</span>,<span class="hljs-string">&#x27;Video FILE DATA URL&#x27;</span>,<span class="hljs-string">&#x27;some file.mp4&#x27;</span>, <span class="hljs-string">`Hello this is the caption`</span>);
+
+<span class="hljs-comment">//or send via Giphy URL</span>
+
+<span class="hljs-keyword">await</span> client.sendGiphy(<span class="hljs-string">&#x27;xyz@c.us&#x27;</span>,<span class="hljs-string">&#x27;https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif&#x27;</span>, <span class="hljs-string">`Hello this is the caption`</span>);
+}
+
+<span class="hljs-comment">///IMPORTANT! Please make sure to point to your chrome installation and make sure your host has ffmpeg support</span>
+create({
+  <span class="hljs-comment">// For Mac:</span>
+  <span class="hljs-attr">executablePath</span>: <span class="hljs-string">&#x27;/Applications/Google Chrome.app/Contents/MacOS/Google Chrome&#x27;</span>,
+  <span class="hljs-comment">// For Windows:</span>
+  <span class="hljs-comment">// executablePath: &#x27;C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe&#x27;,</span>
+}).then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
+</code></pre>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="label pp-nav pp-group">
+						<span>Getting <wbr>Started</span>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../Getting Started/installation.html">Installation</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../Getting Started/quick-run.html">Easy API</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../Getting Started/docker.html">Docker</a>
+					</li>
+					<li class="label pp-nav pp-group">
+						<span>The <wbr>Client</span>
+					</li>
+					<li class=" pp-nav pp-page pp-parent">
+						<a href="../The Client/the-client.html">Creating a <wbr>Client</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../The Client/config-object.html">The <wbr>Config <wbr>Object</a>
+					</li>
+					<li class=" pp-nav pp-page pp-parent">
+						<a href="../The Client/launch-events.html">Launch <wbr>Events</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../The Client/licensed-features.html">Licensed <wbr>Features</a>
+					</li>
+					<li class="label pp-nav pp-group">
+						<span>How to</span>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="send-messages.html">Send <wbr>Messages</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="receive-messages.html">Receive <wbr>Messages</a>
+					</li>
+					<li class="current pp-nav pp-page pp-parent">
+						<a href="send-files.html">Send <wbr>Files</a>
+					</li>
+					<li class=" pp-nav pp-page pp-child">
+						<a href="send-files/send-videos.html">Send <wbr>Videos</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="location.html">Sending &amp; <wbr>Receiving <wbr>Location</a>
+					</li>
+					<li class=" pp-nav pp-page pp-parent">
+						<a href="groups.html">Groups</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="react-to-group-events.html">React to group events</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="detect-logout.html">Detect a logout</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="handle-errors.html">Handle <wbr>Errors</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="decrypt-media.html">Decrypt <wbr>Media</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="incoming-calls.html">Detect <wbr>Incoming <wbr>Calls</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="misc.html">More <wbr>Examples</a>
+					</li>
+					<li class="label pp-nav pp-group">
+						<span>Advanced</span>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../Advanced/best-practices.html">Best <wbr>Practices</a>
+					</li>
+					<li class="label pp-nav pp-group">
+						<span>API</span>
+					</li>
+					<li class="globals  ">
+						<a href="../../globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-namespace">
+						<a href="../../modules/wapi.html">WAPI</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer>
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="overlay"></div>
+<script src="../../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../../assets/js/search.json"><' + '/script>');</script>
+</body>
+</html>

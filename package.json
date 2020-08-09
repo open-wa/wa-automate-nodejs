@@ -13,6 +13,7 @@
     "build": "rm -rf dist/ && tsc && npm run build:lib && npm run build:config-for-bin",
     "build:skipmid": "tsc && npm run build:lib",
     "build:lib": "ts-node prebuild.ts",
+    "docs": "ts-node docfix.ts && rm -rf docs/ && typedoc",
     "watch": "npm run build && tsc-watch ./src/index.ts --outDir ./dist --onSuccess \"node ./dist/index.js\" --onFailure \"echo Error while compiling\" --compiler typescript/bin/tsc",
     "clean": "rm -rf session && rm -rf dist",
     "clean:full": "rm -rf node_modules && npm run clean",
@@ -21,7 +22,7 @@
     "release": "release-it",
     "release-ci": "release-it --ci",
     "release-image": "node release-image.js",
-    "docwatch": "onchange 'src/**/*.ts' -- typedoc",
+    "docwatch": "onchange 'src/**/*.ts'  'docs-source/**/*.md' -- typedoc",
     "build:config-for-bin": "cd build && ts-node build-config-json-for-bin.ts && cd .."
   },
   "husky": {
@@ -72,9 +73,12 @@
     "precise-commits": "^1.0.2",
     "prettier": "^2.0.1",
     "release-it": "^13.0.1",
+    "shelljs": "^0.8.3",
     "ts-node": "^8.4.1",
     "tsc-watch": "^4.0.0",
-    "typedoc": "^0.17.0",
+    "typedoc": "^0.17.8",
+    "typedoc-neo-theme": "^1.0.9",
+    "typedoc-plugin-pages": "^1.0.1",
     "typescript": "^3.6.4"
   },
   "dependencies": {
@@ -89,7 +93,6 @@
     "death": "^1.1.0",
     "eventemitter2": "^6.0.0",
     "express": "^4.17.1",
-    "futoin-hkdf": "^1.2.1",
     "get-port": "^5.1.1",
     "image-type": "^4.1.0",
     "lodash.uniq": "^4.5.0",
@@ -106,14 +109,12 @@
     "qrcode-terminal": "^0.12.0",
     "rxjs": "^6.5.3",
     "sharp": "^0.25.1",
-    "shelljs": "^0.8.3",
     "socket.io": "^2.3.0",
     "spinnies": "^0.5.1",
     "swagger-ui-express": "^4.1.4",
     "terminal-link": "^2.1.1",
     "tree-kill": "^1.2.2",
     "ts-json-schema-generator": "^0.70.2",
-    "typedoc-neo-theme": "^1.0.9",
     "typescript-parser": "^2.6.1",
     "update-notifier": "^4.1.0",
     "uuid-apikey": "^1.4.6"
