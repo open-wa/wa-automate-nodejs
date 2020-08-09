@@ -8,5 +8,5 @@ tidelift: npm/@open-wa/wa-automate
 community_bridge: # Replace with a single Community Bridge project-name e.g., cloud-foundry
 liberapay: # Replace with a single Liberapay username
 issuehunt: smashah
-otechie: # Replace with a single Otechie username
+otechie: smashah
 custom: ['https://www.buymeacoffee.com/smashah', 'https://gumroad.com/l/BTMt']
