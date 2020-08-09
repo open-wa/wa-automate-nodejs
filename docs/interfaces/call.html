@@ -100,7 +100,7 @@
 					<div class="tsd-signature tsd-kind-icon">can<wbr>Handle<wbr>Locally<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/call.ts#L7">api/model/call.ts:7</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d7aebc1/src/api/model/call.ts#L25">api/model/call.ts:25</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -110,9 +110,14 @@
 					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/call.ts#L2">api/model/call.ts:2</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d7aebc1/src/api/model/call.ts#L8">api/model/call.ts:8</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The id of the call</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="isgroup" class="tsd-anchor"></a>
@@ -120,9 +125,14 @@
 					<div class="tsd-signature tsd-kind-icon">is<wbr>Group<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/call.ts#L6">api/model/call.ts:6</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d7aebc1/src/api/model/call.ts#L24">api/model/call.ts:24</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Whether or not the call is a group call</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="isvideo" class="tsd-anchor"></a>
@@ -130,9 +140,14 @@
 					<div class="tsd-signature tsd-kind-icon">is<wbr>Video<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/call.ts#L5">api/model/call.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d7aebc1/src/api/model/call.ts#L20">api/model/call.ts:20</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Whether or not the call is a video call</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="offertime" class="tsd-anchor"></a>
@@ -140,9 +155,14 @@
 					<div class="tsd-signature tsd-kind-icon">offer<wbr>Time<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/call.ts#L4">api/model/call.ts:4</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d7aebc1/src/api/model/call.ts#L16">api/model/call.ts:16</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The epoch timestamp of the call. You will have to multiply this by 1000 to get the actual epoch timestamp</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="outgoing" class="tsd-anchor"></a>
@@ -150,29 +170,44 @@
 					<div class="tsd-signature tsd-kind-icon">outgoing<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/call.ts#L8">api/model/call.ts:8</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d7aebc1/src/api/model/call.ts#L29">api/model/call.ts:29</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The direction of the call.</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="participants" class="tsd-anchor"></a>
 					<h3>participants</h3>
-					<div class="tsd-signature tsd-kind-icon">participants<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">]</span></div>
+					<div class="tsd-signature tsd-kind-icon">participants<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><a href="../globals.html#contactid" class="tsd-signature-type">ContactId</a><span class="tsd-signature-symbol">]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/call.ts#L10">api/model/call.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d7aebc1/src/api/model/call.ts#L34">api/model/call.ts:34</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The participants on the call</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="peerjid" class="tsd-anchor"></a>
 					<h3>peer<wbr>Jid</h3>
-					<div class="tsd-signature tsd-kind-icon">peer<wbr>Jid<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<div class="tsd-signature tsd-kind-icon">peer<wbr>Jid<span class="tsd-signature-symbol">:</span> <a href="id.html" class="tsd-signature-type">Id</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/call.ts#L3">api/model/call.ts:3</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d7aebc1/src/api/model/call.ts#L12">api/model/call.ts:12</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The id of the account calling</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="webclientshouldhandle" class="tsd-anchor"></a>
@@ -180,7 +215,7 @@
 					<div class="tsd-signature tsd-kind-icon">web<wbr>Client<wbr>Should<wbr>Handle<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f3c7e33/src/api/model/call.ts#L9">api/model/call.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/d7aebc1/src/api/model/call.ts#L30">api/model/call.ts:30</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -204,13 +239,13 @@
 					<li class="label pp-nav pp-group">
 						<span>The <wbr>Client</span>
 					</li>
-					<li class=" pp-nav pp-page">
+					<li class=" pp-nav pp-page pp-parent">
 						<a href="../pages/The Client/the-client.html">Creating a <wbr>Client</a>
 					</li>
 					<li class=" pp-nav pp-page">
 						<a href="../pages/The Client/config-object.html">The <wbr>Config <wbr>Object</a>
 					</li>
-					<li class=" pp-nav pp-page">
+					<li class=" pp-nav pp-page pp-parent">
 						<a href="../pages/The Client/launch-events.html">Launch <wbr>Events</a>
 					</li>
 					<li class=" pp-nav pp-page">
@@ -225,17 +260,17 @@
 					<li class=" pp-nav pp-page">
 						<a href="../pages/How to/receive-messages.html">Receive <wbr>Messages</a>
 					</li>
-					<li class=" pp-nav pp-page">
+					<li class=" pp-nav pp-page pp-parent">
 						<a href="../pages/How to/send-files.html">Send <wbr>Files</a>
 					</li>
 					<li class=" pp-nav pp-page">
 						<a href="../pages/How to/location.html">Sending &amp; <wbr>Receiving <wbr>Location</a>
 					</li>
-					<li class=" pp-nav pp-page">
-						<a href="../pages/How to/react-to-group-events.html">React to group events</a>
+					<li class=" pp-nav pp-page pp-parent">
+						<a href="../pages/How to/groups.html">Groups</a>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="../pages/How to/create-api.html">Create an API</a>
+						<a href="../pages/How to/react-to-group-events.html">React to group events</a>
 					</li>
 					<li class=" pp-nav pp-page">
 						<a href="../pages/How to/detect-logout.html">Detect a logout</a>
@@ -244,13 +279,19 @@
 						<a href="../pages/How to/handle-errors.html">Handle <wbr>Errors</a>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="../pages/How to/handle-disconnection.html">Handle a disconnection</a>
-					</li>
-					<li class=" pp-nav pp-page">
-						<a href="../pages/How to/decrypt-media.html">Decrypt media</a>
+						<a href="../pages/How to/decrypt-media.html">Decrypt <wbr>Media</a>
 					</li>
 					<li class=" pp-nav pp-page">
 						<a href="../pages/How to/incoming-calls.html">Detect <wbr>Incoming <wbr>Calls</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/misc.html">More <wbr>Examples</a>
+					</li>
+					<li class="label pp-nav pp-group">
+						<span>Advanced</span>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/Advanced/best-practices.html">Best <wbr>Practices</a>
 					</li>
 					<li class="globals  ">
 						<a href="../globals.html"><em>Globals</em></a>

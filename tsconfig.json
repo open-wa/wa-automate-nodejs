@@ -84,7 +84,13 @@
               "pages": [
                 {
                     "title": "Creating a Client",
-                    "source": "./docs-source/configuration/the-client.md"
+                    "source": "./docs-source/configuration/the-client.md",
+                    "children": [
+                      {
+                          "title": "Multiple Sessions",
+                          "source": "./docs-source/configuration/multiple-sessions.md"
+                      }
+                  ]
                 },
                 {
                     "title": "The Config Object",
@@ -92,7 +98,17 @@
                 },
                 {
                     "title": "Launch Events",
-                    "source": "./docs-source/configuration/launch-events.md"
+                    "source": "./docs-source/configuration/launch-events.md",
+                    "children": [
+                      {
+                          "title": "Capturing QR Code",
+                          "source": "./docs-source/configuration/capture-qr.md"
+                      },
+                      {
+                          "title": "Capturing Session Data",
+                          "source": "./docs-source/configuration/capture-sd.md"
+                      }
+                  ]
                 },
                 {
                     "title": "Licensed Features",
@@ -113,19 +129,31 @@
                 },
                 {
                     "title": "Send Files",
-                    "source": "./docs-source/how-to/send-files.md"
+                    "source": "./docs-source/how-to/send-files.md",
+                    "children":[
+                      {
+                        "title": "Send Videos",
+                        "source": "./docs-source/how-to/send-videos.md",
+                    },
+                    ]
                 },
                 {
                     "title": "Sending & Receiving Location",
                     "source": "./docs-source/how-to/location.md"
                 },
                 {
-                    "title": "React to group events",
-                    "source": "./docs-source/how-to/react-to-group-events.md"
+                    "title": "Groups",
+                    "source": "./docs-source/how-to/groups.md",
+                    "children":[
+                      {
+                        "title": "Manage Participants",
+                        "source": "./docs-source/how-to/manage-participants.md",
+                    },
+                    ]
                 },
                 {
-                    "title": "Create an API",
-                    "source": "./docs-source/how-to/create-api.md"
+                    "title": "React to group events",
+                    "source": "./docs-source/how-to/react-to-group-events.md"
                 },
                 {
                     "title": "Detect a logout",
@@ -136,19 +164,29 @@
                     "source": "./docs-source/how-to/handle-errors.md"
                 },
                 {
-                    "title": "Handle a disconnection",
-                    "source": "./docs-source/how-to/handle-disconnection.md"
-                },
-                {
-                    "title": "Decrypt media",
+                    "title": "Decrypt Media",
                     "source": "./docs-source/how-to/decrypt-media.md"
                 },
                 {
                     "title": "Detect Incoming Calls",
                     "source": "./docs-source/how-to/incoming-calls.md"
                 },
+                {
+                    "title": "More Examples",
+                    "source": "./docs-source/how-to/misc.md"
+                },
               ]
-          }],
+          },
+          {
+              "title": "Advanced",
+              "pages": [
+                {
+                  "title": "Best Practices",
+                  "source": "./docs-source/advanced/best-practices.md"
+                }
+                            ]
+          }
+        ],
         "output": "pages"
     },
         "mode": "file",

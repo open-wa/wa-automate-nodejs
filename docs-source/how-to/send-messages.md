@@ -36,3 +36,19 @@ When sending a message, make sure to await the promise. It usually returns an id
 ```javascript
     await client.sendReplyWithMentions(chatId, "Hello", idOfMessageToReplyTo);
 ```
+
+## Forward Messages
+
+To forward messages use [[[[forwardMessages]] with the following params:
+
+- chat to forward messages to : xxxxx@c.us
+- messages: a single or array of message ids or message objects
+- skipMyMessages: true or false, if true it will filter out messages sent by you from the list of messages, default false.
+
+```javascript
+//forward multiple messages using an array of messageIds
+await client.forwardMessages('xxxxx@c.us',[Array of Message Ids],true)
+
+//forward single message by id
+await client.forwardMessages('xxxxx@c.us,"messageId",true)
+```

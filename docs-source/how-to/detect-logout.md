@@ -10,6 +10,4 @@ First use [[onStateChanged]] to detect changes in the session state. Then use [[
 
     if(state==='UNPAIRED') console.log('LOGGED OUT!!!!')
   });
-
-
 ```

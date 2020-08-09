@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Decrypt media | @open-wa/wa-automate - v1.9.105</title>
+	<title>Decrypt Media | @open-wa/wa-automate - v1.9.105</title>
 	<meta name="description" content="Documentation for @open-wa/wa-automate - v1.9.105">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../assets/css/main.css">
@@ -56,10 +56,10 @@
 					<a href="send-messages.html">How to</a>
 				</li>
 				<li>
-					<a href="decrypt-media.html">Decrypt media</a>
+					<a href="decrypt-media.html">Decrypt Media</a>
 				</li>
 			</ul>
-			<h1>Decrypt media</h1>
+			<h1>Decrypt Media</h1>
 		</div>
 	</div>
 </header>
@@ -67,6 +67,45 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
+				<a href="#decrypting-media" id="decrypting-media" style="color: inherit; text-decoration: none;">
+					<h1>Decrypting Media</h1>
+				</a>
+				<p>Here is a sample of how to decrypt media. This has been tested on images, videos, documents, audio and voice notes.</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { create, Client, decryptMedia } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>;
+<span class="hljs-keyword">const</span> mime = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;mime-types&#x27;</span>);
+<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;fs&#x27;</span>);
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client: Client</span>) </span>{
+  client.onMessage(<span class="hljs-keyword">async</span> message =&gt; {
+    <span class="hljs-keyword">if</span> (message.mimetype) {
+      <span class="hljs-keyword">const</span> filename = <span class="hljs-string">`<span class="hljs-subst">${message.t}</span>.<span class="hljs-subst">${mime.extension(message.mimetype)}</span>`</span>;
+      <span class="hljs-keyword">const</span> mediaData = <span class="hljs-keyword">await</span> decryptMedia(message);
+      <span class="hljs-keyword">const</span> imageBase64 = <span class="hljs-string">`data:<span class="hljs-subst">${message.mimetype}</span>;base64,<span class="hljs-subst">${mediaData.toString(
+        <span class="hljs-string">&#x27;base64&#x27;</span>
+      )}</span>`</span>;
+      <span class="hljs-keyword">await</span> client.sendImage(
+        message.from,
+        imageBase64,
+        filename,
+        <span class="hljs-string">`You just sent me this <span class="hljs-subst">${message.type}</span>`</span>
+      );
+      fs.writeFile(filename, mediaData, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+        <span class="hljs-keyword">if</span> (err) {
+          <span class="hljs-keyword">return</span> <span class="hljs-built_in">console</span>.log(err);
+        }
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;The file was saved!&#x27;</span>);
+      });
+    }
+  });
+}
+
+create().then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
+				<p>It is always preferable to keep projects smaller than needed so you can now use a lightweight library called wa-decrypt for projects that do not need all of @open-wa/wa-automate.</p>
+				<p>You can install that using:</p>
+				<pre><code class="language-bash">&gt; npm i --save wa-decrypt</code></pre>
+				<p>and import it like so:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { decryptMedia } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;wa-decrypt&#x27;</span>;</code></pre>
+				<p><a href="https://github.com/smashah/wa-decrypt#readme">Learn more about wa-decrypt here</a></p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -87,13 +126,13 @@
 					<li class="label pp-nav pp-group">
 						<span>The <wbr>Client</span>
 					</li>
-					<li class=" pp-nav pp-page">
+					<li class=" pp-nav pp-page pp-parent">
 						<a href="../The Client/the-client.html">Creating a <wbr>Client</a>
 					</li>
 					<li class=" pp-nav pp-page">
 						<a href="../The Client/config-object.html">The <wbr>Config <wbr>Object</a>
 					</li>
-					<li class=" pp-nav pp-page">
+					<li class=" pp-nav pp-page pp-parent">
 						<a href="../The Client/launch-events.html">Launch <wbr>Events</a>
 					</li>
 					<li class=" pp-nav pp-page">
@@ -108,17 +147,17 @@
 					<li class=" pp-nav pp-page">
 						<a href="receive-messages.html">Receive <wbr>Messages</a>
 					</li>
-					<li class=" pp-nav pp-page">
+					<li class=" pp-nav pp-page pp-parent">
 						<a href="send-files.html">Send <wbr>Files</a>
 					</li>
 					<li class=" pp-nav pp-page">
 						<a href="location.html">Sending &amp; <wbr>Receiving <wbr>Location</a>
 					</li>
-					<li class=" pp-nav pp-page">
-						<a href="react-to-group-events.html">React to group events</a>
+					<li class=" pp-nav pp-page pp-parent">
+						<a href="groups.html">Groups</a>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="create-api.html">Create an API</a>
+						<a href="react-to-group-events.html">React to group events</a>
 					</li>
 					<li class=" pp-nav pp-page">
 						<a href="detect-logout.html">Detect a logout</a>
@@ -126,14 +165,20 @@
 					<li class=" pp-nav pp-page">
 						<a href="handle-errors.html">Handle <wbr>Errors</a>
 					</li>
-					<li class=" pp-nav pp-page">
-						<a href="handle-disconnection.html">Handle a disconnection</a>
-					</li>
 					<li class="current pp-nav pp-page">
-						<a href="decrypt-media.html">Decrypt media</a>
+						<a href="decrypt-media.html">Decrypt <wbr>Media</a>
 					</li>
 					<li class=" pp-nav pp-page">
 						<a href="incoming-calls.html">Detect <wbr>Incoming <wbr>Calls</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="misc.html">More <wbr>Examples</a>
+					</li>
+					<li class="label pp-nav pp-group">
+						<span>Advanced</span>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../Advanced/best-practices.html">Best <wbr>Practices</a>
 					</li>
 					<li class="label pp-nav pp-group">
 						<span>API</span>

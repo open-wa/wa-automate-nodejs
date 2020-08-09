@@ -90,32 +90,6 @@ ev.on(<span class="hljs-string">&#x27;event&#x27;</span>, callback)</code></pre>
  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`<span class="hljs-subst">${namespace}</span> event detected for session <span class="hljs-subst">${sessionId}</span>`</span>, data)
 
 });</code></pre>
-				<a href="#capturing-qr-code" id="capturing-qr-code" style="color: inherit; text-decoration: none;">
-					<h2>Capturing QR Code</h2>
-				</a>
-				<p>An event is emitted every time the QR code is received by the system. You can grab hold of this event emitter by importing <code>ev</code>. You can capture this qr code and save it to a file.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { ev } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>;
-<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;fs&#x27;</span>);
-
-ev.on(<span class="hljs-string">&#x27;qr.**&#x27;</span>, <span class="hljs-keyword">async</span> qrcode =&gt; {
-  <span class="hljs-comment">//qrcode is base64 encoded qr code image</span>
-  <span class="hljs-comment">//now you can do whatever you want with it</span>
-  <span class="hljs-keyword">const</span> imageBuffer = Buffer.from(
-    qrcode.replace(<span class="hljs-string">&#x27;data:image/png;base64,&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>),
-    <span class="hljs-string">&#x27;base64&#x27;</span>
-  );
-  fs.writeFileSync(<span class="hljs-string">&#x27;qr_code.png&#x27;</span>, imageBuffer);
-});</code></pre>
-				<a href="#capturing-the-session-data" id="capturing-the-session-data" style="color: inherit; text-decoration: none;">
-					<h2>Capturing the session data</h2>
-				</a>
-				<p>By default, the session data is saved as a <code>[sessionId].data.json</code> file in the process working directory, however, you can disable this (<a href="../../interfaces/configobject.html#skipsessionsave">skipSessionSave</a>) and implement a custom handler for session data. It is important that you always update session data with the latest values. The default behaviour is to override the data.json file with the latest session data.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { ev } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>;
-<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;fs&#x27;</span>);
-
-ev.on(<span class="hljs-string">&#x27;sessionData.**&#x27;</span>, <span class="hljs-keyword">async</span> (sessionData, sessionId) =&gt; {
-    <span class="hljs-comment">//do something with sessionData and sessionId</span>
-});</code></pre>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -136,14 +110,20 @@ ev.on(<span class="hljs-string">&#x27;sessionData.**&#x27;</span>, <span class="
 					<li class="label pp-nav pp-group">
 						<span>The <wbr>Client</span>
 					</li>
-					<li class=" pp-nav pp-page">
+					<li class=" pp-nav pp-page pp-parent">
 						<a href="the-client.html">Creating a <wbr>Client</a>
 					</li>
 					<li class=" pp-nav pp-page">
 						<a href="config-object.html">The <wbr>Config <wbr>Object</a>
 					</li>
-					<li class="current pp-nav pp-page">
+					<li class="current pp-nav pp-page pp-parent">
 						<a href="launch-events.html">Launch <wbr>Events</a>
+					</li>
+					<li class=" pp-nav pp-page pp-child">
+						<a href="launch-events/capture-qr.html">Capturing QR <wbr>Code</a>
+					</li>
+					<li class=" pp-nav pp-page pp-child">
+						<a href="launch-events/capture-sd.html">Capturing <wbr>Session <wbr>Data</a>
 					</li>
 					<li class=" pp-nav pp-page">
 						<a href="licensed-features.html">Licensed <wbr>Features</a>
@@ -157,17 +137,17 @@ ev.on(<span class="hljs-string">&#x27;sessionData.**&#x27;</span>, <span class="
 					<li class=" pp-nav pp-page">
 						<a href="../How to/receive-messages.html">Receive <wbr>Messages</a>
 					</li>
-					<li class=" pp-nav pp-page">
+					<li class=" pp-nav pp-page pp-parent">
 						<a href="../How to/send-files.html">Send <wbr>Files</a>
 					</li>
 					<li class=" pp-nav pp-page">
 						<a href="../How to/location.html">Sending &amp; <wbr>Receiving <wbr>Location</a>
 					</li>
-					<li class=" pp-nav pp-page">
-						<a href="../How to/react-to-group-events.html">React to group events</a>
+					<li class=" pp-nav pp-page pp-parent">
+						<a href="../How to/groups.html">Groups</a>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="../How to/create-api.html">Create an API</a>
+						<a href="../How to/react-to-group-events.html">React to group events</a>
 					</li>
 					<li class=" pp-nav pp-page">
 						<a href="../How to/detect-logout.html">Detect a logout</a>
@@ -176,13 +156,19 @@ ev.on(<span class="hljs-string">&#x27;sessionData.**&#x27;</span>, <span class="
 						<a href="../How to/handle-errors.html">Handle <wbr>Errors</a>
 					</li>
 					<li class=" pp-nav pp-page">
-						<a href="../How to/handle-disconnection.html">Handle a disconnection</a>
-					</li>
-					<li class=" pp-nav pp-page">
-						<a href="../How to/decrypt-media.html">Decrypt media</a>
+						<a href="../How to/decrypt-media.html">Decrypt <wbr>Media</a>
 					</li>
 					<li class=" pp-nav pp-page">
 						<a href="../How to/incoming-calls.html">Detect <wbr>Incoming <wbr>Calls</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../How to/misc.html">More <wbr>Examples</a>
+					</li>
+					<li class="label pp-nav pp-group">
+						<span>Advanced</span>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../Advanced/best-practices.html">Best <wbr>Practices</a>
 					</li>
 					<li class="label pp-nav pp-group">
 						<span>API</span>

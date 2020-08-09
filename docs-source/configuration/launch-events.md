@@ -45,35 +45,3 @@ ev.on('**.**', (data, sessionId, namespace) => {
 
 });
 ```
-
-## Capturing QR Code
-
-An event is emitted every time the QR code is received by the system. You can grab hold of this event emitter by importing `ev`. You can capture this qr code and save it to a file.
-
-```javascript
-import { ev } from '@open-wa/wa-automate';
-const fs = require('fs');
-
-ev.on('qr.**', async qrcode => {
-  //qrcode is base64 encoded qr code image
-  //now you can do whatever you want with it
-  const imageBuffer = Buffer.from(
-    qrcode.replace('data:image/png;base64,', ''),
-    'base64'
-  );
-  fs.writeFileSync('qr_code.png', imageBuffer);
-});
-```
-
-## Capturing the session data
-
-By default, the session data is saved as a `[sessionId].data.json` file in the process working directory, however, you can disable this ([[skipSessionSave]]) and implement a custom handler for session data. It is important that you always update session data with the latest values. The default behaviour is to override the data.json file with the latest session data.
-
-```javascript
-import { ev } from '@open-wa/wa-automate';
-const fs = require('fs');
-
-ev.on('sessionData.**', async (sessionData, sessionId) => {
-    //do something with sessionData and sessionId
-});
-```
