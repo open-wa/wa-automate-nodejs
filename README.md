@@ -65,6 +65,8 @@ With the constant updates from WA. It is advisable to always use the latest vers
 
 ### Functions list
 
+[To use this list open this link](https://open-wa.github.io/wa-automate-nodejs/index.html)
+
 | Function                          | Reference |
 | --------------------------------- | ----------- |
 | Receive message                   | [[onMessage]]
