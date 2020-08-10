@@ -126,6 +126,7 @@ declare module WAPI {
   const addParticipant: (groupId: string, contactId: string) => void;
   const getMessageById: (mesasgeId: string) => Message;
   const getStickerDecryptable: (mesasgeId: string) => Message | boolean;
+  const forceStaleMediaUpdate: (mesasgeId: string) => Message | boolean;
   const setMyName: (newName: string) => void;
   const setMyStatus: (newStatus: string) => void;
   const setProfilePic: (data: string) => Promise<boolean>;
@@ -1464,6 +1465,29 @@ public async contactUnblock(id: ContactId) {
     return {
       t:m.t,
       id:m.id,
+      ...bleachMessage(m)
+    };
+  }
+
+
+  /**
+   * 
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * 
+   * Retreives a message object which results in a valid sticker instead of a blank one. This also works with animated stickers.
+   * 
+   * if you run this without a valid insiders key, it will return false and cause an error upon decryption.
+   * 
+   * @param messageId
+   * @returns [[Message]] OR `false`
+   */
+  public async forceStaleMediaUpdate(messageId: MessageId) {
+    const m = await this.pup(
+      messageId => WAPI.forceStaleMediaUpdate(messageId),
+      messageId
+    );
+    if(!m) return false;
+    return {
       ...bleachMessage(m)
     };
   }

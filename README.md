@@ -82,7 +82,7 @@ With the constant updates from WA. It is advisable to always use the latest vers
 | Send contact                      | [sendContact](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendcontact)
 | Send Images (image)              | [sendImage](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendimage)
 | Send media (audio, doc) | [sendFile](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendfile)
-| Send media (video)  | {@page Send Videos}
+| Send media (video)  | [Send Videos](https://open-wa.github.io/wa-automate-nodejs/pages/How%20to/send-files/send-videos.html)
 | Send stickers                     | [sendStickerfromUrl](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendstickerfromurl)
 | Decrypt media (image, audio, doc) | [Decrypt Media](https://open-wa.github.io/wa-automate-nodejs/pages/How%20to/decrypt-media.html)
 | Capturing QR Code                 | [Capturing QR Code](https://open-wa.github.io/wa-automate-nodejs/pages/The%20Client/launch-events/capture-qr.html)
