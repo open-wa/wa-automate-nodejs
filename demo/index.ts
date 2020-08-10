@@ -22,25 +22,25 @@ ON_DEATH(async function(signal, err) {
 })
 
 
-ev.on('qr.**', async (qrcode,sessionId) => {
-  // console.log("TCL: qrcode", qrcode)
-  //     console.log("TCL: qrcode,sessioId", qrcode,sessionId)
-  //base64 encoded qr code image
-  const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
-  fs.writeFileSync(`qr_code${sessionId?'_'+sessionId:''}.png`, imageBuffer);
-});
+// ev.on('qr.**', async (qrcode,sessionId) => {
+//   // console.log("TCL: qrcode", qrcode)
+//   //     console.log("TCL: qrcode,sessioId", qrcode,sessionId)
+//   //base64 encoded qr code image
+//   const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
+//   fs.writeFileSync(`qr_code${sessionId?'_'+sessionId:''}.png`, imageBuffer);
+// });
 
-ev.on('**', async (data,sessionId,namespace) => {
-  console.log("\n----------")
-  console.log('EV',data,sessionId,namespace)
-  console.log("----------")
-})
+// ev.on('**', async (data,sessionId,namespace) => {
+//   console.log("\n----------")
+//   console.log('EV',data,sessionId,namespace)
+//   console.log("----------")
+// })
 
-ev.on('sessionData.**', async (sessionData, sessionId) =>{
-  console.log("\n----------")
-  console.log('sessionData',sessionId, sessionData)
-  console.log("----------")
-})
+// ev.on('sessionData.**', async (sessionData, sessionId) =>{
+//   console.log("\n----------")
+//   console.log('sessionData',sessionId, sessionData)
+//   console.log("----------")
+// })
 
 async function start(client: Client) {
   app.use(client.middleware(true));
@@ -172,8 +172,8 @@ app.listen(PORT, function () {
  */
 create({
   sessionId:'session1',
-  // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  useChrome: true,
+  executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  // useChrome: true,
   restartOnCrash: start,
   headless:false,
   throwErrorOnTosBlock:true,
@@ -182,7 +182,11 @@ create({
   killProcessOnBrowserClose: true,
   autoRefresh:true, //default to true
   qrRefreshS:15, //please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.
-  safeMode: true
+  safeMode: false,
+  // proxyServerCredentials: {
+  //   address: "http://lum-customer-idk_uno-zone-static:cjpk5z9d2ouf@zproxy.lum-superproxy.io:22225",
+  // },
+  disableSpins: true
   // cacheEnabled:false,
   // devtools:true,
   //OR
