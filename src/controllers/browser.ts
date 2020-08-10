@@ -155,6 +155,7 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
         .replace('socks5', '')
         .replace('socks4', '')
         .replace('://', '')}` : config.proxyServerCredentials.address}`);
+        console.log(`Using proxy: ${config.proxyServerCredentials.address}`)
     }
   await waPage.goto(puppeteerConfig.WAUrl)
   return waPage;
