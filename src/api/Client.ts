@@ -125,7 +125,7 @@ declare module WAPI {
   const sendLocation: (to: string, lat: any, lng: any, loc: string) => Promise<string>;
   const addParticipant: (groupId: string, contactId: string) => void;
   const getMessageById: (mesasgeId: string) => Message;
-  const getStickerDecryptable: (mesasgeId: string) => Message;
+  const getStickerDecryptable: (mesasgeId: string) => Message | boolean;
   const setMyName: (newName: string) => void;
   const setMyStatus: (newStatus: string) => void;
   const setProfilePic: (data: string) => Promise<boolean>;
@@ -1446,8 +1446,10 @@ public async contactUnblock(id: ContactId) {
    * 
    * Retreives a message object which results in a valid sticker instead of a blank one. This also works with animated stickers.
    * 
+   * if you run this without a valid insiders key, it will return false and cause an error upon decryption.
+   * 
    * @param messageId
-   * @returns message object
+   * @returns message object OR `false`
    */
   public async getStickerDecryptable(messageId: MessageId) {
     const m = await this.pup(

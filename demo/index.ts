@@ -102,8 +102,9 @@ app.listen(PORT, function () {
       // if it is a sticker, you need to run this.
       let mediaData;
       if( message.type==='sticker') {
+        //getStickerDecryptable is an insiders feature! 
         let stickerDecryptable = await client.getStickerDecryptable(message.id);
-        mediaData = await decryptMedia(stickerDecryptable, uaOverride);
+        if(stickerDecryptable) mediaData = await decryptMedia(stickerDecryptable, uaOverride);
       } else {
         mediaData = await decryptMedia(message, uaOverride);
       }

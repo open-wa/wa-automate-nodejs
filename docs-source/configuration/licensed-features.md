@@ -9,16 +9,17 @@ open-wa is at the forefront of open source WA developmentand runs on donations f
 
 | Function                          | Description |
 | --------------------------------- | ----------- |
-| [`setGroupToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#setGroupToAdminsOnly)                   | Changes group setting so only admins can send messages            |
-| [`setGroupEditToAdminsOnly`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#setGroupEditToAdminsOnly)                   | Changes group setting so only admins can edit group info            |
-| [`setProfilePic`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#setProfilePic)                   | Change the host phones profile picture           |
-| [`onRemovedFromGroup`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#onRemovedFromGroup)                   | Detect when host phone is removed from a group           |
-| [`onContactAdded`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#onContactAdded)                   | Detect when host phone adds a new contact           |
-| [`getCommonGroups`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#getCommonGroups)                   | Retreive all common groups between the host device and a conttact           |
-| [`clearAllChats`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#clearAllChats)                   | Easily clear memory by clearing all chats of all messages on the host device and WA Web           |
-| [`sendReplyWithMentions`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendReplyWithMentions)                   | Send a reply to a message with mentions           |
-| [`onChatOpened`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#onChatOpened)                   | Detect when a chat is selected in the UI           |
-| [`onChatState`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#onChatState)                   | Detect when someone is typing or recording a voicenote           |
+| [[setGroupToAdminsOnly]]                  | Changes group setting so only admins can send messages            |
+| [[setGroupEditToAdminsOnly]]                   | Changes group setting so only admins can edit group info            |
+| [[setProfilePic]]                   | Change the host phones profile picture           |
+| [[onRemovedFromGroup]]                   | Detect when host phone is removed from a group           |
+| [[onContactAdded]]                   | Detect when host phone adds a new contact           |
+| [[getCommonGroups]]                   | Retreive all common groups between the host device and a conttact           |
+| [[clearAllChats]]                   | Easily clear memory by clearing all chats of all messages on the host device and WA Web           |
+| [[sendReplyWithMentions]]                   | Send a reply to a message with mentions           |
+| [[onChatOpened]]                   | Detect when a chat is selected in the UI           |
+| [[onChatState]]                   | Detect when someone is typing or recording a voicenote           |
+| [[getStickerDecryptable]]                   | Convert a normal sticker message (results in blank image) to one that is able to grab and decrypt the actual sticker           |
 
 ### Restricted Features
 
