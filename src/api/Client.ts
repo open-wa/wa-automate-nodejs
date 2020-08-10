@@ -786,6 +786,8 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param content text message
    */
   public async sendTextWithMentions(to: ChatId, content: Content) {
+    //remove all @c.us from the content
+    content = content.replace(/@c.us/,"");
     return await this.pup(
       ({ to, content }) => {
         WAPI.sendSeen(to);
@@ -806,7 +808,9 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param content text message
    * @param replyMessageId id of message to reply to
    */
-  public async sendReplyWithMentions(to: ChatId, content: Contact, replyMessageId: MessageId) {
+  public async sendReplyWithMentions(to: ChatId, content: Content, replyMessageId: MessageId) {
+    //remove all @c.us from the content
+    content = content.replace(/@c.us/,"");
     return await this.pup(
       ({ to, content, replyMessageId }) => {
         WAPI.sendSeen(to);
