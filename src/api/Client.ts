@@ -212,7 +212,7 @@ declare module WAPI {
   const getChat: (contactId: string) => Chat;
   const getLastSeen: (contactId: string) => Promise<number | boolean>;
   const getProfilePicFromServer: (chatId: string) => any;
-  const getAllChatIds: () => string[];
+  const getAllChatIds: () => ChatId[];
   const getAllChatsWithNewMsg: () => Chat[];
   const getAllNewMessages: () => any;
   const getUseHereString: () => Promise<string>;
