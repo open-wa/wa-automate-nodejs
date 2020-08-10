@@ -15,8 +15,13 @@
 
 <a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 2.2029.4](https://img.shields.io/badge/WhatsApp_Web-2.2029.4-brightgreen.svg)
 
-[![Buy me a coffee][buymeacoffee-shield]][buymeacoffee]
-[![Consulting Request][consult-shield]][consult]
+<p align="center">
+  <a href="#functions-list">Key Features</a> •
+  <a href="https://open-wa.github.io/wa-automate-nodejs/pages/Getting%20Started/installation.html">Getting Started</a> •
+  <a href="https://open-wa.github.io/wa-automate-nodejs/pages/Getting%20Started/quick-run.html">Easy API</a> •
+  <a href="https://open-wa.github.io/wa-automate-nodejs/">Documentation</a> •
+  <a href="#support">Support</a>
+</p>
 
 </div>
 
@@ -24,14 +29,6 @@
 
 ```bash
 > npm i --save @open-wa/wa-automate
-```
-
-## Zero Installation
-
-Want to convert your WA account to an API instantly? You can no with the cli. For more details see {@page Easy API}
-
-```bash
-> npx @open-wa/wa-automate --help
 ```
 
 ## Usage
@@ -55,6 +52,14 @@ function start(client) {
 
 ###### @open-wa/wa-automate will remember the session so there is no need to authenticate every time
 
+## CLI
+
+Want to convert your WA account to an API instantly? You can now with the CLI. For more details see [Easy API](https://open-wa.github.io/wa-automate-nodejs/pages/Getting%20Started/quick-run.html)
+
+```bash
+> npx @open-wa/wa-automate --help
+```
+
 ### Latest Changes
 
 With the constant updates from WA. It is advisable to always use the latest version of `@open-wa/wa-automate`.
@@ -65,37 +70,35 @@ With the constant updates from WA. It is advisable to always use the latest vers
 
 ### Functions list
 
-[To use this list open this link](https://open-wa.github.io/wa-automate-nodejs/index.html)
-
 | Function                          | Reference |
 | --------------------------------- | ----------- |
-| Receive message                   | [[onMessage]]
-| Automatic QR Refresh              | [[autoRefresh]]
-| Send text                         | [[sendText]]
-| Get contacts                      | [[getContact]]
-| Get chats                         | [[getAllChats]]
-| Get groups                        | [[getAllGroups]]
-| Get group members                 | [[getGroupMembersId]]
-| Send contact                      | [[sendContact]]
-| Send Images (image)              | [[sendImage]]
-| Send media (audio, doc) | [[sendFile]]
+| Receive message                   | [onMessage](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#onmessage)
+| Automatic QR Refresh              | [autoRefresh](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#autorefresh)
+| Send text                         | [sendText](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendtext)
+| Get contacts                      | [getContact](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#getcontact)
+| Get chats                         | [getAllChats](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#getallchats)
+| Get groups                        | [getAllGroups](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#getallgroups)
+| Get group members                 | [getGroupMembersId](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#getgroupMembersId)
+| Send contact                      | [sendContact](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendcontact)
+| Send Images (image)              | [sendImage](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendimage)
+| Send media (audio, doc) | [sendFile](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendfile)
 | Send media (video)  | {@page Send Videos}
-| Send stickers                     | [[sendStickerfromUrl]]
-| Decrypt media (image, audio, doc) | {@page Decrypt Media}
-| Capturing QR Code                 | {@page Capturing QR Code}
-| Multiple Sessions                 | {@page Multiple Sessions}
-| Last seen      | [[getLastSeen]]
-| isOnline      | [[isChatOnline]]
-| 📍 Send Location      | [[sendLocation]]
-| Simulated '...typing'             | [[simulateTyping]]
-| Send GIFs!                       | [[sendVideoAsGif]]
-| Send Giphy!                       | [[sendGiphy]]
-| Forward Messages                  | [[forwardMessages]]
-| Listen to Read Receipts           | [[onAck]]
-| Listen to Live Locations           | [[onLiveLocation]]
-| Group participant changes         | [[onParticipantsChanged]]
-| Create Groups         | [[createGroup]]
-| add, remove, promote, demote participants        | {@page Manage Participants}
+| Send stickers                     | [sendStickerfromUrl](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendstickerfromurl)
+| Decrypt media (image, audio, doc) | [Decrypt Media](https://open-wa.github.io/wa-automate-nodejs/pages/How%20to/decrypt-media.html)
+| Capturing QR Code                 | [Capturing QR Code](https://open-wa.github.io/wa-automate-nodejs/pages/The%20Client/launch-events/capture-qr.html)
+| Multiple Sessions                 | [Multiple Sessions](https://open-wa.github.io/wa-automate-nodejs/pages/The%20Client/the-client/multiple-sessions.html)
+| Last seen      | [getLastSeen](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#getlastseen)
+| isOnline      | [isChatOnline](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#ischatonline)
+| 📍 Send Location      | [sendLocation](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendlocation)
+| Simulated '...typing'             | [simulateTyping](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#simulatetyping)
+| Send GIFs!                       | [sendVideoAsGif](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendvideoasgif)
+| Send Giphy!                       | [sendGiphy](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendgiphy)
+| Forward Messages                  | [forwardMessages](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#forwardmessages)
+| Listen to Read Receipts           | [onAck](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#onack)
+| Listen to Live Locations           | [onLiveLocation](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#onlivelocation)
+| Group participant changes         | [onParticipantsChanged](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#onparticipantschanged)
+| Create Groups         | [Create Group](https://open-wa.github.io/wa-automate-nodejs/pages/How%20to/groups.html#create-a-group)
+| add, remove, promote, demote participants        | [Manage Participants](https://open-wa.github.io/wa-automate-nodejs/pages/How%20to/groups/manage-participants.html)
 
 [Checkout all the available functions here.](https://open-wa.github.io/wa-automate-nodejs/classes/client.html)
 
@@ -115,6 +118,17 @@ You can clone this repo and run the demo, but you will need to use typescript/ts
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+## Support
+
+If you need paid support, consulting, or just want support/sponsor the ongoing development of this project, you can in the following ways:
+
+|Description | Link |
+|-	|:-:|
+| Get a License key | <a class="gumroad-button" href="https://gum.co/BTMt?wanted=true" target="_blank" data-gumroad-single-product="true" style='background-color: white !important;background-image: url(https://gumroad.com/button/button_bar.jpg) !important;background-repeat: repeat-x !important;border-radius: 4px !important;box-shadow: rgba(0, 0, 0, 0.4) 0 0 2px !important;color: #999 !important;display: inline-block !important;font-family: -apple-system, ".SFNSDisplay-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif !important;font-size: 16px !important;font-style: normal !important;font-weight: 500 !important;line-height: 50px !important;padding: 0 15px !important;text-shadow: none !important;text-decoration: none !important;'><span class="gumroad-button-logo" style='background-image: url(https://gumroad.com/button/button_logo.png) !important;background-size: cover !important;height: 17px !important;width: 16px !important;display: inline-block !important;margin-bottom: -3px !important;margin-right: 15px !important;'></span>Get a License key</a>
+| Donate or Book 1 hour consult | [![Buy me a coffee][buymeacoffee-shield]][buymeacoffee]
+| Per-minute consulting |   <a href="http://api.otechie.com/smashah"><img src="https://api.otechie.com/consultancy/smashah/badge.svg" alt="Consulting"></a>
+| Hire me! | [![Consulting Request][consult-shield]][consult]
 
 ## License
 

@@ -10,4 +10,4 @@ import * as shell from 'shelljs';
 shell.cp('-R', './src/lib', 'dist');
 shell.cp('./src/api/Client.ts', 'dist/api/_client_ts');
 // shell.cp('-R', './src/api', 'dist');
-shell.cp('./node_modules/typedoc-plugin-pages/dist/theme/v2/templates/markdown-page.hbs', './node_modules/typedoc-neo-theme/bin/default/templates');
+// shell.cp('./node_modules/typedoc-plugin-pages/dist/theme/v2/templates/markdown-page.hbs', './node_modules/typedoc-neo-theme/bin/default/templates');
