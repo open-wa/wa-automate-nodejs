@@ -67,3 +67,10 @@ export type DataURL = string;
  * Learn more here: https://developer.mozilla.org/en-US/docs/Glossary/Base64
  */
 export type Base64 = string;
+
+/**
+ * The relative or absolute path of a file
+ * 
+ * Learn more here: https://www.w3schools.com/html/html_filepaths.asp
+ */
+export type FilePath = string;

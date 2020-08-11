@@ -10,13 +10,16 @@ import { ConfigObject, STATE } from './model';
 import PQueue from 'p-queue'
 /** @ignore */
 const parseFunction = require('parse-function'),
-pkg = require('../../package.json');
+pkg = require('../../package.json'),
+datauri = require('datauri'),
+fs = require('fs');
 import treekill from 'tree-kill';
 import { SessionInfo } from './model/sessionInfo';
 import { injectApi } from '../controllers/browser';
 import { isAuthenticated } from '../controllers/auth';
-import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL } from './model/aliases';
+import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, FilePath } from './model/aliases';
 import { bleachMessage } from '@open-wa/wa-decrypt';
+import * as path from 'path';
 
 export enum namespace {
   Chat = 'Chat',
@@ -897,7 +900,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   /**
    * Sends a image to given chat, with caption or not, using base64
    * @param to chat id xxxxx@us.c
-   * @param base64 base64 data:image/xxx;base64,xxx
+   * @param base64 base64 data:image/xxx;base64,xxx or the path of the file you want to send.
    * @param filename string xxxxx
    * @param caption string xxxxx
    * @param waitForKey boolean default: false set this to true if you want to wait for the id of the message. By default this is set to false as it will take a few seconds to retreive to the key of the message and this waiting may not be desirable for the majority of users.
@@ -905,13 +908,21 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
   public async sendImage(
     to: ChatId,
-    base64: DataURL,
+    base64: DataURL | FilePath,
     filename: string,
     caption: Content,
     quotedMsgId?: MessageId,
     waitForId?: boolean,
     ptt?:boolean
   ) {
+      //check if the 'base64' file exists
+      if(base64.length<50) {
+        let relativePath = path.join(path.resolve(process.cwd(),base64|| ''));
+        if(fs.existsSync(base64) || fs.existsSync(relativePath)) {
+          base64 = await datauri(fs.existsSync(base64)  ? base64 : relativePath);
+        }
+    }
+
     return await this.pup(
       ({ to, base64, filename, caption, quotedMsgId, waitForId, ptt}) =>  WAPI.sendImage(base64, to, filename, caption, quotedMsgId, waitForId, ptt),
       { to, base64, filename, caption, quotedMsgId, waitForId, ptt }
@@ -967,7 +978,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   /**
    * Sends a file to given chat, with caption or not, using base64. This is exactly the same as sendImage
    * @param to chat id xxxxx@us.c
-   * @param base64 base64 data:image/xxx;base64,xxx
+   * @param base64 base64 data:image/xxx;base64,xxx or the path of the file you want to send.
    * @param filename string xxxxx
    * @param caption string xxxxx
    * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
@@ -976,7 +987,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
   public async sendFile(
     to: ChatId,
-    base64: DataURL,
+    base64: DataURL | FilePath,
     filename: string,
     caption: Content,
     quotedMsgId?: MessageId,
@@ -989,7 +1000,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   /**
    * Sends a file to given chat, with caption or not, using base64. This is exactly the same as sendImage
    * @param to chat id xxxxx@us.c
-   * @param base64 base64 data:image/xxx;base64,xxx
+   * @param base64 base64 data:image/xxx;base64,xxx or the path of the file you want to send.
    * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
    * @returns Promise <boolean | string> This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
    */
@@ -1006,14 +1017,14 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   /**
    * Sends a video to given chat as a gif, with caption or not, using base64
    * @param to chat id xxxxx@us.c
-   * @param base64 base64 data:video/xxx;base64,xxx
+   * @param base64 base64 data:image/xxx;base64,xxx or the path of the file you want to send.
    * @param filename string xxxxx
    * @param caption string xxxxx
    * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
    */
   public async sendVideoAsGif(
     to: ChatId,
-    base64: Base64,
+    base64: Base64 | FilePath,
     filename: string,
     caption: Content,
     quotedMsgId?: MessageId

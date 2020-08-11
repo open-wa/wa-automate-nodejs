@@ -90,6 +90,7 @@
     "cfonts": "^2.8.5",
     "change-case": "^4.1.1",
     "chrome-launcher": "^0.13.0",
+    "datauri": "^3.0.0",
     "death": "^1.1.0",
     "eventemitter2": "^6.0.0",
     "express": "^4.17.1",
