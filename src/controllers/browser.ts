@@ -137,8 +137,17 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
 
   //check if [session].json exists in __dirname
   const sessionjsonpath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(process.cwd(),config?.sessionDataPath || '')) : path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
-  let sessionjson = process.env[`${sessionId.toUpperCase()}_DATA_JSON`] ? JSON.parse(process.env[`${sessionId.toUpperCase()}_DATA_JSON`]) : config?.sessionData;
-  if (fs.existsSync(sessionjsonpath)) sessionjson = JSON.parse(fs.readFileSync(sessionjsonpath));
+  let sessionjson = '';
+  let sd = process.env[`${sessionId.toUpperCase()}_DATA_JSON`] ? JSON.parse(process.env[`${sessionId.toUpperCase()}_DATA_JSON`]) : config?.sessionData;
+  sessionjson = (typeof sd === 'string') ? JSON.parse(Buffer.from(sd, 'base64').toString('ascii')) : sd;
+  if (fs.existsSync(sessionjsonpath)) {
+    let s = fs.readFileSync(sessionjsonpath, "utf8");
+    try {
+      sessionjson = JSON.parse(s);
+    } catch (error) {
+      sessionjson = JSON.parse(Buffer.from(s, 'base64').toString('ascii'));
+    }
+  }
   if(sessionjson) await waPage.evaluateOnNewDocument(
     session => {
         localStorage.clear();

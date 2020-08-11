@@ -42,6 +42,12 @@ ev.on('sessionData.**', async (sessionData, sessionId) =>{
   console.log("----------")
 })
 
+ev.on('sessionDataBase64.**', async (sessionData, sessionId) =>{
+  console.log("\n----------")
+  console.log('sessionData',sessionId, sessionData)
+  console.log("----------")
+})
+
 async function start(client: Client) {
   app.use(client.middleware(true));
 

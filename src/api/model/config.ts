@@ -1,3 +1,4 @@
+import { Base64 } from "./aliases";
 
 /**
  * The different types of qr code output.
@@ -63,13 +64,21 @@ export interface ProxyServerCredentials {
     
 export interface ConfigObject {
     /**
-     * JSON object that is required to migrate a session from one instance to another or ot just restart an existing instance.
-     * This sessionData is provided in a generated JSON file upon QR scan or an event.
+     * The authentication object (as a JSON object or a base64 encoded string) that is required to migrate a session from one instance to another or to just restart an existing instance.
+     * This sessionData is provided in a generated JSON file (it's a json file but contains the JSON data as a base64 encoded string) upon QR scan or an event.
+     * 
      * You can capture the event like so:
      * ```javascript
      * import {create, ev} from '@open-wa/wa-automate';
-     * ev.on('sessionData.**', async (sessionData, sessionId) =>{
+     * 
+     *      ev.on('sessionData.**', async (sessionData, sessionId) =>{
      *          console.log(sessionId, sessionData)
+     *      })
+     * 
+     * //or as base64 encoded string
+     * 
+     *      ev.on('sessionDataBase64.**', async (sessionDatastring, sessionId) =>{
+     *          console.log(sessionId, sessionDatastring)
      *      })
      * ```
      *  NOTE: You can set sessionData as an evironmental variable also! The variable name has to be [sessionId (default = 'session) in all caps]_DATA_JSON. You have to make sure to surround your session data with single quotes to maintain the formatting.
@@ -82,11 +91,11 @@ export interface ConfigObject {
      * ```bash
      *    export SESSION_DATA_JSON=`...`
      * ```
-     * where ... is copied from session.data.json
-     * Again - YOU NEED THE ' as it maintains the formatting from the json file. Otherwise it will not work.
+     * where ... is copied from session.data.json this will be a string most likley starting in `ey...` and ending with `==`
+     * 
      * Setting the sessionData in the environmental variable will override the sessionData object in the config.
      */
-    sessionData ?: SessionData,
+    sessionData ?: SessionData | Base64,
     /**
      * ALPHA EXPERIMENTAL FEATURE! DO NOT USE IN PRODUCTION, REQUIRES TESTING.
      * 

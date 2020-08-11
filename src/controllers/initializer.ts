@@ -204,10 +204,12 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
         WAToken1: localStorage.WAToken1,
         WAToken2: localStorage.WAToken2
       };
+      const sdB64 = Buffer.from(JSON.stringify(sessionData)).toString('base64');
 
       spinner.emit(sessionData, "sessionData");
+      spinner.emit(sdB64, "sessionDataBase64");
 
-      if(!config?.skipSessionSave) fs.writeFile(sessionjsonpath, JSON.stringify(sessionData), (err) => {
+      if(!config?.skipSessionSave) fs.writeFile(sessionjsonpath, sdB64, (err) => {
         if (err) { console.error(err); return; };
       });
       if (config?.logConsole) waPage.on('console', msg => console.log(msg));
