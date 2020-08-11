@@ -908,7 +908,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
   public async sendImage(
     to: ChatId,
-    base64: DataURL | FilePath,
+    file: DataURL | FilePath,
     filename: string,
     caption: Content,
     quotedMsgId?: MessageId,
@@ -916,16 +916,16 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     ptt?:boolean
   ) {
       //check if the 'base64' file exists
-      if(base64.length<50) {
-        let relativePath = path.join(path.resolve(process.cwd(),base64|| ''));
-        if(fs.existsSync(base64) || fs.existsSync(relativePath)) {
-          base64 = await datauri(fs.existsSync(base64)  ? base64 : relativePath);
+      if(file.length<50) {
+        let relativePath = path.join(path.resolve(process.cwd(),file|| ''));
+        if(fs.existsSync(file) || fs.existsSync(relativePath)) {
+          file = await datauri(fs.existsSync(file)  ? file : relativePath);
         }
     }
 
     return await this.pup(
-      ({ to, base64, filename, caption, quotedMsgId, waitForId, ptt}) =>  WAPI.sendImage(base64, to, filename, caption, quotedMsgId, waitForId, ptt),
-      { to, base64, filename, caption, quotedMsgId, waitForId, ptt }
+      ({ to, file, filename, caption, quotedMsgId, waitForId, ptt}) =>  WAPI.sendImage(file, to, filename, caption, quotedMsgId, waitForId, ptt),
+      { to, file, filename, caption, quotedMsgId, waitForId, ptt }
     );
   }
 
@@ -987,13 +987,13 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
   public async sendFile(
     to: ChatId,
-    base64: DataURL | FilePath,
+    file: DataURL | FilePath,
     filename: string,
     caption: Content,
     quotedMsgId?: MessageId,
     waitForId?: boolean
   ) {
-    return this.sendImage(to, base64, filename, caption, quotedMsgId, waitForId);
+    return this.sendImage(to, file, filename, caption, quotedMsgId, waitForId);
   }
 
 
@@ -1006,10 +1006,10 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
   public async sendPtt(
     to: ChatId,
-    base64: DataURL,
+    file: DataURL | FilePath,
     quotedMsgId: MessageId,
   ) {
-    return this.sendImage(to, base64, 'ptt.ogg', '', quotedMsgId, true);
+    return this.sendImage(to, file, 'ptt.ogg', '', quotedMsgId, true);
   }
 
 
@@ -1024,16 +1024,16 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
   public async sendVideoAsGif(
     to: ChatId,
-    base64: Base64 | FilePath,
+    file: DataURL | FilePath,
     filename: string,
     caption: Content,
     quotedMsgId?: MessageId
   ) {
     return await this.pup(
-      ({ to, base64, filename, caption, quotedMsgId  }) => {
-        WAPI.sendVideoAsGif(base64, to, filename, caption, quotedMsgId );
+      ({ to, file, filename, caption, quotedMsgId  }) => {
+        WAPI.sendVideoAsGif(file, to, filename, caption, quotedMsgId );
       },
-      { to, base64, filename, caption, quotedMsgId }
+      { to, file, filename, caption, quotedMsgId }
     );
   }
 
