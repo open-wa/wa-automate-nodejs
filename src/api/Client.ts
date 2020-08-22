@@ -380,20 +380,21 @@ export class Client {
    * @fires Observable stream of messages
    */
   public async onMessage(fn: (message: Message) => void) {
-    let funcName = SimpleListener.Message;
-    this._listeners[funcName] = fn;
-    const set = () => this.pup(
-      ({funcName}) => {
-        WAPI.waitNewMessages(false, data => {
-          data.forEach(message => {
-            //@ts-ignore
-            window[funcName](message);
-          });
-        });
-      },{funcName})
-      const exists = await this.pup(({funcName})=>window[funcName]?true:false,{funcName});
-      if(exists) return await set();
-    this._page.exposeFunction(funcName, (message: Message) =>fn(message)).then(set).catch(e=>set);
+    return this.registerListener(SimpleListener.Message, fn);
+    // let funcName = SimpleListener.Message;
+    // this._listeners[funcName] = fn;
+    // const set = () => this.pup(
+    //   ({funcName}) => {
+    //     WAPI.waitNewMessages(false, data => {
+    //       data.forEach(message => {
+    //         //@ts-ignore
+    //         window[funcName](message);
+    //       });
+    //     });
+    //   },{funcName})
+    //   const exists = await this.pup(({funcName})=>window[funcName]?true:false,{funcName});
+    //   if(exists) return await set();
+    // this._page.exposeFunction(funcName, (message: Message) =>fn(message)).then(set).catch(e=>set);
   }
 
  
