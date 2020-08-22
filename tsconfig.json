@@ -210,33 +210,6 @@
         "theme": "pages-plugin",
         // "theme":"node_modules/typedoc-neo-theme/bin/default",
         "excludePrivate":true,
-        "links": [{
-          "label": "Guides",
-          "url": "/guides"
-        }, {
-          "label": "License Keys",
-          "url": "/"
-        }],
-        "outline": [{
-          "Getting Started": {
-            "Installation": "/docs/pages/Getting%20Started/installation",
-            "Docker": "/docs/pages/Getting%20Started/docker"
-          },
-          "The Client": {
-            "Overview": "/",
-            "Events": "/",
-            "Methods": "/"
-          },
-          "API": {
-            "Setup": "",
-            "Postman Generator": "",
-          },
-          "Premium Features": {
-            "Overview": "/",
-            "Getting Started": "/",
-            "Perks": "/"
-          },
-        }],
         "toc": [
           "Client",
           "Chat",

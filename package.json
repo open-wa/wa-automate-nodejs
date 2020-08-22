@@ -78,7 +78,6 @@
     "ts-node": "^8.4.1",
     "tsc-watch": "^4.0.0",
     "typedoc": "^0.17.8",
-    "typedoc-neo-theme": "^1.0.9",
     "typedoc-plugin-pages": "^1.0.1",
     "typescript": "^3.6.4"
   },
