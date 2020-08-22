@@ -436,7 +436,7 @@ window.WAPI.sendLinkWithAutoPreview = async function (chatId, url, text) {
         return false;
     }
     const linkPreview = await Store.WapQuery.queryLinkPreview(url);
-    return (await chatSend.sendMessage(text.includes(url) ? text : `${url}\n${text}`, {linkPreview}))=='success'
+    return (await chatSend.sendMessage(text.includes(url) ? text : `${url}\n${text}`, {linkPreview}))=='OK'
 }
 
 window.WAPI.sendMessageWithThumb = function (thumb, url, title, description, text, chatId) {
