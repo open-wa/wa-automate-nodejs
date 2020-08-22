@@ -127,6 +127,7 @@ declare module WAPI {
   const forwardMessages: (to: string, messages: string | (string | Message)[], skipMyMessages: boolean) => any;
   const sendLocation: (to: string, lat: any, lng: any, loc: string) => Promise<string>;
   const addParticipant: (groupId: string, contactId: string) => void;
+  const sendGiphyAsSticker: (chatId: string, url: string) => Promise<any>;
   const getMessageById: (mesasgeId: string) => Message;
   const getStickerDecryptable: (mesasgeId: string) => Message | boolean;
   const forceStaleMediaUpdate: (mesasgeId: string) => Message | boolean;
@@ -2061,6 +2062,18 @@ public async getStatus(contactId: ContactId) {
     return await this.pup(
       ({ webpBase64,to, metadata }) => WAPI.sendImageAsSticker(webpBase64,to, metadata),
       { webpBase64,to, metadata }
+    );
+  }
+  
+  /**
+   * Send a giphy GIF as an animated sticker.
+   * @param to ChatId
+   * @param giphyMediaUrl URL This is the giphy media url and has to be in the format `https://media.giphy.com/media/RJKHjCAdsAfQPn03qQ/source.gif`
+   */
+  public async sendGiphyAsSticker(to: ChatId, giphyMediaUrl: URL){
+    return await this.pup(
+      ({ to,  giphyMediaUrl}) => WAPI.sendGiphyAsSticker(to,  giphyMediaUrl),
+      { to,  giphyMediaUrl }
     );
   }
   
