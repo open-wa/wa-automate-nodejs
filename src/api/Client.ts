@@ -1011,7 +1011,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     file: DataURL | FilePath,
     quotedMsgId: MessageId,
   ) {
-    return this.sendImage(to, file, 'ptt.ogg', '', quotedMsgId, true);
+    return this.sendImage(to, file, 'ptt.ogg', '', quotedMsgId, true, true);
   }
 
 
@@ -1464,9 +1464,9 @@ public async contactUnblock(id: ContactId) {
    * 
    * Retreives a message object which results in a valid sticker instead of a blank one. This also works with animated stickers.
    * 
-   * if you run this without a valid insiders key, it will return false and cause an error upon decryption.
+   * If you run this without a valid insiders key, it will return false and cause an error upon decryption.
    * 
-   * @param messageId
+   * @param messageId The message ID `message.id`
    * @returns message object OR `false`
    */
   public async getStickerDecryptable(messageId: MessageId) {
@@ -2016,7 +2016,7 @@ public async getStatus(contactId: ContactId) {
       ({ namespace, id, property }) => WAPI.getSingleProperty(namespace, id, property),
       { namespace, id, property }
     );
-    }
+  }
 
   /**
    * This function takes an image and sends it as a sticker to the recipient. This is helpful for sending semi-ephemeral things like QR codes. 
@@ -2064,7 +2064,7 @@ public async getStatus(contactId: ContactId) {
       { webpBase64,to, metadata }
     );
   }
-  
+
   /**
    * Send a giphy GIF as an animated sticker.
    * @param to ChatId

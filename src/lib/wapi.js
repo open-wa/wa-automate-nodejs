@@ -2139,6 +2139,7 @@ window.WAPI.getStoryViewers = function(){return false;}
 window.WAPI.onChatState = function(){return false;}
 window.WAPI.getStickerDecryptable = function(){return false;}
 window.WAPI.forceStaleMediaUpdate = function(){return false;}
+window.WAPI.setProfilePic = function(){return false;}
 window.WAPI.sendGiphyAsSticker = function(){return false;}
 
 window.WAPI.quickClean = function (ob) {
