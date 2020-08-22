@@ -11,6 +11,8 @@ open-wa is at the forefront of open source WA developmentand runs on donations f
 | --------------------------------- | ----------- |
 | [[setGroupToAdminsOnly]]                  | Changes group setting so only admins can send messages            |
 | [[setGroupEditToAdminsOnly]]                   | Changes group setting so only admins can edit group info            |
+| [[setGroupTitle]]                   | Changes the group title           |
+| [[setGroupDescription]]                   | Changes the group description         |
 | [[setProfilePic]]                   | Change the host phones profile picture           |
 | [[onRemovedFromGroup]]                   | Detect when host phone is removed from a group           |
 | [[onContactAdded]]                   | Detect when host phone adds a new contact           |
