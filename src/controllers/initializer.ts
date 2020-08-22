@@ -15,13 +15,12 @@ import { isAuthenticated, isInsideChat, retrieveQR, phoneIsOutOfReach } from './
 import { initClient, injectApi } from './browser';
 import { Spin, ev } from './events'
 import axios from 'axios';
-import { integrityCheck } from './launch_checks';
+import { integrityCheck, checkWAPIHash } from './launch_checks';
 import treekill from 'tree-kill';
 import CFonts from 'cfonts';
 import { popup } from './popup';
 import { getConfigFromProcessEnv } from '../utils/configSchema';
 import { SessionInfo } from '../api/model/sessionInfo';
-import { patches } from './patches';
 /** @ignore */
 let shouldLoop = true,
 qrDelayTimeout;
@@ -219,7 +218,11 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
         await kill(waPage);
         await create(sessionId, config, customUserAgent).then(config.restartOnCrash);
       });
-
+      const pureWAPI = await checkWAPIHash();
+      if(!pureWAPI) {
+        config.skipBrokenMethodsCheck = true;
+        config.skipPatches = true;
+      }
       if (config?.skipBrokenMethodsCheck !== true) await integrityCheck(waPage, notifier, spinner, debugInfo);
       const LAUNCH_TIME_MS = Date.now() - START_TIME;
       debugInfo = {...debugInfo, LAUNCH_TIME_MS};
