@@ -146,6 +146,8 @@ declare module WAPI {
   const demoteParticipant: (groupId: string, contactId: string) => Promise<boolean>;
   const setGroupToAdminsOnly: (groupId: string, onlyAdmins: boolean) => Promise<boolean>;
   const setGroupEditToAdminsOnly: (groupId: string, onlyAdmins: boolean) => Promise<boolean>;
+  const setGroupDescription: (groupId: string, description: string) => Promise<boolean>;
+  const setGroupTitle: (groupId: string, title: string) => Promise<boolean>;
   const sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => Promise<any>;
   const createGroup: (groupName: string, contactId: string|string[]) => Promise<any>;
   const sendSeen: (to: string) => Promise<boolean>;
@@ -1942,6 +1944,36 @@ public async getStatus(contactId: ContactId) {
   return await this.pup(
     ({ groupId, onlyAdmins }) => WAPI.setGroupEditToAdminsOnly(groupId, onlyAdmins),
     { groupId, onlyAdmins }
+  );
+}
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * 
+  * Change the group chant description
+  * @param groupId '0000000000-00000000@g.us' the group id.
+  * @param description string The new group description
+  * @returns boolean true if action completed successfully.
+  */
+ public async setGroupDescription(groupId: GroupChatId, description: string) {
+  return await this.pup(
+    ({ groupId, description }) => WAPI.setGroupDescription(groupId, description),
+    { groupId, description }
+  );
+}
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * 
+  * Change the group chat title
+  * @param groupId '0000000000-00000000@g.us' the group id.
+  * @param title string The new group title
+  * @returns boolean true if action completed successfully.
+  */
+ public async setGroupTitle(groupId: GroupChatId, title: string) {
+  return await this.pup(
+    ({ groupId, title }) => WAPI.setGroupTitle(groupId, title),
+    { groupId, title }
   );
 }
 
