@@ -117,6 +117,7 @@ declare module WAPI {
   const sendMessage: (to: string, content: string) => Promise<string>;
   const downloadFileWithCredentials: (url: string) => Promise<string>;
   const sendMessageWithMentions: (to: string, content: string) => Promise<string>;
+  const tagEveryone: (groupId: string, content: string) => Promise<string>;
   const sendReplyWithMentions: (to: string, content: string, replyMessageId: string) => Promise<string>;
   const postTextStatus: (text: string, textRgba: string, backgroundRgba: string, font: string) => Promise<string | boolean>;
   const postImageStatus: (data: string, caption: string) => Promise<string | boolean>;
@@ -574,7 +575,7 @@ export class Client {
   /**
    * @event 
    * Listens to add and remove events on Groups. This can no longer determine who commited the action and only reports the following events add, remove, promote, demote
-   * @param to group id: xxxxx-yyyy@us.c
+   * @param to group id: xxxxx-yyyy@c.us
    * @param to callback
    * @returns Observable stream of participantChangedEvent
    */
@@ -762,7 +763,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   /**
    * Sends a text message to given chat
    * If you need to send a message to new numbers please see these instructions: https://github.com/open-wa/wa-automate-nodejs#starting-a-conversation
-   * @param to chat id: xxxxx@us.c
+   * @param to chat id: xxxxx@c.us
    * @param content text message
    */
   public async sendText(to: ChatId, content: Content) {
@@ -790,7 +791,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * In order to use this method correctly you will need to send the text like this:
    * "@4474747474747 how are you?"
    * Basically, add a @ symbol before the number of the contact you want to mention.
-   * @param to chat id: xxxxx@us.c
+   * @param to chat id: xxxxx@c.us
    * @param content text message
    */
   public async sendTextWithMentions(to: ChatId, content: Content) {
@@ -812,7 +813,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * In order to use this method correctly you will need to send the text like this:
    * "@4474747474747 how are you?"
    * Basically, add a @ symbol before the number of the contact you want to mention.
-   * @param to chat id: xxxxx@us.c
+   * @param to chat id: xxxxx@c.us
    * @param content text message
    * @param replyMessageId id of message to reply to
    */
@@ -825,6 +826,23 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
         return WAPI.sendReplyWithMentions(to, content, replyMessageId);
       },
       { to, content, replyMessageId }
+    );
+  }
+
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * 
+   * Tags everyone in the group with a message
+   * 
+   * @param groupId group chat id: xxxxx@g.us
+   * @param content text message to add under all of the tags
+   * @returns Promise<MessageId>
+   */
+  public async tagEveryone(groupId: GroupChatId, content: Content) {
+    return await this.pup(
+      ({ groupId, content  }) => WAPI.tagEveryone(groupId, content),
+      { groupId, content }
     );
   }
 
@@ -903,7 +921,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Sends a image to given chat, with caption or not, using base64
-   * @param to chat id xxxxx@us.c
+   * @param to chat id xxxxx@c.us
    * @param base64 base64 data:image/xxx;base64,xxx or the path of the file you want to send.
    * @param filename string xxxxx
    * @param caption string xxxxx
@@ -981,7 +999,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Sends a file to given chat, with caption or not, using base64. This is exactly the same as sendImage
-   * @param to chat id xxxxx@us.c
+   * @param to chat id xxxxx@c.us
    * @param base64 base64 data:image/xxx;base64,xxx or the path of the file you want to send.
    * @param filename string xxxxx
    * @param caption string xxxxx
@@ -1003,7 +1021,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Sends a file to given chat, with caption or not, using base64. This is exactly the same as sendImage
-   * @param to chat id xxxxx@us.c
+   * @param to chat id xxxxx@c.us
    * @param base64 base64 data:image/xxx;base64,xxx or the path of the file you want to send.
    * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
    * @returns Promise <boolean | string> This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
@@ -1020,7 +1038,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Sends a video to given chat as a gif, with caption or not, using base64
-   * @param to chat id xxxxx@us.c
+   * @param to chat id xxxxx@c.us
    * @param base64 base64 data:image/xxx;base64,xxx or the path of the file you want to send.
    * @param filename string xxxxx
    * @param caption string xxxxx
@@ -1043,7 +1061,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Sends a video to given chat as a gif by using a giphy link, with caption or not, using base64
-   * @param to chat id xxxxx@us.c
+   * @param to chat id xxxxx@c.us
    * @param giphyMediaUrl string https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif => https://i.giphy.com/media/oYtVHSxngR3lC/200w.mp4
    * @param caption string xxxxx
    */
@@ -1073,7 +1091,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Sends a file by Url or custom options
-   * @param to chat id xxxxx@us.c
+   * @param to chat id xxxxx@c.us
    * @param url string https://i.giphy.com/media/oYtVHSxngR3lC/200w.mp4
    * @param filename string 'video.mp4'
    * @param caption string xxxxx
@@ -1565,7 +1583,7 @@ public async contactUnblock(id: ContactId) {
   
   /**
    * Sets a chat status to seen. Marks all messages as ack: 3
-   * @param chatId chat id: xxxxx@us.c
+   * @param chatId chat id: xxxxx@c.us
    */
   public async sendSeen(chatId: ChatId) {
     return await this.pup(
@@ -1577,7 +1595,7 @@ public async contactUnblock(id: ContactId) {
   
   /**
    * Sets a chat status to unread. May be useful to get host's attention
-   * @param chatId chat id: xxxxx@us.c
+   * @param chatId chat id: xxxxx@c.us
    */
   public async markAsUnread(chatId: ChatId) {
     return await this.pup(
@@ -1588,7 +1606,7 @@ public async contactUnblock(id: ContactId) {
   
   /**
    * Checks if a CHAT contact is online. Not entirely sure if this works with groups.
-   * @param chatId chat id: xxxxx@us.c
+   * @param chatId chat id: xxxxx@c.us
    */
   public async isChatOnline(chatId: ChatId) {
     return await this.pup(

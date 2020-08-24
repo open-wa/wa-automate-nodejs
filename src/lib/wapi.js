@@ -2143,6 +2143,7 @@ window.WAPI.setProfilePic = function(){return false;}
 window.WAPI.sendGiphyAsSticker = function(){return false;}
 window.WAPI.setGroupDescription = function(){return false;}
 window.WAPI.setGroupTitle = function(){return false;}
+window.WAPI.tagEveryone = function(){return false;}
 
 window.WAPI.quickClean = function (ob) {
     var r = JSON.parse(JSON.stringify(ob));
