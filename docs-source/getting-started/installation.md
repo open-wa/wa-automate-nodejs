@@ -48,7 +48,3 @@ If there are issues with installing the packages then try this:
 ```
 
 Doing this saves time and memory.
-
-## Arch Linux
-
-Please DO NOT use this library with arch linux, some users have had unexplainable issues with arch linux and there is no support for this OS. It is highly suggested to use this library on Mac, Windows or Ubuntu, otherwise use it using the [docker set up](https://github.com/open-wa/wa-automate-docker)

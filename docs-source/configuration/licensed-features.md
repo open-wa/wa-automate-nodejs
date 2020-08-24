@@ -85,6 +85,8 @@ console.log('Host account', hostAccountNumber);
 
 If it's different from what you've entered in the checkout form, [please fill and send this email.](mailto:shah@idk.uno?subject=OPENWA%3A%20WRONG%20HOST%20ACC%20NUMBER&body=email%20used%20to%20buy%20key%3A%0D%0Alicense%20key%3A%0D%0Acorrect%20host%20account%20number%3A%0D%0A)
 
+If you are having issues where your license key shows as valid in the console, but the features continually return `false` this may be due to a NodeJS issue relating to the time on your machine. To fix this, make sure your machine's time is correct.
+
 ## Switching your host account
 
 If your development and production host accounts are different, then you can enter the development host account number in the form and when you're ready to your production host account, [fill and send this email.](mailto:shah@idk.uno?subject=OPENWA%3A%PRODUCTION%20HOST%20ACC%20NUMBER&body=email%20used%20to%20buy%20key%3A%0D%0Alicense%20key%3A%0D%0Acorrect%20host%20account%20number%3A%0D%0A)
