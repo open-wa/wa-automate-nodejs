@@ -25,7 +25,7 @@ open-wa is at the forefront of open source WA developmentand runs on donations f
 | [[forceStaleMediaUpdate]]                   | If a media message is old, the file url will result in a `404` error. forceStaleMediaUpdate forces the mobile app to reupload the file.           |
 | [[tagEveryone]]                   | Send a group message with everyone tagged.           |
 
-### Restricted Features
+### Sending messages to non-contact numbers
 
 The ability to send messages to non-contact numbers is restricted in this library to prevent spam.
 
@@ -37,9 +37,9 @@ There are 3 ways to start a chat with a new number:
 2. [WA Buttons](https://github.com/smashah/whatsapp-button?ref=open-wa-nodejs)
 
       You can add this button to your website which, when clicked, will open a chat with you in the same way as above.
-3. [With a License Key](#how-to-get-a-license-key)
+3. [With a Restricted License Key](#how-to-get-a-license-key)
 
-     In order to unlock the functionality to send texts to unknown numbers through @open-wa/wa-automate itself, you will need a License key.
+     In order to unlock the functionality to send texts to unknown numbers through @open-wa/wa-automate itself, you will need a [Restricted License key](https://gumroad.com/l/BTMt?tier=1%20Restricted%20License%20Key).
 
      One License Key is valid for one number. Each License Key for this is £10 per month. [Instructions below.](#how-to-get-a-license-key)
 
@@ -49,7 +49,7 @@ After a lot of effort, ability to send text, image and video stories is availabl
 
 ## How to get a License Key
 
-1. Go to [Gumroad](https://gumroad.com/l/BTMt).
+1. Go to [Gumroad](https://gum.co/BTMt?tier=1%20Restricted%20License%20Key).
 2. Click on the type of license you require.
 3. In the checkout, ***enter the host account number you want to assign to the License Key (the one you will be using with open-wa, not your personal number)*** , along with the use case for this functionality and your github username. Please note, with this new system you'll only be able to change the number once.
 4. Complete the checkout process.
@@ -74,6 +74,17 @@ create({
 })
 ...
 ```
+
+## Keys
+
+| Name | link |
+| --------------------------------- | ----------- |
+| Insiders | [LINK](https://gum.co/BTMt?tier=Insiders%20Program) |
+| Restricted | [LINK](https://gumroad.com/l/BTMt?tier=1%20Restricted%20License%20Key) |
+| Text Story | [LINK](https://gum.co/BTMt?tier=1%20Text%20Story%20License%20Key) |
+| Image Story | [LINK](https://gum.co/BTMt?tier=1%20Image%20Story%20License%20Key) |
+| Video Story | [LINK](https://gum.co/BTMt?tier=1%20Video%20Story%20License%20Key) |
+| Premium | [LINK](https://gum.co/BTMt?tier=1%20Premium%20License%20Key) |
 
 ## Troubleshooting
 
