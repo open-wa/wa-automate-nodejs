@@ -2140,10 +2140,15 @@ window.WAPI.onChatState = function(){return false;}
 window.WAPI.getStickerDecryptable = function(){return false;}
 window.WAPI.forceStaleMediaUpdate = function(){return false;}
 window.WAPI.setProfilePic = function(){return false;}
-window.WAPI.sendGiphyAsSticker = function(){return false;}
 window.WAPI.setGroupDescription = function(){return false;}
 window.WAPI.setGroupTitle = function(){return false;}
 window.WAPI.tagEveryone = function(){return false;}
+
+/**
+ * Patches
+ */
+window.WAPI.sendGiphyAsSticker = function(){return false;}
+window.WAPI.getBlockedIds = function(){return false;}
 
 window.WAPI.quickClean = function (ob) {
     var r = JSON.parse(JSON.stringify(ob));

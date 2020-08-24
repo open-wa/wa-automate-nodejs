@@ -220,7 +220,8 @@ declare module WAPI {
   const getChat: (contactId: string) => Chat;
   const getLastSeen: (contactId: string) => Promise<number | boolean>;
   const getProfilePicFromServer: (chatId: string) => any;
-  const getAllChatIds: () => ChatId[];
+  const getAllChatIds: () => Promise<ChatId[]>;
+  const getBlockedIds: () => Promise<ContactId[]>;
   const getAllChatsWithNewMsg: () => Chat[];
   const getAllNewMessages: () => any;
   const getUseHereString: () => Promise<string>;
@@ -1322,6 +1323,14 @@ public async iAmAdmin(){
    */
   public async getAllChatIds() {
       return await this.pup(() => WAPI.getAllChatIds());
+  }
+
+  /**
+   * Retreives an array of IDs of accounts blocked by the host account.
+   * @returns Promise<ChatId[]>
+   */
+  public async getBlockedIds() {
+    return await this.pup(() => WAPI.getBlockedIds());
   }
 
   /**
