@@ -23,6 +23,7 @@ open-wa is at the forefront of open source WA developmentand runs on donations f
 | [[onChatState]]                   | Detect when someone is typing or recording a voicenote           |
 | [[getStickerDecryptable]]                   | Convert a normal sticker message (results in blank image) to one that is able to grab and decrypt the actual sticker           |
 | [[forceStaleMediaUpdate]]                   | If a media message is old, the file url will result in a `404` error. forceStaleMediaUpdate forces the mobile app to reupload the file.           |
+| [[tagEveryone]]                   | Send a group message with everyone tagged.           |
 
 ### Restricted Features
 
