@@ -221,7 +221,7 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
       const pureWAPI = await checkWAPIHash();
       if(!pureWAPI) {
         config.skipBrokenMethodsCheck = true;
-        config.skipPatches = true;
+        // config.skipPatches = true;
       }
       if (config?.skipBrokenMethodsCheck !== true) await integrityCheck(waPage, notifier, spinner, debugInfo);
       const LAUNCH_TIME_MS = Date.now() - START_TIME;
