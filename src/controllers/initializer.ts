@@ -238,6 +238,9 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
           spinner.succeed('License Valid');
         } else spinner.fail('Invalid license key');
       }
+      if(config?.hostNotificationLang){
+        await waPage.evaluate(`window.hostlang="${config.hostNotificationLang}"`)
+      }
       //patch issues with wapi.js
       if (!config?.skipPatches){
         spinner.info('Installing patches')

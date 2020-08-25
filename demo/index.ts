@@ -2,6 +2,7 @@
 // var create = require("@open-wa/wa-automate").create;
 // import { create, Client, decryptMedia, ev } from '../dist/index';
 import { create, Client, decryptMedia, ev, smartUserAgent } from '../src/index';
+import { NotificationLanguage } from '../src/api/model';
 const mime = require('mime-types');
 const fs = require('fs');
 const uaOverride = 'WhatsApp/2.16.352 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Safari/605.1.15';
@@ -190,6 +191,7 @@ create({
   autoRefresh:true, //default to true
   qrRefreshS:15, //please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.
   safeMode: true,
+  hostNotificationLang: NotificationLanguage.PTBR
   // cacheEnabled:false,
   // devtools:true,
   //OR

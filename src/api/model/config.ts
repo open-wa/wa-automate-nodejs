@@ -8,6 +8,14 @@ export enum QRFormat{
     JPEG = 'jpeg',
     WEBM = 'webm'
   }
+
+  /**
+   * The available languages for the host security notification
+   */
+  export enum NotificationLanguage {
+      PTBR = 'pt-br',
+      ENGB = 'en-gb'
+  }
   
   /**
    * The set values of quality you can set for the qquality of the qr code output. Ten being the highest quality.
@@ -301,6 +309,10 @@ export interface ConfigObject {
      * @default `png`
      */
     qrFormat ?:  QRFormat;
+    /**
+     * The language of the host notification. See: https://github.com/open-wa/wa-automate-nodejs/issues/709#issuecomment-673419088
+     */
+    hostNotificationLang ?: NotificationLanguage;
     /**
      * Setting this to true will block all assets from loading onto the page. This may result in some load time impreovements but also increases instability. 
      * @default `false`
