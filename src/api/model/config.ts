@@ -14,7 +14,9 @@ export enum QRFormat{
    */
   export enum NotificationLanguage {
       PTBR = 'pt-br',
-      ENGB = 'en-gb'
+      ENGB = 'en-gb',
+      DEDE = 'de-de',
+      ES = 'es',
   }
   
   /**
