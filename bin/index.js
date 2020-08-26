@@ -98,7 +98,7 @@ ${configParamText}
 			type: 'boolean',
 			alias: 'o',
 			default: false
-		}
+		},
 		...extraFlags
 	},
 	booleanDefault: undefined

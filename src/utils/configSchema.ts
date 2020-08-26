@@ -31,6 +31,7 @@ export const getConfigWithCase = (config ?: {
     const configs = Object.entries(schema.definitions.ConfigObject.properties).map(([key,entry] : any)=>{
         if(key==='sessionData') {
             entry.type = 'string';
+            entry.description = 'The base64 encoded sessionData used to restore a session.'
             delete entry.anyOf;
         }
         return {...entry,key}
