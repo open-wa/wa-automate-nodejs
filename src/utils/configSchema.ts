@@ -27,7 +27,14 @@ export const getConfigWithCase = (config ?: {
         'killProcessOnBrowserClose'
     ]
     //only convert simple types
-    const configs = Object.keys(schema.definitions.ConfigObject.properties).map(key=>({...schema.definitions.ConfigObject.properties[key],key})).filter(({type,key})=>type&&!ignoredConfigs.includes(key));
+    // const configs = Object.keys(schema.definitions.ConfigObject.properties).map(key=>({...schema.definitions.ConfigObject.properties[key],key})).filter(({type,key})=>type&&!ignoredConfigs.includes(key));
+    const configs = Object.entries(schema.definitions.ConfigObject.properties).map(([key,entry] : any)=>{
+        if(key==='sessionData') {
+            entry.type = 'string';
+            delete entry.anyOf;
+        }
+        return {...entry,key}
+    }).filter(({type,key})=>type&&!ignoredConfigs.includes(key));
     const configWithCases = configs.map(o=>({env:`WA_${constantCase(o.key)}`,p:paramCase(o.key),...o}))
     return configWithCases;
 }

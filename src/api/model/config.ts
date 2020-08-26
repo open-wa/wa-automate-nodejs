@@ -278,6 +278,7 @@ export interface ConfigObject {
     /**
      * If true, the process will try infer as many config variables as possible from the environment variables. The format of the variables are as below:
      * ```
+     * sessionData     ==>     WA_SESSION_DATA
      * sessionDataPath ==>     WA_SESSION_DATA_PATH
      * sessionId       ==>     WA_SESSION_ID
      * customUserAgent ==>     WA_CUSTOM_USER_AGENT
