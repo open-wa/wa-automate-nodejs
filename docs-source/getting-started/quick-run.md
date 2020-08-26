@@ -35,3 +35,27 @@ or you can set your own, I got the following secure key from [https://randomkeyg
 ```bash
 > npx @open-wa/wa-automate -p 8080 -k 'K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy'
 ```
+
+You can easily force the program to maintain focus (`--keep-alive` or `-a`):
+
+```bash
+> npx @open-wa/wa-automate -p 8080 -k 'K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy' --keep-alive
+
+//or
+
+> npx @open-wa/wa-automate -p 8080 -k 'K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy' --keep-alive
+```
+
+## Restarting session
+
+As of version 2.0.0 of this library, you can now provide session data as a base64 string. This is the default method goin forward and your `.data.json` files should have this string if you've run the program in version 2.0.0+.
+
+There are 3 param tags that can be used to set session data `-s`, `--session` or `--session-data` - all work but make sure you wrap the string with double quotes `"` and NOT sinle quotes `'`.
+
+```bash
+> npx @open-wa/wa-automate -p 8080 -k 'K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy' --session-data "eyJXQUJyb...ifQ=="
+//or
+> npx @open-wa/wa-automate -p 8080 -k 'K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy' --session "eyJXQUJyb...ifQ=="
+//or
+> npx @open-wa/wa-automate -p 8080 -k 'K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy' -s "eyJXQUJyb...ifQ=="
+```
