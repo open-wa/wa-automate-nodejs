@@ -99,7 +99,11 @@ ${configParamText}
 			alias: 'o',
 			default: false
 		},
-		...extraFlags
+		...extraFlags,
+		popup: { 
+			type: 'boolean',
+			default: false
+		 }
 	},
 	booleanDefault: undefined
 });

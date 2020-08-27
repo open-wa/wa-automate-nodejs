@@ -1,5 +1,6 @@
 /** @internal *//** */
 import { ev } from "../events";
+import path from "path";
 
 var http = require('http'),
     io = require('socket.io'),
@@ -28,7 +29,7 @@ export async function popup(preferredPort : boolean | number) {
 
     server = http.createServer(function (req, res) {
         res.writeHead(200, { 'Content-Type': 'text/html' })
-        fs.readFile(__dirname + '/index.html', function (err, data) {
+        fs.readFile(path.resolve(__dirname, './index.html'), function (err, data) {
             res.write(data, 'utf8');
             res.end();
         });
