@@ -38,6 +38,7 @@ const cli = meow(`
       --session-data-only, -o \t\tKill the process when the sesion data is saved.
       --license, -l \t\t\tThe license key you want to use for this server. License keys are used to unlock features. Learn more here https://github.com/open-wa/wa-automate-nodejs#license-key
 ${configParamText}
+	  --popup-port \t\t\tThe desired custom port to run the popup on.
 
 	Please check here for more information on some of the above mentioned parameters: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html
 
@@ -103,6 +104,9 @@ ${configParamText}
 		popup: { 
 			type: 'boolean',
 			default: false
+		 },
+		 popupPort: {
+			type: 'number',
 		 }
 	},
 	booleanDefault: undefined
@@ -137,6 +141,14 @@ if (c && c.licenseKey) {
 		...config,
 		licenseKey: c.licenseKey
 	}
+}
+
+if(c && c.popupPort) {
+	config = {
+		...config,
+		popup: c.popupPort
+	}
+	
 }
 
 if (!(c.key == null) && c.key == "") {
