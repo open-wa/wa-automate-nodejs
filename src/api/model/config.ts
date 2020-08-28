@@ -16,6 +16,7 @@ export enum QRFormat{
       PTBR = 'pt-br',
       ENGB = 'en-gb',
       DEDE = 'de-de',
+      IDID = 'id-id',
       ES = 'es',
   }
   
