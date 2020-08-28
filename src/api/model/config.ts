@@ -273,6 +273,15 @@ export interface ConfigObject {
     skipSessionSave ?: boolean;
     /**
      * If true, the process will open a browser window where you will see basic event logs and QR codes to authenticate the session. Usually it will open on port 3000. It can also be set to a preferred port.
+     * 
+     * You can also get the QR code png at (if localhost and port 3000):
+     * 
+     * `http://localhost:3000/qr`
+     * 
+     * or if you have multiple session:
+     * 
+     *  `http://localhost:3000/qr?sessionId=[sessionId]`
+     * 
      * @default `false | 3000`
      */
     popup ?: boolean | number;
