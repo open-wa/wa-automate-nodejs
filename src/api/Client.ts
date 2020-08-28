@@ -18,7 +18,7 @@ import { SessionInfo } from './model/sessionInfo';
 import { injectApi } from '../controllers/browser';
 import { isAuthenticated } from '../controllers/auth';
 import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, FilePath } from './model/aliases';
-import { bleachMessage } from '@open-wa/wa-decrypt';
+import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
 import * as path from 'path';
 
 export enum namespace {
@@ -368,7 +368,7 @@ export class Client {
     //add a reference to this callback
     const set = () => this.pup(({funcName}) => {
       //@ts-ignore
-      return window[funcName] ? WAPI[funcName](obj => window[funcName](obj)) : false
+      return window[funcName] ? WAPI[`${funcName}`](obj => window[funcName](obj)) : false
     },{funcName});
     this._listeners[funcName] = fn;
     const exists = await this.pup(({funcName})=>window[funcName]?true:false,{funcName});
@@ -918,7 +918,22 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     );
   }
 
-
+  /**
+   * Decrypts a media message.
+   * @param message This can be the serialized [[MessageId]] or the whole [[Message]] object. It is advised to 
+   */
+  public async decryptMedia(message: Message | MessageId) {
+    let m : any;
+    //if it's the message id, get the message
+    if(typeof message === "string") m = await this.getMessageById(message) 
+    else m = message;
+    if(!m.mimetype) throw new Error("Not a media message");
+    if(m.type == "sticker") m = await this.getStickerDecryptable(m.id);
+    //Dont have an insiders license to decrypt stickers
+    if(m===false) return false;
+    const mediaData = await decryptMedia(m);
+    return `data:${m.mimetype};base64,${mediaData.toString('base64')}`
+  };
 
   /**
    * Sends a image to given chat, with caption or not, using base64
