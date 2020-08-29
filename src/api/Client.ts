@@ -920,7 +920,8 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Decrypts a media message.
-   * @param message This can be the serialized [[MessageId]] or the whole [[Message]] object. It is advised to 
+   * @param message This can be the serialized [[MessageId]] or the whole [[Message]] object. It is advised to just use the serialized message ID.
+   * @returns Promise<[[DataURL]]>
    */
   public async decryptMedia(message: Message | MessageId) {
     let m : any;
