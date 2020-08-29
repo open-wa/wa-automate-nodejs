@@ -961,11 +961,20 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
           file = await datauri(fs.existsSync(file)  ? file : relativePath);
         }
     }
+    
+   const err = [
+    'Not able to send message to broadcast',
+    'Not a contact',
+    'Error: Number not linked to WhatsApp Account',
+    'ERROR: Please make sure you have at least one chat'
+   ];
 
-    return await this.pup(
+    let res = await this.pup(
       ({ to, file, filename, caption, quotedMsgId, waitForId, ptt}) =>  WAPI.sendImage(file, to, filename, caption, quotedMsgId, waitForId, ptt),
       { to, file, filename, caption, quotedMsgId, waitForId, ptt }
     );
+    if(err.includes(res)) console.error(res);
+    return err.includes(res) ? false : res;
   }
 
   
