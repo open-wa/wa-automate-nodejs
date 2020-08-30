@@ -17,37 +17,36 @@ var http = require('http'),
 
 const timeout = ms => {
     return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
-  }
+}
 
-  ev.on('**', async (data, sessionId, namespace) => {
-    if(gClient) await gClient.send({ data, sessionId, namespace });
-    console.log(namespace)
-    if(namespace==='qr') {
-        currentQrCodes[sessionId] = data;
-        currentQrCodes['latest'] = data;
-    }
+const handleQRRequest = async (req, res) => {
+    const parsedUrl = url.parse(req.url, true);
+    const sessionId = parsedUrl.sessionId;
+    let qr = sessionId ? currentQrCodes[sessionId] || currentQrCodes.latest : currentQrCodes.latest
+    res.writeHead(200, { 'Content-Type': 'image/png' })
+    res.write(Buffer.from(qr.replace('data:image/png;base64,', ''), 'base64'), 'utf8');
+    res.end();
+}
+
+var routes = {
+    '/qr': handleQRRequest
+};
+
+export async function popup(preferredPort: boolean | number) {
+    ev.on('**', async (data, sessionId, namespace) => {
+        if (gClient) await gClient.send({ data, sessionId, namespace });
+        if (namespace === 'qr') {
+            currentQrCodes[sessionId] = data;
+            currentQrCodes['latest'] = data;
+        }
     });
 
-    const handleQRRequest = async (req,res)=>{
-        const parsedUrl = url.parse(req.url, true);
-        const sessionId = parsedUrl.sessionId;
-        let qr = sessionId ? currentQrCodes[sessionId] || currentQrCodes.latest : currentQrCodes.latest
-        res.writeHead(200, { 'Content-Type': 'image/png' })
-        res.write(Buffer.from(qr.replace('data:image/png;base64,',''), 'base64'), 'utf8');
-        res.end();
-    }
-
-    var routes = {
-        '/qr': handleQRRequest
-      };
-
-export async function popup(preferredPort : boolean | number) {
     /**
      * There should only be one instance of this open. If the server is already running, respond with the address.
      */
 
-    if(server) return `http://localhost:${PORT}`;
-    PORT = await getPort({host:'localhost',port: typeof preferredPort == 'number' ?  [preferredPort, 3000, 3001, 3002] : [3000, 3001, 3002]});
+    if (server) return `http://localhost:${PORT}`;
+    PORT = await getPort({ host: 'localhost', port: typeof preferredPort == 'number' ? [preferredPort, 3000, 3001, 3002] : [3000, 3001, 3002] });
 
     server = http.createServer(function (req, res) {
         var urlParts = url.parse(req.url);
@@ -66,8 +65,8 @@ export async function popup(preferredPort : boolean | number) {
 
     var i = io.listen(server);
 
-    await open(`http://localhost:${PORT}`, {app: ['google chrome', '--incognito']});
-    
+    await open(`http://localhost:${PORT}`, { app: ['google chrome', '--incognito'] });
+
     return await new Promise(resolve => {
         i.on('connection', function (client) {
             gClient = client;
