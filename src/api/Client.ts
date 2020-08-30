@@ -136,6 +136,7 @@ declare module WAPI {
   const setMyStatus: (newStatus: string) => void;
   const setProfilePic: (data: string) => Promise<boolean>;
   const setPresence: (available: boolean) => void;
+  const getMessageReaders: (messageId: string) => Contact[];
   const getStatus: (contactId: string) => void;
   const getCommonGroups: (contactId: string) => Promise<{id:string,title:string}[]>;
   const forceUpdateLiveLocation: (chatId: string) => Promise<LiveLocationChangedEvent []> | boolean;
@@ -2067,6 +2068,18 @@ public async getStatus(contactId: ContactId) {
       (activate) => WAPI.darkMode(activate),
       activate
     ) as Promise<boolean>;
+  }
+  
+
+  /**
+   * Returns an array of contacts that have read the message. If the message does not exist, it will return an empty array. If the host account has disabled read receipts this may not work!
+   * @param messageId The message id
+   */
+  public async getMessageReaders(messageId: MessageId) {
+    return await this.pup(
+      (messageId) => WAPI.getMessageReaders(messageId),
+      messageId
+    ) as Promise<Contact[]>;
   }
 
   /**
