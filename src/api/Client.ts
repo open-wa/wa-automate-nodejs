@@ -646,7 +646,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     return await this.pup(
       ({label, id}) => {WAPI.addOrRemoveLabels(label, id, 'add')},
       {label, id}
-      )
+      ) as Promise<boolean>;
   }
 
   /**
@@ -658,7 +658,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     return await this.pup(
       ({label, id}) => {WAPI.addOrRemoveLabels(label, id, 'remove')},
       {label, id}
-      )
+      ) as Promise<boolean>;
   }
 
 /**
@@ -674,7 +674,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     return await this.pup(
       ({chatId, vcard, contactName, contactNumber}) => {WAPI.sendVCard(chatId, vcard,contactName, contactNumber)},
       {chatId, vcard, contactName, contactNumber}
-      )
+      ) as Promise<boolean>;
   }
 
   /**
@@ -783,7 +783,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
       { to, content }
     );
     if(err.includes(res)) console.error(res);
-    return err.includes(res) ? false : res;
+    return (err.includes(res) ? false : res)  as boolean | MessageId;
   }
   
 
@@ -804,7 +804,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
         return WAPI.sendMessageWithMentions(to, content);
       },
       { to, content }
-    );
+    ) as Promise<string>;
   }
 
   /**
@@ -827,7 +827,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
         return WAPI.sendReplyWithMentions(to, content, replyMessageId);
       },
       { to, content, replyMessageId }
-    );
+    ) as Promise<string>;
   }
 
 
@@ -844,7 +844,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     return await this.pup(
       ({ groupId, content  }) => WAPI.tagEveryone(groupId, content),
       { groupId, content }
-    );
+    ) as Promise<string>;
   }
 
   /**
@@ -888,7 +888,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
         chatId
 
       }
-    );
+    ) as Promise<boolean>;
   }
 
 
@@ -903,7 +903,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     return await this.pup(
       ({ to, lat, lng, loc }) => WAPI.sendLocation(to, lat, lng, loc),
       { to, lat, lng, loc }
-    );
+    ) as Promise<string>;
   }
 
   /**
@@ -915,7 +915,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     return await this.pup(
       ({ua}) => WAPI.getGeneratedUserAgent(ua),
       { ua }
-    );
+    ) as Promise<string>;
   }
 
   /**
@@ -972,9 +972,9 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     let res = await this.pup(
       ({ to, file, filename, caption, quotedMsgId, waitForId, ptt}) =>  WAPI.sendImage(file, to, filename, caption, quotedMsgId, waitForId, ptt),
       { to, file, filename, caption, quotedMsgId, waitForId, ptt }
-    );
+    )
     if(err.includes(res)) console.error(res);
-    return err.includes(res) ? false : res;
+    return (err.includes(res) ? false : res)  as MessageId | boolean;
   }
 
   
@@ -1004,7 +1004,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
         WAPI.sendLinkWithAutoPreview(to,url,text);
       },
       { to,url, text }
-    );
+    ) as Promise<boolean>;
   }
 
   /**
@@ -1020,7 +1020,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     return await this.pup(
       ({ to, content, quotedMsgId }) =>WAPI.reply(to, content, quotedMsgId),
       { to, content, quotedMsgId }
-    )
+    ) as Promise<string | boolean>;
   }
 
   /**
@@ -1082,7 +1082,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
         WAPI.sendVideoAsGif(file, to, filename, caption, quotedMsgId );
       },
       { to, file, filename, caption, quotedMsgId }
-    );
+    ) as Promise<MessageId>;
   }
 
   /**
@@ -1107,7 +1107,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
           WAPI.sendVideoAsGif(base64, to, filename, caption);
         },
         { to, base64, filename, caption }
-      );
+      ) as Promise<MessageId>;
     } else {
       console.log('something is wrong with this giphy link');
       return;
@@ -1157,7 +1157,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
  * Returns an array of group ids where the host device is admin
  */
 public async iAmAdmin(){
-  return await this.pup(() => WAPI.iAmAdmin());
+  return await this.pup(() => WAPI.iAmAdmin()) as Promise<GroupChatId[]>;
 }
 
   /**
@@ -1165,14 +1165,14 @@ public async iAmAdmin(){
    */
   public async syncContacts(){
     //@ts-ignore
-    return await this.pup(() => WAPI.syncContacts());
+    return await this.pup(() => WAPI.syncContacts()) as Promise<boolean>;
   }
 
    /**
     * SEasily get the amount of messages loaded up in the session. This will allow you to determine when to clear chats/cache.
     */
    public async getAmountOfLoadedMessages(){
-     return await this.pup(() => WAPI.getAmountOfLoadedMessages());
+     return await this.pup(() => WAPI.getAmountOfLoadedMessages()) as Promise<number>;
    }
 
 
@@ -1238,7 +1238,7 @@ public async iAmAdmin(){
     return await this.pup(
       ({ to, on }) => WAPI.simulateTyping(to, on),
       { to, on }
-    );
+    ) as Promise<boolean>;
   }
 
 
@@ -1251,7 +1251,7 @@ public async iAmAdmin(){
     return await this.pup(
       ({ id, archive }) => WAPI.archiveChat(id, archive),
       { id, archive }
-    );
+    ) as Promise<boolean>;
   }
 
 
@@ -1280,7 +1280,7 @@ public async iAmAdmin(){
     return await this.pup(
       ({ to, messageId }) => WAPI.ghostForward(to, messageId),
       { to, messageId }
-    );
+    ) as Promise<boolean>;
   }
 
   /**
@@ -1288,11 +1288,11 @@ public async iAmAdmin(){
    * @returns array of [Contact]
    */
   public async getAllContacts() {
-    return await this.pup(() => WAPI.getAllContacts());
+    return await this.pup(() => WAPI.getAllContacts()) as Promise<Contact[]>;
   }
 
   public async getWAVersion() {
-    return await this.pup(() => WAPI.getWAVersion());
+    return await this.pup(() => WAPI.getWAVersion()) as Promise<string>;
   }
 
   /**
@@ -1300,7 +1300,7 @@ public async iAmAdmin(){
    * @returns Boolean
    */
   public async isConnected() {
-    return await this.pup(() => WAPI.isConnected());
+    return await this.pup(() => WAPI.isConnected()) as Promise<boolean>;
   }
 
   /**
@@ -1308,7 +1308,7 @@ public async iAmAdmin(){
    * @returns Number
    */
   public async getBatteryLevel() {
-    return await this.pup(() => WAPI.getBatteryLevel());
+    return await this.pup(() => WAPI.getBatteryLevel()) as Promise<number>;
   }
 
   /**
@@ -1316,7 +1316,7 @@ public async iAmAdmin(){
    * @returns Number
    */
   public async getIsPlugged() {
-    return await this.pup(() => WAPI.getIsPlugged());
+    return await this.pup(() => WAPI.getIsPlugged()) as Promise<boolean>;
   }
 
   /**
@@ -1324,7 +1324,7 @@ public async iAmAdmin(){
    * @returns Number
    */
   public async getHostNumber() {
-    return await this.pup(() => WAPI.getHostNumber());
+    return await this.pup(() => WAPI.getHostNumber()) as Promise<string>;
   }
 
   /**
@@ -1337,7 +1337,7 @@ public async iAmAdmin(){
         WAPI.getAllChatsWithNewMsg()
       );
     } else {
-      return await this.pup(() => WAPI.getAllChats());
+      return await this.pup(() => WAPI.getAllChats()) as Promise<Chat[]>;
     }
   }
 
@@ -1347,7 +1347,7 @@ public async iAmAdmin(){
    * @returns array of [ChatId]
    */
   public async getAllChatIds() {
-      return await this.pup(() => WAPI.getAllChatIds());
+      return await this.pup(() => WAPI.getAllChatIds()) as Promise<string[]>;
   }
 
   /**
@@ -1355,7 +1355,7 @@ public async iAmAdmin(){
    * @returns Promise<ChatId[]>
    */
   public async getBlockedIds() {
-    return await this.pup(() => WAPI.getBlockedIds());
+    return await this.pup(() => WAPI.getBlockedIds()) as Promise<string[]>;
   }
 
   /**
@@ -1368,7 +1368,7 @@ public async iAmAdmin(){
    * @returns array of [Chat]
    */
   public async getAllChatsWithMessages(withNewMessageOnly = false) {
-    return JSON.parse(await this.pup(withNewMessageOnly => WAPI.getAllChatsWithMessages(withNewMessageOnly), withNewMessageOnly));
+    return JSON.parse(await this.pup(withNewMessageOnly => WAPI.getAllChatsWithMessages(withNewMessageOnly), withNewMessageOnly)) as Promise<Chat[]>;
   }
 
   /**
@@ -1378,10 +1378,10 @@ public async iAmAdmin(){
   public async getAllGroups(withNewMessagesOnly = false) {
     if (withNewMessagesOnly) {
       // prettier-ignore
-      const chats = await this.pup(() => WAPI.getAllChatsWithNewMsg());
+      const chats = await this.pup(() => WAPI.getAllChatsWithNewMsg()) as Chat[];
       return chats.filter(chat => chat.isGroup);
     } else {
-      const chats = await this.pup(() => WAPI.getAllChats());
+      const chats = await this.pup(() => WAPI.getAllChats()) as Chat[];
       return chats.filter(chat => chat.isGroup);
     }
   }
@@ -1394,7 +1394,7 @@ public async iAmAdmin(){
     return await this.pup(
       groupId => WAPI.getGroupParticipantIDs(groupId),
       groupId
-    );
+    ) as Promise<string[]>;
   }
 
   
@@ -1409,7 +1409,7 @@ public async iAmAdmin(){
     return await this.pup(
       link => WAPI.joinGroupViaLink(link),
       link
-    );
+    ) as Promise<string | boolean | number>;
   }
 
 
@@ -1426,7 +1426,7 @@ public async contactBlock(id: ContactId) {
  * @param {string} id '000000000000@c.us'
  */
 public async contactUnblock(id: ContactId) {
-  return await this.pup(id => WAPI.contactUnblock(id),id)
+  return await this.pup(id => WAPI.contactUnblock(id),id) as Promise<boolean>;
 }
 
   /**
@@ -1485,7 +1485,7 @@ public async contactUnblock(id: ContactId) {
     return await this.pup(
       contactId => WAPI.getContact(contactId),
       contactId
-    );
+    ) as Promise<Contact>;
   }
 
   /**
@@ -1497,7 +1497,7 @@ public async contactUnblock(id: ContactId) {
     return await this.pup(
       contactId => WAPI.getChatById(contactId),
       contactId
-    );
+    ) as Promise<Chat>;
   }
 
   /**
@@ -1509,7 +1509,7 @@ public async contactUnblock(id: ContactId) {
     return await this.pup(
       messageId => WAPI.getMessageById(messageId),
       messageId
-    );
+    ) as Promise<Message>;
   }
 
   /**
@@ -1533,7 +1533,7 @@ public async contactUnblock(id: ContactId) {
       t:m.t,
       id:m.id,
       ...bleachMessage(m)
-    };
+    } as Message;
   }
 
 
@@ -1556,7 +1556,7 @@ public async contactUnblock(id: ContactId) {
     if(!m) return false;
     return {
       ...bleachMessage(m)
-    };
+    } as Message;
   }
 
   /**
@@ -1568,7 +1568,7 @@ public async contactUnblock(id: ContactId) {
     return await this.pup(
       contactId => WAPI.getChat(contactId),
       contactId
-    );
+    ) as Promise<Chat>;
   }
 
   /**
@@ -1583,7 +1583,10 @@ public async contactUnblock(id: ContactId) {
     return await this.pup(
       contactId => WAPI.getCommonGroups(contactId),
       contactId
-    );
+    ) as Promise<{
+      id: string,
+      title: string
+    } []>;
   }
 
   /**
@@ -1599,7 +1602,7 @@ public async contactUnblock(id: ContactId) {
     return await this.pup(
       chatId => WAPI.getLastSeen(chatId),
       chatId
-    );
+    ) as Promise<number | boolean>;
   }
 
   /**
@@ -1623,7 +1626,7 @@ public async contactUnblock(id: ContactId) {
     return await this.pup(
      chatId => WAPI.sendSeen(chatId),
       chatId
-    );
+    ) as Promise<boolean>;
   }
 
   
@@ -1635,7 +1638,7 @@ public async contactUnblock(id: ContactId) {
     return await this.pup(
      chatId => WAPI.markAsUnread(chatId),
       chatId
-    );
+    ) as Promise<boolean>;
   }
   
   /**
@@ -1646,7 +1649,7 @@ public async contactUnblock(id: ContactId) {
     return await this.pup(
      chatId => WAPI.isChatOnline(chatId),
       chatId
-    );
+    ) as Promise<boolean>;
   }
 
 
@@ -1659,7 +1662,7 @@ public async contactUnblock(id: ContactId) {
     return await this.pup(
       contactId => WAPI.loadEarlierMessages(contactId),
       contactId
-    );
+    ) as Promise<Message[]>;
   }
 
 /**
@@ -1672,7 +1675,7 @@ public async getStatus(contactId: ContactId) {
   return await this.pup(
     contactId => WAPI.getStatus(contactId),
     contactId
-  );
+  ) as Promise<{id: string,status: string}>;
 }
 
   /**
@@ -1696,7 +1699,7 @@ public async getStatus(contactId: ContactId) {
     return await this.pup(
       chatId => WAPI.deleteConversation(chatId),
       chatId
-    );
+    ) as Promise<boolean>;
   }
 
   /**
@@ -1720,7 +1723,7 @@ public async getStatus(contactId: ContactId) {
     return await this.pup(
       chatId => WAPI.getGroupInviteLink(chatId),
       chatId
-    );
+    ) as Promise<string>;
   }
 
   /**
@@ -1745,7 +1748,7 @@ public async getStatus(contactId: ContactId) {
     return await this.pup(
       chatId => WAPI.revokeGroupInviteLink(chatId),
       chatId
-    );
+    ) as Promise<string | boolean>;
   }
 
   /**
@@ -1794,7 +1797,7 @@ public async getStatus(contactId: ContactId) {
    * @returns list of messages
    */
   public async getAllNewMessages() {
-    return await this.pup(() => WAPI.getAllNewMessages());
+    return await this.pup(() => WAPI.getAllNewMessages()) as Promise<Message[]>;
   }
 
   /**
@@ -1802,7 +1805,7 @@ public async getStatus(contactId: ContactId) {
    * @returns list of messages
    */
   public async getAllUnreadMessages() {
-    return await this.pup(() => WAPI.getAllUnreadMessages());
+    return await this.pup(() => WAPI.getAllUnreadMessages()) as Promise<Message[]>;
   }
 
   /**
@@ -1816,7 +1819,7 @@ public async getStatus(contactId: ContactId) {
    * @returns list of messages
    */
   public async getIndicatedNewMessages() {
-    return JSON.parse(await this.pup(() => WAPI.getIndicatedNewMessages()));
+    return JSON.parse(await this.pup(() => WAPI.getIndicatedNewMessages())) as Promise<Message[]>;
   }
 
   /**
@@ -1849,7 +1852,7 @@ public async getStatus(contactId: ContactId) {
     return await this.pup(
       ({ chatId, includeMe, includeNotifications }) => WAPI.loadAndGetAllMessagesInChat(chatId, includeMe, includeNotifications),
       { chatId, includeMe, includeNotifications }
-    );
+    ) as Promise<Message[]>;
   }
 
   /**
@@ -1889,7 +1892,7 @@ public async getStatus(contactId: ContactId) {
     return await this.pup(
       ({ groupId, participantId }) => WAPI.removeParticipant(groupId, participantId),
       { groupId, participantId }
-    );
+    ) as Promise<boolean>;
   }
 
 /** Change the icon for the group chat
@@ -1912,7 +1915,7 @@ public async getStatus(contactId: ContactId) {
       return await this.pup(
         ({ groupId, imgData }) => WAPI.setGroupIcon(groupId, imgData),
         { groupId, imgData }
-      );
+      ) as Promise<boolean>;
     }
   }
 
@@ -1956,7 +1959,7 @@ public async getStatus(contactId: ContactId) {
     return await this.pup(
       ({ groupId, participantId }) => WAPI.promoteParticipant(groupId, participantId),
       { groupId, participantId }
-    );
+    ) as Promise<boolean>;
   }
 
   /**
@@ -1968,7 +1971,7 @@ public async getStatus(contactId: ContactId) {
     return await this.pup(
       ({ groupId, participantId }) => WAPI.demoteParticipant(groupId, participantId),
       { groupId, participantId }
-    );
+    ) as Promise<boolean>;
   }
 
   /**
@@ -1981,7 +1984,7 @@ public async getStatus(contactId: ContactId) {
     return await this.pup(
       ({ groupId, onlyAdmins }) => WAPI.setGroupToAdminsOnly(groupId, onlyAdmins),
       { groupId, onlyAdmins }
-    );
+    ) as Promise<boolean>;
   }
 
   /**
@@ -1996,7 +1999,7 @@ public async getStatus(contactId: ContactId) {
   return await this.pup(
     ({ groupId, onlyAdmins }) => WAPI.setGroupEditToAdminsOnly(groupId, onlyAdmins),
     { groupId, onlyAdmins }
-  );
+  ) as Promise<boolean>;
 }
 
   /**
@@ -2011,7 +2014,7 @@ public async getStatus(contactId: ContactId) {
   return await this.pup(
     ({ groupId, description }) => WAPI.setGroupDescription(groupId, description),
     { groupId, description }
-  );
+  ) as Promise<boolean>;
 }
 
   /**
@@ -2026,7 +2029,7 @@ public async getStatus(contactId: ContactId) {
   return await this.pup(
     ({ groupId, title }) => WAPI.setGroupTitle(groupId, title),
     { groupId, title }
-  );
+  ) as Promise<boolean>;
 }
 
   /**
@@ -2037,7 +2040,7 @@ public async getStatus(contactId: ContactId) {
     return await this.pup(
       (groupId) => WAPI.getGroupAdmins(groupId),
       groupId
-    );
+    ) as Promise<Contact[]>;
   }
 
   /**
@@ -2050,7 +2053,7 @@ public async getStatus(contactId: ContactId) {
     return await this.pup(
       (hex) => WAPI.setChatBackgroundColourHex(hex),
       hex
-    );
+    ) as Promise<boolean>;
   }
 
   /**
@@ -2063,7 +2066,7 @@ public async getStatus(contactId: ContactId) {
     return await this.pup(
       (activate) => WAPI.darkMode(activate),
       activate
-    );
+    ) as Promise<boolean>;
   }
 
   /**
@@ -2181,7 +2184,7 @@ public async getStatus(contactId: ContactId) {
     return await this.pup(
       ({ text, textRgba, backgroundRgba, font }) => WAPI.postTextStatus(text, textRgba, backgroundRgba, font),
       { text, textRgba, backgroundRgba, font }
-    );
+    ) as Promise<boolean | string>;
   }
 
   /**
@@ -2196,7 +2199,7 @@ public async getStatus(contactId: ContactId) {
     return await this.pup(
       ({data, caption}) => WAPI.postImageStatus(data, caption),
       { data, caption }
-    );
+    ) as Promise<boolean | string>;
   }
 
   /**
@@ -2211,7 +2214,7 @@ public async getStatus(contactId: ContactId) {
     return await this.pup(
       ({data, caption}) => WAPI.postVideoStatus(data, caption),
       { data, caption }
-    );
+    ) as Promise<boolean | string>;
   }
 
 
@@ -2253,7 +2256,7 @@ public async getStatus(contactId: ContactId) {
      * Only works with a Story License Key
      */
     public async getStoryViewers(id: string) {
-      return await this.pup(({ id }) => WAPI.getStoryViewers(id),{id});
+      return await this.pup(({ id }) => WAPI.getStoryViewers(id),{id}) as Promise<ContactId[]>;
     }
   
 
@@ -2312,7 +2315,7 @@ public async getStatus(contactId: ContactId) {
    * @returns Promise<boolean> success if true
    */
   public async setProfilePic(data: DataURL){
-    return await this.pup(({ data }) => WAPI.setProfilePic(data),{data});
+    return await this.pup(({ data }) => WAPI.setProfilePic(data),{data}) as Promise<boolean>;
   }
 
   /**
