@@ -1563,7 +1563,7 @@ public async contactUnblock(id: ContactId) {
    * 
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
    * 
-   * Retreives a message object which results in a valid sticker instead of a blank one. This also works with animated stickers.
+   * If a file is old enough, it will 404 if you try to decrypt it. This will allow you to force the host account to re upload the file and return a decryptable message.
    * 
    * if you run this without a valid insiders key, it will return false and cause an error upon decryption.
    * 
