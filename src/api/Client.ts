@@ -20,6 +20,7 @@ import { isAuthenticated } from '../controllers/auth';
 import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, FilePath } from './model/aliases';
 import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
 import * as path from 'path';
+import { CustomProduct } from './model/product';
 
 export enum namespace {
   Chat = 'Chat',
@@ -152,6 +153,7 @@ declare module WAPI {
   const setGroupTitle: (groupId: string, title: string) => Promise<boolean>;
   const sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => Promise<any>;
   const createGroup: (groupName: string, contactId: string|string[]) => Promise<any>;
+  const sendCustomProduct: (to: ChatId, image: DataURL, productData: CustomProduct) => Promise<string | boolean>;
   const sendSeen: (to: string) => Promise<boolean>;
   const markAsUnread: (to: string) => Promise<boolean>;
   const isChatOnline: (id: string) => Promise<boolean>;
@@ -1216,6 +1218,25 @@ public async iAmAdmin(){
       { to, base64, bizNumber, caption, productId }
     );
   }
+
+  /**
+   * Feature Currently only available with Premium License accounts.
+   * 
+   * Send a custom product to a chat. Please see [[CustomProduct]] for details.
+   * 
+   * Caveats:
+   * - URL will not work (unable to click), you will have to send another message with the URL.
+   * - Recipient will see a thin banner under picture that says "Something went wrong"
+   * - This will only work if you have at least 1 product already in your catalog
+   * - Only works on Business accounts
+   */
+
+   public async sendCustomProduct(to: ChatId, image: DataURL, productData: CustomProduct){
+    return await this.pup(
+      ({ to, image, productData }) => WAPI.sendCustomProduct(to, image, productData),
+      { to, image, productData }
+    ) as Promise<MessageId | boolean>;
+   }
 
   /**
    * Sends contact card to given chat id
