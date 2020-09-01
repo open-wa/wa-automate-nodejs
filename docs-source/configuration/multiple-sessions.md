@@ -37,3 +37,34 @@ ev.on('qr.**', async (qrcode,sessionId) => {
   fs.writeFileSync(`qr_code${sessionId?'_'+sessionId:''}.png`, imageBuffer);
 });
 ```
+
+## Orchestrating multiple sessions
+
+Client sessions are living breathing objects. They CANNOT be stringified and parsed for later use. If you want to 'hold' multiple sessions in one process, make sure to keep them in memory in a session object registry or array.
+
+For example, let's say you have a `marketing` and `sales` sessions.
+
+
+```
+...
+
+const clientSessionRegistry = {};
+
+async start(client){
+  //save for later
+  clientSessionRegistry[client.getSessionId()] = client;
+
+  client.onMessage...
+}
+
+//maybe this is called from an API
+sendText(sessionId, params){
+  //grab the existing client from the 'registry'
+  const client = clientSessionRegistry[sessionId];
+
+  //use the client
+  client.sendText(...params);
+}
+
+create().then(client => start);
+```
