@@ -34,106 +34,146 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
   const blockCrashLogs = config?.blockCrashLogs === false ? false : true;
   await waPage.setBypassCSP(config?.bypassCSP || false);
   await waPage.setCacheEnabled(cacheEnabled);
-  const _waPage : any = waPage;
-  // await waPage.setRequestInterception(true);
+  // const waPage : any = waPage;
   const blockAssets = !config?.headless ? false : config?.blockAssets || false;
-  const interceptAuthentication = !(config?.safeMode);
-  let quickAuthed = false;
-
-  if (blockAssets || blockCrashLogs) {
-    let patterns = [];
-    let authCompleteEv;
-    
-    if (interceptAuthentication) {
-      authCompleteEv = new EvEmitter(sessionId, 'AUTH');
-      patterns.push({ urlPattern: '*_priority_components*' });
-    }
-    
-  
-    if (blockCrashLogs) patterns.push({ urlPattern: '*crashlogs' });
-  
-    if (blockAssets) {
-      await _waPage._client.send('Network.enable');
-      _waPage._client.send('Network.setBypassServiceWorker', {
-        bypass: true,
-      });
-  
-      patterns = [
-        ...patterns,
-        ...[
-          { urlPattern: '*.css' },
-          { urlPattern: '*.jpg' },
-          { urlPattern: '*.jpg*' },
-          { urlPattern: '*.jpeg' },
-          { urlPattern: '*.jpeg*' },
-          { urlPattern: '*.webp' },
-          { urlPattern: '*.png' },
-          { urlPattern: '*.mp3' },
-          { urlPattern: '*.svg' },
-          { urlPattern: '*.woff' },
-          { urlPattern: '*.pdf' },
-          { urlPattern: '*.zip' },
-          { urlPattern: '*crashlogs' },
-        ],
-      ];
-    }
-  
-    await _waPage._client.send('Network.setRequestInterception', {
-      patterns,
-    });
-  
-    _waPage._client.on(
-      'Network.requestIntercepted',
-      async ({ interceptionId, request }) => {
-        const extensions = [
-          '.css',
-          '.jpg',
-          '.jpeg',
-          '.webp',
-          '.mp3',
-          '.png',
-          '.svg',
-          '.woff',
-          '.pdf',
-          '.zip',
-        ];
-  
-        const req_extension = path.extname(request.url);
-  
-        if (
-          (blockAssets && extensions.includes(req_extension)) ||
-          request.url.includes('.jpg') ||
-          (blockCrashLogs && request.url.includes('crashlogs'))
-        ) {
-          await (waPage as any)._client.send(
-            'Network.continueInterceptedRequest',
-            {
-              interceptionId,
-              rawResponse: '',
-            }
-          );
-        } else {
-          await (waPage as any)._client.send(
-            'Network.continueInterceptedRequest',
-            {
-              interceptionId,
-            }
-          );
-
-          if (
-            interceptAuthentication &&
-            request.url.includes('_priority_components') &&
-            !quickAuthed
-          ) {
-            authCompleteEv.emit(true);
-            await waPage.evaluate('window.WA_AUTHENTICATED=true;');
-            quickAuthed = true;
-          }
-          
-        }
-      }
-    );
+  if(blockAssets){
+    puppeteer.use(require('puppeteer-extra-plugin-block-resources')({
+      blockedTypes: new Set(['image', 'stylesheet', 'font'])
+    }))
   }
+
+  const interceptAuthentication = !(config?.safeMode);
+  const proxyAddr = config?.proxyServerCredentials ? `${config.proxyServerCredentials?.username && config.proxyServerCredentials?.password ? `${config.proxyServerCredentials.protocol || 
+    config.proxyServerCredentials.address.includes('https') ? 'https' : 
+    config.proxyServerCredentials.address.includes('http') ? 'http' : 
+    config.proxyServerCredentials.address.includes('socks5') ? 'socks5' : 
+    config.proxyServerCredentials.address.includes('socks4') ? 'socks4' : 'http'}://${config.proxyServerCredentials.username}:${config.proxyServerCredentials.password}@${config.proxyServerCredentials.address
+    .replace('https', '')
+    .replace('http', '')
+    .replace('socks5', '')
+    .replace('socks4', '')
+    .replace('://', '')}` : config.proxyServerCredentials.address}` : false;
+  let quickAuthed = false;
+  if(interceptAuthentication || proxyAddr){
+    await waPage.setRequestInterception(true);  
+    let authCompleteEv;
+        authCompleteEv = new EvEmitter(sessionId, 'AUTH');
+    waPage.on('request', async request => {
+      if (
+        interceptAuthentication &&
+        request.url().includes('_priority_components') &&
+        !quickAuthed
+      ) {
+        authCompleteEv.emit(true);
+        await waPage.evaluate('window.WA_AUTHENTICATED=true;');
+        quickAuthed = true;
+      }
+    if (request.url().includes('https://crashlogs.whatsapp.net/') && blockCrashLogs){
+      request.abort();
+    }
+    else if (proxyAddr) useProxy(request, proxyAddr);
+    request.continue();
+    })
+  }
+
+  // if (blockAssets || blockCrashLogs || proxyAddr) {
+  //   let patterns = [];
+    
+  //   if (interceptAuthentication) {
+  //     authCompleteEv = new EvEmitter(sessionId, 'AUTH');
+  //     patterns.push({ urlPattern: '*_priority_components*' });
+  //   }
+    
+  
+  //   if (blockCrashLogs) patterns.push({ urlPattern: '*crashlogs' });
+  
+  //   if (blockAssets) {
+  //     //@ts-ignore
+  //     await waPage._client.send('Network.enable');
+  //     //@ts-ignore
+  //     waPage._client.send('Network.setBypassServiceWorker', {
+  //       bypass: true,
+  //     });
+  
+  //     patterns = [
+  //       ...patterns,
+  //       ...[
+  //         { urlPattern: '*.css' },
+  //         { urlPattern: '*.jpg' },
+  //         { urlPattern: '*.jpg*' },
+  //         { urlPattern: '*.jpeg' },
+  //         { urlPattern: '*.jpeg*' },
+  //         { urlPattern: '*.webp' },
+  //         { urlPattern: '*.png' },
+  //         { urlPattern: '*.mp3' },
+  //         { urlPattern: '*.svg' },
+  //         { urlPattern: '*.woff' },
+  //         { urlPattern: '*.pdf' },
+  //         { urlPattern: '*.zip' },
+  //         { urlPattern: '*crashlogs' },
+  //       ],
+  //     ];
+  //   }
+  
+  //     //@ts-ignore
+  //   await waPage._client.send('Network.setRequestInterception', {
+  //     patterns,
+  //   });
+  
+  //     //@ts-ignore
+  //   waPage._client.on(
+  //     'Network.requestIntercepted',
+  //     async ({ interceptionId, request }) => {
+  //       const extensions = [
+  //         '.css',
+  //         '.jpg',
+  //         '.jpeg',
+  //         '.webp',
+  //         '.mp3',
+  //         '.png',
+  //         '.svg',
+  //         '.woff',
+  //         '.pdf',
+  //         '.zip',
+  //       ];
+  
+  //       const req_extension = path.extname(request.url);
+  
+  //       if (
+  //         (blockAssets && extensions.includes(req_extension)) ||
+  //         request.url.includes('.jpg') ||
+  //         (blockCrashLogs && request.url.includes('crashlogs'))
+  //       ) {
+  //         await (waPage as any)._client.send(
+  //           'Network.continueInterceptedRequest',
+  //           {
+  //             interceptionId,
+  //             rawResponse: '',
+  //           }
+  //         );
+  //       } else {
+  //         if(proxyAddr) {
+  //           console.log("initClient -> proxyAddr", proxyAddr, request.url)
+  //           await useProxy(request, {
+  //             proxy: proxyAddr,
+  //             headers: {
+  //               ...request.headers,
+  //               referer:"https://web.whatsapp.com/",
+  //               host: "https://web.whatsapp.com"
+  //             }});
+  //         } else 
+  //         await (waPage as any)._client.send(
+  //           'Network.continueInterceptedRequest',
+  //           {
+  //             interceptionId,
+  //           }
+  //         );
+
+          
+  //       }
+  //     }
+  //   );
+  // }
 
   //check if [session].json exists in __dirname
   const sessionjsonpath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(process.cwd(),config?.sessionDataPath || '')) : path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
@@ -154,17 +194,8 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
         Object.keys(session).forEach(key=>localStorage.setItem(key,session[key]));
     }, sessionjson);
     if(config?.proxyServerCredentials) {
-      await useProxy(waPage, `${config.proxyServerCredentials?.username && config.proxyServerCredentials?.password ? `${config.proxyServerCredentials.protocol || 
-        config.proxyServerCredentials.address.includes('https') ? 'https' : 
-        config.proxyServerCredentials.address.includes('http') ? 'http' : 
-        config.proxyServerCredentials.address.includes('socks5') ? 'socks5' : 
-        config.proxyServerCredentials.address.includes('socks4') ? 'socks4' : 'http'}://${config.proxyServerCredentials.username}:${config.proxyServerCredentials.password}@${config.proxyServerCredentials.address
-        .replace('https', '')
-        .replace('http', '')
-        .replace('socks5', '')
-        .replace('socks4', '')
-        .replace('://', '')}` : config.proxyServerCredentials.address}`);
-        console.log(`Active proxy: ${config.proxyServerCredentials.address}`)
+      await useProxy(waPage, proxyAddr);
+      console.log(`Active proxy: ${config.proxyServerCredentials.address}`)
     }
   await waPage.goto(puppeteerConfig.WAUrl)
   return waPage;
@@ -213,10 +244,12 @@ async function initBrowser(sessionId?: string, config:any={}) {
   
   // if(config?.proxyServerCredentials?.address) puppeteerConfig.chromiumArgs.push(`--proxy-server=${config.proxyServerCredentials.address}`)
   if(config?.browserWsEndpoint) config.browserWSEndpoint = config.browserWsEndpoint;
+  let args = [...puppeteerConfig.chromiumArgs,...(config?.chromiumArgs||[])];
+  if(config?.corsFix) args.push('--disable-web-security');
   const browser = (config?.browserWSEndpoint) ? await puppeteer.connect({...config}): await puppeteer.launch({
     headless: true,
     devtools: false,
-    args: [...puppeteerConfig.chromiumArgs],
+    args,
     ...config
   });
   //devtools

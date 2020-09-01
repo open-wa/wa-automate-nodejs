@@ -105,6 +105,7 @@
     "postman-2-swagger": "^0.5.0",
     "puppeteer": "^5.2.1",
     "puppeteer-extra": "^3.1.9",
+    "puppeteer-extra-plugin-block-resources": "^2.2.7",
     "puppeteer-extra-plugin-devtools": "^2.2.8",
     "puppeteer-extra-plugin-stealth": "^2.4.9",
     "puppeteer-page-proxy": "^1.2.8",

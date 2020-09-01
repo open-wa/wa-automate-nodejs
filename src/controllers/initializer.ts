@@ -67,6 +67,7 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
       ...config,
       ...getConfigFromProcessEnv(configWithCases)
   }
+  config.chromiumArgs = config?.chromiumArgs || [];
   }
 
   const prettyFont = CFonts.render(('@OPEN-WA|WHATSAPP|AUTOMATOR'), {

@@ -216,7 +216,7 @@ export interface ConfigObject {
      */
     useChrome ?: boolean,
     /**
-     * If sent, adds a call to waPage.authenticate with those credentials.
+     * If sent, adds a call to waPage.authenticate with those credentials. Set `corsFix` to true if using a proxy results in CORS errors.
      */
     proxyServerCredentials?: ProxyServerCredentials,
     /**
@@ -331,6 +331,11 @@ export interface ConfigObject {
      * @default `false`
      */
     blockAssets ?: boolean;
+    /**
+     * Setting this to true will bypass web security. DO NOT DO THIS IF YOU DO NOT HAVE TO. CORS issue may arise when using a proxy.
+     * @default `false`
+     */
+    corsFix ?: boolean
     /**@internal */
     [x: string]: any 
 }
