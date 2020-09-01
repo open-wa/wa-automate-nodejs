@@ -54,10 +54,9 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
     .replace('socks4', '')
     .replace('://', '')}` : config.proxyServerCredentials.address}` : false;
   let quickAuthed = false;
-  if(interceptAuthentication || proxyAddr){
+  if(interceptAuthentication || proxyAddr || blockCrashLogs){
     await waPage.setRequestInterception(true);  
-    let authCompleteEv;
-        authCompleteEv = new EvEmitter(sessionId, 'AUTH');
+    let authCompleteEv = new EvEmitter(sessionId, 'AUTH');
     waPage.on('request', async request => {
       if (
         interceptAuthentication &&
@@ -72,7 +71,7 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
       request.abort();
     }
     else if (proxyAddr) useProxy(request, proxyAddr);
-    request.continue();
+    else request.continue();
     })
   }
 
