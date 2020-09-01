@@ -113,6 +113,7 @@ export async function create(sessionId?: any | ConfigObject, config?: ConfigObje
       PAGE_UA,
       WA_AUTOMATE_VERSION,
       BROWSER_VERSION,
+      SESSION_ID: sessionId
     };
     console.table(debugInfo);
 

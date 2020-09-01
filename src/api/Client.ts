@@ -283,6 +283,10 @@ export class Client {
     this._setOnClose();
   }
 
+  getSessionId(){
+    return this._sessionInfo.SESSION_ID
+  }
+
   getPage(){
     return this._page;
   }
