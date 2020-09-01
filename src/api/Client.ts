@@ -157,7 +157,7 @@ declare module WAPI {
   const sendSeen: (to: string) => Promise<boolean>;
   const markAsUnread: (to: string) => Promise<boolean>;
   const isChatOnline: (id: string) => Promise<boolean>;
-  const sendLinkWithAutoPreview: (to: string,url: string,text: string) => Promise<boolean>;
+  const sendLinkWithAutoPreview: (to: string,url: string,text: string) => Promise<string | boolean>;
   const contactBlock: (id: string) => Promise<boolean>;
   const contactUnblock: (id: string) => Promise<boolean>;
   const deleteConversation: (chatId: string) => Promise<boolean>;
@@ -1007,7 +1007,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
         WAPI.sendLinkWithAutoPreview(to,url,text);
       },
       { to,url, text }
-    ) as Promise<boolean>;
+    ) as Promise<MessageId | boolean>;
   }
 
   /**
