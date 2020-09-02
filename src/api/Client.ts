@@ -284,7 +284,7 @@ export class Client {
   }
 
   getSessionId(){
-    return this.createConfig.sessionId
+    return this._createConfig.sessionId
   }
 
   getPage(){
