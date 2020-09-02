@@ -284,7 +284,7 @@ export class Client {
   }
 
   getSessionId(){
-    return this._sessionInfo.SESSION_ID
+    return this.createConfig.sessionId
   }
 
   getPage(){
@@ -1598,6 +1598,8 @@ public async contactUnblock(id: ContactId) {
   }
 
   /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * 
    * Retrieves the groups that you have in common with a contact
    * @param contactId
    * @returns Promise returning an array of common groups {
