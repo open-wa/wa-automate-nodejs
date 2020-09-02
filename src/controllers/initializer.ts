@@ -45,7 +45,7 @@ qrDelayTimeout;
  */
 //export async function create(sessionId?: string, config?:ConfigObject, customUserAgent?:string) {
 //@ts-ignore
-export async function create(sessionId?: any | ConfigObject, config?: ConfigObject, customUserAgent?: string): Promise<Client> {
+export async function create(sessionId?: string | ConfigObject, config?: ConfigObject, customUserAgent?: string): Promise<Client> {
   const START_TIME = Date.now();
   let waPage = undefined;
   const notifier = await updateNotifier({
