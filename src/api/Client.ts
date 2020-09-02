@@ -1007,9 +1007,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     text?: Content,
   ) {
     return await this.pup(
-      ({ to,url, text }) => {
-        WAPI.sendLinkWithAutoPreview(to,url,text);
-      },
+      ({ to,url, text }) => WAPI.sendLinkWithAutoPreview(to,url,text),
       { to,url, text }
     ) as Promise<MessageId | boolean>;
   }
