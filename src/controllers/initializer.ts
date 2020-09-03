@@ -45,7 +45,7 @@ qrDelayTimeout;
  */
 //export async function create(sessionId?: string, config?:ConfigObject, customUserAgent?:string) {
 //@ts-ignore
-export async function create(sessionId?: string | ConfigObject, config?: ConfigObject, customUserAgent?: string): Promise<Client> {
+export async function create(_sessionId?: string | ConfigObject, config?: ConfigObject, customUserAgent?: string): Promise<Client> {
   const START_TIME = Date.now();
   let waPage = undefined;
   const notifier = await updateNotifier({
@@ -54,9 +54,9 @@ export async function create(sessionId?: string | ConfigObject, config?: ConfigO
   });
   notifier.notify();
 
-
-  if (typeof sessionId === 'object' && (sessionId as ConfigObject)) {
-    config = sessionId;
+  let sessionId : string = '';
+  if (typeof _sessionId === 'object' && (_sessionId as ConfigObject)) {
+    config = _sessionId;
     sessionId = config.sessionId;
     customUserAgent = config.customUserAgent;
   }
