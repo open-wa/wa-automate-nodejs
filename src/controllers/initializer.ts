@@ -112,8 +112,7 @@ export async function create(_sessionId?: string | ConfigObject, config?: Config
       WA_VERSION,
       PAGE_UA,
       WA_AUTOMATE_VERSION,
-      BROWSER_VERSION,
-      SESSION_ID: sessionId
+      BROWSER_VERSION
     };
     console.table(debugInfo);
 
