@@ -75,7 +75,7 @@
     "prettier": "^2.0.1",
     "release-it": "^13.0.1",
     "shelljs": "^0.8.3",
-    "ts-node": "^8.4.1",
+    "ts-node": "^9.0.0",
     "tsc-watch": "^4.0.0",
     "typedoc": "^0.18.0",
     "typedoc-plugin-pages": "^1.0.1",
