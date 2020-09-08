@@ -57,7 +57,7 @@ const postmanRequestGeneratorGenerator = function (setup) { return function (met
         args[param.name] = aliasExamples[param.type] ? aliasExamples[param.type] : paramNameExamples[param.name] ? paramNameExamples[param.name] : primatives.includes(param.type) ? param.type : 'Check documentation in description';
     });
     const url = {
-        "raw": setup?.apiHost ? `${setup.apiHost}/${method.name}` :  (setup === null || setup === void 0 ? void 0 : setup.useSessionIdInPath) ? "{{address}}:{{port}}/{{sessionId}}/" + method.name : "{{address}}:{{port}}/" + method.name,
+        "raw": setup?.apiHost ? `{{setup.apiHost}}/${method.name}` :  (setup === null || setup === void 0 ? void 0 : setup.useSessionIdInPath) ? "{{address}}:{{port}}/{{sessionId}}/" + method.name : "{{address}}:{{port}}/" + method.name,
         "host": [
             "{{address}}"
         ],
@@ -133,7 +133,7 @@ var postmanWrapGen = function (setup) { return function (item) {
     return {
         "info": {
             "_postman_id": "0df31aa3-b3ce-4f20-b042-0882db0fd3a2",
-            "name": "open-wa",
+            "name": `@open-wa - ${setup.sessionId}`,
             "description": "Requests for use with open-wa",
             "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
         },
@@ -175,6 +175,11 @@ var postmanWrapGen = function (setup) { return function (item) {
                 "id": "c1573a97-c016-4cf4-8b29-938c45146d04",
                 "key": "sessionId",
                 "value": (setup === null || setup === void 0 ? void 0 : setup.sessionId) || "session"
+            },
+            {
+                "id": "c1573a97-c016-4cf4-8b29-9238j2f938j3f",
+                "key": "apiHost",
+                "value": (setup === null || setup === void 0 ? void 0 : setup.apiHost) || "http://localhost/8008/session"
             }
         ],
         "protocolProfileBehavior": {}
