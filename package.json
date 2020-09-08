@@ -102,6 +102,7 @@
     "open": "^7.0.4",
     "p-queue": "^6.4.0",
     "parse-function": "^5.6.10",
+    "parse-url": "^5.0.2",
     "postman-2-swagger": "^0.5.0",
     "puppeteer": "^5.2.1",
     "puppeteer-extra": "^3.1.9",

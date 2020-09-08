@@ -2,7 +2,8 @@ var fs = require('fs');
 import {TypescriptParser} from "typescript-parser"
 var parser = new TypescriptParser();
 import {noCase} from "change-case";
-const path = require("path");
+const path = require("path"),
+parseUrl = require("parse-url")
 
 var aliasExamples = {
     "ChatId": "00000000000@c.us or 00000000000-111111111@g.us",
@@ -23,6 +24,13 @@ var primatives = [
     'boolean'
 ];
 export const generatePostmanJson = async function (setup : any = {}) {
+    if(setup?.apiHost) {
+        if(setup.apiHost.includes(setup.sessionId)){
+        const parsed = parseUrl(setup.apiHost);
+        setup.host = parsed.resource
+        setup.port = parsed.port;
+        }
+    }
     const data = fs.readFileSync(path.resolve(__dirname,'../api/_client_ts'), 'utf8');
     const parsed = await parser.parseSource(data);
     //@ts-ignore
@@ -57,12 +65,15 @@ const postmanRequestGeneratorGenerator = function (setup) { return function (met
         args[param.name] = aliasExamples[param.type] ? aliasExamples[param.type] : paramNameExamples[param.name] ? paramNameExamples[param.name] : primatives.includes(param.type) ? param.type : 'Check documentation in description';
     });
     const url = {
-        "raw": setup?.apiHost ? `{{setup.apiHost}}/${method.name}` :  (setup === null || setup === void 0 ? void 0 : setup.useSessionIdInPath) ? "{{address}}:{{port}}/{{sessionId}}/" + method.name : "{{address}}:{{port}}/" + method.name,
+        "raw": setup.apiHost ? `{{address}}:{{port}}/${parseUrl(setup.apiHost).pathname.substring(1)}/${method.name}` : (setup === null || setup === void 0 ? void 0 : setup.useSessionIdInPath) ? "{{address}}:{{port}}/{{sessionId}}/" + method.name : "{{address}}:{{port}}/" + method.name,
         "host": [
             "{{address}}"
         ],
         "port": "{{port}}",
-        "path": (setup === null || setup === void 0 ? void 0 : setup.useSessionIdInPath) ? [
+        "path": setup?.apiHost ? [
+            parseUrl(setup.apiHost).pathname.substring(1),
+            "" + method.name
+        ] : (setup === null || setup === void 0 ? void 0 : setup.useSessionIdInPath) ? [
             "{{sessionId}}",
             "" + method.name
         ] : ["" + method.name]
@@ -175,11 +186,6 @@ var postmanWrapGen = function (setup) { return function (item) {
                 "id": "c1573a97-c016-4cf4-8b29-938c45146d04",
                 "key": "sessionId",
                 "value": (setup === null || setup === void 0 ? void 0 : setup.sessionId) || "session"
-            },
-            {
-                "id": "c1573a97-c016-4cf4-8b29-9238j2f938j3f",
-                "key": "apiHost",
-                "value": (setup === null || setup === void 0 ? void 0 : setup.apiHost) || "http://localhost/8008/session"
             }
         ],
         "protocolProfileBehavior": {}
