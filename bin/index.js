@@ -40,6 +40,7 @@ const cli = meow(`
 ${configParamText}
 	  --popup-port \t\t\tThe desired custom port to run the popup on.
 	  --skip-save-postman-collection \t\t\tDon't save the postman collection.
+	  --api-host \t\t\tThe easy API may be sitting behind a reverse proxy. In this case set --api-host in order to make sure the api docs and api explorer are working properly. You will need to include the protocol as well.
 
 	Please check here for more information on some of the above mentioned parameters: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html
 
@@ -57,6 +58,9 @@ ${configParamText}
 			type: 'string',
 			alias: 'h',
 			default: 'localhost'
+		},
+		apiHost: {
+			type: 'string',
 		},
 		webhook: {
 			type: 'string',
