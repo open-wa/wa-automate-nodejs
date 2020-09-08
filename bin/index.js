@@ -199,11 +199,12 @@ create({ ...config })
 
 			if(c && c.generateApiDocs) {
 				console.log('Generating API Docs');
+				if(!c.sessionId) c.sessionId = 'session';
 				const postmanCollection = await generatePostmanJson({
 					...c,
 					...config
 				});
-				console.log('Postman collection generated: open-wa.postman_collection.json');
+				console.log(`Postman collection generated: open-wa-${c.sessionId}.postman_collection.json`);
 				const swCol = p2s.default(postmanCollection);
 				/**
 				 * Fix swagger docs by removing the content type as a required paramater
@@ -218,7 +219,7 @@ create({ ...config })
 			
 			app.use(client.middleware((c && c.useSessionIdInPath)));
 			app.listen(PORT, () => console.log(`\n• Listening on port ${PORT}!`));
-			const apiDocsUrl = c?.apiHost ? `${c.apiHost}/api-docs`: `${c.host.includes('http') ? '' : 'http://'}${c.host}:${PORT}/api-docs`;
+			const apiDocsUrl = c.apiHost ? `${c.apiHost}/api-docs`: `${c.host.includes('http') ? '' : 'http://'}${c.host}:${PORT}/api-docs`;
 			const link = terminalLink('API Explorer', apiDocsUrl);
 			if(c && c.generateApiDocs)  console.log(`\nCheck out the API here: ${link}`)
 
