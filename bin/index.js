@@ -39,6 +39,7 @@ const cli = meow(`
       --license, -l \t\t\tThe license key you want to use for this server. License keys are used to unlock features. Learn more here https://github.com/open-wa/wa-automate-nodejs#license-key
 ${configParamText}
 	  --popup-port \t\t\tThe desired custom port to run the popup on.
+	  --skip-save-postman-collection \t\t\tDon't save the postman collection.
 
 	Please check here for more information on some of the above mentioned parameters: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html
 
@@ -98,6 +99,10 @@ ${configParamText}
 		sessionDataOnly: {
 			type: 'boolean',
 			alias: 'o',
+			default: false
+		},
+		skipSavePostmanCollection: {
+			type: 'boolean',
 			default: false
 		},
 		...extraFlags,

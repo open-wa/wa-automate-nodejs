@@ -32,7 +32,7 @@ export const generatePostmanJson = async function (setup : any = {}) {
     let d = JSON.stringify(x);
     let postmanWrap = postmanWrapGen(setup);
     let res = postmanWrap(pm);
-    fs.writeFileSync('./open-wa.postman_collection.json', JSON.stringify(res));
+    if(!(setup?.skipSavePostmanCollection)) fs.writeFileSync(`./open-wa-${setup.sessionId}.postman_collection.json`, JSON.stringify(res));
     return res;
 };
 
