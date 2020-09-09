@@ -179,7 +179,7 @@ app.listen(PORT, function () {
  * and you can AND SHOULD override the user agent.
  */
 create({
-  sessionId:'session1',
+  sessionId:'customer-support',
   // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   useChrome: true,
   restartOnCrash: start,

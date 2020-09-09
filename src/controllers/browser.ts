@@ -15,6 +15,7 @@ import { Spin, EvEmitter } from './events';
 import { ConfigObject } from '../api/model';
 const ON_DEATH = require('death'); //this is intentionally ugly
 const useProxy = require('puppeteer-page-proxy');
+const storage = require('node-persist');
 let browser;
 
 export async function initClient(sessionId?: string, config?:ConfigObject, customUserAgent?:string) {
@@ -218,9 +219,12 @@ export async function injectApi(page: Page) {
 
 async function initBrowser(sessionId?: string, config:any={}) {
   if(config?.useChrome && !config?.executablePath) {
-    config.executablePath = ChromeLauncher.Launcher.getInstallations()[0];
-    console.log(`You have used the useChrome (--use-chrome) config option. In order to improve startup time please use "executablePath": "${config.executablePath}" to save a few seconds on next startup.`)
-    // console.log('\nFound chrome', config.executablePath)
+    await storage.init();
+    let _savedPath = await storage.getItem('executablePath');
+    if(!_savedPath) {
+      config.executablePath = ChromeLauncher.Launcher.getInstallations()[0];
+      await storage.setItem('executablePath',config.executablePath)
+    } else config.executablePath = _savedPath;
   }
 
   if(config?.browserRevision) {
