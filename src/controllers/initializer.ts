@@ -86,7 +86,7 @@ export async function create(_sessionId?: string | ConfigObject, config?: Config
   ].join('\n'), {padding: 1, borderColor: 'yellow', borderStyle: 'bold'}) : prettyFont.string)
   
   if(config?.popup) {
-    const popupaddr = await popup(config?.popup);
+    const popupaddr = await popup(config);
     console.log(`You can also authenticate the session at: ${popupaddr}`)
   }
   if (!sessionId) sessionId = 'session';

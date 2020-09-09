@@ -4,7 +4,7 @@
   <title>open-wa</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 
   <style>
     body
@@ -33,7 +33,9 @@
 
   var Application = function() {
     var sessions = [];
-    var socket = io.connect(window.location.origin);
+    var socket = io.connect(window.location.origin,  {
+  path: window.location.pathname + "socket"
+});
     socket.on('connect', function() {
       console.log('Connected to:', socket.host);
     });
