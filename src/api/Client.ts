@@ -1158,6 +1158,18 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     // return await this.pup(() => Store.Me.attributes);
   }
 
+  /**
+   * Returns a PNG DataURL screenshot of the session
+   * @returns Promise<DataURL>
+   */
+  public async getSnapshot(){
+    const screenshot = await this.getPage().screenshot({
+      type:"png",
+      encoding: "base64"
+    });
+    return `data:image/png;base64,${screenshot}`;
+  }
+
 /**
  * Returns an array of group ids where the host device is admin
  */
