@@ -85,7 +85,7 @@
     "@open-wa/wa-decrypt": "^2.0.1",
     "@types/sharp": "^0.25.0",
     "atob": "^2.1.2",
-    "axios": "^0.19.1",
+    "axios": "^0.20.0",
     "boxen": "^4.2.0",
     "cfonts": "^2.8.5",
     "change-case": "^4.1.1",
