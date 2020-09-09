@@ -1,6 +1,9 @@
 /** @internal *//** */
 import { ev } from "../events";
 import path from "path";
+import {
+  createHttpTerminator,
+} from 'http-terminator';
 
 var http = require('http'),
     io = require('socket.io'),
@@ -73,4 +76,12 @@ export async function popup(preferredPort: boolean | number) {
             resolve(`http://localhost:${PORT}`);
         });
     });
+}
+
+export const forceClose = async () => {
+    if(!server) return;
+    const httpTerminator = createHttpTerminator({
+        server,
+      });
+      await httpTerminator.terminate();
 }
