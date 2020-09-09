@@ -126,7 +126,10 @@ ${configParamText}
 });
 
 app.use(express.json({ limit: '200mb' })) //add the limit option so we can send base64 data through the api
-const c = cli.flags;
+const c = {
+	autoRefresh: true,
+	...cli.flags
+};
 const PORT = c.port;
 let config = {};
 if (c && c.config) {
