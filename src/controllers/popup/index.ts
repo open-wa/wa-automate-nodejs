@@ -4,6 +4,7 @@ import path from "path";
 import {
   createHttpTerminator,
 } from 'http-terminator';
+import { ConfigObject } from "../../api/model";
 
 var http = require('http'),
     io = require('socket.io'),
@@ -11,6 +12,7 @@ var http = require('http'),
     fs = require('fs'),
     getPort = require('get-port'),
     url = require('url'),
+    parseUrl = require("parse-url"),
     gClient,
     PORT,
     server,
@@ -35,7 +37,8 @@ var routes = {
     '/qr': handleQRRequest
 };
 
-export async function popup(preferredPort: boolean | number) {
+export async function popup(config: ConfigObject) {
+    const preferredPort = config.popup;
     ev.on('**', async (data, sessionId, namespace) => {
         if (gClient) await gClient.send({ data, sessionId, namespace });
         if (namespace === 'qr') {
@@ -43,14 +46,16 @@ export async function popup(preferredPort: boolean | number) {
             currentQrCodes['latest'] = data;
         }
     });
+    ev.on(`sessionData.**`, async ()=>{
+        await closeHttp();
+    })
 
     /**
      * There should only be one instance of this open. If the server is already running, respond with the address.
      */
 
     if (server) return `http://localhost:${PORT}`;
-    PORT = await getPort({ host: 'localhost', port: typeof preferredPort == 'number' ? [preferredPort, 3000, 3001, 3002] : [3000, 3001, 3002] });
-
+    PORT = await getPort({ host: 'localhost', port: typeof preferredPort == 'number' ? [preferredPort, 7000, 7001, 7002] : [7000, 7001, 7002] });
     server = http.createServer(function (req, res) {
         var urlParts = url.parse(req.url);
         var route = routes[urlParts.pathname];
@@ -63,13 +68,16 @@ export async function popup(preferredPort: boolean | number) {
             });
         }
     })
-
     server.listen(PORT, '0.0.0.0');
-
-    var i = io.listen(server);
-
-    await open(`http://localhost:${PORT}`, { app: ['google chrome', '--incognito'] });
-
+    var i;
+    if(config?.apiHost) {
+        const parsed = parseUrl(config.apiHost);
+        i = io.listen(server, {
+            path: parsed.pathname + '/socket'
+        })
+    } else
+    i = io.listen(server);
+    if(!config?.inDocker) await open(`http://localhost:${PORT}`, { app: ['google chrome', '--incognito'], allowNonzeroExitCode: true}).catch(()=>{}); else return "NA";
     return await new Promise(resolve => {
         i.on('connection', function (client) {
             gClient = client;
@@ -78,7 +86,7 @@ export async function popup(preferredPort: boolean | number) {
     });
 }
 
-export const forceClose = async () => {
+export const closeHttp = async () => {
     if(!server) return;
     const httpTerminator = createHttpTerminator({
         server,
