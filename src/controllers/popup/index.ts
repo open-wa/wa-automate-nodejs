@@ -68,7 +68,7 @@ export async function popup(config: ConfigObject) {
             });
         }
     })
-    server.listen(PORT, '0.0.0.0');
+    server.listen(PORT);
     var i;
     if(config?.apiHost) {
         const parsed = parseUrl(config.apiHost);
