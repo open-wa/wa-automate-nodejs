@@ -224,7 +224,10 @@ create({ ...config })
 			}
 			
 			app.use(client.middleware((c && c.useSessionIdInPath)));
-			app.listen(PORT, () => console.log(`\n• Listening on port ${PORT}!`));
+			app.listen(PORT, () => {
+				console.log(`\n• Listening on port ${PORT}!`);
+				process.send('ready');
+			});
 			const apiDocsUrl = c.apiHost ? `${c.apiHost}/api-docs/ `: `${c.host.includes('http') ? '' : 'http://'}${c.host}:${PORT}/api-docs/ `;
 			const link = terminalLink('API Explorer', apiDocsUrl);
 			if(c && c.generateApiDocs)  console.log(`\nCheck out the API here: ${link}`)
