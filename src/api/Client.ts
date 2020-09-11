@@ -151,7 +151,8 @@ declare module WAPI {
   const setGroupEditToAdminsOnly: (groupId: string, onlyAdmins: boolean) => Promise<boolean>;
   const setGroupDescription: (groupId: string, description: string) => Promise<boolean>;
   const setGroupTitle: (groupId: string, title: string) => Promise<boolean>;
-  const sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => Promise<any>;
+  const sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => Promise<string | boolean>;
+  const sendStickerAsReply: (webpBase64: string, to: string, messageId: string, metadata?: any) => Promise<string | boolean>;
   const createGroup: (groupName: string, contactId: string|string[]) => Promise<any>;
   const sendCustomProduct: (to: ChatId, image: DataURL, productData: CustomProduct) => Promise<string | boolean>;
   const sendSeen: (to: string) => Promise<boolean>;
@@ -2124,6 +2125,8 @@ public async getStatus(contactId: ContactId) {
    * @param to: The recipient id.
    * @param url: The url of the image
    * @param requestConfig {} By default the request is a get request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
+   *
+   * @returns Promise<MessageId | boolean>
    */
   public async sendStickerfromUrl(to: ChatId, url: string, requestConfig: any = {}) {
     try {
@@ -2134,6 +2137,49 @@ public async getStatus(contactId: ContactId) {
        throw error;
      }
   }
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * 
+   * Sends a sticker from a given URL
+   * @param to: The recipient id.
+   * @param url: The url of the image
+   * @param messageId: The id of the message to reply to
+   * @param requestConfig {} By default the request is a get request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
+   * 
+   * @returns Promise<MessageId | boolean>
+   */
+  public async sendStickerfromUrlAsReply(to: ChatId, url: string, messageId: MessageId, requestConfig: any = {}) {
+    try {
+      const b64 = await getDUrl(url, requestConfig);
+      const buff = Buffer.from(b64.replace(/^data:image\/(png|gif|jpeg|webp);base64,/,''), 'base64');
+      const mimeInfo = base64MimeType(b64);
+      if(!mimeInfo || mimeInfo.includes("image")){
+        let webpBase64 = b64;
+        let metadata : any = { width: 512, height: 512 };
+        if(!mimeInfo.includes('webp')) {
+        //non matter what, convert to webp, resize + autoscale to width 512 px
+        const scaledImageBuffer = await sharp(buff,{ failOnError: false })
+        .resize({ width: 512, height: 512 })
+        .toBuffer();
+        const webp = sharp(scaledImageBuffer,{ failOnError: false }).webp();
+        metadata = await webp.metadata();
+        webpBase64 = (await webp.toBuffer()).toString('base64');
+        }
+        return await this.pup(
+          ({ webpBase64,to, metadata, messageId }) => WAPI.sendStickerAsReply(webpBase64,to, metadata, messageId),
+          { webpBase64,to, metadata, messageId }
+        );
+      } else {
+        console.log('Not an image');
+        return false;
+      }
+     } catch(error) {
+       console.log('Something went wrong', error);
+       throw error;
+     }
+  }
+  
 
   /**
    * This allows you to get a single property of a single object from the session. This limints the amouunt of data you need to sift through, reduces congestion between your process and the session and the flexibility to build your own specific getters.
