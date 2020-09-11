@@ -88,7 +88,7 @@ export class EvEmitter {
   }
 
   emit(data:any, eventNamespaceOverride ?: string){
-    ev.emit(`${eventNamespaceOverride||this.eventNamespace}.${this.sessionId}`,data,this.sessionId,this.eventNamespace);
+    ev.emit(`${eventNamespaceOverride||this.eventNamespace}.${this.sessionId}`,data,this.sessionId,eventNamespaceOverride||this.eventNamespace);
     // ev.emit(`${this.sessionId}.${this.eventNamespace}`,data,this.sessionId,this.eventNamespace);
   }
 }
