@@ -20,7 +20,25 @@
         padding: 0.5em;
         overflow: hidden;
         position: relative;
-        overflow-y: scroll; }
+        overflow-y: scroll;
+        height: 400px;
+        min-width: 400px;
+        margin: auto;
+        margin-left: 16px;
+        max-width: 50%;
+        width: 50%;
+    }
+
+    .qr{
+    width: 400px;
+    height: 400px;
+    margin: auto;
+    }
+
+    .eventwrap{
+      display: flex;
+      flex-direction: row;
+    }
   </style>
 
 </head>
@@ -33,11 +51,22 @@
 
   var Application = function() {
     var sessions = [];
-    var socket = io.connect(window.location.origin,  {
-  path: window.location.pathname + "socket"
-});
+    function c(){
+    var n=$('.c').attr('id');
+    var c=n;
+    $('.c').text(c);
+    setInterval(function(){
+        c--;
+        if(c>=0){
+            $('.c').text(c);
+        }
+    },1000);
+}
+
+
+    var socket = io.connect(window.location.origin);
     socket.on('connect', function() {
-      console.log('Connected to:', socket.host);
+      console.log('Connected to:', socket);
     });
     socket.on('message', function(message) {
       console.log('Received message:', message);
@@ -45,7 +74,10 @@
           $('#wrap').append(`
     <div id=${message.sessionId}>
   <h1 class="info"></h1>
+  <div class="eventwrap">
   <pre class="log"></pre>
+  <img class="qr" />
+  <div>
     </div>
           `);
           sessions.push(message.sessionId);
@@ -58,9 +90,17 @@
       if (message.sessionId) {
         $(`#${message.sessionId} .info`).html( 'Session: ' + message.sessionId );
       };
+      if(message.namespace==="qr"){
+        $(`#${message.sessionId} .qr`)[0].src = message.data
+      }
+      if(message.namespace==="ready"){
+        const link = (message.data || location.href.substring(0, location.href.length - 1)) + "/api-docs/"
+        $(`#${message.sessionId} .log`).html(`${$(`#${message.sessionId} .log`).html()} API Explorer: <a href="${link}" target="_blank"   >${link}</a>\n You may need to refresh the page. and wait <span class="c" id="5"></span> seconds. <br><br><br><br>`);
+// Start
+c();
+      }
       if (message.data) {
-        if(message.data.startsWith('data:image')) $(`#${message.sessionId} .log`).html(`${$(`#${message.sessionId} .log`).html()} <img src=${message.data}></img> <br><br><br><br>`);
-        else $(`#${message.sessionId} .log`).html(`${$(`#${message.sessionId} .log`).html()} ${message.namespace} ${message.data} <br>`);
+        if(message.namespace!=="sessionDataBase64") $(`#${message.sessionId} .log`).html(`${$(`#${message.sessionId} .log`).html()} ${message.namespace} ${message.data} <br>`);
       }
     });
 
