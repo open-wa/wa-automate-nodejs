@@ -7,12 +7,13 @@ import {
 import { ConfigObject } from "../../api/model";
 
 var http = require('http'),
-    io = require('socket.io'),
+    io,
+    express = require('express'),
+    app = express(),
     open = require('open'),
-    fs = require('fs'),
     getPort = require('get-port'),
     url = require('url'),
-    parseUrl = require("parse-url"),
+    content = require('fs').readFileSync(__dirname + '/index.html', 'utf8'),
     gClient,
     PORT,
     server,
@@ -24,31 +25,38 @@ const timeout = ms => {
     return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 }
 
-const handleQRRequest = async (req, res) => {
+app.use(express.static(__dirname + '/node_modules'));  
+
+app.get('/', function(req, res,next) {  
+    res.sendFile(__dirname + '/index.html');
+});
+
+
+app.get('/qr', function(req, res,next) {  
     const parsedUrl = url.parse(req.url, true);
     const sessionId = parsedUrl.sessionId;
     let qr = sessionId ? currentQrCodes[sessionId] || currentQrCodes.latest : currentQrCodes.latest
     res.writeHead(200, { 'Content-Type': 'image/png' })
     res.write(Buffer.from(qr.replace('data:image/png;base64,', ''), 'base64'), 'utf8');
     res.end();
-}
-
-var routes = {
-    '/qr': handleQRRequest
-};
+});
 
 export async function popup(config: ConfigObject) {
     const preferredPort = config.popup;
     ev.on('**', async (data, sessionId, namespace) => {
-        if (gClient) await gClient.send({ data, sessionId, namespace });
+        if(namespace.includes("sessionData") || namespace.includes("DebugInfo")) return;
+        if (gClient) {
+            await gClient.send({ data, sessionId, namespace });
+            if(data?.includes && data?.includes("ready for account")) {
+                await gClient.send({ data: config?.apiHost, sessionId, namespace: "ready" });
+            }
+        }
         if (namespace === 'qr') {
             currentQrCodes[sessionId] = data;
             currentQrCodes['latest'] = data;
         }
+        if(data?.includes && data?.includes("ready for account")) closeHttp();
     });
-    ev.on(`sessionData.**`, async ()=>{
-        await closeHttp();
-    })
 
     /**
      * There should only be one instance of this open. If the server is already running, respond with the address.
@@ -56,30 +64,13 @@ export async function popup(config: ConfigObject) {
 
     if (server) return `http://localhost:${PORT}`;
     PORT = await getPort({ host: 'localhost', port: typeof preferredPort == 'number' ? [preferredPort, 7000, 7001, 7002] : [7000, 7001, 7002] });
-    server = http.createServer(function (req, res) {
-        var urlParts = url.parse(req.url);
-        var route = routes[urlParts.pathname];
-        if (route) route(req, res)
-        else {
-            res.writeHead(200, { 'Content-Type': 'text/html' })
-            fs.readFile(path.resolve(__dirname, './index.html'), function (err, data) {
-                res.write(data, 'utf8');
-                res.end();
-            });
-        }
-    })
+
+    server = require('http').createServer(app);  
+    io = require('socket.io')(server)
     server.listen(PORT);
-    var i;
-    if(config?.apiHost) {
-        const parsed = parseUrl(config.apiHost);
-        i = io.listen(server, {
-            path: parsed.pathname + '/socket'
-        })
-    } else
-    i = io.listen(server);
     if(!config?.inDocker) await open(`http://localhost:${PORT}`, { app: ['google chrome', '--incognito'], allowNonzeroExitCode: true}).catch(()=>{}); else return "NA";
     return await new Promise(resolve => {
-        i.on('connection', function (client) {
+        io.on('connection', function (client) {
             gClient = client;
             resolve(`http://localhost:${PORT}`);
         });
