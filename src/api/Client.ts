@@ -2142,44 +2142,44 @@ public async getStatus(contactId: ContactId) {
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
    * 
    * Sends a sticker from a given URL
-   * @param to: The recipient id.
-   * @param url: The url of the image
-   * @param messageId: The id of the message to reply to
+   * @param to The recipient id.
+   * @param url The url of the image
+   * @param messageId The id of the message to reply to
    * @param requestConfig {} By default the request is a get request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
    * 
    * @returns Promise<MessageId | boolean>
    */
   public async sendStickerfromUrlAsReply(to: ChatId, url: string, messageId: MessageId, requestConfig: any = {}) {
-    try {
-      const b64 = await getDUrl(url, requestConfig);
-      const buff = Buffer.from(b64.replace(/^data:image\/(png|gif|jpeg|webp);base64,/,''), 'base64');
-      const mimeInfo = base64MimeType(b64);
-      if(!mimeInfo || mimeInfo.includes("image")){
-        let webpBase64 = b64;
-        let metadata : any = { width: 512, height: 512 };
-        if(!mimeInfo.includes('webp')) {
-        //non matter what, convert to webp, resize + autoscale to width 512 px
-        const scaledImageBuffer = await sharp(buff,{ failOnError: false })
-        .resize({ width: 512, height: 512 })
-        .toBuffer();
-        const webp = sharp(scaledImageBuffer,{ failOnError: false }).webp();
-        metadata = await webp.metadata();
-        webpBase64 = (await webp.toBuffer()).toString('base64');
-        }
-        return await this.pup(
-          ({ webpBase64,to, metadata, messageId }) => WAPI.sendStickerAsReply(webpBase64,to, metadata, messageId),
-          { webpBase64,to, metadata, messageId }
-        );
-      } else {
-        console.log('Not an image');
-        return false;
-      }
-     } catch(error) {
-       console.log('Something went wrong', error);
-       throw error;
-     }
+    const b64 = await getDUrl(url, requestConfig);
+    let processingResponse = await this.prepareWebp(b64);
+    if(!processingResponse) return false;
+    let {webpBase64, metadata} = processingResponse;
+      return await this.pup(
+        ({ webpBase64,to, metadata }) => WAPI.sendStickerAsReply(webpBase64,to, metadata, messageId),
+        { webpBase64,to, metadata }
+      );
   }
   
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * 
+   * This function takes an image and sends it as a sticker to the recipient as a reply to another message.
+   * 
+   * 
+   * @param to  The recipient id.
+   * @param b64  This is the base64 string formatted with data URI. You can also send a plain base64 string but it may result in an error as the function will not be able to determine the filetype before sending.
+   * @param messageId  The id of the message to reply to
+   */
+  public async sendImageAsStickerAsReply(to: ChatId, b64: DataURL, messageId: MessageId){
+    let processingResponse = await this.prepareWebp(b64);
+    if(!processingResponse) return false;
+    let {webpBase64, metadata} = processingResponse;
+      return await this.pup(
+        ({ webpBase64,to, metadata }) => WAPI.sendStickerAsReply(webpBase64,to, metadata, messageId),
+        { webpBase64,to, metadata }
+      );
+  }
 
   /**
    * This allows you to get a single property of a single object from the session. This limints the amouunt of data you need to sift through, reduces congestion between your process and the session and the flexibility to build your own specific getters.
@@ -2201,13 +2201,7 @@ public async getStatus(contactId: ContactId) {
     );
   }
 
-  /**
-   * This function takes an image and sends it as a sticker to the recipient. This is helpful for sending semi-ephemeral things like QR codes. 
-   * The advantage is that it will not show up in the recipients gallery. This function automatiicaly converts images to the required webp format.
-   * @param to: The recipient id.
-   * @param b64: This is the base64 string formatted with data URI. You can also send a plain base64 string but it may result in an error as the function will not be able to determine the filetype before sending.
-   */
-  public async sendImageAsSticker(to: ChatId, b64: DataURL){
+  private async prepareWebp(b64: DataURL) {
     const buff = Buffer.from(b64.replace(/^data:image\/(png|gif|jpeg|webp);base64,/,''), 'base64');
     const mimeInfo = base64MimeType(b64);
     if(!mimeInfo || mimeInfo.includes("image")){
@@ -2221,16 +2215,35 @@ public async getStatus(contactId: ContactId) {
       const webp = sharp(scaledImageBuffer,{ failOnError: false }).webp();
       metadata = await webp.metadata();
       webpBase64 = (await webp.toBuffer()).toString('base64');
+      return {
+        metadata,
+        webpBase64
       }
-      return await this.pup(
-        ({ webpBase64,to, metadata }) => WAPI.sendImageAsSticker(webpBase64,to, metadata),
-        { webpBase64,to, metadata }
-      );
+      }
     } else {
       console.log('Not an image');
       return false;
     }
   }
+
+  /**
+   * This function takes an image and sends it as a sticker to the recipient. This is helpful for sending semi-ephemeral things like QR codes. 
+   * The advantage is that it will not show up in the recipients gallery. This function automatiicaly converts images to the required webp format.
+   * @param to: The recipient id.
+   * @param b64: This is the base64 string formatted with data URI. You can also send a plain base64 string but it may result in an error as the function will not be able to determine the filetype before sending.
+   */
+  public async sendImageAsSticker(to: ChatId, b64: DataURL){
+    let processingResponse = await this.prepareWebp(b64);
+    if(!processingResponse) return false;
+    let {webpBase64, metadata} = processingResponse;
+      return await this.pup(
+        ({ webpBase64,to, metadata }) => WAPI.sendImageAsSticker(webpBase64,to, metadata),
+        { webpBase64,to, metadata }
+      );
+  }
+
+
+
 
   /**
    * WORK IN PROGRESS
@@ -2251,9 +2264,9 @@ public async getStatus(contactId: ContactId) {
   /**
    * Send a giphy GIF as an animated sticker.
    * @param to ChatId
-   * @param giphyMediaUrl URL This is the giphy media url and has to be in the format `https://media.giphy.com/media/RJKHjCAdsAfQPn03qQ/source.gif`
+   * @param giphyMediaUrl URL | string This is the giphy media url and has to be in the format `https://media.giphy.com/media/RJKHjCAdsAfQPn03qQ/source.gif` or it can be just the id `RJKHjCAdsAfQPn03qQ`
    */
-  public async sendGiphyAsSticker(to: ChatId, giphyMediaUrl: URL){
+  public async sendGiphyAsSticker(to: ChatId, giphyMediaUrl: URL | string){
     return await this.pup(
       ({ to,  giphyMediaUrl}) => WAPI.sendGiphyAsSticker(to,  giphyMediaUrl),
       { to,  giphyMediaUrl }
