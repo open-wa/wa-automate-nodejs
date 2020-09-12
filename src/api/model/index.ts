@@ -81,7 +81,7 @@ export enum STATE {
      */
     TOS_BLOCK = 'TOS_BLOCK',
     /**
-     * Unknown, possibly when the session is deauthenticated.
+     * The same (probably replacement) for CONFLICT
      */
     UNLAUNCHED = 'UNLAUNCHED',
     /**
