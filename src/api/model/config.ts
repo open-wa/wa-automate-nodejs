@@ -293,6 +293,8 @@ export interface ConfigObject {
      * sessionId       ==>     WA_SESSION_ID
      * customUserAgent ==>     WA_CUSTOM_USER_AGENT
      * blockCrashLogs  ==>     WA_BLOCK_CRASH_LOGS
+     * blockAssets     ==>     WA_BLOCK_ASSETS
+     * corsFix         ==>     WA_CORS_FIX
      * cacheEnabled    ==>     WA_CACHE_ENABLED
      * headless        ==>     WA_HEADLESS
      * autoRefresh     ==>     WA_AUTO_REFRESH
