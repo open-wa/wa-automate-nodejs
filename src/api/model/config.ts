@@ -200,7 +200,7 @@ export interface ConfigObject {
      */
     autoRefresh ?: boolean,
     /**
-     * This determines the interval at which to refresh the QR code.
+     * This determines the interval at which to refresh the QR code. By default, WA updates the qr code every 18-19 seconds so make sure this value is set to UNDER 18 seconds!!
      */
     qrRefreshS ?: number,
     /**
