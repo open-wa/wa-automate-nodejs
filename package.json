@@ -114,7 +114,7 @@
     "puppeteer-page-proxy": "^1.2.8",
     "qrcode-terminal": "^0.12.0",
     "rxjs": "^6.5.3",
-    "sharp": "^0.25.1",
+    "sharp": "^0.26.0",
     "socket.io": "^2.3.0",
     "spinnies": "^0.5.1",
     "swagger-ui-express": "^4.1.4",
