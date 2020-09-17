@@ -679,8 +679,8 @@ window.WAPI.isLoggedIn = function () {
 };
 
 window.WAPI.isConnected = function () {
-    // Phone Disconnected icon appears when phone is disconnected from the tnternet
-    const isConnected = document.querySelector('*[data-icon="alert-phone"]') !== null ? false : true;
+    // Phone or connection Disconnected icon appears when phone or connection is disconnected
+    const isConnected=(document.querySelector('[data-testid="alert-phone"]') == null && document.querySelector('[data-testid="alert-computer"]') == null) ? true : false;	
     return isConnected;
 };
 
