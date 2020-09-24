@@ -133,7 +133,7 @@ declare module WAPI {
   const getMessageById: (mesasgeId: string) => Message;
   const getStickerDecryptable: (mesasgeId: string) => Message | boolean;
   const forceStaleMediaUpdate: (mesasgeId: string) => Message | boolean;
-  const setMyName: (newName: string) => void;
+  const setMyName: (newName: string) => Promise<boolean>;
   const setMyStatus: (newStatus: string) => void;
   const setProfilePic: (data: string) => Promise<boolean>;
   const setPresence: (available: boolean) => void;
@@ -696,7 +696,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
      return await this.pup(
        ({newName}) => {WAPI.setMyName(newName)},
        {newName}
-       )
+       ) as Promise<boolean>;
    }
 
    /**

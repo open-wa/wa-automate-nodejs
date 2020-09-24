@@ -1472,7 +1472,7 @@ window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, qu
  */
 window.WAPI.setMyName = async function (newName) {
     if(!Store.Versions.default[12].BinaryProtocol) Store.Versions.default[12].BinaryProtocol=new Store.bp(Store.Me.binVersion);
-    return await Store.Versions.default[12].setPushname(newName);
+    return (await Store.Versions.default[12].setPushname(newName)).status===200;
 }
 
 /** Change the icon for the group chat
