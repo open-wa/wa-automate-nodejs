@@ -70,7 +70,7 @@ export async function create(_sessionId?: string | ConfigObject, config?: Config
   config.chromiumArgs = config?.chromiumArgs || [];
   customUserAgent = config.customUserAgent;
   }
-  if(sessionId ===  '' || config.sessionId) sessionId = config.sessionId;
+  if(sessionId ===  '' || config?.sessionId) sessionId = config.sessionId;
 
   const prettyFont = CFonts.render(('@OPEN-WA|WHATSAPP|AUTOMATOR'), {
     font: '3d',
