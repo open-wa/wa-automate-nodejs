@@ -4,7 +4,7 @@ var uniq = require('lodash.uniq');
 const fs = require('fs');
 var pkg = require('../../package.json');
 const hasha = require('hasha');
-const currentHash = 'f1d7de3a7817b194743782383fd7b0f9'
+const currentHash = '8d3a09fe3156605ac2cf55ce920bbbab'
 
 export async function checkWAPIHash(){
   const h =  await hasha.fromFile(path.join(__dirname, '../lib', 'wapi.js'), {algorithm: 'md5'});
