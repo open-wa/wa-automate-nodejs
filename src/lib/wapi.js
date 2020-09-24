@@ -35,7 +35,7 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "addAndSendMsgToChat", conditions: (module) => (module.addAndSendMsgToChat) ? module.addAndSendMsgToChat : null },
                 { id: "sendMsgToChat", conditions: (module) => (module.sendMsgToChat) ? module.sendMsgToChat : null },
                 { id: "Catalog", conditions: (module) => (module.Catalog) ? module.Catalog : null },
-                { id: "bp", conditions: (module) => (module.default&&module.default.toString().includes('bp_unknown_version')) ? module.default : null },
+                { id: 'Perfil',conditions: (module) => module.__esModule === true && module.setPushname && !module.getComposeContents? module  : null,},
                 { id: "MsgKey", conditions: (module) => (module.default&&module.default.toString().includes('MsgKey error: obj is null/undefined')) ? module.default : null },
                 { id: "Parser", conditions: (module) => (module.convertToTextWithoutSpecialEmojis) ? module.default : null },
                 { id: "Builders", conditions: (module) => (module.TemplateMessage && module.HydratedFourRowTemplate) ? module : null },
@@ -1471,8 +1471,7 @@ window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, qu
  * @param newName - string the new name to set as profile name
  */
 window.WAPI.setMyName = async function (newName) {
-    if(!Store.Versions.default[12].BinaryProtocol) Store.Versions.default[12].BinaryProtocol=new Store.bp(Store.Me.binVersion);
-    return await Store.Versions.default[12].setPushname(newName);
+    return await window.Store.Perfil.setPushname(newName);
 }
 
 /** Change the icon for the group chat
