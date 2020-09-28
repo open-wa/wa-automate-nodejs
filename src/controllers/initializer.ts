@@ -59,6 +59,8 @@ export async function create(_sessionId?: string | ConfigObject, config?: Config
     config = _sessionId;
   } else if(typeof _sessionId === 'string') {
     sessionId = _sessionId;
+  } else if(!_sessionId) {
+    config = {}
   }
 
   if(config?.inDocker) {
@@ -70,7 +72,7 @@ export async function create(_sessionId?: string | ConfigObject, config?: Config
   config.chromiumArgs = config?.chromiumArgs || [];
   customUserAgent = config.customUserAgent;
   }
-  if(sessionId ===  '' || config?.sessionId) sessionId = config.sessionId;
+  if(sessionId ===  '' || config?.sessionId) sessionId = config?.sessionId || 'session';
 
   const prettyFont = CFonts.render(('@OPEN-WA|WHATSAPP|AUTOMATOR'), {
     font: '3d',
