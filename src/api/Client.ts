@@ -161,6 +161,7 @@ declare module WAPI {
   const isChatOnline: (id: string) => Promise<boolean>;
   const sendLinkWithAutoPreview: (to: string,url: string,text: string) => Promise<string | boolean>;
   const contactBlock: (id: string) => Promise<boolean>;
+  const REPORTSPAM: (id: string) => Promise<boolean>;
   const contactUnblock: (id: string) => Promise<boolean>;
   const deleteConversation: (chatId: string) => Promise<boolean>;
   const clearChat: (chatId: string) => Promise<any>;
@@ -1460,6 +1461,18 @@ public async iAmAdmin(){
  */
 public async contactBlock(id: ContactId) {
   return await this.pup(id => WAPI.contactBlock(id),id)
+}
+
+
+/**
+ * Report a contact for spam, block them and attempt to clear chat.
+ * 
+ * [This is a restricted feature and requires a restricted key.](https://gumroad.com/l/BTMt?tier=1%20Restricted%20License%20Key)
+ * 
+ * @param {string} id '000000000000@c.us'
+ */
+public async reportSpam(id: ContactId | ChatId) {
+  return await this.pup(id => WAPI.REPORTSPAM(id),id)
 }
 
 /**
