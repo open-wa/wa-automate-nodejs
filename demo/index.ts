@@ -116,12 +116,12 @@ app.listen(PORT, function () {
         mediaData = await decryptMedia(message, uaOverride);
       }
       // you can send a file also with sendImage or await client.sendFile
-      // await client.sendImage(
-      //   message.from,
-      //   `data:${message.mimetype};base64,${mediaData.toString('base64')}`,
-      //   filename,
-      //   `You just sent me this ${message.type}`
-      // );
+      await client.sendImage(
+        message.from,
+        `data:${message.mimetype};base64,${mediaData.toString('base64')}`,
+        filename,
+        `You just sent me this ${message.type}`
+      );
       
       //send the whole data URI so the mimetype can be checked.
       await client.sendImageAsSticker(message.from, `data:${message.mimetype};base64,${mediaData.toString('base64')}`)
@@ -145,6 +145,20 @@ app.listen(PORT, function () {
         }
         console.log('The file was saved!');
       });
+
+      /**
+       * You can also send the file as a relative file reference. The library will automatically open the file and get the dataUrl
+       */
+      const message_id_from_file = await client.sendImage(message.from,
+        './'+filename,
+        filename,
+        'from file',
+        null,
+        true,
+        false
+        )
+      console.log("start -> message_id", message_id)
+
     } else if (message.type==="location") {
       if(message.shareDuration) console.log('This user has started sharing their live location', message.author || message.from)
       console.log("TCL: location -> message", message.lat, message.lng, message.loc)
