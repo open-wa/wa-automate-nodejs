@@ -157,7 +157,7 @@ app.listen(PORT, function () {
         true,
         false
         )
-      console.log("start -> message_id", message_id)
+      console.log("start -> message_id", message_id_from_file)
 
     } else if (message.type==="location") {
       if(message.shareDuration) console.log('This user has started sharing their live location', message.author || message.from)
