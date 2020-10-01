@@ -12,7 +12,8 @@ import PQueue from 'p-queue'
 const parseFunction = require('parse-function'),
 pkg = require('../../package.json'),
 datauri = require('datauri'),
-fs = require('fs');
+fs = require('fs'),
+isDataURL = (s: string) => !!s.match(/^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i);
 import treekill from 'tree-kill';
 import { SessionInfo } from './model/sessionInfo';
 import { injectApi } from '../controllers/browser';
@@ -947,7 +948,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   /**
    * Sends a image to given chat, with caption or not, using base64
    * @param to chat id xxxxx@c.us
-   * @param base64 base64 data:image/xxx;base64,xxx or the path of the file you want to send.
+   * @param file DataURL data:image/xxx;base64,xxx or the RELATIVE (should start with `./` or `../`) path of the file you want to send.
    * @param filename string xxxxx
    * @param caption string xxxxx
    * @param waitForKey boolean default: false set this to true if you want to wait for the id of the message. By default this is set to false as it will take a few seconds to retreive to the key of the message and this waiting may not be desirable for the majority of users.
@@ -963,12 +964,13 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     ptt?:boolean
   ) {
       //check if the 'base64' file exists
-      if(file.length<50) {
+      if(!isDataURL(file)) {
+        //must be a file then
         let relativePath = path.join(path.resolve(process.cwd(),file|| ''));
         if(fs.existsSync(file) || fs.existsSync(relativePath)) {
           file = await datauri(fs.existsSync(file)  ? file : relativePath);
-        }
-    }
+        } else throw new Error('Cannot find file. Make sure the file reference is relative or valid DataURL')
+      }
     
    const err = [
     'Not able to send message to broadcast',
