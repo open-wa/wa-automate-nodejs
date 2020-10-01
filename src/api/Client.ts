@@ -1017,6 +1017,8 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * 
+   * Sends a reply to a given message. Please note, you need to have at least sent one normal message to a contact in order for this to work properly.
+   * 
    * @param to string chatid
    * @param content string reply text
    * @param quotedMsgId string the msg id to reply to.
