@@ -139,7 +139,7 @@ app.listen(PORT, function () {
         // await client.forwardMessages(message.from,message,false);
 
         await client.forwardMessages(message.from,message.id,false);
-      fs.writeFile(filename, mediaData, function(err) {
+      fs.writeFileSync(filename, mediaData, function(err) {
         if (err) {
           return console.log(err);
         }
@@ -158,6 +158,12 @@ app.listen(PORT, function () {
         false
         )
       console.log("start -> message_id", message_id_from_file)
+
+      /**
+       * Now you can send an animated gif via url
+       */
+      const sticker_from_url_gif_id = await client.sendStickerfromUrl(message.from, "https://i.giphy.com/media/yJil9u57ybQ9movc6E/source.gif")
+      console.log("start -> sticker_from_url_gif_id", sticker_from_url_gif_id)
 
     } else if (message.type==="location") {
       if(message.shareDuration) console.log('This user has started sharing their live location', message.author || message.from)
