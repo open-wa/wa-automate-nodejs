@@ -2225,12 +2225,12 @@ public async getStatus(contactId: ContactId) {
       let webpBase64 = b64;
       let metadata : any = { width: 512, height: 512 };
       if(!mimeInfo.includes('webp')) {
-      //non matter what, convert to webp, resize + autoscale to width 512 px
-      const scaledImageBuffer = await sharp(buff,{ failOnError: false })
-      .resize({ width: 512, height: 512 })
-      .toBuffer();
-      const webp = sharp(scaledImageBuffer,{ failOnError: false }).webp();
+        const { pages } = await sharp(buff).metadata();
+      //@ts-ignore
+      let webp = sharp(buff,{ failOnError: false, animated: !!pages}).webp();
+      if(!!!pages) webp = webp.resize(metadata);
       metadata = await webp.metadata();
+      metadata.animated = !!pages;
       webpBase64 = (await webp.toBuffer()).toString('base64');
       return {
         metadata,
@@ -2259,18 +2259,19 @@ public async getStatus(contactId: ContactId) {
       );
   }
 
-
-
-
   /**
-   * WORK IN PROGRESS
+   * [WIP]
+   * You can use this to send a raw webp file.
+   * @param to ChatId The chat id you want to send the webp sticker to
+   * @param webpBase64 Base64 The base64 string of the webp file. Not DataURl
+   * @param animated Boolean Set to true if the webp is animated. Default `false`
    */
-  public async sendRawWebpAsSticker(to: ChatId, webpBase64: Base64){
+  public async sendRawWebpAsSticker(to: ChatId, webpBase64: Base64, animated : boolean = false){
     let metadata =  {
   format: 'webp',
   width: 512,
   height: 512,
-  animated: true,
+  animated,
     }
     return await this.pup(
       ({ webpBase64,to, metadata }) => WAPI.sendImageAsSticker(webpBase64,to, metadata),
