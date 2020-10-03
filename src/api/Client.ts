@@ -13,7 +13,7 @@ const parseFunction = require('parse-function'),
 pkg = require('../../package.json'),
 datauri = require('datauri'),
 fs = require('fs'),
-isDataURL = (s: string) => !!s.match(/^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i);
+isDataURL = (s: string) => !!s.match(/^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/g);
 import treekill from 'tree-kill';
 import { SessionInfo } from './model/sessionInfo';
 import { injectApi } from '../controllers/browser';
@@ -1148,6 +1148,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   ) {
     try {
      const base64 = await getDUrl(url, requestConfig);
+     console.log("base64", base64.substr(0,20))
       return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId)
     } catch(error) {
       console.log('Something went wrong', error);
