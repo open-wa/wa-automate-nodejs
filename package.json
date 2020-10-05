@@ -120,7 +120,7 @@
     "swagger-ui-express": "^4.1.4",
     "terminal-link": "^2.1.1",
     "tree-kill": "^1.2.2",
-    "ts-json-schema-generator": "^0.74.0",
+    "ts-json-schema-generator": "^0.75.0",
     "typescript-parser": "^2.6.1",
     "update-notifier": "^5.0.0",
     "uuid-apikey": "^1.4.6"
