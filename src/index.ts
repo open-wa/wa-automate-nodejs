@@ -1,4 +1,4 @@
-export { Chat, Contact, Message } from './api/model';
+export * from './api/model';
 export { Client, SimpleListener } from './api/Client';
 export { create } from './controllers/initializer';
 export * from '@open-wa/wa-decrypt';
