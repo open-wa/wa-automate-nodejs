@@ -39,7 +39,7 @@ When sending a message, make sure to await the promise. It usually returns an id
 
 ## Forward Messages
 
-To forward messages use [[[[forwardMessages]] with the following params:
+To forward messages use [[forwardMessages]] with the following params:
 
 - chat to forward messages to : xxxxx@c.us
 - messages: a single or array of message ids or message objects
