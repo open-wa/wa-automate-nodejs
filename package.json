@@ -3,7 +3,7 @@
   "version": "2.0.28",
   "licenseCheckUrl": "https://openwa.web.app/license-check",
   "brokenMethodReportUrl": "https://openwa.web.app/report-bm",
-  "patches": "https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/patches.json",
+  "patches": "https://raw.githack.com/open-wa/wa-automate-nodejs/master/patches.json",
   "description": " 💬 🤖 The most reliable NodeJS whatsapp library for chatbots with advanced features.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
