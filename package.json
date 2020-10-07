@@ -65,6 +65,7 @@
     "@types/puppeteer": "^3.0.0",
     "@types/shelljs": "^0.8.5",
     "auto-changelog": "^2.0.0",
+    "ava": "^3.13.0",
     "changelog-parser": "^2.8.0",
     "command-line-args": "^5.1.1",
     "husky": "^4.2.3",
