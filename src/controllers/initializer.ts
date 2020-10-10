@@ -228,7 +228,7 @@ export async function create(_sessionId?: string | ConfigObject, config?: Config
         config.skipBrokenMethodsCheck = true;
         // config.skipPatches = true;
       }
-      debugInfo.NUM = await waPage.eval(`(window.localStorage['last-wid'] || '').replace('@c.us','').replace(/"/g,"").slice(-4)`);
+      debugInfo.NUM = await waPage.evaluate(`(window.localStorage['last-wid'] || '').replace('@c.us','').replace(/"/g,"").slice(-4)`);
       if (config?.skipBrokenMethodsCheck !== true) await integrityCheck(waPage, notifier, spinner, debugInfo);
       const LAUNCH_TIME_MS = Date.now() - START_TIME;
       debugInfo = {...debugInfo, LAUNCH_TIME_MS};
