@@ -74,7 +74,7 @@ app.listen(PORT, function () {
 
     client.onIncomingCall(call=>console.log('newcall',call));
 
-
+    
     const prods = await client.getBusinessProfilesProducts(me.wid)
     console.log(prods)
 
@@ -210,6 +210,7 @@ create({
   autoRefresh:true, //default to true
   qrRefreshS:15, //please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.
   safeMode: true,
+  disableSpins: true,
   hostNotificationLang: NotificationLanguage.PTBR,
   licenseKey: '451030FF-881C4166-A9169952-2E56748C'
   // cacheEnabled:false,

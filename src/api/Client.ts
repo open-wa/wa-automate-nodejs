@@ -13,6 +13,7 @@ const parseFunction = require('parse-function'),
 pkg = require('../../package.json'),
 datauri = require('datauri'),
 fs = require('fs'),
+isUrl = require('is-url'),
 isDataURL = (s: string) => !!s.match(/^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/g);
 import treekill from 'tree-kill';
 import { SessionInfo } from './model/sessionInfo';
@@ -949,7 +950,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   /**
    * Sends a image to given chat, with caption or not, using base64
    * @param to chat id xxxxx@c.us
-   * @param file DataURL data:image/xxx;base64,xxx or the RELATIVE (should start with `./` or `../`) path of the file you want to send.
+   * @param file DataURL data:image/xxx;base64,xxx or the RELATIVE (should start with `./` or `../`) path of the file you want to send. With the latest version, you can now set this to a normal URL (for example [GET] `https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_2500kB.jpg`).
    * @param filename string xxxxx
    * @param caption string xxxxx
    * @param waitForKey boolean default: false set this to true if you want to wait for the id of the message. By default this is set to false as it will take a few seconds to retreive to the key of the message and this waiting may not be desirable for the majority of users.
@@ -970,7 +971,9 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
         let relativePath = path.join(path.resolve(process.cwd(),file|| ''));
         if(fs.existsSync(file) || fs.existsSync(relativePath)) {
           file = await datauri(fs.existsSync(file)  ? file : relativePath);
-        } else throw new Error('Cannot find file. Make sure the file reference is relative or valid DataURL')
+        } else if(isUrl(file)){
+          return await this.sendFileFromUrl(to,file,filename,caption,quotedMsgId,{},waitForId,ptt);
+        } else throw new Error('Cannot find file. Make sure the file reference is relative, a valid URL or a valid DataURL')
       }
     
    const err = [
@@ -1037,7 +1040,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   /**
    * Sends a file to given chat, with caption or not, using base64. This is exactly the same as sendImage
    * @param to chat id xxxxx@c.us
-   * @param base64 base64 data:image/xxx;base64,xxx or the path of the file you want to send.
+   * @param file DataURL data:image/xxx;base64,xxx or the RELATIVE (should start with `./` or `../`) path of the file you want to send. With the latest version, you can now set this to a normal URL (for example [GET] `https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_2500kB.jpg`).
    * @param filename string xxxxx
    * @param caption string xxxxx
    * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
@@ -1050,9 +1053,10 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     filename: string,
     caption: Content,
     quotedMsgId?: MessageId,
-    waitForId?: boolean
+    waitForId?: boolean,
+    ptt?:boolean
   ) {
-    return this.sendImage(to, file, filename, caption, quotedMsgId, waitForId);
+    return this.sendImage(to, file, filename, caption, quotedMsgId, waitForId, ptt);
   }
 
 
@@ -1144,12 +1148,13 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     caption: Content,
     quotedMsgId?: MessageId,
     requestConfig: any = {},
-    waitForId?: boolean
+    waitForId?: boolean,
+    ptt?:boolean
   ) {
     try {
      const base64 = await getDUrl(url, requestConfig);
      console.log("base64", base64.substr(0,20))
-      return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId)
+      return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId,ptt)
     } catch(error) {
       console.log('Something went wrong', error);
       throw error;

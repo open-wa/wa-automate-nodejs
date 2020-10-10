@@ -77,14 +77,16 @@ create({
 
 ## Keys
 
-| Name | link |
-| --------------------------------- | ----------- |
-| Insiders | [LINK](https://gum.co/BTMt?tier=Insiders%20Program) |
-| Restricted | [LINK](https://gumroad.com/l/BTMt?tier=1%20Restricted%20License%20Key) |
-| Text Story | [LINK](https://gum.co/BTMt?tier=1%20Text%20Story%20License%20Key) |
-| Image Story | [LINK](https://gum.co/BTMt?tier=1%20Image%20Story%20License%20Key) |
-| Video Story | [LINK](https://gum.co/BTMt?tier=1%20Video%20Story%20License%20Key) |
-| Premium | [LINK](https://gum.co/BTMt?tier=1%20Premium%20License%20Key) |
+| Name | link | Description
+| --------------------------------- | ----------- |  ----------- |
+| Insiders | [LINK](https://gum.co/BTMt?tier=Insiders%20Program) | [All Insiders Features](https://open-wa.github.io/wa-automate-nodejs/pages/The%20Client/licensed-features.html#insiders-features)
+| Restricted | [LINK](https://gumroad.com/l/BTMt?tier=1%20Restricted%20License%20Key) | Send messages to non-contacts
+| Text Story | [LINK](https://gum.co/BTMt?tier=1%20Text%20Story%20License%20Key) | Send Text Stories
+| Image Story | [LINK](https://gum.co/BTMt?tier=1%20Image%20Story%20License%20Key) | Send Image Stories
+| Video Story | [LINK](https://gum.co/BTMt?tier=1%20Video%20Story%20License%20Key) | Send Video Stories
+| Premium | [LINK](https://gum.co/BTMt?tier=1%20Premium%20License%20Key) | All the above + [Send Custom Products](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendcustomproduct)
+
+All keys include access to all insider's features. You do not need a Premium Key to send messages to non-contacts.
 
 ## Troubleshooting
 
@@ -114,5 +116,6 @@ If your development and production host accounts are different, then you can ent
 - License Key requests may be rejected.
 - All code you will receive from the license server is closed-sourced and is under the same license as this project. You will not be able to read it. It is not transferrable to another number or another project.
 - All keys provide access to Insiders Features.
+- No Refunds unless you have chosen the incorrect license upon checkout. Refund requests need to take place after the correct license is purchased. [Once the correct license is purchased please email me for a refund.](mailto:shah@idk.uno?subject=OPENWA%3A%LICENSE%3A%CORRECTION)
 - [Volume licenses are available upon request.](mailto:shah@idk.uno?subject=OPENWA%3A%VOLUME%%20LICENSE)
 - [Referral links are available upon request.](mailto:shah@idk.uno?subject=OPENWA%3A%Referral%%20Scheme)
