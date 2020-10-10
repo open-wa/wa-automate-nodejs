@@ -4,4 +4,5 @@ export interface SessionInfo {
     WA_AUTOMATE_VERSION: string;
     BROWSER_VERSION: string;
     LAUNCH_TIME_MS ?: number;
+    NUM ?: string;
 }
