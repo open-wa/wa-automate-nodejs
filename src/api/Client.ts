@@ -1061,7 +1061,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
 
   /**
-   * Sends a file to given chat, with caption or not, using base64. This is exactly the same as sendImage
+   * Attempts to send a file as a voice note. Useful if you want to send an mp3 file.
    * @param to chat id xxxxx@c.us
    * @param base64 base64 data:image/xxx;base64,xxx or the path of the file you want to send.
    * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
@@ -1074,6 +1074,18 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   ) {
     return this.sendImage(to, file, 'ptt.ogg', '', quotedMsgId, true, true);
   }
+  
+  /**
+   * Alias for [[sendPtt]]
+   */
+  public async sendAudio(
+    to: ChatId,
+    file: DataURL | FilePath,
+    quotedMsgId: MessageId,
+  ) {
+    return this.sendPtt(to, file,quotedMsgId);
+  }
+
 
 
 

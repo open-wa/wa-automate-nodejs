@@ -74,7 +74,7 @@ app.listen(PORT, function () {
 
     client.onIncomingCall(call=>console.log('newcall',call));
 
-    
+
     const prods = await client.getBusinessProfilesProducts(me.wid)
     console.log(prods)
 
@@ -99,6 +99,10 @@ app.listen(PORT, function () {
   // client.onParticipantsChanged("XXXXXXXXXX-YYYYYYYYY@g.us",x=>console.log(x))
   client.onMessage(async message => {
     try {
+
+    const mp3_message_id = await client.sendAudio(message.from,'https://file-examples-com.github.io/uploads/2017/11/file_example_MP3_700KB.mp3', null)
+    console.log("start -> mp", mp3_message_id)
+
     const isConnected = await client.isConnected();
     console.log("TCL: start -> isConnected", isConnected)
     console.log(message.body, message.id, message?.quotedMsgObj?.id);
