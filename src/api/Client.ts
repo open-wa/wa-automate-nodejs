@@ -133,6 +133,7 @@ declare module WAPI {
   const addParticipant: (groupId: string, contactId: string) => void;
   const sendGiphyAsSticker: (chatId: string, url: string) => Promise<any>;
   const getMessageById: (mesasgeId: string) => Message;
+  const getMyLastMessage: (chatId: string) => Message;
   const getStickerDecryptable: (mesasgeId: string) => Message | boolean;
   const forceStaleMediaUpdate: (mesasgeId: string) => Message | boolean;
   const setMyName: (newName: string) => Promise<boolean>;
@@ -1581,6 +1582,18 @@ public async contactUnblock(id: ContactId) {
     return await this.pup(
       messageId => WAPI.getMessageById(messageId),
       messageId
+    ) as Promise<Message>;
+  }
+
+  /**
+   * Retrieves the last message sent by the host account in any given chat or globally.
+   * @param chatId This is optional. If no chat Id is set then the last message sent by the host account will be returned.
+   * @returns message object
+   */
+  public async getMyLastMessage(chatId?: ChatId) {
+    return await this.pup(
+      chatId => WAPI.getMyLastMessage(chatId),
+      chatId
     ) as Promise<Message>;
   }
 
