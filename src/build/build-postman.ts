@@ -1,9 +1,7 @@
 var fs = require('fs');
-import {TypescriptParser} from "typescript-parser"
-var parser = new TypescriptParser();
-import {noCase} from "change-case";
 const path = require("path"),
 parseUrl = require("parse-url")
+let noCase;
 
 var aliasExamples = {
     "ChatId": "00000000000@c.us or 00000000000-111111111@g.us",
@@ -24,6 +22,10 @@ var primatives = [
     'boolean'
 ];
 export const generatePostmanJson = async function (setup : any = {}) {
+    const {TypescriptParser} = await import("typescript-parser");
+    noCase = await import("change-case");
+
+    var parser = new TypescriptParser();
     if(setup?.apiHost) {
         if(setup.apiHost.includes(setup.sessionId)){
         const parsed = parseUrl(setup.apiHost);
@@ -78,6 +80,7 @@ const postmanRequestGeneratorGenerator = function (setup) { return function (met
             "" + method.name
         ] : ["" + method.name]
     };
+
     const name =  noCase(method.name).replace(/\b[a-z]|['_][a-z]|\B[A-Z]/g, function (x) { return x[0] === "'" || x[0] === "_" ? x : String.fromCharCode(x.charCodeAt(0) ^ 32); });
     var request = {
         "auth": {

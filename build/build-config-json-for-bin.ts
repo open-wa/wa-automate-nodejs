@@ -1,4 +1,4 @@
-import { getConfigWithCase } from '../src'
+import { getConfigWithCase } from '../src/utils/configSchema'
 
 const fs = require('fs');
 

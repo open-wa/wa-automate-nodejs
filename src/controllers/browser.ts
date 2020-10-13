@@ -4,22 +4,16 @@
 /** */
 import * as path from 'path';
 const fs = require('fs');
-const ChromeLauncher = require('chrome-launcher');
 const puppeteer = require('puppeteer-extra');
-const devtools = require('puppeteer-extra-plugin-devtools')()
-const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 import { puppeteerConfig, useragent, width, height} from '../config/puppeteer.config';
-//@ts-ignore
-import { Browser, Page } from '@types/puppeteer';
+import { Browser, Page } from 'puppeteer';
 import { Spin, EvEmitter } from './events';
 import { ConfigObject } from '../api/model';
 const ON_DEATH = require('death'); //this is intentionally ugly
-const useProxy = require('puppeteer-page-proxy');
-const storage = require('node-persist');
 let browser;
 
 export async function initClient(sessionId?: string, config?:ConfigObject, customUserAgent?:string) {
-  if(config?.useStealth) puppeteer.use(StealthPlugin());
+  if(config?.useStealth) puppeteer.use(require('puppeteer-extra-plugin-stealth')());
   browser = await initBrowser(sessionId,config);
   const waPage = await getWAPage(browser);
   if (config?.proxyServerCredentials) {
@@ -35,7 +29,6 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
   const blockCrashLogs = config?.blockCrashLogs === false ? false : true;
   await waPage.setBypassCSP(config?.bypassCSP || false);
   await waPage.setCacheEnabled(cacheEnabled);
-  // const waPage : any = waPage;
   const blockAssets = !config?.headless ? false : config?.blockAssets || false;
   if(blockAssets){
     puppeteer.use(require('puppeteer-extra-plugin-block-resources')({
@@ -71,7 +64,7 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
     if (request.url().includes('https://crashlogs.whatsapp.net/') && blockCrashLogs){
       request.abort();
     }
-    else if (proxyAddr) useProxy(request, proxyAddr);
+    else if (proxyAddr) require('puppeteer-page-proxy')(request, proxyAddr);
     else request.continue();
     })
   }
@@ -194,7 +187,7 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
         Object.keys(session).forEach(key=>localStorage.setItem(key,session[key]));
     }, sessionjson);
     if(config?.proxyServerCredentials) {
-      await useProxy(waPage, proxyAddr);
+      await require('puppeteer-page-proxy')(waPage, proxyAddr);
       console.log(`Active proxy: ${config.proxyServerCredentials.address}`)
     }
   await waPage.goto(puppeteerConfig.WAUrl)
@@ -219,10 +212,11 @@ export async function injectApi(page: Page) {
 
 async function initBrowser(sessionId?: string, config:any={}) {
   if(config?.useChrome && !config?.executablePath) {
+    const storage = require('node-persist');
     await storage.init();
     let _savedPath = await storage.getItem('executablePath');
     if(!_savedPath) {
-      config.executablePath = ChromeLauncher.Launcher.getInstallations()[0];
+      config.executablePath = require('chrome-launcher').Launcher.getInstallations()[0];
       await storage.setItem('executablePath',config.executablePath)
     } else config.executablePath = _savedPath;
   }
@@ -257,6 +251,7 @@ async function initBrowser(sessionId?: string, config:any={}) {
   });
   //devtools
   if(config&&config.devtools){
+    const devtools = require('puppeteer-extra-plugin-devtools')();
     if(config.devtools.user&&config.devtools.pass) devtools.setAuthCredentials(config.devtools.user, config.devtools.pass)
     try {
       // const tunnel = await devtools.createTunnel(browser);

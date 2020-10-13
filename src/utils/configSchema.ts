@@ -39,12 +39,3 @@ export const getConfigWithCase = (config ?: {
     const configWithCases = configs.map(o=>({env:`WA_${constantCase(o.key)}`,p:paramCase(o.key),...o}))
     return configWithCases;
 }
-
-export const getConfigFromProcessEnv = (json) => {
-    let output = {};
-    json.forEach(({env,key})=>{
-        if(process.env[env]) output[key] = process.env[env];
-        if(process.env[env]==='true' || process.env[env]==='false') output[key] = Boolean(process.env[env]);
-    });
-    return output;
-}

@@ -1,6 +1,5 @@
 import {EventEmitter2} from 'eventemitter2';
 import Spinnies from "spinnies";
-import { throws } from 'assert';
 const spinner = { 
   "interval": 80,
   "frames": [

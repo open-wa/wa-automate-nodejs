@@ -18,3 +18,4 @@ demo/buttons.js
 
 **.ignore.ts
 **.node-persist**
+.vscode/launch.json

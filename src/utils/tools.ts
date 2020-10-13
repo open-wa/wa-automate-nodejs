@@ -8,3 +8,12 @@ export const smartUserAgent = (useragent:string, v:string= '0.4.315') => {
     if(!useragent.includes('WhatsApp')) return `WhatsApp/${v} ${useragent}`;
     return useragent.replace(useragent.match(/WhatsApp\/([.\d])*/g)[0].match(/[.\d]*/g).find(x=>x),v);
 }
+
+export const getConfigFromProcessEnv = (json) => {
+    let output = {};
+    json.forEach(({env,key})=>{
+        if(process.env[env]) output[key] = process.env[env];
+        if(process.env[env]==='true' || process.env[env]==='false') output[key] = Boolean(process.env[env]);
+    });
+    return output;
+}
