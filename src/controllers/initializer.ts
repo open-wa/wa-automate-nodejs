@@ -48,12 +48,7 @@ qrDelayTimeout;
 export async function create(_sessionId?: string | ConfigObject, config?: ConfigObject, customUserAgent?: string): Promise<Client> {
   const START_TIME = Date.now();
   let waPage = undefined;
-  const notifier = await updateNotifier({
-    pkg,
-    updateCheckInterval: 0
-  });
-  notifier.notify();
-
+  let notifier;
   let sessionId : string = '';
   if (typeof _sessionId === 'object' && (_sessionId as ConfigObject)) {
     config = _sessionId;
@@ -61,6 +56,14 @@ export async function create(_sessionId?: string | ConfigObject, config?: Config
     sessionId = _sessionId;
   } else if(!_sessionId) {
     config = {}
+  }
+
+  if(!config?.skipUpdateCheck) {
+    notifier = await updateNotifier({
+      pkg,
+      updateCheckInterval: 0
+    });
+    notifier.notify();
   }
 
   if(config?.inDocker) {
@@ -107,7 +110,7 @@ export async function create(_sessionId?: string | ConfigObject, config?: Config
     const PAGE_UA = await waPage.evaluate('navigator.userAgent');
     const BROWSER_VERSION = await waPage.browser().version();
 
-    const WA_AUTOMATE_VERSION = `${pkg.version}${notifier.update ? ` UPDATE AVAILABLE: ${notifier.update.latest}` : ''}`;
+    const WA_AUTOMATE_VERSION = `${pkg.version}${notifier?.update ? ` UPDATE AVAILABLE: ${notifier?.update.latest}` : ''}`;
     //@ts-ignore
     const WA_VERSION = await waPage.evaluate(() => window.Debug ? window.Debug.VERSION : 'I think you have been TOS_BLOCKed')
     //@ts-ignore

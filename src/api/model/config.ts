@@ -143,6 +143,11 @@ export interface ConfigObject {
      */
     skipBrokenMethodsCheck ?: boolean,
     /**
+     * If set to true, `skipUpdateCheck` will bypass the latest version check. This saves some time on boot (around 150 ms).
+     * @default `false`
+     */
+    skipUpdateCheck ?: boolean,
+    /**
      * This is the name of the session. You have to make sure that this is unique for every session.
      * @default `session`
      */

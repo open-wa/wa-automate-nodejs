@@ -39,7 +39,7 @@ export async function integrityCheck(waPage, notifier, spinner, debugInfo) {
       if(BROKEN_METHODS.length>0)  {
         spinner.info('Unable to repair. Reporting broken methods.');
         //report broken methods:
-        if(notifier.update) {
+        if(notifier?.update) {
           //needs an updated
           spinner.fail("!!!BROKEN METHODS DETECTED!!!\n\n Please update to the latest version: " + notifier.update.latest)
         } else {
