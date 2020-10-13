@@ -340,6 +340,12 @@ export interface ConfigObject {
      */
     blockAssets ?: boolean;
     /**
+     * [ALPHA FEATURE - ONLY IMPLEMENTED FOR TESTING - DO NOT USE IN PRODUCTION YET]
+     * Setting this to true will result in the library making sure it is always starting with the latest version of itself. This overrides `skipUpdateCheck`.
+     * @default `false`
+     */
+    keepUpdated ?: boolean;
+    /**
      * Setting this to true will bypass web security. DO NOT DO THIS IF YOU DO NOT HAVE TO. CORS issue may arise when using a proxy.
      * @default `false`
      */

@@ -58,12 +58,29 @@ export async function create(_sessionId?: string | ConfigObject, config?: Config
     config = {}
   }
 
-  if(!config?.skipUpdateCheck) {
+  if(!config?.skipUpdateCheck || config?.keepUpdated) {
+    console.log('checking update')
     notifier = await updateNotifier({
       pkg,
       updateCheckInterval: 0
     });
     notifier.notify();
+    if(notifier?.update && config?.keepUpdated) {
+      console.log('UPDATING @OPEN-WA')
+      const result = require('cross-spawn').spawn.sync('npm', ['i', '@open-wa/wa-automate'], { stdio: 'inherit' });
+      if(!result.stderr) {
+          console.log('UPDATED SUCCESSFULLY')
+      }
+      console.log('RESTARTING PROCESS')
+      process.on("exit", function () {
+        require('cross-spawn').spawn(process.argv.shift(), process.argv, {
+            cwd: process.cwd(),
+            detached : true,
+            stdio: "inherit"
+        });
+    });
+    process.exit();
+    }
   }
 
   if(config?.inDocker) {
