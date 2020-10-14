@@ -145,7 +145,7 @@ declare module WAPI {
   const getCommonGroups: (contactId: string) => Promise<{id:string,title:string}[]>;
   const forceUpdateLiveLocation: (chatId: string) => Promise<LiveLocationChangedEvent []> | boolean;
   const setGroupIcon: (groupId: string, imgData: string) => Promise<boolean>;
-  const getGroupAdmins: (groupId: string) => Promise<Contact[]>;
+  const getGroupAdmins: (groupId: string) => Promise<string[]>;
   const removeParticipant: (groupId: string, contactId: string) => Promise<boolean>;
   const addOrRemoveLabels: (label: string, id: string, type: string) => Promise<boolean>;
   const promoteParticipant: (groupId: string, contactId: string) => Promise<boolean>;
