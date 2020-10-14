@@ -23,7 +23,7 @@ var primatives = [
 ];
 export const generatePostmanJson = async function (setup : any = {}) {
     const {TypescriptParser} = await import("typescript-parser");
-    noCase = await import("change-case");
+    if(!noCase) noCase = (await import("change-case")).noCase;
 
     var parser = new TypescriptParser();
     if(setup?.apiHost) {
@@ -62,6 +62,7 @@ function escape(key, val) {
 
 
 const postmanRequestGeneratorGenerator = function (setup) { return function (method) {
+    // if(!noCase) noCase = await import("change-case");
     var args = {};
     method.parameters.forEach(function (param) {
         args[param.name] = aliasExamples[param.type] ? aliasExamples[param.type] : paramNameExamples[param.name] ? paramNameExamples[param.name] : primatives.includes(param.type) ? param.type : 'Check documentation in description';
