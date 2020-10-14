@@ -1166,7 +1166,6 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   ) {
     try {
      const base64 = await getDUrl(url, requestConfig);
-     console.log("base64", base64.substr(0,20))
       return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId,ptt)
     } catch(error) {
       console.log('Something went wrong', error);
