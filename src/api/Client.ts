@@ -2127,7 +2127,7 @@ public async getStatus(contactId: ContactId) {
     return await this.pup(
       (groupId) => WAPI.getGroupAdmins(groupId),
       groupId
-    ) as Promise<Contact[]>;
+    ) as Promise<string[]>;
   }
 
   /**
