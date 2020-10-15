@@ -2061,6 +2061,8 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
+  * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+  * 
   * Change who can and cannot speak in a group
   * @param groupId '0000000000-00000000@g.us' the group id.
   * @param onlyAdmins boolean set to true if you want only admins to be able to speak in this group. false if you want to allow everyone to speak in the group
