@@ -346,6 +346,21 @@ export interface ConfigObject {
      */
     keepUpdated ?: boolean;
     /**
+     * Set the desired viewport height and width
+     */
+    viewport ?: {
+        /**
+         * Page width in pixels
+         * @default `1440`
+         */
+        width ?: number;
+        /**
+         * Page height in pixels
+         * @default `900`
+         */
+        height ?: number;
+    };
+    /**
      * Setting this to true will bypass web security. DO NOT DO THIS IF YOU DO NOT HAVE TO. CORS issue may arise when using a proxy.
      * @default `false`
      */

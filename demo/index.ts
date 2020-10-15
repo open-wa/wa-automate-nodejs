@@ -232,7 +232,10 @@ create({
   safeMode: true,
   disableSpins: true,
   hostNotificationLang: NotificationLanguage.PTBR,
-  licenseKey: '451030FF-881C4166-A9169952-2E56748C'
+  viewport: {
+    // width: 1920,
+    height: 1200
+  }
   // cacheEnabled:false,
   // devtools:true,
   //OR

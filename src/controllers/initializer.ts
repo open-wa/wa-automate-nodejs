@@ -59,7 +59,6 @@ export async function create(_sessionId?: string | ConfigObject, config?: Config
   }
 
   if(!config?.skipUpdateCheck || config?.keepUpdated) {
-    console.log('checking update')
     notifier = await updateNotifier({
       pkg,
       updateCheckInterval: 0
