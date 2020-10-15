@@ -30,3 +30,13 @@ The method `create` is what creates, authenticates/reloads a session. When you c
 You can call `create()` on it's own, however there are a bunch of powerful configuration variables you can set to acheive a more custom set up.
 
 [[ConfigObject]]
+
+Please note that you will be unable to scan the QR code if it is on a dark background.
+
+## What happens when the session starts
+
+In order to eliminate potential phishing attacks using this library, a message is sent to the host account from itself notifying the account user that the account is being managed/controlled using an automation software.
+
+This host notification will result in a CORS error in the browser instance. You can ignore the error.
+
+Learn more here: https://github.com/open-wa/wa-automate-nodejs/issues/709#issuecomment-673419088

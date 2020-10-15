@@ -2170,7 +2170,7 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
-   * Sends a sticker from a given URL
+   * Sends a sticker (including GIF) from a given URL
    * @param to: The recipient id.
    * @param url: The url of the image
    * @param requestConfig {} By default the request is a get request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
@@ -2276,10 +2276,10 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
-   * This function takes an image and sends it as a sticker to the recipient. This is helpful for sending semi-ephemeral things like QR codes. 
+   * This function takes an image (including animated GIF) and sends it as a sticker to the recipient. This is helpful for sending semi-ephemeral things like QR codes. 
    * The advantage is that it will not show up in the recipients gallery. This function automatiicaly converts images to the required webp format.
    * @param to: The recipient id.
-   * @param b64: This is the base64 string formatted with data URI. You can also send a plain base64 string but it may result in an error as the function will not be able to determine the filetype before sending.
+   * @param b64: This is the base64 string formatted as a data URI. 
    */
   public async sendImageAsSticker(to: ChatId, b64: DataURL){
     let processingResponse = await this.prepareWebp(b64);

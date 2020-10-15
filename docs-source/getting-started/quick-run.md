@@ -59,3 +59,53 @@ There are 3 param tags that can be used to set session data `-s`, `--session` or
 //or
 > npx @open-wa/wa-automate -p 8080 -k 'K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy' -s "eyJXQUJyb...ifQ=="
 ```
+
+## Running on a server
+
+If you're not running this on your localhost, you'll need to set the server hostname for the api-docs to work correctly.
+
+```bash
+> npx @open-wa/wa-automate -p 8080 --api-host 'https://my-wa-api.dev:8080'
+```
+
+## Webhooks
+
+You can also set a webhook address to send all requests to. I like using [webhook.site](https://webhook.site/) to check and test events.
+
+```bash
+> npx @open-wa/wa-automate -w 'https://webhook.site/7a00ac21-60f2-411e-a571-515b37b2025a'
+```
+
+Now if you go to:
+
+```http
+https://webhook.site/#!/7a00ac21-60f2-411e-a571-515b37b2025a
+```
+
+ you'll be able to see all the events come through.
+
+If you do use this link please make sure to clear all of your requests for your privacy.
+
+## API Docs
+
+By default, the CLI generates and serves a swagger api explorer at `[host]/api-docs/`
+
+For example:
+
+```bash
+> npx @open-wa/wa-automate -w 'https://webhook.site/7a00ac21-60f2-411e-a571-515b37b2025a' -p 8008
+```
+
+will server the api docs at
+
+```http
+http://localhost:8008/api-docs/
+```
+
+## Postman collection
+
+The CLI will also automatically generate a postman collection for your specific set up (including api keys, hostname, ports, etc.) which you can then easily import into postman.
+
+## Coming soon
+
+Soon SDKs for most programming lanugages will be created using the CLI as a base 'server'. Check this issue for updates: [#894](https://github.com/open-wa/wa-automate-nodejs/issues/894)

@@ -12,7 +12,7 @@ Since this is not an officially sanctioned solution it is temperamental to say t
 8. Use a unique and valid custom user-agent
 9. ```await``` all @open-wa/wa-automate methods just in case
 10. Do not run your s@open-wa/wa-automate instance on a Windows machine.
-11. Always [kill the session safely](https://github.com/open-wa/wa-automate-nodejs#kill-the-session) upon error or SIGINT.
+11. Always [kill the session safely](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#kill) upon error or SIGINT.
 12. Regularly restart your process to manage memory consumption
 13. If memory leaks continue to be an issue then use `cacheEnabled:false` in the config to disable the cache on the page.
 
