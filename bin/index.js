@@ -72,7 +72,7 @@ ${configParamText}
 		},
 		config: {
 			type: 'string',
-			alias: 'w'
+			alias: 'c'
 		},
 		session: {
 			type: 'string',
