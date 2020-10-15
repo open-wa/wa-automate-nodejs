@@ -21,27 +21,43 @@ ON_DEATH(async function(signal, err) {
   if(globalClient)await globalClient.kill();
 })
 
-
+/**
+ * Detect the qr code
+ */
 ev.on('qr.**', async (qrcode,sessionId) => {
-  // console.log("TCL: qrcode", qrcode)
-  //     console.log("TCL: qrcode,sessioId", qrcode,sessionId)
   //base64 encoded qr code image
   const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
   fs.writeFileSync(`qr_code${sessionId?'_'+sessionId:''}.png`, imageBuffer);
 });
 
+/**
+ * Detect when a session has been started successfully
+ */
+ev.on('STARTUP.**', async (data,sessionId) => {
+  if(data==='SUCCESS') console.log(`${sessionId} started!`)
+})
+
+/**
+ * Detect all events
+ */
 ev.on('**', async (data,sessionId,namespace) => {
   console.log("\n----------")
   console.log('EV',data,sessionId,namespace)
   console.log("----------")
 })
 
+/**
+ * Detect the session data object
+ */
 ev.on('sessionData.**', async (sessionData, sessionId) =>{
   console.log("\n----------")
   console.log('sessionData',sessionId, sessionData)
   console.log("----------")
 })
 
+/**
+ * Detect the session data object encoded as a base64string
+ */
 ev.on('sessionDataBase64.**', async (sessionData, sessionId) =>{
   console.log("\n----------")
   console.log('sessionData',sessionId, sessionData)
