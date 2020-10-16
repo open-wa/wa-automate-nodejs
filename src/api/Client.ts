@@ -34,6 +34,7 @@ export enum namespace {
 export enum SimpleListener {
   Message = 'onMessage',
   AnyMessage = 'onAnyMessage',
+  MessageDeleted = 'onMessageDeleted',
   Ack = 'onAck',
   AddedToGroup = 'onAddedToGroup',
   Battery = 'onBattery',
@@ -427,6 +428,18 @@ export class Client {
    */
   public async onAnyMessage(fn: (message: Message) => void) {
     return this.registerListener(SimpleListener.AnyMessage, fn);
+  }
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * 
+   * Listens to when a message is deleted by a recipient or the host account
+
+   * @event 
+   * @param fn callback
+   * @fires Message
+   */
+  public async onMessageDeleted(fn: (message: Message) => void) {
+    return this.registerListener(SimpleListener.MessageDeleted, fn);
   }
 
   /** 
