@@ -21,8 +21,8 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
   }
   await waPage.setUserAgent(customUserAgent||useragent);
   await waPage.setViewport({
-    width: config?.window?.width || width,
-    height: config?.window?.height || height,
+    width: config?.viewport?.width || width,
+    height: config?.viewport?.height || height,
     deviceScaleFactor: 1
   });
   const cacheEnabled = config?.cacheEnabled === false ? false : true;
