@@ -424,7 +424,7 @@ export class Client {
    * 
    * @event 
    * @param to callback
-   * @fires Message 
+   * @fires [[Message]] 
    */
   public async onAnyMessage(fn: (message: Message) => void) {
     return this.registerListener(SimpleListener.AnyMessage, fn);
@@ -436,7 +436,7 @@ export class Client {
 
    * @event 
    * @param fn callback
-   * @fires Message
+   * @fires [[Message]]
    */
   public async onMessageDeleted(fn: (message: Message) => void) {
     return this.registerListener(SimpleListener.MessageDeleted, fn);

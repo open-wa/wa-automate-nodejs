@@ -91,7 +91,15 @@ export enum STATE {
     /**
      * This state is fired when the QR code has not been scanned for a long time (about 1 minute). On the page it will show "Click to reload QR code"
      */
-    UNPAIRED_IDLE = 'UNPAIRED_IDLE'
+    UNPAIRED_IDLE = 'UNPAIRED_IDLE',
+    /**
+     * This is fired when the QR code is scanned 
+     */
+    SYNCING = 'SYNCING',
+    /**
+     * This is fired when the session is logged out. For some reason 'UNPAIRED' fails to trigger. This may be a temporary issue from WA.
+     */
+    DISCONNECTED = 'DISCONNECTED',
 };
 
 
