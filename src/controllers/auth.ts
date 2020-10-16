@@ -14,14 +14,18 @@ export const isAuthenticated = (waPage: puppeteer.Page) => merge(needsToScan(waP
 
 export const needsToScan = (waPage: puppeteer.Page) => {
   return from(new Promise(async resolve => {
-    const s = await waPage.waitForFunction(`window.localStorage['old-logout-cred']=='null'`,
-    { timeout: 0, polling: 100 });
-    //unpair if logged out
-     await waPage.evaluate(`((()=>{
+    const ident = () => waPage.evaluate(`((()=>{
       if(window.localStorage['old-logout-cred']==='null'){
       if(window.Store && window.Store.State) {window.Store.State.default.state="UNPAIRED";window.Store.State.default.run();} return true;
       } return false;
       })());`)
+    await Promise.race([
+      waPage.waitForFunction(`window.localStorage['old-logout-cred']=='null'`,
+      { timeout: 0, polling: 100 }),
+      ident()
+    ])
+    //unpair if logged out
+     await ident();
     //insideqr section
     await waPage
       .waitForSelector('body > div > div > .landing-wrapper', {
