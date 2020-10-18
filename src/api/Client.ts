@@ -1142,12 +1142,12 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     if (n) {
       const r = `https://i.giphy.com/${n[1]}.mp4`;
       const filename = `${n[1]}.mp4`
-      const base64 = await getDUrl(r);
+      const dUrl = await getDUrl(r);
       return await this.pup(
         ({ to, base64, filename, caption }) => {
-          WAPI.sendVideoAsGif(base64, to, filename, caption);
+          WAPI.sendVideoAsGif(dUrl, to, filename, caption);
         },
-        { to, base64, filename, caption }
+        { to, dUrl, filename, caption }
       ) as Promise<MessageId>;
     } else {
       console.log('something is wrong with this giphy link');
@@ -1257,16 +1257,16 @@ public async iAmAdmin(){
    */
   public async sendImageWithProduct(
     to: ChatId,
-    base64: Base64,
+    image: Base64,
     caption: Content,
     bizNumber: ContactId,
     productId: string
   ) {
     return await this.pup(
-      ({ to, base64, bizNumber, caption, productId }) => {
-        WAPI.sendImageWithProduct(base64, to, caption, bizNumber, productId);
+      ({ to, image, bizNumber, caption, productId }) => {
+        WAPI.sendImageWithProduct(image, to, caption, bizNumber, productId);
       },
-      { to, base64, bizNumber, caption, productId }
+      { to, image, bizNumber, caption, productId }
     );
   }
 
@@ -1999,9 +1999,9 @@ public async getStatus(contactId: ContactId) {
  * @param imgData 'data:image/jpeg;base64,...` The base 64 data url. Make sure this is a small img (128x128), otherwise it will fail.
  * @returns boolean true if it was set, false if it didn't work. It usually doesn't work if the image file is too big.
  */
-  public async setGroupIcon(groupId: GroupChatId, b64: Base64) {
-    const buff = Buffer.from(b64.replace(/^data:image\/(png|gif|jpeg);base64,/,''), 'base64');
-    const mimeInfo = base64MimeType(b64);
+  public async setGroupIcon(groupId: GroupChatId, image: DataURL) {
+    const buff = Buffer.from(image.replace(/^data:image\/(png|gif|jpeg);base64,/,''), 'base64');
+    const mimeInfo = base64MimeType(image);
     console.log("setGroupIcon -> mimeInfo", mimeInfo)
     if(!mimeInfo || mimeInfo.includes("image")){
       //no matter what, convert to jpeg, resize + autoscale to width 48 px
@@ -2010,7 +2010,6 @@ public async getStatus(contactId: ContactId) {
       .toBuffer();
       const jpeg = sharp(scaledImageBuffer,{ failOnError: false }).jpeg();
       const imgData = `data:jpeg;base64,${(await jpeg.toBuffer()).toString('base64')}`;
-      console.log("setGroupIcon -> imgData", imgData)
       return await this.pup(
         ({ groupId, imgData }) => WAPI.setGroupIcon(groupId, imgData),
         { groupId, imgData }
@@ -2212,8 +2211,8 @@ public async getStatus(contactId: ContactId) {
    * @returns Promise<MessageId | boolean>
    */
   public async sendStickerfromUrlAsReply(to: ChatId, url: string, messageId: MessageId, requestConfig: any = {}) {
-    const b64 = await getDUrl(url, requestConfig);
-    let processingResponse = await this.prepareWebp(b64);
+    const dUrl = await getDUrl(url, requestConfig);
+    let processingResponse = await this.prepareWebp(dUrl);
     if(!processingResponse) return false;
     let {webpBase64, metadata} = processingResponse;
       return await this.pup(
@@ -2230,11 +2229,11 @@ public async getStatus(contactId: ContactId) {
    * 
    * 
    * @param to  The recipient id.
-   * @param b64  This is the base64 string formatted with data URI. You can also send a plain base64 string but it may result in an error as the function will not be able to determine the filetype before sending.
+   * @param image  This is the base64 string formatted with data URI. You can also send a plain base64 string but it may result in an error as the function will not be able to determine the filetype before sending.
    * @param messageId  The id of the message to reply to
    */
-  public async sendImageAsStickerAsReply(to: ChatId, b64: DataURL, messageId: MessageId){
-    let processingResponse = await this.prepareWebp(b64);
+  public async sendImageAsStickerAsReply(to: ChatId, image: DataURL, messageId: MessageId){
+    let processingResponse = await this.prepareWebp(image);
     if(!processingResponse) return false;
     let {webpBase64, metadata} = processingResponse;
       return await this.pup(
@@ -2263,11 +2262,11 @@ public async getStatus(contactId: ContactId) {
     );
   }
 
-  private async prepareWebp(b64: DataURL) {
-    const buff = Buffer.from(b64.replace(/^data:image\/(png|gif|jpeg|webp);base64,/,''), 'base64');
-    const mimeInfo = base64MimeType(b64);
+  private async prepareWebp(image: DataURL) {
+    const buff = Buffer.from(image.replace(/^data:image\/(png|gif|jpeg|webp);base64,/,''), 'base64');
+    const mimeInfo = base64MimeType(image);
     if(!mimeInfo || mimeInfo.includes("image")){
-      let webpBase64 = b64;
+      let webpBase64 = image;
       let metadata : any = { width: 512, height: 512 };
       if(!mimeInfo.includes('webp')) {
         const { pages } = await sharp(buff).metadata();
@@ -2292,10 +2291,10 @@ public async getStatus(contactId: ContactId) {
    * This function takes an image (including animated GIF) and sends it as a sticker to the recipient. This is helpful for sending semi-ephemeral things like QR codes. 
    * The advantage is that it will not show up in the recipients gallery. This function automatiicaly converts images to the required webp format.
    * @param to: The recipient id.
-   * @param b64: This is the base64 string formatted as a data URI. 
+   * @param image: This is the base64 string formatted as a data URI. 
    */
-  public async sendImageAsSticker(to: ChatId, b64: DataURL){
-    let processingResponse = await this.prepareWebp(b64);
+  public async sendImageAsSticker(to: ChatId, image: DataURL){
+    let processingResponse = await this.prepareWebp(image);
     if(!processingResponse) return false;
     let {webpBase64, metadata} = processingResponse;
       return await this.pup(
