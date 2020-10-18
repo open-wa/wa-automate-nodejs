@@ -3,7 +3,7 @@ import * as qrcode from 'qrcode-terminal';
 import { merge, from } from 'rxjs';
 import { take } from 'rxjs/internal/operators/take';
 import {EvEmitter, ev} from './events'
-import { QRFormat, QRQuality } from '../api/model';
+import { ConfigObject, QRFormat, QRQuality } from '../api/model';
 
 /**
  * Validates if client is authenticated
@@ -11,27 +11,21 @@ import { QRFormat, QRQuality } from '../api/model';
  * @param waPage
  */
 export const isAuthenticated = (waPage: puppeteer.Page) => merge(needsToScan(waPage), isInsideChat(waPage)).pipe(take(1)).toPromise()
-
 export const needsToScan = (waPage: puppeteer.Page) => {
   return from(new Promise(async resolve => {
-    const ident = () => waPage.evaluate(`((()=>{
-      if(window.localStorage['old-logout-cred']==='null'){
-      if(window.Store && window.Store.State) {window.Store.State.default.state="UNPAIRED";window.Store.State.default.run();} return true;
-      } return false;
-      })());`)
+    try {
     await Promise.race([
-      waPage.waitForFunction(`window.localStorage['old-logout-cred']=='null'`,
-      { timeout: 0, polling: 100 }),
-      ident()
-    ])
-    //unpair if logged out
-     await ident();
-    //insideqr section
-    await waPage
-      .waitForSelector('body > div > div > .landing-wrapper', {
-        timeout: 0
-      })
+      waPage.waitForFunction('checkQrRefresh()',{ timeout: 0, polling: 1000 }).catch(()=>{}),
+      await waPage
+        .waitForSelector('body > div > div > .landing-wrapper', {
+          timeout: 0
+        })
+    ]).catch(()=>{})
+    await waPage.waitForSelector("canvas[aria-label='Scan me!']", { timeout: 0 }).catch(()=>{})
       resolve(false)
+    } catch (error) {
+      
+    }
   }))
 };
 
@@ -54,42 +48,36 @@ export const phoneIsOutOfReach = async (waPage: puppeteer.Page) => {
     );
 };
 
-    //@ts-ignore
-const checkIfCanAutoRefresh = (waPage: puppeteer.Page) => waPage.evaluate(() => {if(window.Store && window.Store.State) {window.Store.State.default.state="UNPAIRED";window.Store.State.default.run();return true;} else {return false;}})
-
-export async function retrieveQR(waPage: puppeteer.Page, sessionId?:string, autoRefresh:boolean=false,throwErrorOnTosBlock:boolean=false, qrLogSkip: boolean = false, format: QRFormat = QRFormat.PNG, quality: QRQuality = QRQuality.TEN) {
-  
-  let keepTrying = true
-  
-  ev.on('AUTH.**', (isAuthenticated, sessionId) => (keepTrying = false));
-  
-  const qrEv = new EvEmitter(sessionId,'qr');
-
-  if (autoRefresh) {
-    const evalResult = await checkIfCanAutoRefresh(waPage)
+export async function smartQr(waPage: puppeteer.Page, config?: ConfigObject) {
+    const evalResult = await waPage.evaluate("window.Store && window.Store.State")
     if (evalResult === false) {
       console.log('Seems as though you have been TOS_BLOCKed, unable to refresh QR Code. Please see https://github.com/open-wa/wa-automate-nodejs#best-practice for information on how to prevent this from happeing. You will most likely not get a QR Code');
-      if (throwErrorOnTosBlock) throw new Error('TOSBLOCK');
+      if (config.throwErrorOnTosBlock) throw new Error('TOSBLOCK');
     }
-  }
-  let targetElementFound;
-  while (!targetElementFound && keepTrying) {
-    try {
-      targetElementFound = await waPage.waitForSelector( "canvas[aria-label='Scan me!']",{
-        timeout: 10000,
-        visible: true,
-        });
-    } catch(error) {}
-  }
 
-  if (!keepTrying) return true;
-
-  let qrData;
-  while(!qrData){
-    qrData = await waPage.evaluate(`document.querySelector("canvas[aria-label='Scan me!']")?document.querySelector("canvas[aria-label='Scan me!']").parentElement.getAttribute("data-ref"):false`);
+  const isAuthed = await isAuthenticated(waPage);
+  if(isAuthed) return true;
+  const grabAndEmit = async (qrData) => {
+    const qrCode = await waPage.evaluate(`getQrPng()`);
+    qrEv.emit(qrCode);
+    if(!config.qrLogSkip) qrcode.generate(qrData,{small: true});
   }
-  const qrCode = await waPage.evaluate(`document.querySelector("canvas[aria-label='Scan me!']").toDataURL('image/${format}', ${quality})`);
-  qrEv.emit(qrCode);
-  if(!qrLogSkip) qrcode.generate(qrData,{small: true});
-  return true;
+  const qrEv = new EvEmitter(config.sessionId,'qr');
+  
+  return new Promise(async (resolve,reject) => {
+    const funcName = '_smartQr';
+    const fn = async (qrData) => {
+      if(qrData==='QR_CODE_SUCCESS') return resolve(await isInsideChat(waPage).toPromise())
+      grabAndEmit(qrData)
+    }
+    const set = () => waPage.evaluate(({funcName}) => {
+      //@ts-ignore
+      return window['smartQr'] ? window[`smartQr`](obj => window[funcName](obj)) : false
+    },{funcName});
+    await waPage.exposeFunction(funcName, (obj: any) =>fn(obj)).then(set).catch(e=>{
+      console.log("set -> e", e)
+    })
+    const firstQr = await waPage.evaluate(`document.querySelector("canvas[aria-label='Scan me!']")?document.querySelector("canvas[aria-label='Scan me!']").parentElement.getAttribute("data-ref"):false`);
+    await grabAndEmit(firstQr);
+  })
 }

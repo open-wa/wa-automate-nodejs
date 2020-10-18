@@ -11,7 +11,7 @@ timeout = ms => {
 import { Client } from '../api/Client';
 import { ConfigObject } from '../api/model/index';
 import * as path from 'path';
-import { isInsideChat, retrieveQR, phoneIsOutOfReach, isAuthenticated } from './auth';
+import { phoneIsOutOfReach, isAuthenticated, smartQr } from './auth';
 import { initClient, injectApi } from './browser';
 import { Spin, ev } from './events'
 import { integrityCheck, checkWAPIHash } from './launch_checks';
@@ -21,9 +21,8 @@ import { popup } from './popup';
 import { getConfigFromProcessEnv } from '../utils/tools';
 import { SessionInfo } from '../api/model/sessionInfo';
 /** @ignore */
-let shouldLoop = true,
-qrDelayTimeout,
-axios;
+// let shouldLoop = true,
+let axios;
 
 /**
  * Should be called to initialize whatsapp client.
@@ -109,9 +108,6 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
   if (!sessionId) sessionId = 'session';
   const spinner = new Spin(sessionId, 'STARTUP', config?.disableSpins);
   try {
-    qrDelayTimeout = undefined;
-    shouldLoop = true;
-    ev.on('AUTH.**', (isAuthenticated, sessionId) => shouldLoop = false);
     spinner.start('Initializing WA');
     waPage = await initClient(sessionId, config, customUserAgent);
     spinner.succeed('Browser Launched');
@@ -155,22 +151,9 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       const outOfReach = await phoneIsOutOfReach(waPage);
       spinner.emit(outOfReach ? 'appOffline' : 'authTimeout');
       spinner.fail(outOfReach ? 'Authentication timed out. Please open the app on the phone. Shutting down' : 'Authentication timed out. Shutting down. Consider increasing authTimeout config variable: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#authtimeout');
-      await kill(waPage);
+      // await kill(waPage);
       throw new Error(outOfReach ? 'App Offline' : 'Auth Timeout. Consider increasing authTimeout config variable: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#authtimeout');
     }
-
-    let autoRefresh = config ? config.autoRefresh : false;
-    let qrLogSkip = config ? config.qrLogSkip : false;
-
-    const qrLoop = async () => {
-      if (!shouldLoop) return;
-      console.log(' ')
-      await retrieveQR(waPage, sessionId, autoRefresh, throwOnError, qrLogSkip, config?.qrFormat, config?.qrQuality);
-      console.log(' ')
-      qrDelayTimeout = timeout((config ? (config.qrRefreshS || 10) : 10) * 1000);
-      await qrDelayTimeout;
-      if (autoRefresh) qrLoop();
-    };
 
     if (authenticated) {
       spinner.succeed('Authenticated');
@@ -298,13 +281,13 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
  * @internal
  */
 const kill = async (p) => {
-  shouldLoop = false;
-  if (qrDelayTimeout) clearTimeout(qrDelayTimeout);
   if (p) {
-    const browser = await p.browser();
-    const pid = browser.process() ? browser?.process().pid : null;
-    if (!p.isClosed()) await p.close();
-    if (browser) await browser.close();
+    const browser = await p?.browser();
+    if(!browser) return;
+    const pid = browser?.process() ? browser?.process().pid : null;
+    if(!pid) return;
+    if (!p?.isClosed()) await p.close();
+    if (browser) await browser.close().catch(()=>{});
     if(pid) treekill(pid, 'SIGKILL')
   }
 }
