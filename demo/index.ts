@@ -224,18 +224,18 @@ create({
   restartOnCrash: start,
   headless:false,
   throwErrorOnTosBlock:true,
-  qrTimeout:40,
-  authTimeout:40,
+  qrTimeout:0,   //set to 0 to wait forever for a qr scan
+  authTimeout:0, //set to 0 to wait forever for connection to phone
   killProcessOnBrowserClose: true,
   autoRefresh:true, //default to true
-  qrRefreshS:15, //please note that if this is too long then your qr code scan may end up being invalid. Generally qr codes expire every 15 seconds.
   safeMode: true,
   disableSpins: true,
   hostNotificationLang: NotificationLanguage.PTBR,
   viewport: {
     // width: 1920,
     height: 1200
-  }
+  },
+  popup: 3000
   // cacheEnabled:false,
   // devtools:true,
   //OR
