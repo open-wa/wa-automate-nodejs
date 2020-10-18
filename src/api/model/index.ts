@@ -97,7 +97,7 @@ export enum STATE {
      */
     SYNCING = 'SYNCING',
     /**
-     * This is fired when the session is logged out. For some reason 'UNPAIRED' fails to trigger. This may be a temporary issue from WA.
+     * This is fired when the connection between web and the host account primary device is disconnected. This is fired frequently to save battery.
      */
     DISCONNECTED = 'DISCONNECTED',
 };
