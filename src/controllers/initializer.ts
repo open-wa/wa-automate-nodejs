@@ -45,18 +45,12 @@ axios;
  */
 //export async function create(sessionId?: string, config?:ConfigObject, customUserAgent?:string) {
 //@ts-ignore
-export async function create(_sessionId?: string | ConfigObject, config?: ConfigObject, customUserAgent?: string): Promise<Client> {
+export async function create(config: ConfigObject = {}): Promise<Client> {
   const START_TIME = Date.now();
   let waPage = undefined;
   let notifier;
   let sessionId : string = '';
-  if (typeof _sessionId === 'object' && (_sessionId as ConfigObject)) {
-    config = _sessionId;
-  } else if(typeof _sessionId === 'string') {
-    sessionId = _sessionId;
-  } else if(!_sessionId) {
-    config = {}
-  }
+  let customUserAgent;
 
   if(!config?.skipUpdateCheck || config?.keepUpdated) {
     notifier = await updateNotifier({
@@ -240,7 +234,7 @@ export async function create(_sessionId?: string | ConfigObject, config?: Config
       if (config?.restartOnCrash) waPage.on('error', async error => {
         console.error('Page Crashed! Restarting...', error);
         await kill(waPage);
-        await create(sessionId, config, customUserAgent).then(config.restartOnCrash);
+        await create(config).then(config.restartOnCrash);
       });
       const pureWAPI = await checkWAPIHash();
       if(!pureWAPI) {
@@ -297,7 +291,7 @@ export async function create(_sessionId?: string | ConfigObject, config?: Config
     else {
       spinner.fail('The session is invalid. Retrying')
       await kill(waPage)
-      return await create(sessionId, config, customUserAgent);
+      return await create(config);
     }
   } catch (error) {
     spinner.emit(error.message);
