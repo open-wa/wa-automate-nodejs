@@ -176,10 +176,6 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       spinner.succeed('Authenticated');
     } else {
       spinner.info('Authenticate to continue');
-      const qrSpin = new Spin(sessionId, 'QR');
-      qrSpin.start('Loading QR');
-      qrSpin.succeed();
-      qrLoop();
       const race = [];
       race.push(smartQr(waPage, config))
       if (!config?.qrTimeout && config?.qrTimeout!==0) {
@@ -192,9 +188,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
         await kill(waPage);
         throw new Error('QR Timeout');
       }
-      qrSpin.emit('successfulScan');
-      shouldLoop = false;
-      clearTimeout(qrDelayTimeout);
+      spinner.emit('successfulScan');
       spinner.succeed();
     }
     const pre = canInjectEarly ? 'Rei' : 'I';
