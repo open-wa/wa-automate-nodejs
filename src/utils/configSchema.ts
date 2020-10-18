@@ -22,9 +22,11 @@ export const getConfigWithCase = (config ?: {
         'executablePath',
         'skipBrokenMethodsCheck',
         'inDocker',
+        'autoRefresh',
         'bypassCSP',
         'throwErrorOnTosBlock',
-        'killProcessOnBrowserClose'
+        'killProcessOnBrowserClose',
+        'qrRefreshS'
     ]
     //only convert simple types
     // const configs = Object.keys(schema.definitions.ConfigObject.properties).map(key=>({...schema.definitions.ConfigObject.properties[key],key})).filter(({type,key})=>type&&!ignoredConfigs.includes(key));
