@@ -108,6 +108,15 @@ export async function injectApi(page: Page) {
   await page.addScriptTag({
     path: require.resolve(path.join(__dirname, '../lib', 'base64.js'))
   });
+  await page.addScriptTag({
+    path: require.resolve(path.join(__dirname, '../lib', 'qr.min.js'))
+  });
+  await page.addScriptTag({
+    path: require.resolve(path.join(__dirname, '../lib', 'hash.js'))
+  });
+  await page.addScriptTag({
+    path: require.resolve(path.join(__dirname, '../lib', 'launch.js'))
+  });
   return page;
 }
 
