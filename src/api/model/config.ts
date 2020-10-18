@@ -200,11 +200,19 @@ export interface ConfigObject {
      */
     headless ?: boolean,
     /**
+     * @deprecated
+     * 
+     * THIS IS LOCKED TO `true` AND CANNOT BE TURNED OFF. PLEASE SEE [[authTimeout]]
+     * 
      * Setting this to true will result in new QR codes being generated if the end user takes too long to scan the QR code.
-     * @default false
+     * @default `true`
      */
     autoRefresh ?: boolean,
     /**
+     * @deprecated
+     * 
+     * This now has no effect
+     * 
      * This determines the interval at which to refresh the QR code. By default, WA updates the qr code every 18-19 seconds so make sure this value is set to UNDER 18 seconds!!
      */
     qrRefreshS ?: number,
@@ -303,8 +311,6 @@ export interface ConfigObject {
      * corsFix         ==>     WA_CORS_FIX
      * cacheEnabled    ==>     WA_CACHE_ENABLED
      * headless        ==>     WA_HEADLESS
-     * autoRefresh     ==>     WA_AUTO_REFRESH
-     * qrRefreshS      ==>     WA_QR_REFRESH_S
      * qrTimeout       ==>     WA_QR_TIMEOUT
      * useChrome       ==>     WA_USE_CHROME
      * qrLogSkip       ==>     WA_QR_LOG_SKIP
