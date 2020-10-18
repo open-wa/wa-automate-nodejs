@@ -366,6 +366,11 @@ export interface ConfigObject {
      */
     legacy ?: boolean;
     /**
+     * Deletes the session data file (if found) on logout event. This results in a quickler login when you restart the process.
+     * @default `true`
+     */
+    deleteSessionDataOnLogout ?: boolean;
+    /**
      * Setting this to true will bypass web security. DO NOT DO THIS IF YOU DO NOT HAVE TO. CORS issue may arise when using a proxy.
      * @default `false`
      */

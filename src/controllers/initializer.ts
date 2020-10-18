@@ -265,6 +265,14 @@ export async function create(_sessionId?: string | ConfigObject, config?: Config
         spinner.succeed('Patches Installed')
       }
       const client = new Client(waPage, config, debugInfo);
+      if(config?.deleteSessionDataOnLogout!==false) {
+        client.onStateChanged(state=> {
+          if(state==='UNPAIRED') {
+  const sessionjsonpath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(process.cwd(),config?.sessionDataPath || '')) : path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
+            if(fs.existsSync(sessionjsonpath)) fs.unlinkSync(sessionjsonpath) 
+          }
+        })
+      }
       const { me } = await client.getMe();
       if (config?.licenseKey) {
         if(!axios) axios = await import('axios');
