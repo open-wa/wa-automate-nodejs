@@ -217,7 +217,8 @@ export interface ConfigObject {
      */
     qrRefreshS ?: number,
     /**
-     * This determines how long the process should wait for a QR code to be scanned before killing the process entirely.
+     * This determines how long the process should wait for a QR code to be scanned before killing the process entirely. To have the system wait continuously, set this to `0`.
+     * @default 60
      */
     qrTimeout ?: number,
     /**
@@ -267,7 +268,8 @@ export interface ConfigObject {
      */
     logConsoleErrors ?: boolean,
     /**
-    *This determines how long the process should wait for the session authentication. If exceeded, checks if phone is out of reach (turned of or without internet connection) and throws an error.
+    * This determines how long the process should wait for the session authentication. If exceeded, checks if phone is out of reach (turned of or without internet connection) and throws an error. It does not relate to the amount of time spent waiting for a qr code scan (see [[qrTimeout]]). To have the system wait continuously, set this to `0`.
+    * @default `60`
     */
     authTimeout?: number;
     /**
