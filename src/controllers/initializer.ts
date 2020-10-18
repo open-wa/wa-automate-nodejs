@@ -144,9 +144,9 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
 
     spinner.start('Authenticating');
     const authRace = [];
-    authRace.push(isAuthenticated(waPage))
-    if (config?.authTimeout) {
-      authRace.push(timeout(config.authTimeout * 1000))
+    authRace.push(isAuthenticated(waPage).catch(e=>{}))
+    if (!config?.authTimeout && config?.authTimeout!==0) {
+      authRace.push(timeout((config.authTimeout || 60) * 1000))
     }
 
     const authenticated = await Promise.race(authRace);
@@ -181,9 +181,9 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       qrSpin.succeed();
       qrLoop();
       const race = [];
-      race.push(isInsideChat(waPage).toPromise());
-      if (config?.qrTimeout) {
-        race.push(timeout(config.qrTimeout * 1000))
+      race.push(smartQr(waPage, config))
+      if (!config?.qrTimeout && config?.qrTimeout!==0) {
+        race.push(timeout((config?.qrTimeout || 60) * 1000))
       }
       const result = await Promise.race(race);
       if (result == 'timeout') {
