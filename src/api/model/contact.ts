@@ -2,7 +2,7 @@ import { Id } from './id';
 
 export interface Contact {
   formattedName: string;
-  id: Id;
+  id: Id | string;
   isBusiness: boolean;
   isEnterprise: boolean;
   isHighLevelVerified: any;
