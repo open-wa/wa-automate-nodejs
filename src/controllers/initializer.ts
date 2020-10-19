@@ -151,7 +151,8 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       const outOfReach = await phoneIsOutOfReach(waPage);
       spinner.emit(outOfReach ? 'appOffline' : 'authTimeout');
       spinner.fail(outOfReach ? 'Authentication timed out. Please open the app on the phone. Shutting down' : 'Authentication timed out. Shutting down. Consider increasing authTimeout config variable: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#authtimeout');
-      // await kill(waPage);
+      await kill(waPage);
+      if(config?.killProcessOnTimeout) process.exit()
       throw new Error(outOfReach ? 'App Offline' : 'Auth Timeout. Consider increasing authTimeout config variable: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#authtimeout');
     }
 
@@ -169,6 +170,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
         spinner.emit('qrTimeout');
         spinner.fail('QR scan took too long. Session Timed Out. Shutting down. Consider increasing qrTimeout config variable: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#qrtimeout');
         await kill(waPage);
+        if(config?.killProcessOnTimeout) process.exit()
         throw new Error('QR Timeout');
       }
       spinner.emit('successfulScan');
