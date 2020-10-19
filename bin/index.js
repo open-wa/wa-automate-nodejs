@@ -9,7 +9,7 @@ const uuidAPIKey = require('uuid-apikey');
 const p2s = require('postman-2-swagger');
 const swaggerUi = require('swagger-ui-express');
 const terminalLink = require('terminal-link');
-
+const tcpPortUsed = require('tcp-port-used');
 const extraFlags = {};
 const configWithCases = require('./config-schema.json');
 
@@ -226,6 +226,13 @@ create({ ...config })
 			}
 			
 			app.use(client.middleware((c && c.useSessionIdInPath)));
+			if(process.send){
+				process.send('ready');
+				process.send('ready');
+				process.send('ready');
+			}
+			await tcpPortUsed.waitUntilFree(PORT, 200, 20000)
+			console.log(`Port ${PORT} is now free.`);
 			app.listen(PORT, () => {
 				console.log(`\n• Listening on port ${PORT}!`);
 				if(process.send){

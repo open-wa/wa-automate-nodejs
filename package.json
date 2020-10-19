@@ -121,6 +121,7 @@
     "socket.io": "^2.3.0",
     "spinnies": "^0.5.1",
     "swagger-ui-express": "^4.1.4",
+    "tcp-port-used": "^1.0.1",
     "terminal-link": "^2.1.1",
     "tree-kill": "^1.2.2",
     "ts-json-schema-generator": "^0.76.1",
