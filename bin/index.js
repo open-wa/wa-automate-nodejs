@@ -14,7 +14,9 @@ const extraFlags = {};
 const configWithCases = require('./config-schema.json');
 
 configWithCases.map(({ type, key }) => {
-	if (key === "popup") type = "number"; extraFlags[key] = {
+	if (key === "popup") type = "number";
+	if (key === "viewport") return;
+	extraFlags[key] = {
 		type
 	}
 });
