@@ -305,6 +305,8 @@ export interface ConfigObject {
      * This needs to be used in conjuction with `popup`, if `popup` is not true or a number (representing a desired port) then this will not work.
      * 
      * Setting this to true will make sure that only the qr code png is served via the web server. This is useful if you do not need the whole status page.
+     * 
+     * As mentioned in [popup](#popup), the url for the qr code is `http://localhost:3000/qr` if the port is 3000.
      */
     qrPopUpOnly ?: boolean
     /**
