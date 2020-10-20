@@ -98,7 +98,6 @@
     "express": "^4.17.1",
     "get-port": "^5.1.1",
     "hasha": "^5.2.0",
-    "http-terminator": "^2.0.3",
     "image-type": "^4.1.0",
     "is-url": "^1.2.4",
     "lodash.uniq": "^4.5.0",

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>open-wa</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -7,70 +8,71 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 
   <style>
-    body
-      { color: #1a2c37;
-        font-family: 'Helvetica', sans-serif; font-size: 86%;
-        padding: 2em; }
-    .info
-      { font-size: 120%;
-        font-weight: bold; }
-    .log
-      { border: 1px solid #ccc;
-        height: 300px;
-        padding: 0.5em;
-        overflow: hidden;
-        position: relative;
-        overflow-y: scroll;
-        height: 400px;
-        min-width: 400px;
-        margin: auto;
-        margin-left: 16px;
-        max-width: 50%;
-        width: 50%;
+    body {
+      color: #1a2c37;
+      font-family: 'Helvetica', sans-serif;
+      font-size: 86%;
+      padding: 2em;
     }
 
-    .qr{
-    width: 400px;
-    height: 400px;
-    margin: auto;
+    .info {
+      font-size: 120%;
+      font-weight: bold;
     }
 
-    .eventwrap{
+    .log {
+      border: 1px solid #ccc;
+      height: 300px;
+      padding: 0.5em;
+      overflow: hidden;
+      position: relative;
+      overflow-y: scroll;
+      height: 400px;
+      min-width: 400px;
+      margin: auto;
+      margin-left: 16px;
+      max-width: 50%;
+      width: 50%;
+    }
+
+    .qr {
+      width: 400px;
+      height: 400px;
+      margin: auto;
+    }
+
+    .eventwrap {
       display: flex;
       flex-direction: row;
     }
   </style>
 
 </head>
-<body>
-<div id="wrap">
 
-</div>
+<body>
+  <div id="wrap">
+
+  </div>
 
   <script>
 
-  var Application = function() {
-    var sessions = [];
-    function c(){
-    var n=$('.c').attr('id');
-    var c=n;
-    $('.c').text(c);
-    setInterval(function(){
-        c--;
-        if(c>=0){
+    var Application = function () {
+      var sessions = [];
+      function c() {
+        var n = $('.c').attr('id');
+        var c = n;
+        $('.c').text(c);
+        setInterval(function () {
+          c--;
+          if (c >= 0) {
             $('.c').text(c);
-        }
-    },1000);
-}
+          }
+        }, 1000);
+      }
 
-
-    var socket = io.connect(window.location.origin);
-    socket.on('connect', function() {
-      console.log('Connected to:', socket);
-    });
-    socket.on('message', function(message) {
-      console.log('Received message:', message);
-      if(!sessions.includes(message.sessionId)){
+      function consume(message) {
+        console.log('Received message:', message);
+        if (!sessions.includes(message.sessionId)) {
           $('#wrap').append(`
     <div id=${message.sessionId}>
   <h1 class="info"></h1>
@@ -81,37 +83,54 @@
     </div>
           `);
           sessions.push(message.sessionId);
-        setInterval(()=>{
-          var element = document.getElementById(message.sessionId).children[1];
-          element.scrollTop = element.scrollHeight;
-          },1000);
-      };
+          setInterval(() => {
+            var element = document.getElementById(message.sessionId).children[1];
+            element.scrollTop = element.scrollHeight;
+          }, 1000);
+        };
 
-      if (message.sessionId) {
-        $(`#${message.sessionId} .info`).html( 'Session: ' + message.sessionId );
-      };
-      if(message.namespace==="qr"){
-        $(`#${message.sessionId} .qr`)[0].src = message.data
+        if (message.sessionId) {
+          $(`#${message.sessionId} .info`).html('Session: ' + message.sessionId);
+        };
+        if (message.namespace === "qr") {
+          $(`#${message.sessionId} .qr`)[0].src = message.data
+        }
+        if (message.namespace === "ready") {
+          const link = (message.data || location.href.substring(0, location.href.length - 1)) + "/api-docs/"
+          $(`#${message.sessionId} .log`).html(`${$(`#${message.sessionId} .log`).html()} API Explorer: <a href="${link}" target="_blank"   >${link}</a>\n You may need to refresh the page. and wait <span class="c" id="5"></span> seconds. <br><br><br><br>`);
+          // Start
+          c();
+        }
+        if (message.data) {
+          if (message.namespace !== "sessionDataBase64") $(`#${message.sessionId} .log`).html(`${$(`#${message.sessionId} .log`).html()} ${message.namespace} ${message.data} <br>`);
+        }
       }
-      if(message.namespace==="ready"){
-        const link = (message.data || location.href.substring(0, location.href.length - 1)) + "/api-docs/"
-        $(`#${message.sessionId} .log`).html(`${$(`#${message.sessionId} .log`).html()} API Explorer: <a href="${link}" target="_blank"   >${link}</a>\n You may need to refresh the page. and wait <span class="c" id="5"></span> seconds. <br><br><br><br>`);
-// Start
-c();
-      }
-      if (message.data) {
-        if(message.namespace!=="sessionDataBase64") $(`#${message.sessionId} .log`).html(`${$(`#${message.sessionId} .log`).html()} ${message.namespace} ${message.data} <br>`);
-      }
-    });
 
-    return {
-      socket : socket
+      var socket = io.connect(window.location.origin);
+      socket.on('connect', function () {
+        console.log('Connected to:', socket);
+      });
+
+      socket.on('disconnect', (reason) => {
+      sessions.map(sessionId => consume({
+        sessionId,
+        data: 'CLOSED',
+        namespace: 'CONNECTION'
+      }));
+      socket.close();
+      });
+
+      socket.on('message', consume);
+
+      return {
+        socket
+      };
     };
-  };
 
-  $(function() { var app = Application(); });
+    $(function () { var app = Application(); });
 
   </script>
 
 </body>
+
 </html>

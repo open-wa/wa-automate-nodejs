@@ -1,8 +1,5 @@
 /** @internal *//** */
 import { ev } from "../events";
-import {
-  createHttpTerminator,
-} from 'http-terminator';
 import { ConfigObject } from "../../api/model";
 
 var io,
@@ -12,6 +9,7 @@ var io,
     getPort = require('get-port'),
     url = require('url'),
     gClient,
+    serverSockets : any = {},
     PORT,
     server,
     currentQrCodes = {
@@ -54,7 +52,9 @@ export async function popup(config: ConfigObject) {
             currentQrCodes[sessionId] = data;
             currentQrCodes['latest'] = data;
         }
-        if(data?.includes && data?.includes("ready for account")) closeHttp();
+        if(data?.includes && data?.includes("ready for account")) {
+            await closeHttp();
+        }
     });
 
     /**
@@ -67,6 +67,14 @@ export async function popup(config: ConfigObject) {
     server = require('http').createServer(app);  
     io = require('socket.io')(server)
     server.listen(PORT);
+    server.on("connection", (conn: any) => {
+    var key = conn.remoteAddress + ':' + conn.remotePort;
+    serverSockets[key] = conn;
+        conn.on("close", () => {
+            delete serverSockets[key];
+        });
+    });
+
     if(!config?.inDocker) await open(`http://localhost:${PORT}`, { app: ['google chrome', '--incognito'], allowNonzeroExitCode: true}).catch(()=>{}); else return "NA";
     return await new Promise(resolve => {
         io.on('connection', function (client) {
@@ -78,8 +86,8 @@ export async function popup(config: ConfigObject) {
 
 export const closeHttp = async () => {
     if(!server) return;
-    const httpTerminator = createHttpTerminator({
-        server,
-      });
-      await httpTerminator.terminate();
+  for (var key in serverSockets) {
+    serverSockets[key].destroy();
+  }
+    return await new Promise(resolve => server.close(resolve))
 }
