@@ -238,7 +238,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
         spinner.succeed('Patches Installed')
       }
       const client = new Client(waPage, config, debugInfo);
-      if(config?.deleteSessionDataOnLogout!==false) {
+      if(config?.deleteSessionDataOnLogout) {
         client.onStateChanged(state=> {
           if(state==='UNPAIRED') {
   const sessionjsonpath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(process.cwd(),config?.sessionDataPath || '')) : path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
