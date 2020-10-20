@@ -2157,9 +2157,8 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
    * 
-   * Start dark mode
+   * Start dark mode [NOW GENERALLY AVAILABLE]
    * @param {boolean} activate true to activate dark mode, false to deactivate
   */
   public async darkMode(activate: boolean) {
