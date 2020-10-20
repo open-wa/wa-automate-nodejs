@@ -235,7 +235,8 @@ create({
     // width: 1920,
     height: 1200
   },
-  popup: 3000
+  popup: 3000,
+  defaultViewport: null,
   // cacheEnabled:false,
   // devtools:true,
   //OR

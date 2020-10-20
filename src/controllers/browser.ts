@@ -20,6 +20,7 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
     await waPage.authenticate(config.proxyServerCredentials);
   }
   await waPage.setUserAgent(customUserAgent||useragent);
+  if(config?.defaultViewport!==null)
   await waPage.setViewport({
     width: config?.viewport?.width || width,
     height: config?.viewport?.height || height,
