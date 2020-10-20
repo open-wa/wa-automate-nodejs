@@ -65,8 +65,9 @@ export async function popup(config: ConfigObject) {
     PORT = await getPort({ host: 'localhost', port: typeof preferredPort == 'number' ? [preferredPort, 7000, 7001, 7002] : [7000, 7001, 7002] });
 
     server = require('http').createServer(app);  
-    io = require('socket.io')(server)
-    server.listen(PORT);
+    if(!config?.qrPopUpOnly) {
+        io = require('socket.io')(server)
+    }
     server.on("connection", (conn: any) => {
     var key = conn.remoteAddress + ':' + conn.remotePort;
     serverSockets[key] = conn;
@@ -74,9 +75,9 @@ export async function popup(config: ConfigObject) {
             delete serverSockets[key];
         });
     });
-
-    if(!config?.inDocker) await open(`http://localhost:${PORT}`, { app: ['google chrome', '--incognito'], allowNonzeroExitCode: true}).catch(()=>{}); else return "NA";
-    return await new Promise(resolve => {
+    server.listen(PORT);
+    if(!config?.inDocker) await open(`http://localhost:${PORT}${config?.qrPopUpOnly?`/qr`:``}`, { app: ['google chrome', '--incognito'], allowNonzeroExitCode: true}).catch(()=>{}); else return "NA";
+    return config?.qrPopUpOnly ?  `http://localhost:${PORT}/qr` : await new Promise(resolve => {
         io.on('connection', function (client) {
             gClient = client;
             resolve(`http://localhost:${PORT}`);

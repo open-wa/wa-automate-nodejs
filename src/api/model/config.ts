@@ -302,6 +302,12 @@ export interface ConfigObject {
      */
     popup ?: boolean | number;
     /**
+     * This needs to be used in conjuction with `popup`, if `popup` is not true or a number (representing a desired port) then this will not work.
+     * 
+     * Setting this to true will make sure that only the qr code png is served via the web server. This is useful if you do not need the whole status page.
+     */
+    qrPopUpOnly ?: boolean
+    /**
      * If true, the process will try infer as many config variables as possible from the environment variables. The format of the variables are as below:
      * ```
      * sessionData     ==>     WA_SESSION_DATA
