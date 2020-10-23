@@ -20,7 +20,7 @@
   <a href="https://open-wa.github.io/wa-automate-nodejs/pages/Getting%20Started/installation.html">Getting Started</a> •
   <a href="https://open-wa.github.io/wa-automate-nodejs/pages/Getting%20Started/quick-run.html">Easy API</a> •
   <a href="https://open-wa.github.io/wa-automate-nodejs/">Documentation</a> •
-  <a href="https://openwa.page.link/python-license">Get a License Key</a> •
+  <a href="https://openwa.page.link/key">Get a License Key</a> •
   <a href="#support">Support</a>
 </p>
 
