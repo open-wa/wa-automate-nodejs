@@ -387,7 +387,7 @@ export interface ConfigObject {
      */
     deleteSessionDataOnLogout ?: boolean;
     /**
-     * If set to true, the system will kill the whole node process when either an [[authTimeout]] or a [[qrTimmeout]] has been reached. This is useful to prevent hanging processes.
+     * If set to true, the system will kill the whole node process when either an [[authTimeout]] or a [[qrTimeout]] has been reached. This is useful to prevent hanging processes.
      * @default `false`
      */
     killProcessOnTimeout ?: boolean;
