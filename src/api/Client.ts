@@ -313,6 +313,16 @@ export class Client {
   }
 
   /**
+   * A convinience method to download the [[DataURL]] of a file
+   * @param url The url
+   * @param optionsOverride You can use this to override the [axios request config](https://github.com/axios/axios#request-config)
+   * @returns Promise<DataURL>
+   */
+  public async download(url: string, optionsOverride: any = {} ) {
+    return await getDUrl(url, optionsOverride)
+  } 
+
+  /**
    * Refreshes the page and reinjects all necessary files. This may be useful for when trying to save memory
    * This will attempt to re register all listeners EXCEPT onLiveLocation and onParticipantChanged
    */
