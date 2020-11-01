@@ -119,6 +119,7 @@
     "sharp": "^0.26.0",
     "socket.io": "^2.3.0",
     "spinnies": "^0.5.1",
+    "swagger-ui-dist": "^3.36.1",
     "swagger-ui-express": "^4.1.4",
     "tcp-port-used": "^1.0.1",
     "terminal-link": "^2.1.1",

@@ -214,7 +214,10 @@ return await create({ ...config })
 		if(c && c.key) {
 			console.log(`Please use the following api key for requests as a header:\nkey: ${c.key}`)
 			app.use((req, res, next) => {
-				const apiKey = req.get('key')
+				if(req.path.startsWith('/api-docs/')) {
+					return next();
+				}
+				const apiKey = req.get('key') || req.get('api_key')
 				if (!apiKey || apiKey !== c.key) {
 				  res.status(401).json({error: 'unauthorised'})
 				} else {
@@ -237,10 +240,51 @@ return await create({ ...config })
 			 */
 			Object.keys(swCol.paths).forEach(p => {
 				let path = swCol.paths[p].post;
+				swCol.paths[p].post.security = [
+					{
+						"api_key": []
+					}
+				]
+				swCol.paths[p].post.externalDocs= {
+					"description": "Documentation",
+					"url": swCol.paths[path].post.description
+				  }
 				let index = [...path.parameters].findIndex(({name})=>name=="Content-Type");
 				if(index > -1) path.parameters.splice(index, 1);
 			});
-			app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swCol));
+			delete swCol.swagger
+			swCol.openapi="3.0.3"
+			swCol.externalDocs = {
+				"description": "Find more info here",
+				"url": "https://http://openwa.dev/"
+			  }
+			  swCol.components = {
+				"securitySchemes": {
+					"api_key": {
+					  "type": "apiKey",
+					  "name": "api_key",
+					  "in": "header"
+					}
+				}
+			  }
+			swCol.security = [
+				{
+					"api_key": []
+				}
+			]
+			fs.writeFileSync("./open-wa-" + c.sessionId + ".sw_col.json", JSON.stringify(swCol));
+			app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swCol, {
+				swaggerOptions:{
+					authAction: {
+						api_key: {
+							name: "api_key",
+							schema: {type: "apiKey", in: "header", name: "Authorization", description: ""},
+							value: c.key
+						}
+					}
+				}
+				
+			}));
 		}
 		
 		app.use(client.middleware((c && c.useSessionIdInPath)));
