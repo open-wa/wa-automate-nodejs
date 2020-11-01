@@ -2215,8 +2215,8 @@ public async getStatus(contactId: ContactId) {
     if(!processingResponse) return false;
     let {webpBase64, metadata} = processingResponse;
       return await this.pup(
-        ({ webpBase64,to, metadata }) => WAPI.sendStickerAsReply(webpBase64,to, metadata, messageId),
-        { webpBase64,to, metadata }
+        ({ webpBase64,to, metadata , messageId }) => WAPI.sendStickerAsReply(webpBase64,to, metadata, messageId),
+        { webpBase64,to, metadata, messageId }
       );
   }
   
@@ -2236,8 +2236,8 @@ public async getStatus(contactId: ContactId) {
     if(!processingResponse) return false;
     let {webpBase64, metadata} = processingResponse;
       return await this.pup(
-        ({ webpBase64,to, metadata }) => WAPI.sendStickerAsReply(webpBase64,to, metadata, messageId),
-        { webpBase64,to, metadata }
+        ({ webpBase64,to, metadata, messageId }) => WAPI.sendStickerAsReply(webpBase64,to, metadata, messageId),
+        { webpBase64,to, metadata, messageId }
       );
   }
 
