@@ -134,6 +134,10 @@ app.listen(PORT, function () {
       } else {
         mediaData = await decryptMedia(message, uaOverride);
       }
+      if(message.type==='video') {
+          const mp4_as_sticker = await client.sendMp4AsSticker(message.from,mediaData);
+          console.log("start -> mp4_as_sticker", mp4_as_sticker)
+      }
       // you can send a file also with sendImage or await client.sendFile
       await client.sendImage(
         message.from,
@@ -235,7 +239,7 @@ create({
     // width: 1920,
     height: 1200
   },
-  popup: 3000,
+  popup: 3012,
   defaultViewport: null,
   // cacheEnabled:false,
   // devtools:true,

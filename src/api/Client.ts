@@ -14,6 +14,7 @@ pkg = require('../../package.json'),
 datauri = require('datauri'),
 fs = require('fs'),
 isUrl = require('is-url'),
+ffmpeg = require('fluent-ffmpeg'),
 isDataURL = (s: string) => !!s.match(/^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/g);
 import treekill from 'tree-kill';
 import { SessionInfo } from './model/sessionInfo';
@@ -23,6 +24,8 @@ import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, Fi
 import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
 import * as path from 'path';
 import { CustomProduct } from './model/product';
+import Crypto from 'crypto';
+import { tmpdir } from 'os';
 
 export enum namespace {
   Chat = 'Chat',
@@ -51,6 +54,64 @@ export enum SimpleListener {
   Story = 'onStory',
   RemovedFromGroup = 'onRemovedFromGroup',
   ContactAdded = 'onContactAdded',
+}
+
+
+/**
+ * @internal
+ */
+async function convertMp4BufferToWebpDataUrl(file: DataURL | Buffer | Base64, processOptions: {
+  /**
+   * Desired Frames per second of the sticker output
+   * @default `10`
+   */
+  fps?: number,
+  /**
+   * The video start time of the sticker
+   * @default `00:00:00.0`
+   */
+  startTime?: string,
+  /**
+   * The video end time of the sticker. By default, stickers are made from the first 5 seconds of the video
+   * @default `00:00:05.0`
+   */
+  endTime?: string
+  /**
+   * The amount of times the video loops in the sticker. To save processing time, leave this as 0
+   * default `0`
+   */
+  loop?: number
+} = {
+  fps: 10,
+  startTime: `00:00:00.0`,
+  endTime :  `00:00:05.0`,
+  loop: 0
+}) {
+  const tempFile = path.join(tmpdir(), `processing.${Crypto.randomBytes(6).readUIntLE(0, 6).toString(36)}.webp`);
+  var stream = new (require('stream').Readable)();
+  stream.push(Buffer.isBuffer(file) ? file : Buffer.from(file.replace('data:video/mp4;base64,',''), 'base64'));
+  stream.push(null);
+  await new Promise((resolve, reject) => {
+      ffmpeg(stream)
+          .inputFormat('mp4')
+          .on('start', function (cmd) {
+              console.log('Started ' + cmd);
+          })
+          .on('error', function (err) {
+              console.log('An error occurred: ' + err.message);
+              reject(err)
+          })
+          .on('end', function () {
+              console.log('Finished encoding');
+              resolve(true)
+          })
+          .addOutputOptions([`-vcodec`, `libwebp`, `-vf`, `crop=w='min(min(iw\,ih)\,500)':h='min(min(iw\,ih)\,500)',scale=500:500,setsar=1,fps=${processOptions.fps}`, `-loop`, `${processOptions.loop}`, `-ss`, processOptions.startTime, `-t`, processOptions.endTime, `-preset`, `default`, `-an`, `-vsync`, `0`, `-s`, `512:512`])
+          .toFormat("webp")
+          .save(tempFile);
+  })
+  const d = await datauri(tempFile);
+  fs.unlinkSync(tempFile)
+  return d;
 }
 
 /**
@@ -2313,6 +2374,46 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
+   * [ALPHA]
+   * Use this to send an mp4 file as a sticker. This can also be used to convert GIFs from the chat because GIFs in WA are actually tiny mp4 files.
+   * 
+   * You need to make sure you have ffmpeg (with libwebp) installed for this to work.
+   * 
+   * @param to ChatId The chat id you want to send the webp sticker to
+   * @param file [[DataURL]] [[Base64]] or Buffer of the mp4 file
+   */
+  public async sendMp4AsSticker(to: ChatId, file: DataURL | Buffer | Base64, processOptions: {
+    /**
+     * Desired Frames per second of the sticker output
+     * @default `10`
+     */
+    fps?: number,
+    /**
+     * The video start time of the sticker
+     * @default `00:00:00.0`
+     */
+    startTime?: string,
+    /**
+     * The video end time of the sticker. By default, stickers are made from the first 5 seconds of the video
+     * @default `00:00:05.0`
+     */
+    endTime?: string
+    /**
+     * The amount of times the video loops in the sticker. To save processing time, leave this as 0
+     * default `0`
+     */
+    loop?: number
+  } = {
+    fps: 10,
+    startTime: `00:00:00.0`,
+    endTime :  `00:00:05.0`,
+    loop: 0
+  }) {
+    const convertedStickerDataUrl = await convertMp4BufferToWebpDataUrl(file, processOptions);
+    return await this.sendRawWebpAsSticker(to, convertedStickerDataUrl, true);
+  }
+
+  /**
    * [WIP]
    * You can use this to send a raw webp file.
    * @param to ChatId The chat id you want to send the webp sticker to
@@ -2321,11 +2422,12 @@ public async getStatus(contactId: ContactId) {
    */
   public async sendRawWebpAsSticker(to: ChatId, webpBase64: Base64, animated : boolean = false){
     let metadata =  {
-  format: 'webp',
-  width: 512,
-  height: 512,
-  animated,
+        format: 'webp',
+        width: 512,
+        height: 512,
+        animated,
     }
+    webpBase64 = webpBase64.replace(/^data:image\/(png|gif|jpeg|webp);base64,/,'');
     return await this.pup(
       ({ webpBase64,to, metadata }) => WAPI.sendImageAsSticker(webpBase64,to, metadata),
       { webpBase64,to, metadata }
