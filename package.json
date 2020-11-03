@@ -62,7 +62,7 @@
     "@types/line-reader": "0.0.30",
     "@types/marked": "^1.1.0",
     "@types/node": "^14.0.1",
-    "@types/puppeteer": "^3.0.0",
+    "@types/puppeteer": "^5.4.0",
     "@types/shelljs": "^0.8.5",
     "auto-changelog": "^2.0.0",
     "ava": "^3.13.0",
