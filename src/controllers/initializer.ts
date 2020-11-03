@@ -221,11 +221,6 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
         // config.skipPatches = true;
       }
       debugInfo.NUM = await waPage.evaluate(`(window.localStorage['last-wid'] || '').replace('@c.us','').replace(/"/g,"").slice(-4)`);
-      if (config?.skipBrokenMethodsCheck !== true) await integrityCheck(waPage, notifier, spinner, debugInfo);
-      const LAUNCH_TIME_MS = Date.now() - START_TIME;
-      debugInfo = {...debugInfo, LAUNCH_TIME_MS};
-      spinner.emit(debugInfo, "DebugInfo");
-      spinner.succeed(`Client loaded in ${LAUNCH_TIME_MS/1000}s`);
       if(config?.hostNotificationLang){
         await waPage.evaluate(`window.hostlang="${config.hostNotificationLang}"`)
       }
@@ -237,6 +232,11 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
         await Promise.all(data.map(patch => waPage.evaluate(`${patch}`)))
         spinner.succeed('Patches Installed')
       }
+      if (config?.skipBrokenMethodsCheck !== true) await integrityCheck(waPage, notifier, spinner, debugInfo);
+      const LAUNCH_TIME_MS = Date.now() - START_TIME;
+      debugInfo = {...debugInfo, LAUNCH_TIME_MS};
+      spinner.emit(debugInfo, "DebugInfo");
+      spinner.succeed(`Client loaded in ${LAUNCH_TIME_MS/1000}s`);
       const client = new Client(waPage, config, debugInfo);
       if(config?.deleteSessionDataOnLogout) {
         client.onStateChanged(state=> {
