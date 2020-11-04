@@ -821,11 +821,11 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
   public async kill() {
     console.log('Shutting Down');
-    const browser = await this._page.browser()
-    const pid = browser.process() ? browser.process().pid : null;
+    const browser = await this?._page?.browser()
+    const pid = browser?.process() ? browser?.process()?.pid : null;
     try{
-      if (this._page && !this._page.isClosed()) await this._page.close();
-      if (this._page && this._page.browser) await this._page.browser().close();
+      if (this._page && !this._page?.isClosed()) await this._page?.close();
+      if (this._page && this._page?.browser) await this._page?.browser()?.close();
       if(pid) treekill(pid, 'SIGKILL')
     } catch(error){}
     return true;
