@@ -24,7 +24,7 @@ export const needsToScan = (waPage: puppeteer.Page) => {
     await waPage.waitForSelector("canvas[aria-label='Scan me!']", { timeout: 0 }).catch(()=>{})
       resolve(false)
     } catch (error) {
-      
+    console.log("needsToScan -> error", error)
     }
   }))
 };

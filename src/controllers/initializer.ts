@@ -288,8 +288,8 @@ const kill = async (p) => {
     if(!browser) return;
     const pid = browser?.process() ? browser?.process().pid : null;
     if(!pid) return;
-    if (!p?.isClosed()) await p.close();
-    if (browser) await browser.close().catch(()=>{});
+    if (!p?.isClosed()) await p?.close();
+    if (browser) await browser?.close().catch(()=>{});
     if(pid) treekill(pid, 'SIGKILL')
   }
 }
