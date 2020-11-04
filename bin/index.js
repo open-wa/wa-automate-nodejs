@@ -247,7 +247,7 @@ return await create({ ...config })
 				]
 				swCol.paths[p].post.externalDocs= {
 					"description": "Documentation",
-					"url": swCol.paths[path].post.description
+					"url": swCol.paths[p].post.description
 				  }
 				let index = [...path.parameters].findIndex(({name})=>name=="Content-Type");
 				if(index > -1) path.parameters.splice(index, 1);
