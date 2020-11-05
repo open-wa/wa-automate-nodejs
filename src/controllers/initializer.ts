@@ -141,7 +141,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     spinner.start('Authenticating');
     const authRace = [];
     authRace.push(isAuthenticated(waPage).catch(e=>{}))
-    if (!config?.authTimeout && config?.authTimeout!==0) {
+    if (config?.authTimeout!==0) {
       authRace.push(timeout((config.authTimeout || 60) * 1000))
     }
 
@@ -162,7 +162,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       spinner.info('Authenticate to continue');
       const race = [];
       race.push(smartQr(waPage, config))
-      if (!config?.qrTimeout && config?.qrTimeout!==0) {
+      if (config?.qrTimeout!==0) {
         race.push(timeout((config?.qrTimeout || 60) * 1000))
       }
       const result = await Promise.race(race);
