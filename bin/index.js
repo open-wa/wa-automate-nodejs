@@ -240,7 +240,7 @@ return await create({ ...config })
 			 */
 			Object.keys(swCol.paths).forEach(p => {
 				let path = swCol.paths[p].post;
-				swCol.paths[p].post.security = [
+				if(c.key) swCol.paths[p].post.security = [
 					{
 						"api_key": []
 					}
@@ -249,8 +249,18 @@ return await create({ ...config })
 					"description": "Documentation",
 					"url": swCol.paths[p].post.description
 				  }
-				let index = [...path.parameters].findIndex(({name})=>name=="Content-Type");
-				if(index > -1) path.parameters.splice(index, 1);
+				  swCol.paths[p].post.requestBody = {
+					  "description": path.summary,
+					  "content": {
+						"application/json": {
+							"schema": {
+								"type": "object"
+							},
+							example:  path.parameters[1].example
+						}
+					  }
+				  };
+				  delete path.parameters
 			});
 			delete swCol.swagger
 			swCol.openapi="3.0.3"
@@ -258,22 +268,26 @@ return await create({ ...config })
 				"description": "Find more info here",
 				"url": "https://http://openwa.dev/"
 			  }
-			  swCol.components = {
-				"securitySchemes": {
-					"api_key": {
-					  "type": "apiKey",
-					  "name": "api_key",
-					  "in": "header"
-					}
+			  if(c.key) {
+				swCol.components = {
+				  "securitySchemes": {
+					  "api_key": {
+						"type": "apiKey",
+						"name": "api_key",
+						"in": "header"
+					  }
+				  }
 				}
+			  swCol.security = [
+				  {
+					  "api_key": []
+				  }
+			  ]
 			  }
-			swCol.security = [
-				{
-					"api_key": []
-				}
-			]
+			  //Sort alphabetically
+			var x = {}; Object.keys(swCol.paths).sort().map(k=>x[k]=swCol.paths[k]);swCol.paths=x;
 			fs.writeFileSync("./open-wa-" + c.sessionId + ".sw_col.json", JSON.stringify(swCol));
-			app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swCol, {
+			app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swCol, c.key ? {
 				swaggerOptions:{
 					authAction: {
 						api_key: {
@@ -284,7 +298,7 @@ return await create({ ...config })
 					}
 				}
 				
-			}));
+			} : {}));
 		}
 		
 		app.use(client.middleware((c && c.useSessionIdInPath)));
@@ -293,6 +307,7 @@ return await create({ ...config })
 			process.send('ready');
 			process.send('ready');
 		}
+		console.log(`Checking if port ${PORT} is free`);
 		await tcpPortUsed.waitUntilFree(PORT, 200, 20000)
 		console.log(`Port ${PORT} is now free.`);
 		app.listen(PORT, () => {
@@ -309,7 +324,7 @@ return await create({ ...config })
 
 	}
 })
-.catch(e => console.log('Error', e.message));
+.catch(e => console.log('Error', e.message, e));
 }
 
 start();
