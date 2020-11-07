@@ -2380,9 +2380,9 @@ public async getStatus(contactId: ContactId) {
    * You need to make sure you have ffmpeg (with libwebp) installed for this to work.
    * 
    * @param to ChatId The chat id you want to send the webp sticker to
-   * @param file [[DataURL]] [[Base64]] or Buffer of the mp4 file
+   * @param file [[DataURL]], [[Base64]], URL (string GET), Relative filepath (string), or Buffer of the mp4 file
    */
-  public async sendMp4AsSticker(to: ChatId, file: DataURL | Buffer | Base64, processOptions: {
+  public async sendMp4AsSticker(to: ChatId, file: DataURL | Buffer | Base64 | string, processOptions: {
     /**
      * Desired Frames per second of the sticker output
      * @default `10`
@@ -2409,8 +2409,26 @@ public async getStatus(contactId: ContactId) {
     endTime :  `00:00:05.0`,
     loop: 0
   }) {
+      if(typeof file === 'string') {
+      if(!isDataURL(file)) {
+        //must be a file then
+        if(isUrl(file)){
+          file = await getDUrl(file)
+        } else {
+          let relativePath = path.join(path.resolve(process.cwd(),file|| ''));
+          if(fs.existsSync(file) || fs.existsSync(relativePath)) {
+            file = await datauri(fs.existsSync(file)  ? file : relativePath);
+          } 
+        } 
+      }
+      }
     const convertedStickerDataUrl = await convertMp4BufferToWebpDataUrl(file, processOptions);
-    return await this.sendRawWebpAsSticker(to, convertedStickerDataUrl, true);
+    try {
+      return await this.sendRawWebpAsSticker(to, convertedStickerDataUrl, true);
+    } catch (error) {
+      console.log('Stickers have to be less than 1MB. Please lower the fps or shorten the duration using the processOptions parameter: https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendmp4assticker')
+      throw error;
+    }
   }
 
   /**
