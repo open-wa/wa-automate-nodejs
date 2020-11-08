@@ -2144,7 +2144,6 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
-  * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
   * 
   * Change who can and cannot speak in a group
   * @param groupId '0000000000-00000000@g.us' the group id.
@@ -2159,7 +2158,6 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
    * 
   * Change who can and cannot edit a groups details
   * @param groupId '0000000000-00000000@g.us' the group id.
@@ -2608,7 +2606,6 @@ public async getStatus(contactId: ContactId) {
   
     
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
    * 
    * Sets the profile pic of the host number.
    * @param data string data url image string.
