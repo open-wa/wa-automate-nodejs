@@ -108,6 +108,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
   if (!sessionId) sessionId = 'session';
   const spinner = new Spin(sessionId, 'STARTUP', config?.disableSpins);
   try {
+    if(typeof config === 'string') console.error("AS OF VERSION 3+ YOU CAN NO LONGER SET THE SESSION ID AS THE FIRST PARAMETER OF CREATE. CREATE CAN ONLY TAKE A CONFIG OBJECT. IF YOU STILL HAVE CONFIGS AS A SECOND PARAMETER, THEY WILL HAVE NO EFFECT! PLEASE SEE DOCS.")
     spinner.start('Initializing WA');
     waPage = await initClient(sessionId, config, customUserAgent);
     spinner.succeed('Browser Launched');
