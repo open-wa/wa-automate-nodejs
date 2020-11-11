@@ -225,6 +225,7 @@ declare module WAPI {
   const isChatOnline: (id: string) => Promise<boolean>;
   const sendLinkWithAutoPreview: (to: string,url: string,text: string) => Promise<string | boolean>;
   const contactBlock: (id: string) => Promise<boolean>;
+  const checkReadReceipts: (contactId: string) => Promise<boolean | string>;
   const REPORTSPAM: (id: string) => Promise<boolean>;
   const contactUnblock: (id: string) => Promise<boolean>;
   const deleteConversation: (chatId: string) => Promise<boolean>;
@@ -1119,6 +1120,24 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     return await this.pup(
       ({ to, content, quotedMsgId }) =>WAPI.reply(to, content, quotedMsgId),
       { to, content, quotedMsgId }
+    ) as Promise<string | boolean>;
+  }
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * 
+   * Check if a recipient has read receipts on.
+   * 
+   * This will only work if you have chats sent back and forth between you and the contact 1-1.
+   * 
+   * @param contactId The Id of the contact with which you have an existing conversation with messages already.
+   * @returns Promise<string | boolean> true or false or a string with an explaintaion of why it wasn't able to determine the read receipts.
+   * 
+   */
+  public async checkReadReceipts(contactId: ContactId){
+    return await this.pup(
+      ({ contactId }) =>WAPI.checkReadReceipts(contactId),
+      { contactId }
     ) as Promise<string | boolean>;
   }
 
