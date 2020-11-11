@@ -38,7 +38,7 @@ const cli = meow(`
       --use-session-id-in-path, -i \tIf set, all API paths will include the session id. default to false and the default session Id is 'session'.
       --generate-api-docs, -d \t\tGenerate postman collection and expose api docs to open in browser.
       --session-data-only, -o \t\tKill the process when the sesion data is saved.
-      --license, -l \t\t\tThe license key you want to use for this server. License keys are used to unlock features. Learn more here https://github.com/open-wa/wa-automate-nodejs#license-key
+      --license-key, -l \t\t\tThe license key you want to use for this server. License keys are used to unlock features. Learn more here https://github.com/open-wa/wa-automate-nodejs#license-key
 ${configParamText}
 	  --skip-save-postman-collection \t\t\tDon't save the postman collection.
 	  --in-docker \t\t\tGrab config options from the environment variables
