@@ -609,13 +609,12 @@ export class Client {
    * Listens to add and remove events on Groups on a global level. It is memory efficient and doesn't require a specific group id to listen to.
    * 
    * @event
-   * @param to callback
+   * @param fn callback
    * @returns Observable stream of participantChangedEvent
    */
   public async onGlobalParicipantsChanged(fn: (participantChangedEvent: ParticipantChangedEventModel) => void) {
     return this.registerListener(SimpleListener.GlobalParicipantsChanged, fn);
   }
-
 
   /**
    * Fires callback with Chat object every time the host phone is added to a group.
@@ -677,17 +676,17 @@ export class Client {
    * @param to callback
    * @returns Observable stream of participantChangedEvent
    */
-  public async onParticipantsChanged(groupId: GroupChatId, fn: (participantChangedEvent: ParticipantChangedEventModel) => void, useLegancyMethod : boolean = false) {
+  public async onParticipantsChanged(groupId: GroupChatId, fn: (participantChangedEvent: ParticipantChangedEventModel) => void, legacy : boolean = false) {
     const funcName = "onParticipantsChanged_" + groupId.replace('_', "").replace('_', "");
     return this._page.exposeFunction(funcName, (participantChangedEvent: ParticipantChangedEventModel) =>
       fn(participantChangedEvent)
     )
       .then(_ => this.pup(
-        ({ groupId,funcName, useLegancyMethod }) => {
+        ({ groupId,funcName, legacy }) => {
           //@ts-ignore
-          if(useLegancyMethod) return WAPI._onParticipantsChanged(groupId, window[funcName]); else return WAPI.onParticipantsChanged(groupId, window[funcName]);
+          if(legacy) return WAPI._onParticipantsChanged(groupId, window[funcName]); else return WAPI.onParticipantsChanged(groupId, window[funcName]);
         },
-        { groupId, funcName, useLegancyMethod}
+        { groupId, funcName, legacy}
       ));
   }
 
@@ -1566,7 +1565,10 @@ public async iAmAdmin(){
  * - Follow this link to join my WA group: https://chat.whatsapp.com/DHTGJUfFJAV9MxOpZO1fBZ
  * - https://chat.whatsapp.com/DHTGJUfFJAV9MxOpZO1fBZ
  * - DHTGJUfFJAV9MxOpZO1fBZ
- * @returns Promise<string | boolean> Either false if it didn't work, or the group id.
+ * 
+ * If you have been removed from the group previously, it will return `401`
+ * 
+ * @returns Promise<string | boolean | number> Either false if it didn't work, or the group id.
  */
   public async joinGroupViaLink(link: string) {
     return await this.pup(
