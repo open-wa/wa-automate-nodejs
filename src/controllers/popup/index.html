@@ -5,7 +5,7 @@
   <title>open-wa</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.1/socket.io.js" integrity="sha512-vGcPDqyonHb0c11UofnOKdSAt5zYRpKI4ow+v6hat4i96b7nHSn8PQyk0sT5L9RECyksp+SztCPP6bqeeGaRKg==" crossorigin="anonymous"></script>
 
   <style>
     body {
@@ -106,6 +106,7 @@
         }
       }
 
+      console.log("Application -> window.location.origin", window.location.origin)
       var socket = io.connect(window.location.origin);
       socket.on('connect', function () {
         console.log('Connected to:', socket);
