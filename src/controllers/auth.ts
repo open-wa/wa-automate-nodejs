@@ -1,6 +1,6 @@
 import * as puppeteer from 'puppeteer';
 import * as qrcode from 'qrcode-terminal';
-import { merge, from } from 'rxjs';
+import { from, race } from 'rxjs';
 import { take } from 'rxjs/internal/operators/take';
 import {EvEmitter, ev} from './events'
 import { ConfigObject, QRFormat, QRQuality } from '../api/model';
@@ -10,7 +10,7 @@ import { ConfigObject, QRFormat, QRQuality } from '../api/model';
  * @returns true if is authenticated, false otherwise
  * @param waPage
  */
-export const isAuthenticated = (waPage: puppeteer.Page) => merge(needsToScan(waPage), isInsideChat(waPage)).pipe(take(1)).toPromise()
+export const isAuthenticated = (waPage: puppeteer.Page) => race(needsToScan(waPage), isInsideChat(waPage)).toPromise();
 export const needsToScan = (waPage: puppeteer.Page) => {
   return from(new Promise(async resolve => {
     try {
@@ -19,7 +19,7 @@ export const needsToScan = (waPage: puppeteer.Page) => {
       await waPage
         .waitForSelector('body > div > div > .landing-wrapper', {
           timeout: 0
-        })
+        }).catch(()=>resolve())
     ]).catch(()=>{})
     await waPage.waitForSelector("canvas[aria-label='Scan me!']", { timeout: 0 }).catch(()=>{})
       resolve(false)
