@@ -337,6 +337,7 @@ export class Client {
   private _sessionInfo: SessionInfo;
   private _listeners: any;
   private _page: Page;
+  private _currentlyBeingKilled: boolean = false;
 
   /**
    * @ignore
@@ -820,6 +821,8 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @returns true
    */
   public async kill() {
+    if(this._currentlyBeingKilled) return;
+    this._currentlyBeingKilled = true;
     console.log('Shutting Down');
     const browser = await this?._page?.browser()
     const pid = browser?.process() ? browser?.process()?.pid : null;
@@ -828,6 +831,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
       if (this._page && this._page?.browser) await this._page?.browser()?.close();
       if(pid) treekill(pid, 'SIGKILL')
     } catch(error){}
+    this._currentlyBeingKilled = false;
     return true;
   }
 
