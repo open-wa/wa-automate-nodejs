@@ -2025,7 +2025,7 @@ public async getStatus(contactId: ContactId) {
    * @param chatId, the chat to get the messages from
    * @param includeMe, include my own messages? boolean
    * @param includeNotifications
-   * @returns any
+   * @returns Message[]
    */
 
   public async getAllMessagesInChat(chatId: ChatId, includeMe: boolean, includeNotifications: boolean) {
