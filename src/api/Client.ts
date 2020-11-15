@@ -222,7 +222,7 @@ declare module WAPI {
   const sendCustomProduct: (to: ChatId, image: DataURL, productData: CustomProduct) => Promise<string | boolean>;
   const sendSeen: (to: string) => Promise<boolean>;
   const markAsUnread: (to: string) => Promise<boolean>;
-  const isChatOnline: (id: string) => Promise<boolean>;
+  const isChatOnline: (id: string) => Promise<boolean | string>;
   const sendLinkWithAutoPreview: (to: string,url: string,text: string) => Promise<string | boolean>;
   const contactBlock: (id: string) => Promise<boolean>;
   const checkReadReceipts: (contactId: string) => Promise<boolean | string>;
@@ -1847,14 +1847,17 @@ public async contactUnblock(id: ContactId) {
   }
   
   /**
-   * Checks if a CHAT contact is online. Not entirely sure if this works with groups.
+   * Checks if a chat contact is online. Not entirely sure if this works with groups.
+   * 
+   * It will return `true` if the chat is `online`, `false` if the chat is `offline`, `PRIVATE` if the privacy settings of the contact do not allow you to see their status and `NO_CHAT` if you do not currently have a chat with that contact.
+   * 
    * @param chatId chat id: xxxxx@c.us
    */
   public async isChatOnline(chatId: ChatId) {
     return await this.pup(
      chatId => WAPI.isChatOnline(chatId),
       chatId
-    ) as Promise<boolean>;
+    ) as Promise<boolean | string>;
   }
 
 
