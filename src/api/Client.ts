@@ -284,6 +284,7 @@ declare module WAPI {
   const getAllChatsWithMessages: (withNewMessageOnly?: boolean) => any;
   const getAllChats: () => any;
   const getState: () => string;
+  const forceUpdateConnectionState: () => Promise<string>;
   const getBatteryLevel: () => number;
   const getIsPlugged: () => boolean;
   const clearAllChats: () => Promise<boolean>;
@@ -810,6 +811,14 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   }
 
   /**
+   * Forces the session to update the connection state. This will take a few seconds to determine the 'correct' state.
+   * @returns updated connection state
+   */
+  public async forceUpdateConnectionState() {
+    return await this._page.evaluate(() => WAPI.forceUpdateConnectionState());
+  }
+
+  /**
    * Returns a list of contact with whom the host number has an existing chat who are also not contacts.
    */
   public async getChatWithNonContacts(){
@@ -1283,7 +1292,8 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
  * Returns an object with all of your host device details
  */
   public async getMe(){
-    return await this.pup(() => WAPI.getMe());
+    return await this._page.evaluate(() => WAPI.getMe());
+    // return await this.pup(() => WAPI.getMe());
     //@ts-ignore
     // return await this.pup(() => Store.Me.attributes);
   }
