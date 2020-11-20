@@ -217,7 +217,7 @@ return await create({ ...config })
 
 	if (!(c && c.noApi)) {
 		if(c && c.key) {
-			console.log(`Please use the following api key for requests as a header:\nkey: ${c.key}`)
+			console.log(`Please use the following api key for requests as a header:\napi_key: ${c.key}`)
 			app.use((req, res, next) => {
 				if(req.path.startsWith('/api-docs/')) {
 					return next();
