@@ -10,11 +10,16 @@ newsession
 **.re.js
 
 **.data.json
+**.postman_collection.json
+**.sw_col.json
 
 tempchangelog.txt
 .npmrc
 .DS_Store
 demo/buttons.js
+demo/**.jpeg
+demo/**.png
+demo/**.mp4
 
 **.ignore.ts
 **.node-persist**
