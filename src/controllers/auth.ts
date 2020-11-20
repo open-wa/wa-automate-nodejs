@@ -62,7 +62,7 @@ export async function smartQr(waPage: puppeteer.Page, config?: ConfigObject) {
     qrEv.emit(qrCode);
     if(!config.qrLogSkip) qrcode.generate(qrData,{small: true});
   }
-  const qrEv = new EvEmitter(config.sessionId,'qr');
+  const qrEv = new EvEmitter(config.sessionId || 'session','qr');
   
   return new Promise(async (resolve,reject) => {
     const funcName = '_smartQr';
