@@ -102,7 +102,7 @@
           c();
         }
         if (message.data) {
-          if (message.namespace !== "sessionDataBase64") $(`#${message.sessionId} .log`).html(`${$(`#${message.sessionId} .log`).html()} ${message.namespace} ${message.data} <br>`);
+          if (message.namespace !== "sessionDataBase64") $(`#${message.sessionId} .log`).html(`${$(`#${message.sessionId} .log`).html()} ${message.namespace} ${typeof message.data === 'object' ? JSON.stringify(message.data, null, 4) : message.data} <br>`);
         }
       }
 
