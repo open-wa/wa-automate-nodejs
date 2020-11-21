@@ -13,7 +13,7 @@
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/open-wa/wa-automate-nodejs.svg)](http://isitmaintained.com/project/open-wa/wa-automate-nodejs "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/open-wa/wa-automate-nodejs.svg)](http://isitmaintained.com/project/open-wa/wa-automate-nodejs "Percentage of issues still open")
 
-<a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 2.2041.6](https://img.shields.io/badge/WhatsApp_Web-2.2041.6-brightgreen.svg)
+<a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 2.2047.11](https://img.shields.io/badge/WhatsApp_Web-2.2047.11-brightgreen.svg)
 
 <p align="center">
   <a href="#functions-list">Key Features</a> •
@@ -26,10 +26,12 @@
 
 </div>
 
-## Installation
+## Installation and Updating
+
+Use this command to install the library for the first time and to keep the library up to date.
 
 ```bash
-> npm i --save @open-wa/wa-automate
+> npm i --save @open-wa/wa-automate@latest
 ```
 
 ## Usage
@@ -47,6 +49,35 @@ function start(client) {
     }
   });
 }
+```
+
+## Custom Setup
+
+Learn more about all possible configuration options here: [ConfigObject](https://docs.openwa.dev/interfaces/configobject.html)
+
+```javascript
+const wa = require('@open-wa/wa-automate');
+
+wa.create({
+  sessionId: "COVID_HELPER",
+  authTimeout: 60, //wait only 60 seconds to get a connection with the host account device
+  blockCrashLogs: true,
+  disableSpins: true,
+  headless: true,
+  hostNotificationLang: 'PT_BR',
+  logConsole: false,
+  popup: true,
+  qrTimeout: 0, //0 means it will wait forever for you to scan the qr code
+}).then(client => start(client));
+
+function start(client) {
+  client.onMessage(async message => {
+    if (message.body === 'Hi') {
+      await client.sendText(message.from, '👋 Hello!');
+    }
+  });
+}
+
 ```
 
 ###### After executing `create()` function, **@open-wa/wa-automate** will create an instance of WA web. If you are not logged in, it will print a QR code in the [terminal](https://i.imgur.com/g8QvERI.png). Scan it with your phone and you are ready to go!
