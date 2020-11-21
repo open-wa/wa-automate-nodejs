@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Send Messages | @open-wa/wa-automate - v3.1.0</title>
+	<title>Use a proxy | @open-wa/wa-automate - v3.1.0</title>
 	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.1.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../assets/css/main.css">
@@ -64,10 +64,10 @@
 					<a href="send-messages.html">How to</a>
 				</li>
 				<li>
-					<a href="send-messages.html">Send Messages</a>
+					<a href="use-a-proxy.html">Use a proxy</a>
 				</li>
 			</ul>
-			<h1>Send Messages</h1>
+			<h1>Use a proxy</h1>
 		</div>
 	</div>
 </header>
@@ -75,47 +75,26 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<a href="#sending-messages" id="sending-messages" style="color: inherit; text-decoration: none;">
-					<h1>Sending Messages</h1>
+				<a href="#proxying-your-session" id="proxying-your-session" style="color: inherit; text-decoration: none;">
+					<h1>Proxying your session</h1>
 				</a>
-				<p>When sending a message, make sure to await the promise. It usually returns an id if the message was sent successfully.</p>
-				<a href="#send-a-basic-message" id="send-a-basic-message" style="color: inherit; text-decoration: none;">
-					<h2>Send a basic message</h2>
-				</a>
-				<p><a href="../../classes/client.html#sendtext">sendText</a></p>
-				<pre><code class="language-javascript">    <span class="hljs-keyword">await</span> client.sendText(chatId, <span class="hljs-string">&quot;Hello&quot;</span>);</code></pre>
-				<a href="#send-a-message-with-mentions" id="send-a-message-with-mentions" style="color: inherit; text-decoration: none;">
-					<h2>Send a message with mentions</h2>
-				</a>
-				<p><a href="../../classes/client.html#sendtextwithmentions">sendTextWithMentions</a></p>
-				<pre><code class="language-javascript">    <span class="hljs-keyword">await</span> client.sendTextWithMentions(chatId, <span class="hljs-string">&quot;Hello&quot;</span>);</code></pre>
-				<a href="#send-a-reply" id="send-a-reply" style="color: inherit; text-decoration: none;">
-					<h2>Send a reply</h2>
-				</a>
-				<p><a href="../../classes/client.html#reply">reply</a></p>
-				<pre><code class="language-javascript">    <span class="hljs-keyword">await</span> client.reply(chatId, <span class="hljs-string">&quot;Hello&quot;</span>, idOfMessageToReplyTo);
+				<p>It is extremely simple to use a proxy with @open-wa. We suggest using <a href="https://luminati.io/?affiliate=ref_5f1b9ae8c7669177abfd9fb8">luminati.io</a> for a reliable and easy way to manage proxies. Once you have your proxy protocol, address, port, username and password you just need to set the <a href="../../interfaces/configobject.html#proxyservercredentials">proxyServerCredentials</a> and @open-wa will connect your session via the proxy. For example, if your proxy details are:</p>
+				<pre><code class="language-text">//this is dummy data
 
-    <span class="hljs-comment">// set the fourth variable to true to set the chat to &#x27;seen&#x27;</span>
-    <span class="hljs-keyword">await</span> client.reply(chatId, <span class="hljs-string">&quot;Hello&quot;</span>, idOfMessageToReplyTo, <span class="hljs-literal">true</span>);</code></pre>
-				<a href="#send-a-reply-with-mentions" id="send-a-reply-with-mentions" style="color: inherit; text-decoration: none;">
-					<h2>Send a reply with mentions</h2>
-				</a>
-				<p><a href="../../classes/client.html#sendreplywithmentions">sendReplyWithMentions</a></p>
-				<pre><code class="language-javascript">    <span class="hljs-keyword">await</span> client.sendReplyWithMentions(chatId, <span class="hljs-string">&quot;Hello&quot;</span>, idOfMessageToReplyTo);</code></pre>
-				<a href="#forward-messages" id="forward-messages" style="color: inherit; text-decoration: none;">
-					<h2>Forward Messages</h2>
-				</a>
-				<p>To forward messages use <a href="../../classes/client.html#forwardmessages">forwardMessages</a> with the following params:</p>
-				<ul>
-					<li>chat to forward messages to : <a href="mailto:&#x78;&#120;&#x78;&#x78;&#x78;&#64;&#99;&#x2e;&#x75;&#115;">&#x78;&#120;&#x78;&#x78;&#x78;&#64;&#99;&#x2e;&#x75;&#115;</a></li>
-					<li>messages: a single or array of message ids or message objects</li>
-					<li>skipMyMessages: true or false, if true it will filter out messages sent by you from the list of messages, default false.</li>
-				</ul>
-				<pre><code class="language-javascript"><span class="hljs-comment">//forward multiple messages using an array of messageIds</span>
-<span class="hljs-keyword">await</span> client.forwardMessages(<span class="hljs-string">&#x27;xxxxx@c.us&#x27;</span>,[<span class="hljs-built_in">Array</span> <span class="hljs-keyword">of</span> Message Ids],<span class="hljs-literal">true</span>)
-
-<span class="hljs-comment">//forward single message by id</span>
-<span class="hljs-keyword">await</span> client.forwardMessages(<span class="hljs-string">&#x27;xxxxx@c.us,&quot;messageId&quot;,true)</span></code></pre>
+protocol: http
+address: proxies.lum-superproxy.io
+port: 1234
+username: open-wa
+password: antidote</code></pre>
+				<p>then your config will look something like this:</p>
+				<pre><code class="language-javascript">
+create({
+  <span class="hljs-attr">proxyServerCredentials</span>: {
+    <span class="hljs-attr">address</span>: <span class="hljs-string">&#x27;http://proxies.lum-superproxy.io:1234&#x27;</span>,
+    <span class="hljs-attr">username</span>: <span class="hljs-string">&#x27;open-wa&#x27;</span>,
+    <span class="hljs-attr">password</span>: <span class="hljs-string">&#x27;antidote&#x27;</span>
+  }
+}).then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));</code></pre>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -151,7 +130,7 @@
 					<li class="label pp-nav pp-group">
 						<span>How to</span>
 					</li>
-					<li class="current pp-nav pp-page">
+					<li class=" pp-nav pp-page">
 						<a href="send-messages.html">Send <wbr>Messages</a>
 					</li>
 					<li class=" pp-nav pp-page">
@@ -181,7 +160,7 @@
 					<li class=" pp-nav pp-page">
 						<a href="incoming-calls.html">Detect <wbr>Incoming <wbr>Calls</a>
 					</li>
-					<li class=" pp-nav pp-page">
+					<li class="current pp-nav pp-page">
 						<a href="use-a-proxy.html">Use a proxy</a>
 					</li>
 					<li class=" pp-nav pp-page">

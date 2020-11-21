@@ -172,6 +172,10 @@
                     "source": "./docs-source/how-to/incoming-calls.md"
                 },
                 {
+                    "title": "Use a proxy",
+                    "source": "./docs-source/how-to/use-a-proxy.md"
+                },
+                {
                     "title": "More Examples",
                     "source": "./docs-source/how-to/misc.md"
                 },
