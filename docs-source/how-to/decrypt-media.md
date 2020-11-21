@@ -35,6 +35,25 @@ function start(client: Client) {
 create().then(client => start(client));
 ```
 
+## 404'd
+
+You may sometimes get a `404` error when trying to decrypt media from an old message, this is because media is only available on the main servers for a limited period of time. In these circumstances, you will need to force the host account to reupload media. You can do this by using [[forceStaleMediaUpdate]] then using decryptMedia on the response.
+
+```javascript
+      const mediaData = await decryptMedia(client.forceStaleMediaUpdate(message.id));
+```
+
+## Decrypting Stickers
+
+Decrypting stickers with the method shown above will result in a blank `.webp` file. To decrypt the sticker, use [[getStickerDecryptable]].
+
+```javascript
+
+      const mediaData = await decryptMedia(client.getStickerDecryptable(message.id));
+      //or
+      const mediaData = await client.decryptMedia(message.id);
+```
+
 It is always preferable to keep projects smaller than needed so you can now use a lightweight library called wa-decrypt for projects that do not need all of @open-wa/wa-automate.
 
 You can install that using:
