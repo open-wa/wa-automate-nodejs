@@ -25,8 +25,9 @@ import { SessionInfo } from '../api/model/sessionInfo';
 let axios;
 
 /**
- * Should be called to initialize whatsapp client.
- * *Note* You can send all params as a single object with the new [ConfigObject](https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html) that includes both [sessionId](https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#sessionId) and [customUseragent](ttps://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#customUseragent).
+ * Used to initialize the client session.
+ * 
+ * *Note* It is required to set all config variables as [ConfigObject](https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html) that includes both [sessionId](https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#sessionId). Setting the session id as the first variable is no longer valid
  * 
  * e.g
  * 
@@ -38,11 +39,8 @@ let axios;
  * ...
  * })....
  * ```
- * @param sessionId [string | ConfigObject ]Custom id for the session, every phone should have it's own sessionId. THIS CAN BE THE CONFIG OBJECT INSTEAD
- * @param config The extended custom configuration
- * @param customUserAgent A custom user agent to set on the browser page.
+ * @param config ConfigObject] The extended custom configuration
  */
-//export async function create(sessionId?: string, config?:ConfigObject, customUserAgent?:string) {
 //@ts-ignore
 export async function create(config: ConfigObject = {}): Promise<Client> {
   const START_TIME = Date.now();
