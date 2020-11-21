@@ -57,7 +57,7 @@ export interface DevTools {
 
 export interface ProxyServerCredentials {
     /**
-     * The protocol on which the proxy is running. E.g http, https, socks4 or socks5. This is optional and can be automatically determined from the address.
+     * The protocol on which the proxy is running. E.g `http`, `https`, `socks4` or `socks5`. This is optional and can be automatically determined from the address.
      */
     protocol?: string;
     /**
