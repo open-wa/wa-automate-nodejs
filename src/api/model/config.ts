@@ -383,7 +383,7 @@ export interface ConfigObject {
     legacy ?: boolean;
     /**
      * Deletes the session data file (if found) on logout event. This results in a quickler login when you restart the process.
-     * @default `true`
+     * @default `false`
      */
     deleteSessionDataOnLogout ?: boolean;
     /**
