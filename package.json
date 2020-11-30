@@ -106,6 +106,7 @@
     "meow": "^8.0.0",
     "node-persist": "^3.1.0",
     "open": "^7.0.4",
+    "os-name": "^4.0.0",
     "p-queue": "^6.4.0",
     "parse-function": "^5.6.10",
     "parse-url": "^5.0.2",
