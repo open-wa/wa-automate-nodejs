@@ -2,6 +2,7 @@
 /** @ignore */
 const fs = require('fs'),
 boxen = require('boxen'),
+osName = require('os-name'),
 configWithCases = require('../../bin/config-schema.json'),
 updateNotifier = require('update-notifier'),
 pkg = require('../../package.json'),
@@ -114,6 +115,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
 
     const PAGE_UA = await waPage.evaluate('navigator.userAgent');
     const BROWSER_VERSION = await waPage.browser().version();
+    const OS = osName();
 
     const WA_AUTOMATE_VERSION = `${pkg.version}${notifier?.update ? ` UPDATE AVAILABLE: ${notifier?.update.latest}` : ''}`;
     //@ts-ignore
@@ -124,7 +126,8 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       WA_VERSION,
       PAGE_UA,
       WA_AUTOMATE_VERSION,
-      BROWSER_VERSION
+      BROWSER_VERSION,
+      OS
     };
     console.table(debugInfo);
 

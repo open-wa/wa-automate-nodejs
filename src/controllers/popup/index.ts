@@ -8,6 +8,7 @@ var io,
     open = require('open'),
     getPort = require('get-port'),
     url = require('url'),
+    osName = require('os-name'),
     gClient,
     serverSockets : any = {},
     PORT,
@@ -76,7 +77,11 @@ export async function popup(config: ConfigObject) {
         });
     });
     server.listen(PORT);
-    if(!config?.inDocker) await open(`http://localhost:${PORT}${config?.qrPopUpOnly?`/qr`:``}`, { app: ['google chrome', '--incognito'], allowNonzeroExitCode: true}).catch(()=>{}); else return "NA";
+    
+    const os = osName();
+    const appName = os.includes('macOS') ? 'google chrome' : os.includes('Windows') ? 'chrome' : 'google-chrome';
+
+    if(!config?.inDocker) await open(`http://localhost:${PORT}${config?.qrPopUpOnly?`/qr`:``}`, { app: [config?.executablePath || appName , '--incognito'], allowNonzeroExitCode: true}).catch(()=>{}); else return "NA";
     return config?.qrPopUpOnly ?  `http://localhost:${PORT}/qr` : await new Promise(resolve => {
         io.on('connection', function (client) {
             gClient = client;
