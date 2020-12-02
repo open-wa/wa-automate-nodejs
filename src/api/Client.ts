@@ -505,7 +505,7 @@ export class Client {
     return this.registerListener(SimpleListener.AnyMessage, fn);
   }
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * Listens to when a message is deleted by a recipient or the host account
 
@@ -578,7 +578,7 @@ export class Client {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * Listens to chat state, including when a specific user is recording and typing within a group chat.
    * 
@@ -632,7 +632,7 @@ export class Client {
   
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * Fires callback with Chat object every time the host phone is added to a group.
    * 
@@ -645,7 +645,7 @@ export class Client {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * Fires callback with the relevant chat id every time the user clicks on a chat. This will only work in headful mode.
    * 
@@ -658,7 +658,7 @@ export class Client {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * Fires callback with contact id when a new contact is added on the host phone.
    * 
@@ -918,7 +918,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * Sends a reply to given chat that includes mentions, replying to the provided replyMessageId.
    * In order to use this method correctly you will need to send the text like this:
@@ -942,7 +942,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * Tags everyone in the group with a message
    * 
@@ -1138,7 +1138,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * Check if a recipient has read receipts on.
    * 
@@ -1160,7 +1160,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param to chat id xxxxx@c.us
    * @param file DataURL data:image/xxx;base64,xxx or the RELATIVE (should start with `./` or `../`) path of the file you want to send. With the latest version, you can now set this to a normal URL (for example [GET] `https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_2500kB.jpg`).
    * @param filename string xxxxx
-   * @param caption string xxxxx
+   * @param caption string xxxxx With an [INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program) you can also tag people in groups with `@[number]`. For example if you want to mention the user with the number `44771234567`, just add `@44771234567` in the caption.
    * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
    * @param waitForId boolean default: false set this to true if you want to wait for the id of the message. By default this is set to false as it will take a few seconds to retrieve to the key of the message and this waiting may not be desirable for the majority of users.
    * @param ptt boolean default: false set this to true if you want to send the file as a push to talk file.
@@ -1611,7 +1611,7 @@ public async contactBlock(id: ContactId) {
 /**
  * Report a contact for spam, block them and attempt to clear chat.
  * 
- * [This is a restricted feature and requires a restricted key.](https://gumroad.com/l/BTMt?tier=1%20Restricted%20License%20Key)
+ * [This is a restricted feature and requires a restricted key.](https://gum.co/open-wa?tier=1%20Restricted%20License%20Key)
  * 
  * @param {string} id '000000000000@c.us'
  */
@@ -1724,7 +1724,7 @@ public async contactUnblock(id: ContactId) {
 
   /**
    * 
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * Retrieves a message object which results in a valid sticker instead of a blank one. This also works with animated stickers.
    * 
@@ -1749,7 +1749,7 @@ public async contactUnblock(id: ContactId) {
 
   /**
    * 
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * If a file is old enough, it will 404 if you try to decrypt it. This will allow you to force the host account to re upload the file and return a decryptable message.
    * 
@@ -1782,7 +1782,7 @@ public async contactUnblock(id: ContactId) {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * Retrieves the groups that you have in common with a contact
    * @param contactId
@@ -2217,7 +2217,7 @@ public async getStatus(contactId: ContactId) {
 }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
   * Change the group chant description
   * @param groupId '0000000000-00000000@g.us' the group id.
@@ -2232,7 +2232,7 @@ public async getStatus(contactId: ContactId) {
 }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
   * Change the group chat title
   * @param groupId '0000000000-00000000@g.us' the group id.
@@ -2258,7 +2258,7 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * Set the wallpaper background colour
    * @param {string} hex '#FFF123'
@@ -2313,7 +2313,7 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * Sends a sticker from a given URL
    * @param to The recipient id.
@@ -2336,7 +2336,7 @@ public async getStatus(contactId: ContactId) {
   
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * This function takes an image and sends it as a sticker to the recipient as a reply to another message.
    * 
@@ -2508,7 +2508,7 @@ public async getStatus(contactId: ContactId) {
   }
   
   /**
-   * [REQUIRES A TEST STORY LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * [REQUIRES A TEST STORY LICENSE-KEY](https://gum.co/open-wa)
    * 
    * Sends a formatted text story.
    * @param text The text to be displayed in the story 
@@ -2531,7 +2531,7 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
-   * [REQUIRES AN IMAGE STORY LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * [REQUIRES AN IMAGE STORY LICENSE-KEY](https://gum.co/open-wa)
    * 
    * Posts an image story.
    * @param data data url string `data:[<MIME-type>][;charset=<encoding>][;base64],<data>`
@@ -2546,7 +2546,7 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
-   * [REQUIRES A VIDEO STORY LICENSE-KEY](https://gumroad.com/l/BTMt)
+   * [REQUIRES A VIDEO STORY LICENSE-KEY](https://gum.co/open-wa)
    * 
    * Posts a video story.
    * @param data data url string `data:[<MIME-type>][;charset=<encoding>][;base64],<data>`
@@ -2604,7 +2604,7 @@ public async getStatus(contactId: ContactId) {
   
 
     /**
-     * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
+     * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
      * 
      * Clears all chats of all messages. This does not delete chats. Please be careful with this as it will remove all messages from whatsapp web and the host device. This feature is great for privacy focussed bots.
      */

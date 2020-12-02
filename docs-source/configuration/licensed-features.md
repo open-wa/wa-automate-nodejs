@@ -4,7 +4,7 @@
 
 ### Insiders Features
 
-open-wa is at the forefront of open source WA developmentand runs on donations from backers. To encourage donations, backers have access to exclusive features with an [Insiders Program license key](https://gumroad.com/l/BTMt).
+open-wa is at the forefront of open source WA developmentand runs on donations from backers. To encourage donations, backers have access to exclusive features with an [Insiders Program license key](https://gum.co/open-wa).
 
 
 | Function                          | Description |
@@ -39,7 +39,7 @@ There are 3 ways to start a chat with a new number:
       You can add this button to your website which, when clicked, will open a chat with you in the same way as above.
 3. [With a Restricted License Key](#how-to-get-a-license-key)
 
-     In order to unlock the functionality to send texts to unknown numbers through @open-wa/wa-automate itself, you will need a [Restricted License key](https://gumroad.com/l/BTMt?tier=1%20Restricted%20License%20Key).
+     In order to unlock the functionality to send texts to unknown numbers through @open-wa/wa-automate itself, you will need a [Restricted License key](https://gum.co/open-wa?tier=1%20Restricted%20License%20Key).
 
      One License Key is valid for one number. Each License Key for this is £10 per month. [Instructions below.](#how-to-get-a-license-key)
 
@@ -80,7 +80,7 @@ create({
 | Name | link | Description
 | --------------------------------- | ----------- |  ----------- |
 | Insiders | [LINK](https://gum.co/BTMt?tier=Insiders%20Program) | [All Insiders Features](https://open-wa.github.io/wa-automate-nodejs/pages/The%20Client/licensed-features.html#insiders-features)
-| Restricted | [LINK](https://gumroad.com/l/BTMt?tier=1%20Restricted%20License%20Key) | Send messages to non-contacts
+| Restricted | [LINK](https://gum.co/open-wa?tier=1%20Restricted%20License%20Key) | Send messages to non-contacts
 | Text Story | [LINK](https://gum.co/BTMt?tier=1%20Text%20Story%20License%20Key) | Send Text Stories
 | Image Story | [LINK](https://gum.co/BTMt?tier=1%20Image%20Story%20License%20Key) | Send Image Stories
 | Video Story | [LINK](https://gum.co/BTMt?tier=1%20Video%20Story%20License%20Key) | Send Video Stories
