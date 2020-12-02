@@ -8,6 +8,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../assets/css/main.css">
 	<link rel="stylesheet" href="../../assets/css/pages.css">
+	<script>
+		(function (w,d,s,o,f,js,fjs) {
+			w['Otechie-Widget']=o;w[o] = w[o] || function () { (w[o].q = w[o].q || []).push(arguments) };
+			js = d.createElement(s), fjs = d.getElementsByTagName(s)[0];
+			js.id = o; js.src = f; js.async = 1; fjs.parentNode.insertBefore(js, fjs);
+		}(window, document, 'script', 'ow', 'https://widget.otechie.com/widget.js'));
+		ow('init', { username: 'smashah' });
+	</script>
 </head>
 <body>
 <header>
@@ -246,12 +254,12 @@ create({
 				<p>If the license key is showing up as invalid, there may be an issue with your host account number you entered in the checkout form. In some countries, the host account number is different from the actual number (for example in Brazil, an extra 9 is added). If you&#39;re unsure about your host account number then use the following code:</p>
 				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> hostAccountNumber = <span class="hljs-keyword">await</span> client.getHostNumber();
 <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;Host account&#x27;</span>, hostAccountNumber);</code></pre>
-				<p>If it&#39;s different from what you&#39;ve entered in the checkout form, <a href="mailto:shah@idk.uno?subject=OPENWA%3A%20WRONG%20HOST%20ACC%20NUMBER&amp;body=email%20used%20to%20buy%20key%3A%0D%0Alicense%20key%3A%0D%0Acorrect%20host%20account%20number%3A%0D%0A">please fill and send this email.</a></p>
+				<p>If it&#39;s different from what you&#39;ve entered in the checkout form, <a href="mailto:shah@openwa.dev?subject=OPENWA%3A%20WRONG%20HOST%20ACC%20NUMBER&amp;body=email%20used%20to%20buy%20key%3A%0D%0Alicense%20key%3A%0D%0Acorrect%20host%20account%20number%3A%0D%0A">please fill and send this email.</a></p>
 				<p>If you are having issues where your license key shows as valid in the console, but the features continually return <code>false</code> this may be due to a NodeJS issue relating to the time on your machine. To fix this, make sure your machine&#39;s time is correct.</p>
 				<a href="#switching-your-host-account" id="switching-your-host-account" style="color: inherit; text-decoration: none;">
 					<h2>Switching your host account</h2>
 				</a>
-				<p>If your development and production host accounts are different, then you can enter the development host account number in the form and when you&#39;re ready to your production host account, <a href="mailto:shah@idk.uno?subject=OPENWA%3A%PRODUCTION%20HOST%20ACC%20NUMBER&amp;body=email%20used%20to%20buy%20key%3A%0D%0Alicense%20key%3A%0D%0Acorrect%20host%20account%20number%3A%0D%0A">fill and send this email.</a></p>
+				<p>If your development and production host accounts are different, then you can enter the development host account number in the form and when you&#39;re ready to your production host account, <a href="mailto:shah@openwa.dev?subject=OPENWA%3A%PRODUCTION%20HOST%20ACC%20NUMBER&amp;body=email%20used%20to%20buy%20key%3A%0D%0Alicense%20key%3A%0D%0Acorrect%20host%20account%20number%3A%0D%0A">fill and send this email.</a></p>
 				<a href="#notes" id="notes" style="color: inherit; text-decoration: none;">
 					<h2>Notes</h2>
 				</a>
@@ -265,9 +273,9 @@ create({
 					<li>License Key requests may be rejected.</li>
 					<li>All code you will receive from the license server is closed-sourced and is under the same license as this project. You will not be able to read it. It is not transferrable to another number or another project.</li>
 					<li>All keys provide access to Insiders Features.</li>
-					<li>No Refunds unless you have chosen the incorrect license upon checkout. Refund requests need to take place after the correct license is purchased. <a href="mailto:shah@idk.uno?subject=OPENWA%3A%LICENSE%3A%CORRECTION">Once the correct license is purchased please email me for a refund.</a></li>
-					<li><a href="mailto:shah@idk.uno?subject=OPENWA%3A%VOLUME%%20LICENSE">Volume licenses are available upon request.</a></li>
-					<li><a href="mailto:shah@idk.uno?subject=OPENWA%3A%Referral%%20Scheme">Referral links are available upon request.</a></li>
+					<li>No Refunds unless you have chosen the incorrect license upon checkout. Refund requests need to take place after the correct license is purchased. <a href="mailto:shah@openwa.dev?subject=OPENWA%3A%LICENSE%3A%CORRECTION">Once the correct license is purchased please email me for a refund.</a></li>
+					<li><a href="mailto:shah@openwa.dev?subject=OPENWA%3A%VOLUME%%20LICENSE">Volume licenses are available upon request.</a></li>
+					<li><a href="mailto:shah@openwa.dev?subject=OPENWA%3A%Referral%%20Scheme">Referral links are available upon request.</a></li>
 				</ul>
 			</div>
 		</div>

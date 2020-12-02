@@ -15,7 +15,6 @@ password: antidote
 then your config will look something like this:
 
 ```javascript
-
 create({
   proxyServerCredentials: {
     address: 'http://proxies.lum-superproxy.io:1234',

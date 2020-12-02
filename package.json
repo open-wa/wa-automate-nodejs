@@ -15,7 +15,7 @@
     "build:skipmid": "tsc && npm run build:lib",
     "build:lib": "ts-node prebuild.ts",
     "docs": "ts-node docfix.ts && rm -rf docs/ && typedoc && npm run cname",
-    "cname": "ts-node docfix.ts",
+    "cname": "ts-node cname-fix.ts",
     "watch": "npm run build && tsc-watch ./src/index.ts --outDir ./dist --onSuccess \"node ./dist/index.js\" --onFailure \"echo Error while compiling\" --compiler typescript/bin/tsc",
     "clean": "rm -rf session && rm -rf dist",
     "clean:full": "rm -rf node_modules && npm run clean",

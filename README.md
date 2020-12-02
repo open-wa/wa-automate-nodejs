@@ -179,4 +179,4 @@ The U.S. Government Department of Commerce, Bureau of Industry and Security (BIS
 [buymeacoffee-shield]: https://www.buymeacoffee.com/assets/img/guidelines/download-assets-sm-2.svg
 [buymeacoffee]: https://www.buymeacoffee.com/smashah
 [consult-shield]: https://img.shields.io/badge/Require%20Paid%20Support%20or%20Consulting%3F-Click%20Here-blue?style=for-the-badge&logo=paypal
-[consult]: mailto:shah@idk.uno?subject=WhatsApp%20Consulting
+[consult]: mailto:shah@openwa.dev?subject=WhatsApp%20Consulting

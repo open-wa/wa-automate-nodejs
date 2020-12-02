@@ -8,6 +8,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../assets/css/main.css">
 	<link rel="stylesheet" href="../../assets/css/pages.css">
+	<script>
+		(function (w,d,s,o,f,js,fjs) {
+			w['Otechie-Widget']=o;w[o] = w[o] || function () { (w[o].q = w[o].q || []).push(arguments) };
+			js = d.createElement(s), fjs = d.getElementsByTagName(s)[0];
+			js.id = o; js.src = f; js.async = 1; fjs.parentNode.insertBefore(js, fjs);
+		}(window, document, 'script', 'ow', 'https://widget.otechie.com/widget.js'));
+		ow('init', { username: 'smashah' });
+	</script>
 </head>
 <body>
 <header>
@@ -79,8 +87,7 @@ port: 1234
 username: open-wa
 password: antidote</code></pre>
 				<p>then your config will look something like this:</p>
-				<pre><code class="language-javascript">
-create({
+				<pre><code class="language-javascript">create({
   <span class="hljs-attr">proxyServerCredentials</span>: {
     <span class="hljs-attr">address</span>: <span class="hljs-string">&#x27;http://proxies.lum-superproxy.io:1234&#x27;</span>,
     <span class="hljs-attr">username</span>: <span class="hljs-string">&#x27;open-wa&#x27;</span>,
