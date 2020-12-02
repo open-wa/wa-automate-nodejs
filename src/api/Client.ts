@@ -241,7 +241,8 @@ declare module WAPI {
     caption: string,
     quotedMsgId?: string,
     waitForId?: boolean,
-    ptt?: boolean
+    ptt?: boolean,
+    withoutPreview?: boolean
   ) => Promise<string>;
   const sendMessageWithThumb: (
     thumb: string,
@@ -1051,7 +1052,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param file DataURL data:image/xxx;base64,xxx or the RELATIVE (should start with `./` or `../`) path of the file you want to send. With the latest version, you can now set this to a normal URL (for example [GET] `https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_2500kB.jpg`).
    * @param filename string xxxxx
    * @param caption string xxxxx
-   * @param waitForKey boolean default: false set this to true if you want to wait for the id of the message. By default this is set to false as it will take a few seconds to retreive to the key of the message and this waiting may not be desirable for the majority of users.
+   * @param waitForKey boolean default: false set this to true if you want to wait for the id of the message. By default this is set to false as it will take a few seconds to retrieve to the key of the message and this waiting may not be desirable for the majority of users.
    * @returns Promise <boolean | string> This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
    */
   public async sendImage(
@@ -1061,7 +1062,8 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     caption: Content,
     quotedMsgId?: MessageId,
     waitForId?: boolean,
-    ptt?:boolean
+    ptt?:boolean,
+    withoutPreview?:boolean
   ) {
       //check if the 'base64' file exists
       if(!isDataURL(file)) {
@@ -1070,7 +1072,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
         if(fs.existsSync(file) || fs.existsSync(relativePath)) {
           file = await datauri(fs.existsSync(file)  ? file : relativePath);
         } else if(isUrl(file)){
-          return await this.sendFileFromUrl(to,file,filename,caption,quotedMsgId,{},waitForId,ptt);
+          return await this.sendFileFromUrl(to,file,filename,caption,quotedMsgId,{},waitForId,ptt,withoutPreview);
         } else throw new Error('Cannot find file. Make sure the file reference is relative, a valid URL or a valid DataURL')
       }
     
@@ -1082,8 +1084,8 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    ];
 
     let res = await this.pup(
-      ({ to, file, filename, caption, quotedMsgId, waitForId, ptt}) =>  WAPI.sendImage(file, to, filename, caption, quotedMsgId, waitForId, ptt),
-      { to, file, filename, caption, quotedMsgId, waitForId, ptt }
+      ({ to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview}) =>  WAPI.sendImage(file, to, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview),
+      { to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview}
     )
     if(err.includes(res)) console.error(res);
     return (err.includes(res) ? false : res)  as MessageId | boolean;
@@ -1160,7 +1162,9 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param filename string xxxxx
    * @param caption string xxxxx
    * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
-   * @param waitForId boolean default: false set this to true if you want to wait for the id of the message. By default this is set to false as it will take a few seconds to retreive to the key of the message and this waiting may not be desirable for the majority of users.
+   * @param waitForId boolean default: false set this to true if you want to wait for the id of the message. By default this is set to false as it will take a few seconds to retrieve to the key of the message and this waiting may not be desirable for the majority of users.
+   * @param ptt boolean default: false set this to true if you want to send the file as a push to talk file.
+   * @param withoutPreview boolean default: false set this to true if you want to send the file without a preview (i.e as a file). This is useful for preventing auto downloads on recipient devices.
    * @returns Promise <boolean | string> This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
    */
   public async sendFile(
@@ -1170,9 +1174,10 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     caption: Content,
     quotedMsgId?: MessageId,
     waitForId?: boolean,
-    ptt?:boolean
+    ptt?:boolean,
+    withoutPreview?:boolean
   ) {
-    return this.sendImage(to, file, filename, caption, quotedMsgId, waitForId, ptt);
+    return this.sendImage(to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview);
   }
 
 
@@ -1266,8 +1271,9 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param caption string xxxxx
    * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
    * @param requestConfig {} By default the request is a get request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
-   * @param waitForId boolean default: false set this to true if you want to wait for the id of the message. By default this is set to false as it will take a few seconds to retreive to the key of the message and this waiting may not be desirable for the majority of users.
-
+   * @param waitForId boolean default: false set this to true if you want to wait for the id of the message. By default this is set to false as it will take a few seconds to retrieve to the key of the message and this waiting may not be desirable for the majority of users.
+   * @param ptt boolean default: false set this to true if you want to send the file as a push to talk file.
+   * @param withoutPreview boolean default: false set this to true if you want to send the file without a preview (i.e as a file). This is useful for preventing auto downloads on recipient devices.
    */
   public async sendFileFromUrl(
     to: ChatId,
@@ -1277,11 +1283,12 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     quotedMsgId?: MessageId,
     requestConfig: any = {},
     waitForId?: boolean,
-    ptt?:boolean
+    ptt?:boolean,
+    withoutPreview?:boolean
   ) {
     try {
      const base64 = await getDUrl(url, requestConfig);
-      return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId,ptt)
+      return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId,ptt,withoutPreview)
     } catch(error) {
       console.log('Something went wrong', error);
       throw error;
@@ -1519,7 +1526,7 @@ public async iAmAdmin(){
 
 
   /**
-   * Retreives all Chat Ids
+   * retrieves all Chat Ids
    * @returns array of [ChatId]
    */
   public async getAllChatIds() {
@@ -1527,7 +1534,7 @@ public async iAmAdmin(){
   }
 
   /**
-   * Retreives an array of IDs of accounts blocked by the host account.
+   * retrieves an array of IDs of accounts blocked by the host account.
    * @returns Promise<ChatId[]>
    */
   public async getBlockedIds() {
@@ -1719,7 +1726,7 @@ public async contactUnblock(id: ContactId) {
    * 
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gumroad.com/l/BTMt?tier=Insiders%20Program)
    * 
-   * Retreives a message object which results in a valid sticker instead of a blank one. This also works with animated stickers.
+   * Retrieves a message object which results in a valid sticker instead of a blank one. This also works with animated stickers.
    * 
    * If you run this without a valid insiders key, it will return false and cause an error upon decryption.
    * 
@@ -1923,7 +1930,7 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
-    * Retreives an invite link for a group chat. returns false if chat is not a group.
+    * Retrieves an invite link for a group chat. returns false if chat is not a group.
    * @param chatId
    * @returns Promise<string>
    */
@@ -2575,7 +2582,7 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
-   * Retreives all existing statuses.
+   * retrieves all existing statuses.
    *
    * Only works with a Story License Key
    */
@@ -2585,7 +2592,7 @@ public async getStatus(contactId: ContactId) {
 
     
   /**
-     * Retreives an array of user ids that have 'read' your story.
+     * Retrieves an array of user ids that have 'read' your story.
      * 
      * @param id string The id of the story
      * 
