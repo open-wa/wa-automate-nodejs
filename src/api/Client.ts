@@ -2285,6 +2285,7 @@ public async getStatus(contactId: ContactId) {
 
   /**
    * Returns an array of contacts that have read the message. If the message does not exist, it will return an empty array. If the host account has disabled read receipts this may not work!
+   * Each of these contact objects have a property `t` which represents the time at which that contact read the message.
    * @param messageId The message id
    */
   public async getMessageReaders(messageId: MessageId) {
