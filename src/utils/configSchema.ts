@@ -16,7 +16,6 @@ export const getConfigWithCase = (config ?: {
     if(!config) config = defaultConfig;
     const schema = tsj.createGenerator(config).createSchema(config.type);
     const ignoredConfigs = [
-        'browserRevision',
         'useStealth',
         'chromiumArgs',
         'executablePath',
