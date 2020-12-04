@@ -2498,6 +2498,8 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * 
    * Turn the ephemeral setting in a chat to on or off
    * @param chatId The ID of the chat
    * @param ephemeral `true` to turn on the ephemeral setting, `false` to turn off the ephemeral setting. Please note, if the setting is already on the requested setting, this method will return `true`.
