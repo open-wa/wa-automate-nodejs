@@ -180,6 +180,7 @@ declare module WAPI {
   const onLiveLocation: (chatId: string, callback: Function) => any;
   const getSingleProperty: (namespace: string, id: string, property : string) => any;
   const sendMessage: (to: string, content: string) => Promise<string>;
+  const setChatEphemeral: (chatId: string, ephemeral: boolean) => Promise<boolean>;
   const downloadFileWithCredentials: (url: string) => Promise<string>;
   const sendMessageWithMentions: (to: string, content: string) => Promise<string>;
   const tagEveryone: (groupId: string, content: string) => Promise<string>;
@@ -2497,6 +2498,19 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
+   * Turn the ephemeral setting in a chat to on or off
+   * @param chatId The ID of the chat
+   * @param ephemeral `true` to turn on the ephemeral setting, `false` to turn off the ephemeral setting. Please note, if the setting is already on the requested setting, this method will return `true`.
+   * @returns Promise<boolean> true if the setting was set, `false` if the chat does not exist
+   */
+  public async setChatEphemeral(chatId: ChatId, ephemeral: boolean){
+    return await this.pup(
+      ({ chatId,  ephemeral}) => WAPI.setChatEphemeral(chatId,  ephemeral),
+      { chatId,  ephemeral }
+    );
+  }
+
+  /**
    * Send a giphy GIF as an animated sticker.
    * @param to ChatId
    * @param giphyMediaUrl URL | string This is the giphy media url and has to be in the format `https://media.giphy.com/media/RJKHjCAdsAfQPn03qQ/source.gif` or it can be just the id `RJKHjCAdsAfQPn03qQ`
@@ -2509,7 +2523,7 @@ public async getStatus(contactId: ContactId) {
   }
   
   /**
-   * [REQUIRES A TEST STORY LICENSE-KEY](https://gum.co/open-wa)
+   * [REQUIRES A TEXT STORY LICENSE-KEY](https://gum.co/open-wa)
    * 
    * Sends a formatted text story.
    * @param text The text to be displayed in the story 
