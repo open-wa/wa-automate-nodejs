@@ -24,3 +24,10 @@ newsession
 release.png
 **.data.json
 patches.json
+_cn
+docfix.ts
+test
+docs-source
+cname-fix.ts
+compact-keepachangelog.hbs
+CHANGELOG.md
