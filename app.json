@@ -9,5 +9,14 @@
       "url": "jontewks/puppeteer"
     }
   ],
+  "env": {
+    "WA_SESSION_DATA": {
+      "description": "The Base64 encoded string of the session.data.json file. This heroku app is designed to be stateless so you no session details survive a redployment.",
+    },
+    "API_KEY": {
+      "description": "The api key.",
+      "generator": "secret"
+    }
+  },
   "keywords": ["node", "express", "static", "wa", "automate", "bot"]
 }
