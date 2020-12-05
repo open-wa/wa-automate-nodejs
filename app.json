@@ -11,7 +11,7 @@
     }
   },
   "success_url": "/api-docs/",
-  "stack": "heroku-20",
+  "stack": "heroku-18",
   "buildpacks": [
     {
       "url": "heroku/nodejs"
