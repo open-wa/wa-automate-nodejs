@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "The official open-wa heroku addon",
   "scripts": {
-    "start": "npx @open-wa/wa-automate --disable-spins --port 8080 --popup --in-docker",
-    "scan": "npx @open-wa/wa-automate --disable-spins -o --in-docker --port 8080"
+    "start": "npx @open-wa/wa-automate --disable-spins --port $PORT --popup --in-docker",
+    "scan": "npx @open-wa/wa-automate --disable-spins -o --in-docker --port $PORT"
   },
   "main": "index.js",
   "repository": "https://github.com/smashah/open-wa-heroku-addon.git",
