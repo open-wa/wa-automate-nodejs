@@ -1,0 +1,8 @@
+
+{
+  "name": "OPEN-WA Easy CLI",
+  "description": "A simple way to convert your WA account to an API",
+  "repository": "https://github.com/open-wa/wa-automate-nodejs",
+  "logo": "http://node-js-sample.herokuapp.com/node.svg",
+  "keywords": ["node", "express", "static", "wa", "automate", "bot"]]
+}
