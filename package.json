@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "The official open-wa heroku addon",
   "scripts": {
-    "start": "npx @open-wa/wa-automate --disable-spins --port $PORT --popup --in-docker",
+    "start": "npx @open-wa/wa-automate --disable-spins --port $PORT --popup --in-docker --qr-timeout",
     "scan": "npx @open-wa/wa-automate --disable-spins -o --in-docker --port $PORT"
   },
   "main": "index.js",
