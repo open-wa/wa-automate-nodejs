@@ -22,7 +22,7 @@ export enum QRFormat{
   }
   
   /**
-   * The set values of quality you can set for the qquality of the qr code output. Ten being the highest quality.
+   * The set values of quality you can set for the quality of the qr code output. Ten being the highest quality.
    */
   export enum QRQuality {
     ONE = 0.1,
@@ -382,7 +382,7 @@ export interface ConfigObject {
      */
     legacy ?: boolean;
     /**
-     * Deletes the session data file (if found) on logout event. This results in a quickler login when you restart the process.
+     * Deletes the session data file (if found) on logout event. This results in a quicker login when you restart the process.
      * @default `false`
      */
     deleteSessionDataOnLogout ?: boolean;
@@ -395,7 +395,12 @@ export interface ConfigObject {
      * Setting this to true will bypass web security. DO NOT DO THIS IF YOU DO NOT HAVE TO. CORS issue may arise when using a proxy.
      * @default `false`
      */
-    corsFix ?: boolean
+    corsFix ?: boolean;
+    /**
+     * When true, this option will take a screenshot of the browser when an unexpected error occurs within the browser during `create` initialization. The path will be `[working directory]/logs/[session ID]/[start timestamp]/[timestamp].jpg`
+     * @default `true`
+     */
+    screenshotOnInitializationBrowserError ?: boolean;
     /**@internal */
     [x: string]: any 
 }

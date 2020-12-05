@@ -21,9 +21,12 @@ import CFonts from 'cfonts';
 import { popup } from './popup';
 import { getConfigFromProcessEnv } from '../utils/tools';
 import { SessionInfo } from '../api/model/sessionInfo';
+import { Page } from 'puppeteer';
 /** @ignore */
 // let shouldLoop = true,
 let axios;
+export let screenshot;
+
 
 /**
  * Used to initialize the client session.
@@ -116,10 +119,24 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     const PAGE_UA = await waPage.evaluate('navigator.userAgent');
     const BROWSER_VERSION = await waPage.browser().version();
     const OS = osName();
+    const START_TS = Date.now();
+    const screenshotPath = `./logs/${config.sessionId || 'session'}/${START_TS}`
+    screenshot = (page: Page) => page.screenshot({
+        path:`${screenshotPath}/${Date.now()}.jpg`
+    }).catch(_=>{
+      fs.mkdirSync(screenshotPath, {recursive: true});
+      return screenshot(page)
+    })
+    
+    if(config?.screenshotOnInitializationBrowserError) waPage.on('console', async msg => {
+      for (let i = 0; i < msg.args().length; ++i)
+        console.log(`${i}: ${msg.args()[i]}`);
+      if(msg.type() === 'error' && !msg.text().includes('apify') && !msg.text().includes('crashlogs')) await screenshot(waPage)
+    });
 
     const WA_AUTOMATE_VERSION = `${pkg.version}${notifier?.update ? ` UPDATE AVAILABLE: ${notifier?.update.latest}` : ''}`;
     //@ts-ignore
-    const WA_VERSION = await waPage.evaluate(() => window.Debug ? window.Debug.VERSION : 'I think you have been TOS_BLOCKed')
+    const WA_VERSION = await waPage.evaluate(() => window.Debug ? window.Debug.VERSION || window.Debug : 'I think you have been TOS_BLOCKed')
     //@ts-ignore
     const canInjectEarly = await waPage.evaluate(() => { return (typeof webpackJsonp !== "undefined") });
     let debugInfo : SessionInfo = {
@@ -127,7 +144,8 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       PAGE_UA,
       WA_AUTOMATE_VERSION,
       BROWSER_VERSION,
-      OS
+      OS,
+      START_TS
     };
     console.table(debugInfo);
 
