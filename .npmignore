@@ -31,3 +31,4 @@ docs-source
 cname-fix.ts
 compact-keepachangelog.hbs
 CHANGELOG.md
+**.ignore.**

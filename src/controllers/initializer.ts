@@ -121,12 +121,15 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     const OS = osName();
     const START_TS = Date.now();
     const screenshotPath = `./logs/${config.sessionId || 'session'}/${START_TS}`
-    screenshot = (page: Page) => page.screenshot({
+    screenshot = async (page: Page) => {
+      await page.screenshot({
         path:`${screenshotPath}/${Date.now()}.jpg`
     }).catch(_=>{
       fs.mkdirSync(screenshotPath, {recursive: true});
       return screenshot(page)
-    })
+    });
+    console.log('Screenshot taken. path:', `${screenshotPath}`)
+    }
     
     if(config?.screenshotOnInitializationBrowserError) waPage.on('console', async msg => {
       for (let i = 0; i < msg.args().length; ++i)

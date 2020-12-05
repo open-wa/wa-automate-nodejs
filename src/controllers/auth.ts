@@ -68,7 +68,6 @@ export async function smartQr(waPage: puppeteer.Page, config?: ConfigObject) {
   const _hasDefaultStateYet = await waPage.evaluate("window.Store &&  window.Store.State && window.Store.State.default")
   if(!_hasDefaultStateYet) {
     //expecting issue, take a screenshot then wait a few seconds before continuing
-      await screenshot(waPage);
       await timeout(2000);
   }
 
