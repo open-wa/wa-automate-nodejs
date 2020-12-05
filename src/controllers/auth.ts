@@ -1,9 +1,10 @@
 import * as puppeteer from 'puppeteer';
 import * as qrcode from 'qrcode-terminal';
 import { from, race } from 'rxjs';
-import { take } from 'rxjs/internal/operators/take';
-import {EvEmitter, ev} from './events'
+import {EvEmitter} from './events'
+import { screenshot } from './initializer'
 import { ConfigObject, QRFormat, QRQuality } from '../api/model';
+const timeout = ms =>  new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 
 /**
  * Validates if client is authenticated
@@ -63,7 +64,14 @@ export async function smartQr(waPage: puppeteer.Page, config?: ConfigObject) {
     if(!config.qrLogSkip) qrcode.generate(qrData,{small: true});
   }
   const qrEv = new EvEmitter(config.sessionId || 'session','qr');
-  
+
+  const _hasDefaultStateYet = await waPage.evaluate("window.Store &&  window.Store.State && window.Store.State.default")
+  if(!_hasDefaultStateYet) {
+    //expecting issue, take a screenshot then wait a few seconds before continuing
+      await screenshot(waPage);
+      await timeout(2000);
+  }
+
   return new Promise(async (resolve,reject) => {
     const funcName = '_smartQr';
     const fn = async (qrData) => {
@@ -74,8 +82,10 @@ export async function smartQr(waPage: puppeteer.Page, config?: ConfigObject) {
       //@ts-ignore
       return window['smartQr'] ? window[`smartQr`](obj => window[funcName](obj)) : false
     },{funcName});
-    await waPage.exposeFunction(funcName, (obj: any) =>fn(obj)).then(set).catch(e=>{
-      console.log("set -> e", e)
+    await waPage.exposeFunction(funcName, (obj: any) =>fn(obj)).then(set).catch(async e=>{
+      //if an error occurs during the qr launcher then take a screenshot.
+      await screenshot(waPage);
+      console.log("qr -> e", e);
     })
     const firstQr = await waPage.evaluate(`document.querySelector("canvas[aria-label='Scan me!']")?document.querySelector("canvas[aria-label='Scan me!']").parentElement.getAttribute("data-ref"):false`);
     await grabAndEmit(firstQr);
