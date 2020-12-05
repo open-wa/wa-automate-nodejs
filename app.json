@@ -1,7 +1,7 @@
 
 {
   "name": "OPEN-WA Easy CLI",
-  "description": "A simple way to convert your WA account to an API",
+  "description": "A simple way to convert your WA account to an API. Open the URL at the path `/api-docs/`.",
   "repository": "https://github.com/open-wa/wa-automate-nodejs",
   "logo": "http://node-js-sample.herokuapp.com/node.svg",
   "formation": {
@@ -27,9 +27,7 @@
       "required": true
     },
     "API_KEY": {
-      "description": "The api key which will be used to authenticate API requests. If you do not set this manually it will be generated and available to see in the logs.",
-      "generator": "secret",
-      "required": true
+      "description": "The api key which will be used to authenticate API requests. If you do not set this manually it will be generated and available to see in the logs..",
     }
   },
   "keywords": ["node", "express", "static", "wa", "automate", "bot"]
