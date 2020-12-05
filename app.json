@@ -4,6 +4,13 @@
   "description": "A simple way to convert your WA account to an API",
   "repository": "https://github.com/open-wa/wa-automate-nodejs",
   "logo": "http://node-js-sample.herokuapp.com/node.svg",
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "standard-1x"
+    }
+  },
+  "success_url": "/",
   "buildpacks": [
     {
       "url": "jontewks/puppeteer"
