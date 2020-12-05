@@ -11,7 +11,11 @@
     }
   },
   "success_url": "/api-docs/",
+  "stack": "heroku-20",
   "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
     {
       "url": "jontewks/puppeteer"
     }
@@ -23,8 +27,9 @@
       "required": true
     },
     "API_KEY": {
-      "description": "The api key. If you do not set this manually it will be generated and available to see in the logs.",
-      "generator": "secret"
+      "description": "The api key which will be used to authenticate API requests. If you do not set this manually it will be generated and available to see in the logs.",
+      "generator": "secret",
+      "required": true
     }
   },
   "keywords": ["node", "express", "static", "wa", "automate", "bot"]
