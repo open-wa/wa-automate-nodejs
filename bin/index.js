@@ -46,6 +46,7 @@ ${configParamText}
 	  --skip-save-postman-collection \t\t\tDon't save the postman collection.
 	  --in-docker \t\t\tGrab config options from the environment variables
 	  --headful \t\t\tShows the browser window on your machine
+	  --pre-auth-docs \t\t\tPre authenticate documentation site. [High security risk]
 	  --api-host \t\t\tThe easy API may be sitting behind a reverse proxy. In this case set --api-host in order to make sure the api docs and api explorer are working properly. You will need to include the protocol as well.
 
 	Please check here for more information on some of the above mentioned parameters: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html
@@ -135,6 +136,10 @@ ${configParamText}
 			default: false
 		},
 		headful: { 
+			type: 'boolean',
+			default: false
+		},
+		preAuthDocs: { 
 			type: 'boolean',
 			default: false
 		},
@@ -319,7 +324,7 @@ return await create({ ...config })
 			  //Sort alphabetically
 			var x = {}; Object.keys(swCol.paths).sort().map(k=>x[k]=swCol.paths[k]);swCol.paths=x;
 			fs.writeFileSync("./open-wa-" + c.sessionId + ".sw_col.json", JSON.stringify(swCol));
-			app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swCol, c.key ? {
+			app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swCol, (c.key && c.preAuthDocs) ? {
 				swaggerOptions:{
 					authAction: {
 						api_key: {
