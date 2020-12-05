@@ -9,12 +9,14 @@
       "url": "jontewks/puppeteer"
     }
   ],
+  "website": "https://docs.openwa.dev/",
   "env": {
     "WA_SESSION_DATA": {
-      "description": "The Base64 encoded string of the session.data.json file. This heroku app is designed to be stateless so you no session details survive a redployment. Run `npx @open-wa/wa-automate --disable-spins -o` to generate a session.data.json file."
+      "description": "The Base64 encoded string of the session.data.json file. This heroku app is designed to be stateless so you no session details survive a redployment. Run `npx @open-wa/wa-automate --disable-spins -o` to generate a session.data.json file.",
+      "required": true
     },
     "API_KEY": {
-      "description": "The api key.",
+      "description": "The api key. If you do not set this manually it will be generated and available to see in the logs.",
       "generator": "secret"
     }
   },
