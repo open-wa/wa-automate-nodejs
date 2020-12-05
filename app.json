@@ -10,7 +10,7 @@
       "size": "standard-1x"
     }
   },
-  "success_url": "/",
+  "success_url": "/api-docs/",
   "buildpacks": [
     {
       "url": "jontewks/puppeteer"
