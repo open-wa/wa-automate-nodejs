@@ -11,6 +11,6 @@
   "author": "M SHAH <shah@idk.uno>",
   "private": true,
   "dependencies": {
-    "@open-wa/wa-automate": "^3.1.4"
+    "@open-wa/wa-automate": "^3.1.5"
   }
 }
