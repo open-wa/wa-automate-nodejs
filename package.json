@@ -1,5 +1,5 @@
 {
-  "name": "open-wa-heroku-addon",
+  "name": "open-wa-deploy-heroku",
   "version": "1.0.0",
   "description": "The official open-wa Easy API heroku deployment",
   "scripts": {
