@@ -6,7 +6,7 @@
     "start": "npx @open-wa/wa-automate --disable-spins --port $PORT --popup --in-docker --qr-timeout 0 -k $API_KEY",
     "scan": "npx @open-wa/wa-automate --disable-spins -o --in-docker --port $PORT"
   },
-  "repository": "https://github.com/smashah/open-wa-heroku-addon.git",
+  "repository": "https://github.com/open-wa/wa-automate-deploy-heroku.git",
   "author": "M SHAH <shah@openwa.dev>",
   "dependencies": {
     "@open-wa/wa-automate": "^3.1.5"

@@ -1,5 +1,7 @@
 # open-wa-heroku-deployment
 
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/open-wa/wa-automate-deploy-heroku)
+
 Steps:
 
 0. Make sure you have a .data.json file already authenticated. If you do not already have this then run this code
