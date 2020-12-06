@@ -28,10 +28,10 @@
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.12.7.tgz#fee7b39fe809d0e73e5b25eecaf5780ef3d73056"
   integrity sha512-oWR02Ubp4xTLCAqPRiNIuMVgNO5Aif/xpXtabhzW2HWUD47XJsAB4Zd/Rg30+XeQA3juXigV7hlquOTmwqLiwg==
 
-"@open-wa/wa-automate@^3.1.4":
-  version "3.1.4"
-  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-3.1.4.tgz#329c3cb93af503eb0a82e88dcde85d4eac13d7b7"
-  integrity sha512-v11uJmAhDiQBZdXiOLVBacmtAszam6lUx+KWFGRl6xKNsDoqLaFkcUwY+URTdRWbfHdTbLfM5TwBCFD8uH15kA==
+"@open-wa/wa-automate@latest":
+  version "3.1.5"
+  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-3.1.5.tgz#ebc4c529d137013c6073bad5d83f7c9f84bf1e14"
+  integrity sha512-JLltW+DvBncLZKln/km3Bu3E1tLAHIXOT3UYretUEKPaRzy46+4mLCEmGvlD2JMImAlrp5yS17PmoQqRMeBKPw==
   dependencies:
     "@open-wa/wa-decrypt" "^3.0.0"
     "@types/sharp" "^0.26.0"
