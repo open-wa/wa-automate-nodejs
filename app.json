@@ -27,7 +27,7 @@
       "required": true
     },
     "API_KEY": {
-      "description": "The api key which will be used to authenticate API requests. If you do not set this manually it will be generated and available to see in the logs..",
+      "description": "The api key which will be used to authenticate API requests. If you do not set this manually it will be generated and available to see in the logs.."
     }
   },
   "keywords": ["node", "express", "static", "wa", "automate", "bot"]
