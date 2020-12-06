@@ -1,15 +1,13 @@
 {
   "name": "open-wa-heroku-addon",
   "version": "1.0.0",
-  "description": "The official open-wa heroku addon",
+  "description": "The official open-wa Easy API heroku deployment",
   "scripts": {
     "start": "npx @open-wa/wa-automate --disable-spins --port $PORT --popup --in-docker --qr-timeout 0 -k $API_KEY",
     "scan": "npx @open-wa/wa-automate --disable-spins -o --in-docker --port $PORT"
   },
-  "main": "index.js",
   "repository": "https://github.com/smashah/open-wa-heroku-addon.git",
-  "author": "M SHAH <shah@idk.uno>",
-  "private": true,
+  "author": "M SHAH <shah@openwa.dev>",
   "dependencies": {
     "@open-wa/wa-automate": "^3.1.5"
   }
