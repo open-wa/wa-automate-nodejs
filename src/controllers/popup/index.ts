@@ -86,12 +86,10 @@ export async function popup(config: ConfigObject) {
     if(hasChrome){
         if(!config?.inDocker) await open(`http://localhost:${PORT}${config?.qrPopUpOnly?`/qr`:``}`, { app: [config?.executablePath || appName , '--incognito'], allowNonzeroExitCode: true}).catch(()=>{}); else return "NA";
     } else return `http://localhost:${PORT}${config?.qrPopUpOnly ? '/qr' : ''}`;
-    return config?.qrPopUpOnly ?  `http://localhost:${PORT}/qr` : await new Promise(resolve => {
-        io.on('connection', function (client) {
-            gClient = client;
-            resolve(`http://localhost:${PORT}`);
-        });
+    io.on('connection', function (client) {
+        gClient = client;
     });
+    return `http://localhost:${PORT}${config?.qrPopUpOnly ? '/qr' : ''}`
 }
 
 export const closeHttp = async () => {
