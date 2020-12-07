@@ -21,4 +21,4 @@ This will stop the program as soon as a .data.json file has been created (It sho
 
 ## Digital Ocean Deployment
 
-[![Deploy to DO](https://mp-assets1.sfo2.digitaloceanspaces.com/deploy-to-do/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/open-wa/wa-automate-deploy-heroku)
+[![Deploy to DO](https://mp-assets1.sfo2.digitaloceanspaces.com/deploy-to-do/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/open-wa/wa-automate-deploy-heroku/tree/main)
