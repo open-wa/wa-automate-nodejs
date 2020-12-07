@@ -1,8 +1,9 @@
 spec:
   name: open-wa-easy-api
   services:
-  - environment_slug: node-js
-    run_command: 
+  # - environment_slug: node-js
+  - dockerfile_path: dockerfile.build
+    run_command: npm run start
     git:
       branch: main
       repo_clone_url: https://github.com/open-wa/wa-automate-deploy-heroku.git

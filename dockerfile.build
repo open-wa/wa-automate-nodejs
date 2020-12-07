@@ -1,0 +1,2 @@
+FROM browserless/chrome
+RUN yarn install
