@@ -1,0 +1,20 @@
+spec:
+  name: open-wa-easy-api
+  services:
+  - environment_slug: node-js
+    run_command: 
+    git:
+      branch: main
+      repo_clone_url: https://github.com/open-wa/wa-automate-deploy-heroku.git
+    name: open-wa-easy-api
+    envs: 
+      - key: "WA_SESSION_ID"
+        type: SECRET
+        scope: RUN_AND_BUILD_TIME
+      - key: "API_KEY"
+        type: SECRET
+        scope: RUN_AND_BUILD_TIME
+      - key: "PORT"
+        type: GENERAL
+        value: '8080'
+        scope: RUN_AND_BUILD_TIME
