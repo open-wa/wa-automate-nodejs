@@ -1,2 +1,3 @@
 FROM browserless/chrome
+FROM heroku/heroku:18
 RUN yarn install
