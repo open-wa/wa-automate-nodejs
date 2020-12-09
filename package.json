@@ -9,6 +9,6 @@
   "repository": "https://github.com/open-wa/wa-automate-deploy-heroku.git",
   "author": "M SHAH <shah@openwa.dev>",
   "dependencies": {
-    "@open-wa/wa-automate": "latest"
+    "@open-wa/wa-automate": "^3.1.7"
   }
 }
