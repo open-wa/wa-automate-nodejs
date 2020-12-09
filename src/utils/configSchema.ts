@@ -35,6 +35,11 @@ export const getConfigWithCase = (config ?: {
             entry.description = 'The base64 encoded sessionData used to restore a session.'
             delete entry.anyOf;
         }
+        if(key==='licenseKey') {
+            entry.type = 'string';
+            entry.description = 'The license key to use with the session.'
+            delete entry.anyOf;
+        }
         return {...entry,key}
     }).filter(({type,key})=>type&&!ignoredConfigs.includes(key));
     const configWithCases = configs.map(o=>({env:`WA_${constantCase(o.key)}`,p:paramCase(o.key),...o}))
