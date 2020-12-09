@@ -874,7 +874,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Sends a text message to given chat
-   * If you need to send a message to new numbers please see these instructions: https://github.com/open-wa/wa-automate-nodejs#starting-a-conversation
+   * If you need to send a message to new numbers please see [these instructions:](https://docs.openwa.dev/pages/The%20Client/licensed-features.html#sending-messages-to-non-contact-numbers)
    * @param to chat id: xxxxx@c.us
    * @param content text message
    */
