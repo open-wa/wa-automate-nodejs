@@ -848,6 +848,13 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     return true;
   }
 
+  /**
+   * This is a convinient method to click the `Use Here` button in the WA web session.
+   * 
+   * Use this when [[STATE]] is `CONFLICT`. You can read more about managing state here:
+   * 
+   * [[Detecting Logouts]]
+   */
   public async forceRefocus() {
     const useHere: string = await this._page.evaluate(()=>WAPI.getUseHereString());
     await this._page.waitForFunction(
