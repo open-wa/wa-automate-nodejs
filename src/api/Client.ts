@@ -440,7 +440,7 @@ export class Client {
   private async pup(pageFunction:EvaluateFn<any>, ...args) {
     if(this._createConfig?.safeMode) {
       if(!this._page || this._page.isClosed()) throw 'page closed';
-      const state = await this.getConnectionState();
+      const state = await this.forceUpdateConnectionState();
       if(state!==STATE.CONNECTED) throw `state: ${state}`
     }
     return this._page.evaluate(pageFunction, ...args)
