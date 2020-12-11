@@ -331,6 +331,7 @@ export interface ConfigObject {
      * safeMode        ==>     WA_SAFE_MODE
      * skipSessionSave ==>     WA_SKIP_SESSION_SAVE
      * popup           ==>     WA_POPUP 
+     * licensekey      ==>     WA_LICENSE_KEY 
      * ```
      * @default `false`
      */
@@ -397,8 +398,19 @@ export interface ConfigObject {
      */
     corsFix ?: boolean;
     /**
+     * Amount of time (in ms) to wait for a client method (specifically methods that interact with the WA web session) to resolve. If a client method results takes longer than the timout value then it will result in a [[PageEvaluationTimeout]] error.
+     * 
+     * If you get this error, it does not automatically mean that the method failed - it just stops your program from waiting for a client method to resolve.
+     * 
+     * This is useful if you do not rely on the results of a client method (e.g the message ID).
+     * 
+     * If set to `0`, the process will wait indefinitely for a client method to resolve.
+     * @default 0
+     */
+    callTimeout ?: number;
+    /**
      * When true, this option will take a screenshot of the browser when an unexpected error occurs within the browser during `create` initialization. The path will be `[working directory]/logs/[session ID]/[start timestamp]/[timestamp].jpg`
-     * @default `true`
+     * @default `false`
      */
     screenshotOnInitializationBrowserError ?: boolean;
     /**@internal */

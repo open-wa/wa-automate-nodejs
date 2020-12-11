@@ -7,6 +7,7 @@ import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent, puppeteerConfig } from '../config/puppeteer.config'
 import sharp from 'sharp';
 import { ConfigObject, STATE } from './model';
+import { PageEvaluationTimeout } from './model/errors';
 import PQueue from 'p-queue'
 /** @ignore */
 const parseFunction = require('parse-function'),
@@ -443,7 +444,8 @@ export class Client {
       const state = await this.forceUpdateConnectionState();
       if(state!==STATE.CONNECTED) throw `state: ${state}`
     }
-    return this._page.evaluate(pageFunction, ...args)
+    if(this._createConfig?.callTimeout) return await Promise.race([this._page.evaluate(pageFunction, ...args),new Promise((resolve, reject) => setTimeout(reject, this._createConfig?.callTimeout, new PageEvaluationTimeout()))])
+    return this._page.evaluate(pageFunction, ...args);
   }
 
   /**
