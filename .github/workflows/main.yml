@@ -6,5 +6,5 @@
     source-directory: '.'
     destination-github-username: 'open-wa'
     destination-repository-name: 'wa-automate-nodejs'
-    user-email: shah@openwa.dev
-    target-branch: 'heroku-deploy
+    user-email: 'shah@openwa.dev'
+    target-branch: 'heroku-deploy'
