@@ -2846,6 +2846,29 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
+   * Retreives a list of [[SimpleListener]] that are registered to webhooks.
+   */
+  public async listWebhooks(){
+    return Object.keys(this._registeredWebhooks) as SimpleListener[];
+  }
+
+  /**
+   * Removes a webhook.
+   * 
+   * Returns `true` if the webhook was found and removed. `false` if the webhook was not found and therefore could not be removed.
+   * 
+   * @param simpleListener The webhook name to remove.
+   * @retruns boolean
+   */
+  public async removeWebhook(simpleListener: SimpleListener){
+    if(this?._registeredWebhooks[simpleListener]) {
+      delete this._registeredWebhooks[simpleListener];
+      return true; //`Webhook for ${simpleListener} removed`
+    }
+    return false; //`Webhook for ${simpleListener} not found`
+  }
+  
+  /**
    * The client can now automatically handle webhooks. Use this method to register webhooks.
    * 
    * @param event use [[SimpleListener]] enum
