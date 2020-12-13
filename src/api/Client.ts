@@ -35,25 +35,75 @@ export enum namespace {
   GroupMetadata = 'GroupMetadata'
 }
 
+/**
+ * An enum of all the "simple listeners". A simple listener is a listener that just takes one parameter which is the callback function to handle the event.
+ */
 export enum SimpleListener {
+  /**
+   * Represents [[onMessage]]
+   */
   Message = 'onMessage',
+  /**
+   * Represents [[onAnyMessage]]
+   */
   AnyMessage = 'onAnyMessage',
+  /**
+   * Represents [[onMessageDeleted]]
+   */
   MessageDeleted = 'onMessageDeleted',
+  /**
+   * Represents [[onAck]]
+   */
   Ack = 'onAck',
+  /**
+   * Represents [[onAddedToGroup]]
+   */
   AddedToGroup = 'onAddedToGroup',
+  /**
+   * Represents [[onBattery]]
+   */
   Battery = 'onBattery',
+  /**
+   * Represents [[onChatOpened]]
+   */
   ChatOpened = 'onChatOpened',
+  /**
+   * Represents [[onIncomingCall]]
+   */
   IncomingCall = 'onIncomingCall',
+  /**
+   * Represents [[onGlobalParicipantsChanged]]
+   */
   GlobalParicipantsChanged = 'onGlobalParicipantsChanged',
+  /**
+   * Represents [[onChatState]]
+   */
   ChatState = 'onChatState',
   // Next two require extra params so not available to use via webhook register
   // LiveLocation = 'onLiveLocation',
   // ParticipantsChanged = 'onParticipantsChanged',
+  /**
+   * Represents [[onPlugged]]
+   */
   Plugged = 'onPlugged',
+  /**
+   * Represents [[onStateChanged]]
+   */
   StateChanged = 'onStateChanged',
-  //require licences
+  /**
+   * Requires licence
+   * Represents [[onStory]]
+   */
   Story = 'onStory',
+  /**
+   * Requires licence
+   * Represents [[onRemovedFromGroup]]
+   */
   RemovedFromGroup = 'onRemovedFromGroup',
+  /**
+   * Requires licence
+   * Represents [[onContactAdded]]
+   */
   ContactAdded = 'onContactAdded',
 }
 
@@ -353,6 +403,9 @@ export class Client {
     this._loadedModules = [];
     this._sessionInfo = sessionInfo;
     this._listeners = {};
+    if(this._createConfig?.eventMode) {
+      // Object.keys(SimpleListener).map(eventKey => this.registerWebhook(SimpleListener[eventKey], c.webhook))
+    }
     this._setOnClose();
   }
 
@@ -604,8 +657,9 @@ export class Client {
   /**
    * Listens to messages acknowledgement Changes
    * 
+   * @param fn callback function that handles a [[Message]] as the first and only parameter.
    * @event 
-   * @returns Observable stream of messages
+   * @returns `true` if the callback was registered
    */
   public async onAck(fn: (message: Message) => void) {
     return this.registerListener(SimpleListener.Ack, fn);
@@ -615,8 +669,8 @@ export class Client {
    * Listens to add and remove events on Groups on a global level. It is memory efficient and doesn't require a specific group id to listen to.
    * 
    * @event
-   * @param fn callback
-   * @returns Observable stream of participantChangedEvent
+   * @param fn callback function that handles a [[ParticipantChangedEventModel]] as the first and only parameter.
+   * @returns `true` if the callback was registered
    */
   public async onGlobalParicipantsChanged(fn: (participantChangedEvent: ParticipantChangedEventModel) => void) {
     return this.registerListener(SimpleListener.GlobalParicipantsChanged, fn);
@@ -626,8 +680,8 @@ export class Client {
    * Fires callback with Chat object every time the host phone is added to a group.
    * 
    * @event 
-   * @param to callback
-   * @returns Observable stream of Chats
+   * @param fn callback function that handles a [[Chat]] (group chat) as the first and only parameter.
+   * @returns `true` if the callback was registered
    */
   public async onAddedToGroup(fn: (chat: Chat) => any) {
     return this.registerListener(SimpleListener.AddedToGroup, fn);
@@ -640,8 +694,8 @@ export class Client {
    * Fires callback with Chat object every time the host phone is added to a group.
    * 
    * @event 
-   * @param to callback
-   * @returns Observable stream of Chats
+   * @param fn callback function that handles a [[Chat]] (group chat) as the first and only parameter.
+   * @returns `true` if the callback was registered
    */
   public async onRemovedFromGroup(fn: (chat: Chat) => any) {
     return this.registerListener(SimpleListener.RemovedFromGroup, fn);
@@ -653,8 +707,8 @@ export class Client {
    * Fires callback with the relevant chat id every time the user clicks on a chat. This will only work in headful mode.
    * 
    * @event 
-   * @param to callback
-   * @returns Observable stream of Chat ids.
+   * @param fn callback function that handles a [[ChatId]] as the first and only parameter.
+   * @returns `true` if the callback was registered
    */
   public async onChatOpened(fn: (chat: Chat) => any) {
     return this.registerListener(SimpleListener.ChatOpened, fn);
@@ -666,14 +720,14 @@ export class Client {
    * Fires callback with contact id when a new contact is added on the host phone.
    * 
    * @event 
-   * @param to callback
-   * @returns Observable stream of contact ids
+   * @param fn callback function that handles a [[Chat]] as the first and only parameter.
+   * @returns `true` if the callback was registered
    */
   public async onContactAdded(fn: (chat: Chat) => any) {
     return this.registerListener(SimpleListener.ChatOpened, fn);
   }
 
-  // cOMPLEX LISTENERS
+  // COMPLEX LISTENERS
 
   /**
    * @event 
@@ -2794,7 +2848,7 @@ public async getStatus(contactId: ContactId) {
   /**
    * The client can now automatically handle webhooks. Use this method to register webhooks.
    * 
-   * @param event use SimpleListener enum
+   * @param event use [[SimpleListener]] enum
    * @param url The webhook url
    * @param requestConfig {} By default the request is a post request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
    * @param concurrency the amount of concurrent requests to be handled by the built in queue. Default is 5.
