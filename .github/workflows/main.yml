@@ -1,0 +1,10 @@
+  - name: Pushes to another repository
+    uses: cpina/github-action-push-to-another-repository@master
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+      with:
+    source-directory: '.'
+    destination-github-username: 'open-wa'
+    destination-repository-name: 'wa-automate-nodejs'
+    user-email: shah@openwa.dev
+    target-branch: 'heroku-deploy
