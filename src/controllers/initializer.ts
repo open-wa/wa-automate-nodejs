@@ -138,8 +138,9 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     });
 
     const WA_AUTOMATE_VERSION = `${pkg.version}${notifier?.update ? ` UPDATE AVAILABLE: ${notifier?.update.latest}` : ''}`;
+    await waPage.waitForFunction('window.Debug!=undefined && window.Debug.VERSION!=undefined');
     //@ts-ignore
-    const WA_VERSION = await waPage.evaluate(() => window.Debug ? window.Debug.VERSION || window.Debug : 'I think you have been TOS_BLOCKed')
+    const WA_VERSION = await waPage.evaluate(() => window.Debug ? window.Debug.VERSION : 'I think you have been TOS_BLOCKed')
     //@ts-ignore
     const canInjectEarly = await waPage.evaluate(() => { return (typeof webpackJsonp !== "undefined") });
     let debugInfo : SessionInfo = {
