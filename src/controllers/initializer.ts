@@ -280,7 +280,10 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
           const l_success = await waPage.evaluate(data => eval(data), data);
           if(!l_success) {
             l_err = await waPage.evaluate('window.launchError');
-          } else spinner.succeed('License Valid');
+          } else {
+            const keyType = await waPage.evaluate('window.KEYTYPE || false');
+            spinner.succeed(`License Valid${keyType?`: ${keyType}`:''}`);
+          }
         } else l_err = "The key is invalid"
         if(l_err) {
           spinner.fail(`License issue${l_err ? `: ${l_err}` : ""}`);
