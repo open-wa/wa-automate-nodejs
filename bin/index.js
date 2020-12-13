@@ -10,6 +10,7 @@ const p2s = require('postman-2-swagger');
 const swaggerUi = require('swagger-ui-express');
 const terminalLink = require('terminal-link');
 const tcpPortUsed = require('tcp-port-used');
+const changeCase = require("change-case");
 const extraFlags = {};
 const configWithCases = require('./config-schema.json');
 const axios = require('axios').default;
@@ -151,9 +152,16 @@ ${configParamText}
 });
 
 app.use(express.json({ limit: '200mb' })) //add the limit option so we can send base64 data through the api
+/**
+ * Parse CLI flags from process.env
+ */
+const envArgs = {};
+Object.entries(process.env).filter(([k,v])=>k.includes('WA')).map(([k,v])=>envArgs[changeCase.camelCase(k.replace('WA_',''))]=(v=='false' || v=='FALSE')?false:(v=='true' ||v=='TRUE')?true:Number(v)||v);
+
 const c = {
 	autoRefresh: true,
-	...cli.flags
+	...cli.flags,
+	...envArgs
 };
 const PORT = c.port;
 let config = {};
