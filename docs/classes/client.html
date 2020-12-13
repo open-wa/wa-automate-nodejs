@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Client | @open-wa/wa-automate - v3.1.8</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.1.8">
+	<title>Client | @open-wa/wa-automate - v3.1.9</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.1.9">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -23,7 +23,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v3.1.8</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v3.1.9</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -179,6 +179,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="client.html#joingroupvialink" class="tsd-kind-icon">join<wbr>Group<wbr>Via<wbr>Link</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="client.html#kill" class="tsd-kind-icon">kill</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="client.html#leavegroup" class="tsd-kind-icon">leave<wbr>Group</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="client.html#listwebhooks" class="tsd-kind-icon">list<wbr>Webhooks</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="client.html#loadallearliermessages" class="tsd-kind-icon">load<wbr>All<wbr>Earlier<wbr>Messages</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="client.html#loadandgetallmessagesinchat" class="tsd-kind-icon">load<wbr>And<wbr>Get<wbr>All<wbr>Messages<wbr>InChat</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="client.html#loadearliermessages" class="tsd-kind-icon">load<wbr>Earlier<wbr>Messages</a></li>
@@ -192,6 +193,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="client.html#registerwebhook" class="tsd-kind-icon">register<wbr>Webhook</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="client.html#removelabel" class="tsd-kind-icon">remove<wbr>Label</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="client.html#removeparticipant" class="tsd-kind-icon">remove<wbr>Participant</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="client.html#removewebhook" class="tsd-kind-icon">remove<wbr>Webhook</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="client.html#reply" class="tsd-kind-icon">reply</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="client.html#reportspam" class="tsd-kind-icon">report<wbr>Spam</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="client.html#revokegroupinvitelink" class="tsd-kind-icon">revoke<wbr>Group<wbr>Invite<wbr>Link</a></li>
@@ -254,7 +256,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L610">src/api/Client.ts:610</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L664">src/api/Client.ts:664</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -266,6 +268,9 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>fn: <span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/message.html" class="tsd-signature-type">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>callback function that handles a <a href="../interfaces/message.html">Message</a> as the first and only parameter.</p>
+									</div>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter-signature">
 											<ul class="tsd-signatures tsd-kind-type-literal">
@@ -287,7 +292,7 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							<p>Observable stream of messages</p>
+							<p><code>true</code> if the callback was registered</p>
 						</li>
 					</ul>
 				</section>
@@ -301,7 +306,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L632">src/api/Client.ts:632</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L686">src/api/Client.ts:686</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -313,6 +318,9 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>fn: <span class="tsd-signature-symbol">(</span>chat<span class="tsd-signature-symbol">: </span><a href="../interfaces/chat.html" class="tsd-signature-type">Chat</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>callback function that handles a <a href="../interfaces/chat.html">Chat</a> (group chat) as the first and only parameter.</p>
+									</div>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter-signature">
 											<ul class="tsd-signatures tsd-kind-type-literal">
@@ -334,7 +342,7 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							<p>Observable stream of Chats</p>
+							<p><code>true</code> if the callback was registered</p>
 						</li>
 					</ul>
 				</section>
@@ -348,7 +356,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L507">src/api/Client.ts:507</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L560">src/api/Client.ts:560</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -399,7 +407,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L530">src/api/Client.ts:530</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L583">src/api/Client.ts:583</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -453,7 +461,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L659">src/api/Client.ts:659</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L713">src/api/Client.ts:713</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -466,6 +474,9 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>fn: <span class="tsd-signature-symbol">(</span>chat<span class="tsd-signature-symbol">: </span><a href="../interfaces/chat.html" class="tsd-signature-type">Chat</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>callback function that handles a <a href="../globals.html#chatid">ChatId</a> as the first and only parameter.</p>
+									</div>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter-signature">
 											<ul class="tsd-signatures tsd-kind-type-literal">
@@ -487,7 +498,7 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							<p>Observable stream of Chat ids.</p>
+							<p><code>true</code> if the callback was registered</p>
 						</li>
 					</ul>
 				</section>
@@ -501,7 +512,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L600">src/api/Client.ts:600</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L653">src/api/Client.ts:653</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -557,7 +568,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L672">src/api/Client.ts:672</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L726">src/api/Client.ts:726</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -570,6 +581,9 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>fn: <span class="tsd-signature-symbol">(</span>chat<span class="tsd-signature-symbol">: </span><a href="../interfaces/chat.html" class="tsd-signature-type">Chat</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>callback function that handles a <a href="../interfaces/chat.html">Chat</a> as the first and only parameter.</p>
+									</div>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter-signature">
 											<ul class="tsd-signatures tsd-kind-type-literal">
@@ -591,7 +605,7 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							<p>Observable stream of contact ids</p>
+							<p><code>true</code> if the callback was registered</p>
 						</li>
 					</ul>
 				</section>
@@ -605,7 +619,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L621">src/api/Client.ts:621</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L675">src/api/Client.ts:675</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -618,7 +632,7 @@
 								<li>
 									<h5>fn: <span class="tsd-signature-symbol">(</span>participantChangedEvent<span class="tsd-signature-symbol">: </span><a href="../interfaces/participantchangedeventmodel.html" class="tsd-signature-type">ParticipantChangedEventModel</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>callback</p>
+										<p>callback function that handles a <a href="../interfaces/participantchangedeventmodel.html">ParticipantChangedEventModel</a> as the first and only parameter.</p>
 									</div>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter-signature">
@@ -641,7 +655,7 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							<p>Observable stream of participantChangedEvent</p>
+							<p><code>true</code> if the callback was registered</p>
 						</li>
 					</ul>
 				</section>
@@ -655,7 +669,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L579">src/api/Client.ts:579</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L632">src/api/Client.ts:632</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -702,7 +716,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L706">src/api/Client.ts:706</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L760">src/api/Client.ts:760</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -760,7 +774,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L478">src/api/Client.ts:478</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L531">src/api/Client.ts:531</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -811,7 +825,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L519">src/api/Client.ts:519</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L572">src/api/Client.ts:572</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -866,7 +880,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L685">src/api/Client.ts:685</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L739">src/api/Client.ts:739</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -916,7 +930,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L541">src/api/Client.ts:541</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L594">src/api/Client.ts:594</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -970,7 +984,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L646">src/api/Client.ts:646</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L700">src/api/Client.ts:700</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -983,6 +997,9 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>fn: <span class="tsd-signature-symbol">(</span>chat<span class="tsd-signature-symbol">: </span><a href="../interfaces/chat.html" class="tsd-signature-type">Chat</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>callback function that handles a <a href="../interfaces/chat.html">Chat</a> (group chat) as the first and only parameter.</p>
+									</div>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter-signature">
 											<ul class="tsd-signatures tsd-kind-type-literal">
@@ -1004,7 +1021,7 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							<p>Observable stream of Chats</p>
+							<p><code>true</code> if the callback was registered</p>
 						</li>
 					</ul>
 				</section>
@@ -1018,7 +1035,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L570">src/api/Client.ts:570</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L623">src/api/Client.ts:623</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1069,7 +1086,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L560">src/api/Client.ts:560</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L613">src/api/Client.ts:613</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1131,7 +1148,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L747">src/api/Client.ts:747</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L801">src/api/Client.ts:801</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1165,7 +1182,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2168">src/api/Client.ts:2168</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2222">src/api/Client.ts:2222</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1202,7 +1219,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1443">src/api/Client.ts:1443</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1497">src/api/Client.ts:1497</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1237,7 +1254,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1998">src/api/Client.ts:1998</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2052">src/api/Client.ts:2052</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1266,7 +1283,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1161">src/api/Client.ts:1161</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1215">src/api/Client.ts:1215</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1300,7 +1317,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2637">src/api/Client.ts:2637</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2691">src/api/Client.ts:2691</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1323,7 +1340,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1935">src/api/Client.ts:1935</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1989">src/api/Client.ts:1989</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1352,7 +1369,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1616">src/api/Client.ts:1616</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1670">src/api/Client.ts:1670</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1383,7 +1400,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1636">src/api/Client.ts:1636</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1690">src/api/Client.ts:1690</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1414,7 +1431,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2103">src/api/Client.ts:2103</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2157">src/api/Client.ts:2157</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1458,7 +1475,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2647">src/api/Client.ts:2647</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2701">src/api/Client.ts:2701</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1482,7 +1499,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2288">src/api/Client.ts:2288</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2342">src/api/Client.ts:2342</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1513,7 +1530,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1046">src/api/Client.ts:1046</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1100">src/api/Client.ts:1100</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1545,7 +1562,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2606">src/api/Client.ts:2606</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2660">src/api/Client.ts:2660</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1568,7 +1585,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1923">src/api/Client.ts:1923</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1977">src/api/Client.ts:1977</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1597,7 +1614,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1986">src/api/Client.ts:1986</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2040">src/api/Client.ts:2040</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1641,7 +1658,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2595">src/api/Client.ts:2595</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2649">src/api/Client.ts:2649</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1673,7 +1690,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2194">src/api/Client.ts:2194</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2248">src/api/Client.ts:2248</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1710,7 +1727,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L388">src/api/Client.ts:388</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L441">src/api/Client.ts:441</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1748,7 +1765,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2673">src/api/Client.ts:2673</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2727">src/api/Client.ts:2727</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1777,7 +1794,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2665">src/api/Client.ts:2665</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2719">src/api/Client.ts:2719</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1814,7 +1831,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L858">src/api/Client.ts:858</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L912">src/api/Client.ts:912</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1838,7 +1855,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1771">src/api/Client.ts:1771</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1825">src/api/Client.ts:1825</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1869,7 +1886,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L821">src/api/Client.ts:821</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L875">src/api/Client.ts:875</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1892,7 +1909,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L874">src/api/Client.ts:874</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L928">src/api/Client.ts:928</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1925,7 +1942,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1458">src/api/Client.ts:1458</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1512">src/api/Client.ts:1512</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1968,7 +1985,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1542">src/api/Client.ts:1542</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1596">src/api/Client.ts:1596</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1991,7 +2008,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1527">src/api/Client.ts:1527</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1581">src/api/Client.ts:1581</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2020,7 +2037,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1563">src/api/Client.ts:1563</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1617">src/api/Client.ts:1617</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2052,7 +2069,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1483">src/api/Client.ts:1483</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1537">src/api/Client.ts:1537</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2075,7 +2092,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1571">src/api/Client.ts:1571</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1625">src/api/Client.ts:1625</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2104,7 +2121,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2061">src/api/Client.ts:2061</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2115">src/api/Client.ts:2115</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2140,7 +2157,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2024">src/api/Client.ts:2024</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2078">src/api/Client.ts:2078</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2163,7 +2180,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2032">src/api/Client.ts:2032</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2086">src/api/Client.ts:2086</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2186,7 +2203,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1348">src/api/Client.ts:1348</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1402">src/api/Client.ts:1402</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2208,7 +2225,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1503">src/api/Client.ts:1503</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1557">src/api/Client.ts:1557</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2231,7 +2248,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1550">src/api/Client.ts:1550</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1604">src/api/Client.ts:1604</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2254,7 +2271,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1360">src/api/Client.ts:1360</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1414">src/api/Client.ts:1414</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2286,7 +2303,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1787">src/api/Client.ts:1787</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1841">src/api/Client.ts:1841</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2315,7 +2332,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1704">src/api/Client.ts:1704</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1758">src/api/Client.ts:1758</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2344,7 +2361,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L828">src/api/Client.ts:828</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L882">src/api/Client.ts:882</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2366,7 +2383,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1804">src/api/Client.ts:1804</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1858">src/api/Client.ts:1858</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2399,7 +2416,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L428">src/api/Client.ts:428</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L481">src/api/Client.ts:481</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2422,7 +2439,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L813">src/api/Client.ts:813</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L867">src/api/Client.ts:867</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2445,7 +2462,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1692">src/api/Client.ts:1692</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1746">src/api/Client.ts:1746</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2474,7 +2491,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1033">src/api/Client.ts:1033</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1087">src/api/Client.ts:1087</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2503,7 +2520,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2263">src/api/Client.ts:2263</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2317">src/api/Client.ts:2317</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2534,7 +2551,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1947">src/api/Client.ts:1947</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2001">src/api/Client.ts:2001</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2563,7 +2580,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1678">src/api/Client.ts:1678</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1732">src/api/Client.ts:1732</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2593,7 +2610,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1586">src/api/Client.ts:1586</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1640">src/api/Client.ts:1640</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2624,7 +2641,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1519">src/api/Client.ts:1519</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1573">src/api/Client.ts:1573</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2647,7 +2664,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2046">src/api/Client.ts:2046</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2100">src/api/Client.ts:2100</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2674,7 +2691,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1511">src/api/Client.ts:1511</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1565">src/api/Client.ts:1565</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2697,7 +2714,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1823">src/api/Client.ts:1823</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1877">src/api/Client.ts:1877</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2735,7 +2752,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1311">src/api/Client.ts:1311</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1365">src/api/Client.ts:1365</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2757,7 +2774,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1716">src/api/Client.ts:1716</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1770">src/api/Client.ts:1770</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2786,7 +2803,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2301">src/api/Client.ts:2301</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2355">src/api/Client.ts:2355</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2818,7 +2835,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1728">src/api/Client.ts:1728</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1782">src/api/Client.ts:1782</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2850,7 +2867,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2615">src/api/Client.ts:2615</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2669">src/api/Client.ts:2669</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2873,7 +2890,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L363">src/api/Client.ts:363</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L416">src/api/Client.ts:416</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Page</span></h4>
@@ -2890,7 +2907,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1835">src/api/Client.ts:1835</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1889">src/api/Client.ts:1889</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2919,7 +2936,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L359">src/api/Client.ts:359</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L412">src/api/Client.ts:412</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -2936,7 +2953,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L419">src/api/Client.ts:419</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L472">src/api/Client.ts:472</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2959,7 +2976,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2382">src/api/Client.ts:2382</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2436">src/api/Client.ts:2436</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3002,7 +3019,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1322">src/api/Client.ts:1322</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1376">src/api/Client.ts:1376</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3025,7 +3042,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1899">src/api/Client.ts:1899</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1953">src/api/Client.ts:1953</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3057,7 +3074,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1746">src/api/Client.ts:1746</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1800">src/api/Client.ts:1800</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3091,7 +3108,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2627">src/api/Client.ts:2627</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2681">src/api/Client.ts:2681</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3123,7 +3140,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2012">src/api/Client.ts:2012</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2066">src/api/Client.ts:2066</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3158,7 +3175,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1667">src/api/Client.ts:1667</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1721">src/api/Client.ts:1721</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3197,7 +3214,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1487">src/api/Client.ts:1487</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1541">src/api/Client.ts:1541</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -3214,7 +3231,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1472">src/api/Client.ts:1472</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1526">src/api/Client.ts:1526</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3247,7 +3264,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1333">src/api/Client.ts:1333</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1387">src/api/Client.ts:1387</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3269,7 +3286,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1959">src/api/Client.ts:1959</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2013">src/api/Client.ts:2013</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3300,7 +3317,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1873">src/api/Client.ts:1873</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1927">src/api/Client.ts:1927</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3314,7 +3331,7 @@
 								<li>
 									<h5>chatId: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>chat id: <a href="mailto:&#x78;&#120;&#120;&#x78;&#120;&#x40;&#99;&#x2e;&#117;&#115;">&#x78;&#120;&#120;&#x78;&#120;&#x40;&#99;&#x2e;&#117;&#115;</a></p>
+										<p>chat id: <a href="mailto:&#120;&#x78;&#120;&#x78;&#120;&#64;&#x63;&#x2e;&#117;&#115;">&#120;&#x78;&#120;&#x78;&#120;&#64;&#x63;&#x2e;&#117;&#115;</a></p>
 									</div>
 								</li>
 							</ul>
@@ -3332,7 +3349,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1495">src/api/Client.ts:1495</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1549">src/api/Client.ts:1549</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3355,7 +3372,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1604">src/api/Client.ts:1604</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1658">src/api/Client.ts:1658</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3393,7 +3410,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L836">src/api/Client.ts:836</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L890">src/api/Client.ts:890</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3416,7 +3433,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1644">src/api/Client.ts:1644</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1698">src/api/Client.ts:1698</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3438,6 +3455,28 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="listwebhooks" class="tsd-anchor"></a>
+					<h3>list<wbr>Webhooks</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">list<wbr>Webhooks<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../enums/simplelistener.html" class="tsd-signature-type">SimpleListener</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2851">src/api/Client.ts:2851</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Retreives a list of <a href="../enums/simplelistener.html">SimpleListener</a> that are registered to webhooks.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../enums/simplelistener.html" class="tsd-signature-type">SimpleListener</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="loadallearliermessages" class="tsd-anchor"></a>
 					<h3>load<wbr>All<wbr>Earlier<wbr>Messages</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -3447,7 +3486,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1911">src/api/Client.ts:1911</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1965">src/api/Client.ts:1965</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3476,7 +3515,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2076">src/api/Client.ts:2076</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2130">src/api/Client.ts:2130</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3511,7 +3550,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1886">src/api/Client.ts:1886</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1940">src/api/Client.ts:1940</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3540,7 +3579,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1859">src/api/Client.ts:1859</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1913">src/api/Client.ts:1913</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3553,7 +3592,7 @@
 								<li>
 									<h5>chatId: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>chat id: <a href="mailto:&#x78;&#120;&#120;&#120;&#x78;&#64;&#x63;&#x2e;&#117;&#115;">&#x78;&#120;&#120;&#120;&#x78;&#64;&#x63;&#x2e;&#117;&#115;</a></p>
+										<p>chat id: <a href="mailto:&#x78;&#x78;&#x78;&#x78;&#x78;&#x40;&#99;&#x2e;&#x75;&#115;">&#x78;&#x78;&#x78;&#x78;&#x78;&#x40;&#99;&#x2e;&#x75;&#115;</a></p>
 									</div>
 								</li>
 							</ul>
@@ -3571,7 +3610,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2767">src/api/Client.ts:2767</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2821">src/api/Client.ts:2821</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3657,7 +3696,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2567">src/api/Client.ts:2567</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2621">src/api/Client.ts:2621</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3696,7 +3735,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2552">src/api/Client.ts:2552</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2606">src/api/Client.ts:2606</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3753,7 +3792,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2582">src/api/Client.ts:2582</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2636">src/api/Client.ts:2636</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3792,7 +3831,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2182">src/api/Client.ts:2182</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2236">src/api/Client.ts:2236</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3829,7 +3868,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L396">src/api/Client.ts:396</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L449">src/api/Client.ts:449</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3852,7 +3891,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2802">src/api/Client.ts:2802</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2879">src/api/Client.ts:2879</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3865,7 +3904,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>event: <a href="../enums/simplelistener.html" class="tsd-signature-type">SimpleListener</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>use SimpleListener enum</p>
+										<p>use <a href="../enums/simplelistener.html">SimpleListener</a> enum</p>
 									</div>
 								</li>
 								<li>
@@ -3901,7 +3940,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L759">src/api/Client.ts:759</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L813">src/api/Client.ts:813</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3935,7 +3974,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2116">src/api/Client.ts:2116</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2170">src/api/Client.ts:2170</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3963,6 +4002,43 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="removewebhook" class="tsd-anchor"></a>
+					<h3>remove<wbr>Webhook</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">remove<wbr>Webhook<span class="tsd-signature-symbol">(</span>simpleListener<span class="tsd-signature-symbol">: </span><a href="../enums/simplelistener.html" class="tsd-signature-type">SimpleListener</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2863">src/api/Client.ts:2863</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Removes a webhook.</p>
+								</div>
+								<p>Returns <code>true</code> if the webhook was found and removed. <code>false</code> if the webhook was not found and therefore could not be removed.</p>
+								<dl class="tsd-comment-tags">
+									<dt>retruns</dt>
+									<dd><p>boolean</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>simpleListener: <a href="../enums/simplelistener.html" class="tsd-signature-type">SimpleListener</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The webhook name to remove.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="reply" class="tsd-anchor"></a>
 					<h3>reply</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -3972,7 +4048,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1142">src/api/Client.ts:1142</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1196">src/api/Client.ts:1196</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4022,7 +4098,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1628">src/api/Client.ts:1628</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1682">src/api/Client.ts:1682</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4054,7 +4130,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1972">src/api/Client.ts:1972</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2026">src/api/Client.ts:2026</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4083,7 +4159,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1212">src/api/Client.ts:1212</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1266">src/api/Client.ts:1266</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4117,7 +4193,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1417">src/api/Client.ts:1417</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1471">src/api/Client.ts:1471</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4151,7 +4227,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1405">src/api/Client.ts:1405</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1459">src/api/Client.ts:1459</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4193,7 +4269,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1180">src/api/Client.ts:1180</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1234">src/api/Client.ts:1234</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4206,7 +4282,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>chat id <a href="mailto:&#120;&#x78;&#120;&#x78;&#120;&#x40;&#99;&#x2e;&#x75;&#115;">&#120;&#x78;&#120;&#x78;&#120;&#x40;&#99;&#x2e;&#x75;&#115;</a></p>
+										<p>chat id <a href="mailto:&#120;&#x78;&#x78;&#120;&#x78;&#x40;&#x63;&#x2e;&#x75;&#x73;">&#120;&#x78;&#x78;&#120;&#x78;&#x40;&#x63;&#x2e;&#x75;&#x73;</a></p>
 									</div>
 								</li>
 								<li>
@@ -4230,7 +4306,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> quotedMsgId: <a href="../globals.html#messageid" class="tsd-signature-type">MessageId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>string <a href="mailto:&#116;&#114;&#x75;&#101;&#95;&#x30;&#x30;&#48;&#x30;&#x30;&#x30;&#48;&#x30;&#48;&#x30;&#64;&#99;&#x2e;&#x75;&#115;&#x5f;&#x4a;&#72;&#66;&#x32;&#x48;&#66;&#50;&#x33;&#x48;&#x4a;&#x34;&#66;&#x32;&#x33;&#x34;&#72;&#74;&#x42;">&#116;&#114;&#x75;&#101;&#95;&#x30;&#x30;&#48;&#x30;&#x30;&#x30;&#48;&#x30;&#48;&#x30;&#64;&#99;&#x2e;&#x75;&#115;&#x5f;&#x4a;&#72;&#66;&#x32;&#x48;&#66;&#50;&#x33;&#x48;&#x4a;&#x34;&#66;&#x32;&#x33;&#x34;&#72;&#74;&#x42;</a> to send as a reply to a message</p>
+										<p>string <a href="mailto:&#116;&#x72;&#x75;&#101;&#95;&#48;&#x30;&#48;&#x30;&#x30;&#x30;&#48;&#48;&#48;&#x30;&#x40;&#x63;&#46;&#117;&#115;&#95;&#74;&#72;&#66;&#x32;&#72;&#66;&#50;&#x33;&#x48;&#74;&#52;&#x42;&#x32;&#51;&#x34;&#72;&#x4a;&#x42;">&#116;&#x72;&#x75;&#101;&#95;&#48;&#x30;&#48;&#x30;&#x30;&#x30;&#48;&#48;&#48;&#x30;&#x40;&#x63;&#46;&#117;&#115;&#95;&#74;&#72;&#66;&#x32;&#72;&#66;&#50;&#x33;&#x48;&#74;&#52;&#x42;&#x32;&#51;&#x34;&#72;&#x4a;&#x42;</a> to send as a reply to a message</p>
 									</div>
 								</li>
 								<li>
@@ -4267,7 +4343,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1288">src/api/Client.ts:1288</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1342">src/api/Client.ts:1342</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4280,7 +4356,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>chat id <a href="mailto:&#120;&#x78;&#x78;&#x78;&#120;&#64;&#x63;&#46;&#117;&#x73;">&#120;&#x78;&#x78;&#x78;&#120;&#64;&#x63;&#46;&#117;&#x73;</a></p>
+										<p>chat id <a href="mailto:&#x78;&#120;&#x78;&#120;&#120;&#64;&#99;&#46;&#117;&#115;">&#x78;&#120;&#x78;&#120;&#120;&#64;&#99;&#46;&#117;&#115;</a></p>
 									</div>
 								</li>
 								<li>
@@ -4304,7 +4380,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> quotedMsgId: <a href="../globals.html#messageid" class="tsd-signature-type">MessageId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>string <a href="mailto:&#x74;&#114;&#x75;&#101;&#95;&#x30;&#48;&#48;&#48;&#x30;&#x30;&#x30;&#48;&#x30;&#48;&#64;&#x63;&#46;&#117;&#115;&#95;&#74;&#x48;&#x42;&#x32;&#x48;&#66;&#x32;&#x33;&#72;&#x4a;&#52;&#66;&#x32;&#x33;&#x34;&#72;&#x4a;&#66;">&#x74;&#114;&#x75;&#101;&#95;&#x30;&#48;&#48;&#48;&#x30;&#x30;&#x30;&#48;&#x30;&#48;&#64;&#x63;&#46;&#117;&#115;&#95;&#74;&#x48;&#x42;&#x32;&#x48;&#66;&#x32;&#x33;&#72;&#x4a;&#52;&#66;&#x32;&#x33;&#x34;&#72;&#x4a;&#66;</a> to send as a reply to a message</p>
+										<p>string <a href="mailto:&#116;&#114;&#x75;&#x65;&#x5f;&#48;&#x30;&#48;&#48;&#x30;&#48;&#48;&#x30;&#48;&#48;&#64;&#x63;&#x2e;&#117;&#x73;&#95;&#74;&#72;&#x42;&#x32;&#72;&#66;&#50;&#x33;&#72;&#x4a;&#52;&#x42;&#50;&#x33;&#52;&#72;&#74;&#x42;">&#116;&#114;&#x75;&#x65;&#x5f;&#48;&#x30;&#48;&#48;&#x30;&#48;&#48;&#x30;&#48;&#48;&#64;&#x63;&#x2e;&#117;&#x73;&#95;&#74;&#72;&#x42;&#x32;&#72;&#66;&#50;&#x33;&#72;&#x4a;&#52;&#x42;&#50;&#x33;&#52;&#72;&#74;&#x42;</a> to send as a reply to a message</p>
 									</div>
 								</li>
 								<li>
@@ -4346,7 +4422,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1252">src/api/Client.ts:1252</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1306">src/api/Client.ts:1306</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4359,7 +4435,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>chat id <a href="mailto:&#120;&#x78;&#120;&#120;&#120;&#64;&#x63;&#x2e;&#117;&#x73;">&#120;&#x78;&#120;&#120;&#120;&#64;&#x63;&#x2e;&#117;&#x73;</a></p>
+										<p>chat id <a href="mailto:&#120;&#x78;&#120;&#120;&#120;&#x40;&#x63;&#46;&#x75;&#115;">&#120;&#x78;&#120;&#120;&#120;&#x40;&#x63;&#46;&#x75;&#115;</a></p>
 									</div>
 								</li>
 								<li>
@@ -4389,7 +4465,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2529">src/api/Client.ts:2529</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2583">src/api/Client.ts:2583</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4426,7 +4502,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1068">src/api/Client.ts:1068</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1122">src/api/Client.ts:1122</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4439,7 +4515,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>chat id <a href="mailto:&#x78;&#120;&#x78;&#120;&#x78;&#x40;&#99;&#46;&#117;&#x73;">&#x78;&#120;&#x78;&#120;&#x78;&#x40;&#99;&#46;&#117;&#x73;</a></p>
+										<p>chat id <a href="mailto:&#120;&#x78;&#120;&#x78;&#120;&#64;&#99;&#x2e;&#117;&#115;">&#120;&#x78;&#120;&#x78;&#120;&#64;&#99;&#x2e;&#117;&#115;</a></p>
 									</div>
 								</li>
 								<li>
@@ -4488,7 +4564,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2420">src/api/Client.ts:2420</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2474">src/api/Client.ts:2474</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4520,7 +4596,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2359">src/api/Client.ts:2359</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2413">src/api/Client.ts:2413</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4564,7 +4640,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1378">src/api/Client.ts:1378</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1432">src/api/Client.ts:1432</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4613,7 +4689,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1121">src/api/Client.ts:1121</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1175">src/api/Client.ts:1175</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4653,7 +4729,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1022">src/api/Client.ts:1022</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1076">src/api/Client.ts:1076</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4666,7 +4742,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>chat id: <a href="mailto:&#x78;&#x78;&#120;&#120;&#x78;&#x40;&#99;&#x2e;&#x75;&#115;">&#x78;&#x78;&#120;&#120;&#x78;&#x40;&#99;&#x2e;&#x75;&#115;</a></p>
+										<p>chat id: <a href="mailto:&#120;&#x78;&#120;&#120;&#x78;&#64;&#x63;&#x2e;&#x75;&#115;">&#120;&#x78;&#120;&#120;&#x78;&#64;&#x63;&#x2e;&#x75;&#115;</a></p>
 									</div>
 								</li>
 								<li>
@@ -4702,7 +4778,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L980">src/api/Client.ts:980</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1034">src/api/Client.ts:1034</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4763,7 +4839,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2439">src/api/Client.ts:2439</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2493">src/api/Client.ts:2493</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4855,7 +4931,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1201">src/api/Client.ts:1201</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1255">src/api/Client.ts:1255</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4868,7 +4944,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>chat id <a href="mailto:&#120;&#120;&#x78;&#x78;&#x78;&#64;&#99;&#x2e;&#x75;&#x73;">&#120;&#120;&#x78;&#x78;&#x78;&#64;&#99;&#x2e;&#x75;&#x73;</a></p>
+										<p>chat id <a href="mailto:&#120;&#120;&#120;&#x78;&#x78;&#x40;&#x63;&#46;&#x75;&#x73;">&#120;&#120;&#120;&#x78;&#x78;&#x40;&#x63;&#46;&#x75;&#x73;</a></p>
 									</div>
 								</li>
 								<li>
@@ -4877,7 +4953,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>quotedMsgId: <a href="../globals.html#messageid" class="tsd-signature-type">MessageId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>string <a href="mailto:&#116;&#114;&#117;&#101;&#95;&#48;&#48;&#48;&#x30;&#x30;&#48;&#x30;&#48;&#x30;&#48;&#64;&#99;&#x2e;&#117;&#x73;&#x5f;&#74;&#72;&#x42;&#50;&#72;&#x42;&#50;&#51;&#x48;&#x4a;&#x34;&#x42;&#x32;&#x33;&#52;&#x48;&#74;&#66;">&#116;&#114;&#117;&#101;&#95;&#48;&#48;&#48;&#x30;&#x30;&#48;&#x30;&#48;&#x30;&#48;&#64;&#99;&#x2e;&#117;&#x73;&#x5f;&#74;&#72;&#x42;&#50;&#72;&#x42;&#50;&#51;&#x48;&#x4a;&#x34;&#x42;&#x32;&#x33;&#52;&#x48;&#74;&#66;</a> to send as a reply to a message</p>
+										<p>string <a href="mailto:&#116;&#114;&#x75;&#x65;&#95;&#x30;&#48;&#x30;&#48;&#x30;&#48;&#48;&#x30;&#x30;&#x30;&#64;&#x63;&#46;&#117;&#x73;&#x5f;&#74;&#x48;&#66;&#50;&#72;&#x42;&#50;&#x33;&#72;&#74;&#52;&#66;&#50;&#51;&#52;&#x48;&#74;&#x42;">&#116;&#114;&#x75;&#x65;&#95;&#x30;&#48;&#x30;&#48;&#x30;&#48;&#48;&#x30;&#x30;&#x30;&#64;&#x63;&#46;&#117;&#x73;&#x5f;&#74;&#x48;&#66;&#50;&#72;&#x42;&#50;&#x33;&#72;&#74;&#52;&#66;&#50;&#51;&#52;&#x48;&#74;&#x42;</a> to send as a reply to a message</p>
 									</div>
 								</li>
 							</ul>
@@ -4896,7 +4972,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2495">src/api/Client.ts:2495</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2549">src/api/Client.ts:2549</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4940,7 +5016,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L941">src/api/Client.ts:941</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L995">src/api/Client.ts:995</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -4957,7 +5033,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>chat id: <a href="mailto:&#120;&#120;&#x78;&#x78;&#120;&#x40;&#99;&#46;&#x75;&#x73;">&#120;&#120;&#x78;&#x78;&#120;&#x40;&#99;&#46;&#x75;&#x73;</a></p>
+										<p>chat id: <a href="mailto:&#x78;&#x78;&#120;&#120;&#x78;&#64;&#99;&#x2e;&#117;&#x73;">&#x78;&#x78;&#120;&#120;&#x78;&#64;&#99;&#x2e;&#117;&#x73;</a></p>
 									</div>
 								</li>
 								<li>
@@ -4987,7 +5063,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1847">src/api/Client.ts:1847</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1901">src/api/Client.ts:1901</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5000,7 +5076,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>chatId: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>chat id: <a href="mailto:&#x78;&#120;&#120;&#x78;&#120;&#x40;&#99;&#46;&#x75;&#115;">&#x78;&#120;&#120;&#x78;&#120;&#x40;&#99;&#46;&#x75;&#115;</a></p>
+										<p>chat id: <a href="mailto:&#120;&#120;&#x78;&#x78;&#120;&#x40;&#99;&#46;&#117;&#x73;">&#120;&#120;&#x78;&#x78;&#120;&#x40;&#99;&#46;&#117;&#x73;</a></p>
 									</div>
 								</li>
 							</ul>
@@ -5018,7 +5094,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2316">src/api/Client.ts:2316</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2370">src/api/Client.ts:2370</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5056,7 +5132,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2337">src/api/Client.ts:2337</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2391">src/api/Client.ts:2391</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5107,7 +5183,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L890">src/api/Client.ts:890</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L944">src/api/Client.ts:944</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5121,7 +5197,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>chat id: <a href="mailto:&#x78;&#120;&#120;&#x78;&#x78;&#x40;&#x63;&#x2e;&#117;&#x73;">&#x78;&#120;&#120;&#x78;&#x78;&#x40;&#x63;&#x2e;&#117;&#x73;</a></p>
+										<p>chat id: <a href="mailto:&#x78;&#120;&#x78;&#x78;&#x78;&#64;&#x63;&#x2e;&#117;&#x73;">&#x78;&#120;&#x78;&#x78;&#x78;&#64;&#x63;&#x2e;&#117;&#x73;</a></p>
 									</div>
 								</li>
 								<li>
@@ -5145,7 +5221,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L918">src/api/Client.ts:918</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L972">src/api/Client.ts:972</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5161,7 +5237,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>chat id: <a href="mailto:&#x78;&#120;&#x78;&#120;&#x78;&#x40;&#x63;&#46;&#x75;&#115;">&#x78;&#120;&#x78;&#120;&#x78;&#x40;&#x63;&#46;&#x75;&#115;</a></p>
+										<p>chat id: <a href="mailto:&#x78;&#120;&#120;&#x78;&#120;&#x40;&#99;&#46;&#117;&#115;">&#x78;&#120;&#120;&#x78;&#120;&#x40;&#99;&#46;&#117;&#115;</a></p>
 									</div>
 								</li>
 								<li>
@@ -5185,7 +5261,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L775">src/api/Client.ts:775</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L829">src/api/Client.ts:829</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5235,7 +5311,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1231">src/api/Client.ts:1231</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1285">src/api/Client.ts:1285</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5248,7 +5324,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>to: <a href="../globals.html#chatid" class="tsd-signature-type">ChatId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>chat id <a href="mailto:&#120;&#120;&#x78;&#120;&#120;&#x40;&#x63;&#46;&#x75;&#x73;">&#120;&#120;&#x78;&#120;&#120;&#x40;&#x63;&#46;&#x75;&#x73;</a></p>
+										<p>chat id <a href="mailto:&#x78;&#120;&#120;&#120;&#x78;&#64;&#99;&#46;&#x75;&#115;">&#x78;&#120;&#120;&#120;&#x78;&#64;&#99;&#46;&#x75;&#115;</a></p>
 									</div>
 								</li>
 								<li>
@@ -5269,7 +5345,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> quotedMsgId: <a href="../globals.html#messageid" class="tsd-signature-type">MessageId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>string <a href="mailto:&#116;&#114;&#x75;&#101;&#95;&#x30;&#x30;&#48;&#x30;&#x30;&#48;&#x30;&#x30;&#x30;&#48;&#x40;&#99;&#46;&#x75;&#x73;&#95;&#74;&#72;&#66;&#x32;&#72;&#x42;&#50;&#x33;&#x48;&#x4a;&#x34;&#x42;&#50;&#x33;&#52;&#x48;&#74;&#66;">&#116;&#114;&#x75;&#101;&#95;&#x30;&#x30;&#48;&#x30;&#x30;&#48;&#x30;&#x30;&#x30;&#48;&#x40;&#99;&#46;&#x75;&#x73;&#95;&#74;&#72;&#66;&#x32;&#72;&#x42;&#50;&#x33;&#x48;&#x4a;&#x34;&#x42;&#50;&#x33;&#52;&#x48;&#74;&#66;</a> to send as a reply to a message</p>
+										<p>string <a href="mailto:&#x74;&#114;&#x75;&#x65;&#x5f;&#x30;&#x30;&#x30;&#48;&#48;&#48;&#48;&#48;&#x30;&#48;&#x40;&#x63;&#x2e;&#x75;&#x73;&#95;&#x4a;&#x48;&#66;&#50;&#72;&#66;&#x32;&#x33;&#72;&#x4a;&#52;&#66;&#x32;&#x33;&#x34;&#72;&#x4a;&#x42;">&#x74;&#114;&#x75;&#x65;&#x5f;&#x30;&#x30;&#x30;&#48;&#48;&#48;&#48;&#48;&#x30;&#48;&#x40;&#x63;&#x2e;&#x75;&#x73;&#95;&#x4a;&#x48;&#66;&#50;&#72;&#66;&#x32;&#x33;&#72;&#x4a;&#52;&#66;&#x32;&#x33;&#x34;&#72;&#x4a;&#x42;</a> to send as a reply to a message</p>
 									</div>
 								</li>
 							</ul>
@@ -5287,7 +5363,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1111">src/api/Client.ts:1111</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1165">src/api/Client.ts:1165</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5327,7 +5403,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2276">src/api/Client.ts:2276</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2330">src/api/Client.ts:2330</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5359,7 +5435,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2517">src/api/Client.ts:2517</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2571">src/api/Client.ts:2571</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5398,7 +5474,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L801">src/api/Client.ts:801</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L855">src/api/Client.ts:855</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5434,7 +5510,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2237">src/api/Client.ts:2237</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2291">src/api/Client.ts:2291</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5473,7 +5549,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2222">src/api/Client.ts:2222</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2276">src/api/Client.ts:2276</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5511,7 +5587,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2128">src/api/Client.ts:2128</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2182">src/api/Client.ts:2182</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5524,7 +5600,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>groupId: <a href="../globals.html#groupchatid" class="tsd-signature-type">GroupChatId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p><a href="mailto:&#49;&#x32;&#51;&#x31;&#x32;&#51;&#49;&#x32;&#51;&#49;&#x32;&#51;&#95;&#49;&#x33;&#x31;&#50;&#51;&#49;&#51;&#x31;&#50;&#x33;&#x40;&#x67;&#46;&#117;&#115;">&#49;&#x32;&#51;&#x31;&#x32;&#51;&#49;&#x32;&#51;&#49;&#x32;&#51;&#95;&#49;&#x33;&#x31;&#50;&#51;&#49;&#51;&#x31;&#50;&#x33;&#x40;&#x67;&#46;&#117;&#115;</a> The id of the group</p>
+										<p><a href="mailto:&#49;&#50;&#x33;&#49;&#x32;&#x33;&#x31;&#x32;&#51;&#49;&#50;&#51;&#x5f;&#49;&#51;&#x31;&#50;&#x33;&#49;&#x33;&#49;&#50;&#51;&#x40;&#x67;&#46;&#117;&#x73;">&#49;&#50;&#x33;&#49;&#x32;&#x33;&#x31;&#x32;&#51;&#49;&#50;&#51;&#x5f;&#49;&#51;&#x31;&#50;&#x33;&#49;&#x33;&#49;&#50;&#51;&#x40;&#x67;&#46;&#117;&#x73;</a> The id of the group</p>
 									</div>
 								</li>
 								<li>
@@ -5546,7 +5622,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2152">src/api/Client.ts:2152</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2206">src/api/Client.ts:2206</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5559,7 +5635,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>groupId: <a href="../globals.html#groupchatid" class="tsd-signature-type">GroupChatId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p><a href="mailto:&#x31;&#50;&#x33;&#49;&#x32;&#x33;&#x31;&#x32;&#x33;&#x31;&#x32;&#x33;&#95;&#49;&#51;&#x31;&#x32;&#x33;&#x31;&#51;&#x31;&#x32;&#x33;&#x40;&#x67;&#46;&#117;&#x73;">&#x31;&#50;&#x33;&#49;&#x32;&#x33;&#x31;&#x32;&#x33;&#x31;&#x32;&#x33;&#95;&#49;&#51;&#x31;&#x32;&#x33;&#x31;&#51;&#x31;&#x32;&#x33;&#x40;&#x67;&#46;&#117;&#x73;</a> The id of the group</p>
+										<p><a href="mailto:&#49;&#x32;&#x33;&#49;&#50;&#x33;&#x31;&#50;&#x33;&#x31;&#50;&#51;&#x5f;&#49;&#51;&#x31;&#50;&#x33;&#49;&#x33;&#x31;&#50;&#51;&#x40;&#x67;&#x2e;&#117;&#115;">&#49;&#x32;&#x33;&#49;&#50;&#x33;&#x31;&#50;&#x33;&#x31;&#50;&#51;&#x5f;&#49;&#51;&#x31;&#50;&#x33;&#49;&#x33;&#x31;&#50;&#51;&#x40;&#x67;&#x2e;&#117;&#115;</a> The id of the group</p>
 									</div>
 								</li>
 								<li>
@@ -5587,7 +5663,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2252">src/api/Client.ts:2252</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2306">src/api/Client.ts:2306</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5626,7 +5702,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2208">src/api/Client.ts:2208</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2262">src/api/Client.ts:2262</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5664,7 +5740,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L789">src/api/Client.ts:789</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L843">src/api/Client.ts:843</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5696,7 +5772,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L735">src/api/Client.ts:735</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L789">src/api/Client.ts:789</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5727,7 +5803,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L724">src/api/Client.ts:724</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L778">src/api/Client.ts:778</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5758,7 +5834,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L2685">src/api/Client.ts:2685</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L2739">src/api/Client.ts:2739</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5790,7 +5866,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1430">src/api/Client.ts:1430</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1484">src/api/Client.ts:1484</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5827,7 +5903,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L1340">src/api/Client.ts:1340</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1394">src/api/Client.ts:1394</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5849,7 +5925,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3a4a9c4b/src/api/Client.ts#L963">src/api/Client.ts:963</a></li>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/72f285d9/src/api/Client.ts#L1017">src/api/Client.ts:1017</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -5863,7 +5939,7 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<li>
 									<h5>groupId: <a href="../globals.html#groupchatid" class="tsd-signature-type">GroupChatId</a></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>group chat id: <a href="mailto:&#x78;&#x78;&#120;&#120;&#120;&#64;&#103;&#46;&#117;&#x73;">&#x78;&#x78;&#120;&#120;&#120;&#64;&#103;&#46;&#117;&#x73;</a></p>
+										<p>group chat id: <a href="mailto:&#120;&#120;&#x78;&#x78;&#120;&#x40;&#x67;&#x2e;&#117;&#115;">&#120;&#120;&#x78;&#x78;&#120;&#x40;&#x67;&#x2e;&#117;&#115;</a></p>
 									</div>
 								</li>
 								<li>
@@ -6256,6 +6332,9 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 								<a href="client.html#leavegroup" class="tsd-kind-icon">leave<wbr>Group</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="client.html#listwebhooks" class="tsd-kind-icon">list<wbr>Webhooks</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="client.html#loadallearliermessages" class="tsd-kind-icon">load<wbr>All<wbr>Earlier<wbr>Messages</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
@@ -6293,6 +6372,9 @@ axios.post(<span class="hljs-string">&#x27;localhost:8082&#x27;</span>, {
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="client.html#removeparticipant" class="tsd-kind-icon">remove<wbr>Participant</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="client.html#removewebhook" class="tsd-kind-icon">remove<wbr>Webhook</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="client.html#reply" class="tsd-kind-icon">reply</a>
