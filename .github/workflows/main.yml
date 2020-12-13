@@ -1,10 +1,24 @@
-  - name: Pushes to another repository
-    uses: cpina/github-action-push-to-another-repository@master
-    env:
-      API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-    with:
-      source-directory: '.'
-      destination-github-username: 'open-wa'
-      destination-repository-name: 'wa-automate-nodejs'
-      user-email: 'shah@openwa.dev'
-      target-branch: 'heroku-deploy'
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Pushes to another repository
+      uses: cpina/github-action-push-to-another-repository@master
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+      with:
+        source-directory: '.'
+        destination-github-username: 'open-wa'
+        destination-repository-name: 'wa-automate-nodejs'
+        user-email: 'shah@openwa.dev'
+        target-branch: 'heroku-deploy'
