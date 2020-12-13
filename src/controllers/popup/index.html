@@ -115,7 +115,7 @@
       socket.on('disconnect', (reason) => {
       sessions.map(sessionId => consume({
         sessionId,
-        data: 'CLOSED',
+        data: 'Connection to the launch logs socket is now closed. You can now close this window or go to the api docs (if using the cli) by refreshing the page in a few seconds.',
         namespace: 'CONNECTION'
       }));
       socket.close();
