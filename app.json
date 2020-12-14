@@ -24,7 +24,7 @@
       "description": "The api key which will be used to authenticate requests to your API. If you do not set this manually it will be generated and available to see in the logs. You can grab a secure key from https://randomkeygen.com/",
       "required": false
     },
-    "KEEP_ALIVE": {
+    "WA_KEEP_ALIVE": {
       "description": "If this is `true` then the system will essentially click 'Use Here'",
       "required": false,
       "value":"true"
