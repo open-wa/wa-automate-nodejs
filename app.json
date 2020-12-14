@@ -11,9 +11,6 @@
       "url": "heroku/nodejs"
     },
     {
-      "url": "jonathanong/heroku-buildpack-ffmpeg-latest"
-    },
-    {
       "url": "jontewks/puppeteer-heroku-buildpack"
     }
   ],
