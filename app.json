@@ -39,6 +39,11 @@
       "required": false,
       "value":"true"
     },
+    "WA_EV": {
+      "description": "Send Launch log events over the webhook also. You need to set WA_WEBHOOK in order to use this.",
+      "required": false,
+      "value":"false"
+    },
     "WA_LICENSE_KEY": {
       "description": "You can unlock features with a license key. If you have one, enter it here. Learn more: https://docs.openwa.dev/pages/The%20Client/licensed-features.html",
       "required": false
