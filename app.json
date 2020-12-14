@@ -11,7 +11,10 @@
       "url": "heroku/nodejs"
     },
     {
-      "url": "heroku/heroku-buildpack-google-chrome"
+      "url": "jonathanong/heroku-buildpack-ffmpeg-latest"
+    },
+    {
+      "url": "jontewks/puppeteer-heroku-buildpack"
     }
   ],
   "website": "https://docs.openwa.dev/",
