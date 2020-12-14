@@ -22,3 +22,4 @@ jobs:
         github_token: ${{ secrets.API_TOKEN_GITHUB }}
         branch: heroku-deploy
         repository: open-wa/wa-automate-nodejs
+        force: true
