@@ -21,6 +21,7 @@ jobs:
         git config --local user.email "shah@openwa.dev"
         git config --local user.name "GH ACTION"
         git rm -f -r .github
+        git commit -m "[AUTOMATED] TRANSFER" -a
     - name: Push changes to heroku-deploy branch on main repo
       uses: ad-m/github-push-action@master
       with:
