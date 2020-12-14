@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "The official open-wa Easy API heroku deployment",
   "scripts": {
-    "start": "npx @open-wa/wa-automate --disable-spins --port $PORT --popup --in-docker --qr-timeout 0 -k $API_KEY",
+    "start": "npx @open-wa/wa-automate --disable-spins --port $PORT --popup --in-docker --qr-timeout 0 -k $API_KEY --keep-alive --keep-updated",
     "scan": "npx @open-wa/wa-automate --disable-spins -o --in-docker --port $PORT"
   },
   "repository": "https://github.com/open-wa/wa-automate-deploy-heroku.git",
