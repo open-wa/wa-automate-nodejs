@@ -25,7 +25,17 @@
       "required": false
     },
     "WA_KEEP_ALIVE": {
-      "description": "If this is `true` then the system will essentially click 'Use Here'",
+      "description": "If this is `true` then the system will essentially click 'Use Here' when a session gets switched to another computer. If left to true then this will stop you from being able to use the session anywhere else untill this dyno is switched off.",
+      "required": false,
+      "value":"false"
+    },
+    "WA_WEBHOOK": {
+      "description": "The webhook address where you want to send all events to. If you don't want to set a webhook, leave this as false.",
+      "required": false,
+      "value":"false"
+    },
+    "WA_KEEP_UPDATED": {
+      "description": "When true, this will make sure your wa-automate version is updated if it is out of date without the need to redeploy the whole app.",
       "required": false,
       "value":"true"
     },
