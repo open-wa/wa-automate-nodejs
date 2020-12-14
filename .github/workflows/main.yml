@@ -12,13 +12,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Pushes to another repository
-      uses: cpina/github-action-push-to-another-repository@master
-      env:
-        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+    - name: Push changes to heroku-deploy branch on main repo
+      uses: ad-m/github-push-action@master
       with:
-        source-directory: '.'
-        destination-github-username: 'open-wa'
-        destination-repository-name: 'wa-automate-nodejs'
-        user-email: 'shah@openwa.dev'
-        target-branch: 'heroku-deploy'
+        github_token: ${{ secrets.API_TOKEN_GITHUB }}
+        branch: heroku-deploy
+        repository: open-wa/wa-automate-nodejs
