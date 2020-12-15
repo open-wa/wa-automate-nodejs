@@ -47,9 +47,6 @@
     "WA_LICENSE_KEY": {
       "description": "You can unlock features with a license key. If you have one, enter it here. Learn more: https://docs.openwa.dev/pages/The%20Client/licensed-features.html",
       "required": false
-    },
-    "WA_EXECUTABLE_PATH": {
-      "value": "/app/.apt/usr/bin/google-chrome"
     }
   },
   "keywords": ["node", "express", "static", "wa", "automate", "bot", "whatsapp", "open-wa", "api"]
