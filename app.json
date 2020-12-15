@@ -12,6 +12,9 @@
     },
     {
       "url": "https://github.com/jontewks/puppeteer-heroku-buildpack.git"
+    },
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-google-chrome.git"
     }
   ],
   "website": "https://docs.openwa.dev/",
@@ -47,7 +50,10 @@
     "WA_LICENSE_KEY": {
       "description": "You can unlock features with a license key. If you have one, enter it here. Learn more: https://docs.openwa.dev/pages/The%20Client/licensed-features.html",
       "required": false
+    },
+    "WA_EXECUTABLE_PATH": {
+      "value": "$GOOGLE_CHROME_BIN"
     }
   },
-  "keywords": ["node", "express", "static", "wa", "automate", "bot"]
+  "keywords": ["node", "express", "static", "wa", "automate", "bot", "whatsapp", "open-wa", "api"]
 }
