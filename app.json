@@ -11,7 +11,7 @@
       "url": "heroku/nodejs"
     },
     {
-      "url": "jontewks/puppeteer-heroku-buildpack"
+      "url": "https://github.com/jontewks/puppeteer-heroku-buildpack.git"
     }
   ],
   "website": "https://docs.openwa.dev/",
