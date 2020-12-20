@@ -131,12 +131,18 @@ async function convertMp4BufferToWebpDataUrl(file: DataURL | Buffer | Base64, pr
    * The amount of times the video loops in the sticker. To save processing time, leave this as 0
    * default `0`
    */
-  loop?: number
+  loop?: number,
+  /**
+   * Centres and crops the video.
+   * default `true`
+   */
+  crop?: boolean
 } = {
   fps: 10,
   startTime: `00:00:00.0`,
-  endTime :  `00:00:05.0`,
-  loop: 0
+  endTime:  `00:00:05.0`,
+  loop: 0,
+  crop: true
 }) {
   const tempFile = path.join(tmpdir(), `processing.${Crypto.randomBytes(6).readUIntLE(0, 6).toString(36)}.webp`);
   var stream = new (require('stream').Readable)();
@@ -156,7 +162,7 @@ async function convertMp4BufferToWebpDataUrl(file: DataURL | Buffer | Base64, pr
               console.log('Finished encoding');
               resolve(true)
           })
-          .addOutputOptions([`-vcodec`, `libwebp`, `-vf`, `crop=w='min(min(iw\,ih)\,500)':h='min(min(iw\,ih)\,500)',scale=500:500,setsar=1,fps=${processOptions.fps}`, `-loop`, `${processOptions.loop}`, `-ss`, processOptions.startTime, `-t`, processOptions.endTime, `-preset`, `default`, `-an`, `-vsync`, `0`, `-s`, `512:512`])
+          .addOutputOptions([`-vcodec`, `libwebp`, `-vf`, `${processOptions.crop?`crop=w='min(min(iw\,ih)\,500)':h='min(min(iw\,ih)\,500)',`:``}scale=500:500,setsar=1,fps=${processOptions.fps}`, `-loop`, `${processOptions.loop}`, `-ss`, processOptions.startTime, `-t`, processOptions.endTime, `-preset`, `default`, `-an`, `-vsync`, `0`, `-s`, `512:512`])
           .toFormat("webp")
           .save(tempFile);
   })
