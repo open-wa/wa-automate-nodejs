@@ -413,6 +413,14 @@ export interface ConfigObject {
      * @default `false`
      */
     screenshotOnInitializationBrowserError ?: boolean;
+    /**
+     * Setting listeners may not be your cup of tea. With eventMode, all [[SimpleListener]] events will be registered automatically and be filed via the built in Events Listener.
+     * 
+     * This is useful because you can register/deregister the event listener as needed whereas the legacy method of setting callbacks are only be set once
+     * 
+     * @default false;
+     */
+    eventMode ?: boolean;
     /**@internal */
     [x: string]: any 
 }

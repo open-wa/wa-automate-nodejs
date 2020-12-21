@@ -8,7 +8,8 @@ import { useragent, puppeteerConfig } from '../config/puppeteer.config'
 import sharp from 'sharp';
 import { ConfigObject, STATE } from './model';
 import { PageEvaluationTimeout } from './model/errors';
-import PQueue from 'p-queue'
+import PQueue from 'p-queue';
+import { ev } from '../controllers/events';
 /** @ignore */
 const parseFunction = require('parse-function'),
 pkg = require('../../package.json'),
@@ -392,6 +393,7 @@ declare module WAPI {
 export class Client {
   private _loadedModules: any[];
   private _registeredWebhooks: any;
+  private _registeredEvListeners: any;
   private _webhookQueue: any;
   private _createConfig: ConfigObject;
   private _sessionInfo: SessionInfo;
@@ -410,9 +412,13 @@ export class Client {
     this._sessionInfo = sessionInfo;
     this._listeners = {};
     if(this._createConfig?.eventMode) {
-      // Object.keys(SimpleListener).map(eventKey => this.registerWebhook(SimpleListener[eventKey], c.webhook))
+      this.registerAllSimpleListenersOnEv();
     }
     this._setOnClose();
+  }
+
+  private registerAllSimpleListenersOnEv(){
+    Object.keys(SimpleListener).map(eventKey => this.registerEv(SimpleListener[eventKey]))
   }
 
   getSessionId(){
@@ -515,15 +521,26 @@ export class Client {
     * 
     */
   private async registerListener(funcName:SimpleListener, fn: any){
+    if(this._registeredEvListeners[funcName]) {
+      return ev.on(`${funcName}.${this.getSessionId()}`,({data})=>fn(data));
+    }
+    /**
+     * If evMode is on then make the callback come from ev.
+     */
     //add a reference to this callback
     const set = () => this.pup(({funcName}) => {
       //@ts-ignore
       return window[funcName] ? WAPI[`${funcName}`](obj => window[funcName](obj)) : false
     },{funcName});
+    if(this._listeners[funcName]) {
+      console.log('listener already set');
+      return true
+    }
     this._listeners[funcName] = fn;
     const exists = await this.pup(({funcName})=>window[funcName]?true:false,{funcName});
     if(exists) return await set();
-    return this._page.exposeFunction(funcName, (obj: any) =>fn(obj)).then(set).catch(e=>set);
+    const res = await this._page.exposeFunction(funcName, (obj: any) =>fn(obj)).then(set).catch(e=>set) as Promise<boolean>;
+    return res;
   }
   
   // NON-STAMDARD LISTENERS
@@ -2905,6 +2922,27 @@ public async getStatus(contactId: ContactId) {
     console.log('Invalid lisetner', event);
     return false;
   }
+
+  private async registerEv(simpleListener: SimpleListener) {
+    if(this[simpleListener]){
+      if(!this._registeredEvListeners) this._registeredEvListeners={};
+      if(this._registeredEvListeners[simpleListener]) {
+        console.log('Listener already registered');
+        return false;
+      }
+      const sessionId = this.getSessionId();
+      this._registeredEvListeners[simpleListener] = this[simpleListener](async data=>ev.emit(`${simpleListener}.${sessionId}`,{
+        ts: Date.now(),
+        sessionId,
+        event: simpleListener,
+        data
+      }));
+      return true;
+    }
+    console.log('Invalid lisetner', simpleListener);
+    return false;
+  }
+  
 }
 
 export { useragent } from '../config/puppeteer.config'
