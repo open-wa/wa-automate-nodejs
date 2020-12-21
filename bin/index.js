@@ -259,7 +259,7 @@ return await create({ ...config })
 		if(c && c.key) {
 			console.log(`Please use the following api key for requests as a header:\napi_key: ${c.key}`)
 			app.use((req, res, next) => {
-				if(req.path==='/' && req.method==='GET') res.redirect('/api-docs/');
+				if(req.path==='/' && req.method==='GET') return res.redirect('/api-docs/');
 				if(req.path.startsWith('/api-docs')) {
 					return next();
 				}
