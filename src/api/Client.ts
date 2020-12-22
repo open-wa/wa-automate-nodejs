@@ -251,7 +251,7 @@ declare module WAPI {
   const getGeneratedUserAgent: (userAgent?: string) => string;
   const forwardMessages: (to: string, messages: string | (string | Message)[], skipMyMessages: boolean) => any;
   const sendLocation: (to: string, lat: any, lng: any, loc: string) => Promise<string>;
-  const addParticipant: (groupId: string, contactId: string) => void;
+  const addParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
   const sendGiphyAsSticker: (chatId: string, url: string) => Promise<any>;
   const getMessageById: (mesasgeId: string) => Message;
   const getMyLastMessage: (chatId: string) => Message;
@@ -267,10 +267,10 @@ declare module WAPI {
   const forceUpdateLiveLocation: (chatId: string) => Promise<LiveLocationChangedEvent []> | boolean;
   const setGroupIcon: (groupId: string, imgData: string) => Promise<boolean>;
   const getGroupAdmins: (groupId: string) => Promise<ContactId[]>;
-  const removeParticipant: (groupId: string, contactId: string) => Promise<boolean>;
+  const removeParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
   const addOrRemoveLabels: (label: string, id: string, type: string) => Promise<boolean>;
-  const promoteParticipant: (groupId: string, contactId: string) => Promise<boolean>;
-  const demoteParticipant: (groupId: string, contactId: string) => Promise<boolean>;
+  const promoteParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
+  const demoteParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
   const setGroupToAdminsOnly: (groupId: string, onlyAdmins: boolean) => Promise<boolean>;
   const setGroupEditToAdminsOnly: (groupId: string, onlyAdmins: boolean) => Promise<boolean>;
   const setGroupDescription: (groupId: string, description: string) => Promise<boolean>;
@@ -2186,9 +2186,13 @@ public async getStatus(contactId: ContactId) {
 
   /**
    * Remove participant of Group
+   * 
+   * If not a group chat, returns `NOT_A_GROUP_CHAT`.
+   * 
+   * If the chat does not exist, returns `GROUP_DOES_NOT_EXIST`
+   * 
    * @param {*} groupId '0000000000-00000000@g.us'
    * @param {*} participantId '000000000000@c.us'
-   * @param {*} done - function - Callback function to be called when a new message arrives.
    */
   public async removeParticipant(groupId: GroupChatId, participantId: ContactId) {
     return await this.pup(
@@ -2237,9 +2241,13 @@ public async getStatus(contactId: ContactId) {
 
   /**
   * Add participant to Group
+  * 
+  * If not a group chat, returns `NOT_A_GROUP_CHAT`.
+  * 
+  * If the chat does not exist, returns `GROUP_DOES_NOT_EXIST`
   * @param {*} groupId '0000000000-00000000@g.us'
   * @param {*} participantId '000000000000@c.us'
-  * @param {*} done - function - Callback function to be called when a new message arrives.
+  * 
   */
 
   public async addParticipant(groupId: GroupChatId, participantId: ContactId) {
@@ -2251,9 +2259,14 @@ public async getStatus(contactId: ContactId) {
 
   /**
   * Promote Participant to Admin in Group
+  * 
+  * 
+  * If not a group chat, returns `NOT_A_GROUP_CHAT`.
+  * 
+  * If the chat does not exist, returns `GROUP_DOES_NOT_EXIST`
+  * 
   * @param {*} groupId '0000000000-00000000@g.us'
   * @param {*} participantId '000000000000@c.us'
-  * @param {*} done - function - Callback function to be called when a new message arrives.
   */
 
   public async promoteParticipant(groupId: GroupChatId, participantId: ContactId) {
@@ -2265,6 +2278,11 @@ public async getStatus(contactId: ContactId) {
 
   /**
   * Demote Admin of Group
+  * 
+  * If not a group chat, returns `NOT_A_GROUP_CHAT`.
+  * 
+  * If the chat does not exist, returns `GROUP_DOES_NOT_EXIST`
+  * 
   * @param {*} groupId '0000000000-00000000@g.us'
   * @param {*} participantId '000000000000@c.us'
   */
