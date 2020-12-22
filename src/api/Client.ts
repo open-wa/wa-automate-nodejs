@@ -2552,11 +2552,17 @@ public async getStatus(contactId: ContactId) {
      * default `0`
      */
     loop?: number
+    /**
+     * Centres and crops the video.
+     * default `true`
+     */
+    crop?: boolean
   } = {
     fps: 10,
     startTime: `00:00:00.0`,
     endTime :  `00:00:05.0`,
-    loop: 0
+    loop: 0,
+    crop: true
   }) {
       if(typeof file === 'string') {
       if(!isDataURL(file)) {
