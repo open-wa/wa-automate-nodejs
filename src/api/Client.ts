@@ -521,7 +521,7 @@ export class Client {
     * 
     */
   private async registerListener(funcName:SimpleListener, fn: any){
-    if(this?._registeredEvListeners[funcName]) {
+    if(this._registeredEvListeners && this._registeredEvListeners[funcName]) {
       return ev.on(`${funcName}.${this.getSessionId()}`,({data})=>fn(data));
     }
     /**
