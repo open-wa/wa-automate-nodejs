@@ -1431,7 +1431,6 @@ public async iAmAdmin(){
    * Find any product listings of the given number. Use this to query a catalog
    *
    * @param id id of buseinss profile (i.e the number with @c.us)
-   * @param done Optional callback function for async execution
    * @returns None
    */
   public async getBusinessProfilesProducts(id: ContactId) {
@@ -1449,7 +1448,6 @@ public async iAmAdmin(){
    * @param caption string the caption you want to add to this message
    * @param bizNumber string the @c.us number of the business account from which you want to grab the product
    * @param productId string the id of the product within the main catalog of the aforementioned business
-   * @param done - function - Callback function to be called contained the buffered messages.
    * @returns 
    */
   public async sendImageWithProduct(
