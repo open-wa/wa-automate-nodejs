@@ -105,7 +105,7 @@
     "image-type": "^4.1.0",
     "is-url": "^1.2.4",
     "lodash.uniq": "^4.5.0",
-    "meow": "^8.0.0",
+    "meow": "^9.0.0",
     "node-persist": "^3.1.0",
     "open": "^7.0.4",
     "os-name": "^4.0.0",
