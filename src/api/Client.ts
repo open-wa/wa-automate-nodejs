@@ -360,6 +360,7 @@ declare module WAPI {
   const getHostNumber: () => string;
   const getAllGroups: () => Chat[];
   const getGroupParticipantIDs: (groupId: string) => Promise<string[]>;
+  const getGroupInfo: (groupId: string) => Promise<any>;
   const joinGroupViaLink: (link: string) => Promise<string | boolean | number>;
   const leaveGroup: (groupId: string) => any;
   const getVCards: (msgId: string) => any;
@@ -1675,6 +1676,17 @@ public async iAmAdmin(){
       groupId => WAPI.getGroupParticipantIDs(groupId),
       groupId
     ) as Promise<string[]>;
+  }
+
+  /**
+   * Returns the title and description of a given group id.
+   * @param groupId group id
+   */
+  public async getGroupInfo(groupId: GroupChatId) {
+    return await this.pup(
+      groupId => WAPI.getGroupInfo(groupId),
+      groupId
+    ) as Promise<any>;
   }
 
   
