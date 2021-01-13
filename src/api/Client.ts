@@ -1300,21 +1300,33 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   /**
    * Sends a video to given chat as a gif, with caption or not, using base64
    * @param to chat id xxxxx@c.us
-   * @param base64 base64 data:image/xxx;base64,xxx or the path of the file you want to send.
+   * @param file DataURL data:image/xxx;base64,xxx or the RELATIVE (should start with `./` or `../`) path of the file you want to send. With the latest version, you can now set this to a normal URL (for example [GET] `https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_2500kB.jpg`).
    * @param filename string xxxxx
    * @param caption string xxxxx
    * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
+   * @param requestConfig {} By default the request is a get request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
    */
   public async sendVideoAsGif(
     to: ChatId,
     file: DataURL | FilePath,
     filename: string,
     caption: Content,
-    quotedMsgId?: MessageId
+    quotedMsgId?: MessageId,
+    requestConfig: any ={}
   ) {
+      //check if the 'base64' file exists
+      if(!isDataURL(file)) {
+        //must be a file then
+        let relativePath = path.join(path.resolve(process.cwd(),file|| ''));
+        if(fs.existsSync(file) || fs.existsSync(relativePath)) {
+          file = await datauri(fs.existsSync(file)  ? file : relativePath);
+        } else if(isUrl(file)){
+          file = await getDUrl(file, requestConfig);
+        } else throw new Error('Cannot find file. Make sure the file reference is relative, a valid URL or a valid DataURL')
+      }
     return await this.pup(
       ({ to, file, filename, caption, quotedMsgId  }) => {
-        WAPI.sendVideoAsGif(file, to, filename, caption, quotedMsgId );
+        return WAPI.sendVideoAsGif(file, to, filename, caption, quotedMsgId );
       },
       { to, file, filename, caption, quotedMsgId }
     ) as Promise<MessageId>;
