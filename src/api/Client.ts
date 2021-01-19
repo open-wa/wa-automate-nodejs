@@ -2213,6 +2213,8 @@ public async getStatus(contactId: ContactId) {
    * 
    * If the chat does not exist, returns `GROUP_DOES_NOT_EXIST`
    * 
+   * If the participantId does not exist in the group chat, returns `NOT_A_PARTICIPANT`
+   * 
    * @param {*} groupId '0000000000-00000000@g.us'
    * @param {*} participantId '000000000000@c.us'
    */
@@ -2267,6 +2269,9 @@ public async getStatus(contactId: ContactId) {
   * If not a group chat, returns `NOT_A_GROUP_CHAT`.
   * 
   * If the chat does not exist, returns `GROUP_DOES_NOT_EXIST`
+  * 
+  * If the participantId does not exist in the contacts, returns `NOT_A_CONTACT`
+  * 
   * @param {*} groupId '0000000000-00000000@g.us'
   * @param {*} participantId '000000000000@c.us'
   * 
@@ -2287,6 +2292,8 @@ public async getStatus(contactId: ContactId) {
   * 
   * If the chat does not exist, returns `GROUP_DOES_NOT_EXIST`
   * 
+  * If the participantId does not exist in the group chat, returns `NOT_A_PARTICIPANT`
+  * 
   * @param {*} groupId '0000000000-00000000@g.us'
   * @param {*} participantId '000000000000@c.us'
   */
@@ -2304,6 +2311,8 @@ public async getStatus(contactId: ContactId) {
   * If not a group chat, returns `NOT_A_GROUP_CHAT`.
   * 
   * If the chat does not exist, returns `GROUP_DOES_NOT_EXIST`
+  * 
+  * If the participantId does not exist in the group chat, returns `NOT_A_PARTICIPANT`
   * 
   * @param {*} groupId '0000000000-00000000@g.us'
   * @param {*} participantId '000000000000@c.us'
