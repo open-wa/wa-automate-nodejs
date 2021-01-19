@@ -1268,6 +1268,22 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     return this.sendImage(to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview);
   }
 
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * 
+   * Checks whether or not the group id provided is known to be unsafe by the contributors of the library.
+   * @param groupChatId The group chat you want to deteremine is unsafe
+   * @returns Promise <boolean | string> This will either return a boolean indiciating whether this group chat id is considered unsafe or an error message as a string
+   */
+  public async isGroupIdUnsafe(groupChatId: GroupChatId){
+    const {data} = await axios.post('https://openwa.dev/groupId-check', {
+      groupChatId,
+      sessionInfo: this.getSessionInfo(),
+      config: this.getConfig()
+    })
+    if(data.unsafe) console.warn(`${groupChatId} is marked as unsafe` )
+    return data.err || data.unsafe;
+  }
 
   /**
    * Attempts to send a file as a voice note. Useful if you want to send an mp3 file.
