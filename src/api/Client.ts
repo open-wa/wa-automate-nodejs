@@ -135,9 +135,14 @@ async function convertMp4BufferToWebpDataUrl(file: DataURL | Buffer | Base64, pr
   loop?: number,
   /**
    * Centres and crops the video.
-   * default `true`
+   * @default `true`
    */
-  crop?: boolean
+  crop?: boolean,
+  /**
+   * Prints ffmpeg logs in the terminal
+   * @default `false`
+   */
+  log?: boolean
 } = {
   fps: 10,
   startTime: `00:00:00.0`,
@@ -153,14 +158,14 @@ async function convertMp4BufferToWebpDataUrl(file: DataURL | Buffer | Base64, pr
       ffmpeg(stream)
           .inputFormat('mp4')
           .on('start', function (cmd) {
-              console.log('Started ' + cmd);
+              if(processOptions?.log) console.log('Started ' + cmd);
           })
           .on('error', function (err) {
-              console.log('An error occurred: ' + err.message);
+            if(processOptions?.log) console.log('An error occurred: ' + err.message);
               reject(err)
           })
           .on('end', function () {
-              console.log('Finished encoding');
+            if(processOptions?.log) console.log('Finished encoding');
               resolve(true)
           })
           .addOutputOptions([`-vcodec`, `libwebp`, `-vf`, `${processOptions.crop?`crop=w='min(min(iw\,ih)\,500)':h='min(min(iw\,ih)\,500)',`:``}scale=500:500,setsar=1,fps=${processOptions.fps}`, `-loop`, `${processOptions.loop}`, `-ss`, processOptions.startTime, `-t`, processOptions.endTime, `-preset`, `default`, `-an`, `-vsync`, `0`, `-s`, `512:512`])
@@ -2601,15 +2606,21 @@ public async getStatus(contactId: ContactId) {
     loop?: number
     /**
      * Centres and crops the video.
-     * default `true`
+     * @default `true`
      */
-    crop?: boolean
+    crop?: boolean,
+    /**
+     * Prints ffmpeg logs in the terminal
+     * @default `false`
+     */
+    log?: boolean
   } = {
     fps: 10,
     startTime: `00:00:00.0`,
     endTime :  `00:00:05.0`,
     loop: 0,
-    crop: true
+    crop: true,
+    log: false
   }) {
       if(typeof file === 'string') {
       if(!isDataURL(file)) {
