@@ -217,7 +217,9 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       const localStorage = JSON.parse(await waPage.evaluate(() => {
         return JSON.stringify(window.localStorage);
       }));
-      const sessionjsonpath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(process.cwd(),config?.sessionDataPath || '')) : path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
+      const stdSessionJsonPath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(process.cwd(),config?.sessionDataPath || '')) : path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
+      const altSessionJsonPath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(require.main.path,config?.sessionDataPath || '')) : path.join(path.resolve(require.main.path,config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
+      const sessionjsonpath = fs.existsSync(altSessionJsonPath) ? altSessionJsonPath : stdSessionJsonPath;
       const sessionData = {
         WABrowserId: localStorage.WABrowserId,
         WASecretBundle: localStorage.WASecretBundle,
