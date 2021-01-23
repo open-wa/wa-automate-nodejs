@@ -83,13 +83,16 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
       sessionjson = JSON.parse(Buffer.from(s, 'base64').toString('ascii'));
     }
   } else {
-    const altSessionJsonPath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(require.main.path,config?.sessionDataPath || '')) : path.join(path.resolve(require.main.path,config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
-    if(fs.existsSync(altSessionJsonPath)) {
-      let s = fs.readFileSync(altSessionJsonPath, "utf8");
-      try {
-        sessionjson = JSON.parse(s);
-      } catch (error) {
-        sessionjson = JSON.parse(Buffer.from(s, 'base64').toString('ascii'));
+    const p = require?.main?.path || process?.mainModule?.path;
+    if(p) {
+      const altSessionJsonPath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(p,config?.sessionDataPath || '')) : path.join(path.resolve(p,config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
+      if(fs.existsSync(altSessionJsonPath)) {
+        let s = fs.readFileSync(altSessionJsonPath, "utf8");
+        try {
+          sessionjson = JSON.parse(s);
+        } catch (error) {
+          sessionjson = JSON.parse(Buffer.from(s, 'base64').toString('ascii'));
+        }
       }
     }
   }
