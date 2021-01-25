@@ -28,6 +28,7 @@ import * as path from 'path';
 import { CustomProduct } from './model/product';
 import Crypto from 'crypto';
 import { tmpdir } from 'os';
+import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
 
 export enum namespace {
   Chat = 'Chat',
@@ -112,44 +113,11 @@ export enum SimpleListener {
 /**
  * @internal
  */
-async function convertMp4BufferToWebpDataUrl(file: DataURL | Buffer | Base64, processOptions: {
-  /**
-   * Desired Frames per second of the sticker output
-   * @default `10`
-   */
-  fps?: number,
-  /**
-   * The video start time of the sticker
-   * @default `00:00:00.0`
-   */
-  startTime?: string,
-  /**
-   * The video end time of the sticker. By default, stickers are made from the first 5 seconds of the video
-   * @default `00:00:05.0`
-   */
-  endTime?: string
-  /**
-   * The amount of times the video loops in the sticker. To save processing time, leave this as 0
-   * default `0`
-   */
-  loop?: number,
-  /**
-   * Centres and crops the video.
-   * @default `true`
-   */
-  crop?: boolean,
-  /**
-   * Prints ffmpeg logs in the terminal
-   * @default `false`
-   */
-  log?: boolean
-} = {
-  fps: 10,
-  startTime: `00:00:00.0`,
-  endTime:  `00:00:05.0`,
-  loop: 0,
-  crop: true
-}) {
+async function convertMp4BufferToWebpDataUrl(file: DataURL | Buffer | Base64, processOptions: Mp4StickerConversionProcessOptions = defaultProcessOptions) {
+  processOptions = Object.keys(process).length ? {
+    ...defaultProcessOptions,
+    ...processOptions
+  } : defaultProcessOptions
   const tempFile = path.join(tmpdir(), `processing.${Crypto.randomBytes(6).readUIntLE(0, 6).toString(36)}.webp`);
   var stream = new (require('stream').Readable)();
   stream.push(Buffer.isBuffer(file) ? file : Buffer.from(file.replace('data:video/mp4;base64,',''), 'base64'));
@@ -417,6 +385,7 @@ export class Client {
     this._loadedModules = [];
     this._sessionInfo = sessionInfo;
     this._listeners = {};
+    if(this._createConfig.stickerServerEndpoint!== false) this._createConfig.stickerServerEndpoint = true;
     if(this._createConfig?.eventMode) {
       this.registerAllSimpleListenersOnEv();
     }
@@ -2256,12 +2225,19 @@ public async getStatus(contactId: ContactId) {
     const mimeInfo = base64MimeType(image);
     console.log("setGroupIcon -> mimeInfo", mimeInfo)
     if(!mimeInfo || mimeInfo.includes("image")){
-      //no matter what, convert to jpeg, resize + autoscale to width 48 px
-      const scaledImageBuffer = await sharp(buff,{ failOnError: false })
-      .resize({ height: 300 })
-      .toBuffer();
-      const jpeg = sharp(scaledImageBuffer,{ failOnError: false }).jpeg();
-      const imgData = `data:jpeg;base64,${(await jpeg.toBuffer()).toString('base64')}`;
+      let imgData;
+      if(this._createConfig.stickerServerEndpoint) {
+        imgData = await this.stickerServerRequest('convertGroupIcon', {
+          image
+        })
+      } else {
+        //no matter what, convert to jpeg, resize + autoscale to width 48 px
+        const scaledImageBuffer = await sharp(buff,{ failOnError: false })
+        .resize({ height: 300 })
+        .toBuffer();
+        const jpeg = sharp(scaledImageBuffer,{ failOnError: false }).jpeg();
+        imgData = `data:jpeg;base64,${(await jpeg.toBuffer()).toString('base64')}`;
+      }
       return await this.pup(
         ({ groupId, imgData }) => WAPI.setGroupIcon(groupId, imgData),
         { groupId, imgData }
@@ -2533,7 +2509,28 @@ public async getStatus(contactId: ContactId) {
     );
   }
 
-  private async prepareWebp(image: DataURL) {
+  private async stickerServerRequest(func: string, a : any = {}){
+    if(!this._createConfig.stickerServerEndpoint) return false;
+    try {
+      const {data} = await axios.post(`${'https://open-wa-sticker-api.herokuapp.com' || this._createConfig.stickerServerEndpoint}/${func}`, {
+        ...a,
+      sessionInfo: this.getSessionInfo(),
+      config: this.getConfig()
+    });
+      return data;
+    } catch (err) {
+      console.error(err.message);
+      return false;
+    }
+  }
+
+  private async prepareWebp(image: DataURL, stickerMetadata?: StickerMetadata) {
+    if(this._createConfig.stickerServerEndpoint) {
+      return await this.stickerServerRequest('prepareWebp', {
+        image,
+        stickerMetadata
+      })
+    }
     const buff = Buffer.from(image.replace(/^data:image\/(png|gif|jpeg|webp);base64,/,''), 'base64');
     const mimeInfo = base64MimeType(image);
     if(!mimeInfo || mimeInfo.includes("image")){
@@ -2564,8 +2561,8 @@ public async getStatus(contactId: ContactId) {
    * @param to: The recipient id.
    * @param image: This is the base64 string formatted as a data URI. 
    */
-  public async sendImageAsSticker(to: ChatId, image: DataURL){
-    let processingResponse = await this.prepareWebp(image);
+  public async sendImageAsSticker(to: ChatId, image: DataURL, _m?: any){
+    let processingResponse = await this.prepareWebp(image, _m);
     if(!processingResponse) return false;
     let {webpBase64, metadata} = processingResponse;
       return await this.pup(
@@ -2583,45 +2580,11 @@ public async getStatus(contactId: ContactId) {
    * @param to ChatId The chat id you want to send the webp sticker to
    * @param file [[DataURL]], [[Base64]], URL (string GET), Relative filepath (string), or Buffer of the mp4 file
    */
-  public async sendMp4AsSticker(to: ChatId, file: DataURL | Buffer | Base64 | string, processOptions: {
-    /**
-     * Desired Frames per second of the sticker output
-     * @default `10`
-     */
-    fps?: number,
-    /**
-     * The video start time of the sticker
-     * @default `00:00:00.0`
-     */
-    startTime?: string,
-    /**
-     * The video end time of the sticker. By default, stickers are made from the first 5 seconds of the video
-     * @default `00:00:05.0`
-     */
-    endTime?: string
-    /**
-     * The amount of times the video loops in the sticker. To save processing time, leave this as 0
-     * default `0`
-     */
-    loop?: number
-    /**
-     * Centres and crops the video.
-     * @default `true`
-     */
-    crop?: boolean,
-    /**
-     * Prints ffmpeg logs in the terminal
-     * @default `false`
-     */
-    log?: boolean
-  } = {
-    fps: 10,
-    startTime: `00:00:00.0`,
-    endTime :  `00:00:05.0`,
-    loop: 0,
-    crop: true,
-    log: false
-  }) {
+  public async sendMp4AsSticker(to: ChatId, file: DataURL | Buffer | Base64 | string, processOptions: Mp4StickerConversionProcessOptions = defaultProcessOptions, stickerMetadata?: StickerMetadata) {
+    //@ts-ignore
+    if((typeof file === 'object' || file?.type === 'Buffer') && file.toString) {
+      file = file.toString('base64')
+    }
       if(typeof file === 'string') {
       if(!isDataURL(file)) {
         //must be a file then
@@ -2634,8 +2597,15 @@ public async getStatus(contactId: ContactId) {
           } 
         } 
       }
-      }
-    const convertedStickerDataUrl = await convertMp4BufferToWebpDataUrl(file, processOptions);
+      } 
+      let convertedStickerDataUrl;
+      if(this._createConfig.stickerServerEndpoint) {
+        convertedStickerDataUrl = await this.stickerServerRequest('convertMp4BufferToWebpDataUrl', {
+          file,
+          processOptions,
+          stickerMetadata
+        })
+      } else convertedStickerDataUrl = await convertMp4BufferToWebpDataUrl(file, processOptions);
     try {
       return await this.sendRawWebpAsSticker(to, convertedStickerDataUrl, true);
     } catch (error) {

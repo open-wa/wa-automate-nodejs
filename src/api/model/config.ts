@@ -421,6 +421,16 @@ export interface ConfigObject {
      * @default false;
      */
     eventMode ?: boolean;
+    /**
+     * From v4, sharp and ffmpeg will be unbundled from the library in exchange for a sticker API. You should be able to host this API yourself that can serves multiple sessions/processes.
+     * 
+     * Until v4 is released, this is hardcoded to `https://open-wa-sticker-api.herokuapp.com` and any and all sticker API requests will be going to this API untill further notice.
+     * 
+     * If you want to continue using the built-in ffmpeg/sharp functionality then set this to `false`.
+     * 
+     * @default `https://open-wa-sticker-api.herokuapp.com`
+     */
+    stickerServerEndpoint ?: string | boolean;
     /**@internal */
     [x: string]: any 
 }
