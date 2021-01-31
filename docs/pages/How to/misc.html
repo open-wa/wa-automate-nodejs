@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>More Examples | @open-wa/wa-automate - v3.2.0</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.2.0">
+	<title>More Examples | @open-wa/wa-automate - v3.2.1</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.2.1">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../assets/css/main.css">
 	<link rel="stylesheet" href="../../assets/css/pages.css">
@@ -23,7 +23,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../../index.html" class="title">@open-wa/wa-automate - v3.2.0</a>
+					<a href="../../index.html" class="title">@open-wa/wa-automate - v3.2.1</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -76,7 +76,7 @@
 				<p>As of version 1.3.1 you can now simulate &#39;...typing&#39;</p>
 				<p>You need to pass the following params:</p>
 				<ul>
-					<li>chat id: <a href="mailto:&#120;&#x78;&#120;&#120;&#120;&#64;&#x63;&#x2e;&#x75;&#115;">&#120;&#x78;&#120;&#120;&#120;&#64;&#x63;&#x2e;&#x75;&#115;</a></li>
+					<li>chat id: <a href="mailto:&#x78;&#x78;&#120;&#x78;&#120;&#64;&#x63;&#46;&#117;&#115;">&#x78;&#x78;&#120;&#x78;&#120;&#64;&#x63;&#46;&#117;&#115;</a></li>
 					<li>on: true or false</li>
 				</ul>
 				<p>Note: You need to manually turn this off!!!</p>
@@ -85,25 +85,29 @@
 <span class="hljs-comment">//wait 3 seconds</span>
 
 <span class="hljs-comment">//stop &#x27;...typing&#x27;</span>
-<span class="hljs-keyword">await</span> client.simulateTyping(<span class="hljs-string">&#x27;xxxxx@c.us&#x27;</span>,<span class="hljs-literal">false</span>)</code></pre>
+<span class="hljs-keyword">await</span> client.simulateTyping(<span class="hljs-string">&#x27;xxxxx@c.us&#x27;</span>,<span class="hljs-literal">false</span>)
+</code></pre>
 				<a href="#load-profile-pics-from-server" id="load-profile-pics-from-server" style="color: inherit; text-decoration: none;">
 					<h2>Load profile pics from server</h2>
 				</a>
 				<p>Generally, after the 20th chat in your WA, getChat methods do not retreive the chat picture. You need to get these from the WA servers. This is how you do it in v1.6.6^:</p>
-				<pre><code class="language-javascript">client.getProfilePicFromServer(<span class="hljs-string">&#x27;XXXXXXX-YYYYY@c.us&#x27;</span>)</code></pre>
+				<pre><code class="language-javascript">client.getProfilePicFromServer(<span class="hljs-string">&#x27;XXXXXXX-YYYYY@c.us&#x27;</span>)
+</code></pre>
 				<a href="#listen-to-read-receipts" id="listen-to-read-receipts" style="color: inherit; text-decoration: none;">
 					<h2>Listen to Read Receipts</h2>
 				</a>
 				<p>As of version 1.5.3 you can now listen in on the read state (or technically acknowledgement state) of the messages. As of writing the limitation is presumed to be on sent messages.</p>
 				<p>The callback you set returns the whole raw message object.</p>
 				<p>Here&#39;s how you do it.</p>
-				<pre><code class="language-javascript">client.onAck(<span class="hljs-function">(<span class="hljs-params">msg:any</span>) =&gt;</span> <span class="hljs-built_in">console</span>.log(msg.id.toString(),msg.body,msg.ack))</code></pre>
+				<pre><code class="language-javascript">client.onAck(<span class="hljs-function">(<span class="hljs-params">msg:any</span>) =&gt;</span> <span class="hljs-built_in">console</span>.log(msg.id.toString(),msg.body,msg.ack))
+</code></pre>
 				<p>ack represents the acknoledgement state, of which there are 3.</p>
 				<pre><code class="language-javascript"><span class="hljs-number">1</span> =&gt; Message Sent (<span class="hljs-number">1</span> tick)
 
 <span class="hljs-number">2</span> =&gt; Message Received by Recipient (<span class="hljs-number">2</span> ticks)
 
-<span class="hljs-number">3</span> =&gt; Message Read Receipt Confirmed (<span class="hljs-number">2</span> blue ticks)</code></pre>
+<span class="hljs-number">3</span> =&gt; Message Read Receipt Confirmed (<span class="hljs-number">2</span> blue ticks)
+</code></pre>
 				<p>Note: You won&#39;t get 3 if the recipient has read receipts off.</p>
 			</div>
 		</div>

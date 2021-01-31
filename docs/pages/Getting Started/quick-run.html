@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Easy API | @open-wa/wa-automate - v3.2.0</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.2.0">
+	<title>Easy API | @open-wa/wa-automate - v3.2.1</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.2.1">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../assets/css/main.css">
 	<link rel="stylesheet" href="../../assets/css/pages.css">
@@ -23,7 +23,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../../index.html" class="title">@open-wa/wa-automate - v3.2.0</a>
+					<a href="../../index.html" class="title">@open-wa/wa-automate - v3.2.1</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -72,25 +72,31 @@
 				</a>
 				<p>Ever wanted to create an API out of your WA number? You&#39;re in luck! </p>
 				<p>Open the terminal, and enter this:</p>
-				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate</code></pre>
+				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate
+</code></pre>
 				<blockquote>
 					<p>P.S you have to make sure you have <code>node</code>, <code>npm</code>, and <code>npx</code> installed on your system.</p>
 				</blockquote>
 				<p>When you run the code, it will also give you a URL to an API explorer where you can play around with the various API endpoints with documentation.</p>
 				<p>You can see all the help text like so:</p>
-				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate --<span class="hljs-built_in">help</span></code></pre>
+				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate --<span class="hljs-built_in">help</span>
+</code></pre>
 				<p>You can set a custom port:</p>
-				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate -p 8080</code></pre>
+				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate -p 8080
+</code></pre>
 				<p>and an api key which will prevent unauthorized requrests. This will result in a key being automatically generated for you:</p>
-				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate -p 8080 -k</code></pre>
+				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate -p 8080 -k
+</code></pre>
 				<p>or you can set your own, I got the following secure key from <a href="https://randomkeygen.com/">https://randomkeygen.com/</a>:</p>
-				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate -p 8080 -k <span class="hljs-string">&#x27;K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy&#x27;</span></code></pre>
+				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate -p 8080 -k <span class="hljs-string">&#x27;K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy&#x27;</span>
+</code></pre>
 				<p>You can easily force the program to maintain focus (<code>--keep-alive</code> or <code>-a</code>):</p>
 				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate -p 8080 -k <span class="hljs-string">&#x27;K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy&#x27;</span> --keep-alive
 
 //or
 
-&gt; npx @open-wa/wa-automate -p 8080 -k <span class="hljs-string">&#x27;K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy&#x27;</span> --keep-alive</code></pre>
+&gt; npx @open-wa/wa-automate -p 8080 -k <span class="hljs-string">&#x27;K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy&#x27;</span> --keep-alive
+</code></pre>
 				<a href="#restarting-session" id="restarting-session" style="color: inherit; text-decoration: none;">
 					<h2>Restarting session</h2>
 				</a>
@@ -100,19 +106,23 @@
 //or
 &gt; npx @open-wa/wa-automate -p 8080 -k <span class="hljs-string">&#x27;K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy&#x27;</span> --session <span class="hljs-string">&quot;eyJXQUJyb...ifQ==&quot;</span>
 //or
-&gt; npx @open-wa/wa-automate -p 8080 -k <span class="hljs-string">&#x27;K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy&#x27;</span> -s <span class="hljs-string">&quot;eyJXQUJyb...ifQ==&quot;</span></code></pre>
+&gt; npx @open-wa/wa-automate -p 8080 -k <span class="hljs-string">&#x27;K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy&#x27;</span> -s <span class="hljs-string">&quot;eyJXQUJyb...ifQ==&quot;</span>
+</code></pre>
 				<a href="#running-on-a-server" id="running-on-a-server" style="color: inherit; text-decoration: none;">
 					<h2>Running on a server</h2>
 				</a>
 				<p>If you&#39;re not running this on your localhost, you&#39;ll need to set the server hostname for the api-docs to work correctly.</p>
-				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate -p 8080 --api-host <span class="hljs-string">&#x27;https://my-wa-api.dev:8080&#x27;</span></code></pre>
+				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate -p 8080 --api-host <span class="hljs-string">&#x27;https://my-wa-api.dev:8080&#x27;</span>
+</code></pre>
 				<a href="#webhooks" id="webhooks" style="color: inherit; text-decoration: none;">
 					<h2>Webhooks</h2>
 				</a>
 				<p>You can also set a webhook address to send all requests to. I like using <a href="https://webhook.site/">webhook.site</a> to check and test events.</p>
-				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate -w <span class="hljs-string">&#x27;https://webhook.site/7a00ac21-60f2-411e-a571-515b37b2025a&#x27;</span></code></pre>
+				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate -w <span class="hljs-string">&#x27;https://webhook.site/7a00ac21-60f2-411e-a571-515b37b2025a&#x27;</span>
+</code></pre>
 				<p>Now if you go to:</p>
-				<pre><code class="language-http">https://webhook.site/#!/7a00ac21-60f2-411e-a571-515b37b2025a</code></pre>
+				<pre><code class="language-http">https://webhook.site/#!/7a00ac21-60f2-411e-a571-515b37b2025a
+</code></pre>
 				<p> you&#39;ll be able to see all the events come through.</p>
 				<p>If you do use this link please make sure to clear all of your requests for your privacy.</p>
 				<a href="#api-docs" id="api-docs" style="color: inherit; text-decoration: none;">
@@ -120,9 +130,11 @@
 				</a>
 				<p>By default, the CLI generates and serves a swagger api explorer at <code>[host]/api-docs/</code></p>
 				<p>For example:</p>
-				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate -w <span class="hljs-string">&#x27;https://webhook.site/7a00ac21-60f2-411e-a571-515b37b2025a&#x27;</span> -p 8008</code></pre>
+				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate -w <span class="hljs-string">&#x27;https://webhook.site/7a00ac21-60f2-411e-a571-515b37b2025a&#x27;</span> -p 8008
+</code></pre>
 				<p>will server the api docs at</p>
-				<pre><code class="language-http">http://localhost:8008/api-docs/</code></pre>
+				<pre><code class="language-http">http://localhost:8008/api-docs/
+</code></pre>
 				<a href="#postman-collection" id="postman-collection" style="color: inherit; text-decoration: none;">
 					<h2>Postman collection</h2>
 				</a>
