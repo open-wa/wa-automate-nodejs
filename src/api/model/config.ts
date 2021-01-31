@@ -363,7 +363,12 @@ export interface ConfigObject {
      */
     keepUpdated ?: boolean;
     /**
-     * Set the desired viewport height and width
+     * Syncs the viewport size with the window size which is how normal browsers act. Only relevant when `headless: false` and this overrides `viewport` config.
+     * @default `false`
+     */
+    resizable ?: boolean;
+    /**
+     * Set the desired viewport height and width. For CLI, use [width]x[height] format. E.g `--viewport 1920x1080`.
      */
     viewport ?: {
         /**

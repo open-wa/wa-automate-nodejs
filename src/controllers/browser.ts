@@ -26,6 +26,7 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
     height: config?.viewport?.height || height,
     deviceScaleFactor: 1
   });
+  if(config?.resizable) config.defaultViewport= null
   const cacheEnabled = config?.cacheEnabled === false ? false : true;
   const blockCrashLogs = config?.blockCrashLogs === false ? false : true;
   await waPage.setBypassCSP(config?.bypassCSP || false);
