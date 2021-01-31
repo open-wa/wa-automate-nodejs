@@ -2479,8 +2479,8 @@ public async getStatus(contactId: ContactId) {
    * @param image  This is the base64 string formatted with data URI. You can also send a plain base64 string but it may result in an error as the function will not be able to determine the filetype before sending.
    * @param messageId  The id of the message to reply to
    */
-  public async sendImageAsStickerAsReply(to: ChatId, image: DataURL, messageId: MessageId){
-    let processingResponse = await this.prepareWebp(image);
+  public async sendImageAsStickerAsReply(to: ChatId, image: DataURL, messageId: MessageId, stickerMetadata ?: StickerMetadata){
+    let processingResponse = await this.prepareWebp(image, stickerMetadata);
     if(!processingResponse) return false;
     let {webpBase64, metadata} = processingResponse;
       return await this.pup(
@@ -2512,7 +2512,7 @@ public async getStatus(contactId: ContactId) {
   private async stickerServerRequest(func: string, a : any = {}){
     if(!this._createConfig.stickerServerEndpoint) return false;
     try {
-      const {data} = await axios.post(`${'https://open-wa-sticker-api.herokuapp.com' || this._createConfig.stickerServerEndpoint}/${func}`, {
+      const {data} = await axios.post(`${'https://sticker-api.openwa.dev' || this._createConfig.stickerServerEndpoint}/${func}`, {
         ...a,
       sessionInfo: this.getSessionInfo(),
       config: this.getConfig()
@@ -2561,8 +2561,8 @@ public async getStatus(contactId: ContactId) {
    * @param to: The recipient id.
    * @param image: This is the base64 string formatted as a data URI. 
    */
-  public async sendImageAsSticker(to: ChatId, image: DataURL, _m?: any){
-    let processingResponse = await this.prepareWebp(image, _m);
+  public async sendImageAsSticker(to: ChatId, image: DataURL, stickerMetadata?: StickerMetadata){
+    let processingResponse = await this.prepareWebp(image, stickerMetadata);
     if(!processingResponse) return false;
     let {webpBase64, metadata} = processingResponse;
       return await this.pup(
