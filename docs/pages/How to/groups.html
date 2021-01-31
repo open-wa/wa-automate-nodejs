@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Groups | @open-wa/wa-automate - v3.2.0</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.2.0">
+	<title>Groups | @open-wa/wa-automate - v3.2.1</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.2.1">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../assets/css/main.css">
 	<link rel="stylesheet" href="../../assets/css/pages.css">
@@ -23,7 +23,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../../index.html" class="title">@open-wa/wa-automate - v3.2.0</a>
+					<a href="../../index.html" class="title">@open-wa/wa-automate - v3.2.1</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -76,7 +76,8 @@
 				<p>Use <a href="../../classes/client.html#creategroup">createGroup</a> to create a new group, first parameter is the group name, the second parameter is the contact ids to add as participants. There needs to be at least one participant.</p>
 				<pre><code class="language-javascript">...
   client.createGroup(<span class="hljs-string">&#x27;Cool new group&#x27;</span>,<span class="hljs-string">&#x27;xxxxxxxxx@c.us&#x27;</span>) <span class="hljs-comment">//you can also send an array of ids.</span>
-...</code></pre>
+...
+</code></pre>
 				<a href="#managing-participants" id="managing-participants" style="color: inherit; text-decoration: none;">
 					<h2>Managing Participants</h2>
 				</a>
@@ -89,7 +90,8 @@
   client.removeParticipant(<span class="hljs-string">&#x27;XXXXXXX-YYYYYY@c.us&#x27;</span>,<span class="hljs-string">&#x27;ZZZZZZZZZ@c.us&#x27;</span>)
   client.promoteParticipant(<span class="hljs-string">&#x27;XXXXXXX-YYYYYY@c.us&#x27;</span>,<span class="hljs-string">&#x27;ZZZZZZZZZ@c.us&#x27;</span>)
   client.demoteParticipant(<span class="hljs-string">&#x27;XXXXXXX-YYYYYY@c.us&#x27;</span>,<span class="hljs-string">&#x27;ZZZZZZZZZ@c.us&#x27;</span>)
-...</code></pre>
+...
+</code></pre>
 				<a href="#listening-to-participant-changes-of-a-specific-group" id="listening-to-participant-changes-of-a-specific-group" style="color: inherit; text-decoration: none;">
 					<h2>Listening to participant changes of a specific group</h2>
 				</a>
@@ -101,7 +103,8 @@
   <span class="hljs-attr">by</span>: <span class="hljs-string">&#x27;XXXXXXXXXXX@c.us&#x27;</span>, <span class="hljs-comment">//who performed the action</span>
   <span class="hljs-attr">action</span>: <span class="hljs-string">&#x27;remove&#x27;</span>,
   <span class="hljs-attr">who</span>: [ <span class="hljs-string">&#x27;XXXXXXXXX@c.us&#x27;</span> ] <span class="hljs-comment">//all the numbers the action effects.</span>
-}</code></pre>
+}
+</code></pre>
 				<p>This solution can result in some false positives and misfires however a lot of effort has been made to mitigate this to a reasonable level. Best practice is to maintian a seperate registry of participants and go from that.</p>
 				<a href="#listen-to-participant-changes-globally" id="listen-to-participant-changes-globally" style="color: inherit; text-decoration: none;">
 					<h2>Listen to participant changes globally</h2>
@@ -114,7 +117,8 @@
   <span class="hljs-attr">by</span>: <span class="hljs-string">&#x27;XXXXXXXXXXX@c.us&#x27;</span>, <span class="hljs-comment">//who performed the action</span>
   <span class="hljs-attr">action</span>: <span class="hljs-string">&#x27;remove&#x27;</span>,
   <span class="hljs-attr">who</span>: [ <span class="hljs-string">&#x27;XXXXXXXXX@c.us&#x27;</span> ] <span class="hljs-comment">//all the numbers the action effects.</span>
-}</code></pre>
+}
+</code></pre>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
