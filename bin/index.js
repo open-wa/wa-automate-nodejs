@@ -18,6 +18,7 @@ const axios = require('axios').default;
 configWithCases.map(({ type, key }) => {
 	if (key === "popup") type = "number";
 	if (key === "viewport") return;
+	if (key === "stickerServerEndpoint") type = "string";
 	extraFlags[key] = {
 		type
 	}
