@@ -17,7 +17,7 @@ const axios = require('axios').default;
 
 configWithCases.map(({ type, key }) => {
 	if (key === "popup") type = "number";
-	if (key === "viewport") return;
+	if (key === "viewport") type= "string" ;
 	if (key === "stickerServerEndpoint") type = "string";
 	extraFlags[key] = {
 		type
@@ -203,6 +203,15 @@ if(c && c.popup) {
 if (!(c.key == null) && c.key == "") {
 	//generate the key
 	c.key = uuidAPIKey.create().apiKey;
+}
+
+if(c.viewport && c.viewport.split && c.viewport.split('x').length && c.viewport.split('x').length==2 && c.viewport.split('x').map(Number).map(n=>!!n?n:null).filter(n=>n).length==2){
+	const [width, height] = c.viewport.split('x').map(Number).map(n=>!!n?n:null).filter(n=>n);
+	config.viewport = {width, height}
+}
+
+if(c.resizable){
+	config.defaultViewport= null // <= set this to have viewport emulation off
 }
 
 if(c.sessionDataOnly){
