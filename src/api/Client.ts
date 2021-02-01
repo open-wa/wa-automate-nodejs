@@ -1,5 +1,5 @@
 import { Page, EvaluateFn } from 'puppeteer';
-import { Chat, LiveLocationChangedEvent, ChatState } from './model/chat';
+import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration } from './model/chat';
 import { Contact } from './model/contact';
 import { Message } from './model/message';
 import axios from 'axios';
@@ -335,6 +335,8 @@ declare module WAPI {
   const getGroupParticipantIDs: (groupId: string) => Promise<string[]>;
   const getGroupInfo: (groupId: string) => Promise<any>;
   const joinGroupViaLink: (link: string) => Promise<string | boolean | number>;
+  const muteChat: (chatId: ChatId, muteDuration: ChatMuteDuration) => Promise<string | boolean | number>;
+  const unmuteChat: (chatId: ChatId) => Promise<string | boolean | number>;
   const leaveGroup: (groupId: string) => any;
   const getVCards: (msgId: string) => any;
   const getContact: (contactId: string) => Contact;
@@ -1525,6 +1527,38 @@ public async iAmAdmin(){
     ) as Promise<boolean>;
   }
 
+
+  /**
+   * 
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * 
+   * Mutes a conversation for a given duration. If already muted, this will update the muted duration. Mute durations are relative from when the method is called.
+   * @param id The id of the conversation you want to mute
+   * @param muteDuration ChatMuteDuration enum of the time you want this chat to be muted for.
+   * @return boolean true: worked or error code or message
+   */
+  public async muteChat(chatId: ChatId, muteDuration: ChatMuteDuration) {
+    return await this.pup(
+      ({ chatId, muteDuration }) => WAPI.muteChat(chatId, muteDuration),
+      { chatId, muteDuration }
+    ) as Promise<boolean | string | number>;
+  }
+
+
+  /**
+   * 
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * 
+   * Unmutes a conversation.
+   * @param id The id of the conversation you want to mute
+   * @return boolean true: worked or error code or message
+   */
+  public async unmuteChat(chatId: ChatId) {
+    return await this.pup(
+      ({ chatId }) => WAPI.unmuteChat(chatId),
+      { chatId }
+    ) as Promise<boolean | string | number>;
+  }
 
   /**
    * Forward an array of messages to a specific chat using the message ids or Objects

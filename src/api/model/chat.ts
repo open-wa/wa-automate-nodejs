@@ -79,3 +79,9 @@ export enum ChatTypes {
   GROUP = 'group',
   UNKNOWN = 'unknown'
 };
+
+export enum ChatMuteDuration {
+  EIGHT_HOURS = 'EIGHT_HOURS',
+  ONE_WEEK = 'ONE_WEEK',
+  FOREVER = 'FOREVER'
+}
