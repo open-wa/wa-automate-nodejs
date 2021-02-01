@@ -2546,7 +2546,7 @@ public async getStatus(contactId: ContactId) {
   private async stickerServerRequest(func: string, a : any = {}){
     if(!this._createConfig.stickerServerEndpoint) return false;
     try {
-      const {data} = await axios.post(`${'https://sticker-api.openwa.dev' || this._createConfig.stickerServerEndpoint}/${func}`, {
+      const {data} = await axios.post(`${'https://open-wa-sticker-api.herokuapp.com' || this._createConfig.stickerServerEndpoint}/${func}`, {
         ...a,
       sessionInfo: this.getSessionInfo(),
       config: this.getConfig()
