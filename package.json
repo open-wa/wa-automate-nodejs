@@ -82,7 +82,7 @@
     "tsc-watch": "^4.0.0",
     "typedoc": "0.19.2",
     "typedoc-plugin-pages": "^1.0.1",
-    "typescript": "^4.0.2"
+    "typescript": "^4.2.0-beta"
   },
   "dependencies": {
     "@open-wa/wa-decrypt": "^3.0.0",

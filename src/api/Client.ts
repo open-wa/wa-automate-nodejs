@@ -1699,7 +1699,7 @@ public async iAmAdmin(){
     return await this.pup(
       groupId => WAPI.getGroupParticipantIDs(groupId),
       groupId
-    ) as Promise<string[]>;
+    ) as Promise<ContactId[]>;
   }
 
   /**

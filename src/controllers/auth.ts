@@ -20,7 +20,7 @@ export const needsToScan = (waPage: puppeteer.Page) => {
       await waPage
         .waitForSelector('body > div > div > .landing-wrapper', {
           timeout: 0
-        }).catch(()=>resolve())
+        }).catch(()=>resolve(true))
     ]).catch(()=>{})
     await waPage.waitForSelector("canvas[aria-label='Scan me!']", { timeout: 0 }).catch(()=>{})
       resolve(false)
