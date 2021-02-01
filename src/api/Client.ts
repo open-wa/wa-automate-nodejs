@@ -344,6 +344,7 @@ declare module WAPI {
   const getChatById: (contactId: string) => Chat;
   const smartDeleteMessages: (contactId: string, messageId: string[] | string, onlyLocal:boolean) => any;
   const sendContact: (to: string, contact: string | string[]) => any;
+  const sendMultipleContacts: (chatId: ChatId, contacts: ContactId[]) => any;
   const simulateTyping: (to: string, on: boolean) => Promise<boolean>;
   const archiveChat: (id: string, archive: boolean) => Promise<boolean>;
   const isConnected: () => Boolean;
@@ -1490,7 +1491,7 @@ public async iAmAdmin(){
    }
 
   /**
-   * Sends contact card to given chat id
+   * Sends contact card to given chat id. You can use this to send multiple contacts but they will show up as multiple single-contact messages.
    * @param {string} to 'xxxx@c.us'
    * @param {string|array} contact 'xxxx@c.us' | ['xxxx@c.us', 'yyyy@c.us', ...]
    */
@@ -1498,6 +1499,22 @@ public async iAmAdmin(){
     return await this.pup(
       ({ to, contactId }) => WAPI.sendContact(to, contactId),
       { to, contactId }
+    );
+  }
+
+  /**
+   * 
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * 
+   * Sends multiple contacts as a single message
+   * 
+   * @param  to 'xxxx@c.us'
+   * @param contact ['xxxx@c.us', 'yyyy@c.us', ...]
+   */
+  public async sendMultipleContacts(to: ChatId, contactIds: ContactId[]) {
+    return await this.pup(
+      ({ to, contactIds }) => WAPI.sendMultipleContacts(to, contactIds),
+      { to, contactIds }
     );
   }
 
