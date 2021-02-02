@@ -303,7 +303,7 @@ return await create({ ...config })
 				]
 				swCol.paths[p].post.externalDocs= {
 					"description": "Documentation",
-					"url": swCol.paths[p].post.description
+					"url": swCol.paths[p].post.documentationUrl
 				  }
 				  swCol.paths[p].post.requestBody = {
 					  "description": path.summary,
@@ -343,8 +343,11 @@ return await create({ ...config })
 			  //Sort alphabetically
 			var x = {}; Object.keys(swCol.paths).sort().map(k=>x[k]=swCol.paths[k]);swCol.paths=x;
 			fs.writeFileSync("./open-wa-" + c.sessionId + ".sw_col.json", JSON.stringify(swCol));
-			app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swCol, (c.key && c.preAuthDocs) ? {
-				swaggerOptions:{
+			const swOptions = {
+				customCss: '.opblock-description { white-space: pre-line }'
+			}
+			if(c.key && c.preAuthDocs) {
+				swOptions.swaggerOptions = {
 					authAction: {
 						api_key: {
 							name: "api_key",
@@ -353,8 +356,8 @@ return await create({ ...config })
 						}
 					}
 				}
-				
-			} : {}));
+			}
+			app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swCol, swOptions));
 		}
 		
 		app.use(client.middleware((c && c.useSessionIdInPath)));

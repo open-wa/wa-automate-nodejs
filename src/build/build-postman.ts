@@ -1,7 +1,11 @@
+import ts, { ScriptTarget, SyntaxKind } from "typescript";
+
 var fs = require('fs');
 const path = require("path"),
 parseUrl = require("parse-url")
 let noCase;
+
+const format = (s:string) => s?.replace(/[[/g,'').replace(/]]/g,'').replace(/@param/g,'Parameter:')
 
 var aliasExamples = {
     "ChatId": "00000000000@c.us or 00000000000-111111111@g.us",
@@ -16,11 +20,31 @@ var aliasExamples = {
 var paramNameExamples = {
     "ChatId": "00000000000@c.us  or 00000000000-111111111@g.us",
 };
+
 var primatives = [
     'number',
     'string',
     'boolean'
 ];
+
+async function getMethodDocs(){
+    const {Project} = await import("ts-morph");
+
+    const project = new Project({
+        compilerOptions: {
+            target: ScriptTarget.ESNext,
+        },
+    });
+    let res = {};
+    const sourceFile = project.addSourceFileAtPath(path.resolve(__dirname,'../api/_client_ts'));
+    for (const method of sourceFile.getClass('Client').getMethods()){
+        if(method.hasModifier(SyntaxKind.PublicKeyword)) {
+            res[method.getName()] = format(method.getJsDocs()[0]?.getInnerText())
+        }
+    }
+    return res;
+}
+
 export const generatePostmanJson = async function (setup : any = {}) {
     const {TypescriptParser} = await import("typescript-parser");
     if(!noCase) noCase = (await import("change-case")).noCase;
@@ -34,9 +58,13 @@ export const generatePostmanJson = async function (setup : any = {}) {
         }
     }
     const data = fs.readFileSync(path.resolve(__dirname,'../api/_client_ts'), 'utf8');
+    const s = await getMethodDocs();
     const parsed = await parser.parseSource(data);
     //@ts-ignore
-    let x = parsed.declarations.find(({name})=>name==='Client').methods.filter(({visibility})=>visibility==2).filter(({name})=>!name.startsWith('on'));
+    let x = parsed.declarations.find(({name})=>name==='Client').methods.filter(({visibility})=>visibility==2).filter(({name})=>!name.startsWith('on')).map(method=>({
+        text: s[method.name] || '',
+        ...method
+    }));
     let postmanGen = postmanRequestGeneratorGenerator(setup);
     let pm = x.map(postmanGen);
     let d = JSON.stringify(x);
@@ -118,7 +146,8 @@ const postmanRequestGeneratorGenerator = function (setup) { return function (met
             }
         },
         url,
-        "description": "https://open-wa.github.io/wa-automate-nodejs/classes/client.html#" + method.name.toLocaleLowerCase()
+        "documentationUrl": `https://open-wa.github.io/wa-automate-nodejs/classes/client.html#${method.name.toLocaleLowerCase()}`,
+        "description": `${method.text}\n[External Documentation](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#${method.name.toLocaleLowerCase()})`
     };
     if (!(setup === null || setup === void 0 ? void 0 : setup.key))
         delete request.auth;
@@ -195,3 +224,5 @@ var postmanWrapGen = function (setup) { return function (item) {
         "protocolProfileBehavior": {}
     };
 }; };
+
+generatePostmanJson();
