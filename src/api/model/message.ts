@@ -1,10 +1,10 @@
-import { ChatId } from "./aliases";
+import { ChatId, MessageId } from "./aliases";
 
 export interface Message {
   /**
    * The id of the message
    */
-  id: string;
+  id: MessageId;
   /**
    * The body of the message. If the message type is `chat` , `body` will be the text of the chat. If the message type is some sort of media, then this body will be the thumbnail of the media.
    */
