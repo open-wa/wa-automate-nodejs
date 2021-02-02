@@ -2118,15 +2118,15 @@ public async getStatus(contactId: ContactId) {
 
   /**
    * Deletes message of given message id
-   * @param contactId The chat id from which to delete the message.
+   * @param chatId The chat id from which to delete the message.
    * @param messageId The specific message id of the message to be deleted
    * @param onlyLocal If it should only delete locally (message remains on the other recipienct's phone). Defaults to false.
    * @returns nothing
    */
-  public async deleteMessage(contactId: ContactId, messageId: MessageId[] | MessageId, onlyLocal : boolean = false) {
+  public async deleteMessage(chatId: ChatId, messageId: MessageId[] | MessageId, onlyLocal : boolean = false) {
     return await this.pup(
-      ({ contactId, messageId, onlyLocal }) => WAPI.smartDeleteMessages(contactId, messageId, onlyLocal),
-      { contactId, messageId, onlyLocal }
+      ({ chatId, messageId, onlyLocal }) => WAPI.smartDeleteMessages(chatId, messageId, onlyLocal),
+      { chatId, messageId, onlyLocal }
     );
   }
 
