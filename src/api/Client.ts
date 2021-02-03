@@ -2565,15 +2565,28 @@ public async getStatus(contactId: ContactId) {
 
   private async stickerServerRequest(func: string, a : any = {}){
     if(!this._createConfig.stickerServerEndpoint) return false;
-    try {
-      const {data} = await axios.post(`${'https://open-wa-sticker-api.herokuapp.com' || this._createConfig.stickerServerEndpoint}/${func}`, {
-        ...a,
-      sessionInfo: this.getSessionInfo(),
-      config: this.getConfig()
-    });
-      return data;
-    } catch (err) {
-      console.error(err.message);
+    if(a.file || a.image) {
+      //check if its a local file:
+      const key = a.file ? 'file' : 'image';
+      if(!isDataURL(a[key]) && !isUrl(a[key])){
+        const relativePath = path.join(path.resolve(process.cwd(),a[key]|| ''));
+        if(fs.existsSync(a[key]) || fs.existsSync(relativePath)) {
+          a[key] = await datauri(fs.existsSync(a[key])  ? a[key] : relativePath);
+        }
+      }
+      try {
+        const {data} = await axios.post(`${'http://localhost:5000' || 'https://open-wa-sticker-api.herokuapp.com' || this._createConfig.stickerServerEndpoint}/${func}`, {
+          ...a,
+        sessionInfo: this.getSessionInfo(),
+        config: this.getConfig()
+      });
+        return data;
+      } catch (err) {
+        console.error(err?.response?.status, err?.response?.data);
+        return false;
+      }
+    } else {
+      console.error("Media is missing from this request");
       return false;
     }
   }
@@ -2661,6 +2674,7 @@ public async getStatus(contactId: ContactId) {
         })
       } else convertedStickerDataUrl = await convertMp4BufferToWebpDataUrl(file, processOptions);
     try {
+      if(!convertedStickerDataUrl) return false;
       return await this.sendRawWebpAsSticker(to, convertedStickerDataUrl, true);
     } catch (error) {
       console.log('Stickers have to be less than 1MB. Please lower the fps or shorten the duration using the processOptions parameter: https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendmp4assticker')

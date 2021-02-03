@@ -224,5 +224,5 @@ var postmanWrapGen = function (setup) { return function (item) {
         "protocolProfileBehavior": {}
     };
 }; };
-
-generatePostmanJson();
+// uncomment to test
+// generatePostmanJson();
