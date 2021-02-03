@@ -957,7 +957,10 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
       },
       { to, content }
     );
-    if(err.includes(res)) console.error(res);
+    if(err.includes(res)) {
+      if(res==err[1]) console.error(res, `Requires license: https://get.openwa.dev/l/${this.getHostNumber()}`)
+      else console.error(res);
+    }
     return (err.includes(res) ? false : res)  as boolean | MessageId;
   }
   
