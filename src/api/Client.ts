@@ -74,9 +74,9 @@ export enum SimpleListener {
    */
   IncomingCall = 'onIncomingCall',
   /**
-   * Represents [[onGlobalParicipantsChanged]]
+   * Represents [[onGlobalParticipantsChanged]]
    */
-  GlobalParicipantsChanged = 'onGlobalParicipantsChanged',
+  GlobalParticipantsChanged = 'onGlobalParticipantsChanged',
   /**
    * Represents [[onChatState]]
    */
@@ -202,7 +202,7 @@ declare module WAPI {
   const onAddedToGroup: (callback: Function) => any;
   const onBattery: (callback: Function) => any;
   const onPlugged: (callback: Function) => any;
-  const onGlobalParicipantsChanged: (callback: Function) => any;
+  const onGlobalParticipantsChanged: (callback: Function) => any;
   const onStory: (callback: Function) => any;
   const setChatBackgroundColourHex: (hex: string) => boolean;
   const darkMode: (activate: boolean) => boolean;
@@ -673,8 +673,8 @@ export class Client {
    * @param fn callback function that handles a [[ParticipantChangedEventModel]] as the first and only parameter.
    * @returns `true` if the callback was registered
    */
-  public async onGlobalParicipantsChanged(fn: (participantChangedEvent: ParticipantChangedEventModel) => void) {
-    return this.registerListener(SimpleListener.GlobalParicipantsChanged, fn);
+  public async onGlobalParticipantsChanged(fn: (participantChangedEvent: ParticipantChangedEventModel) => void) {
+    return this.registerListener(SimpleListener.GlobalParticipantsChanged, fn);
   }
 
   /**

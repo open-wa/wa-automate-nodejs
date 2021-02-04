@@ -48,7 +48,7 @@ create().then((client) => start(client));
 
 If you want to listen to participant change requests from all groups, you can get a list of all groups [[getAllChatIds]], filter for groups `.filter(id=>id.includes('@g.us')` then use the above method. However this results in multiple listeners in the browser and can have detrimental performance implications.
 
-For better performance and stability you can use the Insiders Feature [[onGlobalParicipantsChanged]].
+For better performance and stability you can use the Insiders Feature [[onGlobalParticipantsChanged]].
 
 ```javascript
 import {
@@ -58,7 +58,7 @@ import {
 } from "@open-wa/wa-automate";
 
 function start(client: Client) {
-  client.onGlobalParicipantsChanged(
+  client.onGlobalParticipantsChanged(
     async (changeEvent: ParticipantChangedEventModel) => {
       if (changeEvent.action == "add") {
         // It is possible that multiple accounts get added

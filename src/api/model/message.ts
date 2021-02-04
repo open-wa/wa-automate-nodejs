@@ -173,6 +173,7 @@ export interface Message {
   quotedMsgObj: any;
   mediaData: {};
   shareDuration: number;
+  isAnimated: boolean;
 }
 
 

@@ -45,10 +45,10 @@ This solution can result in some false positives and misfires however a lot of e
 
 ## Listen to participant changes globally
 
-[[onGlobalParicipantsChanged]] is a simple and memory efficient way to listen to all participant changes from all groups. This is an Insider's Feature.
+[[onGlobalParticipantsChanged]] is a simple and memory efficient way to listen to all participant changes from all groups. This is an Insider's Feature.
 
 ```javascript
-client.onGlobalParicipantsChanged((participantChangedEvent) => console.log("participant changed for group", participantChangedEvent));
+client.onGlobalParticipantsChanged((participantChangedEvent) => console.log("participant changed for group", participantChangedEvent));
 
 //participantChangedEvent returns
 {
