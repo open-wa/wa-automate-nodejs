@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/wa-automate",
-  "version": "3.2.6",
+  "version": "3.3.0",
   "licenseCheckUrl": "https://openwa.dev/license-check",
   "brokenMethodReportUrl": "https://openwa.dev/report-bm",
   "patches": "https://raw.githack.com/open-wa/wa-automate-nodejs/master/patches.json",
