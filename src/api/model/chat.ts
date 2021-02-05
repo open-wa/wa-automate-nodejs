@@ -80,8 +80,22 @@ export enum ChatTypes {
   UNKNOWN = 'unknown'
 };
 
+/**
+ * Valid durations for muting a chat using [[muteChat]]
+ *
+ * @readonly
+ */
 export enum ChatMuteDuration {
+  /**
+   * Mutes chat for 8 hours
+   */
   EIGHT_HOURS = 'EIGHT_HOURS',
+  /**
+   * Mutes chat for 1 week
+   */
   ONE_WEEK = 'ONE_WEEK',
+  /**
+   * Mutes chat forever
+   */
   FOREVER = 'FOREVER'
 }
