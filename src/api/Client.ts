@@ -17,7 +17,17 @@ datauri = require('datauri'),
 fs = require('fs'),
 isUrl = require('is-url'),
 ffmpeg = require('fluent-ffmpeg'),
-isDataURL = (s: string) => !!s.match(/^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/g);
+isDataURL = (s: string) => !!s.match(/^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/g),
+isBase64 = (str: string) => {
+  const len = str.length;
+  if (!len || len % 4 !== 0 || /[^A-Z0-9+\/=]/i.test(str)) {
+    return false;
+  }
+  const firstPaddingChar = str.indexOf('=');
+  return firstPaddingChar === -1 ||
+    firstPaddingChar === len - 1 ||
+    (firstPaddingChar === len - 2 && str[len - 1] === '=');
+}
 import treekill from 'tree-kill';
 import { SessionInfo } from './model/sessionInfo';
 import { injectApi } from '../controllers/browser';
@@ -2578,10 +2588,13 @@ public async getStatus(contactId: ContactId) {
     if(a.file || a.image) {
       //check if its a local file:
       const key = a.file ? 'file' : 'image';
-      if(!isDataURL(a[key]) && !isUrl(a[key])){
+      if(!isDataURL(a[key]) && !isUrl(a[key]) && !isBase64(a[key])){
         const relativePath = path.join(path.resolve(process.cwd(),a[key]|| ''));
         if(fs.existsSync(a[key]) || fs.existsSync(relativePath)) {
           a[key] = await datauri(fs.existsSync(a[key])  ? a[key] : relativePath);
+        } else {
+          console.error('FILE_NOT_FOUND')
+          return false
         }
       }
       try {
@@ -2602,6 +2615,10 @@ public async getStatus(contactId: ContactId) {
   }
 
   private async prepareWebp(image: DataURL, stickerMetadata?: StickerMetadata) {
+    if(isDataURL(image) && !image.includes("image")) {
+      console.error("Not an image. Please use convertMp4BufferToWebpDataUrl to process video stickers");
+      return false
+    }
     if(this._createConfig.stickerServerEndpoint) {
       return await this.stickerServerRequest('prepareWebp', {
         image,
@@ -2659,11 +2676,11 @@ public async getStatus(contactId: ContactId) {
    */
   public async sendMp4AsSticker(to: ChatId, file: DataURL | Buffer | Base64 | string, processOptions: Mp4StickerConversionProcessOptions = defaultProcessOptions, stickerMetadata?: StickerMetadata) {
     //@ts-ignore
-    if((typeof file === 'object' || file?.type === 'Buffer') && file.toString) {
+    if((Buffer.isBuffer(file)  || typeof file === 'object' || file?.type === 'Buffer') && file.toString) {
       file = file.toString('base64')
     }
       if(typeof file === 'string') {
-      if(!isDataURL(file)) {
+      if(!isDataURL(file) && !isBase64(file)) {
         //must be a file then
         if(isUrl(file)){
           file = await getDUrl(file)
@@ -2671,7 +2688,7 @@ public async getStatus(contactId: ContactId) {
           let relativePath = path.join(path.resolve(process.cwd(),file|| ''));
           if(fs.existsSync(file) || fs.existsSync(relativePath)) {
             file = await datauri(fs.existsSync(file)  ? file : relativePath);
-          } 
+          } else return 'FILE_NOT_FOUND';
         } 
       }
       } 
