@@ -389,14 +389,24 @@ export class Client {
     this._sessionInfo = sessionInfo;
     this._listeners = {};
     if(this._createConfig.stickerServerEndpoint!== false) this._createConfig.stickerServerEndpoint = true;
-    if(this._createConfig?.eventMode) {
-      this.registerAllSimpleListenersOnEv();
-    }
     this._setOnClose();
   }
 
-  private registerAllSimpleListenersOnEv(){
-    Object.keys(SimpleListener).map(eventKey => this.registerEv(SimpleListener[eventKey]))
+  /**
+   * @private
+   * 
+   * DO NOT USE THIS.
+   * 
+   * Run all tasks to set up client AFTER init is fully completed
+   */
+  async loaded() {
+    if(this._createConfig?.eventMode) {
+      await this.registerAllSimpleListenersOnEv();
+    }
+  }
+
+  private async registerAllSimpleListenersOnEv(){
+      await Promise.all(Object.keys(SimpleListener).map(eventKey => this.registerEv(SimpleListener[eventKey])))
   }
 
   getSessionId(){
@@ -3051,7 +3061,7 @@ public async getStatus(contactId: ContactId) {
         return false;
       }
       const sessionId = this.getSessionId();
-      this._registeredEvListeners[simpleListener] = this[simpleListener](async data=>ev.emit(`${simpleListener}.${sessionId}`,{
+      this._registeredEvListeners[simpleListener] = await this[simpleListener](data=>ev.emit(`${simpleListener}.${sessionId}`,{
         ts: Date.now(),
         sessionId,
         event: simpleListener,
