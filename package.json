@@ -76,7 +76,7 @@
     "command-line-args": "^5.1.1",
     "husky": "^4.2.3",
     "line-reader": "^0.4.0",
-    "marked": "^1.0.0",
+    "marked": "^2.0.0",
     "onchange": "^7.0.2",
     "precise-commits": "^1.0.2",
     "prettier": "^2.0.1",
