@@ -531,7 +531,7 @@ export class Client {
       return window[funcName] ? WAPI[`${funcName}`](obj => window[funcName](obj)) : false
     },{funcName});
     if(this._listeners[funcName]) {
-      console.log('listener already set');
+      // console.log('listener already set');
       return true
     }
     this._listeners[funcName] = fn;
@@ -2615,6 +2615,7 @@ public async getStatus(contactId: ContactId) {
   }
 
   private async prepareWebp(image: DataURL, stickerMetadata?: StickerMetadata) {
+    // console.log("prepareWebp", image.slice(0,25))
     if(isDataURL(image) && !image.includes("image")) {
       console.error("Not an image. Please use convertMp4BufferToWebpDataUrl to process video stickers");
       return false
@@ -2627,10 +2628,10 @@ public async getStatus(contactId: ContactId) {
     }
     const buff = Buffer.from(image.replace(/^data:image\/(png|gif|jpeg|webp);base64,/,''), 'base64');
     const mimeInfo = base64MimeType(image);
-    if(!mimeInfo || mimeInfo.includes("image")){
+    if(mimeInfo?.includes("image")){
       let webpBase64 = image;
       let metadata : any = { width: 512, height: 512 };
-      if(!mimeInfo.includes('webp')) {
+      if(!mimeInfo?.includes('webp')) {
         const { pages } = await sharp(buff).metadata();
       //@ts-ignore
       let webp = sharp(buff,{ failOnError: false, animated: !!pages}).webp();
