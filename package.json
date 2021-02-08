@@ -56,6 +56,10 @@
   "engines": {
     "node": ">=12.18.3"
   },
+  "peerDependencies": {
+    "sharp": "^0.27.0",
+    "fluent-ffmpeg": "^2.1.2"
+  },
   "devDependencies": {
     "@grupoboticario/news-fragments": "^1.8.0",
     "@types/changelog-parser": "^2.7.1",
@@ -99,7 +103,6 @@
     "death": "^1.1.0",
     "eventemitter2": "^6.0.0",
     "express": "^4.17.1",
-    "fluent-ffmpeg": "^2.1.2",
     "get-port": "^5.1.1",
     "hasha": "^5.2.0",
     "image-type": "^4.1.0",
@@ -121,7 +124,6 @@
     "puppeteer-page-proxy": "^1.2.8",
     "qrcode-terminal": "^0.12.0",
     "rxjs": "^6.5.3",
-    "sharp": "^0.27.0",
     "socket.io": "^3.0.0",
     "spinnies": "^0.5.1",
     "swagger-ui-dist": "^3.36.1",
