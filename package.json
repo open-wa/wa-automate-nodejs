@@ -74,7 +74,7 @@
     "ava": "^3.13.0",
     "changelog-parser": "^2.8.0",
     "command-line-args": "^5.1.1",
-    "husky": "^4.2.3",
+    "husky": "^5.0.9",
     "line-reader": "^0.4.0",
     "marked": "^1.0.0",
     "onchange": "^7.0.2",
