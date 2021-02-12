@@ -89,7 +89,7 @@
     "typescript": "^4.2.0-beta"
   },
   "dependencies": {
-    "@open-wa/wa-decrypt": "^3.0.0",
+    "@open-wa/wa-decrypt": "^3.0.1",
     "@types/sharp": "^0.27.1",
     "atob": "^2.1.2",
     "axios": "^0.21.0",
