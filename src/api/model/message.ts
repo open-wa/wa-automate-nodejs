@@ -1,4 +1,4 @@
-import { ChatId, MessageId } from "./aliases";
+import { ChatId, ContactId, MessageId } from "./aliases";
 
 export interface Message {
   /**
@@ -79,7 +79,7 @@ export interface Message {
    * The contact object of the account that sent the message
    */
   sender: {
-    id: string;
+    id: ContactId;
     name: string;
     shortName: string;
     pushname: string;
@@ -123,7 +123,7 @@ export interface Message {
    * The chat object
    */
   chat: {
-    id: string;
+    id: ChatId;
     pendingMsgs: boolean;
     lastReceivedKey: {
       fromMe: boolean;
@@ -144,7 +144,7 @@ export interface Message {
     kind: string;
     isGroup: boolean;
     contact: {
-      id: string;
+      id: ContactId;
       name: string;
       shortName: string;
       pushname: string;
@@ -166,9 +166,13 @@ export interface Message {
     groupMetadata: any;
     presence: { id: string; chatstates: any[] };
   };
-  chatId: string;
+  chatId: ChatId;
   author: string;
+  /**
+   * @deprecated
+   */
   clientUrl: string;
+  deprecatedMms3Url: string;
   quotedMsg: any;
   quotedMsgObj: any;
   mediaData: {};
