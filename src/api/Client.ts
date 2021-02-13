@@ -2602,6 +2602,8 @@ public async getStatus(contactId: ContactId) {
           ...a,
         sessionInfo: this.getSessionInfo(),
         config: this.getConfig()
+      },{
+        maxBodyLength: 20000000
       });
         return data;
       } catch (err) {
