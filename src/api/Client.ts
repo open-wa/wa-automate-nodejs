@@ -2597,6 +2597,7 @@ public async getStatus(contactId: ContactId) {
           return false
         }
       }
+      if(a?.stickerMetadata && typeof a?.stickerMetadata !== "object") throw new Error(`Expected stickerMetadata object. Received ${typeof a?.stickerMetadata}: ${a?.stickerMetadata}`);
       try {
         const {data} = await axios.post(`${'https://open-wa-sticker-api.herokuapp.com' || this._createConfig.stickerServerEndpoint}/${func}`, {
           ...a,
