@@ -16,6 +16,7 @@ optionalRequire = require("optional-require")(require),
 datauri = require('datauri'),
 fs = require('fs'),
 isUrl = require('is-url'),
+pino = require('pino'),
 isDataURL = (s: string) => !!s.match(/^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/g),
 isBase64 = (str: string) => {
   const len = str.length;
@@ -26,6 +27,25 @@ isBase64 = (str: string) => {
   return firstPaddingChar === -1 ||
     firstPaddingChar === len - 1 ||
     (firstPaddingChar === len - 2 && str[len - 1] === '=');
+},
+createLogger = (sessionId: string, sessionInfo: SessionInfo, config: ConfigObject) => {
+  let p = path.join(path.resolve(process.cwd()),`/logs/${sessionId || 'session'}/${sessionInfo.START_TS}.log`)
+  if(!fs.existsSync(p)) {
+    fs.mkdirSync(path.join(path.resolve(process.cwd()),`/logs/${sessionId || 'session'}`), {
+      recursive:true
+    })
+  }
+  let logger = pino({
+  redact: ['file', 'base64', 'image', 'webpBase64', 'base64', 'durl'],
+  },pino.destination(p))
+
+  logger.child({
+    "STAGE": "LAUNCH",
+    sessionInfo,
+    config
+    }).info()
+
+  return logger
 }
 import treekill from 'tree-kill';
 import { SessionInfo } from './model/sessionInfo';
@@ -388,6 +408,7 @@ export class Client {
   private _listeners: any;
   private _page: Page;
   private _currentlyBeingKilled: boolean = false;
+  private _l: any;
 
   /**
    * @ignore
@@ -414,6 +435,10 @@ export class Client {
     if(this._createConfig?.eventMode) {
       await this.registerAllSimpleListenersOnEv();
     }
+    this._sessionInfo.PHONE_VERSION = (await this.getMe()).phone.wa_version
+    this.logger().child({
+      PHONE_VERSION: this._sessionInfo.PHONE_VERSION
+    }).info()
   }
 
   private async registerAllSimpleListenersOnEv(){
@@ -452,6 +477,15 @@ export class Client {
   public async download(url: string, optionsOverride: any = {} ) {
     return await getDUrl(url, optionsOverride)
   } 
+
+
+  /**
+   * Grab the logger for this session/process
+   */
+  public logger(){
+    if(!this._l) this._l = createLogger(this.getSessionId(), this.getSessionInfo(), this.getConfig());
+    return this._l;
+  }
 
   /**
    * Refreshes the page and reinjects all necessary files. This may be useful for when trying to save memory
@@ -519,6 +553,13 @@ export class Client {
                            `${v?.replace(/@(c|g).us/g,'')}@c.us`;
         }
       })
+    }
+    if(logFile) {
+      let wapis = (pageFunction?.toString()?.match(/WAPI\.(\w*)\(/g) || [])?.map(s=>s.replace(/WAPI|\.|\(/g,''));
+        this.logger().child({
+                        _method: wapis?.length === 1 ? wapis[0] : wapis,
+                        ...args[0]
+                        }).info()
     }
     if(callTimeout) return await Promise.race([this._page.evaluate(pageFunction, ...args),new Promise((resolve, reject) => setTimeout(reject, this._createConfig?.callTimeout, new PageEvaluationTimeout()))])
     return this._page.evaluate(pageFunction, ...args);

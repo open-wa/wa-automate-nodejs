@@ -7,4 +7,5 @@ export interface SessionInfo {
     NUM ?: string;
     OS ?: string;
     START_TS ?: number;
+    PHONE_VERSION ?: string
 }
