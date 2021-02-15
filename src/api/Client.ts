@@ -977,7 +977,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
       { to, content }
     );
     if(err.includes(res)) {
-      if(res==err[1]) console.error(`\n${res}. Requires license: https://get.openwa.dev/l/${await this.getHostNumber()}\n`)
+      if(res==err[1]) console.error(`\n${res}. Unlock this feature and support open-wa by getting a license: https://get.openwa.dev/l/${await this.getHostNumber()}\n`)
       else console.error(res);
     }
     return (err.includes(res) ? false : res)  as boolean | MessageId;
@@ -1128,7 +1128,10 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     if(!m.mimetype) throw new Error("Not a media message");
     if(m.type == "sticker") m = await this.getStickerDecryptable(m.id);
     //Dont have an insiders license to decrypt stickers
-    if(m===false) return false;
+    if(m===false) {
+      console.error(`\nUnable to decrypt sticker. Unlock this feature and support open-wa by getting a license: https://get.openwa.dev/l/${await this.getHostNumber()}?v=i\n`)
+      throw new Error('Sticker not decrypted')
+    }
     const mediaData = await decryptMedia(m);
     return `data:${m.mimetype};base64,${mediaData.toString('base64')}`
   };
