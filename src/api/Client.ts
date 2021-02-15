@@ -712,7 +712,7 @@ export class Client {
   /**
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
-   * Fires callback with Chat object every time the host phone is added to a group.
+   * Fires callback with Chat object every time the host phone is removed to a group.
    * 
    * @event 
    * @param fn callback function that handles a [[Chat]] (group chat) as the first and only parameter.
@@ -882,11 +882,10 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   }
     
   /**
-   * Returns the connecction state
-   * @returns Any of OPENING, PAIRING, UNPAIRED, UNPAIRED_IDLE, CONNECTED, TIMEOUT, CONFLICT, UNLAUNCHED, PROXYBLOCK, TOS_BLOCK, SMB_TOS_BLOCK, DEPRECATED_VERSION
+   * Returns the connection state
    */
   public async getConnectionState() {
-    return await this._page.evaluate(() => WAPI.getState());
+    return await this._page.evaluate(() => WAPI.getState()) as Promise<STATE>;
   }
 
   /**
@@ -1449,7 +1448,7 @@ public async iAmAdmin(){
   }
 
    /**
-    * SEasily get the amount of messages loaded up in the session. This will allow you to determine when to clear chats/cache.
+    * Easily get the amount of messages loaded up in the session. This will allow you to determine when to clear chats/cache.
     */
    public async getAmountOfLoadedMessages(){
      return await this.pup(() => WAPI.getAmountOfLoadedMessages()) as Promise<number>;
@@ -2244,7 +2243,8 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
-   * Sends a text message to given chat
+   * Create a group and add contacts to it
+   * 
    * @param to group name: 'New group'
    * @param contacts: A single contact id or an array of contact ids.
    * @returns Promise<GroupCreationResponse> :
