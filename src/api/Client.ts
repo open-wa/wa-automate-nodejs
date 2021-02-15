@@ -885,7 +885,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * Returns the connection state
    */
   public async getConnectionState() {
-    return await this._page.evaluate(() => WAPI.getState()) as Promise<STATE>;
+    return await this._page.evaluate(() => WAPI.getState()) as STATE;
   }
 
   /**
