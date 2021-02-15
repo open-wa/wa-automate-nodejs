@@ -5,7 +5,6 @@ import { Message } from './model/message';
 import axios from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent, puppeteerConfig } from '../config/puppeteer.config'
-import sharp from 'sharp';
 import { ConfigObject, STATE } from './model';
 import { PageEvaluationTimeout } from './model/errors';
 import PQueue from 'p-queue';
@@ -13,10 +12,10 @@ import { ev } from '../controllers/events';
 /** @ignore */
 const parseFunction = require('parse-function'),
 pkg = require('../../package.json'),
+optionalRequire = require("optional-require")(require),
 datauri = require('datauri'),
 fs = require('fs'),
 isUrl = require('is-url'),
-ffmpeg = require('fluent-ffmpeg'),
 isDataURL = (s: string) => !!s.match(/^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/g),
 isBase64 = (str: string) => {
   const len = str.length;
@@ -128,6 +127,8 @@ async function convertMp4BufferToWebpDataUrl(file: DataURL | Buffer | Base64, pr
     ...defaultProcessOptions,
     ...processOptions
   } : defaultProcessOptions
+  const ffmpeg = optionalRequire('fluent-ffmpeg', "Missing peer dependency: npm i fluent-ffmpeg");
+  if(!ffmpeg) return false;
   const tempFile = path.join(tmpdir(), `processing.${Crypto.randomBytes(6).readUIntLE(0, 6).toString(36)}.webp`);
   var stream = new (require('stream').Readable)();
   stream.push(Buffer.isBuffer(file) ? file : Buffer.from(file.replace('data:video/mp4;base64,',''), 'base64'));
@@ -2308,6 +2309,8 @@ public async getStatus(contactId: ContactId) {
           image
         })
       } else {
+        const sharp = optionalRequire('sharp',  "Missing peer dependency: npm i sharp");
+        if(!sharp) return false;
         //no matter what, convert to jpeg, resize + autoscale to width 48 px
         const scaledImageBuffer = await sharp(buff,{ failOnError: false })
         .resize({ height: 300 })
@@ -2632,6 +2635,8 @@ public async getStatus(contactId: ContactId) {
         stickerMetadata
       })
     }
+    const sharp = optionalRequire('sharp',  "Missing peer dependency: npm i sharp");
+    if(!sharp) return false;
     const buff = Buffer.from(image.replace(/^data:image\/(png|gif|jpeg|webp);base64,/,''), 'base64');
     const mimeInfo = base64MimeType(image);
     if(mimeInfo?.includes("image")){
