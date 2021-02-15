@@ -503,12 +503,24 @@ export class Client {
 
 
   private async pup(pageFunction:EvaluateFn<any>, ...args) {
-    if(this._createConfig?.safeMode) {
+    const {safeMode, callTimeout, idChecking, logFile} = this._createConfig;
+    if(safeMode) {
       if(!this._page || this._page.isClosed()) throw 'page closed';
       const state = await this.forceUpdateConnectionState();
       if(state!==STATE.CONNECTED) throw `state: ${state}`
     }
-    if(this._createConfig?.callTimeout) return await Promise.race([this._page.evaluate(pageFunction, ...args),new Promise((resolve, reject) => setTimeout(reject, this._createConfig?.callTimeout, new PageEvaluationTimeout()))])
+    if(idChecking) {
+      Object.entries(args[0]).map(([k,v] : [string,any]) => {
+        if(["to","chatId", "groupChatId", "groupId", "contactId"].includes(k) && typeof v == "string" && v) {
+        args[0][k] = v?.includes('-') ? 
+                          //it is a group chat, make sure it has a @g.us at the end
+                          `${v?.replace(/@(c|g).us/g,'')}@g.us` :
+                          //it is a normal chat, make sure it has a @c.us at the end
+                           `${v?.replace(/@(c|g).us/g,'')}@c.us`;
+        }
+      })
+    }
+    if(callTimeout) return await Promise.race([this._page.evaluate(pageFunction, ...args),new Promise((resolve, reject) => setTimeout(reject, this._createConfig?.callTimeout, new PageEvaluationTimeout()))])
     return this._page.evaluate(pageFunction, ...args);
   }
 
