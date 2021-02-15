@@ -2,18 +2,16 @@ import { Id } from './id';
 
 export interface Contact {
   formattedName: string;
-  id: Id | string;
+  id: ContactId;
   isBusiness: boolean;
   isEnterprise: boolean;
-  isHighLevelVerified: any;
   isMe: boolean;
   isMyContact: boolean;
   isPSA: boolean;
   isUser: boolean;
-  isVerified: any;
   isWAContact: boolean;
-  labels: any[];
-  msgs: any;
+  labels: string[];
+  msgs: Messages[];
   name: string;
   plaintextDisabled: boolean;
   profilePicThumbObj: {
@@ -21,16 +19,15 @@ export interface Contact {
     id: Id;
     img: string;
     imgFull: string;
-    raw: any;
+    raw: string;
     tag: string;
   };
   pushname: string;
-  sectionHeader: any;
   shortName: string;
   statusMute: boolean;
   type: string;
-  verifiedLevel: any;
-  verifiedName: any;
-  isOnline?: any;
-  lastSeen?: any;
+  verifiedLevel: string;
+  verifiedName: string;
+  isOnline?: boolean;
+  lastSeen?: number;
 }

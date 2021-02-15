@@ -1,5 +1,11 @@
 import { Id } from './id';
-import { GroupChatId } from './aliases';
+import { GroupChatId, WaServers } from './aliases';
+
+export interface Participant {
+  id: NonSerializedId,
+  isAdmin: boolean,
+  isSuperAdmin: boolean
+}
 
 export interface GroupMetadata {
   /**
@@ -13,26 +19,21 @@ export interface GroupMetadata {
   /**
    * The id of the owner of the group [[ContactId]]
    */
-  owner: {
-    server: string;
-    user: string;
-    _serialized: string;
-  };
+  owner: NonSerializedId;
   /**
    * An array of participants in the group
    */
-  participants: any[];
+  participants: Participant[];
   /**
    * Unknown.
    */
-  pendingParticipants: any[];
+  pendingParticipants: Participant[];
 }
 
 export enum groupChangeEvent {
   remove = 'remove',
   add = 'add'
 }
-
 
 export interface ParticipantChangedEventModel {
   by: Id,

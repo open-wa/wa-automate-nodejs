@@ -70,6 +70,12 @@ export type MessageId = `${boolean}_${ChatId}_${string}`;
  */
 export type Content = string;
 
+export type NonSerializedId = {
+  server: WaServers,
+  user: AccountNumber,
+  _serialized: ContactId
+}
+
 /**
  * 
  * Data URLs, URLs prefixed with the data: scheme, allow content creators to embed small files inline in documents. They were formerly known as "data URIs" until that name was retired by the WHATWG.
