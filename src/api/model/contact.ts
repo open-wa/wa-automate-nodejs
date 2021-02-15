@@ -1,4 +1,6 @@
+import { ContactId } from './aliases';
 import { Id } from './id';
+import { Message } from './message';
 
 export interface Contact {
   formattedName: string;
@@ -11,7 +13,7 @@ export interface Contact {
   isUser: boolean;
   isWAContact: boolean;
   labels: string[];
-  msgs: Messages[];
+  msgs: Message[];
   name: string;
   plaintextDisabled: boolean;
   profilePicThumbObj: {

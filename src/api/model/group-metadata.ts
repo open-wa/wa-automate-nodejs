@@ -1,5 +1,5 @@
 import { Id } from './id';
-import { GroupChatId, WaServers } from './aliases';
+import { GroupChatId, NonSerializedId, WaServers } from './aliases';
 
 export interface Participant {
   id: NonSerializedId,

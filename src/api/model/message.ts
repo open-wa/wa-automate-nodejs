@@ -1,5 +1,7 @@
 import { ChatId, ContactId, MessageId } from "./aliases";
+import { Chat } from "./chat";
 import { Contact } from "./contact";
+import { GroupMetadata } from "./group-metadata";
 
 export interface Message {
   /**
