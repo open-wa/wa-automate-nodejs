@@ -1022,6 +1022,8 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     'Error: Number not linked to WhatsApp Account',
     'ERROR: Please make sure you have at least one chat'
    ];
+   
+   content = content?.trim() || content
 
     let res = await this.pup(
       ({ to, content }) => {
