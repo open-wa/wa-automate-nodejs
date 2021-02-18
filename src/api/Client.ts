@@ -36,7 +36,7 @@ createLogger = (sessionId: string, sessionInfo: SessionInfo, config: ConfigObjec
     })
   }
   let logger = pino({
-  redact: ['file', 'base64', 'image', 'webpBase64', 'base64', 'durl'],
+  redact: ['file', 'base64', 'image', 'webpBase64', 'base64', 'durl', 'thumbnail'],
   },pino.destination(p))
 
   logger.child({
@@ -286,7 +286,7 @@ declare module WAPI {
   const sendSeen: (to: string) => Promise<boolean>;
   const markAsUnread: (to: string) => Promise<boolean>;
   const isChatOnline: (id: string) => Promise<boolean | string>;
-  const sendLinkWithAutoPreview: (to: string,url: string,text: string) => Promise<string | boolean>;
+  const sendLinkWithAutoPreview: (to: string,url: string,text: string, thumbnail :? string) => Promise<string | boolean>;
   const contactBlock: (id: string) => Promise<boolean>;
   const checkReadReceipts: (contactId: string) => Promise<boolean | string>;
   const REPORTSPAM: (id: string) => Promise<boolean>;
@@ -1243,9 +1243,10 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
  * @param chatId 
  * @param url string A youtube link.
  * @param text string Custom text as body of the message, this needs to include the link or it will be appended after the link.
+ * @param thumbnail string Base64 of the jpeg/png which will be used to override the automatically generated thumbnail.
  */
-  public async sendYoutubeLink(to: ChatId, url: string, text: Content = '') {
-    return this.sendLinkWithAutoPreview(to,url,text);
+  public async sendYoutubeLink(to: ChatId, url: string, text: Content = '', thumbnail ?: Base64) {
+    return this.sendLinkWithAutoPreview(to,url,text, thumbnail);
   }
 
 /**
@@ -1253,15 +1254,17 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
  * @param chatId 
  * @param url string A link.
  * @param text string Custom text as body of the message, this needs to include the link or it will be appended after the link.
+ * @param thumbnail Base64 of the jpeg/png which will be used to override the automatically generated thumbnail.
  */
   public async sendLinkWithAutoPreview(
     to: ChatId,
     url: string,
     text?: Content,
+    thumbnail ?: Base64
   ) {
     return await this.pup(
-      ({ to,url, text }) => WAPI.sendLinkWithAutoPreview(to,url,text),
-      { to,url, text }
+      ({ to,url, text, thumbnail }) => WAPI.sendLinkWithAutoPreview(to,url,text, thumbnail),
+      { to,url, text, thumbnail }
     ) as Promise<MessageId | boolean>;
   }
 
