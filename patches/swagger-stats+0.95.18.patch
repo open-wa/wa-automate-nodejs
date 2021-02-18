@@ -1,0 +1,39 @@
+diff --git a/node_modules/swagger-stats/lib/swsElasticEmitter.js b/node_modules/swagger-stats/lib/swsElasticEmitter.js
+index 3e5b4e8..e6bcca8 100644
+--- a/node_modules/swagger-stats/lib/swsElasticEmitter.js
++++ b/node_modules/swagger-stats/lib/swsElasticEmitter.js
+@@ -99,7 +99,7 @@ swsElasticEmitter.prototype.initTemplate = function(rrr) {
+     var templateURL = this.elasticURL+'/_template/template_api';
+     var getOptionsVersion = {url:this.elasticURL, json:true};
+     var getOptions = {url:templateURL, json:true};
+-    let putOptions = null; // {url:templateURL, json:indexTemplate7X};
++    let putOptions = {url:templateURL, json:indexTemplate7X};
+ 
+     if (this.elasticUsername && this.elasticPassword) {
+         var auth = {
+diff --git a/node_modules/swagger-stats/lib/swsLastErrors.js b/node_modules/swagger-stats/lib/swsLastErrors.js
+index e26d1ce..b2478ba 100644
+--- a/node_modules/swagger-stats/lib/swsLastErrors.js
++++ b/node_modules/swagger-stats/lib/swsLastErrors.js
+@@ -24,7 +24,7 @@ swsLastErrors.prototype.getStats = function() {
+ swsLastErrors.prototype.addError = function(rrr) {
+     this.last_errors.push(rrr);
+     // Clean up if more than allowed
+-    if (this.last_errors.length > 100) {
++    if (this.last_errors.length > 10) {
+         this.last_errors.shift();
+     }
+ };
+diff --git a/node_modules/swagger-stats/lib/swsLongestReq.js b/node_modules/swagger-stats/lib/swsLongestReq.js
+index 0991b40..004629b 100644
+--- a/node_modules/swagger-stats/lib/swsLongestReq.js
++++ b/node_modules/swagger-stats/lib/swsLongestReq.js
+@@ -20,7 +20,7 @@ function swsLongestRequests() {
+ 
+     // Max number of requests to keep.
+     // Should not be too big as we're going keep ordered array of longest requests
+-    this.capacity = 100;
++    this.capacity = 2;
+ 
+     // true if full
+     this.full = false;

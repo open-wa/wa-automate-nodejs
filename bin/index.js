@@ -11,6 +11,8 @@ const swaggerUi = require('swagger-ui-express');
 const terminalLink = require('terminal-link');
 const tcpPortUsed = require('tcp-port-used');
 const changeCase = require("change-case");
+const swStats = require('swagger-stats');    
+var robots = require("express-robots-txt");
 const extraFlags = {};
 const configWithCases = require('./config-schema.json');
 const axios = require('axios').default;
@@ -50,6 +52,7 @@ ${configParamText}
 	  --headful \t\t\tShows the browser window on your machine
 	  --pre-auth-docs \t\t\tPre authenticate documentation site. [High security risk]
 	  --api-host \t\t\tThe easy API may be sitting behind a reverse proxy. In this case set --api-host in order to make sure the api docs and api explorer are working properly. You will need to include the protocol as well.
+	  --stats \t\t\tExposes API statistics for this specific session
 
 	Please check here for more information on some of the above mentioned parameters: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html
 
@@ -142,6 +145,10 @@ ${configParamText}
 			default: false
 		},
 		preAuthDocs: { 
+			type: 'boolean',
+			default: false
+		},
+		stats: { 
 			type: 'boolean',
 			default: false
 		},
@@ -259,6 +266,10 @@ async function start(){
 	}
 return await create({ ...config })
 .then(async (client) => {
+	let swCol = null;
+
+	app.use(robots({ UserAgent: '*', Disallow: '/' }))
+	
 	if (c && c.webhook) Object.keys(SimpleListener).map(eventKey => client.registerWebhook(SimpleListener[eventKey], c.webhook))
 
 	if(c && c.keepAlive) client.onStateChanged(async state=>{
@@ -270,7 +281,7 @@ return await create({ ...config })
 			console.log(`Please use the following api key for requests as a header:\napi_key: ${c.key}`)
 			app.use((req, res, next) => {
 				if(req.path==='/' && req.method==='GET') return res.redirect('/api-docs/');
-				if(req.path.startsWith('/api-docs')) {
+				if(req.path.startsWith('/api-docs') || req.path.startsWith('/swagger-stats')) {
 					return next();
 				}
 				const apiKey = req.get('key') || req.get('api_key')
@@ -282,15 +293,16 @@ return await create({ ...config })
 			  })
 		}
 
-		if(c && c.generateApiDocs) {
-			console.log('Generating API Docs');
-			if(!c.sessionId) c.sessionId = 'session';
+		if(!c.sessionId) c.sessionId = 'session';
+
+		if(c && (c.generateApiDocs || c.stats)) {
+			console.log('Generating Swagger Spec');
 			const postmanCollection = await generatePostmanJson({
 				...c,
 				...config
 			});
 			console.log(`Postman collection generated: open-wa-${c.sessionId}.postman_collection.json`);
-			const swCol = p2s.default(postmanCollection);
+			swCol = p2s.default(postmanCollection);
 			/**
 			 * Fix swagger docs by removing the content type as a required paramater
 			 */
@@ -343,6 +355,10 @@ return await create({ ...config })
 			  //Sort alphabetically
 			var x = {}; Object.keys(swCol.paths).sort().map(k=>x[k]=swCol.paths[k]);swCol.paths=x;
 			fs.writeFileSync("./open-wa-" + c.sessionId + ".sw_col.json", JSON.stringify(swCol));
+		}
+
+		if(c && c.generateApiDocs && swCol) {
+			console.log('Setting Up API Explorer');
 			const swOptions = {
 				customCss: '.opblock-description { white-space: pre-line }'
 			}
@@ -358,6 +374,30 @@ return await create({ ...config })
 				}
 			}
 			app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swCol, swOptions));
+		}
+
+		if(c && c.stats && swCol) {
+			console.log('Setting Up API Stats');
+			app.use(swStats.getMiddleware({
+			  elasticsearch:process.env.elastic_url,
+			  elasticsearchUsername:process.env.elastic_un,
+			  elasticsearchPassword:process.env.elastic_pw,
+			  swaggerSpec:require("./open-wa-" + c.sessionId + ".sw_col.json"),
+			  authentication: !!c.key,
+			  swaggerOnly: true,
+			  onResponseFinish: function(req,res,rrr){
+				['file', 'base64', 'image', 'webpBase64', 'base64', 'durl', 'thumbnail'].forEach(key => {
+					if(req.body.args[key])
+					req.body.args[key] = rrr.http.request.body.args[key] = req.body.args[key]?.slice(0,25) || 'EMPTY'
+				});
+				if(rrr.http.response.code!==200 && rrr.http.response.code!==404) {
+				  rrr.http.response.phrase = res.statusMessage
+				}
+			  },
+			  onAuthenticate: function(req,username,password){
+				return((username==="admin") && (password===c.key));
+			  }
+			}));
 		}
 		
 		app.use(client.middleware((c && c.useSessionIdInPath)));
@@ -379,7 +419,13 @@ return await create({ ...config })
 		});
 		const apiDocsUrl = c.apiHost ? `${c.apiHost}/api-docs/ `: `${c.host.includes('http') ? '' : 'http://'}${c.host}:${PORT}/api-docs/ `;
 		const link = terminalLink('API Explorer', apiDocsUrl);
-		if(c && c.generateApiDocs)  console.log(`\nCheck out the API here: ${link}`)
+		if(c && c.generateApiDocs)  console.log(`\n\t${link}`)
+
+		if(c && c.generateApiDocs && c.stats) {
+			const swaggerStatsUrl = c.apiHost ? `${c.apiHost}/api-docs/ `: `${c.host.includes('http') ? '' : 'http://'}${c.host}:${PORT}/swagger-stats/ui `;
+			const statsLink = terminalLink('API Stats', swaggerStatsUrl);
+			console.log(`\n\t${statsLink}`)
+		}
 
 	}
 })
