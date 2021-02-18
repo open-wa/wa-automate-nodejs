@@ -286,7 +286,7 @@ declare module WAPI {
   const sendSeen: (to: string) => Promise<boolean>;
   const markAsUnread: (to: string) => Promise<boolean>;
   const isChatOnline: (id: string) => Promise<boolean | string>;
-  const sendLinkWithAutoPreview: (to: string,url: string,text: string, thumbnail :? string) => Promise<string | boolean>;
+  const sendLinkWithAutoPreview: (to: string,url: string,text: string, thumbnail : string) => Promise<string | boolean>;
   const contactBlock: (id: string) => Promise<boolean>;
   const checkReadReceipts: (contactId: string) => Promise<boolean | string>;
   const REPORTSPAM: (id: string) => Promise<boolean>;
