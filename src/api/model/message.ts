@@ -99,31 +99,7 @@ export interface Message {
   /**
    * The chat object
    */
-  chat: {
-    id: ChatId;
-    pendingMsgs: boolean;
-    lastReceivedKey: {
-      fromMe: boolean;
-      remote: ChatId;
-      id: MessageId;
-      _serialized: MessageId;
-    };
-    t: number;
-    unreadCount: number;
-    archive: boolean;
-    isReadOnly: boolean;
-    modifyTag: number;
-    muteExpiration: number;
-    name: string;
-    notSpam: boolean;
-    pin: number;
-    msgs: Message[];
-    kind: string;
-    isGroup: boolean;
-    contact: Chat;
-    groupMetadata: GroupMetadata;
-    presence: { id: ContactId; chatstates: any[] };
-  };
+  chat: Chat;
   chatId: ChatId;
   author: string;
   /**
@@ -131,8 +107,8 @@ export interface Message {
    */
   clientUrl: string;
   deprecatedMms3Url: string;
-  quotedMsg: Message;
-  quotedMsgObj: Message;
+  quotedMsg ?: Message;
+  quotedMsgObj ?: Message;
   mediaData: {};
   shareDuration: number;
   isAnimated: boolean;
