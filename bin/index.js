@@ -267,6 +267,7 @@ async function start(){
 return await create({ ...config })
 .then(async (client) => {
 	let swCol = null;
+	let pmCol = null;
 
 	app.use(robots({ UserAgent: '*', Disallow: '/' }))
 	
@@ -297,12 +298,12 @@ return await create({ ...config })
 
 		if(c && (c.generateApiDocs || c.stats)) {
 			console.log('Generating Swagger Spec');
-			const postmanCollection = await generatePostmanJson({
+			pmCol = await generatePostmanJson({
 				...c,
 				...config
 			});
 			console.log(`Postman collection generated: open-wa-${c.sessionId}.postman_collection.json`);
-			swCol = p2s.default(postmanCollection);
+			swCol = p2s.default(pmCol);
 			/**
 			 * Fix swagger docs by removing the content type as a required paramater
 			 */
@@ -355,6 +356,8 @@ return await create({ ...config })
 			  //Sort alphabetically
 			var x = {}; Object.keys(swCol.paths).sort().map(k=>x[k]=swCol.paths[k]);swCol.paths=x;
 			fs.writeFileSync("./open-wa-" + c.sessionId + ".sw_col.json", JSON.stringify(swCol));
+			app.get('/postman.json', (req,res)=>res.send(pmCol))
+			app.get('/swagger.json', (req,res)=>res.send(swCol))
 		}
 
 		if(c && c.generateApiDocs && swCol) {
