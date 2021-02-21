@@ -3,19 +3,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ERROR_NAME | @open-wa/wa-automate - v3.6.2</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.6.2">
+	<title>ERROR_NAME | @open-wa/wa-automate - v3.6.3</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.6.3">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
-	<script>
-		(function (w,d,s,o,f,js,fjs) {
-			w['Otechie-Widget']=o;w[o] = w[o] || function () { (w[o].q = w[o].q || []).push(arguments) };
-			js = d.createElement(s), fjs = d.getElementsByTagName(s)[0];
-			js.id = o; js.src = f; js.async = 1; fjs.parentNode.insertBefore(js, fjs);
-		}(window, document, 'script', 'ow', 'https://widget.otechie.com/widget.js'));
-		ow('init', { username: 'smashah' });
-	</script>
 </head>
 <body>
 <header>
@@ -31,7 +23,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v3.6.2</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v3.6.3</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -85,13 +77,14 @@
 						<section class="tsd-index-section ">
 							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="error_name.html#bad_sticker_metadata" class="tsd-kind-icon">BAD_<wbr>STICKER_<wbr>METADATA</a></li>
 								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="error_name.html#file_not_found" class="tsd-kind-icon">FILE_<wbr>NOT_<wbr>FOUND</a></li>
 								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="error_name.html#media_missing" class="tsd-kind-icon">MEDIA_<wbr>MISSING</a></li>
 								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="error_name.html#missing_url" class="tsd-kind-icon">MISSING_<wbr>URL</a></li>
 								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="error_name.html#not_media" class="tsd-kind-icon">NOT_<wbr>MEDIA</a></li>
 								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="error_name.html#page_closed" class="tsd-kind-icon">PAGE_<wbr>CLOSED</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="error_name.html#sendtext_failure" class="tsd-kind-icon">SENDTEXT_<wbr>FAILURE</a></li>
 								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="error_name.html#state_error" class="tsd-kind-icon">STATE_<wbr>ERROR</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="error_name.html#stickermetadata_error" class="tsd-kind-icon">STICKERMETADATA_<wbr>ERROR</a></li>
 								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="error_name.html#sticker_not_decrypted" class="tsd-kind-icon">STICKER_<wbr>NOT_<wbr>DECRYPTED</a></li>
 								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="error_name.html#sticker_too_large" class="tsd-kind-icon">STICKER_<wbr>TOO_<wbr>LARGE</a></li>
 							</ul>
@@ -102,12 +95,27 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Enumeration members</h2>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="bad_sticker_metadata" class="tsd-anchor"></a>
+					<h3>BAD_<wbr>STICKER_<wbr>METADATA</h3>
+					<div class="tsd-signature tsd-kind-icon">BAD_<wbr>STICKER_<wbr>METADATA<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;BAD_STICKER_METADATA&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f300e445/src/api/model/errors.ts#L52">src/api/model/errors.ts:52</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The sticker metadata parameter is wrong.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
 					<a name="file_not_found" class="tsd-anchor"></a>
 					<h3>FILE_<wbr>NOT_<wbr>FOUND</h3>
 					<div class="tsd-signature tsd-kind-icon">FILE_<wbr>NOT_<wbr>FOUND<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;FILE_NOT_FOUND&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3df1fa73/src/api/model/errors.ts#L48">src/api/model/errors.ts:48</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f300e445/src/api/model/errors.ts#L48">src/api/model/errors.ts:48</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -122,7 +130,7 @@
 					<div class="tsd-signature tsd-kind-icon">MEDIA_<wbr>MISSING<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;MEDIA_MISSING&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3df1fa73/src/api/model/errors.ts#L40">src/api/model/errors.ts:40</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f300e445/src/api/model/errors.ts#L40">src/api/model/errors.ts:40</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -137,7 +145,7 @@
 					<div class="tsd-signature tsd-kind-icon">MISSING_<wbr>URL<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;MISSING_URL&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3df1fa73/src/api/model/errors.ts#L24">src/api/model/errors.ts:24</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f300e445/src/api/model/errors.ts#L24">src/api/model/errors.ts:24</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -152,7 +160,7 @@
 					<div class="tsd-signature tsd-kind-icon">NOT_<wbr>MEDIA<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;NOT_MEDIA&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3df1fa73/src/api/model/errors.ts#L36">src/api/model/errors.ts:36</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f300e445/src/api/model/errors.ts#L36">src/api/model/errors.ts:36</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -167,7 +175,7 @@
 					<div class="tsd-signature tsd-kind-icon">PAGE_<wbr>CLOSED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;PAGE_CLOSED&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3df1fa73/src/api/model/errors.ts#L28">src/api/model/errors.ts:28</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f300e445/src/api/model/errors.ts#L28">src/api/model/errors.ts:28</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -177,12 +185,27 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="sendtext_failure" class="tsd-anchor"></a>
+					<h3>SENDTEXT_<wbr>FAILURE</h3>
+					<div class="tsd-signature tsd-kind-icon">SENDTEXT_<wbr>FAILURE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;SENDTEXT_FAILURE&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f300e445/src/api/model/errors.ts#L56">src/api/model/errors.ts:56</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Unable to send text</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
 					<a name="state_error" class="tsd-anchor"></a>
 					<h3>STATE_<wbr>ERROR</h3>
 					<div class="tsd-signature tsd-kind-icon">STATE_<wbr>ERROR<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;STATE_ERROR&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3df1fa73/src/api/model/errors.ts#L32">src/api/model/errors.ts:32</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f300e445/src/api/model/errors.ts#L32">src/api/model/errors.ts:32</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -192,27 +215,12 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="stickermetadata_error" class="tsd-anchor"></a>
-					<h3>STICKERMETADATA_<wbr>ERROR</h3>
-					<div class="tsd-signature tsd-kind-icon">STICKERMETADATA_<wbr>ERROR<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;STICKERMETADATA_ERROR&quot;</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3df1fa73/src/api/model/errors.ts#L52">src/api/model/errors.ts:52</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The sticker metadata parameter is wrong.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
 					<a name="sticker_not_decrypted" class="tsd-anchor"></a>
 					<h3>STICKER_<wbr>NOT_<wbr>DECRYPTED</h3>
 					<div class="tsd-signature tsd-kind-icon">STICKER_<wbr>NOT_<wbr>DECRYPTED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;STICKER_NOT_DECRYPTED&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3df1fa73/src/api/model/errors.ts#L44">src/api/model/errors.ts:44</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f300e445/src/api/model/errors.ts#L44">src/api/model/errors.ts:44</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -227,7 +235,7 @@
 					<div class="tsd-signature tsd-kind-icon">STICKER_<wbr>TOO_<wbr>LARGE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;STICKER_TOO_LARGE&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3df1fa73/src/api/model/errors.ts#L20">src/api/model/errors.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/f300e445/src/api/model/errors.ts#L20">src/api/model/errors.ts:20</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -326,6 +334,9 @@
 						<a href="error_name.html" class="tsd-kind-icon">ERROR_<wbr>NAME</a>
 						<ul>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="error_name.html#bad_sticker_metadata" class="tsd-kind-icon">BAD_<wbr>STICKER_<wbr>METADATA</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
 								<a href="error_name.html#file_not_found" class="tsd-kind-icon">FILE_<wbr>NOT_<wbr>FOUND</a>
 							</li>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
@@ -341,10 +352,10 @@
 								<a href="error_name.html#page_closed" class="tsd-kind-icon">PAGE_<wbr>CLOSED</a>
 							</li>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="error_name.html#state_error" class="tsd-kind-icon">STATE_<wbr>ERROR</a>
+								<a href="error_name.html#sendtext_failure" class="tsd-kind-icon">SENDTEXT_<wbr>FAILURE</a>
 							</li>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="error_name.html#stickermetadata_error" class="tsd-kind-icon">STICKERMETADATA_<wbr>ERROR</a>
+								<a href="error_name.html#state_error" class="tsd-kind-icon">STATE_<wbr>ERROR</a>
 							</li>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
 								<a href="error_name.html#sticker_not_decrypted" class="tsd-kind-icon">STICKER_<wbr>NOT_<wbr>DECRYPTED</a>
