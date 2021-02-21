@@ -234,7 +234,9 @@
           "namespace",
           "SimpleListener",
           "SessionInfo",
-          "ChatMuteDuration"
+          "ChatMuteDuration",
+          "ERROR_NAME",
+          "CustomError"
         ]
     }
 }

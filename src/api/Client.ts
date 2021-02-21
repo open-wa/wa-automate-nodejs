@@ -58,6 +58,7 @@ import { CustomProduct } from './model/product';
 import Crypto from 'crypto';
 import { tmpdir } from 'os';
 import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
+import { CustomError, ERROR_NAME } from '../utils/errors';
 
 export enum namespace {
   Chat = 'Chat',
@@ -539,9 +540,9 @@ export class Client {
   private async pup(pageFunction:EvaluateFn<any>, ...args) {
     const {safeMode, callTimeout, idChecking, logFile} = this._createConfig;
     if(safeMode) {
-      if(!this._page || this._page.isClosed()) throw 'page closed';
+      if(!this._page || this._page.isClosed()) throw new CustomError(ERROR_NAME.PAGE_CLOSED, 'page closed');
       const state = await this.forceUpdateConnectionState();
-      if(state!==STATE.CONNECTED) throw `state: ${state}`
+      if(state!==STATE.CONNECTED) throw new CustomError(ERROR_NAME.STATE_ERROR,`state: ${state}`);
     }
     if(idChecking) {
       Object.entries(args[0]).map(([k,v] : [string,any]) => {
@@ -550,7 +551,7 @@ export class Client {
                           //it is a group chat, make sure it has a @g.us at the end
                           `${v?.replace(/@(c|g).us/g,'')}@g.us` :
                           //it is a normal chat, make sure it has a @c.us at the end
-                           `${v?.replace(/@(c|g).us/g,'')}@c.us`;
+                          `${v?.replace(/@(c|g).us/g,'')}@c.us`;
         }
       })
     }
@@ -1186,12 +1187,12 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     //if it's the message id, get the message
     if(typeof message === "string") m = await this.getMessageById(message) 
     else m = message;
-    if(!m.mimetype) throw new Error("Not a media message");
+    if(!m.mimetype) throw new CustomError(ERROR_NAME.NOT_MEDIA,"Not a media message");
     if(m.type == "sticker") m = await this.getStickerDecryptable(m.id);
     //Dont have an insiders license to decrypt stickers
     if(m===false) {
       console.error(`\nUnable to decrypt sticker. Unlock this feature and support open-wa by getting a license: https://get.openwa.dev/l/${await this.getHostNumber()}?v=i\n`)
-      throw new Error('Sticker not decrypted')
+      throw new CustomError(ERROR_NAME.STICKER_NOT_DECRYPTED,'Sticker not decrypted')
     }
     const mediaData = await decryptMedia(m);
     return `data:${m.mimetype};base64,${mediaData.toString('base64')}`
@@ -1224,7 +1225,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
           file = await datauri(fs.existsSync(file)  ? file : relativePath);
         } else if(isUrl(file)){
           return await this.sendFileFromUrl(to,file,filename,caption,quotedMsgId,{},waitForId,ptt,withoutPreview);
-        } else throw new Error('Cannot find file. Make sure the file reference is relative, a valid URL or a valid DataURL')
+        } else throw new CustomError(ERROR_NAME.FILE_NOT_FOUND,'Cannot find file. Make sure the file reference is relative, a valid URL or a valid DataURL')
       }
     
    const err = [
@@ -1405,7 +1406,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
           file = await datauri(fs.existsSync(file)  ? file : relativePath);
         } else if(isUrl(file)){
           file = await getDUrl(file, requestConfig);
-        } else throw new Error('Cannot find file. Make sure the file reference is relative, a valid URL or a valid DataURL')
+        } else throw new CustomError(ERROR_NAME.FILE_NOT_FOUND,'Cannot find file. Make sure the file reference is relative, a valid URL or a valid DataURL')
       }
     return await this.pup(
       ({ to, file, filename, caption, quotedMsgId  }) => {
@@ -2663,10 +2664,10 @@ public async getStatus(contactId: ContactId) {
           a[key] = await datauri(fs.existsSync(a[key])  ? a[key] : relativePath);
         } else {
           console.error('FILE_NOT_FOUND')
-          throw new Error('FILE_NOT_FOUND')
+          throw new CustomError(ERROR_NAME.FILE_NOT_FOUND, 'FILE NOT FOUND')
         }
       }
-      if(a?.stickerMetadata && typeof a?.stickerMetadata !== "object") throw new Error(`Expected stickerMetadata object. Received ${typeof a?.stickerMetadata}: ${a?.stickerMetadata}`);
+      if(a?.stickerMetadata && typeof a?.stickerMetadata !== "object") throw new CustomError(ERROR_NAME.STICKERMETADATA_ERROR, `Received ${typeof a?.stickerMetadata}: ${a?.stickerMetadata}`);
       try {
         const {data} = await axios.post(`${'https://open-wa-sticker-api.herokuapp.com' || this._createConfig.stickerServerEndpoint}/${func}`, {
           ...a,
@@ -2683,7 +2684,7 @@ public async getStatus(contactId: ContactId) {
       }
     } else {
       console.error("Media is missing from this request");
-      throw new Error("Media is missing from this request")
+      throw new CustomError(ERROR_NAME.MEDIA_MISSING, "Media is missing from this request")
     }
   }
 
@@ -2780,8 +2781,9 @@ public async getStatus(contactId: ContactId) {
       if(!convertedStickerDataUrl) return false;
       return await this.sendRawWebpAsSticker(to, convertedStickerDataUrl, true);
     } catch (error) {
-      console.log('Stickers have to be less than 1MB. Please lower the fps or shorten the duration using the processOptions parameter: https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendmp4assticker')
-      throw error;
+      const msg = 'Stickers have to be less than 1MB. Please lower the fps or shorten the duration using the processOptions parameter: https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendmp4assticker'
+      console.log(msg)
+      throw new CustomError(ERROR_NAME.STICKER_TOO_LARGE,msg);
     }
   }
 
@@ -2971,7 +2973,7 @@ public async getStatus(contactId: ContactId) {
    * @returns base64 string (non-data url)
    */
   public async downloadFileWithCredentials(url: string){
-    if(!url) throw new Error('Missing URL');
+    if(!url) throw new CustomError(ERROR_NAME.MISSING_URL, 'Missing URL');
     return await this.pup(({ url }) => WAPI.downloadFileWithCredentials(url),{url});
   }
   

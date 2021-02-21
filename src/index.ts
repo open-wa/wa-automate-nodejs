@@ -7,3 +7,4 @@ export { smartUserAgent } from './utils/tools'
 //dont need to export this
 // export { getConfigWithCase } from './utils/configSchema'
 export * from './build/build-postman'
+export * from './utils/errors'
