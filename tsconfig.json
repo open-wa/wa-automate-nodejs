@@ -234,7 +234,7 @@
           "namespace",
           "SimpleListener",
           "SessionInfo",
-          "ChatMuteDuration",
+          "ChatMuteDuration"
         ]
     }
 }
