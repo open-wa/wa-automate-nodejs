@@ -6,7 +6,7 @@ import axios from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent, puppeteerConfig } from '../config/puppeteer.config'
 import { ConfigObject, STATE } from './model';
-import { PageEvaluationTimeout } from './model/errors';
+import { PageEvaluationTimeout, CustomError, ERROR_NAME  } from './model/errors';
 import PQueue from 'p-queue';
 import { ev } from '../controllers/events';
 /** @ignore */
@@ -58,7 +58,6 @@ import { CustomProduct } from './model/product';
 import Crypto from 'crypto';
 import { tmpdir } from 'os';
 import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
-import { CustomError, ERROR_NAME } from '../utils/errors';
 
 export enum namespace {
   Chat = 'Chat',

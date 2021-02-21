@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ChatTypes | @open-wa/wa-automate - v3.6.2</title>
+	<title>CustomError | @open-wa/wa-automate - v3.6.2</title>
 	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.6.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -61,10 +61,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="chattypes.html">ChatTypes</a>
+					<a href="customerror.html">CustomError</a>
 				</li>
 			</ul>
-			<h1>Enumeration ChatTypes</h1>
+			<h1>Class CustomError</h1>
 		</div>
 	</div>
 </header>
@@ -74,58 +74,116 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Chat types</p>
+						<p>A simple custom error class that takes the first parameter as the name using the <a href="../enums/error_name.html">ERROR_NAME</a> enum</p>
 					</div>
-					<dl class="tsd-comment-tags">
-						<dt>readonly</dt>
-						<dd></dd>
-					</dl>
 				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<a href="pageevaluationtimeout.html#error" class="tsd-signature-type">Error</a>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">CustomError</span>
+							</li>
+						</ul>
+					</li>
+				</ul>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Enumeration members</h3>
+							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="chattypes.html#group" class="tsd-kind-icon">GROUP</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="chattypes.html#solo" class="tsd-kind-icon">SOLO</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="chattypes.html#unknown" class="tsd-kind-icon">UNKNOWN</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="customerror.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="customerror.html#message" class="tsd-kind-icon">message</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="customerror.html#name" class="tsd-kind-icon">name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="customerror.html#stack" class="tsd-kind-icon">stack</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="customerror.html#error" class="tsd-kind-icon">Error</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Enumeration members</h2>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="group" class="tsd-anchor"></a>
-					<h3>GROUP</h3>
-					<div class="tsd-signature tsd-kind-icon">GROUP<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;group&quot;</span></div>
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Custom<wbr>Error<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><a href="../enums/error_name.html" class="tsd-signature-type">ERROR_NAME</a>, <span class="tsd-signature-symbol">...</span>params<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="customerror.html" class="tsd-signature-type">CustomError</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3df1fa73/src/api/model/errors.ts#L58">src/api/model/errors.ts:58</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>name: <a href="../enums/error_name.html" class="tsd-signature-type">ERROR_NAME</a></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>params: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="customerror.html" class="tsd-signature-type">CustomError</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+					<a name="message" class="tsd-anchor"></a>
+					<h3>message</h3>
+					<div class="tsd-signature tsd-kind-icon">message<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="pageevaluationtimeout.html">PageEvaluationTimeout</a>.<a href="pageevaluationtimeout.html#message">message</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3df1fa73/src/api/model/chat.ts#L79">src/api/model/chat.ts:79</a></li>
+							<li>Defined in node_modules/typescript/lib/lib.es5.d.ts:974</li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="solo" class="tsd-anchor"></a>
-					<h3>SOLO</h3>
-					<div class="tsd-signature tsd-kind-icon">SOLO<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;solo&quot;</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+					<a name="name" class="tsd-anchor"></a>
+					<h3>name</h3>
+					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="pageevaluationtimeout.html">PageEvaluationTimeout</a>.<a href="pageevaluationtimeout.html#name">name</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3df1fa73/src/api/model/chat.ts#L78">src/api/model/chat.ts:78</a></li>
+							<li>Defined in node_modules/typescript/lib/lib.es5.d.ts:973</li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="unknown" class="tsd-anchor"></a>
-					<h3>UNKNOWN</h3>
-					<div class="tsd-signature tsd-kind-icon">UNKNOWN<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;unknown&quot;</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+					<a name="stack" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> stack</h3>
+					<div class="tsd-signature tsd-kind-icon">stack<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="pageevaluationtimeout.html">PageEvaluationTimeout</a>.<a href="pageevaluationtimeout.html#stack">stack</a></p>
+						<ul>
+							<li>Defined in node_modules/typescript/lib/lib.es5.d.ts:975</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
+					<a name="error" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> Error</h3>
+					<div class="tsd-signature tsd-kind-icon">Error<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ErrorConstructor</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/open-wa/wa-automate-nodejs/blob/3df1fa73/src/api/model/chat.ts#L80">src/api/model/chat.ts:80</a></li>
+							<li>Defined in node_modules/typescript/lib/lib.es5.d.ts:984</li>
 						</ul>
 					</aside>
 				</section>
@@ -215,17 +273,23 @@
 				<ul class="before-current">
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-enum">
-						<a href="chattypes.html" class="tsd-kind-icon">Chat<wbr>Types</a>
+					<li class="current tsd-kind-class">
+						<a href="customerror.html" class="tsd-kind-icon">Custom<wbr>Error</a>
 						<ul>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="chattypes.html#group" class="tsd-kind-icon">GROUP</a>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="customerror.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="chattypes.html#solo" class="tsd-kind-icon">SOLO</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="customerror.html#message" class="tsd-kind-icon">message</a>
 							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="chattypes.html#unknown" class="tsd-kind-icon">UNKNOWN</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="customerror.html#name" class="tsd-kind-icon">name</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="customerror.html#stack" class="tsd-kind-icon">stack</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
+								<a href="customerror.html#error" class="tsd-kind-icon">Error</a>
 							</li>
 						</ul>
 					</li>
