@@ -49,7 +49,11 @@ export enum ERROR_NAME {
     /**
      * The sticker metadata parameter is wrong.
      */
-    STICKERMETADATA_ERROR = "STICKERMETADATA_ERROR"
+    BAD_STICKER_METADATA = "BAD_STICKER_METADATA",
+    /**
+     * Unable to send text
+     */
+    SENDTEXT_FAILURE = "SENDTEXT_FAILURE"
 }
 
 /**

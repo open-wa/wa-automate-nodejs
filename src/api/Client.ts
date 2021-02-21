@@ -1033,8 +1033,10 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
       { to, content }
     );
     if(err.includes(res)) {
-      if(res==err[1]) console.error(`\n${res}. Unlock this feature and support open-wa by getting a license: https://get.openwa.dev/l/${await this.getHostNumber()}\n`)
-      else console.error(res);
+      let msg = res;
+      if(res==err[1]) msg = `\n${res}. Unlock this feature and support open-wa by getting a license: https://get.openwa.dev/l/${await this.getHostNumber()}\n`
+      console.error(msg);
+      throw new CustomError(ERROR_NAME.SENDTEXT_FAILURE, msg)
     }
     return (err.includes(res) ? false : res)  as boolean | MessageId;
   }
@@ -2666,7 +2668,7 @@ public async getStatus(contactId: ContactId) {
           throw new CustomError(ERROR_NAME.FILE_NOT_FOUND, 'FILE NOT FOUND')
         }
       }
-      if(a?.stickerMetadata && typeof a?.stickerMetadata !== "object") throw new CustomError(ERROR_NAME.STICKERMETADATA_ERROR, `Received ${typeof a?.stickerMetadata}: ${a?.stickerMetadata}`);
+      if(a?.stickerMetadata && typeof a?.stickerMetadata !== "object") throw new CustomError(ERROR_NAME.BAD_STICKER_METADATA, `Received ${typeof a?.stickerMetadata}: ${a?.stickerMetadata}`);
       try {
         const {data} = await axios.post(`${'https://open-wa-sticker-api.herokuapp.com' || this._createConfig.stickerServerEndpoint}/${func}`, {
           ...a,
