@@ -2663,7 +2663,7 @@ public async getStatus(contactId: ContactId) {
           a[key] = await datauri(fs.existsSync(a[key])  ? a[key] : relativePath);
         } else {
           console.error('FILE_NOT_FOUND')
-          return false
+          throw new Error('FILE_NOT_FOUND')
         }
       }
       if(a?.stickerMetadata && typeof a?.stickerMetadata !== "object") throw new Error(`Expected stickerMetadata object. Received ${typeof a?.stickerMetadata}: ${a?.stickerMetadata}`);
@@ -2678,11 +2678,12 @@ public async getStatus(contactId: ContactId) {
         return data;
       } catch (err) {
         console.error(err?.response?.status, err?.response?.data);
+        throw err;
         return false;
       }
     } else {
       console.error("Media is missing from this request");
-      return false;
+      throw new Error("Media is missing from this request")
     }
   }
 
