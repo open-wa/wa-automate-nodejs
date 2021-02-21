@@ -391,7 +391,7 @@ return await create({ ...config })
 			  onResponseFinish: function(req,res,rrr){
 				['file', 'base64', 'image', 'webpBase64', 'base64', 'durl', 'thumbnail'].forEach(key => {
 					if(req.body.args[key])
-					req.body.args[key] = rrr.http.request.body.args[key] = req.body.args[key]?.slice(0,25) || 'EMPTY'
+					req.body.args[key] = rrr.http.request.body.args[key] = req.body.args[key].slice(0,25) || 'EMPTY'
 				});
 				if(rrr.http.response.code!==200 && rrr.http.response.code!==404) {
 				  rrr.http.response.phrase = res.statusMessage
