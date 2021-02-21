@@ -244,8 +244,8 @@ declare module WAPI {
   const sendMessage: (to: string, content: string) => Promise<string>;
   const setChatEphemeral: (chatId: string, ephemeral: boolean) => Promise<boolean>;
   const downloadFileWithCredentials: (url: string) => Promise<string>;
-  const sendMessageWithMentions: (to: string, content: string) => Promise<string>;
-  const tagEveryone: (groupId: string, content: string) => Promise<string>;
+  const sendMessageWithMentions: (to: string, content: string, hideTags: boolean) => Promise<string>;
+  const tagEveryone: (groupId: string, content: string, hideTags: boolean) => Promise<string>;
   const sendReplyWithMentions: (to: string, content: string, replyMessageId: string) => Promise<string>;
   const postTextStatus: (text: string, textRgba: string, backgroundRgba: string, font: string) => Promise<string | boolean>;
   const postImageStatus: (data: string, caption: string) => Promise<string | boolean>;
@@ -1044,19 +1044,23 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * Sends a text message to given chat that includes mentions.
    * In order to use this method correctly you will need to send the text like this:
    * "@4474747474747 how are you?"
-   * Basically, add a @ symbol before the number of the contact you want to mention.
+   * Basically, add a @ symbol before the number of the contact you want to mention.  
+   *   
+   * Please note that the hideTag parameter only works with an Insider's License Key  
+   *   
    * @param to chat id: xxxxx@c.us
    * @param content text message
+   * @param hideTags Removes all tags within the message
    */
-  public async sendTextWithMentions(to: ChatId, content: Content) {
+  public async sendTextWithMentions(to: ChatId, content: Content, hideTags: boolean) {
     //remove all @c.us from the content
     content = content.replace(/@c.us/,"");
     return await this.pup(
-      ({ to, content }) => {
+      ({ to, content, hideTags }) => {
         WAPI.sendSeen(to);
-        return WAPI.sendMessageWithMentions(to, content);
+        return WAPI.sendMessageWithMentions(to, content, hideTags);
       },
-      { to, content }
+      { to, content, hideTags }
     ) as Promise<string>;
   }
 
@@ -1091,12 +1095,13 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * 
    * @param groupId group chat id: xxxxx@g.us
    * @param content text message to add under all of the tags
+   * @param hideTags Removes all tags within the message
    * @returns Promise<MessageId>
    */
-  public async tagEveryone(groupId: GroupChatId, content: Content) {
+  public async tagEveryone(groupId: GroupChatId, content: Content, hideTags: boolean) {
     return await this.pup(
-      ({ groupId, content  }) => WAPI.tagEveryone(groupId, content),
-      { groupId, content }
+      ({ groupId, content, hideTags  }) => WAPI.tagEveryone(groupId, content, hideTags),
+      { groupId, content, hideTags }
     ) as Promise<string>;
   }
 
