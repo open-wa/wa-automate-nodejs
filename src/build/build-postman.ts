@@ -36,20 +36,28 @@ async function getMethodDocs(){
         },
     });
     let res = {};
-    const sourceFile = project.addSourceFileAtPath(path.resolve(__dirname,'../api/_client_ts'));
+    const sourceFile = project.addSourceFileAtPath(path.resolve(__dirname,__dirname.includes('src') ? '../api/Client.ts' : '../api/Client.d.ts'));
     for (const method of sourceFile.getClass('Client').getMethods()){
-        if(method.hasModifier(SyntaxKind.PublicKeyword)) {
+        if(!method.hasModifier(SyntaxKind.PrivateKeyword)) {
             res[method.getName()] = format(method.getJsDocs()[0]?.getInnerText())
         }
     }
     return res;
 }
 
-export const generatePostmanJson = async function (setup : any = {}) {
+export const getMethods = async () => {
     const {TypescriptParser} = await import("typescript-parser");
+    var parser = new TypescriptParser();
+    const data = fs.readFileSync(path.resolve(__dirname,__dirname.includes('src') ? '../api/Client.ts'  : '../api/Client.d.ts'), 'utf8');
+    const parsed = await parser.parseSource(data);
+    //@ts-ignore
+    const result = parsed.declarations.find(({name})=>name==='Client').methods
+    return result
+}
+
+export const generatePostmanJson = async function (setup : any = {}) {
     if(!noCase) noCase = (await import("change-case")).noCase;
 
-    var parser = new TypescriptParser();
     if(setup?.apiHost) {
         if(setup.apiHost.includes(setup.sessionId)){
         const parsed = parseUrl(setup.apiHost);
@@ -57,11 +65,8 @@ export const generatePostmanJson = async function (setup : any = {}) {
         setup.port = parsed.port;
         }
     }
-    const data = fs.readFileSync(path.resolve(__dirname,'../api/_client_ts'), 'utf8');
     const s = await getMethodDocs();
-    const parsed = await parser.parseSource(data);
-    //@ts-ignore
-    let x = parsed.declarations.find(({name})=>name==='Client').methods.filter(({visibility})=>visibility==2).filter(({name})=>!name.startsWith('on')).map(method=>({
+    let x = (await getMethods()).filter(({visibility})=>visibility==2 || visibility==undefined).filter(({name})=>!name.startsWith('on')).map(method=>({
         text: s[method.name] || '',
         ...method
     }));
@@ -225,4 +230,6 @@ var postmanWrapGen = function (setup) { return function (item) {
     };
 }; };
 // uncomment to test
-// generatePostmanJson();
+generatePostmanJson();
+
+// getMethods()
