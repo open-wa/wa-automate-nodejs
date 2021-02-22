@@ -292,6 +292,7 @@ declare module WAPI {
   const REPORTSPAM: (id: string) => Promise<boolean>;
   const contactUnblock: (id: string) => Promise<boolean>;
   const deleteConversation: (chatId: string) => Promise<boolean>;
+  const isChatMuted: (chatId: string) => Promise<boolean>;
   const clearChat: (chatId: string) => Promise<any>;
   const inviteInfo: (link: string) => Promise<any>;
   const ghostForward: (chatId: string, messageId: string) => Promise<boolean>;
@@ -1641,7 +1642,7 @@ public async iAmAdmin(){
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * Mutes a conversation for a given duration. If already muted, this will update the muted duration. Mute durations are relative from when the method is called.
-   * @param id The id of the conversation you want to mute
+   * @param chatId The id of the conversation you want to mute
    * @param muteDuration ChatMuteDuration enum of the time you want this chat to be muted for.
    * @return boolean true: worked or error code or message
    */
@@ -1650,6 +1651,19 @@ public async iAmAdmin(){
       ({ chatId, muteDuration }) => WAPI.muteChat(chatId, muteDuration),
       { chatId, muteDuration }
     ) as Promise<boolean | string | number>;
+  }
+
+
+  /**
+   * Checks if a chat is muted
+   * @param chatId The id of the chat you want to check
+   * @returns boolean. `false` if the chat does not exist.
+   */
+  public async isChatMuted(chatId: ChatId){
+    return await this.pup(
+      ({ chatId }) => WAPI.isChatMuted(chatId),
+      { chatId }
+    ) as Promise<boolean>;
   }
 
 
