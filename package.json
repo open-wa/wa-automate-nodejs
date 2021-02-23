@@ -78,6 +78,7 @@
     "husky": "^5.0.9",
     "line-reader": "^0.4.0",
     "marked": "^2.0.0",
+    "node-emoji": "^1.10.0",
     "onchange": "^7.0.2",
     "precise-commits": "^1.0.2",
     "prettier": "^2.0.1",

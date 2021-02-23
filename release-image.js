@@ -20,6 +20,7 @@ const puppeteer = require("puppeteer");
 const fs = require("fs");
 const util = require("util");
 const path = require("path");
+const emoji = require('node-emoji')
 const readFile = util.promisify(fs.readFile);
 const optionDefinitions = [
     { name: 'file', type: String, defaultOption: true },
@@ -29,6 +30,10 @@ const stripMarkdown = (text) => {
     var str = String(text).replace(/__|\*|\#|(?:\[([^\]]*)\]\([^)]*\))/gm, '$1');
     return str;
 };
+
+const injectEmojis = (body) => {
+  return emoji.emojify(body)
+}
 
     // colors taken from https://github.com/dracula/dracula-theme
 const html = (body,packageName,release) => `
@@ -66,8 +71,8 @@ const html = (body,packageName,release) => `
         </style>
       </head>
       <body>
-        <h2><span class="name">${packageName}</span> ${stripMarkdown(release.title)}</h2>
-        ${body}
+        <h2><span class="name">${packageName}</span> ${stripMarkdown(injectEmojis(release.title))}</h2>
+        ${injectEmojis(body)}
       </body>
     </html>
   `;
