@@ -1055,7 +1055,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param content text message
    * @param hideTags Removes all tags within the message
    */
-  public async sendTextWithMentions(to: ChatId, content: Content, hideTags: boolean) {
+  public async sendTextWithMentions(to: ChatId, content: Content, hideTags?: boolean) {
     //remove all @c.us from the content
     content = content.replace(/@c.us/,"");
     return await this.pup(
@@ -1101,7 +1101,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param hideTags Removes all tags within the message
    * @returns Promise<MessageId>
    */
-  public async tagEveryone(groupId: GroupChatId, content: Content, hideTags: boolean) {
+  public async tagEveryone(groupId: GroupChatId, content: Content, hideTags?: boolean) {
     return await this.pup(
       ({ groupId, content, hideTags  }) => WAPI.tagEveryone(groupId, content, hideTags),
       { groupId, content, hideTags }
