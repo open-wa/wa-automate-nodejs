@@ -2690,10 +2690,14 @@ public async getStatus(contactId: ContactId) {
         sessionInfo: this.getSessionInfo(),
         config: this.getConfig()
       },{
-        maxBodyLength: 20000000
+        maxBodyLength: 20000000,
+        maxContentLength: 1500000
       });
         return data;
       } catch (err) {
+        if(err?.message.includes("maxContentLength size")) {
+          throw new CustomError(ERROR_NAME.STICKER_TOO_LARGE, err?.message)
+        }
         console.error(err?.response?.status, err?.response?.data);
         throw err;
         return false;
