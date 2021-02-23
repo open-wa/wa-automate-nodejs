@@ -27,32 +27,31 @@ var primatives = [
     'boolean'
 ];
 
-async function getMethodDocs(){
+async function getMethodsWithDocs(){
     const {Project} = await import("ts-morph");
-
     const project = new Project({
         compilerOptions: {
             target: ScriptTarget.ESNext,
         },
     });
-    let res = {};
+    let res = [];
     const sourceFile = project.addSourceFileAtPath(path.resolve(__dirname,__dirname.includes('src') ? '../api/Client.ts' : '../api/Client.d.ts'));
     for (const method of sourceFile.getClass('Client').getMethods()){
         if(!method.hasModifier(SyntaxKind.PrivateKeyword)) {
-            res[method.getName()] = format(method.getJsDocs()[0]?.getInnerText())
+        res.push({
+            name: method.getName(),
+            parameters: method.getParameters().map(param=> {
+                return {
+                    name: param.getName(),
+                    type: param.getTypeNode()?.getText() || (param.getType()?.getAliasSymbol() || param.getType()?.getSymbol())?.getEscapedName(),
+                    isOptional: param.isOptional(),
+                }
+            }),
+            text: format(method.getJsDocs()[0]?.getInnerText())
+        })
         }
     }
     return res;
-}
-
-export const getMethods = async () => {
-    const {TypescriptParser} = await import("typescript-parser");
-    var parser = new TypescriptParser();
-    const data = fs.readFileSync(path.resolve(__dirname,__dirname.includes('src') ? '../api/Client.ts'  : '../api/Client.d.ts'), 'utf8');
-    const parsed = await parser.parseSource(data);
-    //@ts-ignore
-    const result = parsed.declarations.find(({name})=>name==='Client').methods
-    return result
 }
 
 export const generatePostmanJson = async function (setup : any = {}) {
@@ -65,8 +64,8 @@ export const generatePostmanJson = async function (setup : any = {}) {
         setup.port = parsed.port;
         }
     }
-    const s = await getMethodDocs();
-    let x = (await getMethods()).filter(({visibility})=>visibility==2 || visibility==undefined).filter(({name})=>!name.startsWith('on')).map(method=>({
+    const s = await getMethodsWithDocs();
+    let x = s.filter(({visibility})=>visibility==2 || visibility==undefined).filter(({name})=>!name.startsWith('on')).map(method=>({
         text: s[method.name] || '',
         ...method
     }));
@@ -229,7 +228,3 @@ var postmanWrapGen = function (setup) { return function (item) {
         "protocolProfileBehavior": {}
     };
 }; };
-// uncomment to test
-generatePostmanJson();
-
-// getMethods()
