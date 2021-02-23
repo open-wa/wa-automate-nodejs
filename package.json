@@ -140,7 +140,6 @@
     "tree-kill": "^1.2.2",
     "ts-json-schema-generator": "^0.86.1",
     "ts-morph": "^9.1.0",
-    "typescript-parser": "^2.6.1",
     "update-notifier": "^5.0.0",
     "uuid-apikey": "^1.4.6"
   }
