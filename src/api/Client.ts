@@ -1013,7 +1013,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   /**
    * Sends a text message to given chat
    * If you need to send a message to new numbers please see [these instructions:](https://docs.openwa.dev/pages/The%20Client/licensed-features.html#sending-messages-to-non-contact-numbers)
-   * @param to chat id: xxxxx@c.us
+   * @param to chat id: `xxxxx@c.us`
    * @param content text message
    */
   public async sendText(to: ChatId, content: Content) {
@@ -1052,7 +1052,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    *   
    * Please note that the hideTag parameter only works with an Insider's License Key  
    *   
-   * @param to chat id: xxxxx@c.us
+   * @param to chat id: `xxxxx@c.us`
    * @param content text message
    * @param hideTags Removes all tags within the message
    */
@@ -1075,7 +1075,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * In order to use this method correctly you will need to send the text like this:
    * "@4474747474747 how are you?"
    * Basically, add a @ symbol before the number of the contact you want to mention.
-   * @param to chat id: xxxxx@c.us
+   * @param to chat id: `xxxxx@c.us`
    * @param content text message
    * @param replyMessageId id of message to reply to
    */
@@ -1097,7 +1097,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * 
    * Tags everyone in the group with a message
    * 
-   * @param groupId group chat id: xxxxx@g.us
+   * @param groupId group chat id: `xxxxx@g.us`
    * @param content text message to add under all of the tags
    * @param hideTags Removes all tags within the message
    * @returns Promise<MessageId>
@@ -1156,7 +1156,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Sends a location message to given chat
-   * @param to chat id: xxxxx@c.us
+   * @param to chat id: `xxxxx@c.us`
    * @param lat latitude: '51.5074'
    * @param lng longitude: '0.1278'
    * @param loc location text: 'LONDON!'
@@ -1203,7 +1203,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Sends a image to given chat, with caption or not, using base64
-   * @param to chat id xxxxx@c.us
+   * @param to chat id `xxxxx@c.us`
    * @param file DataURL data:image/xxx;base64,xxx or the RELATIVE (should start with `./` or `../`) path of the file you want to send. With the latest version, you can now set this to a normal URL (for example [GET] `https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_2500kB.jpg`).
    * @param filename string xxxxx
    * @param caption string xxxxx
@@ -1315,7 +1315,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Sends a file to given chat, with caption or not, using base64. This is exactly the same as sendImage
-   * @param to chat id xxxxx@c.us
+   * @param to chat id `xxxxx@c.us`
    * @param file DataURL data:image/xxx;base64,xxx or the RELATIVE (should start with `./` or `../`) path of the file you want to send. With the latest version, you can now set this to a normal URL (for example [GET] `https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_2500kB.jpg`).
    * @param filename string xxxxx
    * @param caption string xxxxx With an [INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program) you can also tag people in groups with `@[number]`. For example if you want to mention the user with the number `44771234567`, just add `@44771234567` in the caption.
@@ -1357,7 +1357,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Attempts to send a file as a voice note. Useful if you want to send an mp3 file.
-   * @param to chat id xxxxx@c.us
+   * @param to chat id `xxxxx@c.us`
    * @param base64 base64 data:image/xxx;base64,xxx or the path of the file you want to send.
    * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
    * @returns Promise <boolean | string> This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
@@ -1386,7 +1386,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Sends a video to given chat as a gif, with caption or not, using base64
-   * @param to chat id xxxxx@c.us
+   * @param to chat id `xxxxx@c.us`
    * @param file DataURL data:image/xxx;base64,xxx or the RELATIVE (should start with `./` or `../`) path of the file you want to send. With the latest version, you can now set this to a normal URL (for example [GET] `https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_2500kB.jpg`).
    * @param filename string xxxxx
    * @param caption string xxxxx
@@ -1421,7 +1421,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Sends a video to given chat as a gif by using a giphy link, with caption or not, using base64
-   * @param to chat id xxxxx@c.us
+   * @param to chat id `xxxxx@c.us`
    * @param giphyMediaUrl string https://media.giphy.com/media/oYtVHSxngR3lC/giphy.gif => https://i.giphy.com/media/oYtVHSxngR3lC/200w.mp4
    * @param caption string xxxxx
    */
@@ -1451,7 +1451,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Sends a file by Url or custom options
-   * @param to chat id xxxxx@c.us
+   * @param to chat id `xxxxx@c.us`
    * @param url string https://i.giphy.com/media/oYtVHSxngR3lC/200w.mp4
    * @param filename string 'video.mp4'
    * @param caption string xxxxx
@@ -2088,7 +2088,7 @@ public async contactUnblock(id: ContactId) {
   
   /**
    * Sets a chat status to seen. Marks all messages as ack: 3
-   * @param chatId chat id: xxxxx@c.us
+   * @param chatId chat id: `xxxxx@c.us`
    */
   public async sendSeen(chatId: ChatId) {
     return await this.pup(
@@ -2100,7 +2100,7 @@ public async contactUnblock(id: ContactId) {
   
   /**
    * Sets a chat status to unread. May be useful to get host's attention
-   * @param chatId chat id: xxxxx@c.us
+   * @param chatId chat id: `xxxxx@c.us`
    */
   public async markAsUnread(chatId: ChatId) {
     return await this.pup(
@@ -2114,7 +2114,7 @@ public async contactUnblock(id: ContactId) {
    * 
    * It will return `true` if the chat is `online`, `false` if the chat is `offline`, `PRIVATE` if the privacy settings of the contact do not allow you to see their status and `NO_CHAT` if you do not currently have a chat with that contact.
    * 
-   * @param chatId chat id: xxxxx@c.us
+   * @param chatId chat id: `xxxxx@c.us`
    */
   public async isChatOnline(chatId: ChatId) {
     return await this.pup(
@@ -2363,8 +2363,8 @@ public async getStatus(contactId: ContactId) {
    * 
    * If the participantId does not exist in the group chat, returns `NOT_A_PARTICIPANT`
    * 
-   * @param {*} groupId '0000000000-00000000@g.us'
-   * @param {*} participantId '000000000000@c.us'
+   * @param {*} groupId `0000000000-00000000@g.us`
+   * @param {*} participantId `000000000000@c.us`
    */
   public async removeParticipant(groupId: GroupChatId, participantId: ContactId) {
     return await this.pup(
