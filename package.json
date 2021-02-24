@@ -139,7 +139,7 @@
     "terminal-link": "^2.1.1",
     "tree-kill": "^1.2.2",
     "ts-json-schema-generator": "^0.86.1",
-    "ts-morph": "^9.1.0",
+    "ts-morph": "^10.0.0",
     "update-notifier": "^5.0.0",
     "uuid-apikey": "^1.4.6"
   }
