@@ -24,3 +24,5 @@ demo/**.mp4
 **.ignore.ts
 **.node-persist**
 .vscode/launch.json
+
+**logs**
