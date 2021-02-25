@@ -112,9 +112,6 @@ export async function initClient(sessionId?: string, config?:ConfigObject, custo
 
 export async function injectApi(page: Page) {
   await page.addScriptTag({
-    path: require.resolve(path.join(__dirname, '../../node_modules/@pedroslopez/moduleraid', 'moduleraid.js'))
-  });
-  await page.addScriptTag({
     path: require.resolve(path.join(__dirname, '../lib', 'wapi.js'))
   });
   await page.addScriptTag({

@@ -92,7 +92,6 @@
   },
   "dependencies": {
     "@open-wa/wa-decrypt": "^3.0.1",
-    "@pedroslopez/moduleraid": "github:pedroslopez/moduleraid",
     "@types/sharp": "^0.27.1",
     "atob": "^2.1.2",
     "axios": "^0.21.0",
