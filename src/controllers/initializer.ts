@@ -142,7 +142,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     //@ts-ignore
     const WA_VERSION = await waPage.evaluate(() => window.Debug ? window.Debug.VERSION : 'I think you have been TOS_BLOCKed')
     //@ts-ignore
-    const canInjectEarly = await waPage.evaluate(() => { return (typeof webpackJsonp !== "undefined") });
+    const canInjectEarly = await waPage.evaluate(() => { return (typeof webpackChunkbuild !== "undefined") });
     let debugInfo : SessionInfo = {
       WA_VERSION,
       PAGE_UA,
