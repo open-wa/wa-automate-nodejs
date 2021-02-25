@@ -385,7 +385,7 @@ return await create({ ...config })
 			  elasticsearch:process.env.elastic_url,
 			  elasticsearchUsername:process.env.elastic_un,
 			  elasticsearchPassword:process.env.elastic_pw,
-			  swaggerSpec:require("./open-wa-" + c.sessionId + ".sw_col.json"),
+			  swaggerSpec:swCol,
 			  authentication: !!c.key,
 			  swaggerOnly: true,
 			  onResponseFinish: function(req,res,rrr){
