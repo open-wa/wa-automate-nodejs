@@ -193,10 +193,10 @@ if (c && c.session) {
 	c.sessionData = c.session;
 }
 
-if (c && c.licenseKey) {
+if (c && (c.licenseKey || c.l)) {
 	config = {
 		...config,
-		licenseKey: c.licenseKey
+		licenseKey: c.licenseKey || c.l
 	}
 }
 
