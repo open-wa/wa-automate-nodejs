@@ -58,51 +58,39 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "UploadUtils", conditions: (module) => (module.default && module.default.encryptAndUpload) ? module.default : null }
             ];
             for (let idx in modules) {
-                if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
-                    let first = Object.values(modules[idx])[0];
-                    if ((typeof first === "object") && (first.exports)) {
-                        for (let idx2 in modules[idx]) {
-                            let module = modules(idx2);
-                            // console.log("TCL: getStore -> module", module ? Object.getOwnPropertyNames(module.default || module).filter(item => typeof (module.default || module)[item] === 'function').length ? module.default || module : "":'')
-                            if (!module) {
-                                continue;
-                            }
-                            neededObjects.forEach((needObj) => {
-                                if (!needObj.conditions || needObj.foundedModule)
-                                    return;
-                                let neededModule = needObj.conditions(module);
-                                if (neededModule !== null) {
-                                    foundCount++;
-                                    needObj.foundedModule = neededModule;
-                                }
-                            });
-                            if (foundCount == neededObjects.length) {
-                                break;
-                            }
-                        }
+            	if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
+                    neededObjects.forEach((needObj) => {
+                    	if (!needObj.conditions || needObj.foundedModule)
+                            return;
+                    	let neededModule = needObj.conditions(modules[idx]);
+                    	if (neededModule !== null) {
+                            foundCount++;
+                            needObj.foundedModule = neededModule;
+                    	}
+		    });
 
-                        let neededStore = neededObjects.find((needObj) => needObj.id === "Store");
-                        window.Store = neededStore.foundedModule ? neededStore.foundedModule : {};
-                        neededObjects.splice(neededObjects.indexOf(neededStore), 1);
-                        neededObjects.forEach((needObj) => {
-                            if (needObj.foundedModule) {
-                                window.Store[needObj.id] = needObj.foundedModule;
-                            }
-                        });
-                        window.Store.sendMessage = function (e) {
-                            return window.Store.SendTextMsgToChat(this, ...arguments);
-                        }
-                        if(window.Store.MediaCollection) window.Store.MediaCollection.prototype.processFiles = window.Store.MediaCollection.prototype.processFiles || window.Store.MediaCollection.prototype.processAttachments;
-                        return window.Store;
+                    if (foundCount == neededObjects.length) {
+                    	break;
                     }
-                }
+            	}
             }
-        }
+	    let neededStore = neededObjects.find((needObj) => needObj.id === "Store");
+            window.Store = neededStore.foundedModule ? neededStore.foundedModule : {};
+            neededObjects.splice(neededObjects.indexOf(neededStore), 1);
+            neededObjects.forEach((needObj) => {
+                if (needObj.foundedModule) {
+                    window.Store[needObj.id] = needObj.foundedModule;
+                }
+            });
+	    window.Store.Chat.modelClass.prototype.sendMessage = function (e) {
+		window.Store.SendTextMsgToChat(this, ...arguments);
+	    }
+            return window.Store;
+    	}
         const parasite = `parasite${Date.now()}`
         // webpackJsonp([], { [parasite]: (x, y, z) => getStore(z) }, [parasite]);
         if (typeof webpackJsonp === 'function') webpackJsonp([], {[parasite]: (x, y, z) => getStore(z)}, [parasite]); 
-        else webpackJsonp.push([[parasite],{[parasite]: (x, y, z) => getStore(z)},[[parasite]]]);
-        
+        else webpackChunkbuild.push([[parasite], {}, function (o, e, t) {let modules = []; for (let idx in o.m) {modules.push(o(idx));}	getStore(modules);}]);        
     })();
 }
 
