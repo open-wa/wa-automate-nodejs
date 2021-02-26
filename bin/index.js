@@ -248,7 +248,7 @@ async function start(){
     } catch (error) {
         if(error.code==="ECONNREFUSED") console.log('fresh run')
 	}
-	config.headless=!c.headful
+	config.headless= config.headless === true || config.headless === false ? config.headless : !c.headful
 	if(c.ev) {
 		ev.on('**', async (data,sessionId,namespace) => {
 			if(!c.allowSessionDataWebhook && (namespace=="sessionData" || namespace=="sessionDataBase64")) return;
