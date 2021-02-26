@@ -35,7 +35,8 @@ async function getMethodsWithDocs(){
         },
     });
     let res = [];
-    const sourceFile = project.addSourceFileAtPath(path.resolve(__dirname,__dirname.includes('src') ? '../api/Client.ts' : '../api/Client.d.ts'));
+    const fp = fs.existsSync(path.resolve(__dirname,'../api/Client.d.ts')) ? '../api/Client.d.ts' : '../api/Client.ts'
+    const sourceFile = project.addSourceFileAtPath(path.resolve(__dirname,fp));
     for (const method of sourceFile.getClass('Client').getMethods()){
         if(!method.hasModifier(SyntaxKind.PrivateKeyword)) {
         res.push({
