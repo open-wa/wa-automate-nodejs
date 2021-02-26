@@ -2596,10 +2596,10 @@ public async getStatus(contactId: ContactId) {
    *
    * @returns Promise<MessageId | boolean>
    */
-  public async sendStickerfromUrl(to: ChatId, url: string, requestConfig: any = {}) {
+  public async sendStickerfromUrl(to: ChatId, url: string, requestConfig: AxiosRequestConfig = {}, stickerMetadata ?: StickerMetadata) {
     try {
       const base64 = await getDUrl(url, requestConfig);
-      return await this.sendImageAsSticker(to, base64);
+      return await this.sendImageAsSticker(to, base64, stickerMetadata);
      } catch(error) {
        console.log('Something went wrong', error);
        throw error;
@@ -2617,9 +2617,9 @@ public async getStatus(contactId: ContactId) {
    * 
    * @returns Promise<MessageId | boolean>
    */
-  public async sendStickerfromUrlAsReply(to: ChatId, url: string, messageId: MessageId, requestConfig: any = {}) {
+  public async sendStickerfromUrlAsReply(to: ChatId, url: string, messageId: MessageId, requestConfig: AxiosRequestConfig = {}, stickerMetadata ?: StickerMetadata) {
     const dUrl = await getDUrl(url, requestConfig);
-    let processingResponse = await this.prepareWebp(dUrl);
+    let processingResponse = await this.prepareWebp(dUrl, stickerMetadata);
     if(!processingResponse) return false;
     let {webpBase64, metadata} = processingResponse;
       return await this.pup(
