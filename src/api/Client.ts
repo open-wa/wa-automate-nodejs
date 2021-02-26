@@ -2,7 +2,7 @@ import { Page, EvaluateFn } from 'puppeteer';
 import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration } from './model/chat';
 import { Contact } from './model/contact';
 import { Message } from './model/message';
-import axios from 'axios';
+import { default as axios, AxiosRequestConfig} from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent, puppeteerConfig } from '../config/puppeteer.config'
 import { ConfigObject, STATE } from './model';
@@ -1399,7 +1399,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     filename: string,
     caption: Content,
     quotedMsgId?: MessageId,
-    requestConfig: any ={}
+    requestConfig: AxiosRequestConfig ={}
   ) {
       //check if the 'base64' file exists
       if(!isDataURL(file)) {
@@ -1467,7 +1467,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     filename: string,
     caption: Content,
     quotedMsgId?: MessageId,
-    requestConfig: any = {},
+    requestConfig: AxiosRequestConfig = {},
     waitForId?: boolean,
     ptt?:boolean,
     withoutPreview?:boolean
@@ -2411,7 +2411,7 @@ public async getStatus(contactId: ContactId) {
  * @param requestConfig {} By default the request is a get request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
  * @returns boolean true if it was set, false if it didn't work. It usually doesn't work if the image file is too big.
  */
-  public async setGroupIconByUrl(groupId: GroupChatId, url: string, requestConfig: any = {}) {
+  public async setGroupIconByUrl(groupId: GroupChatId, url: string, requestConfig: AxiosRequestConfig = {}) {
     try {
       const base64 = await getDUrl(url, requestConfig);
        return await this.setGroupIcon(groupId,base64);
@@ -3144,7 +3144,7 @@ public async getStatus(contactId: ContactId) {
    * @param requestConfig {} By default the request is a post request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
    * @param concurrency the amount of concurrent requests to be handled by the built in queue. Default is 5.
    */
-  public async registerWebhook(event: SimpleListener, url: string, requestConfig: any = {}, concurrency: number = 5) {
+  public async registerWebhook(event: SimpleListener, url: string, requestConfig: AxiosRequestConfig = {}, concurrency: number = 5) {
     if(!this._webhookQueue) this._webhookQueue = new PQueue({ concurrency });
     if(this[event]){
       if(!this._registeredWebhooks) this._registeredWebhooks={};
