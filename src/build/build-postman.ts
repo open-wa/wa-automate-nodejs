@@ -1,5 +1,3 @@
-import ts, { ScriptTarget, SyntaxKind } from "typescript";
-
 var fs = require('fs');
 const path = require("path"),
 parseUrl = require("parse-url")
@@ -31,14 +29,14 @@ async function getMethodsWithDocs(){
     const {Project} = await import("ts-morph");
     const project = new Project({
         compilerOptions: {
-            target: ScriptTarget.ESNext,
+            target: 99,
         },
     });
     let res = [];
     const fp = fs.existsSync(path.resolve(__dirname,'../api/Client.d.ts')) ? '../api/Client.d.ts' : '../api/Client.ts'
     const sourceFile = project.addSourceFileAtPath(path.resolve(__dirname,fp));
     for (const method of sourceFile.getClass('Client').getMethods()){
-        if(!method.hasModifier(SyntaxKind.PrivateKeyword)) {
+        if(!method.hasModifier(120)) {
         res.push({
             name: method.getName(),
             parameters: method.getParameters().map(param=> {
