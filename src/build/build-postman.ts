@@ -1,11 +1,11 @@
-var fs = require('fs');
-const path = require("path"),
-parseUrl = require("parse-url")
+import * as fs from 'fs';
+import * as path from 'path';
+import * as parseUrl from 'parse-url';
 let noCase;
 
 const format = (s:string) => s?.replace(/[[/g,'').replace(/]]/g,'').replace(/@param/g,'Parameter:')
 
-var aliasExamples = {
+const aliasExamples = {
     "ChatId": "00000000000@c.us or 00000000000-111111111@g.us",
     "GroupChatId": "00000000000-111111111@g.us",
     "Content": 'Hello World!',
@@ -15,11 +15,11 @@ var aliasExamples = {
     "ContactId": "00000000000@c.us"
 };
 
-var paramNameExamples = {
+const paramNameExamples = {
     "ChatId": "00000000000@c.us  or 00000000000-111111111@g.us",
 };
 
-var primatives = [
+const primatives = [
     'number',
     'string',
     'boolean'
@@ -32,7 +32,7 @@ async function getMethodsWithDocs(){
             target: 99,
         },
     });
-    let res = [];
+    const res = [];
     const fp = fs.existsSync(path.resolve(__dirname,'../api/Client.d.ts')) ? '../api/Client.d.ts' : '../api/Client.ts'
     const sourceFile = project.addSourceFileAtPath(path.resolve(__dirname,fp));
     for (const method of sourceFile.getClass('Client').getMethods()){
@@ -53,7 +53,7 @@ async function getMethodsWithDocs(){
     return res;
 }
 
-export const generatePostmanJson = async function (setup : any = {}) {
+export const generatePostmanJson = async (setup : any = {}) : Promise<any>  => {
     if(!noCase) noCase = (await import("change-case")).noCase;
 
     if(setup?.apiHost) {
@@ -64,26 +64,25 @@ export const generatePostmanJson = async function (setup : any = {}) {
         }
     }
     const s = await getMethodsWithDocs();
-    let x = s.filter(({visibility})=>visibility==2 || visibility==undefined).filter(({name})=>!name.startsWith('on')).map(method=>({
+    const x = s.filter(({visibility})=>visibility==2 || visibility==undefined).filter(({name})=>!name.startsWith('on')).map(method=>({
         text: s[method.name] || '',
         ...method
     }));
-    let postmanGen = postmanRequestGeneratorGenerator(setup);
-    let pm = x.map(postmanGen);
-    let d = JSON.stringify(x);
-    let postmanWrap = postmanWrapGen(setup);
-    let res = postmanWrap(pm);
+    const postmanGen = postmanRequestGeneratorGenerator(setup);
+    const pm = x.map(postmanGen);
+    const postmanWrap = postmanWrapGen(setup);
+    const res = postmanWrap(pm);
     if(!(setup?.skipSavePostmanCollection)) fs.writeFileSync(`./open-wa-${setup.sessionId}.postman_collection.json`, JSON.stringify(res));
-    return res;
+    return res as any;
 };
 
 function escape(key, val) {
     if (typeof (val) != "string")
         return val;
     return val
-        .replace(/[\"]/g, '\\"')
+        .replace(/["]/g, '\\"')
         .replace(/[\\]/g, '\\\\')
-        .replace(/[\/]/g, '\\/')
+        .replace(/[/]/g, '\\/')
         .replace(/[\b]/g, '\\b')
         .replace(/[\f]/g, '\\f')
         .replace(/[\n]/g, '\\n')
@@ -92,9 +91,9 @@ function escape(key, val) {
 }
 
 
-const postmanRequestGeneratorGenerator = function (setup) { return function (method) {
+const postmanRequestGeneratorGenerator = setup => method => {
     // if(!noCase) noCase = await import("change-case");
-    var args = {};
+    const args = {};
     method.parameters.forEach(function (param) {
         args[param.name] = aliasExamples[param.type] ? aliasExamples[param.type] : paramNameExamples[param.name] ? paramNameExamples[param.name] : primatives.includes(param.type) ? param.type : 'Check documentation in description';
     });
@@ -114,7 +113,7 @@ const postmanRequestGeneratorGenerator = function (setup) { return function (met
     };
 
     const name =  noCase(method.name).replace(/\b[a-z]|['_][a-z]|\B[A-Z]/g, function (x) { return x[0] === "'" || x[0] === "_" ? x : String.fromCharCode(x.charCodeAt(0) ^ 32); });
-    var request = {
+    const request = {
         "auth": {
             "type": "apikey",
             "apikey": [
@@ -172,12 +171,10 @@ const postmanRequestGeneratorGenerator = function (setup) { return function (met
         request,
         "response": [resp]
     };
-};
-};
+}
 
-
-var postmanWrapGen = function (setup) { return function (item) {
-    return {
+const postmanWrapGen = setup => item => (
+    {
         "info": {
             "_postman_id": "0df31aa3-b3ce-4f20-b042-0882db0fd3a2",
             "name": `@open-wa - ${setup.sessionId}`,
@@ -225,5 +222,5 @@ var postmanWrapGen = function (setup) { return function (item) {
             }
         ],
         "protocolProfileBehavior": {}
-    };
-}; };
+    }
+)
