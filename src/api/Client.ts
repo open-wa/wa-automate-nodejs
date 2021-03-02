@@ -363,7 +363,7 @@ declare module WAPI {
   const getAllNewMessages: () => any;
   const getUseHereString: () => Promise<string>;
   const getHostNumber: () => string;
-  const getAllGroups: () => Chat[];
+  const getAllGroups: () => Promise<Chat[]>;
   const getGroupParticipantIDs: (groupId: string) => Promise<string[]>;
   const getGroupInfo: (groupId: string) => Promise<any>;
   const joinGroupViaLink: (link: string) => Promise<string | boolean | number>;
@@ -447,7 +447,7 @@ export class Client {
   }
 
   getSessionId(){
-    return this._createConfig.sessionId
+    return this._createConfig.sessionId || 'session'
   }
 
   getPage(){
