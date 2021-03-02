@@ -40,6 +40,7 @@ const html = (body,packageName,release) => `
     <!doctype html>
     <html>
       <head>
+      <script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js" crossorigin="anonymous"></script>
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400|Roboto+Mono:300|Roboto+Slab:400,700&display=swap" rel="stylesheet">
         <style>
           body {
@@ -113,6 +114,9 @@ exports.run = async () => {
     if (release === undefined) throw new Error('no release found');
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
+    await page.addScriptTag({
+      url: "https://twemoji.maxcdn.com/v/latest/twemoji.min.js"
+    });
     await page.setViewport({ width: 800, height: 800, deviceScaleFactor: 2 });
     await page.setContent(html(marked(release.body),packageName,release));
     await page.evaluate(`document.fonts.ready`);
