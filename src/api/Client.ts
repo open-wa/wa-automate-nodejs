@@ -545,7 +545,7 @@ export class Client {
       const state = await this.forceUpdateConnectionState();
       if(state!==STATE.CONNECTED) throw new CustomError(ERROR_NAME.STATE_ERROR,`state: ${state}`);
     }
-    if(idChecking) {
+    if(idChecking && args[0]) {
       Object.entries(args[0]).map(([k,v] : [string,any]) => {
         if(["to","chatId", "groupChatId", "groupId", "contactId"].includes(k) && typeof v == "string" && v) {
         args[0][k] = v?.includes('-') ? 
