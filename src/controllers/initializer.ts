@@ -22,6 +22,7 @@ import { popup } from './popup';
 import { getConfigFromProcessEnv } from '../utils/tools';
 import { SessionInfo } from '../api/model/sessionInfo';
 import { Page } from 'puppeteer';
+import { createHash } from 'crypto';
 /** @ignore */
 // let shouldLoop = true,
 let axios;
@@ -248,6 +249,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
         // config.skipPatches = true;
       }
       debugInfo.NUM = await waPage.evaluate(`(window.localStorage['last-wid'] || '').replace('@c.us','').replace(/"/g,"").slice(-4)`);
+      debugInfo.NUM_HASH = createHash('md5').update(await waPage.evaluate(`(window.localStorage['last-wid'] || '').replace('@c.us','').replace(/"/g,"")`), 'utf8').digest('hex')
       if(config?.hostNotificationLang){
         await waPage.evaluate(`window.hostlang="${config.hostNotificationLang}"`)
       }
