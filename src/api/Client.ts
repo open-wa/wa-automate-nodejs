@@ -5,7 +5,7 @@ import { Message } from './model/message';
 import { default as axios, AxiosRequestConfig} from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent, puppeteerConfig } from '../config/puppeteer.config'
-import { ConfigObject, STATE } from './model';
+import { ConfigObject, STATE, LicenseType } from './model';
 import { PageEvaluationTimeout, CustomError, ERROR_NAME  } from './model/errors';
 import PQueue from 'p-queue';
 import { ev } from '../controllers/events';
@@ -339,6 +339,7 @@ declare module WAPI {
   const getStoryViewers: (id: string) => Promise<String[]>;
   const getMe: () => any;
   const iAmAdmin: () => Promise<String[]>;
+  const getLicenseType: () => Promise<String | false>;
   const getChatWithNonContacts: () => Contact[];
   const syncContacts: () => boolean;
   const getAmountOfLoadedMessages: () => number;
@@ -1755,6 +1756,13 @@ public async iAmAdmin(){
     return await this.pup(() => WAPI.getHostNumber()) as Promise<string>;
   }
 
+  /**
+   * Returns the the type of license key used by the session.
+   * @returns
+   */
+  public async getLicenseType(){
+    return await this.pup(() => WAPI.getLicenseType()) as Promise<LicenseType | false>;
+  }
   /**
    * Retrieves all chats
    * @returns array of [Chat]

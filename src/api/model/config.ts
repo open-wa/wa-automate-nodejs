@@ -37,6 +37,17 @@ export enum QRFormat{
     TEN = 1.0,
   }
 
+
+  export enum LicenseType {
+      CUSTOM = "CUSTOM",
+      B2B_RESTRICTED_VOLUME_LICENSE = "B2B_RESTRICTED_VOLUME_LICENSE",
+      INSIDER = "Insiders Program",
+      TEXT_STORY = "Text Story License Key",
+      IMAGE_STORY = "Image Story License Key",
+      VIDEO_STORY = "Video Story License Key",
+      PREMIUM = "Premium License Key"
+  }
+
 export interface SessionData {
     WABrowserId ?: string,
     WASecretBundle ?: string,
