@@ -1111,6 +1111,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   }
 
   /**
+   * @deprecated Use [[sendLinkWithAutoPreview]] instead
    * Sends a link to a chat that includes a link preview.
    * @param thumb The base 64 data of the image you want to use as the thunbnail. This should be no more than 200x200px. Note: Dont need data url on this param
    * @param url The link you want to send
@@ -1120,6 +1121,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param chatId The chat you want to send this message to.
    * 
    */
+  @deprecated
   public async sendMessageWithThumb(
     thumb: string,
     url: string,
