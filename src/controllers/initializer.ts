@@ -18,7 +18,6 @@ import { Spin, ev } from './events'
 import { integrityCheck, checkWAPIHash } from './launch_checks';
 import treekill from 'tree-kill';
 import CFonts from 'cfonts';
-import { popup } from './popup';
 import { getConfigFromProcessEnv } from '../utils/tools';
 import { SessionInfo } from '../api/model/sessionInfo';
 import { Page } from 'puppeteer';
@@ -105,6 +104,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
   ].join('\n'), {padding: 1, borderColor: 'yellow', borderStyle: 'bold'}) : prettyFont.string)
   
   if(config?.popup) {
+    const {popup} = await import('./popup')
     const popupaddr = await popup(config);
     console.log(`You can also authenticate the session at: ${popupaddr}`)
   }
