@@ -2760,10 +2760,27 @@ public async getStatus(contactId: ContactId) {
    * This function takes an image (including animated GIF) and sends it as a sticker to the recipient. This is helpful for sending semi-ephemeral things like QR codes. 
    * The advantage is that it will not show up in the recipients gallery. This function automatiicaly converts images to the required webp format.
    * @param to: The recipient id.
-   * @param image: This is the base64 string formatted as a data URI. 
+   * @param image: [[DataURL]], [[Base64]], URL (string GET), Relative filepath (string), or Buffer of the image
    */
-  public async sendImageAsSticker(to: ChatId, image: DataURL, stickerMetadata?: StickerMetadata){
-    let processingResponse = await this.prepareWebp(image, stickerMetadata);
+  public async sendImageAsSticker(to: ChatId, image: DataURL | Buffer | Base64 | string, stickerMetadata?: StickerMetadata){
+    //@ts-ignore
+    if((Buffer.isBuffer(image)  || typeof image === 'object' || image?.type === 'Buffer') && image.toString) {
+      image = image.toString('base64')
+    } else if(typeof image === 'string') {
+      if(!isDataURL(image) && !isBase64(image)) {
+        //must be a file then
+        if(isUrl(image)){
+          image = await getDUrl(image)
+        } else {
+          let relativePath = path.join(path.resolve(process.cwd(),image|| ''));
+          if(fs.existsSync(image) || fs.existsSync(relativePath)) {
+            image = await datauri(fs.existsSync(image)  ? image : relativePath);
+          } else return 'FILE_NOT_FOUND';
+        } 
+      }
+      }
+    
+    let processingResponse = await this.prepareWebp(image as string, stickerMetadata);
     if(!processingResponse) return false;
     let {webpBase64, metadata} = processingResponse;
       return await this.pup(
