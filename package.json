@@ -4,6 +4,7 @@
   "licenseCheckUrl": "https://openwa.dev/license-check",
   "brokenMethodReportUrl": "https://openwa.dev/report-bm",
   "patches": "https://raw.githack.com/open-wa/wa-automate-nodejs/master/patches.json",
+  "stickerUrl": "https://sticker-api.openwa.dev",
   "description": " 💬 🤖 The most reliable NodeJS whatsapp library for chatbots with advanced features.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

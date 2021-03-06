@@ -1121,7 +1121,6 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param chatId The chat you want to send this message to.
    * 
    */
-  @deprecated
   public async sendMessageWithThumb(
     thumb: string,
     url: string,
@@ -1224,7 +1223,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     withoutPreview?:boolean
   ) {
       //check if the 'base64' file exists
-      if(!isDataURL(file)) {
+      if(!isDataURL(file) && !isBase64(file)) {
         //must be a file then
         let relativePath = path.join(path.resolve(process.cwd(),file|| ''));
         if(fs.existsSync(file) || fs.existsSync(relativePath)) {
@@ -2679,8 +2678,9 @@ public async getStatus(contactId: ContactId) {
     );
   }
 
-  private async stickerServerRequest(func: string, a : any = {}){
+  private async stickerServerRequest(func: string, a : any = {}, fallback : boolean = false){
     if(!this._createConfig.stickerServerEndpoint) return false;
+    if(func === 'convertMp4BufferToWebpDataUrl') fallback = true;
     if(a.file || a.image) {
       //check if its a local file:
       const key = a.file ? 'file' : 'image';
@@ -2695,7 +2695,7 @@ public async getStatus(contactId: ContactId) {
       }
       if(a?.stickerMetadata && typeof a?.stickerMetadata !== "object") throw new CustomError(ERROR_NAME.BAD_STICKER_METADATA, `Received ${typeof a?.stickerMetadata}: ${a?.stickerMetadata}`);
       try {
-        const {data} = await axios.post(`${'https://open-wa-sticker-api.herokuapp.com' || this._createConfig.stickerServerEndpoint}/${func}`, {
+        const {data} = await axios.post(`${(fallback ?  pkg.stickerUrl : 'https://open-wa-sticker-api.herokuapp.com'  )|| this._createConfig.stickerServerEndpoint}/${func}`, {
           ...a,
         sessionInfo: this.getSessionInfo(),
         config: this.getConfig()
@@ -2707,6 +2707,8 @@ public async getStatus(contactId: ContactId) {
       } catch (err) {
         if(err?.message.includes("maxContentLength size")) {
           throw new CustomError(ERROR_NAME.STICKER_TOO_LARGE, err?.message)
+        } else if(!fallback){
+          return await this.stickerServerRequest(func, a, true)
         }
         console.error(err?.response?.status, err?.response?.data);
         throw err;
