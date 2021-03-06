@@ -44,7 +44,7 @@ let io,
 export async function popup(config: ConfigObject) : Promise<string> {
     setUpApp();
     const preferredPort = config.popup;
-    ev.on('**', async (data, sessionId, namespace) => {
+    const popupListener = ev.on('**', async (data, sessionId, namespace) => {
         if(namespace.includes("sessionData")) return;
         if (gClient) {
             await gClient.send({ data, sessionId, namespace });
@@ -57,9 +57,11 @@ export async function popup(config: ConfigObject) : Promise<string> {
             currentQrCodes['latest'] = data;
         }
         if(data?.includes && data?.includes("ready for account")) {
+            //@ts-ignore
+            popupListener.off()
             await closeHttp();
         }
-    });
+    }, {objectify: true});
 
     /**
      * There should only be one instance of this open. If the server is already running, respond with the address.
@@ -88,7 +90,9 @@ export async function popup(config: ConfigObject) : Promise<string> {
     const appName = os.includes('macOS') ? 'google chrome' : os.includes('Windows') ? 'chrome' : 'google-chrome';
     const hasChrome = await commandExists(appName).then(()=>true).catch(()=>false);
     if(hasChrome){
-        if(!config?.inDocker) await open(`http://localhost:${PORT}${config?.qrPopUpOnly?`/qr`:``}`, { app: [config?.executablePath || appName , '--incognito'], allowNonzeroExitCode: true}).catch(()=>{return;}); else return "NA";
+        if(!config?.inDocker) await open(`http://localhost:${PORT}${config?.qrPopUpOnly?`/qr`:``}`, { app: {
+        name: config?.executablePath || appName,    
+        arguments: [ '--incognito']}, allowNonzeroExitCode: true}).catch(()=>{return;}); else return "NA";
     } else return `http://localhost:${PORT}${config?.qrPopUpOnly ? '/qr' : ''}`;
 
     return `http://localhost:${PORT}${config?.qrPopUpOnly ? '/qr' : ''}`
