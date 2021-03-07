@@ -58,9 +58,9 @@
     fastq "^1.6.0"
 
 "@open-wa/wa-automate@latest":
-  version "3.7.0"
-  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-3.7.0.tgz#3a81f385f737ce4ac8b7fe99e9aa72735af7e84c"
-  integrity sha512-dCECVPh6y6MeEnodVXpYeItjnZNt+3ZzQ6d5E052/UWu+GrRRJDp83rwSx1XGIrCRgaw2rSt4UHt5JNCb0qY1g==
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-3.8.0.tgz#751330dcf58d7c03251b140a52dda271ea2a9517"
+  integrity sha512-j62XLjsXkxComL8w7KqFGVtlbsO/k8WsDACER9MsuCG7FjYMpAQSQ7InAxc8okYZHz9Fn2oXPH5V44gD8eRw6Q==
   dependencies:
     "@open-wa/wa-decrypt" "^3.0.1"
     "@types/sharp" "^0.27.1"
@@ -84,7 +84,7 @@
     lodash.uniq "^4.5.0"
     meow "^9.0.0"
     node-persist "^3.1.0"
-    open "^7.0.4"
+    open "^8.0.2"
     optional-require "^1.0.2"
     os-name "^4.0.0"
     p-queue "^6.4.0"
@@ -1097,6 +1097,11 @@ defer-to-connect@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/defer-to-connect/-/defer-to-connect-2.0.1.tgz#8016bdb4143e4632b77a3449c6236277de520587"
   integrity sha512-4tvttepXG1VaYGrRibk5EwJd1t4udunSOVMdLSAL6mId1ix438oPwPZMALY41FCijukO1L0twNcGsdzS7dHgDg==
+
+define-lazy-prop@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/define-lazy-prop/-/define-lazy-prop-2.0.0.tgz#3f7ae421129bcaaac9bc74905c98a0009ec9ee7f"
+  integrity sha512-Ds09qNh8yw3khSjiJjiUInaGX9xlqZDY7JVryGxdxV7NPeuqQfplOpQ66yJFZut3jLa5zOwkXw1g9EI2uKh4Og==
 
 define-property@^0.2.5:
   version "0.2.5"
@@ -2201,7 +2206,7 @@ is-descriptor@^1.0.0, is-descriptor@^1.0.2:
     is-data-descriptor "^1.0.0"
     kind-of "^6.0.2"
 
-is-docker@^2.0.0:
+is-docker@^2.0.0, is-docker@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/is-docker/-/is-docker-2.1.1.tgz#4125a88e44e450d384e09047ede71adc2d144156"
   integrity sha512-ZOoqiXfEwtGknTiuDEy8pN2CfE3TxMHprvNer1mXiqwkOT77Rw3YVrUQ52EqAOU3QAWDQ+bQdx7HJzrv7LS2Hw==
@@ -3069,13 +3074,22 @@ onetime@^5.1.0:
   dependencies:
     mimic-fn "^2.1.0"
 
-open@^7.0.4, open@^7.4.2:
+open@^7.4.2:
   version "7.4.2"
   resolved "https://registry.yarnpkg.com/open/-/open-7.4.2.tgz#b8147e26dcf3e426316c730089fd71edd29c2321"
   integrity sha512-MVHddDVweXZF3awtlAS+6pgKLlm/JgxZ90+/NBurBoQctVOOB/zDdVjcyPzQ+0laDGbsWgrRkflI65sQeOgT9Q==
   dependencies:
     is-docker "^2.0.0"
     is-wsl "^2.1.1"
+
+open@^8.0.2:
+  version "8.0.2"
+  resolved "https://registry.yarnpkg.com/open/-/open-8.0.2.tgz#8c3e95cce93ba2fc8d99968ee8bfefecdb50b84f"
+  integrity sha512-NV5QmWJrTaNBLHABJyrb+nd5dXI5zfea/suWawBhkHzAbVhLLiJdrqMgxMypGK9Eznp2Ltoh7SAVkQ3XAucX7Q==
+  dependencies:
+    define-lazy-prop "^2.0.0"
+    is-docker "^2.1.1"
+    is-wsl "^2.2.0"
 
 openurl@1.1.1:
   version "1.1.1"
