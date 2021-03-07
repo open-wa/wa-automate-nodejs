@@ -10,9 +10,3 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-
-  # Maintain dependencies for Yarn
-  - package-ecosystem: "yarn"
-    directory: "/"
-    schedule:
-      interval: "daily"
