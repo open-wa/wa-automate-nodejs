@@ -58,9 +58,9 @@
     fastq "^1.6.0"
 
 "@open-wa/wa-automate@latest":
-  version "3.8.0"
-  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-3.8.0.tgz#751330dcf58d7c03251b140a52dda271ea2a9517"
-  integrity sha512-j62XLjsXkxComL8w7KqFGVtlbsO/k8WsDACER9MsuCG7FjYMpAQSQ7InAxc8okYZHz9Fn2oXPH5V44gD8eRw6Q==
+  version "3.9.0"
+  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-3.9.0.tgz#6334fe62b0d22d6d50b198a1c698bb9916c48daf"
+  integrity sha512-RWkbNkdTpl+5QggennWuob6WiNrNIPRpSOz95WaBPsX4Ft8jCJWMzJubLrPO4hqOZ7wmO4U/51HekYV/nca0ww==
   dependencies:
     "@open-wa/wa-decrypt" "^3.0.1"
     "@types/sharp" "^0.27.1"
@@ -112,6 +112,7 @@
     ts-json-schema-generator "^0.88.0"
     ts-morph "^9.1.0"
     update-notifier "^5.0.0"
+    uuid "^3.4.0"
     uuid-apikey "^1.4.6"
 
 "@open-wa/wa-decrypt@^3.0.1":
