@@ -9,6 +9,7 @@ import { ConfigObject, STATE, LicenseType } from './model';
 import { PageEvaluationTimeout, CustomError, ERROR_NAME  } from './model/errors';
 import PQueue from 'p-queue';
 import { ev } from '../controllers/events';
+import { v4 as uuidv4 } from 'uuid';
 /** @ignore */
 const parseFunction = require('parse-function'),
 pkg = require('../../package.json'),
@@ -3185,16 +3186,16 @@ public async getStatus(contactId: ContactId) {
         method: 'post',
         url,
         data: {
+  private prepEventData(data: any, event: SimpleListener, extras ?: any){
+    const sessionId = this.getSessionId();
+    return {
         ts: Date.now(),
+        sessionId,
+        id: uuidv4(),
         event,
-        data:_data
-        },
-        ...requestConfig
-      })));
-      return this._registeredWebhooks[event];
+        data,
+        ...extras
     }
-    console.log('Invalid lisetner', event);
-    return false;
   }
 
   private async registerEv(simpleListener: SimpleListener) {
@@ -3205,12 +3206,7 @@ public async getStatus(contactId: ContactId) {
         return false;
       }
       const sessionId = this.getSessionId();
-      this._registeredEvListeners[simpleListener] = await this[simpleListener](data=>ev.emit(`${simpleListener}.${sessionId}`,{
-        ts: Date.now(),
-        sessionId,
-        event: simpleListener,
-        data
-      }));
+      this._registeredEvListeners[simpleListener] = await this[simpleListener](data=>ev.emit(`${simpleListener}.${sessionId}`,this.prepEventData(data,simpleListener)));
       return true;
     }
     console.log('Invalid lisetner', simpleListener);
