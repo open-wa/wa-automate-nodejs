@@ -145,7 +145,7 @@
     "ts-json-schema-generator": "^0.88.0",
     "ts-morph": "^9.1.0",
     "update-notifier": "^5.0.0",
-    "uuid": "^3.4.0",
+    "uuid": "^8.3.2",
     "uuid-apikey": "^1.4.6"
   }
 }
