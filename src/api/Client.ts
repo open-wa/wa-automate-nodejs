@@ -5,7 +5,7 @@ import { Message } from './model/message';
 import { default as axios, AxiosRequestConfig} from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent, puppeteerConfig } from '../config/puppeteer.config'
-import { ConfigObject, STATE, LicenseType } from './model';
+import { ConfigObject, STATE, LicenseType, Webhook } from './model';
 import { PageEvaluationTimeout, CustomError, ERROR_NAME  } from './model/errors';
 import PQueue from 'p-queue';
 import { ev } from '../controllers/events';
@@ -3144,26 +3144,50 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
-   * Retreives a list of [[SimpleListener]] that are registered to webhooks.
+   * Retreives an array of webhook objects
    */
   public async listWebhooks(){
-    return Object.keys(this._registeredWebhooks) as SimpleListener[];
+    return this._registeredWebhooks ? Object.keys(this._registeredWebhooks).map(id=>this._registeredWebhooks[id]).map(({
+      requestConfig,
+      ...rest
+    })=>rest) as Webhook[] : [];
   }
 
   /**
    * Removes a webhook.
    * 
-   * Returns `true` if the webhook was found and removed. `false` if the webhook was not found and therefore could not be removed.
+   * Returns `true` if the webhook was found and removed. `false` if the webhook was not found and therefore could not be removed. This does not unregister any listeners off of other webhooks.
    * 
-   * @param simpleListener The webhook name to remove.
+   * 
+   * @param webhookId The ID of the webhook
    * @retruns boolean
    */
-  public async removeWebhook(simpleListener: SimpleListener){
-    if(this?._registeredWebhooks[simpleListener]) {
-      delete this._registeredWebhooks[simpleListener];
+  public async removeWebhook(webhookId: string){
+    if(this._registeredWebhooks[webhookId]) {
+      delete this._registeredWebhooks[webhookId];
       return true; //`Webhook for ${simpleListener} removed`
     }
     return false; //`Webhook for ${simpleListener} not found`
+  }
+
+  /**
+   * Update registered events for a specific webhook. This will override all existing events. If you'd like to remove all listeners from a webhook, consider using [[removeWebhook]].
+   * 
+   * In order to update authentication details for a webhook, remove it completely and then reregister it with the correct credentials.
+   */
+  public async updateWebhook(webhookId: string, events: SimpleListener[] | 'all') : Promise<Webhook | false> {
+    if(events==="all") events = Object.keys(SimpleListener).map(eventKey =>SimpleListener[eventKey])
+    if(!Array.isArray(events)) events = [events]
+    const validListeners = await this._setupWebhooksOnListeners(events)
+    if(this._registeredWebhooks[webhookId]) {
+      this._registeredWebhooks[webhookId].events = validListeners
+      const {
+        requestConfig,
+        ...rest
+      } = this._registeredWebhooks[webhookId] as Webhook;
+      return rest;
+    }
+    return false
   }
   
   /**
@@ -3174,18 +3198,93 @@ public async getStatus(contactId: ContactId) {
    * @param requestConfig {} By default the request is a post request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
    * @param concurrency the amount of concurrent requests to be handled by the built in queue. Default is 5.
    */
-  public async registerWebhook(event: SimpleListener, url: string, requestConfig: AxiosRequestConfig = {}, concurrency: number = 5) {
-    if(!this._webhookQueue) this._webhookQueue = new PQueue({ concurrency });
-    if(this[event]){
-      if(!this._registeredWebhooks) this._registeredWebhooks={};
-      if(this._registeredWebhooks[event]) {
-        console.log('webhook already registered');
-        return false;
+  // public async registerWebhook(event: SimpleListener, url: string, requestConfig: AxiosRequestConfig = {}, concurrency: number = 5) {
+  //   if(!this._webhookQueue) this._webhookQueue = new PQueue({ concurrency });
+  //   if(this[event]){
+  //     if(!this._registeredWebhooks) this._registeredWebhooks={};
+  //     if(this._registeredWebhooks[event]) {
+  //       console.log('webhook already registered');
+  //       return false;
+  //     }
+  //     this._registeredWebhooks[event] = this[event](async _data=>await this._webhookQueue.add(async () => await axios({
+  //       method: 'post',
+  //       url,
+  //       data: {
+  //       ts: Date.now(),
+  //       event,
+  //       data:_data
+  //       },
+  //       ...requestConfig
+  //     })));
+  //     return this._registeredWebhooks[event];
+  //   }
+  //   console.log('Invalid lisetner', event);
+  //   return false;
+  // }
+
+  /**
+   * This is used to track if a listener is already used via webhook. Before, webhooks used to be set once per listener. Now a listener can be set via multiple webhooks, or revoked from a specific webhook.
+   * For this reason, listeners assigned to a webhook are only set once and map through all possible webhooks to and fire only if the specific listener is assigned.
+   * 
+   * Note: This would be much simpler if eventMode was the default (and only) listener strategy.
+   */
+  _registeredWebhookListeners;
+
+
+  private async _setupWebhooksOnListeners(events: SimpleListener[] | 'all'){
+    if(events==="all") events = Object.keys(SimpleListener).map(eventKey =>SimpleListener[eventKey])
+    if(!Array.isArray(events)) events = [events]
+    if(!this._registeredWebhookListeners) this._registeredWebhookListeners={};
+    if(!this._registeredWebhooks) this._registeredWebhooks={};
+    let validListeners = [];
+      events.map(event=>{
+      if(this[event]){
+        validListeners.push(event);
+        if(this._registeredWebhookListeners[event] === undefined){
+          //set it up
+          this._registeredWebhookListeners[event] = this[event](async _data=>await this._webhookQueue.add(async () => await Promise.all([
+            ...Object.keys(this._registeredWebhooks).map(webhookId=>this._registeredWebhooks[webhookId]).filter(webhookEntry=>webhookEntry.events.includes(event))
+          ].map(({
+            id,
+            url,
+            requestConfig}) => axios({
+            method: 'post',
+            url,
+            data: this.prepEventData(_data,event as SimpleListener,{webhook_id:id}),
+            ...requestConfig
+          })))));
+        }        
       }
-      this._registeredWebhooks[event] = this[event](async _data=>await this._webhookQueue.add(async () => await axios({
-        method: 'post',
-        url,
-        data: {
+      })
+      return validListeners;
+  }
+  /**
+   * The client can now automatically handle webhooks. Use this method to register webhooks.
+   * 
+   * @param url The webhook url
+   * @param events An array of [[SimpleListener]] enums or `all` (to register all possible listeners)
+   * @param requestConfig {} By default the request is a post request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
+   * @param concurrency the amount of concurrent requests to be handled by the built in queue. Default is 5.
+   * @returns A webhook object. This will include a webhook ID and an array of all successfully registered Listeners.
+   */
+  public async registerWebhook(url: string, events : SimpleListener[] | 'all', requestConfig: AxiosRequestConfig = {}, concurrency: number = 5) : Promise<Webhook | false> {
+    if(!this._webhookQueue) this._webhookQueue = new PQueue({ concurrency });
+    let validListeners = await this._setupWebhooksOnListeners(events)
+    const id = uuidv4()
+    if(validListeners.length) {
+      this._registeredWebhooks[id] = {
+        id,
+        ts: Date.now(),
+        url, 
+        events: validListeners,
+        requestConfig
+      }
+      return this._registeredWebhooks[id];
+    }
+    console.log('Invalid listener(s)', events);
+    return false;
+  }
+
   private prepEventData(data: any, event: SimpleListener, extras ?: any){
     const sessionId = this.getSessionId();
     return {

@@ -1,3 +1,5 @@
+import { AxiosRequestConfig } from 'axios';
+import { SimpleListener } from '../..';
 import { Base64 } from "./aliases";
 
 /**
@@ -66,6 +68,40 @@ export interface DevTools {
     pass : string
 }
 
+export interface Webhook {
+    /**
+     * The endpoint to send (POST) the event to.
+     */
+    url: string;
+    /**
+     * The optional AxiosRequestConfig to use for firing the webhook event. This can be useful if you want to add some authentication when POSTing data to your server.
+     * 
+     * For example, if your webhook requires the username `admin` and password `1234` for authentication, you can set the requestConfig to:
+     * ```
+     * {
+     *   auth: {
+     *     username: "admin",
+     *     password: "1234",
+     *   }
+     * }
+     * ```
+     * 
+     * Please note, for security reasons, this is not returned when listing webhooks however it is returned when registering a webhook for verification purposes.
+     */
+    requestConfig ?: AxiosRequestConfig;
+    /**
+     * The ID of the given webhook setup. Use this ID with [[removeWebhook]]
+     */
+    id: string;
+    /**
+     * An array of events that are registered to be sent to this webhook.
+     */
+    events: SimpleListener[];
+    /**
+     * Time when the webhook was registered in epoch time 
+     */
+     ts: number;
+}
 export interface ProxyServerCredentials {
     /**
      * The protocol on which the proxy is running. E.g `http`, `https`, `socks4` or `socks5`. This is optional and can be automatically determined from the address.
