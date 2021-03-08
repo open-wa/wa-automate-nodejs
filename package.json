@@ -59,8 +59,8 @@
     "node": ">=12.18.3"
   },
   "peerDependencies": {
-    "fluent-ffmpeg": "^2.1.2",
-    "sharp": "^0.27.0"
+    "sharp": "^0.27.0",
+    "fluent-ffmpeg": "^2.1.2"
   },
   "devDependencies": {
     "@grupoboticario/news-fragments": "^1.8.0",
