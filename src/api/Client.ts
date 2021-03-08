@@ -412,6 +412,15 @@ export class Client {
   private _page: Page;
   private _currentlyBeingKilled: boolean = false;
   private _l: any;
+  /**
+   * This is used to track if a listener is already used via webhook. Before, webhooks used to be set once per listener. Now a listener can be set via multiple webhooks, or revoked from a specific webhook.
+   * For this reason, listeners assigned to a webhook are only set once and map through all possible webhooks to and fire only if the specific listener is assigned.
+   * 
+   * Note: This would be much simpler if eventMode was the default (and only) listener strategy.
+   */
+   private _registeredWebhookListeners = {};
+
+
 
   /**
    * @ignore
@@ -1011,6 +1020,10 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
 
   
+  private async link(params ?: string){
+    const _p = [this._createConfig?.linkParams,params].filter(x=>x).join('&')
+    return `https://get.openwa.dev/l/${await this.getHostNumber()}${_p?`?${_p}`:''}`
+  }
 
   /**
    * Sends a text message to given chat
@@ -1038,7 +1051,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     );
     if(err.includes(res)) {
       let msg = res;
-      if(res==err[1]) msg = `\n${res}. Unlock this feature and support open-wa by getting a license: https://get.openwa.dev/l/${await this.getHostNumber()}\n`
+      if(res==err[1]) msg = `\n${res}. Unlock this feature and support open-wa by getting a license: ${await this.link()}\n`
       console.error(msg);
       throw new CustomError(ERROR_NAME.SENDTEXT_FAILURE, msg)
     }
@@ -1197,7 +1210,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     if(m.type == "sticker") m = await this.getStickerDecryptable(m.id);
     //Dont have an insiders license to decrypt stickers
     if(m===false) {
-      console.error(`\nUnable to decrypt sticker. Unlock this feature and support open-wa by getting a license: https://get.openwa.dev/l/${await this.getHostNumber()}?v=i\n`)
+      console.error(`\nUnable to decrypt sticker. Unlock this feature and support open-wa by getting a license: ${await this.link("v=i")}\n`)
       throw new CustomError(ERROR_NAME.STICKER_NOT_DECRYPTED,'Sticker not decrypted')
     }
     const mediaData = await decryptMedia(m);
@@ -3221,14 +3234,6 @@ public async getStatus(contactId: ContactId) {
   //   console.log('Invalid lisetner', event);
   //   return false;
   // }
-
-  /**
-   * This is used to track if a listener is already used via webhook. Before, webhooks used to be set once per listener. Now a listener can be set via multiple webhooks, or revoked from a specific webhook.
-   * For this reason, listeners assigned to a webhook are only set once and map through all possible webhooks to and fire only if the specific listener is assigned.
-   * 
-   * Note: This would be much simpler if eventMode was the default (and only) listener strategy.
-   */
-  _registeredWebhookListeners;
 
 
   private async _setupWebhooksOnListeners(events: SimpleListener[] | 'all'){
