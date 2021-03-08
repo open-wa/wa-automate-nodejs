@@ -1,6 +1,6 @@
 const meow = require('meow');
 const wa = require('../dist');
-const { create, SimpleListener, generatePostmanJson, ev } = wa;
+const { create, generatePostmanJson, ev } = wa;
 const path = require('path');
 const express = require('express');
 const app = express();
@@ -232,6 +232,18 @@ if(c.sessionDataOnly){
 	  })
 }
 
+if(c.webhook || c.webhook == '') {
+	if(c.webhook == '') c.webhook = 'webhooks.json';
+			let relativePath = path.join(path.resolve(process.cwd(),c.webhook|| ''));
+			if(fs.existsSync(c.webhook) || fs.existsSync(relativePath)) {
+				let wh = JSON.parse(fs.readFileSync(fs.existsSync(c.webhook)  ? c.webhook : relativePath, 'utf8'));
+				if(wh && Array.isArray(wh)) c.webhook = wh;
+				else c.webhook = undefined
+			} else if(!isUrl(c.webhook)) {
+				c.webhook = undefined
+			}
+
+}
 
 async function start(){
     try {
@@ -271,12 +283,17 @@ return await create({ ...config })
 	let pmCol = null;
 
 	app.use(robots({ UserAgent: '*', Disallow: '/' }))
-	
-	if (c && c.webhook) Object.keys(SimpleListener).map(eventKey => client.registerWebhook(SimpleListener[eventKey], c.webhook))
+	if (c && c.webhook) {
+		if(Array.isArray(c.webhook)) {
+			await Promise.all(c.webhook.map(webhook=>{
+				if(webhook.url && webhook.events) return client.registerWebhook(webhook.url,webhook.events, webhook.requestConfig || {})
+			}))
+		} else await client.registerWebhook(c.webhook,"all")
+	}
 
 	if(c && c.keepAlive) client.onStateChanged(async state=>{
 		if(state==="CONFLICT" || state==="UNLAUNCHED") await client.forceRefocus();
-	  });
+    });
 
 	if (!(c && c.noApi)) {
 		if(c && c.key) {
