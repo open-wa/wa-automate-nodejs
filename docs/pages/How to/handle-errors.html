@@ -3,11 +3,19 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Handle Errors | @open-wa/wa-automate - v3.9.0</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.9.0">
+	<title>Handle Errors | @open-wa/wa-automate - v3.9.1</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.9.1">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../assets/css/main.css">
 	<link rel="stylesheet" href="../../assets/css/pages.css">
+	<script>
+		(function (w,d,s,o,f,js,fjs) {
+			w['Otechie-Widget']=o;w[o] = w[o] || function () { (w[o].q = w[o].q || []).push(arguments) };
+			js = d.createElement(s), fjs = d.getElementsByTagName(s)[0];
+			js.id = o; js.src = f; js.async = 1; fjs.parentNode.insertBefore(js, fjs);
+		}(window, document, 'script', 'ow', 'https://widget.otechie.com/widget.js'));
+		ow('init', { username: 'smashah' });
+	</script>
 </head>
 <body>
 <header>
@@ -23,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../../index.html" class="title">@open-wa/wa-automate - v3.9.0</a>
+					<a href="../../index.html" class="title">@open-wa/wa-automate - v3.9.1</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -39,6 +47,10 @@
 							</div>
 							<input type="checkbox" id="tsd-filter-inherited" checked />
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
 						</div>
 					</div>
 					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
@@ -50,7 +62,7 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="../../globals.html">Globals</a>
+					<a href="../../modules.html">Globals</a>
 				</li>
 				<li>
 					<a href="send-messages.html">How to</a>
@@ -74,85 +86,87 @@
 					<h2>Keep your promises!</h2>
 				</a>
 				<p>Treat all <code>client</code> methods as promises. Therefore make sure to await them and wrap them in <code>try/catch</code> blocks</p>
-				<pre><code class="language-javascript">    client.onMessage(<span class="hljs-keyword">async</span> message =&gt; {
-        <span class="hljs-keyword">try</span>{
-            <span class="hljs-comment">//respond with &#x27;Hi!&#x27;</span>
-            <span class="hljs-keyword">await</span> client.sendText(message.from, <span class="hljs-string">&#x27;Hi!&#x27;</span>);
-        } <span class="hljs-keyword">catch</span>(error){
-            <span class="hljs-built_in">console</span>.log(error);
-        }
-    })
+				<pre><code class="language-javascript"><span style="color: #000000">    </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">onMessage</span><span style="color: #000000">(</span><span style="color: #0000FF">async</span><span style="color: #000000"> </span><span style="color: #001080">message</span><span style="color: #000000"> </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #AF00DB">try</span><span style="color: #000000">{</span>
+<span style="color: #000000">            </span><span style="color: #008000">//respond with &#039;Hi!&#039;</span>
+<span style="color: #000000">            </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">sendText</span><span style="color: #000000">(</span><span style="color: #001080">message</span><span style="color: #000000">.</span><span style="color: #001080">from</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;Hi!&#039;</span><span style="color: #000000">);</span>
+<span style="color: #000000">        } </span><span style="color: #AF00DB">catch</span><span style="color: #000000">(</span><span style="color: #001080">error</span><span style="color: #000000">){</span>
+<span style="color: #000000">            </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">error</span><span style="color: #000000">);</span>
+<span style="color: #000000">        }</span>
+<span style="color: #000000">    })</span>
+
 </code></pre>
 				<a href="#error-handling-on-create" id="error-handling-on-create" style="color: inherit; text-decoration: none;">
 					<h2>Error handling on <code>create</code></h2>
 				</a>
-				<p>The <a href="../../globals.html#create">create</a> method itself is a promise so you can handle errors using a try catch block here also from which you can choose to try again or exit the process.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client</span>)</span>{
-    ...
-}
+				<p>The <a href="../../modules/controllers_initializer.html#create">create</a> method itself is a promise so you can handle errors using a try catch block here also from which you can choose to try again or exit the process.</p>
+				<pre><code class="language-javascript"><span style="color: #0000FF">async</span><span style="color: #000000"> </span><span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">start</span><span style="color: #000000">(</span><span style="color: #001080">client</span><span style="color: #000000">){</span>
+<span style="color: #000000">    ...</span>
+<span style="color: #000000">}</span>
 
-<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">launch</span>(<span class="hljs-params"></span>)</span>{
-    <span class="hljs-keyword">try</span>{
-        <span class="hljs-keyword">const</span> client = <span class="hljs-keyword">await</span> create();
-        <span class="hljs-keyword">await</span> start(client);
-    } <span class="hljs-keyword">catch</span>(error){
-        <span class="hljs-built_in">console</span>.log(errror)
-    }
-}
+<span style="color: #0000FF">async</span><span style="color: #000000"> </span><span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">launch</span><span style="color: #000000">(){</span>
+<span style="color: #000000">    </span><span style="color: #AF00DB">try</span><span style="color: #000000">{</span>
+<span style="color: #000000">        </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">client</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">create</span><span style="color: #000000">();</span>
+<span style="color: #000000">        </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">start</span><span style="color: #000000">(</span><span style="color: #001080">client</span><span style="color: #000000">);</span>
+<span style="color: #000000">    } </span><span style="color: #AF00DB">catch</span><span style="color: #000000">(</span><span style="color: #001080">error</span><span style="color: #000000">){</span>
+<span style="color: #000000">        </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">errror</span><span style="color: #000000">)</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">}</span>
 
-launch();
+<span style="color: #795E26">launch</span><span style="color: #000000">();</span>
+
 </code></pre>
-				<p>Alternatively, you can set the client &quot;start&quot; function (the function that consumes the client after it has been created) as a config variable <a href="../../interfaces/configobject.html#restartoncrash">restartOnCrash</a>, allowing the process itself to restart/retry if there are any issues. Be careful with this as it may lead to an endless loop.</p>
-				<p>You can also use <a href="../../interfaces/configobject.html#logconsole">logConsole</a> (logs all browser console output) or just <a href="../../interfaces/configobject.html#logconsoleerrors">logConsoleErrors</a> (only logs browser errors) to better debug issues.</p>
-				<p>Setting <a href="../../interfaces/configobject.html#killprocessonbrowserclose">killProcessOnBrowserClose</a> to true will kill the whole node process upon any critical browser issue (maybe the browser runs out of memory and crashes, this option will kill the process).</p>
+				<p>Alternatively, you can set the client &quot;start&quot; function (the function that consumes the client after it has been created) as a config variable <a href="../../interfaces/api_model_config.configobject.html#restartoncrash">restartOnCrash</a>, allowing the process itself to restart/retry if there are any issues. Be careful with this as it may lead to an endless loop.</p>
+				<p>You can also use [[logConsole]] (logs all browser console output) or just [[logConsoleErrors]] (only logs browser errors) to better debug issues.</p>
+				<p>Setting [[killProcessOnBrowserClose]] to true will kill the whole node process upon any critical browser issue (maybe the browser runs out of memory and crashes, this option will kill the process).</p>
 				<p>This is useful if you have a n orchestrator process that restarts processes. (e.g <a href="https://pm2.keymetrics.io/">pm2</a> or a <a href="https://docs.docker.com/config/containers/start-containers-automatically/#:~:text=Restart%20policy%20details,-Keep%20the%20following&amp;text=A%20restart%20policy%20only%20takes,going%20into%20a%20restart%20loop.">docker restart policy</a>)</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client</span>)</span>{
-    ...
-}
+				<pre><code class="language-javascript"><span style="color: #0000FF">async</span><span style="color: #000000"> </span><span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">start</span><span style="color: #000000">(</span><span style="color: #001080">client</span><span style="color: #000000">){</span>
+<span style="color: #000000">    ...</span>
+<span style="color: #000000">}</span>
 
-<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">launch</span>(<span class="hljs-params"></span>)</span>{
-    <span class="hljs-keyword">try</span>{
-        <span class="hljs-keyword">const</span> client = <span class="hljs-keyword">await</span> create({
-            <span class="hljs-comment">//sets restartOnCrash to the above `start` function</span>
-            <span class="hljs-attr">restartOnCrash</span>: start,
+<span style="color: #0000FF">async</span><span style="color: #000000"> </span><span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">launch</span><span style="color: #000000">(){</span>
+<span style="color: #000000">    </span><span style="color: #AF00DB">try</span><span style="color: #000000">{</span>
+<span style="color: #000000">        </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">client</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">create</span><span style="color: #000000">({</span>
+<span style="color: #000000">            </span><span style="color: #008000">//sets restartOnCrash to the above `start` function</span>
+<span style="color: #000000">            </span><span style="color: #001080">restartOnCrash:</span><span style="color: #000000"> </span><span style="color: #001080">start</span><span style="color: #000000">,</span>
 
-            <span class="hljs-comment">//log all browser console output</span>
-            <span class="hljs-attr">logConsole</span>: <span class="hljs-literal">true</span>,
+<span style="color: #000000">            </span><span style="color: #008000">//log all browser console output</span>
+<span style="color: #000000">            </span><span style="color: #001080">logConsole:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">,</span>
 
-            <span class="hljs-comment">//or just browser errors</span>
-            <span class="hljs-attr">logConsoleErrors</span>: <span class="hljs-literal">true</span>,
+<span style="color: #000000">            </span><span style="color: #008000">//or just browser errors</span>
+<span style="color: #000000">            </span><span style="color: #001080">logConsoleErrors:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">,</span>
 
-            <span class="hljs-comment">//kill the process if the browser crashes/is closed manually</span>
-            <span class="hljs-attr">killProcessOnBrowserClose</span>: <span class="hljs-literal">true</span>
-        });
-        <span class="hljs-keyword">await</span> start(client);
-    } <span class="hljs-keyword">catch</span>(error){
-        <span class="hljs-built_in">console</span>.log(error)
-    }
-}
+<span style="color: #000000">            </span><span style="color: #008000">//kill the process if the browser crashes/is closed manually</span>
+<span style="color: #000000">            </span><span style="color: #001080">killProcessOnBrowserClose:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span>
+<span style="color: #000000">        });</span>
+<span style="color: #000000">        </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">start</span><span style="color: #000000">(</span><span style="color: #001080">client</span><span style="color: #000000">);</span>
+<span style="color: #000000">    } </span><span style="color: #AF00DB">catch</span><span style="color: #000000">(</span><span style="color: #001080">error</span><span style="color: #000000">){</span>
+<span style="color: #000000">        </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">error</span><span style="color: #000000">)</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">}</span>
 
-launch();
+<span style="color: #795E26">launch</span><span style="color: #000000">();</span>
 </code></pre>
 				<a href="#manage-page-errors" id="manage-page-errors" style="color: inherit; text-decoration: none;">
 					<h2>Manage page errors</h2>
 				</a>
 				<p>Since this project is built upon puppeteer, you can access the <a href="https://pptr.dev/#?product=Puppeteer&amp;version=v2.0.0&amp;show=api-class-page">Puppeteer Page</a> instance by referencing <code>client.getPage()</code>, and then therefore you can listen to any errors on the page like so:</p>
-				<pre><code class="language-javascript">client.getPage().on(<span class="hljs-string">&#x27;error&#x27;</span>, <span class="hljs-function"><span class="hljs-params">_</span>=&gt;</span>{
-...
-}
+				<pre><code class="language-javascript"><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">getPage</span><span style="color: #000000">().</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;error&#039;</span><span style="color: #000000">, </span><span style="color: #001080">_</span><span style="color: #0000FF">=&gt;</span><span style="color: #000000">{</span>
+<span style="color: #000000">...</span>
+<span style="color: #000000">}</span>
 </code></pre>
 				<a href="#kill-the-session" id="kill-the-session" style="color: inherit; text-decoration: none;">
 					<h2>Kill the session</h2>
 				</a>
 				<p>As of v1.6.6^ you can now kill the session when required. Best practice is to manage trycatch-es yourself and kill the client on catch.</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">try</span>{
-...
-<span class="hljs-keyword">await</span> client.sendMessage(...
-...
-} <span class="hljs-keyword">catch</span>(error){
-client.kill();
-<span class="hljs-comment">//maybe restart the session then</span>
-}
+				<pre><code class="language-javascript"><span style="color: #AF00DB">try</span><span style="color: #000000">{</span>
+<span style="color: #000000">...</span>
+<span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">sendMessage</span><span style="color: #000000">(...</span>
+<span style="color: #000000">...</span>
+<span style="color: #000000">} </span><span style="color: #795E26">catch</span><span style="color: #000000">(</span><span style="color: #001080">error</span><span style="color: #000000">){</span>
+<span style="color: #000000">client.kill();</span>
+<span style="color: #008000">//maybe restart the session then</span>
+<span style="color: #000000">}</span>
 </code></pre>
 			</div>
 		</div>
@@ -234,11 +248,59 @@ client.kill();
 					<li class="label pp-nav pp-group">
 						<span>API</span>
 					</li>
-					<li class="globals  ">
-						<a href="../../globals.html"><em>Globals</em></a>
+					<li class=" ">
+						<a href="../../modules.html">Modules</a>
 					</li>
-					<li class=" tsd-kind-namespace">
-						<a href="../../modules/wapi.html">WAPI</a>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_client.html">api/<wbr>Client</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_functions_exposed_enum.html">api/functions/exposed.enum</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model.html">api/model</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_aliases.html">api/model/aliases</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_call.html">api/model/call</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_chat.html">api/model/chat</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_config.html">api/model/config</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_contact.html">api/model/contact</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_errors.html">api/model/errors</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_group_metadata.html">api/model/group-<wbr>metadata</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_id.html">api/model/id</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_media.html">api/model/media</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_message.html">api/model/message</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_product.html">api/model/product</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_sessioninfo.html">api/model/session<wbr>Info</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/controllers_events.html">controllers/events</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/controllers_initializer.html">controllers/initializer</a>
 					</li>
 				</ul>
 			</nav>
@@ -254,18 +316,18 @@ client.kill();
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
 			</ul>
 		</div>
 	</div>

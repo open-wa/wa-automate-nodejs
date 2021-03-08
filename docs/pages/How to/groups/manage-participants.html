@@ -3,11 +3,19 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Manage Participants | @open-wa/wa-automate - v3.9.0</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.9.0">
+	<title>Manage Participants | @open-wa/wa-automate - v3.9.1</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.9.1">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../../assets/css/main.css">
 	<link rel="stylesheet" href="../../../assets/css/pages.css">
+	<script>
+		(function (w,d,s,o,f,js,fjs) {
+			w['Otechie-Widget']=o;w[o] = w[o] || function () { (w[o].q = w[o].q || []).push(arguments) };
+			js = d.createElement(s), fjs = d.getElementsByTagName(s)[0];
+			js.id = o; js.src = f; js.async = 1; fjs.parentNode.insertBefore(js, fjs);
+		}(window, document, 'script', 'ow', 'https://widget.otechie.com/widget.js'));
+		ow('init', { username: 'smashah' });
+	</script>
 </head>
 <body>
 <header>
@@ -23,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../../../index.html" class="title">@open-wa/wa-automate - v3.9.0</a>
+					<a href="../../../index.html" class="title">@open-wa/wa-automate - v3.9.1</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -39,6 +47,10 @@
 							</div>
 							<input type="checkbox" id="tsd-filter-inherited" checked />
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
 						</div>
 					</div>
 					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
@@ -50,7 +62,7 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="../../../globals.html">Globals</a>
+					<a href="../../../modules.html">Globals</a>
 				</li>
 				<li>
 					<a href="../send-messages.html">How to</a>
@@ -73,16 +85,16 @@
 				<a href="#manage-participants" id="manage-participants" style="color: inherit; text-decoration: none;">
 					<h1>Manage Participants</h1>
 				</a>
-				<p><a href="../../../classes/client.html#addparticipant">addParticipant</a> - add a participant
-					<a href="../../../classes/client.html#removeparticipant">removeParticipant</a> -  remove a particpant
-					<a href="../../../classes/client.html#promoteparticipant">promoteParticipant</a> - Make a participant admin
-				<a href="../../../classes/client.html#demoteparticipant">demoteParticipant</a> -  remove participant as admin</p>
-				<pre><code class="language-javascript">...
-  client.addParticipant(<span class="hljs-string">&#x27;XXXXXXX-YYYYYY@c.us&#x27;</span>,<span class="hljs-string">&#x27;ZZZZZZZZZ@c.us&#x27;</span>)
-  client.removeParticipant(<span class="hljs-string">&#x27;XXXXXXX-YYYYYY@c.us&#x27;</span>,<span class="hljs-string">&#x27;ZZZZZZZZZ@c.us&#x27;</span>)
-  client.promoteParticipant(<span class="hljs-string">&#x27;XXXXXXX-YYYYYY@c.us&#x27;</span>,<span class="hljs-string">&#x27;ZZZZZZZZZ@c.us&#x27;</span>)
-  client.demoteParticipant(<span class="hljs-string">&#x27;XXXXXXX-YYYYYY@c.us&#x27;</span>,<span class="hljs-string">&#x27;ZZZZZZZZZ@c.us&#x27;</span>)
-...
+				<p><a href="../../../classes/api_client.client.html#addparticipant">addParticipant</a> - add a participant
+					<a href="../../../classes/api_client.client.html#removeparticipant">removeParticipant</a> -  remove a particpant
+					<a href="../../../classes/api_client.client.html#promoteparticipant">promoteParticipant</a> - Make a participant admin
+				<a href="../../../classes/api_client.client.html#demoteparticipant">demoteParticipant</a> -  remove participant as admin</p>
+				<pre><code class="language-javascript"><span style="color: #000000">...</span>
+<span style="color: #000000">  </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">addParticipant</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;XXXXXXX-YYYYYY@c.us&#039;</span><span style="color: #000000">,</span><span style="color: #A31515">&#039;ZZZZZZZZZ@c.us&#039;</span><span style="color: #000000">)</span>
+<span style="color: #000000">  </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">removeParticipant</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;XXXXXXX-YYYYYY@c.us&#039;</span><span style="color: #000000">,</span><span style="color: #A31515">&#039;ZZZZZZZZZ@c.us&#039;</span><span style="color: #000000">)</span>
+<span style="color: #000000">  </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">promoteParticipant</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;XXXXXXX-YYYYYY@c.us&#039;</span><span style="color: #000000">,</span><span style="color: #A31515">&#039;ZZZZZZZZZ@c.us&#039;</span><span style="color: #000000">)</span>
+<span style="color: #000000">  </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">demoteParticipant</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;XXXXXXX-YYYYYY@c.us&#039;</span><span style="color: #000000">,</span><span style="color: #A31515">&#039;ZZZZZZZZZ@c.us&#039;</span><span style="color: #000000">)</span>
+<span style="color: #000000">...</span>
 </code></pre>
 			</div>
 		</div>
@@ -167,11 +179,59 @@
 					<li class="label pp-nav pp-group">
 						<span>API</span>
 					</li>
-					<li class="globals  ">
-						<a href="../../../globals.html"><em>Globals</em></a>
+					<li class=" ">
+						<a href="../../../modules.html">Modules</a>
 					</li>
-					<li class=" tsd-kind-namespace">
-						<a href="../../../modules/wapi.html">WAPI</a>
+					<li class=" tsd-kind-module">
+						<a href="../../../modules/api_client.html">api/<wbr>Client</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../../modules/api_functions_exposed_enum.html">api/functions/exposed.enum</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../../modules/api_model.html">api/model</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../../modules/api_model_aliases.html">api/model/aliases</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../../modules/api_model_call.html">api/model/call</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../../modules/api_model_chat.html">api/model/chat</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../../modules/api_model_config.html">api/model/config</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../../modules/api_model_contact.html">api/model/contact</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../../modules/api_model_errors.html">api/model/errors</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../../modules/api_model_group_metadata.html">api/model/group-<wbr>metadata</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../../modules/api_model_id.html">api/model/id</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../../modules/api_model_media.html">api/model/media</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../../modules/api_model_message.html">api/model/message</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../../modules/api_model_product.html">api/model/product</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../../modules/api_model_sessioninfo.html">api/model/session<wbr>Info</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../../modules/controllers_events.html">controllers/events</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../../modules/controllers_initializer.html">controllers/initializer</a>
 					</li>
 				</ul>
 			</nav>
@@ -187,18 +247,18 @@
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
 			</ul>
 		</div>
 	</div>

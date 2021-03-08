@@ -3,11 +3,19 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>@open-wa/wa-automate - v3.9.0</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.9.0">
+	<title>@open-wa/wa-automate - v3.9.1</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.9.1">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
 	<link rel="stylesheet" href="assets/css/pages.css">
+	<script>
+		(function (w,d,s,o,f,js,fjs) {
+			w['Otechie-Widget']=o;w[o] = w[o] || function () { (w[o].q = w[o].q || []).push(arguments) };
+			js = d.createElement(s), fjs = d.getElementsByTagName(s)[0];
+			js.id = o; js.src = f; js.async = 1; fjs.parentNode.insertBefore(js, fjs);
+		}(window, document, 'script', 'ow', 'https://widget.otechie.com/widget.js'));
+		ow('init', { username: 'smashah' });
+	</script>
 </head>
 <body>
 <header>
@@ -23,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">@open-wa/wa-automate - v3.9.0</a>
+					<a href="index.html" class="title">@open-wa/wa-automate - v3.9.1</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -39,6 +47,10 @@
 							</div>
 							<input type="checkbox" id="tsd-filter-inherited" checked />
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
 						</div>
 					</div>
 					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
@@ -50,10 +62,10 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="globals.html">Globals</a>
+					<a href="modules.html">Globals</a>
 				</li>
 			</ul>
-			<h1>@open-wa/wa-automate - v3.9.0</h1>
+			<h1>@open-wa/wa-automate - v3.9.1</h1>
 		</div>
 	</div>
 </header>
@@ -82,56 +94,57 @@
 						<a href="https://open-wa.github.io/wa-automate-nodejs/pages/Getting%20Started/quick-run.html">Easy API</a> •
 						<a href="https://open-wa.github.io/wa-automate-nodejs/">Documentation</a> •
 						<a href="https://openwa.page.link/key">Get a License Key</a> •
-						<a href="#support">Support</a>****
+						<a href="#support">Support</a>
 					</p>
 				</div>
 				<a href="#installation-and-updating" id="installation-and-updating" style="color: inherit; text-decoration: none;">
 					<h2>Installation and Updating</h2>
 				</a>
 				<p>Use this command to install the library for the first time and to keep the library up to date.</p>
-				<pre><code class="language-bash">&gt; npm i --save @open-wa/wa-automate@latest
+				<pre><code class="language-bash"><span style="color: #000000">&gt; npm i --save @open-wa/wa-automate@latest</span>
 </code></pre>
 				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
 					<h2>Usage</h2>
 				</a>
-				<pre><code class="language-javascript"><span class="hljs-comment">// import { create, Client } from &#x27;@open-wa/wa-automate&#x27;;</span>
-<span class="hljs-keyword">const</span> wa = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>);
+				<pre><code class="language-javascript"><span style="color: #008000">// import { create, Client } from &#039;@open-wa/wa-automate&#039;;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">wa</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;@open-wa/wa-automate&#039;</span><span style="color: #000000">);</span>
 
-wa.create().then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
+<span style="color: #001080">wa</span><span style="color: #000000">.</span><span style="color: #795E26">create</span><span style="color: #000000">().</span><span style="color: #795E26">then</span><span style="color: #000000">(</span><span style="color: #001080">client</span><span style="color: #000000"> </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #795E26">start</span><span style="color: #000000">(</span><span style="color: #001080">client</span><span style="color: #000000">));</span>
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client</span>) </span>{
-  client.onMessage(<span class="hljs-keyword">async</span> message =&gt; {
-    <span class="hljs-keyword">if</span> (message.body === <span class="hljs-string">&#x27;Hi&#x27;</span>) {
-      <span class="hljs-keyword">await</span> client.sendText(message.from, <span class="hljs-string">&#x27;👋 Hello!&#x27;</span>);
-    }
-  });
-}
+<span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">start</span><span style="color: #000000">(</span><span style="color: #001080">client</span><span style="color: #000000">) {</span>
+<span style="color: #000000">  </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">onMessage</span><span style="color: #000000">(</span><span style="color: #0000FF">async</span><span style="color: #000000"> </span><span style="color: #001080">message</span><span style="color: #000000"> </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">message</span><span style="color: #000000">.</span><span style="color: #001080">body</span><span style="color: #000000"> === </span><span style="color: #A31515">&#039;Hi&#039;</span><span style="color: #000000">) {</span>
+<span style="color: #000000">      </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">sendText</span><span style="color: #000000">(</span><span style="color: #001080">message</span><span style="color: #000000">.</span><span style="color: #001080">from</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;👋 Hello!&#039;</span><span style="color: #000000">);</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">  });</span>
+<span style="color: #000000">}</span>
 </code></pre>
 				<a href="#custom-setup" id="custom-setup" style="color: inherit; text-decoration: none;">
 					<h2>Custom Setup</h2>
 				</a>
 				<p>Learn more about all possible configuration options here: <a href="https://docs.openwa.dev/interfaces/configobject.html">ConfigObject</a></p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> wa = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;@open-wa/wa-automate&#x27;</span>);
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">wa</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;@open-wa/wa-automate&#039;</span><span style="color: #000000">);</span>
 
-wa.create({
-  <span class="hljs-attr">sessionId</span>: <span class="hljs-string">&quot;COVID_HELPER&quot;</span>,
-  <span class="hljs-attr">authTimeout</span>: <span class="hljs-number">60</span>, <span class="hljs-comment">//wait only 60 seconds to get a connection with the host account device</span>
-  <span class="hljs-attr">blockCrashLogs</span>: <span class="hljs-literal">true</span>,
-  <span class="hljs-attr">disableSpins</span>: <span class="hljs-literal">true</span>,
-  <span class="hljs-attr">headless</span>: <span class="hljs-literal">true</span>,
-  <span class="hljs-attr">hostNotificationLang</span>: <span class="hljs-string">&#x27;PT_BR&#x27;</span>,
-  <span class="hljs-attr">logConsole</span>: <span class="hljs-literal">false</span>,
-  <span class="hljs-attr">popup</span>: <span class="hljs-literal">true</span>,
-  <span class="hljs-attr">qrTimeout</span>: <span class="hljs-number">0</span>, <span class="hljs-comment">//0 means it will wait forever for you to scan the qr code</span>
-}).then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> start(client));
+<span style="color: #001080">wa</span><span style="color: #000000">.</span><span style="color: #795E26">create</span><span style="color: #000000">({</span>
+<span style="color: #000000">  </span><span style="color: #001080">sessionId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;COVID_HELPER&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">authTimeout:</span><span style="color: #000000"> </span><span style="color: #098658">60</span><span style="color: #000000">, </span><span style="color: #008000">//wait only 60 seconds to get a connection with the host account device</span>
+<span style="color: #000000">  </span><span style="color: #001080">blockCrashLogs:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">disableSpins:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">headless:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">hostNotificationLang:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;PT_BR&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">logConsole:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">popup:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">qrTimeout:</span><span style="color: #000000"> </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #008000">//0 means it will wait forever for you to scan the qr code</span>
+<span style="color: #000000">}).</span><span style="color: #795E26">then</span><span style="color: #000000">(</span><span style="color: #001080">client</span><span style="color: #000000"> </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #795E26">start</span><span style="color: #000000">(</span><span style="color: #001080">client</span><span style="color: #000000">));</span>
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">start</span>(<span class="hljs-params">client</span>) </span>{
-  client.onMessage(<span class="hljs-keyword">async</span> message =&gt; {
-    <span class="hljs-keyword">if</span> (message.body === <span class="hljs-string">&#x27;Hi&#x27;</span>) {
-      <span class="hljs-keyword">await</span> client.sendText(message.from, <span class="hljs-string">&#x27;👋 Hello!&#x27;</span>);
-    }
-  });
-}
+<span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">start</span><span style="color: #000000">(</span><span style="color: #001080">client</span><span style="color: #000000">) {</span>
+<span style="color: #000000">  </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">onMessage</span><span style="color: #000000">(</span><span style="color: #0000FF">async</span><span style="color: #000000"> </span><span style="color: #001080">message</span><span style="color: #000000"> </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">message</span><span style="color: #000000">.</span><span style="color: #001080">body</span><span style="color: #000000"> === </span><span style="color: #A31515">&#039;Hi&#039;</span><span style="color: #000000">) {</span>
+<span style="color: #000000">      </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">sendText</span><span style="color: #000000">(</span><span style="color: #001080">message</span><span style="color: #000000">.</span><span style="color: #001080">from</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;👋 Hello!&#039;</span><span style="color: #000000">);</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">  });</span>
+<span style="color: #000000">}</span>
+
 </code></pre>
 				<a href="#after-executing-create-function-open-wawa-automate-will-create-an-instance-of-wa-web-if-you-are-not-logged-in-it-will-print-a-qr-code-in-the-terminal-scan-it-with-your-phone-and-you-are-ready-to-go" id="after-executing-create-function-open-wawa-automate-will-create-an-instance-of-wa-web-if-you-are-not-logged-in-it-will-print-a-qr-code-in-the-terminal-scan-it-with-your-phone-and-you-are-ready-to-go" style="color: inherit; text-decoration: none;">
 					<h6>After executing <code>create()</code> function, <strong>@open-wa/wa-automate</strong> will create an instance of WA web. If you are not logged in, it will print a QR code in the <a href="https://i.imgur.com/g8QvERI.png">terminal</a>. Scan it with your phone and you are ready to go!</h6>
@@ -143,7 +156,7 @@ wa.create({
 					<h2>CLI</h2>
 				</a>
 				<p>Want to convert your WA account to an API instantly? You can now with the CLI. For more details see <a href="https://open-wa.github.io/wa-automate-nodejs/pages/Getting%20Started/quick-run.html">Easy API</a></p>
-				<pre><code class="language-bash">&gt; npx @open-wa/wa-automate --<span class="hljs-built_in">help</span>
+				<pre><code class="language-bash"><span style="color: #000000">&gt; npx @open-wa/wa-automate --help</span>
 </code></pre>
 				<a href="#latest-changes" id="latest-changes" style="color: inherit; text-decoration: none;">
 					<h3>Latest Changes</h3>
@@ -276,12 +289,12 @@ wa.create({
 					<h2>Running the demo</h2>
 				</a>
 				<p>You can clone this repo and run the demo, but you will need to use typescript/ts-node:</p>
-				<pre><code class="language-bash">&gt; git <span class="hljs-built_in">clone</span> https://github.com/open-wa/wa-automate-nodejs.git
-&gt; <span class="hljs-built_in">cd</span> wa-automate-nodejs
-&gt; npm i
-&gt; npm i -g ts-node typescript
-&gt; <span class="hljs-built_in">cd</span> demo
-&gt; ts-node index.ts
+				<pre><code class="language-bash"><span style="color: #000000">&gt; git clone https://github.com/open-wa/wa-automate-nodejs.git</span>
+<span style="color: #000000">&gt; </span><span style="color: #795E26">cd</span><span style="color: #000000"> wa-automate-nodejs</span>
+<span style="color: #000000">&gt; npm i</span>
+<span style="color: #000000">&gt; npm i -g ts-node typescript</span>
+<span style="color: #000000">&gt; </span><span style="color: #795E26">cd</span><span style="color: #000000"> demo</span>
+<span style="color: #000000">&gt; ts-node index.ts</span>
 </code></pre>
 				<a href="#contributing" id="contributing" style="color: inherit; text-decoration: none;">
 					<h2>Contributing</h2>
@@ -408,70 +421,64 @@ wa.create({
 					<li class="label pp-nav pp-group">
 						<span>API</span>
 					</li>
-					<li class="globals  ">
-						<a href="globals.html"><em>Globals</em></a>
+					<li class=" ">
+						<a href="modules.html">Modules</a>
 					</li>
-					<li class=" tsd-kind-namespace">
-						<a href="modules/wapi.html">WAPI</a>
+					<li class=" tsd-kind-module">
+						<a href="modules/api_client.html">api/<wbr>Client</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/api_functions_exposed_enum.html">api/functions/exposed.enum</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/api_model.html">api/model</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/api_model_aliases.html">api/model/aliases</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/api_model_call.html">api/model/call</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/api_model_chat.html">api/model/chat</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/api_model_config.html">api/model/config</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/api_model_contact.html">api/model/contact</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/api_model_errors.html">api/model/errors</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/api_model_group_metadata.html">api/model/group-<wbr>metadata</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/api_model_id.html">api/model/id</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/api_model_media.html">api/model/media</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/api_model_message.html">api/model/message</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/api_model_product.html">api/model/product</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/api_model_sessioninfo.html">api/model/session<wbr>Info</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/controllers_events.html">controllers/events</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/controllers_initializer.html">controllers/initializer</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-enum">
-						<a href="enums/chatmuteduration.html" class="tsd-kind-icon">Chat<wbr>Mute<wbr>Duration</a>
-					</li>
-					<li class=" tsd-kind-enum">
-						<a href="enums/error_name.html" class="tsd-kind-icon">ERROR_<wbr>NAME</a>
-					</li>
-					<li class=" tsd-kind-enum">
-						<a href="enums/simplelistener.html" class="tsd-kind-icon">Simple<wbr>Listener</a>
-					</li>
-					<li class=" tsd-kind-enum">
-						<a href="enums/namespace.html" class="tsd-kind-icon">namespace</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="classes/client.html" class="tsd-kind-icon">Client</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="classes/customerror.html" class="tsd-kind-icon">Custom<wbr>Error</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/call.html" class="tsd-kind-icon">Call</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/chat.html" class="tsd-kind-icon">Chat</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/configobject.html" class="tsd-kind-icon">Config<wbr>Object</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/contact.html" class="tsd-kind-icon">Contact</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/groupmetadata.html" class="tsd-kind-icon">Group<wbr>Metadata</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/id.html" class="tsd-kind-icon">Id</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/livelocationchangedevent.html" class="tsd-kind-icon">Live<wbr>Location<wbr>Changed<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/message.html" class="tsd-kind-icon">Message</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/participantchangedeventmodel.html" class="tsd-kind-icon">Participant<wbr>Changed<wbr>Event<wbr>Model</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/sessiondata.html" class="tsd-kind-icon">Session<wbr>Data</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/sessioninfo.html" class="tsd-kind-icon">Session<wbr>Info</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="globals.html#create" class="tsd-kind-icon">create</a>
-					</li>
 				</ul>
 			</nav>
 		</div>
@@ -482,18 +489,18 @@ wa.create({
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
 			</ul>
 		</div>
 	</div>

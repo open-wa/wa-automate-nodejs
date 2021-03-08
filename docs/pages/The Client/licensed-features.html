@@ -3,11 +3,19 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Licensed Features | @open-wa/wa-automate - v3.9.0</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.9.0">
+	<title>Licensed Features | @open-wa/wa-automate - v3.9.1</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.9.1">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../assets/css/main.css">
 	<link rel="stylesheet" href="../../assets/css/pages.css">
+	<script>
+		(function (w,d,s,o,f,js,fjs) {
+			w['Otechie-Widget']=o;w[o] = w[o] || function () { (w[o].q = w[o].q || []).push(arguments) };
+			js = d.createElement(s), fjs = d.getElementsByTagName(s)[0];
+			js.id = o; js.src = f; js.async = 1; fjs.parentNode.insertBefore(js, fjs);
+		}(window, document, 'script', 'ow', 'https://widget.otechie.com/widget.js'));
+		ow('init', { username: 'smashah' });
+	</script>
 </head>
 <body>
 <header>
@@ -23,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../../index.html" class="title">@open-wa/wa-automate - v3.9.0</a>
+					<a href="../../index.html" class="title">@open-wa/wa-automate - v3.9.1</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -39,6 +47,10 @@
 							</div>
 							<input type="checkbox" id="tsd-filter-inherited" checked />
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
 						</div>
 					</div>
 					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
@@ -50,7 +62,7 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="../../globals.html">Globals</a>
+					<a href="../../modules.html">Globals</a>
 				</li>
 				<li>
 					<a href="the-client.html">The Client</a>
@@ -85,63 +97,63 @@
 						</tr>
 					</thead>
 					<tbody><tr>
-							<td><a href="../../classes/client.html#setgrouptoadminsonly">setGroupToAdminsOnly</a></td>
+							<td><a href="../../classes/api_client.client.html#setgrouptoadminsonly">setGroupToAdminsOnly</a></td>
 							<td>Changes group setting so only admins can send messages</td>
 						</tr>
 						<tr>
-							<td><a href="../../classes/client.html#setgroupedittoadminsonly">setGroupEditToAdminsOnly</a></td>
+							<td><a href="../../classes/api_client.client.html#setgroupedittoadminsonly">setGroupEditToAdminsOnly</a></td>
 							<td>Changes group setting so only admins can edit group info</td>
 						</tr>
 						<tr>
-							<td><a href="../../classes/client.html#setgrouptitle">setGroupTitle</a></td>
+							<td><a href="../../classes/api_client.client.html#setgrouptitle">setGroupTitle</a></td>
 							<td>Changes the group title</td>
 						</tr>
 						<tr>
-							<td><a href="../../classes/client.html#setgroupdescription">setGroupDescription</a></td>
+							<td><a href="../../classes/api_client.client.html#setgroupdescription">setGroupDescription</a></td>
 							<td>Changes the group description</td>
 						</tr>
 						<tr>
-							<td><a href="../../classes/client.html#setprofilepic">setProfilePic</a></td>
+							<td><a href="../../classes/api_client.client.html#setprofilepic">setProfilePic</a></td>
 							<td>Change the host phones profile picture</td>
 						</tr>
 						<tr>
-							<td><a href="../../classes/client.html#onremovedfromgroup">onRemovedFromGroup</a></td>
+							<td><a href="../../classes/api_client.client.html#onremovedfromgroup">onRemovedFromGroup</a></td>
 							<td>Detect when host phone is removed from a group</td>
 						</tr>
 						<tr>
-							<td><a href="../../classes/client.html#oncontactadded">onContactAdded</a></td>
+							<td><a href="../../classes/api_client.client.html#oncontactadded">onContactAdded</a></td>
 							<td>Detect when host phone adds a new contact</td>
 						</tr>
 						<tr>
-							<td><a href="../../classes/client.html#getcommongroups">getCommonGroups</a></td>
+							<td><a href="../../classes/api_client.client.html#getcommongroups">getCommonGroups</a></td>
 							<td>Retreive all common groups between the host device and a conttact</td>
 						</tr>
 						<tr>
-							<td><a href="../../classes/client.html#clearallchats">clearAllChats</a></td>
+							<td><a href="../../classes/api_client.client.html#clearallchats">clearAllChats</a></td>
 							<td>Easily clear memory by clearing all chats of all messages on the host device and WA Web</td>
 						</tr>
 						<tr>
-							<td><a href="../../classes/client.html#sendreplywithmentions">sendReplyWithMentions</a></td>
+							<td><a href="../../classes/api_client.client.html#sendreplywithmentions">sendReplyWithMentions</a></td>
 							<td>Send a reply to a message with mentions</td>
 						</tr>
 						<tr>
-							<td><a href="../../classes/client.html#onchatopened">onChatOpened</a></td>
+							<td><a href="../../classes/api_client.client.html#onchatopened">onChatOpened</a></td>
 							<td>Detect when a chat is selected in the UI</td>
 						</tr>
 						<tr>
-							<td><a href="../../classes/client.html#onchatstate">onChatState</a></td>
+							<td><a href="../../classes/api_client.client.html#onchatstate">onChatState</a></td>
 							<td>Detect when someone is typing or recording a voicenote</td>
 						</tr>
 						<tr>
-							<td><a href="../../classes/client.html#getstickerdecryptable">getStickerDecryptable</a></td>
+							<td><a href="../../classes/api_client.client.html#getstickerdecryptable">getStickerDecryptable</a></td>
 							<td>Convert a normal sticker message (results in blank image) to one that is able to grab and decrypt the actual sticker</td>
 						</tr>
 						<tr>
-							<td><a href="../../classes/client.html#forcestalemediaupdate">forceStaleMediaUpdate</a></td>
+							<td><a href="../../classes/api_client.client.html#forcestalemediaupdate">forceStaleMediaUpdate</a></td>
 							<td>If a media message is old, the file url will result in a <code>404</code> error. forceStaleMediaUpdate forces the mobile app to reupload the file.</td>
 						</tr>
 						<tr>
-							<td><a href="../../classes/client.html#tageveryone">tagEveryone</a></td>
+							<td><a href="../../classes/api_client.client.html#tageveryone">tagEveryone</a></td>
 							<td>Send a group message with everyone tagged.</td>
 						</tr>
 				</tbody></table>
@@ -174,29 +186,28 @@
 					</li>
 					<li><p>Click on the type of license you require.</p>
 					</li>
-					<li><p>In the checkout, <strong><em>enter the host account number you want to assign to the License Key (the one you will be using with open-wa, not your personal number)</em></strong> , along with the use case for this functionality and your github username. Please note, with this new system you&#39;ll only be able to change the number once.</p>
+					<li><p>In the checkout, <em><strong>enter the host account number you want to assign to the License Key (the one you will be using with open-wa, not your personal number)</strong></em> , along with the use case for this functionality and your github username. Please note, with this new system you&#39;ll only be able to change the number once.</p>
 					</li>
 					<li><p>Complete the checkout process.</p>
 					</li>
 					<li><p>You will instantly receive your License key on the screen and in your email.</p>
 						<div align="center">
 							<img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/membership.png"/>
-						</div>
-					</li>
+					</div></li>
 					<li><p>Add licenseKey to your config:</p>
 					</li>
 				</ol>
-				<pre><code class="language-javascript">...
-create({
-  <span class="hljs-attr">licenseKey</span>: <span class="hljs-string">&quot;...&quot;</span>
-})
+				<pre><code class="language-javascript"><span style="color: #000000">...</span>
+<span style="color: #795E26">create</span><span style="color: #000000">({</span>
+<span style="color: #000000">  </span><span style="color: #001080">licenseKey:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;...&quot;</span>
+<span style="color: #000000">})</span>
 
-<span class="hljs-comment">//or for multiple license keys to stack features.</span>
+<span style="color: #008000">//or for multiple license keys to stack features.</span>
 
-create({
-  <span class="hljs-attr">licenseKey</span>: [<span class="hljs-string">&quot;...&quot;</span>,<span class="hljs-string">&quot;...&quot;</span>]
-})
-...
+<span style="color: #795E26">create</span><span style="color: #000000">({</span>
+<span style="color: #000000">  </span><span style="color: #001080">licenseKey:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;...&quot;</span><span style="color: #000000">,</span><span style="color: #A31515">&quot;...&quot;</span><span style="color: #000000">]</span>
+<span style="color: #000000">})</span>
+<span style="color: #000000">...</span>
 </code></pre>
 				<a href="#keys" id="keys" style="color: inherit; text-decoration: none;">
 					<h2>Keys</h2>
@@ -245,8 +256,8 @@ create({
 					<h2>Troubleshooting</h2>
 				</a>
 				<p>If the license key is showing up as invalid, there may be an issue with your host account number you entered in the checkout form. In some countries, the host account number is different from the actual number (for example in Brazil, an extra 9 is added). If you&#39;re unsure about your host account number then use the following code:</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> hostAccountNumber = <span class="hljs-keyword">await</span> client.getHostNumber();
-<span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;Host account&#x27;</span>, hostAccountNumber);
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">hostAccountNumber</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">getHostNumber</span><span style="color: #000000">();</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Host account&#039;</span><span style="color: #000000">, </span><span style="color: #001080">hostAccountNumber</span><span style="color: #000000">);</span>
 </code></pre>
 				<p>If it&#39;s different from what you&#39;ve entered in the checkout form, <a href="mailto:shah@openwa.dev?subject=OPENWA%3A%20WRONG%20HOST%20ACC%20NUMBER&amp;body=email%20used%20to%20buy%20key%3A%0D%0Alicense%20key%3A%0D%0Acorrect%20host%20account%20number%3A%0D%0A">please fill and send this email.</a></p>
 				<p>If you are having issues where your license key shows as valid in the console, but the features continually return <code>false</code> this may be due to a NodeJS issue relating to the time on your machine. To fix this, make sure your machine&#39;s time is correct.</p>
@@ -351,11 +362,59 @@ create({
 					<li class="label pp-nav pp-group">
 						<span>API</span>
 					</li>
-					<li class="globals  ">
-						<a href="../../globals.html"><em>Globals</em></a>
+					<li class=" ">
+						<a href="../../modules.html">Modules</a>
 					</li>
-					<li class=" tsd-kind-namespace">
-						<a href="../../modules/wapi.html">WAPI</a>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_client.html">api/<wbr>Client</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_functions_exposed_enum.html">api/functions/exposed.enum</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model.html">api/model</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_aliases.html">api/model/aliases</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_call.html">api/model/call</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_chat.html">api/model/chat</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_config.html">api/model/config</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_contact.html">api/model/contact</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_errors.html">api/model/errors</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_group_metadata.html">api/model/group-<wbr>metadata</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_id.html">api/model/id</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_media.html">api/model/media</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_message.html">api/model/message</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_product.html">api/model/product</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/api_model_sessioninfo.html">api/model/session<wbr>Info</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/controllers_events.html">controllers/events</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../../modules/controllers_initializer.html">controllers/initializer</a>
 					</li>
 				</ul>
 			</nav>
@@ -371,18 +430,18 @@ create({
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
 			</ul>
 		</div>
 	</div>
