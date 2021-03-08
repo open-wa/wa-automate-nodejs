@@ -2659,11 +2659,26 @@ public async getStatus(contactId: ContactId) {
    * 
    * 
    * @param to  The recipient id.
-   * @param image  This is the base64 string formatted with data URI. You can also send a plain base64 string but it may result in an error as the function will not be able to determine the filetype before sending.
+   * @param image: [[DataURL]], [[Base64]], URL (string GET), Relative filepath (string), or Buffer of the image
    * @param messageId  The id of the message to reply to
+   * @param stickerMetadata  Sticker metadata
    */
-  public async sendImageAsStickerAsReply(to: ChatId, image: DataURL, messageId: MessageId, stickerMetadata ?: StickerMetadata){
-    let processingResponse = await this.prepareWebp(image, stickerMetadata);
+  public async sendImageAsStickerAsReply(to: ChatId, image: DataURL | Buffer | Base64 | string, messageId: MessageId, stickerMetadata ?: StickerMetadata){
+    //@ts-ignore
+    if((Buffer.isBuffer(image)  || typeof image === 'object' || image?.type === 'Buffer') && image.toString) {image = image.toString('base64')} else if(typeof image === 'string') {
+      if(!isDataURL(image) && !isBase64(image)) {
+        //must be a file then
+        if(isUrl(image)){
+          image = await getDUrl(image)
+        } else {
+          let relativePath = path.join(path.resolve(process.cwd(),image|| ''));
+          if(fs.existsSync(image) || fs.existsSync(relativePath)) {
+            image = await datauri(fs.existsSync(image)  ? image : relativePath);
+          } else return 'FILE_NOT_FOUND';
+        } 
+      }
+      }
+    let processingResponse = await this.prepareWebp(image as string, stickerMetadata);
     if(!processingResponse) return false;
     let {webpBase64, metadata} = processingResponse;
       return await this.pup(
