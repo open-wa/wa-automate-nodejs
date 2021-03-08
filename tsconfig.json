@@ -19,7 +19,6 @@
     // "importHelpers": true,                 /* Import emit helpers from 'tslib'. */
     // "downlevelIteration": true,            /* Provide full support for iterables in 'for-of', spread, and destructuring when targeting 'ES5' or 'ES3'. */
     // "isolatedModules": true,               /* Transpile each file as a separate module (similar to 'ts.transpileModule'). */
-
     /* Strict Type-Checking Options */
     // "strict": true,                        /* Enable all strict type-checking options. */
     // "noImplicitAny": true,                 /* Raise error on expressions and declarations with an implied 'any' type. */
@@ -28,13 +27,11 @@
     // "strictPropertyInitialization": true,  /* Enable strict checking of property initialization in classes. */
     // "noImplicitThis": true,                /* Raise error on 'this' expressions with an implied 'any' type. */
     // "alwaysStrict": true,                  /* Parse in strict mode and emit "use strict" for each source file. */
-
     /* Additional Checks */
     // "noUnusedLocals": true,                /* Report errors on unused locals. */
     // "noUnusedParameters": true,            /* Report errors on unused parameters. */
     // "noImplicitReturns": true,             /* Report error when not all code paths in function return a value. */
     // "noFallthroughCasesInSwitch": true,    /* Report errors for fallthrough cases in switch statement. */
-
     /* Module Resolution Options */
     // "moduleResolution": "node",            /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
     // "baseUrl": "./",                       /* Base directory to resolve non-absolute module names. */
@@ -45,199 +42,205 @@
     "allowSyntheticDefaultImports": true /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */,
     "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
     // "preserveSymlinks": true,              /* Do not resolve the real path of symlinks. */
-
     /* Source Map Options */
     // "sourceRoot": "",                      /* Specify the location where debugger should locate TypeScript files instead of source locations. */
     // "mapRoot": "",                         /* Specify the location where debugger should locate map files instead of generated locations. */
     // "inlineSourceMap": true,               /* Emit a single file with source maps instead of having a separate file. */
     // "inlineSources": true,                 /* Emit the source alongside the sourcemaps within a single file; requires '--inlineSourceMap' or '--sourceMap' to be set. */
-
     /* Experimental Options */
     // "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
   },
-  "include": ["src/**/*"],
-    "typedocOptions": {
-      "inputFiles": ["./src/api","./src/utils","./src/controllers"],
-      "includes":["./node_modules/puppeteer/lib"],
-      "pages": {
-        "groups": [
-          {
-              "title": "Getting Started",
-              "pages": [
+  "include": [
+    "src/**/*"
+  ],
+  "typedocOptions": {
+    "entryPoints": [
+      "./src/api",
+      "./src/utils",
+      "./src/controllers"
+    ],
+    "pages": {
+      "groups": [
+        {
+          "title": "Getting Started",
+          "pages": [
+            {
+              "title": "Installation",
+              "source": "./docs-source/getting-started/installation.md"
+            },
+            {
+              "title": "Easy API",
+              "source": "./docs-source/getting-started/quick-run.md"
+            },
+            {
+              "title": "Docker",
+              "source": "./docs-source/getting-started/docker.md"
+            }
+          ]
+        },
+        {
+          "title": "The Client",
+          "pages": [
+            {
+              "title": "Creating a Client",
+              "source": "./docs-source/configuration/the-client.md",
+              "children": [
                 {
-                    "title": "Installation",
-                    "source": "./docs-source/getting-started/installation.md"
-                },
-                {
-                    "title": "Easy API",
-                    "source": "./docs-source/getting-started/quick-run.md"
-                },
-                {
-                    "title": "Docker",
-                    "source": "./docs-source/getting-started/docker.md"
+                  "title": "Multiple Sessions",
+                  "source": "./docs-source/configuration/multiple-sessions.md"
                 }
               ]
-          },
-          {
-              "title": "The Client",
-              "pages": [
+            },
+            {
+              "title": "The Config Object",
+              "source": "./docs-source/configuration/config-object.md"
+            },
+            {
+              "title": "Launch Events",
+              "source": "./docs-source/configuration/launch-events.md",
+              "children": [
                 {
-                    "title": "Creating a Client",
-                    "source": "./docs-source/configuration/the-client.md",
-                    "children": [
-                      {
-                          "title": "Multiple Sessions",
-                          "source": "./docs-source/configuration/multiple-sessions.md"
-                      }
-                  ]
+                  "title": "Capturing QR Code",
+                  "source": "./docs-source/configuration/capture-qr.md"
                 },
                 {
-                    "title": "The Config Object",
-                    "source": "./docs-source/configuration/config-object.md"
-                },
-                {
-                    "title": "Launch Events",
-                    "source": "./docs-source/configuration/launch-events.md",
-                    "children": [
-                      {
-                          "title": "Capturing QR Code",
-                          "source": "./docs-source/configuration/capture-qr.md"
-                      },
-                      {
-                          "title": "Capturing Session Data",
-                          "source": "./docs-source/configuration/capture-sd.md"
-                      }
-                  ]
-                },
-                {
-                    "title": "Licensed Features",
-                    "source": "./docs-source/configuration/licensed-features.md"
-                },
-              ]
-          },
-          {
-              "title": "How to",
-              "pages": [
-                {
-                    "title": "Send Messages",
-                    "source": "./docs-source/how-to/send-messages.md"
-                },
-                {
-                    "title": "Receive Messages",
-                    "source": "./docs-source/how-to/receive-messages.md"
-                },
-                {
-                    "title": "Send Files",
-                    "source": "./docs-source/how-to/send-files.md",
-                    "children":[
-                      {
-                        "title": "Send Videos",
-                        "source": "./docs-source/how-to/send-videos.md",
-                    },
-                    ]
-                },
-                {
-                    "title": "Sending & Receiving Location",
-                    "source": "./docs-source/how-to/location.md"
-                },
-                {
-                    "title": "Groups",
-                    "source": "./docs-source/how-to/groups.md",
-                    "children":[
-                      {
-                        "title": "Manage Participants",
-                        "source": "./docs-source/how-to/manage-participants.md",
-                    },
-                    ]
-                },
-                {
-                    "title": "React to group events",
-                    "source": "./docs-source/how-to/react-to-group-events.md"
-                },
-                {
-                    "title": "Detect a logout",
-                    "source": "./docs-source/how-to/detect-logout.md"
-                },
-                {
-                    "title": "Handle Errors",
-                    "source": "./docs-source/how-to/handle-errors.md"
-                },
-                {
-                    "title": "Decrypt Media",
-                    "source": "./docs-source/how-to/decrypt-media.md"
-                },
-                {
-                    "title": "Detect Incoming Calls",
-                    "source": "./docs-source/how-to/incoming-calls.md"
-                },
-                {
-                    "title": "Use a proxy",
-                    "source": "./docs-source/how-to/use-a-proxy.md"
-                },
-                {
-                    "title": "More Examples",
-                    "source": "./docs-source/how-to/misc.md"
-                },
-              ]
-          },
-          {
-              "title": "Advanced",
-              "pages": [
-                {
-                  "title": "Best Practices",
-                  "source": "./docs-source/advanced/best-practices.md"
+                  "title": "Capturing Session Data",
+                  "source": "./docs-source/configuration/capture-sd.md"
                 }
-                            ]
-          }
-        ],
-        "output": "pages"
+              ]
+            },
+            {
+              "title": "Licensed Features",
+              "source": "./docs-source/configuration/licensed-features.md"
+            },
+          ]
+        },
+        {
+          "title": "How to",
+          "pages": [
+            {
+              "title": "Send Messages",
+              "source": "./docs-source/how-to/send-messages.md"
+            },
+            {
+              "title": "Receive Messages",
+              "source": "./docs-source/how-to/receive-messages.md"
+            },
+            {
+              "title": "Send Files",
+              "source": "./docs-source/how-to/send-files.md",
+              "children": [
+                {
+                  "title": "Send Videos",
+                  "source": "./docs-source/how-to/send-videos.md",
+                },
+              ]
+            },
+            {
+              "title": "Sending & Receiving Location",
+              "source": "./docs-source/how-to/location.md"
+            },
+            {
+              "title": "Groups",
+              "source": "./docs-source/how-to/groups.md",
+              "children": [
+                {
+                  "title": "Manage Participants",
+                  "source": "./docs-source/how-to/manage-participants.md",
+                },
+              ]
+            },
+            {
+              "title": "React to group events",
+              "source": "./docs-source/how-to/react-to-group-events.md"
+            },
+            {
+              "title": "Detect a logout",
+              "source": "./docs-source/how-to/detect-logout.md"
+            },
+            {
+              "title": "Handle Errors",
+              "source": "./docs-source/how-to/handle-errors.md"
+            },
+            {
+              "title": "Decrypt Media",
+              "source": "./docs-source/how-to/decrypt-media.md"
+            },
+            {
+              "title": "Detect Incoming Calls",
+              "source": "./docs-source/how-to/incoming-calls.md"
+            },
+            {
+              "title": "Use a proxy",
+              "source": "./docs-source/how-to/use-a-proxy.md"
+            },
+            {
+              "title": "More Examples",
+              "source": "./docs-source/how-to/misc.md"
+            },
+          ]
+        },
+        {
+          "title": "Advanced",
+          "pages": [
+            {
+              "title": "Best Practices",
+              "source": "./docs-source/advanced/best-practices.md"
+            }
+          ]
+        }
+      ],
+      "output": "pages"
     },
-        "mode": "file",
-        "out": "docs",
-        "exclude":[
-          "**.config",
-          "**/**ignore**",
-          "**/**browser.ts",
-          "**/popup/**",
-          "**/utils/**",
-          "**/**auth**",
-          "**/**launch_checks**",
-          "**/**preload**",
-        ],
-        "excludeExternals":true,
-        "includeVersion":true,
-        "stripInternal": true,
-        "excludeNotExported": "true",
-        "hideGenerator":true,
-        "readme":"./README.md",
-        "theme": "pages-plugin",
-        // "theme":"node_modules/typedoc-neo-theme/bin/default",
-        "excludePrivate":true,
-        "toc": [
-          "Client",
-          "Chat",
-          "Call",
-          "Contact",
-          "GroupMetadata",
-          "Id",
-          "LiveLocationChangedEvent",
-          "Message",
-          "ParticipantChangedEventModel",
-          "decryptMedia",
-          "smartUserAgent",
-          "WAPI",
-          "Page",
-          "ConfigObject",
-          "SessionData",
-          "create",
-          "namespace",
-          "SimpleListener",
-          "SessionInfo",
-          "ChatMuteDuration",
-          "ERROR_NAME",
-          "Webhook",
-          "CustomError"
-        ]
-    }
+    // "mode": "file",
+    "out": "docs",
+    "exclude": [
+      "**.config",
+      "**/**ignore**",
+      "**/**browser.ts",
+      "**/popup/**",
+      "**/utils/**",
+      "**/**auth**",
+      "**/**launch_checks**",
+      "**/**preload**",
+    ],
+    "excludeExternals": false,
+    "includeVersion": true,
+    "excludeInternal": true,
+    "disableSources": true,
+    "excludeTags": true,
+    "categorizeByGroup": true,
+    "hideGenerator": true,
+    "defaultCategory": "api",
+    "readme": "./README.md",
+    "theme": "pages-plugin",
+    "excludePrivate": true,
+    "toc": [
+      "Client",
+      "Chat",
+      "Call",
+      "Contact",
+      "GroupMetadata",
+      "Id",
+      "LiveLocationChangedEvent",
+      "Message",
+      "ParticipantChangedEventModel",
+      "decryptMedia",
+      "smartUserAgent",
+      "WAPI",
+      "Page",
+      "ConfigObject",
+      "SessionData",
+      "create",
+      "namespace",
+      "SimpleListener",
+      "SessionInfo",
+      "ChatMuteDuration",
+      "ERROR_NAME",
+      "Webhook",
+      "CustomError",
+      "MessageId"
+    ]
+  }
 }

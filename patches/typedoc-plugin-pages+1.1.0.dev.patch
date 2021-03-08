@@ -1,0 +1,27 @@
+diff --git a/node_modules/typedoc-plugin-pages/dist/plugin/rendering/navigation-renderer.js b/node_modules/typedoc-plugin-pages/dist/plugin/rendering/navigation-renderer.js
+index afb2a52..611c770 100644
+--- a/node_modules/typedoc-plugin-pages/dist/plugin/rendering/navigation-renderer.js
++++ b/node_modules/typedoc-plugin-pages/dist/plugin/rendering/navigation-renderer.js
+@@ -110,7 +110,8 @@ class NavigationRenderer {
+     _removeGlobalsNavigationItem(event) {
+         if (this._options.replaceGlobalsPage) {
+             for (let i = 0; i < event.navigation.children.length; i++) {
+-                if (event.navigation.children[i].isGlobals) {
++                let children = event.navigation.children[i];
++				if (children.isGlobals || children.isModules) {
+                     event.navigation.children.splice(i, 1);
+                 }
+             }
+diff --git a/node_modules/typedoc-plugin-pages/dist/plugin/rendering/page-renderer.js b/node_modules/typedoc-plugin-pages/dist/plugin/rendering/page-renderer.js
+index c8d7d54..e7b5115 100644
+--- a/node_modules/typedoc-plugin-pages/dist/plugin/rendering/page-renderer.js
++++ b/node_modules/typedoc-plugin-pages/dist/plugin/rendering/page-renderer.js
+@@ -53,7 +53,7 @@ class PageRenderer {
+         ];
+     }
+     _getGlobalsUrlMapping(event) {
+-        return event.urls.filter((mapping) => mapping.url === "globals.html")[0];
++        return event.urls.filter((mapping) => mapping.url === "globals.html" || mapping.url==="modules.html")[0];
+     }
+     /**
+      * Gets an existing UrlMapping to use as a template when building the plugin mappings
