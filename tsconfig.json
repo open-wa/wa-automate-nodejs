@@ -236,6 +236,7 @@
           "SessionInfo",
           "ChatMuteDuration",
           "ERROR_NAME",
+          "Webhook",
           "CustomError"
         ]
     }
