@@ -58,9 +58,9 @@
     fastq "^1.6.0"
 
 "@open-wa/wa-automate@latest":
-  version "3.9.0"
-  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-3.9.0.tgz#6334fe62b0d22d6d50b198a1c698bb9916c48daf"
-  integrity sha512-RWkbNkdTpl+5QggennWuob6WiNrNIPRpSOz95WaBPsX4Ft8jCJWMzJubLrPO4hqOZ7wmO4U/51HekYV/nca0ww==
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-3.9.1.tgz#c692785f313ff1da9a327d8433488e4387dfaff9"
+  integrity sha512-b1mfIde6onCT1vru5fVG1ifAGbBkrzsM/V/3tpaXWcUFYgoqegqyqX0xMWvTY//lNLR7GkH1VdlSlKBZMocAQg==
   dependencies:
     "@open-wa/wa-decrypt" "^3.0.1"
     "@types/sharp" "^0.27.1"
