@@ -10,4 +10,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ahmadnassri/action-dependabot-auto-merge@v2
         with:
+          config: .github/auto-merge.yml
+          command: merge
+          approve: true
+          target: patch
           github-token: ${{ secrets.API_TOKEN_GITHUB }}
