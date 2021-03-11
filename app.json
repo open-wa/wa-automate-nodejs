@@ -37,7 +37,7 @@
     "WA_KEEP_UPDATED": {
       "description": "When true, this will make sure your wa-automate version is updated if it is out of date without the need to redeploy the whole app.",
       "required": false,
-      "value":"true"
+      "value":"false"
     },
     "WA_EV": {
       "description": "Send Launch log events over the webhook also. You need to set WA_WEBHOOK in order to use this.",
