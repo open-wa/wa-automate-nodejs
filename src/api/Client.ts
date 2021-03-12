@@ -307,7 +307,8 @@ declare module WAPI {
     quotedMsgId?: string,
     waitForId?: boolean,
     ptt?: boolean,
-    withoutPreview?: boolean
+    withoutPreview?: boolean,
+    hideTags?: boolean
   ) => Promise<string>;
   const sendMessageWithThumb: (
     thumb: string,
@@ -1224,6 +1225,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param filename string xxxxx
    * @param caption string xxxxx
    * @param waitForKey boolean default: false set this to true if you want to wait for the id of the message. By default this is set to false as it will take a few seconds to retrieve to the key of the message and this waiting may not be desirable for the majority of users.
+   * @param hideTags boolean default: false [INSIDERS] set this to try silent tag someone in the caption
    * @returns Promise <boolean | string> This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
    */
   public async sendImage(
@@ -1234,7 +1236,8 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     quotedMsgId?: MessageId,
     waitForId?: boolean,
     ptt?:boolean,
-    withoutPreview?:boolean
+    withoutPreview?:boolean,
+    hideTags ?: boolean
   ) {
       //check if the 'base64' file exists
       if(!isDataURL(file) && !isBase64(file)) {
@@ -1243,7 +1246,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
         if(fs.existsSync(file) || fs.existsSync(relativePath)) {
           file = await datauri(fs.existsSync(file)  ? file : relativePath);
         } else if(isUrl(file)){
-          return await this.sendFileFromUrl(to,file,filename,caption,quotedMsgId,{},waitForId,ptt,withoutPreview);
+          return await this.sendFileFromUrl(to,file,filename,caption,quotedMsgId,{},waitForId,ptt,withoutPreview, hideTags);
         } else throw new CustomError(ERROR_NAME.FILE_NOT_FOUND,'Cannot find file. Make sure the file reference is relative, a valid URL or a valid DataURL')
       }
     
@@ -1255,8 +1258,8 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    ];
 
     let res = await this.pup(
-      ({ to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview}) =>  WAPI.sendImage(file, to, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview),
-      { to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview}
+      ({ to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags}) =>  WAPI.sendImage(file, to, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags),
+      { to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags}
     )
     if(err.includes(res)) console.error(res);
     return (err.includes(res) ? false : res)  as MessageId | boolean;
@@ -1301,14 +1304,14 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param content string reply text
    * @param quotedMsgId string the msg id to reply to.
    * @param sendSeen boolean If set to true, the chat will 'blue tick' all messages before sending the reply
-   * @returns Promise<string | boolean> false if didn't work, otherwise returns message id.
+   * @returns Promise<MessageId | false> false if didn't work, otherwise returns message id.
    */
   public async reply(to: ChatId, content: Content, quotedMsgId: MessageId, sendSeen?: boolean) {
     if(sendSeen) await this.sendSeen(to);
     return await this.pup(
       ({ to, content, quotedMsgId }) =>WAPI.reply(to, content, quotedMsgId),
       { to, content, quotedMsgId }
-    ) as Promise<string | boolean>;
+    ) as Promise<MessageId | false>;
   }
 
   /**
@@ -1339,7 +1342,8 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param waitForId boolean default: false set this to true if you want to wait for the id of the message. By default this is set to false as it will take a few seconds to retrieve to the key of the message and this waiting may not be desirable for the majority of users.
    * @param ptt boolean default: false set this to true if you want to send the file as a push to talk file.
    * @param withoutPreview boolean default: false set this to true if you want to send the file without a preview (i.e as a file). This is useful for preventing auto downloads on recipient devices.
-   * @returns Promise <boolean | string> This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
+   * @param hideTags boolean default: false [INSIDERS] set this to try silent tag someone in the caption
+   * @returns Promise <boolean | MessageId> This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
    */
   public async sendFile(
     to: ChatId,
@@ -1349,9 +1353,10 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     quotedMsgId?: MessageId,
     waitForId?: boolean,
     ptt?:boolean,
-    withoutPreview?:boolean
+    withoutPreview?:boolean,
+    hideTags ?: boolean
   ) {
-    return this.sendImage(to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview);
+    return this.sendImage(to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags);
   }
 
   /**
@@ -1486,11 +1491,12 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     requestConfig: AxiosRequestConfig = {},
     waitForId?: boolean,
     ptt?:boolean,
-    withoutPreview?:boolean
+    withoutPreview?:boolean,
+    hideTags ?: boolean
   ) {
     try {
      const base64 = await getDUrl(url, requestConfig);
-      return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId,ptt,withoutPreview)
+      return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId,ptt,withoutPreview, hideTags)
     } catch(error) {
       console.log('Something went wrong', error);
       throw error;
@@ -2710,6 +2716,8 @@ public async getStatus(contactId: ContactId) {
   private async stickerServerRequest(func: string, a : any = {}, fallback : boolean = false){
     if(!this._createConfig.stickerServerEndpoint) return false;
     if(func === 'convertMp4BufferToWebpDataUrl') fallback = true;
+    const sessionInfo = this.getSessionInfo()
+    sessionInfo.WA_AUTOMATE_VERSION = sessionInfo.WA_AUTOMATE_VERSION.split(' ')[0]
     if(a.file || a.image) {
       //check if its a local file:
       const key = a.file ? 'file' : 'image';
@@ -2726,7 +2734,7 @@ public async getStatus(contactId: ContactId) {
       try {
         const {data} = await axios.post(`${(fallback ?  pkg.stickerUrl : 'https://open-wa-sticker-api.herokuapp.com'  )|| this._createConfig.stickerServerEndpoint}/${func}`, {
           ...a,
-        sessionInfo: this.getSessionInfo(),
+        sessionInfo,
         config: this.getConfig()
       },{
         maxBodyLength: 20000000,
