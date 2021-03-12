@@ -59,7 +59,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       updateCheckInterval: 0
     });
     notifier.notify();
-    if(notifier?.update && config?.keepUpdated) {
+    if(notifier?.update && config?.keepUpdated && notifier?.update.latest !== pkg.version) {
       console.log('UPDATING @OPEN-WA')
       const result = require('cross-spawn').spawn.sync('npm', ['i', '@open-wa/wa-automate'], { stdio: 'inherit' });
       if(!result.stderr) {
