@@ -62,6 +62,7 @@ export async function smartQr(waPage: puppeteer.Page, config?: ConfigObject) {
     const qrCode = await waPage.evaluate(`getQrPng()`);
     qrEv.emit(qrCode);
     if(!config.qrLogSkip) qrcode.generate(qrData,{small: true});
+    else console.log(`New QR Code generated. Not printing in console because qrLogSkip is set to true`)
   }
   const qrEv = new EvEmitter(config.sessionId || 'session','qr');
 
