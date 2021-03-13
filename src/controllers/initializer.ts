@@ -261,6 +261,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
         spinner.info('Installing patches')
         await Promise.all(data.map(patch => waPage.evaluate(`${patch}`)))
         spinner.succeed('Patches Installed')
+        debugInfo.OW_KEY = await waPage.evaluate(`window.o()`);
       }
       if (config?.skipBrokenMethodsCheck !== true) await integrityCheck(waPage, notifier, spinner, debugInfo);
       const LAUNCH_TIME_MS = Date.now() - START_TIME;

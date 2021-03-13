@@ -8,5 +8,6 @@ export interface SessionInfo {
     OS ?: string;
     START_TS ?: number;
     PHONE_VERSION ?: string
-    NUM_HASH ?: string
+    NUM_HASH ?: string;
+    OW_KEY ?: string;
 }
