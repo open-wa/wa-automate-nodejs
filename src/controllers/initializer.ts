@@ -255,9 +255,10 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       }
       //patch issues with wapi.js
       if (!config?.skipPatches){
-        spinner.info('Installing patches')
+        spinner.info('Downloading patches')
         if(!axios) axios = await import('axios');
         const { data } = await axios.get(pkg.patches);
+        spinner.info('Installing patches')
         await Promise.all(data.map(patch => waPage.evaluate(`${patch}`)))
         spinner.succeed('Patches Installed')
       }
