@@ -257,10 +257,13 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       if (!config?.skipPatches){
         spinner.info('Downloading patches')
         if(!axios) axios = await import('axios');
-        const { data } = await axios.get(pkg.patches);
+        const { data, headers} = await axios.get(pkg.patches).catch(_=>{
+          spinner.info('Downloading patches. Retrying.')
+          return axios.get(`https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/patches.json?v=${Date.now()}`)
+        });
         spinner.info('Installing patches')
         await Promise.all(data.map(patch => waPage.evaluate(`${patch}`)))
-        spinner.succeed('Patches Installed')
+        spinner.succeed(`Patches Installed: ${(headers.etag || '').replace(/"/g,'').slice(-5)}`)
         debugInfo.OW_KEY = await waPage.evaluate(`window.o()`);
       }
       if (config?.skipBrokenMethodsCheck !== true) await integrityCheck(waPage, notifier, spinner, debugInfo);
