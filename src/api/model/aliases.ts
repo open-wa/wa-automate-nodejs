@@ -53,7 +53,7 @@ export type ContactId = `${AccountNumber}@${ChatServer}`;
 export type ChatId = ContactId | GroupChatId
 
 /**
- * The id of a message. The format is `[boolean]_[ChatId]_[random character strin]`
+ * The id of a message. The format is `[boolean]_[ChatId]_[random character string]`
  * 
  * Example:
  * 
