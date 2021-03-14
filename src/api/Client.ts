@@ -2732,13 +2732,13 @@ public async getStatus(contactId: ContactId) {
       }
       if(a?.stickerMetadata && typeof a?.stickerMetadata !== "object") throw new CustomError(ERROR_NAME.BAD_STICKER_METADATA, `Received ${typeof a?.stickerMetadata}: ${a?.stickerMetadata}`);
       try {
-        const {data} = await axios.post(`${(fallback ?  pkg.stickerUrl : 'https://open-wa-sticker-api.herokuapp.com'  )|| this._createConfig.stickerServerEndpoint}/${func}`, {
+        const {data} = await axios.post(`${((fallback ?  pkg.stickerUrl : 'https://open-wa-sticker-api.herokuapp.com')|| this._createConfig.stickerServerEndpoint).replace(/\/$/, '')}/${func}`, {
           ...a,
         sessionInfo,
         config: this.getConfig()
       },{
-        maxBodyLength: 20000000,
-        maxContentLength: 1500000
+        maxBodyLength: 20000000, // 20mb request file limit
+        maxContentLength: 1500000 // 1.5mb response body limit
       });
         return data;
       } catch (err) {
