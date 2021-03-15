@@ -19,9 +19,9 @@
 
 <p align="center">
   <a href="#functions-list">Key Features</a> •
-  <a href="https://open-wa.github.io/wa-automate-nodejs/pages/Getting%20Started/installation.html">Getting Started</a> •
-  <a href="https://open-wa.github.io/wa-automate-nodejs/pages/Getting%20Started/quick-run.html">Easy API</a> •
-  <a href="https://open-wa.github.io/wa-automate-nodejs/">Documentation</a> •
+  <a href="https://docs.openwa.dev/pages/Getting%20Started/installation.html">Getting Started</a> •
+  <a href="https://docs.openwa.dev/pages/Getting%20Started/quick-run.html">Easy API</a> •
+  <a href="https://docs.openwa.dev/classes/api_client.client.html/">Documentation</a> •
   <a href="https://openwa.page.link/key">Get a License Key</a> •
   <a href="#support">Support</a>
 </p>
@@ -88,7 +88,7 @@ function start(client) {
 
 ## CLI
 
-Want to convert your WA account to an API instantly? You can now with the CLI. For more details see [Easy API](https://open-wa.github.io/wa-automate-nodejs/pages/Getting%20Started/quick-run.html)
+Want to convert your WA account to an API instantly? You can now with the CLI. For more details see [Easy API](https://docs.openwa.dev/pages/Getting%20Started/quick-run.html)
 
 ```bash
 > npx @open-wa/wa-automate --help
@@ -106,35 +106,35 @@ With the constant updates from WA. It is advisable to always use the latest vers
 
 | Function                          | Reference |
 | --------------------------------- | ----------- |
-| Receive message                   | [onMessage](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#onmessage)
-| Automatic QR Refresh              | [autoRefresh](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#autorefresh)
-| Send text                         | [sendText](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendtext)
-| Get contacts                      | [getContact](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#getcontact)
-| Get chats                         | [getAllChats](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#getallchats)
-| Get groups                        | [getAllGroups](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#getallgroups)
-| Get group members                 | [getGroupMembersId](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#getgroupMembersId)
-| Send contact                      | [sendContact](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendcontact)
-| Send Images (image)              | [sendImage](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendimage)
-| Send media (audio, doc) | [sendFile](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendfile)
-| Send media (video)  | [Send Videos](https://open-wa.github.io/wa-automate-nodejs/pages/How%20to/send-files/send-videos.html)
-| Send stickers                     | [sendStickerfromUrl](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendstickerfromurl)
-| Decrypt media (image, audio, doc) | [Decrypt Media](https://open-wa.github.io/wa-automate-nodejs/pages/How%20to/decrypt-media.html)
-| Capturing QR Code                 | [Capturing QR Code](https://open-wa.github.io/wa-automate-nodejs/pages/The%20Client/launch-events/capture-qr.html)
-| Multiple Sessions                 | [Multiple Sessions](https://open-wa.github.io/wa-automate-nodejs/pages/The%20Client/the-client/multiple-sessions.html)
-| Last seen      | [getLastSeen](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#getlastseen)
-| isOnline      | [isChatOnline](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#ischatonline)
-| 📍 Send Location      | [sendLocation](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendlocation)
-| Simulated '...typing'             | [simulateTyping](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#simulatetyping)
-| Send GIFs!                       | [sendVideoAsGif](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendvideoasgif)
-| Send Giphy!                       | [sendGiphy](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendgiphy)
-| Forward Messages                  | [forwardMessages](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#forwardmessages)
-| Listen to Read Receipts           | [onAck](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#onack)
-| Listen to Live Locations           | [onLiveLocation](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#onlivelocation)
-| Group participant changes         | [onParticipantsChanged](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#onparticipantschanged)
-| Create Groups         | [Create Group](https://open-wa.github.io/wa-automate-nodejs/pages/How%20to/groups.html#create-a-group)
-| add, remove, promote, demote participants        | [Manage Participants](https://open-wa.github.io/wa-automate-nodejs/pages/How%20to/groups/manage-participants.html)
+| Receive message                   | [onMessage](https://docs.openwa.dev/classes/api_client.client.html#onmessage)
+| Automatic QR Refresh              | [autoRefresh](https://docs.openwa.dev/classes/api_client.client.html#autorefresh)
+| Send text                         | [sendText](https://docs.openwa.dev/classes/api_client.client.html#sendtext)
+| Get contacts                      | [getContact](https://docs.openwa.dev/classes/api_client.client.html#getcontact)
+| Get chats                         | [getAllChats](https://docs.openwa.dev/classes/api_client.client.html#getallchats)
+| Get groups                        | [getAllGroups](https://docs.openwa.dev/classes/api_client.client.html#getallgroups)
+| Get group members                 | [getGroupMembersId](https://docs.openwa.dev/classes/api_client.client.html#getgroupMembersId)
+| Send contact                      | [sendContact](https://docs.openwa.dev/classes/api_client.client.html#sendcontact)
+| Send Images (image)              | [sendImage](https://docs.openwa.dev/classes/api_client.client.html#sendimage)
+| Send media (audio, doc) | [sendFile](https://docs.openwa.dev/classes/api_client.client.html#sendfile)
+| Send media (video)  | [Send Videos](https://docs.openwa.dev/pages/How%20to/send-files/send-videos.html)
+| Send stickers                     | [sendStickerfromUrl](https://docs.openwa.dev/classes/api_client.client.html#sendstickerfromurl)
+| Decrypt media (image, audio, doc) | [Decrypt Media](https://docs.openwa.dev/pages/How%20to/decrypt-media.html)
+| Capturing QR Code                 | [Capturing QR Code](https://docs.openwa.dev/pages/The%20Client/launch-events/capture-qr.html)
+| Multiple Sessions                 | [Multiple Sessions](https://docs.openwa.dev/pages/The%20Client/the-client/multiple-sessions.html)
+| Last seen      | [getLastSeen](https://docs.openwa.dev/classes/api_client.client.html#getlastseen)
+| isOnline      | [isChatOnline](https://docs.openwa.dev/classes/api_client.client.html#ischatonline)
+| 📍 Send Location      | [sendLocation](https://docs.openwa.dev/classes/api_client.client.html#sendlocation)
+| Simulated '...typing'             | [simulateTyping](https://docs.openwa.dev/classes/api_client.client.html#simulatetyping)
+| Send GIFs!                       | [sendVideoAsGif](https://docs.openwa.dev/classes/api_client.client.html#sendvideoasgif)
+| Send Giphy!                       | [sendGiphy](https://docs.openwa.dev/classes/api_client.client.html#sendgiphy)
+| Forward Messages                  | [forwardMessages](https://docs.openwa.dev/classes/api_client.client.html#forwardmessages)
+| Listen to Read Receipts           | [onAck](https://docs.openwa.dev/classes/api_client.client.html#onack)
+| Listen to Live Locations           | [onLiveLocation](https://docs.openwa.dev/classes/api_client.client.html#onlivelocation)
+| Group participant changes         | [onParticipantsChanged](https://docs.openwa.dev/classes/api_client.client.html#onparticipantschanged)
+| Create Groups         | [Create Group](https://docs.openwa.dev/pages/How%20to/groups.html#create-a-group)
+| add, remove, promote, demote participants        | [Manage Participants](https://docs.openwa.dev/pages/How%20to/groups/manage-participants.html)
 
-[Checkout all the available functions here.](https://open-wa.github.io/wa-automate-nodejs/classes/client.html)
+[Checkout all the available functions here.](https://docs.openwa.dev/classes/api_client.client.html)
 
 ## Running the demo
 
