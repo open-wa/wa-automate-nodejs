@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as parseUrl from 'parse-url';
+import parseUrl from 'parse-url';
 let noCase;
 
 const format = (s:string) => s?.replace(/[[/g,'').replace(/]]/g,'').replace(/@param/g,'Parameter:')
