@@ -59,7 +59,7 @@ import { CustomProduct } from './model/product';
 import Crypto from 'crypto';
 import { tmpdir } from 'os';
 import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
-import { injectInitPatch, injectLicense, injectLivePatch } from '../controllers/initializer';
+import { getLicense, injectInitPatch, injectLicense, injectLivePatch } from '../controllers/initializer';
 
 export enum namespace {
   Chat = 'Chat',
@@ -507,9 +507,15 @@ export class Client {
    * This will attempt to re register all listeners EXCEPT onLiveLocation and onParticipantChanged
    */
    public async refresh(){
-     this._refreshing = true;
+  this._refreshing = true;
      const spinner = new Spin(this._createConfig?.sessionId || 'session', 'REFRESH', this._createConfig?.disableSpins);
+     const { me } = await this.getMe();
+     /**
+      * preload license
+      */
+     const preloadlicense = this._createConfig?.licenseKey ? await getLicense(this._createConfig, me, this._sessionInfo, spinner) : false
      spinner.info('Refreshing page')
+     const START_TIME = Date.now();
      await this._page.goto(puppeteerConfig.WAUrl);
      if(await isAuthenticated(this._page)) {
        /**
@@ -522,18 +528,16 @@ export class Client {
        * patch
        */
       await injectLivePatch(this._page, spinner)
-      if (this._createConfig?.licenseKey) {
-       const { me } = await this.getMe();
-       await injectLicense(this._page,this._createConfig,me, this._sessionInfo, spinner);
-     }
+      if (this._createConfig?.licenseKey) await injectLicense(this._page,this._createConfig,me, this._sessionInfo, spinner, preloadlicense);
       /**
        * init patch
        */
      await injectInitPatch(this._page)
      await this.loaded()
      if(!this._createConfig?.eventMode) await this._reRegisterListeners();
-     spinner.succeed('Session refreshed')
+     spinner.succeed(`Session refreshed in ${(Date.now() - START_TIME)/1000}s`)
      this._refreshing = false;
+     spinner.remove()
      return true;
      } else throw new Error("Session Logged Out. Cannot refresh. Please restart the process and scan the qr code.")
    }
