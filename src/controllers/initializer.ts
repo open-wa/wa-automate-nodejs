@@ -335,14 +335,30 @@ export async function injectLivePatch(page: Page, spinner ?: Spin) : Promise<voi
   spinner?.succeed(`Patches Installed: ${(headers.etag || '').replace(/"/g,'').slice(-5)}`)
 }
 
-export async function injectLicense(page: Page, config: ConfigObject, me : {
+export async function getLicense(config: ConfigObject, me : {
   _serialized: string
-}, debugInfo: SessionInfo, spinner ?: Spin): Promise<boolean> {
+}, debugInfo: SessionInfo, spinner ?: Spin) : Promise<string | false> {
   if(!axios) axios = await import('axios');
-  let l_err;
-  spinner?.start('Checking License')
+  spinner?.start('Fetching License')
   try {
   const { data } = await axios.post(pkg.licenseCheckUrl, { key: config.licenseKey, number: me._serialized, ...debugInfo });
+  spinner?.start('Got License')
+  return data;
+  } catch (error) {
+    spinner?.fail(`License request failed: ${error.statusCode || error.code || error.message}`);
+    return false;
+  }
+}
+
+export async function injectLicense(page: Page, config: ConfigObject, me : {
+  _serialized: string
+}, debugInfo: SessionInfo, spinner ?: Spin, preloadedLicense ?: string | false): Promise<boolean> {
+  if(!axios) axios = await import('axios');
+  let l_err;
+  let data = preloadedLicense;
+  spinner?.start('Checking License')
+  try {
+    if(!data) data = await getLicense(config, me, debugInfo, spinner)
   if (data) {
     const l_success = await page.evaluate(data => eval(data), data);
     if(!l_success) {
