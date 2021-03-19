@@ -8,7 +8,7 @@ import { useragent, puppeteerConfig } from '../config/puppeteer.config'
 import { ConfigObject, STATE, LicenseType, Webhook } from './model';
 import { PageEvaluationTimeout, CustomError, ERROR_NAME  } from './model/errors';
 import PQueue from 'p-queue';
-import { ev } from '../controllers/events';
+import { ev, Spin } from '../controllers/events';
 import { v4 as uuidv4 } from 'uuid';
 /** @ignore */
 const parseFunction = require('parse-function'),
@@ -59,6 +59,7 @@ import { CustomProduct } from './model/product';
 import Crypto from 'crypto';
 import { tmpdir } from 'os';
 import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
+import { injectInitPatch, injectLicense, injectLivePatch } from '../controllers/initializer';
 
 export enum namespace {
   Chat = 'Chat',
@@ -412,6 +413,7 @@ export class Client {
   private _listeners: any;
   private _page: Page;
   private _currentlyBeingKilled: boolean = false;
+  private _refreshing : boolean = false
   private _l: any;
   /**
    * This is used to track if a listener is already used via webhook. Before, webhooks used to be set once per listener. Now a listener can be set via multiple webhooks, or revoked from a specific webhook.
@@ -445,13 +447,13 @@ export class Client {
    * Run all tasks to set up client AFTER init is fully completed
    */
   async loaded() {
-    if(this._createConfig?.eventMode) {
-      await this.registerAllSimpleListenersOnEv();
-    }
-    this._sessionInfo.PHONE_VERSION = (await this.getMe()).phone.wa_version
-    this.logger().child({
-      PHONE_VERSION: this._sessionInfo.PHONE_VERSION
-    }).info()
+      if(this._createConfig?.eventMode) {
+        await this.registerAllSimpleListenersOnEv();
+      }
+      this._sessionInfo.PHONE_VERSION = (await this.getMe()).phone.wa_version
+      this.logger().child({
+        PHONE_VERSION: this._sessionInfo.PHONE_VERSION
+      }).info()
   }
 
   private async registerAllSimpleListenersOnEv(){
@@ -505,21 +507,35 @@ export class Client {
    * This will attempt to re register all listeners EXCEPT onLiveLocation and onParticipantChanged
    */
    public async refresh(){
-     console.log('Refreshing')
+     this._refreshing = true;
+     const spinner = new Spin(this._createConfig?.sessionId || 'session', 'REFRESH', this._createConfig?.disableSpins);
+     spinner.info('Refreshing page')
      await this._page.goto(puppeteerConfig.WAUrl);
-     await isAuthenticated(this._page);
-     await this._reInjectWapi();
-     if (this._createConfig?.licenseKey) {
-      const { me } = await this.getMe();
-      const { data } = await axios.post(pkg.licenseCheckUrl, { key: this._createConfig.licenseKey, number: me._serialized, ...this._sessionInfo });
-      if (data) {
-        await this._page.evaluate(data => eval(data), data);
-        console.log('License Valid');
-      } else console.log('Invalid license key');
-    }
-    await this._page.evaluate('Object.freeze(window.WAPI)');
-    await this._reRegisterListeners();
-    return true;
+     if(await isAuthenticated(this._page)) {
+       /**
+        * Reset all listeners
+        */
+        this._registeredEvListeners = {};
+        // this._listeners = {};
+      await this._reInjectWapi();
+      /**
+       * patch
+       */
+      await injectLivePatch(this._page, spinner)
+      if (this._createConfig?.licenseKey) {
+       const { me } = await this.getMe();
+       await injectLicense(this._page,this._createConfig,me, this._sessionInfo, spinner);
+     }
+      /**
+       * init patch
+       */
+     await injectInitPatch(this._page)
+     await this.loaded()
+     if(!this._createConfig?.eventMode) await this._reRegisterListeners();
+     spinner.succeed('Session refreshed')
+     this._refreshing = false;
+     return true;
+     } else throw new Error("Session Logged Out. Cannot refresh. Please restart the process and scan the qr code.")
    }
 
   /**
@@ -597,7 +613,7 @@ export class Client {
       //@ts-ignore
       return window[funcName] ? WAPI[`${funcName}`](obj => window[funcName](obj)) : false
     },{funcName});
-    if(this._listeners[funcName]) {
+    if(this._listeners[funcName] && !this._refreshing) {
       // console.log('listener already set');
       return true
     }
