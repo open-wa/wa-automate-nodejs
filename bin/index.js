@@ -245,6 +245,10 @@ if(c.webhook || c.webhook == '') {
 
 }
 
+if(c.apiHost) {
+	c.apiHost = c.apiHost.replace(/\/$/, '')
+}
+
 async function start(){
     try {
         const {status, data} = await axios.post(`http://localhost:${PORT}/getConnectionState`);

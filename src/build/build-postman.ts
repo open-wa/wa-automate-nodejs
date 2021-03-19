@@ -97,8 +97,9 @@ const postmanRequestGeneratorGenerator = setup => method => {
     method.parameters.forEach(function (param) {
         args[param.name] = aliasExamples[param.type] ? aliasExamples[param.type] : paramNameExamples[param.name] ? paramNameExamples[param.name] : primatives.includes(param.type) ? param.type : 'Check documentation in description';
     });
+    const hostpath = parseUrl(setup.apiHost).pathname.substring(1)
     const url = {
-        "raw": setup.apiHost ? `{{address}}:{{port}}/${parseUrl(setup.apiHost).pathname.substring(1)}/${method.name}` : (setup === null || setup === void 0 ? void 0 : setup.useSessionIdInPath) ? "{{address}}:{{port}}/{{sessionId}}/" + method.name : "{{address}}:{{port}}/" + method.name,
+        "raw": setup.apiHost ? `{{address}}:{{port}}${hostpath ? `/${hostpath}`: ''}/${method.name}` : (setup === null || setup === void 0 ? void 0 : setup.useSessionIdInPath) ? "{{address}}:{{port}}/{{sessionId}}/" + method.name : "{{address}}:{{port}}/" + method.name,
         "host": [
             "{{address}}"
         ],
@@ -106,7 +107,7 @@ const postmanRequestGeneratorGenerator = setup => method => {
         "path": setup?.apiHost ? [
             parseUrl(setup.apiHost).pathname.substring(1),
             "" + method.name
-        ] : (setup === null || setup === void 0 ? void 0 : setup.useSessionIdInPath) ? [
+        ].filter(x=>x) : (setup === null || setup === void 0 ? void 0 : setup.useSessionIdInPath) ? [
             "{{sessionId}}",
             "" + method.name
         ] : ["" + method.name]
