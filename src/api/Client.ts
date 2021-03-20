@@ -2856,8 +2856,9 @@ public async getStatus(contactId: ContactId) {
    * 
    * @param to ChatId The chat id you want to send the webp sticker to
    * @param file [[DataURL]], [[Base64]], URL (string GET), Relative filepath (string), or Buffer of the mp4 file
+   * @param messageId message id of the message you want this sticker to reply to. [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    */
-  public async sendMp4AsSticker(to: ChatId, file: DataURL | Buffer | Base64 | string, processOptions: Mp4StickerConversionProcessOptions = defaultProcessOptions, stickerMetadata?: StickerMetadata) {
+  public async sendMp4AsSticker(to: ChatId, file: DataURL | Buffer | Base64 | string, processOptions: Mp4StickerConversionProcessOptions = defaultProcessOptions, stickerMetadata?: StickerMetadata, messageId ?: MessageId) {
     //@ts-ignore
     if((Buffer.isBuffer(file)  || typeof file === 'object' || file?.type === 'Buffer') && file.toString) {
       file = file.toString('base64')
@@ -2885,7 +2886,7 @@ public async getStatus(contactId: ContactId) {
       } else convertedStickerDataUrl = await convertMp4BufferToWebpDataUrl(file, processOptions);
     try {
       if(!convertedStickerDataUrl) return false;
-      return await this.sendRawWebpAsSticker(to, convertedStickerDataUrl, true);
+      return await (messageId && this._createConfig.licenseKey) ? this.sendRawWebpAsStickerAsReply(to, messageId, convertedStickerDataUrl, true) : this.sendRawWebpAsSticker(to, convertedStickerDataUrl, true);
     } catch (error) {
       const msg = 'Stickers have to be less than 1MB. Please lower the fps or shorten the duration using the processOptions parameter: https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendmp4assticker'
       console.log(msg)
@@ -2894,7 +2895,6 @@ public async getStatus(contactId: ContactId) {
   }
 
   /**
-   * [WIP]
    * You can use this to send a raw webp file.
    * @param to ChatId The chat id you want to send the webp sticker to
    * @param webpBase64 Base64 The base64 string of the webp file. Not DataURl
@@ -2911,6 +2911,29 @@ public async getStatus(contactId: ContactId) {
     return await this.pup(
       ({ webpBase64,to, metadata }) => WAPI.sendImageAsSticker(webpBase64,to, metadata),
       { webpBase64,to, metadata }
+    );
+  }
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * 
+   * You can use this to send a raw webp file.
+   * @param to ChatId The chat id you want to send the webp sticker to
+   * @param messageId MessageId Message ID of the message to reply to
+   * @param webpBase64 Base64 The base64 string of the webp file. Not DataURl
+   * @param animated Boolean Set to true if the webp is animated. Default `false`
+   */
+  public async sendRawWebpAsStickerAsReply(to: ChatId, messageId: MessageId, webpBase64: Base64, animated : boolean = false, ){
+    let metadata =  {
+        format: 'webp',
+        width: 512,
+        height: 512,
+        animated,
+    }
+    webpBase64 = webpBase64.replace(/^data:image\/(png|gif|jpeg|webp);base64,/,'');
+    return await this.pup(
+      ({ webpBase64,to, metadata, messageId }) => WAPI.sendStickerAsReply(webpBase64,to, metadata, messageId),
+      { webpBase64,to, metadata, messageId }
     );
   }
 
