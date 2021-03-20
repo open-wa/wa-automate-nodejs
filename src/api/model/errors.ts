@@ -60,8 +60,11 @@ export enum ERROR_NAME {
  * A simple custom error class that takes the first parameter as the name using the [[ERROR_NAME]] enum
  */
 export class CustomError extends Error {
-  constructor(name:ERROR_NAME, ...params) {
-    super(...params)
+  constructor(name:ERROR_NAME, message?: string, ...params : any[]) {
+    super(...[
+      message,
+      ...params])
     this.name = name
+    this.message = message
   }
 }

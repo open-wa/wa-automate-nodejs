@@ -3187,10 +3187,13 @@ public async getStatus(contactId: ContactId) {
           response
         })
         } catch (error) {
-        console.log("middleware -> error", error)
+        console.error("middleware -> error", error)
         return res.send({
           success:false,
-          error
+          error : {
+            name: error.name,
+            message: error.message
+          }
         })
         }
       }
