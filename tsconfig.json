@@ -58,7 +58,8 @@
     "entryPoints": [
       "./src/api",
       "./src/utils",
-      "./src/controllers"
+      "./src/controllers",
+      "./src/structures",
     ],
     "pages": {
       "groups": [

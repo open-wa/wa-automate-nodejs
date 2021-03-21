@@ -21,13 +21,10 @@ export class Collection<K, V> extends BaseCollection<K, V> {
  * @param {Collection} collection The items collected by this collector
  * @returns {boolean|Promise<boolean>}
  */
+export type CollectorFilter = (args: any[]) => boolean | Promise<boolean>
 
 /**
  * Options to be applied to the collector.
- * @typedef {Object} CollectorOptions
- * @property {number} [time] How long to run the collector for in milliseconds
- * @property {number} [idle] How long to stop the collector after inactivity in milliseconds
- * @property {boolean} [dispose=false] Whether to dispose data when it's deleted
  */
 export interface CollectorOptions {
   /**
@@ -47,7 +44,7 @@ export interface CollectorOptions {
    */
   idle?: number;
   /**
-   * 
+   *  Whether to dispose data when it's deleted
    */
   dispose?: boolean
 }
@@ -86,7 +83,7 @@ export class Collector extends EventEmitter {
   protected _immediates: Set<NodeJS.Immediate> = new Set();
 
 
-  constructor(filter: (args: any[]) => boolean | Promise<boolean>, options: CollectorOptions = {}) {
+  constructor(filter: CollectorFilter, options: CollectorOptions = {}) {
     super();
 
     /**

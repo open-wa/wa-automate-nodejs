@@ -97,6 +97,7 @@
 								<li class="tsd-kind-event tsd-parent-kind-class"><a href="api_client.client.html#onaddedtogroup" class="tsd-kind-icon">on<wbr>Added<wbr>ToGroup</a></li>
 								<li class="tsd-kind-event tsd-parent-kind-class"><a href="api_client.client.html#onanymessage" class="tsd-kind-icon">on<wbr>Any<wbr>Message</a></li>
 								<li class="tsd-kind-event tsd-parent-kind-class"><a href="api_client.client.html#onbattery" class="tsd-kind-icon">on<wbr>Battery</a></li>
+								<li class="tsd-kind-event tsd-parent-kind-class"><a href="api_client.client.html#onchatdeleted" class="tsd-kind-icon">on<wbr>Chat<wbr>Deleted</a></li>
 								<li class="tsd-kind-event tsd-parent-kind-class"><a href="api_client.client.html#onchatopened" class="tsd-kind-icon">on<wbr>Chat<wbr>Opened</a></li>
 								<li class="tsd-kind-event tsd-parent-kind-class"><a href="api_client.client.html#onchatstate" class="tsd-kind-icon">on<wbr>Chat<wbr>State</a></li>
 								<li class="tsd-kind-event tsd-parent-kind-class"><a href="api_client.client.html#oncontactadded" class="tsd-kind-icon">on<wbr>Contact<wbr>Added</a></li>
@@ -125,6 +126,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#contactblock" class="tsd-kind-icon">contact<wbr>Block</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#contactunblock" class="tsd-kind-icon">contact<wbr>Unblock</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#creategroup" class="tsd-kind-icon">create<wbr>Group</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#createmessagecollector" class="tsd-kind-icon">create<wbr>Message<wbr>Collector</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#cutmsgcache" class="tsd-kind-icon">cut<wbr>Msg<wbr>Cache</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#darkmode" class="tsd-kind-icon">dark<wbr>Mode</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#decryptmedia" class="tsd-kind-icon">decrypt<wbr>Media</a></li>
@@ -292,7 +294,7 @@
 								<li>
 									<h5>fn: <span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>callback function that handles a <a href="../enums/api_client.simplelistener.html#message">Message</a> as the first and only parameter.</p>
+										<p>callback function that handles a <a href="../enums/api_model_events.simplelistener.html#message">Message</a> as the first and only parameter.</p>
 									</div>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter-signature">
@@ -382,7 +384,7 @@
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>fires</dt>
-									<dd><p><a href="../enums/api_client.simplelistener.html#message">Message</a></p>
+									<dd><p><a href="../enums/api_model_events.simplelistener.html#message">Message</a></p>
 									</dd>
 								</dl>
 							</div>
@@ -452,6 +454,57 @@
 													<ul class="tsd-parameters">
 														<li>
 															<h5>battery: <span class="tsd-signature-type">number</span></h5>
+														</li>
+													</ul>
+													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-event tsd-parent-kind-class">
+					<a name="onchatdeleted" class="tsd-anchor"></a>
+					<h3>on<wbr>Chat<wbr>Deleted</h3>
+					<ul class="tsd-signatures tsd-kind-event tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">on<wbr>Chat<wbr>Deleted<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>chat<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_chat.chat.html" class="tsd-signature-type" data-tsd-kind="Interface">Chat</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Listens to when a chat is deleted by the host account</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>fires</dt>
+									<dd><p><a href="../enums/api_client.namespace.html#chat">Chat</a></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>fn: <span class="tsd-signature-symbol">(</span>chat<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_chat.chat.html" class="tsd-signature-type" data-tsd-kind="Interface">Chat</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>callback</p>
+									</div>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-signature">
+											<ul class="tsd-signatures tsd-kind-type-literal">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>chat<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_chat.chat.html" class="tsd-signature-type" data-tsd-kind="Interface">Chat</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-parameters-title">Parameters</h4>
+													<ul class="tsd-parameters">
+														<li>
+															<h5>chat: <a href="../interfaces/api_model_chat.chat.html" class="tsd-signature-type" data-tsd-kind="Interface">Chat</a></h5>
 														</li>
 													</ul>
 													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -826,7 +879,7 @@
 								<p>Listens to when a message is deleted by a recipient or the host account</p>
 								<dl class="tsd-comment-tags">
 									<dt>fires</dt>
-									<dd><p><a href="../enums/api_client.simplelistener.html#message">Message</a></p>
+									<dd><p><a href="../enums/api_model_events.simplelistener.html#message">Message</a></p>
 									</dd>
 								</dl>
 							</div>
@@ -1410,6 +1463,64 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="createmessagecollector" class="tsd-anchor"></a>
+					<h3>create<wbr>Message<wbr>Collector</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Message<wbr>Collector<span class="tsd-signature-symbol">(</span>c<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_chat.chat.html" class="tsd-signature-type" data-tsd-kind="Interface">Chat</a><span class="tsd-signature-symbol"> | </span><a href="../modules/api_model_aliases.html#chatid" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a>, filter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span>, options<span class="tsd-signature-symbol">: </span><a href="../interfaces/structures_collector.collectoroptions.html" class="tsd-signature-type" data-tsd-kind="Interface">CollectorOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="structures_messagecollector.messagecollector.html" class="tsd-signature-type" data-tsd-kind="Class">MessageCollector</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a new message collector for the chat which is related to the first parameter c</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>c: <a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_chat.chat.html" class="tsd-signature-type" data-tsd-kind="Interface">Chat</a><span class="tsd-signature-symbol"> | </span><a href="../modules/api_model_aliases.html#chatid" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The Mesasge/Chat or Chat Id to base this message colletor on</p>
+									</div>
+								</li>
+								<li>
+									<h5>filter: <span class="tsd-signature-symbol">(</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>A function that consumes a [Message] and returns a boolean which determines whether or not the message shall be collected.</p>
+									</div>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-signature">
+											<ul class="tsd-signatures tsd-kind-type-literal">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-parameters-title">Parameters</h4>
+													<ul class="tsd-parameters">
+														<li>
+															<h5>args: <span class="tsd-signature-type">any</span></h5>
+														</li>
+													</ul>
+													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+								<li>
+									<h5>options: <a href="../interfaces/structures_collector.collectoroptions.html" class="tsd-signature-type" data-tsd-kind="Interface">CollectorOptions</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The options for the collector. For example, how long the collector shall run for, how many messages it should collect, how long between messages before timing out, etc.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="structures_messagecollector.messagecollector.html" class="tsd-signature-type" data-tsd-kind="Class">MessageCollector</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="cutmsgcache" class="tsd-anchor"></a>
 					<h3>cut<wbr>Msg<wbr>Cache</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1478,7 +1589,7 @@
 								<li>
 									<h5>message: <a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">false_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">-</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@g.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">false_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@c.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">true_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">-</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@g.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">true_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@c.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>This can be the serialized <a href="../modules/api_model_aliases.html#messageid">MessageId</a> or the whole <a href="../enums/api_client.simplelistener.html#message">Message</a> object. It is advised to just use the serialized message ID.</p>
+										<p>This can be the serialized <a href="../modules/api_model_aliases.html#messageid">MessageId</a> or the whole <a href="../enums/api_model_events.simplelistener.html#message">Message</a> object. It is advised to just use the serialized message ID.</p>
 									</div>
 								</li>
 							</ul>
@@ -1781,7 +1892,7 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol">&gt;</span></h4>
-							<p><a href="../enums/api_client.simplelistener.html#message">Message</a> OR <code>false</code></p>
+							<p><a href="../enums/api_model_events.simplelistener.html#message">Message</a> OR <code>false</code></p>
 						</li>
 					</ul>
 				</section>
@@ -2238,6 +2349,17 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get an array of chats that match the label parameter. For example, if you want to get an array of chat objects that have the label &quot;New customer&quot;.</p>
+								</div>
+								<p>This method is case insenstive and only works on business host accounts.</p>
+								<dl class="tsd-comment-tags">
+									<dt>label</dt>
+									<dd><p>The label name</p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -2463,7 +2585,7 @@
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> event<wbr>Mode<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<div class="lead">
-											<p>Setting listeners may not be your cup of tea. With eventMode, all <a href="../enums/api_client.simplelistener.html">SimpleListener</a> events will be registered automatically and be filed via the built in Events Listener.</p>
+											<p>Setting listeners may not be your cup of tea. With eventMode, all <a href="../enums/api_model_events.simplelistener.html">SimpleListener</a> events will be registered automatically and be filed via the built in Events Listener.</p>
 										</div>
 										<p>This is useful because you can register/deregister the event listener as needed whereas the legacy method of setting callbacks are only be set once</p>
 										<dl class="tsd-comment-tags">
@@ -4444,7 +4566,7 @@
 					<a name="registerwebhook" class="tsd-anchor"></a>
 					<h3>register<wbr>Webhook</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">register<wbr>Webhook<span class="tsd-signature-symbol">(</span>url<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, events<span class="tsd-signature-symbol">: </span><a href="../enums/api_client.simplelistener.html" class="tsd-signature-type" data-tsd-kind="Enumeration">SimpleListener</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;all&quot;</span>, requestConfig<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">AxiosRequestConfig</span>, concurrency<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_config.webhook.html" class="tsd-signature-type" data-tsd-kind="Interface">Webhook</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">register<wbr>Webhook<span class="tsd-signature-symbol">(</span>url<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, events<span class="tsd-signature-symbol">: </span><a href="../enums/api_model_events.simplelistener.html" class="tsd-signature-type" data-tsd-kind="Enumeration">SimpleListener</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;all&quot;</span>, requestConfig<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">AxiosRequestConfig</span>, concurrency<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_config.webhook.html" class="tsd-signature-type" data-tsd-kind="Interface">Webhook</a><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -4464,9 +4586,9 @@
 									</div>
 								</li>
 								<li>
-									<h5>events: <a href="../enums/api_client.simplelistener.html" class="tsd-signature-type" data-tsd-kind="Enumeration">SimpleListener</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;all&quot;</span></h5>
+									<h5>events: <a href="../enums/api_model_events.simplelistener.html" class="tsd-signature-type" data-tsd-kind="Enumeration">SimpleListener</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;all&quot;</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>An array of <a href="../enums/api_client.simplelistener.html">SimpleListener</a> enums or <code>all</code> (to register all possible listeners)</p>
+										<p>An array of <a href="../enums/api_model_events.simplelistener.html">SimpleListener</a> enums or <code>all</code> (to register all possible listeners)</p>
 									</div>
 								</li>
 								<li>
@@ -6499,7 +6621,7 @@
 					<a name="updatewebhook" class="tsd-anchor"></a>
 					<h3>update<wbr>Webhook</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">update<wbr>Webhook<span class="tsd-signature-symbol">(</span>webhookId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, events<span class="tsd-signature-symbol">: </span><a href="../enums/api_client.simplelistener.html" class="tsd-signature-type" data-tsd-kind="Enumeration">SimpleListener</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;all&quot;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_config.webhook.html" class="tsd-signature-type" data-tsd-kind="Interface">Webhook</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">update<wbr>Webhook<span class="tsd-signature-symbol">(</span>webhookId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, events<span class="tsd-signature-symbol">: </span><a href="../enums/api_model_events.simplelistener.html" class="tsd-signature-type" data-tsd-kind="Enumeration">SimpleListener</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;all&quot;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_config.webhook.html" class="tsd-signature-type" data-tsd-kind="Interface">Webhook</a><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -6517,7 +6639,7 @@
 									<h5>webhookId: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
-									<h5>events: <a href="../enums/api_client.simplelistener.html" class="tsd-signature-type" data-tsd-kind="Enumeration">SimpleListener</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;all&quot;</span></h5>
+									<h5>events: <a href="../enums/api_model_events.simplelistener.html" class="tsd-signature-type" data-tsd-kind="Enumeration">SimpleListener</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;all&quot;</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_config.webhook.html" class="tsd-signature-type" data-tsd-kind="Interface">Webhook</a><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -6612,9 +6734,6 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-enum tsd-parent-kind-module">
-						<a href="../enums/api_client.simplelistener.html" class="tsd-kind-icon">Simple<wbr>Listener</a>
-					</li>
-					<li class=" tsd-kind-enum tsd-parent-kind-module">
 						<a href="../enums/api_client.namespace.html" class="tsd-kind-icon">namespace</a>
 					</li>
 				</ul>
@@ -6633,6 +6752,9 @@
 							</li>
 							<li class=" tsd-kind-event tsd-parent-kind-class">
 								<a href="api_client.client.html#onbattery" class="tsd-kind-icon">on<wbr>Battery</a>
+							</li>
+							<li class=" tsd-kind-event tsd-parent-kind-class">
+								<a href="api_client.client.html#onchatdeleted" class="tsd-kind-icon">on<wbr>Chat<wbr>Deleted</a>
 							</li>
 							<li class=" tsd-kind-event tsd-parent-kind-class">
 								<a href="api_client.client.html#onchatopened" class="tsd-kind-icon">on<wbr>Chat<wbr>Opened</a>
@@ -6702,6 +6824,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_client.client.html#creategroup" class="tsd-kind-icon">create<wbr>Group</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="api_client.client.html#createmessagecollector" class="tsd-kind-icon">create<wbr>Message<wbr>Collector</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_client.client.html#cutmsgcache" class="tsd-kind-icon">cut<wbr>Msg<wbr>Cache</a>
@@ -7143,6 +7268,7 @@
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
 			</ul>
 			<ul class="tsd-legend">

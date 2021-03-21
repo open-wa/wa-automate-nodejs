@@ -11,7 +11,7 @@ import { Collector, CollectorOptions } from './Collector';
 
 /**
  * Collects messages on a chat.
- * Will automatically stop if the chat (`'chatDelete'`) or guild (`'guildDelete'`) are deleted.
+ * Will automatically stop if the chat (`'chatDelete'`) is deleted.
  * @extends {Collector}
  */
 export class MessageCollector extends Collector {
