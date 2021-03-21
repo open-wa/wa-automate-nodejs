@@ -682,6 +682,17 @@ export class Client {
     return this.registerListener(SimpleListener.MessageDeleted, fn);
   }
 
+
+  /**
+   * Listens to when a chat is deleted by the host account
+   * @event 
+   * @param fn callback
+   * @fires [[Chat]]
+   */
+  public async onChatDeleted(fn: (chat: Chat) => void) {
+    return this.registerListener(SimpleListener.ChatDeleted, fn);
+  }
+
   /** 
    * Listens to battery changes
    * 
