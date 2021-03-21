@@ -926,6 +926,13 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
       ) as Promise<boolean>;
   }
 
+  /**
+   * Get an array of chats that match the label parameter. For example, if you want to get an array of chat objects that have the label "New customer".
+   * 
+   * This method is case insenstive and only works on business host accounts.
+   * 
+   * @label The label name 
+   */
   public async getChatsByLabel(label: string) : Promise<Chat[]> {
     const res = await this.pup(
       ({label}) => WAPI.getChatsByLabel(label),
