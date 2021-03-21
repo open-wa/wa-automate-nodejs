@@ -2483,8 +2483,8 @@ public async getStatus(contactId: ContactId) {
   * 
   */
 
-  public async addParticipant(groupId: GroupChatId, participantId: ContactId) {
-    return await this.pup(
+  public async addParticipant(groupId: GroupChatId, participantId: ContactId | ContactId[]) {
+    const res = await this.pup(
       ({ groupId, participantId }) => WAPI.addParticipant(groupId, participantId),
       { groupId, participantId }
     );
