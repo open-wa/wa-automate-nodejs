@@ -6,7 +6,7 @@ import { default as axios, AxiosRequestConfig} from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent, puppeteerConfig } from '../config/puppeteer.config'
 import { ConfigObject, STATE, LicenseType, Webhook } from './model';
-import { PageEvaluationTimeout, CustomError, ERROR_NAME  } from './model/errors';
+import { PageEvaluationTimeout, CustomError, ERROR_NAME, AddParticipantError  } from './model/errors';
 import PQueue from 'p-queue';
 import { ev, Spin } from '../controllers/events';
 import { v4 as uuidv4 } from 'uuid';
@@ -2488,6 +2488,9 @@ public async getStatus(contactId: ContactId) {
       ({ groupId, participantId }) => WAPI.addParticipant(groupId, participantId),
       { groupId, participantId }
     );
+    if (typeof res === "object") throw new AddParticipantError('Unable to add some participants', res)
+    if (typeof res === "string") throw new AddParticipantError(res)
+    return res;
   }
 
   /**
@@ -3215,7 +3218,8 @@ public async getStatus(contactId: ContactId) {
           success:false,
           error : {
             name: error.name,
-            message: error.message
+            message: error.message,
+            data: error.data
           }
         })
         }

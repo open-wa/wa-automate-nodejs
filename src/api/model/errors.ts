@@ -68,3 +68,30 @@ export class CustomError extends Error {
     this.message = message
   }
 }
+
+/**
+ * Add Participants Status Code Enum
+ */
+export enum AddParticipantErrorStatusCode {
+  /**
+   * Participant could not be added to group because they are already in the group
+   */
+  ALREADY_IN_GROUP = 409,
+  /**
+   * Participant could not be added to group because their privacy settings do not allow you to add them.
+   */
+  PRIVACY_SETTINGS = 403
+}
+export class AddParticipantError extends Error {
+  data: {
+    [contactId : string] : number
+  };
+  constructor(message : string, data ?: {
+    [contactId: string] : number
+  }){
+    super();
+    this.name = "ADD_PARTICIPANTS_ERROR";
+    this.message = message;
+    this.data = data
+  }
+}
