@@ -92,7 +92,7 @@ export enum AddParticipantErrorStatusCode {
   /**
    * Participant could not be added to group because the group is full
    */
-  // GROUP_FULL = ???;
+  GROUP_FULL = 500
 }
 export class AddParticipantError extends Error {
   data: {
