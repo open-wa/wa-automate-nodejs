@@ -1,6 +1,6 @@
+import { ChatId } from './aliases';
 import { Contact } from './contact';
 import { GroupMetadata } from './group-metadata';
-import { Id } from './id';
 
 export interface Chat {
   archive: boolean;
@@ -8,7 +8,7 @@ export interface Chat {
   changeNumberOldJid: any;
   contact: Contact;
   groupMetadata: GroupMetadata;
-  id: Id;
+  id: ChatId;
   isAnnounceGrpRestrict: any;
   formattedTitle?: string;
   isGroup: boolean;
@@ -78,7 +78,7 @@ export enum ChatTypes {
   SOLO = 'solo',
   GROUP = 'group',
   UNKNOWN = 'unknown'
-};
+}
 
 /**
  * Valid durations for muting a chat using [[muteChat]]

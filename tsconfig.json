@@ -242,7 +242,10 @@
       "CustomError",
       "MessageId",
       "AddParticipantError",
-      "AddParticipantErrorStatusCode"
+      "AddParticipantErrorStatusCode",
+      "Collector",
+      "MessageCollector",
+      "CollectorOptions"
     ]
   }
 }

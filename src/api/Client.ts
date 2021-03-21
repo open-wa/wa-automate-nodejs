@@ -60,6 +60,9 @@ import Crypto from 'crypto';
 import { tmpdir } from 'os';
 import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
 import { getLicense, injectInitPatch, injectLicense, injectLivePatch } from '../controllers/initializer';
+import { SimpleListener } from './model/events';
+import { CollectorOptions } from '../structures/Collector';
+import { MessageCollector } from '../structures/MessageCollector';
 
 export enum namespace {
   Chat = 'Chat',
@@ -67,79 +70,6 @@ export enum namespace {
   Contact = 'Contact',
   GroupMetadata = 'GroupMetadata'
 }
-
-/**
- * An enum of all the "simple listeners". A simple listener is a listener that just takes one parameter which is the callback function to handle the event.
- */
-export enum SimpleListener {
-  /**
-   * Represents [[onMessage]]
-   */
-  Message = 'onMessage',
-  /**
-   * Represents [[onAnyMessage]]
-   */
-  AnyMessage = 'onAnyMessage',
-  /**
-   * Represents [[onMessageDeleted]]
-   */
-  MessageDeleted = 'onMessageDeleted',
-  /**
-   * Represents [[onAck]]
-   */
-  Ack = 'onAck',
-  /**
-   * Represents [[onAddedToGroup]]
-   */
-  AddedToGroup = 'onAddedToGroup',
-  /**
-   * Represents [[onBattery]]
-   */
-  Battery = 'onBattery',
-  /**
-   * Represents [[onChatOpened]]
-   */
-  ChatOpened = 'onChatOpened',
-  /**
-   * Represents [[onIncomingCall]]
-   */
-  IncomingCall = 'onIncomingCall',
-  /**
-   * Represents [[onGlobalParticipantsChanged]]
-   */
-  GlobalParticipantsChanged = 'onGlobalParticipantsChanged',
-  /**
-   * Represents [[onChatState]]
-   */
-  ChatState = 'onChatState',
-  // Next two require extra params so not available to use via webhook register
-  // LiveLocation = 'onLiveLocation',
-  // ParticipantsChanged = 'onParticipantsChanged',
-  /**
-   * Represents [[onPlugged]]
-   */
-  Plugged = 'onPlugged',
-  /**
-   * Represents [[onStateChanged]]
-   */
-  StateChanged = 'onStateChanged',
-  /**
-   * Requires licence
-   * Represents [[onStory]]
-   */
-  Story = 'onStory',
-  /**
-   * Requires licence
-   * Represents [[onRemovedFromGroup]]
-   */
-  RemovedFromGroup = 'onRemovedFromGroup',
-  /**
-   * Requires licence
-   * Represents [[onContactAdded]]
-   */
-  ContactAdded = 'onContactAdded',
-}
-
 
 /**
  * @internal
@@ -673,7 +603,6 @@ export class Client {
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * Listens to when a message is deleted by a recipient or the host account
-
    * @event 
    * @param fn callback
    * @fires [[Message]]
@@ -3418,6 +3347,17 @@ public async getStatus(contactId: ContactId) {
     return false;
   }
   
+
+  /**
+   * Returns a new message collector for the chat which is related to the first parameter c
+   * @param c The Mesasge/Chat or Chat Id to base this message colletor on
+   * @param filter A function that consumes a [Message] and returns a boolean which determines whether or not the message shall be collected.
+   * @param options The options for the collector. For example, how long the collector shall run for, how many messages it should collect, how long between messages before timing out, etc.
+   */
+   createMessageCollector(c : Message | ChatId | Chat, filter : (args: any[] | any ) => boolean | Promise<boolean>, options : CollectorOptions) : MessageCollector {
+    const chatId : ChatId = ((c as Message)?.chat?.id || (c as Chat)?.id || c) as ChatId;
+    return new MessageCollector(this.getSessionId(), chatId, filter, options);
+   }
 }
 
 export { useragent } from '../config/puppeteer.config'

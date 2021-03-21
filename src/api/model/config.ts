@@ -1,6 +1,6 @@
 import { AxiosRequestConfig } from 'axios';
-import { SimpleListener } from '../..';
 import { Base64 } from "./aliases";
+import { SimpleListener } from './events';
 
 /**
  * The different types of qr code output.
