@@ -53,7 +53,11 @@ export enum ERROR_NAME {
     /**
      * Unable to send text
      */
-    SENDTEXT_FAILURE = "SENDTEXT_FAILURE"
+    SENDTEXT_FAILURE = "SENDTEXT_FAILURE",
+    /**
+     * Label does not exist
+     */
+     INVALID_LABEL = 'INVALID_LABEL'
 }
 
 /**
@@ -80,7 +84,15 @@ export enum AddParticipantErrorStatusCode {
   /**
    * Participant could not be added to group because their privacy settings do not allow you to add them.
    */
-  PRIVACY_SETTINGS = 403
+  PRIVACY_SETTINGS = 403,
+  /**
+   * Participant could not be added to group because they recently left.
+   */
+  RECENTLY_LEFT = 408,
+  /**
+   * Participant could not be added to group because the group is full
+   */
+  // GROUP_FULL = ???;
 }
 export class AddParticipantError extends Error {
   data: {

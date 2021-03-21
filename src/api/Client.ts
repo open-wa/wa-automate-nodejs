@@ -274,7 +274,7 @@ declare module WAPI {
   const setGroupIcon: (groupId: string, imgData: string) => Promise<boolean>;
   const getGroupAdmins: (groupId: string) => Promise<ContactId[]>;
   const removeParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
-  const addOrRemoveLabels: (label: string, id: string, type: string) => Promise<boolean>;
+  const addOrRemoveLabels: (label: string, chatId: string, type: string) => Promise<boolean>;
   const promoteParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
   const demoteParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
   const setGroupToAdminsOnly: (groupId: string, onlyAdmins: boolean) => Promise<boolean>;
@@ -385,6 +385,7 @@ declare module WAPI {
   const archiveChat: (id: string, archive: boolean) => Promise<boolean>;
   const isConnected: () => Boolean;
   const loadEarlierMessages: (contactId: string) => Promise<Message []>;
+  const getChatsByLabel: (label: string) => Promise<Chat[] | string>;
   const loadAllEarlierMessages: (contactId: string) => any;
   const getUnreadMessages: (
     includeMe: boolean,
@@ -885,7 +886,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
   public async setPresence(available: boolean) {
     return await this.pup(
-      available => {WAPI.setPresence(available)},
+      available => WAPI.setPresence(available),
       available
       )
   }
@@ -896,7 +897,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
   public async setMyStatus(newStatus: string) {
     return await this.pup(
-      ({newStatus}) => {WAPI.setMyStatus(newStatus)},
+      ({newStatus}) => WAPI.setMyStatus(newStatus),
       {newStatus}
       )
   }
@@ -906,10 +907,10 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param label: either the id or the name of the label. id will be something simple like anhy nnumber from 1-10, name is the label of the label if that makes sense.
    * @param id The Chat, message or contact id to which you want to add a label
    */
-  public async addLabel(label: string, id: string) {
+  public async addLabel(label: string, chatId: ChatId) {
     return await this.pup(
-      ({label, id}) => {WAPI.addOrRemoveLabels(label, id, 'add')},
-      {label, id}
+      ({label, chatId}) => WAPI.addOrRemoveLabels(label, chatId, 'add'),
+      {label, chatId}
       ) as Promise<boolean>;
   }
 
@@ -918,11 +919,20 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param label: either the id or the name of the label. id will be something simple like anhy nnumber from 1-10, name is the label of the label if that makes sense.
    * @param id The Chat, message or contact id to which you want to add a label
    */
-  public async removeLabel(label: string, id: string) {
+  public async removeLabel(label: string, chatId: ChatId) {
     return await this.pup(
-      ({label, id}) => {WAPI.addOrRemoveLabels(label, id, 'remove')},
-      {label, id}
+      ({label, chatId}) => WAPI.addOrRemoveLabels(label, chatId, 'remove'),
+      {label, chatId}
       ) as Promise<boolean>;
+  }
+
+  public async getChatsByLabel(label: string) : Promise<Chat[]> {
+    const res = await this.pup(
+      ({label}) => WAPI.getChatsByLabel(label),
+      {label}
+      )
+      if(typeof res == 'string') new CustomError(ERROR_NAME.INVALID_LABEL, res);
+      return res;
   }
 
 /**
@@ -936,7 +946,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
  */
   public async sendVCard(chatId: ChatId, vcard: string, contactName:string,  contactNumber?: string) {
     return await this.pup(
-      ({chatId, vcard, contactName, contactNumber}) => {WAPI.sendVCard(chatId, vcard,contactName, contactNumber)},
+      ({chatId, vcard, contactName, contactNumber}) => WAPI.sendVCard(chatId, vcard,contactName, contactNumber),
       {chatId, vcard, contactName, contactNumber}
       ) as Promise<boolean>;
   }
@@ -950,7 +960,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
    public async setMyName(newName: string) {
      return await this.pup(
-       ({newName}) => {WAPI.setMyName(newName)},
+       ({newName}) => WAPI.setMyName(newName),
        {newName}
        ) as Promise<boolean>;
    }
@@ -962,7 +972,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     */
    public async setChatState(chatState: ChatState, chatId: ChatId) {
     return await this.pup(
-      ({chatState, chatId}) => {WAPI.setChatState(chatState, chatId)},
+      ({chatState, chatId}) => WAPI.setChatState(chatState, chatId),
       //@ts-ignore
       {chatState, chatId}
       )
