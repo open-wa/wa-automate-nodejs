@@ -240,7 +240,9 @@
       "ERROR_NAME",
       "Webhook",
       "CustomError",
-      "MessageId"
+      "MessageId",
+      "AddParticipantError",
+      "AddParticipantErrorStatusCode"
     ]
   }
 }
