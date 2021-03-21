@@ -55,7 +55,7 @@ function start(client) {
 
 ## Custom Setup
 
-Learn more about all possible configuration options here: [ConfigObject](https://docs.openwa.dev/interfaces/configobject.html)
+Learn more about all possible configuration options here: [ConfigObject](https://docs.openwa.dev/interfaces/api_model.configobject.html)
 
 ```javascript
 const wa = require('@open-wa/wa-automate');

@@ -399,7 +399,7 @@ export interface ConfigObject {
      */
     hostNotificationLang ?: NotificationLanguage;
     /**
-     * Setting this to true will block all assets from loading onto the page. This may result in some load time impreovements but also increases instability. 
+     * Setting this to true will block all assets from loading onto the page. This may result in some load time improvements but also increases instability. 
      * @default `false`
      */
     blockAssets ?: boolean;
