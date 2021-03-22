@@ -28,6 +28,11 @@
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.13.9.tgz#ca34cb95e1c2dd126863a84465ae8ef66114be99"
   integrity sha512-nEUfRiARCcaVo3ny3ZQjURjHQZUo/JkEw7rLlSZy/psWGnvwXFtPcr6jb7Yb41DVW5LTe6KRq9LGleRNsg1Frw==
 
+"@discordjs/collection@^0.1.6":
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/@discordjs/collection/-/collection-0.1.6.tgz#9e9a7637f4e4e0688fd8b2b5c63133c91607682c"
+  integrity sha512-utRNxnd9kSS2qhyivo9lMlt5qgAUasH2gb7BEOn6p0efFh24gjGomHzWKMAPn2hEReOPQZCJaRKoURwRotKucQ==
+
 "@dsherret/to-absolute-glob@^2.0.2":
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/@dsherret/to-absolute-glob/-/to-absolute-glob-2.0.2.tgz#1f6475dc8bd974cea07a2daf3864b317b1dd332c"
@@ -58,10 +63,11 @@
     fastq "^1.6.0"
 
 "@open-wa/wa-automate@latest":
-  version "3.9.6"
-  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-3.9.6.tgz#fc4b826f7eb732182564dacc58a27519ca0a5fa3"
-  integrity sha512-TioDMl1pvYj2w/OSSWwuvtO/x2tIOI1sAVYOhwVH2K1KPotZ+rvY6+pRv6XgpMlFgY8kzrBDRN6p1l/t1OPUMQ==
+  version "3.9.13"
+  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-3.9.13.tgz#94fb43f2313607faf5132b81f64c89c568a32e3e"
+  integrity sha512-99i93ttpp8viJA1ovuSyp+beWUCqOrFaV+tUebsMsAXOylJMt5BiWhxlyX/c2PdN4nylSziqlrSYnaadiMSf8w==
   dependencies:
+    "@discordjs/collection" "^0.1.6"
     "@open-wa/wa-decrypt" "^3.1.0"
     "@types/sharp" "^0.27.1"
     atob "^2.1.2"
