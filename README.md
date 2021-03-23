@@ -13,7 +13,7 @@
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/open-wa/wa-automate-nodejs.svg)](http://isitmaintained.com/project/open-wa/wa-automate-nodejs "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/open-wa/wa-automate-nodejs.svg)](http://isitmaintained.com/project/open-wa/wa-automate-nodejs "Percentage of issues still open")
 
-<a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 2.2106.5](https://img.shields.io/badge/WhatsApp_Web-2.2106.5-brightgreen.svg)<img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/openwadev?label=Follow%20%40openwadev%20for%20updates&logo=twitter&style=social">
+<a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 2.2108.8](https://img.shields.io/badge/WhatsApp_Web-2.2108.8-brightgreen.svg)<img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/openwadev?label=Follow%20%40openwadev%20for%20updates&logo=twitter&style=social">
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/open-wa/wa-automate-nodejs/tree/heroku-deploy)
 
