@@ -3048,7 +3048,16 @@ public async getStatus(contactId: ContactId) {
     * Calling this method will cut the message cache to 2000 messages, therefore reducing the memory usage of your process.
     * You should use this in conjunction with `getAmountOfLoadedMessages` to intelligently control the session message cache.
     */
-    public async cutChatCache() : Promise<boolean> {
+    public async cutChatCache() : Promise<{
+      before : {
+        msgs: number,
+        chats: number
+      },
+      after : {
+        msgs: number,
+        chats: number
+      },
+     }> {
      return await this.pup(() => WAPI.cutChatCache());
    }
 
