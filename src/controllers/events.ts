@@ -86,7 +86,7 @@ export class EvEmitter {
     this.eventNamespace = eventNamespace;
   }
 
-  emit(data:any, eventNamespaceOverride ?: string){
+  emit(data:any, eventNamespaceOverride ?: string) : void {
     ev.emit(`${eventNamespaceOverride||this.eventNamespace}.${this.sessionId}`,data,this.sessionId,eventNamespaceOverride||this.eventNamespace);
     // ev.emit(`${this.sessionId}.${this.eventNamespace}`,data,this.sessionId,this.eventNamespace);
   }
@@ -100,38 +100,46 @@ export class Spin extends EvEmitter{
   _shouldEmit: boolean;
   _spinId: string;
 
-  constructor(sessionId: string, eventNamespace: string, disableSpins: boolean = false, shouldEmit:boolean = true){
+  /**
+   * 
+   * @param sessionId The session id of the session. @default `session`
+   * @param eventNamespace The namespace of the event
+   * @param disableSpins If the spinnies should be animated @default `false`
+   * @param shouldEmit If the changes in the spinner should emit an event on the event emitter at `${eventNamesapce}.${sessionId}`
+   */
+  constructor(sessionId: string = 'session', eventNamespace: string, disableSpins: boolean = false, shouldEmit:boolean = true){
     super(sessionId,eventNamespace);
+    if(!sessionId) sessionId = 'session';
     this._spinId = sessionId+"_"+eventNamespace
     this._spinner = getGlobalSpinner(disableSpins);
     this._shouldEmit = shouldEmit
   }
   
   
-  start(eventMessage:string){
-    this._spinner.add(this._spinId, { text: eventMessage });
+  start(eventMessage:string, indent?: number) : void {
+    this._spinner.add(this._spinId, { text: eventMessage, indent });
     if(this._shouldEmit) this.emit(eventMessage);
   }
 
-  info(eventMessage:string){
+  info(eventMessage:string) : void {
     if(!this._spinner.pick(this._spinId)) this.start('');
     this._spinner.update(this._spinId, { text: eventMessage });
     if(this._shouldEmit) this.emit(eventMessage);
   }
 
-  fail(eventMessage:string){
+  fail(eventMessage:string) : void {
     if(!this._spinner.pick(this._spinId)) this.start('');
     this._spinner.fail(this._spinId, { text: eventMessage });
     if(this._shouldEmit) this.emit(eventMessage);
   }
   
-  succeed(eventMessage ?: string){
+  succeed(eventMessage ?: string) : void {
     if(!this._spinner.pick(this._spinId)) this.start('');
     this._spinner.succeed(this._spinId, { text: eventMessage });
     if(this._shouldEmit) this.emit(eventMessage||'SUCCESS');
   }
 
-  remove() {
+  remove() : void {
     this._spinner.remove(this._spinId);
   }
 }

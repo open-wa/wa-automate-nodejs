@@ -16,6 +16,9 @@
         "@typescript-eslint"
     ],
     "rules": {
-        "@typescript-eslint/no-explicit-any" : "off"
+        "@typescript-eslint/no-explicit-any" : "off",
+        "@typescript-eslint/no-empty-function" : "off",
+        "no-async-promise-executor" : "off",
+        "@typescript-eslint/ban-ts-comment" : "off"
     }
 }

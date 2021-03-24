@@ -30,13 +30,13 @@ isBase64 = (str: string) => {
     (firstPaddingChar === len - 2 && str[len - 1] === '=');
 },
 createLogger = (sessionId: string, sessionInfo: SessionInfo, config: ConfigObject) => {
-  let p = path.join(path.resolve(process.cwd()),`/logs/${sessionId || 'session'}/${sessionInfo.START_TS}.log`)
+  const p = path.join(path.resolve(process.cwd()),`/logs/${sessionId || 'session'}/${sessionInfo.START_TS}.log`)
   if(!fs.existsSync(p)) {
     fs.mkdirSync(path.join(path.resolve(process.cwd()),`/logs/${sessionId || 'session'}`), {
       recursive:true
     })
   }
-  let logger = pino({
+  const logger = pino({
   redact: ['file', 'base64', 'image', 'webpBase64', 'base64', 'durl', 'thumbnail'],
   },pino.destination(p))
 
@@ -59,10 +59,11 @@ import { CustomProduct } from './model/product';
 import Crypto from 'crypto';
 import { tmpdir } from 'os';
 import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
-import { getLicense, injectInitPatch, injectLicense, injectLivePatch } from '../controllers/initializer';
+import { getAndInjectLicense, getAndInjectLivePatch, getLicense } from '../controllers/initializer';
 import { SimpleListener } from './model/events';
 import { CollectorOptions } from '../structures/Collector';
 import { MessageCollector } from '../structures/MessageCollector';
+import { injectInitPatch } from '../controllers/init_patch';
 
 export enum namespace {
   Chat = 'Chat',
@@ -82,7 +83,7 @@ async function convertMp4BufferToWebpDataUrl(file: DataURL | Buffer | Base64, pr
   const ffmpeg = optionalRequire('fluent-ffmpeg', "Missing peer dependency: npm i fluent-ffmpeg");
   if(!ffmpeg) return false;
   const tempFile = path.join(tmpdir(), `processing.${Crypto.randomBytes(6).readUIntLE(0, 6).toString(36)}.webp`);
-  var stream = new (require('stream').Readable)();
+  const stream = new (require('stream').Readable)();
   stream.push(Buffer.isBuffer(file) ? file : Buffer.from(file.replace('data:video/mp4;base64,',''), 'base64'));
   stream.push(null);
   await new Promise((resolve, reject) => {
@@ -140,13 +141,13 @@ async function getDUrl(url: string, optionsOverride: any = {} ){
  * Use this to extract the mime type from a [[DataURL]]
  */
 function base64MimeType(dUrl : DataURL) {
-  var result = null;
+  let result = null;
 
   if (typeof dUrl !== 'string') {
     return result;
   }
 
-  var mime = dUrl.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
+  const mime = dUrl.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
 
   if (mime && mime.length) {
     result = mime[1];
@@ -458,8 +459,8 @@ export class Client {
       /**
        * patch
        */
-      await injectLivePatch(this._page, spinner)
-      if (this._createConfig?.licenseKey) await injectLicense(this._page,this._createConfig,me, this._sessionInfo, spinner, preloadlicense);
+      await getAndInjectLivePatch(this._page, spinner)
+      if (this._createConfig?.licenseKey) await getAndInjectLicense(this._page,this._createConfig,me, this._sessionInfo, spinner, preloadlicense);
       /**
        * init patch
        */
@@ -1020,7 +1021,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    
    content = content?.trim() || content
 
-    let res = await this.pup(
+    const res = await this.pup(
       ({ to, content }) => {
         WAPI.sendSeen(to);
         return WAPI.sendMessage(to, content);
@@ -1215,11 +1216,11 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     ptt?:boolean,
     withoutPreview?:boolean,
     hideTags ?: boolean
-  ) {
+  ) : Promise<MessageId | boolean> {
       //check if the 'base64' file exists
       if(!isDataURL(file) && !isBase64(file)) {
         //must be a file then
-        let relativePath = path.join(path.resolve(process.cwd(),file|| ''));
+        const relativePath = path.join(path.resolve(process.cwd(),file|| ''));
         if(fs.existsSync(file) || fs.existsSync(relativePath)) {
           file = await datauri(fs.existsSync(file)  ? file : relativePath);
         } else if(isUrl(file)){
@@ -1234,7 +1235,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     'ERROR: Please make sure you have at least one chat'
    ];
 
-    let res = await this.pup(
+    const res = await this.pup(
       ({ to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags}) =>  WAPI.sendImage(file, to, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags),
       { to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags}
     )
@@ -1364,8 +1365,8 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     to: ChatId,
     file: DataURL | FilePath,
     quotedMsgId: MessageId,
-  ) {
-    return this.sendImage(to, file, 'ptt.ogg', '', quotedMsgId, true, true);
+  ) : Promise<MessageId> {
+    return this.sendImage(to, file, 'ptt.ogg', '', quotedMsgId, true, true) as Promise<MessageId> ;
   }
   
   /**
@@ -1375,7 +1376,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     to: ChatId,
     file: DataURL | FilePath,
     quotedMsgId: MessageId,
-  ) {
+  ) : Promise<MessageId> {
     return this.sendPtt(to, file,quotedMsgId);
   }
 
@@ -2235,7 +2236,7 @@ public async getStatus(contactId: ContactId) {
    * @param onlyLocal If it should only delete locally (message remains on the other recipienct's phone). Defaults to false.
    * @returns nothing
    */
-  public async deleteMessage(chatId: ChatId, messageId: MessageId[] | MessageId, onlyLocal : boolean = false) {
+  public async deleteMessage(chatId: ChatId, messageId: MessageId[] | MessageId, onlyLocal : boolean = false) : Promise<void> {
     return await this.pup(
       ({ chatId, messageId, onlyLocal }) => WAPI.smartDeleteMessages(chatId, messageId, onlyLocal),
       { chatId, messageId, onlyLocal }
@@ -2628,9 +2629,9 @@ public async getStatus(contactId: ContactId) {
    */
   public async sendStickerfromUrlAsReply(to: ChatId, url: string, messageId: MessageId, requestConfig: AxiosRequestConfig = {}, stickerMetadata ?: StickerMetadata) {
     const dUrl = await getDUrl(url, requestConfig);
-    let processingResponse = await this.prepareWebp(dUrl, stickerMetadata);
+    const processingResponse = await this.prepareWebp(dUrl, stickerMetadata);
     if(!processingResponse) return false;
-    let {webpBase64, metadata} = processingResponse;
+    const {webpBase64, metadata} = processingResponse;
       return await this.pup(
         ({ webpBase64,to, metadata , messageId }) => WAPI.sendStickerAsReply(webpBase64,to, metadata, messageId),
         { webpBase64,to, metadata, messageId }
@@ -3205,7 +3206,7 @@ public async getStatus(contactId: ContactId) {
    * @param webhookId The ID of the webhook
    * @retruns boolean
    */
-  public async removeWebhook(webhookId: string){
+  public async removeWebhook(webhookId: string) : Promise<boolean> {
     if(this._registeredWebhooks[webhookId]) {
       delete this._registeredWebhooks[webhookId];
       return true; //`Webhook for ${simpleListener} removed`

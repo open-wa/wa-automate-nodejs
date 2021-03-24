@@ -1,9 +1,9 @@
-import * as puppeteer from 'puppeteer';
 import * as qrcode from 'qrcode-terminal';
-import { from, race } from 'rxjs';
+import { from, Observable, race } from 'rxjs';
 import {EvEmitter} from './events'
 import { screenshot } from './initializer'
-import { ConfigObject, QRFormat, QRQuality } from '../api/model';
+import { ConfigObject } from '../api/model';
+import { Page, JSHandle} from 'puppeteer';
 const timeout = ms =>  new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 
 /**
@@ -11,9 +11,10 @@ const timeout = ms =>  new Promise(resolve => setTimeout(resolve, ms, 'timeout')
  * @returns true if is authenticated, false otherwise
  * @param waPage
  */
-export const isAuthenticated = (waPage: puppeteer.Page) => race(needsToScan(waPage), isInsideChat(waPage)).toPromise();
-export const needsToScan = (waPage: puppeteer.Page) => {
-  return from(new Promise(async resolve => {
+export const isAuthenticated = (waPage: Page) : Promise<unknown> => race(needsToScan(waPage), isInsideChat(waPage)).toPromise();
+
+export const needsToScan = (waPage: Page) : Observable<unknown> => {
+  return from(new Promise(async resolve  => {
     try {
     await Promise.race([
       waPage.waitForFunction('checkQrRefresh()',{ timeout: 0, polling: 1000 }).catch(()=>{}),
@@ -30,7 +31,7 @@ export const needsToScan = (waPage: puppeteer.Page) => {
   }))
 };
 
-export const isInsideChat = (waPage: puppeteer.Page) => {
+export const isInsideChat = (waPage: Page) : Observable<boolean> => {
   return from(
     waPage
       .waitForFunction(
@@ -41,15 +42,15 @@ export const isInsideChat = (waPage: puppeteer.Page) => {
   );
 };
 
-export const phoneIsOutOfReach = async (waPage: puppeteer.Page) => {
+export const phoneIsOutOfReach = async (waPage: Page) : Promise<JSHandle>  => {
   return await waPage
     .waitForFunction(
       'document.querySelector("body").innerText.includes("Trying to reach phone")',
       { timeout: 0, polling: 'mutation' }
     );
-};
+} ;
 
-export async function smartQr(waPage: puppeteer.Page, config?: ConfigObject) {
+export async function smartQr(waPage: Page, config?: ConfigObject) : Promise<boolean | void>{
     const evalResult = await waPage.evaluate("window.Store && window.Store.State")
     if (evalResult === false) {
       console.log('Seems as though you have been TOS_BLOCKed, unable to refresh QR Code. Please see https://github.com/open-wa/wa-automate-nodejs#best-practice for information on how to prevent this from happeing. You will most likely not get a QR Code');
@@ -72,7 +73,7 @@ export async function smartQr(waPage: puppeteer.Page, config?: ConfigObject) {
       await timeout(2000);
   }
 
-  return new Promise(async (resolve,reject) => {
+  return new Promise(async resolve => {
     const funcName = '_smartQr';
     const fn = async (qrData) => {
       if(qrData==='QR_CODE_SUCCESS') return resolve(await isInsideChat(waPage).toPromise())
