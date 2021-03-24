@@ -74,6 +74,22 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
     })
   }
 
+  const sessionjson = getSessionDataFromFile(sessionId, config)
+  if(sessionjson) await waPage.evaluateOnNewDocument(
+    session => {
+        localStorage.clear();
+        Object.keys(session).forEach(key=>localStorage.setItem(key,session[key]));
+    }, sessionjson);
+    if(config?.proxyServerCredentials) {
+      await require('puppeteer-page-proxy')(waPage, proxyAddr);
+      console.log(`Active proxy: ${config.proxyServerCredentials.address}`)
+    }
+  await Promise.all(setupPromises);
+  await waPage.goto(puppeteerConfig.WAUrl)
+  return waPage;
+}
+
+const getSessionDataFromFile = (sessionId: string, config: ConfigObject) => {
   //check if [session].json exists in __dirname
   const sessionjsonpath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(process.cwd(),config?.sessionDataPath || '')) : path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
   let sessionjson = '';
@@ -84,7 +100,12 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
     try {
       sessionjson = JSON.parse(s);
     } catch (error) {
+      try {
       sessionjson = JSON.parse(Buffer.from(s, 'base64').toString('ascii'));
+      } catch (error) {
+      console.error("session data json file is corrupted. Please reauthenticate.");
+      return false;
+      }
     }
   } else {
     const p = require?.main?.path || process?.mainModule?.path;
@@ -100,19 +121,8 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
       }
     }
   }
-  if(sessionjson) await waPage.evaluateOnNewDocument(
-    session => {
-        localStorage.clear();
-        Object.keys(session).forEach(key=>localStorage.setItem(key,session[key]));
-    }, sessionjson);
-    if(config?.proxyServerCredentials) {
-      await require('puppeteer-page-proxy')(waPage, proxyAddr);
-      console.log(`Active proxy: ${config.proxyServerCredentials.address}`)
-    }
-  await Promise.all(setupPromises);
-  await waPage.goto(puppeteerConfig.WAUrl)
-  return waPage;
-}
+  return sessionjson;
+} 
 
 export const addScript = (page: Page, js : string) : Promise<unknown> => page.addScriptTag({
   path: require.resolve(path.join(__dirname, '../lib', js))
