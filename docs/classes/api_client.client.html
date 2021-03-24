@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Client | @open-wa/wa-automate - v3.9.14</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.9.14">
+	<title>Client | @open-wa/wa-automate - v3.9.15</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.9.15">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v3.9.14</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v3.9.15</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -127,12 +127,14 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#contactunblock" class="tsd-kind-icon">contact<wbr>Unblock</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#creategroup" class="tsd-kind-icon">create<wbr>Group</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#createmessagecollector" class="tsd-kind-icon">create<wbr>Message<wbr>Collector</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#cutchatcache" class="tsd-kind-icon">cut<wbr>Chat<wbr>Cache</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#cutmsgcache" class="tsd-kind-icon">cut<wbr>Msg<wbr>Cache</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#darkmode" class="tsd-kind-icon">dark<wbr>Mode</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#decryptmedia" class="tsd-kind-icon">decrypt<wbr>Media</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#deleteallstatus" class="tsd-kind-icon">delete<wbr>All<wbr>Status</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#deletechat" class="tsd-kind-icon">delete<wbr>Chat</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#deletemessage" class="tsd-kind-icon">delete<wbr>Message</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#deletestalechats" class="tsd-kind-icon">delete<wbr>Stale<wbr>Chats</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#deletestatus" class="tsd-kind-icon">delete<wbr>Status</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#demoteparticipant" class="tsd-kind-icon">demote<wbr>Participant</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#download" class="tsd-kind-icon">download</a></li>
@@ -1521,10 +1523,31 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="cutchatcache" class="tsd-anchor"></a>
+					<h3>cut<wbr>Chat<wbr>Cache</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">cut<wbr>Chat<wbr>Cache<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>after<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>chats<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>msgs<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>before<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>chats<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>msgs<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>This simple function halves the amount of chats in your session message cache. This does not delete messages off your phone. If over a day you&#39;ve processed 4000 messages this will possibly result in 4000 messages being present in your session.
+										Calling this method will cut the message cache to 2000 messages, therefore reducing the memory usage of your process.
+									You should use this in conjunction with <code>getAmountOfLoadedMessages</code> to intelligently control the session message cache.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>after<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>chats<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>msgs<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>before<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>chats<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>msgs<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="cutmsgcache" class="tsd-anchor"></a>
 					<h3>cut<wbr>Msg<wbr>Cache</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">cut<wbr>Msg<wbr>Cache<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">cut<wbr>Msg<wbr>Cache<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -1537,7 +1560,7 @@
 									You should use this in conjunction with <code>getAmountOfLoadedMessages</code> to intelligently control the session message cache.</p>
 								</div>
 							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -1682,6 +1705,34 @@
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
 							<p>nothing</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="deletestalechats" class="tsd-anchor"></a>
+					<h3>delete<wbr>Stale<wbr>Chats</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">delete<wbr>Stale<wbr>Chats<span class="tsd-signature-symbol">(</span>startingFrom<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Deletes chats from a certain index (default 1000). E.g if this startingFrom param is <code>100</code> then all chats from index <code>100</code> onwards will be deleted.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> startingFrom: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the chat index to start from. Please do not set this to anything less than 10 @default: <code>1000</code></p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -6842,6 +6893,9 @@
 								<a href="api_client.client.html#createmessagecollector" class="tsd-kind-icon">create<wbr>Message<wbr>Collector</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="api_client.client.html#cutchatcache" class="tsd-kind-icon">cut<wbr>Chat<wbr>Cache</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_client.client.html#cutmsgcache" class="tsd-kind-icon">cut<wbr>Msg<wbr>Cache</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
@@ -6858,6 +6912,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_client.client.html#deletemessage" class="tsd-kind-icon">delete<wbr>Message</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="api_client.client.html#deletestalechats" class="tsd-kind-icon">delete<wbr>Stale<wbr>Chats</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_client.client.html#deletestatus" class="tsd-kind-icon">delete<wbr>Status</a>
