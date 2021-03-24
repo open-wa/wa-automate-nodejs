@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ConfigObject | @open-wa/wa-automate - v3.9.13</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.9.13">
+	<title>ConfigObject | @open-wa/wa-automate - v3.9.14</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.9.14">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v3.9.13</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v3.9.14</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -101,6 +101,7 @@
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model.configobject.html#browserwsendpoint" class="tsd-kind-icon">browserWSEndpoint</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model.configobject.html#bypasscsp" class="tsd-kind-icon">bypassCSP</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model.configobject.html#cacheenabled" class="tsd-kind-icon">cache<wbr>Enabled</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model.configobject.html#cachedpatch" class="tsd-kind-icon">cached<wbr>Patch</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model.configobject.html#calltimeout" class="tsd-kind-icon">call<wbr>Timeout</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model.configobject.html#chromiumargs" class="tsd-kind-icon">chromium<wbr>Args</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model.configobject.html#corsfix" class="tsd-kind-icon">cors<wbr>Fix</a></li>
@@ -278,6 +279,23 @@
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
 							<p>Setting this to false turn off the cache. This may improve memory usage.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="cachedpatch" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> cached<wbr>Patch</h3>
+					<div class="tsd-signature tsd-kind-icon">cached<wbr>Patch<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This will force the library to use the default cached raw github link for patches to shave a few hundred milliseconds from your launch time. If you use this option, you will need to wait about 5 minutes before trying out new patches.</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
@@ -1188,6 +1206,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="api_model.configobject.html#cacheenabled" class="tsd-kind-icon">cache<wbr>Enabled</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model.configobject.html#cachedpatch" class="tsd-kind-icon">cached<wbr>Patch</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="api_model.configobject.html#calltimeout" class="tsd-kind-icon">call<wbr>Timeout</a>
