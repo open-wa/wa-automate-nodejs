@@ -180,7 +180,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     /**
      * Attempt to preload the license
      */
-     const earlyWid = await waPage.evaluate(`localStorage["last-wid"].replace(/"/g,"")`);
+     const earlyWid = await waPage.evaluate(`(localStorage["last-wid"] || '').replace(/"/g,"")`);
      const licensePromise = getLicense(config,{
        _serialized: earlyWid
      },debugInfo)
@@ -398,6 +398,7 @@ export async function getLicense(config: ConfigObject, me : {
 export async function getAndInjectLicense(page: Page, config: ConfigObject, me : {
   _serialized: string
 }, debugInfo: SessionInfo, spinner ?: Spin, preloadedLicense ?: string | false): Promise<boolean> {
+  if(!config?.licenseKey || !me?._serialized) return false;
   if(!axios) axios = await import('axios');
   let l_err;
   let data = preloadedLicense;
