@@ -290,6 +290,7 @@ declare module WAPI {
   const clearAllChats: () => Promise<boolean>;
   const cutMsgCache: () => boolean;
   const cutChatCache: () => boolean;
+  const deleteStaleChats: (startingFrom: number) => Promise<boolean>;
   const getChat: (contactId: string) => Chat;
   const getLastSeen: (contactId: string) => Promise<number | boolean>;
   const getProfilePicFromServer: (chatId: string) => any;
@@ -3050,6 +3051,16 @@ public async getStatus(contactId: ContactId) {
     public async cutChatCache() : Promise<boolean> {
      return await this.pup(() => WAPI.cutChatCache());
    }
+
+
+   /**
+    * Deletes chats from a certain index (default 1000). E.g if this startingFrom param is `100` then all chats from index `100` onwards will be deleted.
+    * 
+    * @param startingFrom the chat index to start from. Please do not set this to anything less than 10 @default: `1000` 
+    */
+   public async deleteStaleChats(startingFrom ?: number) : Promise<boolean> {
+    return await this.pup(({startingFrom}) => WAPI.deleteStaleChats(startingFrom),{startingFrom});
+  }
 
   /**
    * Download profile pics from the message object.
