@@ -497,6 +497,11 @@ export interface ConfigObject {
      * @default `https://open-wa-sticker-api.herokuapp.com`
      */
     stickerServerEndpoint ?: string | boolean;
+    /**
+     * This will force the library to use the default cached raw github link for patches to shave a few hundred milliseconds from your launch time. If you use this option, you will need to wait about 5 minutes before trying out new patches.
+     * @default `false`
+     */
+    cachedPatch ?: boolean;
     /**@internal */
     [x: string]: any 
 }
