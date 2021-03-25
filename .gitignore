@@ -22,6 +22,7 @@ demo/**.png
 demo/**.mp4
 
 **.ignore.ts
+**.ignore**
 **.node-persist**
 .vscode/launch.json
 
