@@ -333,10 +333,14 @@ export async function getPatch(config: ConfigObject, spinner ?: Spin) : Promise<
 }> {
   const ghUrl = `https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/patches.json`
   const hasSpin = !!spinner;
+  /**
+   * Undo below comment when a githack alternative is found.
+   */
+  const patchesUrl = ghUrl; //config?.cachedPatch ?  ghUrl : pkg.patches
   if(!spinner) spinner = new Spin(config.sessionId, "FETCH_PATCH", config.disableSpins,true)
-  spinner?.start(`Downloading ${config?.cachedPatch ? 'cached': ''} patches`, hasSpin ? undefined : 2)
+  spinner?.start(`Downloading ${config?.cachedPatch ? 'cached ': ''}patches: ${patchesUrl}`, hasSpin ? undefined : 2)
   if(!axios) axios = await import('axios');
-  const { data, headers} = await axios.get(config?.cachedPatch ?  ghUrl : pkg.patches).catch(()=>{
+  const { data, headers } = await axios.get(patchesUrl).catch(()=>{
     spinner?.info('Downloading patches. Retrying.')
     return axios.get(`${ghUrl}?v=${Date.now()}`)
   });
