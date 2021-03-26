@@ -11,6 +11,7 @@ export interface Chat {
   id: ChatId;
   isAnnounceGrpRestrict: any;
   formattedTitle?: string;
+  canSend?: boolean;
   isGroup: boolean;
   isReadOnly: boolean;
   kind: string;
