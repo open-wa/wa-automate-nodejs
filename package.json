@@ -137,7 +137,7 @@
     "rxjs": "^6.5.3",
     "socket.io": "^3.0.0",
     "spinnies": "^0.5.1",
-    "swagger-stats": "^0.95.18",
+    "swagger-stats": "^0.95.19",
     "swagger-ui-dist": "^3.36.1",
     "swagger-ui-express": "^4.1.4",
     "tcp-port-used": "^1.0.1",
