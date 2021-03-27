@@ -30,6 +30,10 @@ export type StickerMetadata = {
      */
     keepScale ?: boolean
     /**
+     * Applies a circular mask to the sticker. Works on images only for now.
+     */
+    circle ?: boolean
+    /**
      * Your Discord ID to get onto the sticker leaderboard!
      */
     discord ?: string
