@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Send Videos | @open-wa/wa-automate - v3.9.17</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.9.17">
+	<title>Send Videos | @open-wa/wa-automate - v3.10.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.10.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../../assets/css/main.css">
 	<link rel="stylesheet" href="../../../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../../../index.html" class="title">@open-wa/wa-automate - v3.9.17</a>
+					<a href="../../../index.html" class="title">@open-wa/wa-automate - v3.10.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -86,8 +86,8 @@
 					<h1>Send Video</h1>
 				</a>
 				<p>In order to send videos, the client must be started with an instance of chrome! Otherwise videos will be sent as files and not render properly in the app.</p>
-				<p>To use chrome set [[useChrome]] (finds the chrome installation automatically) to true or set the [[executablePath]] (set the chrome installation path manually).</p>
-				<p>[[useChrome]] takes a few seconds so to save time in consequtive processes set [[executablePath]] ([[useChrome]] will output the valid [[executablePath]] in the logs so keep an eye on them)</p>
+				<p>To use chrome set <a href="../../../interfaces/api_model_config.configobject.html#usechrome">useChrome</a> (finds the chrome installation automatically) to true or set the <a href="../../../interfaces/api_model_config.configobject.html#executablepath">executablePath</a> (set the chrome installation path manually).</p>
+				<p><a href="../../../interfaces/api_model_config.configobject.html#usechrome">useChrome</a> takes a few seconds so to save time in consequtive processes set <a href="../../../interfaces/api_model_config.configobject.html#executablepath">executablePath</a> (<a href="../../../interfaces/api_model_config.configobject.html#usechrome">useChrome</a> will output the valid <a href="../../../interfaces/api_model_config.configobject.html#executablepath">executablePath</a> in the logs so keep an eye on them)</p>
 				<pre><code class="language-javascript"><span style="color: #000000">    </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">sendImage</span><span style="color: #000000">(</span><span style="color: #001080">chatId</span><span style="color: #000000">, </span><span style="color: #001080">dataUrl</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;filename.jpeg&#039;</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;cool caption&#039;</span><span style="color: #000000">)</span>
 
 <span style="color: #000000">    </span><span style="color: #008000">//send image as a reply to another message quotedMessageId</span>

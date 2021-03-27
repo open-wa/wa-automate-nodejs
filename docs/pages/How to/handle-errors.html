@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Handle Errors | @open-wa/wa-automate - v3.9.17</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.9.17">
+	<title>Handle Errors | @open-wa/wa-automate - v3.10.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.10.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../assets/css/main.css">
 	<link rel="stylesheet" href="../../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../../index.html" class="title">@open-wa/wa-automate - v3.9.17</a>
+					<a href="../../index.html" class="title">@open-wa/wa-automate - v3.10.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -117,8 +117,8 @@
 
 </code></pre>
 				<p>Alternatively, you can set the client &quot;start&quot; function (the function that consumes the client after it has been created) as a config variable <a href="../../interfaces/api_model_config.configobject.html#restartoncrash">restartOnCrash</a>, allowing the process itself to restart/retry if there are any issues. Be careful with this as it may lead to an endless loop.</p>
-				<p>You can also use [[logConsole]] (logs all browser console output) or just [[logConsoleErrors]] (only logs browser errors) to better debug issues.</p>
-				<p>Setting [[killProcessOnBrowserClose]] to true will kill the whole node process upon any critical browser issue (maybe the browser runs out of memory and crashes, this option will kill the process).</p>
+				<p>You can also use <a href="../../interfaces/api_model_config.configobject.html#logconsole">logConsole</a> (logs all browser console output) or just <a href="../../interfaces/api_model_config.configobject.html#logconsoleerrors">logConsoleErrors</a> (only logs browser errors) to better debug issues.</p>
+				<p>Setting <a href="../../interfaces/api_model_config.configobject.html#killprocessonbrowserclose">killProcessOnBrowserClose</a> to true will kill the whole node process upon any critical browser issue (maybe the browser runs out of memory and crashes, this option will kill the process).</p>
 				<p>This is useful if you have a n orchestrator process that restarts processes. (e.g <a href="https://pm2.keymetrics.io/">pm2</a> or a <a href="https://docs.docker.com/config/containers/start-containers-automatically/#:~:text=Restart%20policy%20details,-Keep%20the%20following&amp;text=A%20restart%20policy%20only%20takes,going%20into%20a%20restart%20loop.">docker restart policy</a>)</p>
 				<pre><code class="language-javascript"><span style="color: #0000FF">async</span><span style="color: #000000"> </span><span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">start</span><span style="color: #000000">(</span><span style="color: #001080">client</span><span style="color: #000000">){</span>
 <span style="color: #000000">    ...</span>
