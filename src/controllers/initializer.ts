@@ -5,6 +5,7 @@ osName = require('os-name'),
 configWithCases = require('../../bin/config-schema.json'),
 updateNotifier = require('update-notifier'),
 pkg = require('../../package.json'),
+crypto = require('crypto'),
 timeout = ms => {
   return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 }
@@ -112,8 +113,10 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
   const spinner = new Spin(sessionId, 'STARTUP', config?.disableSpins);
   try {
     if(typeof config === 'string') console.error("AS OF VERSION 3+ YOU CAN NO LONGER SET THE SESSION ID AS THE FIRST PARAMETER OF CREATE. CREATE CAN ONLY TAKE A CONFIG OBJECT. IF YOU STILL HAVE CONFIGS AS A SECOND PARAMETER, THEY WILL HAVE NO EFFECT! PLEASE SEE DOCS.")
-    spinner.start('Initializing WA');
-    waPage = await initPage(sessionId, config, customUserAgent);
+    spinner.start('Starting');
+    spinner.succeed(`Version: ${pkg.version}`);
+    spinner.info(`Initializing WA`);
+    waPage = await initPage(sessionId, config, customUserAgent, spinner);
     spinner.succeed('Browser Launched');
     const throwOnError = config && config.throwErrorOnTosBlock == true;
 
@@ -158,7 +161,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     /**
      * Attempt to preload patches
      */
-    const patchPromise = getPatch(config)
+    const patchPromise = getPatch(config, spinner)
     if (canInjectEarly) {
       spinner.start('Injecting api');
       waPage = await injectApi(waPage);
@@ -184,7 +187,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
      const earlyWid = await waPage.evaluate(`(localStorage["last-wid"] || '').replace(/"/g,"")`);
      const licensePromise = getLicense(config,{
        _serialized: earlyWid
-     },debugInfo)
+     },debugInfo,spinner)
 
     if (authenticated == 'timeout') {
       const outOfReach = await phoneIsOutOfReach(waPage);
@@ -339,13 +342,19 @@ export async function getPatch(config: ConfigObject, spinner ?: Spin) : Promise<
    */
   const patchesUrl = config?.cachedPatch ?  ghUrl : pkg.patches
   if(!spinner) spinner = new Spin(config.sessionId, "FETCH_PATCH", config.disableSpins,true)
-  spinner?.start(`Downloading ${config?.cachedPatch ? 'cached ': ''}patches: ${patchesUrl}`, hasSpin ? undefined : 2)
+  spinner?.start(`Downloading ${config?.cachedPatch ? 'cached ': ''}patches from ${patchesUrl}`, hasSpin ? undefined : 2)
   if(!axios) axios = await import('axios');
+  const START = Date.now();
   const { data, headers } = await axios.get(patchesUrl).catch(()=>{
     spinner?.info('Downloading patches. Retrying.')
     return axios.get(`${ghUrl}?v=${Date.now()}`)
   });
-  spinner?.succeed('Downloaded patches')
+  const END = Date.now();
+  if(!headers['etag']) {
+    spinner?.info('Generating patch hash');
+    headers['etag'] = crypto.createHash('md5').update(typeof data === 'string' ? data : JSON.stringify(data)).digest("hex").slice(-5);
+  }
+  spinner?.succeed(`Downloaded patches in ${(END-START)/1000}s`)
   return {
     data,
     tag: `${(headers.etag || '').replace(/"/g,'').slice(-5)}`
@@ -391,8 +400,10 @@ export async function getLicense(config: ConfigObject, me : {
   if(!spinner) spinner = new Spin(config.sessionId || "session", "FETCH_LICENSE", config.disableSpins,true)
   spinner?.start('Fetching License', hasSpin ? undefined : 2)
   try {
+  const START = Date.now()
   const { data } = await axios.post(pkg.licenseCheckUrl, { key: config.licenseKey, number: me._serialized, ...debugInfo });
-  spinner?.succeed('Got License')
+  const END = Date.now()
+  spinner?.succeed(`Downloaded License in ${(END-START)/1000}s`)
   return data;
   } catch (error) {
     spinner?.fail(`License request failed: ${error.statusCode || error.code || error.message}`);
@@ -407,7 +418,7 @@ export async function getAndInjectLicense(page: Page, config: ConfigObject, me :
   if(!axios) axios = await import('axios');
   let l_err;
   let data = preloadedLicense;
-  spinner?.start('Checking License')
+  spinner?.info('Checking License')
   try {
     if(!data) data = await getLicense(config, me, debugInfo, spinner)
   if (data) {
@@ -417,8 +428,8 @@ export async function getAndInjectLicense(page: Page, config: ConfigObject, me :
     } else {
       const keyType = await page.evaluate('window.KEYTYPE || false');
       spinner?.succeed(`License Valid${keyType?`: ${keyType}`:''}`);
+      return true;
     }
-    return true;
   } else l_err = "The key is invalid"
   if(l_err) {
     spinner?.fail(`License issue${l_err ? `: ${l_err}` : ""}`);

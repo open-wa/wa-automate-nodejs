@@ -12,11 +12,14 @@ import { ConfigObject } from '../api/model';
 const ON_DEATH = require('death'); //this is intentionally ugly
 let browser;
 
-export async function initPage(sessionId?: string, config?:ConfigObject, customUserAgent?:string) : Promise<Page> {
+export async function initPage(sessionId?: string, config?:ConfigObject, customUserAgent?:string, spinner ?: Spin) : Promise<Page> {
   const setupPromises = [];
   if(config?.useStealth) puppeteer.use(require('puppeteer-extra-plugin-stealth')());
+  spinner?.info('Launching Browser')
   browser = await initBrowser(sessionId,config);
+  
   const waPage = await getWAPage(browser);
+  spinner?.info('Setting Up Browser')
   if (config?.proxyServerCredentials) {
     await waPage.authenticate(config.proxyServerCredentials);
   }
@@ -74,17 +77,23 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
     })
   }
 
+  spinner?.info('Loading session data')
   const sessionjson = getSessionDataFromFile(sessionId, config)
-  if(sessionjson) await waPage.evaluateOnNewDocument(
-    session => {
+  if(sessionjson) {
+  spinner?.info('Existing session data detected. Injecting...')
+    await waPage.evaluateOnNewDocument(
+  session => {
         localStorage.clear();
         Object.keys(session).forEach(key=>localStorage.setItem(key,session[key]));
     }, sessionjson);
+    spinner?.succeed('Existing session data injected')
+  }
     if(config?.proxyServerCredentials) {
       await require('puppeteer-page-proxy')(waPage, proxyAddr);
       console.log(`Active proxy: ${config.proxyServerCredentials.address}`)
     }
   await Promise.all(setupPromises);
+  spinner?.info('Navigating to WA')
   await waPage.goto(puppeteerConfig.WAUrl)
   return waPage;
 }
