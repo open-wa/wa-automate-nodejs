@@ -337,7 +337,7 @@ export async function getPatch(config: ConfigObject, spinner ?: Spin) : Promise<
   /**
    * Undo below comment when a githack alternative is found.
    */
-  const patchesUrl = ghUrl; //config?.cachedPatch ?  ghUrl : pkg.patches
+  const patchesUrl = config?.cachedPatch ?  ghUrl : pkg.patches
   if(!spinner) spinner = new Spin(config.sessionId, "FETCH_PATCH", config.disableSpins,true)
   spinner?.start(`Downloading ${config?.cachedPatch ? 'cached ': ''}patches: ${patchesUrl}`, hasSpin ? undefined : 2)
   if(!axios) axios = await import('axios');
