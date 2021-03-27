@@ -502,6 +502,11 @@ export interface ConfigObject {
      * @default `false`
      */
     cachedPatch ?: boolean;
+    /**
+     * Setting `this` to true will replace the `console.table` with a stringified logging of the debug info object instead. This would be useful to set for smaller terminal windows. If `disableSpins` is `true` then this will also be `true`.
+     * @default `false`
+     */
+    logDebugInfoAsObject ?: boolean;
     /**@internal */
     [x: string]: any 
 }

@@ -152,7 +152,8 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       OS,
       START_TS
     };
-    console.table(debugInfo);
+    if(config?.logDebugInfoAsObject || config?.disableSpins) spinner.succeed(`Debug info: ${JSON.stringify(debugInfo, null, 2)}`);
+     else console.table(debugInfo);
 
     /**
      * Attempt to preload patches
