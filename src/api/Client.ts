@@ -64,6 +64,7 @@ import { SimpleListener } from './model/events';
 import { CollectorOptions } from '../structures/Collector';
 import { MessageCollector } from '../structures/MessageCollector';
 import { injectInitPatch } from '../controllers/init_patch';
+import { Listener } from 'eventemitter2';
 
 export enum namespace {
   Chat = 'Chat',
@@ -380,7 +381,7 @@ export class Client {
    * 
    * Run all tasks to set up client AFTER init is fully completed
    */
-  async loaded() {
+  async loaded() : Promise<void> {
       if(this._createConfig?.eventMode) {
         await this.registerAllSimpleListenersOnEv();
       }
@@ -394,22 +395,22 @@ export class Client {
       await Promise.all(Object.keys(SimpleListener).map(eventKey => this.registerEv(SimpleListener[eventKey])))
   }
 
-  getSessionId(){
+  getSessionId() : string {
     return this._createConfig.sessionId || 'session'
   }
 
-  getPage(){
+  getPage() : Page {
     return this._page;
   }
 
-  private _setOnClose(){
+  private _setOnClose() : void {
     this._page.on('close',()=>{
       this.kill();
       if(this._createConfig?.killProcessOnBrowserClose) process.exit();
     })
   }
 
-  private async _reInjectWapi(){
+  private async _reInjectWapi() : Promise<void> {
     this._page = await injectApi(this._page)
   }
 
@@ -423,7 +424,7 @@ export class Client {
    * @param optionsOverride You can use this to override the [axios request config](https://github.com/axios/axios#request-config)
    * @returns Promise<DataURL>
    */
-  public async download(url: string, optionsOverride: any = {} ) {
+  public async download(url: string, optionsOverride: any = {} )  : Promise<DataURL> {
     return await getDUrl(url, optionsOverride)
   } 
 
@@ -431,7 +432,7 @@ export class Client {
   /**
    * Grab the logger for this session/process
    */
-  public logger(){
+  public logger() : any {
     if(!this._l) this._l = createLogger(this.getSessionId(), this.getSessionInfo(), this.getConfig());
     return this._l;
   }
@@ -440,7 +441,7 @@ export class Client {
    * Refreshes the page and reinjects all necessary files. This may be useful for when trying to save memory
    * This will attempt to re register all listeners EXCEPT onLiveLocation and onParticipantChanged
    */
-   public async refresh(){
+   public async refresh() : Promise<boolean> {
   this._refreshing = true;
      const spinner = new Spin(this._createConfig?.sessionId || 'session', 'REFRESH', this._createConfig?.disableSpins);
      const { me } = await this.getMe();
@@ -481,7 +482,7 @@ export class Client {
    * 
    * @returns SessionInfo
    */
-  public getSessionInfo() {
+  public getSessionInfo() : SessionInfo {
     return this._sessionInfo;
   }
 
@@ -490,7 +491,7 @@ export class Client {
    * 
    * @returns SessionInfo
    */
-  public getConfig() {
+  public getConfig() : ConfigObject {
     const {
       devtools,
       browserWSEndpoint,
@@ -539,9 +540,9 @@ export class Client {
    /**
     * 
     */
-  private async registerListener(funcName:SimpleListener, fn: any){
+  private async registerListener(funcName:SimpleListener, fn: any) : Promise<Listener | boolean> {
     if(this._registeredEvListeners && this._registeredEvListeners[funcName]) {
-      return ev.on(`${funcName}.${this.getSessionId()}`,({data})=>fn(data));
+      return ev.on(`${funcName}.${this.getSessionId()}`,({data})=>fn(data)) as Listener;
     }
     /**
      * If evMode is on then make the callback come from ev.
@@ -570,7 +571,7 @@ export class Client {
    * @event 
    * @fires Observable stream of messages
    */
-  public async onMessage(fn: (message: Message) => void) {
+  public async onMessage(fn: (message: Message) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.Message, fn);
     // let funcName = SimpleListener.Message;
     // this._listeners[funcName] = fn;
@@ -599,7 +600,7 @@ export class Client {
    * @param to callback
    * @fires [[Message]] 
    */
-  public async onAnyMessage(fn: (message: Message) => void) {
+  public async onAnyMessage(fn: (message: Message) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.AnyMessage, fn);
   }
   /**
@@ -610,7 +611,7 @@ export class Client {
    * @param fn callback
    * @fires [[Message]]
    */
-  public async onMessageDeleted(fn: (message: Message) => void) {
+  public async onMessageDeleted(fn: (message: Message) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.MessageDeleted, fn);
   }
 
@@ -621,7 +622,7 @@ export class Client {
    * @param fn callback
    * @fires [[Chat]]
    */
-  public async onChatDeleted(fn: (chat: Chat) => void) {
+  public async onChatDeleted(fn: (chat: Chat) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.ChatDeleted, fn);
   }
 
@@ -632,7 +633,7 @@ export class Client {
    * @param fn callback
    * @fires number
    */
-  public async onBattery(fn: (battery:number) => void) {
+  public async onBattery(fn: (battery:number) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.Battery, fn);
   }
 
@@ -643,7 +644,7 @@ export class Client {
    * @param fn callback
    * @fires boolean true if plugged, false if unplugged
    */
-  public async onPlugged(fn: (plugged: boolean) => void) {
+  public async onPlugged(fn: (plugged: boolean) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.Plugged, fn);
   }
 
@@ -662,7 +663,7 @@ export class Client {
    * }
    * ```
    */
-  public async onStory(fn: (story: any) => void) {
+  public async onStory(fn: (story: any) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.Story, fn);
   }
 
@@ -672,7 +673,7 @@ export class Client {
    * @event 
    * @fires STATE observable sream of states
    */
-  public async onStateChanged(fn: (state: string) => void) {
+  public async onStateChanged(fn: (state: string) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.StateChanged, fn);
   }
 
@@ -681,7 +682,7 @@ export class Client {
    * @event 
    * @returns Observable stream of call request objects
    */
-  public async onIncomingCall(fn: (call: any) => void) {
+  public async onIncomingCall(fn: (call: any) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.IncomingCall, fn);
   }
 
@@ -702,7 +703,7 @@ export class Client {
    * }
    * ```
    */
-  public async onChatState(fn: (chatState: any) => void) {
+  public async onChatState(fn: (chatState: any) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.ChatState, fn);
   }
 
@@ -713,7 +714,7 @@ export class Client {
    * @event 
    * @returns `true` if the callback was registered
    */
-  public async onAck(fn: (message: Message) => void) {
+  public async onAck(fn: (message: Message) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.Ack, fn);
   }
 
@@ -724,7 +725,7 @@ export class Client {
    * @param fn callback function that handles a [[ParticipantChangedEventModel]] as the first and only parameter.
    * @returns `true` if the callback was registered
    */
-  public async onGlobalParticipantsChanged(fn: (participantChangedEvent: ParticipantChangedEventModel) => void) {
+  public async onGlobalParticipantsChanged(fn: (participantChangedEvent: ParticipantChangedEventModel) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.GlobalParticipantsChanged, fn);
   }
 
@@ -735,7 +736,7 @@ export class Client {
    * @param fn callback function that handles a [[Chat]] (group chat) as the first and only parameter.
    * @returns `true` if the callback was registered
    */
-  public async onAddedToGroup(fn: (chat: Chat) => any) {
+  public async onAddedToGroup(fn: (chat: Chat) => any) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.AddedToGroup, fn);
   }
   
@@ -749,7 +750,7 @@ export class Client {
    * @param fn callback function that handles a [[Chat]] (group chat) as the first and only parameter.
    * @returns `true` if the callback was registered
    */
-  public async onRemovedFromGroup(fn: (chat: Chat) => any) {
+  public async onRemovedFromGroup(fn: (chat: Chat) => any) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.RemovedFromGroup, fn);
   }
 
@@ -762,7 +763,7 @@ export class Client {
    * @param fn callback function that handles a [[ChatId]] as the first and only parameter.
    * @returns `true` if the callback was registered
    */
-  public async onChatOpened(fn: (chat: Chat) => any) {
+  public async onChatOpened(fn: (chat: Chat) => any) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.ChatOpened, fn);
   }
 
@@ -775,7 +776,7 @@ export class Client {
    * @param fn callback function that handles a [[Chat]] as the first and only parameter.
    * @returns `true` if the callback was registered
    */
-  public async onContactAdded(fn: (chat: Chat) => any) {
+  public async onContactAdded(fn: (chat: Chat) => any) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.ChatOpened, fn);
   }
 
@@ -788,7 +789,7 @@ export class Client {
    * @param to callback
    * @returns Observable stream of participantChangedEvent
    */
-  public async onParticipantsChanged(groupId: GroupChatId, fn: (participantChangedEvent: ParticipantChangedEventModel) => void, legacy : boolean = false) {
+  public async onParticipantsChanged(groupId: GroupChatId, fn: (participantChangedEvent: ParticipantChangedEventModel) => void, legacy : boolean = false) : Promise<Listener | boolean> {
     const funcName = "onParticipantsChanged_" + groupId.replace('_', "").replace('_', "");
     return this._page.exposeFunction(funcName, (participantChangedEvent: ParticipantChangedEventModel) =>
       fn(participantChangedEvent)
@@ -809,7 +810,7 @@ export class Client {
  * @returns boolean, if returns false then there were no valid live locations in the chat of chatId
  * @emits <LiveLocationChangedEvent> LiveLocationChangedEvent
  */
-public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveLocationChangedEvent) => void) {
+public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveLocationChangedEvent) => void) : Promise<boolean> {
   const funcName = "onLiveLocation_" + chatId.replace('_', "").replace('_', "");
   return this._page.exposeFunction(funcName, (liveLocationChangedEvent: LiveLocationChangedEvent) =>
     fn(liveLocationChangedEvent)
@@ -827,7 +828,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * Set presence to available or unavailable.
    * @param available if true it will set your presence to 'online', false will set to unavailable (i.e no 'online' on recipients' phone);
    */
-  public async setPresence(available: boolean) {
+  public async setPresence(available: boolean) : Promise<boolean | void> {
     return await this.pup(
       available => WAPI.setPresence(available),
       available
@@ -838,7 +839,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * set your about me
    * @param newStatus String new profile status
    */
-  public async setMyStatus(newStatus: string) {
+  public async setMyStatus(newStatus: string) : Promise<boolean | void> {
     return await this.pup(
       ({newStatus}) => WAPI.setMyStatus(newStatus),
       {newStatus}
@@ -850,7 +851,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param label: either the id or the name of the label. id will be something simple like anhy nnumber from 1-10, name is the label of the label if that makes sense.
    * @param id The Chat, message or contact id to which you want to add a label
    */
-  public async addLabel(label: string, chatId: ChatId) {
+  public async addLabel(label: string, chatId: ChatId) : Promise<boolean> {
     return await this.pup(
       ({label, chatId}) => WAPI.addOrRemoveLabels(label, chatId, 'add'),
       {label, chatId}
@@ -862,7 +863,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param label: either the id or the name of the label. id will be something simple like anhy nnumber from 1-10, name is the label of the label if that makes sense.
    * @param id The Chat, message or contact id to which you want to add a label
    */
-  public async removeLabel(label: string, chatId: ChatId) {
+  public async removeLabel(label: string, chatId: ChatId) : Promise<boolean> {
     return await this.pup(
       ({label, chatId}) => WAPI.addOrRemoveLabels(label, chatId, 'remove'),
       {label, chatId}
@@ -894,7 +895,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
  * @param {string} contactNumber If supplied, this will be injected into the vcard (VERSION 3 ONLY FROM VCARDJS) with the WA id to make it show up with the correct buttons on WA. The format of this param should be including country code, without any other formating. e.g:
  * `4477777777777`
  */
-  public async sendVCard(chatId: ChatId, vcard: string, contactName:string,  contactNumber?: string) {
+  public async sendVCard(chatId: ChatId, vcard: string, contactName:string,  contactNumber?: string) : Promise<boolean> {
     return await this.pup(
       ({chatId, vcard, contactName, contactNumber}) => WAPI.sendVCard(chatId, vcard,contactName, contactNumber),
       {chatId, vcard, contactName, contactNumber}
@@ -908,7 +909,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * 
    * @param newName String new name to set for your profile
    */
-   public async setMyName(newName: string) {
+   public async setMyName(newName: string) : Promise<boolean> {
      return await this.pup(
        ({newName}) => WAPI.setMyName(newName),
        {newName}
@@ -920,7 +921,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     * @param {ChatState|0|1|2} chatState The state you want to set for the chat. Can be TYPING (0), RECRDING (1) or PAUSED (2).
     * @param {String} chatId 
     */
-   public async setChatState(chatState: ChatState, chatId: ChatId) {
+   public async setChatState(chatState: ChatState, chatId: ChatId) : Promise<boolean> {
     return await this.pup(
       ({chatState, chatId}) => WAPI.setChatState(chatState, chatId),
       //@ts-ignore
@@ -931,7 +932,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   /**
    * Returns the connection state
    */
-  public async getConnectionState() {
+  public async getConnectionState() : Promise<STATE> {
     return await this._page.evaluate(() => WAPI.getState()) as STATE;
   }
 
@@ -939,14 +940,14 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * Forces the session to update the connection state. This will take a few seconds to determine the 'correct' state.
    * @returns updated connection state
    */
-  public async forceUpdateConnectionState() {
-    return await this._page.evaluate(() => WAPI.forceUpdateConnectionState());
+  public async forceUpdateConnectionState() : Promise<STATE> {
+    return await this._page.evaluate(() => WAPI.forceUpdateConnectionState()) as STATE;
   }
 
   /**
    * Returns a list of contact with whom the host number has an existing chat who are also not contacts.
    */
-  public async getChatWithNonContacts(){
+  public async getChatWithNonContacts() : Promise<Contact[]>{
     return await this._page.evaluate(() => WAPI.getChatWithNonContacts());
   }
 
@@ -954,7 +955,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * Shuts down the page and browser
    * @returns true
    */
-  public async kill() {
+  public async kill() : Promise<boolean> {
     if(this._currentlyBeingKilled) return;
     this._currentlyBeingKilled = true;
     console.log('Shutting Down');
@@ -992,7 +993,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param chatId string Id of the chat you want to force the phone to get the livelocation data for.
    * @returns Promise<LiveLocationChangedEvent []> | boolean 
    */
-  public async forceUpdateLiveLocation(chatId: ChatId) {
+  public async forceUpdateLiveLocation(chatId: ChatId): Promise<LiveLocationChangedEvent[] | boolean>  {
     return await this.pup(
       ({chatId}) => WAPI.forceUpdateLiveLocation(chatId),
       { chatId }
@@ -1001,7 +1002,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
 
   
-  private async link(params ?: string){
+  private async link(params ?: string) : Promise<string> {
     const _p = [this._createConfig?.linkParams,params].filter(x=>x).join('&')
     return `https://get.openwa.dev/l/${await this.getHostNumber()}${_p?`?${_p}`:''}`
   }
@@ -1012,7 +1013,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param to chat id: `xxxxx@c.us`
    * @param content text message
    */
-  public async sendText(to: ChatId, content: Content) {
+  public async sendText(to: ChatId, content: Content) : Promise<boolean | MessageId> {
     if(!content) content = ''
    const err = [
     'Not able to send message to broadcast',
@@ -1052,7 +1053,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param content text message
    * @param hideTags Removes all tags within the message
    */
-  public async sendTextWithMentions(to: ChatId, content: Content, hideTags?: boolean) {
+  public async sendTextWithMentions(to: ChatId, content: Content, hideTags?: boolean) : Promise<boolean | MessageId> {
     //remove all @c.us from the content
     content = content.replace(/@c.us/,"");
     return await this.pup(
@@ -1061,7 +1062,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
         return WAPI.sendMessageWithMentions(to, content, hideTags);
       },
       { to, content, hideTags }
-    ) as Promise<string>;
+    ) as Promise<boolean | MessageId>;
   }
 
   /**
@@ -1075,7 +1076,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param content text message
    * @param replyMessageId id of message to reply to
    */
-  public async sendReplyWithMentions(to: ChatId, content: Content, replyMessageId: MessageId) {
+  public async sendReplyWithMentions(to: ChatId, content: Content, replyMessageId: MessageId) : Promise<boolean | MessageId> {
     //remove all @c.us from the content
     content = content.replace(/@c.us/,"");
     return await this.pup(
@@ -1084,7 +1085,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
         return WAPI.sendReplyWithMentions(to, content, replyMessageId);
       },
       { to, content, replyMessageId }
-    ) as Promise<string>;
+    ) as Promise<boolean | MessageId>;
   }
 
 
@@ -1098,11 +1099,11 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param hideTags Removes all tags within the message
    * @returns Promise<MessageId>
    */
-  public async tagEveryone(groupId: GroupChatId, content: Content, hideTags?: boolean) {
+  public async tagEveryone(groupId: GroupChatId, content: Content, hideTags?: boolean) : Promise<boolean | MessageId> {
     return await this.pup(
       ({ groupId, content, hideTags  }) => WAPI.tagEveryone(groupId, content, hideTags),
       { groupId, content, hideTags }
-    ) as Promise<string>;
+    ) as Promise<boolean | MessageId>;
   }
 
   /**
@@ -1122,7 +1123,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     title: string,
     description: string,
     text: Content,
-    chatId: ChatId) {
+    chatId: ChatId) : Promise<MessageId | string | boolean> {
     return await this.pup(
       ({ thumb,
         url,
@@ -1158,18 +1159,18 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param lng longitude: '0.1278'
    * @param loc location text: 'LONDON!'
    */
-  public async sendLocation(to: ChatId, lat: any, lng: any, loc: string) {
+  public async sendLocation(to: ChatId, lat: any, lng: any, loc: string) : Promise<boolean | MessageId> {
     return await this.pup(
       ({ to, lat, lng, loc }) => WAPI.sendLocation(to, lat, lng, loc),
       { to, lat, lng, loc }
-    ) as Promise<string>;
+    ) as Promise<boolean | MessageId>;
   }
 
   /**
    * Get the generated user agent, this is so you can send it to the decryption module.
    * @returns String useragent of wa-web session
    */
-  public async getGeneratedUserAgent(userA?: string) {
+  public async getGeneratedUserAgent(userA?: string) : Promise<string> {
     let ua = userA || useragent;
     return await this.pup(
       ({ua}) => WAPI.getGeneratedUserAgent(ua),
@@ -1182,7 +1183,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param message This can be the serialized [[MessageId]] or the whole [[Message]] object. It is advised to just use the serialized message ID.
    * @returns Promise<[[DataURL]]>
    */
-  public async decryptMedia(message: Message | MessageId) {
+  public async decryptMedia(message: Message | MessageId) : Promise<DataURL> {
     let m : any;
     //if it's the message id, get the message
     if(typeof message === "string") m = await this.getMessageById(message) 
@@ -1253,7 +1254,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
  * @param text string Custom text as body of the message, this needs to include the link or it will be appended after the link.
  * @param thumbnail string Base64 of the jpeg/png which will be used to override the automatically generated thumbnail.
  */
-  public async sendYoutubeLink(to: ChatId, url: string, text: Content = '', thumbnail ?: Base64) {
+  public async sendYoutubeLink(to: ChatId, url: string, text: Content = '', thumbnail ?: Base64) : Promise<boolean | MessageId> {
     return this.sendLinkWithAutoPreview(to,url,text, thumbnail);
   }
 
@@ -1269,7 +1270,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     url: string,
     text?: Content,
     thumbnail ?: Base64
-  ) {
+  ) : Promise<boolean | MessageId>  {
     return await this.pup(
       ({ to,url, text, thumbnail }) => WAPI.sendLinkWithAutoPreview(to,url,text, thumbnail),
       { to,url, text, thumbnail }
@@ -1286,7 +1287,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param sendSeen boolean If set to true, the chat will 'blue tick' all messages before sending the reply
    * @returns Promise<MessageId | false> false if didn't work, otherwise returns message id.
    */
-  public async reply(to: ChatId, content: Content, quotedMsgId: MessageId, sendSeen?: boolean) {
+  public async reply(to: ChatId, content: Content, quotedMsgId: MessageId, sendSeen?: boolean) : Promise<boolean | MessageId> {
     if(sendSeen) await this.sendSeen(to);
     return await this.pup(
       ({ to, content, quotedMsgId }) =>WAPI.reply(to, content, quotedMsgId),
@@ -1305,7 +1306,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @returns Promise<string | boolean> true or false or a string with an explaintaion of why it wasn't able to determine the read receipts.
    * 
    */
-  public async checkReadReceipts(contactId: ContactId){
+  public async checkReadReceipts(contactId: ContactId) : Promise<string | boolean> {
     return await this.pup(
       ({ contactId }) =>WAPI.checkReadReceipts(contactId),
       { contactId }
@@ -1335,7 +1336,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     ptt?:boolean,
     withoutPreview?:boolean,
     hideTags ?: boolean
-  ) {
+  ) : Promise<MessageId | boolean> {
     return this.sendImage(to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags);
   }
 
@@ -1346,7 +1347,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param groupChatId The group chat you want to deteremine is unsafe
    * @returns Promise <boolean | string> This will either return a boolean indiciating whether this group chat id is considered unsafe or an error message as a string
    */
-  public async isGroupIdUnsafe(groupChatId: GroupChatId){
+  public async isGroupIdUnsafe(groupChatId: GroupChatId) : Promise<string | boolean>{
     const {data} = await axios.post('https://openwa.dev/groupId-check', {
       groupChatId,
       sessionInfo: this.getSessionInfo(),
@@ -1401,11 +1402,11 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     caption: Content,
     quotedMsgId?: MessageId,
     requestConfig: AxiosRequestConfig ={}
-  ) {
+  ) : Promise<MessageId> {
       //check if the 'base64' file exists
       if(!isDataURL(file)) {
         //must be a file then
-        let relativePath = path.join(path.resolve(process.cwd(),file|| ''));
+        const relativePath = path.join(path.resolve(process.cwd(),file|| ''));
         if(fs.existsSync(file) || fs.existsSync(relativePath)) {
           file = await datauri(fs.existsSync(file)  ? file : relativePath);
         } else if(isUrl(file)){
@@ -1430,15 +1431,15 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     to: ChatId,
     giphyMediaUrl: string,
     caption: Content
-  ) {
-    var ue = /^https?:\/\/media\.giphy\.com\/media\/([a-zA-Z0-9]+)/
-    var n = ue.exec(giphyMediaUrl);
+  ) : Promise<MessageId>{
+    const ue = /^https?:\/\/media\.giphy\.com\/media\/([a-zA-Z0-9]+)/
+    const n = ue.exec(giphyMediaUrl);
     if (n) {
       const r = `https://i.giphy.com/${n[1]}.mp4`;
       const filename = `${n[1]}.mp4`
       const dUrl = await getDUrl(r);
       return await this.pup(
-        ({ to, base64, filename, caption }) => {
+        ({ to, dUrl, filename, caption }) => {
           WAPI.sendVideoAsGif(dUrl, to, filename, caption);
         },
         { to, dUrl, filename, caption }
@@ -1473,7 +1474,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     ptt?:boolean,
     withoutPreview?:boolean,
     hideTags ?: boolean
-  ) {
+  ) : Promise<MessageId | boolean> {
     try {
      const base64 = await getDUrl(url, requestConfig);
       return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId,ptt,withoutPreview, hideTags)
@@ -1486,7 +1487,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 /**
  * Returns an object with all of your host device details
  */
-  public async getMe(){
+  public async getMe() : Promise<any> {
     return await this._page.evaluate(() => WAPI.getMe());
     // return await this.pup(() => WAPI.getMe());
     //@ts-ignore
@@ -1497,7 +1498,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * Returns a PNG DataURL screenshot of the session
    * @returns Promise<DataURL>
    */
-  public async getSnapshot(){
+  public async getSnapshot() : Promise<DataURL> {
     const screenshot = await this.getPage().screenshot({
       type:"png",
       encoding: "base64"
@@ -1508,14 +1509,14 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 /**
  * Returns an array of group ids where the host device is admin
  */
-public async iAmAdmin(){
+public async iAmAdmin() : Promise<GroupChatId[]>  {
   return await this.pup(() => WAPI.iAmAdmin()) as Promise<GroupChatId[]>;
 }
 
   /**
    * Syncs contacts with phone. This promise does not resolve so it will instantly return true.
    */
-  public async syncContacts(){
+  public async syncContacts() : Promise<boolean>  {
     //@ts-ignore
     return await this.pup(() => WAPI.syncContacts()) as Promise<boolean>;
   }
@@ -1523,7 +1524,7 @@ public async iAmAdmin(){
    /**
     * Easily get the amount of messages loaded up in the session. This will allow you to determine when to clear chats/cache.
     */
-   public async getAmountOfLoadedMessages(){
+   public async getAmountOfLoadedMessages() : Promise<number>  {
      return await this.pup(() => WAPI.getAmountOfLoadedMessages()) as Promise<number>;
    }
 
@@ -1534,7 +1535,7 @@ public async iAmAdmin(){
    * @param id id of buseinss profile (i.e the number with @c.us)
    * @returns None
    */
-  public async getBusinessProfilesProducts(id: ContactId) {
+  public async getBusinessProfilesProducts(id: ContactId) : Promise<any>   {
     return await this.pup(
       ({ id }) => WAPI.getBusinessProfilesProducts(id),
       { id }
@@ -1557,7 +1558,7 @@ public async iAmAdmin(){
     caption: Content,
     bizNumber: ContactId,
     productId: string
-  ) {
+  )  : Promise<boolean | MessageId>  {
     return await this.pup(
       ({ to, image, bizNumber, caption, productId }) => {
         WAPI.sendImageWithProduct(image, to, caption, bizNumber, productId);
@@ -1578,7 +1579,7 @@ public async iAmAdmin(){
    * - Only works on Business accounts
    */
 
-   public async sendCustomProduct(to: ChatId, image: DataURL, productData: CustomProduct){
+   public async sendCustomProduct(to: ChatId, image: DataURL, productData: CustomProduct) : Promise<MessageId | boolean>  {
     return await this.pup(
       ({ to, image, productData }) => WAPI.sendCustomProduct(to, image, productData),
       { to, image, productData }
@@ -1590,7 +1591,7 @@ public async iAmAdmin(){
    * @param {string} to 'xxxx@c.us'
    * @param {string|array} contact 'xxxx@c.us' | ['xxxx@c.us', 'yyyy@c.us', ...]
    */
-  public async sendContact(to: ChatId, contactId: ContactId | ContactId[]) {
+  public async sendContact(to: ChatId, contactId: ContactId | ContactId[]) : Promise<MessageId | boolean>{
     return await this.pup(
       ({ to, contactId }) => WAPI.sendContact(to, contactId),
       { to, contactId }
@@ -1606,7 +1607,7 @@ public async iAmAdmin(){
    * @param  to 'xxxx@c.us'
    * @param contact ['xxxx@c.us', 'yyyy@c.us', ...]
    */
-  public async sendMultipleContacts(to: ChatId, contactIds: ContactId[]) {
+  public async sendMultipleContacts(to: ChatId, contactIds: ContactId[]) : Promise<MessageId | boolean> {
     return await this.pup(
       ({ to, contactIds }) => WAPI.sendMultipleContacts(to, contactIds),
       { to, contactIds }
@@ -1619,7 +1620,7 @@ public async iAmAdmin(){
    * @param {string} to 'xxxx@c.us'
    * @param {boolean} on turn on similated typing, false to turn it off you need to manually turn this off.
    */
-  public async simulateTyping(to: ChatId, on: boolean) {
+  public async simulateTyping(to: ChatId, on: boolean) : Promise<boolean> {
     return await this.pup(
       ({ to, on }) => WAPI.simulateTyping(to, on),
       { to, on }
@@ -1632,7 +1633,7 @@ public async iAmAdmin(){
    * @param archive boolean true => archive, false => unarchive
    * @return boolean true: worked, false: didnt work (probably already in desired state)
    */
-  public async archiveChat(id: ChatId, archive: boolean) {
+  public async archiveChat(id: ChatId, archive: boolean) : Promise<boolean>{
     return await this.pup(
       ({ id, archive }) => WAPI.archiveChat(id, archive),
       { id, archive }
@@ -1649,7 +1650,7 @@ public async iAmAdmin(){
    * @param muteDuration ChatMuteDuration enum of the time you want this chat to be muted for.
    * @return boolean true: worked or error code or message
    */
-  public async muteChat(chatId: ChatId, muteDuration: ChatMuteDuration) {
+  public async muteChat(chatId: ChatId, muteDuration: ChatMuteDuration) : Promise<boolean | string | number> {
     return await this.pup(
       ({ chatId, muteDuration }) => WAPI.muteChat(chatId, muteDuration),
       { chatId, muteDuration }
@@ -1662,7 +1663,7 @@ public async iAmAdmin(){
    * @param chatId The id of the chat you want to check
    * @returns boolean. `false` if the chat does not exist.
    */
-  public async isChatMuted(chatId: ChatId){
+  public async isChatMuted(chatId: ChatId) : Promise<boolean>{
     return await this.pup(
       ({ chatId }) => WAPI.isChatMuted(chatId),
       { chatId }
@@ -1678,7 +1679,7 @@ public async iAmAdmin(){
    * @param id The id of the conversation you want to mute
    * @return boolean true: worked or error code or message
    */
-  public async unmuteChat(chatId: ChatId) {
+  public async unmuteChat(chatId: ChatId) : Promise<boolean | string | number> {
     return await this.pup(
       ({ chatId }) => WAPI.unmuteChat(chatId),
       { chatId }
@@ -1692,7 +1693,7 @@ public async iAmAdmin(){
    * @param messages this can be any mixture of message ids or message objects
    * @param skipMyMessages This indicates whether or not to skip your own messages from the array
    */
-  public async forwardMessages(to: ChatId, messages: MessageId | MessageId[], skipMyMessages: boolean) {
+  public async forwardMessages(to: ChatId, messages: MessageId | MessageId[], skipMyMessages: boolean) : Promise<boolean | string>{
     return await this.pup(
       ({ to, messages, skipMyMessages }) => WAPI.forwardMessages(to, messages, skipMyMessages),
       { to, messages, skipMyMessages }
@@ -1706,7 +1707,7 @@ public async iAmAdmin(){
  * @param messageId: message id of the message to forward. Please note that if it is not loaded, this will return false - even if it exists.
  * @returns Promise<boolean>
  */
-  public async ghostForward(to: ChatId, messageId: MessageId) {
+  public async ghostForward(to: ChatId, messageId: MessageId) : Promise<boolean> {
     return await this.pup(
       ({ to, messageId }) => WAPI.ghostForward(to, messageId),
       { to, messageId }
@@ -1717,11 +1718,11 @@ public async iAmAdmin(){
    * Retrieves all contacts
    * @returns array of [Contact]
    */
-  public async getAllContacts() {
+  public async getAllContacts() : Promise<Contact[]> {
     return await this.pup(() => WAPI.getAllContacts()) as Promise<Contact[]>;
   }
 
-  public async getWAVersion() {
+  public async getWAVersion() : Promise<string>{
     return await this.pup(() => WAPI.getWAVersion()) as Promise<string>;
   }
 
@@ -1729,7 +1730,7 @@ public async iAmAdmin(){
    * Retrieves if the phone is online. Please note that this may not be real time.
    * @returns Boolean
    */
-  public async isConnected() {
+  public async isConnected() : Promise<boolean> {
     return await this.pup(() => WAPI.isConnected()) as Promise<boolean>;
   }
 
@@ -1737,7 +1738,7 @@ public async iAmAdmin(){
    * Retrieves Battery Level
    * @returns Number
    */
-  public async getBatteryLevel() {
+  public async getBatteryLevel() : Promise<number> {
     return await this.pup(() => WAPI.getBatteryLevel()) as Promise<number>;
   }
 
@@ -1745,7 +1746,7 @@ public async iAmAdmin(){
    * Retrieves whether or not phone is plugged in (i.e on charge)
    * @returns Number
    */
-  public async getIsPlugged() {
+  public async getIsPlugged() : Promise<boolean>{
     return await this.pup(() => WAPI.getIsPlugged()) as Promise<boolean>;
   }
 
@@ -1753,7 +1754,7 @@ public async iAmAdmin(){
    * Retrieves the host device number. Use this number when registering for a license key
    * @returns Number
    */
-  public async getHostNumber() {
+  public async getHostNumber() : Promise<string> {
     return await this.pup(() => WAPI.getHostNumber()) as Promise<string>;
   }
 
@@ -1761,14 +1762,14 @@ public async iAmAdmin(){
    * Returns the the type of license key used by the session.
    * @returns
    */
-  public async getLicenseType(){
+  public async getLicenseType() : Promise<LicenseType | false> {
     return await this.pup(() => WAPI.getLicenseType()) as Promise<LicenseType | false>;
   }
   /**
    * Retrieves all chats
    * @returns array of [Chat]
    */
-  public async getAllChats(withNewMessageOnly = false) {
+  public async getAllChats(withNewMessageOnly = false) : Promise<Chat[]>{
     if (withNewMessageOnly) {
       return await this.pup(() =>
         WAPI.getAllChatsWithNewMsg()
@@ -1783,16 +1784,16 @@ public async iAmAdmin(){
    * retrieves all Chat Ids
    * @returns array of [ChatId]
    */
-  public async getAllChatIds() {
-      return await this.pup(() => WAPI.getAllChatIds()) as Promise<string[]>;
+  public async getAllChatIds() : Promise<ChatId[]> {
+      return await this.pup(() => WAPI.getAllChatIds()) as Promise<ChatId[]>;
   }
 
   /**
    * retrieves an array of IDs of accounts blocked by the host account.
    * @returns Promise<ChatId[]>
    */
-  public async getBlockedIds() {
-    return await this.pup(() => WAPI.getBlockedIds()) as Promise<string[]>;
+  public async getBlockedIds() : Promise<ChatId[]> {
+    return await this.pup(() => WAPI.getBlockedIds()) as Promise<ChatId[]>;
   }
 
   /**
@@ -1804,7 +1805,7 @@ public async iAmAdmin(){
    * 
    * @returns array of [Chat]
    */
-  public async getAllChatsWithMessages(withNewMessageOnly = false) {
+  public async getAllChatsWithMessages(withNewMessageOnly = false) : Promise<Chat[]> {
     return JSON.parse(await this.pup(withNewMessageOnly => WAPI.getAllChatsWithMessages(withNewMessageOnly), withNewMessageOnly)) as Promise<Chat[]>;
   }
 
@@ -1812,7 +1813,7 @@ public async iAmAdmin(){
    * Retrieve all groups
    * @returns array of groups
    */
-  public async getAllGroups(withNewMessagesOnly = false) {
+  public async getAllGroups(withNewMessagesOnly = false) : Promise<Chat[]> {
     if (withNewMessagesOnly) {
       // prettier-ignore
       const chats = await this.pup(() => WAPI.getAllChatsWithNewMsg()) as Chat[];
@@ -1827,7 +1828,7 @@ public async iAmAdmin(){
    * Retrieves group members as [Id] objects
    * @param groupId group id
    */
-  public async getGroupMembersId(groupId: GroupChatId) {
+  public async getGroupMembersId(groupId: GroupChatId) :  Promise<ContactId[]>{
     return await this.pup(
       groupId => WAPI.getGroupParticipantIDs(groupId),
       groupId
@@ -1838,7 +1839,7 @@ public async iAmAdmin(){
    * Returns the title and description of a given group id.
    * @param groupId group id
    */
-  public async getGroupInfo(groupId: GroupChatId) {
+  public async getGroupInfo(groupId: GroupChatId) : Promise<any> {
     return await this.pup(
       groupId => WAPI.getGroupInfo(groupId),
       groupId
@@ -1856,7 +1857,7 @@ public async iAmAdmin(){
  * 
  * @returns Promise<string | boolean | number> Either false if it didn't work, or the group id.
  */
-  public async joinGroupViaLink(link: string) {
+  public async joinGroupViaLink(link: string) : Promise<string | boolean | number>{
     return await this.pup(
       link => WAPI.joinGroupViaLink(link),
       link
@@ -1868,7 +1869,7 @@ public async iAmAdmin(){
  * Block contact 
  * @param {string} id '000000000000@c.us'
  */
-public async contactBlock(id: ContactId) {
+public async contactBlock(id: ContactId) : Promise<boolean> {
   return await this.pup(id => WAPI.contactBlock(id),id)
 }
 
@@ -1880,7 +1881,7 @@ public async contactBlock(id: ContactId) {
  * 
  * @param {string} id '000000000000@c.us'
  */
-public async reportSpam(id: ContactId | ChatId) {
+public async reportSpam(id: ContactId | ChatId) : Promise<boolean> {
   return await this.pup(id => WAPI.REPORTSPAM(id),id)
 }
 
@@ -1888,7 +1889,7 @@ public async reportSpam(id: ContactId | ChatId) {
  * Unblock contact 
  * @param {string} id '000000000000@c.us'
  */
-public async contactUnblock(id: ContactId) {
+public async contactUnblock(id: ContactId) : Promise<boolean> {
   return await this.pup(id => WAPI.contactUnblock(id),id) as Promise<boolean>;
 }
 
@@ -1896,7 +1897,7 @@ public async contactUnblock(id: ContactId) {
    * Removes the host device from the group
    * @param groupId group id
    */
-  public async leaveGroup(groupId: GroupChatId) {
+  public async leaveGroup(groupId: GroupChatId) : Promise<boolean> {
     return await this.pup(
       groupId => WAPI.leaveGroup(groupId),
       groupId
@@ -1919,7 +1920,7 @@ public async contactUnblock(id: ContactId) {
  * 
  * Please use [vcf](https://www.npmjs.com/package/vcf) to convert a vcard string into a json object
  */
-  public async getVCards(msgId: MessageId) {
+  public async getVCards(msgId: MessageId) : Promise<string[]> {
     return await this.pup(
       msgId => WAPI.getVCards(msgId),
       msgId
@@ -1930,7 +1931,7 @@ public async contactUnblock(id: ContactId) {
    * Returns group members [Contact] objects
    * @param groupId
    */
-  public async getGroupMembers(groupId: GroupChatId) {
+  public async getGroupMembers(groupId: GroupChatId) : Promise<Contact[]> {
     const membersIds = await this.getGroupMembersId(groupId);
     const actions = membersIds.map(memberId => {
       return this.getContact(memberId);
@@ -1944,7 +1945,7 @@ public async contactUnblock(id: ContactId) {
    * @returns contact detial as promise
    */
   //@ts-ignore
-  public async getContact(contactId: ContactId) {
+  public async getContact(contactId: ContactId) : Promise<Contact> {
     return await this.pup(
       contactId => WAPI.getContact(contactId),
       contactId
@@ -1956,7 +1957,7 @@ public async contactUnblock(id: ContactId) {
    * @param contactId
    * @returns contact detial as promise
    */
-  public async getChatById(contactId: ContactId) {
+  public async getChatById(contactId: ContactId) : Promise<Chat> {
     return await this.pup(
       contactId => WAPI.getChatById(contactId),
       contactId
@@ -1968,7 +1969,7 @@ public async contactUnblock(id: ContactId) {
    * @param messageId
    * @returns message object
    */
-  public async getMessageById(messageId: MessageId) {
+  public async getMessageById(messageId: MessageId) : Promise<Message> {
     return await this.pup(
       messageId => WAPI.getMessageById(messageId),
       messageId
@@ -1980,7 +1981,7 @@ public async contactUnblock(id: ContactId) {
    * @param chatId This is optional. If no chat Id is set then the last message sent by the host account will be returned.
    * @returns message object
    */
-  public async getMyLastMessage(chatId?: ChatId) {
+  public async getMyLastMessage(chatId?: ChatId) : Promise<Message> {
     return await this.pup(
       chatId => WAPI.getMyLastMessage(chatId),
       chatId
@@ -1998,7 +1999,7 @@ public async contactUnblock(id: ContactId) {
    * @param messageId The message ID `message.id`
    * @returns message object OR `false`
    */
-  public async getStickerDecryptable(messageId: MessageId) {
+  public async getStickerDecryptable(messageId: MessageId) : Promise<Message | boolean> {
     const m = await this.pup(
       messageId => WAPI.getStickerDecryptable(messageId),
       messageId
@@ -2023,7 +2024,7 @@ public async contactUnblock(id: ContactId) {
    * @param messageId
    * @returns [[Message]] OR `false`
    */
-  public async forceStaleMediaUpdate(messageId: MessageId) {
+  public async forceStaleMediaUpdate(messageId: MessageId) : Promise<Message | false> {
     const m = await this.pup(
       messageId => WAPI.forceStaleMediaUpdate(messageId),
       messageId
@@ -2039,7 +2040,7 @@ public async contactUnblock(id: ContactId) {
    * @param contactId
    * @returns contact detial as promise
    */
-  public async getChat(contactId: ContactId) {
+  public async getChat(contactId: ContactId) : Promise<Chat>{
     return await this.pup(
       contactId => WAPI.getChat(contactId),
       contactId
@@ -2056,7 +2057,10 @@ public async contactUnblock(id: ContactId) {
    * title:string
    * }
    */
-  public async getCommonGroups(contactId: ContactId) {
+  public async getCommonGroups(contactId: ContactId) : Promise<{
+    id: string,
+    title: string
+  }[]> {
     return await this.pup(
       contactId => WAPI.getCommonGroups(contactId),
       contactId
@@ -2075,7 +2079,7 @@ public async contactUnblock(id: ContactId) {
    * @param chatId The id of the chat.
    * @returns number timestamp when chat was last online or undefined.
    */
-  public async getLastSeen(chatId: ChatId) {
+  public async getLastSeen(chatId: ChatId) : Promise<number | boolean> {
     return await this.pup(
       chatId => WAPI.getLastSeen(chatId),
       chatId
@@ -2087,7 +2091,7 @@ public async contactUnblock(id: ContactId) {
    * @param chatId
    * @returns Url of the chat picture or undefined if there is no picture for the chat.
    */
-  public async getProfilePicFromServer(chatId: ChatId) {
+  public async getProfilePicFromServer(chatId: ChatId) : Promise<string> {
     return await this.pup(
       chatId => WAPI.getProfilePicFromServer(chatId),
       chatId
@@ -2099,7 +2103,7 @@ public async contactUnblock(id: ContactId) {
    * Sets a chat status to seen. Marks all messages as ack: 3
    * @param chatId chat id: `xxxxx@c.us`
    */
-  public async sendSeen(chatId: ChatId) {
+  public async sendSeen(chatId: ChatId) : Promise<boolean> {
     return await this.pup(
      chatId => WAPI.sendSeen(chatId),
       chatId
@@ -2111,7 +2115,7 @@ public async contactUnblock(id: ContactId) {
    * Sets a chat status to unread. May be useful to get host's attention
    * @param chatId chat id: `xxxxx@c.us`
    */
-  public async markAsUnread(chatId: ChatId) {
+  public async markAsUnread(chatId: ChatId) : Promise<boolean> {
     return await this.pup(
      chatId => WAPI.markAsUnread(chatId),
       chatId
@@ -2125,7 +2129,7 @@ public async contactUnblock(id: ContactId) {
    * 
    * @param chatId chat id: `xxxxx@c.us`
    */
-  public async isChatOnline(chatId: ChatId) {
+  public async isChatOnline(chatId: ChatId) : Promise<boolean | string> {
     return await this.pup(
      chatId => WAPI.isChatOnline(chatId),
       chatId
@@ -2138,7 +2142,7 @@ public async contactUnblock(id: ContactId) {
    * @param contactId
    * @returns Message []
    */
-  public async loadEarlierMessages(contactId: ContactId) {
+  public async loadEarlierMessages(contactId: ContactId) : Promise<Message[]>{
     return await this.pup(
       contactId => WAPI.loadEarlierMessages(contactId),
       contactId
@@ -2151,7 +2155,10 @@ public async contactUnblock(id: ContactId) {
  * returns: {id: string,status: string}
  */
 
-public async getStatus(contactId: ContactId) {
+public async getStatus(contactId: ContactId) : Promise<{
+  id: string,
+  status: string
+}>{
   return await this.pup(
     contactId => WAPI.getStatus(contactId),
     contactId
@@ -2163,7 +2170,7 @@ public async getStatus(contactId: ContactId) {
    * @param contactId
    * @returns contact detial as promise
    */
-  public async loadAllEarlierMessages(contactId: ContactId) {
+  public async loadAllEarlierMessages(contactId: ContactId) : Promise<Message>{
     return await this.pup(
       contactId => WAPI.loadAllEarlierMessages(contactId),
       contactId
@@ -2175,7 +2182,7 @@ public async getStatus(contactId: ContactId) {
    * @param chatId
    * @returns boolean
    */
-  public async deleteChat(chatId: ChatId) {
+  public async deleteChat(chatId: ChatId) : Promise<boolean> {
     return await this.pup(
       chatId => WAPI.deleteConversation(chatId),
       chatId
@@ -2187,7 +2194,7 @@ public async getStatus(contactId: ContactId) {
    * @param chatId
    * @returns boolean
    */
-  public async clearChat(chatId: ChatId) {
+  public async clearChat(chatId: ChatId) : Promise<boolean> {
     return await this.pup(
       chatId => WAPI.clearChat(chatId),
       chatId
@@ -2199,7 +2206,7 @@ public async getStatus(contactId: ContactId) {
    * @param chatId
    * @returns Promise<string>
    */
-  public async getGroupInviteLink(chatId: ChatId) {
+  public async getGroupInviteLink(chatId: ChatId) : Promise<string>{
     return await this.pup(
       chatId => WAPI.getGroupInviteLink(chatId),
       chatId
@@ -2211,7 +2218,7 @@ public async getStatus(contactId: ContactId) {
    * @param link This can be an invite link or invite code
    * @returns 
    */
-  public async inviteInfo(link: string) {
+  public async inviteInfo(link: string) : Promise<any>{
     return await this.pup(
       link => WAPI.inviteInfo(link),
       link
@@ -2224,7 +2231,7 @@ public async getStatus(contactId: ContactId) {
    * @param chatId
    * @returns Promise<boolean>
    */
-  public async revokeGroupInviteLink(chatId: ChatId) {
+  public async revokeGroupInviteLink(chatId: ChatId) : Promise<boolean | string>{
     return await this.pup(
       chatId => WAPI.revokeGroupInviteLink(chatId),
       chatId
@@ -2250,7 +2257,7 @@ public async getStatus(contactId: ContactId) {
    * @param contactId, you need to include the @c.us at the end.
    * @returns contact detial as promise
    */
-  public async checkNumberStatus(contactId: ContactId) {
+  public async checkNumberStatus(contactId: ContactId) : Promise<Contact>{
     return await this.pup(
       contactId => WAPI.checkNumberStatus(contactId),
       contactId
@@ -2264,7 +2271,7 @@ public async getStatus(contactId: ContactId) {
    * @param use_unread_count
    * @returns any
    */
-  public async getUnreadMessages(includeMe: boolean, includeNotifications: boolean, use_unread_count: boolean) {
+  public async getUnreadMessages(includeMe: boolean, includeNotifications: boolean, use_unread_count: boolean) : Promise<Message[]> {
     return await this.pup(
       ({ includeMe, includeNotifications, use_unread_count }) => WAPI.getUnreadMessages(includeMe, includeNotifications, use_unread_count),
       { includeMe, includeNotifications, use_unread_count }
@@ -2276,7 +2283,7 @@ public async getStatus(contactId: ContactId) {
    * Retrieves all new Messages. where isNewMsg==true
    * @returns list of messages
    */
-  public async getAllNewMessages() {
+  public async getAllNewMessages() : Promise<Message[]> {
     return await this.pup(() => WAPI.getAllNewMessages()) as Promise<Message[]>;
   }
 
@@ -2284,7 +2291,7 @@ public async getStatus(contactId: ContactId) {
    * Retrieves all unread Messages. where ack==-1
    * @returns list of messages
    */
-  public async getAllUnreadMessages() {
+  public async getAllUnreadMessages() : Promise<Message[]> {
     return await this.pup(() => WAPI.getAllUnreadMessages()) as Promise<Message[]>;
   }
 
@@ -2298,7 +2305,7 @@ public async getStatus(contactId: ContactId) {
    * ```
    * @returns list of messages
    */
-  public async getIndicatedNewMessages() {
+  public async getIndicatedNewMessages() : Promise<Message[]> {
     return JSON.parse(await this.pup(() => WAPI.getIndicatedNewMessages())) as Promise<Message[]>;
   }
 
@@ -2313,7 +2320,7 @@ public async getStatus(contactId: ContactId) {
    * @returns Message[]
    */
 
-  public async getAllMessagesInChat(chatId: ChatId, includeMe: boolean, includeNotifications: boolean) {
+  public async getAllMessagesInChat(chatId: ChatId, includeMe: boolean, includeNotifications: boolean) : Promise<Message[]> {
     return await this.pup(
       ({ chatId, includeMe, includeNotifications }) => WAPI.getAllMessagesInChat(chatId, includeMe, includeNotifications),
       { chatId, includeMe, includeNotifications }
@@ -2328,7 +2335,7 @@ public async getStatus(contactId: ContactId) {
    * @returns any
    */
 
-  public async loadAndGetAllMessagesInChat(chatId: ChatId, includeMe: boolean, includeNotifications: boolean) {
+  public async loadAndGetAllMessagesInChat(chatId: ChatId, includeMe: boolean, includeNotifications: boolean) : Promise<Message[]> {
     return await this.pup(
       ({ chatId, includeMe, includeNotifications }) => WAPI.loadAndGetAllMessagesInChat(chatId, includeMe, includeNotifications),
       { chatId, includeMe, includeNotifications }
@@ -2356,7 +2363,7 @@ public async getStatus(contactId: ContactId) {
    * }
    * ```
    */
-  public async createGroup(groupName:string,contacts:ContactId|ContactId[]){
+  public async createGroup(groupName:string,contacts:ContactId|ContactId[]) : Promise<any> {
     return await this.pup(
       ({ groupName, contacts }) => WAPI.createGroup(groupName, contacts),
       { groupName, contacts }
@@ -2375,7 +2382,7 @@ public async getStatus(contactId: ContactId) {
    * @param {*} groupId `0000000000-00000000@g.us`
    * @param {*} participantId `000000000000@c.us`
    */
-  public async removeParticipant(groupId: GroupChatId, participantId: ContactId) {
+  public async removeParticipant(groupId: GroupChatId, participantId: ContactId) : Promise<boolean> {
     return await this.pup(
       ({ groupId, participantId }) => WAPI.removeParticipant(groupId, participantId),
       { groupId, participantId }
@@ -2387,7 +2394,7 @@ public async getStatus(contactId: ContactId) {
  * @param imgData 'data:image/jpeg;base64,...` The base 64 data url. Make sure this is a small img (128x128), otherwise it will fail.
  * @returns boolean true if it was set, false if it didn't work. It usually doesn't work if the image file is too big.
  */
-  public async setGroupIcon(groupId: GroupChatId, image: DataURL) {
+  public async setGroupIcon(groupId: GroupChatId, image: DataURL) :Promise<boolean> {
     const buff = Buffer.from(image.replace(/^data:image\/(png|gif|jpeg);base64,/,''), 'base64');
     const mimeInfo = base64MimeType(image);
     console.log("setGroupIcon -> mimeInfo", mimeInfo)
@@ -2420,7 +2427,7 @@ public async getStatus(contactId: ContactId) {
  * @param requestConfig {} By default the request is a get request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
  * @returns boolean true if it was set, false if it didn't work. It usually doesn't work if the image file is too big.
  */
-  public async setGroupIconByUrl(groupId: GroupChatId, url: string, requestConfig: AxiosRequestConfig = {}) {
+  public async setGroupIconByUrl(groupId: GroupChatId, url: string, requestConfig: AxiosRequestConfig = {}) : Promise<boolean> {
     try {
       const base64 = await getDUrl(url, requestConfig);
        return await this.setGroupIcon(groupId,base64);
@@ -2443,7 +2450,7 @@ public async getStatus(contactId: ContactId) {
   * 
   */
 
-  public async addParticipant(groupId: GroupChatId, participantId: ContactId | ContactId[]) {
+  public async addParticipant(groupId: GroupChatId, participantId: ContactId | ContactId[]) : Promise<boolean> {
     const res = await this.pup(
       ({ groupId, participantId }) => WAPI.addParticipant(groupId, participantId),
       { groupId, participantId }
@@ -2467,7 +2474,7 @@ public async getStatus(contactId: ContactId) {
   * @param {*} participantId '000000000000@c.us'
   */
 
-  public async promoteParticipant(groupId: GroupChatId, participantId: ContactId) {
+  public async promoteParticipant(groupId: GroupChatId, participantId: ContactId) : Promise<boolean> {
     return await this.pup(
       ({ groupId, participantId }) => WAPI.promoteParticipant(groupId, participantId),
       { groupId, participantId }
@@ -2486,7 +2493,7 @@ public async getStatus(contactId: ContactId) {
   * @param {*} groupId '0000000000-00000000@g.us'
   * @param {*} participantId '000000000000@c.us'
   */
-  public async demoteParticipant(groupId: GroupChatId, participantId: ContactId) {
+  public async demoteParticipant(groupId: GroupChatId, participantId: ContactId) : Promise<boolean>{
     return await this.pup(
       ({ groupId, participantId }) => WAPI.demoteParticipant(groupId, participantId),
       { groupId, participantId }
@@ -2500,7 +2507,7 @@ public async getStatus(contactId: ContactId) {
   * @param onlyAdmins boolean set to true if you want only admins to be able to speak in this group. false if you want to allow everyone to speak in the group
   * @returns boolean true if action completed successfully.
   */
-  public async setGroupToAdminsOnly(groupId: GroupChatId, onlyAdmins: boolean) {
+  public async setGroupToAdminsOnly(groupId: GroupChatId, onlyAdmins: boolean) : Promise<boolean> {
     return await this.pup(
       ({ groupId, onlyAdmins }) => WAPI.setGroupToAdminsOnly(groupId, onlyAdmins),
       { groupId, onlyAdmins }
@@ -2514,7 +2521,7 @@ public async getStatus(contactId: ContactId) {
   * @param onlyAdmins boolean set to true if you want only admins to be able to speak in this group. false if you want to allow everyone to speak in the group
   * @returns boolean true if action completed successfully.
   */
- public async setGroupEditToAdminsOnly(groupId: GroupChatId, onlyAdmins: boolean) {
+ public async setGroupEditToAdminsOnly(groupId: GroupChatId, onlyAdmins: boolean) : Promise<boolean> {
   return await this.pup(
     ({ groupId, onlyAdmins }) => WAPI.setGroupEditToAdminsOnly(groupId, onlyAdmins),
     { groupId, onlyAdmins }
@@ -2529,7 +2536,7 @@ public async getStatus(contactId: ContactId) {
   * @param description string The new group description
   * @returns boolean true if action completed successfully.
   */
- public async setGroupDescription(groupId: GroupChatId, description: string) {
+ public async setGroupDescription(groupId: GroupChatId, description: string) : Promise<boolean> {
   return await this.pup(
     ({ groupId, description }) => WAPI.setGroupDescription(groupId, description),
     { groupId, description }
@@ -2544,7 +2551,7 @@ public async getStatus(contactId: ContactId) {
   * @param title string The new group title
   * @returns boolean true if action completed successfully.
   */
- public async setGroupTitle(groupId: GroupChatId, title: string) {
+ public async setGroupTitle(groupId: GroupChatId, title: string) : Promise<boolean> {
   return await this.pup(
     ({ groupId, title }) => WAPI.setGroupTitle(groupId, title),
     { groupId, title }
@@ -2555,7 +2562,7 @@ public async getStatus(contactId: ContactId) {
   * Get Admins of a Group
   * @param {*} groupId '0000000000-00000000@g.us'
   */
-  public async getGroupAdmins(groupId: GroupChatId) {
+  public async getGroupAdmins(groupId: GroupChatId) : Promise<ContactId[]> {
     return await this.pup(
       (groupId) => WAPI.getGroupAdmins(groupId),
       groupId
@@ -2568,7 +2575,7 @@ public async getStatus(contactId: ContactId) {
    * Set the wallpaper background colour
    * @param {string} hex '#FFF123'
   */
-  public async setChatBackgroundColourHex(hex: string) {
+  public async setChatBackgroundColourHex(hex: string) : Promise<boolean> {
     return await this.pup(
       (hex) => WAPI.setChatBackgroundColourHex(hex),
       hex
@@ -2580,7 +2587,7 @@ public async getStatus(contactId: ContactId) {
    * Start dark mode [NOW GENERALLY AVAILABLE]
    * @param {boolean} activate true to activate dark mode, false to deactivate
   */
-  public async darkMode(activate: boolean) {
+  public async darkMode(activate: boolean) : Promise<boolean> {
     return await this.pup(
       (activate) => WAPI.darkMode(activate),
       activate
@@ -2593,7 +2600,7 @@ public async getStatus(contactId: ContactId) {
    * Each of these contact objects have a property `t` which represents the time at which that contact read the message.
    * @param messageId The message id
    */
-  public async getMessageReaders(messageId: MessageId) {
+  public async getMessageReaders(messageId: MessageId) : Promise<Contact[]> {
     return await this.pup(
       (messageId) => WAPI.getMessageReaders(messageId),
       messageId
@@ -2608,7 +2615,7 @@ public async getStatus(contactId: ContactId) {
    *
    * @returns Promise<MessageId | boolean>
    */
-  public async sendStickerfromUrl(to: ChatId, url: string, requestConfig: AxiosRequestConfig = {}, stickerMetadata ?: StickerMetadata) {
+  public async sendStickerfromUrl(to: ChatId, url: string, requestConfig: AxiosRequestConfig = {}, stickerMetadata ?: StickerMetadata) : Promise<string | MessageId | boolean> {
     try {
       const base64 = await getDUrl(url, requestConfig);
       return await this.sendImageAsSticker(to, base64, stickerMetadata);
@@ -2629,7 +2636,7 @@ public async getStatus(contactId: ContactId) {
    * 
    * @returns Promise<MessageId | boolean>
    */
-  public async sendStickerfromUrlAsReply(to: ChatId, url: string, messageId: MessageId, requestConfig: AxiosRequestConfig = {}, stickerMetadata ?: StickerMetadata) {
+  public async sendStickerfromUrlAsReply(to: ChatId, url: string, messageId: MessageId, requestConfig: AxiosRequestConfig = {}, stickerMetadata ?: StickerMetadata): Promise<MessageId | boolean>  {
     const dUrl = await getDUrl(url, requestConfig);
     const processingResponse = await this.prepareWebp(dUrl, stickerMetadata);
     if(!processingResponse) return false;
@@ -2652,7 +2659,7 @@ public async getStatus(contactId: ContactId) {
    * @param messageId  The id of the message to reply to
    * @param stickerMetadata  Sticker metadata
    */
-  public async sendImageAsStickerAsReply(to: ChatId, image: DataURL | Buffer | Base64 | string, messageId: MessageId, stickerMetadata ?: StickerMetadata){
+  public async sendImageAsStickerAsReply(to: ChatId, image: DataURL | Buffer | Base64 | string, messageId: MessageId, stickerMetadata ?: StickerMetadata) : Promise<MessageId | boolean | string> {
     //@ts-ignore
     if((Buffer.isBuffer(image)  || typeof image === 'object' || image?.type === 'Buffer') && image.toString) {image = image.toString('base64')} else if(typeof image === 'string') {
       if(!isDataURL(image) && !isBase64(image)) {
@@ -2660,16 +2667,16 @@ public async getStatus(contactId: ContactId) {
         if(isUrl(image)){
           image = await getDUrl(image)
         } else {
-          let relativePath = path.join(path.resolve(process.cwd(),image|| ''));
+          const relativePath = path.join(path.resolve(process.cwd(),image|| ''));
           if(fs.existsSync(image) || fs.existsSync(relativePath)) {
             image = await datauri(fs.existsSync(image)  ? image : relativePath);
           } else return 'FILE_NOT_FOUND';
         } 
       }
       }
-    let processingResponse = await this.prepareWebp(image as string, stickerMetadata);
+    const processingResponse = await this.prepareWebp(image as string, stickerMetadata);
     if(!processingResponse) return false;
-    let {webpBase64, metadata} = processingResponse;
+    const {webpBase64, metadata} = processingResponse;
       return await this.pup(
         ({ webpBase64,to, metadata, messageId }) => WAPI.sendStickerAsReply(webpBase64,to, metadata, messageId),
         { webpBase64,to, metadata, messageId }
@@ -2689,7 +2696,7 @@ public async getStatus(contactId: ContactId) {
    * @param property the single property key to get from the object.
    * @returns any If the property or the id cannot be found, it will return a 404
    */
-  public async getSingleProperty(namespace: namespace, id: string, property : string) {
+  public async getSingleProperty(namespace: namespace, id: string, property : string) : Promise<any> {
     return await this.pup(
       ({ namespace, id, property }) => WAPI.getSingleProperty(namespace, id, property),
       { namespace, id, property }
@@ -2784,7 +2791,7 @@ public async getStatus(contactId: ContactId) {
    * @param to: The recipient id.
    * @param image: [[DataURL]], [[Base64]], URL (string GET), Relative filepath (string), or Buffer of the image
    */
-  public async sendImageAsSticker(to: ChatId, image: DataURL | Buffer | Base64 | string, stickerMetadata?: StickerMetadata){
+  public async sendImageAsSticker(to: ChatId, image: DataURL | Buffer | Base64 | string, stickerMetadata?: StickerMetadata) : Promise<MessageId | string | boolean>{
     //@ts-ignore
     if((Buffer.isBuffer(image)  || typeof image === 'object' || image?.type === 'Buffer') && image.toString) {
       image = image.toString('base64')
@@ -2794,7 +2801,7 @@ public async getStatus(contactId: ContactId) {
         if(isUrl(image)){
           image = await getDUrl(image)
         } else {
-          let relativePath = path.join(path.resolve(process.cwd(),image|| ''));
+          const relativePath = path.join(path.resolve(process.cwd(),image|| ''));
           if(fs.existsSync(image) || fs.existsSync(relativePath)) {
             image = await datauri(fs.existsSync(image)  ? image : relativePath);
           } else return 'FILE_NOT_FOUND';
@@ -2802,9 +2809,9 @@ public async getStatus(contactId: ContactId) {
       }
       }
     
-    let processingResponse = await this.prepareWebp(image as string, stickerMetadata);
+    const processingResponse = await this.prepareWebp(image as string, stickerMetadata);
     if(!processingResponse) return false;
-    let {webpBase64, metadata} = processingResponse;
+    const {webpBase64, metadata} = processingResponse;
       return await this.pup(
         ({ webpBase64,to, metadata }) => WAPI.sendImageAsSticker(webpBase64,to, metadata),
         { webpBase64,to, metadata }
@@ -2821,7 +2828,7 @@ public async getStatus(contactId: ContactId) {
    * @param file [[DataURL]], [[Base64]], URL (string GET), Relative filepath (string), or Buffer of the mp4 file
    * @param messageId message id of the message you want this sticker to reply to. [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    */
-  public async sendMp4AsSticker(to: ChatId, file: DataURL | Buffer | Base64 | string, processOptions: Mp4StickerConversionProcessOptions = defaultProcessOptions, stickerMetadata?: StickerMetadata, messageId ?: MessageId) {
+  public async sendMp4AsSticker(to: ChatId, file: DataURL | Buffer | Base64 | string, processOptions: Mp4StickerConversionProcessOptions = defaultProcessOptions, stickerMetadata?: StickerMetadata, messageId ?: MessageId) : Promise<MessageId | string | boolean> {
     //@ts-ignore
     if((Buffer.isBuffer(file)  || typeof file === 'object' || file?.type === 'Buffer') && file.toString) {
       file = file.toString('base64')
@@ -2863,7 +2870,7 @@ public async getStatus(contactId: ContactId) {
    * @param webpBase64 Base64 The base64 string of the webp file. Not DataURl
    * @param animated Boolean Set to true if the webp is animated. Default `false`
    */
-  public async sendRawWebpAsSticker(to: ChatId, webpBase64: Base64, animated : boolean = false){
+  public async sendRawWebpAsSticker(to: ChatId, webpBase64: Base64, animated : boolean = false): Promise<MessageId | string | boolean> {
     let metadata =  {
         format: 'webp',
         width: 512,
@@ -2886,8 +2893,8 @@ public async getStatus(contactId: ContactId) {
    * @param webpBase64 Base64 The base64 string of the webp file. Not DataURl
    * @param animated Boolean Set to true if the webp is animated. Default `false`
    */
-  public async sendRawWebpAsStickerAsReply(to: ChatId, messageId: MessageId, webpBase64: Base64, animated : boolean = false, ){
-    let metadata =  {
+  public async sendRawWebpAsStickerAsReply(to: ChatId, messageId: MessageId, webpBase64: Base64, animated : boolean = false, ): Promise<MessageId | string | boolean> {
+    const metadata =  {
         format: 'webp',
         width: 512,
         height: 512,
@@ -2908,7 +2915,7 @@ public async getStatus(contactId: ContactId) {
    * @param ephemeral `true` to turn on the ephemeral setting, `false` to turn off the ephemeral setting. Please note, if the setting is already on the requested setting, this method will return `true`.
    * @returns Promise<boolean> true if the setting was set, `false` if the chat does not exist
    */
-  public async setChatEphemeral(chatId: ChatId, ephemeral: boolean){
+  public async setChatEphemeral(chatId: ChatId, ephemeral: boolean) : Promise<boolean>{
     return await this.pup(
       ({ chatId,  ephemeral}) => WAPI.setChatEphemeral(chatId,  ephemeral),
       { chatId,  ephemeral }
@@ -2920,7 +2927,7 @@ public async getStatus(contactId: ContactId) {
    * @param to ChatId
    * @param giphyMediaUrl URL | string This is the giphy media url and has to be in the format `https://media.giphy.com/media/RJKHjCAdsAfQPn03qQ/source.gif` or it can be just the id `RJKHjCAdsAfQPn03qQ`
    */
-  public async sendGiphyAsSticker(to: ChatId, giphyMediaUrl: URL | string){
+  public async sendGiphyAsSticker(to: ChatId, giphyMediaUrl: URL | string) : Promise<MessageId | string | boolean>{
     return await this.pup(
       ({ to,  giphyMediaUrl}) => WAPI.sendGiphyAsSticker(to,  giphyMediaUrl),
       { to,  giphyMediaUrl }
@@ -2943,7 +2950,7 @@ public async getStatus(contactId: ContactId) {
    * 5: [Oswald Heavy](https://www.fontsquirrel.com/fonts/oswald)
    * @returns Promise<string | boolean> returns status id if it worked, false if it didn't
    */
-  public async postTextStatus(text: Content, textRgba: string, backgroundRgba: string, font: number){
+  public async postTextStatus(text: Content, textRgba: string, backgroundRgba: string, font: number) : Promise<MessageId | string | boolean>{
     return await this.pup(
       ({ text, textRgba, backgroundRgba, font }) => WAPI.postTextStatus(text, textRgba, backgroundRgba, font),
       { text, textRgba, backgroundRgba, font }
@@ -2958,7 +2965,7 @@ public async getStatus(contactId: ContactId) {
    * @param caption The caption for the story 
    * @returns Promise<string | boolean> returns status id if it worked, false if it didn't
    */
-  public async postImageStatus(data: DataURL, caption: Content){
+  public async postImageStatus(data: DataURL, caption: Content) : Promise<MessageId | string | boolean> {
     return await this.pup(
       ({data, caption}) => WAPI.postImageStatus(data, caption),
       { data, caption }
@@ -2973,7 +2980,7 @@ public async getStatus(contactId: ContactId) {
    * @param caption The caption for the story 
    * @returns Promise<string | boolean> returns status id if it worked, false if it didn't
    */
-  public async postVideoStatus(data: DataURL, caption: Content){
+  public async postVideoStatus(data: DataURL, caption: Content) : Promise<MessageId | string | boolean> {
     return await this.pup(
       ({data, caption}) => WAPI.postVideoStatus(data, caption),
       { data, caption }
@@ -2986,7 +2993,7 @@ public async getStatus(contactId: ContactId) {
  * @param statusesToDelete string [] | stringan array of ids of statuses to delete.
  * @returns boolean. True if it worked.
  */
-  public async deleteStatus(statusesToDelete: string | string []) {
+  public async deleteStatus(statusesToDelete: string | string []) : Promise<boolean> {
     return await this.pup(
       ({ statusesToDelete }) => WAPI.deleteStatus(statusesToDelete),
       { statusesToDelete }
@@ -2997,7 +3004,7 @@ public async getStatus(contactId: ContactId) {
  * Deletes all your existing statuses.
  * @returns boolean. True if it worked.
  */
-  public async deleteAllStatus() {
+  public async deleteAllStatus() : Promise<boolean> {
     return await this.pup(() => WAPI.deleteAllStatus());
   }
 
@@ -3006,7 +3013,7 @@ public async getStatus(contactId: ContactId) {
    *
    * Only works with a Story License Key
    */
-  public async getMyStatusArray() {
+  public async getMyStatusArray() : Promise<Message[]> {
     return await this.pup(() => WAPI.getMyStatusArray());
   }
 
@@ -3018,7 +3025,7 @@ public async getStatus(contactId: ContactId) {
      * 
      * Only works with a Story License Key
      */
-    public async getStoryViewers(id: string) {
+    public async getStoryViewers(id: string) : Promise<ContactId[]> {
       return await this.pup(({ id }) => WAPI.getStoryViewers(id),{id}) as Promise<ContactId[]>;
     }
   
@@ -3028,7 +3035,7 @@ public async getStatus(contactId: ContactId) {
      * 
      * Clears all chats of all messages. This does not delete chats. Please be careful with this as it will remove all messages from whatsapp web and the host device. This feature is great for privacy focussed bots.
      */
-  public async clearAllChats() {
+  public async clearAllChats() : Promise<boolean> {
     return await this.pup(() => WAPI.clearAllChats());
   }
   
@@ -3085,7 +3092,7 @@ public async getStatus(contactId: ContactId) {
    *  });
    * ```
    */
-  public async downloadProfilePicFromMessage(message: Message) {
+  public async downloadProfilePicFromMessage(message: Message) : Promise<Base64> {
     return await this.downloadFileWithCredentials(message.sender.profilePicThumbObj.imgFull);
   }
 
@@ -3093,7 +3100,7 @@ public async getStatus(contactId: ContactId) {
    * Download via the browsers authenticated session via URL.
    * @returns base64 string (non-data url)
    */
-  public async downloadFileWithCredentials(url: string){
+  public async downloadFileWithCredentials(url: string) : Promise<Base64> {
     if(!url) throw new CustomError(ERROR_NAME.MISSING_URL, 'Missing URL');
     return await this.pup(({ url }) => WAPI.downloadFileWithCredentials(url),{url});
   }
@@ -3105,7 +3112,7 @@ public async getStatus(contactId: ContactId) {
    * @param data string data url image string.
    * @returns Promise<boolean> success if true
    */
-  public async setProfilePic(data: DataURL){
+  public async setProfilePic(data: DataURL) : Promise<boolean> {
     return await this.pup(({ data }) => WAPI.setProfilePic(data),{data}) as Promise<boolean>;
   }
 
@@ -3187,7 +3194,7 @@ public async getStatus(contactId: ContactId) {
    * 
    * For example, if you have a session with id  `host` if you set useSessionIdInPath to true, then all requests will need to be prefixed with the path `host`. E.g `localhost:8082/sendText` becomes `localhost:8082/host/sendText`
    */
-  middleware = (useSessionIdInPath: boolean = false) => async (req,res,next) => {
+  middleware = (useSessionIdInPath: boolean = false) => async (req,res,next) : Promise<any> => {
     if(useSessionIdInPath && !req.path.includes(this._createConfig.sessionId) && this._createConfig.sessionId!== 'session') return next();
     if(req.method==='POST') {
       let {method,args} = req.body
@@ -3221,8 +3228,9 @@ public async getStatus(contactId: ContactId) {
   /**
    * Retreives an array of webhook objects
    */
-  public async listWebhooks(){
+  public async listWebhooks() : Promise<Webhook[]> {
     return this._registeredWebhooks ? Object.keys(this._registeredWebhooks).map(id=>this._registeredWebhooks[id]).map(({
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       requestConfig,
       ...rest
     })=>rest) as Webhook[] : [];
@@ -3257,6 +3265,7 @@ public async getStatus(contactId: ContactId) {
     if(this._registeredWebhooks[webhookId]) {
       this._registeredWebhooks[webhookId].events = validListeners
       const {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         requestConfig,
         ...rest
       } = this._registeredWebhooks[webhookId] as Webhook;
@@ -3303,7 +3312,7 @@ public async getStatus(contactId: ContactId) {
     if(!Array.isArray(events)) events = [events]
     if(!this._registeredWebhookListeners) this._registeredWebhookListeners={};
     if(!this._registeredWebhooks) this._registeredWebhooks={};
-    let validListeners = [];
+    const validListeners = [];
       events.map(event=>{
       if(this[event]){
         validListeners.push(event);
@@ -3336,7 +3345,7 @@ public async getStatus(contactId: ContactId) {
    */
   public async registerWebhook(url: string, events : SimpleListener[] | 'all', requestConfig: AxiosRequestConfig = {}, concurrency: number = 5) : Promise<Webhook | false> {
     if(!this._webhookQueue) this._webhookQueue = new PQueue({ concurrency });
-    let validListeners = await this._setupWebhooksOnListeners(events)
+    const validListeners = await this._setupWebhooksOnListeners(events)
     const id = uuidv4()
     if(validListeners.length) {
       this._registeredWebhooks[id] = {
