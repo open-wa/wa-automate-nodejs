@@ -12,8 +12,7 @@ const terminalLink = require('terminal-link');
 const isUrl = require('is-url');
 const tcpPortUsed = require('tcp-port-used');
 const changeCase = require("change-case");
-const swStats = require('swagger-stats');    
-var robots = require("express-robots-txt");
+ var robots = require("express-robots-txt");
 const extraFlags = {};
 const configWithCases = require('./config-schema.json');
 const axios = require('axios').default;
@@ -402,6 +401,7 @@ return await create({ ...config })
 		}
 
 		if(c && c.stats && swCol) {
+			const swStats = require('swagger-stats'); 
 			console.log('Setting Up API Stats');
 			app.use(swStats.getMiddleware({
 			  elasticsearch:process.env.elastic_url,
