@@ -2474,7 +2474,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   * @param {*} participantId '000000000000@c.us'
   */
 
-  public async promoteParticipant(groupId: GroupChatId, participantId: ContactId) : Promise<boolean> {
+  public async promoteParticipant(groupId: GroupChatId, participantId: ContactId | ContactId[]) : Promise<boolean> {
     return await this.pup(
       ({ groupId, participantId }) => WAPI.promoteParticipant(groupId, participantId),
       { groupId, participantId }
@@ -2493,7 +2493,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   * @param {*} groupId '0000000000-00000000@g.us'
   * @param {*} participantId '000000000000@c.us'
   */
-  public async demoteParticipant(groupId: GroupChatId, participantId: ContactId) : Promise<boolean>{
+  public async demoteParticipant(groupId: GroupChatId, participantId: ContactId | ContactId[]) : Promise<boolean>{
     return await this.pup(
       ({ groupId, participantId }) => WAPI.demoteParticipant(groupId, participantId),
       { groupId, participantId }
