@@ -99,6 +99,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
 }
 
 const getSessionDataFromFile = (sessionId: string, config: ConfigObject) => {
+  if(config?.sessionData == "NUKE") return '' 
   //check if [session].json exists in __dirname
   const sessionjsonpath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(process.cwd(),config?.sessionDataPath || '')) : path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
   let sessionjson = '';

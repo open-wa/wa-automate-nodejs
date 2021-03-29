@@ -179,6 +179,16 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     }
 
     const authenticated = await Promise.race(authRace);
+    if(authenticated==='NUKE') {
+      //kill the browser
+      spinner.fail("Session data most likely expired due to manual host account logout. Please re-authenticate this session.")
+      await kill(waPage)
+      //restart the process with no session data
+      return create({
+        ...config,
+        sessionData: authenticated
+      })
+    }
 
 
     /**
