@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>open-wa</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
+
+  <style>
+    body {
+      color: #1a2c37;
+      font-family: 'Helvetica', sans-serif;
+      font-size: 86%;
+      padding: 2em;
+    }
+
+    .info {
+      font-size: 120%;
+      font-weight: bold;
+    }
+
+    .log {
+      border: 1px solid #ccc;
+      height: 300px;
+      padding: 0.5em;
+      overflow: hidden;
+      position: relative;
+      overflow-y: scroll;
+      height: 400px;
+      min-width: 400px;
+      margin: auto;
+      margin-left: 16px;
+      max-width: 50%;
+      width: 50%;
+    }
+
+    .qr {
+      width: 400px;
+      height: 400px;
+      margin: auto;
+    }
+
+    .eventwrap {
+      display: flex;
+      flex-direction: row;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="wrap">
+
+  </div>
+
+  <script>
+
+    var Application = function () {
+      var sessions = [];
+      function c() {
+        var n = $('.c').attr('id');
+        var c = n;
+        $('.c').text(c);
+        setInterval(function () {
+          c--;
+          if (c >= 0) {
+            $('.c').text(c);
+          }
+        }, 1000);
+      }
+
+      function consume(message) {
+        console.log('Received message:', message);
+        if (!sessions.includes(message.sessionId)) {
+          $('#wrap').append(`
+    <div id=${message.sessionId}>
+  <h1 class="info"></h1>
+  <div class="eventwrap">
+  <pre class="log"></pre>
+  <img class="qr" />
+  <div>
+    </div>
+          `);
+          sessions.push(message.sessionId);
+          setInterval(() => {
+            var element = document.getElementById(message.sessionId).children[1];
+            element.scrollTop = element.scrollHeight;
+          }, 1000);
+        };
+
+        if (message.sessionId) {
+          $(`#${message.sessionId} .info`).html('Session: ' + message.sessionId);
+        };
+        if (message.namespace === "qr") {
+          $(`#${message.sessionId} .qr`)[0].src = message.data
+        }
+        if (message.namespace === "ready") {
+          const link = (message.data || location.href.substring(0, location.href.length - 1)) + "/api-docs/"
+          $(`#${message.sessionId} .log`).html(`${$(`#${message.sessionId} .log`).html()} API Explorer: <a href="${link}" target="_blank"   >${link}</a>\n You may need to refresh the page. and wait <span class="c" id="5"></span> seconds. <br><br><br><br>`);
+          // Start
+          c();
+        }
+        if (message.data) {
+          if (message.namespace !== "sessionDataBase64") $(`#${message.sessionId} .log`).html(`${$(`#${message.sessionId} .log`).html()} ${message.namespace} ${typeof message.data === 'object' ? JSON.stringify(message.data, null, 4) : message.data} <br>`);
+        }
+      }
+
+      console.log("Application -> window.location.origin", window.location.origin)
+      var socket = io.connect(window.location.origin);
+      socket.on('connect', function () {
+        console.log('Connected to:', socket);
+      });
+
+      socket.on('disconnect', (reason) => {
+      sessions.map(sessionId => consume({
+        sessionId,
+        data: 'Connection to the launch logs socket is now closed. You can now close this window or go to the api docs (if using the cli) by refreshing the page in a few seconds.',
+        namespace: 'CONNECTION'
+      }));
+      socket.close();
+      });
+
+      socket.on('message', consume);
+
+      return {
+        socket
+      };
+    };
+
+    $(function () { var app = Application(); });
+
+  </script>
+
+</body>
+
+</html>
