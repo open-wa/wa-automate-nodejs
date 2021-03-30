@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ConfigObject | @open-wa/wa-automate - v3.10.4</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.10.4">
+	<title>ConfigObject | @open-wa/wa-automate - v3.10.5</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.10.5">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v3.10.4</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v3.10.5</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -116,6 +116,7 @@
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#idcorrection" class="tsd-kind-icon">id<wbr>Correction</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#indocker" class="tsd-kind-icon">in<wbr>Docker</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#keepupdated" class="tsd-kind-icon">keep<wbr>Updated</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#killclientonlogout" class="tsd-kind-icon">kill<wbr>Client<wbr>OnLogout</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#killprocessonbrowserclose" class="tsd-kind-icon">kill<wbr>Process<wbr>OnBrowser<wbr>Close</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#killprocessontimeout" class="tsd-kind-icon">kill<wbr>Process<wbr>OnTimeout</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#legacy" class="tsd-kind-icon">legacy</a></li>
@@ -144,7 +145,9 @@
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#skipupdatecheck" class="tsd-kind-icon">skip<wbr>Update<wbr>Check</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#stickerserverendpoint" class="tsd-kind-icon">sticker<wbr>Server<wbr>Endpoint</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#throwerrorontosblock" class="tsd-kind-icon">throw<wbr>Error<wbr>OnTos<wbr>Block</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#throwonexpiredsessiondata" class="tsd-kind-icon">throw<wbr>OnExpired<wbr>Session<wbr>Data</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#usechrome" class="tsd-kind-icon">use<wbr>Chrome</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#usenativeproxy" class="tsd-kind-icon">use<wbr>Native<wbr>Proxy</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#usestealth" class="tsd-kind-icon">use<wbr>Stealth</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#viewport" class="tsd-kind-icon">viewport</a></li>
 							</ul>
@@ -427,7 +430,7 @@
 						<p>This is useful because you can register/deregister the event listener as needed whereas the legacy method of setting callbacks are only be set once</p>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
-							<dd><p>false;</p>
+							<dd><p><code>true</code>;</p>
 							</dd>
 						</dl>
 					</div>
@@ -538,6 +541,23 @@
 						<div class="lead">
 							<p>[ALPHA FEATURE - ONLY IMPLEMENTED FOR TESTING - DO NOT USE IN PRODUCTION YET]
 							Setting this to true will result in the library making sure it is always starting with the latest version of itself. This overrides <code>skipUpdateCheck</code>.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="killclientonlogout" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> kill<wbr>Client<wbr>OnLogout</h3>
+					<div class="tsd-signature tsd-kind-icon">kill<wbr>Client<wbr>OnLogout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Kill the client when a logout is detected</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
@@ -1033,6 +1053,24 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="throwonexpiredsessiondata" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> throw<wbr>OnExpired<wbr>Session<wbr>Data</h3>
+					<div class="tsd-signature tsd-kind-icon">throw<wbr>OnExpired<wbr>Session<wbr>Data<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This will make the <code>create</code> command return <code>false</code> if the detected session data is expired.</p>
+						</div>
+						<p>This will mean, the process will not attempt to automatically get a new QR code.</p>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="usechrome" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> use<wbr>Chrome</h3>
 					<div class="tsd-signature tsd-kind-icon">use<wbr>Chrome<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
@@ -1041,6 +1079,23 @@
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
 							<p>If true, the program will automatically try to detect the instance of chorme on the machine. Please note this DOES NOT override executablePath.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="usenativeproxy" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> use<wbr>Native<wbr>Proxy</h3>
+					<div class="tsd-signature tsd-kind-icon">use<wbr>Native<wbr>Proxy<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Some sessions may experience issues with sending media when using proxies. Using the native proxy system instead of the recommended 3rd party library may fix these issues.</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
@@ -1271,6 +1326,9 @@
 								<a href="api_model_config.configobject.html#keepupdated" class="tsd-kind-icon">keep<wbr>Updated</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.configobject.html#killclientonlogout" class="tsd-kind-icon">kill<wbr>Client<wbr>OnLogout</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="api_model_config.configobject.html#killprocessonbrowserclose" class="tsd-kind-icon">kill<wbr>Process<wbr>OnBrowser<wbr>Close</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
@@ -1355,7 +1413,13 @@
 								<a href="api_model_config.configobject.html#throwerrorontosblock" class="tsd-kind-icon">throw<wbr>Error<wbr>OnTos<wbr>Block</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.configobject.html#throwonexpiredsessiondata" class="tsd-kind-icon">throw<wbr>OnExpired<wbr>Session<wbr>Data</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="api_model_config.configobject.html#usechrome" class="tsd-kind-icon">use<wbr>Chrome</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.configobject.html#usenativeproxy" class="tsd-kind-icon">use<wbr>Native<wbr>Proxy</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="api_model_config.configobject.html#usestealth" class="tsd-kind-icon">use<wbr>Stealth</a>
