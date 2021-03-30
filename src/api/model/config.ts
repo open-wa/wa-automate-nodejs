@@ -508,6 +508,11 @@ export interface ConfigObject {
      */
     logDebugInfoAsObject ?: boolean;
     /**
+     * Kill the client when a logout is detected
+     * @default `false`
+     */
+    killClientOnLogout ?: boolean;
+    /**
      * Some sessions may experience issues with sending media when using proxies. Using the native proxy system instead of the recommended 3rd party library may fix these issues.
      * 
      * @default `false`

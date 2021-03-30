@@ -13,7 +13,7 @@ import { Client } from '../api/Client';
 import { ConfigObject } from '../api/model/index';
 import * as path from 'path';
 import { phoneIsOutOfReach, isAuthenticated, smartQr } from './auth';
-import { initPage, injectApi } from './browser';
+import { deleteSessionData, getSessionDataFilePath, initPage, injectApi } from './browser';
 import { Spin } from './events'
 import { integrityCheck, checkWAPIHash } from './launch_checks';
 import treekill from 'tree-kill';
@@ -296,12 +296,12 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       spinner.succeed(`Client loaded in ${LAUNCH_TIME_MS/1000}s`);
       if(config?.deleteSessionDataOnLogout || config?.killClientOnLogout) config.eventMode = true;
       const client = new Client(waPage, config, debugInfo);
-      if(config?.deleteSessionDataOnLogout) {
-        client.onStateChanged(state=> {
-          if(state==='UNPAIRED') {
-  const sessionjsonpath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(process.cwd(),config?.sessionDataPath || '')) : path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
-            if(fs.existsSync(sessionjsonpath)) fs.unlinkSync(sessionjsonpath) 
-          }
+      if(config?.deleteSessionDataOnLogout || config?.killClientOnLogout) {
+        client.onLogout(() => {
+            if(config?.deleteSessionDataOnLogout) deleteSessionData(config)
+            if(config?.killClientOnLogout) {
+              client.kill();
+            }
         })
       }
       const { me } = await client.getMe();
