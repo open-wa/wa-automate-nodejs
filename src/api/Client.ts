@@ -589,6 +589,18 @@ export class Client {
     // this._page.exposeFunction(funcName, (message: Message) =>fn(message)).then(set).catch(e=>set);
   }
 
+  public async onLogout(fn: ()=> any) : Promise<boolean> {
+    await this._page.on('request', request => {
+      if(request.url() === "https://web.whatsapp.com/") fn();
+    })
+    this.onStateChanged(state=>{
+      if(state===STATE.UNPAIRED){
+        fn();
+      }
+    });
+    return true;
+  }
+
  
 
   // STANDARD SIMPLE LISTENERS

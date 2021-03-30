@@ -47,6 +47,10 @@
      * Represents [[onChatState]]
      */
     ChatState = 'onChatState',
+    /**
+     * Represents [[onLogout]]
+     */
+    Logout = 'onLogout',
     // Next two require extra params so not available to use via webhook register
     // LiveLocation = 'onLiveLocation',
     // ParticipantsChanged = 'onParticipantsChanged',
