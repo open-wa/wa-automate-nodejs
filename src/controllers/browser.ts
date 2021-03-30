@@ -71,7 +71,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
       if (request.url().includes('https://crashlogs.whatsapp.net/') && blockCrashLogs){
         request.abort();
       }
-      // else if (proxyAddr) require('puppeteer-page-proxy')(request, proxyAddr);
+      else if (proxyAddr) require('puppeteer-page-proxy')(request, proxyAddr);
       else request.continue();
       })
     })
@@ -88,10 +88,10 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
     }, sessionjson);
     spinner?.succeed('Existing session data injected')
   }
-    // if(config?.proxyServerCredentials) {
-    //   await require('puppeteer-page-proxy')(waPage, proxyAddr);
-    //   console.log(`Active proxy: ${config.proxyServerCredentials.address}`)
-    // }
+    if(config?.proxyServerCredentials) {
+      await require('puppeteer-page-proxy')(waPage, proxyAddr);
+      console.log(`Active proxy: ${config.proxyServerCredentials.address}`)
+    }
   await Promise.all(setupPromises);
   spinner?.info('Navigating to WA')
   await waPage.goto(puppeteerConfig.WAUrl)
