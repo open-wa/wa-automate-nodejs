@@ -10,7 +10,7 @@ timeout = ms => {
   return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 }
 import { Client } from '../api/Client';
-import { ConfigObject } from '../api/model/index';
+import { ConfigObject, SessionExpiredError } from '../api/model/index';
 import * as path from 'path';
 import { phoneIsOutOfReach, isAuthenticated, smartQr } from './auth';
 import { deleteSessionData, getSessionDataFilePath, initPage, injectApi } from './browser';
@@ -187,6 +187,10 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       //kill the browser
       spinner.fail("Session data most likely expired due to manual host account logout. Please re-authenticate this session.")
       await kill(waPage)
+      if(config?.deleteSessionDataOnLogout) deleteSessionData(config)
+      if(config?.throwOnExpiredSessionData) {
+        throw new SessionExpiredError();
+      } else
       //restart the process with no session data
       return create({
         ...config,

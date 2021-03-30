@@ -513,6 +513,14 @@ export interface ConfigObject {
      */
     killClientOnLogout ?: boolean;
     /**
+     * This will make the `create` command return `false` if the detected session data is expired.
+     * 
+     * This will mean, the process will not attempt to automatically get a new QR code.
+     * 
+     * @default `false`
+     */
+    throwOnExpiredSessionData ?: boolean;
+    /**
      * Some sessions may experience issues with sending media when using proxies. Using the native proxy system instead of the recommended 3rd party library may fix these issues.
      * 
      * @default `false`

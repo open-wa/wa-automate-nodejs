@@ -241,6 +241,7 @@
       "ERROR_NAME",
       "Webhook",
       "CustomError",
+      "SessionExpiredError",
       "MessageId",
       "AddParticipantError",
       "AddParticipantErrorStatusCode",

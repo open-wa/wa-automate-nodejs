@@ -10,6 +10,13 @@ export class PageEvaluationTimeout extends Error {
     }
 }
 
+export class SessionExpiredError extends Error {
+    constructor() {
+      super("This session has been deauthenticated!"); // (1)
+      this.name = "SessionExpiredError"; // (2)
+    }
+  }
+
 /**
  * Enum of error names specific to this library
  */
