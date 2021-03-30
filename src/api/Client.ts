@@ -270,6 +270,7 @@ declare module WAPI {
     quotedMsgId?: string
   ) => Promise<string>;
   const getAllContacts: () => Contact[];
+  const getLastMsgTimestamps: () => any[];
   const getWAVersion: () => String;
   const getStoryViewers: (id: string) => Promise<String[]>;
   const getMe: () => any;
@@ -280,7 +281,7 @@ declare module WAPI {
   const getAmountOfLoadedMessages: () => number;
   const deleteAllStatus: () => Promise<boolean>;
   const getMyStatusArray: () => Promise<any>;
-  const getAllUnreadMessages: () => any;
+  const getAllUnreadMessages: () => any;  
   const getIndicatedNewMessages: () => any;
   const getAllChatsWithMessages: (withNewMessageOnly?: boolean) => any;
   const getAllChats: () => any;
@@ -1777,6 +1778,23 @@ public async iAmAdmin() : Promise<GroupChatId[]>  {
   public async getLicenseType() : Promise<LicenseType | false> {
     return await this.pup(() => WAPI.getLicenseType()) as Promise<LicenseType | false>;
   }
+
+  /**
+   * Get an array of chatIds with their respective last message's timestamp.
+   * 
+   * This is useful for determining what chats are old/stale and need to be deleted.
+   */
+  public async getLastMsgTimestamps() : Promise<{
+    id: ChatId,
+    /**
+     * Epoch timestamp (no need to x 1000), works with new Date(t)
+     */
+    t: number
+  }[]> {
+    return await this.pup(() => WAPI.getLastMsgTimestamps());
+  }
+
+
   /**
    * Retrieves all chats
    * @returns array of [Chat]
