@@ -470,7 +470,7 @@ export interface ConfigObject {
      * 
      * This is useful because you can register/deregister the event listener as needed whereas the legacy method of setting callbacks are only be set once
      * 
-     * @default false;
+     * @default `true`;
      */
     eventMode ?: boolean;
     /**

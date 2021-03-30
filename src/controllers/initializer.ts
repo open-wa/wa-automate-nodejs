@@ -54,6 +54,10 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
   let sessionId : string = '';
   let customUserAgent;
 
+  if(!config || config?.eventMode!==false) {
+    config.eventMode = true
+  }
+
   if(!config?.skipUpdateCheck || config?.keepUpdated) {
     notifier = await updateNotifier({
       pkg,
@@ -290,6 +294,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       debugInfo = {...debugInfo, LAUNCH_TIME_MS};
       spinner.emit(debugInfo, "DebugInfo");
       spinner.succeed(`Client loaded in ${LAUNCH_TIME_MS/1000}s`);
+      if(config?.deleteSessionDataOnLogout || config?.killClientOnLogout) config.eventMode = true;
       const client = new Client(waPage, config, debugInfo);
       if(config?.deleteSessionDataOnLogout) {
         client.onStateChanged(state=> {
