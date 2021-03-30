@@ -55,7 +55,6 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
     .replace('://', '')}` : config.proxyServerCredentials.address}` : false;
   let quickAuthed = false;
   if(interceptAuthentication || proxyAddr || blockCrashLogs){
-    setupPromises.push(async ()=>{
       await waPage.setRequestInterception(true);  
       const authCompleteEv = new EvEmitter(sessionId, 'AUTH');
       waPage.on('request', async request => {
@@ -71,10 +70,10 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
       if (request.url().includes('https://crashlogs.whatsapp.net/') && blockCrashLogs){
         request.abort();
       }
-      else if (proxyAddr) require('puppeteer-page-proxy')(request, proxyAddr);
+      else if (proxyAddr && !config?.useNativeProxy) require('puppeteer-page-proxy')(request, proxyAddr);
       else request.continue();
       })
-    })
+    
   }
 
   spinner?.info('Loading session data')
@@ -88,10 +87,10 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
     }, sessionjson);
     spinner?.succeed('Existing session data injected')
   }
-    if(config?.proxyServerCredentials) {
+    if(config?.proxyServerCredentials && !config?.useNativeProxy) {
       await require('puppeteer-page-proxy')(waPage, proxyAddr);
-      console.log(`Active proxy: ${config.proxyServerCredentials.address}`)
     }
+  if(config?.proxyServerCredentials?.address) spinner.succeed(`Active proxy: ${config.proxyServerCredentials.address}`)
   await Promise.all(setupPromises);
   spinner?.info('Navigating to WA')
   await waPage.goto(puppeteerConfig.WAUrl)
@@ -182,7 +181,7 @@ async function initBrowser(sessionId?: string, config:any={}) {
     }
   }
   
-  // if(config?.proxyServerCredentials?.address) puppeteerConfig.chromiumArgs.push(`--proxy-server=${config.proxyServerCredentials.address}`)
+  if(config?.proxyServerCredentials?.address && config?.useNativeProxy) puppeteerConfig.chromiumArgs.push(`--proxy-server=${config.proxyServerCredentials.address}`)
   if(config?.browserWsEndpoint) config.browserWSEndpoint = config.browserWsEndpoint;
   const args = [...puppeteerConfig.chromiumArgs,...(config?.chromiumArgs||[])];
   if(config?.corsFix) args.push('--disable-web-security');

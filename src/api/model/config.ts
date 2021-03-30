@@ -507,6 +507,12 @@ export interface ConfigObject {
      * @default `false`
      */
     logDebugInfoAsObject ?: boolean;
+    /**
+     * Some sessions may experience issues with sending media when using proxies. Using the native proxy system instead of the recommended 3rd party library may fix these issues.
+     * 
+     * @default `false`
+     */
+     useNativeProxy ?: boolean;
     /**@internal */
     [x: string]: any 
 }
