@@ -77,7 +77,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
   }
 
   spinner?.info('Loading session data')
-  const sessionjson = getSessionDataFromFile(sessionId, config)
+  const sessionjson = getSessionDataFromFile(sessionId, config, spinner)
   if(sessionjson) {
   spinner?.info('Existing session data detected. Injecting...')
     await waPage.evaluateOnNewDocument(
@@ -97,14 +97,15 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
   return waPage;
 }
 
-const getSessionDataFromFile = (sessionId: string, config: ConfigObject) => {
+const getSessionDataFromFile = (sessionId: string, config: ConfigObject, spinner ?: Spin) => {
   if(config?.sessionData == "NUKE") return '' 
   //check if [session].json exists in __dirname
   const sessionjsonpath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(process.cwd(),config?.sessionDataPath || '')) : path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
   let sessionjson = '';
   const sd = process.env[`${sessionId.toUpperCase()}_DATA_JSON`] ? JSON.parse(process.env[`${sessionId.toUpperCase()}_DATA_JSON`]) : config?.sessionData;
   sessionjson = (typeof sd === 'string') ? JSON.parse(Buffer.from(sd, 'base64').toString('ascii')) : sd;
-  if (fs.existsSync(sessionjsonpath)) {
+  if (sessionjsonpath && fs.existsSync(sessionjsonpath)) {
+    spinner.succeed(`Found session data file: ${sessionjsonpath}`)
     const s = fs.readFileSync(sessionjsonpath, "utf8");
     try {
       sessionjson = JSON.parse(s);
@@ -112,7 +113,10 @@ const getSessionDataFromFile = (sessionId: string, config: ConfigObject) => {
       try {
       sessionjson = JSON.parse(Buffer.from(s, 'base64').toString('ascii'));
       } catch (error) {
-      console.error("session data json file is corrupted. Please reauthenticate.");
+        const msg = "Session data json file is corrupted. Please reauthenticate."
+      if(spinner) {
+        spinner.fail(msg)
+      } else console.error(msg);
       return false;
       }
     }
@@ -129,6 +133,7 @@ const getSessionDataFromFile = (sessionId: string, config: ConfigObject) => {
         }
       }
     }
+    spinner.succeed(`No session data file found for session : ${sessionId}`)
   }
   return sessionjson;
 } 
