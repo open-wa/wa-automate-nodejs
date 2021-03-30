@@ -100,7 +100,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
 const getSessionDataFromFile = (sessionId: string, config: ConfigObject, spinner ?: Spin) => {
   if(config?.sessionData == "NUKE") return '' 
   //check if [session].json exists in __dirname
-  const sessionjsonpath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(process.cwd(),config?.sessionDataPath || '')) : path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
+  const sessionjsonpath = getSessionDataFilePath(sessionId,config)
   let sessionjson = '';
   const sd = process.env[`${sessionId.toUpperCase()}_DATA_JSON`] ? JSON.parse(process.env[`${sessionId.toUpperCase()}_DATA_JSON`]) : config?.sessionData;
   sessionjson = (typeof sd === 'string') ? JSON.parse(Buffer.from(sd, 'base64').toString('ascii')) : sd;
@@ -121,22 +121,31 @@ const getSessionDataFromFile = (sessionId: string, config: ConfigObject, spinner
       }
     }
   } else {
-    const p = require?.main?.path || process?.mainModule?.path;
-    if(p) {
-      const altSessionJsonPath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(p,config?.sessionDataPath || '')) : path.join(path.resolve(p,config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
-      if(fs.existsSync(altSessionJsonPath)) {
-        const s = fs.readFileSync(altSessionJsonPath, "utf8");
-        try {
-          sessionjson = JSON.parse(s);
-        } catch (error) {
-          sessionjson = JSON.parse(Buffer.from(s, 'base64').toString('ascii'));
-        }
-      }
-    }
     spinner.succeed(`No session data file found for session : ${sessionId}`)
   }
   return sessionjson;
-} 
+}
+
+export const deleteSessionData = (config: ConfigObject) : boolean => {
+  const sessionjsonpath = getSessionDataFilePath(config?.sessionId || 'session', config)
+  if(fs.existsSync(sessionjsonpath)) {
+    console.log("logout detected, deleting session data")
+    fs.unlinkSync(sessionjsonpath);
+  }
+  return true;
+}
+
+export const getSessionDataFilePath = (sessionId: string, config: ConfigObject) : string | boolean => {
+  const p = require?.main?.path || process?.mainModule?.path;
+  const sessionjsonpath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(process.cwd(),config?.sessionDataPath || '')) : path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
+  const altSessionJsonPath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(p,config?.sessionDataPath || '')) : path.join(path.resolve(p,config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
+  if(fs.existsSync(sessionjsonpath)){
+    return sessionjsonpath
+  } else if(p && fs.existsSync(altSessionJsonPath)){
+    return altSessionJsonPath
+  }
+  return false
+}
 
 export const addScript = (page: Page, js : string) : Promise<unknown> => page.addScriptTag({
   path: require.resolve(path.join(__dirname, '../lib', js))
