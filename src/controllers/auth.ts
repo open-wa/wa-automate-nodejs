@@ -1,9 +1,9 @@
 import * as qrcode from 'qrcode-terminal';
 import { from, Observable, race } from 'rxjs';
-import {EvEmitter} from './events'
+import {EvEmitter, Spin} from './events'
 import { screenshot } from './initializer'
 import { ConfigObject } from '../api/model';
-import { Page, JSHandle} from 'puppeteer';
+import { Page } from 'puppeteer';
 const timeout = ms =>  new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 
 /**
@@ -62,7 +62,7 @@ export const phoneIsOutOfReach = async (waPage: Page) : Promise<boolean>  => {
     .catch(()=>false);
 } ;
 
-export async function smartQr(waPage: Page, config?: ConfigObject) : Promise<boolean | void>{
+export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Spin) : Promise<boolean | void>{
     const evalResult = await waPage.evaluate("window.Store && window.Store.State")
     if (evalResult === false) {
       console.log('Seems as though you have been TOS_BLOCKed, unable to refresh QR Code. Please see https://github.com/open-wa/wa-automate-nodejs#best-practice for information on how to prevent this from happeing. You will most likely not get a QR Code');
@@ -88,7 +88,10 @@ export async function smartQr(waPage: Page, config?: ConfigObject) : Promise<boo
   return new Promise(async resolve => {
     const funcName = '_smartQr';
     const fn = async (qrData) => {
-      if(qrData==='QR_CODE_SUCCESS') return resolve(await isInsideChat(waPage).toPromise())
+      if(qrData==='QR_CODE_SUCCESS') {
+        spinner?.succeed("QR code scanned. Loading session...")
+        return resolve(await isInsideChat(waPage).toPromise())
+      }
       grabAndEmit(qrData)
     }
     const set = () => waPage.evaluate(({funcName}) => {

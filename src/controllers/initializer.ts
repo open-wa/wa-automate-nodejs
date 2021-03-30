@@ -217,7 +217,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     } else {
       spinner.info('Authenticate to continue');
       const race = [];
-      race.push(smartQr(waPage, config))
+      race.push(smartQr(waPage, config, spinner))
       if (config?.qrTimeout!==0) {
         race.push(timeout((config?.qrTimeout || 60) * 1000))
       }
