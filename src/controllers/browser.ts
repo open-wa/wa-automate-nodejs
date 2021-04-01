@@ -138,10 +138,10 @@ export const deleteSessionData = (config: ConfigObject) : boolean => {
 export const getSessionDataFilePath = (sessionId: string, config: ConfigObject) : string | boolean => {
   const p = require?.main?.path || process?.mainModule?.path;
   const sessionjsonpath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(process.cwd(),config?.sessionDataPath || '')) : path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
-  const altSessionJsonPath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(p,config?.sessionDataPath || '')) : path.join(path.resolve(p,config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
+  const altSessionJsonPath = p ? (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(p,config?.sessionDataPath || '')) : path.join(path.resolve(p,config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`) : false;
   if(fs.existsSync(sessionjsonpath)){
     return sessionjsonpath
-  } else if(p && fs.existsSync(altSessionJsonPath)){
+  } else if(p && altSessionJsonPath && fs.existsSync(altSessionJsonPath)){
     return altSessionJsonPath
   }
   return false
