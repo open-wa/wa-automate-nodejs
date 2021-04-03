@@ -72,10 +72,18 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
   const isAuthed = await isAuthenticated(waPage);
   if(isAuthed) return true;
   const grabAndEmit = async (qrData) => {
-    const qrCode = await waPage.evaluate(`getQrPng()`);
-    qrEv.emit(qrCode);
-    if(!config.qrLogSkip) qrcode.generate(qrData,{small: true});
-    else console.log(`New QR Code generated. Not printing in console because qrLogSkip is set to true`)
+    try {
+      const qrCode = await waPage.evaluate(`getQrPng()`);
+      if(qrCode) {
+        qrEv.emit(qrCode);
+        if(!config.qrLogSkip) qrcode.generate(qrData,{small: true});
+        else console.log(`New QR Code generated. Not printing in console because qrLogSkip is set to true`)
+      } else {
+        spinner.info("Something went wrong while retreiving new the QR code but it should not affect the session launch procedure.")
+      }
+    } catch (error) {
+      spinner.info(`Something went wrong while retreiving new the QR code but it should not affect the session launch procedure: ${error.message}`)
+    }
   }
   const qrEv = new EvEmitter(config.sessionId || 'session','qr');
 
