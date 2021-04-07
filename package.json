@@ -105,6 +105,7 @@
     "change-case": "^4.1.1",
     "chrome-launcher": "^0.13.0",
     "command-exists": "^1.2.9",
+    "command-line-usage": "^6.1.1",
     "cross-spawn": "^7.0.3",
     "datauri": "^3.0.0",
     "death": "^1.1.0",
