@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Client | @open-wa/wa-automate - v3.10.9</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.10.9">
+	<title>Client | @open-wa/wa-automate - v3.10.10</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.10.10">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v3.10.9</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v3.10.10</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -202,6 +202,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#ischatonline" class="tsd-kind-icon">is<wbr>Chat<wbr>Online</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#isconnected" class="tsd-kind-icon">is<wbr>Connected</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#isgroupidunsafe" class="tsd-kind-icon">is<wbr>Group<wbr>IdUnsafe</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#isphonedisconnected" class="tsd-kind-icon">is<wbr>Phone<wbr>Disconnected</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#joingroupvialink" class="tsd-kind-icon">join<wbr>Group<wbr>Via<wbr>Link</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#kill" class="tsd-kind-icon">kill</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#leavegroup" class="tsd-kind-icon">leave<wbr>Group</a></li>
@@ -1955,7 +1956,7 @@
 					<a name="forcerefocus" class="tsd-anchor"></a>
 					<h3>force<wbr>Refocus</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">force<wbr>Refocus<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">force<wbr>Refocus<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -1968,7 +1969,7 @@
 								<p>Use this when <a href="../enums/api_model.state.html">STATE</a> is <code>CONFLICT</code>. You can read more about managing state here:</p>
 								<p>[[Detecting Logouts]]</p>
 							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -3483,6 +3484,26 @@
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
 							<p>Promise &lt;boolean | string&gt; This will either return a boolean indiciating whether this group chat id is considered unsafe or an error message as a string</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="isphonedisconnected" class="tsd-anchor"></a>
+					<h3>is<wbr>Phone<wbr>Disconnected</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>Phone<wbr>Disconnected<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Check if the &quot;Phone not Cconnected&quot; message is showing in the browser. If it is showing, then this will return <code>true</code>.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p><code>boolean</code></p>
 						</li>
 					</ul>
 				</section>
@@ -6538,6 +6559,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_client.client.html#isgroupidunsafe" class="tsd-kind-icon">is<wbr>Group<wbr>IdUnsafe</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="api_client.client.html#isphonedisconnected" class="tsd-kind-icon">is<wbr>Phone<wbr>Disconnected</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_client.client.html#joingroupvialink" class="tsd-kind-icon">join<wbr>Group<wbr>Via<wbr>Link</a>
