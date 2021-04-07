@@ -97,7 +97,7 @@
   "dependencies": {
     "@discordjs/collection": "^0.1.6",
     "@open-wa/wa-decrypt": "^3.1.0",
-    "@types/sharp": "^0.27.1",
+    "@types/sharp": "^0.28.0",
     "atob": "^2.1.2",
     "axios": "^0.21.0",
     "boxen": "^5.0.0",
