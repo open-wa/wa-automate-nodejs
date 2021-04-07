@@ -301,6 +301,7 @@ declare module WAPI {
   const getAllChatsWithNewMsg: () => Chat[];
   const getAllNewMessages: () => any;
   const getUseHereString: () => Promise<string>;
+  const getLocaledString: (query: string) => Promise<string>;
   const getHostNumber: () => string;
   const getAllGroups: () => Promise<Chat[]>;
   const getGroupParticipantIDs: (groupId: string) => Promise<string[]>;
@@ -997,13 +998,23 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * 
    * [[Detecting Logouts]]
    */
-  public async forceRefocus() {
+  public async forceRefocus() : Promise<void> {
     const useHere: string = await this._page.evaluate(()=>WAPI.getUseHereString());
     await this._page.waitForFunction(
       `[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML.toLowerCase().includes("${useHere.toLowerCase()}")})`,
       { timeout: 0 }
     );
     return await this._page.evaluate(`[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML.toLowerCase().includes("${useHere.toLowerCase()}")}).click()`);
+  }
+
+  /**
+   * Check if the "Phone not Cconnected" message is showing in the browser. If it is showing, then this will return `true`.
+   * 
+   * @returns `boolean`
+   */
+  public async isPhoneDisconnected() : Promise<boolean> {
+    const phoneNotConnected: string = await this._page.evaluate(()=>WAPI.getLocaledString('phone not connected'));
+    return await this.pup(`!![...document.querySelectorAll("div")].find(e=>{return e.innerHTML.toLowerCase().includes("${phoneNotConnected.toLowerCase()}")})`)
   }
 
   
