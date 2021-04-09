@@ -247,6 +247,7 @@
       "AddParticipantErrorStatusCode",
       "Collector",
       "MessageCollector",
+      "HealthCheck",
       "CollectorOptions"
     ]
   }

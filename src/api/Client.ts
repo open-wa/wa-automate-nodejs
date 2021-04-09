@@ -49,7 +49,7 @@ createLogger = (sessionId: string, sessionInfo: SessionInfo, config: ConfigObjec
   return logger
 }
 import treekill from 'tree-kill';
-import { SessionInfo } from './model/sessionInfo';
+import { HealthCheck, SessionInfo } from './model/sessionInfo';
 import { injectApi } from '../controllers/browser';
 import { isAuthenticated } from '../controllers/auth';
 import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, FilePath } from './model/aliases';
@@ -285,6 +285,7 @@ declare module WAPI {
   const getIndicatedNewMessages: () => any;
   const getAllChatsWithMessages: (withNewMessageOnly?: boolean) => any;
   const getAllChats: () => any;
+  const healthCheck: () => any;
   const getState: () => string;
   const forceUpdateConnectionState: () => Promise<string>;
   const getBatteryLevel: () => number;
@@ -1015,6 +1016,13 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   public async isPhoneDisconnected() : Promise<boolean> {
     const phoneNotConnected: string = await this._page.evaluate(()=>WAPI.getLocaledString('phone not connected'));
     return await this.pup(`!![...document.querySelectorAll("div")].find(e=>{return e.innerHTML.toLowerCase().includes("${phoneNotConnected.toLowerCase()}")})`)
+  }
+
+  /**
+   * Runs a health check to help you determine if/when is an appropiate time to restart/refresh the session.
+   */
+  public async healthCheck() : Promise<HealthCheck> {
+    return await this._page.evaluate(() => WAPI.healthCheck());
   }
 
   
