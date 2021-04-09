@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Client | @open-wa/wa-automate - v3.10.10</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.10.10">
+	<title>Client | @open-wa/wa-automate - v3.10.11</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.10.11">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v3.10.10</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v3.10.11</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -196,6 +196,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getvcards" class="tsd-kind-icon">getVCards</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getwaversion" class="tsd-kind-icon">getWAVersion</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#ghostforward" class="tsd-kind-icon">ghost<wbr>Forward</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#healthcheck" class="tsd-kind-icon">health<wbr>Check</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#iamadmin" class="tsd-kind-icon">i<wbr>AmAdmin</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#inviteinfo" class="tsd-kind-icon">invite<wbr>Info</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#ischatmuted" class="tsd-kind-icon">is<wbr>Chat<wbr>Muted</a></li>
@@ -3329,6 +3330,25 @@
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
 							<p>Promise<boolean></p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="healthcheck" class="tsd-anchor"></a>
+					<h3>health<wbr>Check</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">health<wbr>Check<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/api_model_sessioninfo.healthcheck.html" class="tsd-signature-type" data-tsd-kind="Interface">HealthCheck</a><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Runs a health check to help you determine if/when is an appropiate time to restart/refresh the session.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/api_model_sessioninfo.healthcheck.html" class="tsd-signature-type" data-tsd-kind="Interface">HealthCheck</a><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -6541,6 +6561,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_client.client.html#ghostforward" class="tsd-kind-icon">ghost<wbr>Forward</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="api_client.client.html#healthcheck" class="tsd-kind-icon">health<wbr>Check</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_client.client.html#iamadmin" class="tsd-kind-icon">i<wbr>AmAdmin</a>
