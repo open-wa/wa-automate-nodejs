@@ -167,6 +167,10 @@ await Promise.all(
 }
 
 async function initBrowser(sessionId?: string, config:any={}) {
+  if(config?.raspi) {
+    config.executablePath = "/usr/bin/chromium-browser"
+  }
+
   if(config?.useChrome && !config?.executablePath) {
     const storage = require('node-persist');
     await storage.init();

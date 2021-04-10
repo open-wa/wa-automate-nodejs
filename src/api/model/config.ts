@@ -526,6 +526,24 @@ export interface ConfigObject {
      * @default `false`
      */
      useNativeProxy ?: boolean;
+    /**
+     * Set this to `true` to make the library work on Raspberry Pi OS.
+     * 
+     * Make sure to run the following command before running the library the first time:
+     * 
+     * ```
+     * > sudo apt update -y && sudo apt install chromium-browser chromium-codecs-ffmpeg -y && sudo apt upgrade
+     * ```
+     * 
+     * If you're using the CLI, you can set this value to `true` by adding the following flag to the CLI command
+     * 
+     * ```
+     * > npx @open-wa/wa-automate ... --raspi
+     * ```
+     * 
+     * @default `false`
+     */
+     raspi ?: boolean;
     /**@internal */
     [x: string]: any 
 }
