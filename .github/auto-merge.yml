@@ -1,0 +1,3 @@
+- match:
+    dependency_name: "@open-wa/wa-automate"
+    update_type: "all"
