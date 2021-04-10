@@ -55,13 +55,13 @@
     fastq "^1.6.0"
 
 "@open-wa/wa-automate@latest":
-  version "3.10.8"
-  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-3.10.8.tgz#d0334bf7f1e624a5c23e2e88cb26e6b1847415be"
-  integrity sha512-1N32kELKXi2LhRvbHJCd13BYZBO0reZsrd+pM5BQ4/ICNl3wslwseRQqk7A0YqnhD6QaMkfjU1ck+qH3P6V1xQ==
+  version "3.10.10"
+  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-3.10.10.tgz#5d4e593b5b8b83fbab639d578925432f5aad9239"
+  integrity sha512-6l9o1Pisxb0Fm8kzYcs43Bco1jWAapJCTLE1VBsyMqUUmzbn1iNbdfnEVifWaxhdV2cvm+yERTnWvf9PQ1uvNA==
   dependencies:
     "@discordjs/collection" "^0.1.6"
     "@open-wa/wa-decrypt" "^3.1.0"
-    "@types/sharp" "^0.27.1"
+    "@types/sharp" "^0.28.0"
     atob "^2.1.2"
     axios "^0.21.0"
     boxen "^5.0.0"
@@ -69,6 +69,7 @@
     change-case "^4.1.1"
     chrome-launcher "^0.13.0"
     command-exists "^1.2.9"
+    command-line-usage "^6.1.1"
     cross-spawn "^7.0.3"
     datauri "^3.0.0"
     death "^1.1.0"
@@ -243,10 +244,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/sharp@^0.27.1":
-  version "0.27.1"
-  resolved "https://registry.yarnpkg.com/@types/sharp/-/sharp-0.27.1.tgz#26212ceb191b3de654a898a06577869afc200c57"
-  integrity sha512-RbYmyPjDUzi3lI9Qm68I+82I+DNOe/jW5w+EC1FvpT/f2TYXDG6mmPZQQohy98ufq+u6OB6pQkqpcNMDxzVclg==
+"@types/sharp@^0.28.0":
+  version "0.28.0"
+  resolved "https://registry.yarnpkg.com/@types/sharp/-/sharp-0.28.0.tgz#d61865182e386f1ec8d8b6a052da846695638a84"
+  integrity sha512-YvRFnQM44wAihAKzBDzu3BxnEohpqWd/5KXkwsSUl3qFTb51NyKHCKHX1D62YAy0jZij5aXgm/33v/Cv6VVsdA==
   dependencies:
     "@types/node" "*"
 
@@ -351,6 +352,11 @@ arr-union@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/arr-union/-/arr-union-3.1.0.tgz#e39b09aea9def866a8f206e288af63919bae39c4"
   integrity sha1-45sJrqne+Gao8gbiiK9jkZuuOcQ=
+
+array-back@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/array-back/-/array-back-4.0.1.tgz#9b80312935a52062e1a233a9c7abeb5481b30e90"
+  integrity sha512-Z/JnaVEXv+A9xabHzN43FiiiWEE7gPCRXMrVmRm00tWbjZRul1iHm7ECzlyNq1p4a4ATXz+G9FJ3GqGOkOV3fg==
 
 array-flatten@1.1.1:
   version "1.1.1"
@@ -862,6 +868,16 @@ command-exists@^1.2.9:
   resolved "https://registry.yarnpkg.com/command-exists/-/command-exists-1.2.9.tgz#c50725af3808c8ab0260fd60b01fbfa25b954f69"
   integrity sha512-LTQ/SGc+s0Xc0Fu5WaKnR0YiygZkm9eKFvyS+fRsU7/ZWFF8ykFM6Pc9aCVf1+xasOOZpO3BAVgVrKvsqKHV7w==
 
+command-line-usage@^6.1.1:
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/command-line-usage/-/command-line-usage-6.1.1.tgz#c908e28686108917758a49f45efb4f02f76bc03f"
+  integrity sha512-F59pEuAR9o1SF/bD0dQBDluhpT4jJQNWUHEuVBqpDmCUo6gPjCi+m9fCWnWZVR/oG6cMTUms4h+3NPl74wGXvA==
+  dependencies:
+    array-back "^4.0.1"
+    chalk "^2.4.2"
+    table-layout "^1.0.1"
+    typical "^5.2.0"
+
 commander@^6.1.0:
   version "6.2.1"
   resolved "https://registry.yarnpkg.com/commander/-/commander-6.2.1.tgz#0792eb682dfbc325999bb2b84fddddba110ac73c"
@@ -1057,7 +1073,7 @@ decompress-response@^6.0.0:
   dependencies:
     mimic-response "^3.1.0"
 
-deep-extend@^0.6.0:
+deep-extend@^0.6.0, deep-extend@~0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/deep-extend/-/deep-extend-0.6.0.tgz#c4fa7c95404a17a9c3e8ca7e1537312b736330ac"
   integrity sha512-LOHxIOaPYdHlJRtCQfDIVZtfw/ufM8+rVj649RIHzcm/vGwQRXFt6OPqIFWsm2XEMrNIEtWR64sY1LEKD2vAOA==
@@ -3696,6 +3712,11 @@ redent@^3.0.0:
     indent-string "^4.0.0"
     strip-indent "^3.0.0"
 
+reduce-flatten@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/reduce-flatten/-/reduce-flatten-2.0.0.tgz#734fd84e65f375d7ca4465c69798c25c9d10ae27"
+  integrity sha512-EJ4UNY/U1t2P/2k6oqotuX2Cc3T6nxJwsM0N0asT7dhrtH1ltUxDn4NalSYmPE2rCkVpcf/X6R0wDwcFpzhd4w==
+
 regex-not@^1.0.0, regex-not@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/regex-not/-/regex-not-1.0.2.tgz#1f4ece27e00b0b65e0247a6810e6a85d83a5752c"
@@ -4352,6 +4373,16 @@ swagger-ui-express@^4.1.4:
   dependencies:
     swagger-ui-dist "^3.18.1"
 
+table-layout@^1.0.1:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/table-layout/-/table-layout-1.0.2.tgz#c4038a1853b0136d63365a734b6931cf4fad4a04"
+  integrity sha512-qd/R7n5rQTRFi+Zf2sk5XVVd9UQl6ZkduPFC3S7WEGJAmetDTjY3qPN50eSKzwuzEyQKy5TN2TiZdkIjos2L6A==
+  dependencies:
+    array-back "^4.0.1"
+    deep-extend "~0.6.0"
+    typical "^5.2.0"
+    wordwrapjs "^4.0.0"
+
 tar-fs@^2.0.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/tar-fs/-/tar-fs-2.1.1.tgz#489a15ab85f1f0befabb370b7de4f9eb5cbe8784"
@@ -4572,6 +4603,11 @@ typescript@~4.2.2:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.2.2.tgz#1450f020618f872db0ea17317d16d8da8ddb8c4c"
   integrity sha512-tbb+NVrLfnsJy3M59lsDgrzWIflR4d4TIUjz+heUnHZwdF7YsrMTKoRERiIvI2lvBG95dfpLxB21WZhys1bgaQ==
 
+typical@^5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/typical/-/typical-5.2.0.tgz#4daaac4f2b5315460804f0acf6cb69c52bb93066"
+  integrity sha512-dvdQgNDNJo+8B2uBQoqdb11eUCE1JQXhvjC/CZtgvZseVd5TYMXnq0+vuUemXbd/Se29cTaUuPX3YIc2xgbvIg==
+
 unbzip2-stream@^1.3.3:
   version "1.4.3"
   resolved "https://registry.yarnpkg.com/unbzip2-stream/-/unbzip2-stream-1.4.3.tgz#b0da04c4371311df771cdc215e87f2130991ace7"
@@ -4778,6 +4814,14 @@ windows-release@^4.0.0:
   integrity sha512-OxmV4wzDKB1x7AZaZgXMVsdJ1qER1ed83ZrTYd5Bwq2HfJVg3DJS8nqlAG4sMoJ7mu8cuRmLEYyU13BKwctRAg==
   dependencies:
     execa "^4.0.2"
+
+wordwrapjs@^4.0.0:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/wordwrapjs/-/wordwrapjs-4.0.1.tgz#d9790bccfb110a0fc7836b5ebce0937b37a8b98f"
+  integrity sha512-kKlNACbvHrkpIw6oPeYDSmdCTu2hdMHoyXLTcUKala++lx5Y+wjJ/e474Jqv5abnVmwxw08DiTuHmw69lJGksA==
+  dependencies:
+    reduce-flatten "^2.0.0"
+    typical "^5.2.0"
 
 wrap-ansi@^7.0.0:
   version "7.0.0"
