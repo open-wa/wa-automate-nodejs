@@ -75,6 +75,7 @@ export async function popup(config: ConfigObject) : Promise<string> {
         io = new Server(server)
         io.on('connection', function (client) {
             gClient = client;
+            gClient.send({ data: 'CONNECTED', sessionId: config?.sessionId || 'session', namespace: 'SOCKET' })
         });
     }
     server.on("connection", (conn: any) => {
