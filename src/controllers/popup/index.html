@@ -5,7 +5,9 @@
   <title>open-wa</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.js"
+    integrity="sha512-2RDFHqfLZW8IhPRvQYmK9bTLfj/hddxGXQAred2wNZGkrKQkLGj8RCkXfRJPHlDerdHHIzTFaahq4s/P4V6Qig=="
+    crossorigin="anonymous"></script>
 
   <style>
     body {
@@ -105,24 +107,42 @@
           if (message.namespace !== "sessionDataBase64") $(`#${message.sessionId} .log`).html(`${$(`#${message.sessionId} .log`).html()} ${message.namespace} ${typeof message.data === 'object' ? JSON.stringify(message.data, null, 4) : message.data} <br>`);
         }
       }
+      console.log("Application -> window.location.origin", window.location.origin, window.location.href)
 
-      console.log("Application -> window.location.origin", window.location.origin)
-      var socket = io.connect(window.location.origin);
+      const socketUrl = window.location.origin
+      const fallback = `${window.location.origin}${window.location.pathname.split('/').filter(x => !x.includes('.')).join('/')}`;
+      const isReverseProxied = window.location.pathname.split('/').includes('api')
+      let socket = io(isReverseProxied ? fallback : socketUrl);
+
+      socket.io.reconnectionAttempts(3)
+
+      socket.io.on("reconnect_attempt", () => {
+        console.log("reconnect_attempt");
+      });
+
+      socket.io.on("reconnect_failed", () => {
+        console.log("reconnect_failed");
+        console.log('trying different URL, transferring all event listeners')
+        const callbacks = [
+          ...Object.entries(socket._callbacks)
+        ]
+        socket = io(isReverseProxied ? socketUrl : fallback);
+        callbacks.map(([key, callbacks]) => callbacks.map(cb => socket.on(`${key.replace('$', '')}`, cb)))
+      });
+
       socket.on('connect', function () {
         console.log('Connected to:', socket);
       });
 
       socket.on('disconnect', (reason) => {
-      sessions.map(sessionId => consume({
-        sessionId,
-        data: 'Connection to the launch logs socket is now closed. You can now close this window or go to the api docs (if using the cli) by refreshing the page in a few seconds.',
-        namespace: 'CONNECTION'
-      }));
-      socket.close();
+        sessions.map(sessionId => consume({
+          sessionId,
+          data: 'Connection to the launch logs socket is now closed. You can now close this window or go to the api docs (if using the cli) by refreshing the page in a few seconds.',
+          namespace: 'CONNECTION'
+        }));
+        socket.close();
       });
-
       socket.on('message', consume);
-
       return {
         socket
       };
