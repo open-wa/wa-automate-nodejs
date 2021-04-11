@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ConfigObject | @open-wa/wa-automate - v3.10.11</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.10.11">
+	<title>ConfigObject | @open-wa/wa-automate - v3.10.12</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.10.12">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v3.10.11</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v3.10.12</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -133,6 +133,7 @@
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#qrquality" class="tsd-kind-icon">qr<wbr>Quality</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#qrrefreshs" class="tsd-kind-icon">qr<wbr>RefreshS</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#qrtimeout" class="tsd-kind-icon">qr<wbr>Timeout</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#raspi" class="tsd-kind-icon">raspi</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#resizable" class="tsd-kind-icon">resizable</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#restartoncrash" class="tsd-kind-icon">restart<wbr>OnCrash</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#safemode" class="tsd-kind-icon">safe<wbr>Mode</a></li>
@@ -837,6 +838,29 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="raspi" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> raspi</h3>
+					<div class="tsd-signature tsd-kind-icon">raspi<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Set this to <code>true</code> to make the library work on Raspberry Pi OS.</p>
+						</div>
+						<p>Make sure to run the following command before running the library the first time:</p>
+						<pre><code><span style="color: #000000">&gt; </span><span style="color: #001080">sudo</span><span style="color: #000000"> </span><span style="color: #001080">apt</span><span style="color: #000000"> </span><span style="color: #001080">update</span><span style="color: #000000"> -</span><span style="color: #001080">y</span><span style="color: #000000"> &amp;&amp; </span><span style="color: #001080">sudo</span><span style="color: #000000"> </span><span style="color: #001080">apt</span><span style="color: #000000"> </span><span style="color: #001080">install</span><span style="color: #000000"> </span><span style="color: #001080">chromium</span><span style="color: #000000">-</span><span style="color: #001080">browser</span><span style="color: #000000"> </span><span style="color: #001080">chromium</span><span style="color: #000000">-</span><span style="color: #001080">codecs</span><span style="color: #000000">-</span><span style="color: #001080">ffmpeg</span><span style="color: #000000"> -</span><span style="color: #001080">y</span><span style="color: #000000"> &amp;&amp; </span><span style="color: #001080">sudo</span><span style="color: #000000"> </span><span style="color: #001080">apt</span><span style="color: #000000"> </span><span style="color: #001080">upgrade</span>
+</code></pre>
+						<p>If you&#39;re using the CLI, you can set this value to <code>true</code> by adding the following flag to the CLI command</p>
+						<pre><code><span style="color: #000000">&gt; </span><span style="color: #001080">npx</span><span style="color: #000000"> @</span><span style="color: #001080">open</span><span style="color: #000000">-</span><span style="color: #001080">wa</span><span style="color: #000000">/</span><span style="color: #001080">wa</span><span style="color: #000000">-</span><span style="color: #001080">automate</span><span style="color: #000000"> ... --</span><span style="color: #001080">raspi</span>
+</code></pre>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="resizable" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> resizable</h3>
 					<div class="tsd-signature tsd-kind-icon">resizable<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
@@ -1375,6 +1399,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="api_model_config.configobject.html#qrtimeout" class="tsd-kind-icon">qr<wbr>Timeout</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.configobject.html#raspi" class="tsd-kind-icon">raspi</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="api_model_config.configobject.html#resizable" class="tsd-kind-icon">resizable</a>
