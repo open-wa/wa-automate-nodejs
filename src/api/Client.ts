@@ -3386,7 +3386,7 @@ public async getStatus(contactId: ContactId) : Promise<{
             url,
             data: this.prepEventData(_data,event as SimpleListener,{webhook_id:id}),
             ...requestConfig
-          })))));
+          }).catch(err=>console.error(`WEBHOOK ERROR: `, url ,err.message))))));
         }        
       }
       })

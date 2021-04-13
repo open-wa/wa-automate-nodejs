@@ -479,7 +479,7 @@ async function start(){
 				sessionId,
 				namespace
 				}
-			});
+			}).catch(err=>console.error(`WEBHOOK ERROR: `, c.ev ,err.message));
 		})
 	}
 return await create({ ...config })
