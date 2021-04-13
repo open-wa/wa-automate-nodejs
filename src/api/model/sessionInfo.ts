@@ -63,4 +63,10 @@ export interface HealthCheck {
    * Healthy: `0`
    */
   retryingIn?: number;
+  /**
+   * Returns `true` if "Phone battery low" message is detected
+   * 
+   * Healthy: `false`
+   */
+   batteryLow ?: boolean;
 }
