@@ -205,18 +205,29 @@ async function initBrowser(sessionId?: string, config:any={}) {
   if(config?.corsFix) args.push('--disable-web-security');
   const browser = (config?.browserWSEndpoint) ? await puppeteer.connect({...config}): await puppeteer.launch({
     headless: true,
-    devtools: false,
     args,
-    ...config
+    ...config,
+    devtools: false
   });
   //devtools
-  if(config&&config.devtools){
+  if(config?.devtools){
     const devtools = require('puppeteer-extra-plugin-devtools')();
-    if(config.devtools.user&&config.devtools.pass) devtools.setAuthCredentials(config.devtools.user, config.devtools.pass)
+    if(config.devtools !== 'local' && !config?.devtools?.user && !config?.devtools?.pass){
+      config.devtools = {};
+      config.devtools.user = 'dev';
+      config.devtools.pass = require('uuid-apikey').create().apiKey;
+    }
+
+    if(config.devtools.user&&config.devtools.pass) {
+      devtools.setAuthCredentials(config.devtools.user, config.devtools.pass)
+    } 
     try {
       // const tunnel = await devtools.createTunnel(browser);
-      const tunnel = devtools.getLocalDevToolsUrl(browser);
-      console.log('\ndevtools URL: '+tunnel);
+      const tunnel = config.devtools == 'local' ? devtools.getLocalDevToolsUrl(browser) : (await devtools.createTunnel(browser)).url;
+      console.log('\ndevtools URL: ', typeof config.devtools == 'object' ? {
+        ...config.devtools,
+        tunnel
+      } : tunnel);
     } catch (error) {
     console.log("TCL: initBrowser -> error", error)
     }
