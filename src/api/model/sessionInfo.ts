@@ -12,6 +12,7 @@ export interface SessionInfo {
   PHONE_VERSION?: string;
   NUM_HASH?: string;
   OW_KEY?: string;
+  INSTANCE_ID?: string;
 }
 
 export interface HealthCheck {

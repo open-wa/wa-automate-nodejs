@@ -372,6 +372,7 @@ export class Client {
     this._createConfig = createConfig || {};
     this._loadedModules = [];
     this._sessionInfo = sessionInfo;
+    this._sessionInfo.INSTANCE_ID = uuidv4();
     this._listeners = {};
     if(this._createConfig.stickerServerEndpoint!== false) this._createConfig.stickerServerEndpoint = true;
     this._setOnClose();
@@ -545,7 +546,7 @@ export class Client {
     */
   private async registerListener(funcName:SimpleListener, fn: any) : Promise<Listener | boolean> {
     if(this._registeredEvListeners && this._registeredEvListeners[funcName]) {
-      return ev.on(`${funcName}.${this.getSessionId()}`,({data})=>fn(data)) as Listener;
+      return ev.on(this.getEventSignature(funcName),({data})=>fn(data)) as Listener;
     }
     /**
      * If evMode is on then make the callback come from ev.
@@ -3431,6 +3432,10 @@ public async getStatus(contactId: ContactId) : Promise<{
     }
   }
 
+  private getEventSignature(simpleListener?: SimpleListener){
+    return `${simpleListener || '**'}.${this._createConfig.sessionId || 'session'}.${this._sessionInfo.INSTANCE_ID}`
+  }
+
   private async registerEv(simpleListener: SimpleListener) {
     if(this[simpleListener]){
       if(!this._registeredEvListeners) this._registeredEvListeners={};
@@ -3438,8 +3443,7 @@ public async getStatus(contactId: ContactId) : Promise<{
         console.log('Listener already registered');
         return false;
       }
-      const sessionId = this.getSessionId();
-      this._registeredEvListeners[simpleListener] = await this[simpleListener](data=>ev.emit(`${simpleListener}.${sessionId}`,this.prepEventData(data,simpleListener)));
+      this._registeredEvListeners[simpleListener] = await this[simpleListener](data=>ev.emit(this.getEventSignature(simpleListener),this.prepEventData(data,simpleListener)));
       return true;
     }
     console.log('Invalid lisetner', simpleListener);
