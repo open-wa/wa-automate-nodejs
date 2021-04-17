@@ -206,6 +206,7 @@ declare module WAPI {
   const setGroupIcon: (groupId: string, imgData: string) => Promise<boolean>;
   const getGroupAdmins: (groupId: string) => Promise<ContactId[]>;
   const removeParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
+  const createLabel: (label: string) => Promise<boolean | string>;
   const addOrRemoveLabels: (label: string, chatId: string, type: string) => Promise<boolean>;
   const promoteParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
   const demoteParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
@@ -868,6 +869,21 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
       {newStatus}
       )
   }
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * 
+   * Adds label from chat, message or contact. Only for business accounts.
+   * @param label: The desired text of the new label. id will be something simple like anhy nnumber from 1-10, name is the label of the label if that makes sense.
+   * @returns `false` if something went wrong, or the id (usually a number as a string) of the new label (for example `"58"`)
+   */
+   public async createLabel(label: string) : Promise<string | boolean> {
+    return await this.pup(
+      ({label}) => WAPI.createLabel(label),
+      {label}
+      ) as Promise<string | boolean>;
+  }
+
 
   /**
    * Adds label from chat, message or contact. Only for business accounts.
