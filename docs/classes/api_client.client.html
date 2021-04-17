@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Client | @open-wa/wa-automate - v3.10.15</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.10.15">
+	<title>Client | @open-wa/wa-automate - v3.11.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.11.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v3.10.15</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v3.11.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -127,6 +127,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#contactblock" class="tsd-kind-icon">contact<wbr>Block</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#contactunblock" class="tsd-kind-icon">contact<wbr>Unblock</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#creategroup" class="tsd-kind-icon">create<wbr>Group</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#createlabel" class="tsd-kind-icon">create<wbr>Label</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#createmessagecollector" class="tsd-kind-icon">create<wbr>Message<wbr>Collector</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#cutchatcache" class="tsd-kind-icon">cut<wbr>Chat<wbr>Cache</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#cutmsgcache" class="tsd-kind-icon">cut<wbr>Msg<wbr>Cache</a></li>
@@ -174,10 +175,12 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getgroupmembersid" class="tsd-kind-icon">get<wbr>Group<wbr>Members<wbr>Id</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#gethostnumber" class="tsd-kind-icon">get<wbr>Host<wbr>Number</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getindicatednewmessages" class="tsd-kind-icon">get<wbr>Indicated<wbr>New<wbr>Messages</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getinstanceid" class="tsd-kind-icon">get<wbr>Instance<wbr>Id</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getisplugged" class="tsd-kind-icon">get<wbr>IsPlugged</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getlastmsgtimestamps" class="tsd-kind-icon">get<wbr>Last<wbr>Msg<wbr>Timestamps</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getlastseen" class="tsd-kind-icon">get<wbr>Last<wbr>Seen</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getlicensetype" class="tsd-kind-icon">get<wbr>License<wbr>Type</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getlistenerqueues" class="tsd-kind-icon">get<wbr>Listener<wbr>Queues</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getme" class="tsd-kind-icon">get<wbr>Me</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getmessagebyid" class="tsd-kind-icon">get<wbr>Message<wbr>ById</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getmessagereaders" class="tsd-kind-icon">get<wbr>Message<wbr>Readers</a></li>
@@ -378,7 +381,7 @@
 					<a name="onanymessage" class="tsd-anchor"></a>
 					<h3>on<wbr>Any<wbr>Message</h3>
 					<ul class="tsd-signatures tsd-kind-event tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">on<wbr>Any<wbr>Message<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Listener</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">on<wbr>Any<wbr>Message<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span>, queueOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Options</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">default</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">DefaultAddOptions</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Listener</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -398,6 +401,9 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>fn: <span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>callback</p>
+									</div>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter-signature">
 											<ul class="tsd-signatures tsd-kind-type-literal">
@@ -416,6 +422,12 @@
 											</ul>
 										</li>
 									</ul>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> queueOptions: <span class="tsd-signature-type">Options</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">default</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">DefaultAddOptions</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>PQueue options. Set to <code>{}</code> for default PQueue.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Listener</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -875,7 +887,7 @@
 					<a name="onmessage" class="tsd-anchor"></a>
 					<h3>on<wbr>Message</h3>
 					<ul class="tsd-signatures tsd-kind-event tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">on<wbr>Message<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Listener</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">on<wbr>Message<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span>, queueOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Options</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">default</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">DefaultAddOptions</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Listener</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -883,7 +895,7 @@
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Listens to messages received</p>
+									<p>Listens to incoming messages</p>
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>fires</dt>
@@ -895,6 +907,9 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>fn: <span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>callback</p>
+									</div>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter-signature">
 											<ul class="tsd-signatures tsd-kind-type-literal">
@@ -913,6 +928,12 @@
 											</ul>
 										</li>
 									</ul>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> queueOptions: <span class="tsd-signature-type">Options</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">default</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">DefaultAddOptions</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>PQueue options. Set to <code>{}</code> for default PQueue.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Listener</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -1516,6 +1537,33 @@
 <span style="color: #000000">  ]</span>
 <span style="color: #000000">}</span>
 </code></pre>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="createlabel" class="tsd-anchor"></a>
+					<h3>create<wbr>Label</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Label<span class="tsd-signature-symbol">(</span>label<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p><a href="https://gum.co/open-wa?tier=Insiders%20Program">REQUIRES AN INSIDERS LICENSE-KEY</a></p>
+								</div>
+								<p>Adds label from chat, message or contact. Only for business accounts.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>label: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p><code>false</code> if something went wrong, or the id (usually a number as a string) of the new label (for example <code>&quot;58&quot;</code>)</p>
 						</li>
 					</ul>
 				</section>
@@ -2780,6 +2828,25 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getinstanceid" class="tsd-anchor"></a>
+					<h3>get<wbr>Instance<wbr>Id</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Instance<wbr>Id<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get the INSTANCE_ID of the current session</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="getisplugged" class="tsd-anchor"></a>
 					<h3>get<wbr>IsPlugged</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -2870,6 +2937,78 @@
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><a href="../enums/api_model_config.licensetype.html" class="tsd-signature-type" data-tsd-kind="Enumeration">LicenseType</a><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getlistenerqueues" class="tsd-anchor"></a>
+					<h3>get<wbr>Listener<wbr>Queues</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Listener<wbr>Queues<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>onAck<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onAddedToGroup<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onAnyMessage<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onBattery<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onChatDeleted<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onChatOpened<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onChatState<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onContactAdded<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onGlobalParticipantsChanged<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onIncomingCall<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onLogout<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onMessage<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onMessageDeleted<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onPlugged<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onRemovedFromGroup<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onStateChanged<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onStory<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>If you have set <code>onAnyMessage</code> or <code>onMessage</code> with the second parameter (PQueue options) then you may want to inspect their respective PQueue&#39;s.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>onAck<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onAddedToGroup<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onAnyMessage<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onBattery<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onChatDeleted<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onChatOpened<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onChatState<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onContactAdded<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onGlobalParticipantsChanged<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onIncomingCall<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onLogout<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onMessage<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onMessageDeleted<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onPlugged<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onRemovedFromGroup<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onStateChanged<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onStory<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></h4>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter">
+									<h5>on<wbr>Ack<span class="tsd-signature-symbol">: </span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>on<wbr>Added<wbr>ToGroup<span class="tsd-signature-symbol">: </span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>on<wbr>Any<wbr>Message<span class="tsd-signature-symbol">: </span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>on<wbr>Battery<span class="tsd-signature-symbol">: </span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>on<wbr>Chat<wbr>Deleted<span class="tsd-signature-symbol">: </span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>on<wbr>Chat<wbr>Opened<span class="tsd-signature-symbol">: </span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>on<wbr>Chat<wbr>State<span class="tsd-signature-symbol">: </span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>on<wbr>Contact<wbr>Added<span class="tsd-signature-symbol">: </span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>on<wbr>Global<wbr>Participants<wbr>Changed<span class="tsd-signature-symbol">: </span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>on<wbr>Incoming<wbr>Call<span class="tsd-signature-symbol">: </span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>on<wbr>Logout<span class="tsd-signature-symbol">: </span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>on<wbr>Message<span class="tsd-signature-symbol">: </span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>on<wbr>Message<wbr>Deleted<span class="tsd-signature-symbol">: </span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>on<wbr>Plugged<span class="tsd-signature-symbol">: </span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>on<wbr>Removed<wbr>From<wbr>Group<span class="tsd-signature-symbol">: </span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>on<wbr>State<wbr>Changed<span class="tsd-signature-symbol">: </span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>on<wbr>Story<span class="tsd-signature-symbol">: </span></h5>
+								</li>
+							</ul>
 						</li>
 					</ul>
 				</section>
@@ -6356,6 +6495,9 @@
 								<a href="api_client.client.html#creategroup" class="tsd-kind-icon">create<wbr>Group</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="api_client.client.html#createlabel" class="tsd-kind-icon">create<wbr>Label</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_client.client.html#createmessagecollector" class="tsd-kind-icon">create<wbr>Message<wbr>Collector</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
@@ -6497,6 +6639,9 @@
 								<a href="api_client.client.html#getindicatednewmessages" class="tsd-kind-icon">get<wbr>Indicated<wbr>New<wbr>Messages</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="api_client.client.html#getinstanceid" class="tsd-kind-icon">get<wbr>Instance<wbr>Id</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_client.client.html#getisplugged" class="tsd-kind-icon">get<wbr>IsPlugged</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
@@ -6507,6 +6652,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_client.client.html#getlicensetype" class="tsd-kind-icon">get<wbr>License<wbr>Type</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="api_client.client.html#getlistenerqueues" class="tsd-kind-icon">get<wbr>Listener<wbr>Queues</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_client.client.html#getme" class="tsd-kind-icon">get<wbr>Me</a>
