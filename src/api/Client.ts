@@ -3466,6 +3466,12 @@ public async getStatus(contactId: ContactId) : Promise<{
     return false;
   }
   
+  /**
+   * Get the INSTANCE_ID of the current session
+   */
+  public getInstanceId() : string {
+    return this._sessionInfo.INSTANCE_ID;
+  }
 
   /**
    * Returns a new message collector for the chat which is related to the first parameter c
@@ -3475,7 +3481,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    */
    createMessageCollector(c : Message | ChatId | Chat, filter : (args: any[] | any ) => boolean | Promise<boolean>, options : CollectorOptions) : MessageCollector {
     const chatId : ChatId = ((c as Message)?.chat?.id || (c as Chat)?.id || c) as ChatId;
-    return new MessageCollector(this.getSessionId(), chatId, filter, options);
+    return new MessageCollector(this.getSessionId(), this.getInstanceId(), chatId, filter, options);
    }
 }
 

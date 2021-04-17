@@ -18,18 +18,21 @@ export class MessageCollector extends Collector {
   chat: ChatId;
     received: number;
     sessionId: string;
+    instanceId: string;
 
   /**
    * @param {string} sessionId The id of the session
+   * @param {string} instanceId The id of the current instance of the session (see: client.getInstanceId)
    * @param {ChatId} chatId The chat
    * @param {CollectorFilter} filter The filter to be applied to this collector
    * @param {MessageCollectorOptions} options The options to be applied to this collector
    * @emits MessageCollector#Message
    */
-  constructor(sessionId: string, chat : ChatId, filter: (args: any[]) => boolean | Promise<boolean>, options : CollectorOptions = {}) {
+  constructor(sessionId: string, instanceId: string, chat : ChatId, filter: (args: any[]) => boolean | Promise<boolean>, options : CollectorOptions = {}) {
     super(filter, options);
 
     this.sessionId = sessionId;
+    this.instanceId = instanceId;
 
     /**
      * The chat
@@ -148,7 +151,7 @@ export class MessageCollector extends Collector {
   }
 
   eventSignature(event: SimpleListener) : string {
-      return `${event}.${this.sessionId}`
+      return `${event}.${this.sessionId}.${this.instanceId}`
   }
 
   wrapHandler (handler: (data:any) => any ) : ({ data }: { data: any; }) => any {
