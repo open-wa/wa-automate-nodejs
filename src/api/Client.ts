@@ -606,7 +606,14 @@ export class Client {
     return true;
   }
 
- 
+  /**
+   * If you have set `onAnyMessage` or `onMessage` with the second parameter (PQueue options) then you may want to inspect their respective PQueue's.
+   */
+ public getListenerQueues() : {
+    [key in SimpleListener] ?: PQueue
+  } {
+   return this._queues
+  }
 
   // STANDARD SIMPLE LISTENERS
 
