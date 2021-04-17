@@ -7,7 +7,7 @@ import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent, puppeteerConfig } from '../config/puppeteer.config'
 import { ConfigObject, STATE, LicenseType, Webhook } from './model';
 import { PageEvaluationTimeout, CustomError, ERROR_NAME, AddParticipantError  } from './model/errors';
-import PQueue from 'p-queue';
+import PQueue, { DefaultAddOptions, Options } from 'p-queue';
 import { ev, Spin } from '../controllers/events';
 import { v4 as uuidv4 } from 'uuid';
 /** @ignore */
@@ -65,6 +65,7 @@ import { CollectorOptions } from '../structures/Collector';
 import { MessageCollector } from '../structures/MessageCollector';
 import { injectInitPatch } from '../controllers/init_patch';
 import { Listener } from 'eventemitter2';
+import PriorityQueue from 'p-queue/dist/priority-queue';
 
 export enum namespace {
   Chat = 'Chat',
@@ -354,6 +355,10 @@ export class Client {
   private _currentlyBeingKilled: boolean = false;
   private _refreshing : boolean = false
   private _l: any;
+  private _prio: number = Number.MAX_SAFE_INTEGER;
+  private _queues: {
+    [key in SimpleListener] ?: PQueue
+  } = {};
   /**
    * This is used to track if a listener is already used via webhook. Before, webhooks used to be set once per listener. Now a listener can be set via multiple webhooks, or revoked from a specific webhook.
    * For this reason, listeners assigned to a webhook are only set once and map through all possible webhooks to and fire only if the specific listener is assigned.
@@ -545,7 +550,18 @@ export class Client {
    /**
     * 
     */
-  private async registerListener(funcName:SimpleListener, fn: any) : Promise<Listener | boolean> {
+  private async registerListener(funcName:SimpleListener, _fn: any, queueOptions ?: Options<PriorityQueue, DefaultAddOptions>) : Promise<Listener | boolean> {
+    let fn;
+    if(queueOptions) {
+      if(!this._queues[funcName]) {
+        this._queues[funcName] = new PQueue(queueOptions)
+      }
+      fn = async data => this._queues[funcName].add(()=>_fn(data), {
+        priority: this.tickPriority()
+      })
+    } else {
+      fn = _fn;
+    }
     if(this._registeredEvListeners && this._registeredEvListeners[funcName]) {
       return ev.on(this.getEventSignature(funcName),({data})=>fn(data)) as Listener;
     }
@@ -570,29 +586,6 @@ export class Client {
   
   // NON-STAMDARD LISTENERS
 
-  /**
-   * Listens to messages received
-   * 
-   * @event 
-   * @fires Observable stream of messages
-   */
-  public async onMessage(fn: (message: Message) => void) : Promise<Listener | boolean> {
-    return this.registerListener(SimpleListener.Message, fn);
-    // let funcName = SimpleListener.Message;
-    // this._listeners[funcName] = fn;
-    // const set = () => this.pup(
-    //   ({funcName}) => {
-    //     WAPI.waitNewMessages(false, data => {
-    //       data.forEach(message => {
-    //         //@ts-ignore
-    //         window[funcName](message);
-    //       });
-    //     });
-    //   },{funcName})
-    //   const exists = await this.pup(({funcName})=>window[funcName]?true:false,{funcName});
-    //   if(exists) return await set();
-    // this._page.exposeFunction(funcName, (message: Message) =>fn(message)).then(set).catch(e=>set);
-  }
 
   /**
    * Listens to a log out event
@@ -617,16 +610,30 @@ export class Client {
 
   // STANDARD SIMPLE LISTENERS
 
+  /**
+   * Listens to incoming messages
+   * 
+   * @event 
+   * @param fn callback
+   * @param queueOptions PQueue options. Set to `{}` for default PQueue.
+   * @fires Observable stream of messages
+   */
+   public async onMessage(fn: (message: Message) => void, queueOptions ?: Options<PriorityQueue, DefaultAddOptions>) : Promise<Listener | boolean> {
+    return this.registerListener(SimpleListener.Message, fn, queueOptions);
+  }
+
    /**
    * Listens to all new messages
    * 
    * @event 
-   * @param to callback
+   * @param fn callback
+   * @param queueOptions PQueue options. Set to `{}` for default PQueue.
    * @fires [[Message]] 
    */
-  public async onAnyMessage(fn: (message: Message) => void) : Promise<Listener | boolean> {
-    return this.registerListener(SimpleListener.AnyMessage, fn);
+  public async onAnyMessage(fn: (message: Message) => void, queueOptions ?: Options<PriorityQueue, DefaultAddOptions>) : Promise<Listener | boolean> {
+    return this.registerListener(SimpleListener.AnyMessage, fn, queueOptions);
   }
+
   /**
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
@@ -3465,7 +3472,15 @@ public async getStatus(contactId: ContactId) : Promise<{
     console.log('Invalid lisetner', simpleListener);
     return false;
   }
-  
+
+  /**
+   * Every time this is called, it returns one less number. This is used to sort out queue priority.
+   */
+  private tickPriority() : number {
+    this._prio = this._prio -1;
+    return this._prio;
+  }
+
   /**
    * Get the INSTANCE_ID of the current session
    */
