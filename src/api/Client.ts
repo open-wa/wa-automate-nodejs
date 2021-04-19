@@ -596,7 +596,7 @@ export class Client {
    */
   public async onLogout(fn: (loggedOut?: boolean)=> any) : Promise<boolean> {
     await this._page.on('request', request => {
-      if(request.url() === "https://web.whatsapp.com/") fn();
+      if(request.url() === "https://web.whatsapp.com/" && !this._refreshing) fn();
     })
     this.onStateChanged(state=>{
       if(state===STATE.UNPAIRED){
