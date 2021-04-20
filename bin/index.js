@@ -227,6 +227,11 @@ const helptext = commandLineUsage([{
 			description: "Grab config options from the environment variables."
 		},
 		{
+			name: 'no-kill-on-logout',
+			type: Boolean,
+			description: "Keeps the process alive when host account logs out of session. default is false"
+		},
+		{
 			name: 'license-key',
 			alias: 'l',
 			type: String,
@@ -357,6 +362,10 @@ const cli = meow(helptext, {
 			default: false
 		},
 		stats: { 
+			type: 'boolean',
+			default: false
+		},
+		noKillOnLogout: { 
 			type: 'boolean',
 			default: false
 		},
@@ -503,12 +512,11 @@ return await create({ ...config })
 	let pmCol = null;
 
 	client.onLogout(async ()=>{
-		console.error("!!!! CLIENT LOGGED OUT !!!!")
-		if(c && c.restartOnLogout) {
-			await client.kill()
-			c.sessionData = "NUKE"
-			start();
-		} else process.exit();
+		console.error('!!!! CLIENT LOGGED OUT. Process closing !!!!')
+		if(c && !c.noKillOnLogout) {
+			console.error("Shutting down.")
+			process.exit();
+		}
 	})
 
 	app.use(robots({ UserAgent: '*', Disallow: '/' }))
