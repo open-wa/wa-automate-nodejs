@@ -45,7 +45,7 @@ export interface Message {
   /**
    * Indicates whether the message was sent by the host account
    */
-  self: boolean;
+  self: "in" | "out";
   /**
    * The length of the media in the message, if it exists.
    */
