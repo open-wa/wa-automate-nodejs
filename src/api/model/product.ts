@@ -1,3 +1,5 @@
+import { ChatId, ContactId, MessageId } from "./aliases";
+
 export interface CustomProduct {
     /**
      * The main title of the product. E.g:
@@ -26,4 +28,29 @@ export interface CustomProduct {
      * NOTE: At the moment, the URL DOES NOT WORK. It shows up for the recipient but they will not be able to click it. As a rememdy, it is added as a reply to the product message.
      */
     url?: string
+}
+
+
+export interface Label {
+    /**
+     * The internal ID of the label. Usually a number represented as a string e.g "1"
+     */
+        id: string,
+        /**
+         * The text contents of the label
+         */
+        name: string,
+        /**
+         * The items that are tagged with this label
+         */
+        items: {
+            /**
+             * Labels can be applied to chats, contacts or individual messages. This represents the type of object the label is attached to.
+             */
+          type: "Chat" | "Contact" | "Message",
+          /**
+           * The ID of the object that the label is atteched to.
+           */
+          id: ContactId | ChatId | MessageId
+        }[]
 }

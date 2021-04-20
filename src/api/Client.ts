@@ -55,7 +55,7 @@ import { isAuthenticated } from '../controllers/auth';
 import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, FilePath } from './model/aliases';
 import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
 import * as path from 'path';
-import { CustomProduct } from './model/product';
+import { CustomProduct, Label } from './model/product';
 import Crypto from 'crypto';
 import { tmpdir } from 'os';
 import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
@@ -276,6 +276,7 @@ declare module WAPI {
   const getWAVersion: () => String;
   const getStoryViewers: (id: string) => Promise<String[]>;
   const getMe: () => any;
+  const getAllLabels: () => any;
   const iAmAdmin: () => Promise<String[]>;
   const getLicenseType: () => Promise<String | false>;
   const getChatWithNonContacts: () => Contact[];
@@ -909,6 +910,13 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
       ({label, chatId}) => WAPI.addOrRemoveLabels(label, chatId, 'add'),
       {label, chatId}
       ) as Promise<boolean>;
+  }
+
+  /**
+   * Returns all labels and the corresponding tagged items.
+   */
+   public async getAllLabels() : Promise<Label[]> {
+    return await this.pup(() => WAPI.getAllLabels()) as Promise<Label[]>;
   }
 
   /**
