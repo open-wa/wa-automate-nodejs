@@ -18,6 +18,16 @@ const configWithCases = require('./config-schema.json');
 const commandLineUsage = require('command-line-usage');
 const chalk = require('chalk');
 const axios = require('axios').default;
+const isBase64 = (str) => {
+	const len = str.length;
+	if (!len || len % 4 !== 0 || /[^A-Z0-9+\/=]/i.test(str)) {
+      return false;
+	}
+	const firstPaddingChar = str.indexOf('=');
+	return firstPaddingChar === -1 ||
+       firstPaddingChar === len - 1 ||
+       (firstPaddingChar === len - 2 && str[len - 1] === '=');
+  }
 
 const tryOpenFileAsObject = (filelocation, needArray = false) => {
 	let res = undefined;
@@ -365,7 +375,18 @@ const envArgs = {};
 Object.entries(process.env).filter(([k,v])=>k.includes('WA')).map(([k,v])=>envArgs[changeCase.camelCase(k.replace('WA_',''))]=(v=='false' || v=='FALSE')?false:(v=='true' ||v=='TRUE')?true:Number(v)||v);
 
 //open config file:
-const configFile = tryOpenFileAsObject('cli.config.json')
+let configFile = {};
+if (cli.flags.config) {
+	if(isBase64(cli.flags.config)) {
+		configFile = JSON.parse(Buffer.from(cli.flags.config, 'base64').toString('ascii'))
+	} else {
+		configFile = tryOpenFileAsObject(cli.flags.config || `cli.config.json`);
+		if(!configFile) console.error(`Unable to read config file json: ${cli.flags.config}`)
+	}
+} else {
+	configFile = tryOpenFileAsObject(`cli.config.json`);
+}
+
 const c = {
 	autoRefresh: true,
 	...cli.flags,
@@ -373,15 +394,9 @@ const c = {
 	...envArgs
 };
 const PORT = c.port;
-let config = {};
-if (c && c.config) {
-	config = tryOpenFileAsObject(c.config || `config.json`);
-	if(!config) console.error(`Unable to read config file json: ${config}`)
-} else {
-	config = {
-		...c
-	};
-}
+let config = {
+	...c
+};
 
 if (c && c.session) {
 	c.sessionData = c.session;
@@ -486,6 +501,15 @@ return await create({ ...config })
 .then(async (client) => {
 	let swCol = null;
 	let pmCol = null;
+
+	client.onLogout(async ()=>{
+		console.error("!!!! CLIENT LOGGED OUT !!!!")
+		if(c && c.restartOnLogout) {
+			await client.kill()
+			c.sessionData = "NUKE"
+			start();
+		} else process.exit();
+	})
 
 	app.use(robots({ UserAgent: '*', Disallow: '/' }))
 	if (c && c.webhook) {
