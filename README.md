@@ -21,7 +21,7 @@
   <a href="#functions-list">Key Features</a> •
   <a href="https://docs.openwa.dev/pages/Getting%20Started/installation.html">Getting Started</a> •
   <a href="https://docs.openwa.dev/pages/Getting%20Started/quick-run.html">Easy API</a> •
-  <a href="https://docs.openwa.dev/classes/api_client.client.html/">Documentation</a> •
+  <a href="https://docs.openwa.dev/classes/api_client.client.html">Documentation</a> •
   <a href="https://openwa.page.link/key">Get a License Key</a> •
   <a href="#support">Support</a>
 </p>
