@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ChatMuteDuration | @open-wa/wa-automate - v3.11.3</title>
+	<title>GroupChatCreationParticipantAddResponse | @open-wa/wa-automate - v3.11.3</title>
 	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.11.3">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -68,78 +68,79 @@
 					<a href="../modules/api_model_chat.html">api/model/chat</a>
 				</li>
 				<li>
-					<a href="api_model_chat.chatmuteduration.html">ChatMuteDuration</a>
+					<a href="api_model_chat.groupchatcreationparticipantaddresponse.html">GroupChatCreationParticipantAddResponse</a>
 				</li>
 			</ul>
-			<h1>Enumeration ChatMuteDuration</h1>
+			<h1>Interface GroupChatCreationParticipantAddResponse</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-comment">
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>Valid durations for muting a chat using <a href="../classes/api_client.client.html#mutechat">muteChat</a></p>
-					</div>
-					<dl class="tsd-comment-tags">
-						<dt>readonly</dt>
-						<dd></dd>
-					</dl>
-				</div>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">GroupChatCreationParticipantAddResponse</span>
+					</li>
+				</ul>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Enumeration members</h3>
+							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="api_model_chat.chatmuteduration.html#eight_hours" class="tsd-kind-icon">EIGHT_<wbr>HOURS</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="api_model_chat.chatmuteduration.html#forever" class="tsd-kind-icon">FOREVER</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="api_model_chat.chatmuteduration.html#one_week" class="tsd-kind-icon">ONE_<wbr>WEEK</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_chat.groupchatcreationparticipantaddresponse.html#code" class="tsd-kind-icon">code</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_chat.groupchatcreationparticipantaddresponse.html#invite_code" class="tsd-kind-icon">invite_<wbr>code</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_chat.groupchatcreationparticipantaddresponse.html#invite_code_exp" class="tsd-kind-icon">invite_<wbr>code_<wbr>exp</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Enumeration members</h2>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="eight_hours" class="tsd-anchor"></a>
-					<h3>EIGHT_<wbr>HOURS</h3>
-					<div class="tsd-signature tsd-kind-icon">EIGHT_<wbr>HOURS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;EIGHT_HOURS&quot;</span></div>
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="code" class="tsd-anchor"></a>
+					<h3>code</h3>
+					<div class="tsd-signature tsd-kind-icon">code<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">200</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">400</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">403</span></div>
 					<aside class="tsd-sources">
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Mutes chat for 8 hours</p>
+							<p>The resultant status code for adding the participant.</p>
+						</div>
+						<p>200 if the participant was added successfully during the creation of the group.</p>
+						<p>403 if the participant does not allow their account to be added to group chats. If you receive a 403, you will also get an <code>invite_code</code> and <code>invite_code_exp</code></p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="invite_code" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> invite_<wbr>code</h3>
+					<div class="tsd-signature tsd-kind-icon">invite_<wbr>code<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>If the participant is not allowed to be added to group chats due to their privacy settings, you will receive an <code>invite_code</code> which you can send to them via a text.</p>
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="forever" class="tsd-anchor"></a>
-					<h3>FOREVER</h3>
-					<div class="tsd-signature tsd-kind-icon">FOREVER<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;FOREVER&quot;</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="invite_code_exp" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> invite_<wbr>code_<wbr>exp</h3>
+					<div class="tsd-signature tsd-kind-icon">invite_<wbr>code_<wbr>exp<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Mutes chat forever</p>
+							<p>The expiry ts of the invite_code. It is a number wrapped in a string, in order to get the proper time you can use this:</p>
 						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="one_week" class="tsd-anchor"></a>
-					<h3>ONE_<wbr>WEEK</h3>
-					<div class="tsd-signature tsd-kind-icon">ONE_<wbr>WEEK<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;ONE_WEEK&quot;</span></div>
-					<aside class="tsd-sources">
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Mutes chat for 1 week</p>
-						</div>
+						<pre><code class="language-javascript"><span style="color: #000000">  </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Date</span><span style="color: #000000">(</span><span style="color: #267F99">Number</span><span style="color: #000000">(</span><span style="color: #001080">invite_code_exp</span><span style="color: #000000">)*</span><span style="color: #098658">1000</span><span style="color: #000000">)</span>
+</code></pre>
 					</div>
 				</section>
 			</section>
@@ -229,35 +230,35 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-enum tsd-parent-kind-module">
+						<a href="../enums/api_model_chat.chatmuteduration.html" class="tsd-kind-icon">Chat<wbr>Mute<wbr>Duration</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="api_model_chat.chat.html" class="tsd-kind-icon">Chat</a>
+					</li>
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-enum tsd-parent-kind-module">
-						<a href="api_model_chat.chatmuteduration.html" class="tsd-kind-icon">Chat<wbr>Mute<wbr>Duration</a>
+					<li class="current tsd-kind-interface tsd-parent-kind-module">
+						<a href="api_model_chat.groupchatcreationparticipantaddresponse.html" class="tsd-kind-icon">Group<wbr>Chat<wbr>Creation<wbr>Participant<wbr>Add<wbr>Response</a>
 						<ul>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="api_model_chat.chatmuteduration.html#eight_hours" class="tsd-kind-icon">EIGHT_<wbr>HOURS</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_chat.groupchatcreationparticipantaddresponse.html#code" class="tsd-kind-icon">code</a>
 							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="api_model_chat.chatmuteduration.html#forever" class="tsd-kind-icon">FOREVER</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_chat.groupchatcreationparticipantaddresponse.html#invite_code" class="tsd-kind-icon">invite_<wbr>code</a>
 							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="api_model_chat.chatmuteduration.html#one_week" class="tsd-kind-icon">ONE_<wbr>WEEK</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_chat.groupchatcreationparticipantaddresponse.html#invite_code_exp" class="tsd-kind-icon">invite_<wbr>code_<wbr>exp</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/api_model_chat.chat.html" class="tsd-kind-icon">Chat</a>
+						<a href="api_model_chat.groupchatcreationresponse.html" class="tsd-kind-icon">Group<wbr>Chat<wbr>Creation<wbr>Response</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/api_model_chat.groupchatcreationparticipantaddresponse.html" class="tsd-kind-icon">Group<wbr>Chat<wbr>Creation<wbr>Participant<wbr>Add<wbr>Response</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/api_model_chat.groupchatcreationresponse.html" class="tsd-kind-icon">Group<wbr>Chat<wbr>Creation<wbr>Response</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/api_model_chat.livelocationchangedevent.html" class="tsd-kind-icon">Live<wbr>Location<wbr>Changed<wbr>Event</a>
+						<a href="api_model_chat.livelocationchangedevent.html" class="tsd-kind-icon">Live<wbr>Location<wbr>Changed<wbr>Event</a>
 					</li>
 				</ul>
 			</nav>
@@ -274,14 +275,15 @@
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
 			</ul>
 			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+			</ul>
+			<ul class="tsd-legend">
 				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
 				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
 			</ul>
 		</div>
 	</div>
