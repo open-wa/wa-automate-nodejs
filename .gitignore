@@ -27,3 +27,4 @@ demo/**.mp4
 .vscode/launch.json
 
 **logs**
+bin/cli.config.json
