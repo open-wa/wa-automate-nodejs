@@ -3309,8 +3309,10 @@ public async getStatus(contactId: ContactId) : Promise<{
       if(this[m]){
         try {
         const response = await this[m](...args);
+        let success = true;
+        if(typeof response == 'string' && (response.startsWith("Error") || response.startsWith("ERROR"))) success = false
         return res.send({
-          success:true,
+          success,
           response
         })
         } catch (error) {
