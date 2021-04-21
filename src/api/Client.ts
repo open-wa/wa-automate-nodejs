@@ -1,5 +1,5 @@
 import { Page, EvaluateFn } from 'puppeteer';
-import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration } from './model/chat';
+import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration, GroupChatCreationResponse } from './model/chat';
 import { Contact } from './model/contact';
 import { Message } from './model/message';
 import { default as axios, AxiosRequestConfig} from 'axios';
@@ -824,8 +824,8 @@ export class Client {
   /**
    * @event 
    * Listens to add and remove events on Groups. This can no longer determine who commited the action and only reports the following events add, remove, promote, demote
-   * @param to group id: xxxxx-yyyy@c.us
-   * @param to callback
+   * @param groupId group id: xxxxx-yyyy@c.us
+   * @param fn callback
    * @returns Observable stream of participantChangedEvent
    */
   public async onParticipantsChanged(groupId: GroupChatId, fn: (participantChangedEvent: ParticipantChangedEventModel) => void, legacy : boolean = false) : Promise<Listener | boolean> {
@@ -2440,7 +2440,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   /**
    * Create a group and add contacts to it
    * 
-   * @param to group name: 'New group'
+   * @param groupName group name: 'New group'
    * @param contacts: A single contact id or an array of contact ids.
    * @returns Promise<GroupCreationResponse> :
    * ```javascript
@@ -2458,7 +2458,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * }
    * ```
    */
-  public async createGroup(groupName:string,contacts:ContactId|ContactId[]) : Promise<any> {
+  public async createGroup(groupName:string,contacts:ContactId|ContactId[]) : Promise<GroupChatCreationResponse> {
     return await this.pup(
       ({ groupName, contacts }) => WAPI.createGroup(groupName, contacts),
       { groupName, contacts }
