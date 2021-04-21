@@ -5,7 +5,7 @@ import { Message } from './model/message';
 import { default as axios, AxiosRequestConfig} from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent, puppeteerConfig } from '../config/puppeteer.config'
-import { ConfigObject, STATE, LicenseType, Webhook } from './model';
+import { ConfigObject, STATE, LicenseType, Webhook, GroupCreationResponse } from './model';
 import { PageEvaluationTimeout, CustomError, ERROR_NAME, AddParticipantError  } from './model/errors';
 import PQueue, { DefaultAddOptions, Options } from 'p-queue';
 import { ev, Spin } from '../controllers/events';
@@ -2439,8 +2439,8 @@ public async getStatus(contactId: ContactId) : Promise<{
 
   /**
    * Create a group and add contacts to it
-   * 
-   * @param to group name: 'New group'
+   *
+   * @param groupName
    * @param contacts: A single contact id or an array of contact ids.
    * @returns Promise<GroupCreationResponse> :
    * ```javascript
@@ -2458,7 +2458,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * }
    * ```
    */
-  public async createGroup(groupName:string,contacts:ContactId|ContactId[]) : Promise<any> {
+  public async createGroup(groupName: string,contacts: ContactId | ContactId[]) : Promise<GroupCreationResponse> {
     return await this.pup(
       ({ groupName, contacts }) => WAPI.createGroup(groupName, contacts),
       { groupName, contacts }

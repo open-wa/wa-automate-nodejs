@@ -1,6 +1,10 @@
 /**
  * The suffix used to identify a non-group chat id
  */
+import { Participant } from './group-metadata';
+import { Chat } from './chat';
+import List = marked.Tokens.List;
+
 export type ChatServer = 'c.us';
 
 /**
@@ -105,3 +109,11 @@ export type Base64 = string;
  * Learn more here: https://www.w3schools.com/html/html_filepaths.asp
  */
 export type FilePath = string;
+
+export type GroupCreationResponse = {
+  status: number;
+  gid: NonSerializedId;
+  participants: [
+    { ContactId: any },
+  ]
+}
