@@ -55,9 +55,9 @@
     fastq "^1.6.0"
 
 "@open-wa/wa-automate@latest":
-  version "3.10.15"
-  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-3.10.15.tgz#78ce0c69dc5b8a519b0c6dbeafbb77d6e12dd79e"
-  integrity sha512-QlDAX2TPpHI0nIzTwc0OI0FILgzNIZTmsJF0NJPmsaip0wu1c57mXfak3eoL/HUHUzJRjPkx2xgOSiXIF3Po2w==
+  version "3.11.4"
+  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-3.11.4.tgz#cc480334003907eb357dbdc0a35b265e62826654"
+  integrity sha512-A7imO6CQU6CZPcgpktkLpxbkZ8Hn8nRbKtT/ZoiNIP3oXiSD19H78rjxTiH5onZL51I/wx340uNquWoR69DNWQ==
   dependencies:
     "@discordjs/collection" "^0.1.6"
     "@open-wa/wa-decrypt" "^3.1.0"
@@ -108,7 +108,7 @@
     tcp-port-used "^1.0.1"
     terminal-link "^2.1.1"
     tree-kill "^1.2.2"
-    ts-json-schema-generator "^0.89.0"
+    ts-json-schema-generator "^0.90.0"
     ts-morph "^10.0.2"
     update-notifier "^5.0.0"
     uuid "^8.3.2"
@@ -883,10 +883,10 @@ commander@^6.1.0:
   resolved "https://registry.yarnpkg.com/commander/-/commander-6.2.1.tgz#0792eb682dfbc325999bb2b84fddddba110ac73c"
   integrity sha512-U7VdrJFnJgo4xjrHpTzu0yrHPGImdsmD95ZlgYSEajAn2JKzDhDTPG9kBTefmObL2w/ngeZnilk+OV9CG3d7UA==
 
-commander@^7.1.0:
-  version "7.1.0"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-7.1.0.tgz#f2eaecf131f10e36e07d894698226e36ae0eb5ff"
-  integrity sha512-pRxBna3MJe6HKnBGsDyMv8ETbptw3axEdYHoqNh7gu5oDcew8fs0xnivZGm06Ogk8zGAJ9VX+OPEr2GXEQK4dg==
+commander@^7.2.0:
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-7.2.0.tgz#a36cb57d0b501ce108e4d20559a150a391d97ab7"
+  integrity sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==
 
 component-emitter@^1.2.1, component-emitter@~1.3.0:
   version "1.3.0"
@@ -4506,17 +4506,17 @@ trim-newlines@^3.0.0:
   resolved "https://registry.yarnpkg.com/trim-newlines/-/trim-newlines-3.0.0.tgz#79726304a6a898aa8373427298d54c2ee8b1cb30"
   integrity sha512-C4+gOpvmxaSMKuEf9Qc134F1ZuOHVXKRbtEflf4NTtuuJDEIJ9p5PXsalL8SkeRw+qit1Mo+yuvMPAKwWg/1hA==
 
-ts-json-schema-generator@^0.89.0:
-  version "0.89.0"
-  resolved "https://registry.yarnpkg.com/ts-json-schema-generator/-/ts-json-schema-generator-0.89.0.tgz#3335c9a9b337427f7354dcee1e0ffcfad2d9e90e"
-  integrity sha512-1jmG5toW9CeswDbcYUwg9Z0bi9ZQtO/Dg9eJd7TxJgZWgj0bPxGZahkyoqomDrN0CruVNgquB2Y2wNDcVUO7qQ==
+ts-json-schema-generator@^0.90.0:
+  version "0.90.0"
+  resolved "https://registry.yarnpkg.com/ts-json-schema-generator/-/ts-json-schema-generator-0.90.0.tgz#10ab74cc474d50b982ee5560062c17a3b4d98451"
+  integrity sha512-BAbZVcNowsHTUgoZfwhM5Uv7EUiweXkb/9EOIO0Rj07qHNMOg/fQt1NrcjpvNpvs96qSaWK2jXsnTKwkbftH4g==
   dependencies:
     "@types/json-schema" "^7.0.7"
-    commander "^7.1.0"
+    commander "^7.2.0"
     fast-json-stable-stringify "^2.1.0"
     glob "^7.1.6"
     json-stable-stringify "^1.0.1"
-    typescript "~4.2.2"
+    typescript "~4.2.3"
 
 ts-morph@^10.0.2:
   version "10.0.2"
@@ -4598,10 +4598,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@~4.2.2:
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.2.2.tgz#1450f020618f872db0ea17317d16d8da8ddb8c4c"
-  integrity sha512-tbb+NVrLfnsJy3M59lsDgrzWIflR4d4TIUjz+heUnHZwdF7YsrMTKoRERiIvI2lvBG95dfpLxB21WZhys1bgaQ==
+typescript@~4.2.3:
+  version "4.2.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.2.4.tgz#8610b59747de028fda898a8aef0e103f156d0961"
+  integrity sha512-V+evlYHZnQkaz8TRBuxTA92yZBPotr5H+WhQ7bD3hZUndx5tGOa1fuCgeSjxAzM1RiN5IzvadIXTVefuuwZCRg==
 
 typical@^5.2.0:
   version "5.2.0"
