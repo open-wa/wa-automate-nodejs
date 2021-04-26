@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Client | @open-wa/wa-automate - v3.11.4</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.11.4">
+	<title>Client | @open-wa/wa-automate - v3.11.5</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.11.5">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v3.11.4</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v3.11.5</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -197,6 +197,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getstickerdecryptable" class="tsd-kind-icon">get<wbr>Sticker<wbr>Decryptable</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getstoryviewers" class="tsd-kind-icon">get<wbr>Story<wbr>Viewers</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getunreadmessages" class="tsd-kind-icon">get<wbr>Unread<wbr>Messages</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getunsentmessages" class="tsd-kind-icon">get<wbr>Unsent<wbr>Messages</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getvcards" class="tsd-kind-icon">getVCards</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#getwaversion" class="tsd-kind-icon">getWAVersion</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#ghostforward" class="tsd-kind-icon">ghost<wbr>Forward</a></li>
@@ -3419,6 +3420,25 @@
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
 							<p>any</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getunsentmessages" class="tsd-anchor"></a>
+					<h3>get<wbr>Unsent<wbr>Messages</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Unsent<wbr>Messages<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Retreive an array of messages that are not yet sent to the recipient via the host account device (i.e no ticks)</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -6736,6 +6756,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_client.client.html#getunreadmessages" class="tsd-kind-icon">get<wbr>Unread<wbr>Messages</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="api_client.client.html#getunsentmessages" class="tsd-kind-icon">get<wbr>Unsent<wbr>Messages</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_client.client.html#getvcards" class="tsd-kind-icon">getVCards</a>
