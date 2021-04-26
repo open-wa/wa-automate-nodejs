@@ -290,6 +290,7 @@ declare module WAPI {
   const getAllChats: () => any;
   const healthCheck: () => any;
   const getState: () => string;
+  const getUnsentMessages: () => Promise<Message[]>;
   const forceUpdateConnectionState: () => Promise<string>;
   const getBatteryLevel: () => number;
   const getIsPlugged: () => boolean;
@@ -995,6 +996,13 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
   public async getConnectionState() : Promise<STATE> {
     return await this._page.evaluate(() => WAPI.getState()) as STATE;
+  }
+
+  /**
+   * Retreive an array of messages that are not yet sent to the recipient via the host account device (i.e no ticks)
+   */
+  public async getUnsentMessages() : Promise<Message[]> {
+    return await this._page.evaluate(() => WAPI.getUnsentMessages());
   }
 
   /**
