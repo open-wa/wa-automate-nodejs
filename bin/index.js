@@ -385,12 +385,13 @@ Object.entries(process.env).filter(([k,v])=>k.includes('WA')).map(([k,v])=>envAr
 
 //open config file:
 let configFile = {};
-if (cli.flags.config) {
-	if(isBase64(cli.flags.config)) {
-		configFile = JSON.parse(Buffer.from(cli.flags.config, 'base64').toString('ascii'))
+const conf = cli.flags.config || process.env.WA_CLI_CONFIG
+if (conf) {
+	if(isBase64(conf)) {
+		configFile = JSON.parse(Buffer.from(conf, 'base64').toString('ascii'))
 	} else {
-		configFile = tryOpenFileAsObject(cli.flags.config || `cli.config.json`);
-		if(!configFile) console.error(`Unable to read config file json: ${cli.flags.config}`)
+		configFile = tryOpenFileAsObject(conf || `cli.config.json`);
+		if(!configFile) console.error(`Unable to read config file json: ${conf}`)
 	}
 } else {
 	configFile = tryOpenFileAsObject(`cli.config.json`);
