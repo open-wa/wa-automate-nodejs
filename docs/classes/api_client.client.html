@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Client | @open-wa/wa-automate - v3.11.5</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.11.5">
+	<title>Client | @open-wa/wa-automate - v3.11.6</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.11.6">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v3.11.5</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v3.11.6</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -3721,7 +3721,7 @@
 					<a name="joingroupvialink" class="tsd-anchor"></a>
 					<h3>join<wbr>Group<wbr>Via<wbr>Link</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">join<wbr>Group<wbr>Via<wbr>Link<span class="tsd-signature-symbol">(</span>link<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">join<wbr>Group<wbr>Via<wbr>Link<span class="tsd-signature-symbol">(</span>link<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, returnChatObj<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_chat.chat.html" class="tsd-signature-type" data-tsd-kind="Interface">Chat</a><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -3743,11 +3743,17 @@
 											<li><a href="https://chat.whatsapp.com/DHTGJUfFJAV9MxOpZO1fBZ">https://chat.whatsapp.com/DHTGJUfFJAV9MxOpZO1fBZ</a></li>
 											<li>DHTGJUfFJAV9MxOpZO1fBZ</li>
 										</ul>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> returnChatObj: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>boolean When this is set to true and if the group was joined successfully, it will return a serialzed Chat object which includes group information and metadata. This is useful when you want to immediately do something with group metadata.</p>
 										<p>If you have been removed from the group previously, it will return <code>401</code></p>
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_chat.chat.html" class="tsd-signature-type" data-tsd-kind="Interface">Chat</a><span class="tsd-signature-symbol">&gt;</span></h4>
 							<p>Promise&lt;string | boolean | number&gt; Either false if it didn&#39;t work, or the group id.</p>
 						</li>
 					</ul>
