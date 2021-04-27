@@ -1956,9 +1956,10 @@ public async iAmAdmin() : Promise<GroupChatId[]>  {
  * - https://chat.whatsapp.com/DHTGJUfFJAV9MxOpZO1fBZ
  * - DHTGJUfFJAV9MxOpZO1fBZ
  * 
+ *  If you have been removed from the group previously, it will return `401`
+ * 
  * @param returnChatObj boolean When this is set to true and if the group was joined successfully, it will return a serialzed Chat object which includes group information and metadata. This is useful when you want to immediately do something with group metadata.
  * 
- * If you have been removed from the group previously, it will return `401`
  * 
  * @returns Promise<string | boolean | number> Either false if it didn't work, or the group id.
  */

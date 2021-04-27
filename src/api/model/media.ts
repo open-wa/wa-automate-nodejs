@@ -37,6 +37,14 @@ export type StickerMetadata = {
      * Your Discord ID to get onto the sticker leaderboard!
      */
     discord ?: string
+    /**
+     * Crop position
+     * 
+     * Learn more: https://sharp.pixelplumbing.com/api-resize
+     * 
+     * @default `attention`
+     */
+     cropPosition ?: 'top' | 'right top' | 'right' | 'right bottom' | 'bottom' | 'left bottom' | 'left' | 'left top' | 'north' | 'northeast' | 'east' | 'southeast' | 'south' | 'southwest' | 'west' | 'northwest' | 'center' | 'centre' | 'entropy' | 'attention'
   }
 
   export type Mp4StickerConversionProcessOptions = {
