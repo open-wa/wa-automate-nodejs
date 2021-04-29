@@ -1,0 +1,89 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: "@types/node"
+    versions:
+    - 14.14.30
+    - 14.14.31
+    - 15.0.0
+  - dependency-name: open
+    versions:
+    - 8.0.1
+    - 8.0.5
+    - 8.0.6
+  - dependency-name: puppeteer
+    versions:
+    - 7.0.1
+    - 7.1.0
+    - 9.0.0
+  - dependency-name: typedoc
+    versions:
+    - 0.20.20
+    - 0.20.23
+    - 0.20.24
+    - 0.20.25
+    - 0.20.27
+    - 0.20.28
+    - 0.20.29
+    - 0.20.30
+  - dependency-name: "@typescript-eslint/eslint-plugin"
+    versions:
+    - 4.16.1
+  - dependency-name: patch-package
+    versions:
+    - 6.4.0
+  - dependency-name: husky
+    versions:
+    - 5.0.9
+    - 5.1.0
+    - 5.1.1
+    - 5.1.2
+  - dependency-name: ts-morph
+    versions:
+    - 10.0.0
+    - 10.0.1
+  - dependency-name: rxjs
+    versions:
+    - 6.6.6
+  - dependency-name: swagger-ui-dist
+    versions:
+    - 3.44.0
+  - dependency-name: typescript
+    versions:
+    - 4.2.0-dev.20210201
+    - 4.2.0-dev.20210203
+    - 4.2.0-dev.20210204
+    - 4.2.0-dev.20210205
+    - 4.2.0-dev.20210208
+    - 4.2.0-insiders.20210210
+    - 4.2.2
+  - dependency-name: release-it
+    versions:
+    - 14.4.1
+  - dependency-name: "@grupoboticario/news-fragments"
+    versions:
+    - 1.9.1
+  - dependency-name: puppeteer-extra-plugin-devtools
+    versions:
+    - 2.2.16
+  - dependency-name: pino
+    versions:
+    - 6.11.3
+  - dependency-name: terminal-link
+    versions:
+    - 3.0.0
+  - dependency-name: "@typescript-eslint/parser"
+    versions:
+    - 4.21.0
+  - dependency-name: socket.io
+    versions:
+    - 4.0.0
+    - 4.0.1
+  - dependency-name: p-queue
+    versions:
+    - 7.0.0
