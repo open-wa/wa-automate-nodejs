@@ -3313,8 +3313,9 @@ public async getStatus(contactId: ContactId) : Promise<{
   middleware = (useSessionIdInPath: boolean = false) => async (req,res,next) : Promise<any> => {
     if(useSessionIdInPath && !req.path.includes(this._createConfig.sessionId) && this._createConfig.sessionId!== 'session') return next();
     if(req.method==='POST') {
-      let {method,args} = req.body
-      const m = method || this._createConfig.sessionId && this._createConfig.sessionId!== 'session' && req.path.includes(this._createConfig.sessionId) ? req.path.replace(`/${this._createConfig.sessionId}/`,'') :  req.path.replace('/','');
+      const rb = req?.body || {};
+      let {args} = rb
+      const m = rb?.method || this._createConfig.sessionId && this._createConfig.sessionId!== 'session' && req.path.includes(this._createConfig.sessionId) ? req.path.replace(`/${this._createConfig.sessionId}/`,'') :  req.path.replace('/','');
       if(args && !Array.isArray(args)) args = parseFunction().parse(this[m]).args.map(argName=> args[argName]);
       else if(!args) args = [];
       if(this[m]){
@@ -3338,7 +3339,7 @@ public async getStatus(contactId: ContactId) : Promise<{
         })
         }
       }
-      return res.status(404).send('Cannot find method')
+      return res.status(404).send(`Cannot find method: ${m}`)
     }
     return next();
   }
