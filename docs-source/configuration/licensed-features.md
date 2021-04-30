@@ -75,6 +75,24 @@ create({
 ...
 ```
 
+## How to use your license
+
+This depends on how you're using the library. If you're using it with your own custom code then you can enter the licenseKey like so within the config of your `create` command:
+
+```javascript
+
+create({
+  licenseKey: "FE764A87-BB9B48EE-BBBC035C-9736F87"
+})
+
+```
+
+If you're using the CLI then you can add it as a CLI flag:
+
+```bash
+> npx @open-wa/wa-automate --license-key 
+```
+
 ## Keys
 
 | Name | link | Description
