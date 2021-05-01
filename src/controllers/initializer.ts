@@ -13,7 +13,7 @@ import { Client } from '../api/Client';
 import { ConfigObject, SessionExpiredError } from '../api/model/index';
 import * as path from 'path';
 import { phoneIsOutOfReach, isAuthenticated, smartQr } from './auth';
-import { deleteSessionData, getSessionDataFilePath, initPage, injectApi } from './browser';
+import { deleteSessionData, initPage, injectApi } from './browser';
 import { Spin } from './events'
 import { integrityCheck, checkWAPIHash } from './launch_checks';
 import treekill from 'tree-kill';
@@ -297,7 +297,8 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       const LAUNCH_TIME_MS = Date.now() - START_TIME;
       debugInfo = {...debugInfo, LAUNCH_TIME_MS};
       spinner.emit(debugInfo, "DebugInfo");
-      spinner.succeed(`Client loaded in ${LAUNCH_TIME_MS/1000}s`);
+      const metrics = await waPage.evaluate(`WAPI.launchMetrics()`);
+      spinner.succeed(`Client loaded with ${metrics.contacts} contacts, ${metrics.chats} chats & ${metrics.messages} messages in ${LAUNCH_TIME_MS/1000}s`);
       if(config?.deleteSessionDataOnLogout || config?.killClientOnLogout) config.eventMode = true;
       const client = new Client(waPage, config, debugInfo);
       const { me } = await client.getMe();
