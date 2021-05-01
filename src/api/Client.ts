@@ -50,7 +50,7 @@ createLogger = (sessionId: string, sessionInfo: SessionInfo, config: ConfigObjec
 }
 import treekill from 'tree-kill';
 import { HealthCheck, SessionInfo } from './model/sessionInfo';
-import { injectApi } from '../controllers/browser';
+import { deleteSessionData, injectApi } from '../controllers/browser';
 import { isAuthenticated } from '../controllers/auth';
 import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, FilePath } from './model/aliases';
 import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
@@ -401,6 +401,15 @@ export class Client {
       this.logger().child({
         PHONE_VERSION: this._sessionInfo.PHONE_VERSION
       }).info()
+
+      if(this._createConfig?.deleteSessionDataOnLogout || this._createConfig?.killClientOnLogout) {
+        this.onLogout(() => {
+            if(this._createConfig?.deleteSessionDataOnLogout) deleteSessionData(this._createConfig)
+            if(this._createConfig?.killClientOnLogout) {
+              this.kill();
+            }
+        })
+      }
   }
 
   private async registerAllSimpleListenersOnEv(){

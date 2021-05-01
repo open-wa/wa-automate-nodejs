@@ -300,14 +300,6 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       spinner.succeed(`Client loaded in ${LAUNCH_TIME_MS/1000}s`);
       if(config?.deleteSessionDataOnLogout || config?.killClientOnLogout) config.eventMode = true;
       const client = new Client(waPage, config, debugInfo);
-      if(config?.deleteSessionDataOnLogout || config?.killClientOnLogout) {
-        client.onLogout(() => {
-            if(config?.deleteSessionDataOnLogout) deleteSessionData(config)
-            if(config?.killClientOnLogout) {
-              client.kill();
-            }
-        })
-      }
       const { me } = await client.getMe();
       if (config?.licenseKey || me._serialized!==earlyWid) {
          await getAndInjectLicense(waPage, config, me, debugInfo, spinner, me._serialized!==earlyWid ? false : await licensePromise)
