@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Licensed Features | @open-wa/wa-automate - v3.11.6</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.11.6">
+	<title>Licensed Features | @open-wa/wa-automate - v3.11.7</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.11.7">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../assets/css/main.css">
 	<link rel="stylesheet" href="../../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../../index.html" class="title">@open-wa/wa-automate - v3.11.6</a>
+					<a href="../../index.html" class="title">@open-wa/wa-automate - v3.11.7</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -208,6 +208,19 @@
 <span style="color: #000000">  </span><span style="color: #001080">licenseKey:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;...&quot;</span><span style="color: #000000">,</span><span style="color: #A31515">&quot;...&quot;</span><span style="color: #000000">]</span>
 <span style="color: #000000">})</span>
 <span style="color: #000000">...</span>
+</code></pre>
+				<a href="#how-to-use-your-license" id="how-to-use-your-license" style="color: inherit; text-decoration: none;">
+					<h2>How to use your license</h2>
+				</a>
+				<p>This depends on how you&#39;re using the library. If you&#39;re using it with your own custom code then you can enter the licenseKey like so within the config of your <code>create</code> command:</p>
+				<pre><code class="language-javascript">
+<span style="color: #795E26">create</span><span style="color: #000000">({</span>
+<span style="color: #000000">  </span><span style="color: #001080">licenseKey:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;FE764A87-BB9B48EE-BBBC035C-9736F87&quot;</span>
+<span style="color: #000000">})</span>
+
+</code></pre>
+				<p>If you&#39;re using the CLI then you can add it as a CLI flag:</p>
+				<pre><code class="language-bash"><span style="color: #000000">&gt; npx @open-wa/wa-automate --license-key </span>
 </code></pre>
 				<a href="#keys" id="keys" style="color: inherit; text-decoration: none;">
 					<h2>Keys</h2>

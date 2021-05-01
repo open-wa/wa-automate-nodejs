@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>api/model/media | @open-wa/wa-automate - v3.11.6</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.11.6">
+	<title>api/model/media | @open-wa/wa-automate - v3.11.7</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.11.7">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v3.11.6</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v3.11.7</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -191,7 +191,7 @@
 				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
 					<a name="stickermetadata" class="tsd-anchor"></a>
 					<h3>Sticker<wbr>Metadata</h3>
-					<div class="tsd-signature tsd-kind-icon">Sticker<wbr>Metadata<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>author<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>circle<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>discord<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>keepScale<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>pack<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>removebg<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;HQ&quot;</span><span class="tsd-signature-symbol"> }</span></div>
+					<div class="tsd-signature tsd-kind-icon">Sticker<wbr>Metadata<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>author<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>circle<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>cropPosition<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;top&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;right top&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;right&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;right bottom&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;bottom&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;left bottom&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;left&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;left top&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;north&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;northeast&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;east&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;southeast&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;south&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;southwest&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;west&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;northwest&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;center&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;centre&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;entropy&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;attention&quot;</span><span class="tsd-signature-symbol">; </span>discord<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>keepScale<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>pack<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>removebg<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;HQ&quot;</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 					</aside>
 					<div class="tsd-type-declaration">
@@ -216,6 +216,20 @@
 									<div class="lead">
 										<p>Applies a circular mask to the sticker. Works on images only for now.</p>
 									</div>
+								</div>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> crop<wbr>Position<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;top&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;right top&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;right&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;right bottom&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;bottom&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;left bottom&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;left&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;left top&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;north&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;northeast&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;east&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;southeast&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;south&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;southwest&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;west&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;northwest&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;center&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;centre&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;entropy&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;attention&quot;</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>Crop position</p>
+									</div>
+									<p>Learn more: <a href="https://sharp.pixelplumbing.com/api-resize">https://sharp.pixelplumbing.com/api-resize</a></p>
+									<dl class="tsd-comment-tags">
+										<dt>default</dt>
+										<dd><p><code>attention</code></p>
+										</dd>
+									</dl>
 								</div>
 							</li>
 							<li class="tsd-parameter">
