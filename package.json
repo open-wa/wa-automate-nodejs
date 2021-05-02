@@ -27,7 +27,8 @@
     "release-image": "node release-image.js",
     "docwatch": "onchange 'src/**/*.ts'  'docs-source/**/*.md' -- typedoc",
     "build:config-for-bin": "cd build && ts-node build-config-json-for-bin.ts && cd ..",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "install": "node ./scripts/install"
   },
   "husky": {
     "hooks": {
@@ -109,9 +110,11 @@
     "cross-spawn": "^7.0.3",
     "datauri": "^3.0.0",
     "death": "^1.1.0",
+    "ensure-gitignore": "^1.1.2",
     "eventemitter2": "^6.0.0",
     "express": "^4.17.1",
     "express-robots-txt": "^0.5.0",
+    "find-up": "^4.1.0",
     "get-port": "^5.1.1",
     "hasha": "^5.2.0",
     "image-type": "^4.1.0",
