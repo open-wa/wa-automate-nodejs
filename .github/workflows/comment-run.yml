@@ -10,7 +10,7 @@ jobs:
     - name: Install emojis
       run: sudo apt install fonts-noto-color-emoji
     - name: Update NPM
-      run: npm install -g npm@latest
+      run: sudo npm install -g npm@latest
     - uses: actions/checkout@v2
       with:
         # 0 indicates all history
