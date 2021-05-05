@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ConfigObject | @open-wa/wa-automate - v3.11.8</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.11.8">
+	<title>ConfigObject | @open-wa/wa-automate - v3.12.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.12.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v3.11.8</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v3.12.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -125,6 +125,7 @@
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#logconsoleerrors" class="tsd-kind-icon">log<wbr>Console<wbr>Errors</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#logdebuginfoasobject" class="tsd-kind-icon">log<wbr>Debug<wbr>Info<wbr>AsObject</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#logfile" class="tsd-kind-icon">log<wbr>File</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#pqueuedefault" class="tsd-kind-icon">p<wbr>Queue<wbr>Default</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#popup" class="tsd-kind-icon">popup</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#proxyservercredentials" class="tsd-kind-icon">proxy<wbr>Server<wbr>Credentials</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.configobject.html#qrformat" class="tsd-kind-icon">qr<wbr>Format</a></li>
@@ -703,6 +704,33 @@
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
 							<dd><p>false</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="pqueuedefault" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> p<wbr>Queue<wbr>Default</h3>
+					<div class="tsd-signature tsd-kind-icon">p<wbr>Queue<wbr>Default<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Default pqueue options applied to all listeners that can take pqueue options as a second optional parameter. For now, this only includes <code>onMessage</code> and <code>onAnyMessage</code>.</p>
+						</div>
+						<p>See: <a href="https://github.com/sindresorhus/p-queue#options">https://github.com/sindresorhus/p-queue#options</a></p>
+						<p>Example: process 5 events within every 3 seconds window. Make sure to only process at most 2 at any one time. Make sure there is at least 100ms between each event processing.</p>
+						<pre><code class="language-javascript"><span style="color: #000000">    {   </span>
+<span style="color: #000000">        intervalCap: </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #008000">//process 5 events</span>
+<span style="color: #000000">        interval: </span><span style="color: #098658">3000</span><span style="color: #000000">, </span><span style="color: #008000">//within every three second window</span>
+<span style="color: #000000">        concurrency: </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #008000">//make sure to process, at most, 2 events at any one time</span>
+<span style="color: #000000">        timeout: </span><span style="color: #098658">100</span><span style="color: #000000">, </span><span style="color: #008000">//make sure there is a 100ms gap between each event processing.</span>
+<span style="color: #000000">        carryoverConcurrencyCount: </span><span style="color: #0000FF">true</span><span style="color: #000000"> </span><span style="color: #008000">//If there are more than 5 events in that period, process them within the next 3 second period. Make sure this is always set to true!!!</span>
+<span style="color: #000000">    }</span>
+</code></pre>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>undefined</code></p>
 							</dd>
 						</dl>
 					</div>
@@ -1375,6 +1403,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="api_model_config.configobject.html#logfile" class="tsd-kind-icon">log<wbr>File</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.configobject.html#pqueuedefault" class="tsd-kind-icon">p<wbr>Queue<wbr>Default</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="api_model_config.configobject.html#popup" class="tsd-kind-icon">popup</a>
