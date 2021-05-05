@@ -131,7 +131,7 @@
     "patch-package": "^6.2.2",
     "pino": "^6.11.1",
     "postman-2-swagger": "^0.5.0",
-    "puppeteer": "9.0.0",
+    "puppeteer": "9.1.0",
     "puppeteer-extra": "^3.1.9",
     "puppeteer-extra-plugin-block-resources": "^2.2.7",
     "puppeteer-extra-plugin-devtools": "^2.2.8",
