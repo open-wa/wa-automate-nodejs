@@ -1,6 +1,5 @@
 import { getConfigWithCase } from '../src/utils/configSchema'
-
-const fs = require('fs');
+import { writeFileSync } from 'fs';
 
 const configWithCases = getConfigWithCase({
 	path: "../src/api/model/config.ts",
@@ -8,4 +7,4 @@ const configWithCases = getConfigWithCase({
 	type: "ConfigObject",
 });
 
-fs.writeFileSync('../bin/config-schema.json', JSON.stringify(configWithCases));
+writeFileSync('../bin/config-schema.json', JSON.stringify(configWithCases));
