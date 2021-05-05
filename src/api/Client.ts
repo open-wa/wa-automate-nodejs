@@ -637,7 +637,7 @@ export class Client {
    * @fires Observable stream of messages
    */
    public async onMessage(fn: (message: Message) => void, queueOptions ?: Options<PriorityQueue, DefaultAddOptions>) : Promise<Listener | boolean> {
-    return this.registerListener(SimpleListener.Message, fn, queueOptions);
+    return this.registerListener(SimpleListener.Message, fn, this?._createConfig?.pQueueDefault || queueOptions);
   }
 
    /**
@@ -649,7 +649,7 @@ export class Client {
    * @fires [[Message]] 
    */
   public async onAnyMessage(fn: (message: Message) => void, queueOptions ?: Options<PriorityQueue, DefaultAddOptions>) : Promise<Listener | boolean> {
-    return this.registerListener(SimpleListener.AnyMessage, fn, queueOptions);
+    return this.registerListener(SimpleListener.AnyMessage, fn, this?._createConfig?.pQueueDefault || queueOptions);
   }
 
   /**

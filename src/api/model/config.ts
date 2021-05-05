@@ -544,6 +544,26 @@ export interface ConfigObject {
      * @default `false`
      */
      raspi ?: boolean;
+     /**
+      * Default pqueue options applied to all listeners that can take pqueue options as a second optional parameter. For now, this only includes `onMessage` and `onAnyMessage`.
+      * 
+      * See: https://github.com/sindresorhus/p-queue#options
+      * 
+      * Example: process 5 events within every 3 seconds window. Make sure to only process at most 2 at any one time. Make sure there is at least 100ms between each event processing.
+      * 
+      * ```javascript
+      *     {   
+      *         intervalCap: 5, //process 5 events
+      *         interval: 3000, //within every three second window
+      *         concurrency: 2, //make sure to process, at most, 2 events at any one time
+      *         timeout: 100, //make sure there is a 100ms gap between each event processing.
+      *         carryoverConcurrencyCount: true //If there are more than 5 events in that period, process them within the next 3 second period. Make sure this is always set to true!!!
+      *     }
+      * ```
+      * 
+      * @default `undefined`
+      */
+     pQueueDefault ?: any
     /**@internal */
     [x: string]: any 
 }
