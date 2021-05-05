@@ -1574,7 +1574,6 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
      const base64 = await getDUrl(url, requestConfig);
       return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId,ptt,withoutPreview, hideTags)
     } catch(error) {
-      console.log('Something went wrong', error);
       throw error;
     }
   }
@@ -2744,7 +2743,6 @@ public async getStatus(contactId: ContactId) : Promise<{
       const base64 = await getDUrl(url, requestConfig);
       return await this.sendImageAsSticker(to, base64, stickerMetadata);
      } catch(error) {
-       console.log('Something went wrong', error);
        throw error;
      }
   }
