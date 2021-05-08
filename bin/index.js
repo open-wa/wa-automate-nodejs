@@ -591,7 +591,7 @@ return await create({ ...config })
 			swCol.openapi="3.0.3"
 			swCol.externalDocs = {
 				"description": "Find more info here",
-				"url": "https://http://openwa.dev/"
+				"url": "https://openwa.dev/"
 			  }
 			  if(c.key) {
 				swCol.components = {
