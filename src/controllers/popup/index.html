@@ -118,7 +118,7 @@
       const fallback = `${window.location.origin}${window.location.pathname.split('/').filter(x => !x.includes('.')).join('/')}`;
       const isReverseProxied = window.location.pathname.split('/').includes('api')
       let socket = io(socketUrl, {
-        path: isReverseProxied ? `${window.location.pathname}/socket.io` : `/socket.io`
+        path: isReverseProxied ? `${window.location.pathname.replace(/\/$/, '')}/socket.io` : `/socket.io`
       });
 
       socket.io.reconnectionAttempts(3)
@@ -134,7 +134,7 @@
           ...Object.entries(socket._callbacks)
         ]
         socket = io(fallback, {
-        path: isReverseProxied ? `${window.location.pathname}/socket.io` : `/socket.io`
+        path: isReverseProxied ? `${window.location.pathname.replace(/\/$/, '')}/socket.io` : `/socket.io`
         });
 
         callbacks.map(([key, callbacks]) => callbacks.map(cb => socket.on(`${key.replace('$', '')}`, cb)))
