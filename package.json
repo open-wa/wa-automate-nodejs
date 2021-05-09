@@ -57,7 +57,8 @@
   },
   "homepage": "https://github.com/open-wa/wa-automate-nodejs#readme",
   "engines": {
-    "node": ">=12.18.3"
+    "node": ">=12.18.3",
+    "npm": ">=7.9.0"
   },
   "peerDependencies": {
     "fluent-ffmpeg": "^2.1.2",
