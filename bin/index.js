@@ -632,7 +632,10 @@ return await create({ ...config })
 					}
 				}
 			}
-			app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swCol, swOptions));
+			app.use('/api-docs', (req, res, next) => {
+				if(req.originalUrl=="/api-docs") return res.redirect('api-docs/')
+				next()
+			  }, swaggerUi.serve, swaggerUi.setup(swCol, swOptions));
 		}
 
 		if(c && c.stats && swCol) {
