@@ -76,6 +76,7 @@ export async function popup(config: ConfigObject) : Promise<string> {
         io.on('connection', function (client) {
             gClient = client;
             gClient.send({ data: 'CONNECTED', sessionId: config?.sessionId || 'session', namespace: 'SOCKET' })
+            gClient.send({ data: config?.sessionId ? currentQrCodes[config?.sessionId] || currentQrCodes.latest : currentQrCodes.latest, sessionId: config?.sessionId || 'session', namespace: 'qr' })
         });
     }
     server.on("connection", (conn: any) => {
