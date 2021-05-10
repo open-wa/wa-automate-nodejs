@@ -93,7 +93,16 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
   if(config?.proxyServerCredentials?.address) spinner.succeed(`Active proxy: ${config.proxyServerCredentials.address}`)
   await Promise.all(setupPromises);
   spinner?.info('Navigating to WA')
-  await waPage.goto(puppeteerConfig.WAUrl)
+  try {
+    //try twice 
+    const WEB_START_TS = new Date().getTime();
+    const webRes = await waPage.goto(puppeteerConfig.WAUrl)
+    const WEB_END_TS = new Date().getTime();
+    spinner?.info(`Page loaded in ${WEB_END_TS - WEB_START_TS}ms: ${webRes.status()}${webRes.ok() ? '' : ', ' +webRes.statusText()}`)
+    if(!webRes.ok()) spinner?.info(`Headers Info: ${JSON.stringify(webRes.headers(), null, 2)}`)
+  } catch (error) {
+    spinner?.fail(error)
+  }
   return waPage;
 }
 
