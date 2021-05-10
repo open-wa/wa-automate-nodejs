@@ -13,6 +13,7 @@ const isUrl = require('is-url');
 const tcpPortUsed = require('tcp-port-used');
 const changeCase = require("change-case");
 const robots = require("express-robots-txt");
+const JSON5 = require('json5')
 const extraFlags = {};
 const configWithCases = require('./config-schema.json');
 const commandLineUsage = require('command-line-usage');
@@ -35,7 +36,7 @@ const tryOpenFileAsObject = (filelocation, needArray = false) => {
 	if(fs.existsSync(filelocation) || fs.existsSync(relativePath)) {
 		const fp = fs.existsSync(filelocation)  ? filelocation : relativePath;
 		try {
-			let data = JSON.parse(fs.readFileSync(fp, 'utf8'));
+			let data = JSON5.parse(fs.readFileSync(fp, 'utf8'));
 			if(data && (Array.isArray(data) == needArray)) res = data;
 		} catch (error) {
 			throw `Unable to parse config file as JSON. Please make sure ${fp} is a valid JSON config file`;
