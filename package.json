@@ -28,7 +28,7 @@
     "docwatch": "onchange 'src/**/*.ts'  'docs-source/**/*.md' -- typedoc",
     "build:config-for-bin": "cd build && ts-node build-config-json-for-bin.ts && cd ..",
     "postinstall": "patch-package",
-    "install": "npm_config_yes=true npx ignore-check@latest -p '**.data.json' -p '**.node-persist**' --comment 'managed by open-wa'"
+    "install": "cross-env npm_config_yes=true npx ignore-check@latest -p '**.data.json' -p '**.node-persist**' --comment 'managed by open-wa'"
   },
   "husky": {
     "hooks": {
@@ -108,6 +108,7 @@
     "chrome-launcher": "^0.13.0",
     "command-exists": "^1.2.9",
     "command-line-usage": "^6.1.1",
+    "cross-env": "^7.0.3",
     "cross-spawn": "^7.0.3",
     "datauri": "^3.0.0",
     "death": "^1.1.0",
