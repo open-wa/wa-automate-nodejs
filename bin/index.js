@@ -404,7 +404,7 @@ const c = {
 	...configFile || {},
 	...envArgs
 };
-const PORT = c.port;
+const PORT = c.port || 8080;
 let config = {
 	...c
 };
