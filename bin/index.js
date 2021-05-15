@@ -241,6 +241,11 @@ const helptext = commandLineUsage([{
 			description: "Keeps the process alive when host account logs out of session. default is false"
 		},
 		{
+			name: 'debug',
+			type: Boolean,
+			description: "Print out the CLI flag values and the WA_* env vars. default is false"
+		},
+		{
 			name: 'license-key',
 			alias: 'l',
 			type: String,
@@ -378,6 +383,10 @@ const cli = meow(helptext, {
 			type: 'boolean',
 			default: false
 		},
+		debug: { 
+			type: 'boolean',
+			default: false
+		},
 		popupPort: {
 		type: 'number',
 		}
@@ -474,6 +483,15 @@ if(c.webhook || c.webhook == '') {
 
 if(c.apiHost) {
 	c.apiHost = c.apiHost.replace(/\/$/, '')
+}
+
+if(c.debug) {
+	console.log('DEBUG - flags:', c)
+	let WA_ENV = {};
+	Object.keys(process.env).map(k=>{
+		if(k.startsWith('WA_')) WA_ENV[k] = process.env[k];
+	})
+	console.log('DEBUG - env vars:', WA_ENV)
 }
 
 async function start(){
