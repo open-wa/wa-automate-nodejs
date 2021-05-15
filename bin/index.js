@@ -19,6 +19,14 @@ const configWithCases = require('./config-schema.json');
 const commandLineUsage = require('command-line-usage');
 const chalk = require('chalk');
 const axios = require('axios').default;
+const without = (obj, key) => {
+	const {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		[key] : discard,
+		...rest
+	} = obj;
+	return rest;
+}
 const isBase64 = (str) => {
 	const len = str.length;
 	if (!len || len % 4 !== 0 || /[^A-Z0-9+\/=]/i.test(str)) {
@@ -555,10 +563,10 @@ return await create({ ...config })
 
 		if(c && (c.generateApiDocs || c.stats)) {
 			console.log('Generating Swagger Spec');
-			pmCol = await generatePostmanJson({
+			pmCol = await generatePostmanJson(without({
 				...c,
 				...config
-			});
+			}, 'apiHost'));
 			console.log(`Postman collection generated: open-wa-${c.sessionId}.postman_collection.json`);
 			swCol = p2s.default(pmCol);
 			/**
@@ -566,6 +574,7 @@ return await create({ ...config })
 			 */
 			Object.keys(swCol.paths).forEach(p => {
 				let path = swCol.paths[p].post;
+				// console.log(path, swCol.paths[p])
 				if(c.key) swCol.paths[p].post.security = [
 					{
 						"api_key": []
