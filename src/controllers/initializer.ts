@@ -208,9 +208,9 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
      },debugInfo,spinner)
 
     if (authenticated == 'timeout') {
-      const outOfReach = await phoneIsOutOfReach(waPage);
-      spinner.emit(outOfReach ? 'appOffline' : 'authTimeout');
-      spinner.fail(outOfReach ? 'Authentication timed out. Please open the app on the phone. Shutting down' : 'Authentication timed out. Shutting down. Consider increasing authTimeout config variable: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#authtimeout');
+      const outOfReach = await Promise.race([phoneIsOutOfReach(waPage), timeout(20 * 1000)]);
+      spinner.emit(outOfReach && outOfReach !== 'timeout' ? 'appOffline' : 'authTimeout');
+      spinner.fail(outOfReach && outOfReach !== 'timeout' ? 'Authentication timed out. Please open the app on the phone. Shutting down' : 'Authentication timed out. Shutting down. Consider increasing authTimeout config variable: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#authtimeout');
       await kill(waPage);
       if(config?.killProcessOnTimeout) process.exit()
       throw new Error(outOfReach ? 'App Offline' : 'Auth Timeout. Consider increasing authTimeout config variable: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#authtimeout');
