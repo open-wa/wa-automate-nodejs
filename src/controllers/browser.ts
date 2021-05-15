@@ -101,7 +101,8 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
     spinner?.info(`Page loaded in ${WEB_END_TS - WEB_START_TS}ms: ${webRes.status()}${webRes.ok() ? '' : ', ' +webRes.statusText()}`)
     if(!webRes.ok()) spinner?.info(`Headers Info: ${JSON.stringify(webRes.headers(), null, 2)}`)
   } catch (error) {
-    spinner?.fail(error)
+    spinner?.fail(error);
+    throw error
   }
   return waPage;
 }
