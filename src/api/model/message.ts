@@ -1,7 +1,6 @@
-import { ChatId, ContactId, MessageId } from "./aliases";
+import { ChatId, MessageId } from "./aliases";
 import { Chat } from "./chat";
 import { Contact } from "./contact";
-import { GroupMetadata } from "./group-metadata";
 
 export interface Message {
   /**
@@ -86,6 +85,12 @@ export interface Message {
    * the timestanmp of the message
    */
   timestamp: number;
+  /**
+   * When `config.messagePreprocessor: "AUTO_DECRYPT_SAVE"` is set, media is decrypted and saved on disk in a folder called media relative to the current working directory.
+   * 
+   * This is the filePath of the decrypted file.
+   */
+  filePath ?: string;
   content: string;
   isGroupMsg: boolean;
   isMMS: boolean;
@@ -109,7 +114,7 @@ export interface Message {
   deprecatedMms3Url: string;
   quotedMsg ?: Message;
   quotedMsgObj ?: Message;
-  mediaData: {};
+  mediaData: unknown;
   shareDuration: number;
   isAnimated: boolean;
 }
@@ -133,7 +138,7 @@ export enum MessageTypes {
   CONTACT_CARD_MULTI = 'multi_vcard',
   REVOKED = 'revoked',
   UNKNOWN = 'unknown'
-};
+}
 
 /**
  * Message ACK
@@ -147,5 +152,4 @@ export enum MessageAck {
   ACK_DEVICE = 2,
   ACK_READ = 3,
   ACK_PLAYED = 4,
-};
-
+}
