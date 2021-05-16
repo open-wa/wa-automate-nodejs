@@ -6,7 +6,7 @@ import { outputFileSync } from "fs-extra";
 const SCRUB: (message: Message, client: Client) => Promise<Message> = async (
   message: Message
 ) => {
-  if (message.isMedia)
+  if (message.deprecatedMms3Url)
     return {
       ...message,
       conetnt: "",
@@ -17,7 +17,7 @@ const SCRUB: (message: Message, client: Client) => Promise<Message> = async (
 
 const BODY_ONLY: (message: Message, client: Client) => Promise<Message> =
   async (message: Message) => {
-    if (message.isMedia)
+    if (message.deprecatedMms3Url)
       return {
         ...message,
         conetnt: "",
@@ -27,7 +27,7 @@ const BODY_ONLY: (message: Message, client: Client) => Promise<Message> =
 
 const AUTO_DECRYPT: (message: Message, client: Client) => Promise<Message> =
   async (message: Message, client: Client) => {
-    if (message.isMedia)
+    if (message.deprecatedMms3Url)
       return {
         ...message,
         body: await client.decryptMedia(message),
@@ -39,7 +39,7 @@ const AUTO_DECRYPT_SAVE: (
   message: Message,
   client: Client
 ) => Promise<Message> = async (message: Message, client: Client) => {
-  if (message.isMedia) {
+  if (message.deprecatedMms3Url) {
     const filename = `${message.id.split("_").slice(-1)[0]}.${mime.extension(
       message.mimetype
     )}`;
