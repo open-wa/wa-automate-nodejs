@@ -117,6 +117,7 @@
     "express": "^4.17.1",
     "express-robots-txt": "^0.5.0",
     "find-up": "^5.0.0",
+    "fs-extra": "^7.0.1",
     "get-port": "^5.1.1",
     "hasha": "^5.2.0",
     "image-type": "^4.1.0",
@@ -152,6 +153,7 @@
     "tree-kill": "^1.2.2",
     "ts-json-schema-generator": "^0.92.0",
     "ts-morph": "^10.0.2",
+    "type-fest": "^0.20.2",
     "update-notifier": "^5.0.0",
     "uuid": "^8.3.2",
     "uuid-apikey": "^1.4.6"

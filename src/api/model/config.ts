@@ -1,4 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
+import { PREPROCESSORS } from '../../utils/preProcessors';
 import { Base64 } from "./aliases";
 import { SimpleListener } from './events';
 
@@ -564,6 +565,13 @@ export interface ConfigObject {
       * @default `undefined`
       */
      pQueueDefault ?: any
+     /**
+      * Set a preprocessor for messages. See [[PREPROCESSORS]] for more info.
+      * 
+      * options: `SCRUB`, `BODY_ONLY`, `AUTO_DECRYPT`, `AUTO_DECRYPT_SAVE`.
+      * @default `undefined`
+      */
+     messagePreprocessor ?: PREPROCESSORS
     /**@internal */
     [x: string]: any 
 }

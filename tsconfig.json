@@ -250,7 +250,8 @@
       "HealthCheck",
       "GroupChatCreationResponse",
       "GroupChatCreationParticipantAddResponse",
-      "CollectorOptions"
+      "CollectorOptions",
+      "PREPROCESSORS"
     ]
   }
 }

@@ -66,6 +66,7 @@ import { MessageCollector } from '../structures/MessageCollector';
 import { injectInitPatch } from '../controllers/init_patch';
 import { Listener } from 'eventemitter2';
 import PriorityQueue from 'p-queue/dist/priority-queue';
+import { MessagePreprocessors } from '../utils/preProcessors';
 
 export enum namespace {
   Chat = 'Chat',
@@ -627,6 +628,12 @@ export class Client {
   }
 
   // STANDARD SIMPLE LISTENERS
+  private async preprocessMessage(message: Message) : Promise<Message> {
+    if(this._createConfig.messagePreprocessor && MessagePreprocessors[this._createConfig.messagePreprocessor]) {
+      return await MessagePreprocessors[this._createConfig.messagePreprocessor](message, this)
+    }
+    return message;
+  }
 
   /**
    * Listens to incoming messages
@@ -637,7 +644,8 @@ export class Client {
    * @fires Observable stream of messages
    */
    public async onMessage(fn: (message: Message) => void, queueOptions ?: Options<PriorityQueue, DefaultAddOptions>) : Promise<Listener | boolean> {
-    return this.registerListener(SimpleListener.Message, fn, this?._createConfig?.pQueueDefault || queueOptions);
+    const _fn = async (message : Message) => fn(await this.preprocessMessage(message))
+    return this.registerListener(SimpleListener.Message, _fn, this?._createConfig?.pQueueDefault || queueOptions);
   }
 
    /**
@@ -649,7 +657,8 @@ export class Client {
    * @fires [[Message]] 
    */
   public async onAnyMessage(fn: (message: Message) => void, queueOptions ?: Options<PriorityQueue, DefaultAddOptions>) : Promise<Listener | boolean> {
-    return this.registerListener(SimpleListener.AnyMessage, fn, this?._createConfig?.pQueueDefault || queueOptions);
+    const _fn = async (message : Message) => fn(await this.preprocessMessage(message))
+    return this.registerListener(SimpleListener.AnyMessage, _fn, this?._createConfig?.pQueueDefault || queueOptions);
   }
 
   /**
@@ -764,7 +773,8 @@ export class Client {
    * @returns `true` if the callback was registered
    */
   public async onAck(fn: (message: Message) => void) : Promise<Listener | boolean> {
-    return this.registerListener(SimpleListener.Ack, fn);
+    const _fn = async (message : Message) => fn(await this.preprocessMessage(message))
+    return this.registerListener(SimpleListener.Ack, _fn);
   }
 
   /**
