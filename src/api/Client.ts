@@ -66,7 +66,7 @@ import { MessageCollector } from '../structures/MessageCollector';
 import { injectInitPatch } from '../controllers/init_patch';
 import { Listener } from 'eventemitter2';
 import PriorityQueue from 'p-queue/dist/priority-queue';
-import { MessagePreprocessors } from '../utils/preProcessors';
+import { MessagePreprocessors } from '../structures/preProcessors';
 
 export enum namespace {
   Chat = 'Chat',

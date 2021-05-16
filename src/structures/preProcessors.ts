@@ -1,4 +1,4 @@
-import { Client } from './../api/Client';
+import { Client } from '../api/Client';
 import { Message } from "../api/model/message";
 import mime from 'mime';
 import { outputFileSync } from 'fs-extra';
