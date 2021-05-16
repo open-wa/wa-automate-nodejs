@@ -690,7 +690,9 @@ return await create({ ...config })
 			  }
 			}));
 		}
-		
+		if(config.messagePreprocessor==="AUTO_DECRYPT_SAVE") {
+			app.use("/media", express.static('media'))
+		}
 		app.use(client.middleware((c && c.useSessionIdInPath)));
 		if(process.send){
 			process.send('ready');
