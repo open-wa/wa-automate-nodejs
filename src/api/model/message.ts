@@ -109,6 +109,8 @@ export interface Message {
   author: string;
   /**
    * @deprecated
+   * 
+   * Ironically, you should be using `deprecatedMms3Url` instead
    */
   clientUrl: string;
   deprecatedMms3Url: string;
