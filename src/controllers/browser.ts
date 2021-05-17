@@ -1,11 +1,14 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import ON_DEATH from 'death';
-import puppeteer from 'puppeteer-extra';
+// import puppeteer from 'puppeteer-extra';
 import { puppeteerConfig, useragent, width, height} from '../config/puppeteer.config';
 import { Browser, Page } from 'puppeteer';
 import { Spin, EvEmitter } from './events';
 import { ConfigObject } from '../api/model';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const puppeteer = require('puppeteer-extra')
+
 let browser;
 
 export async function initPage(sessionId?: string, config?:ConfigObject, customUserAgent?:string, spinner ?: Spin) : Promise<Page> {
