@@ -57,6 +57,12 @@ export class SocketClient {
     socket: Socket;
     listeners: any = {};
 
+    /**
+     * The main way to create the socket baed client.
+     * @param url URL of the socket server (i.e the EASY API instance address)
+     * @param apiKey optional api key if set
+     * @returns SocketClient
+     */
     static async connect(url: string, apiKey?: string): Promise<SocketClient & Client> {
         const client = new this(url, apiKey)
         return await new Promise((resolve, reject) => {
