@@ -4,6 +4,8 @@ const { create, generatePostmanJson, ev } = wa;
 const path = require('path');
 const express = require('express');
 const app = express();
+const http = require('http');
+const server = http.createServer(app);
 const fs = require('fs');
 const uuidAPIKey = require('uuid-apikey');
 const p2s = require('postman-2-swagger');
@@ -19,6 +21,8 @@ const configWithCases = require('./config-schema.json');
 const commandLineUsage = require('command-line-usage');
 const chalk = require('chalk');
 const axios = require('axios').default;
+const parseFunction = require('parse-function');
+
 const without = (obj, key) => {
 	const {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -246,6 +250,11 @@ const helptext = commandLineUsage([{
 			description: "Print out the CLI flag values and the WA_* env vars. default is false"
 		},
 		{
+			name: 'socket',
+			type: Boolean,
+			description: "Expose a socket.io middleware on the server."
+		},
+		{
 			name: 'license-key',
 			alias: 'l',
 			type: String,
@@ -384,6 +393,10 @@ const cli = meow(helptext, {
 			default: false
 		},
 		debug: { 
+			type: 'boolean',
+			default: false
+		},
+		socket: { 
 			type: 'boolean',
 			default: false
 		},
@@ -670,30 +683,63 @@ return await create({ ...config })
 			const swStats = require('swagger-stats'); 
 			console.log('Setting Up API Stats');
 			app.use(swStats.getMiddleware({
-			  elasticsearch:process.env.elastic_url,
-			  elasticsearchUsername:process.env.elastic_un,
-			  elasticsearchPassword:process.env.elastic_pw,
-			  swaggerSpec:swCol,
-			  authentication: !!c.key,
-			  swaggerOnly: true,
-			  onResponseFinish: function(req,res,rrr){
+			elasticsearch:process.env.elastic_url,
+			elasticsearchUsername:process.env.elastic_un,
+			elasticsearchPassword:process.env.elastic_pw,
+			swaggerSpec:swCol,
+			authentication: !!c.key,
+			swaggerOnly: true,
+			onResponseFinish: function(req,res,rrr){
 				['file', 'base64', 'image', 'webpBase64', 'base64', 'durl', 'thumbnail'].forEach(key => {
 					if(req.body.args[key])
 					req.body.args[key] = rrr.http.request.body.args[key] = req.body.args[key].slice(0,25) || 'EMPTY'
 				});
 				if(rrr.http.response.code!==200 && rrr.http.response.code!==404) {
-				  rrr.http.response.phrase = res.statusMessage
+					rrr.http.response.phrase = res.statusMessage
 				}
-			  },
-			  onAuthenticate: function(req,username,password){
+			},
+			onAuthenticate: function(req,username,password){
 				return((username==="admin") && (password===c.key));
-			  }
+			}
 			}));
 		}
 		if(config.messagePreprocessor==="AUTO_DECRYPT_SAVE") {
 			app.use("/media", express.static('media'))
 		}
 		app.use(client.middleware((c && c.useSessionIdInPath)));
+		if(c.socket){
+			console.log("Setting up socket")
+			const { Server } = require("socket.io");
+			const io = new Server(server);
+			if(c.key) {
+				io.use((socket, next) => {
+					if(socket.handshake.auth.apiKey == c.key) next()
+					next(new Error("Authentication error"));
+				});
+			}
+			io.on("connection", (socket) => {
+				console.log("Connected to socket:", socket.id)
+				socket.onAny(async (m, ...args) => {
+					var callbacks = args.filter(arg=>typeof arg === "function")
+					var objs = args.filter(arg=>typeof arg === "object")
+					// console.log("🚀 socket request", objs, callbacks)
+					if(client[m]) {
+					if(m.startsWith("on") && callbacks[0]) {
+						const callback = x => socket.emit(m,x)
+						const listenerSet = await client[m](callback)
+						callbacks[0](listenerSet)
+					} else {
+						let { args } = objs[0]
+						if(args && !Array.isArray(args)) args = parseFunction().parse(client[m]).args.map(argName=> args[argName]);
+						else if(!args) args = [];
+						const data = await client[m](...args)
+						callbacks[0](data)
+					}
+					}
+					return;
+				});
+			});
+		}
 		if(process.send){
 			process.send('ready');
 			process.send('ready');
@@ -702,7 +748,7 @@ return await create({ ...config })
 		console.log(`Checking if port ${PORT} is free`);
 		await tcpPortUsed.waitUntilFree(PORT, 200, 20000)
 		console.log(`Port ${PORT} is now free.`);
-		app.listen(PORT, () => {
+		server.listen(PORT, () => {
 			console.log(`\n• Listening on port ${PORT}!`);
 			if(process.send){
 				process.send('ready');
