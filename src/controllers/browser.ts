@@ -191,7 +191,7 @@ async function initBrowser(sessionId?: string, config:any={}) {
   }
 
   if(config?.useChrome && !config?.executablePath) {
-    const storage = await import('node-persist');
+    const {default : storage} = await import('node-persist');
     await storage.init();
     const _savedPath = await storage.getItem('executablePath');
     if(!_savedPath) {
