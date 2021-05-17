@@ -1,14 +1,8 @@
-/** @ignore */
-const fs = require('fs'),
-boxen = require('boxen'),
-osName = require('os-name'),
-configWithCases = require('../../bin/config-schema.json'),
-updateNotifier = require('update-notifier'),
-pkg = require('../../package.json'),
-crypto = require('crypto'),
-timeout = ms => {
-  return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
-}
+import * as fs from 'fs';
+import boxen from 'boxen';
+import osName from 'os-name';
+import * as updateNotifier from 'update-notifier';
+import * as crypto from 'crypto';
 import { Client } from '../api/Client';
 import { ConfigObject, SessionExpiredError } from '../api/model/index';
 import * as path from 'path';
@@ -23,8 +17,14 @@ import { SessionInfo } from '../api/model/sessionInfo';
 import { Page } from 'puppeteer';
 import { createHash } from 'crypto';
 import { injectInitPatch } from './init_patch';
-/** @ignore */
-// let shouldLoop = true,
+import { readJsonSync } from 'fs-extra'
+
+const pkg = readJsonSync('./package.json'),
+configWithCases = readJsonSync('../../bin/config-schema.json'),
+timeout = (ms : number) => {
+  return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
+}
+
 let axios;
 export let screenshot;
 
@@ -51,7 +51,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
   const START_TIME = Date.now();
   let waPage = undefined;
   let notifier;
-  let sessionId : string = '';
+  let sessionId = '';
   let customUserAgent;
 
   if(!config || config?.eventMode!==false) {
@@ -66,13 +66,15 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     notifier.notify();
     if(notifier?.update && config?.keepUpdated && notifier?.update.latest !== pkg.version) {
       console.log('UPDATING @OPEN-WA')
-      const result = require('cross-spawn').spawn.sync('npm', ['i', '@open-wa/wa-automate'], { stdio: 'inherit' });
+      const crossSpawn = await import('cross-spawn')
+      
+      const result = crossSpawn.sync('npm', ['i', '@open-wa/wa-automate'], { stdio: 'inherit' });
       if(!result.stderr) {
           console.log('UPDATED SUCCESSFULLY')
       }
       console.log('RESTARTING PROCESS')
       process.on("exit", function () {
-        require('cross-spawn').spawn(process.argv.shift(), process.argv, {
+        crossSpawn.spawn(process.argv.shift(), process.argv, {
             cwd: process.cwd(),
             detached : true,
             stdio: "inherit"

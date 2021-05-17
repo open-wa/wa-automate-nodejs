@@ -68,6 +68,7 @@
     "@grupoboticario/news-fragments": "^1.8.0",
     "@types/changelog-parser": "^2.7.1",
     "@types/command-line-args": "^5.0.0",
+    "@types/cross-spawn": "^6.0.2",
     "@types/express": "^4.17.6",
     "@types/line-reader": "0.0.33",
     "@types/marked": "^2.0.0",
