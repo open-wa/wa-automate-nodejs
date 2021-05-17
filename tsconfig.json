@@ -251,7 +251,8 @@
       "GroupChatCreationResponse",
       "GroupChatCreationParticipantAddResponse",
       "CollectorOptions",
-      "PREPROCESSORS"
+      "PREPROCESSORS",
+      "SocketClient"
     ]
   }
 }
