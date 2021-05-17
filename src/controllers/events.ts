@@ -68,7 +68,7 @@ export const ev = new EventEmitter2({
 let globalSpinner;
 
 
-const getGlobalSpinner = (disableSpins: boolean = false) => {
+const getGlobalSpinner = (disableSpins = false) => {
   if(!globalSpinner) globalSpinner = new Spinnies({ color: 'blue', succeedColor: 'green', spinner, disableSpins});
   return globalSpinner;
 }
@@ -86,7 +86,7 @@ export class EvEmitter {
     this.eventNamespace = eventNamespace;
   }
 
-  emit(data:any, eventNamespaceOverride ?: string) : void {
+  emit(data : unknown, eventNamespaceOverride ?: string) : void {
     ev.emit(`${eventNamespaceOverride||this.eventNamespace}.${this.sessionId}`,data,this.sessionId,eventNamespaceOverride||this.eventNamespace);
     // ev.emit(`${this.sessionId}.${this.eventNamespace}`,data,this.sessionId,this.eventNamespace);
   }
@@ -107,7 +107,7 @@ export class Spin extends EvEmitter{
    * @param disableSpins If the spinnies should be animated @default `false`
    * @param shouldEmit If the changes in the spinner should emit an event on the event emitter at `${eventNamesapce}.${sessionId}`
    */
-  constructor(sessionId: string = 'session', eventNamespace: string, disableSpins: boolean = false, shouldEmit:boolean = true){
+  constructor(sessionId = 'session', eventNamespace: string, disableSpins = false, shouldEmit = true){
     super(sessionId,eventNamespace);
     if(!sessionId) sessionId = 'session';
     this._spinId = sessionId+"_"+eventNamespace
