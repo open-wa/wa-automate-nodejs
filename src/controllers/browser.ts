@@ -1,20 +1,19 @@
- /**
-  * @hidden
-  */
-/** */
 import * as path from 'path';
-const fs = require('fs');
-const puppeteer = require('puppeteer-extra');
+import * as fs from 'fs';
+import ON_DEATH from 'death';
+import puppeteer from 'puppeteer-extra';
 import { puppeteerConfig, useragent, width, height} from '../config/puppeteer.config';
 import { Browser, Page } from 'puppeteer';
 import { Spin, EvEmitter } from './events';
 import { ConfigObject } from '../api/model';
-const ON_DEATH = require('death'); //this is intentionally ugly
 let browser;
 
 export async function initPage(sessionId?: string, config?:ConfigObject, customUserAgent?:string, spinner ?: Spin) : Promise<Page> {
   const setupPromises = [];
-  if(config?.useStealth) puppeteer.use(require('puppeteer-extra-plugin-stealth')());
+  if(config?.useStealth) {
+    const {default : stealth} = await import('puppeteer-extra-plugin-stealth')
+    puppeteer.use(stealth());
+  }
   spinner?.info('Launching Browser')
   browser = await initBrowser(sessionId,config);
   
@@ -37,7 +36,8 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
   setupPromises.push(waPage.setCacheEnabled(cacheEnabled));
   const blockAssets = !config?.headless ? false : config?.blockAssets || false;
   if(blockAssets){
-    puppeteer.use(require('puppeteer-extra-plugin-block-resources')({
+    const {default : block} = await import('puppeteer-extra-plugin-block-resources')
+    puppeteer.use(block({
       blockedTypes: new Set(['image', 'stylesheet', 'font'])
     }))
   }
@@ -54,6 +54,10 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
     .replace('socks4', '')
     .replace('://', '')}` : config.proxyServerCredentials.address}` : false;
   let quickAuthed = false;
+  let proxy;
+  if(proxyAddr) {
+    proxy = (await import('puppeteer-page-proxy')).default
+  }
   if(interceptAuthentication || proxyAddr || blockCrashLogs){
       await waPage.setRequestInterception(true);  
       const authCompleteEv = new EvEmitter(sessionId, 'AUTH');
@@ -70,7 +74,9 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
       if (request.url().includes('https://crashlogs.whatsapp.net/') && blockCrashLogs){
         request.abort();
       }
-      else if (proxyAddr && !config?.useNativeProxy) require('puppeteer-page-proxy')(request, proxyAddr);
+      else if (proxyAddr && !config?.useNativeProxy) {
+        proxy(request, proxyAddr)
+      }
       else request.continue();
       })
     
@@ -88,7 +94,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
     spinner?.succeed('Existing session data injected')
   }
     if(config?.proxyServerCredentials && !config?.useNativeProxy) {
-      await require('puppeteer-page-proxy')(waPage, proxyAddr);
+      await proxy(waPage, proxyAddr);
     }
   if(config?.proxyServerCredentials?.address) spinner.succeed(`Active proxy: ${config.proxyServerCredentials.address}`)
   await Promise.all(setupPromises);
@@ -114,7 +120,7 @@ const getSessionDataFromFile = (sessionId: string, config: ConfigObject, spinner
   let sessionjson = '';
   const sd = process.env[`${sessionId.toUpperCase()}_DATA_JSON`] ? JSON.parse(process.env[`${sessionId.toUpperCase()}_DATA_JSON`]) : config?.sessionData;
   sessionjson = (typeof sd === 'string') ? JSON.parse(Buffer.from(sd, 'base64').toString('ascii')) : sd;
-  if (sessionjsonpath && fs.existsSync(sessionjsonpath)) {
+  if (sessionjsonpath && typeof sessionjsonpath == 'string' && fs.existsSync(sessionjsonpath)) {
     spinner.succeed(`Found session data file: ${sessionjsonpath}`)
     const s = fs.readFileSync(sessionjsonpath, "utf8");
     try {
@@ -138,7 +144,7 @@ const getSessionDataFromFile = (sessionId: string, config: ConfigObject, spinner
 
 export const deleteSessionData = (config: ConfigObject) : boolean => {
   const sessionjsonpath = getSessionDataFilePath(config?.sessionId || 'session', config)
-  if(fs.existsSync(sessionjsonpath)) {
+  if(typeof sessionjsonpath == 'string' && fs.existsSync(sessionjsonpath)) {
     console.log("logout detected, deleting session data")
     fs.unlinkSync(sessionjsonpath);
   }
@@ -182,11 +188,12 @@ async function initBrowser(sessionId?: string, config:any={}) {
   }
 
   if(config?.useChrome && !config?.executablePath) {
-    const storage = require('node-persist');
+    const storage = await import('node-persist');
     await storage.init();
     const _savedPath = await storage.getItem('executablePath');
     if(!_savedPath) {
-      config.executablePath = require('chrome-launcher').Launcher.getInstallations()[0];
+      const chromeLauncher = await import('chrome-launcher')
+      config.executablePath = chromeLauncher.Launcher.getInstallations()[0];
       await storage.setItem('executablePath',config.executablePath)
     } else config.executablePath = _savedPath;
   }
@@ -221,11 +228,12 @@ async function initBrowser(sessionId?: string, config:any={}) {
   });
   //devtools
   if(config?.devtools){
-    const devtools = require('puppeteer-extra-plugin-devtools')();
+    const devtools = (await import('puppeteer-extra-plugin-devtools'))();
     if(config.devtools !== 'local' && !config?.devtools?.user && !config?.devtools?.pass){
       config.devtools = {};
       config.devtools.user = 'dev';
-      config.devtools.pass = require('uuid-apikey').create().apiKey;
+      const uuid = (await import('uuid-apikey')).default
+      config.devtools.pass = uuid.create().apiKey;
     }
 
     if(config.devtools.user&&config.devtools.pass) {
