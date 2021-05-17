@@ -10,18 +10,21 @@ import { PageEvaluationTimeout, CustomError, ERROR_NAME, AddParticipantError  } 
 import PQueue, { DefaultAddOptions, Options } from 'p-queue';
 import { ev, Spin } from '../controllers/events';
 import { v4 as uuidv4 } from 'uuid';
+import { default as parseFunction} from 'parse-function'
+import * as fs from 'fs'
+import datauri from 'datauri'
+import pino from 'pino'
+import isUrl from 'is-url'
+import { readJsonSync } from 'fs-extra'
+import {default as _optionalRequire} from 'optional-require'
+
 /** @ignore */
-const parseFunction = require('parse-function'),
-pkg = require('../../package.json'),
-optionalRequire = require("optional-require")(require),
-datauri = require('datauri'),
-fs = require('fs'),
-isUrl = require('is-url'),
-pino = require('pino'),
+const pkg = readJsonSync('../../package.json'),
+optionalRequire = _optionalRequire(require),
 isDataURL = (s: string) => !!s.match(/^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/g),
 isBase64 = (str: string) => {
   const len = str.length;
-  if (!len || len % 4 !== 0 || /[^A-Z0-9+\/=]/i.test(str)) {
+  if (!len || len % 4 !== 0 || /[^A-Z0-9+/=]/i.test(str)) {
     return false;
   }
   const firstPaddingChar = str.indexOf('=');
@@ -44,7 +47,7 @@ createLogger = (sessionId: string, sessionInfo: SessionInfo, config: ConfigObjec
     "STAGE": "LAUNCH",
     sessionInfo,
     config
-    }).info()
+    }).info("")
 
   return logger
 }
@@ -67,6 +70,7 @@ import { injectInitPatch } from '../controllers/init_patch';
 import { Listener } from 'eventemitter2';
 import PriorityQueue from 'p-queue/dist/priority-queue';
 import { MessagePreprocessors } from '../structures/preProcessors';
+import { NextFunction, Request, Response } from 'express';
 
 export enum namespace {
   Chat = 'Chat',
@@ -86,7 +90,8 @@ async function convertMp4BufferToWebpDataUrl(file: DataURL | Buffer | Base64, pr
   const ffmpeg = optionalRequire('fluent-ffmpeg', "Missing peer dependency: npm i fluent-ffmpeg");
   if(!ffmpeg) return false;
   const tempFile = path.join(tmpdir(), `processing.${Crypto.randomBytes(6).readUIntLE(0, 6).toString(36)}.webp`);
-  const stream = new (require('stream').Readable)();
+  const {default : _stream} = await import("stream")
+  const stream = new _stream.Readable();
   stream.push(Buffer.isBuffer(file) ? file : Buffer.from(file.replace('data:video/mp4;base64,',''), 'base64'));
   stream.push(null);
   await new Promise((resolve, reject) => {
@@ -103,7 +108,7 @@ async function convertMp4BufferToWebpDataUrl(file: DataURL | Buffer | Base64, pr
             if(processOptions?.log) console.log('Finished encoding');
               resolve(true)
           })
-          .addOutputOptions([`-vcodec`, `libwebp`, `-vf`, `${processOptions.crop?`crop=w='min(min(iw\,ih)\,500)':h='min(min(iw\,ih)\,500)',`:``}scale=500:500,setsar=1,fps=${processOptions.fps}`, `-loop`, `${processOptions.loop}`, `-ss`, processOptions.startTime, `-t`, processOptions.endTime, `-preset`, `default`, `-an`, `-vsync`, `0`, `-s`, `512:512`])
+          .addOutputOptions([`-vcodec`, `libwebp`, `-vf`, `${processOptions.crop?`crop=w='min(min(iw,ih),500)':h='min(min(iw,ih),500)',`:``}scale=500:500,setsar=1,fps=${processOptions.fps}`, `-loop`, `${processOptions.loop}`, `-ss`, processOptions.startTime, `-t`, processOptions.endTime, `-preset`, `default`, `-an`, `-vsync`, `0`, `-s`, `512:512`])
           .toFormat("webp")
           .save(tempFile);
   })
@@ -159,6 +164,7 @@ function base64MimeType(dUrl : DataURL) {
   return result;
 }
 
+/* eslint-disable */
 declare module WAPI {
   const waitNewMessages: (rmCallback: boolean, callback: Function) => void;
   const waitNewAcknowledgements: (callback: Function) => void;
@@ -345,6 +351,7 @@ declare module WAPI {
     includeNotifications: boolean,
   ) => [Message]
 }
+/* eslint-enable */
 
 export class Client {
   private _loadedModules: any[];
@@ -355,8 +362,8 @@ export class Client {
   private _sessionInfo: SessionInfo;
   private _listeners: any;
   private _page: Page;
-  private _currentlyBeingKilled: boolean = false;
-  private _refreshing : boolean = false
+  private _currentlyBeingKilled = false;
+  private _refreshing = false
   private _l: any;
   private _prio: number = Number.MAX_SAFE_INTEGER;
   private _queues: {
@@ -514,6 +521,7 @@ export class Client {
    * @returns SessionInfo
    */
   public getConfig() : ConfigObject {
+    /* eslint-disable */
     const {
       devtools,
       browserWSEndpoint,
@@ -522,6 +530,7 @@ export class Client {
       restartOnCrash,
       ...rest
     } = this._createConfig;
+    /* eslint-enable */
     return rest
   }
 
@@ -545,7 +554,7 @@ export class Client {
       })
     }
     if(logFile) {
-      let wapis = (pageFunction?.toString()?.match(/WAPI\.(\w*)\(/g) || [])?.map(s=>s.replace(/WAPI|\.|\(/g,''));
+      const wapis = (pageFunction?.toString()?.match(/WAPI\.(\w*)\(/g) || [])?.map(s=>s.replace(/WAPI|\.|\(/g,''));
         this.logger().child({
                         _method: wapis?.length === 1 ? wapis[0] : wapis,
                         ...args[0]
@@ -592,7 +601,7 @@ export class Client {
     this._listeners[funcName] = fn;
     const exists = await this.pup(({funcName})=>window[funcName]?true:false,{funcName});
     if(exists) return await set();
-    const res = await this._page.exposeFunction(funcName, (obj: any) =>fn(obj)).then(set).catch(e=>set) as Promise<boolean>;
+    const res = await this._page.exposeFunction(funcName, (obj: any) =>fn(obj)).then(set).catch(()=>set) as Promise<boolean>;
     return res;
   }
   
@@ -848,12 +857,12 @@ export class Client {
    * @param fn callback
    * @returns Observable stream of participantChangedEvent
    */
-  public async onParticipantsChanged(groupId: GroupChatId, fn: (participantChangedEvent: ParticipantChangedEventModel) => void, legacy : boolean = false) : Promise<Listener | boolean> {
+  public async onParticipantsChanged(groupId: GroupChatId, fn: (participantChangedEvent: ParticipantChangedEventModel) => void, legacy = false) : Promise<Listener | boolean> {
     const funcName = "onParticipantsChanged_" + groupId.replace('_', "").replace('_', "");
     return this._page.exposeFunction(funcName, (participantChangedEvent: ParticipantChangedEventModel) =>
       fn(participantChangedEvent)
     )
-      .then(_ => this.pup(
+      .then(() => this.pup(
         ({ groupId,funcName, legacy }) => {
           //@ts-ignore
           if(legacy) return WAPI._onParticipantsChanged(groupId, window[funcName]); else return WAPI.onParticipantsChanged(groupId, window[funcName]);
@@ -874,7 +883,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   return this._page.exposeFunction(funcName, (liveLocationChangedEvent: LiveLocationChangedEvent) =>
     fn(liveLocationChangedEvent)
   )
-    .then(_ => this.pup(
+    .then(() => this.pup(
       ({ chatId,funcName }) => {
       //@ts-ignore
         return WAPI.onLiveLocation(chatId, window[funcName]);
@@ -1053,7 +1062,9 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
       if (this._page && !this._page?.isClosed()) await this._page?.close();
       if (this._page && this._page?.browser) await this._page?.browser()?.close();
       if(pid) treekill(pid, 'SIGKILL')
-    } catch(error){}
+    } catch(error){
+      //ignore error
+    }
     this._currentlyBeingKilled = false;
     return true;
   }
@@ -1264,7 +1275,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param lng longitude: '0.1278'
    * @param loc location text: 'LONDON!'
    */
-  public async sendLocation(to: ChatId, lat: any, lng: any, loc: string) : Promise<boolean | MessageId> {
+  public async sendLocation(to: ChatId, lat: string, lng: string, loc: string) : Promise<boolean | MessageId> {
     return await this.pup(
       ({ to, lat, lng, loc }) => WAPI.sendLocation(to, lat, lng, loc),
       { to, lat, lng, loc }
@@ -1276,7 +1287,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @returns String useragent of wa-web session
    */
   public async getGeneratedUserAgent(userA?: string) : Promise<string> {
-    let ua = userA || useragent;
+    const ua = userA || useragent;
     return await this.pup(
       ({ua}) => WAPI.getGeneratedUserAgent(ua),
       { ua }
@@ -1302,7 +1313,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     }
     const mediaData = await decryptMedia(m);
     return `data:${m.mimetype};base64,${mediaData.toString('base64')}`
-  };
+  }
 
   /**
    * Sends a image to given chat, with caption or not, using base64
@@ -1580,12 +1591,8 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     withoutPreview?:boolean,
     hideTags ?: boolean
   ) : Promise<MessageId | boolean> {
-    try {
      const base64 = await getDUrl(url, requestConfig);
       return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId,ptt,withoutPreview, hideTags)
-    } catch(error) {
-      throw error;
-    }
   }
 
 /**
@@ -2369,7 +2376,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * @param onlyLocal If it should only delete locally (message remains on the other recipienct's phone). Defaults to false.
    * @returns nothing
    */
-  public async deleteMessage(chatId: ChatId, messageId: MessageId[] | MessageId, onlyLocal : boolean = false) : Promise<void> {
+  public async deleteMessage(chatId: ChatId, messageId: MessageId[] | MessageId, onlyLocal = false) : Promise<void> {
     return await this.pup(
       ({ chatId, messageId, onlyLocal }) => WAPI.smartDeleteMessages(chatId, messageId, onlyLocal),
       { chatId, messageId, onlyLocal }
@@ -2749,12 +2756,8 @@ public async getStatus(contactId: ContactId) : Promise<{
    * @returns Promise<MessageId | boolean>
    */
   public async sendStickerfromUrl(to: ChatId, url: string, requestConfig: AxiosRequestConfig = {}, stickerMetadata ?: StickerMetadata) : Promise<string | MessageId | boolean> {
-    try {
       const base64 = await getDUrl(url, requestConfig);
       return await this.sendImageAsSticker(to, base64, stickerMetadata);
-     } catch(error) {
-       throw error;
-     }
   }
 
   /**
@@ -2835,7 +2838,7 @@ public async getStatus(contactId: ContactId) : Promise<{
     );
   }
 
-  private async stickerServerRequest(func: string, a : any = {}, fallback : boolean = false){
+  private async stickerServerRequest(func: string, a : any = {}, fallback = false){
     if(!this._createConfig.stickerServerEndpoint) return false;
     if(func === 'convertMp4BufferToWebpDataUrl') fallback = true;
     const sessionInfo = this.getSessionInfo()
@@ -2904,6 +2907,7 @@ public async getStatus(contactId: ContactId) : Promise<{
         const { pages } = await sharp(buff).metadata();
       //@ts-ignore
       let webp = sharp(buff,{ failOnError: false, animated: !!pages}).webp();
+      // eslint-disable-next-line no-extra-boolean-cast
       if(!!!pages) webp = webp.resize(metadata);
       metadata = await webp.metadata();
       metadata.animated = !!pages;
@@ -2973,7 +2977,7 @@ public async getStatus(contactId: ContactId) : Promise<{
         if(isUrl(file)){
           file = await getDUrl(file)
         } else {
-          let relativePath = path.join(path.resolve(process.cwd(),file|| ''));
+          const relativePath = path.join(path.resolve(process.cwd(),file|| ''));
           if(fs.existsSync(file) || fs.existsSync(relativePath)) {
             file = await datauri(fs.existsSync(file)  ? file : relativePath);
           } else return 'FILE_NOT_FOUND';
@@ -3004,8 +3008,8 @@ public async getStatus(contactId: ContactId) : Promise<{
    * @param webpBase64 Base64 The base64 string of the webp file. Not DataURl
    * @param animated Boolean Set to true if the webp is animated. Default `false`
    */
-  public async sendRawWebpAsSticker(to: ChatId, webpBase64: Base64, animated : boolean = false): Promise<MessageId | string | boolean> {
-    let metadata =  {
+  public async sendRawWebpAsSticker(to: ChatId, webpBase64: Base64, animated = false): Promise<MessageId | string | boolean> {
+    const metadata =  {
         format: 'webp',
         width: 512,
         height: 512,
@@ -3027,7 +3031,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * @param webpBase64 Base64 The base64 string of the webp file. Not DataURl
    * @param animated Boolean Set to true if the webp is animated. Default `false`
    */
-  public async sendRawWebpAsStickerAsReply(to: ChatId, messageId: MessageId, webpBase64: Base64, animated : boolean = false, ): Promise<MessageId | string | boolean> {
+  public async sendRawWebpAsStickerAsReply(to: ChatId, messageId: MessageId, webpBase64: Base64, animated = false): Promise<MessageId | string | boolean> {
     const metadata =  {
         format: 'webp',
         width: 512,
@@ -3328,7 +3332,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * 
    * For example, if you have a session with id  `host` if you set useSessionIdInPath to true, then all requests will need to be prefixed with the path `host`. E.g `localhost:8082/sendText` becomes `localhost:8082/host/sendText`
    */
-  middleware = (useSessionIdInPath: boolean = false) => async (req,res,next) : Promise<any> => {
+  middleware = (useSessionIdInPath = false) => async (req : Request, res : Response, next : NextFunction) : Promise<any> => {
     if(useSessionIdInPath && !req.path.includes(this._createConfig.sessionId) && this._createConfig.sessionId!== 'session') return next();
     if(req.method==='POST') {
       const rb = req?.body || {};
@@ -3480,7 +3484,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * @param concurrency the amount of concurrent requests to be handled by the built in queue. Default is 5.
    * @returns A webhook object. This will include a webhook ID and an array of all successfully registered Listeners.
    */
-  public async registerWebhook(url: string, events : SimpleListener[] | 'all', requestConfig: AxiosRequestConfig = {}, concurrency: number = 5) : Promise<Webhook | false> {
+  public async registerWebhook(url: string, events : SimpleListener[] | 'all', requestConfig: AxiosRequestConfig = {}, concurrency = 5) : Promise<Webhook | false> {
     if(!this._webhookQueue) this._webhookQueue = new PQueue({ concurrency });
     const validListeners = await this._setupWebhooksOnListeners(events)
     const id = uuidv4()
