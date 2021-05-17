@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import boxen from 'boxen';
 import osName from 'os-name';
-import * as updateNotifier from 'update-notifier';
+import { default as updateNotifier } from 'update-notifier';
 import * as crypto from 'crypto';
 import { Client } from '../api/Client';
 import { ConfigObject, SessionExpiredError } from '../api/model/index';
@@ -19,8 +19,8 @@ import { createHash } from 'crypto';
 import { injectInitPatch } from './init_patch';
 import { readJsonSync } from 'fs-extra'
 
-const pkg = readJsonSync('./package.json'),
-configWithCases = readJsonSync('../../bin/config-schema.json'),
+const pkg = readJsonSync(path.join(__dirname,'../../package.json')),
+configWithCases = readJsonSync(path.join(__dirname,'../../bin/config-schema.json')),
 timeout = (ms : number) => {
   return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 }

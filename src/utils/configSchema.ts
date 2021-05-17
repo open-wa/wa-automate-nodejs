@@ -1,5 +1,5 @@
 
-const tsj = require("ts-json-schema-generator");
+import { createGenerator } from "ts-json-schema-generator";
 import {paramCase, constantCase} from "change-case";
  
 const defaultConfig = {
@@ -12,9 +12,9 @@ export const getConfigWithCase = (config ?: {
     path: string,
     tsconfig: string,
     type: string,
-}) => {
+}) : unknown => {
     if(!config) config = defaultConfig;
-    const schema = tsj.createGenerator(config).createSchema(config.type);
+    const schema = createGenerator(config).createSchema(config.type);
     const ignoredConfigs = [
         'useStealth',
         'chromiumArgs',
@@ -29,7 +29,7 @@ export const getConfigWithCase = (config ?: {
     ]
     //only convert simple types
     // const configs = Object.keys(schema.definitions.ConfigObject.properties).map(key=>({...schema.definitions.ConfigObject.properties[key],key})).filter(({type,key})=>type&&!ignoredConfigs.includes(key));
-    const configs = Object.entries(schema.definitions.ConfigObject.properties).map(([key,entry] : any)=>{
+    const configs = Object.entries((schema.definitions.ConfigObject as any).properties).map(([key,entry] : any)=>{
         if(key==='sessionData') {
             entry.type = 'string';
             entry.description = 'The base64 encoded sessionData used to restore a session.'

@@ -1,16 +1,24 @@
+import { JsonObject } from 'type-fest';
+import { Page } from 'puppeteer';
 import * as path from 'path';
-var uniq = require('lodash.uniq');
-const fs = require('fs');
-var pkg = require('../../package.json');
-const hasha = require('hasha');
+import {default as hasha} from 'hasha'
+import {default as uniq} from 'lodash.uniq'
+import { readJsonSync } from 'fs-extra'
+import * as fs from 'fs';
+import { Spin } from './events';
+import { SessionInfo } from '../api/model/sessionInfo';
+const pkg = readJsonSync(path.join(__dirname,'../../package.json'));
+
 const currentHash = '8d3a09fe3156605ac2cf55ce920bbbab'
 
-export async function checkWAPIHash(){
+export async function checkWAPIHash() : Promise<boolean> {
   const h =  await hasha.fromFile(path.join(__dirname, '../lib', 'wapi.js'), {algorithm: 'md5'});
   return h == currentHash
 }
 
-export async function integrityCheck(waPage, notifier, spinner, debugInfo) {
+export async function integrityCheck(waPage : Page, notifier : {
+  update: JsonObject
+}, spinner : Spin, debugInfo : SessionInfo) : Promise<boolean> {
     const waitForIdle = catchRequests(waPage);
     spinner.start('Checking client integrity');
     await waitForIdle();
@@ -44,7 +52,7 @@ export async function integrityCheck(waPage, notifier, spinner, debugInfo) {
         } else {
           //hmm latest version
           const axios = (await import('axios')).default;
-      const report : any = await axios.post(pkg.brokenMethodReportUrl, {...debugInfo,BROKEN_METHODS}).catch(e=>false);
+      const report : any = await axios.post(pkg.brokenMethodReportUrl, {...debugInfo,BROKEN_METHODS}).catch(()=>false);
       if(report?.data) {
         spinner.fail(`Unable to repair broken methods. Sometimes this happens the first time after a new WA version, please try again. An issue has been created, add more detail if required: ${report?.data}` );
       } else spinner.fail(`Unable to repair broken methods. Sometimes this happens the first time after a new WA version, please try again. Please check the issues in the repo for updates: https://github.com/open-wa/wa-automate-nodejs/issues`);
@@ -60,7 +68,9 @@ function catchRequests(page, reqs = 0) {
   page.on('request', started);
   page.on('requestfailed', ended);
   page.on('requestfinished', ended);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   return async (timeout = 5000, success = false) => {
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       if (reqs < 1) break;
       await new Promise((yay) => setTimeout(yay, 100));

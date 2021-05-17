@@ -2,9 +2,9 @@
 import { ev } from "../events";
 import { ConfigObject } from "../../api/model";
 import { Server } from "socket.io";
+import osName from 'os-name';
 import open from 'open';
 import getPort from 'get-port';
-import osName = require('os-name');
 import commandExists from 'command-exists';
 import http from 'http'
 
@@ -21,8 +21,8 @@ let io,
     PORT,
     server;
 
-    const setUpApp = () => {
-    express = require('express');
+    const setUpApp = async () => {
+    express = (await import('express')).default
     app = express();
     app.use(express.static(__dirname + '/node_modules'));  
 
@@ -42,7 +42,7 @@ let io,
 }
 
 export async function popup(config: ConfigObject) : Promise<string> {
-    setUpApp();
+    await setUpApp();
     const preferredPort = config.popup;
     const popupListener = ev.on('**', async (data, sessionId, namespace) => {
         if(namespace.includes("sessionData")) return;

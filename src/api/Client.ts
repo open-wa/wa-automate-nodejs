@@ -17,9 +17,29 @@ import pino from 'pino'
 import isUrl from 'is-url'
 import { readJsonSync } from 'fs-extra'
 import {default as _optionalRequire} from 'optional-require'
+import treekill from 'tree-kill';
+import { HealthCheck, SessionInfo } from './model/sessionInfo';
+import { deleteSessionData, injectApi } from '../controllers/browser';
+import { isAuthenticated } from '../controllers/auth';
+import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, FilePath } from './model/aliases';
+import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
+import * as path from 'path';
+import { CustomProduct, Label } from './model/product';
+import Crypto from 'crypto';
+import { tmpdir } from 'os';
+import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
+import { getAndInjectLicense, getAndInjectLivePatch, getLicense } from '../controllers/initializer';
+import { SimpleListener } from './model/events';
+import { CollectorOptions } from '../structures/Collector';
+import { MessageCollector } from '../structures/MessageCollector';
+import { injectInitPatch } from '../controllers/init_patch';
+import { Listener } from 'eventemitter2';
+import PriorityQueue from 'p-queue/dist/priority-queue';
+import { MessagePreprocessors } from '../structures/preProcessors';
+import { NextFunction, Request, Response } from 'express';
 
 /** @ignore */
-const pkg = readJsonSync('../../package.json'),
+const pkg = readJsonSync(path.join(__dirname,'../../package.json')),
 optionalRequire = _optionalRequire(require),
 isDataURL = (s: string) => !!s.match(/^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/g),
 isBase64 = (str: string) => {
@@ -51,26 +71,6 @@ createLogger = (sessionId: string, sessionInfo: SessionInfo, config: ConfigObjec
 
   return logger
 }
-import treekill from 'tree-kill';
-import { HealthCheck, SessionInfo } from './model/sessionInfo';
-import { deleteSessionData, injectApi } from '../controllers/browser';
-import { isAuthenticated } from '../controllers/auth';
-import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, FilePath } from './model/aliases';
-import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
-import * as path from 'path';
-import { CustomProduct, Label } from './model/product';
-import Crypto from 'crypto';
-import { tmpdir } from 'os';
-import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
-import { getAndInjectLicense, getAndInjectLivePatch, getLicense } from '../controllers/initializer';
-import { SimpleListener } from './model/events';
-import { CollectorOptions } from '../structures/Collector';
-import { MessageCollector } from '../structures/MessageCollector';
-import { injectInitPatch } from '../controllers/init_patch';
-import { Listener } from 'eventemitter2';
-import PriorityQueue from 'p-queue/dist/priority-queue';
-import { MessagePreprocessors } from '../structures/preProcessors';
-import { NextFunction, Request, Response } from 'express';
 
 export enum namespace {
   Chat = 'Chat',
