@@ -602,6 +602,7 @@ return await create({ ...config })
 						"api_key": []
 					}
 				]
+				swCol.paths[p].nickname = p.replace("/","")
 				swCol.paths[p].post.externalDocs= {
 					"description": "Documentation",
 					"url": swCol.paths[p].post.documentationUrl
