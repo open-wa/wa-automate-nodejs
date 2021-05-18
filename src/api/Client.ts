@@ -5,7 +5,7 @@ import { Message } from './model/message';
 import { default as axios, AxiosRequestConfig} from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent, puppeteerConfig } from '../config/puppeteer.config'
-import { ConfigObject, STATE, LicenseType, Webhook } from './model';
+import { ConfigObject, STATE, LicenseType, Webhook, OnError } from './model';
 import { PageEvaluationTimeout, CustomError, ERROR_NAME, AddParticipantError  } from './model/errors';
 import PQueue, { DefaultAddOptions, Options } from 'p-queue';
 import { ev, Spin } from '../controllers/events';
@@ -561,7 +561,23 @@ export class Client {
                         }).info()
     }
     if(callTimeout) return await Promise.race([this._page.evaluate(pageFunction, ...args),new Promise((resolve, reject) => setTimeout(reject, this._createConfig?.callTimeout, new PageEvaluationTimeout()))])
-    return this._page.evaluate(pageFunction, ...args);
+    const res = await this._page.evaluate(pageFunction, ...args);
+    if(this._createConfig.onError && typeof res == "string" && (res.startsWith("Error") || res.startsWith("ERROR"))) {
+      const e = this._createConfig.onError;
+      if(e == OnError.AS_STRING || e == OnError.NOTHING) return res
+      if(e == OnError.LOG_AND_FALSE) {
+        console.error(res);
+        return true;
+      }
+      if(e == OnError.LOG_AND_STRING) {
+        console.error(res);
+        return res;
+      }
+      if(e == OnError.RETURN_ERROR) return new Error(res)
+      if(e == OnError.RETURN_FALSE) return false
+      if(e == OnError.THROW) throw new Error(res)
+    }
+    return res;
   }
 
   /**

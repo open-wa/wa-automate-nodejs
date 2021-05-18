@@ -23,6 +23,37 @@ export enum QRFormat{
       ITIT = 'it-it',
       ES = 'es',
   }
+
+  export enum OnError {
+      /**
+       * Return it as a string
+       */
+    AS_STRING = "AS_STRING",
+    /**
+     * Do not log anything, just return `false`
+     */
+    RETURN_FALSE = "RETURN_FALSE",
+    /**
+     * throw the error
+     */
+     THROW = "THROW",
+    /**
+     * Log the error and return false
+     */
+    LOG_AND_FALSE = "LOG_AND_FALSE",
+    /**
+     * Log the error AND return the string
+     */
+    LOG_AND_STRING = "LOG_AND_STRING",
+    /**
+     * Return the error object
+     */
+    RETURN_ERROR = "RETURN_ERROR",
+    /**
+     * Do nothing.
+     */
+    NOTHING = "NOTHING"
+  }
   
   /**
    * The set values of quality you can set for the quality of the qr code output. Ten being the highest quality.
@@ -572,6 +603,12 @@ export interface ConfigObject {
       * @default `undefined`
       */
      messagePreprocessor ?: PREPROCESSORS
+     /**
+      * Red
+      * 
+      * @default `NOTHING`
+      */
+      onError ?: OnError
     /**@internal */
     [x: string]: any 
 }
