@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Webhook | @open-wa/wa-automate - v3.15.1</title>
+	<title>OnError | @open-wa/wa-automate - v3.15.1</title>
 	<meta name="description" content="Documentation for @open-wa/wa-automate - v3.15.1">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -68,109 +68,118 @@
 					<a href="../modules/api_model_config.html">api/model/config</a>
 				</li>
 				<li>
-					<a href="api_model_config.webhook.html">Webhook</a>
+					<a href="api_model_config.onerror.html">OnError</a>
 				</li>
 			</ul>
-			<h1>Interface Webhook</h1>
+			<h1>Enumeration OnError</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-hierarchy">
-				<h3>Hierarchy</h3>
-				<ul class="tsd-hierarchy">
-					<li>
-						<span class="target">Webhook</span>
-					</li>
-				</ul>
-			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Properties</h3>
+							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.webhook.html#events" class="tsd-kind-icon">events</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.webhook.html#id" class="tsd-kind-icon">id</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.webhook.html#requestconfig" class="tsd-kind-icon">request<wbr>Config</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.webhook.html#ts" class="tsd-kind-icon">ts</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.webhook.html#url" class="tsd-kind-icon">url</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="api_model_config.onerror.html#as_string" class="tsd-kind-icon">AS_<wbr>STRING</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="api_model_config.onerror.html#log_and_false" class="tsd-kind-icon">LOG_<wbr>AND_<wbr>FALSE</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="api_model_config.onerror.html#log_and_string" class="tsd-kind-icon">LOG_<wbr>AND_<wbr>STRING</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="api_model_config.onerror.html#nothing" class="tsd-kind-icon">NOTHING</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="api_model_config.onerror.html#return_error" class="tsd-kind-icon">RETURN_<wbr>ERROR</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="api_model_config.onerror.html#return_false" class="tsd-kind-icon">RETURN_<wbr>FALSE</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="api_model_config.onerror.html#throw" class="tsd-kind-icon">THROW</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="events" class="tsd-anchor"></a>
-					<h3>events</h3>
-					<div class="tsd-signature tsd-kind-icon">events<span class="tsd-signature-symbol">:</span> <a href="../enums/api_model_events.simplelistener.html" class="tsd-signature-type" data-tsd-kind="Enumeration">SimpleListener</a><span class="tsd-signature-symbol">[]</span></div>
+				<h2>Enumeration members</h2>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="as_string" class="tsd-anchor"></a>
+					<h3>AS_<wbr>STRING</h3>
+					<div class="tsd-signature tsd-kind-icon">AS_<wbr>STRING<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;AS_STRING&quot;</span></div>
 					<aside class="tsd-sources">
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>An array of events that are registered to be sent to this webhook.</p>
+							<p>Return it as a string</p>
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="id" class="tsd-anchor"></a>
-					<h3>id</h3>
-					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="log_and_false" class="tsd-anchor"></a>
+					<h3>LOG_<wbr>AND_<wbr>FALSE</h3>
+					<div class="tsd-signature tsd-kind-icon">LOG_<wbr>AND_<wbr>FALSE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;LOG_AND_FALSE&quot;</span></div>
 					<aside class="tsd-sources">
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The ID of the given webhook setup. Use this ID with <a href="../classes/api_client.client.html#removewebhook">removeWebhook</a></p>
+							<p>Log the error and return false</p>
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="requestconfig" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> request<wbr>Config</h3>
-					<div class="tsd-signature tsd-kind-icon">request<wbr>Config<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">AxiosRequestConfig</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="log_and_string" class="tsd-anchor"></a>
+					<h3>LOG_<wbr>AND_<wbr>STRING</h3>
+					<div class="tsd-signature tsd-kind-icon">LOG_<wbr>AND_<wbr>STRING<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;LOG_AND_STRING&quot;</span></div>
 					<aside class="tsd-sources">
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The optional AxiosRequestConfig to use for firing the webhook event. This can be useful if you want to add some authentication when POSTing data to your server.</p>
-						</div>
-						<p>For example, if your webhook requires the username <code>admin</code> and password <code>1234</code> for authentication, you can set the requestConfig to:</p>
-						<pre><code><span style="color: #000000">{</span>
-<span style="color: #000000">  auth: {</span>
-<span style="color: #000000">    username: </span><span style="color: #A31515">&quot;admin&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">    password: </span><span style="color: #A31515">&quot;1234&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">  }</span>
-<span style="color: #000000">}</span>
-</code></pre>
-						<p>Please note, for security reasons, this is not returned when listing webhooks however it is returned when registering a webhook for verification purposes.</p>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="ts" class="tsd-anchor"></a>
-					<h3>ts</h3>
-					<div class="tsd-signature tsd-kind-icon">ts<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Time when the webhook was registered in epoch time</p>
+							<p>Log the error AND return the string</p>
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="url" class="tsd-anchor"></a>
-					<h3>url</h3>
-					<div class="tsd-signature tsd-kind-icon">url<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="nothing" class="tsd-anchor"></a>
+					<h3>NOTHING</h3>
+					<div class="tsd-signature tsd-kind-icon">NOTHING<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;NOTHING&quot;</span></div>
 					<aside class="tsd-sources">
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The endpoint to send (POST) the event to.</p>
+							<p>Do nothing.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="return_error" class="tsd-anchor"></a>
+					<h3>RETURN_<wbr>ERROR</h3>
+					<div class="tsd-signature tsd-kind-icon">RETURN_<wbr>ERROR<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;RETURN_ERROR&quot;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Return the error object</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="return_false" class="tsd-anchor"></a>
+					<h3>RETURN_<wbr>FALSE</h3>
+					<div class="tsd-signature tsd-kind-icon">RETURN_<wbr>FALSE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;RETURN_FALSE&quot;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Do not log anything, just return <code>false</code></p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="throw" class="tsd-anchor"></a>
+					<h3>THROW</h3>
+					<div class="tsd-signature tsd-kind-icon">THROW<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;THROW&quot;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>throw the error</p>
 						</div>
 					</div>
 				</section>
@@ -261,39 +270,45 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-enum tsd-parent-kind-module">
-						<a href="../enums/api_model_config.onerror.html" class="tsd-kind-icon">On<wbr>Error</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="api_model_config.configobject.html" class="tsd-kind-icon">Config<wbr>Object</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="api_model_config.sessiondata.html" class="tsd-kind-icon">Session<wbr>Data</a>
-					</li>
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-interface tsd-parent-kind-module">
-						<a href="api_model_config.webhook.html" class="tsd-kind-icon">Webhook</a>
+					<li class="current tsd-kind-enum tsd-parent-kind-module">
+						<a href="api_model_config.onerror.html" class="tsd-kind-icon">On<wbr>Error</a>
 						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="api_model_config.webhook.html#events" class="tsd-kind-icon">events</a>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="api_model_config.onerror.html#as_string" class="tsd-kind-icon">AS_<wbr>STRING</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="api_model_config.webhook.html#id" class="tsd-kind-icon">id</a>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="api_model_config.onerror.html#log_and_false" class="tsd-kind-icon">LOG_<wbr>AND_<wbr>FALSE</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="api_model_config.webhook.html#requestconfig" class="tsd-kind-icon">request<wbr>Config</a>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="api_model_config.onerror.html#log_and_string" class="tsd-kind-icon">LOG_<wbr>AND_<wbr>STRING</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="api_model_config.webhook.html#ts" class="tsd-kind-icon">ts</a>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="api_model_config.onerror.html#nothing" class="tsd-kind-icon">NOTHING</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="api_model_config.webhook.html#url" class="tsd-kind-icon">url</a>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="api_model_config.onerror.html#return_error" class="tsd-kind-icon">RETURN_<wbr>ERROR</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="api_model_config.onerror.html#return_false" class="tsd-kind-icon">RETURN_<wbr>FALSE</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="api_model_config.onerror.html#throw" class="tsd-kind-icon">THROW</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/api_model_config.configobject.html" class="tsd-kind-icon">Config<wbr>Object</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/api_model_config.sessiondata.html" class="tsd-kind-icon">Session<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/api_model_config.webhook.html" class="tsd-kind-icon">Webhook</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -309,15 +324,14 @@
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
-			</ul>
-			<ul class="tsd-legend">
 				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
 				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
 			</ul>
 		</div>
 	</div>

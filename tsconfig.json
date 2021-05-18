@@ -255,6 +255,7 @@
       "PREPROCESSORS",
       "SocketClient",
       "SocketClient.connect",
+      "OnError",
     ]
   }
 }
