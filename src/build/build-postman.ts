@@ -5,6 +5,13 @@ let noCase;
 
 const format = (s:string) => s?.replace(/[[/g,'').replace(/]]/g,'').replace(/@param/g,'Parameter:')
 
+const ignoredMethods = [
+    'pup',
+    'loaded',
+    'createMessageCollector',
+    "logger"
+]
+
 const aliasExamples = {
     "ChatId": "00000000000@c.us or 00000000000-111111111@g.us",
     "GroupChatId": "00000000000-111111111@g.us",
@@ -64,7 +71,7 @@ export const generatePostmanJson = async (setup : any = {}) : Promise<any>  => {
         }
     }
     const s = await getMethodsWithDocs();
-    const x = s.filter(({visibility})=>visibility==2 || visibility==undefined).filter(({name})=>!name.startsWith('on')).map(method=>({
+    const x = s.filter(({visibility})=>visibility==2 || visibility==undefined).filter(({name})=>!name.startsWith('on')).filter(({name})=>!ignoredMethods.includes(name)).map(method=>({
         text: s[method.name] || '',
         ...method
     }));
