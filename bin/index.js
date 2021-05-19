@@ -48,6 +48,8 @@ const tryOpenFileAsObject = (filelocation, needArray = false) => {
 	return res;
 }
 
+const collections = {}
+
 configWithCases.map(({ type, key }) => {
 	if (key === "popup") type = "number";
 	if (key === "viewport") type= "string" ;
@@ -648,6 +650,31 @@ return await create({ ...config })
 			app.get('/postman.json', (req,res)=>res.send(pmCol))
 			app.get('/swagger.json', (req,res)=>res.send(swCol))
 		}
+
+
+		/**
+		 * If you want to list the list of all languages GET https://codegen.openwa.dev/api/gen/clients
+		 * 
+		 * See here for request body: https://github.com/swagger-api/swagger-codegen#online-generators
+		 */
+		app.post("/meta/codegen/:language", async (req, res) => {
+		    if(!req.params.language) return res.status(400).send({
+		        error: `language parameter missing`
+		    })
+		    try{
+		        const codeGenResponse = await axios.post(`https://codegen.openwa.dev/api/gen/clients/${req.params.language}`, {
+		                ...(req.body || {}),
+		                spec: {
+		                    ...collections["swagger"]
+		                }
+		        })
+		        return res.send(codeGenResponse.data)
+		    } catch(error){
+		        return res.status(400).send({
+		            error: error.message
+		        })
+		    }
+		})
 
 		if(c && c.generateApiDocs && swCol) {
 			console.log('Setting Up API Explorer');
