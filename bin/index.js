@@ -647,10 +647,20 @@ return await create({ ...config })
 			  //Sort alphabetically
 			var x = {}; Object.keys(swCol.paths).sort().map(k=>x[k]=swCol.paths[k]);swCol.paths=x;
 			fs.writeFileSync("./open-wa-" + c.sessionId + ".sw_col.json", JSON.stringify(swCol));
-			app.get('/postman.json', (req,res)=>res.send(pmCol))
-			app.get('/swagger.json', (req,res)=>res.send(swCol))
+			collections['postman'] = pmCol;
+			collections['swagger'] = swCol;
 		}
 
+		/**
+		 * Collection getter
+		 */
+		app.get("/meta/:collectiontype", (req, res) => {
+			const types = Object.keys(collections)
+			const coltype = req.params.collectiontype.replace('.json','');
+			if(!coltype) return res.status(400).send("collection type missing")
+			if(!types.includes(coltype)) return res.status(404).send(`collection ${coltype} not found`)
+			return res.send(collections[coltype.replace('.json','')])
+		})
 
 		/**
 		 * If you want to list the list of all languages GET https://codegen.openwa.dev/api/gen/clients
