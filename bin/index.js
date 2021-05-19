@@ -1,6 +1,6 @@
 const meow = require('meow');
 const wa = require('../dist');
-const { create, generatePostmanJson, ev } = wa;
+const { create, generatePostmanJson, ev, Spin } = wa;
 const path = require('path');
 const express = require('express');
 const app = express();
@@ -428,6 +428,8 @@ const c = {
 	...envArgs
 };
 const PORT = c.port || 8080;
+const spinner = new Spin(c.sessionId || 'session', 'STARTUP', c?.disableSpins);
+spinner.start("Launching EASY API")
 let config = {
 	...c
 };
@@ -467,9 +469,9 @@ if(c.resizable){
 if(c.sessionDataOnly){
 	ev.on(`sessionData.**`, async (sessionData, sessionId) =>{
 		fs.writeFile(`${sessionId}.data.json`, JSON.stringify(sessionData), (err) => {
-			if (err) { console.error(err); return; }
+			if (err) { spinner.fail(err); return; }
 			else 
-			console.log(`Session data saved: ${sessionId}.data.json\nClosing.`);
+			spinner.succeed(`Session data saved: ${sessionId}.data.json\nClosing.`);
 			process.exit();
 		  });
 	  })
@@ -477,7 +479,7 @@ if(c.sessionDataOnly){
 
 if(c.webhook || c.webhook == '') {
 	if(isUrl(c.webhook) || Array.isArray(c.webhook)) {
-		console.log('webhooks set already')
+		spinner.succeed('webhooks set already')
 	} else {
 		if(c.webhook == '') c.webhook = 'webhooks.json';
 		c.webhook = tryOpenFileAsObject(c.webhook, true);
@@ -492,12 +494,12 @@ if(c.apiHost) {
 }
 
 if(c.debug) {
-	console.log('DEBUG - flags:', c)
+	spinner.succeed('DEBUG - flags:', c)
 	let WA_ENV = {};
 	Object.keys(process.env).map(k=>{
 		if(k.startsWith('WA_')) WA_ENV[k] = process.env[k];
 	})
-	console.log('DEBUG - env vars:', WA_ENV)
+	spinner.succeed('DEBUG - env vars:', WA_ENV)
 }
 
 async function start(){
@@ -506,14 +508,14 @@ async function start(){
         if(status===200 && data.response==="CONNECTED"){
             const {data: {response: {sessionId, port, webhook, apiHost}}} = await axios.post(`http://localhost:${PORT}/getConfig`);
             if(config && config.sessionId == sessionId && config.port === port && config.webhook===webhook && config.apiHost===apiHost){
-				console.log('removing popup flag')
+				spinner.info('removing popup flag')
                 if(config.popup) {
                     delete config.popup;
                 }
             }
         }
     } catch (error) {
-        if(error.code==="ECONNREFUSED") console.log('fresh run')
+        if(error.code==="ECONNREFUSED") spinner.info('Selected port is free')
 	}
 	config.headless= c.headful != undefined ? !c.headful : c.headless
 	if(c.ev || c.ev == "") {
@@ -522,7 +524,7 @@ async function start(){
 			if(!Array.isArray(c.ef)) c.ef = [c.ef] 
 			c.ef = c.ef.flatMap(s=>s.split(','))
 		}
-		if(!isUrl(c.ev)) console.log("--ev/-e expecting URL - invalid URL.")
+		if(!isUrl(c.ev)) spinner.fail("--ev/-e expecting URL - invalid URL.")
 		else ev.on('**', async (data,sessionId,namespace) => {
 			if(c && c.ef){
 					if(!c.ef.includes(namespace)) return;
@@ -537,7 +539,7 @@ async function start(){
 				sessionId,
 				namespace
 				}
-			}).catch(err=>console.error(`WEBHOOK ERROR: `, c.ev ,err.message));
+			}).catch(err=>spinner.fail(`WEBHOOK ERROR: `, c.ev ,err.message));
 		})
 	}
 return await create({ ...config })
@@ -568,6 +570,7 @@ return await create({ ...config })
 
 	if (!(c && c.noApi)) {
 		if(c && c.key) {
+			spinner.info(`Please see machine logs to see the API key`)
 			console.log(`Please use the following api key for requests as a header:\napi_key: ${c.key}`)
 			app.use((req, res, next) => {
 				if(req.path==='/' && req.method==='GET') return res.redirect('/api-docs/');
@@ -586,19 +589,18 @@ return await create({ ...config })
 		if(!c.sessionId) c.sessionId = 'session';
 
 		if(c && (c.generateApiDocs || c.stats)) {
-			console.log('Generating Swagger Spec');
+			spinner.info('Generating Swagger Spec');
 			pmCol = await generatePostmanJson({
 				...c,
 				...config
 			});
-			console.log(`Postman collection generated: open-wa-${c.sessionId}.postman_collection.json`);
+			spinner.succeed(`Postman collection generated: open-wa-${c.sessionId}.postman_collection.json`);
 			swCol = p2s.default(pmCol);
 			/**
 			 * Fix swagger docs by removing the content type as a required paramater
 			 */
 			Object.keys(swCol.paths).forEach(p => {
 				let path = swCol.paths[p].post;
-				// console.log(path, swCol.paths[p])
 				if(c.key) swCol.paths[p].post.security = [
 					{
 						"api_key": []
@@ -649,6 +651,7 @@ return await create({ ...config })
 			fs.writeFileSync("./open-wa-" + c.sessionId + ".sw_col.json", JSON.stringify(swCol));
 			collections['postman'] = pmCol;
 			collections['swagger'] = swCol;
+			spinner.succeed('API collections (swagger + postman) generated successfully');
 		}
 
 		/**
@@ -687,7 +690,7 @@ return await create({ ...config })
 		})
 
 		if(c && c.generateApiDocs && swCol) {
-			console.log('Setting Up API Explorer');
+			spinner.info('Setting Up API Explorer');
 			const swOptions = {
 				customCss: '.opblock-description { white-space: pre-line }'
 			}
@@ -706,11 +709,12 @@ return await create({ ...config })
 				if(req.originalUrl=="/api-docs") return res.redirect('api-docs/')
 				next()
 			  }, swaggerUi.serve, swaggerUi.setup(swCol, swOptions));
+			  spinner.succeed('API Explorer set up successfully');
 		}
 
 		if(c && c.stats && swCol) {
+			spinner.info('Setting Up API Stats');
 			const swStats = require('swagger-stats'); 
-			console.log('Setting Up API Stats');
 			app.use(swStats.getMiddleware({
 			elasticsearch:process.env.elastic_url,
 			elasticsearchUsername:process.env.elastic_un,
@@ -731,13 +735,14 @@ return await create({ ...config })
 				return((username==="admin") && (password===c.key));
 			}
 			}));
+			spinner.info('API Stats set up successfully');
 		}
 		if(config.messagePreprocessor==="AUTO_DECRYPT_SAVE") {
 			app.use("/media", express.static('media'))
 		}
 		app.use(client.middleware((c && c.useSessionIdInPath)));
 		if(c.socket){
-			console.log("Setting up socket")
+			spinner.info("Setting up socket")
 			const { Server } = require("socket.io");
 			const io = new Server(server);
 			if(c.key) {
@@ -751,7 +756,6 @@ return await create({ ...config })
 				socket.onAny(async (m, ...args) => {
 					var callbacks = args.filter(arg=>typeof arg === "function")
 					var objs = args.filter(arg=>typeof arg === "object")
-					// console.log("🚀 socket request", objs, callbacks)
 					if(client[m]) {
 					if(m.startsWith("on") && callbacks[0]) {
 						const callback = x => socket.emit(m,x)
@@ -768,17 +772,18 @@ return await create({ ...config })
 					return;
 				});
 			});
+			spinner.succeed("Socket ready for connection")
 		}
 		if(process.send){
 			process.send('ready');
 			process.send('ready');
 			process.send('ready');
 		}
-		console.log(`Checking if port ${PORT} is free`);
+		spinner.info(`Checking if port ${PORT} is free`);
 		await tcpPortUsed.waitUntilFree(PORT, 200, 20000)
-		console.log(`Port ${PORT} is now free.`);
+		spinner.succeed(`Port ${PORT} is now free.`);
 		server.listen(PORT, () => {
-			console.log(`\n• Listening on port ${PORT}!`);
+			spinner.succeed(`\n• Listening on port ${PORT}!`);
 			if(process.send){
 				process.send('ready');
 				process.send('ready');
@@ -787,17 +792,17 @@ return await create({ ...config })
 		});
 		const apiDocsUrl = c.apiHost ? `${c.apiHost}/api-docs/ `: `${c.host.includes('http') ? '' : 'http://'}${c.host}:${PORT}/api-docs/ `;
 		const link = terminalLink('API Explorer', apiDocsUrl);
-		if(c && c.generateApiDocs)  console.log(`\n\t${link}`)
+		if(c && c.generateApiDocs)  spinner.succeed(`\n\t${link}`)
 
 		if(c && c.generateApiDocs && c.stats) {
 			const swaggerStatsUrl = c.apiHost ? `${c.apiHost}/swagger-stats/ui `: `${c.host.includes('http') ? '' : 'http://'}${c.host}:${PORT}/swagger-stats/ui `;
 			const statsLink = terminalLink('API Stats', swaggerStatsUrl);
-			console.log(`\n\t${statsLink}`)
+			spinner.succeed(`\n\t${statsLink}`)
 		}
 
 	}
 })
-.catch(e => console.log('Error', e.message, e));
+.catch(e => spinner.fail('Error', e.message, e));
 }
 
 start();
