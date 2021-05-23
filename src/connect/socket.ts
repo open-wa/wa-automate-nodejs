@@ -77,11 +77,14 @@ export class SocketClient {
     constructor(url: string, apiKey?: string) {
         this.url = url;
         this.apiKey = apiKey
-        this.socket = io(url, {
-            autoConnect: true,
-            auth: {
-                apiKey
-            }
+        const _url = new URL(url)
+        const _path = _url.pathname.replace(/\/$/, "")
+        this.socket = io(_url.origin, {
+          autoConnect: true,
+          auth: {
+            apiKey
+          },
+          path: _path ? `${_path}/socket.io/` : undefined
         });
         this.socket.io.on("reconnect", async () => {
             console.log("Reconnected!!")
