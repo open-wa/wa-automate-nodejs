@@ -16,7 +16,6 @@ import datauri from 'datauri'
 import pino from 'pino'
 import isUrl from 'is-url'
 import { readJsonSync } from 'fs-extra'
-import {default as _optionalRequire} from 'optional-require'
 import treekill from 'tree-kill';
 import { HealthCheck, SessionInfo } from './model/sessionInfo';
 import { deleteSessionData, injectApi } from '../controllers/browser';
@@ -40,7 +39,6 @@ import { NextFunction, Request, Response } from 'express';
 
 /** @ignore */
 const pkg = readJsonSync(path.join(__dirname,'../../package.json')),
-optionalRequire = _optionalRequire(require),
 isDataURL = (s: string) => !!s.match(/^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/g),
 isBase64 = (str: string) => {
   const len = str.length;
@@ -79,43 +77,6 @@ export enum namespace {
   GroupMetadata = 'GroupMetadata'
 }
 
-/**
- * @internal
- */
-async function convertMp4BufferToWebpDataUrl(file: DataURL | Buffer | Base64, processOptions: Mp4StickerConversionProcessOptions = defaultProcessOptions) {
-  processOptions = Object.keys(process).length ? {
-    ...defaultProcessOptions,
-    ...processOptions
-  } : defaultProcessOptions
-  const ffmpeg = optionalRequire('fluent-ffmpeg', "Missing peer dependency: npm i fluent-ffmpeg");
-  if(!ffmpeg) return false;
-  const tempFile = path.join(tmpdir(), `processing.${Crypto.randomBytes(6).readUIntLE(0, 6).toString(36)}.webp`);
-  const {default : _stream} = await import("stream")
-  const stream = new _stream.Readable();
-  stream.push(Buffer.isBuffer(file) ? file : Buffer.from(file.replace('data:video/mp4;base64,',''), 'base64'));
-  stream.push(null);
-  await new Promise((resolve, reject) => {
-      ffmpeg(stream)
-          .inputFormat('mp4')
-          .on('start', function (cmd) {
-              if(processOptions?.log) console.log('Started ' + cmd);
-          })
-          .on('error', function (err) {
-            if(processOptions?.log) console.log('An error occurred: ' + err.message);
-              reject(err)
-          })
-          .on('end', function () {
-            if(processOptions?.log) console.log('Finished encoding');
-              resolve(true)
-          })
-          .addOutputOptions([`-vcodec`, `libwebp`, `-vf`, `${processOptions.crop?`crop=w='min(min(iw,ih),500)':h='min(min(iw,ih),500)',`:``}scale=500:500,setsar=1,fps=${processOptions.fps}`, `-loop`, `${processOptions.loop}`, `-ss`, processOptions.startTime, `-t`, processOptions.endTime, `-preset`, `default`, `-an`, `-vsync`, `0`, `-s`, `512:512`])
-          .toFormat("webp")
-          .save(tempFile);
-  })
-  const d = await datauri(tempFile);
-  fs.unlinkSync(tempFile)
-  return d;
-}
 
 /**
  * @internal
@@ -2179,7 +2140,7 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
     if(!m) return false;
     return {
       ...bleachMessage(m)
-    } as Message;
+    } as unknown as Message;
   }
 
   /**
@@ -2553,15 +2514,6 @@ public async getStatus(contactId: ContactId) : Promise<{
         imgData = await this.stickerServerRequest('convertGroupIcon', {
           image
         })
-      } else {
-        const sharp = optionalRequire('sharp',  "Missing peer dependency: npm i sharp");
-        if(!sharp) return false;
-        //no matter what, convert to jpeg, resize + autoscale to width 48 px
-        const scaledImageBuffer = await sharp(buff,{ failOnError: false })
-        .resize({ height: 300 })
-        .toBuffer();
-        const jpeg = sharp(scaledImageBuffer,{ failOnError: false }).jpeg();
-        imgData = `data:jpeg;base64,${(await jpeg.toBuffer()).toString('base64')}`;
       }
       return await this.pup(
         ({ groupId, imgData }) => WAPI.setGroupIcon(groupId, imgData),
@@ -2912,31 +2864,7 @@ public async getStatus(contactId: ContactId) : Promise<{
         stickerMetadata
       })
     }
-    const sharp = optionalRequire('sharp',  "Missing peer dependency: npm i sharp");
-    if(!sharp) return false;
-    const buff = Buffer.from(image.replace(/^data:image\/(png|gif|jpeg|webp);base64,/,''), 'base64');
-    const mimeInfo = base64MimeType(image);
-    if(mimeInfo?.includes("image")){
-      let webpBase64 = image;
-      let metadata : any = { width: 512, height: 512 };
-      if(!mimeInfo?.includes('webp')) {
-        const { pages } = await sharp(buff).metadata();
-      //@ts-ignore
-      let webp = sharp(buff,{ failOnError: false, animated: !!pages}).webp();
-      // eslint-disable-next-line no-extra-boolean-cast
-      if(!!!pages) webp = webp.resize(metadata);
-      metadata = await webp.metadata();
-      metadata.animated = !!pages;
-      webpBase64 = (await webp.toBuffer()).toString('base64');
-      return {
-        metadata,
-        webpBase64
-      }
-      }
-    } else {
-      console.log('Not an image');
-      return false;
-    }
+   
   }
 
   /**
@@ -2973,10 +2901,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
   /**
-   * [ALPHA]
    * Use this to send an mp4 file as a sticker. This can also be used to convert GIFs from the chat because GIFs in WA are actually tiny mp4 files.
-   * 
-   * You need to make sure you have ffmpeg (with libwebp) installed for this to work.
    * 
    * @param to ChatId The chat id you want to send the webp sticker to
    * @param file [[DataURL]], [[Base64]], URL (string GET), Relative filepath (string), or Buffer of the mp4 file
@@ -3007,7 +2932,7 @@ public async getStatus(contactId: ContactId) : Promise<{
           processOptions,
           stickerMetadata
         })
-      } else convertedStickerDataUrl = await convertMp4BufferToWebpDataUrl(file, processOptions);
+      } 
     try {
       if(!convertedStickerDataUrl) return false;
       return await (messageId && this._createConfig.licenseKey) ? this.sendRawWebpAsStickerAsReply(to, messageId, convertedStickerDataUrl, true) : this.sendRawWebpAsSticker(to, convertedStickerDataUrl, true);
