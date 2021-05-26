@@ -24,8 +24,6 @@ import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, Fi
 import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
 import * as path from 'path';
 import { CustomProduct, Label } from './model/product';
-import Crypto from 'crypto';
-import { tmpdir } from 'os';
 import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
 import { getAndInjectLicense, getAndInjectLivePatch, getLicense } from '../controllers/initializer';
 import { SimpleListener } from './model/events';
@@ -36,20 +34,10 @@ import { Listener } from 'eventemitter2';
 import PriorityQueue from 'p-queue/dist/priority-queue';
 import { MessagePreprocessors } from '../structures/preProcessors';
 import { NextFunction, Request, Response } from 'express';
+import { isBase64, isDataURL } from '../utils/tools';
 
 /** @ignore */
 const pkg = readJsonSync(path.join(__dirname,'../../package.json')),
-isDataURL = (s: string) => !!s.match(/^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/g),
-isBase64 = (str: string) => {
-  const len = str.length;
-  if (!len || len % 4 !== 0 || /[^A-Z0-9+/=]/i.test(str)) {
-    return false;
-  }
-  const firstPaddingChar = str.indexOf('=');
-  return firstPaddingChar === -1 ||
-    firstPaddingChar === len - 1 ||
-    (firstPaddingChar === len - 2 && str[len - 1] === '=');
-},
 createLogger = (sessionId: string, sessionInfo: SessionInfo, config: ConfigObject) => {
   const p = path.join(path.resolve(process.cwd()),`/logs/${sessionId || 'session'}/${sessionInfo.START_TS}.log`)
   if(!fs.existsSync(p)) {
@@ -2505,7 +2493,6 @@ public async getStatus(contactId: ContactId) : Promise<{
  * @returns boolean true if it was set, false if it didn't work. It usually doesn't work if the image file is too big.
  */
   public async setGroupIcon(groupId: GroupChatId, image: DataURL) :Promise<boolean> {
-    const buff = Buffer.from(image.replace(/^data:image\/(png|gif|jpeg);base64,/,''), 'base64');
     const mimeInfo = base64MimeType(image);
     console.log("setGroupIcon -> mimeInfo", mimeInfo)
     if(!mimeInfo || mimeInfo.includes("image")){
