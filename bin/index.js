@@ -1,3 +1,4 @@
+// THIS WHOLE FILE IS REDUNDANT. IT WILL BE DELETED SOON.
 const meow = require('meow');
 const wa = require('../dist');
 const { create, generatePostmanJson, ev, Spin } = wa;

@@ -1,4 +1,4 @@
-import {JsonObject} from 'type-fest';
+import { JsonObject } from 'type-fest';
 
 /**
  *  Use this to generate a more likely valid user agent. It makes sure it has the WA part and replaces any windows or linux os info with mac.
@@ -28,3 +28,24 @@ export const without : any = (obj: JsonObject, key: string) => {
 	} = obj;
 	return rest;
 }
+
+export const camelize : (str: string) => string = (str : string) => {
+    const arr = str.split('-');
+    const capital = arr.map((item, index) => index ? item.charAt(0).toUpperCase() + item.slice(1).toLowerCase() : item.toLowerCase());
+    // ^-- change here.
+    const capitalString = capital.join("");
+    return capitalString
+  }
+
+export const isBase64 : (str : string) => boolean= (str: string) => {
+    const len = str.length;
+    if (!len || len % 4 !== 0 || /[^A-Z0-9+/=]/i.test(str)) {
+      return false;
+    }
+    const firstPaddingChar = str.indexOf('=');
+    return firstPaddingChar === -1 ||
+      firstPaddingChar === len - 1 ||
+      (firstPaddingChar === len - 2 && str[len - 1] === '=');
+  };
+
+  export const isDataURL : (s: string) => boolean = (s: string) => !!s.match(/^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/g)
