@@ -10,7 +10,9 @@ import { ConfigObject } from '../api/model/config';
 import uuidAPIKey from 'uuid-apikey';
 import { ev, Spin } from '../controllers/events';
 import isUrl from 'is-url';
-const configWithCases = readJsonSync('./config-schema.json');
+import * as path from 'path';
+
+const configWithCases = readJsonSync(path.join(__dirname,'../../bin/config-schema.json'));
 
 const optionList:
     Merge<Merge<{
@@ -237,9 +239,9 @@ export const helptext = commandLineUsage([{
     optionList: [
         ...configWithCases.map(c => {
             let type;
-            if (c.type === 'boolean') type = "boolean";
-            if (c.type === 'string') type = "string";
-            if (c.type === '"number"') type = "number";
+            if (c.type === 'boolean') type = Boolean;
+            if (c.type === 'string') type = String;
+            if (c.type === '"number"') type = Number;
             return {
                 name: c.p,
                 type,
