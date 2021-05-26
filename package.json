@@ -60,10 +60,6 @@
     "node": ">=12.18.3",
     "npm": ">=7.9.0"
   },
-  "peerDependencies": {
-    "fluent-ffmpeg": "^2.1.2",
-    "sharp": "^0.27.0"
-  },
   "devDependencies": {
     "@grupoboticario/news-fragments": "^1.8.0",
     "@types/changelog-parser": "^2.7.1",
@@ -79,7 +75,6 @@
     "@types/node": "^15.0.1",
     "@types/pino": "^6.3.8",
     "@types/puppeteer": "^5.4.0",
-    "@types/sharp": "^0.28.0",
     "@types/shelljs": "^0.8.5",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
