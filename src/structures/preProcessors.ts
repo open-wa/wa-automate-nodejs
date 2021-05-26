@@ -9,7 +9,7 @@ const SCRUB: (message: Message, client: Client) => Promise<Message> = async (
   if (message.deprecatedMms3Url)
     return {
       ...message,
-      conetnt: "",
+      content: "",
       body: "",
     };
   return message;
@@ -20,7 +20,7 @@ const BODY_ONLY: (message: Message, client: Client) => Promise<Message> =
     if (message.deprecatedMms3Url)
       return {
         ...message,
-        conetnt: "",
+        content: "",
       };
     return message;
   };
