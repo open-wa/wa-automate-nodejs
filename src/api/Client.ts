@@ -234,6 +234,7 @@ declare module WAPI {
   const sendMultipleContacts: (chatId: ChatId, contacts: ContactId[]) => any;
   const simulateTyping: (to: string, on: boolean) => Promise<boolean>;
   const archiveChat: (id: string, archive: boolean) => Promise<boolean>;
+  const pinChat: (id: string, pin: boolean) => Promise<boolean>;
   const isConnected: () => Boolean;
   const loadEarlierMessages: (contactId: string) => Promise<Message []>;
   const getChatsByLabel: (label: string) => Promise<Chat[] | string>;
@@ -1674,10 +1675,24 @@ public async iAmAdmin() : Promise<GroupChatId[]>  {
    * @param archive boolean true => archive, false => unarchive
    * @return boolean true: worked, false: didnt work (probably already in desired state)
    */
-  public async archiveChat(id: ChatId, archive: boolean) : Promise<boolean>{
+   public async archiveChat(id: ChatId, archive: boolean) : Promise<boolean>{
     return await this.pup(
       ({ id, archive }) => WAPI.archiveChat(id, archive),
       { id, archive }
+    ) as Promise<boolean>;
+  }
+
+  /**
+   * Pin/Unpin chats
+   * 
+   * @param id The id of the conversation
+   * @param archive boolean true => pin, false => unpin
+   * @return boolean true: worked
+   */
+  public async pinChat(id: ChatId, pin: boolean) : Promise<boolean>{
+    return await this.pup(
+      ({ id, pin }) => WAPI.pinChat(id, pin),
+      { id, pin }
     ) as Promise<boolean>;
   }
 
