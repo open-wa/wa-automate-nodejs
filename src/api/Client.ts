@@ -1403,7 +1403,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   /**
    * Attempts to send a file as a voice note. Useful if you want to send an mp3 file.
    * @param to chat id `xxxxx@c.us`
-   * @param base64 base64 data:image/xxx;base64,xxx or the path of the file you want to send.
+   * @param file base64 data:image/xxx;base64,xxx or the path of the file you want to send.
    * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
    * @returns Promise <boolean | string> This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
    */
@@ -1416,14 +1416,17 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   }
   
   /**
-   * Alias for [[sendPtt]]
+   * Send an audio file with the default audio player (not PTT/voice message)
+   * @param to chat id `xxxxx@c.us`
+   * @param base64 base64 data:image/xxx;base64,xxx or the path of the file you want to send.
+   * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
    */
   public async sendAudio(
     to: ChatId,
     file: DataURL | FilePath,
-    quotedMsgId: MessageId,
+    quotedMsgId ?: MessageId,
   ) : Promise<MessageId> {
-    return this.sendPtt(to, file,quotedMsgId);
+    return this.sendFile(to,file, 'file.mp3', '', quotedMsgId, true, false, false, false) as Promise<MessageId> ;
   }
 
 
