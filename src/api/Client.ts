@@ -1,3 +1,4 @@
+import { default as mime } from 'mime-types';
 import { Page, EvaluateFn } from 'puppeteer';
 import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration, GroupChatCreationResponse } from './model/chat';
 import { Contact } from './model/contact';
@@ -1255,14 +1256,16 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     hideTags ?: boolean
   ) : Promise<MessageId | boolean> {
       //check if the 'base64' file exists
-      if(!isDataURL(file) && !isBase64(file)) {
+      if(!isDataURL(file) && !isBase64(file) && !file.includes("data:")) {
         //must be a file then
         const relativePath = path.join(path.resolve(process.cwd(),file|| ''));
         if(fs.existsSync(file) || fs.existsSync(relativePath)) {
           file = await datauri(fs.existsSync(file)  ? file : relativePath);
         } else if(isUrl(file)){
           return await this.sendFileFromUrl(to,file,filename,caption,quotedMsgId,{},waitForId,ptt,withoutPreview, hideTags);
-        } else throw new CustomError(ERROR_NAME.FILE_NOT_FOUND,'Cannot find file. Make sure the file reference is relative, a valid URL or a valid DataURL')
+        } else throw new CustomError(ERROR_NAME.FILE_NOT_FOUND,`Cannot find file. Make sure the file reference is relative, a valid URL or a valid DataURL: ${file.slice(0,25)}`)
+      } else if(file.includes("data:") && file.includes("undefined") || file.includes("application/octet-stream") && filename && mime.lookup(filename)) {
+        file = `data:${mime.lookup(filename)};base64,${file.split(',')[1]}`
       }
     
    const err = [

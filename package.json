@@ -72,6 +72,7 @@
     "@types/is-url": "^1.2.29",
     "@types/line-reader": "0.0.33",
     "@types/marked": "^2.0.0",
+    "@types/mime-types": "^2.1.0",
     "@types/node": "^15.0.1",
     "@types/pino": "^6.3.8",
     "@types/puppeteer": "^5.4.0",
