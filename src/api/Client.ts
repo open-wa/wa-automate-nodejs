@@ -34,7 +34,7 @@ import { Listener } from 'eventemitter2';
 import PriorityQueue from 'p-queue/dist/priority-queue';
 import { MessagePreprocessors } from '../structures/preProcessors';
 import { NextFunction, Request, Response } from 'express';
-import { isBase64, isDataURL } from '../utils/tools';
+import { base64MimeType, getDUrl, isBase64, isDataURL } from '../utils/tools';
 
 /** @ignore */
 const pkg = readJsonSync(path.join(__dirname,'../../package.json')),
@@ -65,53 +65,6 @@ export enum namespace {
   GroupMetadata = 'GroupMetadata'
 }
 
-
-/**
- * @internal
- * A convinience method to download the [[DataURL]] of a file
- * @param url The url
- * @param optionsOverride You can use this to override the [axios request config](https://github.com/axios/axios#request-config)
- * @returns Promise<DataURL>
- */
-async function getDUrl(url: string, optionsOverride: any = {} ){
-  // eslint-disable-next-line no-useless-catch
-  try {
-    const res = await axios({
-        method:"get",
-        url,
-        headers: {
-          'DNT':1,
-          'Upgrade-Insecure-Requests':1
-        },
-        ...optionsOverride,
-        responseType: 'arraybuffer'
-      });
-    const dUrl : DataURL = `data:${res.headers['content-type']};base64,${Buffer.from(res.data, 'binary').toString('base64')}`;
-    return dUrl;
-  } catch (error) {
-    throw error
-  }
-}
-
-/**
- * @internal
- * Use this to extract the mime type from a [[DataURL]]
- */
-function base64MimeType(dUrl : DataURL) {
-  let result = null;
-
-  if (typeof dUrl !== 'string') {
-    return result;
-  }
-
-  const mime = dUrl.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
-
-  if (mime && mime.length) {
-    result = mime[1];
-  }
-
-  return result;
-}
 
 /* eslint-disable */
 declare module WAPI {

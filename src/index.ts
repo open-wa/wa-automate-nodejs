@@ -3,7 +3,7 @@ export * from './api/Client';
 export { create } from './controllers/initializer';
 export * from '@open-wa/wa-decrypt';
 export { ev, Spin } from './controllers/events'
-export { smartUserAgent } from './utils/tools'
+export * from './utils/tools'
 export * from './structures/preProcessors'
 export * from './connect'
 //dont need to export this
