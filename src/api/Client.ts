@@ -1396,6 +1396,12 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Sends a file to given chat, with caption or not, using base64. This is exactly the same as sendImage
+   * 
+   * Please note that any file that resolves to mime-type `octet-stream` will, by default, resolve to an MP4 file.
+   * 
+   * If you want a specific filetype, then explcitly select the correct mime-type from https://www.iana.org/assignments/media-types/media-types.xhtml
+   * 
+   * 
    * @param to chat id `xxxxx@c.us`
    * @param file DataURL data:image/xxx;base64,xxx or the RELATIVE (should start with `./` or `../`) path of the file you want to send. With the latest version, you can now set this to a normal URL (for example [GET] `https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_2500kB.jpg`).
    * @param filename string xxxxx
