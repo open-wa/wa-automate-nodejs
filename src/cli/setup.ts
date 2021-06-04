@@ -4,7 +4,7 @@ import meow, { AnyFlags } from 'meow';
 import { Merge, JsonObject } from 'type-fest';
 import { HELP_HEADER } from "./logo";
 import { readJsonSync, writeFile } from 'fs-extra'
-import changeCase from "change-case";
+import * as changeCase from "change-case";
 import { tryOpenFileAsObject } from './file-utils';
 import { ConfigObject } from '../api/model/config';
 import uuidAPIKey from 'uuid-apikey';
