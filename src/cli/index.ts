@@ -57,7 +57,7 @@ async function start() {
                     sessionId,
                     namespace
                 }
-            }).catch(err => spinner.fail(`WEBHOOK ERROR: ${cliConfig.ev} ${err.message}`));
+            }).catch(err => console.error(`WEBHOOK ERROR: ${cliConfig.ev} ${err.message}`));
         })
     }
     //These things can be done before the client is created
