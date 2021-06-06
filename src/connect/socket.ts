@@ -1,3 +1,4 @@
+import { EventEmitter2 } from 'eventemitter2';
 import { io, Socket } from "socket.io-client";
 import { Client } from "../api/Client";
 import { SimpleListener } from "../api/model/events";
@@ -56,6 +57,10 @@ export class SocketClient {
     url: string;
     apiKey: string;
     socket: Socket;
+    /**
+     * A local version of the `ev` EventEmitter2
+     */
+    ev : EventEmitter2;
     listeners: {
         [listener in SimpleListener] ?: {
             [id : string] : (data: any) => any
@@ -79,7 +84,7 @@ export class SocketClient {
         })
     }
 
-    constructor(url: string, apiKey?: string) {
+    constructor(url: string, apiKey?: string, ev ?: boolean) {
         this.url = url;
         this.apiKey = apiKey
         const _url = new URL(url)
@@ -90,6 +95,14 @@ export class SocketClient {
             apiKey
           },
           path: _path ? `${_path}/socket.io/` : undefined
+        });
+        if(ev)
+        this.socket.on("connect", () => {
+            if(!this.ev) this.ev = new EventEmitter2({
+                wildcard:true
+            })
+            this.socket.emit("register_ev");
+            this.socket.onAny((event, value)=>this.ev.emit(event, value))
         });
         this.socket.io.on("reconnect", async () => {
             console.log("Reconnected!!")
@@ -157,4 +170,5 @@ export class SocketClient {
         }
         return false;
     }
+
 }

@@ -5,6 +5,7 @@ import robots from "express-robots-txt";
 import swaggerUi from 'swagger-ui-express';
 import { default as axios } from 'axios'
 import parseFunction from 'parse-function';
+import { ev } from '..';
 
 export const app = express();
 export const server = http.createServer(app);
@@ -143,6 +144,9 @@ export const setupSocketServer : (cliConfig, client) => Promise<void> = async (c
     io.on("connection", (socket) => {
         console.log("Connected to socket:", socket.id)
         socket.onAny(async (m, ...args) => {
+            if(m==="register_ev") {
+                ev.onAny((event:string,value:any)=>socket.emit(event,value))
+            }
             const callbacks = args.filter(arg => typeof arg === "function")
             const objs = args.filter(arg => typeof arg === "object")
             if (client[m as string]) {
