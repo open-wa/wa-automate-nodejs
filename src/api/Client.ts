@@ -487,6 +487,15 @@ export class Client {
   /**
    * ////////////////////////  LISTENERS
    */
+  public removeListener(listener:SimpleListener) : boolean {
+    ev.removeAllListeners(this.getEventSignature(listener));
+    return true
+  }
+
+  public removeAllListeners() : boolean {
+    Object.keys(this._registeredEvListeners).map(listener => ev.removeAllListeners(this.getEventSignature(listener as SimpleListener)))
+    return true
+  }
 
    /**
     * 
