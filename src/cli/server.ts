@@ -5,7 +5,7 @@ import robots from "express-robots-txt";
 import swaggerUi from 'swagger-ui-express';
 import { default as axios } from 'axios'
 import parseFunction from 'parse-function';
-import { ev } from '..';
+import { Client, ev, SimpleListener } from '..';
 
 export const app = express();
 export const server = http.createServer(app);
@@ -14,6 +14,16 @@ export type cliFlags = {
     [k : string] : number | string | boolean
 }
 
+const socketListenerCallbacks : {
+    [socketId: string] : {
+        [listener in SimpleListener] ?: any
+    }
+} = {}
+
+// const existingListeners = () => Object.keys(Object.keys(socketListenerCallbacks).flatMap(id=>Object.keys(socketListenerCallbacks[id])).reduce((acc,curr)=>{acc[curr]=true;return acc},{}))
+const existingListeners = [];
+
+const getCallbacks : (listener: SimpleListener) => any[] = (listener : SimpleListener) => Object.keys(socketListenerCallbacks).flatMap(k=>socketListenerCallbacks[k]).map(o=>o[listener]).filter(x=>x)
 
 export const setUpExpressApp : () => void = () => {
     app.use(robots({ UserAgent: '*', Disallow: '/' }))
@@ -132,7 +142,7 @@ export const setupMediaMiddleware : () => void = () => {
     app.use("/media", express.static('media'))
 }
 
-export const setupSocketServer : (cliConfig, client) => Promise<void> = async (cliConfig, client) => {
+export const setupSocketServer : (cliConfig, client : Client) => Promise<void> = async (cliConfig, client : Client) => {
     const { Server } = await import("socket.io");
     const io = new Server(server);
     if (cliConfig.key) {
@@ -143,6 +153,10 @@ export const setupSocketServer : (cliConfig, client) => Promise<void> = async (c
     }
     io.on("connection", (socket) => {
         console.log("Connected to socket:", socket.id)
+        socket.on('disconnect', (reason : string) => {
+            console.log(`Socket ${socket.id} ~ reason: ${reason}`)
+            socketListenerCallbacks[socket.id] = {}
+        })
         socket.onAny(async (m, ...args) => {
             if(m==="register_ev") {
                 ev.onAny((event:string,value:any)=>socket.emit(event,value))
@@ -151,9 +165,16 @@ export const setupSocketServer : (cliConfig, client) => Promise<void> = async (c
             const objs = args.filter(arg => typeof arg === "object")
             if (client[m as string]) {
                 if (m.startsWith("on") && callbacks[0]) {
-                    const callback = x => socket.emit(m, x)
-                    const listenerSet = await client[m](callback)
-                    callbacks[0](listenerSet)
+                    //there should only be one instance of the socket callback per listener
+                    if(!socketListenerCallbacks[socket.id]) socketListenerCallbacks[socket.id] = {}
+                        const callback = x => socket.emit(m, x)
+                        let listenerSet = true;
+                        if(!existingListeners.includes(m)){
+                            listenerSet = await client[m](async data=> Promise.all(getCallbacks(m).map(fn=>fn(data))))
+                            existingListeners.push(m)
+                        }
+                        callbacks[0](listenerSet)
+                    socketListenerCallbacks[socket.id][m] = callback
                 } else {
                     let { args } = objs[0]
                     if (args && !Array.isArray(args)) args = parseFunction().parse(client[m]).args.map(argName => args[argName]);
