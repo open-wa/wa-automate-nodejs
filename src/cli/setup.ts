@@ -182,6 +182,12 @@ const optionList:
         description: "The license key you want to use for this server. License keys are used to unlock features. Learn more here https://github.com/open-wa/wa-automate-nodejs#license-key"
     },
     {
+        name: 'ready-webhook',
+        type: String,
+        typeLabel: '{yellow {underline https://webhook.site/....}}',
+        description: "Webhook that fires when the EASY API is completely ready"
+    },
+    {
         name: 'help',
         description: 'Print this usage guide.'
     }

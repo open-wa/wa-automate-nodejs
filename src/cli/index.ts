@@ -6,13 +6,25 @@ import { default as axios } from 'axios'
 import { cli } from './setup';
 import { collections, generateCollections } from './collections';
 import { setUpExpressApp, setupAuthenticationLayer, setupRefocusDisengageMiddleware, setupApiDocs, setupSwaggerStatsMiddleware, setupMediaMiddleware, app, setupSocketServer, server } from './server';
-
-const ready: () => void = () => {
+const ready: (config : any) => Promise<void> = async (config : any) => {
     if (process.send) {
         process.send('ready');
         process.send('ready');
         process.send('ready');
     }
+    if(config.readyWebhook)
+    await axios({
+        method: 'post',
+        url: config.readyWebhook,
+        data: {
+            ts: Date.now(),
+            data: {
+                ...config
+            },
+            sessionId: config.sessionId,
+            namespace: "READY"
+        }
+    }).catch(err => console.error(`WEBHOOK ERROR: ${config.readyWebhook} ${err.message}`));
 }
 
 async function start() {
@@ -119,13 +131,12 @@ async function start() {
                 await setupSocketServer(cliConfig, client)
                 spinner.succeed("Socket ready for connection")
             }
-            ready();
             spinner.info(`Checking if port ${PORT} is free`);
             await tcpPortUsed.waitUntilFree(PORT, 200, 20000)
             spinner.succeed(`Port ${PORT} is now free.`);
-            server.listen(PORT, () => {
+            server.listen(PORT, async () => {
                 spinner.succeed(`\n• Listening on port ${PORT}!`);
-                ready();
+                await ready({...cliConfig, ...createConfig, ...client.getSessionInfo(), hostAccountNumber: await client.getHostNumber()});
             });
             const apiDocsUrl = cliConfig.apiHost ? `${cliConfig.apiHost}/api-docs/ ` : `${cliConfig.host.includes('http') ? '' : 'http://'}${cliConfig.host}:${PORT}/api-docs/ `;
             const link = terminalLink('API Explorer', apiDocsUrl);
@@ -136,8 +147,7 @@ async function start() {
                 const statsLink = terminalLink('API Stats', swaggerStatsUrl);
                 spinner.succeed(`\n\t${statsLink}`)
             }
-        }
-        ready();
+        } else ready({...cliConfig, ...createConfig, ...client.getSessionInfo(), hostAccountNumber: await client.getHostNumber()});
     } catch (e) {
         spinner.fail(`Error ${e.message} ${e}`)
     }
