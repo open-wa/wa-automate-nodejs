@@ -9,7 +9,7 @@ export interface Call {
     /**
      * The id of the account calling
      */
-    peerJid: Id;
+    peerJid: ContactId;
     /**
      * The epoch timestamp of the call. You will have to multiply this by 1000 to get the actual epoch timestamp
      */
@@ -29,7 +29,7 @@ export interface Call {
     outgoing: boolean;
     webClientShouldHandle: boolean;
     /**
-     * The participants on the call
+     * The other participants on a group call
      */
-    participants: [ContactId]
+    participants: ContactId[]
   } 
