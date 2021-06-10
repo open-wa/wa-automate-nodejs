@@ -156,8 +156,8 @@ const postmanRequestGeneratorGenerator = setup => method => {
             }
         },
         url,
-        "documentationUrl": `https://open-wa.github.io/wa-automate-nodejs/classes/client.html#${method.name.toLocaleLowerCase()}`,
-        "description": `${method.text}\n[External Documentation](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#${method.name.toLocaleLowerCase()})`
+        "documentationUrl": `https://docs.openwa.dev/classes/api_client.client.html#${method.name.toLocaleLowerCase()}`,
+        "description": `${method.text}\n[External Documentation](https://docs.openwa.dev/classes/api_client.client.html#${method.name.toLocaleLowerCase()})`
     };
     if (!(setup === null || setup === void 0 ? void 0 : setup.key))
         delete request.auth;
