@@ -6,6 +6,7 @@ import { default as axios } from 'axios'
 import { cli } from './setup';
 import { collections, generateCollections } from './collections';
 import { setUpExpressApp, setupAuthenticationLayer, setupRefocusDisengageMiddleware, setupApiDocs, setupSwaggerStatsMiddleware, setupMediaMiddleware, app, setupSocketServer, server } from './server';
+
 const ready: (config : any) => Promise<void> = async (config : any) => {
     if (process.send) {
         process.send('ready');
@@ -82,6 +83,11 @@ async function start() {
 
     try {
         const client = await create({ ...createConfig });
+        if(cliConfig.onCall && typeof cliConfig.onCall == "string") {
+            client.onIncomingCall(async call => {
+                await client.sendText(call.peerJid, cliConfig.onCall)
+            })
+        }
         client.onLogout(async () => {
             console.error('!!!! CLIENT LOGGED OUT. Process closing !!!!')
             if (cliConfig && !cliConfig.noKillOnLogout) {

@@ -188,6 +188,12 @@ const optionList:
         description: "Webhook that fires when the EASY API is completely ready"
     },
     {
+        name: 'on-call',
+        type: String,
+        typeLabel: '{yellow {underline "Please do not call this number"}}',
+        description: "A default message to send to any number that is trying to call the host account"
+    },
+    {
         name: 'help',
         description: 'Print this usage guide.'
     }
