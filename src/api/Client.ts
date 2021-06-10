@@ -83,6 +83,7 @@ declare module WAPI {
   const onStory: (callback: Function) => any;
   const setChatBackgroundColourHex: (hex: string) => boolean;
   const darkMode: (activate: boolean) => boolean;
+  const autoReject: (message: string) => boolean;
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const _onParticipantsChanged: (groupId: string, callback: Function) => any;
   const onLiveLocation: (chatId: string, callback: Function) => any;
@@ -2676,6 +2677,20 @@ public async getStatus(contactId: ContactId) : Promise<{
     return await this.pup(
       (activate) => WAPI.darkMode(activate),
       activate
+    ) as Promise<boolean>;
+  }
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * 
+   * Automatically reject calls on the host account device. Please note that the device that is calling you will continue to ring.
+   * 
+   * @param message optional message to send to the calling account when their call is detected and rejected
+   */
+  public async autoReject(message?: string) : Promise<boolean> {
+    return await this.pup(
+      (message) => WAPI.autoReject(message),
+      message
     ) as Promise<boolean>;
   }
   
