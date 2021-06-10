@@ -322,8 +322,12 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
   } catch (error) {
     spinner.emit(error.message);
     await kill(waPage);
-    spinner.remove();
-    throw error;
+    if(error.name === "TimeoutError" && config?.killProcessOnTimeout) {
+      process.exit()
+    } else {
+      spinner.remove();
+      throw error;
+    }
   }
 }
 /**
