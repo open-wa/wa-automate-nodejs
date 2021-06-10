@@ -36,6 +36,7 @@ import PriorityQueue from 'p-queue/dist/priority-queue';
 import { MessagePreprocessors } from '../structures/preProcessors';
 import { NextFunction, Request, Response } from 'express';
 import { base64MimeType, getDUrl, isBase64, isDataURL } from '../utils/tools';
+import { Call } from './model/call';
 
 /** @ignore */
 const pkg = readJsonSync(path.join(__dirname,'../../package.json')),
@@ -659,7 +660,7 @@ export class Client {
    * }
    * ```
    */
-  public async onStory(fn: (story: any) => void) : Promise<Listener | boolean> {
+  public async onStory(fn: (story: Message) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.Story, fn);
   }
 
@@ -669,7 +670,7 @@ export class Client {
    * @event 
    * @fires STATE observable sream of states
    */
-  public async onStateChanged(fn: (state: string) => void) : Promise<Listener | boolean> {
+  public async onStateChanged(fn: (state: STATE) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.StateChanged, fn);
   }
 
@@ -678,7 +679,7 @@ export class Client {
    * @event 
    * @returns Observable stream of call request objects
    */
-  public async onIncomingCall(fn: (call: any) => void) : Promise<Listener | boolean> {
+  public async onIncomingCall(fn: (call: Call) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.IncomingCall, fn);
   }
 
@@ -699,7 +700,7 @@ export class Client {
    * }
    * ```
    */
-  public async onChatState(fn: (chatState: any) => void) : Promise<Listener | boolean> {
+  public async onChatState(fn: (chatState: ChatState) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.ChatState, fn);
   }
 
