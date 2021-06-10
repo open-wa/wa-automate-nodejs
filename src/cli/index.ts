@@ -83,8 +83,10 @@ async function start() {
 
     try {
         const client = await create({ ...createConfig });
-        if(cliConfig.onCall && typeof cliConfig.onCall == "string") {
-            client.onIncomingCall(async call => {
+        if(cliConfig.autoReject){
+            await client.autoReject(cliConfig.onCall)
+        } else if(cliConfig.onCall) {
+            await client.onIncomingCall(async call => {
                 await client.sendText(call.peerJid, cliConfig.onCall)
             })
         }

@@ -194,6 +194,11 @@ const optionList:
         description: "A default message to send to any number that is trying to call the host account"
     },
     {
+        name: 'auto-reject',
+        type: Boolean,
+        description: "Automatically reject incoming phone and video calls to the host account."
+    },
+    {
         name: 'help',
         description: 'Print this usage guide.'
     }
