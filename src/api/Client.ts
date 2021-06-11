@@ -3488,7 +3488,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    */
    createMessageCollector(c : Message | ChatId | Chat, filter : (args: any[] | any ) => boolean | Promise<boolean>, options : CollectorOptions) : MessageCollector {
     const chatId : ChatId = ((c as Message)?.chat?.id || (c as Chat)?.id || c) as ChatId;
-    return new MessageCollector(this.getSessionId(), this.getInstanceId(), chatId, filter, options);
+    return new MessageCollector(this.getSessionId(), this.getInstanceId(), chatId, filter, options, ev);
    }
 }
 

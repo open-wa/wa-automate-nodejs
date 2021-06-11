@@ -1,4 +1,4 @@
-import { ev } from '..';
+import { EventEmitter2 } from 'eventemitter2';
 import { Chat, ChatId, Message, MessageId } from '../api/model';
 import { SimpleListener } from '../api/model/events';
 import { Collector, CollectorOptions } from './Collector';
@@ -19,6 +19,7 @@ export class MessageCollector extends Collector {
     received: number;
     sessionId: string;
     instanceId: string;
+    ev: EventEmitter2
 
   /**
    * @param {string} sessionId The id of the session
@@ -26,11 +27,13 @@ export class MessageCollector extends Collector {
    * @param {ChatId} chatId The chat
    * @param {CollectorFilter} filter The filter to be applied to this collector
    * @param {MessageCollectorOptions} options The options to be applied to this collector
+   * @param {EventEmitter2} openWaEventEmitter The EventEmitter2 that fires all open-wa events. In local instances of the library, this is the global `ev` object.
    * @emits MessageCollector#Message
    */
-  constructor(sessionId: string, instanceId: string, chat : ChatId, filter: (args: any[]) => boolean | Promise<boolean>, options : CollectorOptions = {}) {
+  constructor(sessionId: string, instanceId: string, chat : ChatId, filter: (args: any[]) => boolean | Promise<boolean>, options : CollectorOptions = {}, openWaEventEmitter : EventEmitter2) {
     super(filter, options);
 
+    this.ev = openWaEventEmitter;
     this.sessionId = sessionId;
     this.instanceId = instanceId;
 
@@ -55,18 +58,18 @@ export class MessageCollector extends Collector {
     const groupRemovalHandler = this.wrapHandler(this._handleGroupRemoval)
 
     this.incrementMaxListeners();
-    ev.on(this.eventSignature(SimpleListener.Message), collectHandler);
-    ev.on(this.eventSignature(SimpleListener.MessageDeleted),disposeHandler);
-    ev.on(this.eventSignature(SimpleListener.ChatDeleted), deleteHandler);
-    ev.on(this.eventSignature(SimpleListener.RemovedFromGroup), groupRemovalHandler);
-    // ev.on(Events.GUILD_DELETE, this._handleGuildDeletion);
+    this.ev.on(this.eventSignature(SimpleListener.Message), collectHandler);
+    this.ev.on(this.eventSignature(SimpleListener.MessageDeleted),disposeHandler);
+    this.ev.on(this.eventSignature(SimpleListener.ChatDeleted), deleteHandler);
+    this.ev.on(this.eventSignature(SimpleListener.RemovedFromGroup), groupRemovalHandler);
+    // this.ev.on(Events.GUILD_DELETE, this._handleGuildDeletion);
 
     this.once('end', () => {
-      ev.removeListener(this.eventSignature(SimpleListener.Message), collectHandler);
-      ev.removeListener(this.eventSignature(SimpleListener.MessageDeleted), disposeHandler);
-      ev.removeListener(this.eventSignature(SimpleListener.ChatDeleted), deleteHandler);
-      ev.removeListener(this.eventSignature(SimpleListener.RemovedFromGroup), groupRemovalHandler);
-      // ev.removeListener(Events.GUILD_DELETE, this._handleGuildDeletion);
+      this.ev.removeListener(this.eventSignature(SimpleListener.Message), collectHandler);
+      this.ev.removeListener(this.eventSignature(SimpleListener.MessageDeleted), disposeHandler);
+      this.ev.removeListener(this.eventSignature(SimpleListener.ChatDeleted), deleteHandler);
+      this.ev.removeListener(this.eventSignature(SimpleListener.RemovedFromGroup), groupRemovalHandler);
+      // this.ev.removeListener(Events.GUILD_DELETE, this._handleGuildDeletion);
       this.decrementMaxListeners();
     });
   }
