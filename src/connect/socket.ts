@@ -141,7 +141,7 @@ export class SocketClient {
     //   [K in keyof Parameters<Pick<Client,M>[ M ]>]: Parameters<Pick<Client,M>[ M ]>[K]
     // }
 
-    public async ask<M extends ClientMethods, P extends Parameters<Pick<Client, M>[M]>>(method: M, args?: P | {
+    public async ask<M extends ClientMethods, P extends Parameters<Pick<Client, M>[M]>>(method: M, args?: any[] | P | {
         [k: string]: unknown
     }): Promise<unknown> {
         // if (!this.socket.connected) return new Error("Socket not connected!")
