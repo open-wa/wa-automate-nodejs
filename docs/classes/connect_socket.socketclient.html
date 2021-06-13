@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>SocketClient | @open-wa/wa-automate - v4.4.0</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.4.0">
+	<title>SocketClient | @open-wa/wa-automate - v4.5.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.5.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v4.4.0</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.5.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -155,6 +155,7 @@
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="connect_socket.socketclient.html#ask" class="tsd-kind-icon">ask</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="connect_socket.socketclient.html#createmessagecollector" class="tsd-kind-icon">create<wbr>Message<wbr>Collector</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="connect_socket.socketclient.html#listen" class="tsd-kind-icon">listen</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="connect_socket.socketclient.html#stoplistener" class="tsd-kind-icon">stop<wbr>Listener</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="connect_socket.socketclient.html#connect" class="tsd-kind-icon">connect</a></li>
@@ -297,7 +298,7 @@
 					<a name="ask" class="tsd-anchor"></a>
 					<h3>ask</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">ask&lt;M, P&gt;<span class="tsd-signature-symbol">(</span>method<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">M</span>, args<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">P</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">ask&lt;M, P&gt;<span class="tsd-signature-symbol">(</span>method<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">M</span>, args<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">P</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -318,10 +319,36 @@
 									<h5>method: <span class="tsd-signature-type">M</span></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> args: <span class="tsd-signature-type">P</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> args: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">P</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="createmessagecollector" class="tsd-anchor"></a>
+					<h3>create<wbr>Message<wbr>Collector</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Message<wbr>Collector<span class="tsd-signature-symbol">(</span>c<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_chat.chat.html" class="tsd-signature-type" data-tsd-kind="Interface">Chat</a><span class="tsd-signature-symbol"> | </span><a href="../modules/api_model_aliases.html#chatid" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a>, filter<span class="tsd-signature-symbol">: </span><a href="../modules/structures_collector.html#collectorfilter" class="tsd-signature-type" data-tsd-kind="Type alias">CollectorFilter</a>, options<span class="tsd-signature-symbol">: </span><a href="../interfaces/structures_collector.collectoroptions.html" class="tsd-signature-type" data-tsd-kind="Interface">CollectorOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="structures_messagecollector.messagecollector.html" class="tsd-signature-type" data-tsd-kind="Class">MessageCollector</a><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>c: <a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_chat.chat.html" class="tsd-signature-type" data-tsd-kind="Interface">Chat</a><span class="tsd-signature-symbol"> | </span><a href="../modules/api_model_aliases.html#chatid" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a></h5>
+								</li>
+								<li>
+									<h5>filter: <a href="../modules/structures_collector.html#collectorfilter" class="tsd-signature-type" data-tsd-kind="Type alias">CollectorFilter</a></h5>
+								</li>
+								<li>
+									<h5>options: <a href="../interfaces/structures_collector.collectoroptions.html" class="tsd-signature-type" data-tsd-kind="Interface">CollectorOptions</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="structures_messagecollector.messagecollector.html" class="tsd-signature-type" data-tsd-kind="Class">MessageCollector</a><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -417,7 +444,7 @@
 					<a name="connect" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> connect</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">connect<span class="tsd-signature-symbol">(</span>url<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, apiKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="connect_socket.socketclient.html" class="tsd-signature-type" data-tsd-kind="Class">SocketClient</a><span class="tsd-signature-symbol"> &amp; </span><a href="api_client.client.html" class="tsd-signature-type" data-tsd-kind="Class">Client</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">connect<span class="tsd-signature-symbol">(</span>url<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, apiKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, ev<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="connect_socket.socketclient.html" class="tsd-signature-type" data-tsd-kind="Class">SocketClient</a><span class="tsd-signature-symbol"> &amp; </span><a href="api_client.client.html" class="tsd-signature-type" data-tsd-kind="Class">Client</a><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -441,6 +468,9 @@
 									<div class="tsd-comment tsd-typography">
 										<p>optional api key if set</p>
 									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> ev: <span class="tsd-signature-type">boolean</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="connect_socket.socketclient.html" class="tsd-signature-type" data-tsd-kind="Class">SocketClient</a><span class="tsd-signature-symbol"> &amp; </span><a href="api_client.client.html" class="tsd-signature-type" data-tsd-kind="Class">Client</a><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -560,6 +590,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 								<a href="connect_socket.socketclient.html#ask" class="tsd-kind-icon">ask</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="connect_socket.socketclient.html#createmessagecollector" class="tsd-kind-icon">create<wbr>Message<wbr>Collector</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="connect_socket.socketclient.html#listen" class="tsd-kind-icon">listen</a>

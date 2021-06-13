@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>MessageCollector | @open-wa/wa-automate - v4.4.0</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.4.0">
+	<title>MessageCollector | @open-wa/wa-automate - v4.5.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.5.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v4.4.0</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.5.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -117,6 +117,7 @@
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="structures_messagecollector.messagecollector.html#chat" class="tsd-kind-icon">chat</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="structures_messagecollector.messagecollector.html#collected" class="tsd-kind-icon">collected</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="structures_messagecollector.messagecollector.html#ended" class="tsd-kind-icon">ended</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="structures_messagecollector.messagecollector.html#ev" class="tsd-kind-icon">ev</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="structures_messagecollector.messagecollector.html#filter" class="tsd-kind-icon">filter</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="structures_messagecollector.messagecollector.html#instanceid" class="tsd-kind-icon">instance<wbr>Id</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="structures_messagecollector.messagecollector.html#options" class="tsd-kind-icon">options</a></li>
@@ -183,7 +184,7 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Message<wbr>Collector<span class="tsd-signature-symbol">(</span>sessionId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, instanceId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, chat<span class="tsd-signature-symbol">: </span><a href="../modules/api_model_aliases.html#chatid" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a>, filter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span>, options<span class="tsd-signature-symbol">?: </span><a href="../interfaces/structures_collector.collectoroptions.html" class="tsd-signature-type" data-tsd-kind="Interface">CollectorOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="structures_messagecollector.messagecollector.html" class="tsd-signature-type" data-tsd-kind="Class">MessageCollector</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Message<wbr>Collector<span class="tsd-signature-symbol">(</span>sessionId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, instanceId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, chat<span class="tsd-signature-symbol">: </span><a href="../modules/api_model_aliases.html#chatid" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a>, filter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span>, options<span class="tsd-signature-symbol">?: </span><a href="../interfaces/structures_collector.collectoroptions.html" class="tsd-signature-type" data-tsd-kind="Interface">CollectorOptions</a>, openWaEventEmitter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">EventEmitter2</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="structures_messagecollector.messagecollector.html" class="tsd-signature-type" data-tsd-kind="Class">MessageCollector</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -244,6 +245,12 @@
 										<p>The options to be applied to this collector</p>
 									</div>
 								</li>
+								<li>
+									<h5>openWaEventEmitter: <span class="tsd-signature-type">EventEmitter2</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The EventEmitter2 that fires all open-wa events. In local instances of the library, this is the global <code>ev</code> object.</p>
+									</div>
+								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="structures_messagecollector.messagecollector.html" class="tsd-signature-type" data-tsd-kind="Class">MessageCollector</a></h4>
 						</li>
@@ -289,6 +296,13 @@
 					<div class="tsd-signature tsd-kind-icon">ended<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="structures_collector.collector.html">Collector</a>.<a href="structures_collector.collector.html#ended">ended</a></p>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="ev" class="tsd-anchor"></a>
+					<h3>ev</h3>
+					<div class="tsd-signature tsd-kind-icon">ev<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">EventEmitter2</span></div>
+					<aside class="tsd-sources">
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -1687,6 +1701,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 								<a href="structures_messagecollector.messagecollector.html#ended" class="tsd-kind-icon">ended</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="structures_messagecollector.messagecollector.html#ev" class="tsd-kind-icon">ev</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 								<a href="structures_messagecollector.messagecollector.html#filter" class="tsd-kind-icon">filter</a>
