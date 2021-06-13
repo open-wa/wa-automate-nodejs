@@ -113,7 +113,27 @@ export class SocketClient {
             }))
         })
         this.socket.io.on("reconnect_attempt", () => console.log("Reconnecting..."));
-        this.socket.on("disconnect", () => console.log("Disconnected from host!"))
+        this.socket.on("disconnect", () => console.log("Disconnected from host!"));
+        return new Proxy(this, {
+            get: function get(target : SocketClient, prop : string) {
+                const o = Reflect.get(target, prop);
+                if(o) return o;
+                if (prop === 'then') {
+                  return Promise.prototype.then.bind(target);
+                }
+                if(prop.startsWith("on")) {
+                  return async (callback : (data: unknown) => void) => target.listen(prop as SimpleListener,callback)
+                } else {
+                  return async (...args : any[]) => {
+                    return target.ask(prop as keyof Client,args.length==1 && typeof args[0] == "object" ? {
+                      ...args[0]
+                    } : [
+                      ...args
+                    ] as any)
+                  }
+                }
+            }
+        }) as Client & SocketClient
     }
 
     //awaiting tuple label getter to reimplement this
