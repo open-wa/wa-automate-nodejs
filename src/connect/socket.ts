@@ -3,6 +3,9 @@ import { io, Socket } from "socket.io-client";
 import { Client } from "../api/Client";
 import { SimpleListener } from "../api/model/events";
 import { v4 as uuidv4 } from 'uuid';
+import { Chat, ChatId, Message } from '..';
+import { MessageCollector } from '../structures/MessageCollector';
+import { CollectorFilter, CollectorOptions } from '../structures/Collector';
 
 /**
  * A convenience type that includes all keys from the `Client`.
@@ -73,8 +76,8 @@ export class SocketClient {
      * @param apiKey optional api key if set
      * @returns SocketClient
      */
-    static async connect(url: string, apiKey?: string): Promise<SocketClient & Client> {
-        const client = new this(url, apiKey)
+    static async connect(url: string, apiKey?: string, ev ?: boolean): Promise<SocketClient & Client> {
+        const client = new this(url, apiKey, ev)
         return await new Promise((resolve, reject) => {
             client.socket.on("connect", () => {
                 console.log("Connected!", client.socket.id)
@@ -83,6 +86,11 @@ export class SocketClient {
             client.socket.on("connect_error", reject);
         })
     }
+
+   public async createMessageCollector(c : Message | ChatId | Chat, filter : CollectorFilter, options : CollectorOptions) : Promise<MessageCollector> {
+    const chatId : ChatId = ((c as Message)?.chat?.id || (c as Chat)?.id || c) as ChatId;
+    return new MessageCollector(await this.ask('getSessionId') as string, await this.ask('getInstanceId') as string, chatId, filter, options, this.ev);
+   }
 
     constructor(url: string, apiKey?: string, ev ?: boolean) {
         this.url = url;
