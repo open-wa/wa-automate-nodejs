@@ -344,7 +344,11 @@ export const cli: () => {
 
 
     if (cliConfig?.session) {
-        cliConfig.sessionData = cliConfig.session;
+        createConfig.sessionData = cliConfig.session;
+    }
+
+    if (cliConfig?.allowSessionDataWh) {
+        cliConfig.allowSessionDataWebhook = cliConfig.allowSessionDataWh;
     }
 
     /**
