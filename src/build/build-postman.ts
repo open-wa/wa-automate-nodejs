@@ -9,6 +9,7 @@ const ignoredMethods = [
     'pup',
     'loaded',
     'createMessageCollector',
+    'awaitMessages',
     "logger"
 ]
 

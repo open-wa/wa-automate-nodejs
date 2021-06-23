@@ -28,7 +28,7 @@ import { CustomProduct, Label } from './model/product';
 import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
 import { getAndInjectLicense, getAndInjectLivePatch, getLicense } from '../controllers/initializer';
 import { SimpleListener } from './model/events';
-import { CollectorOptions } from '../structures/Collector';
+import { AwaitMessagesOptions, Collection, CollectorFilter, CollectorOptions } from '../structures/Collector';
 import { MessageCollector } from '../structures/MessageCollector';
 import { injectInitPatch } from '../controllers/init_patch';
 import { Listener } from 'eventemitter2';
@@ -3486,10 +3486,40 @@ public async getStatus(contactId: ContactId) : Promise<{
    * @param filter A function that consumes a [Message] and returns a boolean which determines whether or not the message shall be collected.
    * @param options The options for the collector. For example, how long the collector shall run for, how many messages it should collect, how long between messages before timing out, etc.
    */
-   createMessageCollector(c : Message | ChatId | Chat, filter : (args: any[] | any ) => boolean | Promise<boolean>, options : CollectorOptions) : MessageCollector {
+   createMessageCollector(c : Message | ChatId | Chat, filter : CollectorFilter, options : CollectorOptions) : MessageCollector {
     const chatId : ChatId = ((c as Message)?.chat?.id || (c as Chat)?.id || c) as ChatId;
     return new MessageCollector(this.getSessionId(), this.getInstanceId(), chatId, filter, options, ev);
    }
+
+  /**
+   * [FROM DISCORDJS]
+   * Similar to createMessageCollector but in promise form.
+   * Resolves with a collection of messages that pass the specified filter.
+   * @param c The Mesasge/Chat or Chat Id to base this message colletor on
+   * @param {CollectorFilter} filter The filter function to use
+   * @param {AwaitMessagesOptions} [options={}] Optional options to pass to the internal collector
+   * @returns {Promise<Collection<string, Message>>}
+   * @example
+   * // Await !vote messages
+   * const filter = m => m.body.startsWith('!vote');
+   * // Errors: ['time'] treats ending because of the time limit as an error
+   * channel.awaitMessages(filter, { max: 4, time: 60000, errors: ['time'] })
+   *   .then(collected => console.log(collected.size))
+   *   .catch(collected => console.log(`After a minute, only ${collected.size} out of 4 voted.`));
+   */
+   awaitMessages(c : Message | ChatId | Chat, filter : CollectorFilter, options : AwaitMessagesOptions = {}) : Promise<Collection<string,Message>> {
+     return new Promise((resolve, reject) => {
+       const collector = this.createMessageCollector(c, filter, options);
+       collector.once('end', (collection, reason) => {
+         if (options.errors && options.errors.includes(reason)) {
+           reject(collection);
+         } else {
+           resolve(collection);
+         }
+       });
+     });
+   }
+
 }
 
 export { useragent } from '../config/puppeteer.config'

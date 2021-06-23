@@ -49,6 +49,13 @@ export interface CollectorOptions {
   dispose?: boolean
 }
 
+export interface AwaitMessagesOptions extends CollectorOptions {
+  /**
+   * An array of "reasons" that would result in the awaitMessages command to throw an error.
+   */
+  errors?: string[];
+}
+
 /**
  * Abstract class for defining a new Collector.
  * @abstract
