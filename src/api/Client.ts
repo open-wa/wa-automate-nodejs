@@ -1,7 +1,7 @@
 import { default as mime } from 'mime-types';
 import { Page, EvaluateFn } from 'puppeteer';
 import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration, GroupChatCreationResponse } from './model/chat';
-import { Contact } from './model/contact';
+import { Contact, NumberCheck } from './model/contact';
 import { Message } from './model/message';
 import { default as axios, AxiosRequestConfig} from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
@@ -2342,9 +2342,8 @@ public async getStatus(contactId: ContactId) : Promise<{
   /**
    * Checks if a number is a valid WA number
    * @param contactId, you need to include the @c.us at the end.
-   * @returns contact detial as promise
    */
-  public async checkNumberStatus(contactId: ContactId) : Promise<Contact>{
+  public async checkNumberStatus(contactId: ContactId) : Promise<NumberCheck>{
     return await this.pup(
       contactId => WAPI.checkNumberStatus(contactId),
       contactId

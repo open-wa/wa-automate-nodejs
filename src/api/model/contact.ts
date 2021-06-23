@@ -2,6 +2,13 @@ import { ContactId } from './aliases';
 import { Id } from './id';
 import { Message } from './message';
 
+export interface NumberCheck {
+    id: Id,
+    status: 200 | 404,
+    isBusiness: boolean,
+    canReceiveMessage: boolean,
+    numberExists: boolean
+}
 export interface Contact {
   formattedName: string;
   id: ContactId;
