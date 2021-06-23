@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>CollectorOptions | @open-wa/wa-automate - v4.5.1</title>
+	<title>AwaitMessagesOptions | @open-wa/wa-automate - v4.5.1</title>
 	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.5.1">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -68,31 +68,24 @@
 					<a href="../modules/structures_collector.html">structures/Collector</a>
 				</li>
 				<li>
-					<a href="structures_collector.collectoroptions.html">CollectorOptions</a>
+					<a href="structures_collector.awaitmessagesoptions.html">AwaitMessagesOptions</a>
 				</li>
 			</ul>
-			<h1>Interface CollectorOptions</h1>
+			<h1>Interface AwaitMessagesOptions</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-comment">
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>Options to be applied to the collector.</p>
-					</div>
-				</div>
-			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">CollectorOptions</span>
+						<a href="structures_collector.collectoroptions.html" class="tsd-signature-type" data-tsd-kind="Interface">CollectorOptions</a>
 						<ul class="tsd-hierarchy">
 							<li>
-								<a href="structures_collector.awaitmessagesoptions.html" class="tsd-signature-type" data-tsd-kind="Interface">AwaitMessagesOptions</a>
+								<span class="target">AwaitMessagesOptions</span>
 							</li>
 						</ul>
 					</li>
@@ -105,11 +98,12 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="structures_collector.collectoroptions.html#dispose" class="tsd-kind-icon">dispose</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="structures_collector.collectoroptions.html#idle" class="tsd-kind-icon">idle</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="structures_collector.collectoroptions.html#max" class="tsd-kind-icon">max</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="structures_collector.collectoroptions.html#maxprocessed" class="tsd-kind-icon">max<wbr>Processed</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="structures_collector.collectoroptions.html#time" class="tsd-kind-icon">time</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="structures_collector.awaitmessagesoptions.html#dispose" class="tsd-kind-icon">dispose</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="structures_collector.awaitmessagesoptions.html#errors" class="tsd-kind-icon">errors</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="structures_collector.awaitmessagesoptions.html#idle" class="tsd-kind-icon">idle</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="structures_collector.awaitmessagesoptions.html#max" class="tsd-kind-icon">max</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="structures_collector.awaitmessagesoptions.html#maxprocessed" class="tsd-kind-icon">max<wbr>Processed</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="structures_collector.awaitmessagesoptions.html#time" class="tsd-kind-icon">time</a></li>
 							</ul>
 						</section>
 					</div>
@@ -117,11 +111,12 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="dispose" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> dispose</h3>
 					<div class="tsd-signature tsd-kind-icon">dispose<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="structures_collector.collectoroptions.html">CollectorOptions</a>.<a href="structures_collector.collectoroptions.html#dispose">dispose</a></p>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
@@ -130,10 +125,23 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="errors" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> errors</h3>
+					<div class="tsd-signature tsd-kind-icon">errors<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>An array of &quot;reasons&quot; that would result in the awaitMessages command to throw an error.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="idle" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> idle</h3>
 					<div class="tsd-signature tsd-kind-icon">idle<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="structures_collector.collectoroptions.html">CollectorOptions</a>.<a href="structures_collector.collectoroptions.html#idle">idle</a></p>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
@@ -141,11 +149,12 @@
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="max" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> max</h3>
 					<div class="tsd-signature tsd-kind-icon">max<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="structures_collector.collectoroptions.html">CollectorOptions</a>.<a href="structures_collector.collectoroptions.html#max">max</a></p>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
@@ -153,11 +162,12 @@
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="maxprocessed" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> max<wbr>Processed</h3>
 					<div class="tsd-signature tsd-kind-icon">max<wbr>Processed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="structures_collector.collectoroptions.html">CollectorOptions</a>.<a href="structures_collector.collectoroptions.html#maxprocessed">maxProcessed</a></p>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
@@ -165,11 +175,12 @@
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="time" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> time</h3>
 					<div class="tsd-signature tsd-kind-icon">time<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="structures_collector.collectoroptions.html">CollectorOptions</a>.<a href="structures_collector.collectoroptions.html#time">time</a></p>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
@@ -267,30 +278,9 @@
 					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="../classes/structures_collector.collector.html" class="tsd-kind-icon">Collector</a>
 					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-interface tsd-parent-kind-module">
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
 						<a href="structures_collector.collectoroptions.html" class="tsd-kind-icon">Collector<wbr>Options</a>
-						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="structures_collector.collectoroptions.html#dispose" class="tsd-kind-icon">dispose</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="structures_collector.collectoroptions.html#idle" class="tsd-kind-icon">idle</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="structures_collector.collectoroptions.html#max" class="tsd-kind-icon">max</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="structures_collector.collectoroptions.html#maxprocessed" class="tsd-kind-icon">max<wbr>Processed</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="structures_collector.collectoroptions.html#time" class="tsd-kind-icon">time</a>
-							</li>
-						</ul>
 					</li>
-				</ul>
-				<ul class="after-current">
 				</ul>
 			</nav>
 		</div>

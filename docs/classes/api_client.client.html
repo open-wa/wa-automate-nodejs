@@ -121,6 +121,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#addparticipant" class="tsd-kind-icon">add<wbr>Participant</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#archivechat" class="tsd-kind-icon">archive<wbr>Chat</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#autoreject" class="tsd-kind-icon">auto<wbr>Reject</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#awaitmessages" class="tsd-kind-icon">await<wbr>Messages</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#checknumberstatus" class="tsd-kind-icon">check<wbr>Number<wbr>Status</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#checkreadreceipts" class="tsd-kind-icon">check<wbr>Read<wbr>Receipts</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_client.client.html#clearallchats" class="tsd-kind-icon">clear<wbr>All<wbr>Chats</a></li>
@@ -1382,6 +1383,56 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="awaitmessages" class="tsd-anchor"></a>
+					<h3>await<wbr>Messages</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">await<wbr>Messages<span class="tsd-signature-symbol">(</span>c<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_chat.chat.html" class="tsd-signature-type" data-tsd-kind="Interface">Chat</a><span class="tsd-signature-symbol"> | </span><a href="../modules/api_model_aliases.html#chatid" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a>, filter<span class="tsd-signature-symbol">: </span><a href="../modules/structures_collector.html#collectorfilter" class="tsd-signature-type" data-tsd-kind="Type alias">CollectorFilter</a>, options<span class="tsd-signature-symbol">?: </span><a href="../interfaces/structures_collector.awaitmessagesoptions.html" class="tsd-signature-type" data-tsd-kind="Interface">AwaitMessagesOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="structures_collector.collection.html" class="tsd-signature-type" data-tsd-kind="Class">Collection</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>[FROM DISCORDJS]
+										Similar to createMessageCollector but in promise form.
+									Resolves with a collection of messages that pass the specified filter.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-javascript"><span style="color: #008000">// Await !vote messages</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">filter</span><span style="color: #000000"> = </span><span style="color: #001080">m</span><span style="color: #000000"> </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">m</span><span style="color: #000000">.</span><span style="color: #001080">body</span><span style="color: #000000">.</span><span style="color: #795E26">startsWith</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;!vote&#039;</span><span style="color: #000000">);</span>
+<span style="color: #008000">// Errors: [&#039;time&#039;] treats ending because of the time limit as an error</span>
+<span style="color: #001080">channel</span><span style="color: #000000">.</span><span style="color: #795E26">awaitMessages</span><span style="color: #000000">(</span><span style="color: #001080">filter</span><span style="color: #000000">, { </span><span style="color: #001080">max:</span><span style="color: #000000"> </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #001080">time:</span><span style="color: #000000"> </span><span style="color: #098658">60000</span><span style="color: #000000">, </span><span style="color: #001080">errors:</span><span style="color: #000000"> [</span><span style="color: #A31515">&#039;time&#039;</span><span style="color: #000000">] })</span>
+<span style="color: #000000">  .</span><span style="color: #795E26">then</span><span style="color: #000000">(</span><span style="color: #001080">collected</span><span style="color: #000000"> </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">collected</span><span style="color: #000000">.</span><span style="color: #001080">size</span><span style="color: #000000">))</span>
+<span style="color: #000000">  .</span><span style="color: #795E26">catch</span><span style="color: #000000">(</span><span style="color: #001080">collected</span><span style="color: #000000"> </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">`After a minute, only </span><span style="color: #0000FF">${</span><span style="color: #001080">collected</span><span style="color: #000000FF">.</span><span style="color: #001080">size</span><span style="color: #0000FF">}</span><span style="color: #A31515"> out of 4 voted.`</span><span style="color: #000000">));</span>
+</code></pre>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>c: <a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_chat.chat.html" class="tsd-signature-type" data-tsd-kind="Interface">Chat</a><span class="tsd-signature-symbol"> | </span><a href="../modules/api_model_aliases.html#chatid" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The Mesasge/Chat or Chat Id to base this message colletor on</p>
+									</div>
+								</li>
+								<li>
+									<h5>filter: <a href="../modules/structures_collector.html#collectorfilter" class="tsd-signature-type" data-tsd-kind="Type alias">CollectorFilter</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The filter function to use</p>
+									</div>
+								</li>
+								<li>
+									<h5>options: <a href="../interfaces/structures_collector.awaitmessagesoptions.html" class="tsd-signature-type" data-tsd-kind="Interface">AwaitMessagesOptions</a><span class="tsd-signature-symbol"> = {}</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="structures_collector.collection.html" class="tsd-signature-type" data-tsd-kind="Class">Collection</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="checknumberstatus" class="tsd-anchor"></a>
 					<h3>check<wbr>Number<wbr>Status</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1616,7 +1667,7 @@
 					<a name="createmessagecollector" class="tsd-anchor"></a>
 					<h3>create<wbr>Message<wbr>Collector</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">create<wbr>Message<wbr>Collector<span class="tsd-signature-symbol">(</span>c<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_chat.chat.html" class="tsd-signature-type" data-tsd-kind="Interface">Chat</a><span class="tsd-signature-symbol"> | </span><a href="../modules/api_model_aliases.html#chatid" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a>, filter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span>, options<span class="tsd-signature-symbol">: </span><a href="../interfaces/structures_collector.collectoroptions.html" class="tsd-signature-type" data-tsd-kind="Interface">CollectorOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="structures_messagecollector.messagecollector.html" class="tsd-signature-type" data-tsd-kind="Class">MessageCollector</a></li>
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Message<wbr>Collector<span class="tsd-signature-symbol">(</span>c<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_message.message.html" class="tsd-signature-type" data-tsd-kind="Interface">Message</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_chat.chat.html" class="tsd-signature-type" data-tsd-kind="Interface">Chat</a><span class="tsd-signature-symbol"> | </span><a href="../modules/api_model_aliases.html#chatid" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a>, filter<span class="tsd-signature-symbol">: </span><a href="../modules/structures_collector.html#collectorfilter" class="tsd-signature-type" data-tsd-kind="Type alias">CollectorFilter</a>, options<span class="tsd-signature-symbol">: </span><a href="../interfaces/structures_collector.collectoroptions.html" class="tsd-signature-type" data-tsd-kind="Interface">CollectorOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="structures_messagecollector.messagecollector.html" class="tsd-signature-type" data-tsd-kind="Class">MessageCollector</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -1636,28 +1687,10 @@
 									</div>
 								</li>
 								<li>
-									<h5>filter: <span class="tsd-signature-symbol">(</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>filter: <a href="../modules/structures_collector.html#collectorfilter" class="tsd-signature-type" data-tsd-kind="Type alias">CollectorFilter</a></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>A function that consumes a [Message] and returns a boolean which determines whether or not the message shall be collected.</p>
 									</div>
-									<ul class="tsd-parameters">
-										<li class="tsd-parameter-signature">
-											<ul class="tsd-signatures tsd-kind-type-literal">
-												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></li>
-											</ul>
-											<ul class="tsd-descriptions">
-												<li class="tsd-description">
-													<h4 class="tsd-parameters-title">Parameters</h4>
-													<ul class="tsd-parameters">
-														<li>
-															<h5>args: <span class="tsd-signature-type">any</span></h5>
-														</li>
-													</ul>
-													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
-												</li>
-											</ul>
-										</li>
-									</ul>
 								</li>
 								<li>
 									<h5>options: <a href="../interfaces/structures_collector.collectoroptions.html" class="tsd-signature-type" data-tsd-kind="Interface">CollectorOptions</a></h5>
@@ -6647,6 +6680,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_client.client.html#autoreject" class="tsd-kind-icon">auto<wbr>Reject</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="api_client.client.html#awaitmessages" class="tsd-kind-icon">await<wbr>Messages</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_client.client.html#checknumberstatus" class="tsd-kind-icon">check<wbr>Number<wbr>Status</a>
