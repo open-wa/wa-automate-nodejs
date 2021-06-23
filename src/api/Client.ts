@@ -24,7 +24,7 @@ import { isAuthenticated } from '../controllers/auth';
 import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, FilePath } from './model/aliases';
 import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
 import * as path from 'path';
-import { CustomProduct, Label } from './model/product';
+import { CustomProduct, Label, Order } from './model/product';
 import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
 import { getAndInjectLicense, getAndInjectLivePatch, getLicense } from '../controllers/initializer';
 import { SimpleListener } from './model/events';
@@ -75,6 +75,7 @@ declare module WAPI {
   const addAllNewMessagesListener: (callback: Function) => void;
   const onStateChanged: (callback: Function) => void;
   const onChatState: (callback: Function) => any;
+  const onOrder: (callback: Function) => any;
   const onIncomingCall: (callback: Function) => any;
   const onAddedToGroup: (callback: Function) => any;
   const onBattery: (callback: Function) => any;
@@ -105,6 +106,7 @@ declare module WAPI {
   const addParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
   const sendGiphyAsSticker: (chatId: string, url: string) => Promise<any>;
   const getMessageById: (mesasgeId: string) => Message;
+  const getOrder: (id: string) => Order;
   const getMyLastMessage: (chatId: string) => Promise<Message>;
   const getStickerDecryptable: (mesasgeId: string) => Message | boolean;
   const forceStaleMediaUpdate: (mesasgeId: string) => Message | boolean;
@@ -683,6 +685,16 @@ export class Client {
   public async onIncomingCall(fn: (call: Call) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.IncomingCall, fn);
   }
+
+  /**
+   *[REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * 
+   * Listens to new orders. Only works on business accounts
+   */
+  public async onOrder(fn: (order: Order) => void) : Promise<Listener | boolean> {
+    return this.registerListener(SimpleListener.Order, fn);
+  }
+
 
   /**
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
@@ -2061,6 +2073,20 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
       messageId => WAPI.getMessageById(messageId),
       messageId
     ) as Promise<Message>;
+  }
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * 
+   * Retrieves an order object
+   * @param messageId or OrderId
+   * @returns order object
+   */
+   public async getOrder(id: MessageId | string) : Promise<Order> {
+    return await this.pup(
+      id => WAPI.getOrder(id),
+      id
+    ) as Promise<Order>;
   }
 
   /**

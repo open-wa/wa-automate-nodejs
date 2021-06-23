@@ -1,4 +1,5 @@
 import { ChatId, ContactId, MessageId } from "./aliases";
+import { Message } from "./message";
 
 export interface CustomProduct {
     /**
@@ -71,7 +72,11 @@ export interface Order {
     products: CartItem[],
     sellerJid: string,
     subtotal: `${number}`,
-    total:  `${number}`
+    total:  `${number}`,
+    /**
+     * The message object associated with the order. Only populated in `onOrder` callback.
+     */
+    message ?: Message
 }
 
 

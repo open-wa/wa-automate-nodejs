@@ -77,4 +77,9 @@
      * Represents [[onContactAdded]]
      */
     ContactAdded = 'onContactAdded',
+    /**
+     * Requires licence
+     * Represents [[onContactAdded]]
+     */
+    Order = 'onOrder',
   }
