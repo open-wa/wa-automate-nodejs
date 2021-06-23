@@ -3491,7 +3491,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * @param filter A function that consumes a [Message] and returns a boolean which determines whether or not the message shall be collected.
    * @param options The options for the collector. For example, how long the collector shall run for, how many messages it should collect, how long between messages before timing out, etc.
    */
-   createMessageCollector(c : Message | ChatId | Chat, filter : CollectorFilter, options : CollectorOptions) : MessageCollector {
+   createMessageCollector(c : Message | ChatId | Chat, filter : CollectorFilter<[Message]>, options : CollectorOptions) : MessageCollector {
     const chatId : ChatId = ((c as Message)?.chat?.id || (c as Chat)?.id || c) as ChatId;
     return new MessageCollector(this.getSessionId(), this.getInstanceId(), chatId, filter, options, ev);
    }
@@ -3514,8 +3514,8 @@ public async getStatus(contactId: ContactId) : Promise<{
    *   .catch(collected => console.log(`After a minute, only ${collected.size} out of 4 voted.`));
    * ```
    */
-   awaitMessages(c : Message | ChatId | Chat, filter : CollectorFilter, options : AwaitMessagesOptions = {}) : Promise<Collection<string,Message>> {
-     return new Promise((resolve, reject) => {
+   awaitMessages(c : Message | ChatId | Chat, filter : CollectorFilter<[Message]>, options : AwaitMessagesOptions = {}) : Promise<Collection<string,Message>> {
+    return new Promise((resolve, reject) => {
        const collector = this.createMessageCollector(c, filter, options);
        collector.once('end', (collection, reason) => {
          if (options.errors && options.errors.includes(reason)) {

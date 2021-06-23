@@ -21,7 +21,7 @@ export class Collection<K, V> extends BaseCollection<K, V> {
  * @param {Collection} collection The items collected by this collector
  * @returns {boolean|Promise<boolean>}
  */
-export type CollectorFilter = (args: any[]) => boolean | Promise<boolean>
+export type CollectorFilter<T extends any[]> = (...args: T) => boolean | Promise<boolean>
 
 /**
  * Options to be applied to the collector.

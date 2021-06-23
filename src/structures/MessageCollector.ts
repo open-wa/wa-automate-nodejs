@@ -30,7 +30,7 @@ export class MessageCollector extends Collector {
    * @param {EventEmitter2} openWaEventEmitter The EventEmitter2 that fires all open-wa events. In local instances of the library, this is the global `ev` object.
    * @emits MessageCollector#Message
    */
-  constructor(sessionId: string, instanceId: string, chat : ChatId, filter: (args: any[]) => boolean | Promise<boolean>, options : CollectorOptions = {}, openWaEventEmitter : EventEmitter2) {
+  constructor(sessionId: string, instanceId: string, chat : ChatId, filter: (...args: any[]) => boolean | Promise<boolean>, options : CollectorOptions = {}, openWaEventEmitter : EventEmitter2) {
     super(filter, options);
 
     this.ev = openWaEventEmitter;
