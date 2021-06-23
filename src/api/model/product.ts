@@ -30,6 +30,50 @@ export interface CustomProduct {
     url?: string
 }
 
+export interface CartItem {
+    /**
+     * Product ID
+     */
+     id: string,
+     /**
+      * Product name
+      */
+     name: string,
+     /**
+      * Amount of this item in the cart
+      */
+     qty: number,
+     thumbnailId: string,
+     /**
+      * URL to .enc file of the thumbnail. Just change the filetype to .jpg to view the thumbnail
+      */
+     thumbnailUrl: string,
+
+}
+
+export interface Order {
+    /**
+     * Order ID
+     */
+    id: string,
+    /**
+     * epoch ts divided by 1000
+     */
+    createdAt: number,
+    /**
+     * The [**ISO 4217**](https://en.wikipedia.org/wiki/ISO_4217) 3 letter currency code. E.g (Swedish krona)
+     * `SEK`
+     */
+    currency: string,
+    /**
+     * An array of items in the cart
+     */
+    products: CartItem[],
+    sellerJid: string,
+    subtotal: `${number}`,
+    total:  `${number}`
+}
+
 
 export interface Label {
     /**

@@ -139,6 +139,7 @@ export enum MessageTypes {
   CONTACT_CARD = 'vcard',
   CONTACT_CARD_MULTI = 'multi_vcard',
   REVOKED = 'revoked',
+  ORDER = 'order',
   UNKNOWN = 'unknown'
 }
 
