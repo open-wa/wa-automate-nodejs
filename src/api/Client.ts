@@ -3270,7 +3270,12 @@ public async getStatus(contactId: ContactId) : Promise<{
       const rb = req?.body || {};
       let {args} = rb
       const m = rb?.method || this._createConfig.sessionId && this._createConfig.sessionId!== 'session' && req.path.includes(this._createConfig.sessionId) ? req.path.replace(`/${this._createConfig.sessionId}/`,'') :  req.path.replace('/','');
-      if(args && !Array.isArray(args)) args = parseFunction().parse(this[m]).args.map(argName=> args[argName]);
+      let methodRequiresArgs = false
+      if(args && !Array.isArray(args)) {
+        const methodArgs = parseFunction().parse(this[m]).args
+        if(methodArgs?.length > 0) methodRequiresArgs = true;
+        args = methodArgs.map(argName=> args[argName]);
+      }
       else if(!args) args = [];
       if(this[m]){
         try {
@@ -3283,6 +3288,7 @@ public async getStatus(contactId: ContactId) : Promise<{
         })
         } catch (error) {
         console.error("middleware -> error", error)
+        if(methodRequiresArgs && args==[]) error.message = `${req?.params ? "Please set arguments in request json body, not in params." : "Args expected, none found." ${error.message}}`
         return res.send({
           success:false,
           error : {
