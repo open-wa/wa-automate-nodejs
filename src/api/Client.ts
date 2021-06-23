@@ -3288,7 +3288,7 @@ public async getStatus(contactId: ContactId) : Promise<{
         })
         } catch (error) {
         console.error("middleware -> error", error)
-        if(methodRequiresArgs && args==[]) error.message = `${req?.params ? "Please set arguments in request json body, not in params." : "Args expected, none found." ${error.message}}`
+        if(methodRequiresArgs && args==[]) error.message = `${req?.params ? "Please set arguments in request json body, not in params." : "Args expected, none found."} ${error.message}`
         return res.send({
           success:false,
           error : {
