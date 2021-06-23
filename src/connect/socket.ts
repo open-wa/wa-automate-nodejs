@@ -87,7 +87,7 @@ export class SocketClient {
         })
     }
 
-   public async createMessageCollector(c : Message | ChatId | Chat, filter : CollectorFilter, options : CollectorOptions) : Promise<MessageCollector> {
+   public async createMessageCollector(c : Message | ChatId | Chat, filter : CollectorFilter<[Message]>, options : CollectorOptions) : Promise<MessageCollector> {
     const chatId : ChatId = ((c as Message)?.chat?.id || (c as Chat)?.id || c) as ChatId;
     return new MessageCollector(await this.ask('getSessionId') as string, await this.ask('getInstanceId') as string, chatId, filter, options, this.ev);
    }

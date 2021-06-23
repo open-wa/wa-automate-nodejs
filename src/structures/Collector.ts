@@ -90,7 +90,7 @@ export class Collector extends EventEmitter {
   protected _immediates: Set<NodeJS.Immediate> = new Set();
 
 
-  constructor(filter: CollectorFilter, options: CollectorOptions = {}) {
+  constructor(filter: CollectorFilter<any>, options: CollectorOptions = {}) {
     super();
 
     /**
