@@ -142,6 +142,7 @@ async function start() {
             spinner.info(`...waiting for port ${PORT} to be free`);
             await tcpPortUsed.waitUntilFree(PORT, 200, 20000).catch(()=>{
                 spinner.fail(`Port ${PORT} is not available. Closing`);
+                process.exit();
             })
             spinner.succeed(`Port ${PORT} is now free.`);
             server.listen(PORT, async () => {
