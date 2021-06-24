@@ -139,8 +139,10 @@ async function start() {
                 await setupSocketServer(cliConfig, client)
                 spinner.succeed("Socket ready for connection")
             }
-            spinner.info(`Checking if port ${PORT} is free`);
-            await tcpPortUsed.waitUntilFree(PORT, 200, 20000)
+            spinner.info(`...waiting for port ${PORT} to be free`);
+            await tcpPortUsed.waitUntilFree(PORT, 200, 20000).catch(()=>{
+                spinner.fail(`Port ${PORT} is not available. Closing`);
+            })
             spinner.succeed(`Port ${PORT} is now free.`);
             server.listen(PORT, async () => {
                 spinner.succeed(`\n• Listening on port ${PORT}!`);
