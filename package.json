@@ -73,7 +73,7 @@
     "@types/line-reader": "0.0.33",
     "@types/marked": "^2.0.0",
     "@types/mime-types": "^2.1.0",
-    "@types/node": "^15.6.1",
+    "@types/node": "^16.0.0",
     "@types/pino": "^6.3.8",
     "@types/puppeteer": "^5.4.0",
     "@types/shelljs": "^0.8.5",
