@@ -84,7 +84,7 @@
     "changelog-parser": "^2.8.0",
     "command-line-args": "^5.1.1",
     "eslint": "^7.20.0",
-    "husky": "^6.0.0",
+    "husky": "^7.0.0",
     "line-reader": "^0.4.0",
     "marked": "^2.0.0",
     "node-emoji": "^1.10.0",
