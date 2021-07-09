@@ -11,7 +11,7 @@ const timeout = ms =>  new Promise(resolve => setTimeout(resolve, ms, 'timeout')
  * @returns true if is authenticated, false otherwise
  * @param waPage
  */
-export const isAuthenticated = (waPage: Page) : Promise<unknown> => race(needsToScan(waPage), isInsideChat(waPage), sessionDataInvalid(waPage)).toPromise();
+export const isAuthenticated = (waPage: Page) : Promise<unknown> => race(needsToScan(waPage), isInsideChat(waPage)).toPromise();
 
 export const needsToScan = (waPage: Page) : Observable<unknown> => {
   return from(new Promise(async resolve  => {
