@@ -11,7 +11,7 @@ const timeout = ms =>  new Promise(resolve => setTimeout(resolve, ms, 'timeout')
  * @returns true if is authenticated, false otherwise
  * @param waPage
  */
-export const isAuthenticated = (waPage: Page) : Promise<unknown> => race(needsToScan(waPage), isInsideChat(waPage)).toPromise();
+export const isAuthenticated = (waPage: Page) : Promise<unknown> => race(needsToScan(waPage), isInsideChat(waPage), sessionDataInvalid(waPage)).toPromise();
 
 export const needsToScan = (waPage: Page) : Observable<unknown> => {
   return from(new Promise(async resolve  => {
@@ -73,7 +73,7 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
   if(isAuthed) return true;
   const grabAndEmit = async (qrData) => {
     try {
-      const qrCode = await waPage.evaluate(`getQrPng()`);
+      const qrCode = await waPage.evaluate(`window.getQrPng()`);
       if(qrCode) {
         qrEv.emit(qrCode);
         if(!config.qrLogSkip) qrcode.generate(qrData,{small: true});
@@ -82,6 +82,8 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
         spinner.info("Something went wrong while retreiving new the QR code but it should not affect the session launch procedure.")
       }
     } catch (error) {
+      //@ts-ignore
+      console.log(await waPage.evaluate("window.launchres"))
       spinner.info(`Something went wrong while retreiving new the QR code but it should not affect the session launch procedure: ${error.message}`)
     }
   }
