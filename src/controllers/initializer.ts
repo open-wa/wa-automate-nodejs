@@ -152,7 +152,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     //@ts-ignore
     const WA_VERSION = await waPage.evaluate(() => window.Debug ? window.Debug.VERSION : 'I think you have been TOS_BLOCKed')
     //@ts-ignore
-    const canInjectEarly = await waPage.evaluate(() => { if(window.webpackChunkwhatsapp_web_client) {window.webpackChunkbuild = window.webpackChunkwhatsapp_web_client} else {!function(){const n=Object.entries(window).filter(([,n])=>n&&n.push&&n.push!=[].push);n[0]&&(window.webpackChunkbuild=window[n[0][0]])}();} return (typeof webpackChunkbuild !== "undefined") });
+    const canInjectEarly = await waPage.evaluate(() => { if(window.webpackChunkwhatsapp_web_client) {window.webpackChunkbuild = window.webpackChunkwhatsapp_web_client} else {(function(){const f = Object.entries(window).filter(([,o])=>o && o.push && (o.push != [].push));if(f[0]) {window.webpackChunkbuild = window[f[0][0]]}})()} return (typeof webpackChunkbuild !== "undefined") });
     let debugInfo : SessionInfo = {
       WA_VERSION,
       PAGE_UA,
