@@ -1,3 +1,4 @@
+//@ts-ignore
 import express from 'express';
 import http from 'http';
 import { collections } from './collections';
@@ -27,6 +28,7 @@ const getCallbacks : (listener: SimpleListener) => any[] = (listener : SimpleLis
 
 export const setUpExpressApp : () => void = () => {
     app.use(robots({ UserAgent: '*', Disallow: '/' }))
+    //@ts-ignore
     app.use(express.json({ limit: '99mb' })) //add the limit option so we can send base64 data through the api
     setupMetaMiddleware();
 }
