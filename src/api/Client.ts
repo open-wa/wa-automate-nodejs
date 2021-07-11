@@ -3127,7 +3127,6 @@ public async getStatus(contactId: ContactId) : Promise<{
   
 
     /**
-     * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
      * 
      * Clears all chats of all messages. This does not delete chats. Please be careful with this as it will remove all messages from whatsapp web and the host device. This feature is great for privacy focussed bots.
      */
