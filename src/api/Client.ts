@@ -1096,6 +1096,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
       let msg = res;
       if(res==err[1]) msg = `\n${res}. Unlock this feature and support open-wa by getting a license: ${await this.link()}\n`
       console.error(msg);
+      if(this._createConfig.onError == OnError.THROW)
       throw new CustomError(ERROR_NAME.SENDTEXT_FAILURE, msg)
     }
     return (err.includes(res) ? false : res)  as boolean | MessageId;

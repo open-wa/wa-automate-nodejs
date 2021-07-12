@@ -601,7 +601,7 @@ export interface ConfigObject {
       */
      messagePreprocessor ?: PREPROCESSORS
      /**
-      * Red
+      * What to do when an error is detected on a client method.
       * 
       * @default `NOTHING`
       */
