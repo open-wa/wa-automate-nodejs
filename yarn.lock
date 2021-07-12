@@ -55,9 +55,9 @@
     fastq "^1.6.0"
 
 "@open-wa/wa-automate@latest":
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-4.4.0.tgz#493fb5a35e827328f937d4846a70bba132a9f6cc"
-  integrity sha512-2dMDLMbrUmcCvIShzjx6FUxFz+KwOOUynSQ85JmuNACHsZvQmQwlNIc6Ocl7jtLPkYao4wHinalKGC2Pozvd2g==
+  version "4.8.2"
+  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-4.8.2.tgz#3b5780225748bb919608b6f9ab64bf4b35749e00"
+  integrity sha512-gPrHRpIP87B6EnHeJfd5DjTEk89/D11aaQBZvVFlr7GxOSEGJuNMD+CHGww9XTT1/EjEc7gLiz7Irtsm/oq1pg==
   dependencies:
     "@discordjs/collection" "^0.1.6"
     "@open-wa/wa-decrypt" "^4.0.1"
@@ -95,7 +95,7 @@
     patch-package "^6.2.2"
     pino "^6.11.1"
     postman-2-swagger "^0.5.0"
-    puppeteer "10.0.0"
+    puppeteer "10.1.0"
     puppeteer-extra "^3.1.9"
     puppeteer-extra-plugin-block-resources "^2.2.7"
     puppeteer-extra-plugin-devtools "^2.2.8"
@@ -112,7 +112,7 @@
     tcp-port-used "^1.0.1"
     terminal-link "^2.1.1"
     tree-kill "^1.2.2"
-    ts-json-schema-generator "^0.93.0"
+    ts-json-schema-generator "^0.94.0"
     ts-morph "^11.0.0"
     type-fest "^1.1.1"
     update-notifier "^5.0.0"
@@ -883,10 +883,10 @@ commander@^6.1.0:
   resolved "https://registry.yarnpkg.com/commander/-/commander-6.2.1.tgz#0792eb682dfbc325999bb2b84fddddba110ac73c"
   integrity sha512-U7VdrJFnJgo4xjrHpTzu0yrHPGImdsmD95ZlgYSEajAn2JKzDhDTPG9kBTefmObL2w/ngeZnilk+OV9CG3d7UA==
 
-commander@^7.2.0:
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-7.2.0.tgz#a36cb57d0b501ce108e4d20559a150a391d97ab7"
-  integrity sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==
+commander@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-8.0.0.tgz#1da2139548caef59bd23e66d18908dfb54b02258"
+  integrity sha512-Xvf85aAtu6v22+E5hfVoLHqyul/jyxh91zvqk/ioJTQuJR7Z78n7H558vMPKanPSRgIEeZemT92I2g9Y8LPbSQ==
 
 component-emitter@^1.2.1, component-emitter@~1.3.0:
   version "1.3.0"
@@ -3638,10 +3638,10 @@ puppeteer-page-proxy@^1.2.8:
     socks-proxy-agent "^5.0.0"
     tough-cookie "^4.0.0"
 
-puppeteer@10.0.0:
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/puppeteer/-/puppeteer-10.0.0.tgz#1b597c956103e2d989ca17f41ba4693b20a3640c"
-  integrity sha512-AxHvCb9IWmmP3gMW+epxdj92Gglii+6Z4sb+W+zc2hTTu10HF0yg6hGXot5O74uYkVqG3lfDRLfnRpi6WOwi5A==
+puppeteer@10.1.0:
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/puppeteer/-/puppeteer-10.1.0.tgz#6ee1d7e30401a967f4403bd42ace9e51e399504f"
+  integrity sha512-bsyDHbFBvbofZ63xqF7hMhuKBX1h4WsqFIAoh1GuHr/Y9cewh+EFNAOdqWSkQRHLiBU/MY6M+8PUnXXjAPtuSg==
   dependencies:
     debug "4.3.1"
     devtools-protocol "0.0.883894"
@@ -4622,17 +4622,17 @@ trim-newlines@^3.0.0:
   resolved "https://registry.yarnpkg.com/trim-newlines/-/trim-newlines-3.0.0.tgz#79726304a6a898aa8373427298d54c2ee8b1cb30"
   integrity sha512-C4+gOpvmxaSMKuEf9Qc134F1ZuOHVXKRbtEflf4NTtuuJDEIJ9p5PXsalL8SkeRw+qit1Mo+yuvMPAKwWg/1hA==
 
-ts-json-schema-generator@^0.93.0:
-  version "0.93.0"
-  resolved "https://registry.yarnpkg.com/ts-json-schema-generator/-/ts-json-schema-generator-0.93.0.tgz#3d6adf99446a1b3d0887dbad7cca015a49394d3a"
-  integrity sha512-JYacSIgw4KqsOXF/zRSY4pE/v6jUk7aMDXhwK5MdopN0UeKH58TRZHrQADy9uxTf78jqUfFLzARQKNOb9H+jVQ==
+ts-json-schema-generator@^0.94.0:
+  version "0.94.1"
+  resolved "https://registry.yarnpkg.com/ts-json-schema-generator/-/ts-json-schema-generator-0.94.1.tgz#cfecf63cdb2bbbed30c8da2bfc74a8dfb30aa14e"
+  integrity sha512-v2onRxViC7Q5jAvzwfhevbWrd6EUQ/v+s2ey1RcX2oZ67ENdTumwkr434BtbW286P8z/SNmkmLE8I1AOcSbWSw==
   dependencies:
     "@types/json-schema" "^7.0.7"
-    commander "^7.2.0"
+    commander "^8.0.0"
     fast-json-stable-stringify "^2.1.0"
     glob "^7.1.7"
     json-stable-stringify "^1.0.1"
-    typescript "~4.3.2"
+    typescript "~4.3.4"
 
 ts-morph@^11.0.0:
   version "11.0.0"
@@ -4714,10 +4714,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@~4.3.2:
-  version "4.3.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.3.2.tgz#399ab18aac45802d6f2498de5054fcbbe716a805"
-  integrity sha512-zZ4hShnmnoVnAHpVHWpTcxdv7dWP60S2FsydQLV8V5PbS3FifjWFFRiHSWpDJahly88PRyV5teTSLoq4eG7mKw==
+typescript@~4.3.4:
+  version "4.3.5"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.3.5.tgz#4d1c37cc16e893973c45a06886b7113234f119f4"
+  integrity sha512-DqQgihaQ9cUrskJo9kIyW/+g0Vxsk8cDtZ52a3NGh0YNTfpUSArXSohyUGnvbPazEPLu398C0UxmKSOrPumUzA==
 
 typical@^5.2.0:
   version "5.2.0"
