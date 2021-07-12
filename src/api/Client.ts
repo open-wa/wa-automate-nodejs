@@ -322,6 +322,7 @@ export class Client {
         this.onLogout(() => {
             if(this._createConfig?.deleteSessionDataOnLogout) deleteSessionData(this._createConfig)
             if(this._createConfig?.killClientOnLogout) {
+              console.log("Session logged out. Killing client")
               this.kill();
             }
         })
@@ -342,6 +343,7 @@ export class Client {
 
   private _setOnClose() : void {
     this._page.on('close',()=>{
+      console.log("Browser page has closed. Killing client")
       this.kill();
       if(this._createConfig?.killProcessOnBrowserClose) process.exit();
     })
