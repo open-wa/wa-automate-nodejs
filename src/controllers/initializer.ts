@@ -163,7 +163,8 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     };
     if(config?.logDebugInfoAsObject || config?.disableSpins) spinner.succeed(`Debug info: ${JSON.stringify(debugInfo, null, 2)}`);
      else console.table(debugInfo);
-
+     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     spinner.succeed('Use this easy pre-filled link to report an issue: ' + `https://github.com/open-wa/wa-automate-nodejs/issues/new?template=bug_report.yaml&debug_info=${encodeURI(JSON.stringify((({ OS, PAGE_UA, ...o }) => o)(debugInfo) ,null,2))}&environment=${`-%20OS:%20${encodeURI(debugInfo.OS)}%0A-%20Node:%20${encodeURI(process.versions.node)}%0A-%20npm:%20%0A`}`);
     /**
      * Attempt to preload patches
      */
