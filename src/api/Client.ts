@@ -208,7 +208,7 @@ declare module WAPI {
   const forceUpdateConnectionState: () => Promise<string>;
   const getBatteryLevel: () => number;
   const getIsPlugged: () => boolean;
-  const clearAllChats: () => Promise<boolean>;
+  const clearAllChats: (ts ?: number) => Promise<boolean>;
   const cutMsgCache: () => boolean;
   const cutChatCache: () => boolean;
   const deleteStaleChats: (startingFrom: number) => Promise<boolean>;
@@ -3130,11 +3130,13 @@ public async getStatus(contactId: ContactId) : Promise<{
   
 
     /**
-     * 
      * Clears all chats of all messages. This does not delete chats. Please be careful with this as it will remove all messages from whatsapp web and the host device. This feature is great for privacy focussed bots.
+     * 
+     * @param ts number A chat that has had a message after ts (epoch timestamp) will not be cleared.
+     *
      */
-  public async clearAllChats() : Promise<boolean> {
-    return await this.pup(() => WAPI.clearAllChats());
+  public async clearAllChats(ts ?: number) : Promise<boolean> {
+    return await this.pup(({ ts }) => WAPI.clearAllChats(ts), {ts});
   }
   
 
