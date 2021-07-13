@@ -165,10 +165,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
      else console.table(debugInfo);
      // eslint-disable-next-line @typescript-eslint/no-unused-vars
      spinner.succeed('Use this easy pre-filled link to report an issue: ' + `https://github.com/open-wa/wa-automate-nodejs/issues/new?template=bug_report.yaml&debug_info=${encodeURI(JSON.stringify((({ OS, PAGE_UA, ...o }) => o)(debugInfo) ,null,2))}&environment=${`-%20OS:%20${encodeURI(debugInfo.OS)}%0A-%20Node:%20${encodeURI(process.versions.node)}%0A-%20npm:%20%0A`}`);
-    /**
-     * Attempt to preload patches
-     */
-    const patchPromise = getPatch(config, spinner, debugInfo)
+
     if (canInjectEarly) {
       spinner.start('Injecting api');
       waPage = await injectApi(waPage);
@@ -252,6 +249,10 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     //@ts-ignore
     const VALID_SESSION = await waPage.evaluate(() => window.Store && window.Store.Msg ? true : false);
     if (VALID_SESSION) {
+      /**
+       * Session is valid, attempt to preload patches
+       */
+      const patchPromise = getPatch(config, spinner, debugInfo)
       spinner.succeed('Client is ready');
       const localStorage = JSON.parse(await waPage.evaluate(() => {
         return JSON.stringify(window.localStorage);
