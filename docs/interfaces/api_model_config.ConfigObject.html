@@ -1,0 +1,1575 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>ConfigObject | @open-wa/wa-automate - v4.9.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.9.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<link rel="stylesheet" href="../assets/css/pages.css">
+	<script>
+		(function (w,d,s,o,f,js,fjs) {
+			w['Otechie-Widget']=o;w[o] = w[o] || function () { (w[o].q = w[o].q || []).push(arguments) };
+			js = d.createElement(s), fjs = d.getElementsByTagName(s)[0];
+			js.id = o; js.src = f; js.async = 1; fjs.parentNode.insertBefore(js, fjs);
+		}(window, document, 'script', 'ow', 'https://widget.otechie.com/widget.js'));
+		ow('init', { username: 'smashah' });
+	</script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.9.0</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../modules.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/api_model_config.html">api/model/config</a>
+				</li>
+				<li>
+					<a href="api_model_config.ConfigObject.html">ConfigObject</a>
+				</li>
+			</ul>
+			<h1>Interface ConfigObject</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">ConfigObject</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#authTimeout" class="tsd-kind-icon">auth<wbr>Timeout</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#autoRefresh" class="tsd-kind-icon">auto<wbr>Refresh</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#blockAssets" class="tsd-kind-icon">block<wbr>Assets</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#blockCrashLogs" class="tsd-kind-icon">block<wbr>Crash<wbr>Logs</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#browserRevision" class="tsd-kind-icon">browser<wbr>Revision</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#browserWSEndpoint" class="tsd-kind-icon">browserWSEndpoint</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#bypassCSP" class="tsd-kind-icon">bypassCSP</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#cacheEnabled" class="tsd-kind-icon">cache<wbr>Enabled</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#cachedPatch" class="tsd-kind-icon">cached<wbr>Patch</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#callTimeout" class="tsd-kind-icon">call<wbr>Timeout</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#chromiumArgs" class="tsd-kind-icon">chromium<wbr>Args</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#corsFix" class="tsd-kind-icon">cors<wbr>Fix</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#customUserAgent" class="tsd-kind-icon">custom<wbr>User<wbr>Agent</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#deleteSessionDataOnLogout" class="tsd-kind-icon">delete<wbr>Session<wbr>Data<wbr>OnLogout</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#devtools" class="tsd-kind-icon">devtools</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#disableSpins" class="tsd-kind-icon">disable<wbr>Spins</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#eventMode" class="tsd-kind-icon">event<wbr>Mode</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#executablePath" class="tsd-kind-icon">executable<wbr>Path</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#headless" class="tsd-kind-icon">headless</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#hostNotificationLang" class="tsd-kind-icon">host<wbr>Notification<wbr>Lang</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#idCorrection" class="tsd-kind-icon">id<wbr>Correction</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#inDocker" class="tsd-kind-icon">in<wbr>Docker</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#keepUpdated" class="tsd-kind-icon">keep<wbr>Updated</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#killClientOnLogout" class="tsd-kind-icon">kill<wbr>Client<wbr>OnLogout</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#killProcessOnBrowserClose" class="tsd-kind-icon">kill<wbr>Process<wbr>OnBrowser<wbr>Close</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#killProcessOnTimeout" class="tsd-kind-icon">kill<wbr>Process<wbr>OnTimeout</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#legacy" class="tsd-kind-icon">legacy</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#licenseKey" class="tsd-kind-icon">license<wbr>Key</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#logConsole" class="tsd-kind-icon">log<wbr>Console</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#logConsoleErrors" class="tsd-kind-icon">log<wbr>Console<wbr>Errors</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#logDebugInfoAsObject" class="tsd-kind-icon">log<wbr>Debug<wbr>Info<wbr>AsObject</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#logFile" class="tsd-kind-icon">log<wbr>File</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#messagePreprocessor" class="tsd-kind-icon">message<wbr>Preprocessor</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#onError" class="tsd-kind-icon">on<wbr>Error</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#pQueueDefault" class="tsd-kind-icon">p<wbr>Queue<wbr>Default</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#popup" class="tsd-kind-icon">popup</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#proxyServerCredentials" class="tsd-kind-icon">proxy<wbr>Server<wbr>Credentials</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#qrFormat" class="tsd-kind-icon">qr<wbr>Format</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#qrLogSkip" class="tsd-kind-icon">qr<wbr>Log<wbr>Skip</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#qrPopUpOnly" class="tsd-kind-icon">qr<wbr>Pop<wbr>UpOnly</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#qrQuality" class="tsd-kind-icon">qr<wbr>Quality</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#qrRefreshS" class="tsd-kind-icon">qr<wbr>RefreshS</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#qrTimeout" class="tsd-kind-icon">qr<wbr>Timeout</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#raspi" class="tsd-kind-icon">raspi</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#resizable" class="tsd-kind-icon">resizable</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#restartOnCrash" class="tsd-kind-icon">restart<wbr>OnCrash</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#safeMode" class="tsd-kind-icon">safe<wbr>Mode</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#screenshotOnInitializationBrowserError" class="tsd-kind-icon">screenshot<wbr>OnInitialization<wbr>Browser<wbr>Error</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#sessionData" class="tsd-kind-icon">session<wbr>Data</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#sessionDataPath" class="tsd-kind-icon">session<wbr>Data<wbr>Path</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#sessionId" class="tsd-kind-icon">session<wbr>Id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#skipBrokenMethodsCheck" class="tsd-kind-icon">skip<wbr>Broken<wbr>Methods<wbr>Check</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#skipSessionSave" class="tsd-kind-icon">skip<wbr>Session<wbr>Save</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#skipUpdateCheck" class="tsd-kind-icon">skip<wbr>Update<wbr>Check</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#stickerServerEndpoint" class="tsd-kind-icon">sticker<wbr>Server<wbr>Endpoint</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#throwErrorOnTosBlock" class="tsd-kind-icon">throw<wbr>Error<wbr>OnTos<wbr>Block</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#throwOnExpiredSessionData" class="tsd-kind-icon">throw<wbr>OnExpired<wbr>Session<wbr>Data</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#useChrome" class="tsd-kind-icon">use<wbr>Chrome</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#useNativeProxy" class="tsd-kind-icon">use<wbr>Native<wbr>Proxy</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#useStealth" class="tsd-kind-icon">use<wbr>Stealth</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#viewport" class="tsd-kind-icon">viewport</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="authTimeout" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> auth<wbr>Timeout</h3>
+					<div class="tsd-signature tsd-kind-icon">auth<wbr>Timeout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This determines how long the process should wait for the session authentication. If exceeded, checks if phone is out of reach (turned of or without internet connection) and throws an error. It does not relate to the amount of time spent waiting for a qr code scan (see <a href="api_model_config.ConfigObject.html#qrTimeout">qrTimeout</a>). To have the system wait continuously, set this to <code>0</code>.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>60</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="autoRefresh" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> auto<wbr>Refresh</h3>
+					<div class="tsd-signature tsd-kind-icon">auto<wbr>Refresh<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<dl class="tsd-comment-tags">
+							<dt>deprecated</dt>
+							<dd><p>THIS IS LOCKED TO <code>true</code> AND CANNOT BE TURNED OFF. PLEASE SEE <a href="api_model_config.ConfigObject.html#authTimeout">authTimeout</a></p>
+								<p>Setting this to true will result in new QR codes being generated if the end user takes too long to scan the QR code.</p>
+							</dd>
+							<dt>default</dt>
+							<dd><p><code>true</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="blockAssets" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> block<wbr>Assets</h3>
+					<div class="tsd-signature tsd-kind-icon">block<wbr>Assets<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Setting this to true will block all assets from loading onto the page. This may result in some load time improvements but also increases instability.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="blockCrashLogs" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> block<wbr>Crash<wbr>Logs</h3>
+					<div class="tsd-signature tsd-kind-icon">block<wbr>Crash<wbr>Logs<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Setting this to true will block any network calls to crash log servers. This should keep anything you do under the radar.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>true</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="browserRevision" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> browser<wbr>Revision</h3>
+					<div class="tsd-signature tsd-kind-icon">browser<wbr>Revision<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This is the specific browser revision to be downlaoded and used. You can find browser revision strings here: <a href="http://omahaproxy.appspot.com/">http://omahaproxy.appspot.com/</a>
+								Learn more about it here: <a href="https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-browserfetcher">https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-browserfetcher</a>
+								If you&#39;re having trouble with sending images, try &#39;737027&#39;.
+								If you go too far back things will start breaking !!!!!!
+							NOTE: THIS WILL OVERRIDE useChrome and executablePath. ONLY USE THIS IF YOU KNOW WHAT YOU ARE DOING.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="browserWSEndpoint" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> browserWSEndpoint</h3>
+					<div class="tsd-signature tsd-kind-icon">browserWSEndpoint<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>ALPHA EXPERIMENTAL FEATURE! DO NOT USE IN PRODUCTION, REQUIRES TESTING.</p>
+						</div>
+						<p>Learn more:</p>
+						<p><a href="https://pptr.dev/#?product=Puppeteer&amp;version=v3.1.0&amp;show=api-puppeteerconnectoptions">https://pptr.dev/#?product=Puppeteer&amp;version=v3.1.0&amp;show=api-puppeteerconnectoptions</a></p>
+						<p><a href="https://medium.com/@jaredpotter1/connecting-puppeteer-to-existing-chrome-window-8a10828149e0">https://medium.com/@jaredpotter1/connecting-puppeteer-to-existing-chrome-window-8a10828149e0</a></p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="bypassCSP" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> bypassCSP</h3>
+					<div class="tsd-signature tsd-kind-icon">bypassCSP<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Disable cors see: <a href="https://pptr.dev/#?product=Puppeteer&amp;version=v3.0.4&amp;show=api-pagesetbypasscspenabled">https://pptr.dev/#?product=Puppeteer&amp;version=v3.0.4&amp;show=api-pagesetbypasscspenabled</a> If you are having an issue with sending media try to set this to true. Otherwise leave it set to false.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="cacheEnabled" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> cache<wbr>Enabled</h3>
+					<div class="tsd-signature tsd-kind-icon">cache<wbr>Enabled<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Setting this to false turn off the cache. This may improve memory usage.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="cachedPatch" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> cached<wbr>Patch</h3>
+					<div class="tsd-signature tsd-kind-icon">cached<wbr>Patch<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This will force the library to use the default cached raw github link for patches to shave a few hundred milliseconds from your launch time. If you use this option, you will need to wait about 5 minutes before trying out new patches.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="callTimeout" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> call<wbr>Timeout</h3>
+					<div class="tsd-signature tsd-kind-icon">call<wbr>Timeout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Amount of time (in ms) to wait for a client method (specifically methods that interact with the WA web session) to resolve. If a client method results takes longer than the timout value then it will result in a <a href="../classes/api_model_errors.PageEvaluationTimeout.html">PageEvaluationTimeout</a> error.</p>
+						</div>
+						<p>If you get this error, it does not automatically mean that the method failed - it just stops your program from waiting for a client method to resolve.</p>
+						<p>This is useful if you do not rely on the results of a client method (e.g the message ID).</p>
+						<p>If set to <code>0</code>, the process will wait indefinitely for a client method to resolve.</p>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p>0</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="chromiumArgs" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> chromium<wbr>Args</h3>
+					<div class="tsd-signature tsd-kind-icon">chromium<wbr>Args<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This allows you to pass any array of custom chrome/chromium argument strings to the puppeteer instance.
+							You can find all possible arguements <a href="https://peter.sh/experiments/chromium-command-line-switches/">here</a>.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="corsFix" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> cors<wbr>Fix</h3>
+					<div class="tsd-signature tsd-kind-icon">cors<wbr>Fix<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Setting this to true will bypass web security. DO NOT DO THIS IF YOU DO NOT HAVE TO. CORS issue may arise when using a proxy.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="customUserAgent" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> custom<wbr>User<wbr>Agent</h3>
+					<div class="tsd-signature tsd-kind-icon">custom<wbr>User<wbr>Agent<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>You may set a custom user agent. However, due to recent developments, this is not really neccessary any more.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="deleteSessionDataOnLogout" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> delete<wbr>Session<wbr>Data<wbr>OnLogout</h3>
+					<div class="tsd-signature tsd-kind-icon">delete<wbr>Session<wbr>Data<wbr>OnLogout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Deletes the session data file (if found) on logout event. This results in a quicker login when you restart the process.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="devtools" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> devtools</h3>
+					<div class="tsd-signature tsd-kind-icon">devtools<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><a href="api_model_config.DevTools.html" class="tsd-signature-type" data-tsd-kind="Interface">DevTools</a></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>You can enable remote devtools by setting this to trye. If you set this to true there will be security on the devtools url.
+							If you want, you can also pass a username &amp; password.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="disableSpins" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> disable<wbr>Spins</h3>
+					<div class="tsd-signature tsd-kind-icon">disable<wbr>Spins<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Setting this to true will simplify logs for use within docker containers by disabling spins (will still print raw messages).</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="eventMode" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> event<wbr>Mode</h3>
+					<div class="tsd-signature tsd-kind-icon">event<wbr>Mode<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Setting listeners may not be your cup of tea. With eventMode, all <a href="../enums/api_model_events.SimpleListener.html">SimpleListener</a> events will be registered automatically and be filed via the built in Events Listener.</p>
+						</div>
+						<p>This is useful because you can register/deregister the event listener as needed whereas the legacy method of setting callbacks are only be set once</p>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>true</code>;</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="executablePath" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> executable<wbr>Path</h3>
+					<div class="tsd-signature tsd-kind-icon">executable<wbr>Path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Some features, like video upload, do not work without a chrome instance. Set this to the path of your chrome instance or you can use <code>useChrome:true</code> to automatically detect a chrome instance for you. Please note, this overrides <code>useChrome</code>.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="headless" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> headless</h3>
+					<div class="tsd-signature tsd-kind-icon">headless<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>By default, all instances of @open-wa/wa-automate are headless (i.e you don&#39;t see a chrome window open), you can set this to false to show the chrome/chromium window.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>true</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="hostNotificationLang" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> host<wbr>Notification<wbr>Lang</h3>
+					<div class="tsd-signature tsd-kind-icon">host<wbr>Notification<wbr>Lang<span class="tsd-signature-symbol">:</span> <a href="../enums/api_model_config.NotificationLanguage.html" class="tsd-signature-type" data-tsd-kind="Enumeration">NotificationLanguage</a></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The language of the host notification. See: <a href="https://github.com/open-wa/wa-automate-nodejs/issues/709#issuecomment-673419088">https://github.com/open-wa/wa-automate-nodejs/issues/709#issuecomment-673419088</a></p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="idCorrection" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> id<wbr>Correction</h3>
+					<div class="tsd-signature tsd-kind-icon">id<wbr>Correction<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>When true, the system will attempt to correct chatIds and groupChatIds. This means you can ignore <code>@c.us</code> and <code>@g.us</code> distinctions in some parameters.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p>false</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="inDocker" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> in<wbr>Docker</h3>
+					<div class="tsd-signature tsd-kind-icon">in<wbr>Docker<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>If true, the process will try infer as many config variables as possible from the environment variables. The format of the variables are as below:</p>
+							<pre><code><span style="color: #001080">sessionData</span><span style="color: #000000">     ==&gt;     </span><span style="color: #0070C1">WA_SESSION_DATA</span>
+<span style="color: #001080">sessionDataPath</span><span style="color: #000000"> ==&gt;     </span><span style="color: #0070C1">WA_SESSION_DATA_PATH</span>
+<span style="color: #001080">sessionId</span><span style="color: #000000">       ==&gt;     </span><span style="color: #0070C1">WA_SESSION_ID</span>
+<span style="color: #001080">customUserAgent</span><span style="color: #000000"> ==&gt;     </span><span style="color: #0070C1">WA_CUSTOM_USER_AGENT</span>
+<span style="color: #001080">blockCrashLogs</span><span style="color: #000000">  ==&gt;     </span><span style="color: #0070C1">WA_BLOCK_CRASH_LOGS</span>
+<span style="color: #001080">blockAssets</span><span style="color: #000000">     ==&gt;     </span><span style="color: #0070C1">WA_BLOCK_ASSETS</span>
+<span style="color: #001080">corsFix</span><span style="color: #000000">         ==&gt;     </span><span style="color: #0070C1">WA_CORS_FIX</span>
+<span style="color: #001080">cacheEnabled</span><span style="color: #000000">    ==&gt;     </span><span style="color: #0070C1">WA_CACHE_ENABLED</span>
+<span style="color: #001080">headless</span><span style="color: #000000">        ==&gt;     </span><span style="color: #0070C1">WA_HEADLESS</span>
+<span style="color: #001080">qrTimeout</span><span style="color: #000000">       ==&gt;     </span><span style="color: #0070C1">WA_QR_TIMEOUT</span>
+<span style="color: #001080">useChrome</span><span style="color: #000000">       ==&gt;     </span><span style="color: #0070C1">WA_USE_CHROME</span>
+<span style="color: #001080">qrLogSkip</span><span style="color: #000000">       ==&gt;     </span><span style="color: #0070C1">WA_QR_LOG_SKIP</span>
+<span style="color: #001080">disableSpins</span><span style="color: #000000">    ==&gt;     </span><span style="color: #0070C1">WA_DISABLE_SPINS</span>
+<span style="color: #001080">logConsole</span><span style="color: #000000">      ==&gt;     </span><span style="color: #0070C1">WA_LOG_CONSOLE</span>
+<span style="color: #001080">logConsoleErrors</span><span style="color: #000000">==&gt;     </span><span style="color: #0070C1">WA_LOG_CONSOLE_ERRORS</span>
+<span style="color: #001080">authTimeout</span><span style="color: #000000">     ==&gt;     </span><span style="color: #0070C1">WA_AUTH_TIMEOUT</span>
+<span style="color: #001080">safeMode</span><span style="color: #000000">        ==&gt;     </span><span style="color: #0070C1">WA_SAFE_MODE</span>
+<span style="color: #001080">skipSessionSave</span><span style="color: #000000"> ==&gt;     </span><span style="color: #0070C1">WA_SKIP_SESSION_SAVE</span>
+<span style="color: #001080">popup</span><span style="color: #000000">           ==&gt;     </span><span style="color: #0070C1">WA_POPUP</span><span style="color: #000000"> </span>
+<span style="color: #001080">licensekey</span><span style="color: #000000">      ==&gt;     </span><span style="color: #0070C1">WA_LICENSE_KEY</span><span style="color: #000000"> </span>
+</code></pre>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="keepUpdated" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> keep<wbr>Updated</h3>
+					<div class="tsd-signature tsd-kind-icon">keep<wbr>Updated<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>[ALPHA FEATURE - ONLY IMPLEMENTED FOR TESTING - DO NOT USE IN PRODUCTION YET]
+							Setting this to true will result in the library making sure it is always starting with the latest version of itself. This overrides <code>skipUpdateCheck</code>.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="killClientOnLogout" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> kill<wbr>Client<wbr>OnLogout</h3>
+					<div class="tsd-signature tsd-kind-icon">kill<wbr>Client<wbr>OnLogout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Kill the client when a logout is detected</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="killProcessOnBrowserClose" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> kill<wbr>Process<wbr>OnBrowser<wbr>Close</h3>
+					<div class="tsd-signature tsd-kind-icon">kill<wbr>Process<wbr>OnBrowser<wbr>Close<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Setting this to <code>true</code> will kill the whole process when the client is disconnected from the page or if the browser is closed.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="killProcessOnTimeout" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> kill<wbr>Process<wbr>OnTimeout</h3>
+					<div class="tsd-signature tsd-kind-icon">kill<wbr>Process<wbr>OnTimeout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>If set to true, the system will kill the whole node process when either an <a href="api_model_config.ConfigObject.html#authTimeout">authTimeout</a> or a <a href="api_model_config.ConfigObject.html#qrTimeout">qrTimeout</a> has been reached. This is useful to prevent hanging processes.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="legacy" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> legacy</h3>
+					<div class="tsd-signature tsd-kind-icon">legacy<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>As the library is constantly evolving, some parts will be replaced with more efficient and improved code. In some of the infinite edge cases these new changes may not work for you. Set this to true to roll back on &#39;late beta&#39; features. The reason why legacy is false by default is that in order for features to be tested they have to be released and used by everyone to find the edge cases and fix them.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="licenseKey" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> license<wbr>Key</h3>
+					<div class="tsd-signature tsd-kind-icon">license<wbr>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>In order to unlock the functionality to send texts to unknown numbers, you need a License key.
+							One License Key is valid for each number. Each License Key starts from £5 per month.</p>
+						</div>
+						<p>Please check README for instructions on how to get a license key.</p>
+						<p>Notes:</p>
+						<ol>
+							<li>You can change the number assigned to that License Key at any time, just message me the new number on the private discord channel.</li>
+							<li>In order to cancel your License Key, simply stop your membership.</li>
+						</ol>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="logConsole" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> log<wbr>Console</h3>
+					<div class="tsd-signature tsd-kind-icon">log<wbr>Console<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>If true, this will log any console messages from the browser.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="logConsoleErrors" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> log<wbr>Console<wbr>Errors</h3>
+					<div class="tsd-signature tsd-kind-icon">log<wbr>Console<wbr>Errors<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>If true, this will log any error messages from the browser instance</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="logDebugInfoAsObject" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> log<wbr>Debug<wbr>Info<wbr>AsObject</h3>
+					<div class="tsd-signature tsd-kind-icon">log<wbr>Debug<wbr>Info<wbr>AsObject<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Setting <code>this</code> to true will replace the <code>console.table</code> with a stringified logging of the debug info object instead. This would be useful to set for smaller terminal windows. If <code>disableSpins</code> is <code>true</code> then this will also be <code>true</code>.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="logFile" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> log<wbr>File</h3>
+					<div class="tsd-signature tsd-kind-icon">log<wbr>File<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>If true, the system will automatically create a log of all processes relating to actions sent to the web session.</p>
+						</div>
+						<p>The location of the file will be relative to the process directory (pd)</p>
+						<p><code>[pd]/[sessionId]/[start timestamp].log</code></p>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p>false</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="messagePreprocessor" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> message<wbr>Preprocessor</h3>
+					<div class="tsd-signature tsd-kind-icon">message<wbr>Preprocessor<span class="tsd-signature-symbol">:</span> <a href="../enums/structures_preProcessors.PREPROCESSORS.html" class="tsd-signature-type" data-tsd-kind="Enumeration">PREPROCESSORS</a></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Set a preprocessor for messages. See <a href="../enums/structures_preProcessors.PREPROCESSORS.html">PREPROCESSORS</a> for more info.</p>
+						</div>
+						<p>options: <code>SCRUB</code>, <code>BODY_ONLY</code>, <code>AUTO_DECRYPT</code>, <code>AUTO_DECRYPT_SAVE</code>.</p>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>undefined</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="onError" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Error</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Error<span class="tsd-signature-symbol">:</span> <a href="../enums/api_model_config.OnError.html" class="tsd-signature-type" data-tsd-kind="Enumeration">OnError</a></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>What to do when an error is detected on a client method.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>NOTHING</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="pQueueDefault" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> p<wbr>Queue<wbr>Default</h3>
+					<div class="tsd-signature tsd-kind-icon">p<wbr>Queue<wbr>Default<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Default pqueue options applied to all listeners that can take pqueue options as a second optional parameter. For now, this only includes <code>onMessage</code> and <code>onAnyMessage</code>.</p>
+						</div>
+						<p>See: <a href="https://github.com/sindresorhus/p-queue#options">https://github.com/sindresorhus/p-queue#options</a></p>
+						<p>Example: process 5 events within every 3 seconds window. Make sure to only process at most 2 at any one time. Make sure there is at least 100ms between each event processing.</p>
+						<pre><code class="language-javascript"><span style="color: #000000">    {   </span>
+<span style="color: #000000">        intervalCap: </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #008000">//process 5 events</span>
+<span style="color: #000000">        interval: </span><span style="color: #098658">3000</span><span style="color: #000000">, </span><span style="color: #008000">//within every three second window</span>
+<span style="color: #000000">        concurrency: </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #008000">//make sure to process, at most, 2 events at any one time</span>
+<span style="color: #000000">        timeout: </span><span style="color: #098658">100</span><span style="color: #000000">, </span><span style="color: #008000">//make sure there is a 100ms gap between each event processing.</span>
+<span style="color: #000000">        carryoverConcurrencyCount: </span><span style="color: #0000FF">true</span><span style="color: #000000"> </span><span style="color: #008000">//If there are more than 5 events in that period, process them within the next 3 second period. Make sure this is always set to true!!!</span>
+<span style="color: #000000">    }</span>
+</code></pre>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>undefined</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="popup" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> popup</h3>
+					<div class="tsd-signature tsd-kind-icon">popup<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>If true, the process will open a browser window where you will see basic event logs and QR codes to authenticate the session. Usually it will open on port 3000. It can also be set to a preferred port.</p>
+						</div>
+						<p>You can also get the QR code png at (if localhost and port 3000):</p>
+						<p><code>http://localhost:3000/qr</code></p>
+						<p>or if you have multiple session:</p>
+						<p> <code>http://localhost:3000/qr?sessionId=[sessionId]</code></p>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false | 3000</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="proxyServerCredentials" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> proxy<wbr>Server<wbr>Credentials</h3>
+					<div class="tsd-signature tsd-kind-icon">proxy<wbr>Server<wbr>Credentials<span class="tsd-signature-symbol">:</span> <a href="api_model_config.ProxyServerCredentials.html" class="tsd-signature-type" data-tsd-kind="Interface">ProxyServerCredentials</a></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>If sent, adds a call to waPage.authenticate with those credentials. Set <code>corsFix</code> to true if using a proxy results in CORS errors.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="qrFormat" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> qr<wbr>Format</h3>
+					<div class="tsd-signature tsd-kind-icon">qr<wbr>Format<span class="tsd-signature-symbol">:</span> <a href="../enums/api_model_config.QRFormat.html" class="tsd-signature-type" data-tsd-kind="Enumeration">QRFormat</a></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The output format of the qr code. <code>png</code>, <code>jpeg</code> or <code>webm</code>.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>png</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="qrLogSkip" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> qr<wbr>Log<wbr>Skip</h3>
+					<div class="tsd-signature tsd-kind-icon">qr<wbr>Log<wbr>Skip<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>If true, skips logging the QR Code to the console.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="qrPopUpOnly" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> qr<wbr>Pop<wbr>UpOnly</h3>
+					<div class="tsd-signature tsd-kind-icon">qr<wbr>Pop<wbr>UpOnly<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This needs to be used in conjuction with <code>popup</code>, if <code>popup</code> is not true or a number (representing a desired port) then this will not work.</p>
+						</div>
+						<p>Setting this to true will make sure that only the qr code png is served via the web server. This is useful if you do not need the whole status page.</p>
+						<p>As mentioned in <a href="#popup">popup</a>, the url for the qr code is <code>http://localhost:3000/qr</code> if the port is 3000.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="qrQuality" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> qr<wbr>Quality</h3>
+					<div class="tsd-signature tsd-kind-icon">qr<wbr>Quality<span class="tsd-signature-symbol">:</span> <a href="../enums/api_model_config.QRQuality.html" class="tsd-signature-type" data-tsd-kind="Enumeration">QRQuality</a></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The output quality of the qr code during authentication. This can be any increment of 0.1 from 0.1 to 1.0.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>1.0</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="qrRefreshS" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> qr<wbr>RefreshS</h3>
+					<div class="tsd-signature tsd-kind-icon">qr<wbr>RefreshS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<dl class="tsd-comment-tags">
+							<dt>deprecated</dt>
+							<dd><p>This now has no effect</p>
+								<p>This determines the interval at which to refresh the QR code. By default, WA updates the qr code every 18-19 seconds so make sure this value is set to UNDER 18 seconds!!</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="qrTimeout" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> qr<wbr>Timeout</h3>
+					<div class="tsd-signature tsd-kind-icon">qr<wbr>Timeout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This determines how long the process should wait for a QR code to be scanned before killing the process entirely. To have the system wait continuously, set this to <code>0</code>.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p>60</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="raspi" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> raspi</h3>
+					<div class="tsd-signature tsd-kind-icon">raspi<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Set this to <code>true</code> to make the library work on Raspberry Pi OS.</p>
+						</div>
+						<p>Make sure to run the following command before running the library the first time:</p>
+						<pre><code><span style="color: #000000">&gt; </span><span style="color: #001080">sudo</span><span style="color: #000000"> </span><span style="color: #001080">apt</span><span style="color: #000000"> </span><span style="color: #001080">update</span><span style="color: #000000"> -</span><span style="color: #001080">y</span><span style="color: #000000"> &amp;&amp; </span><span style="color: #001080">sudo</span><span style="color: #000000"> </span><span style="color: #001080">apt</span><span style="color: #000000"> </span><span style="color: #001080">install</span><span style="color: #000000"> </span><span style="color: #001080">chromium</span><span style="color: #000000">-</span><span style="color: #001080">browser</span><span style="color: #000000"> </span><span style="color: #001080">chromium</span><span style="color: #000000">-</span><span style="color: #001080">codecs</span><span style="color: #000000">-</span><span style="color: #001080">ffmpeg</span><span style="color: #000000"> -</span><span style="color: #001080">y</span><span style="color: #000000"> &amp;&amp; </span><span style="color: #001080">sudo</span><span style="color: #000000"> </span><span style="color: #001080">apt</span><span style="color: #000000"> </span><span style="color: #001080">upgrade</span>
+</code></pre>
+						<p>If you&#39;re using the CLI, you can set this value to <code>true</code> by adding the following flag to the CLI command</p>
+						<pre><code><span style="color: #000000">&gt; </span><span style="color: #001080">npx</span><span style="color: #000000"> @</span><span style="color: #001080">open</span><span style="color: #000000">-</span><span style="color: #001080">wa</span><span style="color: #000000">/</span><span style="color: #001080">wa</span><span style="color: #000000">-</span><span style="color: #001080">automate</span><span style="color: #000000"> ... --</span><span style="color: #001080">raspi</span>
+</code></pre>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="resizable" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> resizable</h3>
+					<div class="tsd-signature tsd-kind-icon">resizable<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Syncs the viewport size with the window size which is how normal browsers act. Only relevant when <code>headless: false</code> and this overrides <code>viewport</code> config.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="restartOnCrash" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> restart<wbr>OnCrash</h3>
+					<div class="tsd-signature tsd-kind-icon">restart<wbr>OnCrash<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>If set, the program will try to recreate itself when the page crashes. You have to pass the function that you want called upon restart. Please note that when the page crashes you may miss some messages.
+							E.g:</p>
+							<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">start</span><span style="color: #000000">  = </span><span style="color: #0000FF">async</span><span style="color: #000000"> (</span><span style="color: #001080">client</span><span style="color: #000000">: </span><span style="color: #267F99">Client</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {...}</span>
+<span style="color: #795E26">create</span><span style="color: #000000">({</span>
+<span style="color: #000000">...</span>
+<span style="color: #001080">restartOnCrash</span><span style="color: #000000">: </span><span style="color: #001080">start</span><span style="color: #000000">,</span>
+<span style="color: #000000">...</span>
+<span style="color: #000000">})</span>
+</code></pre>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="safeMode" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> safe<wbr>Mode</h3>
+					<div class="tsd-signature tsd-kind-icon">safe<wbr>Mode<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>If true, client will check if the page is valid before each command. If page is not valid, it will throw an error.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="screenshotOnInitializationBrowserError" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> screenshot<wbr>OnInitialization<wbr>Browser<wbr>Error</h3>
+					<div class="tsd-signature tsd-kind-icon">screenshot<wbr>OnInitialization<wbr>Browser<wbr>Error<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>When true, this option will take a screenshot of the browser when an unexpected error occurs within the browser during <code>create</code> initialization. The path will be <code>[working directory]/logs/[session ID]/[start timestamp]/[timestamp].jpg</code></p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="sessionData" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> session<wbr>Data</h3>
+					<div class="tsd-signature tsd-kind-icon">session<wbr>Data<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="api_model_config.SessionData.html" class="tsd-signature-type" data-tsd-kind="Interface">SessionData</a></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The authentication object (as a JSON object or a base64 encoded string) that is required to migrate a session from one instance to another or to just restart an existing instance.
+							This sessionData is provided in a generated JSON file (it&#39;s a json file but contains the JSON data as a base64 encoded string) upon QR scan or an event.</p>
+						</div>
+						<p>You can capture the event like so:</p>
+						<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">create</span><span style="color: #000000">, </span><span style="color: #001080">ev</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@open-wa/wa-automate&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #000000">     </span><span style="color: #001080">ev</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;sessionData.**&#039;</span><span style="color: #000000">, </span><span style="color: #0000FF">async</span><span style="color: #000000"> (</span><span style="color: #001080">sessionData</span><span style="color: #000000">, </span><span style="color: #001080">sessionId</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000">{</span>
+<span style="color: #000000">         </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">sessionId</span><span style="color: #000000">, </span><span style="color: #001080">sessionData</span><span style="color: #000000">)</span>
+<span style="color: #000000">     })</span>
+
+<span style="color: #008000">//or as base64 encoded string</span>
+
+<span style="color: #000000">     </span><span style="color: #001080">ev</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;sessionDataBase64.**&#039;</span><span style="color: #000000">, </span><span style="color: #0000FF">async</span><span style="color: #000000"> (</span><span style="color: #001080">sessionDatastring</span><span style="color: #000000">, </span><span style="color: #001080">sessionId</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000">{</span>
+<span style="color: #000000">         </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">sessionId</span><span style="color: #000000">, </span><span style="color: #001080">sessionDatastring</span><span style="color: #000000">)</span>
+<span style="color: #000000">     })</span>
+</code></pre>
+						<p> NOTE: You can set sessionData as an evironmental variable also! The variable name has to be [sessionId (default = &#39;session) in all caps]_DATA_JSON. You have to make sure to surround your session data with single quotes to maintain the formatting.</p>
+						<p>For example:</p>
+						<p>sessionId = &#39;session&#39;</p>
+						<p>To set env var:</p>
+						<pre><code class="language-bash"><span style="color: #000000">   </span><span style="color: #0000FF">export</span><span style="color: #000000"> SESSION_DATA_JSON=</span><span style="color: #A31515">`...`</span>
+</code></pre>
+						<p>where ... is copied from session.data.json this will be a string most likley starting in <code>ey...</code> and ending with <code>==</code></p>
+						<p>Setting the sessionData in the environmental variable will override the sessionData object in the config.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="sessionDataPath" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> session<wbr>Data<wbr>Path</h3>
+					<div class="tsd-signature tsd-kind-icon">session<wbr>Data<wbr>Path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The path relative to the current working directory (i.e where you run the command to start your process). This will be used to store and read your <code>.data.json</code> files. defualt to &#39;&#39;</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="sessionId" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> session<wbr>Id</h3>
+					<div class="tsd-signature tsd-kind-icon">session<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This is the name of the session. You have to make sure that this is unique for every session.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>session</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="skipBrokenMethodsCheck" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> skip<wbr>Broken<wbr>Methods<wbr>Check</h3>
+					<div class="tsd-signature tsd-kind-icon">skip<wbr>Broken<wbr>Methods<wbr>Check<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>If set to true, skipBrokenMethodsCheck will bypass the health check before startup. It is highly suggested to not set this to true.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="skipSessionSave" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> skip<wbr>Session<wbr>Save</h3>
+					<div class="tsd-signature tsd-kind-icon">skip<wbr>Session<wbr>Save<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>If true, the process will not save a data.json file. This means that sessions will not be saved and you will need to pass sessionData as a config param or create the session data.json file yourself</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="skipUpdateCheck" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> skip<wbr>Update<wbr>Check</h3>
+					<div class="tsd-signature tsd-kind-icon">skip<wbr>Update<wbr>Check<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>If set to true, <code>skipUpdateCheck</code> will bypass the latest version check. This saves some time on boot (around 150 ms).</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="stickerServerEndpoint" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> sticker<wbr>Server<wbr>Endpoint</h3>
+					<div class="tsd-signature tsd-kind-icon">sticker<wbr>Server<wbr>Endpoint<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Redundant until self-hostable sticker server is available.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>https://open-wa-sticker-api.herokuapp.com</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="throwErrorOnTosBlock" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> throw<wbr>Error<wbr>OnTos<wbr>Block</h3>
+					<div class="tsd-signature tsd-kind-icon">throw<wbr>Error<wbr>OnTos<wbr>Block<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Setting this to true will throw an error if a session is not able to get a QR code or is unable to restart a session.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="throwOnExpiredSessionData" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> throw<wbr>OnExpired<wbr>Session<wbr>Data</h3>
+					<div class="tsd-signature tsd-kind-icon">throw<wbr>OnExpired<wbr>Session<wbr>Data<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This will make the <code>create</code> command return <code>false</code> if the detected session data is expired.</p>
+						</div>
+						<p>This will mean, the process will not attempt to automatically get a new QR code.</p>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="useChrome" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> use<wbr>Chrome</h3>
+					<div class="tsd-signature tsd-kind-icon">use<wbr>Chrome<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>If true, the program will automatically try to detect the instance of chorme on the machine. Please note this DOES NOT override executablePath.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="useNativeProxy" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> use<wbr>Native<wbr>Proxy</h3>
+					<div class="tsd-signature tsd-kind-icon">use<wbr>Native<wbr>Proxy<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Some sessions may experience issues with sending media when using proxies. Using the native proxy system instead of the recommended 3rd party library may fix these issues.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="useStealth" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> use<wbr>Stealth</h3>
+					<div class="tsd-signature tsd-kind-icon">use<wbr>Stealth<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This flag allows you to disable or enable the use of the puppeteer stealth plugin. It is a good idea to use it, however it can cause issues sometimes. Set this to false if you are experiencing <code>browser.setMaxListeneres</code> issue. For now the default for this is false.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="viewport" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> viewport</h3>
+					<div class="tsd-signature tsd-kind-icon">viewport<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>height<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>width<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Set the desired viewport height and width. For CLI, use [width]x[height] format. E.g <code>--viewport 1920x1080</code>.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> height<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>Page height in pixels</p>
+									</div>
+									<dl class="tsd-comment-tags">
+										<dt>default</dt>
+										<dd><p><code>900</code></p>
+										</dd>
+									</dl>
+								</div>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> width<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>Page width in pixels</p>
+									</div>
+									<dl class="tsd-comment-tags">
+										<dt>default</dt>
+										<dd><p><code>1440</code></p>
+										</dd>
+									</dl>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="label pp-nav pp-group">
+						<span>Getting <wbr>Started</span>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/Getting Started/installation.html">Installation</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/Getting Started/quick-run.html">Easy API</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/Getting Started/docker.html">Docker</a>
+					</li>
+					<li class="label pp-nav pp-group">
+						<span>The <wbr>Client</span>
+					</li>
+					<li class=" pp-nav pp-page pp-parent">
+						<a href="../pages/The Client/the-client.html">Creating a <wbr>Client</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/The Client/config-object.html">The <wbr>Config <wbr>Object</a>
+					</li>
+					<li class=" pp-nav pp-page pp-parent">
+						<a href="../pages/The Client/launch-events.html">Launch <wbr>Events</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/The Client/licensed-features.html">Licensed <wbr>Features</a>
+					</li>
+					<li class="label pp-nav pp-group">
+						<span>How to</span>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/send-messages.html">Send <wbr>Messages</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/receive-messages.html">Receive <wbr>Messages</a>
+					</li>
+					<li class=" pp-nav pp-page pp-parent">
+						<a href="../pages/How to/send-files.html">Send <wbr>Files</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/location.html">Sending &amp; <wbr>Receiving <wbr>Location</a>
+					</li>
+					<li class=" pp-nav pp-page pp-parent">
+						<a href="../pages/How to/groups.html">Groups</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/react-to-group-events.html">React to group events</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/detect-logout.html">Detect a logout</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/handle-errors.html">Handle <wbr>Errors</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/decrypt-media.html">Decrypt <wbr>Media</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/incoming-calls.html">Detect <wbr>Incoming <wbr>Calls</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/use-a-proxy.html">Use a proxy</a>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/How to/misc.html">More <wbr>Examples</a>
+					</li>
+					<li class="label pp-nav pp-group">
+						<span>Advanced</span>
+					</li>
+					<li class=" pp-nav pp-page">
+						<a href="../pages/Advanced/best-practices.html">Best <wbr>Practices</a>
+					</li>
+					<li class=" ">
+						<a href="../modules.html">Modules</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/api_model_config.html">api/model/config</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-enum tsd-parent-kind-module">
+						<a href="../enums/api_model_config.OnError.html" class="tsd-kind-icon">On<wbr>Error</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface tsd-parent-kind-module">
+						<a href="api_model_config.ConfigObject.html" class="tsd-kind-icon">Config<wbr>Object</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#authTimeout" class="tsd-kind-icon">auth<wbr>Timeout</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#autoRefresh" class="tsd-kind-icon">auto<wbr>Refresh</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#blockAssets" class="tsd-kind-icon">block<wbr>Assets</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#blockCrashLogs" class="tsd-kind-icon">block<wbr>Crash<wbr>Logs</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#browserRevision" class="tsd-kind-icon">browser<wbr>Revision</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#browserWSEndpoint" class="tsd-kind-icon">browserWSEndpoint</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#bypassCSP" class="tsd-kind-icon">bypassCSP</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#cacheEnabled" class="tsd-kind-icon">cache<wbr>Enabled</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#cachedPatch" class="tsd-kind-icon">cached<wbr>Patch</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#callTimeout" class="tsd-kind-icon">call<wbr>Timeout</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#chromiumArgs" class="tsd-kind-icon">chromium<wbr>Args</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#corsFix" class="tsd-kind-icon">cors<wbr>Fix</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#customUserAgent" class="tsd-kind-icon">custom<wbr>User<wbr>Agent</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#deleteSessionDataOnLogout" class="tsd-kind-icon">delete<wbr>Session<wbr>Data<wbr>OnLogout</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#devtools" class="tsd-kind-icon">devtools</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#disableSpins" class="tsd-kind-icon">disable<wbr>Spins</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#eventMode" class="tsd-kind-icon">event<wbr>Mode</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#executablePath" class="tsd-kind-icon">executable<wbr>Path</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#headless" class="tsd-kind-icon">headless</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#hostNotificationLang" class="tsd-kind-icon">host<wbr>Notification<wbr>Lang</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#idCorrection" class="tsd-kind-icon">id<wbr>Correction</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#inDocker" class="tsd-kind-icon">in<wbr>Docker</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#keepUpdated" class="tsd-kind-icon">keep<wbr>Updated</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#killClientOnLogout" class="tsd-kind-icon">kill<wbr>Client<wbr>OnLogout</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#killProcessOnBrowserClose" class="tsd-kind-icon">kill<wbr>Process<wbr>OnBrowser<wbr>Close</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#killProcessOnTimeout" class="tsd-kind-icon">kill<wbr>Process<wbr>OnTimeout</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#legacy" class="tsd-kind-icon">legacy</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#licenseKey" class="tsd-kind-icon">license<wbr>Key</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#logConsole" class="tsd-kind-icon">log<wbr>Console</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#logConsoleErrors" class="tsd-kind-icon">log<wbr>Console<wbr>Errors</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#logDebugInfoAsObject" class="tsd-kind-icon">log<wbr>Debug<wbr>Info<wbr>AsObject</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#logFile" class="tsd-kind-icon">log<wbr>File</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#messagePreprocessor" class="tsd-kind-icon">message<wbr>Preprocessor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#onError" class="tsd-kind-icon">on<wbr>Error</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#pQueueDefault" class="tsd-kind-icon">p<wbr>Queue<wbr>Default</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#popup" class="tsd-kind-icon">popup</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#proxyServerCredentials" class="tsd-kind-icon">proxy<wbr>Server<wbr>Credentials</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#qrFormat" class="tsd-kind-icon">qr<wbr>Format</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#qrLogSkip" class="tsd-kind-icon">qr<wbr>Log<wbr>Skip</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#qrPopUpOnly" class="tsd-kind-icon">qr<wbr>Pop<wbr>UpOnly</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#qrQuality" class="tsd-kind-icon">qr<wbr>Quality</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#qrRefreshS" class="tsd-kind-icon">qr<wbr>RefreshS</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#qrTimeout" class="tsd-kind-icon">qr<wbr>Timeout</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#raspi" class="tsd-kind-icon">raspi</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#resizable" class="tsd-kind-icon">resizable</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#restartOnCrash" class="tsd-kind-icon">restart<wbr>OnCrash</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#safeMode" class="tsd-kind-icon">safe<wbr>Mode</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#screenshotOnInitializationBrowserError" class="tsd-kind-icon">screenshot<wbr>OnInitialization<wbr>Browser<wbr>Error</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#sessionData" class="tsd-kind-icon">session<wbr>Data</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#sessionDataPath" class="tsd-kind-icon">session<wbr>Data<wbr>Path</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#sessionId" class="tsd-kind-icon">session<wbr>Id</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#skipBrokenMethodsCheck" class="tsd-kind-icon">skip<wbr>Broken<wbr>Methods<wbr>Check</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#skipSessionSave" class="tsd-kind-icon">skip<wbr>Session<wbr>Save</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#skipUpdateCheck" class="tsd-kind-icon">skip<wbr>Update<wbr>Check</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#stickerServerEndpoint" class="tsd-kind-icon">sticker<wbr>Server<wbr>Endpoint</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#throwErrorOnTosBlock" class="tsd-kind-icon">throw<wbr>Error<wbr>OnTos<wbr>Block</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#throwOnExpiredSessionData" class="tsd-kind-icon">throw<wbr>OnExpired<wbr>Session<wbr>Data</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#useChrome" class="tsd-kind-icon">use<wbr>Chrome</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#useNativeProxy" class="tsd-kind-icon">use<wbr>Native<wbr>Proxy</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#useStealth" class="tsd-kind-icon">use<wbr>Stealth</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#viewport" class="tsd-kind-icon">viewport</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="api_model_config.SessionData.html" class="tsd-kind-icon">Session<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="api_model_config.Webhook.html" class="tsd-kind-icon">Webhook</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer>
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.json"><' + '/script>');</script>
+</body>
+</html>
