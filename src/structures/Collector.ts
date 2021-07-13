@@ -327,7 +327,7 @@ export class Collector extends EventEmitter {
    * @returns {?*} Key to remove from the collection, if any
    * @abstract
    */
-  dispose(...args: any[]): string {
+  dispose(...args: any[]): string | null {
     throw new Error("abstractMethod not implemented");
   }
 
@@ -336,7 +336,7 @@ export class Collector extends EventEmitter {
    * @returns {?string} Reason to end the collector, if any
    * @abstract
    */
-  endReason(...args: any[]): string {
+  endReason(...args: any[]): string | null {
     throw new Error("abstractMethod not implemented");
   }
 
