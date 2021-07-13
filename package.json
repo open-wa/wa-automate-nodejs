@@ -100,7 +100,7 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
-    "@discordjs/collection": "^0.1.6",
+    "@discordjs/collection": "^0.2.0",
     "@open-wa/wa-decrypt": "^4.0.1",
     "atob": "^2.1.2",
     "axios": "^0.21.0",
