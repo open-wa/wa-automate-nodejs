@@ -1,6 +1,6 @@
 name: 🐞 Bug report
 description: Create a report to help us improve
-title: "[BUG] <title>"
+title: ""
 labels: [Bug, Needs Triage]
 body:
 - type: checkboxes
@@ -39,8 +39,8 @@ body:
     description: How are you using the library while experiencing this bug?
     multiple: false
     options:
-      - label: EASY API/CLI
-      - label: My own code
+      - EASY API/CLI
+      - My own code
   validations:
     required: true
 - type: textarea
@@ -51,10 +51,6 @@ body:
       ```javascript
       create(...)
       ```
-    value: |
-        - OS: 
-        - Node: 
-        - npm: 
     render: markdown
   validations:
     required: false
