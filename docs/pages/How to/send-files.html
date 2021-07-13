@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Send Files | @open-wa/wa-automate - v4.8.2</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.8.2">
+	<title>Send Files | @open-wa/wa-automate - v4.9.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.9.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../assets/css/main.css">
 	<link rel="stylesheet" href="../../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../../index.html" class="title">@open-wa/wa-automate - v4.8.2</a>
+					<a href="../../index.html" class="title">@open-wa/wa-automate - v4.9.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -85,8 +85,8 @@
 				<a href="#send-image" id="send-image" style="color: inherit; text-decoration: none;">
 					<h2>Send Image</h2>
 				</a>
-				<p><a href="../../classes/api_client.client.html#sendimage">sendImage</a></p>
-				<p>Make sure to use a <a href="../../modules/api_model_aliases.html#dataurl">DataURL</a> for the second parameter.</p>
+				<p><a href="../../classes/api_Client.Client.html#sendImage">sendImage</a></p>
+				<p>Make sure to use a <a href="../../modules/api_model_aliases.html#DataURL">DataURL</a> for the second parameter.</p>
 				<pre><code class="language-javascript"><span style="color: #000000">    </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">sendImage</span><span style="color: #000000">(</span><span style="color: #001080">chatId</span><span style="color: #000000">, </span><span style="color: #001080">dataUrl</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;filename.jpeg&#039;</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;cool caption&#039;</span><span style="color: #000000">)</span>
 
 <span style="color: #000000">    </span><span style="color: #008000">//send image as a reply to another message quotedMessageId</span>
@@ -99,7 +99,7 @@
 				<a href="#send-audio" id="send-audio" style="color: inherit; text-decoration: none;">
 					<h2>Send Audio</h2>
 				</a>
-				<p><a href="../../classes/api_client.client.html#sendptt">sendPtt</a> sends an audio clip as a &#39;push to talk&#39; type file. This allows recipients to play the clip as they would any other voice note.</p>
+				<p><a href="../../classes/api_Client.Client.html#sendPtt">sendPtt</a> sends an audio clip as a &#39;push to talk&#39; type file. This allows recipients to play the clip as they would any other voice note.</p>
 				<pre><code class="language-javascript"><span style="color: #000000">    </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">sendFile</span><span style="color: #000000">(</span><span style="color: #001080">chatId</span><span style="color: #000000">, </span><span style="color: #001080">dataUrl</span><span style="color: #000000">)</span>
 
 <span style="color: #000000">    </span><span style="color: #008000">//Send the audio as reply to a message (quotedMessageId)</span>
@@ -108,8 +108,8 @@
 				<a href="#send-file" id="send-file" style="color: inherit; text-decoration: none;">
 					<h2>Send File</h2>
 				</a>
-				<p><a href="../../classes/api_client.client.html#sendfile">sendFile</a></p>
-				<p><a href="../../classes/api_client.client.html#sendfilefromurl">sendFileFromUrl</a></p>
+				<p><a href="../../classes/api_Client.Client.html#sendFile">sendFile</a></p>
+				<p><a href="../../classes/api_Client.Client.html#sendFileFromUrl">sendFileFromUrl</a></p>
 				<pre><code class="language-javascript">
 <span style="color: #000000">    </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">sendFile</span><span style="color: #000000">(</span><span style="color: #001080">chatId</span><span style="color: #000000">, </span><span style="color: #001080">dataUrl</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;file.pdf&#039;</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;check this pdf&#039;</span><span style="color: #000000">)</span>
 
@@ -125,8 +125,8 @@
 				<a href="#send-stickers" id="send-stickers" style="color: inherit; text-decoration: none;">
 					<h2>Send Stickers</h2>
 				</a>
-				<p><a href="../../classes/api_client.client.html#sendimageassticker">sendImageAsSticker</a></p>
-				<p><a href="../../classes/api_client.client.html#sendstickerfromurl">sendStickerfromUrl</a></p>
+				<p><a href="../../classes/api_Client.Client.html#sendImageAsSticker">sendImageAsSticker</a></p>
+				<p><a href="../../classes/api_Client.Client.html#sendStickerfromUrl">sendStickerfromUrl</a></p>
 				<pre><code class="language-javascript"><span style="color: #000000">    </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">sendImageAsSticker</span><span style="color: #000000">(</span><span style="color: #001080">chatId</span><span style="color: #000000">, </span><span style="color: #001080">dataUrl</span><span style="color: #000000">);</span>
 
 <span style="color: #000000">    </span><span style="color: #008000">//or from a URL</span>
@@ -137,8 +137,8 @@
 				</a>
 				<p>There are two ways to send GIFs - by Video or by giphy link.</p>
 				<p>  WA doesn&#39;t actually support the .gif format - probably due to how inefficient it is as a filetype - they instead convert GIFs to video then process them.</p>
-				<p>  In order to send gifs you need to do the same (convert the gif to an mp4 file) then use <a href="../../classes/api_client.client.html#sendvideoasgif">sendVideoAsGif</a></p>
-				<p>  <a href="../../classes/api_client.client.html#sendgiphy">sendGiphy</a> is a convenience method to make it easier to send gifs from the website <a href="https://giphy.com">GIPHY</a>. You need to make sure you use a giphy media link as shown below.</p>
+				<p>  In order to send gifs you need to do the same (convert the gif to an mp4 file) then use <a href="../../classes/api_Client.Client.html#sendVideoAsGif">sendVideoAsGif</a></p>
+				<p>  <a href="../../classes/api_Client.Client.html#sendGiphy">sendGiphy</a> is a convenience method to make it easier to send gifs from the website <a href="https://giphy.com">GIPHY</a>. You need to make sure you use a giphy media link as shown below.</p>
 				<pre><code class="language-javascript">
 <span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">create</span><span style="color: #000000">, </span><span style="color: #001080">Client</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@open-wa/wa-automate&#039;</span><span style="color: #000000">;</span>
 
@@ -246,7 +246,7 @@
 						<a href="../../modules.html">Modules</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../../modules/api_client.html">api/<wbr>Client</a>
+						<a href="../../modules/api_Client.html">api/<wbr>Client</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="../../modules/api_functions_exposed_enum.html">api/functions/exposed.enum</a>
@@ -291,7 +291,7 @@
 						<a href="../../modules/api_model_product.html">api/model/product</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../../modules/api_model_sessioninfo.html">api/model/session<wbr>Info</a>
+						<a href="../../modules/api_model_sessionInfo.html">api/model/session<wbr>Info</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="../../modules/connect.html">connect</a>
@@ -309,13 +309,13 @@
 						<a href="../../modules/controllers_initializer.html">controllers/initializer</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../../modules/structures_collector.html">structures/<wbr>Collector</a>
+						<a href="../../modules/structures_Collector.html">structures/<wbr>Collector</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../../modules/structures_messagecollector.html">structures/<wbr>Message<wbr>Collector</a>
+						<a href="../../modules/structures_MessageCollector.html">structures/<wbr>Message<wbr>Collector</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../../modules/structures_preprocessors.html">structures/pre<wbr>Processors</a>
+						<a href="../../modules/structures_preProcessors.html">structures/pre<wbr>Processors</a>
 					</li>
 				</ul>
 			</nav>

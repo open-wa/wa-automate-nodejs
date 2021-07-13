@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Groups | @open-wa/wa-automate - v4.8.2</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.8.2">
+	<title>Groups | @open-wa/wa-automate - v4.9.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.9.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../assets/css/main.css">
 	<link rel="stylesheet" href="../../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../../index.html" class="title">@open-wa/wa-automate - v4.8.2</a>
+					<a href="../../index.html" class="title">@open-wa/wa-automate - v4.9.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -85,7 +85,7 @@
 				<a href="#create-a-group" id="create-a-group" style="color: inherit; text-decoration: none;">
 					<h2>Create a Group</h2>
 				</a>
-				<p>Use <a href="../../classes/api_client.client.html#creategroup">createGroup</a> to create a new group, first parameter is the group name, the second parameter is the contact ids to add as participants. There needs to be at least one participant.</p>
+				<p>Use <a href="../../classes/api_Client.Client.html#createGroup">createGroup</a> to create a new group, first parameter is the group name, the second parameter is the contact ids to add as participants. There needs to be at least one participant.</p>
 				<pre><code class="language-javascript"><span style="color: #000000">...</span>
 <span style="color: #000000">  </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">createGroup</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Cool new group&#039;</span><span style="color: #000000">,</span><span style="color: #A31515">&#039;xxxxxxxxx@c.us&#039;</span><span style="color: #000000">) </span><span style="color: #008000">//you can also send an array of ids.</span>
 <span style="color: #000000">...</span>
@@ -93,10 +93,10 @@
 				<a href="#managing-participants" id="managing-participants" style="color: inherit; text-decoration: none;">
 					<h2>Managing Participants</h2>
 				</a>
-				<p><a href="../../classes/api_client.client.html#addparticipant">addParticipant</a> - add a participant
-					<a href="../../classes/api_client.client.html#removeparticipant">removeParticipant</a> -  remove a particpant
-					<a href="../../classes/api_client.client.html#promoteparticipant">promoteParticipant</a> - Make a participant admin
-				<a href="../../classes/api_client.client.html#demoteparticipant">demoteParticipant</a> -  remove participant as admin</p>
+				<p><a href="../../classes/api_Client.Client.html#addParticipant">addParticipant</a> - add a participant
+					<a href="../../classes/api_Client.Client.html#removeParticipant">removeParticipant</a> -  remove a particpant
+					<a href="../../classes/api_Client.Client.html#promoteParticipant">promoteParticipant</a> - Make a participant admin
+				<a href="../../classes/api_Client.Client.html#demoteParticipant">demoteParticipant</a> -  remove participant as admin</p>
 				<pre><code class="language-javascript"><span style="color: #000000">...</span>
 <span style="color: #000000">  </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">addParticipant</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;XXXXXXX-YYYYYY@c.us&#039;</span><span style="color: #000000">,</span><span style="color: #A31515">&#039;ZZZZZZZZZ@c.us&#039;</span><span style="color: #000000">)</span>
 <span style="color: #000000">  </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">removeParticipant</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;XXXXXXX-YYYYYY@c.us&#039;</span><span style="color: #000000">,</span><span style="color: #A31515">&#039;ZZZZZZZZZ@c.us&#039;</span><span style="color: #000000">)</span>
@@ -107,7 +107,7 @@
 				<a href="#listening-to-participant-changes-of-a-specific-group" id="listening-to-participant-changes-of-a-specific-group" style="color: inherit; text-decoration: none;">
 					<h2>Listening to participant changes of a specific group</h2>
 				</a>
-				<p>You can react to when participants are added and removed. <a href="../../classes/api_client.client.html#onparticipantschanged">onParticipantsChanged</a> emits a <a href="../../interfaces/api_model_group_metadata.participantchangedeventmodel.html">ParticipantChangedEventModel</a>.</p>
+				<p>You can react to when participants are added and removed. <a href="../../classes/api_Client.Client.html#onParticipantsChanged">onParticipantsChanged</a> emits a <a href="../../interfaces/api_model_group_metadata.ParticipantChangedEventModel.html">ParticipantChangedEventModel</a>.</p>
 				<pre><code class="language-javascript"><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">onParticipantsChanged</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;XXXXXXXX-YYYYYYYY@g.us&quot;</span><span style="color: #000000">, (</span><span style="color: #001080">participantChangedEvent</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;participant changed for group&quot;</span><span style="color: #000000">, </span><span style="color: #001080">participantChangedEvent</span><span style="color: #000000">));</span>
 
 <span style="color: #008000">//participantChangedEvent returns</span>
@@ -218,7 +218,7 @@
 						<a href="../../modules.html">Modules</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../../modules/api_client.html">api/<wbr>Client</a>
+						<a href="../../modules/api_Client.html">api/<wbr>Client</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="../../modules/api_functions_exposed_enum.html">api/functions/exposed.enum</a>
@@ -263,7 +263,7 @@
 						<a href="../../modules/api_model_product.html">api/model/product</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../../modules/api_model_sessioninfo.html">api/model/session<wbr>Info</a>
+						<a href="../../modules/api_model_sessionInfo.html">api/model/session<wbr>Info</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="../../modules/connect.html">connect</a>
@@ -281,13 +281,13 @@
 						<a href="../../modules/controllers_initializer.html">controllers/initializer</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../../modules/structures_collector.html">structures/<wbr>Collector</a>
+						<a href="../../modules/structures_Collector.html">structures/<wbr>Collector</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../../modules/structures_messagecollector.html">structures/<wbr>Message<wbr>Collector</a>
+						<a href="../../modules/structures_MessageCollector.html">structures/<wbr>Message<wbr>Collector</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../../modules/structures_preprocessors.html">structures/pre<wbr>Processors</a>
+						<a href="../../modules/structures_preProcessors.html">structures/pre<wbr>Processors</a>
 					</li>
 				</ul>
 			</nav>

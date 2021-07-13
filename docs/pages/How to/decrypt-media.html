@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Decrypt Media | @open-wa/wa-automate - v4.8.2</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.8.2">
+	<title>Decrypt Media | @open-wa/wa-automate - v4.9.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.9.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../../assets/css/main.css">
 	<link rel="stylesheet" href="../../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../../index.html" class="title">@open-wa/wa-automate - v4.8.2</a>
+					<a href="../../index.html" class="title">@open-wa/wa-automate - v4.9.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -116,13 +116,13 @@
 				<a href="#40439d" id="40439d" style="color: inherit; text-decoration: none;">
 					<h2>404&#39;d</h2>
 				</a>
-				<p>You may sometimes get a <code>404</code> error when trying to decrypt media from an old message, this is because media is only available on the main servers for a limited period of time. In these circumstances, you will need to force the host account to reupload media. You can do this by using <a href="../../classes/api_client.client.html#forcestalemediaupdate">forceStaleMediaUpdate</a> then using decryptMedia on the response.</p>
+				<p>You may sometimes get a <code>404</code> error when trying to decrypt media from an old message, this is because media is only available on the main servers for a limited period of time. In these circumstances, you will need to force the host account to reupload media. You can do this by using <a href="../../classes/api_Client.Client.html#forceStaleMediaUpdate">forceStaleMediaUpdate</a> then using decryptMedia on the response.</p>
 				<pre><code class="language-javascript"><span style="color: #000000">      </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">mediaData</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">decryptMedia</span><span style="color: #000000">(</span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">forceStaleMediaUpdate</span><span style="color: #000000">(</span><span style="color: #001080">message</span><span style="color: #000000">.</span><span style="color: #001080">id</span><span style="color: #000000">));</span>
 </code></pre>
 				<a href="#decrypting-stickers" id="decrypting-stickers" style="color: inherit; text-decoration: none;">
 					<h2>Decrypting Stickers</h2>
 				</a>
-				<p>Decrypting stickers with the method shown above will result in a blank <code>.webp</code> file. To decrypt the sticker, use <a href="../../classes/api_client.client.html#getstickerdecryptable">getStickerDecryptable</a>.</p>
+				<p>Decrypting stickers with the method shown above will result in a blank <code>.webp</code> file. To decrypt the sticker, use <a href="../../classes/api_Client.Client.html#getStickerDecryptable">getStickerDecryptable</a>.</p>
 				<pre><code class="language-javascript">
 <span style="color: #000000">      </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">mediaData</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">decryptMedia</span><span style="color: #000000">(</span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">getStickerDecryptable</span><span style="color: #000000">(</span><span style="color: #001080">message</span><span style="color: #000000">.</span><span style="color: #001080">id</span><span style="color: #000000">));</span>
 <span style="color: #000000">      </span><span style="color: #008000">//or</span>
@@ -220,7 +220,7 @@
 						<a href="../../modules.html">Modules</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../../modules/api_client.html">api/<wbr>Client</a>
+						<a href="../../modules/api_Client.html">api/<wbr>Client</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="../../modules/api_functions_exposed_enum.html">api/functions/exposed.enum</a>
@@ -265,7 +265,7 @@
 						<a href="../../modules/api_model_product.html">api/model/product</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../../modules/api_model_sessioninfo.html">api/model/session<wbr>Info</a>
+						<a href="../../modules/api_model_sessionInfo.html">api/model/session<wbr>Info</a>
 					</li>
 					<li class=" tsd-kind-module">
 						<a href="../../modules/connect.html">connect</a>
@@ -283,13 +283,13 @@
 						<a href="../../modules/controllers_initializer.html">controllers/initializer</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../../modules/structures_collector.html">structures/<wbr>Collector</a>
+						<a href="../../modules/structures_Collector.html">structures/<wbr>Collector</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../../modules/structures_messagecollector.html">structures/<wbr>Message<wbr>Collector</a>
+						<a href="../../modules/structures_MessageCollector.html">structures/<wbr>Message<wbr>Collector</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../../modules/structures_preprocessors.html">structures/pre<wbr>Processors</a>
+						<a href="../../modules/structures_preProcessors.html">structures/pre<wbr>Processors</a>
 					</li>
 				</ul>
 			</nav>
