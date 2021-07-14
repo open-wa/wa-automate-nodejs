@@ -49,7 +49,74 @@ export interface CartItem {
       * URL to .enc file of the thumbnail. Just change the filetype to .jpg to view the thumbnail
       */
      thumbnailUrl: string,
+}
 
+
+export interface Product {
+    /**
+     * Product ID
+     */
+    id: string;
+    /**
+     * `true` if the product is hidden from public view.
+     */
+    isHidden?: boolean;
+    /**
+     * The id of the catalog in which this product is located.
+     */
+    catalogWid?: string;
+    /**
+     * The URL of the product.
+     */
+    url ?: string;
+    /**
+     * The name of the product.
+     */
+    name ?: string;
+    /**
+     * The description of the product.
+     */
+    description ?: string;
+    /**
+     * The availiable quantity of this product.
+     * @default `"unknown"``
+     */
+    availability ?: number | "unknown";
+    /**
+     * The review status of the product
+     */
+    reviewStatus ?: "NO_REVIEW" | "PENDING" | "REJECTED" | "APPROVED" | "OUTDATED",
+    /**
+    * The url of the main image of the product.
+    * 
+    * NOTE: If downloading manually, the filetype must be changed to .jpg to view the image.
+    */
+    imageCdnUrl ?: string,
+    /**
+    * The number of images of the product.
+    */
+    imageCount ?: number,
+    /**
+     * Array of URLs of the other images of the product. Does not include the main image.
+     */
+    additionalImageCdnUrl ?: string[],
+    /**
+     * The price of the product in 1000 units. 
+     */
+    priceAmount1000 ?: number,
+    /**
+     * The custom id of the product.
+     */
+    retailerId ?: string,
+    /**
+     * The timestamp when the product was created / 1000
+     */
+    t ?: number,
+    /**
+     * The [**ISO 4217**](https://en.wikipedia.org/wiki/ISO_4217) 3 letter currency code. E.g (Swedish krona)
+     * `SEK`
+     */
+    currency: string,
 }
 
 export interface Order {

@@ -24,7 +24,7 @@ import { isAuthenticated } from '../controllers/auth';
 import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, FilePath } from './model/aliases';
 import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
 import * as path from 'path';
-import { CustomProduct, Label, Order } from './model/product';
+import { CustomProduct, Label, Order, Product } from './model/product';
 import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
 import { getAndInjectLicense, getAndInjectLivePatch, getLicense } from '../controllers/initializer';
 import { SimpleListener } from './model/events';
@@ -103,6 +103,7 @@ declare module WAPI {
   const reply: (to: string, content: string, quotedMsg: string | Message) => Promise<string|boolean>;
   const getGeneratedUserAgent: (userAgent?: string) => string;
   const forwardMessages: (to: string, messages: string | (string | Message)[], skipMyMessages: boolean) => any;
+  const createNewProduct : (name : string, price : number, currency : string, images : DataURL[], description : string, url ?: string, internalId ?: string, isHidden ?: boolean) => Promise<any>;
   const sendLocation: (to: string, lat: any, lng: any, loc: string) => Promise<string>;
   const addParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
   const sendGiphyAsSticker: (chatId: string, url: string) => Promise<any>;
@@ -1145,6 +1146,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
       { to, amount, currency, message }
     ) as Promise<boolean | MessageId>;
   }
+
   /**
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
@@ -2108,6 +2110,28 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
       id => WAPI.getOrder(id),
       id
     ) as Promise<Order>;
+  }
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * 
+   * Add a product to your catalog
+   * 
+   * @param {string} name The name of the product
+   * @param {number} price The price of the product
+   * @param {string} currency The 3-letter currenct code for the product
+   * @param {string[]} images An array of dataurl or base64 strings of product images, the first image will be used as the main image. At least one image is required.
+   * @param {string} description optional, the description of the product
+   * @param {string} url The url of the product for more information
+   * @param {string} internalId The internal/backoffice id of the product
+   * @param {boolean} isHidden Whether or not the product is shown publicly in your catalog
+   * @returns product object
+   */
+   public async createNewProduct(name : string, price : number, currency : string, images : DataURL[], description : string, url ?: string, internalId ?: string, isHidden ?: boolean) : Promise<Product> {
+    return await this.pup(
+      ({name, price, currency, images, description, url, internalId, isHidden}) => WAPI.createNewProduct(name, price, currency, images, description, url, internalId, isHidden),
+      { name, price, currency, images, description, url, internalId, isHidden }
+    ) as Promise<Product>;
   }
 
   /**
