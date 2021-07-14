@@ -92,6 +92,7 @@ declare module WAPI {
   const sendMessage: (to: string, content: string) => Promise<string>;
   const setChatEphemeral: (chatId: string, ephemeral: boolean) => Promise<boolean>;
   const downloadFileWithCredentials: (url: string) => Promise<string>;
+  const sendPaymentRequest: (chatId : string, amount1000 : number, currency : string, noteMessage : string) => Promise<any>;
   const sendMessageWithMentions: (to: string, content: string, hideTags: boolean) => Promise<string>;
   const tagEveryone: (groupId: string, content: string, hideTags: boolean) => Promise<string>;
   const sendReplyWithMentions: (to: string, content: string, replyMessageId: string) => Promise<string>;
@@ -1127,6 +1128,23 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     ) as Promise<boolean | MessageId>;
   }
 
+  /** 
+   * [UNTESTED - REQUIRES FEEDBACK]
+   * Sends a payment request message to given chat
+   * 
+   * @param to chat id: `xxxxx@c.us`
+   * @param amount number the amount to request in 1000 format (e.g £10 => 10000)
+   * @param currency string The 3 letter currency code
+   * @param message string optional message to send with the payment request
+   */
+  public async sendPaymentRequest(to: ChatId, amount: number, currency : string, message?: string) : Promise<boolean | MessageId> {
+    return await this.pup(
+      ({ to, amount, currency, message }) => {
+        return WAPI.sendPaymentRequest(to, amount, currency, message);
+      },
+      { to, amount, currency, message }
+    ) as Promise<boolean | MessageId>;
+  }
   /**
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
