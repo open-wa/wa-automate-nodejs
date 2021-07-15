@@ -150,6 +150,7 @@ declare module WAPI {
   const inviteInfo: (link: string) => Promise<any>;
   const sendButtons: (to: string, body: any, buttons: string, title: string, footer: string) => Promise<any>;
   const sendBanner: (to: string, base64: string) => Promise<any>;
+  const sendListMessage: (to: ChatId, sections : any, title : string, description : string, actionText : string) => Promise<any>;
   const ghostForward: (chatId: string, messageId: string) => Promise<boolean>;
   const revokeGroupInviteLink: (chatId: string) => Promise<string> | Promise<boolean>;
   const getGroupInviteLink: (chatId: string) => Promise<string>;
@@ -1185,6 +1186,28 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
       { to, base64 }
     ) as Promise<boolean | MessageId>;
   }
+
+
+   /**
+    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+    * 
+    * Send a list message
+    * 
+    * @param  {ChatId} to
+    * @param  {Section[]} sections The Sections of rows for the list message
+    * @param  {string} title The title of the list message
+    * @param  {string} description The description of the list message
+    * @param  {string} actionText The action text of the list message
+    */
+   public async sendListMessage(to: ChatId, sections : Section[], title : string, description : string, actionText : string) : Promise<boolean | MessageId> {
+    return await this.pup(
+      ({ to, sections, title, description, actionText }) => {
+        return WAPI.sendListMessage(to, sections, title, description, actionText);
+      },
+      { to, sections, title, description, actionText }
+    ) as Promise<boolean | MessageId>;
+  }
+
 
   /**
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
