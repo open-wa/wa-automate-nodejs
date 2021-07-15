@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Client | @open-wa/wa-automate - v4.10.0</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.10.0">
+	<title>Client | @open-wa/wa-automate - v4.11.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.11.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v4.10.0</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.11.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -241,6 +241,8 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#reportSpam" class="tsd-kind-icon">report<wbr>Spam</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#revokeGroupInviteLink" class="tsd-kind-icon">revoke<wbr>Group<wbr>Invite<wbr>Link</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#sendAudio" class="tsd-kind-icon">send<wbr>Audio</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#sendBanner" class="tsd-kind-icon">send<wbr>Banner</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#sendButtons" class="tsd-kind-icon">send<wbr>Buttons</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#sendContact" class="tsd-kind-icon">send<wbr>Contact</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#sendCustomProduct" class="tsd-kind-icon">send<wbr>Custom<wbr>Product</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#sendFile" class="tsd-kind-icon">send<wbr>File</a></li>
@@ -252,6 +254,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#sendImageAsStickerAsReply" class="tsd-kind-icon">send<wbr>Image<wbr>AsSticker<wbr>AsReply</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#sendImageWithProduct" class="tsd-kind-icon">send<wbr>Image<wbr>With<wbr>Product</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#sendLinkWithAutoPreview" class="tsd-kind-icon">send<wbr>Link<wbr>With<wbr>Auto<wbr>Preview</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#sendListMessage" class="tsd-kind-icon">send<wbr>List<wbr>Message</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#sendLocation" class="tsd-kind-icon">send<wbr>Location</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#sendMessageWithThumb" class="tsd-kind-icon">send<wbr>Message<wbr>With<wbr>Thumb</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#sendMp4AsSticker" class="tsd-kind-icon">send<wbr>Mp4<wbr>AsSticker</a></li>
@@ -4867,6 +4870,90 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="sendBanner" class="tsd-anchor"></a>
+					<h3>send<wbr>Banner</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">send<wbr>Banner<span class="tsd-signature-symbol">(</span>to<span class="tsd-signature-symbol">: </span><a href="../modules/api_model_aliases.html#ChatId" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a>, base64<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">false_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">-</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@g.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">false_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@c.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">true_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">-</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@g.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">true_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@c.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Send a banner image</p>
+								</div>
+								<p>Note this is a bit of hack on top of a location message. During testing it is shown to not work on iPhones.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>to: <a href="../modules/api_model_aliases.html#ChatId" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a></h5>
+								</li>
+								<li>
+									<h5>base64: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>base64 encoded jpeg</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">false_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">-</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@g.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">false_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@c.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">true_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">-</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@g.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">true_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@c.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="sendButtons" class="tsd-anchor"></a>
+					<h3>send<wbr>Buttons</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">send<wbr>Buttons<span class="tsd-signature-symbol">(</span>to<span class="tsd-signature-symbol">: </span><a href="../modules/api_model_aliases.html#ChatId" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a>, body<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, buttons<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_button.Button.html" class="tsd-signature-type" data-tsd-kind="Interface">Button</a><span class="tsd-signature-symbol">[]</span>, title<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, footer<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">false_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">-</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@g.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">false_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@c.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">true_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">-</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@g.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">true_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@c.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Send generic quick reply buttons</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>to: <a href="../modules/api_model_aliases.html#ChatId" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>chat id</p>
+									</div>
+								</li>
+								<li>
+									<h5>body: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The body of the buttons message</p>
+									</div>
+								</li>
+								<li>
+									<h5>buttons: <a href="../interfaces/api_model_button.Button.html" class="tsd-signature-type" data-tsd-kind="Interface">Button</a><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Array of buttons - limit is 3!</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> title: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The title/header of the buttons message</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> footer: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The footer of the buttons message</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">false_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">-</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@g.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">false_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@c.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">true_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">-</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@g.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">true_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@c.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="sendContact" class="tsd-anchor"></a>
 					<h3>send<wbr>Contact</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -5391,6 +5478,56 @@
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> thumbnail: <span class="tsd-signature-type">string</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>Base64 of the jpeg/png which will be used to override the automatically generated thumbnail.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">false_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">-</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@g.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">false_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@c.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">true_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">-</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@g.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">true_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@c.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="sendListMessage" class="tsd-anchor"></a>
+					<h3>send<wbr>List<wbr>Message</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">send<wbr>List<wbr>Message<span class="tsd-signature-symbol">(</span>to<span class="tsd-signature-symbol">: </span><a href="../modules/api_model_aliases.html#ChatId" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a>, sections<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_button.Section.html" class="tsd-signature-type" data-tsd-kind="Interface">Section</a><span class="tsd-signature-symbol">[]</span>, title<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, description<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, actionText<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">false_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">-</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@g.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">false_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@c.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">true_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">-</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@g.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-type">true_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@c.us_</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p><a href="https://gum.co/open-wa?tier=Insiders%20Program">REQUIRES AN INSIDERS LICENSE-KEY</a></p>
+								</div>
+								<p>Send a list message</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>to: <a href="../modules/api_model_aliases.html#ChatId" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a></h5>
+								</li>
+								<li>
+									<h5>sections: <a href="../interfaces/api_model_button.Section.html" class="tsd-signature-type" data-tsd-kind="Interface">Section</a><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The Sections of rows for the list message</p>
+									</div>
+								</li>
+								<li>
+									<h5>title: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The title of the list message</p>
+									</div>
+								</li>
+								<li>
+									<h5>description: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The description of the list message</p>
+									</div>
+								</li>
+								<li>
+									<h5>actionText: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The action text of the list message</p>
 									</div>
 								</li>
 							</ul>
@@ -7246,6 +7383,12 @@
 								<a href="api_Client.Client.html#sendAudio" class="tsd-kind-icon">send<wbr>Audio</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="api_Client.Client.html#sendBanner" class="tsd-kind-icon">send<wbr>Banner</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="api_Client.Client.html#sendButtons" class="tsd-kind-icon">send<wbr>Buttons</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_Client.Client.html#sendContact" class="tsd-kind-icon">send<wbr>Contact</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
@@ -7277,6 +7420,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_Client.Client.html#sendLinkWithAutoPreview" class="tsd-kind-icon">send<wbr>Link<wbr>With<wbr>Auto<wbr>Preview</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="api_Client.Client.html#sendListMessage" class="tsd-kind-icon">send<wbr>List<wbr>Message</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_Client.Client.html#sendLocation" class="tsd-kind-icon">send<wbr>Location</a>
