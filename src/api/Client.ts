@@ -149,6 +149,7 @@ declare module WAPI {
   const clearChat: (chatId: string) => Promise<any>;
   const inviteInfo: (link: string) => Promise<any>;
   const sendButtons: (to: string, body: any, buttons: string, title: string, footer: string) => Promise<any>;
+  const sendBanner: (to: string, base64: string) => Promise<any>;
   const ghostForward: (chatId: string, messageId: string) => Promise<boolean>;
   const revokeGroupInviteLink: (chatId: string) => Promise<string> | Promise<boolean>;
   const getGroupInviteLink: (chatId: string) => Promise<string>;
@@ -1165,6 +1166,23 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
         return WAPI.sendButtons(to, body, buttons, title, footer);
       },
       { to, body, buttons, title, footer }
+    ) as Promise<boolean | MessageId>;
+  }
+
+  /**
+   * Send a banner image
+   * 
+   * Note this is a bit of hack on top of a location message. During testing it is shown to not work on iPhones.
+   * 
+   * @param  {ChatId} to 
+   * @param  {Base64} base64 base64 encoded jpeg
+   */
+   public async sendBanner(to: ChatId, base64 : Base64) : Promise<boolean | MessageId> {
+    return await this.pup(
+      ({ to, base64 }) => {
+        return WAPI.sendBanner(to, base64);
+      },
+      { to, base64 }
     ) as Promise<boolean | MessageId>;
   }
 
