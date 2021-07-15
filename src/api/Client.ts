@@ -37,6 +37,7 @@ import { MessagePreprocessors } from '../structures/preProcessors';
 import { NextFunction, Request, Response } from 'express';
 import { base64MimeType, getDUrl, isBase64, isDataURL } from '../utils/tools';
 import { Call } from './model/call';
+import { Button, Section } from './model/button';
 
 /** @ignore */
 const pkg = readJsonSync(path.join(__dirname,'../../package.json')),
@@ -147,6 +148,7 @@ declare module WAPI {
   const isChatMuted: (chatId: string) => Promise<boolean>;
   const clearChat: (chatId: string) => Promise<any>;
   const inviteInfo: (link: string) => Promise<any>;
+  const sendButtons: (to: string, body: any, buttons: string, title: string, footer: string) => Promise<any>;
   const ghostForward: (chatId: string, messageId: string) => Promise<boolean>;
   const revokeGroupInviteLink: (chatId: string) => Promise<string> | Promise<boolean>;
   const getGroupInviteLink: (chatId: string) => Promise<string>;
@@ -1144,6 +1146,25 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
         return WAPI.sendPaymentRequest(to, amount, currency, message);
       },
       { to, amount, currency, message }
+    ) as Promise<boolean | MessageId>;
+  }
+
+  
+  /**
+   * Send generic quick reply buttons
+   * 
+   * @param  {ChatId} to chat id
+   * @param  {string} body The body of the buttons message
+   * @param  {Button[]} buttons Array of buttons - limit is 3!
+   * @param  {string} title The title/header of the buttons message
+   * @param  {string} footer The footer of the buttons message
+   */
+  public async sendButtons(to: ChatId, body : string, buttons : Button[], title ?: string, footer ?: string) : Promise<boolean | MessageId> {
+    return await this.pup(
+      ({ to,  body, buttons, title, footer }) => {
+        return WAPI.sendButtons(to, body, buttons, title, footer);
+      },
+      { to, body, buttons, title, footer }
     ) as Promise<boolean | MessageId>;
   }
 
