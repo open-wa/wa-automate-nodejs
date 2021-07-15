@@ -1191,7 +1191,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    /**
     * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
     * 
-    * Send a list message
+    * Send a list message. This will not work when being sent from business accounts!
     * 
     * @param  {ChatId} to
     * @param  {Section[]} sections The Sections of rows for the list message
