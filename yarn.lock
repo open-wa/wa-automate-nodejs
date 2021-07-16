@@ -55,9 +55,9 @@
     fastq "^1.6.0"
 
 "@open-wa/wa-automate@latest":
-  version "4.10.0"
-  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-4.10.0.tgz#a926c6290f5e03a0a849b5da8ecb8ca87dd78d36"
-  integrity sha512-pa1C4sTJVIMBpYccofUX7k9RucAMuazKSPHjfihA5Ca+F/hbH+u61efGq0jYEZ6vYmskjvJnEqDg24kBQaj/ig==
+  version "4.11.0"
+  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-4.11.0.tgz#243c28359f2942412b22f6b2600f0ae234a7f2c7"
+  integrity sha512-q9KGeLynuDHP35umT35eBWGflIYGGBsR7bJgZQv7PINjBW6OkSix/JW4Kb/pC834HY4Stg6ls4CSZmT8GqmMlQ==
   dependencies:
     "@discordjs/collection" "^0.2.0"
     "@open-wa/wa-decrypt" "^4.0.1"
