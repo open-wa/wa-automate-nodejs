@@ -165,6 +165,16 @@ export const setupSocketServer : (cliConfig, client : Client) => Promise<void> =
             }
             const callbacks = args.filter(arg => typeof arg === "function")
             const objs = args.filter(arg => typeof arg === "object")
+            if(m==="node_red_init_call"){
+                if(!collections['swagger']) return callbacks[0]();
+                return callbacks[0](Object.entries(collections['swagger'].paths).reduce((acc,[key,value])=>{acc[key.replace("/","")]=(value as any)?.post?.requestBody?.content["application/json"]?.example?.args || {};return acc},{}))
+            }
+
+            if(m==="node_red_init_listen"){
+                return callbacks[0](Object.keys(SimpleListener).map(eventKey => SimpleListener[eventKey]))
+            }
+
+            
             if (client[m as string]) {
                 if (m.startsWith("on") && callbacks[0]) {
                     //there should only be one instance of the socket callback per listener
