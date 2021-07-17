@@ -1161,7 +1161,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param  {string} title The title/header of the buttons message
    * @param  {string} footer The footer of the buttons message
    */
-  public async sendButtons(to: ChatId, body : string, buttons : Button[], title ?: string, footer ?: string) : Promise<boolean | MessageId> {
+  public async sendButtons(to: ChatId, body : string, buttons : Button[], title = "", footer ?: string) : Promise<boolean | MessageId> {
     return await this.pup(
       ({ to,  body, buttons, title, footer }) => {
         return WAPI.sendButtons(to, body, buttons, title, footer);
