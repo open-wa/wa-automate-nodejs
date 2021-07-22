@@ -1869,13 +1869,13 @@ public async iAmAdmin() : Promise<GroupChatId[]>  {
  * Any potential abuse of this method will see it become paywalled.
  * @param to: Chat id to forward the message to
  * @param messageId: message id of the message to forward. Please note that if it is not loaded, this will return false - even if it exists.
- * @returns Promise<boolean>
+ * @returns Promise<MessageId | boolean>
  */
-  public async ghostForward(to: ChatId, messageId: MessageId) : Promise<boolean> {
+  public async ghostForward(to: ChatId, messageId: MessageId) : Promise<MessageId | boolean> {
     return await this.pup(
       ({ to, messageId }) => WAPI.ghostForward(to, messageId),
       { to, messageId }
-    ) as Promise<boolean>;
+    ) as Promise<MessageId | boolean>;
   }
 
   /**
