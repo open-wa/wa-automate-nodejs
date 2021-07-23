@@ -86,9 +86,13 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
   }
 
   spinner?.info('Loading session data')
-  const sessionjson = getSessionDataFromFile(sessionId, config, spinner)
+  let sessionjson : any = getSessionDataFromFile(sessionId, config, spinner)
+  if(config?.multiDevice) sessionjson = {
+    ...sessionjson,
+    "md-opted-in": "true"
+  }
   if(sessionjson) {
-  spinner?.info('Existing session data detected. Injecting...')
+  spinner?.info(config.multiDevice ? 'Existing session data detected. Injecting...' : "multi-device enabled. Session data skipped...")
     await waPage.evaluateOnNewDocument(
   session => {
         localStorage.clear();
@@ -225,7 +229,11 @@ async function initBrowser(sessionId?: string, config:any={}) {
   
   if(config?.proxyServerCredentials?.address && config?.useNativeProxy) puppeteerConfig.chromiumArgs.push(`--proxy-server=${config.proxyServerCredentials.address}`)
   if(config?.browserWsEndpoint) config.browserWSEndpoint = config.browserWsEndpoint;
-  const args = [...puppeteerConfig.chromiumArgs,...(config?.chromiumArgs||[])];
+  let args = [...puppeteerConfig.chromiumArgs,...(config?.chromiumArgs||[])];
+  if(config?.multiDevice) {
+    args = args.filter(x=>x!='--incognito')
+    config["userDataDir"] = `./_IGNORE_${config?.sessionId || 'session'}`
+  }
   if(config?.corsFix) args.push('--disable-web-security');
   const browser = (config?.browserWSEndpoint) ? await puppeteer.connect({...config}): await puppeteer.launch({
     headless: true,

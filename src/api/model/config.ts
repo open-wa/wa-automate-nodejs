@@ -606,6 +606,15 @@ export interface ConfigObject {
       * @default `NOTHING`
       */
       onError ?: OnError
+      /**
+       * 
+       * Please note that multi-device is still in beta so a lot of things may not work. It is HIGHLY suggested to NOT use this in production!!!!
+       * 
+       * Set this to true if you're using the multidevice beta.
+       * 
+       * @default `false`
+       */
+      multiDevice ?: boolean
     /**@internal */
     [x: string]: any 
 }
