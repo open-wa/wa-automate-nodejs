@@ -4,6 +4,10 @@ import { Contact } from "./contact";
 
 export interface Message {
   /**
+   * The ID of the selected button
+   */ 
+  selectedButtonId: string;
+  /**
    * The id of the message
    */
   id: MessageId;
