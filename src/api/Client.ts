@@ -119,6 +119,7 @@ declare module WAPI {
   const setPresence: (available: boolean) => void;
   const getMessageReaders: (messageId: string) => Contact[];
   const getStatus: (contactId: string) => void;
+  const B: (chatId: string, payload: any) => MessageId;
   const getCommonGroups: (contactId: string) => Promise<{id:string,title:string}[]>;
   const forceUpdateLiveLocation: (chatId: string) => Promise<LiveLocationChangedEvent []> | boolean;
   const setGroupIcon: (groupId: string, imgData: string) => Promise<boolean>;
@@ -2384,6 +2385,25 @@ public async getStatus(contactId: ContactId) : Promise<{
   ) as Promise<{id: string,status: string}>;
 }
 
+  /**
+   * 
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * 
+   * Use a Baileys payload within your open-wa session
+   * 
+   * @param chatId
+   * @param payload {any} 
+   * returns: MessageId
+   */
+   public async B(chatId: ChatId, payload: {
+     [k: string]: any
+   }) : Promise<MessageId>{
+    return await this.pup(
+      ({ chatId, payload }) => WAPI.B(chatId, payload),
+      { chatId, payload }
+    ) as Promise<MessageId>;
+  }
+  
   /**
     * Load all messages in chat object from server.
    * @param contactId
