@@ -144,6 +144,39 @@ export const setupMediaMiddleware : () => void = () => {
     app.use("/media", express.static('media'))
 }
 
+export const setupBotPressHandler : (cliConfig : cliFlags, client: Client) => void = (cliConfig : cliFlags, client: Client) => {
+    client.onMessage(async message=>{
+        const u = cliConfig.botPressUrl as string
+        const url = `${u.split("/").slice(0,u.split("/").findIndex(x=>x=="converse")).join("/")}/converse/${message.from.replace("@c.us","").replace("@g.us","")}`
+        try {const {data} =  await axios.post(url, {
+                "type": "text",
+                "text": message.type === "buttons_response" ? message.selectedButtonId : message.body
+              })
+            const {responses} = data;
+            return await Promise.all(responses.filter(({type})=>type!="typing").map((response : any) => {
+                if(response.type=="text"){
+                    return client.sendText(message.from, response.text)
+                }
+                if(response.type=="file"){
+                    return client.sendFile(message.from, response.url, `file.${response.url.split(/[#?]/)[0].split('.').pop().trim()}`,"")
+                }
+                if(response.type=="custom"){
+                    if(response["quick_replies"] && response["quick_replies"].length >= 1 && response["quick_replies"].length <= 3){
+                        return client.sendButtons(message.from, response.wrapped.text , response["quick_replies"].map(qr=>{
+                            return {
+                                id: qr.payload,
+                                text: qr.title
+                            }
+                        }),"")
+                    }
+                }
+            }))
+        } catch (error) {
+            console.error("BOTPRESS API ERROR", url, error.message)
+        }
+    })
+}
+
 export const setupSocketServer : (cliConfig, client : Client) => Promise<void> = async (cliConfig, client : Client) => {
     const { Server } = await import("socket.io");
     const io = new Server(server);

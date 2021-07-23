@@ -27,6 +27,11 @@ const optionList:
         alias: 'n',
         type: Boolean,
         description: "Don't expose the api. This may be useful if you just want to set the webhooks."
+    },{
+        name: 'bot-press-url',
+        alias: 'b',
+        type: String,
+        description: "The Botpress URL that ends with your bot id. Example: http://localhost:3000/api/v1/bots/cool-bot"
     },
     {
         name: 'port',
