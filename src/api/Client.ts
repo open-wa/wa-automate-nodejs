@@ -612,7 +612,6 @@ export class Client {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * Listens to when a message is deleted by a recipient or the host account
    * @event 
