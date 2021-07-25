@@ -302,7 +302,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       debugInfo = {...debugInfo, LAUNCH_TIME_MS};
       spinner.emit(debugInfo, "DebugInfo");
       const metrics = await waPage.evaluate(`WAPI.launchMetrics()`);
-      spinner.succeed(`Client loaded with ${metrics.contacts} contacts, ${metrics.chats} chats & ${metrics.messages} messages in ${LAUNCH_TIME_MS/1000}s`);
+      spinner.succeed(`Client loaded for ${metrics.isBiz ? "business" : "normal"} account with ${metrics.contacts} contacts, ${metrics.chats} chats & ${metrics.messages} messages in ${LAUNCH_TIME_MS/1000}s`);
       if(config?.deleteSessionDataOnLogout || config?.killClientOnLogout) config.eventMode = true;
       const client = new Client(waPage, config, debugInfo);
       const { me } = await client.getMe();
