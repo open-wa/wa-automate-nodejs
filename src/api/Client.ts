@@ -1639,9 +1639,6 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
  */
   public async getMe() : Promise<any> {
     return await this._page.evaluate(() => WAPI.getMe());
-    // return await this.pup(() => WAPI.getMe());
-    //@ts-ignore
-    // return await this.pup(() => Store.Me.attributes);
   }
 
   /**
