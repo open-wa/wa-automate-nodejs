@@ -13,6 +13,7 @@ let browser;
 
 export async function initPage(sessionId?: string, config?:ConfigObject, customUserAgent?:string, spinner ?: Spin) : Promise<Page> {
   const setupPromises = [];
+  if(config?.resizable === undefined || !config?.resizable == false) config.defaultViewport= null
   if(config?.useStealth) {
     const {default : stealth} = await import('puppeteer-extra-plugin-stealth')
     puppeteer.use(stealth());
@@ -32,7 +33,6 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
     height: config?.viewport?.height || height,
     deviceScaleFactor: 1
   }));
-  if(config?.resizable) config.defaultViewport= null
   const cacheEnabled = config?.cacheEnabled === false ? false : true;
   const blockCrashLogs = config?.blockCrashLogs === false ? false : true;
   setupPromises.push(waPage.setBypassCSP(config?.bypassCSP || false));

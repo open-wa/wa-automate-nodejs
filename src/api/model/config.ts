@@ -443,7 +443,7 @@ export interface ConfigObject {
     keepUpdated ?: boolean;
     /**
      * Syncs the viewport size with the window size which is how normal browsers act. Only relevant when `headless: false` and this overrides `viewport` config.
-     * @default `false`
+     * @default `true`
      */
     resizable ?: boolean;
     /**
