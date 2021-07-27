@@ -12,6 +12,8 @@ import { ev, Spin } from '../controllers/events';
 import isUrl from 'is-url';
 import * as path from 'path';
 
+let checkUrl = isUrl;
+
 const configWithCases = readJsonSync(path.join(__dirname,'../../bin/config-schema.json'));
 
 const optionList:
@@ -204,6 +206,11 @@ const optionList:
         description: "Automatically reject incoming phone and video calls to the host account."
     },
     {
+        name: 'skip-url-check',
+        type: Boolean,
+        description: "Don't validate webhook URLs. Enables use of non-FQDNs."
+    },
+    {
         name: 'help',
         description: 'Print this usage guide.'
     }
@@ -392,13 +399,15 @@ export const cli: () => {
         })
     }
 
+    if(cliConfig.skipUrlCheck) checkUrl = () => true;
+
     if (cliConfig.webhook || cliConfig.webhook == '') {
-        if (isUrl(cliConfig.webhook) || Array.isArray(cliConfig.webhook)) {
+        if (checkUrl(cliConfig.webhook) || Array.isArray(cliConfig.webhook)) {
             spinner.succeed('webhooks set already')
         } else {
             if (cliConfig.webhook == '') cliConfig.webhook = 'webhooks.json';
             cliConfig.webhook = tryOpenFileAsObject(cliConfig.webhook, true);
-            if (!isUrl(cliConfig.webhook)) {
+            if (!checkUrl(cliConfig.webhook)) {
                 cliConfig.webhook = undefined
             }
         }

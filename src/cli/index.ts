@@ -7,6 +7,8 @@ import { cli } from './setup';
 import { collections, generateCollections } from './collections';
 import { setUpExpressApp, setupAuthenticationLayer, setupRefocusDisengageMiddleware, setupApiDocs, setupSwaggerStatsMiddleware, setupMediaMiddleware, app, setupSocketServer, server, setupBotPressHandler } from './server';
 
+let checkUrl = isUrl;
+
 const ready: (config : any) => Promise<void> = async (config : any) => {
     if (process.send) {
         process.send('ready');
@@ -55,7 +57,8 @@ async function start() {
             if (!Array.isArray(cliConfig.ef)) cliConfig.ef = [cliConfig.ef]
             cliConfig.ef = cliConfig.ef.flatMap(s => s.split(','))
         }
-        if (!isUrl(cliConfig.ev)) spinner.fail("--ev/-e expecting URL - invalid URL.")
+        if(cliConfig.skipUrlCheck) checkUrl = () => true
+        if (!checkUrl(cliConfig.ev)) spinner.fail("--ev/-e expecting URL - invalid URL.")
         else ev.on('**', async (data, sessionId, namespace) => {
             if (cliConfig?.ef) {
                 if (!cliConfig.ef.includes(namespace)) return;
