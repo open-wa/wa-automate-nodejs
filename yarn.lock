@@ -55,9 +55,9 @@
     fastq "^1.6.0"
 
 "@open-wa/wa-automate@latest":
-  version "4.11.0"
-  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-4.11.0.tgz#243c28359f2942412b22f6b2600f0ae234a7f2c7"
-  integrity sha512-q9KGeLynuDHP35umT35eBWGflIYGGBsR7bJgZQv7PINjBW6OkSix/JW4Kb/pC834HY4Stg6ls4CSZmT8GqmMlQ==
+  version "4.12.2"
+  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-4.12.2.tgz#a3a03c05b08f574cb6097817677315513a4d250a"
+  integrity sha512-snvKwO8kMTM6uyIei7Zty2Y1bkBjsufCbdNDmeLmnF590JZq1ygtnyjnd+DyrBHpVjLDXIgOG1NDWKQ4kcgO3Q==
   dependencies:
     "@discordjs/collection" "^0.2.0"
     "@open-wa/wa-decrypt" "^4.0.1"
@@ -112,7 +112,7 @@
     tcp-port-used "^1.0.1"
     terminal-link "^2.1.1"
     tree-kill "^1.2.2"
-    ts-json-schema-generator "^0.94.0"
+    ts-json-schema-generator "^0.95.0"
     ts-morph "^11.0.0"
     type-fest "^1.1.1"
     update-notifier "^5.0.0"
@@ -4622,16 +4622,17 @@ trim-newlines@^3.0.0:
   resolved "https://registry.yarnpkg.com/trim-newlines/-/trim-newlines-3.0.0.tgz#79726304a6a898aa8373427298d54c2ee8b1cb30"
   integrity sha512-C4+gOpvmxaSMKuEf9Qc134F1ZuOHVXKRbtEflf4NTtuuJDEIJ9p5PXsalL8SkeRw+qit1Mo+yuvMPAKwWg/1hA==
 
-ts-json-schema-generator@^0.94.0:
-  version "0.94.1"
-  resolved "https://registry.yarnpkg.com/ts-json-schema-generator/-/ts-json-schema-generator-0.94.1.tgz#cfecf63cdb2bbbed30c8da2bfc74a8dfb30aa14e"
-  integrity sha512-v2onRxViC7Q5jAvzwfhevbWrd6EUQ/v+s2ey1RcX2oZ67ENdTumwkr434BtbW286P8z/SNmkmLE8I1AOcSbWSw==
+ts-json-schema-generator@^0.95.0:
+  version "0.95.0"
+  resolved "https://registry.yarnpkg.com/ts-json-schema-generator/-/ts-json-schema-generator-0.95.0.tgz#726cd4e0979cb772da57a6d7581474e87015adfc"
+  integrity sha512-qyArLCOmy0UnnGeCewpZgaGglPMmawAhsuYDRDa1BeZiyE+M/I2dH+dSMtFj8kVbWSEayfVmQIF9UBINBfeKSg==
   dependencies:
     "@types/json-schema" "^7.0.7"
     commander "^8.0.0"
     fast-json-stable-stringify "^2.1.0"
     glob "^7.1.7"
     json-stable-stringify "^1.0.1"
+    json5 "^2.2.0"
     typescript "~4.3.4"
 
 ts-morph@^11.0.0:
