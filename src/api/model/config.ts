@@ -616,16 +616,6 @@ export interface ConfigObject {
      * @default `false`
      */
     multiDevice ?: boolean
-    /**
-     * 
-     * 
-     * 
-     */
-    cloudBucket ?: {
-        bucketName: string,
-        oauthToken: string
-    }
-
     /**@internal */
     [x: string]: any 
 }
