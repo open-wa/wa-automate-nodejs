@@ -93,6 +93,26 @@ const UPLOAD_CLOUD: (
       bucket: process.env.OW_CLOUD_BUCKET || cloudUploadOptions.bucket,
       region: process.env.OW_CLOUD_REGION || cloudUploadOptions.region,
     }
+    
+    if(!opts.accessKeyId) {
+      console.error("UPLOAD ERROR: No accessKeyId provided. If you're using the CLI, set env var OW_CLOUD_ACCESS_KEY_ID");
+      return message;
+    }
+
+    if(!opts.secretAccessKey) {
+      console.error("UPLOAD ERROR: No secretAccessKey provided. If you're using the CLI, set env var OW_CLOUD_SECRET_ACCESS_KEY");
+      return message;
+    }
+
+    if(!opts.bucket) {
+      console.error("UPLOAD ERROR: No bucket provided. If you're using the CLI, set env var OW_CLOUD_BUCKET");
+      return message;
+    }
+
+    if(!opts.provider) {
+      console.error("UPLOAD ERROR: No provider provided. If you're using the CLI, set env var OW_CLOUD_PROVIDER");
+      return message;
+    }
 
     const url = getCloudUrl(opts);
     if(!processedFiles[filename]) {

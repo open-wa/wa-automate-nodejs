@@ -25,6 +25,7 @@ export const getConfigWithCase = (config ?: {
         'bypassCSP',
         'throwErrorOnTosBlock',
         'killProcessOnBrowserClose',
+        'cloudUploadOptions',
         'qrRefreshS'
     ]
     //only convert simple types
