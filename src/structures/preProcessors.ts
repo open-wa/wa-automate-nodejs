@@ -2,6 +2,13 @@ import { Client } from "../api/Client";
 import { Message } from "../api/model/message";
 import mime from "mime";
 import { outputFileSync } from "fs-extra";
+import { getCloudUrl, upload } from "./Uploader";
+import { CLOUD_PROVIDERS } from "../api/model/config";
+import { default as PQueue }  from "p-queue";
+
+const processedFiles = {};
+
+let uploadQueue;
 
 const SCRUB: (message: Message, client: Client) => Promise<Message> = async (
   message: Message
@@ -61,6 +68,50 @@ const AUTO_DECRYPT_SAVE: (
   return message;
 };
 
+const UPLOAD_CLOUD: (
+  message: Message,
+  client: Client
+) => Promise<Message> = async (message: Message, client: Client) => {
+  const {cloudUploadOptions} = client.getConfig();
+  if(message.fromMe && (cloudUploadOptions.ignoreHostAccount || process.env.OW_CLOUD_IGNORE_HOST)) return message;
+  if(!uploadQueue) {
+    uploadQueue = new PQueue({ concurrency: 2, interval: 1000, carryoverConcurrencyCount: true, intervalCap: 2 });
+  }
+  if (message.deprecatedMms3Url) {
+    const filename = `${message.id.split("_").slice(-1)[0]}.${mime.extension(
+      message.mimetype
+    )}`;
+    const mediaData = await client.decryptMedia(message);
+    if(!cloudUploadOptions) return message;
+    const provider = (process.env.OW_CLOUD_PROVIDER || cloudUploadOptions.provider) as CLOUD_PROVIDERS
+    const opts = {
+      file: mediaData,
+      filename,
+      provider,
+      accessKeyId: process.env.OW_CLOUD_ACCESS_KEY_ID || cloudUploadOptions.accessKeyId,
+      secretAccessKey: process.env.OW_CLOUD_SECRET_ACCESS_KEY || cloudUploadOptions.secretAccessKey, 
+      bucket: process.env.OW_CLOUD_BUCKET || cloudUploadOptions.bucket,
+      region: process.env.OW_CLOUD_REGION || cloudUploadOptions.region,
+    }
+
+    const url = getCloudUrl(opts);
+    if(!processedFiles[filename]) {
+      processedFiles[filename] = true;
+      try {
+        await uploadQueue.add(() => upload(opts).catch(()=>{}));
+      } catch (error) {
+        console.error(error);
+        return message;
+      }
+    }
+    return {
+      ...message,
+      cloudUrl: url
+    };
+  }
+
+};
+
 type MessagePreProcessor = (message: Message, client?: Client) => Promise<Message>
 
 /**
@@ -75,6 +126,7 @@ export const MessagePreprocessors: {
   AUTO_DECRYPT,
   BODY_ONLY,
   SCRUB,
+  UPLOAD_CLOUD
 };
 
 /**
@@ -104,4 +156,12 @@ export enum PREPROCESSORS {
    * PLEASE NOTE, YOU WILL NEED TO MANUALLY CLEAR THIS FOLDER!!!
    */
   AUTO_DECRYPT_SAVE = "AUTO_DECRYPT_SAVE",
+  /**
+   * 
+   * Uploads file to a cloud storage provider (GCP/AWS for now).
+   * 
+   * If this preprocessor is set then you have to also set [`cloudUploadOptions`](https://docs.openwa.dev/interfaces/api_model_config.ConfigObject.html#cloudUploadOptions) in the config.
+   * 
+   */
+  UPLOAD_CLOUD = "UPLOAD_CLOUD",
 }

@@ -123,6 +123,10 @@ export interface Message {
   mediaData: unknown;
   shareDuration: number;
   isAnimated: boolean;
+  /**
+   * The URL of the file after being uploaded to the cloud using a cloud upload message preprocessor.
+   */
+   cloudUrl?: string;
 }
 
 

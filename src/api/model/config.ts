@@ -12,6 +12,13 @@ export enum QRFormat{
     WEBM = 'webm'
   }
 
+
+export enum CLOUD_PROVIDERS {
+    GCP = "GCP",
+    WASABI = "WASABI",
+    AWS = "AWS"
+}
+
   /**
    * The available languages for the host security notification
    */
@@ -597,10 +604,60 @@ export interface ConfigObject {
      /**
       * Set a preprocessor for messages. See [[PREPROCESSORS]] for more info.
       * 
-      * options: `SCRUB`, `BODY_ONLY`, `AUTO_DECRYPT`, `AUTO_DECRYPT_SAVE`.
+      * options: `SCRUB`, `BODY_ONLY`, `AUTO_DECRYPT`, `AUTO_DECRYPT_SAVE`, `UPLOAD_CLOUD`.
       * @default `undefined`
       */
-     messagePreprocessor ?: PREPROCESSORS
+     messagePreprocessor ?: PREPROCESSORS,
+     /**
+      * REQUIRED IF `messagePreprocessor` IS SET TO `UPLOAD_CLOUD`.
+      * 
+      * This can be set via the config or the corresponding environment variables.
+      */
+     cloudUploadOptions ?: {
+         /**
+          * `AWS`, `GCP` or `WASABI`
+          * 
+          * env: `OW_CLOUD_ACCESS_KEY_ID`
+          */
+         provider: CLOUD_PROVIDERS,
+         /**
+          * S3 compatible access key ID. 
+          * 
+          * e.g: `AKIAIOSFODNN7EXAMPLE` or `GOOGTS7C7FUP3AIRVJTE2BCD`
+          * 
+          * env: `OW_CLOUD_ACCESS_KEY_ID`
+          */
+         accessKeyId : string,
+         /**
+          * S3 compatible secret access key.
+          * 
+          * e.g `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY`
+          * 
+          * env: `OW_CLOUD_SECRET_ACCESS_KEY`
+          */
+         secretAccessKey : string,
+         /**
+          * Bucket name
+          * 
+          * env: `OW_CLOUD_BUCKET`
+          */
+         bucket: string,
+         /**
+          * Bucket region.
+          * 
+          * Not required for `GCP` provider
+          * 
+          * env: `OW_CLOUD_REGION`
+          * 
+          */ 
+         region ?: string
+         /**
+          * Ignore processing of messages that are sent by the host account itself
+          * 
+          * env: `OW_CLOUD_IGNORE_HOST`
+          */
+         ignoreHostAccount ?: boolean
+     },
      /**
       * What to do when an error is detected on a client method.
       * 
