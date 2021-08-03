@@ -733,7 +733,7 @@ export class Client {
    * @returns `true` if the callback was registered
    */
   public async onAck(fn: (message: Message) => void) : Promise<Listener | boolean> {
-    const _fn = async (message : Message) => fn(await this.preprocessMessage(message))
+    const _fn = async (message : Message) => fn(message)
     return this.registerListener(SimpleListener.Ack, _fn);
   }
 
