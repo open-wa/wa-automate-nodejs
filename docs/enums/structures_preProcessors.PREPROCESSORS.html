@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>PREPROCESSORS | @open-wa/wa-automate - v4.12.3</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.12.3">
+	<title>PREPROCESSORS | @open-wa/wa-automate - v4.13.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.13.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v4.12.3</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.13.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -97,6 +97,7 @@
 								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="structures_preProcessors.PREPROCESSORS.html#AUTO_DECRYPT_SAVE" class="tsd-kind-icon">AUTO_<wbr>DECRYPT_<wbr>SAVE</a></li>
 								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="structures_preProcessors.PREPROCESSORS.html#BODY_ONLY" class="tsd-kind-icon">BODY_<wbr>ONLY</a></li>
 								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="structures_preProcessors.PREPROCESSORS.html#SCRUB" class="tsd-kind-icon">SCRUB</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="structures_preProcessors.PREPROCESSORS.html#UPLOAD_CLOUD" class="tsd-kind-icon">UPLOAD_<wbr>CLOUD</a></li>
 							</ul>
 						</section>
 					</div>
@@ -152,6 +153,19 @@
 							<p>This preprocessor scrubs <code>body</code> and <code>content</code> from media messages.
 							This would be useful if you want to reduce the message object size because neither of these values represent the actual file, only the thumbnail.</p>
 						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="UPLOAD_CLOUD" class="tsd-anchor"></a>
+					<h3>UPLOAD_<wbr>CLOUD</h3>
+					<div class="tsd-signature tsd-kind-icon">UPLOAD_<wbr>CLOUD<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;UPLOAD_CLOUD&quot;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Uploads file to a cloud storage provider (GCP/AWS for now).</p>
+						</div>
+						<p>If this preprocessor is set then you have to also set <a href="https://docs.openwa.dev/interfaces/api_model_config.ConfigObject.html#cloudUploadOptions"><code>cloudUploadOptions</code></a> in the config.</p>
 					</div>
 				</section>
 			</section>
@@ -257,6 +271,9 @@
 							</li>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
 								<a href="structures_preProcessors.PREPROCESSORS.html#SCRUB" class="tsd-kind-icon">SCRUB</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="structures_preProcessors.PREPROCESSORS.html#UPLOAD_CLOUD" class="tsd-kind-icon">UPLOAD_<wbr>CLOUD</a>
 							</li>
 						</ul>
 					</li>
