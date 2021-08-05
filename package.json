@@ -10,6 +10,6 @@
   "author": "M SHAH <shah@openwa.dev>",
   "license": "H-DNH V1.0",
   "dependencies": {
-    "@open-wa/wa-automate": "latest"
+    "@open-wa/wa-automate": "^4.13.2"
   }
 }
