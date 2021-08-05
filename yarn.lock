@@ -54,7 +54,7 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@open-wa/wa-automate@latest":
+"@open-wa/wa-automate@^4.13.2":
   version "4.13.2"
   resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-4.13.2.tgz#6a4b2fe30384ffe5c55a52dd7b5995c37bade73a"
   integrity sha512-LkljRK1rTOkQU4wQpF0/qJO6C+HtBQOIC33YPDjAcQCC6pPeCcnW7i4ca/A+MDFwAk6jpdOXTn7YZ2xiPxmaSw==
