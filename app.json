@@ -5,7 +5,7 @@
   "repository": "https://github.com/open-wa/wa-automate-nodejs",
   "logo": "https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/hotfix-logo.png",
   "success_url": "/api-docs/",
-  "stack": "heroku-18",
+  "stack": "heroku-20",
   "buildpacks": [
     {
       "url": "heroku/nodejs"
