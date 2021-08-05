@@ -40,7 +40,7 @@
       "value":"false"
     },
     "WA_EV": {
-      "description": "Send Launch log events over the webhook also. You need to set WA_WEBHOOK in order to use this.",
+      "description": "Send launch events to this URL.",
       "required": false,
       "value":"false"
     },
