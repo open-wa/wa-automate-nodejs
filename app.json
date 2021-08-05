@@ -48,10 +48,20 @@
       "description": "You can unlock features with a license key. If you have one, enter it here. Learn more: https://docs.openwa.dev/pages/The%20Client/licensed-features.html",
       "required": false
     },
-    "WA_EVENT_MODE": {
-      "description": "Set this to false if you're having issues with webhooks",
+    "WA_SOCKET": {
+      "description": "Set this to true to enable socket mode",
+      "required": false,
+      "value":""
+    },
+    "WA_DEBUG": {
+      "description": "Enable debug logs on launch",
       "required": false,
       "value":"true"
+    },
+    "WA_BOT_PRESS_URL": {
+      "description": "The Botpress URL that ends with your bot id. Example: http://botpress.url/api/v1/bots/cool-bot",
+      "required": false,
+      "value":""
     }
   },
   "keywords": ["node", "express", "static", "wa", "automate", "bot", "whatsapp", "open-wa", "api"]
