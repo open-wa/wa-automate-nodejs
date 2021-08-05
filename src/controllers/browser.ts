@@ -92,7 +92,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
     "md-opted-in": "true"
   }
   if(sessionjson) {
-  spinner?.info(config.multiDevice ? 'Existing session data detected. Injecting...' : "multi-device enabled. Session data skipped...")
+  spinner?.info(config.multiDevice ?  "multi-device enabled. Session data skipped..." : 'Existing session data detected. Injecting...')
     await waPage.evaluateOnNewDocument(
   session => {
         localStorage.clear();
