@@ -289,7 +289,7 @@ export const helptext = commandLineUsage([{
 
 export const envArgs: () => JsonObject = () => {
     const env = {};
-    Object.keys(process.env).filter(k => k.includes('WA')).map(([k, v]) => env[changeCase.camelCase(k.replace('WA_', ''))] = (v == 'false' || v == 'FALSE') ? false : (v == 'true' || v == 'TRUE') ? true : Number(v) || v);
+    Object.entries(process.env).filter(([k, ]) => k.includes('WA')).map(([k, v]) => env[changeCase.camelCase(k.replace('WA_', ''))] = (v == 'false' || v == 'FALSE') ? false : (v == 'true' || v == 'TRUE') ? true : Number(v) || v);
     return env
 }
 
