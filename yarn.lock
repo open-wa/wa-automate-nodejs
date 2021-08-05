@@ -55,13 +55,14 @@
     fastq "^1.6.0"
 
 "@open-wa/wa-automate@latest":
-  version "4.12.3"
-  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-4.12.3.tgz#af933398f51c0f9cecdb028b2554ffe4aff86ccd"
-  integrity sha512-xNe5DV0xV51slaEysboqwdzXBMKublOi4hnOH6BeGtnoay/R7cD8q4lqtexu+u6QhG+64D7Xt8zDgg4PnuoXGQ==
+  version "4.13.1"
+  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-4.13.1.tgz#a39f3200103d38a9dbef5a8e0b9eaf0f3a0e13de"
+  integrity sha512-kdjN0spu5kjwdirTs7tQQOIehsyNhrN0hA0R7Zjo8Y+9Sm2EootlKSO3oc1BSYmtRPfAg2ifQtMjEJpZOw6EIQ==
   dependencies:
     "@discordjs/collection" "^0.2.0"
-    "@open-wa/wa-decrypt" "^4.0.1"
+    "@open-wa/wa-decrypt" "^4.2.0"
     atob "^2.1.2"
+    aws4 "^1.11.0"
     axios "^0.21.0"
     boxen "^5.0.0"
     cfonts "^2.8.5"
@@ -119,10 +120,10 @@
     uuid "^8.3.2"
     uuid-apikey "^1.4.6"
 
-"@open-wa/wa-decrypt@^4.0.1":
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/@open-wa/wa-decrypt/-/wa-decrypt-4.0.1.tgz#275dad01f273a33e80760c2cb410197d86c9083d"
-  integrity sha512-km7iiFv2mHHPb2CtX6NcXPrJRFmbuvOL/Hpw8exLZqkqKON4H2PtrmKFAfV3MfA8dKlHwj4hTVwn5EheqPBFIA==
+"@open-wa/wa-decrypt@^4.2.0":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@open-wa/wa-decrypt/-/wa-decrypt-4.2.0.tgz#aea2f46037cc0f4a32b0e2ba025466740eeeddc5"
+  integrity sha512-k8pT6HUQmaAVD2DffXdVoeSYTs1z4baK0V0r/aZTXtDKc4JTRcaxwnGVNAPiyLeqBLPy9OUDvXDHJakeqmcsSQ==
   dependencies:
     atob "^2.1.2"
     axios "^0.21.1"
@@ -422,7 +423,7 @@ aws-sign2@~0.7.0:
   resolved "https://registry.yarnpkg.com/aws-sign2/-/aws-sign2-0.7.0.tgz#b46e890934a9591f2d2f6f86d7e6a9f1b3fe76a8"
   integrity sha1-tG6JCTSpWR8tL2+G1+ap8bP+dqg=
 
-aws4@^1.8.0:
+aws4@^1.11.0, aws4@^1.8.0:
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.11.0.tgz#d61f46d83b2519250e2784daf5b09479a8b41c59"
   integrity sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==
