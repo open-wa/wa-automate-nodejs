@@ -105,6 +105,8 @@ declare module WAPI {
   const getGeneratedUserAgent: (userAgent?: string) => string;
   const forwardMessages: (to: string, messages: string | (string | Message)[], skipMyMessages: boolean) => any;
   const createNewProduct : (name : string, price : number, currency : string, images : DataURL[], description : string, url ?: string, internalId ?: string, isHidden ?: boolean) => Promise<any>;
+  const editProduct : (id: string, name : string, price : number, currency : string, images : DataURL[], description : string, url ?: string, internalId ?: string, isHidden ?: boolean) => Promise<any>;
+  const sendProduct : (chatId : string, productId : string) => Promise<any>;
   const sendLocation: (to: string, lat: any, lng: any, loc: string) => Promise<string>;
   const addParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
   const sendGiphyAsSticker: (chatId: string, url: string) => Promise<any>;
@@ -1717,6 +1719,7 @@ public async iAmAdmin() : Promise<GroupChatId[]>  {
   }
 
   /**
+   * @deprecated
    * Feature Currently only available with Premium License accounts.
    * 
    * Send a custom product to a chat. Please see [[CustomProduct]] for details.
@@ -1727,7 +1730,6 @@ public async iAmAdmin() : Promise<GroupChatId[]>  {
    * - This will only work if you have at least 1 product already in your catalog
    * - Only works on Business accounts
    */
-
    public async sendCustomProduct(to: ChatId, image: DataURL, productData: CustomProduct) : Promise<MessageId | boolean>  {
     return await this.pup(
       ({ to, image, productData }) => WAPI.sendCustomProduct(to, image, productData),
@@ -2194,6 +2196,46 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
       { name, price, currency, images, description, url, internalId, isHidden }
     ) as Promise<Product>;
   }
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * 
+   * Edit a product in your catalog
+   * 
+   * @param {string} productId The catalog ID of the product
+   * @param {string} name The name of the product
+   * @param {number} price The price of the product
+   * @param {string} currency The 3-letter currenct code for the product
+   * @param {string[]} images An array of dataurl or base64 strings of product images, the first image will be used as the main image. At least one image is required.
+   * @param {string} description optional, the description of the product
+   * @param {string} url The url of the product for more information
+   * @param {string} internalId The internal/backoffice id of the product
+   * @param {boolean} isHidden Whether or not the product is shown publicly in your catalog
+   * @returns product object
+   */
+   public async editProduct(productId: string, name ?: string, price ?: number, currency ?: string, images ?: DataURL[], description ?: string, url ?: string, internalId ?: string, isHidden ?: boolean) : Promise<Product> {
+    return await this.pup(
+      ({productId, name, price, currency, images, description, url, internalId, isHidden}) => WAPI.editProduct(productId, name, price, currency, images, description, url, internalId, isHidden),
+      { productId, name, price, currency, images, description, url, internalId, isHidden }
+    ) as Promise<Product>;
+  }
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * 
+   * Send a product to a chat
+   * 
+   * @param {string} chatId The chatId
+   * @param {string} productId The name of the product
+   * @returns MessageID
+   */
+   public async sendProduct(chatId: ChatId, productId : string ) : Promise<MessageId> {
+    return await this.pup(
+      ({ chatId, productId }) => WAPI.sendProduct( chatId, productId ),
+      { chatId, productId }
+    ) as Promise<MessageId>;
+  }
+
 
   /**
    * Retrieves the last message sent by the host account in any given chat or globally.
