@@ -1214,8 +1214,6 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
-   * 
    * Sends a reply to given chat that includes mentions, replying to the provided replyMessageId.
    * In order to use this method correctly you will need to send the text like this:
    * "@4474747474747 how are you?"
