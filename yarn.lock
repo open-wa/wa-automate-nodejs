@@ -54,10 +54,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@open-wa/wa-automate@^4.13.2":
-  version "4.13.2"
-  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-4.13.2.tgz#6a4b2fe30384ffe5c55a52dd7b5995c37bade73a"
-  integrity sha512-LkljRK1rTOkQU4wQpF0/qJO6C+HtBQOIC33YPDjAcQCC6pPeCcnW7i4ca/A+MDFwAk6jpdOXTn7YZ2xiPxmaSw==
+"@open-wa/wa-automate@^4.14.0":
+  version "4.14.0"
+  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-4.14.0.tgz#6308b072c2db9ce834403c4894a83ffbf8b1e052"
+  integrity sha512-RoL7iohZuJTYyAXgC4jRuqvgm07XcaEFSpJJpp4Npq/bHWpVZerdClfcdmz3tw+VAUlHXRktvwrrO1OVXn4GYw==
   dependencies:
     "@discordjs/collection" "^0.2.0"
     "@open-wa/wa-decrypt" "^4.2.0"
