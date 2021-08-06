@@ -26,7 +26,7 @@ import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
 import * as path from 'path';
 import { CustomProduct, Label, Order, Product } from './model/product';
 import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
-import { getAndInjectLicense, getAndInjectLivePatch, getLicense } from '../controllers/initializer';
+import { earlyInjectionCheck, getAndInjectLicense, getAndInjectLivePatch, getLicense } from '../controllers/initializer';
 import { SimpleListener } from './model/events';
 import { AwaitMessagesOptions, Collection, CollectorFilter, CollectorOptions } from '../structures/Collector';
 import { MessageCollector } from '../structures/MessageCollector';
@@ -398,6 +398,7 @@ export class Client {
      spinner.info('Refreshing page')
      const START_TIME = Date.now();
      await this._page.goto(puppeteerConfig.WAUrl);
+     await earlyInjectionCheck(this._page as Page)
      if(await isAuthenticated(this._page)) {
        /**
         * Reset all listeners
@@ -408,12 +409,13 @@ export class Client {
       /**
        * patch
        */
-      await getAndInjectLivePatch(this._page, spinner)
+      await getAndInjectLivePatch(this._page, spinner, null, this._createConfig, this._sessionInfo)
       if (this._createConfig?.licenseKey) await getAndInjectLicense(this._page,this._createConfig,me, this._sessionInfo, spinner, preloadlicense);
       /**
        * init patch
        */
      await injectInitPatch(this._page)
+     spinner.info("Reregistering listeners")
      await this.loaded()
      if(!this._createConfig?.eventMode) await this._reRegisterListeners();
      spinner.succeed(`Session refreshed in ${(Date.now() - START_TIME)/1000}s`)

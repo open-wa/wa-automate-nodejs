@@ -151,8 +151,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     await waPage.waitForFunction('window.Debug!=undefined && window.Debug.VERSION!=undefined');
     //@ts-ignore
     const WA_VERSION = await waPage.evaluate(() => window.Debug ? window.Debug.VERSION : 'I think you have been TOS_BLOCKed')
-    //@ts-ignore
-    const canInjectEarly = await waPage.evaluate(() => { if(window.webpackChunkwhatsapp_web_client) {window.webpackChunkbuild = window.webpackChunkwhatsapp_web_client} else {(function(){const f = Object.entries(window).filter(([,o])=>o && o.push && (o.push != [].push));if(f[0]) {window.webpackChunkbuild = window[f[0][0]]}})()} return (typeof webpackChunkbuild !== "undefined") });
+    const canInjectEarly = await earlyInjectionCheck(waPage as Page)
     let debugInfo : SessionInfo = {
       WA_VERSION,
       PAGE_UA,
@@ -430,6 +429,11 @@ export async function getLicense(config: ConfigObject, me : {
     spinner?.fail(`License request failed: ${error.statusCode || error.code || error.message}`);
     return false;
   }
+}
+
+export async function earlyInjectionCheck(page: Page) : Promise<(page: Page) => boolean> {
+    //@ts-ignore
+  return await page.evaluate(() => { if(window.webpackChunkwhatsapp_web_client) {window.webpackChunkbuild = window.webpackChunkwhatsapp_web_client} else {(function(){const f = Object.entries(window).filter(([,o])=>o && o.push && (o.push != [].push));if(f[0]) {window.webpackChunkbuild = window[f[0][0]]}})()} return (typeof webpackChunkbuild !== "undefined") });
 }
 
 export async function getAndInjectLicense(page: Page, config: ConfigObject, me : {
