@@ -54,10 +54,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@open-wa/wa-automate@^4.14.0":
-  version "4.14.0"
-  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-4.14.0.tgz#6308b072c2db9ce834403c4894a83ffbf8b1e052"
-  integrity sha512-RoL7iohZuJTYyAXgC4jRuqvgm07XcaEFSpJJpp4Npq/bHWpVZerdClfcdmz3tw+VAUlHXRktvwrrO1OVXn4GYw==
+"@open-wa/wa-automate@^4.14.1":
+  version "4.14.1"
+  resolved "https://registry.yarnpkg.com/@open-wa/wa-automate/-/wa-automate-4.14.1.tgz#e7f90b3327ffcd3a093dce0ac6e7b3a5439fef8e"
+  integrity sha512-udfC8U75VPk8NKiuABldqSADZ5758Q3VUYJ5D+XfHm5BNUv0C4HlIfiSTDvEEEz7aL3DVysNs8ET9/NxEoArJA==
   dependencies:
     "@discordjs/collection" "^0.2.0"
     "@open-wa/wa-decrypt" "^4.2.0"
@@ -72,7 +72,7 @@
     command-line-usage "^6.1.1"
     cross-env "^7.0.3"
     cross-spawn "^7.0.3"
-    datauri "^3.0.0"
+    datauri "^4.0.1"
     death "^1.1.0"
     ensure-gitignore "^1.1.2"
     eventemitter2 "^6.0.0"
@@ -942,12 +942,12 @@ dashdash@^1.12.0:
   dependencies:
     assert-plus "^1.0.0"
 
-datauri@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/datauri/-/datauri-3.0.0.tgz#6196997e9a7bbbee81b60e8c8acb1a2c871e2349"
-  integrity sha512-NeDFuUPV1YCpCn8MUIcDk1QnuyenUHs7f4Q5P0n9FFA0neKFrfEH9esR+YMW95BplbYfdmjbs0Pl/ZGAaM2QHQ==
+datauri@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/datauri/-/datauri-4.0.1.tgz#f6972ede8a20d7eb71e5e3fe8111088daa2c0908"
+  integrity sha512-ciLpQ5Udi75QQBn4cseqgken95YJ8EJiaZqVXB3ovq0MwEb8iWrXhKItOx8QcNUTihtgaqf6epmDodwJakm4RA==
   dependencies:
-    image-size "0.8.3"
+    image-size "1.0.0"
     mimer "1.1.0"
 
 death@^1.1.0:
@@ -1919,12 +1919,12 @@ ieee754@^1.1.13:
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.2.1.tgz#8eb7a10a63fff25d15a57b001586d177d1b0d352"
   integrity sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==
 
-image-size@0.8.3:
-  version "0.8.3"
-  resolved "https://registry.yarnpkg.com/image-size/-/image-size-0.8.3.tgz#f0b568857e034f29baffd37013587f2c0cad8b46"
-  integrity sha512-SMtq1AJ+aqHB45c3FsB4ERK0UCiA2d3H1uq8s+8T0Pf8A3W4teyBQyaFaktH6xvZqh+npwlKU7i4fJo0r7TYTg==
+image-size@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/image-size/-/image-size-1.0.0.tgz#58b31fe4743b1cec0a0ac26f5c914d3c5b2f0750"
+  integrity sha512-JLJ6OwBfO1KcA+TvJT+v8gbE6iWbj24LyDNFgFEN0lzegn6cC6a/p3NIDaepMsJjQjlUWqIC7wJv8lBFxPNjcw==
   dependencies:
-    queue "6.0.1"
+    queue "6.0.2"
 
 image-type@^4.1.0:
   version "4.1.0"
@@ -3360,10 +3360,10 @@ queue-microtask@^1.2.2:
   resolved "https://registry.yarnpkg.com/queue-microtask/-/queue-microtask-1.2.3.tgz#4929228bbc724dfac43e0efb058caf7b6cfb6243"
   integrity sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==
 
-queue@6.0.1:
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/queue/-/queue-6.0.1.tgz#abd5a5b0376912f070a25729e0b6a7d565683791"
-  integrity sha512-AJBQabRCCNr9ANq8v77RJEv73DPbn55cdTb+Giq4X0AVnNVZvMHlYp7XlQiN+1npCZj1DuSmaA2hYVUUDgxFDg==
+queue@6.0.2:
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/queue/-/queue-6.0.2.tgz#b91525283e2315c7553d2efa18d83e76432fed65"
+  integrity sha512-iHZWu+q3IdFZFX36ro/lKBkSvfkztY5Y7HMiPlOUjhupPcG2JMfst2KKEpu5XndviX/3UhFbRngUPNKtgvtZiA==
   dependencies:
     inherits "~2.0.3"
 
