@@ -1,6 +1,6 @@
 # open-wa-heroku-deployment
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/open-wa/wa-automate-nodejs/tree/heroku-deploy)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/open-wa/wa-automate-nodejs/tree/deploy)
 
 Steps:
 
