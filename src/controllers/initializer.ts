@@ -426,7 +426,7 @@ export async function getLicense(config: ConfigObject, me : {
   spinner?.succeed(`Downloaded License in ${(END-START)/1000}s`)
   return data;
   } catch (error) {
-    spinner?.fail(`License request failed: ${error.statusCode || error.code || error.message}`);
+    spinner?.fail(`License request failed: ${error.statusCode || error.status || error.code} ${error.message}`);
     return false;
   }
 }
@@ -461,7 +461,7 @@ export async function getAndInjectLicense(page: Page, config: ConfigObject, me :
   }
   return false;
   } catch (error) {
-    spinner?.fail(`License request failed: ${error.statusCode || error.code || error.message}`);
+    spinner?.fail(`License request failed: ${error.statusCode || error.status || error.code} ${error.message}`);
     return false;
   }
 }
