@@ -113,6 +113,13 @@ const setupMetaMiddleware = () => {
         if (!types.includes(coltype)) return res.status(404).send(`collection ${coltype} not found`)
         return res.send(collections[coltype.replace('.json', '')])
     })
+
+    /**
+     * Basic
+     */
+    app.get("/meta/basic/commands", (_, res) => res.send(getCommands()))
+    app.get("/meta/basic/listeners", (_, res) => res.send(listListeners()))
+    
     /**
      * If you want to list the list of all languages GET https://codegen.openwa.dev/api/gen/clients
      * 
@@ -137,6 +144,12 @@ const setupMetaMiddleware = () => {
             })
         }
     })
+}
+
+export const getCommands : () => any = () => Object.entries(collections['swagger'].paths).reduce((acc,[key,value])=>{acc[key.replace("/","")]=(value as any)?.post?.requestBody?.content["application/json"]?.example?.args || {};return acc},{})
+
+export const listListeners : () => string[] = () => {
+    return Object.keys(SimpleListener).map(eventKey => SimpleListener[eventKey])
 }
 
 
@@ -200,11 +213,11 @@ export const setupSocketServer : (cliConfig, client : Client) => Promise<void> =
             const objs = args.filter(arg => typeof arg === "object")
             if(m==="node_red_init_call"){
                 if(!collections['swagger']) return callbacks[0]();
-                return callbacks[0](Object.entries(collections['swagger'].paths).reduce((acc,[key,value])=>{acc[key.replace("/","")]=(value as any)?.post?.requestBody?.content["application/json"]?.example?.args || {};return acc},{}))
+                return callbacks[0](getCommands())
             }
 
             if(m==="node_red_init_listen"){
-                return callbacks[0](Object.keys(SimpleListener).map(eventKey => SimpleListener[eventKey]))
+                return callbacks[0](listListeners())
             }
 
             
