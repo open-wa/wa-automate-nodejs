@@ -1,19 +1,54 @@
 spec:
   name: open-wa-easy-api
   services:
-  # - environment_slug: node-js
-  - dockerfile_path: dockerfile.build
-    run_command: npm run start
+  - image:
+      registry: openwa
+      registry_type: DOCKER_HUB
+      repository: wa-automate
+      tag: latest
     git:
       branch: main
       repo_clone_url: https://github.com/open-wa/wa-automate-deploy-heroku.git
     name: open-wa-easy-api
+    instance_count: 1
     envs: 
-      - key: "WA_SESSION_ID"
+      - key: "WA_SESSION_DATA"
         type: SECRET
+        scope: RUN_AND_BUILD_TIME
+      - key: "WA_LICENSE_KEY"
+        value: 'false'
+        type: GENERAL
         scope: RUN_AND_BUILD_TIME
       - key: "API_KEY"
         type: SECRET
+        scope: RUN_AND_BUILD_TIME
+      - key: "WA_KEEP_ALIVE"
+        value: 'false'
+        type: GENERAL
+        scope: RUN_AND_BUILD_TIME
+      - key: "WA_WEBHOOK"
+        value: 'false'
+        type: GENERAL
+        scope: RUN_AND_BUILD_TIME
+      - key: "WA_KEEP_UPDATED"
+        value: 'false'
+        type: GENERAL
+        scope: RUN_AND_BUILD_TIME
+      - key: "WA_EV"
+        value: 'false'
+        type: GENERAL
+        scope: RUN_AND_BUILD_TIME
+      - key: "WA_SOCKET"
+        value: 'false'
+        type: GENERAL
+        scope: RUN_AND_BUILD_TIME
+      - key: "WA_DEBUG"
+        value: 'false'
+        type: GENERAL
+        scope: RUN_AND_BUILD_TIME
+      - key: "WA_BOT_PRESS_URL"
+        value: 'false'
+        type: GENERAL
         scope: RUN_AND_BUILD_TIME
       - key: "PORT"
         type: GENERAL
