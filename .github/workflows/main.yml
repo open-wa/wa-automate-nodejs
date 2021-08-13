@@ -26,6 +26,6 @@ jobs:
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.API_TOKEN_GITHUB }}
-        branch: heroku-deploy
+        branch: deploy
         repository: open-wa/wa-automate-nodejs
         force: true
