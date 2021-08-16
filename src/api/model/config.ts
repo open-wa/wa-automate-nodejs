@@ -19,6 +19,25 @@ export enum CLOUD_PROVIDERS {
     AWS = "AWS"
 }
 
+export enum DIRECTORY_STRATEGY {
+    /**
+     * E.g `/2021-08-16/`
+     */
+    DATE = "DATE",
+    /**
+     * E.g `/447123456789/`
+     */
+    CHAT = "CHAT",
+    /**
+     * E.g `/447123456789/2021-08-16/`
+     */
+    CHAT_DATE = "CHAT_DATE",
+    /**
+     * E.g `/2021-08-16/447123456789/`
+     */
+    DATE_CHAT = "DATE_CHAT"
+}
+
   /**
    * The available languages for the host security notification
    */
@@ -657,6 +676,12 @@ export interface ConfigObject {
           * env: `OW_CLOUD_IGNORE_HOST`
           */
          ignoreHostAccount ?: boolean
+         /**
+          * The directory strategy to use when uploading files. Or just set it to a custom directory string.
+          * 
+          * env: `OW_DIRECTORY`
+          */
+         directory ?: DIRECTORY_STRATEGY | string
      },
      /**
       * What to do when an error is detected on a client method.

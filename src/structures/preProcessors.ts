@@ -72,19 +72,19 @@ const UPLOAD_CLOUD: (
   message: Message,
   client: Client
 ) => Promise<Message> = async (message: Message, client: Client) => {
-  const {cloudUploadOptions} = client.getConfig();
-  if(message.fromMe && (cloudUploadOptions.ignoreHostAccount || process.env.OW_CLOUD_IGNORE_HOST)) return message;
-  if(!uploadQueue) {
-    uploadQueue = new PQueue({ concurrency: 2, interval: 1000, carryoverConcurrencyCount: true, intervalCap: 2 });
-  }
-  if (message.deprecatedMms3Url) {
+  if (message?.deprecatedMms3Url) {
+    const {cloudUploadOptions} = client.getConfig();
+    if(message.fromMe && (cloudUploadOptions.ignoreHostAccount || process.env.OW_CLOUD_IGNORE_HOST)) return message;
+    if(!uploadQueue) {
+      uploadQueue = new PQueue({ concurrency: 2, interval: 1000, carryoverConcurrencyCount: true, intervalCap: 2 });
+    }
     const filename = `${message.id.split("_").slice(-1)[0]}.${mime.extension(
       message.mimetype
     )}`;
     const mediaData = await client.decryptMedia(message);
     if(!cloudUploadOptions) return message;
     const provider = (process.env.OW_CLOUD_PROVIDER || cloudUploadOptions.provider) as CLOUD_PROVIDERS
-    const opts = {
+    const opts : S3UploadOptions = {
       file: mediaData,
       filename,
       provider,
@@ -93,6 +93,28 @@ const UPLOAD_CLOUD: (
       bucket: process.env.OW_CLOUD_BUCKET || cloudUploadOptions.bucket,
       region: process.env.OW_CLOUD_REGION || cloudUploadOptions.region,
     }
+    const dirStrat = process.env.OW_DIRECTORY || cloudUploadOptions.directory
+    if(dirStrat) {
+      let directory = '';
+      switch(dirStrat) {
+        case DIRECTORY_STRATEGY.DATE:
+          directory = `${new Date().toISOString().slice(0,10)}`;
+          break;
+        case DIRECTORY_STRATEGY.CHAT:
+          directory = `${message.from.replace("@c.us", "").replace("@g.us", "")}`;
+          break;
+        case DIRECTORY_STRATEGY.DATE_CHAT:
+          directory = `${new Date().toISOString().slice(0,10)}/${message.from.replace("@c.us", "").replace("@g.us", "")}`;
+          break;
+        case DIRECTORY_STRATEGY.CHAT_DATE:
+          directory = `${message.from.replace("@c.us", "").replace("@g.us", "")}/${new Date().toISOString().slice(0,10)}`;
+          break;
+        default:
+          directory = dirStrat;
+          break;
+    }
+      opts.directory = directory;
+  }
     
     if(!opts.accessKeyId) {
       console.error("UPLOAD ERROR: No accessKeyId provided. If you're using the CLI, set env var OW_CLOUD_ACCESS_KEY_ID");
