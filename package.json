@@ -135,6 +135,7 @@
     "parse-function": "^5.6.10",
     "parse-url": "^5.0.2",
     "patch-package": "^6.2.2",
+    "pico-s3": "^1.0.0",
     "pino": "^6.11.1",
     "postman-2-swagger": "^0.5.0",
     "puppeteer": "10.2.0",

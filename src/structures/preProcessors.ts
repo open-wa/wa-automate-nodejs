@@ -2,9 +2,9 @@ import { Client } from "../api/Client";
 import { Message } from "../api/model/message";
 import mime from "mime";
 import { outputFileSync } from "fs-extra";
-import { getCloudUrl, upload } from "./Uploader";
-import { CLOUD_PROVIDERS } from "../api/model/config";
+import { DIRECTORY_STRATEGY } from "../api/model/config";
 import { default as PQueue }  from "p-queue";
+import { upload, getCloudUrl, S3UploadOptions, CLOUD_PROVIDERS} from "pico-s3";
 
 const processedFiles = {};
 
