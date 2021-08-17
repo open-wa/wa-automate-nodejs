@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ConfigObject | @open-wa/wa-automate - v4.14.2</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.14.2">
+	<title>ConfigObject | @open-wa/wa-automate - v4.15.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.15.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v4.14.2</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.15.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -144,6 +144,7 @@
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#safeMode" class="tsd-kind-icon">safe<wbr>Mode</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#screenshotOnInitializationBrowserError" class="tsd-kind-icon">screenshot<wbr>OnInitialization<wbr>Browser<wbr>Error</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#sessionData" class="tsd-kind-icon">session<wbr>Data</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#sessionDataBucketAuth" class="tsd-kind-icon">session<wbr>Data<wbr>Bucket<wbr>Auth</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#sessionDataPath" class="tsd-kind-icon">session<wbr>Data<wbr>Path</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#sessionId" class="tsd-kind-icon">session<wbr>Id</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#skipBrokenMethodsCheck" class="tsd-kind-icon">skip<wbr>Broken<wbr>Methods<wbr>Check</a></li>
@@ -350,7 +351,7 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="cloudUploadOptions" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> cloud<wbr>Upload<wbr>Options</h3>
-					<div class="tsd-signature tsd-kind-icon">cloud<wbr>Upload<wbr>Options<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>accessKeyId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>bucket<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>ignoreHostAccount<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>provider<span class="tsd-signature-symbol">: </span><a href="../enums/api_model_config.CLOUD_PROVIDERS.html" class="tsd-signature-type" data-tsd-kind="Enumeration">CLOUD_PROVIDERS</a><span class="tsd-signature-symbol">; </span>region<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>secretAccessKey<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+					<div class="tsd-signature tsd-kind-icon">cloud<wbr>Upload<wbr>Options<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>accessKeyId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>bucket<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>directory<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>ignoreHostAccount<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>provider<span class="tsd-signature-symbol">: </span><a href="../enums/api_model_config.CLOUD_PROVIDERS.html" class="tsd-signature-type" data-tsd-kind="Enumeration">CLOUD_PROVIDERS</a><span class="tsd-signature-symbol">; </span>region<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>secretAccessKey<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -379,6 +380,15 @@
 										<p>Bucket name</p>
 									</div>
 									<p>env: <code>OW_CLOUD_BUCKET</code></p>
+								</div>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> directory<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The directory strategy to use when uploading files. Or just set it to a custom directory string.</p>
+									</div>
+									<p>env: <code>OW_DIRECTORY</code></p>
 								</div>
 							</li>
 							<li class="tsd-parameter">
@@ -1126,6 +1136,18 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="sessionDataBucketAuth" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> session<wbr>Data<wbr>Bucket<wbr>Auth</h3>
+					<div class="tsd-signature tsd-kind-icon">session<wbr>Data<wbr>Bucket<wbr>Auth<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Base64 encoded S3 Bucket &amp; Authentication object for session data files. The object should be in the same format as cloudUploadOptions.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="sessionDataPath" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> session<wbr>Data<wbr>Path</h3>
 					<div class="tsd-signature tsd-kind-icon">session<wbr>Data<wbr>Path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
@@ -1593,6 +1615,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="api_model_config.ConfigObject.html#sessionData" class="tsd-kind-icon">session<wbr>Data</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#sessionDataBucketAuth" class="tsd-kind-icon">session<wbr>Data<wbr>Bucket<wbr>Auth</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="api_model_config.ConfigObject.html#sessionDataPath" class="tsd-kind-icon">session<wbr>Data<wbr>Path</a>

@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Client | @open-wa/wa-automate - v4.14.2</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.14.2">
+	<title>Client | @open-wa/wa-automate - v4.15.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.15.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v4.14.2</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.15.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -238,6 +238,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#removeLabel" class="tsd-kind-icon">remove<wbr>Label</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#removeListener" class="tsd-kind-icon">remove<wbr>Listener</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#removeParticipant" class="tsd-kind-icon">remove<wbr>Participant</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#removeProduct" class="tsd-kind-icon">remove<wbr>Product</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#removeWebhook" class="tsd-kind-icon">remove<wbr>Webhook</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#reply" class="tsd-kind-icon">reply</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#reportSpam" class="tsd-kind-icon">report<wbr>Spam</a></li>
@@ -4814,6 +4815,35 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="removeProduct" class="tsd-anchor"></a>
+					<h3>remove<wbr>Product</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">remove<wbr>Product<span class="tsd-signature-symbol">(</span>productId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Remove a product from the host account&#39;s catalog</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>productId: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The id of the product</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>boolean</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="removeWebhook" class="tsd-anchor"></a>
 					<h3>remove<wbr>Webhook</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -5913,7 +5943,7 @@
 								<li>
 									<h5>productId: <span class="tsd-signature-type">string</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>The name of the product</p>
+										<p>The id of the product</p>
 									</div>
 								</li>
 							</ul>
@@ -7526,6 +7556,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_Client.Client.html#removeParticipant" class="tsd-kind-icon">remove<wbr>Participant</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="api_Client.Client.html#removeProduct" class="tsd-kind-icon">remove<wbr>Product</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_Client.Client.html#removeWebhook" class="tsd-kind-icon">remove<wbr>Webhook</a>
