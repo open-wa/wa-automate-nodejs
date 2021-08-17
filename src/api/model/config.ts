@@ -698,6 +698,10 @@ export interface ConfigObject {
      * @default `false`
      */
     multiDevice ?: boolean
+    /**
+     * Base64 encoded S3 Bucket & Authentication object for session data files. The object should be in the same format as cloudUploadOptions.
+     */
+    sessionDataBucketAuth ?: string
     /**@internal */
     [x: string]: any 
 }

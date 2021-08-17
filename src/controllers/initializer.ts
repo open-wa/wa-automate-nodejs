@@ -18,6 +18,7 @@ import { Page } from 'puppeteer';
 import { createHash } from 'crypto';
 import { injectInitPatch } from './init_patch';
 import { readJsonSync } from 'fs-extra'
+import { upload } from 'pico-s3';
 
 const pkg = readJsonSync(path.join(__dirname,'../../package.json')),
 configWithCases = readJsonSync(path.join(__dirname,'../../bin/config-schema.json')),
@@ -274,6 +275,20 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       if(!config?.skipSessionSave) fs.writeFile(sessionjsonpath, sdB64, (err) => {
         if (err) { console.error(err); return; }
       });
+      if(config?.sessionDataBucketAuth) {
+        try {
+          spinner?.info('Uploading new session data to cloud storage..')
+          await upload({
+            directory: '_sessionData',
+            ...JSON.parse(Buffer.from(config.sessionDataBucketAuth, 'base64').toString('ascii')),
+            filename: `${config.sessionId || 'session'}.data.json`,
+            file: `data:text/plain;base64,${Buffer.from(sdB64).toString('base64')}`
+          })
+          spinner?.succeed('Successfully uploaded session data file to cloud storage!')
+        } catch (error) {
+          spinner?.fail(`Something went wrong while uploading new session data to cloud storage bucket. Continuing...`)
+        }
+      }
       if (config?.logConsole) waPage.on('console', msg => console.log(msg));
       if (config?.logConsoleErrors) waPage.on('error', error => console.log(error));
       if (config?.restartOnCrash) waPage.on('error', async error => {

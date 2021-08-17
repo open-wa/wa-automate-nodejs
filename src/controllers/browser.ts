@@ -6,6 +6,7 @@ import { puppeteerConfig, useragent, width, height} from '../config/puppeteer.co
 import { Browser, Page } from 'puppeteer';
 import { Spin, EvEmitter } from './events';
 import { ConfigObject } from '../api/model';
+import { FileNotFoundError, getTextFile } from 'pico-s3';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const puppeteer = require('puppeteer-extra')
 
@@ -87,6 +88,19 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
 
   spinner?.info('Loading session data')
   let sessionjson : any = getSessionDataFromFile(sessionId, config, spinner)
+  if(!sessionjson && config.sessionDataBucketAuth) {
+    try {
+      spinner?.info('Unable to find session data file locally, attempting to find session data in cloud storage..')
+      sessionjson = JSON.parse(Buffer.from(await getTextFile({
+        directory: '_sessionData',
+        ...JSON.parse(Buffer.from(config.sessionDataBucketAuth, 'base64').toString('ascii')),
+        filename: `${config.sessionId || 'session'}.data.json`
+      }), 'base64').toString('ascii'));
+      spinner?.succeed('Successfully downloaded session data file from cloud storage!')
+    } catch (error) {
+      spinner?.fail(`${error instanceof FileNotFoundError ? 'The session data file was not found in the cloud storage bucket' : 'Something went wrong while fetching session data from cloud storage bucket'}. Continuing...`)
+    }
+  }
   if(config?.multiDevice) sessionjson = {
     ...sessionjson,
     "md-opted-in": "true"
