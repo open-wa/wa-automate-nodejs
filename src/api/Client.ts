@@ -107,6 +107,7 @@ declare module WAPI {
   const createNewProduct : (name : string, price : number, currency : string, images : DataURL[], description : string, url ?: string, internalId ?: string, isHidden ?: boolean) => Promise<any>;
   const editProduct : (id: string, name : string, price : number, currency : string, images : DataURL[], description : string, url ?: string, internalId ?: string, isHidden ?: boolean) => Promise<any>;
   const sendProduct : (chatId : string, productId : string) => Promise<any>;
+  const removeProduct : (productId : string) => Promise<any>;
   const sendLocation: (to: string, lat: any, lng: any, loc: string) => Promise<string>;
   const addParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
   const sendGiphyAsSticker: (chatId: string, url: string) => Promise<any>;
@@ -2224,7 +2225,7 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
    * Send a product to a chat
    * 
    * @param {string} chatId The chatId
-   * @param {string} productId The name of the product
+   * @param {string} productId The id of the product
    * @returns MessageID
    */
    public async sendProduct(chatId: ChatId, productId : string ) : Promise<MessageId> {
@@ -2234,6 +2235,19 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
     ) as Promise<MessageId>;
   }
 
+  /**
+   * 
+   * Remove a product from the host account's catalog
+   * 
+   * @param {string} productId The id of the product
+   * @returns boolean
+   */
+   public async removeProduct(productId : string ) : Promise<boolean> {
+    return await this.pup(
+      ({ productId }) => WAPI.removeProduct( productId ),
+      { productId }
+    ) as Promise<boolean>;
+  }
 
   /**
    * Retrieves the last message sent by the host account in any given chat or globally.
