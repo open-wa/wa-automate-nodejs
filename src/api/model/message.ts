@@ -1,6 +1,5 @@
-import { Section } from "@open-wa/wa-automate/dist/api/model/button";
 import { ChatId, MessageId } from "./aliases";
-import { Button, Row } from "./button";
+import { Button, Row, Section } from "./button";
 import { Chat } from "./chat";
 import { Contact } from "./contact";
 
