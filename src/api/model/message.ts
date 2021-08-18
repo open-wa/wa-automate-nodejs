@@ -1,4 +1,6 @@
+import { Section } from "@open-wa/wa-automate/dist/api/model/button";
 import { ChatId, MessageId } from "./aliases";
+import { Button, Row } from "./button";
 import { Chat } from "./chat";
 import { Contact } from "./contact";
 
@@ -127,6 +129,23 @@ export interface Message {
    * The URL of the file after being uploaded to the cloud using a cloud upload message preprocessor.
    */
    cloudUrl?: string;
+   /**
+    * Buttons associated with the message
+    */
+   buttons ?: Button[]
+   /**
+    * List response associated with the message
+    */
+    listResponse ?: Row
+    /**
+     * The list associated with the list message
+     */
+    list ?: {
+      "sections": Section[],
+      "title": string,
+      "description": string,
+      "buttonText":  string,
+    }
 }
 
 
@@ -149,6 +168,7 @@ export enum MessageTypes {
   REVOKED = 'revoked',
   ORDER = 'order',
   BUTTONS_RESPONSE = 'buttons_response',
+  LIST_RESPONSE = "list_response",
   UNKNOWN = 'unknown'
 }
 
