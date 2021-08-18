@@ -63,6 +63,10 @@
      */
     StateChanged = 'onStateChanged',
     /**
+     * Represents [[onButton]]
+     */
+    Button = 'onButton',
+    /**
      * Requires licence
      * Represents [[onStory]]
      */

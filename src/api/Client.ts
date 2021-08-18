@@ -639,6 +639,16 @@ export class Client {
     return this.registerListener(SimpleListener.ChatDeleted, fn);
   }
 
+  /**
+   * Listens to button message responses
+   * @event 
+   * @param fn callback
+   * @fires [[Message]]
+   */
+   public async onButton(fn: (chat: Chat) => void) : Promise<Listener | boolean> {
+    return this.registerListener(SimpleListener.Button, fn);
+  }
+
   /** 
    * Listens to battery changes
    * 
