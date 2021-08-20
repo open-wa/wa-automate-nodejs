@@ -327,7 +327,15 @@ export class Client {
       this.logger().child({
         PHONE_VERSION: this._sessionInfo.PHONE_VERSION
       }).info()
-
+      
+      if(this._createConfig?.autoEmoji === undefined || this._createConfig?.autoEmoji) {
+        const ident = typeof this._createConfig?.autoEmoji === "string" ? this._createConfig?.autoEmoji : ":"
+        this.onMessage(async message => {
+          if(message.body && message.body.startsWith(ident) && message.body.endsWith(ident)) {
+            return await this.sendEmoji(message.from,message.body.replace(new RegExp(ident, 'g'),""),message.id)
+          }
+        })
+      }
       if(this._createConfig?.deleteSessionDataOnLogout || this._createConfig?.killClientOnLogout) {
         this.onLogout(() => {
             if(this._createConfig?.deleteSessionDataOnLogout) deleteSessionData(this._createConfig)

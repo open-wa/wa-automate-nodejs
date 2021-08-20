@@ -702,6 +702,12 @@ export interface ConfigObject {
      * Base64 encoded S3 Bucket & Authentication object for session data files. The object should be in the same format as cloudUploadOptions.
      */
     sessionDataBucketAuth ?: string
+    /**
+     * Set the automatic emoji detection character. Set this to false to disable auto emoji.
+     * 
+     * @default `:`
+     */
+    autoEmoji ?: string;
     /**@internal */
     [x: string]: any 
 }
