@@ -3017,21 +3017,23 @@ public async getStatus(contactId: ContactId) : Promise<{
     if(func === 'convertMp4BufferToWebpDataUrl') fallback = true;
     const sessionInfo = this.getSessionInfo()
     sessionInfo.WA_AUTOMATE_VERSION = sessionInfo.WA_AUTOMATE_VERSION.split(' ')[0]
-    if(a.file || a.image) {
-      //check if its a local file:
-      const key = a.file ? 'file' : 'image';
-      if(!isDataURL(a[key]) && !isUrl(a[key]) && !isBase64(a[key])){
-        const relativePath = path.join(path.resolve(process.cwd(),a[key]|| ''));
-        if(fs.existsSync(a[key]) || fs.existsSync(relativePath)) {
-          a[key] = await datauri(fs.existsSync(a[key])  ? a[key] : relativePath);
-        } else {
-          console.error('FILE_NOT_FOUND')
-          throw new CustomError(ERROR_NAME.FILE_NOT_FOUND, 'FILE NOT FOUND')
+    if(a.file || a.image || a.emojiId) {
+      if(!a.emojiId) {
+        //check if its a local file:
+        const key = a.file ? 'file' : 'image';
+        if(!isDataURL(a[key]) && !isUrl(a[key]) && !isBase64(a[key])){
+          const relativePath = path.join(path.resolve(process.cwd(),a[key]|| ''));
+          if(fs.existsSync(a[key]) || fs.existsSync(relativePath)) {
+            a[key] = await datauri(fs.existsSync(a[key])  ? a[key] : relativePath);
+          } else {
+            console.error('FILE_NOT_FOUND')
+            throw new CustomError(ERROR_NAME.FILE_NOT_FOUND, 'FILE NOT FOUND')
+          }
         }
+        if(a?.stickerMetadata && typeof a?.stickerMetadata !== "object") throw new CustomError(ERROR_NAME.BAD_STICKER_METADATA, `Received ${typeof a?.stickerMetadata}: ${a?.stickerMetadata}`);
+        // remvebg no longer limited to GCP
+        // if((a?.stickerMetadata as StickerMetadata)?.removebg) fallback = true;
       }
-      if(a?.stickerMetadata && typeof a?.stickerMetadata !== "object") throw new CustomError(ERROR_NAME.BAD_STICKER_METADATA, `Received ${typeof a?.stickerMetadata}: ${a?.stickerMetadata}`);
-      // remvebg no longer limited to GCP
-      // if((a?.stickerMetadata as StickerMetadata)?.removebg) fallback = true;
       try {
         const {data} = await axios.post(`${((fallback ?  pkg.stickerUrl : 'https://open-wa-sticker-api.herokuapp.com')|| this._createConfig.stickerServerEndpoint).replace(/\/$/, '')}/${func}`, {
           ...a,
@@ -3147,6 +3149,24 @@ public async getStatus(contactId: ContactId) : Promise<{
       console.log(msg)
       throw new CustomError(ERROR_NAME.STICKER_TOO_LARGE,msg);
     }
+  }
+
+  /**
+   * Send a discord emoji to a chat as a sticker
+   * 
+   * @param to ChatId The chat id you want to send the webp sticker to
+   * @param emojiId The discord emoji id without indentifying chars. In discord you would write `:who:`, here use `who`
+   * @param messageId message id of the message you want this sticker to reply to. [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   */
+  public async sendEmoji(to: ChatId, emojiId: string, messageId ?: MessageId) : Promise<MessageId | boolean | string> {
+    const webp = await this.stickerServerRequest('emoji', {
+      emojiId
+    });
+    if(webp) {
+      if(messageId) return await this.sendRawWebpAsStickerAsReply(to, messageId, webp, true) as MessageId
+     return await this.sendRawWebpAsSticker(to, webp,true) as MessageId
+    }
+    return false;
   }
 
   /**
