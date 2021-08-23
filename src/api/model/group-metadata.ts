@@ -1,6 +1,4 @@
-import { Id } from './id';
-import { GroupChatId, NonSerializedId, WaServers } from './aliases';
-import { ChatId, ContactId } from '@open-wa/wa-automate';
+import { ChatId, ContactId, GroupChatId, NonSerializedId } from './aliases';
 
 export interface Participant {
   id: NonSerializedId,
