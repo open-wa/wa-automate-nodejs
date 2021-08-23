@@ -1,5 +1,6 @@
 import { Id } from './id';
 import { GroupChatId, NonSerializedId, WaServers } from './aliases';
+import { ChatId, ContactId } from '@open-wa/wa-automate';
 
 export interface Participant {
   id: NonSerializedId,
@@ -36,10 +37,10 @@ export enum groupChangeEvent {
 }
 
 export interface ParticipantChangedEventModel {
-  by: Id,
+  by: ContactId,
   action: groupChangeEvent,
-  who: [Id]
-  chat: Id
+  who: ContactId[]
+  chat: ChatId
 }
 
 /**
