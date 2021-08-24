@@ -270,7 +270,7 @@ export const helptext = commandLineUsage([{
             let type;
             if (c.type === 'boolean') type = Boolean;
             if (c.type === 'string') type = String;
-            if (c.type === '"number"') type = Number;
+            if (c.type === '"number"' || c.type === 'number') type = Number;
             return {
                 name: c.p,
                 type,
