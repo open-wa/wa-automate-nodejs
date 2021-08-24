@@ -8,10 +8,5 @@
   },
   "git": {
     "changelog": "npx auto-changelog --stdout --commit-limit false --unreleased --template https://raw.githubusercontent.com/release-it/release-it/master/templates/changelog-compact.hbs --ignore-commit-pattern \"🥚.*\""
-  },
-  "plugins": {
-    "@grupoboticario/news-fragments": {
-      "changelogFile": "CHANGELOG_NEW.md"
-    }
   }
 }
