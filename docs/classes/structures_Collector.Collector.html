@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Collector | @open-wa/wa-automate - v4.17.2</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.17.2">
+	<title>Collector | @open-wa/wa-automate - v4.19.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.19.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v4.17.2</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.19.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -172,7 +172,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="structures_Collector.Collector.html#setMaxListeners" class="tsd-kind-icon">set<wbr>Max<wbr>Listeners</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="structures_Collector.Collector.html#setTimeout" class="tsd-kind-icon">set<wbr>Timeout</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="structures_Collector.Collector.html#stop" class="tsd-kind-icon">stop</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external"><a href="structures_Collector.Collector.html#getEventListener" class="tsd-kind-icon">get<wbr>Event<wbr>Listener</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external"><a href="structures_Collector.Collector.html#getEventListeners" class="tsd-kind-icon">get<wbr>Event<wbr>Listeners</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external"><a href="structures_Collector.Collector.html#listenerCount-1" class="tsd-kind-icon">listener<wbr>Count</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external"><a href="structures_Collector.Collector.html#on-1" class="tsd-kind-icon">on</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external"><a href="structures_Collector.Collector.html#once-1" class="tsd-kind-icon">once</a></li>
@@ -1720,20 +1720,44 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
-					<a name="getEventListener" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> get<wbr>Event<wbr>Listener</h3>
+					<a name="getEventListeners" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> get<wbr>Event<wbr>Listeners</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Event<wbr>Listener<span class="tsd-signature-symbol">(</span>emitter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DOMEventTarget</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EventEmitter</span>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">symbol</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Event<wbr>Listeners<span class="tsd-signature-symbol">(</span>emitter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DOMEventTarget</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EventEmitter</span>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">symbol</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from EventEmitter.getEventListener</p>
+								<p>Inherited from EventEmitter.getEventListeners</p>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Returns a list listener for a specific emitter event name.</p>
+									<p>Returns a copy of the array of listeners for the event named <code>eventName</code>.</p>
 								</div>
+								<p>For <code>EventEmitter</code>s this behaves exactly the same as calling <code>.listeners</code> on
+								the emitter.</p>
+								<p>For <code>EventTarget</code>s this is the only way to get the event listeners for the
+								event target. This is useful for debugging and diagnostic purposes.</p>
+								<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">getEventListeners</span><span style="color: #000000">, </span><span style="color: #0070C1">EventEmitter</span><span style="color: #000000"> } = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;events&#039;</span><span style="color: #000000">);</span>
+
+<span style="color: #000000">{</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">ee</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">EventEmitter</span><span style="color: #000000">();</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">listener</span><span style="color: #000000"> = () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Events are fun&#039;</span><span style="color: #000000">);</span>
+<span style="color: #000000">  </span><span style="color: #001080">ee</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;foo&#039;</span><span style="color: #000000">, </span><span style="color: #001080">listener</span><span style="color: #000000">);</span>
+<span style="color: #000000">  </span><span style="color: #795E26">getEventListeners</span><span style="color: #000000">(</span><span style="color: #001080">ee</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;foo&#039;</span><span style="color: #000000">); </span><span style="color: #008000">// [listener]</span>
+<span style="color: #000000">}</span>
+<span style="color: #000000">{</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">et</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">EventTarget</span><span style="color: #000000">();</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">listener</span><span style="color: #000000"> = () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Events are fun&#039;</span><span style="color: #000000">);</span>
+<span style="color: #000000">  </span><span style="color: #001080">et</span><span style="color: #000000">.</span><span style="color: #795E26">addEventListener</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;foo&#039;</span><span style="color: #000000">, </span><span style="color: #001080">listener</span><span style="color: #000000">);</span>
+<span style="color: #000000">  </span><span style="color: #795E26">getEventListeners</span><span style="color: #000000">(</span><span style="color: #001080">et</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;foo&#039;</span><span style="color: #000000">); </span><span style="color: #008000">// [listener]</span>
+<span style="color: #000000">}</span>
+</code></pre>
+								<dl class="tsd-comment-tags">
+									<dt>since</dt>
+									<dd><p>v15.2.0</p>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -1760,9 +1784,22 @@
 								<p>Inherited from EventEmitter.listenerCount</p>
 							</aside>
 							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>A class method that returns the number of listeners for the given <code>eventName</code>registered on the given <code>emitter</code>.</p>
+								</div>
+								<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">EventEmitter</span><span style="color: #000000">, </span><span style="color: #0070C1">listenerCount</span><span style="color: #000000"> } = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;events&#039;</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myEmitter</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">EventEmitter</span><span style="color: #000000">();</span>
+<span style="color: #001080">myEmitter</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;event&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {});</span>
+<span style="color: #001080">myEmitter</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;event&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {});</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #795E26">listenerCount</span><span style="color: #000000">(</span><span style="color: #001080">myEmitter</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;event&#039;</span><span style="color: #000000">));</span>
+<span style="color: #008000">// Prints: 2</span>
+</code></pre>
 								<dl class="tsd-comment-tags">
+									<dt>since</dt>
+									<dd><p>v0.9.12</p>
+									</dd>
 									<dt>deprecated</dt>
-									<dd><p>since v4.0.0</p>
+									<dd><p>Since v3.2.0 - Use <code>listenerCount</code> instead.</p>
 									</dd>
 								</dl>
 							</div>
@@ -1770,9 +1807,15 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>emitter: <span class="tsd-signature-type">EventEmitter</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The emitter to query</p>
+									</div>
 								</li>
 								<li>
 									<h5>eventName: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">symbol</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The event name</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -1790,6 +1833,64 @@
 							<aside class="tsd-sources">
 								<p>Inherited from EventEmitter.on</p>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>```js
+									const { on, EventEmitter } = require(&#39;events&#39;);</p>
+								</div>
+								<p>(async () =&gt; {
+								const ee = new EventEmitter();</p>
+								<p>  // Emit later on
+									process.nextTick(() =&gt; {
+									ee.emit(&#39;foo&#39;, &#39;bar&#39;);
+									ee.emit(&#39;foo&#39;, 42);
+								});</p>
+								<p>  for await (const event of on(ee, &#39;foo&#39;)) {
+									// The execution of this inner block is synchronous and it
+									// processes one event at a time (even with await). Do not use
+									// if concurrent execution is required.
+									console.log(event); // prints [&#39;bar&#39;] [42]
+									}
+									// Unreachable here
+								})();</p>
+								<pre><code>
+<span style="color: #001080">Returns</span><span style="color: #000000"> </span><span style="color: #001080">an</span><span style="color: #000000"> </span><span style="color: #A31515">`AsyncIterator`</span><span style="color: #000000"> </span><span style="color: #001080">that</span><span style="color: #000000"> </span><span style="color: #001080">iterates</span><span style="color: #000000"> </span><span style="color: #A31515">`eventName`</span><span style="color: #000000"> </span><span style="color: #001080">events</span><span style="color: #000000">. </span><span style="color: #001080">It</span><span style="color: #000000"> </span><span style="color: #001080">will</span><span style="color: #000000"> </span><span style="color: #AF00DB">throw</span>
+<span style="color: #AF00DB">if</span><span style="color: #000000"> </span><span style="color: #001080">the</span><span style="color: #000000"> </span><span style="color: #A31515">`EventEmitter`</span><span style="color: #000000"> </span><span style="color: #001080">emits</span><span style="color: #000000"> </span><span style="color: #A31515">`&#039;error&#039;`</span><span style="color: #000000">. </span><span style="color: #001080">It</span><span style="color: #000000"> </span><span style="color: #001080">removes</span><span style="color: #000000"> </span><span style="color: #001080">all</span><span style="color: #000000"> </span><span style="color: #001080">listeners</span><span style="color: #000000"> </span><span style="color: #001080">when</span>
+<span style="color: #001080">exiting</span><span style="color: #000000"> </span><span style="color: #001080">the</span><span style="color: #000000"> </span><span style="color: #001080">loop</span><span style="color: #000000">. </span><span style="color: #001080">The</span><span style="color: #000000"> </span><span style="color: #A31515">`value`</span><span style="color: #000000"> </span><span style="color: #001080">returned</span><span style="color: #000000"> </span><span style="color: #001080">by</span><span style="color: #000000"> </span><span style="color: #001080">each</span><span style="color: #000000"> </span><span style="color: #001080">iteration</span><span style="color: #000000"> </span><span style="color: #001080">is</span><span style="color: #000000"> </span><span style="color: #001080">an</span><span style="color: #000000"> </span><span style="color: #001080">array</span>
+<span style="color: #001080">composed</span><span style="color: #000000"> </span><span style="color: #0000FF">of</span><span style="color: #000000"> </span><span style="color: #001080">the</span><span style="color: #000000"> </span><span style="color: #001080">emitted</span><span style="color: #000000"> </span><span style="color: #001080">event</span><span style="color: #000000"> </span><span style="color: #0000FF">arguments</span><span style="color: #000000">.</span>
+
+<span style="color: #001080">An</span><span style="color: #000000"> </span><span style="color: #A31515">`AbortSignal`</span><span style="color: #000000"> </span><span style="color: #001080">can</span><span style="color: #000000"> </span><span style="color: #001080">be</span><span style="color: #000000"> </span><span style="color: #001080">used</span><span style="color: #000000"> </span><span style="color: #001080">to</span><span style="color: #000000"> </span><span style="color: #001080">cancel</span><span style="color: #000000"> </span><span style="color: #001080">waiting</span><span style="color: #000000"> </span><span style="color: #001080">on</span><span style="color: #000000"> events:</span>
+
+<span style="color: #A31515">```js</span>
+<span style="color: #A31515">const { on, EventEmitter } = require(&#039;events&#039;);</span>
+<span style="color: #A31515">const ac = new AbortController();</span>
+
+<span style="color: #A31515">(async () =&gt; {</span>
+<span style="color: #A31515">  const ee = new EventEmitter();</span>
+
+<span style="color: #A31515">  // Emit later on</span>
+<span style="color: #A31515">  process.nextTick(() =&gt; {</span>
+<span style="color: #A31515">    ee.emit(&#039;foo&#039;, &#039;bar&#039;);</span>
+<span style="color: #A31515">    ee.emit(&#039;foo&#039;, 42);</span>
+<span style="color: #A31515">  });</span>
+
+<span style="color: #A31515">  for await (const event of on(ee, &#039;foo&#039;, { signal: ac.signal })) {</span>
+<span style="color: #A31515">    // The execution of this inner block is synchronous and it</span>
+<span style="color: #A31515">    // processes one event at a time (even with await). Do not use</span>
+<span style="color: #A31515">    // if concurrent execution is required.</span>
+<span style="color: #A31515">    console.log(event); // prints [&#039;bar&#039;] [42]</span>
+<span style="color: #A31515">  }</span>
+<span style="color: #A31515">  // Unreachable here</span>
+<span style="color: #A31515">})();</span>
+
+<span style="color: #A31515">process.nextTick(() =&gt; ac.abort());</span>
+</code></pre>
+								<dl class="tsd-comment-tags">
+									<dt>since</dt>
+									<dd><p>v13.6.0, v12.16.0</p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -1797,12 +1898,16 @@
 								</li>
 								<li>
 									<h5>eventName: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The name of the event being listened for</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <span class="tsd-signature-type">StaticEventEmitterOptions</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">AsyncIterableIterator</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>that iterates <code>eventName</code> events emitted by the <code>emitter</code></p>
 						</li>
 					</ul>
 				</section>
@@ -1818,6 +1923,85 @@
 							<aside class="tsd-sources">
 								<p>Inherited from EventEmitter.once</p>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a <code>Promise</code> that is fulfilled when the <code>EventEmitter</code> emits the given
+										event or that is rejected if the <code>EventEmitter</code> emits <code>&#39;error&#39;</code> while waiting.
+										The <code>Promise</code> will resolve with an array of all the arguments emitted to the
+									given event.</p>
+								</div>
+								<p>This method is intentionally generic and works with the web platform<a href="https://dom.spec.whatwg.org/#interface-eventtarget">EventTarget</a> interface, which has no special<code>&#39;error&#39;</code> event
+								semantics and does not listen to the <code>&#39;error&#39;</code> event.</p>
+								<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">once</span><span style="color: #000000">, </span><span style="color: #0070C1">EventEmitter</span><span style="color: #000000"> } = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;events&#039;</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">async</span><span style="color: #000000"> </span><span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">run</span><span style="color: #000000">() {</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">ee</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">EventEmitter</span><span style="color: #000000">();</span>
+
+<span style="color: #000000">  </span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">nextTick</span><span style="color: #000000">(() </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #001080">ee</span><span style="color: #000000">.</span><span style="color: #795E26">emit</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;myevent&#039;</span><span style="color: #000000">, </span><span style="color: #098658">42</span><span style="color: #000000">);</span>
+<span style="color: #000000">  });</span>
+
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> [</span><span style="color: #0070C1">value</span><span style="color: #000000">] = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #001080">ee</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;myevent&#039;</span><span style="color: #000000">);</span>
+<span style="color: #000000">  </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">value</span><span style="color: #000000">);</span>
+
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">err</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Error</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;kaboom&#039;</span><span style="color: #000000">);</span>
+<span style="color: #000000">  </span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">nextTick</span><span style="color: #000000">(() </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #001080">ee</span><span style="color: #000000">.</span><span style="color: #795E26">emit</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;error&#039;</span><span style="color: #000000">, </span><span style="color: #001080">err</span><span style="color: #000000">);</span>
+<span style="color: #000000">  });</span>
+
+<span style="color: #000000">  </span><span style="color: #AF00DB">try</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #001080">ee</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;myevent&#039;</span><span style="color: #000000">);</span>
+<span style="color: #000000">  } </span><span style="color: #AF00DB">catch</span><span style="color: #000000"> (</span><span style="color: #001080">err</span><span style="color: #000000">) {</span>
+<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;error happened&#039;</span><span style="color: #000000">, </span><span style="color: #001080">err</span><span style="color: #000000">);</span>
+<span style="color: #000000">  }</span>
+<span style="color: #000000">}</span>
+
+<span style="color: #795E26">run</span><span style="color: #000000">();</span>
+</code></pre>
+								<p>The special handling of the <code>&#39;error&#39;</code> event is only used when <code>events.once()</code>is used to wait for another event. If <code>events.once()</code> is used to wait for the
+									&#39;<code>error&#39;</code> event itself, then it is treated as any other kind of event without
+								special handling:</p>
+								<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">EventEmitter</span><span style="color: #000000">, </span><span style="color: #0070C1">once</span><span style="color: #000000"> } = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;events&#039;</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">ee</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">EventEmitter</span><span style="color: #000000">();</span>
+
+<span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #001080">ee</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;error&#039;</span><span style="color: #000000">)</span>
+<span style="color: #000000">  .</span><span style="color: #795E26">then</span><span style="color: #000000">(([</span><span style="color: #001080">err</span><span style="color: #000000">]) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;ok&#039;</span><span style="color: #000000">, </span><span style="color: #001080">err</span><span style="color: #000000">.</span><span style="color: #001080">message</span><span style="color: #000000">))</span>
+<span style="color: #000000">  .</span><span style="color: #795E26">catch</span><span style="color: #000000">((</span><span style="color: #001080">err</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;error&#039;</span><span style="color: #000000">, </span><span style="color: #001080">err</span><span style="color: #000000">.</span><span style="color: #001080">message</span><span style="color: #000000">));</span>
+
+<span style="color: #001080">ee</span><span style="color: #000000">.</span><span style="color: #795E26">emit</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;error&#039;</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Error</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;boom&#039;</span><span style="color: #000000">));</span>
+
+<span style="color: #008000">// Prints: ok boom</span>
+</code></pre>
+								<p>An <code>AbortSignal</code> can be used to cancel waiting for the event:</p>
+								<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">EventEmitter</span><span style="color: #000000">, </span><span style="color: #0070C1">once</span><span style="color: #000000"> } = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;events&#039;</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">ee</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">EventEmitter</span><span style="color: #000000">();</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">ac</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">AbortController</span><span style="color: #000000">();</span>
+
+<span style="color: #0000FF">async</span><span style="color: #000000"> </span><span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">foo</span><span style="color: #000000">(</span><span style="color: #001080">emitter</span><span style="color: #000000">, </span><span style="color: #001080">event</span><span style="color: #000000">, </span><span style="color: #001080">signal</span><span style="color: #000000">) {</span>
+<span style="color: #000000">  </span><span style="color: #AF00DB">try</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #001080">emitter</span><span style="color: #000000">, </span><span style="color: #001080">event</span><span style="color: #000000">, { </span><span style="color: #001080">signal</span><span style="color: #000000"> });</span>
+<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;event emitted!&#039;</span><span style="color: #000000">);</span>
+<span style="color: #000000">  } </span><span style="color: #AF00DB">catch</span><span style="color: #000000"> (</span><span style="color: #001080">error</span><span style="color: #000000">) {</span>
+<span style="color: #000000">    </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">error</span><span style="color: #000000">.</span><span style="color: #001080">name</span><span style="color: #000000"> === </span><span style="color: #A31515">&#039;AbortError&#039;</span><span style="color: #000000">) {</span>
+<span style="color: #000000">      </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">error</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Waiting for the event was canceled!&#039;</span><span style="color: #000000">);</span>
+<span style="color: #000000">    } </span><span style="color: #AF00DB">else</span><span style="color: #000000"> {</span>
+<span style="color: #000000">      </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">error</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;There was an error&#039;</span><span style="color: #000000">, </span><span style="color: #001080">error</span><span style="color: #000000">.</span><span style="color: #001080">message</span><span style="color: #000000">);</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">  }</span>
+<span style="color: #000000">}</span>
+
+<span style="color: #795E26">foo</span><span style="color: #000000">(</span><span style="color: #001080">ee</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;foo&#039;</span><span style="color: #000000">, </span><span style="color: #001080">ac</span><span style="color: #000000">.</span><span style="color: #001080">signal</span><span style="color: #000000">);</span>
+<span style="color: #001080">ac</span><span style="color: #000000">.</span><span style="color: #795E26">abort</span><span style="color: #000000">(); </span><span style="color: #008000">// Abort waiting for the event</span>
+<span style="color: #001080">ee</span><span style="color: #000000">.</span><span style="color: #795E26">emit</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;foo&#039;</span><span style="color: #000000">); </span><span style="color: #008000">// Prints: Waiting for the event was canceled!</span>
+</code></pre>
+								<dl class="tsd-comment-tags">
+									<dt>since</dt>
+									<dd><p>v11.13.0, v10.16.0</p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -2074,7 +2258,7 @@
 								<a href="structures_Collector.Collector.html#stop" class="tsd-kind-icon">stop</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
-								<a href="structures_Collector.Collector.html#getEventListener" class="tsd-kind-icon">get<wbr>Event<wbr>Listener</a>
+								<a href="structures_Collector.Collector.html#getEventListeners" class="tsd-kind-icon">get<wbr>Event<wbr>Listeners</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
 								<a href="structures_Collector.Collector.html#listenerCount-1" class="tsd-kind-icon">listener<wbr>Count</a>
