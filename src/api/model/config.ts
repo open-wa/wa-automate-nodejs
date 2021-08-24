@@ -703,11 +703,23 @@ export interface ConfigObject {
      */
     sessionDataBucketAuth ?: string
     /**
-     * Set the automatic emoji detection character. Set this to false to disable auto emoji.
+     * Set the automatic emoji detection character. Set this to false to disable auto emoji. Default is `:`.
      * 
      * @default `:`
      */
     autoEmoji ?: string;
+    /**
+     * Set the maximum amount of chats to be present in a session. To turn off this feature, set this to `0`. Default is 1000.
+     * 
+     * @default `1000`
+     */
+    maxChats ?: number;
+    /**
+     * Set the maximum amount of messages to be present in a session. To turn off this feature, set this to `0`. Default is 1000.
+     * 
+     * @default `1000`
+     */
+     maxMessages ?: number;
     /**@internal */
     [x: string]: any 
 }
