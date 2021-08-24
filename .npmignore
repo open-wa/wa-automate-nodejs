@@ -32,3 +32,11 @@ cname-fix.ts
 compact-keepachangelog.hbs
 CHANGELOG.md
 **.ignore.**
+CHANGELOG_NEW.md
+patches
+fragments
+types-only
+bin/*config.json
+bin/*col.json
+bin/*collection.json
+logs
