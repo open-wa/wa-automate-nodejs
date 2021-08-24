@@ -61,7 +61,6 @@
     "npm": ">=7.9.0"
   },
   "devDependencies": {
-    "@grupoboticario/news-fragments": "^1.8.0",
     "@types/changelog-parser": "^2.7.1",
     "@types/command-line-args": "^5.0.0",
     "@types/command-line-usage": "^5.0.1",
