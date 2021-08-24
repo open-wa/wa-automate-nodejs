@@ -1,6 +1,6 @@
 {
     "name": "@open-wa/wa-automate-types-only",
-    "version": "4.18.0",
+    "version": "4.19.0",
     "description": "Types generated from the @open-wa/wa-automate package",
     "scripts": {
         "build": "tsc",
@@ -19,20 +19,20 @@
         "dist"
     ],
     "repository": {
-      "type": "git",
-      "url": "git+https://github.com/open-wa/wa-automate-nodejs.git"
+        "type": "git",
+        "url": "git+https://github.com/open-wa/wa-automate-nodejs.git"
     },
     "author": "Mohammed Shah <@smashah>",
     "publishConfig": {
-      "access": "public"
+        "access": "public"
     },
     "license": "H-DNH V1.0",
     "bugs": {
-      "url": "https://github.com/open-wa/wa-automate-nodejs/issues"
+        "url": "https://github.com/open-wa/wa-automate-nodejs/issues"
     },
     "homepage": "https://github.com/open-wa/wa-automate-nodejs#readme",
     "engines": {
-      "node": ">=12.18.3",
-      "npm": ">=7.9.0"
+        "node": ">=12.18.3",
+        "npm": ">=7.9.0"
     }
 }
