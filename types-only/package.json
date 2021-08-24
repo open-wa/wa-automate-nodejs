@@ -1,0 +1,38 @@
+{
+    "name": "@open-wa/wa-automate-types-only",
+    "version": "4.18.0",
+    "description": "Types generated from the @open-wa/wa-automate package",
+    "scripts": {
+        "build": "tsc",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "types": "dist/index.d.ts",
+    "keywords": [
+        "typescript",
+        "ts",
+        "types",
+        "open-wa",
+        "wa-automate"
+    ],
+    "files": [
+        "dist/index.d.ts",
+        "dist"
+    ],
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/open-wa/wa-automate-nodejs.git"
+    },
+    "author": "Mohammed Shah <@smashah>",
+    "publishConfig": {
+      "access": "public"
+    },
+    "license": "H-DNH V1.0",
+    "bugs": {
+      "url": "https://github.com/open-wa/wa-automate-nodejs/issues"
+    },
+    "homepage": "https://github.com/open-wa/wa-automate-nodejs#readme",
+    "engines": {
+      "node": ">=12.18.3",
+      "npm": ">=7.9.0"
+    }
+}
