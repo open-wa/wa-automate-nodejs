@@ -4,8 +4,7 @@
   },
   "hooks": {
     "after:bump": "npm run build && npx auto-changelog --ignore-commit-pattern \"🥚.*\" --commit-limit false -p -t keepachangelog && typedoc && npm run cname && npm run release-image",
-    "before:git:release": "npm run release-image",
-    "after:release": "cd ./types-only && npm version $VERS && npm run build && npm publish && cd .."
+    "before:git:release": "npm run release-image"
   },
   "git": {
     "changelog": "npx auto-changelog --stdout --commit-limit false --unreleased --template https://raw.githubusercontent.com/release-it/release-it/master/templates/changelog-compact.hbs --ignore-commit-pattern \"🥚.*\""
