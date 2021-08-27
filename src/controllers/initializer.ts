@@ -473,7 +473,7 @@ export async function getAndInjectLicense(page: Page, config: ConfigObject, me :
       spinner?.info('License injection failed. Getting error..')
       l_err = await page.evaluate('window.launchError');
     } else {
-      spinner?.info('License inkected successfully..')
+      spinner?.info('License injected successfully..')
       const keyType = await page.evaluate('window.KEYTYPE || false');
       spinner?.succeed(`License Valid${keyType?`: ${keyType}`:''}`);
       return true;
