@@ -709,15 +709,11 @@ export interface ConfigObject {
      */
     autoEmoji ?: string;
     /**
-     * Set the maximum amount of chats to be present in a session. To turn off this feature, set this to `0`. Default is 1000.
-     * 
-     * @default `1000`
+     * Set the maximum amount of chats to be present in a session.
      */
     maxChats ?: number;
     /**
-     * Set the maximum amount of messages to be present in a session. To turn off this feature, set this to `0`. Default is 1000.
-     * 
-     * @default `1000`
+     * Set the maximum amount of messages to be present in a session. 
      */
      maxMessages ?: number;
     /**@internal */
