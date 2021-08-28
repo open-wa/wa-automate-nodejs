@@ -161,9 +161,29 @@ export const setupBotPressHandler : (cliConfig : cliFlags, client: Client) => vo
     client.onMessage(async message=>{
         const u = cliConfig.botPressUrl as string
         const url = `${u.split("/").slice(0,u.split("/").findIndex(x=>x=="converse")).join("/")}/converse/${message.from.replace("@c.us","").replace("@g.us","")}`
-        try {const {data} =  await axios.post(url, {
+        try {
+            let text = message.body;
+            switch(message.type) {
+                case 'location':
+                    text = `${message.lat},${message.lng}`;
+                    break;
+                case 'buttons_response':
+                    text = message.selectedButtonId;
+                    break;
+                case 'document':
+                case 'image':
+                case 'audio':
+                case 'ptt':
+                case 'video':
+                    if(message.cloudUrl) text = message.cloudUrl;
+                    break;
+                default:
+                    text = message.body;
+                    break;
+            }
+            const {data} =  await axios.post(url, {
                 "type": "text",
-                "text": message.type === "buttons_response" ? message.selectedButtonId : message.body
+                text
               })
             const {responses} = data;
             return await Promise.all(responses.filter(({type})=>type!="typing").map((response : any) => {
