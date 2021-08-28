@@ -594,7 +594,7 @@ export class Client {
   // STANDARD SIMPLE LISTENERS
   private async preprocessMessage(message: Message) : Promise<Message> {
     if(this._createConfig.messagePreprocessor && MessagePreprocessors[this._createConfig.messagePreprocessor]) {
-      return await MessagePreprocessors[this._createConfig.messagePreprocessor](message, this)
+      return (await MessagePreprocessors[this._createConfig.messagePreprocessor](message, this) || message)
     }
     return message;
   }

@@ -10,7 +10,7 @@ const processedFiles = {};
 
 let uploadQueue;
 
-const SCRUB: (message: Message, client: Client) => Promise<Message> = async (
+const SCRUB: MessagePreProcessor = async (
   message: Message
 ) => {
   if (message.deprecatedMms3Url)
@@ -22,7 +22,7 @@ const SCRUB: (message: Message, client: Client) => Promise<Message> = async (
   return message;
 };
 
-const BODY_ONLY: (message: Message, client: Client) => Promise<Message> =
+const BODY_ONLY: MessagePreProcessor =
   async (message: Message) => {
     if (message.deprecatedMms3Url)
       return {
@@ -32,7 +32,7 @@ const BODY_ONLY: (message: Message, client: Client) => Promise<Message> =
     return message;
   };
 
-const AUTO_DECRYPT: (message: Message, client: Client) => Promise<Message> =
+const AUTO_DECRYPT: MessagePreProcessor =
   async (message: Message, client: Client) => {
     if (message.deprecatedMms3Url)
       return {
@@ -42,10 +42,7 @@ const AUTO_DECRYPT: (message: Message, client: Client) => Promise<Message> =
     return message;
   };
 
-const AUTO_DECRYPT_SAVE: (
-  message: Message,
-  client: Client
-) => Promise<Message> = async (message: Message, client: Client) => {
+const AUTO_DECRYPT_SAVE: MessagePreProcessor = async (message: Message, client: Client) => {
   if (message.deprecatedMms3Url) {
     const filename = `${message.id.split("_").slice(-1)[0]}.${mime.extension(
       message.mimetype
@@ -68,10 +65,7 @@ const AUTO_DECRYPT_SAVE: (
   return message;
 };
 
-const UPLOAD_CLOUD: (
-  message: Message,
-  client: Client
-) => Promise<Message> = async (message: Message, client: Client) => {
+const UPLOAD_CLOUD: MessagePreProcessor = async (message: Message, client: Client) => {
   if (message?.deprecatedMms3Url) {
     const {cloudUploadOptions} = client.getConfig();
     if(message.fromMe && (cloudUploadOptions.ignoreHostAccount || process.env.OW_CLOUD_IGNORE_HOST)) return message;
@@ -151,7 +145,7 @@ const UPLOAD_CLOUD: (
       cloudUrl: url
     };
   }
-
+  return message;
 };
 
 type MessagePreProcessor = (message: Message, client?: Client) => Promise<Message>
