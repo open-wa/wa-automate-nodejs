@@ -20,6 +20,10 @@ export interface Message {
    * The type of the message, see [[MessageTypes]]
    */
   type: MessageTypes;
+  /**
+   * Used to checking the integrity of the decrypted media.
+   */
+  filehash ?: string;
   mimetype?: string;
   /**
    * The latitude of a location message
