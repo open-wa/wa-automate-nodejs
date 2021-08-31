@@ -716,6 +716,10 @@ export interface ConfigObject {
      * Set the maximum amount of messages to be present in a session. 
      */
      maxMessages ?: number;
+     /**
+      * Your Discord ID to get onto the sticker leaderboard!
+      */
+     discord ?: string
     /**@internal */
     [x: string]: any 
 }
