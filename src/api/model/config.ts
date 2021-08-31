@@ -127,6 +127,21 @@ export interface DevTools {
     pass : string
 }
 
+export interface EventPayload {
+    //epoch timestamp
+    ts : number;
+    //session id
+    sessionId: string;
+    //id of the webhook event. Useful for idempotency
+    id: string;
+    //the event type
+    event: SimpleListener;
+    //the actual data emitted from the original event
+    data: any;
+    //The event payload can have other undocumented properties
+    [k : string]: any;
+  }
+
 export interface Webhook {
     /**
      * The endpoint to send (POST) the event to.

@@ -6,7 +6,7 @@ import { Message } from './model/message';
 import { default as axios, AxiosRequestConfig} from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent, puppeteerConfig } from '../config/puppeteer.config'
-import { ConfigObject, STATE, LicenseType, Webhook, OnError } from './model';
+import { ConfigObject, STATE, LicenseType, Webhook, OnError, EventPayload } from './model';
 import { PageEvaluationTimeout, CustomError, ERROR_NAME, AddParticipantError  } from './model/errors';
 import PQueue, { DefaultAddOptions, Options } from 'p-queue';
 import { ev, Spin } from '../controllers/events';
@@ -38,6 +38,7 @@ import { NextFunction, Request, Response } from 'express';
 import { base64MimeType, getDUrl, isBase64, isDataURL } from '../utils/tools';
 import { Call } from './model/call';
 import { Button, Section } from './model/button';
+import { JsonObject } from 'type-fest';
 
 /** @ignore */
 const pkg = readJsonSync(path.join(__dirname,'../../package.json')),
@@ -273,7 +274,9 @@ declare module WAPI {
 
 export class Client {
   private _loadedModules: any[];
-  private _registeredWebhooks: any;
+  private _registeredWebhooks: {
+    [id: string]: Webhook
+  }
   private _registeredEvListeners: any;
   private _webhookQueue: any;
   private _createConfig: ConfigObject;
@@ -605,7 +608,7 @@ export class Client {
    * @event 
    * @param fn callback
    * @param queueOptions PQueue options. Set to `{}` for default PQueue.
-   * @fires Observable stream of messages
+   * @fires [[Message]]
    */
    public async onMessage(fn: (message: Message) => void, queueOptions ?: Options<PriorityQueue, DefaultAddOptions>) : Promise<Listener | boolean> {
     const _fn = async (message : Message) => fn(await this.preprocessMessage(message))
@@ -3687,7 +3690,7 @@ public async getStatus(contactId: ContactId) : Promise<{
     return false;
   }
 
-  private prepEventData(data: any, event: SimpleListener, extras ?: any){
+  prepEventData(data: JsonObject, event: SimpleListener, extras ?: JsonObject) : EventPayload {
     const sessionId = this.getSessionId();
     return {
         ts: Date.now(),
@@ -3696,10 +3699,10 @@ public async getStatus(contactId: ContactId) : Promise<{
         event,
         data,
         ...extras
-    }
+    } as EventPayload
   }
 
-  private getEventSignature(simpleListener?: SimpleListener){
+  getEventSignature(simpleListener?: SimpleListener) : string{
     return `${simpleListener || '**'}.${this._createConfig.sessionId || 'session'}.${this._sessionInfo.INSTANCE_ID}`
   }
 
