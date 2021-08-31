@@ -6,7 +6,7 @@ import robots from "express-robots-txt";
 import swaggerUi from 'swagger-ui-express';
 import { default as axios } from 'axios'
 import parseFunction from 'parse-function';
-import { Client, ev, SimpleListener } from '..';
+import { Client, ev, SimpleListener, ChatId } from '..';
 
 export const app = express();
 export const server = http.createServer(app);
@@ -158,10 +158,38 @@ export const setupMediaMiddleware : () => void = () => {
 }
 
 export const setupBotPressHandler : (cliConfig : cliFlags, client: Client) => void = (cliConfig : cliFlags, client: Client) => {
-    client.onMessage(async message=>{
-        const u = cliConfig.botPressUrl as string
-        const url = `${u.split("/").slice(0,u.split("/").findIndex(x=>x=="converse")).join("/")}/converse/${message.from.replace("@c.us","").replace("@g.us","")}`
+    const u = cliConfig.botPressUrl as string
+    const sendBotPressMessage = async (text:string, chatId : ChatId) => {
+    const url = `${u.split("/").slice(0,u.split("/").findIndex(x=>x=="converse")).join("/")}/converse/${chatId.replace("@c.us","").replace("@g.us","")}`
         try {
+            const {data} =  await axios.post(url, {
+                "type": "text",
+                text
+              })
+            const {responses} = data;
+            return await Promise.all(responses.filter(({type})=>type!="typing").map((response : any) => {
+                if(response.type=="text"){
+                    return client.sendText(chatId, response.text)
+                }
+                if(response.type=="file"){
+                    return client.sendFile(chatId, response.url, `file.${response.url.split(/[#?]/)[0].split('.').pop().trim()}`, response.title || "")
+                }
+                if(response.type=="custom"){
+                    if(response["quick_replies"] && response["quick_replies"].length >= 1 && response["quick_replies"].length <= 3){
+                        return client.sendButtons(chatId, response.wrapped.text , response["quick_replies"].map(qr=>{
+                            return {
+                                id: qr.payload,
+                                text: qr.title
+                            }
+                        }),"")
+                    }
+                }
+            }))
+        } catch (error) {
+            console.error("BOTPRESS API ERROR", url, error.message)
+        }
+    }
+    client.onMessage(async message=>{
             let text = message.body;
             switch(message.type) {
                 case 'location':
@@ -181,32 +209,7 @@ export const setupBotPressHandler : (cliConfig : cliFlags, client: Client) => vo
                     text = message.body;
                     break;
             }
-            const {data} =  await axios.post(url, {
-                "type": "text",
-                text
-              })
-            const {responses} = data;
-            return await Promise.all(responses.filter(({type})=>type!="typing").map((response : any) => {
-                if(response.type=="text"){
-                    return client.sendText(message.from, response.text)
-                }
-                if(response.type=="file"){
-                    return client.sendFile(message.from, response.url, `file.${response.url.split(/[#?]/)[0].split('.').pop().trim()}`,"")
-                }
-                if(response.type=="custom"){
-                    if(response["quick_replies"] && response["quick_replies"].length >= 1 && response["quick_replies"].length <= 3){
-                        return client.sendButtons(message.from, response.wrapped.text , response["quick_replies"].map(qr=>{
-                            return {
-                                id: qr.payload,
-                                text: qr.title
-                            }
-                        }),"")
-                    }
-                }
-            }))
-        } catch (error) {
-            console.error("BOTPRESS API ERROR", url, error.message)
-        }
+            await sendBotPressMessage(text, message.from)
     })
 }
 
