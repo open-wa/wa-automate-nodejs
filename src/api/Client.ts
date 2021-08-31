@@ -3042,11 +3042,9 @@ public async getStatus(contactId: ContactId) : Promise<{
           }
         }
         if(a?.stickerMetadata && typeof a?.stickerMetadata !== "object") throw new CustomError(ERROR_NAME.BAD_STICKER_METADATA, `Received ${typeof a?.stickerMetadata}: ${a?.stickerMetadata}`);
-        // remvebg no longer limited to GCP
-        // if((a?.stickerMetadata as StickerMetadata)?.removebg) fallback = true;
       } 
       if(a?.stickerMetadata?.discord && this._createConfig?.discord) {
-        if(this?._createConfig?.discord) a.stickerMetadata = {discord: this._createConfig.discord}
+        a.stickerMetadata = {discord: this._createConfig.discord}
       }
       try {
         const {data} = await axios.post(`${((fallback ?  pkg.stickerUrl : 'https://open-wa-sticker-api.herokuapp.com')|| this._createConfig.stickerServerEndpoint).replace(/\/$/, '')}/${func}`, {
