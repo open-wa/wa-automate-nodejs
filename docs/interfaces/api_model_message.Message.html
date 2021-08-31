@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Message | @open-wa/wa-automate - v4.20.5</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.20.5">
+	<title>Message | @open-wa/wa-automate - v4.20.6</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.20.6">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v4.20.5</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.20.6</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -107,6 +107,7 @@
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_message.Message.html#deprecatedMms3Url" class="tsd-kind-icon">deprecated<wbr>Mms3<wbr>Url</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_message.Message.html#duration" class="tsd-kind-icon">duration</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_message.Message.html#filePath" class="tsd-kind-icon">file<wbr>Path</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_message.Message.html#filehash" class="tsd-kind-icon">filehash</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_message.Message.html#from" class="tsd-kind-icon">from</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_message.Message.html#fromMe" class="tsd-kind-icon">from<wbr>Me</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_message.Message.html#id" class="tsd-kind-icon">id</a></li>
@@ -297,6 +298,18 @@
 							<p>When <code>config.messagePreprocessor: &quot;AUTO_DECRYPT_SAVE&quot;</code> is set, media is decrypted and saved on disk in a folder called media relative to the current working directory.</p>
 						</div>
 						<p>This is the filePath of the decrypted file.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="filehash" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> filehash</h3>
+					<div class="tsd-signature tsd-kind-icon">filehash<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Used to checking the integrity of the decrypted media.</p>
+						</div>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
@@ -777,6 +790,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="api_model_message.Message.html#filePath" class="tsd-kind-icon">file<wbr>Path</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_message.Message.html#filehash" class="tsd-kind-icon">filehash</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="api_model_message.Message.html#from" class="tsd-kind-icon">from</a>
