@@ -5,15 +5,8 @@
   "repository": "https://github.com/open-wa/wa-automate-nodejs",
   "logo": "https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/hotfix-logo.png",
   "success_url": "/api-docs/",
-  "stack": "heroku-20",
-  "buildpacks": [
-    {
-      "url": "heroku/nodejs"
-    },
-    {
-      "url": "https://github.com/heroku/heroku-buildpack-google-chrome.git"
-    }
-  ],
+  "stack": "container",
+  "image": "openwa/wa-automate",
   "website": "https://docs.openwa.dev/",
   "env": {
     "WA_SESSION_DATA": {
