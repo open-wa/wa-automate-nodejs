@@ -1,0 +1,1 @@
+FROM openwa/wa-automate

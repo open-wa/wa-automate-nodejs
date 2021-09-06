@@ -6,7 +6,6 @@
   "logo": "https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/hotfix-logo.png",
   "success_url": "/api-docs/",
   "stack": "container",
-  "image": "openwa/wa-automate",
   "website": "https://docs.openwa.dev/",
   "env": {
     "WA_SESSION_DATA": {
