@@ -1,2 +1,1 @@
 FROM openwa/wa-automate
-RUN [ "node", "./node_modules/@open-wa/wa-automate/bin/server.js", "--use-chrome", " --in-docker", "--qr-timeout", "0", "--popup"]
