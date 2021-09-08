@@ -254,6 +254,7 @@ declare module WAPI {
   const loadEarlierMessages: (contactId: string) => Promise<Message []>;
   const getChatsByLabel: (label: string) => Promise<Chat[] | string>;
   const loadAllEarlierMessages: (contactId: string) => any;
+  const loadEarlierMessagesTillDate: (contactId: string, timestamp: number) => any;
   const getUnreadMessages: (
     includeMe: boolean,
     includeNotifications: boolean,
@@ -2487,6 +2488,19 @@ public async getStatus(contactId: ContactId) : Promise<{
     return await this.pup(
       contactId => WAPI.loadAllEarlierMessages(contactId),
       contactId
+    );
+  }
+
+  /**
+    * Load all messages until a given timestamp in chat object from server.
+   * @param contactId
+   * @param timestamp in seconds
+   * @returns contact detail as promise
+   */
+  public async loadEarlierMessagesTillDate(contactId: ContactId, timestamp: number) : Promise<Message>{
+    return await this.pup(
+      ({contactId, timestamp}) => WAPI.loadEarlierMessagesTillDate(contactId, timestamp),
+      {contactId, timestamp}
     );
   }
 
