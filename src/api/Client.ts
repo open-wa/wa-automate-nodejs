@@ -2482,9 +2482,9 @@ public async getStatus(contactId: ContactId) : Promise<{
   /**
     * Load all messages in chat object from server.
    * @param contactId
-   * @returns contact detial as promise
+   * @returns Message[]
    */
-  public async loadAllEarlierMessages(contactId: ContactId) : Promise<Message>{
+  public async loadAllEarlierMessages(contactId: ContactId) : Promise<Message[]>{
     return await this.pup(
       contactId => WAPI.loadAllEarlierMessages(contactId),
       contactId
@@ -2495,9 +2495,9 @@ public async getStatus(contactId: ContactId) : Promise<{
     * Load all messages until a given timestamp in chat object from server.
    * @param contactId
    * @param timestamp in seconds
-   * @returns contact detail as promise
+   * @returns Message[]
    */
-  public async loadEarlierMessagesTillDate(contactId: ContactId, timestamp: number) : Promise<Message>{
+  public async loadEarlierMessagesTillDate(contactId: ContactId, timestamp: number) : Promise<Message[]>{
     return await this.pup(
       ({contactId, timestamp}) => WAPI.loadEarlierMessagesTillDate(contactId, timestamp),
       {contactId, timestamp}
