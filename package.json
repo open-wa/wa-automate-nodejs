@@ -144,6 +144,7 @@
     "puppeteer-extra-plugin-stealth": "^2.4.9",
     "puppeteer-page-proxy": "^1.2.8",
     "qrcode-terminal": "^0.12.0",
+    "qs": "^6.10.1",
     "rxjs": "^7.0.0",
     "socket.io": "^4.0.1",
     "socket.io-client": "^4.1.1",
@@ -159,6 +160,7 @@
     "type-fest": "^1.1.1",
     "update-notifier": "^5.0.0",
     "uuid": "^8.3.2",
-    "uuid-apikey": "^1.4.6"
+    "uuid-apikey": "^1.4.6",
+    "xmlbuilder2": "^3.0.2"
   }
 }

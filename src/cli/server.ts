@@ -7,9 +7,13 @@ import swaggerUi from 'swagger-ui-express';
 import { default as axios } from 'axios'
 import parseFunction from 'parse-function';
 import { Client, ev, SimpleListener, ChatId } from '..';
+import qs from 'qs';
+import { convert } from 'xmlbuilder2';
 
 export const app = express();
 export const server = http.createServer(app);
+
+const trimChatId = (chatId : ChatId) => chatId.replace("@c.us","").replace("@g.us","")
 
 export type cliFlags = {
     [k : string] : number | string | boolean
@@ -155,6 +159,53 @@ export const listListeners : () => string[] = () => {
 
 export const setupMediaMiddleware : () => void = () => {
     app.use("/media", express.static('media'))
+}
+
+
+export const setupTwilioCompatibleWebhook : (cliConfig : cliFlags, client: Client) => void = (cliConfig : cliFlags, client: Client) => {
+    const url = cliConfig.twilioWebhook as string
+    client.onMessage(async message=>{
+        const waId = trimChatId(message.from)
+        const fd = {};
+        fd["To"] = `whatsapp:${trimChatId(message.to)}`
+        fd["AccountSid"] = trimChatId(message.to)
+        fd["WaId"] = waId
+        fd["ProfileName"] = message?.chat?.formattedTitle || ""
+        fd["SmsSid"] = message.id
+        fd["SmsMessageSid"] = message.id
+        fd["MessageSid"] = message.id
+        fd["NumSegments"] = "1"
+        fd["NumSegments"] = "1"
+        fd["Body"] = message.loc || message.body || message.caption || ""
+        fd["From"] = `whatsapp:${waId}`
+        if(message.mimetype) {
+            fd["MediaContentType0"] = message.mimetype || ""
+            fd["MediaUrl0"] = message.cloudUrl || ""
+            fd["NumMedia"] = "1"
+        }
+        if(message.lat) {
+            fd["Latitude"] = message.lat || ""
+            fd["Longitude"] = message.lng || ""
+        }
+        try {
+        const {data} =  await axios( {
+            method: 'post',
+            url,
+            data: qs.stringify(fd),
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          })
+          const obj : any = convert(data, { format: "object" });
+              const msg = obj.Response.Message;
+            //   const toId : string = msg['@to'].match(/\d*/g).filter(x=>x).join("-");
+            //   const to = `${toId}@${toId.includes("-") ? 'g' : 'c'}.us` as ChatId
+              if(msg.Media) {
+                  return await client.sendFile(message.from, msg.Media, `file.${msg.Media.split(/[#?]/)[0].split('.').pop().trim()}`, msg['#'] || "")
+              }
+              return await client.sendText(message.from, msg['#'])
+        } catch (error) {
+            console.error("TWILIO-COMPAT WEBHOOK ERROR", url, error.message)
+        }
+    })
 }
 
 export const setupBotPressHandler : (cliConfig : cliFlags, client: Client) => void = (cliConfig : cliFlags, client: Client) => {

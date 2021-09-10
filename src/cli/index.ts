@@ -5,7 +5,7 @@ import tcpPortUsed from 'tcp-port-used';
 import { default as axios } from 'axios'
 import { cli } from './setup';
 import { collections, generateCollections } from './collections';
-import { setUpExpressApp, setupAuthenticationLayer, setupRefocusDisengageMiddleware, setupApiDocs, setupSwaggerStatsMiddleware, setupMediaMiddleware, app, setupSocketServer, server, setupBotPressHandler } from './server';
+import { setUpExpressApp, setupAuthenticationLayer, setupRefocusDisengageMiddleware, setupApiDocs, setupSwaggerStatsMiddleware, setupMediaMiddleware, app, setupSocketServer, server, setupBotPressHandler, setupTwilioCompatibleWebhook } from './server';
 
 let checkUrl = isUrl;
 
@@ -105,6 +105,14 @@ async function start() {
             setupBotPressHandler(cliConfig, client)
             spinner.succeed('Botpress handler set up successfully');
         }
+
+        if(cliConfig?.twilioWebhook){
+            spinner.info('Setting Up Twilio Compaitible Webhook');
+            setupTwilioCompatibleWebhook(cliConfig, client)
+            spinner.succeed('Twilio Compaitible Webhook set up successfully');
+        }
+
+        
         if (cliConfig?.webhook) {
             if (Array.isArray(cliConfig.webhook)) {
                 await Promise.all(cliConfig.webhook.map(webhook => {

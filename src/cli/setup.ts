@@ -33,7 +33,14 @@ const optionList:
         name: 'bot-press-url',
         alias: 'b',
         type: String,
-        description: "The Botpress URL that ends with your bot id. Example: http://localhost:3000/api/v1/bots/cool-bot"
+        typeLabel: '{blue {underline http://localhost:3000/api/v1/bots/cool-bot}}',
+        description: "The Botpress URL that ends with your bot id."
+    },{
+        name: 'twilio-webhook',
+        alias: 't',
+        type: String,
+        typeLabel: '{blue {underline http://localhost:5555/incoming}}',
+        description: "Send twillio payloads to this URL. EASY API will also parse and processes twillio response message payloads."
     },
     {
         name: 'port',
@@ -410,6 +417,17 @@ export const cli: () => {
             if (!checkUrl(cliConfig.webhook)) {
                 cliConfig.webhook = undefined
             }
+        }
+    }
+
+
+    if (cliConfig.twilioWebhook || cliConfig.twilioWebhook == '') {
+            if (cliConfig.twilioWebhook == '' && cliConfig.webhook) cliConfig.twilioWebhook = cliConfig.webhook;
+            if (!checkUrl(cliConfig.twilioWebhook)) {
+                cliConfig.twilioWebhook = undefined
+        }
+        if(cliConfig.twilioWebhook && (!createConfig.cloudUploadOptions || createConfig.messagePreprocessor!=='UPLOAD_CLOUD')) {
+            spinner.info('twilioWebhook set but messagePreprocessor not set to UPLOAD_CLOUD or cloudUploadOptions is missing')
         }
     }
 
