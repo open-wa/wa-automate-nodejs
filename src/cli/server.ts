@@ -37,6 +37,11 @@ export const setUpExpressApp : () => void = () => {
     setupMetaMiddleware();
 }
 
+export const enableCORSRequests : () => void = async () => {
+    const {default : cors} = await import('cors');
+    app.use(cors());
+}
+
 export const setupAuthenticationLayer : (cliConfig : cliFlags) => void = (cliConfig : cliFlags) => {
     app.use((req, res, next) => {
         if (req.path === '/' && req.method === 'GET') return res.redirect('/api-docs/');

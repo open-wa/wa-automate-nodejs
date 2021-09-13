@@ -183,6 +183,12 @@ const optionList:
         default: false
     },
     {
+        name: 'cors',
+        type: Boolean,
+        description: "Enable all cors requests",
+        default: false
+    },
+    {
         name: 'socket',
         type: Boolean,
         description: "Expose a socket.io middleware on the server.",
