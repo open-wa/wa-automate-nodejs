@@ -43,13 +43,8 @@ export const isInsideChat = (waPage: Page) : Observable<boolean> => {
 };
 
 export const sessionDataInvalid = async (waPage: Page) : Promise<string> => {
-  await waPage
-    .waitForFunction(
-      '!window.getQrPng',
-      { timeout: 0, polling: 'mutation' }
-    )
-    //if the code reaches here it means the browser was refreshed. Nuke the session data and restart `create`
-    return 'NUKE';
+    const qrCodeSelector = await waPage.waitForSelector('canvas')
+    if(!qrCodeSelector) return 'NUKE';
 }
 
 export const phoneIsOutOfReach = async (waPage: Page) : Promise<boolean>  => {
@@ -73,10 +68,10 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
   if(isAuthed) return true;
   const grabAndEmit = async (qrData) => {
     try {
-      const qrCode = await waPage.evaluate(`window.getQrPng()`);
+      const qrCode = await waPage.evaluate(`document.querySelector('canvas').toDataURL()`);
       if(qrCode) {
         qrEv.emit(qrCode);
-        if(!config.qrLogSkip) qrcode.generate(qrData,{small: true});
+        if(!config.qrLogSkip) qrcode.generate(qrData, {small: true});
         else console.log(`New QR Code generated. Not printing in console because qrLogSkip is set to true`)
       } else {
         spinner.info("Something went wrong while retreiving new the QR code but it should not affect the session launch procedure.")
