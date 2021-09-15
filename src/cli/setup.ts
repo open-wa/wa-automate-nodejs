@@ -9,7 +9,7 @@ import { tryOpenFileAsObject } from './file-utils';
 import { ConfigObject } from '../api/model/config';
 import uuidAPIKey from 'uuid-apikey';
 import { ev, Spin } from '../controllers/events';
-import isUrl from 'is-url';
+import isUrl from 'is-url-superb';
 import * as path from 'path';
 
 let checkUrl = isUrl;

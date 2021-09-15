@@ -1,6 +1,6 @@
 import { create, ev } from '../index'
 import terminalLink from 'terminal-link';
-import isUrl from 'is-url';
+import isUrl from 'is-url-superb';
 import tcpPortUsed from 'tcp-port-used';
 import { default as axios } from 'axios'
 import { cli } from './setup';

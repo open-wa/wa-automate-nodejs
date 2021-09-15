@@ -15,7 +15,7 @@ import { default as parseFunction} from 'parse-function'
 import * as fs from 'fs'
 import datauri from 'datauri'
 import pino from 'pino'
-import isUrl from 'is-url'
+import isUrl from 'is-url-superb'
 import { readJsonSync } from 'fs-extra'
 import treekill from 'tree-kill';
 import { HealthCheck, SessionInfo } from './model/sessionInfo';
