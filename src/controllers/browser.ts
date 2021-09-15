@@ -203,6 +203,13 @@ await Promise.all(
   ].map(js=>addScript(page,js))
   );
   await addScript(page,'wapi.js')
+  await addScript(page,'wapi.js')
+  await addScript(page,'wapi.js')
+  await addScript(page,'wapi.js')
+  await addScript(page,'wapi.js')
+  await addScript(page,'wapi.js')
+  await addScript(page,'wapi.js')
+  await addScript(page,'wapi.js')
   await addScript(page,'launch.js')
   return page;
 }
