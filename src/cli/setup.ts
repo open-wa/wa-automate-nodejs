@@ -12,7 +12,7 @@ import { ev, Spin } from '../controllers/events';
 import isUrl from 'is-url-superb';
 import * as path from 'path';
 
-let checkUrl = isUrl;
+let checkUrl = url => typeof url === 'string' ? isUrl(url) : false;
 
 const configWithCases = readJsonSync(path.join(__dirname,'../../bin/config-schema.json'));
 
