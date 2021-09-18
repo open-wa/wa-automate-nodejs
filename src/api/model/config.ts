@@ -735,6 +735,10 @@ export interface ConfigObject {
       * Your Discord ID to get onto the sticker leaderboard!
       */
      discord ?: string
+     /**
+      * Don't implicitly determine if the host logged out.
+      */
+     ignoreNuke ?: boolean
     /**@internal */
     [x: string]: any 
 }

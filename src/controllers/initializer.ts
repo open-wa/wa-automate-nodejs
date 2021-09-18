@@ -183,7 +183,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     }
 
     const authenticated = await Promise.race(authRace);
-    if(authenticated==='NUKE') {
+    if(authenticated==='NUKE' && !config?.ignoreNuke) {
       //kill the browser
       spinner.fail("Session data most likely expired due to manual host account logout. Please re-authenticate this session.")
       await kill(waPage)
