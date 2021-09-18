@@ -179,7 +179,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     const authRace = [];
     authRace.push(isAuthenticated(waPage).catch(()=>{}))
     if (config?.authTimeout!==0) {
-      authRace.push(timeout((config.authTimeout || 60) * 1000))
+      authRace.push(timeout((config.authTimeout || config.multiDevice ? 120 : 60) * 1000))
     }
 
     const authenticated = await Promise.race(authRace);

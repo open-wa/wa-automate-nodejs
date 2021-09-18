@@ -37,7 +37,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
   const cacheEnabled = config?.cacheEnabled === false ? false : true;
   const blockCrashLogs = config?.blockCrashLogs === false ? false : true;
   setupPromises.push(waPage.setBypassCSP(config?.bypassCSP || false));
-  setupPromises.push(waPage.setCacheEnabled(cacheEnabled));
+  if(!config?.multiDevice) setupPromises.push(waPage.setCacheEnabled(cacheEnabled));
   const blockAssets = !config?.headless ? false : config?.blockAssets || false;
   if(blockAssets){
     const {default : block} = await import('puppeteer-extra-plugin-block-resources')
@@ -101,18 +101,28 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
       spinner?.fail(`${error instanceof FileNotFoundError ? 'The session data file was not found in the cloud storage bucket' : 'Something went wrong while fetching session data from cloud storage bucket'}. Continuing...`)
     }
   }
-  if(config?.multiDevice) sessionjson = {
-    ...sessionjson,
-    "md-opted-in": "true"
-  }
+
   if(sessionjson) {
   spinner?.info(config.multiDevice ?  "multi-device enabled. Session data skipped..." : 'Existing session data detected. Injecting...')
-    await waPage.evaluateOnNewDocument(
+  if(!config?.multiDevice) await waPage.evaluateOnNewDocument(
   session => {
         localStorage.clear();
         Object.keys(session).forEach(key=>localStorage.setItem(key,session[key]));
     }, sessionjson);
     spinner?.succeed('Existing session data injected')
+  } else {
+    if(config?.multiDevice) {
+      spinner?.info("No session data detected. Opting in for MD.")
+      spinner?.info("Make sure to keep the session alive for at least 5 minutes after scanning the QR code before trying to restart a session!!")
+      await waPage.evaluateOnNewDocument(
+        session => {
+              localStorage.clear();
+              Object.keys(session).forEach(key=>localStorage.setItem(key,session[key]));
+          },{
+            "md-opted-in": "true",
+            "remember-me": "true"
+          })
+    }
   }
     if(config?.proxyServerCredentials && !config?.useNativeProxy) {
       await proxy(waPage, proxyAddr);
