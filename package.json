@@ -156,7 +156,7 @@
     "tree-kill": "^1.2.2",
     "ts-json-schema-generator": "^0.95.0",
     "ts-morph": "^12.0.0",
-    "type-fest": "^1.1.1",
+    "type-fest": "^2.3.3",
     "update-notifier": "^5.0.0",
     "uuid": "^8.3.2",
     "uuid-apikey": "^1.4.6",
