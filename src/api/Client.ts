@@ -365,14 +365,16 @@ export class Client {
 
   private _setOnClose() : void {
     this._page.on('close',()=>{
-      console.log("Browser page has closed. Killing client")
-      this.kill();
-      if(this._createConfig?.killProcessOnBrowserClose) process.exit();
+      if(!this._refreshing) {
+        console.log("Browser page has closed. Killing client")
+        this.kill();
+        if(this._createConfig?.killProcessOnBrowserClose) process.exit();
+      }
     })
   }
 
-  private async _reInjectWapi() : Promise<void> {
-    this._page = await injectApi(this._page)
+  private async _reInjectWapi(newTab ?: Page) : Promise<void> {
+    this._page = await injectApi(newTab || this._page)
   }
 
   private async _reRegisterListeners(){
@@ -403,41 +405,71 @@ export class Client {
    * This will attempt to re register all listeners EXCEPT onLiveLocation and onParticipantChanged
    */
    public async refresh() : Promise<boolean> {
-  this._refreshing = true;
+      this._refreshing = true;
      const spinner = new Spin(this._createConfig?.sessionId || 'session', 'REFRESH', this._createConfig?.disableSpins);
      const { me } = await this.getMe();
      /**
       * preload license
       */
      const preloadlicense = this._createConfig?.licenseKey ? await getLicense(this._createConfig, me, this._sessionInfo, spinner) : false
-     spinner.info('Refreshing page')
+     spinner.info('Refreshing session')
      const START_TIME = Date.now();
-     await this._page.goto(puppeteerConfig.WAUrl);
-     await earlyInjectionCheck(this._page as Page)
-     if(await isAuthenticated(this._page)) {
+     spinner.info("Opening session in new tab")
+     const newTab = await this._page.browser().newPage();  
+     await newTab.goto(puppeteerConfig.WAUrl);
+     //Two promises. One that closes the previous page, one that sets up the new page
+     const closePageOnConflict = async () => {
+      const useHere: string = await this._page.evaluate(()=>WAPI.getUseHereString());
+     spinner.info("Waiting for conflict to close stale tab...")
+     await this._page.waitForFunction(
+        `[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML.toLowerCase().includes("${useHere.toLowerCase()}")})`,
+        { timeout: 0, polling: 500 }
+      );
+      await this._page.goto('about:blank')
+     spinner.info("Closing stale tab")
+     await this._page.close();
+     spinner.info("Stale tab closed. Switching contexts...")
+     this._page = newTab;
+     }
+
+     const setupNewPage = async () => {
+     /**
+      * Wait for the new page to be loaded up before closing existing page
+      */
+     await earlyInjectionCheck(newTab)
+     spinner.info("Checking if fresh session is authenticated...")
+     if(await isAuthenticated(newTab)) {
+        /**
+         * Reset all listeners
+         */
+         this._registeredEvListeners = {};
+         // this._listeners = {};
+     spinner.info("Injected new session...")
+     await this._reInjectWapi(newTab);
        /**
-        * Reset all listeners
+        * patch
         */
-        this._registeredEvListeners = {};
-        // this._listeners = {};
-      await this._reInjectWapi();
-      /**
-       * patch
-       */
-      await getAndInjectLivePatch(this._page, spinner, null, this._createConfig, this._sessionInfo)
-      if (this._createConfig?.licenseKey) await getAndInjectLicense(this._page,this._createConfig,me, this._sessionInfo, spinner, preloadlicense);
-      /**
-       * init patch
-       */
-     await injectInitPatch(this._page)
+       await getAndInjectLivePatch(newTab, spinner, null, this._createConfig, this._sessionInfo)
+       if (this._createConfig?.licenseKey) await getAndInjectLicense(newTab,this._createConfig,me, this._sessionInfo, spinner, preloadlicense);
+       /**
+        * init patch
+        */
+      await injectInitPatch(newTab)
+     } else throw new Error("Session Logged Out. Cannot refresh. Please restart the process and scan the qr code.")
+    }
+     await Promise.all([
+      closePageOnConflict(),
+      setupNewPage()
+     ])
+     spinner.info("New session live. Setting up...")
      spinner.info("Reregistering listeners")
      await this.loaded()
      if(!this._createConfig?.eventMode) await this._reRegisterListeners();
      spinner.succeed(`Session refreshed in ${(Date.now() - START_TIME)/1000}s`)
      this._refreshing = false;
      spinner.remove()
+     this._setOnClose();
      return true;
-     } else throw new Error("Session Logged Out. Cannot refresh. Please restart the process and scan the qr code.")
    }
 
   /**
