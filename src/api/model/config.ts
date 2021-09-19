@@ -739,6 +739,11 @@ export interface ConfigObject {
       * Don't implicitly determine if the host logged out.
       */
      ignoreNuke ?: boolean
+     /**
+      * Makes sure the headless session is usable even on first login.
+      * Headful sessions are ususally only usable on reauthentication.
+      */
+     ensureHeadfulIntegrity ?: boolean
     /**@internal */
     [x: string]: any 
 }

@@ -20,7 +20,7 @@ import { readJsonSync } from 'fs-extra'
 import treekill from 'tree-kill';
 import { HealthCheck, SessionInfo } from './model/sessionInfo';
 import { deleteSessionData, injectApi } from '../controllers/browser';
-import { isAuthenticated } from '../controllers/auth';
+import { isAuthenticated, waitForRipeSession } from '../controllers/auth';
 import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, FilePath } from './model/aliases';
 import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
 import * as path from 'path';
@@ -374,7 +374,7 @@ export class Client {
   }
 
   private async _reInjectWapi(newTab ?: Page) : Promise<void> {
-    this._page = await injectApi(newTab || this._page)
+    await injectApi(newTab || this._page)
   }
 
   private async _reRegisterListeners(){
@@ -444,6 +444,11 @@ export class Client {
          */
          this._registeredEvListeners = {};
          // this._listeners = {};
+         
+      spinner.start("Waiting for ripe session...")
+      if(await waitForRipeSession(newTab)) spinner.succeed("Session ready for injection");
+      else spinner.fail("You may experience issues in headless mode. Continuing...")
+
      spinner.info("Injected new session...")
      await this._reInjectWapi(newTab);
        /**

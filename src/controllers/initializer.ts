@@ -6,7 +6,7 @@ import * as crypto from 'crypto';
 import { Client } from '../api/Client';
 import { ConfigObject, SessionExpiredError } from '../api/model/index';
 import * as path from 'path';
-import { phoneIsOutOfReach, isAuthenticated, smartQr } from './auth';
+import { phoneIsOutOfReach, isAuthenticated, smartQr, waitForRipeSession } from './auth';
 import { deleteSessionData, initPage, injectApi } from './browser';
 import { Spin } from './events'
 import { integrityCheck, checkWAPIHash } from './launch_checks';
@@ -153,6 +153,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     //@ts-ignore
     const WA_VERSION = await waPage.evaluate(() => window.Debug ? window.Debug.VERSION : 'I think you have been TOS_BLOCKed')
     const canInjectEarly = await earlyInjectionCheck(waPage as Page)
+    const attemptingReauth = await waPage.evaluate(`!!localStorage['WAToken2']`)
     let debugInfo : SessionInfo = {
       WA_VERSION,
       PAGE_UA,
@@ -167,6 +168,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
      spinner.succeed('Use this easy pre-filled link to report an issue: ' + `https://github.com/open-wa/wa-automate-nodejs/issues/new?template=bug_report.yaml&debug_info=${encodeURI(JSON.stringify((({ OS, PAGE_UA, ...o }) => o)(debugInfo) ,null,2))}&environment=${`-%20OS:%20${encodeURI(debugInfo.OS)}%0A-%20Node:%20${encodeURI(process.versions.node)}%0A-%20npm:%20%0A`}`);
 
     if (canInjectEarly) {
+      if(attemptingReauth) await waPage.evaluate(`window.Store = {"Msg": true}`)
       spinner.start('Injecting api');
       waPage = await injectApi(waPage);
       spinner.start('WAPI injected');
@@ -235,6 +237,12 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       }
       spinner.emit('successfulScan');
       spinner.succeed();
+    }
+    if(attemptingReauth) {
+      await waPage.evaluate("window.Store = undefined")
+      spinner.start("Waiting for ripe session...")
+      if(await waitForRipeSession(waPage)) spinner.succeed("Session ready for injection");
+      else spinner.fail("You may experience issues in headless mode. Continuing...")
     }
     const pre = canInjectEarly ? 'Rei' : 'I';
     spinner.start(`${pre}njecting api`);
@@ -326,9 +334,14 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
          await getAndInjectLicense(waPage, config, me, debugInfo, spinner, me._serialized!==earlyWid ? false : await licensePromise)
       }
       await injectInitPatch(waPage)
+      await client.loaded();
+      if(config.ensureHeadfulIntegrity && !attemptingReauth) {
+        spinner.info("QR scanned for the first time. Refreshing...")
+        await client.refresh();
+        spinner.info("Session refreshed.")
+      }
       spinner.succeed(`🚀 @OPEN-WA ready for account: ${me.user.slice(-4)}`);
       spinner.emit('SUCCESS');
-      await client.loaded();
       spinner.remove();
       return client;
     }

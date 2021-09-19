@@ -39,7 +39,7 @@ const puppeteerConfig = {
     '--disable-accelerated-video-decode',
     '--disable-dev-shm-usage',
     '--js-flags=--expose-gc',
-    '--incognito',
+    // '--incognito',
     //suggested in #563
     // '--single-process',
     // '--no-zygote',

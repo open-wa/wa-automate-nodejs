@@ -42,6 +42,15 @@ export const isInsideChat = (waPage: Page) : Observable<boolean> => {
   );
 };
 
+export const waitForRipeSession = async (waPage: Page) : Promise<boolean> => {
+  try {
+    await waPage.waitForFunction(`!![...document.getElementsByTagName('div')].map(div=>Object.keys(div).filter(k=>k.includes('__reactFiber'))[0] ? div[Object.keys(div).filter(k=>k.includes('__reactFiber'))[0]].return.type : false).filter(x=>x && x['displayName']==='IntroPanel')[0]`);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 export const sessionDataInvalid = async (waPage: Page) : Promise<string> => {
   await waPage
     .waitForFunction(
