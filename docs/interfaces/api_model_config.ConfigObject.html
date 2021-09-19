@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ConfigObject | @open-wa/wa-automate - v4.22.0</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.22.0">
+	<title>ConfigObject | @open-wa/wa-automate - v4.22.1</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.22.1">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v4.22.0</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.22.1</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -112,6 +112,7 @@
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#devtools" class="tsd-kind-icon">devtools</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#disableSpins" class="tsd-kind-icon">disable<wbr>Spins</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#discord" class="tsd-kind-icon">discord</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#ensureHeadfulIntegrity" class="tsd-kind-icon">ensure<wbr>Headful<wbr>Integrity</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#eventMode" class="tsd-kind-icon">event<wbr>Mode</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#executablePath" class="tsd-kind-icon">executable<wbr>Path</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#headless" class="tsd-kind-icon">headless</a></li>
@@ -539,6 +540,19 @@
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
 							<p>Your Discord ID to get onto the sticker leaderboard!</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="ensureHeadfulIntegrity" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> ensure<wbr>Headful<wbr>Integrity</h3>
+					<div class="tsd-signature tsd-kind-icon">ensure<wbr>Headful<wbr>Integrity<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Makes sure the headless session is usable even on first login.
+							Headful sessions are ususally only usable on reauthentication.</p>
 						</div>
 					</div>
 				</section>
@@ -1589,6 +1603,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="api_model_config.ConfigObject.html#discord" class="tsd-kind-icon">discord</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#ensureHeadfulIntegrity" class="tsd-kind-icon">ensure<wbr>Headful<wbr>Integrity</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="api_model_config.ConfigObject.html#eventMode" class="tsd-kind-icon">event<wbr>Mode</a>
