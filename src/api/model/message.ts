@@ -100,6 +100,10 @@ export interface Message {
    * This is the filePath of the decrypted file.
    */
   filePath ?: string;
+  /**
+   * The given filename of the file
+   */
+  filename ?: string;
   content: string;
   isGroupMsg: boolean;
   isMMS: boolean;
