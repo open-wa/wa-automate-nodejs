@@ -45,7 +45,7 @@ export async function popup(config: ConfigObject) : Promise<string> {
     await setUpApp();
     const preferredPort = config.popup;
     const popupListener = ev.on('**', async (data, sessionId, namespace) => {
-        if(namespace.includes("sessionData")) return;
+        if(namespace?.includes("sessionData")) return;
         if (gClient) {
             await gClient.send({ data, sessionId, namespace });
             if(data?.includes && data?.includes("ready for account")) {
