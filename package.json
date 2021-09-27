@@ -117,7 +117,7 @@
     "eventemitter2": "^6.0.0",
     "express": "^4.17.1",
     "express-robots-txt": "^1.0.0",
-    "find-up": "^5.0.0",
+    "find-up": "^6.1.0",
     "fs-extra": "^10.0.0",
     "get-port": "^5.1.1",
     "hasha": "^5.2.0",
