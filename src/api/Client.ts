@@ -444,11 +444,11 @@ export class Client {
          */
          this._registeredEvListeners = {};
          // this._listeners = {};
-         
-      spinner.start("Waiting for ripe session...")
-      if(await waitForRipeSession(newTab)) spinner.succeed("Session ready for injection");
-      else spinner.fail("You may experience issues in headless mode. Continuing...")
-
+      if(this._createConfig?.waitForRipeSession) {
+        spinner.start("Waiting for ripe session...")
+        if(await waitForRipeSession(newTab)) spinner.succeed("Session ready for injection");
+        else spinner.fail("You may experience issues in headless mode. Continuing...")
+      }
      spinner.info("Injected new session...")
      await this._reInjectWapi(newTab);
        /**

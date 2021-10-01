@@ -241,8 +241,10 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     if(attemptingReauth) {
       await waPage.evaluate("window.Store = undefined")
       spinner.start("Waiting for ripe session...")
-      if(await waitForRipeSession(waPage)) spinner.succeed("Session ready for injection");
-      else spinner.fail("You may experience issues in headless mode. Continuing...")
+      if(config?.waitForRipeSession) {
+        if(await waitForRipeSession(waPage)) spinner.succeed("Session ready for injection");
+        else spinner.fail("You may experience issues in headless mode. Continuing...")
+      }
     }
     const pre = canInjectEarly ? 'Rei' : 'I';
     spinner.start(`${pre}njecting api`);

@@ -744,6 +744,11 @@ export interface ConfigObject {
       * Headful sessions are ususally only usable on reauthentication.
       */
      ensureHeadfulIntegrity ?: boolean
+     /**
+      * @deprecated
+      * wait for a valid headful session. Not required in recent versions.
+      */
+      waitForRipeSession ?: boolean
     /**@internal */
     [x: string]: any 
 }
