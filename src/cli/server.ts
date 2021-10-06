@@ -243,6 +243,16 @@ export const setupBotPressHandler : (cliConfig : cliFlags, client: Client) => vo
                         }),"")
                     }
                 }
+                if(response.type=="quick_replies"){
+                    if(response["quick_replies"] && response["quick_replies"].length >= 1 && response["quick_replies"].length <= 3){
+                        return client.sendButtons(chatId, response.text , response["quick_replies"].map(qr=>{
+                            return {
+                                id: qr.payload,
+                                text: qr.title
+                            }
+                        }),"")
+                    }
+                }
             }))
         } catch (error) {
             console.error("BOTPRESS API ERROR", url, error.message)
