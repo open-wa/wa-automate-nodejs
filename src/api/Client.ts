@@ -168,7 +168,8 @@ declare module WAPI {
     waitForId?: boolean,
     ptt?: boolean,
     withoutPreview?: boolean,
-    hideTags?: boolean
+    hideTags?: boolean,
+    viewOnce ?: boolean
   ) => Promise<string>;
   const sendMessageWithThumb: (
     thumb: string,
@@ -1424,7 +1425,8 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     waitForId?: boolean,
     ptt?:boolean,
     withoutPreview?:boolean,
-    hideTags ?: boolean
+    hideTags ?: boolean,
+    viewOnce ?: boolean
   ) : Promise<MessageId | boolean> {
       //check if the 'base64' file exists
       if(!isDataURL(file) && !isBase64(file) && !file.includes("data:")) {
@@ -1433,7 +1435,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
         if(fs.existsSync(file) || fs.existsSync(relativePath)) {
           file = await datauri(fs.existsSync(file)  ? file : relativePath);
         } else if(isUrl(file)){
-          return await this.sendFileFromUrl(to,file,filename,caption,quotedMsgId,{},waitForId,ptt,withoutPreview, hideTags);
+          return await this.sendFileFromUrl(to,file,filename,caption,quotedMsgId,{},waitForId,ptt,withoutPreview, hideTags, viewOnce);
         } else throw new CustomError(ERROR_NAME.FILE_NOT_FOUND,`Cannot find file. Make sure the file reference is relative, a valid URL or a valid DataURL: ${file.slice(0,25)}`)
       } else if(file.includes("data:") && file.includes("undefined") || file.includes("application/octet-stream") && filename && mime.lookup(filename)) {
         file = `data:${mime.lookup(filename)};base64,${file.split(',')[1]}`
@@ -1447,8 +1449,8 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    ];
 
     const res = await this.pup(
-      ({ to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags}) =>  WAPI.sendImage(file, to, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags),
-      { to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags}
+      ({ to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags, viewOnce}) =>  WAPI.sendImage(file, to, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags, viewOnce),
+      { to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags, viewOnce}
     )
     if(err.includes(res)) console.error(res);
     return (err.includes(res) ? false : res)  as MessageId | boolean;
@@ -1549,9 +1551,10 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     waitForId?: boolean,
     ptt?:boolean,
     withoutPreview?:boolean,
-    hideTags ?: boolean
+    hideTags ?: boolean,
+    viewOnce ?: boolean
   ) : Promise<MessageId | boolean> {
-    return this.sendImage(to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags);
+    return this.sendImage(to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags, viewOnce);
   }
 
   /**
@@ -1690,10 +1693,11 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
     waitForId?: boolean,
     ptt?:boolean,
     withoutPreview?:boolean,
-    hideTags ?: boolean
+    hideTags ?: boolean,
+    viewOnce ?: boolean
   ) : Promise<MessageId | boolean> {
      const base64 = await getDUrl(url, requestConfig);
-      return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId,ptt,withoutPreview, hideTags)
+      return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId,ptt,withoutPreview, hideTags, viewOnce)
   }
 
 /**
