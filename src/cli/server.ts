@@ -230,9 +230,22 @@ export const setupBotPressHandler : (cliConfig : cliFlags, client: Client) => vo
                 if(response.type=="file"){
                     return client.sendFile(chatId, response.url, `file.${response.url.split(/[#?]/)[0].split('.').pop().trim()}`, response.title || "")
                 }
-                if(response.type=="custom"){
+                if(response.type=="image"){
+                    return client.sendFile(chatId, response.image, `file.${response.image.split(/[#?]/)[0].split('.').pop().trim()}`, response.title || "")
+                }
+                if(response.type=="single-choice"){
+                    if(response["choices"] && response["choices"].length >= 1 && response["choices"].length <= 3){
+                        return client.sendButtons(chatId, response.text , response["choices"].map(qr=>{
+                            return {
+                                id: qr.value,
+                                text: qr.title
+                            }
+                        }),"")
+                    }
+                }
+                if(response.type=="quick_replies"){
                     if(response["quick_replies"] && response["quick_replies"].length >= 1 && response["quick_replies"].length <= 3){
-                        return client.sendButtons(chatId, response.wrapped.text , response["quick_replies"].map(qr=>{
+                        return client.sendButtons(chatId, response.wrapped.text, response["quick_replies"].map(qr=>{
                             return {
                                 id: qr.payload,
                                 text: qr.title
