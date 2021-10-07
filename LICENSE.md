@@ -1,6 +1,6 @@
 ### Copyright (c) 2020 Mohammed Shah
 
-# Hippocratic + Do Not Harm (H-DNH) Version 1.0
+# Hippocratic + Do Not Harm (H-DNH) Version 1.1
 
 ## Preamble
 
@@ -34,6 +34,11 @@ Licensor hereby grants permission by this license ("License"), free of charge, 
       * warfare
       * weapons manufacturing
       * war crimes
+      * settler colonialism
+      * apartheid
+      * vaccine misinformation
+      * climate misinformation
+      * child endangerment
       * violence (except when required to protect public safety)
       * burning of forests
       * deforestation
