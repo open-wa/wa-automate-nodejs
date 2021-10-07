@@ -225,6 +225,7 @@ export const setupBotPressHandler : (cliConfig : cliFlags, client: Client) => vo
             const {responses} = data;
             return await Promise.all(responses.filter(({type})=>type!="typing").map((response : any) => {
                 if(response.type=="text"){
+                    response.text = response.variations ? (response.variations.concat(response.text))[Math.floor(Math.random() * (response.variations.length + 1))] : response.text;
                     return client.sendText(chatId, response.text)
                 }
                 if(response.type=="file"){
