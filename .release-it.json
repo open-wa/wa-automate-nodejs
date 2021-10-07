@@ -10,6 +10,6 @@
     "changelog": "npx auto-changelog --stdout --commit-limit false --unreleased --template https://raw.githubusercontent.com/release-it/release-it/master/templates/changelog-compact.hbs --ignore-commit-pattern \"🥚.*\""
   },
   "npm": {
-    "timeout": 0
+    "timeout": 600000
   }
 }
