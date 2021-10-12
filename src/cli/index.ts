@@ -7,7 +7,7 @@ import { cli } from './setup';
 import { collections, generateCollections } from './collections';
 import { setUpExpressApp, setupAuthenticationLayer, setupRefocusDisengageMiddleware, setupApiDocs, setupSwaggerStatsMiddleware, setupMediaMiddleware, app, setupSocketServer, server, setupBotPressHandler, setupTwilioCompatibleWebhook, enableCORSRequests } from './server';
 
-let checkUrl = isUrl;
+let checkUrl = (s : any) => (typeof s === "string") && isUrl(s);
 
 const ready: (config : any) => Promise<void> = async (config : any) => {
     if (process.send) {
