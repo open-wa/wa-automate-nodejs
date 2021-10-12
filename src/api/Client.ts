@@ -1147,6 +1147,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    */
   public async sendText(to: ChatId, content: Content) : Promise<boolean | MessageId> {
     if(!content) content = ''
+    if(typeof content !== 'string') content = String(content);
    const err = [
     'Not able to send message to broadcast',
     'Not a contact',
