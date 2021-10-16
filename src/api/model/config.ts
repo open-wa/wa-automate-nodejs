@@ -565,7 +565,7 @@ export interface ConfigObject {
      * 
      * Redundant until self-hostable sticker server is available.
      * 
-     * @default `https://open-wa-sticker-api.herokuapp.com`
+     * @default `https://sticker-api.openwa.dev`
      */
     stickerServerEndpoint ?: string | boolean;
     /**

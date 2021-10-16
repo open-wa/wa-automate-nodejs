@@ -3103,7 +3103,7 @@ public async getStatus(contactId: ContactId) : Promise<{
         a.stickerMetadata = {discord: this._createConfig.discord}
       }
       try {
-        const {data} = await axios.post(`${((fallback ?  pkg.stickerUrl : 'https://open-wa-sticker-api.herokuapp.com')|| this._createConfig.stickerServerEndpoint).replace(/\/$/, '')}/${func}`, {
+        const {data} = await axios.post(`${((fallback ?  pkg.stickerUrl : 'https://sticker-api.openwa.dev')|| this._createConfig.stickerServerEndpoint).replace(/\/$/, '')}/${func}`, {
           ...a,
         sessionInfo,
         config: this.getConfig()
