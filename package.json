@@ -81,7 +81,7 @@
     "ava": "^3.13.0",
     "changelog-parser": "^2.8.0",
     "command-line-args": "^5.1.1",
-    "eslint": "^7.20.0",
+    "eslint": "^8.1.0",
     "husky": "^7.0.0",
     "line-reader": "^0.4.0",
     "marked": "^3.0.0",
