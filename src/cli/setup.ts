@@ -360,7 +360,7 @@ export const cli: () => {
         ...envArgs()
     };
 
-    const PORT = cliConfig.port || process.env.PORT || 8080;
+    const PORT = Number(cliConfig.port || process.env.PORT || 8080);
     const spinner = new Spin(cliConfig.sessionId, 'STARTUP', cliConfig?.disableSpins);
 
     const createConfig: ConfigObject = {
