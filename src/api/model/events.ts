@@ -86,4 +86,9 @@
      * Represents [[onContactAdded]]
      */
     Order = 'onOrder',
+    /**
+     * Requires licence
+     * Represents [[onNewProduct]]
+     */
+    NewProduct = 'onNewProduct',
   }

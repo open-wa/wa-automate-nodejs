@@ -78,6 +78,7 @@ declare module WAPI {
   const onStateChanged: (callback: Function) => void;
   const onChatState: (callback: Function) => any;
   const onOrder: (callback: Function) => any;
+  const onNewProduct: (callback: Function) => any;
   const onIncomingCall: (callback: Function) => any;
   const onAddedToGroup: (callback: Function) => any;
   const onBattery: (callback: Function) => any;
@@ -768,6 +769,15 @@ export class Client {
    */
   public async onOrder(fn: (order: Order) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.Order, fn);
+  }
+
+  /**
+   *[REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * 
+   * Listens to new orders. Only works on business accounts
+   */
+   public async onNewProduct(fn: (product: Product) => void) : Promise<Listener | boolean> {
+    return this.registerListener(SimpleListener.NewProduct, fn);
   }
 
 
