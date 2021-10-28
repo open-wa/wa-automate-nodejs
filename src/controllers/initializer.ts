@@ -357,6 +357,10 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
   } catch (error) {
     spinner.emit(error.message);
     await kill(waPage);
+    if(error.name === "ProtocolError" && error.message?.includes("Target closed")) {
+      spinner.fail(error.message);
+      process.exit()
+    }
     if(error.name === "TimeoutError" && config?.multiDevice){
       spinner.fail(`Please delete the ${config?.userDataDir} folder and any related data.json files and try again. It is highly suggested to set useChrome: true also.`)
     }
