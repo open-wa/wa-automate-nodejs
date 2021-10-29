@@ -337,7 +337,9 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       if (config?.licenseKey || me._serialized!==earlyWid) {
          await getAndInjectLicense(waPage, config, me, debugInfo, spinner, me._serialized!==earlyWid ? false : await licensePromise)
       }
+      spinner.info("Finalizing web session...")
       await injectInitPatch(waPage)
+      spinner.info("Finalizing client...")
       await client.loaded();
       if(config.ensureHeadfulIntegrity && !attemptingReauth) {
         spinner.info("QR scanned for the first time. Refreshing...")
