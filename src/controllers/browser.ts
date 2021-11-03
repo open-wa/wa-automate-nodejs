@@ -88,7 +88,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
 
   spinner?.info('Loading session data')
   let sessionjson : any = getSessionDataFromFile(sessionId, config, spinner)
-  if(!sessionjson && config.sessionDataBucketAuth) {
+  if(!sessionjson && sessionjson !== "" && config.sessionDataBucketAuth) {
     try {
       spinner?.info('Unable to find session data file locally, attempting to find session data in cloud storage..')
       sessionjson = JSON.parse(Buffer.from(await getTextFile({
