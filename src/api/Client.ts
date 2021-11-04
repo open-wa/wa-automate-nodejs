@@ -698,7 +698,7 @@ export class Client {
    * @param fn callback
    * @fires [[Message]]
    */
-   public async onButton(fn: (chat: Chat) => void) : Promise<Listener | boolean> {
+   public async onButton(fn: (message: Message) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.Button, fn);
   }
 
