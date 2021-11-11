@@ -1933,7 +1933,7 @@ public async iAmAdmin() : Promise<GroupChatId[]>  {
    * @param messages this can be any mixture of message ids or message objects
    * @param skipMyMessages This indicates whether or not to skip your own messages from the array
    */
-  public async forwardMessages(to: ChatId, messages: MessageId | MessageId[], skipMyMessages: boolean) : Promise<boolean | string>{
+  public async forwardMessages(to: ChatId, messages: MessageId | MessageId[], skipMyMessages: boolean) : Promise<boolean | MessageId[]>{
     return await this.pup(
       ({ to, messages, skipMyMessages }) => WAPI.forwardMessages(to, messages, skipMyMessages),
       { to, messages, skipMyMessages }
