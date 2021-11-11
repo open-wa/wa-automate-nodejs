@@ -36,7 +36,7 @@
 Use this command to install the library for the first time and to keep the library up to date.
 
 ```bash
-> npm i --save @open-wa/wa-automate@latest
+> npm i --save @open-wa/wa-automate@latest --multi-device
 ```
 
 ## Usage
@@ -65,6 +65,7 @@ const wa = require('@open-wa/wa-automate');
 
 wa.create({
   sessionId: "COVID_HELPER",
+  multiDevice: true, //required to enable multiDevice support
   authTimeout: 60, //wait only 60 seconds to get a connection with the host account device
   blockCrashLogs: true,
   disableSpins: true,
@@ -96,6 +97,10 @@ Want to convert your WA account to an API instantly? You can now with the CLI. F
 ```bash
 > npx @open-wa/wa-automate --help
 ```
+
+## Multi Device Support
+
+We're currently in a weird transitionary period where some people are being forced to adopt Multi Device (MD). Once the transition is complete, the library default will be to turn on MD support. For now, you have to set it yourself explicitly either by using the `--multi-device` flag (with the [CLI](#CLI)) or setting `multiDevice: true` in your config (with your custom code)
 
 ### Latest Changes
 
