@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>@open-wa/wa-automate - v4.23.7</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.23.7">
+	<title>@open-wa/wa-automate - v4.23.8</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.23.8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
 	<link rel="stylesheet" href="assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">@open-wa/wa-automate - v4.23.7</a>
+					<a href="index.html" class="title">@open-wa/wa-automate - v4.23.8</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -65,7 +65,7 @@
 					<a href="modules.html">Globals</a>
 				</li>
 			</ul>
-			<h1>@open-wa/wa-automate - v4.23.7</h1>
+			<h1>@open-wa/wa-automate - v4.23.8</h1>
 		</div>
 	</div>
 </header>
@@ -103,7 +103,7 @@
 					<h2>Installation and Updating</h2>
 				</a>
 				<p>Use this command to install the library for the first time and to keep the library up to date.</p>
-				<pre><code class="language-bash"><span style="color: #000000">&gt; npm i --save @open-wa/wa-automate@latest</span>
+				<pre><code class="language-bash"><span style="color: #000000">&gt; npm i --save @open-wa/wa-automate@latest --multi-device</span>
 </code></pre>
 				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
 					<h2>Usage</h2>
@@ -129,6 +129,7 @@
 
 <span style="color: #001080">wa</span><span style="color: #000000">.</span><span style="color: #795E26">create</span><span style="color: #000000">({</span>
 <span style="color: #000000">  </span><span style="color: #001080">sessionId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;COVID_HELPER&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">multiDevice:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">, </span><span style="color: #008000">//required to enable multiDevice support</span>
 <span style="color: #000000">  </span><span style="color: #001080">authTimeout:</span><span style="color: #000000"> </span><span style="color: #098658">60</span><span style="color: #000000">, </span><span style="color: #008000">//wait only 60 seconds to get a connection with the host account device</span>
 <span style="color: #000000">  </span><span style="color: #001080">blockCrashLogs:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">,</span>
 <span style="color: #000000">  </span><span style="color: #001080">disableSpins:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">,</span>
@@ -160,6 +161,10 @@
 				<p>Want to convert your WA account to an API instantly? You can now with the CLI. For more details see <a href="https://docs.openwa.dev/pages/Getting%20Started/quick-run.html">Easy API</a></p>
 				<pre><code class="language-bash"><span style="color: #000000">&gt; npx @open-wa/wa-automate --help</span>
 </code></pre>
+				<a href="#multi-device-support" id="multi-device-support" style="color: inherit; text-decoration: none;">
+					<h2>Multi Device Support</h2>
+				</a>
+				<p>We&#39;re currently in a weird transitionary period where some people are being forced to adopt Multi Device (MD). Once the transition is complete, the library default will be to turn on MD support. For now, you have to set it yourself explicitly either by using the <code>--multi-device</code> flag (with the <a href="#CLI">CLI</a>) or setting <code>multiDevice: true</code> in your config (with your custom code)</p>
 				<a href="#latest-changes" id="latest-changes" style="color: inherit; text-decoration: none;">
 					<h3>Latest Changes</h3>
 				</a>
