@@ -17,6 +17,10 @@ export interface Message {
    */
   body: string;
   /**
+   * a convenient way to get the main text content from a message.
+   */
+  text: string;
+  /**
    * The type of the message, see [[MessageTypes]]
    */
   type: MessageTypes;
