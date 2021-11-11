@@ -329,7 +329,8 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       spinner.emit(debugInfo, "DebugInfo");
       //@ts-ignore
       const metrics = await waPage.evaluate(({config}) => WAPI.launchMetrics(config), {config});
-      const purgedMessage = metrics?.purged ? Object.entries(metrics.purged).filter(([,e])=>e>0).map(([k,e])=>`${e} ${k}`).join(" and ") : ""
+      const purgedMessage = metrics?.purged ? Object.entries(metrics.purged).filter(([,e])=>e>0).map(([k,e])=>`${e} ${k}`).join(" and ") : "";
+      if(metrics.isMd && !config?.multiDevice) spinner.info("!!!Please set multiDevice: true in the config or use the --mutli-Device flag!!!")
       spinner.succeed(`Client loaded for ${metrics.isBiz ? "business" : "normal"} account ${metrics.isMd && "[MD] " || ''}with ${metrics.contacts} contacts, ${metrics.chats} chats & ${metrics.messages} messages ${purgedMessage ? `+ purged ${purgedMessage} ` : ``}in ${LAUNCH_TIME_MS/1000}s`);
       if(config?.deleteSessionDataOnLogout || config?.killClientOnLogout) config.eventMode = true;
       const client = new Client(waPage, config, debugInfo);
