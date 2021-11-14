@@ -6,7 +6,7 @@ import robots from "express-robots-txt";
 import swaggerUi from 'swagger-ui-express';
 import { default as axios } from 'axios'
 import parseFunction from 'parse-function';
-import { Client, ev, SimpleListener, ChatId } from '..';
+import { Client, ev, SimpleListener, ChatId, Message } from '..';
 import qs from 'qs';
 import { convert } from 'xmlbuilder2';
 
@@ -215,12 +215,13 @@ export const setupTwilioCompatibleWebhook : (cliConfig : cliFlags, client: Clien
 
 export const setupBotPressHandler : (cliConfig : cliFlags, client: Client) => void = (cliConfig : cliFlags, client: Client) => {
     const u = cliConfig.botPressUrl as string
-    const sendBotPressMessage = async (text:string, chatId : ChatId) => {
+    const sendBotPressMessage = async (text:string, chatId : ChatId, message : Message) => {
     const url = `${u.split("/").slice(0,u.split("/").findIndex(x=>x=="converse")).join("/")}/converse/${chatId.replace("@c.us","").replace("@g.us","")}`
         try {
             const {data} =  await axios.post(url, {
                 "type": "text",
-                text
+                text,
+                metadata: message
               })
             const {responses} = data;
             return await Promise.all(responses.filter(({type})=>type!="typing").map((response : any) => {
@@ -276,10 +277,10 @@ export const setupBotPressHandler : (cliConfig : cliFlags, client: Client) => vo
                     if(message.cloudUrl) text = message.cloudUrl;
                     break;
                 default:
-                    text = message.body;
+                    text = message.body || "__UNHANDLED__";
                     break;
             }
-            await sendBotPressMessage(text, message.from)
+            await sendBotPressMessage(text, message.from, message)
     })
 }
 
