@@ -9,6 +9,13 @@ body:
     options:
     - label: I have checked and am using the latest version of the library.
       required: true
+- type: checkboxes
+  attributes:
+    label: Are you using Multi-device?
+    description: Multi-device beta allows you to use your WA Web session without the host device being connected to the internet.
+    options:
+    - label: I am using a multi-device session and I have set multiDevice to true in my config OR am using the --multi-device flag
+      required: true
 - type: textarea
   attributes:
     label: Current Behavior
