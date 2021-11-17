@@ -219,6 +219,12 @@ const optionList:
         description: "Automatically reject incoming phone and video calls to the host account."
     },
     {
+        name: 'emit-unread',
+        type: Boolean,
+        description: "Emit all unread messages via onMessage webhooks on launch.",
+        default: false
+    },
+    {
         name: 'skip-url-check',
         type: Boolean,
         description: "Don't validate webhook URLs. Enables use of non-FQDNs."

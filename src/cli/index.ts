@@ -176,6 +176,9 @@ async function start() {
                 spinner.succeed(`\n\t${statsLink}`)
             }
         } else ready({...cliConfig, ...createConfig, ...client.getSessionInfo(), hostAccountNumber: await client.getHostNumber()});
+        if (cliConfig.emitUnread) {
+            await client.emitUnreadMessages()
+        }
     } catch (e) {
         spinner.fail(`Error ${e.message} ${e}`)
     }
