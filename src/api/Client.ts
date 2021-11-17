@@ -88,6 +88,7 @@ declare module WAPI {
   const setChatBackgroundColourHex: (hex: string) => boolean;
   const darkMode: (activate: boolean) => boolean;
   const autoReject: (message: string) => boolean;
+  const emitUnreadMessages: () => boolean;
   const onParticipantsChanged: (groupId: string, callback: Function) => any;
   const _onParticipantsChanged: (groupId: string, callback: Function) => any;
   const onLiveLocation: (chatId: string, callback: Function) => any;
@@ -2688,6 +2689,15 @@ public async getStatus(contactId: ContactId) : Promise<{
    */
   public async getIndicatedNewMessages() : Promise<Message[]> {
     return JSON.parse(await this.pup(() => WAPI.getIndicatedNewMessages())) as Promise<Message[]>;
+  }
+
+  /**
+   * Fires all unread messages to the onMessage listener.
+   * Make sure to call this AFTER setting your listeners.
+   * @returns array of message IDs
+   */
+  public async emitUnreadMessages() : Promise<MessageId[]> {
+    return await this.pup(() => WAPI.emitUnreadMessages()) as Promise<MessageId[]>;
   }
 
   /**
