@@ -1,12 +1,20 @@
 import { generatePostmanJson, Spin } from "..";
 import p2s from 'postman-2-swagger';
 import { writeJsonSync } from 'fs-extra'
+import {
+    getTypeScriptReader,
+    getOpenApiWriter,
+    makeConverter,
+  } from 'typeconv'
+import * as fs from 'fs'
+import glob from 'glob-promise'
 
 export const collections = {}
 
 export const generateCollections : any = async (config: { [x: string]: any; sessionId?: any; key?: any; },spinner: Spin) => {
     let swCol = null;
     let pmCol = null;
+    const _types = await getTypeSchemas()
     spinner.info('Generating Swagger Spec');
     pmCol = await generatePostmanJson(config);
     spinner.succeed(`Postman collection generated: open-wa-${config.sessionId}.postman_collection.json`);
@@ -26,6 +34,9 @@ export const generateCollections : any = async (config: { [x: string]: any; sess
             "description": "Documentation",
             "url": swCol.paths[p].post.documentationUrl
         }
+        swCol.paths[p].post.responses['200'].schema =  {
+            "$ref": "#/components/schemas/EasyApiResponse"
+        }
         swCol.paths[p].post.requestBody = {
             "description": path.summary,
             "content": {
@@ -40,13 +51,16 @@ export const generateCollections : any = async (config: { [x: string]: any; sess
         delete path.parameters
     });
     delete swCol.swagger
-    swCol.openapi = "3.0.3"
+    swCol.openapi = "3.0.3";
+    swCol.components = {};
+    swCol.components.schemas = _types
     swCol.externalDocs = {
         "description": "Find more info here",
         "url": "https://openwa.dev/"
     }
     if (config.key) {
         swCol.components = {
+            ...swCol.components,
             "securitySchemes": {
                 "api_key": {
                     "type": "apiKey",
@@ -69,4 +83,22 @@ export const generateCollections : any = async (config: { [x: string]: any; sess
     collections['swagger'] = swCol;
     spinner.succeed('API collections (swagger + postman) generated successfully');
     return;
+}
+
+export const getTypeSchemas : any = async () => {
+  const reader = getTypeScriptReader(  );
+  const writer = getOpenApiWriter( { format: 'json', title: 'My API', version: 'v3.0.3' } );
+  const { convert } = makeConverter( reader, writer, {
+      simplify: true
+  });
+  const s = (await Promise.all([...(await glob('../**/*.d.ts')),...(await glob('../**/message.js')), ...(await glob('../**/chat.js'))])).filter(f=>!f.includes('node_modules'))
+  const res = {};
+  await Promise.all(s.map(async x=>{
+      const {data} =  await convert({ data: fs.readFileSync(x, 'utf8') } );
+      const schemas = JSON.parse(data)?.components?.schemas;
+      Object.keys(schemas).forEach(k => {
+          res[k] = schemas[k];
+      })
+  }))
+  return res;
 }

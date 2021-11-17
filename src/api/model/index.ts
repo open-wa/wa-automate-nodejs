@@ -100,7 +100,12 @@ export enum STATE {
      * This is fired when the connection between web and the host account primary device is disconnected. This is fired frequently to save battery.
      */
     DISCONNECTED = 'DISCONNECTED',
-};
+}
+
+export type EasyApiResponse = {
+    success: boolean,
+    response: any
+}
 
 
 export * from './config'
