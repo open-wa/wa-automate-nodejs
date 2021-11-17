@@ -120,6 +120,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
               Object.keys(session).forEach(key=>localStorage.setItem(key,session[key]));
           },{
             "md-opted-in": "true",
+            "MdUpgradeWamFlag": "true",
             "remember-me": "true"
           })
     }

@@ -72,7 +72,7 @@ export const phoneIsOutOfReach = async (waPage: Page) : Promise<boolean>  => {
     .catch(()=>false);
 } ;
 
-export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Spin) : Promise<boolean | void>{
+export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Spin) : Promise<boolean | void | string>{
     const evalResult = await waPage.evaluate("window.Store && window.Store.State")
     if (evalResult === false) {
       console.log('Seems as though you have been TOS_BLOCKed, unable to refresh QR Code. Please see https://github.com/open-wa/wa-automate-nodejs#best-practice for information on how to prevent this from happeing. You will most likely not get a QR Code');
@@ -107,11 +107,16 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
 
   return new Promise(async resolve => {
     const funcName = '_smartQr';
+    const md = "MULTI_DEVICE_DETECTED"
     let gotResult = false;
     const fn = async (qrData) => {
-      if(!gotResult && (qrData==='QR_CODE_SUCCESS' || qrData==='MULTI_DEVICE_DETECTED')) {
+    if(qrData.length > 200 && !config?.multiDevice) {
+          spinner.fail(`Multi-Device detected, please set multiDevice to true in your config or add the --multi-device flag`)
+          return resolve(md)
+    }
+      if(!gotResult && (qrData==='QR_CODE_SUCCESS' || qrData===md)) {
         gotResult = true;
-        spinner?.succeed(qrData==='MULTI_DEVICE_DETECTED' ? "Multi device support for this project is EXPERIMENTAL. Some things may not work...." : "QR code scanned. Loading session...")
+        spinner?.succeed(qrData===md ? "Multi device support for this project is EXPERIMENTAL. Some things may not work...." : "QR code scanned. Loading session...")
         return resolve(await isInsideChat(waPage).toPromise())
       }
       if(!gotResult) grabAndEmit(qrData)

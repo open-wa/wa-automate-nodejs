@@ -123,6 +123,13 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     spinner.start('Starting');
     spinner.succeed(`Version: ${pkg.version}`);
     spinner.info(`Initializing WA`);
+    /**
+     * Check if the IGNORE folder exists, therefore, assume that the session is MD.
+     */
+    if(fs.existsSync(`./_IGNORE_${config?.sessionId || 'session'}`) && !config?.multiDevice) {
+      spinner.info(`Multi-Device directory detected. multiDevice set to true.`);
+      config.multiDevice = true;
+    }
     if(config?.multiDevice && config?.chromiumArgs) spinner.info(`Using custom chromium args with multi device will cause issues! Please remove themm`);
     if(config?.multiDevice && !config?.useChrome) spinner.info(`It is recommended to set useChrome: true or use the --use-chrome flag if you are experiencing issues with Multi device support`);
     waPage = await initPage(sessionId, config, customUserAgent, spinner);
@@ -230,6 +237,13 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
         race.push(timeout((config?.qrTimeout || 60) * 1000))
       }
       const result = await Promise.race(race);
+      if(result === "MULTI_DEVICE_DETECTED" && !config?.multiDevice) {
+        await kill(waPage)
+        return create({
+          ...config,
+          multiDevice: true
+        })
+      }
       if (result == 'timeout') {
         spinner.emit('qrTimeout');
         spinner.fail('QR scan took too long. Session Timed Out. Shutting down. Consider increasing qrTimeout config variable: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#qrtimeout');
