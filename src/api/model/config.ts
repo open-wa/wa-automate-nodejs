@@ -745,7 +745,6 @@ export interface ConfigObject {
       */
      ensureHeadfulIntegrity ?: boolean
      /**
-      * @deprecated
       * wait for a valid headful session. Not required in recent versions.
       */
       waitForRipeSession ?: boolean
