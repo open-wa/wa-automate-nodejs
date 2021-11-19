@@ -36,24 +36,17 @@
 Use this command to install the library for the first time and to keep the library up to date.
 
 ```bash
-> npm i --save @open-wa/wa-automate@latest --multi-device
+> npm i --save @open-wa/wa-automate@latest
 ```
 
 ## Usage
 
-```javascript
-// import { create, Client } from '@open-wa/wa-automate';
-const wa = require('@open-wa/wa-automate');
+## CLI
 
-wa.create().then(client => start(client));
+Want to convert your WA account to an API instantly? You can now with the CLI. For more details see [Easy API](https://docs.openwa.dev/pages/Getting%20Started/quick-run.html)
 
-function start(client) {
-  client.onMessage(async message => {
-    if (message.body === 'Hi') {
-      await client.sendText(message.from, '👋 Hello!');
-    }
-  });
-}
+```bash
+> npx @open-wa/wa-automate --help
 ```
 
 ## Custom Setup
@@ -90,13 +83,6 @@ function start(client) {
 
 ###### @open-wa/wa-automate will remember the session so there is no need to authenticate every time
 
-## CLI
-
-Want to convert your WA account to an API instantly? You can now with the CLI. For more details see [Easy API](https://docs.openwa.dev/pages/Getting%20Started/quick-run.html)
-
-```bash
-> npx @open-wa/wa-automate --help
-```
 
 ## Multi Device Support
 
