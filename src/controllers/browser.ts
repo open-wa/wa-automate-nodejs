@@ -275,7 +275,8 @@ async function initBrowser(sessionId?: string, config:any={}) {
   });
   //devtools
   if(config?.devtools){
-    const devtools = (await import('puppeteer-extra-plugin-devtools'))();
+    const _dt = await import('puppeteer-extra-plugin-devtools')
+    const devtools = _dt.default();
     if(config.devtools !== 'local' && !config?.devtools?.user && !config?.devtools?.pass){
       config.devtools = {};
       config.devtools.user = 'dev';
@@ -286,6 +287,7 @@ async function initBrowser(sessionId?: string, config:any={}) {
     if(config.devtools.user&&config.devtools.pass) {
       devtools.setAuthCredentials(config.devtools.user, config.devtools.pass)
     } 
+    puppeteer.use(devtools)
     try {
       // const tunnel = await devtools.createTunnel(browser);
       const tunnel = config.devtools == 'local' ? devtools.getLocalDevToolsUrl(browser) : (await devtools.createTunnel(browser)).url;
