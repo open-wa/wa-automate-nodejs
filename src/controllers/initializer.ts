@@ -126,7 +126,8 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     /**
      * Check if the IGNORE folder exists, therefore, assume that the session is MD.
      */
-    if(fs.existsSync(`./_IGNORE_${config?.sessionId || 'session'}`) && !config?.multiDevice) {
+    const mdDir = config["userDataDir"] ||  `${config?.inDocker ? '/sessions' : config?.sessionDataPath || '.' }/_IGNORE_${config?.sessionId || 'session'}`
+    if(fs.existsSync(mdDir) && !config?.multiDevice) {
       spinner.info(`Multi-Device directory detected. multiDevice set to true.`);
       config.multiDevice = true;
     }
