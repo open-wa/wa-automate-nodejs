@@ -140,7 +140,7 @@
     "puppeteer": "10.4.0",
     "puppeteer-extra": "^3.1.9",
     "puppeteer-extra-plugin-block-resources": "^2.2.7",
-    "puppeteer-extra-plugin-devtools": "^2.2.8",
+    "puppeteer-extra-plugin-devtools": "^2.3.3",
     "puppeteer-extra-plugin-stealth": "^2.4.9",
     "puppeteer-page-proxy": "^1.2.8",
     "qrcode-terminal": "^0.12.0",
