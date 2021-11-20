@@ -264,7 +264,7 @@ async function initBrowser(sessionId?: string, config:any={}) {
   let args = [...puppeteerConfig.chromiumArgs,...(config?.chromiumArgs||[])];
   if(config?.multiDevice) {
     args = args.filter(x=>x!='--incognito')
-    config["userDataDir"] = `./_IGNORE_${config?.sessionId || 'session'}`
+    config["userDataDir"] = config["userDataDir"] ||  `${config?.inDocker ? '/sessions' : config?.sessionDataPath || '.' }/_IGNORE_${config?.sessionId || 'session'}`
   }
   if(config?.corsFix) args.push('--disable-web-security');
   const browser = (config?.browserWSEndpoint) ? await puppeteer.connect({...config}): await puppeteer.launch({
