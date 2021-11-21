@@ -45,6 +45,14 @@ export type StickerMetadata = {
      * @default `attention`
      */
      cropPosition ?: 'top' | 'right top' | 'right' | 'right bottom' | 'bottom' | 'left bottom' | 'left' | 'left top' | 'north' | 'northeast' | 'east' | 'southeast' | 'south' | 'southwest' | 'west' | 'northwest' | 'center' | 'centre' | 'entropy' | 'attention'
+    /**
+     * The corner radius of the sticker when `stickerMetadata.circle` is set to true.
+     * @default `100`
+     * @minimum `1`
+     * @maximum `100`
+     * @multipleOf `1`
+     */
+    cornerRadius?: number
   }
 
   export type Mp4StickerConversionProcessOptions = {
