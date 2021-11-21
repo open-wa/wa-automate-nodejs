@@ -12,18 +12,22 @@ const puppeteer = require('puppeteer-extra')
 
 let browser;
 
-export async function initPage(sessionId?: string, config?:ConfigObject, customUserAgent?:string, spinner ?: Spin) : Promise<Page> {
+export async function initPage(sessionId?: string, config?:ConfigObject, customUserAgent?:string, spinner ?: Spin, _page?: Page, skipAuth ?: boolean) : Promise<Page> {
   const setupPromises = [];
   if(config?.resizable === undefined || !config?.resizable == false) config.defaultViewport= null
   if(config?.useStealth) {
     const {default : stealth} = await import('puppeteer-extra-plugin-stealth')
     puppeteer.use(stealth());
   }
-  spinner?.info('Launching Browser')
-  browser = await initBrowser(sessionId,config);
+  let waPage = _page;
+  if(!waPage) {
+    spinner?.info('Launching Browser')
+    browser = await initBrowser(sessionId,config);
+    waPage = await getWAPage(browser);
+  }
   
-  const waPage = await getWAPage(browser);
-  spinner?.info('Setting Up Browser')
+
+  spinner?.info('Setting Up Page')
   if (config?.proxyServerCredentials) {
     await waPage.authenticate(config.proxyServerCredentials);
   }
@@ -85,7 +89,12 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
       })
     
   }
-
+  if(skipAuth) {
+    spinner.info("Skipping Authentication")
+  } else {
+  /**
+   * AUTH
+   */
   spinner?.info('Loading session data')
   let sessionjson : any = getSessionDataFromFile(sessionId, config, spinner)
   if(!sessionjson && sessionjson !== "" && config.sessionDataBucketAuth) {
@@ -124,6 +133,10 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
             "remember-me": "true"
           })
     }
+  }
+  /**
+   * END AUTH
+   */
   }
     if(config?.proxyServerCredentials && !config?.useNativeProxy) {
       await proxy(waPage, proxyAddr);
