@@ -6,26 +6,83 @@ export interface Chat {
   archive: boolean;
   changeNumberNewJid: any;
   changeNumberOldJid: any;
+  /**
+   * The contact related to this chat
+   */
   contact: Contact;
+  /**
+   * Group metadata for this chat
+   */
   groupMetadata: GroupMetadata;
+  /**
+   * The id of the chat
+   */
   id: ChatId;
+  /**
+   * If the chat is a group chat is restricted
+   */
   isAnnounceGrpRestrict: any;
+  /**
+   * The title of the chat
+   */
   formattedTitle?: string;
+  /**
+   * Whether your host account is able to send messages to this chat
+   */
   canSend?: boolean;
+  /**
+   * Whether the chat is a group chat
+   */
   isGroup: boolean;
+  /**
+   * Whether the chat is a group chat and the group is restricted
+   */
   isReadOnly: boolean;
   kind: string;
+  /**
+   * The labels attached to this chat.
+   */
   labels: any;
+  /**
+   * The ID of the last message received in this chat
+   */
   lastReceivedKey: any;
   modifyTag: number;
+  /**
+   * The messages in the chat
+   */
   msgs: any;
+  /**
+   * The expiration timestamp of the chat mute
+   */
   muteExpiration: number;
+  /**
+   * The name of the chat
+   */
   name: string;
+  /**
+   * Whether the chat is marked as spam
+   */
   notSpam: boolean;
+  /**
+   * Messages that are pending to be sent
+   */
   pendingMsgs: boolean;
+  /**
+   * Whether the chat is pinned
+   */
   pin: number;
+  /**
+   * The presence state of the chat participant
+   */
   presence: any;
+  /**
+   * The timestamp of the last interaction in the chat
+   */
   t: number;
+  /**
+   * The number of undread messages in this chat
+   */
   unreadCount: number;
   ack?: any;
   /**
