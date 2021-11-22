@@ -126,11 +126,11 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     /**
      * Check if the IGNORE folder exists, therefore, assume that the session is MD.
      */
-    const mdDir = config["userDataDir"] ||  `${config?.inDocker ? '/sessions' : config?.sessionDataPath || '.' }/_IGNORE_${config?.sessionId || 'session'}`
-    if(fs.existsSync(mdDir) && !config?.multiDevice) {
-      spinner.info(`Multi-Device directory detected. multiDevice set to true.`);
-      config.multiDevice = true;
-    }
+    // const mdDir = config["userDataDir"] ||  `${config?.inDocker ? '/sessions' : config?.sessionDataPath || '.' }/_IGNORE_${config?.sessionId || 'session'}`
+    // if(fs.existsSync(mdDir) && !config?.multiDevice) {
+    //   spinner.info(`Multi-Device directory detected. multiDevice set to true.`);
+    //   config.multiDevice = true;
+    // }
     if(config?.multiDevice && config?.chromiumArgs) spinner.info(`Using custom chromium args with multi device will cause issues! Please remove themm`);
     if(config?.multiDevice && !config?.useChrome) spinner.info(`It is recommended to set useChrome: true or use the --use-chrome flag if you are experiencing issues with Multi device support`);
     waPage = await initPage(sessionId, config, customUserAgent, spinner);
