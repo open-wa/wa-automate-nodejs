@@ -235,7 +235,9 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       const race = [];
       race.push(smartQr(waPage, config, spinner))
       if (config?.qrTimeout!==0) {
-        race.push(timeout((config?.qrTimeout || 60) * 1000))
+        let to = (config?.qrTimeout || 60) * 1000
+        if(config?.multiDevice) to = to * 2
+        race.push(timeout(to))
       }
       const result = await Promise.race(race);
       if(result === "MULTI_DEVICE_DETECTED" && !config?.multiDevice) {
