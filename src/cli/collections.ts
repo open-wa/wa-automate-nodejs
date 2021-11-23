@@ -7,7 +7,10 @@ import {
     makeConverter,
   } from 'typeconv'
 import * as fs from 'fs'
-import glob from 'glob-promise'
+import glob = require('tiny-glob');
+import * as path from 'path';
+
+
 
 export const collections = {}
 
@@ -91,7 +94,7 @@ export const getTypeSchemas : any = async () => {
   const { convert } = makeConverter( reader, writer, {
       simplify: true
   });
-  const s = (await Promise.all([...(await glob('../**/*.d.ts')),...(await glob('../**/message.js')), ...(await glob('../**/chat.js'))])).filter(f=>!f.includes('node_modules'))
+  const s = (await Promise.all([...(await glob(path.resolve(__dirname,'../**/*.d.ts'))),...(await glob(path.resolve(__dirname,'../**/message.js'))), ...(await glob(path.resolve(__dirname,'../**/chat.js')))])).filter(f=>!f.includes('node_modules'))
   const res = {};
   await Promise.all(s.map(async x=>{
       const {data} =  await convert({ data: fs.readFileSync(x, 'utf8') } );
