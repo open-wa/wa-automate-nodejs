@@ -542,17 +542,30 @@ export class Client {
     const res = await this._page.evaluate(pageFunction, ...args);
     if(this._createConfig.onError && typeof res == "string" && (res.startsWith("Error") || res.startsWith("ERROR"))) {
       const e = this._createConfig.onError;
-      if(e == OnError.AS_STRING || e == OnError.NOTHING) return res
-      if(e == OnError.LOG_AND_FALSE) {
-        console.error(res);
-        return true;
-      }
-      if(e == OnError.LOG_AND_STRING) {
-        console.error(res);
-        return res;
-      }
+      /**
+       * Log error
+       */
+      if(
+        e == OnError.LOG_AND_FALSE ||
+        e == OnError.LOG_AND_STRING ||
+        res.includes("get.openwa.dev")
+      ) console.error(res);
+      /**
+       * Return res
+       */
+      if(
+        e == OnError.AS_STRING ||
+        e == OnError.NOTHING ||
+        e == OnError.LOG_AND_STRING
+        ) return res
+      /**
+       * Return false
+       */
+      if(
+        e == OnError.LOG_AND_FALSE ||
+        e == OnError.RETURN_FALSE
+        ) return false
       if(e == OnError.RETURN_ERROR) return new Error(res)
-      if(e == OnError.RETURN_FALSE) return false
       if(e == OnError.THROW) throw new Error(res)
     }
     return res;
