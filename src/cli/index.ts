@@ -6,6 +6,7 @@ import { default as axios } from 'axios'
 import { cli } from './setup';
 import { collections, generateCollections } from './collections';
 import { setUpExpressApp, setupAuthenticationLayer, setupRefocusDisengageMiddleware, setupApiDocs, setupSwaggerStatsMiddleware, setupMediaMiddleware, app, setupSocketServer, server, setupBotPressHandler, setupTwilioCompatibleWebhook, enableCORSRequests } from './server';
+import localtunnel from 'localtunnel';
 
 let checkUrl = (s : any) => (typeof s === "string") && isUrl(s);
 
@@ -166,6 +167,11 @@ async function start() {
                 spinner.succeed(`\n• Listening on port ${PORT}!`);
                 await ready({...cliConfig, ...createConfig, ...client.getSessionInfo(), hostAccountNumber: await client.getHostNumber()});
             });
+            if(cliConfig.tunnel) {
+                spinner.info(`\n• Setting up external tunnel`);
+                const tunnel = await localtunnel({ port: PORT });
+                spinner.succeed(`\n\t${terminalLink('External address', tunnel.url)}`)
+            } 
             const apiDocsUrl = cliConfig.apiHost ? `${cliConfig.apiHost}/api-docs/ ` : `${cliConfig.host.includes('http') ? '' : 'http://'}${cliConfig.host}:${PORT}/api-docs/ `;
             const link = terminalLink('API Explorer', apiDocsUrl);
             if (cliConfig && cliConfig.generateApiDocs) spinner.succeed(`\n\t${link}`)

@@ -230,6 +230,11 @@ const optionList:
         description: "Don't validate webhook URLs. Enables use of non-FQDNs."
     },
     {
+        name: 'tunnel',
+        type: Boolean,
+        description: "Expose a tunnel to your EASY API session - this is for testing and it is unsecured."
+    },
+    {
         name: 'help',
         description: 'Print this usage guide.'
     }
