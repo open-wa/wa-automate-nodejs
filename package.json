@@ -3,7 +3,7 @@
   "version": "4.24.1",
   "licenseCheckUrl": "https://openwa.dev/license-check",
   "brokenMethodReportUrl": "https://openwa.dev/report-bm",
-  "patches": "http://127.0.0.1:5503/functions/patches.json",
+  "patches": "https://cdn.openwa.dev/patches.json",
   "stickerUrl": "https://sticker-api.openwa.dev",
   "description": " 💬 🤖 The most reliable NodeJS whatsapp library for chatbots with advanced features.",
   "main": "dist/index.js",
