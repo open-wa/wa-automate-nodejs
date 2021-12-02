@@ -26,7 +26,7 @@ import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
 import * as path from 'path';
 import { CustomProduct, Label, Order, Product } from './model/product';
 import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
-import { earlyInjectionCheck, getAndInjectLicense, getAndInjectLivePatch, getLicense } from '../controllers/initializer';
+import { earlyInjectionCheck, getAndInjectLicense, getAndInjectLivePatch, getLicense } from "../controllers/patch_manager";
 import { SimpleListener } from './model/events';
 import { AwaitMessagesOptions, Collection, CollectorFilter, CollectorOptions } from '../structures/Collector';
 import { MessageCollector } from '../structures/MessageCollector';

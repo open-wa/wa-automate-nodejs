@@ -2,7 +2,6 @@ import * as fs from 'fs';
 import boxen from 'boxen';
 import osName from 'os-name';
 import { default as updateNotifier } from 'update-notifier';
-import * as crypto from 'crypto';
 import { Client } from '../api/Client';
 import { ConfigObject, SessionExpiredError } from '../api/model/index';
 import * as path from 'path';
@@ -16,17 +15,17 @@ import { getConfigFromProcessEnv } from '../utils/tools';
 import { SessionInfo } from '../api/model/sessionInfo';
 import { Page } from 'puppeteer';
 import { createHash } from 'crypto';
-import { injectInitPatch } from './init_patch';
 import { readJsonSync } from 'fs-extra'
 import { upload } from 'pico-s3';
+import { injectInitPatch } from './init_patch'
+import { earlyInjectionCheck, getLicense, getPatch, getAndInjectLivePatch, getAndInjectLicense } from './patch_manager';
 
-const pkg = readJsonSync(path.join(__dirname,'../../package.json')),
+export const pkg = readJsonSync(path.join(__dirname,'../../package.json')),
 configWithCases = readJsonSync(path.join(__dirname,'../../bin/config-schema.json')),
 timeout = (ms : number) => {
   return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 }
 
-let axios;
 export let screenshot;
 
 
@@ -407,128 +406,3 @@ const kill = async (p) => {
   }
 }
 
-/**
- * @private
- */
-
-export async function getPatch(config: ConfigObject, spinner ?: Spin, sessionInfo ?: SessionInfo) : Promise<{
-  data: any,
-  tag: string
-}> {
-  const ghUrl = `https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/patches.json`
-  const hasSpin = !!spinner;
-  /**
-   * Undo below comment when a githack alternative is found.
-   */
-  const patchesBaseUrl = config?.cachedPatch ?  ghUrl : pkg.patches
-  const patchesUrl = patchesBaseUrl + `?wv=${sessionInfo.WA_VERSION}&wav=${sessionInfo.WA_AUTOMATE_VERSION}`
-  if(!spinner) spinner = new Spin(config.sessionId, "FETCH_PATCH", config.disableSpins,true)
-  spinner?.start(`Downloading ${config?.cachedPatch ? 'cached ': ''}patches from ${patchesBaseUrl}`, hasSpin ? undefined : 2)
-  if(!axios) axios = await import('axios');
-  const START = Date.now();
-  const { data, headers } = await axios.get(patchesUrl).catch(()=>{
-    spinner?.info('Downloading patches. Retrying.')
-    return axios.get(`${ghUrl}?v=${Date.now()}`)
-  });
-  const END = Date.now();
-  if(!headers['etag']) {
-    spinner?.info('Generating patch hash');
-    headers['etag'] = crypto.createHash('md5').update(typeof data === 'string' ? data : JSON.stringify(data)).digest("hex").slice(-5);
-  }
-  spinner?.succeed(`Downloaded patches in ${(END-START)/1000}s`)
-  return {
-    data,
-    tag: `${(headers.etag || '').replace(/"/g,'').slice(-5)}`
-  }
-}
-
-/**
- * @private
- * @param page 
- * @param spinner 
- */
-export async function injectLivePatch(page: Page, patch : {
-  data: any,
-  tag: string
-}, spinner ?: Spin) : Promise<void> {
-  const {data, tag} = patch
-  spinner?.info('Installing patches')
-  await Promise.all(data.map(patch => page.evaluate(`${patch}`)))
-  spinner?.succeed(`Patches Installed: ${tag}`)
-}
-
-/**
- * @private
- */
-export async function getAndInjectLivePatch(page: Page, spinner ?: Spin, preloadedPatch ?: {
-  data: any,
-  tag: string
-}, config ?: ConfigObject, sessionInfo ?: SessionInfo) : Promise<void> {
-  let patch = preloadedPatch;
-  if(!patch) patch = await getPatch(config, spinner, sessionInfo)
-  await injectLivePatch(page, patch, spinner)
-}
-
-/**
- * @private
- */
-export async function getLicense(config: ConfigObject, me : {
-  _serialized: string
-}, debugInfo: SessionInfo, spinner ?: Spin) : Promise<string | false> {
-  if(!config?.licenseKey || !me?._serialized) return false;
-  if(!axios) axios = await import('axios');
-  const hasSpin = !!spinner;
-  if(!spinner) spinner = new Spin(config.sessionId || "session", "FETCH_LICENSE", config.disableSpins,true)
-  spinner?.start(`Fetching License: ${Array.isArray(config.licenseKey) ? config.licenseKey : config.licenseKey.indexOf("-")==-1 ? config.licenseKey.slice(-4) : config.licenseKey.split("-").slice(-1)[0]}`, hasSpin ? undefined : 2)
-  try {
-  const START = Date.now()
-  const { data } = await axios.post(pkg.licenseCheckUrl, { key: config.licenseKey, number: me._serialized, ...debugInfo });
-  const END = Date.now()
-  spinner?.succeed(`Downloaded License in ${(END-START)/1000}s`)
-  return data;
-  } catch (error) {
-    spinner?.fail(`License request failed: ${error.statusCode || error.status || error.code} ${error.message}`);
-    return false;
-  }
-}
-
-export async function earlyInjectionCheck(page: Page) : Promise<(page: Page) => boolean> {
-    //@ts-ignore
-  return await page.evaluate(() => { if(window.webpackChunkwhatsapp_web_client) {window.webpackChunkbuild = window.webpackChunkwhatsapp_web_client} else {(function(){const f = Object.entries(window).filter(([,o])=>o && o.push && (o.push != [].push));if(f[0]) {window.webpackChunkbuild = window[f[0][0]]}})()} return (typeof webpackChunkbuild !== "undefined") });
-}
-
-export async function getAndInjectLicense(page: Page, config: ConfigObject, me : {
-  _serialized: string
-}, debugInfo: SessionInfo, spinner ?: Spin, preloadedLicense ?: string | false): Promise<boolean> {
-  if(!config?.licenseKey || !me?._serialized) return false;
-  if(!axios) axios = await import('axios');
-  let l_err;
-  let data = preloadedLicense;
-  spinner?.info('Checking License')
-  try {
-    if(!data) {
-      spinner?.info('Fethcing License...')
-      data = await getLicense(config, me, debugInfo, spinner)
-    }
-  if (data) {
-    spinner?.info('Injecting License...')
-    const l_success = await page.evaluate(data => eval(data), data);
-    if(!l_success) {
-      spinner?.info('License injection failed. Getting error..')
-      l_err = await page.evaluate('window.launchError');
-    } else {
-      spinner?.info('License injected successfully..')
-      const keyType = await page.evaluate('window.KEYTYPE || false');
-      spinner?.succeed(`License Valid${keyType?`: ${keyType}`:''}`);
-      return true;
-    }
-  } else l_err = "The key is invalid"
-  if(l_err) {
-    spinner?.fail(`License issue${l_err ? `: ${l_err}` : ""}`);
-  }
-  return false;
-  } catch (error) {
-    spinner?.fail(`License request failed: ${error.statusCode || error.status || error.code} ${error.message}`);
-    return false;
-  }
-}
