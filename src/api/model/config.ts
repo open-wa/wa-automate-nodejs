@@ -572,6 +572,11 @@ export interface ConfigObject {
      * This will force the library to use the default cached raw github link for patches to shave a few hundred milliseconds from your launch time. If you use this option, you will need to wait about 5 minutes before trying out new patches.
      * @default `false`
      */
+     ghPatch ?: boolean;
+    /**
+     * Setting this to `true` will save a local copy of the patches.json file (as patches.ignore.data.json) which will be used in subsequent instantiations of the session. While the rest of the launch procedure is running, the library will fetch and save a recent version of the patches to ensure your patches don't go stale. This will be ignored if the cached patches are more than a day old.
+     * @default `false`
+     */
     cachedPatch ?: boolean;
     /**
      * Setting `this` to true will replace the `console.table` with a stringified logging of the debug info object instead. This would be useful to set for smaller terminal windows. If `disableSpins` is `true` then this will also be `true`.
