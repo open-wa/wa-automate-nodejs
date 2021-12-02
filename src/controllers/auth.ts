@@ -4,6 +4,7 @@ import {EvEmitter, Spin} from './events'
 import { screenshot } from './initializer'
 import { ConfigObject } from '../api/model';
 import { Page } from 'puppeteer';
+import { processSend } from '../utils/tools';
 const timeout = ms =>  new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 
 /**
@@ -93,6 +94,7 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
       } else {
         spinner.info("Something went wrong while retreiving new the QR code but it should not affect the session launch procedure.")
       }
+      processSend('QR')
     } catch (error) {
       //@ts-ignore
       console.log(await waPage.evaluate("window.launchres"))
