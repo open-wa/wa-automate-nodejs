@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ConfigObject | @open-wa/wa-automate - v4.24.2</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.24.2">
+	<title>ConfigObject | @open-wa/wa-automate - v4.25.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.25.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v4.24.2</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.25.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -115,6 +115,7 @@
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#ensureHeadfulIntegrity" class="tsd-kind-icon">ensure<wbr>Headful<wbr>Integrity</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#eventMode" class="tsd-kind-icon">event<wbr>Mode</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#executablePath" class="tsd-kind-icon">executable<wbr>Path</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#ghPatch" class="tsd-kind-icon">gh<wbr>Patch</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#headless" class="tsd-kind-icon">headless</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#hostNotificationLang" class="tsd-kind-icon">host<wbr>Notification<wbr>Lang</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api_model_config.ConfigObject.html#idCorrection" class="tsd-kind-icon">id<wbr>Correction</a></li>
@@ -330,7 +331,7 @@
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>This will force the library to use the default cached raw github link for patches to shave a few hundred milliseconds from your launch time. If you use this option, you will need to wait about 5 minutes before trying out new patches.</p>
+							<p>Setting this to <code>true</code> will save a local copy of the patches.json file (as patches.ignore.data.json) which will be used in subsequent instantiations of the session. While the rest of the launch procedure is running, the library will fetch and save a recent version of the patches to ensure your patches don&#39;t go stale. This will be ignored if the cached patches are more than a day old.</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>default</dt>
@@ -585,6 +586,23 @@
 						<div class="lead">
 							<p>Some features, like video upload, do not work without a chrome instance. Set this to the path of your chrome instance or you can use <code>useChrome:true</code> to automatically detect a chrome instance for you. Please note, this overrides <code>useChrome</code>.</p>
 						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="ghPatch" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> gh<wbr>Patch</h3>
+					<div class="tsd-signature tsd-kind-icon">gh<wbr>Patch<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This will force the library to use the default cached raw github link for patches to shave a few hundred milliseconds from your launch time. If you use this option, you will need to wait about 5 minutes before trying out new patches.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>default</dt>
+							<dd><p><code>false</code></p>
+							</dd>
+						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
@@ -1625,6 +1643,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="api_model_config.ConfigObject.html#executablePath" class="tsd-kind-icon">executable<wbr>Path</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api_model_config.ConfigObject.html#ghPatch" class="tsd-kind-icon">gh<wbr>Patch</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="api_model_config.ConfigObject.html#headless" class="tsd-kind-icon">headless</a>

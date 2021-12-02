@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>controllers/initializer | @open-wa/wa-automate - v4.24.2</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.24.2">
+	<title>controllers/initializer | @open-wa/wa-automate - v4.25.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.25.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v4.24.2</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.25.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -82,6 +82,8 @@
 						<section class="tsd-index-section ">
 							<h3>Variables</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="controllers_initializer.html#configWithCases" class="tsd-kind-icon">config<wbr>With<wbr>Cases</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="controllers_initializer.html#pkg" class="tsd-kind-icon">pkg</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="controllers_initializer.html#screenshot" class="tsd-kind-icon">screenshot</a></li>
 							</ul>
 						</section>
@@ -89,8 +91,7 @@
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="controllers_initializer.html#create" class="tsd-kind-icon">create</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="controllers_initializer.html#earlyInjectionCheck" class="tsd-kind-icon">early<wbr>Injection<wbr>Check</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="controllers_initializer.html#getAndInjectLicense" class="tsd-kind-icon">get<wbr>And<wbr>Inject<wbr>License</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="controllers_initializer.html#timeout" class="tsd-kind-icon">timeout</a></li>
 							</ul>
 						</section>
 					</div>
@@ -98,6 +99,20 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Variables</h2>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="configWithCases" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> config<wbr>With<wbr>Cases</h3>
+					<div class="tsd-signature tsd-kind-icon">config<wbr>With<wbr>Cases<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = ...</span></div>
+					<aside class="tsd-sources">
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="pkg" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> pkg</h3>
+					<div class="tsd-signature tsd-kind-icon">pkg<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = ...</span></div>
+					<aside class="tsd-sources">
+					</aside>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
 					<a name="screenshot" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagLet">Let</span> screenshot</h3>
@@ -146,10 +161,10 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="earlyInjectionCheck" class="tsd-anchor"></a>
-					<h3>early<wbr>Injection<wbr>Check</h3>
+					<a name="timeout" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> timeout</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">early<wbr>Injection<wbr>Check<span class="tsd-signature-symbol">(</span>page<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Page</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">(</span>page<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Page</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">timeout<span class="tsd-signature-symbol">(</span>ms<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -158,50 +173,10 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>page: <span class="tsd-signature-type">Page</span></h5>
+									<h5>ms: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">(</span>page<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Page</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="getAndInjectLicense" class="tsd-anchor"></a>
-					<h3>get<wbr>And<wbr>Inject<wbr>License</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>And<wbr>Inject<wbr>License<span class="tsd-signature-symbol">(</span>page<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Page</span>, config<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_config.ConfigObject.html" class="tsd-signature-type" data-tsd-kind="Interface">ConfigObject</a>, me<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>_serialized<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span>, debugInfo<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_sessionInfo.SessionInfo.html" class="tsd-signature-type" data-tsd-kind="Interface">SessionInfo</a>, spinner<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Spin</span>, preloadedLicense<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>page: <span class="tsd-signature-type">Page</span></h5>
-								</li>
-								<li>
-									<h5>config: <a href="../interfaces/api_model_config.ConfigObject.html" class="tsd-signature-type" data-tsd-kind="Interface">ConfigObject</a></h5>
-								</li>
-								<li>
-									<h5>me: <span class="tsd-signature-symbol">{ </span>_serialized<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></h5>
-									<ul class="tsd-parameters">
-										<li class="tsd-parameter">
-											<h5>_serialized<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-										</li>
-									</ul>
-								</li>
-								<li>
-									<h5>debugInfo: <a href="../interfaces/api_model_sessionInfo.SessionInfo.html" class="tsd-signature-type" data-tsd-kind="Interface">SessionInfo</a></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> spinner: <span class="tsd-signature-type">Spin</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> preloadedLicense: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
