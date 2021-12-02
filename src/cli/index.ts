@@ -1,4 +1,4 @@
-import { create, ev } from '../index'
+import { create, ev, processSend } from '../index'
 import terminalLink from 'terminal-link';
 import isUrl from 'is-url-superb';
 import tcpPortUsed from 'tcp-port-used';
@@ -11,11 +11,7 @@ import localtunnel from 'localtunnel';
 let checkUrl = (s : any) => (typeof s === "string") && isUrl(s);
 
 const ready: (config : any) => Promise<void> = async (config : any) => {
-    if (process.send) {
-        process.send('ready');
-        process.send('ready');
-        process.send('ready');
-    }
+    processSend('ready');
     if(config.readyWebhook)
     await axios({
         method: 'post',
