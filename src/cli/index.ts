@@ -94,6 +94,7 @@ async function start() {
         client.onLogout(async () => {
             console.error('!!!! CLIENT LOGGED OUT !!!!')
             if (cliConfig && !cliConfig.noKillOnLogout) {
+                await client.waitWhQIdle();
                 console.error("Shutting down.")
                 process.exit();
             }

@@ -1,5 +1,5 @@
 import { default as mime } from 'mime-types';
-import { Page, EvaluateFn } from 'puppeteer';
+import { Page, EvaluateFn, PageEventObject } from 'puppeteer';
 import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration, GroupChatCreationResponse } from './model/chat';
 import { Contact, NumberCheck } from './model/contact';
 import { Message } from './model/message';
@@ -291,6 +291,12 @@ export class Client {
   private _refreshing = false
   private _l: any;
   private _prio: number = Number.MAX_SAFE_INTEGER;
+  private _pageListeners : {
+    event: keyof PageEventObject,
+    callback: any,
+    priority ?: number
+  }[] = [];
+  private _registeredPageListeners : (keyof PageEventObject)[] = [];
   private _queues: {
     [key in SimpleListener] ?: PQueue
   } = {};
@@ -621,8 +627,21 @@ export class Client {
     return res;
   }
   
-  // NON-STAMDARD LISTENERS
+  // NON-STANDARD LISTENERS
 
+  private registerPageEventListener(_event: string, callback : any, priority ?: number) {
+    const event : keyof PageEventObject = _event as keyof PageEventObject
+    this._pageListeners.push({
+      event,
+      callback,
+      priority
+    })
+    if(this._registeredPageListeners.includes(event)) return true;
+    this._page.on(event, async (...args) => {
+      return await Promise.all(this._pageListeners.filter(l => l.event === event).sort((a,b)=>(b.priority || 0)-(a.priority || 0)).map(l => l.callback(...args)))
+    })
+    this._registeredPageListeners.push(event);
+  }
 
   /**
    * Listens to a log out event
@@ -631,15 +650,23 @@ export class Client {
    * @param fn callback
    * @fires `true` 
    */
-  public async onLogout(fn: (loggedOut?: boolean)=> any) : Promise<boolean> {
-    await this._page.on('request', request => {
-      if(request.url() === "https://web.whatsapp.com/" && !this._refreshing) fn();
-    })
-    this.onStateChanged(state=>{
-      if(state===STATE.UNPAIRED){
-        fn();
-      }
-    });
+  public async onLogout(fn: (loggedOut?: boolean)=> any, priority ?: number) : Promise<boolean> {
+    this.registerPageEventListener('framenavigated', async frame => {
+        if(frame.url().includes('post_logout=1')) {
+          console.log("LOGGED OUT")
+          await fn(true);
+        }
+    }, priority)
+    return true;
+  }
+  
+  /**
+   * Wait for the webhook queue to become idle. This is useful for ensuring webhooks are cleared before ending a process.
+   */
+  public async waitWhQIdle() {
+    if(this._webhookQueue) {
+      return await this._webhookQueue.onIdle();
+    }
     return true;
   }
 
@@ -3748,7 +3775,7 @@ public async getStatus(contactId: ContactId) : Promise<{
             url,
             data: this.prepEventData(_data,event as SimpleListener,{webhook_id:id}),
             ...requestConfig
-          }).catch(err=>console.error(`WEBHOOK ERROR: `, url ,err.message))))));
+          }).catch(err=>console.error(`WEBHOOK ERROR: `, url ,err.message))))),10000);
         }        
       }
       })
