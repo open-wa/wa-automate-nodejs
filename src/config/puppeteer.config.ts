@@ -45,7 +45,11 @@ const puppeteerConfig = {
     // '--no-zygote',
     // '--renderer-process-limit=1',
     // '--no-first-run'
-    '--disable-gl-drawing-for-tests'
+    '--disable-gl-drawing-for-tests',
+    //keep awake in all situations
+    '--disable-background-timer-throttling',
+    '--disable-backgrounding-occluded-windows',
+    '--disable-renderer-backgrounding'
   ]
 };
 
