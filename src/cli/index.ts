@@ -5,7 +5,7 @@ import tcpPortUsed from 'tcp-port-used';
 import { default as axios } from 'axios'
 import { cli } from './setup';
 import { collections, generateCollections } from './collections';
-import { setUpExpressApp, setupAuthenticationLayer, setupRefocusDisengageMiddleware, setupApiDocs, setupSwaggerStatsMiddleware, setupMediaMiddleware, app, setupSocketServer, server, setupBotPressHandler, setupTwilioCompatibleWebhook, enableCORSRequests } from './server';
+import { setUpExpressApp, setupAuthenticationLayer, setupRefocusDisengageMiddleware, setupApiDocs, setupSwaggerStatsMiddleware, setupMediaMiddleware, app, setupSocketServer, server, setupBotPressHandler, setupTwilioCompatibleWebhook, enableCORSRequests, setupChatwoot } from './server';
 import localtunnel from 'localtunnel';
 
 let checkUrl = (s : any) => (typeof s === "string") && isUrl(s);
@@ -99,6 +99,14 @@ async function start() {
                 process.exit();
             }
         })
+
+        if(cliConfig?.chatwootUrl){
+            spinner.info('Setting Up Chatwoot handler');
+            spinner.info('Make sure to set up the Chatwoot inbox webhook to the following path on this process: /chatwoot');
+            await setupChatwoot(cliConfig, client);
+            spinner.succeed('Chatwoot handler set up successfully');
+        }
+
         if(cliConfig?.botPressUrl){
             spinner.info('Setting Up Botpress handler');
             setupBotPressHandler(cliConfig, client)

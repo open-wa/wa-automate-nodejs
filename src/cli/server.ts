@@ -9,6 +9,7 @@ import parseFunction from 'parse-function';
 import { Client, ev, SimpleListener, ChatId, Message } from '..';
 import qs from 'qs';
 import { convert } from 'xmlbuilder2';
+import { chatwootMiddleware, setupChatwootOutgoingMessageHandler } from './integrations/chatwoot';
 
 export const app = express();
 export const server = http.createServer(app);
@@ -211,6 +212,11 @@ export const setupTwilioCompatibleWebhook : (cliConfig : cliFlags, client: Clien
             console.error("TWILIO-COMPAT WEBHOOK ERROR", url, error.message)
         }
     })
+}
+
+export const setupChatwoot : (cliConfig : cliFlags, client: Client) => void = async (cliConfig : cliFlags, client: Client) => {
+    app.post('/chatwoot', chatwootMiddleware(cliConfig, client));
+    await setupChatwootOutgoingMessageHandler(cliConfig, client);
 }
 
 export const setupBotPressHandler : (cliConfig : cliFlags, client: Client) => void = (cliConfig : cliFlags, client: Client) => {

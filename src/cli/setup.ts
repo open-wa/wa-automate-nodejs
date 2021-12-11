@@ -41,6 +41,16 @@ const optionList:
         type: String,
         typeLabel: '{blue {underline http://localhost:5555/incoming}}',
         description: "Send twillio payloads to this URL. EASY API will also parse and processes twillio response message payloads."
+    },{
+        name: 'chatwoot-url',
+        type: String,
+        typeLabel: '{blue {underline http://localhost:3000/api/v1/accounts/3/inboxes/1}}',
+        description: "The URL of the specific Chatwoot inbox you set up for this session"
+    },{
+        name: 'chatwoot-api-access-token',
+        type: String,
+        typeLabel: '{blue {underline mEEwUGEEML2ZThMm252rLg1M}}',
+        description: "The access token of the specific Chatwoot inbox you set up for this session"
     },
     {
         name: 'port',
