@@ -51,7 +51,6 @@ export const chatwootMiddleware: (cliConfig: cliFlags, client: Client) => expres
         }
         try {
             const processAndSendResult = await processMesssage();
-            console.log("🚀 ~ file: chatwoot.ts ~ line 58 ~ return ~ processAndSendResult", processAndSendResult)
             res.status(200).send(processAndSendResult);
         } catch (error) {
             console.log("🚀 ~ file: chatwoot.ts ~ line 62 ~ return ~ error", error)
@@ -67,15 +66,16 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
     const _u = new URL(u)
     const origin = _u.origin;
     const port = _u.port || 80;
-    const accountId = u.match(/accounts\/\d*/g) && u.match(/accounts\/\d*/g)[0].replace('accounts/', '')
-    const resolvedInbox = u.match(/inboxes\/\d*/g) && u.match(/inboxes\/\d*/g)[0].replace('inboxes/', '')
-    console.log("🚀 ~ file: chatwoot.ts ~ line 136 ~ resolvedInbox", resolvedInbox)
+    const [accountId, inboxId] = u.match(/\/(app|(api\/v1))\/accounts\/\d*\/inbox\/\d*/g)[0].split('/').filter(Number)
+    // const accountId = u.match(/accounts\/\d*/g) && u.match(/accounts\/\d*/g)[0].replace('accounts/', '')
+    const resolvedInbox = inboxId || u.match(/inboxes\/\d*/g) && u.match(/inboxes\/\d*/g)[0].replace('inboxes/', '')
     const cwReq = (path, method, data?: any) => {
-        console.log(`${origin}/api/v1/accounts/${accountId}/${path}`,method,data)
+        const url = `${origin}/api/v1/accounts/${accountId}/${path}`.replace('app.bentonow.com','chat.bentonow.com')
+        console.log(url,method,data)
         return axios({
         method,
         data,
-        url: `${origin}/api/v1/accounts/${accountId}/${path}`,
+        url,
         headers: {
             api_access_token
         }
