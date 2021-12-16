@@ -138,7 +138,7 @@
     "pico-s3": "^1.0.1",
     "pino": "^6.11.1",
     "postman-2-swagger": "^0.5.0",
-    "puppeteer": "10.4.0",
+    "puppeteer": "11.0.0",
     "puppeteer-extra": "^3.1.9",
     "puppeteer-extra-plugin-block-resources": "^2.2.7",
     "puppeteer-extra-plugin-devtools": "^2.3.3",
