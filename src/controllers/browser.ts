@@ -9,6 +9,7 @@ import { ConfigObject } from '../api/model';
 import { FileNotFoundError, getTextFile } from 'pico-s3';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const puppeteer = require('puppeteer-extra')
+import treekill from 'tree-kill';
 
 let browser;
 
@@ -323,5 +324,28 @@ async function getWAPage(browser: Browser) {
 
 ON_DEATH(async () => {
   //clean up code here
-  if (browser) await browser.close();
+  if (browser) await kill(browser)
 });
+
+
+/**
+ * @internal
+ */
+ export const kill = async (p: Page, b?: Browser, exit ?: boolean) => {
+   const killBrowser = async (browser ?: Browser) => {
+    if(!browser) return;
+    const pid = browser?.process() ? browser?.process().pid : null;
+    if(!pid) return;
+    if (!p?.isClosed()) await p?.close();
+    if (browser) await browser?.close().catch(()=>{});
+    if(pid) treekill(pid, 'SIGKILL')
+   }
+  if (p) {
+    const browser = p?.browser();
+    await killBrowser(browser);
+  } else if(b) {
+    await killBrowser(b);
+  }
+  if(exit) process.exit();
+  return;
+}

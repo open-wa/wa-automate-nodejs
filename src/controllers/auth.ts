@@ -5,6 +5,7 @@ import { screenshot } from './initializer'
 import { ConfigObject } from '../api/model';
 import { Page } from 'puppeteer';
 import { processSend } from '../utils/tools';
+import { kill } from './browser';
 const timeout = ms =>  new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 
 /**
@@ -74,6 +75,7 @@ export const phoneIsOutOfReach = async (waPage: Page) : Promise<boolean>  => {
 } ;
 
 export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Spin) : Promise<boolean | void | string>{
+  let qrNum = 0;
     const evalResult = await waPage.evaluate("window.Store && window.Store.State")
     if (evalResult === false) {
       console.log('Seems as though you have been TOS_BLOCKed, unable to refresh QR Code. Please see https://github.com/open-wa/wa-automate-nodejs#best-practice for information on how to prevent this from happeing. You will most likely not get a QR Code');
@@ -91,10 +93,15 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
       const qrPng = await waPage.evaluate(`window.getQrPng()`);
       if(qrPng) {
         qrEv.emit(qrPng);
+        qrNum++;
+        processSend('ready');
+        if(config.qrMax && qrNum >= config.qrMax) {
+          console.log('QR Code limit reached, exiting');
+          await kill(waPage, null, true)
+        }
       } else {
         spinner.info("Something went wrong while retreiving new the QR code but it should not affect the session launch procedure.")
       }
-      processSend('QR')
     } catch (error) {
       //@ts-ignore
       console.log(await waPage.evaluate("window.launchres"))

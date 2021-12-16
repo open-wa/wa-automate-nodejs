@@ -6,10 +6,9 @@ import { Client } from '../api/Client';
 import { ConfigObject, SessionExpiredError } from '../api/model/index';
 import * as path from 'path';
 import { phoneIsOutOfReach, isAuthenticated, smartQr, waitForRipeSession } from './auth';
-import { deleteSessionData, initPage, injectApi } from './browser';
+import { deleteSessionData, initPage, injectApi, kill } from './browser';
 import { Spin } from './events'
 import { integrityCheck, checkWAPIHash } from './launch_checks';
-import treekill from 'tree-kill';
 import CFonts from 'cfonts';
 import { getConfigFromProcessEnv } from '../utils/tools';
 import { SessionInfo } from '../api/model/sessionInfo';
@@ -391,18 +390,3 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     }
   }
 }
-/**
- * @internal
- */
-const kill = async (p) => {
-  if (p) {
-    const browser = await p?.browser();
-    if(!browser) return;
-    const pid = browser?.process() ? browser?.process().pid : null;
-    if(!pid) return;
-    if (!p?.isClosed()) await p?.close();
-    if (browser) await browser?.close().catch(()=>{});
-    if(pid) treekill(pid, 'SIGKILL')
-  }
-}
-

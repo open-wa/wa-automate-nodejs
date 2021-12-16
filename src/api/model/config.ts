@@ -753,6 +753,10 @@ export interface ConfigObject {
       * wait for a valid headful session. Not required in recent versions.
       */
       waitForRipeSession ?: boolean
+      /**
+       * Automatically kill the process after a set amount of qr codes
+       */
+       qrMax ?: number
     /**@internal */
     [x: string]: any 
 }
