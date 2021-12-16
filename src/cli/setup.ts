@@ -362,23 +362,31 @@ export const cli: () => {
         booleanDefault: undefined
     });
 
+    /**
+     * Config order should follow airmanship rules. Least maneuverable to most maneuverable.
+     * 
+     * 1. ENV VARS
+     * 2. Config file
+     * 3. CLI flags
+     */
+
     const cliConfig: any = {
         sessionId: "session",
         /**
          * Prioirity goes from bottom up
          */
         /**
-         * CLI flags
+         * Environmental Variables
          */
-        ..._cli.flags,
+        ...envArgs(),
         /**
          * The configuration file OR the --config base64 encoded config object
          */
         ...(configFile(_cli.flags.config as string) || {}),
         /**
-         * Environmental Variables
+         * CLI flags
          */
-        ...envArgs()
+        ..._cli.flags
     };
 
     const PORT = Number(cliConfig.port || process.env.PORT || 8080);
