@@ -96,7 +96,7 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
         qrNum++;
         processSend('ready');
         if(config.qrMax && qrNum >= config.qrMax) {
-          console.log('QR Code limit reached, exiting');
+          spinner.info('QR Code limit reached, exiting');
           await kill(waPage, null, true)
         }
       } else {
