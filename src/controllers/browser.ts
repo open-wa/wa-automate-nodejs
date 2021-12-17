@@ -281,6 +281,9 @@ async function initBrowser(sessionId?: string, config:any={}) {
     config["userDataDir"] = config["userDataDir"] ||  `${config?.inDocker ? '/sessions' : config?.sessionDataPath || '.' }/_IGNORE_${config?.sessionId || 'session'}`
   }
   if(config?.corsFix) args.push('--disable-web-security');
+  if(config["userDataDir"] && !fs.existsSync(config["userDataDir"])) {
+    fs.mkdirSync(config["userDataDir"], {recursive: true});
+  }
   const browser = (config?.browserWSEndpoint) ? await puppeteer.connect({...config}): await puppeteer.launch({
     headless: true,
     args,
@@ -331,21 +334,21 @@ ON_DEATH(async () => {
 /**
  * @internal
  */
- export const kill = async (p: Page, b?: Browser, exit ?: boolean) => {
+ export const kill = async (p: Page, b?: Browser, exit ?: boolean, pid ?: number ) => {
    const killBrowser = async (browser ?: Browser) => {
     if(!browser) return;
-    const pid = browser?.process() ? browser?.process().pid : null;
+    pid = browser?.process() ? browser?.process().pid : null;
     if(!pid) return;
     if (!p?.isClosed()) await p?.close();
     if (browser) await browser?.close().catch(()=>{});
-    if(pid) treekill(pid, 'SIGKILL')
    }
   if (p) {
-    const browser = p?.browser();
+    const browser = p?.browser && typeof p?.browser === 'function' && p?.browser();
     await killBrowser(browser);
   } else if(b) {
     await killBrowser(b);
   }
+  if(pid) treekill(pid, 'SIGKILL')
   if(exit) process.exit();
   return;
 }
