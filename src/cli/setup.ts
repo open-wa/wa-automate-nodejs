@@ -252,6 +252,8 @@ const optionList:
 
 export const optionKeys = optionList.map(({ name }) => camelize(name));
 
+export const optionKeysWithDefalts = optionList.filter(o=>o.hasOwnProperty('default')).map(({ name }) => camelize(name));
+
 export const PrimitiveConverter = {
     Number : 1,
     Boolean : true,
@@ -370,23 +372,36 @@ export const cli: () => {
      * 3. CLI flags
      */
 
+    const nonCliConfigs = {
+        /**
+         * Environmental Variables
+         */
+         ...envArgs(),
+         /**
+          * The configuration file OR the --config base64 encoded config object
+          */
+         ...(configFile(_cli.flags.config as string) || {}),
+    }
+
+    optionList.filter(option=>option.default)
+
     const cliConfig: any = {
         sessionId: "session",
         /**
          * Prioirity goes from bottom up
          */
-        /**
-         * Environmental Variables
-         */
-        ...envArgs(),
-        /**
-         * The configuration file OR the --config base64 encoded config object
-         */
-        ...(configFile(_cli.flags.config as string) || {}),
+        ...nonCliConfigs,
         /**
          * CLI flags
          */
-        ..._cli.flags
+        ..._cli.flags,
+        /**
+         * Grab the configs for the cli defaults
+         */
+         ...optionKeysWithDefalts.reduce((p,c)=> nonCliConfigs.hasOwnProperty(c) ? {
+            ...p,
+            [c]:nonCliConfigs[c]
+            } : p,{})
     };
 
     const PORT = Number(cliConfig.port || process.env.PORT || 8080);
