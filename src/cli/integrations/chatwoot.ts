@@ -126,7 +126,7 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
                 contact_id,
                 "inbox_id": resolvedInbox
             });
-            return data.payload;
+            return data;
         } catch (error) {
             return;
         }
