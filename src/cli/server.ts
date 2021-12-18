@@ -50,7 +50,9 @@ export const setupAuthenticationLayer : (cliConfig : cliFlags) => void = (cliCon
             return next();
         }
         const apiKey = req.get('key') || req.get('api_key')
-        if (!apiKey || apiKey !== cliConfig.key) {
+        if (req.path.includes('chatwoot') && req.query['api_key'] && req.query['api_key'] == cliConfig.key) {
+            next();
+        } else if (!apiKey || apiKey !== cliConfig.key) {
             res.status(401).json({ error: 'unauthorised' })
         } else {
             next()

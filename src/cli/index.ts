@@ -100,13 +100,6 @@ async function start() {
             }
         })
 
-        if(cliConfig?.chatwootUrl){
-            spinner.info('Setting Up Chatwoot handler');
-            spinner.info('Make sure to set up the Chatwoot inbox webhook to the following path on this process: /chatwoot');
-            await setupChatwoot(cliConfig, client);
-            spinner.succeed('Chatwoot handler set up successfully');
-        }
-
         if(cliConfig?.botPressUrl){
             spinner.info('Setting Up Botpress handler');
             setupBotPressHandler(cliConfig, client)
@@ -136,6 +129,13 @@ async function start() {
                 spinner.info(`Please see machine logs to see the API key`)
                 console.log(`Please use the following api key for requests as a header:\napi_key: ${cliConfig.key}`)
                 setupAuthenticationLayer(cliConfig)
+            }
+
+            if(cliConfig?.chatwootUrl){
+                spinner.info('Setting Up Chatwoot handler');
+                spinner.info(`Make sure to set up the Chatwoot inbox webhook to the following path on this process: /chatwoot${cliConfig.key ? `?api_key=YOUR-API-KEY` : ''}`);
+                await setupChatwoot(cliConfig, client);
+                spinner.succeed('Chatwoot handler set up successfully');
             }
 
             setupRefocusDisengageMiddleware(cliConfig)
