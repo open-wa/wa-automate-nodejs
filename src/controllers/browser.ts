@@ -251,6 +251,7 @@ async function initBrowser(sessionId?: string, config:any={}) {
     if(!_savedPath) {
       const chromeLauncher = await import('chrome-launcher')
       config.executablePath = chromeLauncher.Launcher.getInstallations()[0];
+      if(!config.executablePath) delete config.executablePath;
       await storage.setItem('executablePath',config.executablePath)
     } else config.executablePath = _savedPath;
   }
