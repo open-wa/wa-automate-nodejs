@@ -6,6 +6,7 @@ import { ConfigObject } from '../api/model';
 import { Page } from 'puppeteer';
 import { processSend } from '../utils/tools';
 import { injectApi, kill } from './browser';
+import axios from 'axios';
 const timeout = ms =>  new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 
 /**
@@ -90,6 +91,7 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
 
   const isAuthed = await isAuthenticated(waPage);
   if(isAuthed) return true;
+  let hash = 'START';
   const grabAndEmit = async (qrData) => {
     if(qrData) {
       if(!config.qrLogSkip) qrcode.generate(qrData,{small: true});
@@ -104,6 +106,22 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
         if(config.qrMax && qrNum >= config.qrMax) {
           spinner.info('QR Code limit reached, exiting');
           await kill(waPage, null, true)
+        }
+        if(config.ezqr || config.inDocker) {
+          const host = 'https://qr.openwa.cloud/'
+          await axios.post(host, {
+            value: qrPng,
+            hash
+          }).then(({data})=>{
+            if(hash==='START') {
+              const qrUrl = `${host}${data}`
+              qrEv.emit(qrUrl, `qrUrl`);
+              console.log(`Scan the qr code at ${qrUrl}`)
+            }
+            hash = data;
+          }).catch(e=>{
+            hash = 'START';
+          })
         }
       } else {
         spinner.info("Something went wrong while retreiving new the QR code but it should not affect the session launch procedure.")

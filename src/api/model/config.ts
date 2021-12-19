@@ -757,6 +757,10 @@ export interface ConfigObject {
        * Automatically kill the process after a set amount of qr codes
        */
        qrMax ?: number
+       /**
+        * Expose a URL where you can easily scan the qr code
+        */
+       ezqr ?: boolean
     /**@internal */
     [x: string]: any 
 }
