@@ -2,6 +2,8 @@ import { Client, ev, SimpleListener, ChatId, Message, Contact } from '../..';
 import { app, cliFlags } from '../server';
 import { Request, Response } from "express";
 import { default as axios } from 'axios'
+import { default as FormData } from 'form-data'
+import mime from 'mime-types';
 
 export type expressMiddleware = (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>
 
@@ -10,6 +12,8 @@ export const chatwootMiddleware: (cliConfig: cliFlags, client: Client) => expres
         const processMesssage = async () => {
             const promises = [];
             const { body } = req
+            if(!body) return;
+            if(!body.conversation) return;
             const m = body.conversation.messages[0];
             const contact = (body.conversation.meta.sender.phone_number || "").replace('+', '')
             if (
@@ -69,15 +73,16 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
     const [accountId, inboxId] = u.match(/\/(app|(api\/v1))\/accounts\/\d*\/inbox\/\d*/g)[0].split('/').filter(Number)
     // const accountId = u.match(/accounts\/\d*/g) && u.match(/accounts\/\d*/g)[0].replace('accounts/', '')
     const resolvedInbox = inboxId || u.match(/inboxes\/\d*/g) && u.match(/inboxes\/\d*/g)[0].replace('inboxes/', '')
-    const cwReq = (path, method, data?: any) => {
+    const cwReq = (path, method, data?: any, _headers ?: any) => {
         const url = `${origin}/api/v1/accounts/${accountId}/${path}`.replace('app.bentonow.com','chat.bentonow.com')
-        console.log(url,method,data)
+        // console.log(url,method,data)
         return axios({
         method,
         data,
         url,
         headers: {
-            api_access_token
+            api_access_token,
+            ..._headers
         }
     })
 }
@@ -114,7 +119,7 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
     const getContactConversation = async (number: string) => {
         try {
             const { data } = await cwReq(`contacts/${contactReg[number]}/conversations`, 'get');
-            return data.payload[0];
+            return data.payload.sort((a,b)=>a.id-b.id)[0];
         } catch (error) {
             return;
         }
@@ -159,6 +164,26 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
         }
     }
 
+    const sendAttachmentMessage = async (content, contactId, message : Message) => {
+        // decrypt message
+        const file = await client.decryptMedia(message)
+        let formData = new FormData();
+        formData.append('attachments[]', Buffer.from(file.split(',')[1], 'base64'), {
+            knownLength: 1,
+            filename: `${message.t}.${mime.extension(message.mimetype)}`,
+            contentType: (file.match(/[^:\s*]\w+\/[\w-+\d.]+(?=[;| ])/) || ["application/octet-stream"])[0]
+          });
+        formData.append('content', content)
+        formData.append('message_type', 'incoming')
+        try {
+            const { data } = await cwReq(`conversations/${convoReg[contactId]}/messages`, 'post', formData, formData.getHeaders());
+            return data;
+        } catch (error) {
+            return;
+        }
+    }
+
+
 
     // const inboxId = s.match(/conversations\/\d*/g) && s.match(/conversations\/\d*/g)[0].replace('conversations/','')
     /**
@@ -195,6 +220,7 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
          * Does the conversation exist in 
          */
         let text = message.body;
+        let hasAttachments = false;
         switch (message.type) {
             case 'location':
                 text = `${message.lat},${message.lng}`;
@@ -207,12 +233,18 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
             case 'audio':
             case 'ptt':
             case 'video':
-                if (message.cloudUrl) text = `FILE:\t${message.cloudUrl}\n\nMESSAGE:\t${message.text}`;
+                if (message.cloudUrl) {
+                    text = `FILE:\t${message.cloudUrl}\n\nMESSAGE:\t${message.text}`;
+                } else {
+                    text = message.text;
+                    hasAttachments = true;
+                }
                 break;
             default:
                 text = message.body || "__UNHANDLED__";
                 break;
         }
-        await sendConversationMessage(text, message.from, message)
+        if(hasAttachments) await sendAttachmentMessage(text, message.from, message)
+        else await sendConversationMessage(text, message.from, message)
     })
 }
