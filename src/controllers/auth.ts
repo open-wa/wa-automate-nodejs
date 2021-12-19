@@ -5,7 +5,7 @@ import { screenshot } from './initializer'
 import { ConfigObject } from '../api/model';
 import { Page } from 'puppeteer';
 import { processSend } from '../utils/tools';
-import { kill } from './browser';
+import { injectApi, kill } from './browser';
 const timeout = ms =>  new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 
 /**
@@ -60,6 +60,12 @@ export const sessionDataInvalid = async (waPage: Page) : Promise<string> => {
       '!window.getQrPng',
       { timeout: 0, polling: 'mutation' }
     )
+    await injectApi(waPage);
+    await waPage
+      .waitForFunction(
+        '!window.getQrPng',
+        { timeout: 0, polling: 'mutation' }
+      )
     //if the code reaches here it means the browser was refreshed. Nuke the session data and restart `create`
     return 'NUKE';
 }
