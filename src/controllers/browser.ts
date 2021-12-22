@@ -169,7 +169,7 @@ const getSessionDataFromFile = (sessionId: string, config: ConfigObject, spinner
   const sessionjsonpath = getSessionDataFilePath(sessionId,config)
   let sessionjson = '';
   const sd = process.env[`${sessionId.toUpperCase()}_DATA_JSON`] ? JSON.parse(process.env[`${sessionId.toUpperCase()}_DATA_JSON`]) : config?.sessionData;
-  sessionjson = (typeof sd === 'string') ? JSON.parse(Buffer.from(sd, 'base64').toString('ascii')) : sd;
+  sessionjson = (typeof sd === 'string' && sd !== "") ? JSON.parse(Buffer.from(sd, 'base64').toString('ascii')) : sd;
   if (sessionjsonpath && typeof sessionjsonpath == 'string' && fs.existsSync(sessionjsonpath)) {
     spinner.succeed(`Found session data file: ${sessionjsonpath}`)
     const s = fs.readFileSync(sessionjsonpath, "utf8");
