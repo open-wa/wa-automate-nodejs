@@ -81,7 +81,7 @@ export const generateCollections : any = async (config: { [x: string]: any; sess
     //Sort alphabetically
     const x = {};
     Object.keys(swCol.paths).sort().map(k => x[k] = swCol.paths[k]); swCol.paths = x;
-    writeJsonSync("./open-wa-" + config.sessionId + ".sw_col.json", swCol);
+    if(!(config?.skipSavePostmanCollection)) writeJsonSync("./open-wa-" + config.sessionId + ".sw_col.json", swCol);
     collections['postman'] = pmCol;
     collections['swagger'] = swCol;
     spinner.succeed('API collections (swagger + postman) generated successfully');
