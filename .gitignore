@@ -26,3 +26,5 @@ bin/cli.config.json
 **.data.json
 **.node-persist**
 # end managed by open-wa
+**.log
+**-audit.json
