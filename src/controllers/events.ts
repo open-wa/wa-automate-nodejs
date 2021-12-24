@@ -1,5 +1,6 @@
 import {EventEmitter2} from 'eventemitter2';
 import Spinnies from "spinnies";
+import { log } from '../utils/logging';
 const spinner = { 
   "interval": 80,
   "frames": [
@@ -87,7 +88,22 @@ export class EvEmitter {
   }
 
   emit(data : unknown, eventNamespaceOverride ?: string) : void {
-    ev.emit(`${eventNamespaceOverride||this.eventNamespace}.${this.sessionId}`,data,this.sessionId,eventNamespaceOverride||this.eventNamespace);
+    const eventName = `${eventNamespaceOverride||this.eventNamespace}.${this.sessionId}`
+    const sessionId = this.sessionId
+    const eventNamespace = eventNamespaceOverride||this.eventNamespace
+    ev.emit(eventName,data,sessionId,eventNamespace);
+    if(![
+      //DO NOT ALLOW THESE NAMESPACES ON TRANSPORTS!!
+      "sessionData",
+      "sessionDataBase64",
+      "qr",
+    ].find(x=> eventNamespace == x))
+    log.info(typeof data === 'string' ? data : eventName,{
+      eventName,
+      data,
+      sessionId,
+      eventNamespace
+    })
     // ev.emit(`${this.sessionId}.${this.eventNamespace}`,data,this.sessionId,this.eventNamespace);
   }
 }

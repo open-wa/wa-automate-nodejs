@@ -11,6 +11,7 @@ import uuidAPIKey from 'uuid-apikey';
 import { ev, Spin } from '../controllers/events';
 import isUrl from 'is-url-superb';
 import * as path from 'path';
+import { setupLogging } from '../utils/logging';
 
 let checkUrl = url => typeof url === 'string' ? isUrl(url) : false;
 
@@ -403,6 +404,12 @@ export const cli: () => {
             [c]:nonCliConfigs[c]
             } : p,{})
     };
+    
+    //firstly set up logger
+    if(cliConfig?.logging){
+        if(Array.isArray(cliConfig?.logging))
+        cliConfig.logging = setupLogging(cliConfig?.logging, `easy-api-${cliConfig?.sessionId || 'session'}`)
+    }
 
     const PORT = Number(cliConfig.port || process.env.PORT || 8080);
     const spinner = new Spin(cliConfig.sessionId, 'STARTUP', cliConfig?.disableSpins);

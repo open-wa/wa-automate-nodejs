@@ -18,6 +18,7 @@ import { readJsonSync } from 'fs-extra'
 import { upload } from 'pico-s3';
 import { injectInitPatch } from './init_patch'
 import { earlyInjectionCheck, getLicense, getPatch, getAndInjectLivePatch, getAndInjectLicense } from './patch_manager';
+import { setupLogging } from '../utils/logging';
 
 export const pkg = readJsonSync(path.join(__dirname,'../../package.json')),
 configWithCases = readJsonSync(path.join(__dirname,'../../bin/config-schema.json')),
@@ -48,6 +49,10 @@ export let screenshot;
 //@ts-ignore
 export async function create(config: ConfigObject = {}): Promise<Client> {
   const START_TIME = Date.now();
+  if(config.logging) {
+    if(Array.isArray(config?.logging))
+    config.logging = setupLogging(config?.logging, `owa-${config?.sessionId || 'session'}`)
+  }
   let waPage = undefined;
   let notifier;
   let sessionId = '';

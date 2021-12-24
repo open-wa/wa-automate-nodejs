@@ -1,5 +1,6 @@
 import { AxiosRequestConfig } from 'axios';
 import { PREPROCESSORS } from '../../structures/preProcessors';
+import { ConfigLogTransport } from '../../utils/logging';
 import { Base64 } from "./aliases";
 import { SimpleListener } from './events';
 
@@ -761,6 +762,12 @@ export interface ConfigObject {
         * Expose a URL where you can easily scan the qr code
         */
        ezqr ?: boolean
+       /**
+        * An array of [winston](https://github.com/winstonjs/winston/blob/master/docs/transports.md#additional-transports) logging transport configurations.
+        * 
+        * [Check this discussion to see how to set up logging](https://github.com/open-wa/wa-automate-nodejs/discussions/2373)
+        */
+       logging ?: ConfigLogTransport[]
     /**@internal */
     [x: string]: any 
 }
