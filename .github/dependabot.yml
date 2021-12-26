@@ -71,9 +71,6 @@ updates:
   - dependency-name: puppeteer-extra-plugin-devtools
     versions:
     - 2.2.16
-  - dependency-name: pino
-    versions:
-    - 6.11.3
   - dependency-name: terminal-link
     versions:
     - 3.0.0
