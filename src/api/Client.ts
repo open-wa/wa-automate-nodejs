@@ -14,7 +14,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { default as parseFunction} from 'parse-function'
 import * as fs from 'fs'
 import datauri from 'datauri'
-import pino from 'pino'
 import isUrl from 'is-url-superb'
 import { readJsonSync } from 'fs-extra'
 import treekill from 'tree-kill';
@@ -39,28 +38,11 @@ import { base64MimeType, getDUrl, isBase64, isDataURL } from '../utils/tools';
 import { Call } from './model/call';
 import { Button, Section } from './model/button';
 import { JsonObject } from 'type-fest';
+import { log } from '../utils/logging';
+
 
 /** @ignore */
-const pkg = readJsonSync(path.join(__dirname,'../../package.json')),
-createLogger = (sessionId: string, sessionInfo: SessionInfo, config: ConfigObject) => {
-  const p = path.join(path.resolve(process.cwd()),`/logs/${sessionId || 'session'}/${sessionInfo.START_TS}.log`)
-  if(!fs.existsSync(p)) {
-    fs.mkdirSync(path.join(path.resolve(process.cwd()),`/logs/${sessionId || 'session'}`), {
-      recursive:true
-    })
-  }
-  const logger = pino({
-  redact: ['file', 'base64', 'image', 'webpBase64', 'base64', 'durl', 'thumbnail'],
-  },pino.destination(p))
-
-  logger.child({
-    "STAGE": "LAUNCH",
-    sessionInfo,
-    config
-    }).info("")
-
-  return logger
-}
+const pkg = readJsonSync(path.join(__dirname,'../../package.json'));
 
 export enum namespace {
   Chat = 'Chat',
@@ -289,7 +271,6 @@ export class Client {
   private _page: Page;
   private _currentlyBeingKilled = false;
   private _refreshing = false
-  private _l: any;
   private _prio: number = Number.MAX_SAFE_INTEGER;
   private _pageListeners : {
     event: keyof PageEventObject,
@@ -337,10 +318,9 @@ export class Client {
         await this.registerAllSimpleListenersOnEv();
       }
       this._sessionInfo.PHONE_VERSION = (await this.getMe())?.phone?.wa_version
-      this.logger().child({
+      log.info('LOADED',{
         PHONE_VERSION: this._sessionInfo.PHONE_VERSION
-      }).info()
-      
+      })
       if(this._createConfig?.autoEmoji === undefined || this._createConfig?.autoEmoji) {
         const ident = typeof this._createConfig?.autoEmoji === "string" ? this._createConfig?.autoEmoji : ":"
         this.onMessage(async message => {
@@ -356,6 +336,7 @@ export class Client {
             if(this._createConfig?.deleteSessionDataOnLogout) deleteSessionData(this._createConfig)
             if(this._createConfig?.killClientOnLogout) {
               console.log("Session logged out. Killing client")
+              log.warn("Session logged out. Killing client")
               this.kill();
             }
         })
@@ -378,6 +359,7 @@ export class Client {
     this._page.on('close',()=>{
       if(!this._refreshing) {
         console.log("Browser page has closed. Killing client")
+        log.warn("Browser page has closed. Killing client")
         this.kill();
         if(this._createConfig?.killProcessOnBrowserClose) process.exit();
       }
@@ -407,8 +389,7 @@ export class Client {
    * Grab the logger for this session/process
    */
   public logger() : any {
-    if(!this._l) this._l = createLogger(this.getSessionId(), this.getSessionInfo(), this.getConfig());
-    return this._l;
+    return log;
   }
 
   /**
@@ -520,7 +501,8 @@ export class Client {
 
 
   private async pup(pageFunction:EvaluateFn<any>, ...args) {
-    const {safeMode, callTimeout, idChecking, logFile} = this._createConfig;
+    const {safeMode, callTimeout, idChecking, logFile, logging} = this._createConfig;
+    let _t : number;
     if(safeMode) {
       if(!this._page || this._page.isClosed()) throw new CustomError(ERROR_NAME.PAGE_CLOSED, 'page closed');
       const state = await this.forceUpdateConnectionState();
@@ -537,15 +519,19 @@ export class Client {
         }
       })
     }
-    if(logFile) {
+    if(logging) {
       const wapis = (pageFunction?.toString()?.match(/WAPI\.(\w*)\(/g) || [])?.map(s=>s.replace(/WAPI|\.|\(/g,''));
-        this.logger().child({
-                        _method: wapis?.length === 1 ? wapis[0] : wapis,
-                        ...args[0]
-                        }).info()
+        _t = Date.now()
+        log.info(`Request ${_t}`,{
+          _method: wapis?.length === 1 ? wapis[0] : wapis,
+          ...args[0]
+          })     
     }
     if(callTimeout) return await Promise.race([this._page.evaluate(pageFunction, ...args),new Promise((resolve, reject) => setTimeout(reject, this._createConfig?.callTimeout, new PageEvaluationTimeout()))])
     const res = await this._page.evaluate(pageFunction, ...args);
+    if(_t && logging) {
+      log.info(`Response ${_t}: ${Date.now() - _t}ms`, {res})
+    }
     if(this._createConfig.onError && typeof res == "string" && (res.startsWith("Error") || res.startsWith("ERROR"))) {
       const e = this._createConfig.onError;
       /**
@@ -617,7 +603,6 @@ export class Client {
       return window[funcName] ? WAPI[`${funcName}`](obj => window[funcName](obj)) : false
     },{funcName});
     if(this._listeners[funcName] && !this._refreshing) {
-      // console.log('listener already set');
       return true
     }
     this._listeners[funcName] = fn;
@@ -654,6 +639,7 @@ export class Client {
     this.registerPageEventListener('framenavigated', async frame => {
         if(frame.url().includes('post_logout=1')) {
           console.log("LOGGED OUT")
+          log.warn("LOGGED OUT")
           await fn(true);
         }
     }, priority)
@@ -1126,7 +1112,8 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   public async kill() : Promise<boolean> {
     if(this._currentlyBeingKilled) return;
     this._currentlyBeingKilled = true;
-    console.log('Shutting Down');
+    console.log('Killing client. Shutting Down');
+    log.info('Killing client. Shutting Down')
     const browser = await this?._page?.browser()
     const pid = browser?.process() ? browser?.process()?.pid : null;
     try{
@@ -1722,6 +1709,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
       ) as Promise<MessageId>;
     } else {
       console.log('something is wrong with this giphy link');
+      log.error('something is wrong with this giphy link', giphyMediaUrl);
       return;
     }
   }
@@ -2830,7 +2818,6 @@ public async getStatus(contactId: ContactId) : Promise<{
  */
   public async setGroupIcon(groupId: GroupChatId, image: DataURL) :Promise<boolean> {
     const mimeInfo = base64MimeType(image);
-    console.log("setGroupIcon -> mimeInfo", mimeInfo)
     if(!mimeInfo || mimeInfo.includes("image")){
       let imgData;
       if(this._createConfig.stickerServerEndpoint) {
@@ -3193,7 +3180,6 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
   private async prepareWebp(image: DataURL, stickerMetadata?: StickerMetadata) {
-    // console.log("prepareWebp", image.slice(0,25))
     if(isDataURL(image) && !image.includes("image")) {
       console.error("Not an image. Please use convertMp4BufferToWebpDataUrl to process video stickers");
       return false
@@ -3279,6 +3265,7 @@ public async getStatus(contactId: ContactId) : Promise<{
     } catch (error) {
       const msg = 'Stickers have to be less than 1MB. Please lower the fps or shorten the duration using the processOptions parameter: https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendmp4assticker'
       console.log(msg)
+      log.warn(msg)
       throw new CustomError(ERROR_NAME.STICKER_TOO_LARGE,msg);
     }
   }
@@ -3805,6 +3792,7 @@ public async getStatus(contactId: ContactId) : Promise<{
       return this._registeredWebhooks[id];
     }
     console.log('Invalid listener(s)', events);
+    log.warn('Invalid listener(s)', events);
     return false;
   }
 
@@ -3829,12 +3817,14 @@ public async getStatus(contactId: ContactId) : Promise<{
       if(!this._registeredEvListeners) this._registeredEvListeners={};
       if(this._registeredEvListeners[simpleListener]) {
         console.log('Listener already registered');
+        log.warn('Listener already registered');
         return false;
       }
       this._registeredEvListeners[simpleListener] = await this[simpleListener](data=>ev.emit(this.getEventSignature(simpleListener),this.prepEventData(data,simpleListener)));
       return true;
     }
     console.log('Invalid lisetner', simpleListener);
+    log.warn('Invalid lisetner', simpleListener);
     return false;
   }
 

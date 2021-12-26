@@ -7,6 +7,7 @@ import { Page } from 'puppeteer';
 import { processSend } from '../utils/tools';
 import { injectApi, kill } from './browser';
 import axios from 'axios';
+import { log } from '../utils/logging';
 const timeout = ms =>  new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 
 /**
@@ -30,6 +31,7 @@ export const needsToScan = (waPage: Page) : Observable<unknown> => {
       resolve(false)
     } catch (error) {
     console.log("needsToScan -> error", error)
+    log.error("needsToScan -> error", error)
     }
   }))
 };
@@ -86,6 +88,7 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
     const evalResult = await waPage.evaluate("window.Store && window.Store.State")
     if (evalResult === false) {
       console.log('Seems as though you have been TOS_BLOCKed, unable to refresh QR Code. Please see https://github.com/open-wa/wa-automate-nodejs#best-practice for information on how to prevent this from happeing. You will most likely not get a QR Code');
+      log.warn('Seems as though you have been TOS_BLOCKed, unable to refresh QR Code. Please see https://github.com/open-wa/wa-automate-nodejs#best-practice for information on how to prevent this from happeing. You will most likely not get a QR Code');
       if (config.throwErrorOnTosBlock) throw new Error('TOSBLOCK');
     }
 
@@ -95,7 +98,10 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
   const grabAndEmit = async (qrData) => {
     if(qrData) {
       if(!config.qrLogSkip) qrcode.generate(qrData,{small: true});
-        else console.log(`New QR Code generated. Not printing in console because qrLogSkip is set to true`)
+        else {
+          console.log(`New QR Code generated. Not printing in console because qrLogSkip is set to true`)
+          log.info(`New QR Code generated. Not printing in console because qrLogSkip is set to true`)
+        }
     }
     try {
       const qrPng = await waPage.evaluate(`window.getQrPng()`);
@@ -117,6 +123,7 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
               const qrUrl = `${host}${data}`
               qrEv.emit(qrUrl, `qrUrl`);
               console.log(`Scan the qr code at ${qrUrl}`)
+              log.info(`Scan the qr code at ${qrUrl}`)
             }
             hash = data;
           }).catch(e=>{
@@ -128,7 +135,9 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
       }
     } catch (error) {
       //@ts-ignore
-      console.log(await waPage.evaluate("window.launchres"))
+      const lr = await waPage.evaluate("window.launchres")
+      console.log(lr)
+      log.info('smartQr -> error', {lr})
       spinner.info(`Something went wrong while retreiving new the QR code but it should not affect the session launch procedure: ${error.message}`)
     }
   }
@@ -164,6 +173,7 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
       //if an error occurs during the qr launcher then take a screenshot.
       await screenshot(waPage);
       console.log("qr -> e", e);
+      log.error("qr -> e", e);
     })
     const firstQr = await waPage.evaluate(`document.querySelector("canvas[aria-label='Scan me!']")?document.querySelector("canvas[aria-label='Scan me!']").parentElement.getAttribute("data-ref"):false`);
     await grabAndEmit(firstQr);

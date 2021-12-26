@@ -18,7 +18,7 @@ import { readJsonSync } from 'fs-extra'
 import { upload } from 'pico-s3';
 import { injectInitPatch } from './init_patch'
 import { earlyInjectionCheck, getLicense, getPatch, getAndInjectLivePatch, getAndInjectLicense } from './patch_manager';
-import { setupLogging } from '../utils/logging';
+import { log, setupLogging } from '../utils/logging';
 
 export const pkg = readJsonSync(path.join(__dirname,'../../package.json')),
 configWithCases = readJsonSync(path.join(__dirname,'../../bin/config-schema.json')),
@@ -70,13 +70,16 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     notifier.notify();
     if(notifier?.update && config?.keepUpdated && notifier?.update.latest !== pkg.version) {
       console.log('UPDATING @OPEN-WA')
+      log.info('UPDATING @OPEN-WA')
       const crossSpawn = await import('cross-spawn')
       
       const result = crossSpawn.sync('npm', ['i', '@open-wa/wa-automate'], { stdio: 'inherit' });
       if(!result.stderr) {
           console.log('UPDATED SUCCESSFULLY')
+          log.info('UPDATED SUCCESSFULLY')
       }
       console.log('RESTARTING PROCESS')
+      log.info('RESTARTING PROCESS')
       process.on("exit", function () {
         crossSpawn.spawn(process.argv.shift(), process.argv, {
             cwd: process.cwd(),
@@ -118,6 +121,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     const {popup} = await import('./popup')
     const popupaddr = await popup(config);
     console.log(`You can also authenticate the session at: ${popupaddr}`)
+    log.info(`You can also authenticate the session at: ${popupaddr}`)
   }
   if (!sessionId) sessionId = 'session';
   const spinner = new Spin(sessionId, 'STARTUP', config?.disableSpins);
@@ -176,7 +180,10 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       START_TS
     };
     if(config?.logDebugInfoAsObject || config?.disableSpins) spinner.succeed(`Debug info: ${JSON.stringify(debugInfo, null, 2)}`);
-     else console.table(debugInfo);
+     else {
+      console.table(debugInfo);
+      log.info('Debug info:', debugInfo);
+     }
      // eslint-disable-next-line @typescript-eslint/no-unused-vars
      spinner.succeed('Use this easy pre-filled link to report an issue: ' + `https://github.com/open-wa/wa-automate-nodejs/issues/new?template=bug_report.yaml&debug_info=${encodeURI(JSON.stringify((({ OS, PAGE_UA, ...o }) => o)(debugInfo) ,null,2))}&environment=${`-%20OS:%20${encodeURI(debugInfo.OS)}%0A-%20Node:%20${encodeURI(process.versions.node)}%0A-%20npm:%20%0A`}`);
 
@@ -321,8 +328,17 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
           spinner?.fail(`Something went wrong while uploading new session data to cloud storage bucket. Continuing...`)
         }
       }
-      if (config?.logConsole) waPage.on('console', msg => console.log(msg));
-      if (config?.logConsoleErrors) waPage.on('error', error => console.log(error));
+      /**
+       * Set page-level logging
+       */
+       waPage.on('console', msg => {
+        if (config?.logConsole) console.log(msg)
+        log.info('Page Console:', {msg})
+       });
+       waPage.on('error', error => {
+        if (config?.logConsoleErrors) console.error(error)
+        log.error('Page Console:', {error})
+       });
       if (config?.restartOnCrash) waPage.on('error', async error => {
         console.error('Page Crashed! Restarting...', error);
         await kill(waPage);

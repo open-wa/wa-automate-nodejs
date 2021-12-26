@@ -10,6 +10,7 @@ import { FileNotFoundError, getTextFile } from 'pico-s3';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const puppeteer = require('puppeteer-extra')
 import treekill from 'tree-kill';
+import { log } from '../utils/logging';
 
 let browser;
 
@@ -195,7 +196,9 @@ const getSessionDataFromFile = (sessionId: string, config: ConfigObject, spinner
 export const deleteSessionData = (config: ConfigObject) : boolean => {
   const sessionjsonpath = getSessionDataFilePath(config?.sessionId || 'session', config)
   if(typeof sessionjsonpath == 'string' && fs.existsSync(sessionjsonpath)) {
-    console.log("logout detected, deleting session data")
+    const l = `logout detected, deleting session data file: ${sessionjsonpath}`
+    console.log(l)
+    log.info(l)
     fs.unlinkSync(sessionjsonpath);
   }
   return true;
@@ -309,12 +312,15 @@ async function initBrowser(sessionId?: string, config:any={}) {
     try {
       // const tunnel = await devtools.createTunnel(browser);
       const tunnel = config.devtools == 'local' ? devtools.getLocalDevToolsUrl(browser) : (await devtools.createTunnel(browser)).url;
-      console.log('\ndevtools URL: ', typeof config.devtools == 'object' ? {
+      const l = `\ndevtools URL: ${ typeof config.devtools == 'object' ? {
         ...config.devtools,
         tunnel
-      } : tunnel);
+      } : tunnel}`
+      console.log(l);
+      log.info(l);
     } catch (error) {
-    console.log("TCL: initBrowser -> error", error)
+    console.error("initBrowser -> error", error)
+    log.error("initBrowser -> error", error)
     }
   }
   return browser;
