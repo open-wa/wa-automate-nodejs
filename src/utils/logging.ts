@@ -4,23 +4,56 @@ import DailyRotateFile from 'winston-daily-rotate-file';
 import { Syslog } from 'winston-syslog';
 import { LogToEvTransport } from './custom_transport';
 const { combine, timestamp } = winston.format;
-
+import traverse from "traverse";
+import { klona } from "klona/full";
+const truncateLength = 200;
 let _evSet = false,
   _consoleSet = false,
   d = Date.now();
 
-function truncate(str: string, n: number) {
-  return str.length > n ? str.substr(0, n - 1) + '...' : str;
+const sensitiveKeys = [
+  /cookie/i,
+  /sessionData/i,
+  /passw(or)?d/i,
+  /^pw$/,
+  /^pass$/i,
+  /secret/i,
+  /token/i,
+  /api[-._]?key/i,
+];
+
+function isSensitiveKey(keyStr) {
+  if (keyStr) {
+    return sensitiveKeys.some(regex => regex.test(keyStr));
+  }
 }
 
-const formatRedact = winston.format((info) => {
-  if (info?.file) info.file = truncate(info?.body?.file, 30) || '[FILE]';
-  if (info?.body?.file)
-    info.body.file = truncate(info?.body?.file, 30) || '[FILE]';
-  if (info?.sessionData) info.sessionData = '[SESSION_DATA]';
-  if (info?.body?.sessionData) info.body.sessionData = '[SESSION_DATA]';
-  return info;
-});
+function redactObject(obj) {
+  traverse(obj).forEach(function redactor() {
+    if (isSensitiveKey(this.key)) {
+      this.update("[REDACTED]");
+    } else if(typeof this.node === 'string' && this.node.length > truncateLength) {
+      this.update(truncate(this.node, truncateLength));
+    }
+  });
+}
+
+function redact(obj) {
+  const copy = klona(obj); // Making a deep copy to prevent side effects
+  redactObject(copy);
+
+  const splat = copy[Symbol.for("splat")];
+  redactObject(splat); // Specifically redact splat Symbol
+
+  return copy;
+}
+
+
+function truncate(str: string, n: number) {
+  return str.length > n ? str.substr(0, n - 1) + '...[TRUNCATED]...' : str;
+}
+
+const formatRedact = winston.format(redact);
 
 const makeLogger = () =>
   winston.createLogger({
