@@ -17,3 +17,16 @@ export class LogToEvTransport extends TransportStream {
     if (callback) return callback(null, true);
   }
 }
+
+export class NoOpTransport extends TransportStream {
+  constructor(opts?: any) {
+    super(opts);
+  }
+
+  log(info, callback) {
+    setImmediate(() => {
+      this.emit('logged', info);
+    });
+    if (callback) return callback(null, true);
+  }
+}

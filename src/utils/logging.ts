@@ -2,7 +2,7 @@ import os from 'os';
 import * as winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import { Syslog } from 'winston-syslog';
-import { LogToEvTransport } from './custom_transport';
+import { LogToEvTransport, NoOpTransport } from './custom_transport';
 const { combine, timestamp } = winston.format;
 import traverse from "traverse";
 import { klona } from "klona/full";
@@ -55,6 +55,11 @@ function truncate(str: string, n: number) {
 
 const formatRedact = winston.format(redact);
 
+/**
+ * To prevent "Attempt to write logs with no transports" error
+ */
+const placeholderTransport = new NoOpTransport()
+
 const makeLogger = () =>
   winston.createLogger({
     format: combine(
@@ -65,9 +70,16 @@ const makeLogger = () =>
       winston.format.simple()
     ),
     levels: winston.config.syslog.levels,
-  });
+    transports: [placeholderTransport]
+});
 
+  /**
+   * You can access the log in your code and add your own custom transports
+   */
 export const log = makeLogger();
+
+if(log.warning && !log.warn) log.warn = log.warning 
+if(log.alert && !log.help) log.help = log.alert 
 
 export const addRotateFileLogTransport = (options: any = {}) => {
   log.add(
