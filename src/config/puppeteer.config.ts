@@ -54,7 +54,7 @@ const puppeteerConfig = {
 };
 
 export const createUserAgent = (waVersion:string) : string => `WhatsApp/${waVersion} Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36`;
-export const useragent = createUserAgent('2.2144.11')
+export const useragent = createUserAgent('2.2147.16')
 export { puppeteerConfig };
 
 export const width = puppeteerConfig.width;
