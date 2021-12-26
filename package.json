@@ -125,7 +125,7 @@
     "get-port": "^5.1.1",
     "hasha": "^5.2.0",
     "image-type": "^4.1.0",
-    "is-url-superb": "^5.0.0",
+    "is-url-superb": "^6.1.0",
     "json5": "^2.2.0",
     "klona": "^2.0.5",
     "localtunnel": "^2.0.2",
