@@ -43,9 +43,8 @@ async function start(client: Client) {
 
 create().then(client => start(client));
 
-//1st argument is the session name
-//2nd argument is the puppeteer config override
-//3rd argument is the user agent override
+//create takes 1 argument and that is the config object :
+// https://docs.openwa.dev/interfaces/api_model_config.ConfigObject.html
 
 create({
   // For Mac:

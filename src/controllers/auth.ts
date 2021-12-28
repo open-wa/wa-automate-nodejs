@@ -7,7 +7,7 @@ import { Page } from 'puppeteer';
 import { processSend } from '../utils/tools';
 import { injectApi, kill } from './browser';
 import axios from 'axios';
-import { log } from '../utils/logging';
+import { log } from '../logging/logging';
 const timeout = ms =>  new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 
 /**

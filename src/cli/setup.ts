@@ -11,7 +11,7 @@ import uuidAPIKey from 'uuid-apikey';
 import { ev, Spin } from '../controllers/events';
 import isUrl from 'is-url-superb';
 import * as path from 'path';
-import { setupLogging } from '../utils/logging';
+import { setupLogging } from '../logging/logging';
 
 let checkUrl = url => typeof url === 'string' ? isUrl(url) : false;
 

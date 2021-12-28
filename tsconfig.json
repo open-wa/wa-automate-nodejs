@@ -63,6 +63,7 @@
       "./src/controllers",
       "./src/structures",
       "./src/connect",
+      "./src/logging",
     ],
     "pages": {
       "groups": [
@@ -256,6 +257,8 @@
       "CollectorOptions",
       "PREPROCESSORS",
       "SocketClient",
+      "LogToEvTransport",
+      "ConfigLogTransport",
       "SocketClient.connect",
       "OnError",
     ]

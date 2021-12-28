@@ -75,6 +75,27 @@ const makeLogger = () =>
 
   /**
    * You can access the log in your code and add your own custom transports
+   * https://github.com/winstonjs/winston#transports
+   * see [Logger](https://github.com/winstonjs/winston#transports) for more details. 
+   * 
+   * Here is an example of adding the GCP stackdriver transport:
+   * 
+   * ```
+   * import { log } from '@open-wa/wa-automate'
+   * import { LoggingWinston } from '@google-cloud/logging-winston';
+   * 
+   * const gcpTransport = new LoggingWinston({
+   *     projectId: 'your-project-id',
+   *     keyFilename: '/path/to/keyfile.json'
+   *   });
+   * 
+   * ...
+   * log.add(
+   *  gcpTransport
+   * )
+   * 
+   * //Congrats! Now all of your session logs will also go to GCP Stackdriver
+   * ```
    */
 export const log = makeLogger();
 
@@ -94,7 +115,10 @@ export const addRotateFileLogTransport = (options: any = {}) => {
   );
 };
 
-const addSysLogTransport = (options: any = {}) => {
+/**
+ * @private
+ */
+export const addSysLogTransport = (options: any = {}) => {
   log.add(
     new Syslog({
       localhost: os.hostname(),
@@ -138,6 +162,9 @@ export type ConfigLogTransport = {
   done?: boolean;
 };
 
+/**
+ * @private
+ */
 export const setupLogging = (logging: ConfigLogTransport[], sessionId: string = "session") => {
   const currentlySetup = [];
   const _logging = logging.map((l) => {

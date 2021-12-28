@@ -1,6 +1,6 @@
 import {EventEmitter2} from 'eventemitter2';
 import Spinnies from "spinnies";
-import { log } from '../utils/logging';
+import { log } from '../logging/logging';
 const spinner = { 
   "interval": 80,
   "frames": [

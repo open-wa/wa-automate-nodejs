@@ -10,7 +10,7 @@ import { FileNotFoundError, getTextFile } from 'pico-s3';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const puppeteer = require('puppeteer-extra')
 import treekill from 'tree-kill';
-import { log } from '../utils/logging';
+import { log } from '../logging/logging';
 
 let browser;
 

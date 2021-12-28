@@ -18,7 +18,7 @@ import { readJsonSync } from 'fs-extra'
 import { upload } from 'pico-s3';
 import { injectInitPatch } from './init_patch'
 import { earlyInjectionCheck, getLicense, getPatch, getAndInjectLivePatch, getAndInjectLicense } from './patch_manager';
-import { log, setupLogging } from '../utils/logging';
+import { log, setupLogging } from '../logging/logging';
 
 export const pkg = readJsonSync(path.join(__dirname,'../../package.json')),
 configWithCases = readJsonSync(path.join(__dirname,'../../bin/config-schema.json')),

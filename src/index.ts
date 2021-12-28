@@ -4,6 +4,7 @@ export { create } from './controllers/initializer';
 export * from '@open-wa/wa-decrypt';
 export { ev, Spin } from './controllers/events'
 export * from './utils/tools'
+export * from './logging/logging'
 export * from './structures/preProcessors'
 export * from './connect'
 //dont need to export this

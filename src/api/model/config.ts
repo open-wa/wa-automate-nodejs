@@ -1,6 +1,6 @@
 import { AxiosRequestConfig } from 'axios';
 import { PREPROCESSORS } from '../../structures/preProcessors';
-import { ConfigLogTransport } from '../../utils/logging';
+import { ConfigLogTransport } from '../../logging/logging';
 import { Base64 } from "./aliases";
 import { SimpleListener } from './events';
 

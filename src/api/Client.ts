@@ -38,7 +38,7 @@ import { base64MimeType, getDUrl, isBase64, isDataURL } from '../utils/tools';
 import { Call } from './model/call';
 import { Button, Section } from './model/button';
 import { JsonObject } from 'type-fest';
-import { log } from '../utils/logging';
+import { log } from '../logging/logging';
 
 
 /** @ignore */
