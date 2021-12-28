@@ -152,20 +152,24 @@ function enableLogToEv(options: any = {}) {
 
 export type ConfigLogTransport = {
   /**
-   * The type of winston transport. At the moment only file, console, ev and syslog are supported.
+   * The type of winston transport. At the moment only `file`, `console`, `ev` and `syslog` are supported.
    */
   type: 'syslog' | 'console' | 'file' | 'ev';
   /**
    * The options for the transport. Generally only required for syslog but you can use this to override default options for other types of transports.
    */
   options?: any;
+  /**
+   * If the transport has already been added to the logger. The logging set up command handles this for you.
+   * @readonly
+   */
   done?: boolean;
 };
 
 /**
  * @private
  */
-export const setupLogging = (logging: ConfigLogTransport[], sessionId: string = "session") => {
+export const setupLogging = (logging: ConfigLogTransport[], sessionId = "session") => {
   const currentlySetup = [];
   const _logging = logging.map((l) => {
     if (l.done) return l;
