@@ -55,6 +55,17 @@ function truncate(str: string, n: number) {
 
 const formatRedact = winston.format(redact);
 
+const stringSaver = winston.format((info : any)=>{
+  const copy = klona(info);
+  const splat = copy[Symbol.for("splat")];
+  if(splat) {
+    copy.message = `${copy.message} ${splat.filter((x:any)=>typeof x !== 'object').join(' ')}`
+    copy[Symbol.for("splat")] = splat.filter((x:any)=>typeof x == 'object')
+    return copy;
+  }
+  return info
+});
+
 /**
  * To prevent "Attempt to write logs with no transports" error
  */
@@ -63,6 +74,7 @@ const placeholderTransport = new NoOpTransport()
 const makeLogger = () =>
   winston.createLogger({
     format: combine(
+      stringSaver(),
       timestamp(),
       winston.format.json(),
       formatRedact(),
