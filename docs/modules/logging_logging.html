@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>logging/logging | @open-wa/wa-automate - v4.27.8</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.27.8">
+	<title>logging/logging | @open-wa/wa-automate - v4.28.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.28.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v4.27.8</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.28.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -113,6 +113,15 @@
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter">
 								<h5><span class="tsd-flag ts-flagOptional">Optional</span> done<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>If the transport has already been added to the logger. The logging set up command handles this for you.</p>
+									</div>
+									<dl class="tsd-comment-tags">
+										<dt>readonly</dt>
+										<dd></dd>
+									</dl>
+								</div>
 							</li>
 							<li class="tsd-parameter">
 								<h5><span class="tsd-flag ts-flagOptional">Optional</span> options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span></h5>
@@ -126,7 +135,7 @@
 								<h5>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;syslog&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;console&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;file&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ev&quot;</span></h5>
 								<div class="tsd-comment tsd-typography">
 									<div class="lead">
-										<p>The type of winston transport. At the moment only file, console, ev and syslog are supported.</p>
+										<p>The type of winston transport. At the moment only <code>file</code>, <code>console</code>, <code>ev</code> and <code>syslog</code> are supported.</p>
 									</div>
 								</div>
 							</li>
@@ -152,15 +161,17 @@
 						<pre><code><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">log</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@open-wa/wa-automate&#039;</span>
 <span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">LoggingWinston</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@google-cloud/logging-winston&#039;</span><span style="color: #000000">;</span>
 
-<span style="color: #000000">...</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">gcpTransport</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">LoggingWinston</span><span style="color: #000000">({</span>
 <span style="color: #000000">    </span><span style="color: #001080">projectId:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;your-project-id&#039;</span><span style="color: #000000">,</span>
 <span style="color: #000000">    </span><span style="color: #001080">keyFilename:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;/path/to/keyfile.json&#039;</span>
 <span style="color: #000000">  });</span>
 
+<span style="color: #000000">...</span>
 <span style="color: #001080">log</span><span style="color: #000000">.</span><span style="color: #795E26">add</span><span style="color: #000000">(</span>
 <span style="color: #000000"> </span><span style="color: #001080">gcpTransport</span>
 <span style="color: #000000">)</span>
+
+<span style="color: #008000">//Congrats! Now all of your session logs will also go to GCP Stackdriver</span>
 </code></pre>
 					</div>
 				</section>
