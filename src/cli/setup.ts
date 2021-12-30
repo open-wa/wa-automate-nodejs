@@ -253,7 +253,7 @@ const optionList:
 
 export const optionKeys = optionList.map(({ name }) => camelize(name));
 
-export const optionKeysWithDefalts = optionList.filter(o=>o.hasOwnProperty('default')).map(({ name }) => camelize(name));
+export const optionKeysWithDefalts = [...optionList.filter(o=>o.hasOwnProperty('default')).map(({ name }) => camelize(name)), 'popup'];
 
 export const PrimitiveConverter = {
     Number : 1,
