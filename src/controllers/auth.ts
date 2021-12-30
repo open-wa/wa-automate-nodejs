@@ -4,11 +4,10 @@ import {EvEmitter, Spin} from './events'
 import { screenshot } from './initializer'
 import { ConfigObject } from '../api/model';
 import { Page } from 'puppeteer';
-import { processSend } from '../utils/tools';
+import { processSend, timeout } from '../utils/tools';
 import { injectApi, kill } from './browser';
 import axios from 'axios';
 import { log } from '../logging/logging';
-const timeout = ms =>  new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 
 /**
  * Validates if client is authenticated
@@ -111,7 +110,6 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
         processSend('ready');
         if(config.qrMax && qrNum >= config.qrMax) {
           spinner.info('QR Code limit reached, exiting...');
-          await timeout(3000)
           await kill(waPage, null, true, null, "QR_LIMIT_REACHED")
         }
         if(config.ezqr || config.inDocker) {

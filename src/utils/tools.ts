@@ -1,7 +1,10 @@
 import { JsonObject } from 'type-fest';
 import { DataURL } from '../api/model';
 import { default as axios, AxiosRequestConfig } from 'axios';
+//@ts-ignore
+process.send = process.send || function () {};
 
+export const timeout = ms =>  new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 /**
  *  Use this to generate a more likely valid user agent. It makes sure it has the WA part and replaces any windows or linux os info with mac.
  * @param useragent Your custom user agent
@@ -144,8 +147,9 @@ export const processSend: (message: string) => void = (message: string) => {
 
 
 export const processSendData = (data : any = {}) => {
-  return process.send({
+   process.send({
     type : 'process:msg',
     data
   })
+  return;
 }

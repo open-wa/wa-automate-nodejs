@@ -11,7 +11,7 @@ import { FileNotFoundError, getTextFile } from 'pico-s3';
 const puppeteer = require('puppeteer-extra')
 import treekill from 'tree-kill';
 import { log } from '../logging/logging';
-import { processSendData } from '../utils/tools';
+import { processSendData, timeout } from '../utils/tools';
 
 let browser;
 
@@ -344,9 +344,9 @@ ON_DEATH(async () => {
  */
  export const kill = async (p: Page, b?: Browser, exit ?: boolean, pid ?: number, reason = "LAUNCH_KILL") => {
      processSendData({
-      type: "close",
       reason
     })
+    timeout(3000)
    const killBrowser = async (browser ?: Browser) => {
     if(!browser) return;
     pid = browser?.process() ? browser?.process().pid : null;
