@@ -34,7 +34,7 @@ import { Listener } from 'eventemitter2';
 import PriorityQueue from 'p-queue/dist/priority-queue';
 import { MessagePreprocessors } from '../structures/preProcessors';
 import { NextFunction, Request, Response } from 'express';
-import { base64MimeType, getDUrl, isBase64, isDataURL } from '../utils/tools';
+import { base64MimeType, getDUrl, isBase64, isDataURL, processSendData } from '../utils/tools';
 import { Call } from './model/call';
 import { Button, Section } from './model/button';
 import { JsonObject } from 'type-fest';
@@ -337,7 +337,7 @@ export class Client {
             if(this._createConfig?.killClientOnLogout) {
               console.log("Session logged out. Killing client")
               log.warn("Session logged out. Killing client")
-              this.kill();
+              this.kill("LOGGED_OUT");
             }
         })
       }
@@ -360,7 +360,7 @@ export class Client {
       if(!this._refreshing) {
         console.log("Browser page has closed. Killing client")
         log.warn("Browser page has closed. Killing client")
-        this.kill();
+        this.kill("PAGE_CLOSED");
         if(this._createConfig?.killProcessOnBrowserClose) process.exit();
       }
     })
@@ -1109,11 +1109,14 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * Shuts down the page and browser
    * @returns true
    */
-  public async kill() : Promise<boolean> {
+  public async kill(reason = "MANUALLY_KILLED") : Promise<boolean> {
     if(this._currentlyBeingKilled) return;
     this._currentlyBeingKilled = true;
     console.log('Killing client. Shutting Down');
     log.info('Killing client. Shutting Down')
+    processSendData({
+      reason
+    })
     const browser = await this?._page?.browser()
     const pid = browser?.process() ? browser?.process()?.pid : null;
     try{

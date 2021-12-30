@@ -141,3 +141,11 @@ export const processSend: (message: string) => void = (message: string) => {
   }
   return;
 };
+
+
+export const processSendData = (data : any = {}) => {
+  return process.send({
+    type : 'process:msg',
+    data
+  })
+}

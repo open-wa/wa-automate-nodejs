@@ -110,8 +110,9 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
         qrNum++;
         processSend('ready');
         if(config.qrMax && qrNum >= config.qrMax) {
-          spinner.info('QR Code limit reached, exiting');
-          await kill(waPage, null, true)
+          spinner.info('QR Code limit reached, exiting...');
+          await timeout(3000)
+          await kill(waPage, null, true, null, "QR_LIMIT_REACHED")
         }
         if(config.ezqr || config.inDocker) {
           const host = 'https://qr.openwa.cloud/'
