@@ -333,11 +333,11 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
        */
        waPage.on('console', msg => {
         if (config?.logConsole) console.log(msg)
-        log.info('Page Console:', {msg})
+        log.info('Page Console:', msg.text())
        });
        waPage.on('error', error => {
         if (config?.logConsoleErrors) console.error(error)
-        log.error('Page Console:', {error})
+        log.error('Page Console Error:', error.text())
        });
       if (config?.restartOnCrash) waPage.on('error', async error => {
         console.error('Page Crashed! Restarting...', error);
