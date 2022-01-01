@@ -9,13 +9,16 @@ body:
     options:
     - label: I have checked and am using the latest version of the library.
       required: true
-- type: checkboxes
+- type: dropdown
   attributes:
     label: Are you using Multi-device?
     description: Multi-device beta allows you to use your WA Web session without the host device being connected to the internet.
+    multiple: false
     options:
-    - label: I am using a multi-device session and I have set multiDevice to true in my config OR am using the --multi-device flag
-      required: true
+      - "Yes, I am using a multi-device session and I have set multiDevice to true in my config OR am using the --multi-device flag"
+      - "No"
+  validations:
+    required: true
 - type: textarea
   attributes:
     label: Current Behavior
@@ -96,10 +99,10 @@ body:
     
 - type: textarea
   attributes:
-    label: Screenshots
+    label: Screenshots/Logs
     description: |
       If applicable, add screenshots to help explain your problem.
-      
+      Or you can add your logs here. In order to enable logs, add `"logging":[{"type":"file"}]` to your config
       Tip:  Use ```headless: false``` to get screenshots
   validations:
     required: false
