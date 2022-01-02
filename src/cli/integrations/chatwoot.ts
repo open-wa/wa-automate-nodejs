@@ -70,7 +70,7 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
     const _u = new URL(u)
     const origin = _u.origin;
     const port = _u.port || 80;
-    const [accountId, inboxId] = u.match(/\/(app|(api\/v1))\/accounts\/\d*\/inbox\/\d*/g)[0].split('/').filter(Number)
+    const [accountId, inboxId] = u.match(/\/(app|(api\/v1))\/accounts\/\d*\/(inbox|inboxes)\/\d*/g)[0].split('/').filter(Number)
     // const accountId = u.match(/accounts\/\d*/g) && u.match(/accounts\/\d*/g)[0].replace('accounts/', '')
     const resolvedInbox = inboxId || u.match(/inboxes\/\d*/g) && u.match(/inboxes\/\d*/g)[0].replace('inboxes/', '')
     const cwReq = (path, method, data?: any, _headers ?: any) => {
