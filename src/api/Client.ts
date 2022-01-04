@@ -236,6 +236,7 @@ declare module WAPI {
   const archiveChat: (id: string, archive: boolean) => Promise<boolean>;
   const pinChat: (id: string, pin: boolean) => Promise<boolean>;
   const isConnected: () => Boolean;
+  const logout: () => Boolean;
   const loadEarlierMessages: (contactId: string) => Promise<Message []>;
   const getChatsByLabel: (label: string) => Promise<Chat[] | string>;
   const loadAllEarlierMessages: (contactId: string) => any;
@@ -2006,6 +2007,15 @@ public async iAmAdmin() : Promise<GroupChatId[]>  {
    */
   public async isConnected() : Promise<boolean> {
     return await this.pup(() => WAPI.isConnected()) as Promise<boolean>;
+  }
+
+  /**
+   * Logs out from the session.
+   * 
+   * Please be careful when using this as it can exit the whole process depending on your config
+   */
+  public async logout() : Promise<boolean> {
+    return await this.pup(() => WAPI.logout()) as Promise<boolean>;
   }
 
   /**
