@@ -24,7 +24,7 @@ You can set a custom port:
 > npx @open-wa/wa-automate -p 8080
 ```
 
-and an api key which will prevent unauthorized requrests. This will result in a key being automatically generated for you:
+and an api key which will prevent unauthorized requests. This will result in a key being automatically generated for you:
 
 ```bash
 > npx @open-wa/wa-automate -p 8080 -k
