@@ -502,23 +502,34 @@ export class Client {
 
 
   private async pup(pageFunction:EvaluateFn<any>, ...args) {
-    const {safeMode, callTimeout, idChecking, logFile, logging} = this._createConfig;
+    const {safeMode, callTimeout, idCorrection, logging} = this._createConfig;
     let _t : number;
     if(safeMode) {
       if(!this._page || this._page.isClosed()) throw new CustomError(ERROR_NAME.PAGE_CLOSED, 'page closed');
       const state = await this.forceUpdateConnectionState();
       if(state!==STATE.CONNECTED) throw new CustomError(ERROR_NAME.STATE_ERROR,`state: ${state}`);
     }
-    if(idChecking && args[0]) {
-      Object.entries(args[0]).map(([k,v] : [string,any]) => {
-        if(["to","chatId", "groupChatId", "groupId", "contactId"].includes(k) && typeof v == "string" && v) {
-        args[0][k] = v?.includes('-') ? 
-                          //it is a group chat, make sure it has a @g.us at the end
-                          `${v?.replace(/@(c|g).us/g,'')}@g.us` :
-                          //it is a normal chat, make sure it has a @c.us at the end
-                          `${v?.replace(/@(c|g).us/g,'')}@c.us`;
-        }
-      })
+    if(idCorrection && args[0]) {
+      const fixId = (id: string) => {
+        let isGroup = false;
+        let scrubbedId = id?.match(/\d|-/g)?.join('')
+        scrubbedId = scrubbedId.match(/-/g) && scrubbedId.match(/-/g).length==1 && scrubbedId.split('-')[1].length===10 ? scrubbedId : scrubbedId.replace(/-/g,'')
+        if(scrubbedId.includes('-') || scrubbedId.length===18) isGroup = true;
+        const fixed =  isGroup ? 
+        `${scrubbedId?.replace(/@(c|g).us/g,'')}@g.us` :
+        `${scrubbedId?.replace(/@(c|g).us/g,'')}@c.us`;
+        log.info('Fixed ID', {id, fixed});
+        return fixed;
+      }
+      if(typeof args[0] === 'string' && args[0] && !(args[0].includes("@g.us") || args[0].includes("@c.us")) && (pageFunction?.toString()?.match(/[^(]*\(([^)]*)\)/)[1] || "")?.replace(/\s/g,'')?.split(',')) {
+        const p = (pageFunction?.toString().match(/[^(]*\(([^)]*)\)/)[1] || "").replace(/\s/g,'').split(',');
+        if(["to","chatId", "groupChatId", "groupId", "contactId"].includes(p[0])) 
+        args[0] = fixId(args[0]);
+      } else
+      if(typeof args[0] === 'object') Object.entries(args[0]).map(([k,v] : [string,any]) => {
+        if(["to","chatId", "groupChatId", "groupId", "contactId"].includes(k) && typeof v == "string" && v && !(v.includes("@g.us") || v.includes("@c.us"))) {
+        args[0][k] = fixId(v)
+      }})
     }
     if(logging) {
       const wapis = (pageFunction?.toString()?.match(/WAPI\.(\w*)\(/g) || [])?.map(s=>s.replace(/WAPI|\.|\(/g,''));
