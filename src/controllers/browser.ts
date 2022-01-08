@@ -26,7 +26,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
   let waPage = _page;
   if(!waPage) {
     spinner?.info('Launching Browser')
-    browser = await initBrowser(sessionId,config);
+    browser = await initBrowser(sessionId,config, spinner);
     waPage = await getWAPage(browser);
   }
   
@@ -244,7 +244,7 @@ await Promise.all(
   return page;
 }
 
-async function initBrowser(sessionId?: string, config:any={}) {
+async function initBrowser(sessionId?: string, config:any={}, spinner ?: Spin) {
   if(config?.raspi) {
     config.executablePath = "/usr/bin/chromium-browser"
   }
@@ -285,9 +285,12 @@ async function initBrowser(sessionId?: string, config:any={}) {
   if(config?.multiDevice) {
     args = args.filter(x=>x!='--incognito')
     config["userDataDir"] = config["userDataDir"] ||  `${config?.inDocker ? '/sessions' : config?.sessionDataPath || '.' }/_IGNORE_${config?.sessionId || 'session'}`
+    spinner?.info('MD Enabled, turning off incognito mode.')
+    spinner?.info(`Data dir: ${config["userDataDir"]}`)
   }
   if(config?.corsFix) args.push('--disable-web-security');
   if(config["userDataDir"] && !fs.existsSync(config["userDataDir"])) {
+    spinner?.info(`Data dir doesnt exist, creating...: ${config["userDataDir"]}`)
     fs.mkdirSync(config["userDataDir"], {recursive: true});
   }
   const browser = (config?.browserWSEndpoint) ? await puppeteer.connect({...config}): await puppeteer.launch({
@@ -319,10 +322,9 @@ async function initBrowser(sessionId?: string, config:any={}) {
         ...config.devtools,
         tunnel
       } : tunnel}`
-      console.log(l);
-      log.info(l);
+      spinner.info(l);
     } catch (error) {
-    console.error("initBrowser -> error", error)
+    spinner.fail(error)
     log.error("initBrowser -> error", error)
     }
   }
