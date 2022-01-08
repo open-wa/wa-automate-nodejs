@@ -3,6 +3,7 @@ description: Create a report to help us improve
 labels: [Bug, Needs Triage]
 body:
 - type: checkboxes
+  id: latest_version
   attributes:
     label: Are you using the latest version of the library?
     description: This is not like most libraries where older versions can remain functioning forever. Sometimes major updates from WA result in a new version of this library being released which then becomes essentially the minimum working version.
@@ -10,39 +11,31 @@ body:
     - label: I have checked and am using the latest version of the library.
       required: true
 - type: dropdown
+  id: session_type
   attributes:
-    label: Are you using Multi-device?
+    label: What type of session are you experiencing this issue on?
     description: Multi-device beta allows you to use your WA Web session without the host device being connected to the internet.
     multiple: false
     options:
-      - "Yes, I am using a multi-device session and I have set multiDevice to true in my config OR am using the --multi-device flag"
-      - "No"
+      - "Multi-device and I have set multiDevice to true in my config OR am using the --multi-device flag"
+      - "Legacy (Normal)"
+      - "Tested and experienced on both"
   validations:
     required: true
-- type: textarea
-  attributes:
-    label: Current Behavior
-    description: A concise description of what you're experiencing.
-  validations:
-    required: false
-- type: textarea
-  attributes:
-    label: Expected Behavior
-    description: A concise description of what you expected to happen.
-  validations:
-    required: false
-- type: textarea
-  attributes:
-    label: Steps To Reproduce
-    description: Steps to reproduce the behavior.
-    placeholder: |
-      1. In this environment...
-      2. With this config...
-      3. Run '...'
-      4. See error...
-  validations:
-    required: false
 - type: dropdown
+  id: acc_type
+  attributes:
+    label: What type of host account are you experiencing this issue on?
+    description: Business and personal accounts are very different and can give a clue to resolve issues quickly.
+    multiple: false
+    options:
+      - "Personal account (normal)"
+      - "Business account"
+      - "Tested and experienced on both"
+  validations:
+    required: true
+- type: dropdown
+  id: mode
   attributes:
     label: Mode
     description: How are you using the library while experiencing this bug?
@@ -53,6 +46,33 @@ body:
   validations:
     required: true
 - type: textarea
+  id: curr_b
+  attributes:
+    label: Current Behavior
+    description: A concise description of what you're experiencing.
+  validations:
+    required: false
+- type: textarea
+  id: expected_b
+  attributes:
+    label: Expected Behavior
+    description: A concise description of what you expected to happen.
+  validations:
+    required: false
+- type: textarea
+  id: repro
+  attributes:
+    label: Steps To Reproduce
+    description: Steps to reproduce the behavior.
+    placeholder: |
+      1. In this environment...
+      2. With this config...
+      3. Run '...'
+      4. See error...
+  validations:
+    required: true
+- type: textarea
+  id: c_code
   attributes:
     label: create() code
     description: |
@@ -65,6 +85,7 @@ body:
     required: false
     
 - type: textarea
+  id: d_info
   attributes:
     label: DEBUG INFO
     description: |
@@ -79,9 +100,9 @@ body:
       ```
     render: markdown
   validations:
-    required: false
-    
+    required: true
 - type: textarea
+  id: enviro
   attributes:
     label: Environment
     description: |
@@ -95,9 +116,10 @@ body:
         - npm: 
     render: markdown
   validations:
-    required: false
+    required: true
     
 - type: textarea
+  id: screenshots
   attributes:
     label: Screenshots/Logs
     description: |
@@ -108,6 +130,7 @@ body:
     required: false
     
 - type: textarea
+  id: extra
   attributes:
     label: Anything else?
     description: |
