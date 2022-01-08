@@ -318,10 +318,10 @@ async function initBrowser(sessionId?: string, config:any={}, spinner ?: Spin) {
     try {
       // const tunnel = await devtools.createTunnel(browser);
       const tunnel = config.devtools == 'local' ? devtools.getLocalDevToolsUrl(browser) : (await devtools.createTunnel(browser)).url;
-      const l = `\ndevtools URL: ${ typeof config.devtools == 'object' ? {
+      const l = `\ndevtools URL: ${ typeof config.devtools == 'object' ? JSON.stringify({
         ...config.devtools,
         tunnel
-      } : tunnel}`
+      },null,2) : tunnel}`
       spinner.info(l);
     } catch (error) {
     spinner.fail(error)
