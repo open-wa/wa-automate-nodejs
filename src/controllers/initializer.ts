@@ -138,7 +138,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       spinner.info(`Multi-Device directory detected. multiDevice set to true.`);
       config.multiDevice = true;
     }
-    if(config?.multiDevice && config?.chromiumArgs) spinner.info(`Using custom chromium args with multi device will cause issues! Please remove themm`);
+    if(config?.multiDevice && config?.chromiumArgs) spinner.info(`Using custom chromium args with multi device will cause issues! Please remove them: ${config?.chromiumArgs}`);
     if(config?.multiDevice && !config?.useChrome) spinner.info(`It is recommended to set useChrome: true or use the --use-chrome flag if you are experiencing issues with Multi device support`);
     waPage = await initPage(sessionId, config, customUserAgent, spinner);
     spinner.succeed('Browser Launched');
