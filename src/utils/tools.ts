@@ -1,6 +1,8 @@
 import { JsonObject } from 'type-fest';
-import { DataURL } from '../api/model';
+import { ConfigObject, DataURL } from '../api/model';
 import { default as axios, AxiosRequestConfig } from 'axios';
+import { SessionInfo } from '../api/model/sessionInfo';
+import { execSync } from 'node:child_process';
 //@ts-ignore
 process.send = process.send || function () {};
 
@@ -152,4 +154,23 @@ export const processSendData = (data : any = {}) => {
     data
   })
   return;
+}
+
+export const generateGHIssueLink = (config : ConfigObject, sessionInfo: SessionInfo, extras : any = {}) => {
+  const npm_ver = execSync('npm -v')
+  const labels = []
+  if(sessionInfo.CLI) labels.push('CLI')
+  if(!sessionInfo.LATEST_VERSION) labels.push('NCV')
+  labels.push(config.multiDevice ? 'MD' : 'Legacy')
+  if(sessionInfo.ACC_TYPE === 'BUSINESS') labels.push('BHA')
+  if(sessionInfo.ACC_TYPE === 'PERSONAL') labels.push('PHA')
+  const qp = {
+    "template": "bug_report.yaml",
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    "d_info": `${encodeURI(JSON.stringify((({ OS, PAGE_UA, ...o }) => o)(sessionInfo) ,null,2))}`,
+    "enviro": `${`-%20OS:%20${encodeURI(sessionInfo.OS)}%0A-%20Node:%20${encodeURI(process.versions.node)}%0A-%20npm:%20${(String(npm_ver)).replace(/\s/g,'')}`}`,
+    "labels": labels.join(','),
+    ...extras
+  }
+  return `https://github.com/open-wa/wa-automate-nodejs/issues/new?${Object.keys(qp).map(k=>`${k}=${qp[k]}`).join('&')}`
 }

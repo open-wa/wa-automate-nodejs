@@ -10,7 +10,7 @@ import { deleteSessionData, initPage, injectApi, kill } from './browser';
 import { Spin } from './events'
 import { integrityCheck, checkWAPIHash } from './launch_checks';
 import CFonts from 'cfonts';
-import { getConfigFromProcessEnv } from '../utils/tools';
+import { generateGHIssueLink, getConfigFromProcessEnv } from '../utils/tools';
 import { SessionInfo } from '../api/model/sessionInfo';
 import { Page } from 'puppeteer';
 import { createHash } from 'crypto';
@@ -184,8 +184,10 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       console.table(debugInfo);
       log.info('Debug info:', debugInfo);
      }
+     debugInfo.LATEST_VERSION = !(notifier?.update && (notifier?.update.latest !== pkg.version))
+     debugInfo.CLI = process.env.OWA_CLI && true || false
      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-     spinner.succeed('Use this easy pre-filled link to report an issue: ' + `https://github.com/open-wa/wa-automate-nodejs/issues/new?template=bug_report.yaml&debug_info=${encodeURI(JSON.stringify((({ OS, PAGE_UA, ...o }) => o)(debugInfo) ,null,2))}&environment=${`-%20OS:%20${encodeURI(debugInfo.OS)}%0A-%20Node:%20${encodeURI(process.versions.node)}%0A-%20npm:%20%0A`}`);
+     spinner.succeed('Use this easy pre-filled link to report an issue: ' + generateGHIssueLink(config,debugInfo));
 
     if (canInjectEarly) {
       if(attemptingReauth) await waPage.evaluate(`window.Store = {"Msg": true}`)

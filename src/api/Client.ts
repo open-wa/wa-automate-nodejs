@@ -34,7 +34,7 @@ import { Listener } from 'eventemitter2';
 import PriorityQueue from 'p-queue/dist/priority-queue';
 import { MessagePreprocessors } from '../structures/preProcessors';
 import { NextFunction, Request, Response } from 'express';
-import { base64MimeType, getDUrl, isBase64, isDataURL, processSendData } from '../utils/tools';
+import { base64MimeType, generateGHIssueLink, getDUrl, isBase64, isDataURL, processSendData } from '../utils/tools';
 import { Call } from './model/call';
 import { Button, Section } from './model/button';
 import { JsonObject } from 'type-fest';
@@ -2010,6 +2010,13 @@ public async iAmAdmin() : Promise<GroupChatId[]>  {
 
   public async getWAVersion() : Promise<string>{
     return await this.pup(() => WAPI.getWAVersion()) as Promise<string>;
+  }
+  
+  /**
+   * Generate a pre-filled github issue link to easily report a bug
+   */
+  public async getIssueLink() : Promise<string>{
+    return generateGHIssueLink(this.getConfig(), this.getSessionInfo())
   }
 
   /**

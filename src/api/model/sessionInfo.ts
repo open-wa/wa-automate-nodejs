@@ -13,6 +13,9 @@ export interface SessionInfo {
   NUM_HASH?: string;
   OW_KEY?: string;
   INSTANCE_ID?: string;
+  LATEST_VERSION ?: boolean;
+  CLI ?: boolean;
+  ACC_TYPE ?: 'PERSONAL' | 'BUSINESS';
 }
 
 export interface HealthCheck {
