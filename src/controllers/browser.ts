@@ -14,6 +14,7 @@ import { log } from '../logging/logging';
 import { processSendData, timeout } from '../utils/tools';
 
 let browser;
+export let BROWSER_START_TS = 0;
 
 export async function initPage(sessionId?: string, config?:ConfigObject, customUserAgent?:string, spinner ?: Spin, _page?: Page, skipAuth ?: boolean) : Promise<Page> {
   const setupPromises = [];
@@ -295,6 +296,7 @@ async function initBrowser(sessionId?: string, config:any={}) {
     ...config,
     devtools: false
   });
+  BROWSER_START_TS = Date.now();
   //devtools
   if(config?.devtools){
     const _dt = await import('puppeteer-extra-plugin-devtools')

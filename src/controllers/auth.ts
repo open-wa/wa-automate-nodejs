@@ -5,7 +5,7 @@ import { screenshot } from './initializer'
 import { ConfigObject } from '../api/model';
 import { Page } from 'puppeteer';
 import { processSend, timeout } from '../utils/tools';
-import { injectApi, kill } from './browser';
+import { BROWSER_START_TS, injectApi, kill } from './browser';
 import axios from 'axios';
 import { log } from '../logging/logging';
 
@@ -95,6 +95,7 @@ export async function smartQr(waPage: Page, config?: ConfigObject, spinner ?: Sp
   if(isAuthed) return true;
   let hash = 'START';
   const grabAndEmit = async (qrData) => {
+    if(!qrNum && BROWSER_START_TS) spinner.info(`First QR: ${Date.now() - BROWSER_START_TS} ms`)
     if(qrData) {
       if(!config.qrLogSkip) qrcode.generate(qrData,{small: true});
         else {
