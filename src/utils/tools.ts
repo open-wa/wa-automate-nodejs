@@ -2,7 +2,7 @@ import { JsonObject } from 'type-fest';
 import { ConfigObject, DataURL } from '../api/model';
 import { default as axios, AxiosRequestConfig } from 'axios';
 import { SessionInfo } from '../api/model/sessionInfo';
-import { execSync } from 'node:child_process';
+import { execSync } from 'child_process';
 //@ts-ignore
 process.send = process.send || function () {};
 
