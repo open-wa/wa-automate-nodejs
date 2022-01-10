@@ -60,6 +60,9 @@
     "node": ">=12.18.3",
     "npm": ">=7.9.0"
   },
+  "resolutions": {
+    "colors": "1.4.0"
+  },
   "devDependencies": {
     "@types/changelog-parser": "^2.7.1",
     "@types/command-line-args": "^5.0.0",
