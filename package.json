@@ -80,7 +80,7 @@
     "@types/shelljs": "^0.8.5",
     "@types/winston-syslog": "^2.4.0",
     "@typescript-eslint/eslint-plugin": "^5.8.0",
-    "@typescript-eslint/parser": "^4.15.2",
+    "@typescript-eslint/parser": "^5.9.1",
     "auto-changelog": "^2.0.0",
     "ava": "^3.13.0",
     "changelog-parser": "^2.8.0",
