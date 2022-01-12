@@ -94,11 +94,11 @@ async function start() {
         client.onLogout(async () => {
             console.error('!!!! CLIENT LOGGED OUT !!!!')
             if (cliConfig && !cliConfig.noKillOnLogout) {
-                await client.waitWhQIdle();
+                await client.waitAllQEmpty();
                 console.error("Shutting down.")
                 process.exit();
             }
-        })
+        }, -1)
 
         if(cliConfig?.botPressUrl){
             spinner.info('Setting Up Botpress handler');

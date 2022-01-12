@@ -265,7 +265,7 @@ export class Client {
     [id: string]: Webhook
   }
   private _registeredEvListeners: any;
-  private _webhookQueue: any;
+  private _webhookQueue: PQueue;
   private _createConfig: ConfigObject;
   private _sessionInfo: SessionInfo;
   private _listeners: any;
@@ -279,6 +279,7 @@ export class Client {
     priority ?: number
   }[] = [];
   private _registeredPageListeners : (keyof PageEventObject)[] = [];
+  private _onLogoutCallbacks : any[] = [];
   private _queues: {
     [key in SimpleListener] ?: PQueue
   } = {};
@@ -333,14 +334,15 @@ export class Client {
         })
       }
       if(this._createConfig?.deleteSessionDataOnLogout || this._createConfig?.killClientOnLogout) {
-        this.onLogout(() => {
+        this.onLogout(async () => {
+            await this.waitAllQEmpty();
             if(this._createConfig?.deleteSessionDataOnLogout) deleteSessionData(this._createConfig)
             if(this._createConfig?.killClientOnLogout) {
               console.log("Session logged out. Killing client")
               log.warn("Session logged out. Killing client")
               this.kill("LOGGED_OUT");
             }
-        })
+        }, -1)
       }
   }
 
@@ -634,10 +636,13 @@ export class Client {
       priority
     })
     if(this._registeredPageListeners.includes(event)) return true;
-    this._page.on(event, async (...args) => {
-      return await Promise.all(this._pageListeners.filter(l => l.event === event).sort((a,b)=>(b.priority || 0)-(a.priority || 0)).map(l => l.callback(...args)))
-    })
     this._registeredPageListeners.push(event);
+    log.info(`setting page listener: ${event}`, this._registeredPageListeners)
+    this._page.on(event, async (...args) => {
+      await Promise.all(this._pageListeners.filter(l => l.event === event).filter(({priority})=>priority!==-1).sort((a,b)=>(b.priority || 0)-(a.priority || 0)).map(l => l.callback(...args)))
+      await Promise.all(this._pageListeners.filter(l => l.event === event).filter(({priority})=>priority==-1).sort((a,b)=>(b.priority || 0)-(a.priority || 0)).map(l => l.callback(...args)))
+      return;
+    })
   }
 
   /**
@@ -645,16 +650,31 @@ export class Client {
    * 
    * @event 
    * @param fn callback
+   * @param priority A priority of -1 will mean the callback will be triggered after all the non -1 callbacks
    * @fires `true` 
    */
   public async onLogout(fn: (loggedOut?: boolean)=> any, priority ?: number) : Promise<boolean> {
-    this.registerPageEventListener('framenavigated', async frame => {
+    const event = 'framenavigated';
+    this._onLogoutCallbacks.push({
+      callback: fn,
+      priority
+    })
+    if(!this._queues[event]) this._queues[event] = new PQueue({
+      concurrency: 1,
+      intervalCap: 1,
+      carryoverConcurrencyCount: true
+    })
+    if(this._registeredPageListeners.includes(event)) return true;
+    this.registerPageEventListener(event, async frame => {
         if(frame.url().includes('post_logout=1')) {
           console.log("LOGGED OUT")
           log.warn("LOGGED OUT")
-          await fn(true);
+          await Promise.all(this._onLogoutCallbacks.filter(c=>c.priority!==-1).map(({callback})=>this._queues[event].add(()=>callback(true))))
+          await this._queues[event].onEmpty()
+          await Promise.all(this._onLogoutCallbacks.filter(c=>c.priority==-1).map(({callback})=>this._queues[event].add(()=>callback(true))))
+          await this._queues[event].onEmpty()
         }
-    }, priority)
+    }, priority || 1)
     return true;
   }
   
@@ -665,6 +685,17 @@ export class Client {
     if(this._webhookQueue) {
       return await this._webhookQueue.onIdle();
     }
+    return true;
+  }
+  
+  /**
+   * Wait for all queues to be empty
+   */
+  public async waitAllQEmpty() {
+      return await Promise.all([
+        this._webhookQueue,
+        ...Object.values(this._queues)
+      ].filter(q=>q).map(q=>q?.onEmpty()))
     return true;
   }
 
