@@ -609,7 +609,7 @@ export class Client {
       fn = _fn;
     }
     if(this._registeredEvListeners && this._registeredEvListeners[funcName]) {
-      return ev.on(this.getEventSignature(funcName),({data})=>fn(data)) as Listener;
+      return ev.on(this.getEventSignature(funcName),({data})=>fn(data),{objectify: true}) as Listener;
     }
     /**
      * If evMode is on then make the callback come from ev.
