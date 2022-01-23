@@ -9,7 +9,7 @@ import { ConfigObject } from '../api/model';
 import { FileNotFoundError, getTextFile } from 'pico-s3';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const puppeteer = require('puppeteer-extra')
-import treekill from 'tree-kill';
+import terminate from 'terminate/promise';
 import { log } from '../logging/logging';
 import { processSendData, timeout } from '../utils/tools';
 
@@ -364,7 +364,7 @@ ON_DEATH(async () => {
   } else if(b) {
     await killBrowser(b);
   }
-  if(pid) treekill(pid, 'SIGKILL')
+  if(pid) await terminate(pid, 'SIGKILL').catch(e=>console.error('Error while terminating browser PID. You can just ignore this, as the process has most likely been terminated successfully already:',e.message))
   if(exit) process.exit();
   return;
 }
