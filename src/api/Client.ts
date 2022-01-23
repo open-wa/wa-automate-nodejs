@@ -284,6 +284,7 @@ export class Client {
     [key in SimpleListener] ?: PQueue
   } = {};
   private _autoEmojiSet = false
+  private _onLogoutSet = false
   /**
    * This is used to track if a listener is already used via webhook. Before, webhooks used to be set once per listener. Now a listener can be set via multiple webhooks, or revoked from a specific webhook.
    * For this reason, listeners assigned to a webhook are only set once and map through all possible webhooks to and fire only if the specific listener is assigned.
@@ -335,7 +336,7 @@ export class Client {
         })
         this._autoEmojiSet = true;
       }
-      if(this._createConfig?.deleteSessionDataOnLogout || this._createConfig?.killClientOnLogout) {
+      if((this._createConfig?.deleteSessionDataOnLogout || this._createConfig?.killClientOnLogout) && !this._onLogoutSet) {
         this.onLogout(async () => {
             await this.waitAllQEmpty();
             if(this._createConfig?.deleteSessionDataOnLogout) deleteSessionData(this._createConfig)
@@ -345,6 +346,7 @@ export class Client {
               this.kill("LOGGED_OUT");
             }
         }, -1)
+        this._onLogoutSet = true;
       }
   }
 
