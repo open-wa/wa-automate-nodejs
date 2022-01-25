@@ -112,7 +112,7 @@ export class QRManager {
       await kill(waPage, null, true, null, "QR_LIMIT_REACHED")
     }
     const qrEv = this.qrEvF(config)
-    if (!this.qrNum && BROWSER_START_TS) spinner.info(`First QR: ${Date.now() - BROWSER_START_TS} ms`)
+    if ((!this.qrNum || this.qrNum == 1) && BROWSER_START_TS) spinner.info(`First QR: ${Date.now() - BROWSER_START_TS} ms`)
     if (qrData) {
       qrEv.emit(qrData, `qrData`);
       if (!config.qrLogSkip) qrcode.generate(qrData, { small: true });
