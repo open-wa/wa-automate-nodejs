@@ -11,7 +11,7 @@ import { FileNotFoundError, getTextFile } from 'pico-s3';
 const puppeteer = require('puppeteer-extra')
 import terminate from 'terminate/promise';
 import { log } from '../logging/logging';
-import { processSendData, timeout } from '../utils/tools';
+import { processSendData, timeout, timePromise } from '../utils/tools';
 
 let browser;
 export let BROWSER_START_TS = 0;
@@ -26,10 +26,12 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
   let waPage = _page;
   if(!waPage) {
     spinner?.info('Launching Browser')
+    const startBrowser = performance.now();
     browser = await initBrowser(sessionId,config, spinner);
+    spinner?.info(`Browser launched: ${(performance.now() - startBrowser).toFixed(0)}ms`)
     waPage = await getWAPage(browser);
   }
-  
+  const postBrowserLaunchTs = performance.now();
 
   spinner?.info('Setting Up Page')
   if (config?.proxyServerCredentials) {
@@ -147,6 +149,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
     }
   if(config?.proxyServerCredentials?.address) spinner.succeed(`Active proxy: ${config.proxyServerCredentials.address}`)
   await Promise.all(setupPromises);
+  spinner?.info(`Pre page launch setup complete: ${(performance.now() - postBrowserLaunchTs).toFixed(0)}ms`)
   spinner?.info('Navigating to WA')
   try {
     //try twice 
@@ -222,25 +225,43 @@ export const addScript = (page: Page, js : string) : Promise<unknown> => page.ad
   path: require.resolve(path.join(__dirname, '../lib', js))
 })
 
-export async function injectApi(page: Page) : Promise<Page> {
-await Promise.all(
-  [
-    'axios.min.js',
-    'jsSha.min.js',
-    'qr.min.js',
-    'base64.js',
-    'hash.js'
-  ].map(js=>addScript(page,js))
-  );
-  await addScript(page,'wapi.js')
-  await addScript(page,'wapi.js')
-  await addScript(page,'wapi.js')
-  await addScript(page,'wapi.js')
-  await addScript(page,'wapi.js')
-  await addScript(page,'wapi.js')
-  await addScript(page,'wapi.js')
-  await addScript(page,'wapi.js')
-  await addScript(page,'launch.js')
+export async function injectPreApiScripts(page: Page, spinner ?: Spin) : Promise<Page> {
+  const t1 = await timePromise(() => Promise.all(
+   [
+     'axios.min.js',
+     'jsSha.min.js',
+     'qr.min.js',
+     'base64.js',
+     'hash.js'
+   ].map(js=>addScript(page,js))
+   ))
+   spinner?.info(`Base inject: ${t1}ms`);
+   return page;
+}
+
+export async function injectWapi(page: Page, spinner ?: Spin) : Promise<Page> {
+  const wapi = await timePromise(()=>addScript(page,'wapi.js'))
+  spinner?.info(`WAPI inject: ${wapi}ms`)
+  spinner?.info("Checking WAPI Injection")
+  const check = (c) => `window.${c} ? true : false`
+  await page.waitForFunction(check('WAPI'),{ timeout: 0, polling: 500 })
+  return;
+}
+
+export async function injectApi(page: Page, spinner ?: Spin) : Promise<Page> {
+  await injectPreApiScripts(page, spinner);
+  await injectWapi(page, spinner)
+  // const wapi = await timePromise(()=>addScript(page,'wapi.js'))
+  // spinner?.info(`WAPI inject: ${wapi}ms`)
+  // await addScript(page,'wapi.js')
+  // await addScript(page,'wapi.js')
+  // await addScript(page,'wapi.js')
+  // await addScript(page,'wapi.js')
+  // await addScript(page,'wapi.js')
+  // await addScript(page,'wapi.js')
+  // await addScript(page,'wapi.js')
+  const launch = await timePromise(()=>addScript(page,'launch.js'))
+  spinner?.info(`Launch inject: ${launch}ms`)
   return page;
 }
 
