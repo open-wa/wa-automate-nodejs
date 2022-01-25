@@ -1,23 +1,14 @@
 import { generatePostmanJson, Spin } from "..";
 import p2s from 'postman-2-swagger';
 import { writeJsonSync } from 'fs-extra'
-import {
-    getTypeScriptReader,
-    getOpenApiWriter,
-    makeConverter,
-  } from 'typeconv'
-import * as fs from 'fs'
-import glob = require('tiny-glob');
-import * as path from 'path';
-
-
 
 export const collections = {}
 
 export const generateCollections : any = async (config: { [x: string]: any; sessionId?: any; key?: any; },spinner: Spin) => {
     let swCol = null;
     let pmCol = null;
-    const _types = await getTypeSchemas()
+    //TODO GENERATE TYPE SCHEMAS ON BUILD. AXIOS GET FROM GITHUB!
+    const _types = {}
     spinner.info('Generating Swagger Spec');
     pmCol = await generatePostmanJson(config);
     spinner.succeed(`Postman collection generated: open-wa-${config.sessionId}.postman_collection.json`);
@@ -86,22 +77,4 @@ export const generateCollections : any = async (config: { [x: string]: any; sess
     collections['swagger'] = swCol;
     spinner.succeed('API collections (swagger + postman) generated successfully');
     return;
-}
-
-export const getTypeSchemas : any = async () => {
-  const reader = getTypeScriptReader(  );
-  const writer = getOpenApiWriter( { format: 'json', title: 'My API', version: 'v3.0.3' } );
-  const { convert } = makeConverter( reader, writer, {
-      simplify: true
-  });
-  const s = (await Promise.all([...(await glob(path.resolve(__dirname,'../**/*.d.ts'))),...(await glob(path.resolve(__dirname,'../**/message.js'))), ...(await glob(path.resolve(__dirname,'../**/chat.js')))])).filter(f=>!f.includes('node_modules'))
-  const res = {};
-  await Promise.all(s.map(async x=>{
-      const {data} =  await convert({ data: fs.readFileSync(x, 'utf8') } );
-      const schemas = JSON.parse(data)?.components?.schemas;
-      Object.keys(schemas).forEach(k => {
-          res[k] = schemas[k];
-      })
-  }))
-  return res;
 }
