@@ -132,7 +132,7 @@ export class QRManager {
       if (qrPng) {
         qrEv.emit(qrPng);
         processSend('ready');
-        if (config.ezqr || config.inDocker) {
+        if (config.ezqr) {
           const host = 'https://qr.openwa.cloud/'
           await axios.post(host, {
             value: qrPng,
