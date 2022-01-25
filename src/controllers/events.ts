@@ -81,6 +81,12 @@ export class EvEmitter {
 
   sessionId: string;
   eventNamespace: string;
+  bannedTransports = [
+      //DO NOT ALLOW THESE NAMESPACES ON TRANSPORTS!!
+      "sessionData",
+      "sessionDataBase64",
+      "qr",
+  ]
 
   constructor(sessionId: string, eventNamespace: string){
     this.sessionId = sessionId;
@@ -92,18 +98,28 @@ export class EvEmitter {
     const sessionId = this.sessionId
     const eventNamespace = eventNamespaceOverride||this.eventNamespace
     ev.emit(eventName,data,sessionId,eventNamespace);
-    if(![
-      //DO NOT ALLOW THESE NAMESPACES ON TRANSPORTS!!
-      "sessionData",
-      "sessionDataBase64",
-      "qr",
-    ].find(x=> eventNamespace == x))
+    if(!this.bannedTransports.find(x=> eventNamespace == x))
     log.info(typeof data === 'string' ? data : eventName,{
       eventName,
       data,
       sessionId,
       eventNamespace
     })
+    // ev.emit(`${this.sessionId}.${this.eventNamespace}`,data,this.sessionId,this.eventNamespace);
+  }
+
+  emitAsync(data : unknown, eventNamespaceOverride ?: string) : Promise<any> {
+    const eventName = `${eventNamespaceOverride||this.eventNamespace}.${this.sessionId}`
+    const sessionId = this.sessionId
+    const eventNamespace = eventNamespaceOverride||this.eventNamespace
+    if(!this.bannedTransports.find(x=> eventNamespace == x))
+    log.info(typeof data === 'string' ? data : eventName,{
+      eventName,
+      data,
+      sessionId,
+      eventNamespace
+    })
+    return ev.emitAsync(eventName,data,sessionId,eventNamespace);
     // ev.emit(`${this.sessionId}.${this.eventNamespace}`,data,this.sessionId,this.eventNamespace);
   }
 }
