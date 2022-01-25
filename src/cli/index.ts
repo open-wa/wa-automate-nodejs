@@ -1,4 +1,4 @@
-import { create, ev, processSend } from '../index'
+import { create, ev, log, processSend } from '../index'
 import terminalLink from 'terminal-link';
 import isUrl from 'is-url-superb';
 import tcpPortUsed from 'tcp-port-used';
@@ -62,6 +62,7 @@ async function start() {
                 if (!cliConfig.ef.includes(namespace)) return;
             }
             if (!cliConfig.allowSessionDataWebhook && (namespace == "sessionData" || namespace == "sessionDataBase64")) return;
+            const whStart = performance.now();
             await axios({
                 method: 'post',
                 url: cliConfig.ev,
@@ -71,6 +72,9 @@ async function start() {
                     sessionId,
                     namespace
                 }
+            }).then(({status})=>{
+                const t = (performance.now() - whStart).toFixed(0);
+                log.info("EV Webhook", namespace, status, t)
             }).catch(err => console.error(`WEBHOOK ERROR: ${cliConfig.ev} ${err.message}`));
         })
     }
