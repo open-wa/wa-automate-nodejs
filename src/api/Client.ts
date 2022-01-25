@@ -3817,12 +3817,21 @@ public async getStatus(contactId: ContactId) : Promise<{
           ].map(({
             id,
             url,
-            requestConfig}) => axios({
-            method: 'post',
-            url,
-            data: this.prepEventData(_data,event as SimpleListener,{webhook_id:id}),
-            ...requestConfig
-          }).catch(err=>console.error(`WEBHOOK ERROR: `, url ,err.message))))),10000);
+            requestConfig}) => {
+              const whStart = performance.now();
+              return axios({
+                method: 'post',
+                url,
+                data: this.prepEventData(_data,event as SimpleListener,{webhook_id:id}),
+                ...requestConfig
+              })
+              .then(({status})=>{
+                const t = (performance.now() - whStart).toFixed(0);
+                log.info("Client Webhook", event, status, t)
+              })
+              .catch(err=>console.error(`WEBHOOK ERROR: `, url ,err.message))
+            }
+          ))),10000);
         }        
       }
       })
