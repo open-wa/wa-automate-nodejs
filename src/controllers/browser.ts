@@ -12,6 +12,7 @@ const puppeteer = require('puppeteer-extra')
 import terminate from 'terminate/promise';
 import { log } from '../logging/logging';
 import { processSendData, timeout, timePromise } from '../utils/tools';
+import { qrManager } from './auth';
 
 let browser;
 export let BROWSER_START_TS = 0;
@@ -155,6 +156,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
     //try twice 
     const WEB_START_TS = new Date().getTime();
     const webRes = await waPage.goto(puppeteerConfig.WAUrl)
+    Promise.all([injectApi(waPage, spinner),qrManager.waitFirstQr(waPage, config, spinner)])
     const WEB_END_TS = new Date().getTime();
     if(webRes==null) {
       spinner?.info(`Page loaded but something may have gone wrong: ${WEB_END_TS - WEB_START_TS}ms`)
