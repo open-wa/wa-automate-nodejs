@@ -1,4 +1,4 @@
-import { create, ev, log, now, processSend } from '../index'
+import { create, ev, log, now, processSend, processSendData } from '../index'
 import terminalLink from 'terminal-link';
 import isUrl from 'is-url-superb';
 import tcpPortUsed from 'tcp-port-used';
@@ -174,6 +174,7 @@ async function start() {
             spinner.succeed(`Port ${PORT} is now free.`);
             server.listen(PORT, async () => {
                 spinner.succeed(`\n• Listening on port ${PORT}!`);
+                processSendData({port:PORT})
                 await ready({...cliConfig, ...createConfig, ...client.getSessionInfo(), hostAccountNumber: await client.getHostNumber()});
             });
             if(cliConfig.tunnel) {
