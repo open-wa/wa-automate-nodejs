@@ -11,7 +11,7 @@ import { FileNotFoundError, getTextFile } from 'pico-s3';
 const puppeteer = require('puppeteer-extra')
 import terminate from 'terminate/promise';
 import { log } from '../logging/logging';
-import { processSendData, timeout, timePromise } from '../utils/tools';
+import { now, processSendData, timeout, timePromise } from '../utils/tools';
 import { qrManager } from './auth';
 
 let browser;
@@ -27,12 +27,12 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
   let waPage = _page;
   if(!waPage) {
     spinner?.info('Launching Browser')
-    const startBrowser = performance.now();
+    const startBrowser = now();
     browser = await initBrowser(sessionId,config, spinner);
-    spinner?.info(`Browser launched: ${(performance.now() - startBrowser).toFixed(0)}ms`)
+    spinner?.info(`Browser launched: ${(now() - startBrowser).toFixed(0)}ms`)
     waPage = await getWAPage(browser);
   }
-  const postBrowserLaunchTs = performance.now();
+  const postBrowserLaunchTs = now();
 
   spinner?.info('Setting Up Page')
   if (config?.proxyServerCredentials) {
@@ -150,7 +150,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
     }
   if(config?.proxyServerCredentials?.address) spinner.succeed(`Active proxy: ${config.proxyServerCredentials.address}`)
   await Promise.all(setupPromises);
-  spinner?.info(`Pre page launch setup complete: ${(performance.now() - postBrowserLaunchTs).toFixed(0)}ms`)
+  spinner?.info(`Pre page launch setup complete: ${(now() - postBrowserLaunchTs).toFixed(0)}ms`)
   spinner?.info('Navigating to WA')
   try {
     //try twice 

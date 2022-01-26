@@ -33,7 +33,7 @@ import { Listener } from 'eventemitter2';
 import PriorityQueue from 'p-queue/dist/priority-queue';
 import { MessagePreprocessors } from '../structures/preProcessors';
 import { NextFunction, Request, Response } from 'express';
-import { base64MimeType, generateGHIssueLink, getDUrl, isBase64, isDataURL, processSendData } from '../utils/tools';
+import { base64MimeType, generateGHIssueLink, getDUrl, isBase64, isDataURL, now, processSendData } from '../utils/tools';
 import { Call } from './model/call';
 import { Button, Section } from './model/button';
 import { JsonObject } from 'type-fest';
@@ -3818,7 +3818,7 @@ public async getStatus(contactId: ContactId) : Promise<{
             id,
             url,
             requestConfig}) => {
-              const whStart = performance.now();
+              const whStart = now();
               return axios({
                 method: 'post',
                 url,
@@ -3826,7 +3826,7 @@ public async getStatus(contactId: ContactId) : Promise<{
                 ...requestConfig
               })
               .then(({status})=>{
-                const t = (performance.now() - whStart).toFixed(0);
+                const t = (now() - whStart).toFixed(0);
                 log.info("Client Webhook", event, status, t)
               })
               .catch(err=>console.error(`WEBHOOK ERROR: `, url ,err.message))

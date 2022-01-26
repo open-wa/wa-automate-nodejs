@@ -147,10 +147,14 @@ export const processSend: (message: string) => void = (message: string) => {
   return;
 };
 
+export const perf = () => performance || Date;
+
+export const now = () => perf().now();
+
 export async function timePromise(fn: () => Promise<any>): Promise<string> {
-  const start = performance.now();
+  const start = now();
   await fn()
-  return (performance.now() - start).toFixed(0);
+  return (now() - start).toFixed(0);
 }
 
 export const processSendData = (data : any = {}) => {

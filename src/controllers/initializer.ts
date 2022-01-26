@@ -10,7 +10,7 @@ import { deleteSessionData, initPage, injectApi, kill } from './browser';
 import { Spin } from './events'
 import { integrityCheck, checkWAPIHash } from './launch_checks';
 import CFonts from 'cfonts';
-import { generateGHIssueLink, getConfigFromProcessEnv } from '../utils/tools';
+import { generateGHIssueLink, getConfigFromProcessEnv, now } from '../utils/tools';
 import { SessionInfo } from '../api/model/sessionInfo';
 import { Page } from 'puppeteer';
 import { createHash } from 'crypto';
@@ -143,7 +143,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     if(config?.multiDevice && !config?.useChrome) spinner.info(`It is recommended to set useChrome: true or use the --use-chrome flag if you are experiencing issues with Multi device support`);
     waPage = await initPage(sessionId, config, customUserAgent, spinner);
     spinner.succeed('Page loaded');
-    const browserLaunchedTs = performance.now();
+    const browserLaunchedTs = now();
     const throwOnError = config && config.throwErrorOnTosBlock == true;
 
     const PAGE_UA = await waPage.evaluate('navigator.userAgent');
@@ -190,7 +190,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
      debugInfo.CLI = process.env.OWA_CLI && true || false
      // eslint-disable-next-line @typescript-eslint/no-unused-vars
      spinner.succeed('Use this easy pre-filled link to report an issue: ' + generateGHIssueLink(config,debugInfo));
-     spinner.info(`Time to injection: ${(performance.now() - browserLaunchedTs).toFixed(0)     }ms`);
+     spinner.info(`Time to injection: ${(now() - browserLaunchedTs).toFixed(0)     }ms`);
     if (canInjectEarly) {
       if(attemptingReauth) await waPage.evaluate(`window.Store = {"Msg": true}`)
       spinner.start('Injecting api');
