@@ -57,7 +57,7 @@
   },
   "homepage": "https://github.com/open-wa/wa-automate-nodejs#readme",
   "engines": {
-    "node": ">=17.4.0",
+    "node": ">=12.18.3",
     "npm": ">=7.9.0"
   },
   "resolutions": {
