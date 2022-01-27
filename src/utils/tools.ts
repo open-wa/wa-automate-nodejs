@@ -3,6 +3,10 @@ import { ConfigObject, DataURL } from '../api/model';
 import { default as axios, AxiosRequestConfig } from 'axios';
 import { SessionInfo } from '../api/model/sessionInfo';
 import { execSync } from 'child_process';
+import {
+  performance
+} from 'perf_hooks';
+
 //@ts-ignore
 process.send = process.send || function () {};
 
