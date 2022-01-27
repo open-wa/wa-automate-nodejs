@@ -6,7 +6,7 @@ import robots from "express-robots-txt";
 import swaggerUi from 'swagger-ui-express';
 import { default as axios } from 'axios'
 import parseFunction from 'parse-function';
-import { Client, ev, SimpleListener, ChatId, Message } from '..';
+import { Client, ev, SimpleListener, ChatId, Message, log } from '..';
 import qs from 'qs';
 import { convert } from 'xmlbuilder2';
 import { chatwootMiddleware, setupChatwootOutgoingMessageHandler } from './integrations/chatwoot';
@@ -211,7 +211,7 @@ export const setupTwilioCompatibleWebhook : (cliConfig : cliFlags, client: Clien
               }
               return await client.sendText(message.from, msg['#'])
         } catch (error) {
-            console.error("TWILIO-COMPAT WEBHOOK ERROR", url, error.message)
+            log.error("TWILIO-COMPAT WEBHOOK ERROR", url, error.message)
         }
     })
 }
