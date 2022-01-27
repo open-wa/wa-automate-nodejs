@@ -14,7 +14,10 @@ import { log } from '../logging/logging';
 import { now, processSendData, timeout, timePromise } from '../utils/tools';
 import { qrManager } from './auth';
 
-let browser;
+let browser,
+wapiInjected = false,
+wapiAttempts = 1;
+
 export let BROWSER_START_TS = 0;
 
 export async function initPage(sessionId?: string, config?:ConfigObject, customUserAgent?:string, spinner ?: Spin, _page?: Page, skipAuth ?: boolean) : Promise<Page> {
@@ -241,27 +244,25 @@ export async function injectPreApiScripts(page: Page, spinner ?: Spin) : Promise
    return page;
 }
 
-export async function injectWapi(page: Page, spinner ?: Spin) : Promise<Page> {
+export async function injectWapi(page: Page, spinner ?: Spin, force = false) : Promise<Page> {
+  if(wapiInjected && !force) return page;
+  const check = `window.WAPI && window.Store ? true : false`;
   const wapi = await timePromise(()=>addScript(page,'wapi.js'))
   spinner?.info(`WAPI inject: ${wapi}ms`)
-  spinner?.info("Checking WAPI Injection")
-  const check = (c) => `window.${c} ? true : false`
-  await page.waitForFunction(check('WAPI'),{ timeout: 0, polling: 500 })
-  return;
+  spinner?.info("Checking session integrity")
+  wapiAttempts++;
+   wapiInjected = !!(await page.waitForFunction(check,{ timeout: 3000, polling: 200 }).catch(e=>false))
+   if(!wapiInjected) {
+    spinner?.info(`Session integrity check failed, trying again... ${wapiAttempts}`);
+    return await injectWapi(page, spinner)
+  }
+  spinner?.info("Session integrity check passed")
+  return page;
 }
 
-export async function injectApi(page: Page, spinner ?: Spin) : Promise<Page> {
+export async function injectApi(page: Page, spinner ?: Spin, force = false) : Promise<Page> {
   await injectPreApiScripts(page, spinner);
-  await injectWapi(page, spinner)
-  // const wapi = await timePromise(()=>addScript(page,'wapi.js'))
-  // spinner?.info(`WAPI inject: ${wapi}ms`)
-  // await addScript(page,'wapi.js')
-  // await addScript(page,'wapi.js')
-  // await addScript(page,'wapi.js')
-  // await addScript(page,'wapi.js')
-  // await addScript(page,'wapi.js')
-  // await addScript(page,'wapi.js')
-  // await addScript(page,'wapi.js')
+  await injectWapi(page, spinner, force)
   const launch = await timePromise(()=>addScript(page,'launch.js'))
   spinner?.info(`Launch inject: ${launch}ms`)
   return page;

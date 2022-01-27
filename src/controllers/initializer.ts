@@ -281,7 +281,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     }
     const pre = canInjectEarly ? 'Rei' : 'I';
     spinner.start(`${pre}njecting api`);
-    waPage = await injectApi(waPage, spinner);
+    waPage = await injectApi(waPage, spinner, true);
     spinner.succeed(`WAPI ${pre}njected`);
 
     if (canInjectEarly) {
@@ -290,7 +290,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       if(config?.safeMode) await timeout(5000);
     }
     //@ts-ignore
-    const VALID_SESSION = await waPage.evaluate(() => window.Store && window.Store.Msg ? true : false);
+    const VALID_SESSION = await waPage.waitForFunction(`window.Store && window.Store.Msg ? true : false`,{ timeout: 9000, polling: 200 }).catch(e=>false)
     if (VALID_SESSION) {
       /**
        * Session is valid, attempt to preload patches
