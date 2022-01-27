@@ -7,6 +7,7 @@ import open from 'open';
 import getPort from 'get-port';
 import commandExists from 'command-exists';
 import http from 'http'
+import { processSendData } from "../../utils/tools";
 
 const 
 currentQrCodes = {
@@ -87,7 +88,7 @@ export async function popup(config: ConfigObject) : Promise<string> {
         });
     });
     server.listen(PORT);
-    
+    processSendData({port:PORT})
     const os = osName();
     const appName = os.includes('macOS') ? 'google chrome' : os.includes('Windows') ? 'chrome' : 'google-chrome';
     const hasChrome = await commandExists(appName).then(()=>true).catch(()=>false);
