@@ -399,6 +399,11 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     }
   } catch (error) {
     spinner.emit(error.message);
+    log.error(error.message);
+    if(error.stack) {
+      log.error(error.stack);
+      console.error(error.stack)
+    }
     await kill(waPage);
     if(error.name === "ProtocolError" && error.message?.includes("Target closed")) {
       spinner.fail(error.message);
