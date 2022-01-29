@@ -507,6 +507,7 @@ export class Client {
 
 
   private async pup(pageFunction:EvaluateFn<any>, ...args) {
+    const invocation_id =  uuidv4().slice(-5);
     const {safeMode, callTimeout, idCorrection, logging} = this._createConfig;
     let _t : number;
     if(safeMode) {
@@ -539,7 +540,7 @@ export class Client {
     if(logging) {
       const wapis = (pageFunction?.toString()?.match(/WAPI\.(\w*)\(/g) || [])?.map(s=>s.replace(/WAPI|\.|\(/g,''));
         _t = Date.now()
-        log.info(`Request ${_t}`,{
+        log.info(`Request ${invocation_id}`,{
           _method: wapis?.length === 1 ? wapis[0] : wapis,
           ...args[0]
           })     
@@ -547,7 +548,7 @@ export class Client {
     if(callTimeout) return await Promise.race([this._page.evaluate(pageFunction, ...args),new Promise((resolve, reject) => setTimeout(reject, this._createConfig?.callTimeout, new PageEvaluationTimeout()))])
     const res = await this._page.evaluate(pageFunction, ...args);
     if(_t && logging) {
-      log.info(`Response ${_t}: ${Date.now() - _t}ms`, {res})
+      log.info(`Response ${invocation_id}: ${Date.now() - _t}ms`, {res})
     }
     if(this._createConfig.onError && typeof res == "string" && (res.startsWith("Error") || res.startsWith("ERROR"))) {
       const e = this._createConfig.onError;
