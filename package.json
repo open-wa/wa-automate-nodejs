@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/wa-automate",
-  "version": "4.30.6",
+  "version": "4.30.7",
   "licenseCheckUrl": "https://openwa.dev/license-check",
   "brokenMethodReportUrl": "https://openwa.dev/report-bm",
   "patches": "https://cdn.openwa.dev/patches.json",
