@@ -339,8 +339,15 @@ export const setupSocketServer : (cliConfig, client : Client) => Promise<void> =
                     let { args } = objs[0]
                     if (args && !Array.isArray(args)) args = parseFunction().parse(client[m]).args.map(argName => args[argName]);
                     else if (!args) args = [];
-                    const data = await client[m](...args)
-                    callbacks[0](data)
+                    try {
+                        const data = await client[m](...args)
+                        callbacks[0](data)
+                    } catch (error) {
+                        callbacks[0]({error: {
+                            message: error.message,
+                            stack: error.stack || ""
+                        }})
+                    }
                 }
             }
             return;
