@@ -82,7 +82,7 @@
     "@typescript-eslint/eslint-plugin": "^5.8.0",
     "@typescript-eslint/parser": "^5.10.1",
     "auto-changelog": "^2.0.0",
-    "ava": "^3.13.0",
+    "ava": "^4.0.1",
     "changelog-parser": "^2.8.0",
     "command-line-args": "^5.1.1",
     "eslint": "^8.1.0",
