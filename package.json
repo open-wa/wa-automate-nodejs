@@ -112,7 +112,7 @@
     "boxen": "^5.0.0",
     "cfonts": "^2.8.5",
     "change-case": "^4.1.2",
-    "chrome-launcher": "^0.14.0",
+    "chrome-launcher": "^0.15.0",
     "command-exists": "^1.2.9",
     "command-line-usage": "^6.1.1",
     "cors": "^2.8.5",
