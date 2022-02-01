@@ -138,7 +138,7 @@
     "node-persist": "^3.1.0",
     "open": "^8.0.2",
     "os-name": "^4.0.0",
-    "p-queue": "6.6.2",
+    "p-queue": "7.2.0",
     "parse-function": "^5.6.10",
     "parse-url": "^5.0.2",
     "patch-package": "^6.2.2",
