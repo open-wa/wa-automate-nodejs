@@ -375,6 +375,8 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       if(config?.deleteSessionDataOnLogout || config?.killClientOnLogout) config.eventMode = true;
       const client = new Client(waPage, config, debugInfo);
       const { me } = await client.getMe();
+      const licIndex = process.argv.findIndex(arg=>arg==="--license-key" || arg==="-l");
+      config.licenseKey = config.licenseKey || licIndex !== -1 && process.argv[licIndex+1];
       if (config?.licenseKey || me._serialized!==earlyWid) {
          await getAndInjectLicense(waPage, config, me, debugInfo, spinner, me._serialized!==earlyWid ? false : await licensePromise)
       }
