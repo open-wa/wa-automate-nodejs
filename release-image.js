@@ -118,7 +118,7 @@ exports.run = async () => {
       url: "https://twemoji.maxcdn.com/v/latest/twemoji.min.js"
     });
     await page.setViewport({ width: 800, height: 800, deviceScaleFactor: 2 });
-    await page.setContent(html(marked(release.body),packageName,release));
+    await page.setContent(html(marked.parse(release.body),packageName,release));
     await page.evaluate(`document.fonts.ready`);
     await page.screenshot((await screenShotOptions(page)));
     console.log('Wrote screenshot to release.png');
