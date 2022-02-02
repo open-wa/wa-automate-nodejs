@@ -134,7 +134,7 @@
     "klona": "^2.0.5",
     "localtunnel": "^2.0.2",
     "lodash.uniq": "^4.5.0",
-    "meow": "^9.0.0",
+    "meow": "^10.1.2",
     "node-persist": "^3.1.0",
     "open": "^8.0.2",
     "os-name": "^4.0.0",
