@@ -186,6 +186,7 @@ export class QRManager {
       const fn = async (qrData) => {
         if (qrData.length > 200 && !config?.multiDevice) {
           spinner.fail(`Multi-Device detected, please set multiDevice to true in your config or add the --multi-device flag`)
+          spinner.emit(true,"MD_DETECT")
           return resolve(md)
         }
         if (!gotResult && (qrData === 'QR_CODE_SUCCESS' || qrData === md)) {
