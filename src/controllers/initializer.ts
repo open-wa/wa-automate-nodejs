@@ -341,7 +341,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
        });
        waPage.on('error', error => {
         if (config?.logConsoleErrors) console.error(error)
-        log.error('Page Console Error:', error.text())
+        log.error('Page Console Error:', error.message || error?.text())
        });
       if (config?.restartOnCrash) waPage.on('error', async error => {
         console.error('Page Crashed! Restarting...', error);
