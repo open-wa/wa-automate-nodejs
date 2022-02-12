@@ -330,7 +330,7 @@ export class Client {
           if(message.body && message.body.startsWith(ident) && message.body.endsWith(ident)) {
             const emojiId = message.body.replace(new RegExp(ident, 'g'),"");
             if(!emojiId) return;
-            return await this.sendEmoji(message.from,emojiId,message.id)
+            return await this.sendEmoji(message.from,emojiId,message.id).catch(()=>{})
           }
         })
         this._autoEmojiSet = true;
