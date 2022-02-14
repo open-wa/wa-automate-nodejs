@@ -101,6 +101,7 @@ export class QRManager {
   }
 
   qrEvF(config = this.config) {
+    return new EvEmitter(config.sessionId || 'session', 'qr');
     if (!this.qrEv) this.qrEv = new EvEmitter(config.sessionId || 'session', 'qr');
     return this.qrEv
   }
