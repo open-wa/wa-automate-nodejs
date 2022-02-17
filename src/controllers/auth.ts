@@ -10,6 +10,7 @@ import axios from 'axios';
 import { log } from '../logging/logging';
 
 /**
+ * isAuthenticated
  * Validates if client is authenticated
  * @returns true if is authenticated, false otherwise
  * @param waPage
@@ -35,7 +36,7 @@ export const needsToScan = (waPage: Page): Observable<unknown> => {
   }))
 };
 
-export const isInsideChat = (waPage: Page): Observable<boolean> => {
+const isInsideChat = (waPage: Page): Observable<boolean> => {
   return from(
     waPage
       .waitForFunction(
@@ -43,6 +44,17 @@ export const isInsideChat = (waPage: Page): Observable<boolean> => {
         { timeout: 0 }
       )
       .then(() => true)
+  );
+};
+
+const isTosBlocked  = (waPage: Page): Observable<string | boolean> => {
+  return from(
+    waPage
+      .waitForFunction(
+        `document.getElementsByTagName("html")[0].classList[0] === 'no-js'`,
+        { timeout: 0 }
+      )
+      .then(() => false)
   );
 };
 
@@ -57,17 +69,20 @@ export const waitForRipeSession = async (waPage: Page): Promise<boolean> => {
 }
 
 export const sessionDataInvalid = async (waPage: Page): Promise<string> => {
+  const check = `Object.keys(localStorage).includes("old-logout-cred")`
   await waPage
     .waitForFunction(
-      '!window.getQrPng',
+      check,
       { timeout: 0, polling: 'mutation' }
     )
-  await injectApi(waPage);
-  await waPage
-    .waitForFunction(
-      '!window.getQrPng',
-      { timeout: 0, polling: 'mutation' }
-    )
+  // await injectApi(waPage, null, true);
+  // await waPage
+  //   .waitForFunction(
+  //     '!window.getQrPng',
+  //     { timeout: 0, polling: 'mutation' }
+  //   )
+    // await timeout(1000000)
+    //NEED A DIFFERENT WAY TO DETERMINE IF THE SESSION WAS LOGGED OUT!!!!
   //if the code reaches here it means the browser was refreshed. Nuke the session data and restart `create`
   return 'NUKE';
 }
@@ -218,12 +233,16 @@ export class QRManager {
     await this.grabAndEmit(firstQr, waPage, config, spinner);
   }
 
+  /**
+   * Wait 10 seconds for the qr element to show.
+   * If it doesn't show up within 10 seconds then assume the session is authed already or blocked therefore ignore and return promise
+   */
   async waitFirstQr(waPage: Page, config?: ConfigObject, spinner?: Spin){
     const fqr = await waPage.waitForFunction(`!!(${this.qrCheck})`, {
       polling: 500,
       timeout: 10000
     })
-    .catch(e=>false)
+    .catch(()=>false)
     if(fqr) await this.emitFirst(waPage,config,spinner);
     return;
   }
