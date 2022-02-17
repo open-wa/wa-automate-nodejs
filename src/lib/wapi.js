@@ -82,7 +82,7 @@ if (!window.Store||!window.Store.Msg) {
                     window.Store[needObj.id] = needObj.foundedModule;
                 }
             });
-	    window.Store.Chat.modelClass.prototype.sendMessage = function (e) {
+	    if(window.Store.Chat) window.Store.Chat.modelClass.prototype.sendMessage = function (e) {
 		window.Store.SendTextMsgToChat(this, ...arguments);
 	    }
             return window.Store;
@@ -833,7 +833,7 @@ window.WAPI.markAsUnread = async function (id) {
     return false;
 };
 
-function isChatMessage(message) {
+window.isChatMessage = function (message) {
     if (message.isSentByMe) {
         return false;
     }
@@ -1314,7 +1314,7 @@ window.WAPI.onParticipantsChanged = function (groupId, callback) {
  * @param callback - function - Callback function to be called when a message acknowledgement changes. The callback returns 3 variables
  * @returns {boolean}
  */
-var groupParticpiantsEvents = {};
+window.groupParticpiantsEvents = {};
 window.WAPI._onParticipantsChanged = function (groupId, callback) {
     const subtypeEvents = [
         "invite" , 
