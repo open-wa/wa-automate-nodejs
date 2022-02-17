@@ -1,14 +1,8 @@
 {
   "name": "@open-wa/wa-automate",
-<<<<<<< HEAD
   "version": "4.30.12",
   "licenseCheckUrl": "https://funcs.openwa.dev/license-check",
   "brokenMethodReportUrl": "https://funcs.openwa.dev/report-bm",
-=======
-  "version": "4.30.13",
-  "licenseCheckUrl": "https://openwa.dev/license-check",
-  "brokenMethodReportUrl": "https://openwa.dev/report-bm",
->>>>>>> 19e5c041fdb39e3c4d4c8c932ecea15317fd5745
   "patches": "https://cdn.openwa.dev/patches.json",
   "stickerUrl": "https://sticker-api.openwa.dev",
   "description": " 💬 🤖 The most reliable NodeJS whatsapp library for chatbots with advanced features.",
