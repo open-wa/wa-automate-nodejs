@@ -14,6 +14,7 @@ import { log } from '../logging/logging';
 import { now, processSendData, timeout, timePromise } from '../utils/tools';
 import { qrManager } from './auth';
 import { scriptLoader } from './script_preloader';
+import { earlyInjectionCheck } from './patch_manager';
 
 let browser,
 wapiInjected = false,
@@ -24,6 +25,7 @@ export let BROWSER_START_TS = 0;
 
 export async function initPage(sessionId?: string, config?:ConfigObject, customUserAgent?:string, spinner ?: Spin, _page?: Page, skipAuth ?: boolean) : Promise<Page> {
   const setupPromises = [];
+  scriptLoader.loadScripts();
   if(config?.resizable === undefined || !config?.resizable == false) config.defaultViewport= null
   if(config?.useStealth) {
     const {default : stealth} = await import('puppeteer-extra-plugin-stealth')
@@ -40,6 +42,25 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
   //@ts-ignore
   waPage._client.send('Network.setBypassServiceWorker', {bypass: true})
   const postBrowserLaunchTs = now();
+  waPage.on("framenavigated", async frame => {
+    try {
+      const frameNavPromises = [];
+      const content = await frame.content()
+      const webpPackKey = (((content.match(/self.(?:.*)=self.*\|\|\[\]/g) || [])[0] || "").match(/self.*\w?=/g) || [""])[0].replace("=","").replace("self.","") || false
+      log.info(`FRAME NAV, ${frame.url()}, ${webpPackKey}`)
+      if(webpPackKey) {
+        frameNavPromises.push(injectApi(waPage, spinner, true))
+        frameNavPromises.push(qrManager.waitFirstQr(waPage, config, spinner))
+      }
+      if(frame.url().includes('post_logout=1')) {
+          console.log("Session most likely logged out")
+      }
+      await Promise.all(frameNavPromises)
+    } catch (error) {
+      log.error('framenaverr', error)
+    }
+  })
+
 
   spinner?.info('Setting Up Page')
   if (config?.proxyServerCredentials) {
@@ -182,7 +203,6 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
     //try twice 
     const WEB_START_TS = new Date().getTime();
     const webRes = await waPage.goto(puppeteerConfig.WAUrl)
-    Promise.all([injectApi(waPage, spinner),qrManager.waitFirstQr(waPage, config, spinner)])
     const WEB_END_TS = new Date().getTime();
     if(webRes==null) {
       spinner?.info(`Page loaded but something may have gone wrong: ${WEB_END_TS - WEB_START_TS}ms`)
@@ -256,6 +276,7 @@ export const addScript = async (page: Page, js : string) : Promise<unknown> => p
 
 
 export async function injectPreApiScripts(page: Page, spinner ?: Spin) : Promise<Page> {
+  if(await page.evaluate("!['jsSHA','axios', 'QRCode', 'Base64', 'objectHash'].find(x=>!window[x])")) return;
   const t1 = await timePromise(() => Promise.all(
    [
      'axios.min.js',
@@ -270,16 +291,29 @@ export async function injectPreApiScripts(page: Page, spinner ?: Spin) : Promise
 }
 
 export async function injectWapi(page: Page, spinner ?: Spin, force = false) : Promise<Page> {
-  if(wapiInjected && !force) return page;
+  const bruteInjectionAttempts = 1;
+  await earlyInjectionCheck(page)
   const check = `window.WAPI && window.Store ? true : false`;
-  const wapi = await timePromise(()=>addScript(page,'wapi.js'))
-  spinner?.info(`WAPI inject: ${wapi}ms`)
+  const initCheck = await page.evaluate(check)
+  if(initCheck) return;
+  log.info(`WAPI CHECK: ${initCheck}`)
+  if(!check) force = true;
+  if(wapiInjected && !force) return page;
+  const multiScriptInjectPromiseArr = Array(bruteInjectionAttempts).fill("wapi.js").map((_s)=>addScript(page,_s))
+  try {
+    const wapi = await timePromise(()=>Promise.all(multiScriptInjectPromiseArr))
+    spinner?.info(`WAPI inject: ${wapi}ms`)
+  } catch (error) {
+    log.error("injectWapi ~ error", error.message)
+    //one of the injection attempts failed.
+    return await injectWapi(page,spinner,force)
+  }
   spinner?.info("Checking session integrity")
   wapiAttempts++;
-   wapiInjected = !!(await page.waitForFunction(check,{ timeout: 3000, polling: 200 }).catch(e=>false))
+   wapiInjected = !!(await page.waitForFunction(check,{ timeout: 3000, polling: 50 }).catch(e=>false))
    if(!wapiInjected) {
     spinner?.info(`Session integrity check failed, trying again... ${wapiAttempts}`);
-    return await injectWapi(page, spinner)
+    return await injectWapi(page, spinner, true)
   }
   spinner?.info("Session integrity check passed")
   return page;
