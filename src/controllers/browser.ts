@@ -273,7 +273,7 @@ export const getSessionDataFilePath = (sessionId: string, config: ConfigObject) 
   return false
 }
 
-export const addScript = async (page: Page, js : string) : Promise<unknown> => page.evaluate(await scriptLoader.getScript(js))
+export const addScript = async (page: Page, js : string) : Promise<unknown> => page.evaluate(await scriptLoader.getScript(js)).catch(e => log.error(`Injection error: ${js}`, e))
 // (page: Page, js : string) : Promise<unknown> => page.addScriptTag({
 //   path: require.resolve(path.join(__dirname, '../lib', js))
 // })
