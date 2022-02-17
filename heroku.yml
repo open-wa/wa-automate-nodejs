@@ -2,4 +2,4 @@ build:
   docker:
     web: Dockerfile.heroku
 run:
-  web: WA_PORT=$PORT node ./node_modules/@open-wa/wa-automate/bin/server.js --use-chrome  --in-docker --qr-timeout 0 --popup --port=$PORT
+  web: WA_PORT=$PORT node ./node_modules/@open-wa/wa-automate/bin/server.js --use-chrome  --in-docker --qr-timeout 0 --popup --force-port=$PORT
