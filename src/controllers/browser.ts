@@ -13,6 +13,7 @@ import terminate from 'terminate/promise';
 import { log } from '../logging/logging';
 import { now, processSendData, timeout, timePromise } from '../utils/tools';
 import { qrManager } from './auth';
+import { scriptLoader } from './script_preloader';
 
 let browser,
 wapiInjected = false,
@@ -228,9 +229,11 @@ export const getSessionDataFilePath = (sessionId: string, config: ConfigObject) 
   return false
 }
 
-export const addScript = (page: Page, js : string) : Promise<unknown> => page.addScriptTag({
-  path: require.resolve(path.join(__dirname, '../lib', js))
-})
+export const addScript = async (page: Page, js : string) : Promise<unknown> => page.evaluate(await scriptLoader.getScript(js))
+// (page: Page, js : string) : Promise<unknown> => page.addScriptTag({
+//   path: require.resolve(path.join(__dirname, '../lib', js))
+// })
+
 
 export async function injectPreApiScripts(page: Page, spinner ?: Spin) : Promise<Page> {
   const t1 = await timePromise(() => Promise.all(
