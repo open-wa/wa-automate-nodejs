@@ -67,6 +67,13 @@ Merge<Merge<{
     description: "Webhook to use for the listeners."
 },
 {
+    name: 'verbose',
+    alias: 'v',
+    default: false,
+    type: Boolean,
+    description: "Enable console transport for internal logger."
+},
+{
     name: 'ev',
     alias: 'e',
     type: String,

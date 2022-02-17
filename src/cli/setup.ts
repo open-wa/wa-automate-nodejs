@@ -173,7 +173,9 @@ export const cli: () => {
     };
     
     //firstly set up logger
-    if(cliConfig?.logging){
+    if(cliConfig?.logging || cliConfig?.verbose){
+        if(!cliConfig?.logging && cliConfig?.verbose) cliConfig.logging = []
+        if(cliConfig?.logging && !(cliConfig?.logging || []).find(transport => transport.type === "console")) cliConfig.logging.push({type: 'console'})
         if(Array.isArray(cliConfig?.logging))
         cliConfig.logging = setupLogging(cliConfig?.logging, `easy-api-${cliConfig?.sessionId || 'session'}`)
     }
