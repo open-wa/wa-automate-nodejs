@@ -707,7 +707,7 @@ export interface ConfigObject {
      /**
       * What to do when an error is detected on a client method.
       * 
-      * @default `NOTHING`
+      * @default `OnError.NOTHING`
       */
     onError ?: OnError
     /**
@@ -717,6 +717,9 @@ export interface ConfigObject {
      * Set this to true if you're using the multidevice beta.
      * 
      * @default `false`
+     * :::danger
+     * Some features (e.g [[sendLinkWithAutoPreview]])  **do not** work with multi-device beta. Check [this `api`](#).
+     * :::
      */
     multiDevice ?: boolean
     /**
