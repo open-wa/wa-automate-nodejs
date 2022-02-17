@@ -320,10 +320,11 @@ export async function injectWapi(page: Page, spinner ?: Spin, force = false) : P
 }
 
 export async function injectApi(page: Page, spinner ?: Spin, force = false) : Promise<Page> {
+  spinner?.info("Injecting scripts")
   await injectPreApiScripts(page, spinner);
   await injectWapi(page, spinner, force)
   const launch = await timePromise(()=>addScript(page,'launch.js'))
-  spinner?.info(`Launch inject: ${launch}ms`)
+  spinner?.succeed(`Launch inject: ${launch}ms`)
   return page;
 }
 
