@@ -79,7 +79,7 @@ export interface Product {
     description ?: string;
     /**
      * The availiable quantity of this product.
-     * @default `"unknown"``
+     * @default "unknown"`
      */
     availability ?: number | "unknown";
     /**
