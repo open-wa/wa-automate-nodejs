@@ -46,6 +46,11 @@ Merge<Merge<{
     description: "Set the port for the api. Default to 8002."
 },
 {
+    name: 'forcePort',
+    type: Number,
+    description: "Sometimes --port is overridden by environmental variables or the config file. Use this flag to force the port to be used."
+},
+{
     name: 'api-host',
     type: String,
     typeLabel: '{yellow {underline localhost}}',

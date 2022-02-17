@@ -180,7 +180,7 @@ export const cli: () => {
         cliConfig.logging = setupLogging(cliConfig?.logging, `easy-api-${cliConfig?.sessionId || 'session'}`)
     }
 
-    const PORT = Number(cliConfig.port || process.env.PORT || 8080);
+    const PORT = Number((typeof cliConfig.forcePort === "boolean" && cliConfig.forcePort ? process.env.PORT : cliConfig.forcePort) || cliConfig.port || process.env.PORT || 8080);
     const spinner = new Spin(cliConfig.sessionId, 'STARTUP', cliConfig?.disableSpins);
 
     const createConfig: ConfigObject = {
@@ -261,7 +261,13 @@ export const cli: () => {
         cliConfig.apiHost = cliConfig.apiHost.replace(/\/$/, '')
     }
 
+    /**
+     * Check the port in the config
+     */
+     cliConfig.port = PORT;
+
     if (cliConfig.debug) {
+        spinner.succeed(`DEBUG - PORT: ${PORT}`)
         spinner.succeed(`DEBUG - flags: ${JSON.stringify(cliConfig)}`)
         const WA_ENV = {};
         Object.keys(process.env).map(k => {
