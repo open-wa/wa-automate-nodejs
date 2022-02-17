@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Client | @open-wa/wa-automate - v4.31.1</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.31.1">
+	<title>Client | @open-wa/wa-automate - v4.31.2</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.31.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v4.31.1</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.31.2</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -301,6 +301,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#simulateTyping" class="tsd-kind-icon">simulate<wbr>Typing</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#syncContacts" class="tsd-kind-icon">sync<wbr>Contacts</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#tagEveryone" class="tsd-kind-icon">tag<wbr>Everyone</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#testCallback" class="tsd-kind-icon">test<wbr>Callback</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#unmuteChat" class="tsd-kind-icon">unmute<wbr>Chat</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#updateWebhook" class="tsd-kind-icon">update<wbr>Webhook</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#waitAllQEmpty" class="tsd-kind-icon">wait<wbr>AllQEmpty</a></li>
@@ -7286,6 +7287,35 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="testCallback" class="tsd-anchor"></a>
+					<h3>test<wbr>Callback</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">test<wbr>Callback<span class="tsd-signature-symbol">(</span>callbackToTest<span class="tsd-signature-symbol">: </span><a href="../enums/api_model_events.SimpleListener.html" class="tsd-signature-type" data-tsd-kind="Enumeration">SimpleListener</a>, testData<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Use this simple command to test firing callback events.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>callbackToTest: <a href="../enums/api_model_events.SimpleListener.html" class="tsd-signature-type" data-tsd-kind="Enumeration">SimpleListener</a></h5>
+								</li>
+								<li>
+									<h5>testData: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p><code>false</code> if the callback was not registered/does not exist</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="unmuteChat" class="tsd-anchor"></a>
 					<h3>unmute<wbr>Chat</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -8082,6 +8112,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_Client.Client.html#tagEveryone" class="tsd-kind-icon">tag<wbr>Everyone</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="api_Client.Client.html#testCallback" class="tsd-kind-icon">test<wbr>Callback</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_Client.Client.html#unmuteChat" class="tsd-kind-icon">unmute<wbr>Chat</a>
