@@ -35,6 +35,8 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
     spinner?.info(`Browser launched: ${(now() - startBrowser).toFixed(0)}ms`)
     waPage = await getWAPage(browser);
   }
+  //@ts-ignore
+  waPage._client.send('Network.setBypassServiceWorker', {bypass: true})
   const postBrowserLaunchTs = now();
 
   spinner?.info('Setting Up Page')
