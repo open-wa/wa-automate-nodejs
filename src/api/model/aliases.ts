@@ -1,3 +1,7 @@
+// declare const tag: unique symbol
+
+type Brand<K, T> = K & { __brand ?: T }
+
 /**
  * The suffix used to identify a non-group chat id
  */
@@ -39,7 +43,7 @@ export type GroupChatId = `${AccountNumber}-${number}@${GroupChatServer}`;
  * 
  * `"447123456789@c.us"`
  */
-export type ContactId = `${AccountNumber}@${ChatServer}`;
+export type ContactId = Brand<`${AccountNumber}@${ChatServer}`, "ContactId">;
 
 /**
  * A chat id ends with `@c.us` or `@g.us` for group chats.
@@ -59,7 +63,7 @@ export type ChatId = ContactId | GroupChatId
  * 
  * `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"`
  */
-export type MessageId = `${boolean}_${ChatId}_${string}`;
+export type MessageId = Brand<`${boolean}_${ChatId}_${string}`, "MessageId">;
 
 /**
  * This is a generic type alias for the content of a message
@@ -68,7 +72,7 @@ export type MessageId = `${boolean}_${ChatId}_${string}`;
  * 
  * `"hello!"`
  */
-export type Content = string;
+export type Content = Brand<string, "Content">;
 
 export type NonSerializedId = {
   server: WaServers,
@@ -88,7 +92,7 @@ export type NonSerializedId = {
  * 
  * Learn more here: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs
  */
-export type DataURL = string;
+export type DataURL = Brand<`data:${string};base64,${Base64}`, "DataURL">;
 
 /**
  * Base64 is basically a file encoded as a string.
@@ -97,11 +101,12 @@ export type DataURL = string;
  * 
  * Learn more here: https://developer.mozilla.org/en-US/docs/Glossary/Base64
  */
-export type Base64 = string;
+// export type Base64 = string & { readonly [tag] ?: 'Base64' };
+export type Base64 = Brand<string, "Base64">;
 
 /**
  * The relative or absolute path of a file
  * 
  * Learn more here: https://www.w3schools.com/html/html_filepaths.asp
  */
-export type FilePath = string;
+export type FilePath = Brand<string, "FilePath">;
