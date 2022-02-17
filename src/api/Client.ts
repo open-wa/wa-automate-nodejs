@@ -24,7 +24,7 @@ import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
 import * as path from 'path';
 import { CustomProduct, Label, Order, Product } from './model/product';
 import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
-import { earlyInjectionCheck, getAndInjectLicense, getAndInjectLivePatch, getLicense } from "../controllers/patch_manager";
+import { getAndInjectLicense, getAndInjectLivePatch, getLicense } from "../controllers/patch_manager";
 import { SimpleListener } from './model/events';
 import { AwaitMessagesOptions, Collection, CollectorFilter, CollectorOptions } from '../structures/Collector';
 import { MessageCollector } from '../structures/MessageCollector';
@@ -33,7 +33,7 @@ import { Listener } from 'eventemitter2';
 import PriorityQueue from 'p-queue/dist/priority-queue';
 import { MessagePreprocessors } from '../structures/preProcessors';
 import { NextFunction, Request, Response } from 'express';
-import { base64MimeType, generateGHIssueLink, getDUrl, isBase64, isDataURL, now, processSendData } from '../utils/tools';
+import { base64MimeType, generateGHIssueLink, getDUrl, isBase64, isDataURL, now } from '../utils/tools';
 import { Call } from './model/call';
 import { Button, Section } from './model/button';
 import { JsonObject } from 'type-fest';
@@ -373,7 +373,7 @@ export class Client {
   }
 
   private async _reInjectWapi(newTab ?: Page) : Promise<void> {
-    await injectApi(newTab || this._page)
+    await injectApi(newTab || this._page, null, true)
   }
 
   private async _reRegisterListeners(){
@@ -384,7 +384,7 @@ export class Client {
    * A convinience method to download the [[DataURL]] of a file
    * @param url The url
    * @param optionsOverride You can use this to override the [axios request config](https://github.com/axios/axios#request-config)
-   * @returns Promise<DataURL>
+   * @returns `Promise<DataURL>`
    */
   public async download(url: string, optionsOverride: any = {} )  : Promise<DataURL> {
     return await getDUrl(url, optionsOverride)
@@ -435,7 +435,6 @@ export class Client {
      /**
       * Wait for the new page to be loaded up before closing existing page
       */
-     await earlyInjectionCheck(newTab)
      spinner.info("Checking if fresh session is authenticated...")
      if(await isAuthenticated(newTab)) {
         /**
@@ -866,7 +865,8 @@ export class Client {
    * 
    * Here is an example of the fired object:
    * 
-   * @fires ```javascript
+   * @fires 
+   * ```javascript
    * {
    * "chat": "00000000000-1111111111@g.us", //the chat in which this state is occuring
    * "user": "22222222222@c.us", //the user that is causing this state
@@ -980,7 +980,7 @@ export class Client {
  * @param chatId the chat from which you want to subscribes to live location updates
  * @param fn callback that takes in a LiveLocationChangedEvent
  * @returns boolean, if returns false then there were no valid live locations in the chat of chatId
- * @emits <LiveLocationChangedEvent> LiveLocationChangedEvent
+ * @emits `<LiveLocationChangedEvent>` LiveLocationChangedEvent
  */
 public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveLocationChangedEvent) => void) : Promise<boolean> {
   const funcName = "onLiveLocation_" + chatId.replace('_', "").replace('_', "");
@@ -1210,7 +1210,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * A list of participants in the chat who have their live location on. If the chat does not exist, or the chat does not have any contacts actively sharing their live locations, it will return false. If it's a chat with a single contact, there will be only 1 value in the array if the contact has their livelocation on.
    * Please note. This should only be called once every 30 or so seconds. This forces the phone to grab the latest live location data for the number. This can be used in conjunction with onLiveLocation (this will trigger onLiveLocation).
    * @param chatId string Id of the chat you want to force the phone to get the livelocation data for.
-   * @returns Promise<LiveLocationChangedEvent []> | boolean 
+   * @returns `Promise<LiveLocationChangedEvent []>` | boolean 
    */
   public async forceUpdateLiveLocation(chatId: ChatId): Promise<LiveLocationChangedEvent[] | boolean>  {
     return await this.pup(
@@ -1342,6 +1342,8 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
 
    /**
+    * {@license:insiders@}
+    * <span theme="badge contrast license">Insiders</span>
     * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
     * 
     * Send a list message. This will not work when being sent from business accounts!
@@ -1392,7 +1394,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param groupId group chat id: `xxxxx@g.us`
    * @param content text message to add under all of the tags
    * @param hideTags Removes all tags within the message
-   * @returns Promise<MessageId>
+   * @returns `Promise<MessageId>`
    */
   public async tagEveryone(groupId: GroupChatId, content: Content, hideTags?: boolean) : Promise<boolean | MessageId> {
     return await this.pup(
@@ -1476,7 +1478,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
   /**
    * Decrypts a media message.
    * @param message This can be the serialized [[MessageId]] or the whole [[Message]] object. It is advised to just use the serialized message ID.
-   * @returns Promise<[[DataURL]]>
+   * @returns `Promise<[[DataURL]]>`
    */
   public async decryptMedia(message: Message | MessageId) : Promise<DataURL> {
     let m : any;
@@ -1502,7 +1504,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param caption string xxxxx
    * @param waitForKey boolean default: false set this to true if you want to wait for the id of the message. By default this is set to false as it will take a few seconds to retrieve to the key of the message and this waiting may not be desirable for the majority of users.
    * @param hideTags boolean default: false [INSIDERS] set this to try silent tag someone in the caption
-   * @returns Promise <boolean | string> This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
+   * @returns `Promise <boolean | string>` This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
    */
   public async sendImage(
     to: ChatId,
@@ -1583,7 +1585,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param content string reply text
    * @param quotedMsgId string the msg id to reply to.
    * @param sendSeen boolean If set to true, the chat will 'blue tick' all messages before sending the reply
-   * @returns Promise<MessageId | false> false if didn't work, otherwise returns message id.
+   * @returns `Promise<MessageId | false>` false if didn't work, otherwise returns message id.
    */
   public async reply(to: ChatId, content: Content, quotedMsgId: MessageId, sendSeen?: boolean) : Promise<boolean | MessageId> {
     if(sendSeen) await this.sendSeen(to);
@@ -1601,7 +1603,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * This will only work if you have chats sent back and forth between you and the contact 1-1.
    * 
    * @param contactId The Id of the contact with which you have an existing conversation with messages already.
-   * @returns Promise<string | boolean> true or false or a string with an explaintaion of why it wasn't able to determine the read receipts.
+   * @returns `Promise<string | boolean>` true or false or a string with an explaintaion of why it wasn't able to determine the read receipts.
    * 
    */
   public async checkReadReceipts(contactId: ContactId) : Promise<string | boolean> {
@@ -1628,7 +1630,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param ptt boolean default: false set this to true if you want to send the file as a push to talk file.
    * @param withoutPreview boolean default: false set this to true if you want to send the file without a preview (i.e as a file). This is useful for preventing auto downloads on recipient devices.
    * @param hideTags boolean default: false [INSIDERS] set this to try silent tag someone in the caption
-   * @returns Promise <boolean | MessageId> This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
+   * @returns `Promise <boolean | MessageId>` This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
    */
   public async sendFile(
     to: ChatId,
@@ -1650,7 +1652,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * 
    * Checks whether or not the group id provided is known to be unsafe by the contributors of the library.
    * @param groupChatId The group chat you want to deteremine is unsafe
-   * @returns Promise <boolean | string> This will either return a boolean indiciating whether this group chat id is considered unsafe or an error message as a string
+   * @returns `Promise <boolean | string>` This will either return a boolean indiciating whether this group chat id is considered unsafe or an error message as a string
    */
   public async isGroupIdUnsafe(groupChatId: GroupChatId) : Promise<string | boolean>{
     const {data} = await axios.post('https://openwa.dev/groupId-check', {
@@ -1667,7 +1669,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
    * @param to chat id `xxxxx@c.us`
    * @param file base64 data:image/xxx;base64,xxx or the path of the file you want to send.
    * @param quotedMsgId string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message
-   * @returns Promise <boolean | string> This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
+   * @returns `Promise <boolean | string>` This will either return true or the id of the message. It will return true after 10 seconds even if waitForId is true
    */
   public async sendPtt(
     to: ChatId,
@@ -1798,7 +1800,7 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
 
   /**
    * Returns a PNG DataURL screenshot of the session
-   * @returns Promise<DataURL>
+   * @returns `Promise<DataURL>`
    */
   public async getSnapshot() : Promise<DataURL> {
     const screenshot = await this.getPage().screenshot({
@@ -2021,7 +2023,7 @@ public async iAmAdmin() : Promise<GroupChatId[]>  {
  * Any potential abuse of this method will see it become paywalled.
  * @param to: Chat id to forward the message to
  * @param messageId: message id of the message to forward. Please note that if it is not loaded, this will return false - even if it exists.
- * @returns Promise<MessageId | boolean>
+ * @returns `Promise<MessageId | boolean>`
  */
   public async ghostForward(to: ChatId, messageId: MessageId) : Promise<MessageId | boolean> {
     return await this.pup(
@@ -2139,7 +2141,7 @@ public async iAmAdmin() : Promise<GroupChatId[]>  {
 
   /**
    * retrieves an array of IDs of accounts blocked by the host account.
-   * @returns Promise<ChatId[]>
+   * @returns `Promise<ChatId[]>`
    */
   public async getBlockedIds() : Promise<ChatId[]> {
     return await this.pup(() => WAPI.getBlockedIds()) as Promise<ChatId[]>;
@@ -2207,7 +2209,7 @@ public async iAmAdmin() : Promise<GroupChatId[]>  {
  * @param returnChatObj boolean When this is set to true and if the group was joined successfully, it will return a serialzed Chat object which includes group information and metadata. This is useful when you want to immediately do something with group metadata.
  * 
  * 
- * @returns Promise<string | boolean | number> Either false if it didn't work, or the group id.
+ * @returns `Promise<string | boolean | number>` Either false if it didn't work, or the group id.
  */
   public async joinGroupViaLink(link: string, returnChatObj?: boolean) : Promise<string | boolean | number | Chat>{
     return await this.pup(
@@ -2677,7 +2679,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   /**
     * Retrieves an invite link for a group chat. returns false if chat is not a group.
    * @param chatId
-   * @returns Promise<string>
+   * @returns `Promise<string>`
    */
   public async getGroupInviteLink(chatId: ChatId) : Promise<string>{
     return await this.pup(
@@ -2702,7 +2704,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   /**
     * Revokes the current invite link for a group chat. Any previous links will stop working
    * @param chatId
-   * @returns Promise<boolean>
+   * @returns `Promise<boolean>`
    */
   public async revokeGroupInviteLink(chatId: ChatId) : Promise<boolean | string>{
     return await this.pup(
@@ -2828,21 +2830,6 @@ public async getStatus(contactId: ContactId) : Promise<{
    * 
    * @param groupName group name: 'New group'
    * @param contacts: A single contact id or an array of contact ids.
-   * @returns Promise<GroupCreationResponse> :
-   * ```javascript
-   * {
-   *   status: 200,
-   *   gid: {
-   *     server: 'g.us',
-   *     user: '447777777777-1583678870',
-   *     _serialized: '447777777777-1583678870@g.us'
-   *   },
-   *   participants: [
-   *     { '447777777777@c.us': [Object] },
-   *     { '447444444444@c.us': [Object] }
-   *   ]
-   * }
-   * ```
    */
   public async createGroup(groupName:string,contacts:ContactId|ContactId[]) : Promise<GroupChatCreationResponse> {
     return await this.pup(
@@ -3106,7 +3093,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * @param url: The url of the image
    * @param requestConfig {} By default the request is a get request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
    *
-   * @returns Promise<MessageId | boolean>
+   * @returns `Promise<MessageId | boolean>`
    */
   public async sendStickerfromUrl(to: ChatId, url: string, requestConfig: AxiosRequestConfig = {}, stickerMetadata ?: StickerMetadata) : Promise<string | MessageId | boolean> {
       const base64 = await getDUrl(url, requestConfig);
@@ -3122,7 +3109,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * @param messageId The id of the message to reply to
    * @param requestConfig {} By default the request is a get request, however you can override that and many other options by sending this parameter. You can read more about this parameter here: https://github.com/axios/axios#request-config
    * 
-   * @returns Promise<MessageId | boolean>
+   * @returns `Promise<MessageId | boolean>`
    */
   public async sendStickerfromUrlAsReply(to: ChatId, url: string, messageId: MessageId, requestConfig: AxiosRequestConfig = {}, stickerMetadata ?: StickerMetadata): Promise<MessageId | boolean>  {
     const dUrl = await getDUrl(url, requestConfig);
@@ -3398,7 +3385,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * Turn the ephemeral setting in a chat to on or off
    * @param chatId The ID of the chat
    * @param ephemeral `true` to turn on the ephemeral setting, `false` to turn off the ephemeral setting. Please note, if the setting is already on the requested setting, this method will return `true`.
-   * @returns Promise<boolean> true if the setting was set, `false` if the chat does not exist
+   * @returns `Promise<boolean>` true if the setting was set, `false` if the chat does not exist
    */
   public async setChatEphemeral(chatId: ChatId, ephemeral: boolean) : Promise<boolean>{
     return await this.pup(
@@ -3433,7 +3420,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * 3: [Bryndan Write](https://www.dafontfree.net/freefonts-bryndan-write-f160189.htm)
    * 4: [Bebasneue Regular](https://www.dafont.com/bebas-neue.font)
    * 5: [Oswald Heavy](https://www.fontsquirrel.com/fonts/oswald)
-   * @returns Promise<string | boolean> returns status id if it worked, false if it didn't
+   * @returns `Promise<string | boolean>` returns status id if it worked, false if it didn't
    */
   public async postTextStatus(text: Content, textRgba: string, backgroundRgba: string, font: number) : Promise<MessageId | string | boolean>{
     return await this.pup(
@@ -3448,7 +3435,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * Posts an image story.
    * @param data data url string `data:[<MIME-type>][;charset=<encoding>][;base64],<data>`
    * @param caption The caption for the story 
-   * @returns Promise<string | boolean> returns status id if it worked, false if it didn't
+   * @returns `Promise<string | boolean>` returns status id if it worked, false if it didn't
    */
   public async postImageStatus(data: DataURL, caption: Content) : Promise<MessageId | string | boolean> {
     return await this.pup(
@@ -3463,7 +3450,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * Posts a video story.
    * @param data data url string `data:[<MIME-type>][;charset=<encoding>][;base64],<data>`
    * @param caption The caption for the story 
-   * @returns Promise<string | boolean> returns status id if it worked, false if it didn't
+   * @returns `Promise<string | boolean>` returns status id if it worked, false if it didn't
    */
   public async postVideoStatus(data: DataURL, caption: Content) : Promise<MessageId | string | boolean> {
     return await this.pup(
@@ -3596,7 +3583,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * 
    * Sets the profile pic of the host number.
    * @param data string data url image string.
-   * @returns Promise<boolean> success if true
+   * @returns `Promise<boolean>` success if true
    */
   public async setProfilePic(data: DataURL) : Promise<boolean> {
     return await this.pup(({ data }) => WAPI.setProfilePic(data),{data}) as Promise<boolean>;
