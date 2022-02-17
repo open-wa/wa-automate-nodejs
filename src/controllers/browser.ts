@@ -104,13 +104,17 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
   if(interceptAuthentication || proxyAddr || blockCrashLogs || true){
       await waPage.setRequestInterception(true);  
       waPage.on('response', async response => {
-        if(response.request().url() == "https://web.whatsapp.com/") {
-          const t = await response.text()
-          if(t.includes(`class="no-js"`) && t.includes(`self.`) && !dumbCache) {
-            //this is a valid response, save it for later
-            dumbCache = t;
-            log.info("saving valid page to dumb cache")
+        try {
+          if(response.request().url() == "https://web.whatsapp.com/") {
+            const t = await response.text()
+            if(t.includes(`class="no-js"`) && t.includes(`self.`) && !dumbCache) {
+              //this is a valid response, save it for later
+              dumbCache = t;
+              log.info("saving valid page to dumb cache")
+            }
           }
+        } catch (error) {
+          log.error("dumb cache error", error)
         }
       })
       const authCompleteEv = new EvEmitter(sessionId, 'AUTH');
