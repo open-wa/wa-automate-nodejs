@@ -239,6 +239,7 @@ declare module WAPI {
   const loadEarlierMessages: (contactId: string) => Promise<Message []>;
   const getChatsByLabel: (label: string) => Promise<Chat[] | string>;
   const loadAllEarlierMessages: (contactId: string) => any;
+  const testCallback: (callbackToTest: string, testData : any) => any;
   const loadEarlierMessagesTillDate: (contactId: string, timestamp: number) => any;
   const getUnreadMessages: (
     includeMe: boolean,
@@ -994,6 +995,22 @@ public async onLiveLocation(chatId: ChatId, fn: (liveLocationChangedEvent: LiveL
       },
       { chatId, funcName}
     ));
+}
+
+/**
+ * Use this simple command to test firing callback events.
+ * 
+ * @param callbackToTest 
+ * @param testData 
+ * @returns `false` if the callback was not registered/does not exist
+ */
+public async testCallback(callbackToTest: SimpleListener, testData: any)  : Promise<boolean> {
+  return this.pup(
+    ({ callbackToTest, testData }) => {
+      return WAPI.testCallback(callbackToTest, testData);
+    },
+    { callbackToTest, testData }
+  );
 }
 
   /**
