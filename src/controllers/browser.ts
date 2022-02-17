@@ -17,6 +17,7 @@ import { scriptLoader } from './script_preloader';
 
 let browser,
 wapiInjected = false,
+dumbCache = undefined,
 wapiAttempts = 1;
 
 export let BROWSER_START_TS = 0;
@@ -79,10 +80,29 @@ export async function initPage(sessionId?: string, config?:ConfigObject, customU
   if(proxyAddr) {
     proxy = (await import('puppeteer-page-proxy')).default
   }
-  if(interceptAuthentication || proxyAddr || blockCrashLogs){
+  if(interceptAuthentication || proxyAddr || blockCrashLogs || true){
       await waPage.setRequestInterception(true);  
+      waPage.on('response', async response => {
+        if(response.request().url() == "https://web.whatsapp.com/") {
+          const t = await response.text()
+          if(t.includes(`class="no-js"`) && t.includes(`self.`) && !dumbCache) {
+            //this is a valid response, save it for later
+            dumbCache = t;
+            log.info("saving valid page to dumb cache")
+          }
+        }
+      })
       const authCompleteEv = new EvEmitter(sessionId, 'AUTH');
       waPage.on('request', async request => {
+        //local refresh cache:
+        if(request.url()==="https://web.whatsapp.com/" && dumbCache) {
+          //if the dumbCache isn't set and this response includes 
+          log.info("reviving page from dumb cache")
+            return await request.respond({
+              status: 200,
+              body: dumbCache
+            });
+        }
         if (
           interceptAuthentication &&
           request.url().includes('_priority_components') &&
