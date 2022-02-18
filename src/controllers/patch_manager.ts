@@ -117,7 +117,7 @@ export async function getLicense(config: ConfigObject, me: {
   const hasSpin = !!spinner;
   if (!spinner)
     spinner = new Spin(config.sessionId || "session", "FETCH_LICENSE", config.disableSpins, true);
-  spinner?.start(`Fetching License: ${Array.isArray(config.licenseKey) ? config.licenseKey : config.licenseKey.indexOf("-") == -1 ? config.licenseKey.slice(-4) : config.licenseKey.split("-").slice(-1)[0]}`, hasSpin ? undefined : 2);
+  spinner?.start(`Fetching License: ${Array.isArray(config.licenseKey) ? config.licenseKey : typeof config.licenseKey === "string" ? config.licenseKey.indexOf("-") == -1 ? config.licenseKey.slice(-4) : config.licenseKey.split("-").slice(-1)[0] : config.licenseKey}`, hasSpin ? undefined : 2);
   try {
     const START = Date.now();
     const { data } = await axios.post(pkg.licenseCheckUrl, { key: config.licenseKey, number: me._serialized, ...debugInfo });
