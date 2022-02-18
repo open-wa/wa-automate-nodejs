@@ -24,7 +24,7 @@ const ready: (config : any) => Promise<void> = async (config : any) => {
             sessionId: config.sessionId,
             namespace: "READY"
         }
-    }).catch(err => log.error(`WEBHOOK ERROR: ${config.readyWebhook} ${err.message}`));
+    }).catch(err => log.error(`READY WEBHOOK ERROR: ${config.readyWebhook} ${err.message}`));
 }
 
 async function start() {
@@ -75,7 +75,7 @@ async function start() {
             }).then(({status})=>{
                 const t = (now() - whStart).toFixed(0);
                 log.info("EV Webhook", namespace, status, t)
-            }).catch(err => log.error(`WEBHOOK ERROR: ${cliConfig.ev} ${err.message}`));
+            }).catch(err => log.error(`EV WEBHOOK ERROR: ${cliConfig.ev} ${err.message}`));
         })
     }
     //These things can be done before the client is created
