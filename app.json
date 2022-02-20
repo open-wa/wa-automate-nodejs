@@ -12,7 +12,7 @@
       "description": "The Base64 encoded string of the session.data.json file. This heroku app is designed to be stateless so you no session details survive a redployment. Run `npx @open-wa/wa-automate --disable-spins -o` to generate a session.data.json file.",
       "required": true
     },
-    "WA_API_KEY": {
+    "WA_KEY": {
       "description": "The api key which will be used to authenticate requests to your API. If you do not set this manually it will be generated and available to see in the logs. You can grab a secure key from https://randomkeygen.com/",
       "required": false
     },
