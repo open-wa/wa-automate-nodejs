@@ -137,6 +137,10 @@ export interface Message {
   shareDuration: number;
   isAnimated: boolean;
   /**
+   * Is the message a "view once" message
+   */
+  isViewOnce: boolean;
+  /**
    * The URL of the file after being uploaded to the cloud using a cloud upload message preprocessor.
    */
    cloudUrl?: string;
