@@ -108,6 +108,7 @@ export class QRManager {
 
   constructor(config = null) {
     this.config = config;
+    this.setConfig(this.config)
   }
 
   setConfig(config) {
@@ -116,7 +117,7 @@ export class QRManager {
   }
 
   qrEvF(config = this.config) {
-    return new EvEmitter(config.sessionId || 'session', 'qr');
+    // return new EvEmitter(config.sessionId || 'session', 'qr');
     if (!this.qrEv) this.qrEv = new EvEmitter(config.sessionId || 'session', 'qr');
     return this.qrEv
   }
