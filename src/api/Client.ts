@@ -18,7 +18,7 @@ import isUrl from 'is-url-superb'
 import { readJsonSync } from 'fs-extra'
 import { HealthCheck, SessionInfo } from './model/sessionInfo';
 import { deleteSessionData, injectApi, initPage, kill} from '../controllers/browser';
-import { isAuthenticated, waitForRipeSession } from '../controllers/auth';
+import { isAuthenticated, QRManager, waitForRipeSession } from '../controllers/auth';
 import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, FilePath } from './model/aliases';
 import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
 import * as path from 'path';
@@ -415,7 +415,8 @@ export class Client {
      const START_TIME = Date.now();
      spinner.info("Opening session in new tab")
      const newTab = await this._page.browser().newPage(); 
-     await initPage(this.getSessionId(), this._createConfig, this._createConfig.customUserAgent, spinner, newTab, true) 
+     const qrManager = new QRManager(this._createConfig);
+     await initPage(this.getSessionId(), this._createConfig, qrManager, this._createConfig.customUserAgent, spinner, newTab, true) 
     //  await newTab.goto(puppeteerConfig.WAUrl);
      //Two promises. One that closes the previous page, one that sets up the new page
      const closePageOnConflict = async () => {

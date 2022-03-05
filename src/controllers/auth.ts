@@ -247,5 +247,3 @@ export class QRManager {
     return;
   }
 }
-
-export const qrManager = new QRManager();

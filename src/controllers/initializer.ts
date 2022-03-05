@@ -5,7 +5,7 @@ import { default as updateNotifier } from 'update-notifier';
 import { Client } from '../api/Client';
 import { ConfigObject, SessionExpiredError } from '../api/model/index';
 import * as path from 'path';
-import { phoneIsOutOfReach, isAuthenticated, qrManager, waitForRipeSession } from './auth';
+import { phoneIsOutOfReach, isAuthenticated, waitForRipeSession, QRManager } from './auth';
 import { deleteSessionData, initPage, injectApi, kill } from './browser';
 import { Spin } from './events'
 import { integrityCheck, checkWAPIHash } from './launch_checks';
@@ -125,7 +125,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
   }
   if (!sessionId) sessionId = 'session';
   const spinner = new Spin(sessionId, 'STARTUP', config?.disableSpins);
-  qrManager.setConfig(config);
+  const qrManager = new QRManager(config);
   try {
     if(typeof config === 'string') console.error("AS OF VERSION 3+ YOU CAN NO LONGER SET THE SESSION ID AS THE FIRST PARAMETER OF CREATE. CREATE CAN ONLY TAKE A CONFIG OBJECT. IF YOU STILL HAVE CONFIGS AS A SECOND PARAMETER, THEY WILL HAVE NO EFFECT! PLEASE SEE DOCS.")
     spinner.start('Starting');
@@ -141,7 +141,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     }
     if(config?.multiDevice && config?.chromiumArgs) spinner.info(`Using custom chromium args with multi device will cause issues! Please remove them: ${config?.chromiumArgs}`);
     if(config?.multiDevice && !config?.useChrome) spinner.info(`It is recommended to set useChrome: true or use the --use-chrome flag if you are experiencing issues with Multi device support`);
-    waPage = await initPage(sessionId, config, customUserAgent, spinner);
+    waPage = await initPage(sessionId, config, qrManager,  customUserAgent, spinner);
     spinner.succeed('Page loaded');
     const browserLaunchedTs = now();
     const throwOnError = config && config.throwErrorOnTosBlock == true;

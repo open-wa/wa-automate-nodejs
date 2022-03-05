@@ -12,7 +12,7 @@ const puppeteer = require('puppeteer-extra')
 import terminate from 'terminate/promise';
 import { log } from '../logging/logging';
 import { now, processSendData, timeout, timePromise } from '../utils/tools';
-import { qrManager } from './auth';
+import { QRManager } from './auth';
 import { scriptLoader } from './script_preloader';
 import { earlyInjectionCheck } from './patch_manager';
 
@@ -23,7 +23,7 @@ wapiAttempts = 1;
 
 export let BROWSER_START_TS = 0;
 
-export async function initPage(sessionId?: string, config?:ConfigObject, customUserAgent?:string, spinner ?: Spin, _page?: Page, skipAuth ?: boolean) : Promise<Page> {
+export async function initPage(sessionId?: string, config?:ConfigObject, qrManager ?: QRManager, customUserAgent?:string, spinner ?: Spin, _page?: Page, skipAuth ?: boolean) : Promise<Page> {
   const setupPromises = [];
   scriptLoader.loadScripts();
   if(config?.resizable === undefined || !config?.resizable == false) config.defaultViewport= null
