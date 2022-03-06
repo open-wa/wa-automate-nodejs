@@ -8,6 +8,7 @@ import { processSend, timeout, timePromise } from '../utils/tools';
 import { BROWSER_START_TS, injectApi, kill } from './browser';
 import axios from 'axios';
 import { log } from '../logging/logging';
+import boxen from 'boxen';
 
 /**
  * isAuthenticated
@@ -132,7 +133,11 @@ export class QRManager {
     if ((!this.qrNum || this.qrNum == 1) && BROWSER_START_TS) spinner.info(`First QR: ${Date.now() - BROWSER_START_TS} ms`)
     if (qrData) {
       qrEv.emit(qrData, `qrData`);
-      if (!config.qrLogSkip) qrcode.generate(qrData, { small: true });
+      if (!config.qrLogSkip) {
+        qrcode.generate(qrData, { small: true }, terminalQrCode => {
+          console.log(boxen(terminalQrCode, {title: config.sessionId, padding: 1, titleAlignment: 'center'}));
+        });
+      }
       else {
         console.log(`New QR Code generated. Not printing in console because qrLogSkip is set to true`)
         log.info(`New QR Code generated. Not printing in console because qrLogSkip is set to true`)
