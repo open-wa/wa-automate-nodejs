@@ -38,8 +38,8 @@ export class ScriptLoader {
     async getScript(scriptName: string) {
         if (!this.contentRegistry[scriptName]) {
             this.contentRegistry[scriptName] = await read(scriptName);
-            log.info("SCRIPT READY: " + scriptName);
-        }
+            log.info(`SCRIPT READY: ${scriptName} ${this.contentRegistry[scriptName].length}`);
+        } else log.info(`GET SCRIPT: ${scriptName} ${this.contentRegistry[scriptName].length}`);
         return this.contentRegistry[scriptName];
     }
 

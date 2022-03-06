@@ -25,7 +25,7 @@ export let BROWSER_START_TS = 0;
 
 export async function initPage(sessionId?: string, config?:ConfigObject, qrManager ?: QRManager, customUserAgent?:string, spinner ?: Spin, _page?: Page, skipAuth ?: boolean) : Promise<Page> {
   const setupPromises = [];
-  scriptLoader.loadScripts();
+  await scriptLoader.loadScripts();
   if(config?.resizable === undefined || !config?.resizable == false) config.defaultViewport= null
   if(config?.useStealth) {
     const {default : stealth} = await import('puppeteer-extra-plugin-stealth')
@@ -301,7 +301,7 @@ export async function injectWapi(page: Page, spinner ?: Spin, force = false) : P
   const initCheck = await page.evaluate(check)
   if(initCheck) return;
   log.info(`WAPI CHECK: ${initCheck}`)
-  if(!check) force = true;
+  if(!initCheck) force = true;
   if(wapiInjected && !force) return page;
   const multiScriptInjectPromiseArr = Array(bruteInjectionAttempts).fill("wapi.js").map((_s)=>addScript(page,_s))
   try {
