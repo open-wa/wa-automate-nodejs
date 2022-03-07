@@ -237,7 +237,7 @@ const getSessionDataFromFile = (sessionId: string, config: ConfigObject, spinner
       try {
       sessionjson = JSON.parse(Buffer.from(s, 'base64').toString('ascii'));
       } catch (error) {
-        const msg = "Session data json file is corrupted. Please reauthenticate."
+        const msg =  `${s =="LOGGED OUT" ? "The session was logged out" : "Session data json file is corrupted"}. Please re-scan the QR code.`
       if(spinner) {
         spinner.fail(msg)
       } else console.error(msg);
@@ -261,7 +261,20 @@ export const deleteSessionData = (config: ConfigObject) : boolean => {
   return true;
 }
 
-export const getSessionDataFilePath = (sessionId: string, config: ConfigObject) : string | boolean => {
+export const invalidateSesssionData = (config: ConfigObject) : boolean => {
+  const sessionjsonpath = getSessionDataFilePath(config?.sessionId || 'session', config)
+  if(typeof sessionjsonpath == 'string' && fs.existsSync(sessionjsonpath)) {
+    const l = `logout detected, invalidating session data file: ${sessionjsonpath}`
+    console.log(l)
+    log.info(l)
+    fs.writeFile(sessionjsonpath, "LOGGED OUT", (err) => {
+      if (err) { console.error(err); return; }
+    });
+  }
+  return true;
+}
+
+export const getSessionDataFilePath = (sessionId: string, config: ConfigObject) : string | false => {
   const p = require?.main?.path || process?.mainModule?.path;
   const sessionjsonpath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(process.cwd(),config?.sessionDataPath || '')) : path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
   const altSessionJsonPath = p ? (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(p,config?.sessionDataPath || '')) : path.join(path.resolve(p,config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`) : false;

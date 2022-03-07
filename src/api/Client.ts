@@ -17,7 +17,7 @@ import datauri from 'datauri'
 import isUrl from 'is-url-superb'
 import { readJsonSync } from 'fs-extra'
 import { HealthCheck, SessionInfo } from './model/sessionInfo';
-import { deleteSessionData, injectApi, initPage, kill} from '../controllers/browser';
+import { deleteSessionData, injectApi, initPage, kill, invalidateSesssionData} from '../controllers/browser';
 import { isAuthenticated, QRManager, waitForRipeSession } from '../controllers/auth';
 import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, FilePath } from './model/aliases';
 import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
@@ -339,6 +339,7 @@ export class Client {
       if((this._createConfig?.deleteSessionDataOnLogout || this._createConfig?.killClientOnLogout) && !this._onLogoutSet) {
         this.onLogout(async () => {
             await this.waitAllQEmpty();
+            await invalidateSesssionData(this._createConfig)
             if(this._createConfig?.deleteSessionDataOnLogout) deleteSessionData(this._createConfig)
             if(this._createConfig?.killClientOnLogout) {
               console.log("Session logged out. Killing client")
@@ -2082,7 +2083,11 @@ public async iAmAdmin() : Promise<GroupChatId[]>  {
    * 
    * Please be careful when using this as it can exit the whole process depending on your config
    */
-  public async logout() : Promise<boolean> {
+  public async logout(preserveSessionData = false) : Promise<boolean> {
+    if(!preserveSessionData) {
+      log.info(`LOGOUT CALLED. INVALIDATING SESSION DATA`)
+      await invalidateSesssionData(this._createConfig)
+    }
     return await this.pup(() => WAPI.logout()) as Promise<boolean>;
   }
 
