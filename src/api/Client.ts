@@ -2080,7 +2080,7 @@ public async iAmAdmin() : Promise<GroupChatId[]>  {
 
   /**
    * Logs out from the session.
-   * 
+   * @param preserveSessionData skip session.data.json file invalidation
    * Please be careful when using this as it can exit the whole process depending on your config
    */
   public async logout(preserveSessionData = false) : Promise<boolean> {
