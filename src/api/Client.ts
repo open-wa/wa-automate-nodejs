@@ -98,6 +98,7 @@ declare module WAPI {
   const getMessageById: (mesasgeId: string) => Message;
   const getOrder: (id: string) => Order;
   const getMyLastMessage: (chatId: string) => Promise<Message>;
+  const getStarredMessages: (chatId: string) => Promise<Message[]>;
   const getStickerDecryptable: (mesasgeId: string) => Message | boolean;
   const forceStaleMediaUpdate: (mesasgeId: string) => Message | boolean;
   const setMyName: (newName: string) => Promise<boolean>;
@@ -2454,6 +2455,17 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
     ) as Promise<Message>;
   }
 
+  /**
+   * Retrieves the starred messages in a given chat
+   * @param chatId Chat ID to filter starred messages by
+   * @returns message object
+   */
+   public async getStarredMessages(chatId?: ChatId) : Promise<Message[]> {
+    return await this.pup(
+      chatId => WAPI.getStarredMessages(chatId),
+      chatId
+    ) as Promise<Message[]>;
+  }
   /**
    * 
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
