@@ -99,6 +99,7 @@ declare module WAPI {
   const getOrder: (id: string) => Order;
   const getMyLastMessage: (chatId: string) => Promise<Message>;
   const getStarredMessages: (chatId: string) => Promise<Message[]>;
+  const starMessage: (messageId: string) => Promise<boolean>;
   const getStickerDecryptable: (mesasgeId: string) => Message | boolean;
   const forceStaleMediaUpdate: (mesasgeId: string) => Message | boolean;
   const setMyName: (newName: string) => Promise<boolean>;
@@ -2465,6 +2466,18 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
       chatId => WAPI.getStarredMessages(chatId),
       chatId
     ) as Promise<Message[]>;
+  }
+
+  /**
+   * Star a message
+   * @param messageId Message ID of the message you want to star
+   * @returns `true`
+   */
+   public async starMessage(messageId?: ChatId) : Promise<boolean> {
+    return await this.pup(
+      messageId => WAPI.starMessage(messageId),
+      messageId
+    ) as Promise<boolean>;
   }
   /**
    * 
