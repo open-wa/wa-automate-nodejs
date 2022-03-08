@@ -100,6 +100,7 @@ declare module WAPI {
   const getMyLastMessage: (chatId: string) => Promise<Message>;
   const getStarredMessages: (chatId: string) => Promise<Message[]>;
   const starMessage: (messageId: string) => Promise<boolean>;
+  const unstarMessage: (messageId: string) => Promise<boolean>;
   const getStickerDecryptable: (mesasgeId: string) => Message | boolean;
   const forceStaleMediaUpdate: (mesasgeId: string) => Message | boolean;
   const setMyName: (newName: string) => Promise<boolean>;
@@ -2479,6 +2480,19 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
       messageId
     ) as Promise<boolean>;
   }
+
+  /**
+   * Unstar a message
+   * @param messageId Message ID of the message you want to unstar
+   * @returns `true`
+   */
+   public async unstarMessage(messageId?: ChatId) : Promise<boolean> {
+    return await this.pup(
+      messageId => WAPI.unstarMessage(messageId),
+      messageId
+    ) as Promise<boolean>;
+  }
+
   /**
    * 
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
