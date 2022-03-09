@@ -1217,7 +1217,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * @returns `boolean`
    */
   public async isPhoneDisconnected() : Promise<boolean> {
-    const phoneNotConnected: string = await this._page.evaluate(()=>WAPI.getLocaledString('phone not connected'));
+    const phoneNotConnected: string = await this._page.evaluate(()=>WAPI.getLocaledString('active Internet connection'));
     return await this.pup(`!![...document.querySelectorAll("div")].find(e=>{return e.innerHTML.toLowerCase().includes("${phoneNotConnected.toLowerCase()}")})`)
   }
 
