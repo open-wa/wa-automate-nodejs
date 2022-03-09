@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Client | @open-wa/wa-automate - v4.32.0</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.32.0">
+	<title>Client | @open-wa/wa-automate - v4.32.1</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.32.1">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v4.32.0</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.32.1</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -187,6 +187,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#getInstanceId" class="tsd-kind-icon">get<wbr>Instance<wbr>Id</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#getIsPlugged" class="tsd-kind-icon">get<wbr>IsPlugged</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#getIssueLink" class="tsd-kind-icon">get<wbr>Issue<wbr>Link</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#getKickedGroups" class="tsd-kind-icon">get<wbr>Kicked<wbr>Groups</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#getLastMsgTimestamps" class="tsd-kind-icon">get<wbr>Last<wbr>Msg<wbr>Timestamps</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#getLastSeen" class="tsd-kind-icon">get<wbr>Last<wbr>Seen</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#getLicenseType" class="tsd-kind-icon">get<wbr>License<wbr>Type</a></li>
@@ -3287,6 +3288,25 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getKickedGroups" class="tsd-anchor"></a>
+					<h3>get<wbr>Kicked<wbr>Groups</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Kicked<wbr>Groups<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">-</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@g.us</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns an array of group ids where the host account has been kicked</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">-</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@g.us</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="getLastMsgTimestamps" class="tsd-anchor"></a>
 					<h3>get<wbr>Last<wbr>Msg<wbr>Timestamps</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -4007,7 +4027,7 @@
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Returns an array of group ids where the host device is admin</p>
+									<p>Returns an array of group ids where the host account is admin</p>
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">-</span><span class="tsd-signature-symbol">${</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-type">@g.us</span><span class="tsd-signature-symbol">`</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -7869,6 +7889,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_Client.Client.html#getIssueLink" class="tsd-kind-icon">get<wbr>Issue<wbr>Link</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="api_Client.Client.html#getKickedGroups" class="tsd-kind-icon">get<wbr>Kicked<wbr>Groups</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_Client.Client.html#getLastMsgTimestamps" class="tsd-kind-icon">get<wbr>Last<wbr>Msg<wbr>Timestamps</a>
