@@ -190,6 +190,7 @@ declare module WAPI {
   const getMe: () => any;
   const getAllLabels: () => any;
   const iAmAdmin: () => Promise<String[]>;
+  const getKickedGroups: () => Promise<String[]>;
   const getLicenseType: () => Promise<String | false>;
   const getChatWithNonContacts: () => Contact[];
   const syncContacts: () => boolean;
@@ -1832,12 +1833,19 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     return `data:image/png;base64,${screenshot}`;
   }
 
-/**
- * Returns an array of group ids where the host device is admin
- */
-public async iAmAdmin() : Promise<GroupChatId[]>  {
-  return await this.pup(() => WAPI.iAmAdmin()) as Promise<GroupChatId[]>;
-}
+  /**
+   * Returns an array of group ids where the host account is admin
+   */
+   public async iAmAdmin() : Promise<GroupChatId[]>  {
+    return await this.pup(() => WAPI.iAmAdmin()) as Promise<GroupChatId[]>;
+  }
+
+  /**
+   * Returns an array of group ids where the host account has been kicked
+   */
+  public async getKickedGroups() : Promise<GroupChatId[]>  {
+    return await this.pup(() => WAPI.getKickedGroups()) as Promise<GroupChatId[]>;
+  }
 
   /**
    * Syncs contacts with phone. This promise does not resolve so it will instantly return true.
