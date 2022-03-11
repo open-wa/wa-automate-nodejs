@@ -61,6 +61,8 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
   if(!config || config?.eventMode!==false) {
     config.eventMode = true
   }
+  
+  if(config?.waitForRipeSession !== false) config.waitForRipeSession = true;
 
   if(!config?.skipUpdateCheck || config?.keepUpdated) {
     notifier = await updateNotifier({
