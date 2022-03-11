@@ -296,7 +296,6 @@ export async function injectPreApiScripts(page: Page, spinner ?: Spin) : Promise
   if(await page.evaluate("!['jsSHA','axios', 'QRCode', 'Base64', 'objectHash'].find(x=>!window[x])")) return;
   const t1 = await timePromise(() => Promise.all(
    [
-     'axios.min.js',
      'jsSha.min.js',
      'qr.min.js',
      'base64.js',

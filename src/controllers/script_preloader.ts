@@ -12,7 +12,6 @@ const read : (_path) => Promise<string> = (_path) => new Promise((resolve, rejec
 export class ScriptLoader {
     scripts = [
         // stage 1
-        'axios.min.js',
         'jsSha.min.js',
         'qr.min.js',
         'base64.js',
