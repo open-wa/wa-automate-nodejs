@@ -236,6 +236,7 @@ declare module WAPI {
   const sendContact: (to: string, contact: string | string[]) => any;
   const sendMultipleContacts: (chatId: ChatId, contacts: ContactId[]) => any;
   const simulateTyping: (to: string, on: boolean) => Promise<boolean>;
+  const simulateRecording: (to: string, on: boolean) => Promise<boolean>;
   const archiveChat: (id: string, archive: boolean) => Promise<boolean>;
   const pinChat: (id: string, pin: boolean) => Promise<boolean>;
   const isConnected: () => Boolean;
@@ -1954,9 +1955,21 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * @param {string} to 'xxxx@c.us'
    * @param {boolean} on turn on similated typing, false to turn it off you need to manually turn this off.
    */
-  public async simulateTyping(to: ChatId, on: boolean) : Promise<boolean> {
+   public async simulateTyping(to: ChatId, on: boolean) : Promise<boolean> {
     return await this.pup(
       ({ to, on }) => WAPI.simulateTyping(to, on),
+      { to, on }
+    ) as Promise<boolean>;
+  }
+
+  /**
+   * Simulate '...recording' in chat
+   * @param {string} to 'xxxx@c.us'
+   * @param {boolean} on turn on similated recording, false to turn it off you need to manually turn this off.
+   */
+   public async simulateRecording(to: ChatId, on: boolean) : Promise<boolean> {
+    return await this.pup(
+      ({ to, on }) => WAPI.simulateRecording(to, on),
       { to, on }
     ) as Promise<boolean>;
   }
