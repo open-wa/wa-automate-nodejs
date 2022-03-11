@@ -169,9 +169,9 @@
     "update-notifier": "^5.0.0",
     "uuid": "^8.3.2",
     "uuid-apikey": "^1.5.3",
-    "winston": "^3.3.3",
+    "winston": "^3.6.0",
     "winston-daily-rotate-file": "^4.5.5",
-    "winston-syslog": "^2.4.4",
+    "winston-syslog": "^2.5.0",
     "xmlbuilder2": "^3.0.2"
   }
 }
