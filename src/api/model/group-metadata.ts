@@ -27,6 +27,26 @@ export interface GroupMetadata {
    * Unknown.
    */
   pendingParticipants: Participant[];
+  /**
+   * The description of the group
+   */
+  desc ?: string;
+  /**
+   * The account that set the description last.
+   */
+  descOwner ?: ContactId;
+  /**
+   * 
+   */
+  trusted ?: boolean;
+  /**
+   * Not sure what this represents
+   */
+  suspended ?: boolean;
+  /**
+   * Not sure what this represents
+   */
+  support ?: boolean;
 }
 
 export enum groupChangeEvent {
