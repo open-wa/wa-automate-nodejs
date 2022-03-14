@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Contact | @open-wa/wa-automate - v4.32.5</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.32.5">
+	<title>Contact | @open-wa/wa-automate - v4.32.6</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.32.6">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v4.32.5</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.32.6</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -149,6 +149,11 @@
 					<div class="tsd-signature tsd-kind-icon">is<wbr>Enterprise<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Most likely true when the account has a green tick. See <code>verifiedLevel</code> also.</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="isMe" class="tsd-anchor"></a>
@@ -288,9 +293,15 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="verifiedLevel" class="tsd-anchor"></a>
 					<h3>verified<wbr>Level</h3>
-					<div class="tsd-signature tsd-kind-icon">verified<wbr>Level<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<div class="tsd-signature tsd-kind-icon">verified<wbr>Level<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>0 = not verified
+							2 = verified (most likely represents a blue tick)</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="verifiedName" class="tsd-anchor"></a>
@@ -298,6 +309,11 @@
 					<div class="tsd-signature tsd-kind-icon">verified<wbr>Name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The business account name verified by WA.</p>
+						</div>
+					</div>
 				</section>
 			</section>
 		</div>
