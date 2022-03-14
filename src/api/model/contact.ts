@@ -13,6 +13,9 @@ export interface Contact {
   formattedName: string;
   id: ContactId;
   isBusiness: boolean;
+  /**
+   * Most likely true when the account has a green tick. See `verifiedLevel` also.
+   */
   isEnterprise: boolean;
   isMe: boolean;
   isMyContact: boolean;
@@ -35,7 +38,14 @@ export interface Contact {
   shortName: string;
   statusMute: boolean;
   type: string;
-  verifiedLevel: string;
+  /**
+   * 0 = not verified
+   * 2 = verified (most likely represents a blue tick)
+   */
+  verifiedLevel: number;
+  /**
+   * The business account name verified by WA.
+   */
   verifiedName: string;
   isOnline?: boolean;
   lastSeen?: number;
