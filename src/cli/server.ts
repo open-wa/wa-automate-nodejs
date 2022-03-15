@@ -298,7 +298,7 @@ export const setupSocketServer : (cliConfig, client : Client) => Promise<void> =
     if (cliConfig.key) {
         io.use((socket, next) => {
             if (socket.handshake.auth["apiKey"] == cliConfig.key) next()
-            next(new Error("Authentication error"));
+            else next(new Error("Authentication error"));
         });
     }
     io.on("connection", (socket) => {
