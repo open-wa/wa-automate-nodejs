@@ -76,7 +76,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
   const cacheEnabled = config?.cacheEnabled === false ? false : true;
   const blockCrashLogs = config?.blockCrashLogs === false ? false : true;
   setupPromises.push(waPage.setBypassCSP(config?.bypassCSP || false));
-  if(!config?.multiDevice) setupPromises.push(waPage.setCacheEnabled(cacheEnabled));
+  setupPromises.push(waPage.setCacheEnabled(cacheEnabled));
   const blockAssets = !config?.headless ? false : config?.blockAssets || false;
   if(blockAssets){
     const {default : block} = await import('puppeteer-extra-plugin-block-resources')
