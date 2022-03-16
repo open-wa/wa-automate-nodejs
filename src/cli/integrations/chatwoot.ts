@@ -119,7 +119,7 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
     const getContactConversation = async (number: string) => {
         try {
             const { data } = await cwReq(`contacts/${contactReg[number]}/conversations`, 'get');
-            return data.payload.sort((a,b)=>a.id-b.id)[0];
+            return data.payload.filter(c=>c.inbox_id===resolvedInbox).sort((a,b)=>a.id-b.id)[0];
         } catch (error) {
             return;
         }
