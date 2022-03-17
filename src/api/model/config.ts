@@ -731,7 +731,7 @@ export interface ConfigObject {
      * 
      * @default `:`
      */
-    autoEmoji ?: string;
+    autoEmoji ?: string | boolean;
     /**
      * Set the maximum amount of chats to be present in a session.
      */
