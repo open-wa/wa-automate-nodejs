@@ -289,6 +289,11 @@ export class Client {
     [key in SimpleListener] ?: PQueue
   } = {};
   private _autoEmojiSet = false
+  private _autoEmojiQ : PQueue = new PQueue({
+    concurrency: 1,
+    intervalCap: 1,
+    carryoverConcurrencyCount: true
+  })
   private _onLogoutSet = false
   /**
    * This is used to track if a listener is already used via webhook. Before, webhooks used to be set once per listener. Now a listener can be set via multiple webhooks, or revoked from a specific webhook.
@@ -336,7 +341,7 @@ export class Client {
           if(message.body && message.body.startsWith(ident) && message.body.endsWith(ident)) {
             const emojiId = message.body.replace(new RegExp(ident, 'g'),"");
             if(!emojiId) return;
-            return await this.sendEmoji(message.from,emojiId,message.id).catch(()=>{})
+            await this._autoEmojiQ.add(async() => this.sendEmoji(message.from,emojiId,message.id).catch(()=>{}))
           }
         })
         this._autoEmojiSet = true;
