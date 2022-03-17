@@ -1,8 +1,8 @@
-import { ChatId, ContactId, GroupChatId } from './aliases';
+import { ContactId, GroupChatId } from './aliases';
 import { Contact } from './contact';
 import { GroupMetadata } from './group-metadata';
 
-export interface Chat {
+export interface BaseChat {
   archive: boolean;
   changeNumberNewJid: any;
   changeNumberOldJid: any;
@@ -15,10 +15,6 @@ export interface Chat {
    */
   groupMetadata: GroupMetadata;
   /**
-   * The id of the chat
-   */
-  id: ChatId;
-  /**
    * If the chat is a group chat is restricted
    */
   isAnnounceGrpRestrict: any;
@@ -30,10 +26,6 @@ export interface Chat {
    * Whether your host account is able to send messages to this chat
    */
   canSend?: boolean;
-  /**
-   * Whether the chat is a group chat
-   */
-  isGroup: boolean;
   /**
    * Whether the chat is a group chat and the group is restricted
    */
@@ -94,6 +86,30 @@ export interface Chat {
    */
   lastSeen?: any;
 }
+
+export interface SingleChat extends BaseChat {
+  /**
+   * The id of the chat
+   */
+   id: ContactId;
+   /**
+    * Whether the chat is a group chat
+    */
+   isGroup: false;
+}
+
+export interface GroupChat extends BaseChat {
+  /**
+   * The id of the chat
+   */
+   id: GroupChatId;
+   /**
+    * Whether the chat is a group chat
+    */
+   isGroup: true;
+}
+
+export type Chat =  SingleChat | GroupChat;
 
 export interface LiveLocationChangedEvent {
   id: string,
