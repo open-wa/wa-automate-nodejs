@@ -348,7 +348,7 @@ export interface ConfigObject {
      */
     executablePath ?: string,
     /**
-     * If true, the program will automatically try to detect the instance of chorme on the machine. Please note this DOES NOT override executablePath.
+     * If true, the program will automatically try to detect the instance of chrome on the machine. Please note this DOES NOT override executablePath.
      * @default `false`
      */
     useChrome ?: boolean,
