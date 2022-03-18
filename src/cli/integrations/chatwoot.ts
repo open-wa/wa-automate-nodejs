@@ -5,6 +5,15 @@ import { default as axios } from 'axios'
 import { default as FormData } from 'form-data'
 import mime from 'mime-types';
 
+const contactReg = {
+    //WID : chatwoot contact ID
+    "example@c.us": "1"
+};
+const convoReg = {
+    //WID : chatwoot conversation ID
+    "example@c.us": "1"
+}
+
 export type expressMiddleware = (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>
 
 export const chatwootMiddleware: (cliConfig: cliFlags, client: Client) => expressMiddleware = (cliConfig: cliFlags, client: Client) => {
@@ -25,6 +34,7 @@ export const chatwootMiddleware: (cliConfig: cliFlags, client: Client) => expres
             ) return;
             const { attachments, content } = m
             const to = `${contact}@c.us` as ChatId;
+            if(!convoReg[to]) convoReg[to] = body.conversation.id;
             if (attachments?.length > 0) {
                 //has attachments
                 const [firstAttachment, ...restAttachments] = attachments;
@@ -86,14 +96,6 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
         }
     })
 }
-    const contactReg = {
-        //WID : chatwoot contact ID
-        "example@c.us": "1"
-    };
-    const convoReg = {
-        //WID : chatwoot conversation ID
-        "example@c.us": "1"
-    }
 
     const { data: get_inbox } = await cwReq(`inboxes/${resolvedInbox}`, 'get')
     // const inboxId = `openwa_${sessionId}`
@@ -119,7 +121,9 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
     const getContactConversation = async (number: string) => {
         try {
             const { data } = await cwReq(`contacts/${contactReg[number]}/conversations`, 'get');
-            return data.payload.filter(c=>c.inbox_id===resolvedInbox).sort((a,b)=>a.id-b.id)[0];
+            const allContactConversations = data.payload.filter(c=>c.inbox_id===resolvedInbox).sort((a,b)=>a.id-b.id)
+            const [opened, notOpen] = [allContactConversations.filter(c=>c.status==='open'), allContactConversations.filter(c=>c.status!='open')]
+            return opened[0] || notOpen[0];
         } catch (error) {
             return;
         }
