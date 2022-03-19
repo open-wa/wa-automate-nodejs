@@ -101,6 +101,7 @@ declare module WAPI {
   const getStarredMessages: (chatId: string) => Promise<Message[]>;
   const starMessage: (messageId: string) => Promise<boolean>;
   const unstarMessage: (messageId: string) => Promise<boolean>;
+  const react: (messageId: string, emoji: string) => Promise<boolean>;
   const getStickerDecryptable: (mesasgeId: string) => Message | boolean;
   const forceStaleMediaUpdate: (mesasgeId: string) => Message | boolean;
   const setMyName: (newName: string) => Promise<boolean>;
@@ -2500,7 +2501,7 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
    * @param messageId Message ID of the message you want to star
    * @returns `true`
    */
-   public async starMessage(messageId?: ChatId) : Promise<boolean> {
+   public async starMessage(messageId: MessageId) : Promise<boolean> {
     return await this.pup(
       messageId => WAPI.starMessage(messageId),
       messageId
@@ -2512,10 +2513,23 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
    * @param messageId Message ID of the message you want to unstar
    * @returns `true`
    */
-   public async unstarMessage(messageId?: ChatId) : Promise<boolean> {
+   public async unstarMessage(messageId: MessageId) : Promise<boolean> {
     return await this.pup(
       messageId => WAPI.unstarMessage(messageId),
       messageId
+    ) as Promise<boolean>;
+  }
+
+  /**
+   * React to a message
+   * @param messageId Message ID of the message you want to react to
+   * @param emoji 1 single emoji to add to the message as a reacion
+   * @returns boolean
+   */
+   public async react(messageId: MessageId, emoji: string) : Promise<boolean> {
+    return await this.pup(
+      ({messageId,emoji}) => WAPI.react(messageId, emoji),
+      {messageId,emoji}
     ) as Promise<boolean>;
   }
 
