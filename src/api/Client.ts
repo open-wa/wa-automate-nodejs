@@ -2340,6 +2340,7 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
    */
   public async getGroupMembers(groupId: GroupChatId) : Promise<Contact[]> {
     const membersIds = await this.getGroupMembersId(groupId);
+    log.info("group members ids", membersIds);
     const actions = membersIds.map(memberId => {
       return this.getContact(memberId);
     });
