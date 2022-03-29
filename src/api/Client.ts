@@ -1434,7 +1434,6 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
   }
 
   /**
-   * @deprecated Use [[sendLinkWithAutoPreview]] instead
    * Sends a link to a chat that includes a link preview.
    * @param thumb The base 64 data of the image you want to use as the thunbnail. This should be no more than 200x200px. Note: Dont need data url on this param
    * @param url The link you want to send
@@ -1601,7 +1600,17 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     text?: Content,
     thumbnail ?: Base64
   ) : Promise<boolean | MessageId>  {
-    return await this.pup(
+    let linkData;
+    let thumb;
+    try {
+      linkData = (await axios.get(`${this._createConfig?.linkParser || "https://link.openwa.cloud/api"}?url=${url}`)).data;
+      log.info("Got link data", linkData)
+      if(!thumbnail) thumb = await getDUrl(linkData.image);
+    } catch (error) {
+      log.error(error)
+    }
+    if(linkData) return await this.sendMessageWithThumb(thumbnail || thumb,url,linkData.title, linkData.description, text, to);
+    else return await this.pup(
       ({ to,url, text, thumbnail }) => WAPI.sendLinkWithAutoPreview(to,url,text, thumbnail),
       { to,url, text, thumbnail }
     ) as Promise<MessageId | boolean>;
