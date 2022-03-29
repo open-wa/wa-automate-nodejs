@@ -92,7 +92,6 @@ export const isDataURL: (s: string) => boolean = (s: string) =>
  * A convinience method to download the [[DataURL]] of a file
  * @param url The url
  * @param optionsOverride You can use this to override the [axios request config](https://github.com/axios/axios#request-config)
- * @returns Promise<DataURL>
  */
 export const getDUrl: (
   url: string,
@@ -179,8 +178,9 @@ export const generateGHIssueLink = (config : ConfigObject, sessionInfo: SessionI
   if(sessionInfo.ACC_TYPE === 'PERSONAL') labels.push('PHA')
   const qp = {
     "template": "bug_report.yaml",
+    //@ts-ignore
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    "d_info": `${encodeURI(JSON.stringify((({ OS, PAGE_UA, ...o }) => o)(sessionInfo) ,null,2))}`,
+    "d_info": `${encodeURI(JSON.stringify((({ OS, purged, PAGE_UA, OW_KEY, NUM, NUM_HASH, ...o }) => o)(sessionInfo) ,null,2))}`,
     "enviro": `${`-%20OS:%20${encodeURI(sessionInfo.OS)}%0A-%20Node:%20${encodeURI(process.versions.node)}%0A-%20npm:%20${(String(npm_ver)).replace(/\s/g,'')}`}`,
     "labels": labels.join(','),
     ...extras

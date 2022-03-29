@@ -374,8 +374,12 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       const purgedMessage = metrics?.purged ? Object.entries(metrics.purged).filter(([,e])=>e>0).map(([k,e])=>`${e} ${k}`).join(" and ") : "";
       if(metrics.isMd && !config?.multiDevice) spinner.info("!!!Please set multiDevice: true in the config or use the --mutli-Device flag!!!")
       spinner.succeed(`Client loaded for ${metrics.isBiz ? "business" : "normal"} account ${metrics.isMd && "[MD] " || ''}with ${metrics.contacts} contacts, ${metrics.chats} chats & ${metrics.messages} messages ${purgedMessage ? `+ purged ${purgedMessage} ` : ``}in ${LAUNCH_TIME_MS/1000}s`);
+      debugInfo.ACC_TYPE = metrics.isBiz ? "BUSINESS" : "PERSONAL";
       if(config?.deleteSessionDataOnLogout || config?.killClientOnLogout) config.eventMode = true;
-      const client = new Client(waPage, config, debugInfo);
+      const client = new Client(waPage, config, {
+        ...debugInfo,
+        ...metrics
+      });
       const { me } = await client.getMe();
       const licIndex = process.argv.findIndex(arg=>arg==="--license-key" || arg==="-l");
       config.licenseKey = config.licenseKey || licIndex !== -1 && process.argv[licIndex+1];
@@ -391,6 +395,9 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
         await client.refresh();
         spinner.info("Session refreshed.")
       }
+      const issueLink = await client.getIssueLink();
+      console.log(boxen("Use the link below to easily report issues:👇👇👇", {padding: 1, borderColor: 'red'}))
+      spinner.succeed(issueLink)
       spinner.succeed(`🚀 @OPEN-WA ready for account: ${me.user.slice(-4)}`);
       spinner.emit('SUCCESS');
       spinner.remove();
