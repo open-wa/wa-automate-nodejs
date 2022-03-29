@@ -772,6 +772,12 @@ export interface ConfigObject {
         * [Check this discussion to see how to set up logging](https://github.com/open-wa/wa-automate-nodejs/discussions/2373)
         */
        logging ?: ConfigLogTransport[]
+       /**
+        * The URL of your instance of [serverless meta grabber](https://github.com/RemiixInc/meta-grabber-serverless) by [RemiixInc](https://github.com/RemiixInc).
+        * 
+        * default: `https://link.openwa.cloud/api`
+        */
+        linkParser ?: string
     /**@internal */
     [x: string]: any 
 }
