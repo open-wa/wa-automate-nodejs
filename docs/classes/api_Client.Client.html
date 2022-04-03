@@ -7406,7 +7406,7 @@
 					<a name="tagEveryone" class="tsd-anchor"></a>
 					<h3>tag<wbr>Everyone</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">tag<wbr>Everyone<span class="tsd-signature-symbol">(</span>groupId<span class="tsd-signature-symbol">: </span><a href="../modules/api_model_aliases.html#GroupChatId" class="tsd-signature-type" data-tsd-kind="Type alias">GroupChatId</a>, content<span class="tsd-signature-symbol">: </span><a href="../modules/api_model_aliases.html#Content" class="tsd-signature-type" data-tsd-kind="Type alias">Content</a>, hideTags<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><a href="../modules/api_model_aliases.html#MessageId" class="tsd-signature-type" data-tsd-kind="Type alias">MessageId</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">tag<wbr>Everyone<span class="tsd-signature-symbol">(</span>groupId<span class="tsd-signature-symbol">: </span><a href="../modules/api_model_aliases.html#GroupChatId" class="tsd-signature-type" data-tsd-kind="Type alias">GroupChatId</a>, content<span class="tsd-signature-symbol">: </span><a href="../modules/api_model_aliases.html#Content" class="tsd-signature-type" data-tsd-kind="Type alias">Content</a>, hideTags<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, formatting<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, messageBeforeTags<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><a href="../modules/api_model_aliases.html#MessageId" class="tsd-signature-type" data-tsd-kind="Type alias">MessageId</a><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -7436,6 +7436,18 @@
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> hideTags: <span class="tsd-signature-type">boolean</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>Removes all tags within the message</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> formatting: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The formatting of the tags. Use @mention to indicate the actual tag. @default <code>@mention </code></p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> messageBeforeTags: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>set to <code>true</code> to show the message before all of the tags</p>
 									</div>
 								</li>
 							</ul>
