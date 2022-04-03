@@ -1,4 +1,4 @@
-import { ChatId, MessageId } from "./aliases";
+import { ChatId, ContactId, MessageId } from "./aliases";
 import { Button, Row, Section } from "./button";
 import { Chat } from "./chat";
 import { Contact } from "./contact";
@@ -85,7 +85,7 @@ export interface Message {
   /**
    * An array of all mentioned numbers in this message.
    */
-  mentionedJidList: string[];
+  mentionedJidList: ContactId[];
   /**
    * If the message is of a media type, it may also have a caption
    */
