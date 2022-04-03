@@ -79,7 +79,7 @@ declare module WAPI {
   const downloadFileWithCredentials: (url: string) => Promise<string>;
   const sendPaymentRequest: (chatId : string, amount1000 : number, currency : string, noteMessage : string) => Promise<any>;
   const sendMessageWithMentions: (to: string, content: string, hideTags: boolean) => Promise<string>;
-  const tagEveryone: (groupId: string, content: string, hideTags: boolean) => Promise<string>;
+  const tagEveryone: (groupId: string, content: string, hideTags: boolean, formatting: string, messageBeforeTags: boolean) => Promise<string>;
   const sendReplyWithMentions: (to: string, content: string, replyMessageId: string) => Promise<string>;
   const postTextStatus: (text: string, textRgba: string, backgroundRgba: string, font: string) => Promise<string | boolean>;
   const postImageStatus: (data: string, caption: string) => Promise<string | boolean>;
@@ -1424,12 +1424,14 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * @param groupId group chat id: `xxxxx@g.us`
    * @param content text message to add under all of the tags
    * @param hideTags Removes all tags within the message
+   * @param formatting The formatting of the tags. Use @mention to indicate the actual tag. @default `@mention `
+   * @param messageBeforeTags set to `true` to show the message before all of the tags
    * @returns `Promise<MessageId>`
    */
-  public async tagEveryone(groupId: GroupChatId, content: Content, hideTags?: boolean) : Promise<boolean | MessageId> {
+  public async tagEveryone(groupId: GroupChatId, content: Content, hideTags?: boolean, formatting ?:string, messageBeforeTags ?: boolean) : Promise<boolean | MessageId> {
     return await this.pup(
-      ({ groupId, content, hideTags  }) => WAPI.tagEveryone(groupId, content, hideTags),
-      { groupId, content, hideTags }
+      ({ groupId, content, hideTags, formatting, messageBeforeTags  }) => WAPI.tagEveryone(groupId, content, hideTags, formatting, messageBeforeTags ),
+      { groupId, content, hideTags, formatting, messageBeforeTags }
     ) as Promise<boolean | MessageId>;
   }
 
