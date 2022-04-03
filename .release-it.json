@@ -3,7 +3,7 @@
     "release": true
   },
   "hooks": {
-    "after:bump": "npm run build && npx auto-changelog --ignore-commit-pattern \"🥚.*\" --commit-limit false -p -t keepachangelog && typedoc && npm run cname && npm run release-image",
+    "after:bump": "npm run build && npx auto-changelog --ignore-commit-pattern \"🥚.*\" --commit-limit false -p -t keepachangelog && typedoc && npm run cname && npm run release-image && git status",
     "before:git:release": "npm run release-image"
   },
   "git": {
