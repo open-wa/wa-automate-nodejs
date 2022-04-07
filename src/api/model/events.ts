@@ -91,4 +91,9 @@
      * Represents [[onNewProduct]]
      */
     NewProduct = 'onNewProduct',
+    /**
+     * Requires licence
+     * Represents [[onReaction]]
+     */
+    Reaction = 'onReaction',
   }

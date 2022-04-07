@@ -38,6 +38,7 @@ import { Call } from './model/call';
 import { Button, Section } from './model/button';
 import { JsonObject } from 'type-fest';
 import { log } from '../logging/logging';
+import { ReactionEvent } from './model/reactions';
 
 
 /** @ignore */
@@ -869,6 +870,18 @@ export class Client {
     return this.registerListener(SimpleListener.NewProduct, fn);
   }
 
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * 
+   * Listens to reaction add and change events
+   * 
+   * @event 
+   * @param fn callback
+   * @fires [[ReactionEvent]]
+   */
+   public async onReaction(fn: (reactionEvent: ReactionEvent) => void) : Promise<Listener | boolean> {
+    return this.registerListener(SimpleListener.Reaction, fn);
+  }
 
   /**
    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
