@@ -3478,7 +3478,7 @@ public async getStatus(contactId: ContactId) : Promise<{
         height: 512,
         animated,
     }
-    webpBase64 = webpBase64.replace(/^data:image\/(png|gif|jpeg|webp);base64,/,'');
+    webpBase64 = webpBase64.replace(/^data:image\/(png|gif|jpeg|webp|octet-stream);base64,/,'');
     return await this.pup(
       ({ webpBase64,to, metadata }) => WAPI.sendImageAsSticker(webpBase64,to, metadata),
       { webpBase64,to, metadata }
