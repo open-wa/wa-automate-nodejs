@@ -1,5 +1,9 @@
+import * as fs from 'fs'
+import * as path from 'path';
+import datauri from 'datauri'
+import isUrl from 'is-url-superb'
 import { JsonObject } from 'type-fest';
-import { ConfigObject, DataURL } from '../api/model';
+import { ConfigObject, CustomError, DataURL, ERROR_NAME } from '../api/model';
 import { default as axios, AxiosRequestConfig } from 'axios';
 import { SessionInfo } from '../api/model/sessionInfo';
 import { execSync } from 'child_process';
@@ -50,6 +54,12 @@ export const getConfigFromProcessEnv: any = (json: any) => {
   return output;
 };
 
+/**
+ * Remove the key from the object and return the rest of the object.
+ * @param {JsonObject} obj - The object to be filtered.
+ * @param {string} key - The key to discard.
+ * @returns The object without the key.
+ */
 export const without: any = (obj: JsonObject, key: string) => {
   const {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -71,6 +81,11 @@ export const camelize: (str: string) => string = (str: string) => {
   return capitalString;
 };
 
+/**
+ * Check if a string is Base64
+ * @param str string
+ * @returns 
+ */
 export const isBase64: (str: string) => boolean = (str: string) => {
   const len = str.length;
   if (!len || len % 4 !== 0 || /[^A-Z0-9+/=]/i.test(str)) {
@@ -84,6 +99,11 @@ export const isBase64: (str: string) => boolean = (str: string) => {
   );
 };
 
+/**
+ * Check if a string is a DataURL
+ * @param s string
+ * @returns 
+ */
 export const isDataURL: (s: string) => boolean = (s: string) =>
   !!s.match(/^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/g);
 
@@ -141,6 +161,11 @@ export const base64MimeType: (dUrl: DataURL) => string = (dUrl: DataURL) => {
   return result;
 };
 
+/**
+ * If process.send is defined, send the message three times
+ * @param {string} message - The message to send to the parent process.
+ * @returns Nothing.
+ */
 export const processSend: (message: string) => void = (message: string) => {
   if (process.send) {
     process.send(message);
@@ -150,16 +175,32 @@ export const processSend: (message: string) => void = (message: string) => {
   return;
 };
 
+/**
+ * Return the performance object if it is available, otherwise return the Date object
+ */
 export const perf = () => performance || Date;
 
+/**
+ * Return the current time in milliseconds
+ */
 export const now = () => perf().now();
 
+/**
+ * `timePromise` returns a promise that resolves to the time it took to run the function passed to it
+ * @param fn - the function to be timed.
+ * @returns A string.
+ */
 export async function timePromise(fn: () => Promise<any>): Promise<string> {
   const start = now();
   await fn()
   return (now() - start).toFixed(0);
 }
 
+/**
+ * It sends a message to the parent process.
+ * @param {any} data - The data to be sent to the parent process.
+ * @returns Nothing.
+ */
 export const processSendData = (data : any = {}) => {
    process.send({
     type : 'process:msg',
@@ -168,6 +209,13 @@ export const processSendData = (data : any = {}) => {
   return;
 }
 
+/**
+ * It generates a link to the GitHub issue template for the current session
+ * @param {ConfigObject} config - the config object
+ * @param {SessionInfo} sessionInfo - The sessionInfo object from the CLI
+ * @param {any} extras - any
+ * @returns A link to the issue tracker for the current session.
+ */
 export const generateGHIssueLink = (config : ConfigObject, sessionInfo: SessionInfo, extras : any = {}) => {
   const npm_ver = execSync('npm -v')
   const labels = []
@@ -186,4 +234,24 @@ export const generateGHIssueLink = (config : ConfigObject, sessionInfo: SessionI
     ...extras
   }
   return `https://github.com/open-wa/wa-automate-nodejs/issues/new?${Object.keys(qp).map(k=>`${k}=${qp[k]}`).join('&')}`
+}
+
+/**
+ * If the file is a DataURL, return it. If it's a file, convert it to a DataURL. If it's a URL,
+ * download it and convert it to a DataURL. If Base64, returns it.
+ * @param {string} file - The file to be converted to a DataURL.
+ * @param {AxiosRequestConfig} requestConfig - AxiosRequestConfig = {}
+ * @returns A DataURL
+ */
+export const ensureDUrl = async (file : string, requestConfig: AxiosRequestConfig = {}) => {
+  if(!isDataURL(file) && !isBase64(file)) {
+      //must be a file then
+      const relativePath = path.join(path.resolve(process.cwd(),file|| ''));
+      if(fs.existsSync(file) || fs.existsSync(relativePath)) {
+        file = await datauri(fs.existsSync(file)  ? file : relativePath);
+      } else if(isUrl(file)){
+        file = await getDUrl(file, requestConfig);
+      } else throw new CustomError(ERROR_NAME.FILE_NOT_FOUND,'Cannot find file. Make sure the file reference is relative, a valid URL or a valid DataURL')
+    }
+    return file;
 }

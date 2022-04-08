@@ -33,7 +33,7 @@ import { Listener } from 'eventemitter2';
 import PriorityQueue from 'p-queue/dist/priority-queue';
 import { MessagePreprocessors } from '../structures/preProcessors';
 import { NextFunction, Request, Response } from 'express';
-import { base64MimeType, generateGHIssueLink, getDUrl, isBase64, isDataURL, now } from '../utils/tools';
+import { base64MimeType, ensureDUrl, generateGHIssueLink, getDUrl, isBase64, isDataURL, now } from '../utils/tools';
 import { Call } from './model/call';
 import { Button, Section } from './model/button';
 import { JsonObject } from 'type-fest';
@@ -2437,7 +2437,9 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
    * @param {boolean} isHidden Whether or not the product is shown publicly in your catalog
    * @returns product object
    */
-   public async createNewProduct(name : string, price : number, currency : string, images : DataURL[], description : string, url ?: string, internalId ?: string, isHidden ?: boolean) : Promise<Product> {
+   public async createNewProduct(name : string, price : number, currency : string, images : string[], description : string, url ?: string, internalId ?: string, isHidden ?: boolean) : Promise<Product> {
+    if(!Array.isArray(images)) images = [images] ;
+    images = await Promise.all(images.map(image=>ensureDUrl(image)))
     return await this.pup(
       ({name, price, currency, images, description, url, internalId, isHidden}) => WAPI.createNewProduct(name, price, currency, images, description, url, internalId, isHidden),
       { name, price, currency, images, description, url, internalId, isHidden }
