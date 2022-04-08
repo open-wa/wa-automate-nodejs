@@ -72,7 +72,7 @@ const UPLOAD_CLOUD: MessagePreProcessor = async (message: Message, client: Clien
     if(!uploadQueue) {
       uploadQueue = new PQueue({ concurrency: 2, interval: 1000, carryoverConcurrencyCount: true, intervalCap: 2 });
     }
-    const filename = `${message.id.split("_").slice(-1)[0]}.${mime.extension(
+    const filename = `${message.id.split("_").find(x=>!x.includes("@") && x.length > 6) || `${Date.now()}`}.${mime.extension(
       message.mimetype
     )}`;
     const mediaData = await client.decryptMedia(message);
