@@ -1,5 +1,5 @@
 import { default as mime } from 'mime-types';
-import { Page, EvaluateFn, PageEventObject } from 'puppeteer';
+import { Page, EvaluateFn, PageEventObject, ElementHandle } from 'puppeteer';
 import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration, GroupChatCreationResponse } from './model/chat';
 import { Contact, NumberCheck } from './model/contact';
 import { Message } from './model/message';
@@ -246,6 +246,7 @@ declare module WAPI {
   const loadEarlierMessages: (contactId: string) => Promise<Message []>;
   const getChatsByLabel: (label: string) => Promise<Chat[] | string>;
   const loadAllEarlierMessages: (contactId: string) => any;
+  const getSnapshotElement: (chatId: string) => any;
   const testCallback: (callbackToTest: string, testData : any) => any;
   const loadEarlierMessagesTillDate: (contactId: string, timestamp: number) => any;
   const getUnreadMessages: (
@@ -1859,8 +1860,12 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * Returns a PNG DataURL screenshot of the session
    * @returns `Promise<DataURL>`
    */
-  public async getSnapshot() : Promise<DataURL> {
-    const screenshot = await this.getPage().screenshot({
+  public async getSnapshot(chatId?: ChatId) : Promise<DataURL> {
+      const snapshotElement = chatId ?( await this._page.evaluateHandle(
+        ({ chatId }) => WAPI.getSnapshotElement(chatId),
+        { chatId }
+      ) as ElementHandle) : this.getPage()
+    const screenshot = await snapshotElement.screenshot({
       type:"png",
       encoding: "base64"
     });
