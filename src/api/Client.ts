@@ -3332,8 +3332,11 @@ public async getStatus(contactId: ContactId) : Promise<{
         }
         if(a?.stickerMetadata && typeof a?.stickerMetadata !== "object") throw new CustomError(ERROR_NAME.BAD_STICKER_METADATA, `Received ${typeof a?.stickerMetadata}: ${a?.stickerMetadata}`);
       } 
-      if(a?.stickerMetadata?.discord && this._createConfig?.discord) {
-        a.stickerMetadata = {discord: this._createConfig.discord}
+      if(a.stickerMetadata && this._createConfig?.discord) {
+        a.stickerMetadata = {
+          ...(a.stickerMetadata || {}),
+          discord: `${a.stickerMetadata?.discord || this._createConfig.discord}`
+        }
       }
       try {
         const {data} = await axios.post(`${((fallback ?  pkg.stickerUrl : 'https://sticker-api.openwa.dev')|| this._createConfig.stickerServerEndpoint).replace(/\/$/, '')}/${func}`, {
