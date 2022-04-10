@@ -564,6 +564,10 @@ export class Client {
     if(_t && logging) {
       log.info(`OUT ${invocation_id}: ${Date.now() - _t}ms`, {res})
     }
+    return this.responseWrap(res);
+  }
+
+  private responseWrap(res: any) {
     if(this._createConfig.onError && typeof res == "string" && (res.startsWith("Error") || res.startsWith("ERROR"))) {
       const e = this._createConfig.onError;
       /**
@@ -1296,10 +1300,9 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     );
     if(err.includes(res)) {
       let msg = res;
-      if(res==err[1]) msg = `\n${res}. Unlock this feature and support open-wa by getting a license: ${await this.link()}\n`
-      console.error(msg);
-      if(this._createConfig.onError == OnError.THROW)
-      throw new CustomError(ERROR_NAME.SENDTEXT_FAILURE, msg)
+      if(res==err[1]) msg = `ERROR: ${res}. Unlock this feature and support open-wa by getting a license: ${await this.link()}`
+      console.error(`\n${msg}\n`);
+      return this.responseWrap(msg);
     }
     return (err.includes(res) ? false : res)  as boolean | MessageId;
   }
