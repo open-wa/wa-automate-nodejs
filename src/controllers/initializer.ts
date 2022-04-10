@@ -355,8 +355,6 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
         config.skipBrokenMethodsCheck = true;
         // config.skipPatches = true;
       }
-      debugInfo.NUM = await waPage.evaluate(`(window.localStorage['last-wid'] || '').replace('@c.us','').replace(/"/g,"").slice(-4)`);
-      debugInfo.NUM_HASH = createHash('md5').update(await waPage.evaluate(`(window.localStorage['last-wid'] || '').replace('@c.us','').replace(/"/g,"")`), 'utf8').digest('hex')
       if(config?.hostNotificationLang){
         await waPage.evaluate(`window.hostlang="${config.hostNotificationLang}"`)
       }
@@ -365,6 +363,9 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
         await getAndInjectLivePatch(waPage,spinner, await patchPromise, config, debugInfo)
         debugInfo.OW_KEY = await waPage.evaluate(`window.o()`);
       }
+      const NUM = (await waPage.evaluate(`(window.moi() || "").replace('@c.us','').replace(/"/g,"")`) || "");
+      debugInfo.NUM = NUM.slice(-4)
+      debugInfo.NUM_HASH = createHash('md5').update(NUM, 'utf8').digest('hex')
       if (config?.skipBrokenMethodsCheck !== true) await integrityCheck(waPage, notifier, spinner, debugInfo);
       const LAUNCH_TIME_MS = Date.now() - START_TIME;
       debugInfo = {...debugInfo, LAUNCH_TIME_MS};
