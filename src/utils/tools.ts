@@ -201,20 +201,19 @@ export async function timePromise(fn: () => Promise<any>): Promise<string> {
  * @param {any} data - The data to be sent to the parent process.
  * @returns Nothing.
  */
-export const processSendData = async (data : any = {}) => {
-  const sd = (resolve,reject) => process.send({
+export const processSendData = (data : any = {}) => {
+  const sd = () => process.send({
     type : 'process:msg',
     data
   }, (error) => {
     if (error) {
       console.error(error);
-      reject(error)
     }
-    resolve(true)
   })
-   return await new Promise((resolve, reject)=>{
-    sd(resolve,reject)
-   })
+  return sd()
+  //  return await new Promise((resolve, reject)=>{
+  //   sd(resolve,reject)
+  //  })
 }
 
 /**
