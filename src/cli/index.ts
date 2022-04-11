@@ -174,8 +174,15 @@ async function start() {
             spinner.succeed(`Port ${PORT} is now free.`);
             server.listen(PORT, async () => {
                 spinner.succeed(`\n• Listening on port ${PORT}!`);
-                processSendData({port:PORT})
+                await processSendData({port:PORT})
                 await ready({...cliConfig, ...createConfig, ...client.getSessionInfo(), hostAccountNumber: await client.getHostNumber()});
+            });
+            process.on('message', async function (data : any) {
+                if(data?.data?.command === "port_report") {
+                    const response = {port:PORT};
+                    await processSendData(response);
+                    return response
+                }
             });
             if(cliConfig.tunnel) {
                 spinner.info(`\n• Setting up external tunnel`);

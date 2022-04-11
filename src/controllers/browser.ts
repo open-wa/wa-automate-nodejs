@@ -447,7 +447,7 @@ ON_DEATH(async () => {
  * @internal
  */
  export const kill = async (p: Page, b?: Browser, exit ?: boolean, pid ?: number, reason = "LAUNCH_KILL") => {
-     processSendData({
+     await processSendData({
       reason
     })
     timeout(3000)
