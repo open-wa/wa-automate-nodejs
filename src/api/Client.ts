@@ -1,6 +1,6 @@
 import { default as mime } from 'mime-types';
 import { Page, EvaluateFn, PageEventObject, ElementHandle } from 'puppeteer';
-import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration, GroupChatCreationResponse } from './model/chat';
+import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration, GroupChatCreationResponse, EphemeralDuration } from './model/chat';
 import { Contact, NumberCheck } from './model/contact';
 import { Message } from './model/message';
 import { default as axios, AxiosRequestConfig} from 'axios';
@@ -76,7 +76,7 @@ declare module WAPI {
   const onLiveLocation: (chatId: string, callback: Function) => any;
   const getSingleProperty: (namespace: string, id: string, property : string) => any;
   const sendMessage: (to: string, content: string) => Promise<string>;
-  const setChatEphemeral: (chatId: string, ephemeral: boolean) => Promise<boolean>;
+  const setChatEphemeral: (chatId: string, ephemeral: boolean | number) => Promise<boolean>;
   const downloadFileWithCredentials: (url: string) => Promise<string>;
   const sendPaymentRequest: (chatId : string, amount1000 : number, currency : string, noteMessage : string) => Promise<any>;
   const sendMessageWithMentions: (to: string, content: string, hideTags: boolean) => Promise<string>;
@@ -3526,10 +3526,10 @@ public async getStatus(contactId: ContactId) : Promise<{
    * 
    * Turn the ephemeral setting in a chat to on or off
    * @param chatId The ID of the chat
-   * @param ephemeral `true` to turn on the ephemeral setting, `false` to turn off the ephemeral setting. Please note, if the setting is already on the requested setting, this method will return `true`.
+   * @param ephemeral `true` to turn on the ephemeral setting to 1 day, `false` to turn off the ephemeral setting. Other options: `604800 | 7776000`
    * @returns `Promise<boolean>` true if the setting was set, `false` if the chat does not exist
    */
-  public async setChatEphemeral(chatId: ChatId, ephemeral: boolean) : Promise<boolean>{
+  public async setChatEphemeral(chatId: ChatId, ephemeral: EphemeralDuration | boolean) : Promise<boolean>{
     return await this.pup(
       ({ chatId,  ephemeral}) => WAPI.setChatEphemeral(chatId,  ephemeral),
       { chatId,  ephemeral }
