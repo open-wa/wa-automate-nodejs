@@ -292,7 +292,12 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       if(config?.safeMode) await timeout(5000);
     }
     //@ts-ignore
-    const VALID_SESSION = await waPage.waitForFunction(`window.Store && window.Store.Msg ? true : false`,{ timeout: 9000, polling: 200 }).catch(e=>false)
+    const VALID_SESSION = await waPage.waitForFunction(`window.Store && window.Store.Msg ? true : false`,{ timeout: 9000, polling: 200 }).catch(async e=>{
+      log.error("Valid session check failed", e)
+      const storeKeys = await waPage.evaluate(`Object.keys(window.Store || {})`)
+      log.info("Store keys", storeKeys)
+      return false;
+    })
     if (VALID_SESSION) {
       /**
        * Session is valid, attempt to preload patches
