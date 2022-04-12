@@ -242,6 +242,12 @@ Merge<Merge<{
     description: "Expose a tunnel to your EASY API session - this is for testing and it is unsecured."
 },
 {
+    name: 'pm2',
+    type: Boolean,
+    typeLabel: '{yellow {underline "--max-memory-restart 300M"}}',
+    description: "Offload the EASY API to local instance of pm2. You can add pm2 specific arguments also if you want."
+},
+{
     name: 'help',
     description: 'Print this usage guide.'
 }
