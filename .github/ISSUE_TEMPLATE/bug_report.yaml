@@ -63,7 +63,7 @@ body:
   id: repro
   attributes:
     label: Steps To Reproduce
-    description: Steps to reproduce the behavior.
+    description: Steps to reproduce the behavior. Please include specific code or request bodies. If it involved a file, upload that specific file.
     placeholder: |
       1. In this environment...
       2. With this config...
@@ -74,11 +74,11 @@ body:
 - type: textarea
   id: c_code
   attributes:
-    label: create() code
+    label: create() code OR full CLI command + CONFIG
     description: |
-      This is the code you use to create the client. e.g
+      This is the code you use to create the client, including the config object. e.g
       ```javascript
-      create(...)
+      create({...}) or npx @open-wa/wa-automate --debug --verbose
       ```
     render: markdown
   validations:
