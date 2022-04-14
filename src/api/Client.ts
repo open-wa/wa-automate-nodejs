@@ -35,7 +35,7 @@ import { MessagePreprocessors } from '../structures/preProcessors';
 import { NextFunction, Request, Response } from 'express';
 import { base64MimeType, ensureDUrl, generateGHIssueLink, getDUrl, isBase64, isDataURL, now } from '../utils/tools';
 import { Call } from './model/call';
-import { Button, Section } from './model/button';
+import { Button, LocationButtonBody, Section } from './model/button';
 import { JsonObject } from 'type-fest';
 import { log } from '../logging/logging';
 import { ReactionEvent } from './model/reactions';
@@ -1356,12 +1356,12 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * Send generic quick reply buttons. This is an insiders feature for MD accounts.
    * 
    * @param  {ChatId} to chat id
-   * @param  {string} body The body of the buttons message
+   * @param  {string | LocationButtonBody} body The body of the buttons message
    * @param  {Button[]} buttons Array of buttons - limit is 3!
    * @param  {string} title The title/header of the buttons message
    * @param  {string} footer The footer of the buttons message
    */
-  public async sendButtons(to: ChatId, body : string, buttons : Button[], title ?: string, footer ?: string) : Promise<boolean | MessageId> {
+  public async sendButtons(to: ChatId, body : string | LocationButtonBody, buttons : Button[], title ?: string, footer ?: string) : Promise<boolean | MessageId> {
     return await this.pup(
       ({ to,  body, buttons, title, footer }) => {
         return WAPI.sendButtons(to, body, buttons, title, footer);

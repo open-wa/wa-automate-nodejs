@@ -13,3 +13,9 @@ export interface Section {
     title: string,
     rows: Row[]
 }
+
+export interface LocationButtonBody {
+    lat:number,
+    lng:number,
+    caption:string
+}
