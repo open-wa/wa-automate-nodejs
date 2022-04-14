@@ -5,6 +5,7 @@ import { default as updateNotifier } from 'update-notifier';
 import { Client } from '../api/Client';
 import { ConfigObject, SessionExpiredError } from '../api/model/index';
 import * as path from 'path';
+import * as os from 'os';
 import { phoneIsOutOfReach, isAuthenticated, waitForRipeSession, QRManager } from './auth';
 import { deleteSessionData, initPage, injectApi, kill } from './browser';
 import { Spin } from './events'
@@ -128,6 +129,8 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
   if (!sessionId) sessionId = 'session';
   const spinner = new Spin(sessionId, 'STARTUP', config?.disableSpins);
   const qrManager = new QRManager(config);
+  const RAM_INFO = `Total: ${parseFloat(`${os.totalmem() / 1000000000}`).toFixed(2)} GB | Free: ${parseFloat(`${os.freemem() / 1000000000}`).toFixed(2)} GB`
+  log.info("RAM INFO", RAM_INFO)
   try {
     if(typeof config === 'string') console.error("AS OF VERSION 3+ YOU CAN NO LONGER SET THE SESSION ID AS THE FIRST PARAMETER OF CREATE. CREATE CAN ONLY TAKE A CONFIG OBJECT. IF YOU STILL HAVE CONFIGS AS A SECOND PARAMETER, THEY WILL HAVE NO EFFECT! PLEASE SEE DOCS.")
     spinner.start('Starting');
@@ -181,7 +184,8 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       WA_AUTOMATE_VERSION,
       BROWSER_VERSION,
       OS,
-      START_TS
+      START_TS,
+      RAM_INFO
     };
     if(config?.logDebugInfoAsObject || config?.disableSpins) spinner.succeed(`Debug info: ${JSON.stringify(debugInfo, null, 2)}`);
      else {
