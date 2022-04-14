@@ -1,6 +1,6 @@
 {
     "name": "@open-wa/wa-automate-types-only",
-    "version": "4.35.5",
+    "version": "4.35.6",
     "description": "Types generated from the @open-wa/wa-automate package",
     "scripts": {
         "build": "tsc",
