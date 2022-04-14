@@ -1353,7 +1353,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
 
   
   /**
-   * Send generic quick reply buttons
+   * Send generic quick reply buttons. This is an insiders feature for MD accounts.
    * 
    * @param  {ChatId} to chat id
    * @param  {string} body The body of the buttons message
@@ -1361,7 +1361,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * @param  {string} title The title/header of the buttons message
    * @param  {string} footer The footer of the buttons message
    */
-  public async sendButtons(to: ChatId, body : string, buttons : Button[], title : string, footer ?: string) : Promise<boolean | MessageId> {
+  public async sendButtons(to: ChatId, body : string, buttons : Button[], title ?: string, footer ?: string) : Promise<boolean | MessageId> {
     return await this.pup(
       ({ to,  body, buttons, title, footer }) => {
         return WAPI.sendButtons(to, body, buttons, title, footer);
