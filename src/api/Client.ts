@@ -341,7 +341,7 @@ export class Client {
       if((this._createConfig?.autoEmoji === undefined || this._createConfig?.autoEmoji) && !this._autoEmojiSet) {
         const ident = typeof this._createConfig?.autoEmoji === "string" ? this._createConfig?.autoEmoji : ":"
         this.onMessage(async message => {
-          if(message.body && message.body.startsWith(ident) && message.body.endsWith(ident)) {
+          if(message?.body && message.body.startsWith(ident) && message.body.endsWith(ident)) {
             const emojiId = message.body.replace(new RegExp(ident, 'g'),"");
             if(!emojiId) return;
             await this._autoEmojiQ.add(async() => this.sendEmoji(message.from,emojiId,message.id).catch(()=>{}))
