@@ -319,6 +319,10 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
         WAToken1: localStorage.WAToken1,
         WAToken2: localStorage.WAToken2
       };
+      if(config.multiDevice) {
+        delete sessionData.WABrowserId;
+        log.info("Multi-device detected. Removing Browser ID from session data to prevent session reauth corruption")
+      }
       const sdB64 = Buffer.from(JSON.stringify(sessionData)).toString('base64');
 
       spinner.emit(sessionData, "sessionData");
