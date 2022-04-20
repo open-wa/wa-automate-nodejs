@@ -555,9 +555,10 @@ export class Client {
     if(logging) {
       const wapis = (pageFunction?.toString()?.match(/WAPI\.(\w*)\(/g) || [])?.map(s=>s.replace(/WAPI|\.|\(/g,''));
         _t = Date.now()
+        const _args = ["string", "number", "boolean"].includes(typeof args[0]) ? args[0] : {...args[0]};
         log.info(`IN ${invocation_id}`,{
           _method: wapis?.length === 1 ? wapis[0] : wapis,
-          ...args[0]
+          _args
           })     
     }
     if(callTimeout) return await Promise.race([this._page.evaluate(pageFunction, ...args),new Promise((resolve, reject) => setTimeout(reject, this._createConfig?.callTimeout, new PageEvaluationTimeout()))])
