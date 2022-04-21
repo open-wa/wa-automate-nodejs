@@ -79,7 +79,7 @@ declare module WAPI {
   const setChatEphemeral: (chatId: string, ephemeral: boolean | number) => Promise<boolean>;
   const downloadFileWithCredentials: (url: string) => Promise<string>;
   const sendPaymentRequest: (chatId : string, amount1000 : number, currency : string, noteMessage : string) => Promise<any>;
-  const sendMessageWithMentions: (to: string, content: string, hideTags: boolean) => Promise<string>;
+  const sendMessageWithMentions: (to: string, content: string, hideTags: boolean, mentions: string[]) => Promise<string>;
   const tagEveryone: (groupId: string, content: string, hideTags: boolean, formatting: string, messageBeforeTags: boolean) => Promise<string>;
   const sendReplyWithMentions: (to: string, content: string, replyMessageId: string) => Promise<string>;
   const postTextStatus: (text: string, textRgba: string, backgroundRgba: string, font: string) => Promise<string | boolean>;
@@ -1321,16 +1321,17 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * @param to chat id: `xxxxx@c.us`
    * @param content text message
    * @param hideTags Removes all tags within the message
+   * @param mentions You can optionally add an array of contact IDs to tag only specific people
    */
-  public async sendTextWithMentions(to: ChatId, content: Content, hideTags?: boolean) : Promise<boolean | MessageId> {
+  public async sendTextWithMentions(to: ChatId, content: Content, hideTags ?: boolean, mentions ?: ContactId[]) : Promise<boolean | MessageId> {
     //remove all @c.us from the content
     content = content.replace(/@c.us/,"");
     return await this.pup(
-      ({ to, content, hideTags }) => {
+      ({ to, content, hideTags, mentions }) => {
         WAPI.sendSeen(to);
-        return WAPI.sendMessageWithMentions(to, content, hideTags);
+        return WAPI.sendMessageWithMentions(to, content, hideTags, mentions);
       },
-      { to, content, hideTags }
+      { to, content, hideTags,mentions }
     ) as Promise<boolean | MessageId>;
   }
 
