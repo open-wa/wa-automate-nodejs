@@ -131,6 +131,8 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
   const qrManager = new QRManager(config);
   const RAM_INFO = `Total: ${parseFloat(`${os.totalmem() / 1000000000}`).toFixed(2)} GB | Free: ${parseFloat(`${os.freemem() / 1000000000}`).toFixed(2)} GB`
   log.info("RAM INFO", RAM_INFO)
+  const PPTR_VERSION = readJsonSync(path.join(__dirname,'../../node_modules/puppeteer/package.json'), {throws:false})?.version || "UNKNOWN";
+  log.info("PPTR VERSION INFO", PPTR_VERSION)
   try {
     if(typeof config === 'string') console.error("AS OF VERSION 3+ YOU CAN NO LONGER SET THE SESSION ID AS THE FIRST PARAMETER OF CREATE. CREATE CAN ONLY TAKE A CONFIG OBJECT. IF YOU STILL HAVE CONFIGS AS A SECOND PARAMETER, THEY WILL HAVE NO EFFECT! PLEASE SEE DOCS.")
     spinner.start('Starting');
@@ -173,6 +175,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
     });
 
     const WA_AUTOMATE_VERSION = `${pkg.version}${notifier?.update && (notifier?.update.latest !== pkg.version) ? ` UPDATE AVAILABLE: ${notifier?.update.latest}` : ''}`;
+    
     await waPage.waitForFunction('window.Debug!=undefined && window.Debug.VERSION!=undefined');
     //@ts-ignore
     const WA_VERSION = await waPage.evaluate(() => window.Debug ? window.Debug.VERSION : 'I think you have been TOS_BLOCKed')
@@ -185,7 +188,8 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
       BROWSER_VERSION,
       OS,
       START_TS,
-      RAM_INFO
+      RAM_INFO,
+      PPTR_VERSION
     };
     if(config?.logDebugInfoAsObject || config?.disableSpins) spinner.succeed(`Debug info: ${JSON.stringify(debugInfo, null, 2)}`);
      else {

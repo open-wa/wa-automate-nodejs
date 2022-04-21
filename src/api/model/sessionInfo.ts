@@ -14,6 +14,7 @@ export interface SessionInfo {
   OW_KEY?: string;
   INSTANCE_ID?: string;
   RAM_INFO?: string;
+  PPTR_VERSION?: string;
   LATEST_VERSION ?: boolean;
   CLI ?: boolean;
   ACC_TYPE ?: 'PERSONAL' | 'BUSINESS';
