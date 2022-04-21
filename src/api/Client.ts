@@ -1316,8 +1316,6 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * "@4474747474747 how are you?"
    * Basically, add a @ symbol before the number of the contact you want to mention.  
    *   
-   * Please note that the hideTag parameter only works with an Insider's License Key  
-   *   
    * @param to chat id: `xxxxx@c.us`
    * @param content text message
    * @param hideTags Removes all tags within the message
