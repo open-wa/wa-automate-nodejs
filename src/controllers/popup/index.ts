@@ -8,6 +8,7 @@ import getPort from 'get-port';
 import commandExists from 'command-exists';
 import http from 'http'
 import { processSendData } from "../../utils/tools";
+import { log } from "../../logging/logging";
 
 const 
 placeholders = {
@@ -48,7 +49,8 @@ let io,
 
 export async function popup(config: ConfigObject) : Promise<string> {
     await setUpApp();
-    const preferredPort = config.popup;
+    const _p = process.env.PORT || config.port
+    const preferredPort = typeof config.popup === "boolean" && config.popup && _p ? Number(_p) : config.popup;
     const popupListener = ev.on('**', async (data, sessionId, namespace) => {
         if(namespace?.includes("sessionData")) return;
         if (gClient) {
@@ -76,7 +78,7 @@ export async function popup(config: ConfigObject) : Promise<string> {
 
     if (server) return `http://localhost:${PORT}`;
     PORT = await getPort({ host: 'localhost', port: typeof preferredPort == 'number' ? [preferredPort, 7000, 7001, 7002] : [7000, 7001, 7002] });
-
+    log.info(`popup port set to ${PORT}`)
     server = http.createServer(app);  
     if(!config?.qrPopUpOnly) {
         io = new Server(server)
@@ -101,7 +103,7 @@ export async function popup(config: ConfigObject) : Promise<string> {
     if(hasChrome){
         if(!config?.inDocker) await open(`http://localhost:${PORT}${config?.qrPopUpOnly?`/qr`:``}`, { app: {
         name: config?.executablePath || appName,    
-        arguments: [ '--incognito']}, allowNonzeroExitCode: true}).catch(()=>{return;}); else return "NA";
+        arguments: [ '--incognito']}, allowNonzeroExitCode: true}).catch(()=>{return;}); else return `http://localhost:${PORT}`;
     } else return `http://localhost:${PORT}${config?.qrPopUpOnly ? '/qr' : ''}`;
 
     return `http://localhost:${PORT}${config?.qrPopUpOnly ? '/qr' : ''}`
