@@ -30,6 +30,7 @@ const puppeteerConfig = {
     '--disable-histogram-customizer',
     '--disable-gl-extensions',
     '--disable-composited-antialiasing',
+    '--disable-session-crashed-bubble',
     '--disable-canvas-aa',
     '--disable-3d-apis',
     '--disable-accelerated-2d-canvas',
