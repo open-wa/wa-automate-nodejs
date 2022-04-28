@@ -114,6 +114,7 @@ declare module WAPI {
   const B: (chatId: string, payload: any) => MessageId;
   const getCommonGroups: (contactId: string) => Promise<{id:string,title:string}[]>;
   const forceUpdateLiveLocation: (chatId: string) => Promise<LiveLocationChangedEvent []> | boolean;
+  const testButtons: (chatId: string) => Promise<any>;
   const setGroupIcon: (groupId: string, imgData: string) => Promise<boolean>;
   const getGroupAdmins: (groupId: string) => Promise<ContactId[]>;
   const removeParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
@@ -1261,9 +1262,19 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * @param chatId string Id of the chat you want to force the phone to get the livelocation data for.
    * @returns `Promise<LiveLocationChangedEvent []>` | boolean 
    */
-  public async forceUpdateLiveLocation(chatId: ChatId): Promise<LiveLocationChangedEvent[] | boolean>  {
+   public async forceUpdateLiveLocation(chatId: ChatId): Promise<LiveLocationChangedEvent[] | boolean>  {
     return await this.pup(
       ({chatId}) => WAPI.forceUpdateLiveLocation(chatId),
+      { chatId }
+    );
+  }
+
+  /**
+   * Test the button commands on MD accounts with an insiders key. This is a temporary feature to help fix issue #2658
+   */
+  public async testButtons(chatId: ChatId): Promise<any>  {
+    return await this.pup(
+      ({chatId}) => WAPI.testButtons(chatId),
       { chatId }
     );
   }
