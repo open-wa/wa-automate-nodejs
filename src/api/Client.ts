@@ -194,6 +194,7 @@ declare module WAPI {
   const getAllLabels: () => any;
   const iAmAdmin: () => Promise<String[]>;
   const getKickedGroups: () => Promise<String[]>;
+  const launchMetrics: () => Promise<any>;
   const getLicenseType: () => Promise<String | false>;
   const getChatWithNonContacts: () => Contact[];
   const syncContacts: () => boolean;
@@ -1280,7 +1281,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
   }
 
 
-  
+
   private async link(params ?: string) : Promise<string> {
     const _p = [this._createConfig?.linkParams,params].filter(x=>x).join('&')
     return `https://get.openwa.dev/l/${await this.getHostNumber()}${_p?`?${_p}`:''}`
@@ -1872,7 +1873,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * @returns `Promise<DataURL>`
    */
   public async getSnapshot(chatId?: ChatId) : Promise<DataURL> {
-      const snapshotElement = chatId ?( await this._page.evaluateHandle(
+      const snapshotElement = chatId ? (await this._page.evaluateHandle(
         ({ chatId }) => WAPI.getSnapshotElement(chatId),
         { chatId }
       ) as ElementHandle) : this.getPage()
@@ -1881,6 +1882,21 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
       encoding: "base64"
     });
     return `data:image/png;base64,${screenshot}`;
+  }
+
+  /**
+   * Returns some metrics of the session/page.
+   * @returns `Promise<any>`
+   */
+   public async metrics() : Promise<any> {
+    const metrics = await this._page.metrics();
+    const sessionMetrics = await this.pup(() => WAPI.launchMetrics());
+    const res = {
+      ...(metrics || {}),
+      ...(sessionMetrics || {})
+    }
+    log.info("Metrics:",res)
+    return res;
   }
 
   /**
