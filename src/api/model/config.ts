@@ -716,7 +716,7 @@ export interface ConfigObject {
      * 
      * Set this to true if you're using the multidevice beta.
      * 
-     * @default `false`
+     * @default `true`
      * :::danger
      * Some features (e.g [[sendLinkWithAutoPreview]])  **do not** work with multi-device beta. Check [this `api`](#).
      * :::

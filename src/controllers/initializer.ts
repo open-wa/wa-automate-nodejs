@@ -64,6 +64,7 @@ export async function create(config: ConfigObject = {}): Promise<Client> {
   }
   
   if(config?.waitForRipeSession !== false) config.waitForRipeSession = true;
+  if(config?.multiDevice !== false) config.multiDevice = true;
 
   if(!config?.skipUpdateCheck || config?.keepUpdated) {
     notifier = await updateNotifier({
