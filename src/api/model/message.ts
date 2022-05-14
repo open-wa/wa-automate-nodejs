@@ -124,6 +124,8 @@ export interface Message {
   chat: Chat;
   chatId: ChatId;
   author: string;
+  stickerAuthor?: string;
+  stickerPack?: string;
   /**
    * @deprecated
    * 
