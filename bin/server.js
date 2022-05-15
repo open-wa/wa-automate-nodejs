@@ -15,7 +15,10 @@ async function start() {
                 pm2.on('error', reject);
                 pm2.stdout.on('data', () => resolve(true));
             })
-            const pm2Flags = (getVal(pm2Index) || "").split(" ");
+            const stringedArgs = (getVal(pm2Index) || "").match(/"[^"]*"/g);
+            let pm2ArgString = (getVal(pm2Index) || "");
+            if(stringedArgs) stringedArgs.map(stringedArg => pm2ArgString = pm2ArgString.replace(stringedArg, stringedArg.replaceAll(" ","|~|")))
+            const pm2Flags = pm2ArgString.split(" ").map(r=>r.replaceAll("|~|"," ")).flatMap(r=>r.split("=")).map(r=>r.replaceAll('"',"")).filter(x=>x);
             const cliFlags = (process.argv.slice(2) || []);
             spawn("pm2", [
                 "start",
