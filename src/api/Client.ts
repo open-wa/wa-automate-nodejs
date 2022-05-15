@@ -1135,12 +1135,13 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
  * Send VCARD
  *
  * @param {string} chatId '000000000000@c.us'
- * @param {string} vcard vcard as a string
- * @param {string} contactName The display name for the contact. CANNOT BE NULL OTHERWISE IT WILL SEND SOME RANDOM CONTACT FROM YOUR ADDRESS BOOK.
+ * @param {string} vcard vcard as a string, you can send multiple contacts vcard also.
+ * @param {string} contactName The display name for the contact. Ignored on multiple vcards
  * @param {string} contactNumber If supplied, this will be injected into the vcard (VERSION 3 ONLY FROM VCARDJS) with the WA id to make it show up with the correct buttons on WA. The format of this param should be including country code, without any other formating. e.g:
  * `4477777777777`
+ *  Ignored on multiple vcards
  */
-  public async sendVCard(chatId: ChatId, vcard: string, contactName:string,  contactNumber?: string) : Promise<boolean> {
+  public async sendVCard(chatId: ChatId, vcard: string, contactName ?:string,  contactNumber ?: string) : Promise<boolean> {
     return await this.pup(
       ({chatId, vcard, contactName, contactNumber}) => WAPI.sendVCard(chatId, vcard,contactName, contactNumber),
       {chatId, vcard, contactName, contactNumber}
@@ -2400,6 +2401,10 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
   public async getGroupMembers(groupId: GroupChatId) : Promise<Contact[]> {
     const membersIds = await this.getGroupMembersId(groupId);
     log.info("group members ids", membersIds);
+    if(!Array.isArray(membersIds)) {
+      console.error("group members ids is not an array", membersIds);
+      return [];
+    }
     const actions = membersIds.map(memberId => {
       return this.getContact(memberId);
     });
