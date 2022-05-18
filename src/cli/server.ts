@@ -308,6 +308,7 @@ export const setupSocketServer : (cliConfig, client : Client) => Promise<void> =
             socketListenerCallbacks[socket.id] = {}
         })
         socket.onAny(async (m, ...args) => {
+            log.info("🔌", m)
             if(m==="register_ev") {
                 ev.onAny((event:string,value:any)=>socket.emit(event,value))
             }
