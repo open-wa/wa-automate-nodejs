@@ -175,7 +175,6 @@ async function start() {
             server.listen(PORT, async () => {
                 spinner.succeed(`\n• Listening on port ${PORT}!`);
                 processSendData({port:PORT})
-                await ready({...cliConfig, ...createConfig, ...client.getSessionInfo(), hostAccountNumber: await client.getHostNumber()});
             });
             process.on('message', async function (data : any) {
                 if(data?.data?.command === "port_report") {
@@ -187,6 +186,7 @@ async function start() {
             if(cliConfig.tunnel) {
                 spinner.info(`\n• Setting up external tunnel`);
                 const tunnel = await localtunnel({ port: PORT });
+                cliConfig.tunnel = tunnel.url;
                 spinner.succeed(`\n\t${terminalLink('External address', tunnel.url)}`)
             } 
             const apiDocsUrl = cliConfig.apiHost ? `${cliConfig.apiHost}/api-docs/ ` : `${cliConfig.host.includes('http') ? '' : 'http://'}${cliConfig.host}:${PORT}/api-docs/ `;
@@ -198,7 +198,8 @@ async function start() {
                 const statsLink = terminalLink('API Stats', swaggerStatsUrl);
                 spinner.succeed(`\n\t${statsLink}`)
             }
-        } else ready({...cliConfig, ...createConfig, ...client.getSessionInfo(), hostAccountNumber: await client.getHostNumber()});
+        }
+        await ready({...createConfig, ...cliConfig, ...client.getSessionInfo(), hostAccountNumber: await client.getHostNumber()});
         if (cliConfig.emitUnread) {
             await client.emitUnreadMessages()
         }
