@@ -3970,6 +3970,7 @@ public async getStatus(contactId: ContactId) : Promise<{
     if(!this._registeredWebhooks) this._registeredWebhooks={};
     const validListeners = [];
       events.map(event=>{
+        if(!event.startsWith("on")) event = `on${event as string}` as SimpleListener;
       if(this[event]){
         validListeners.push(event);
         if(this._registeredWebhookListeners[event] === undefined){
