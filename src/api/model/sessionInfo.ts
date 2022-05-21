@@ -11,6 +11,7 @@ export interface SessionInfo {
   START_TS?: number;
   PHONE_VERSION?: string;
   NUM_HASH?: string;
+  PATCH_HASH?: string;
   OW_KEY?: string;
   INSTANCE_ID?: string;
   RAM_INFO?: string;

@@ -86,11 +86,12 @@ export async function getPatch(config: ConfigObject, spinner?: Spin, sessionInfo
 export async function injectLivePatch(page: Page, patch: {
   data: any;
   tag: string;
-}, spinner?: Spin): Promise<void> {
+}, spinner?: Spin): Promise<string> {
   const { data, tag } = patch;
   spinner?.info('Installing patches');
   await Promise.all(data.map(patch => page.evaluate(`${patch}`)));
   spinner?.succeed(`Patches Installed: ${tag}`);
+  return tag
 }
 /**
  * @private
@@ -103,7 +104,8 @@ export async function getAndInjectLivePatch(page: Page, spinner?: Spin, preloade
   let patch = preloadedPatch;
   if (!patch)
     patch = await getPatch(config, spinner, sessionInfo);
-  await injectLivePatch(page, patch, spinner);
+  const patch_hash = await injectLivePatch(page, patch, spinner);
+  sessionInfo.PATCH_HASH = patch_hash;
 }
 /**
  * @private
