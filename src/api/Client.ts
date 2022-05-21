@@ -354,6 +354,8 @@ export class Client {
       if((this._createConfig?.deleteSessionDataOnLogout || this._createConfig?.killClientOnLogout) && !this._onLogoutSet) {
         this.onLogout(async () => {
             await this.waitAllQEmpty();
+            await this._queues?.onLogout?.onEmpty();
+            await this._queues?.onLogout?.onIdle();
             await invalidateSesssionData(this._createConfig)
             if(this._createConfig?.deleteSessionDataOnLogout) deleteSessionData(this._createConfig)
             if(this._createConfig?.killClientOnLogout) {
