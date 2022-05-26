@@ -649,6 +649,15 @@ export interface ConfigObject {
       */
      messagePreprocessor ?: PREPROCESSORS,
      /**
+      * Set an array filter to be used with messagePreprocessor to limit which messages are preprocessed.
+      * 
+      * E.g if you want to scrub all messages that are not from a group, you can do the following:
+      * `"m=>!m.isGroupMsg"`
+      * 
+      * @default `undefined`
+      */
+      preprocFilter ?: string,
+     /**
       * REQUIRED IF `messagePreprocessor` IS SET TO `UPLOAD_CLOUD`.
       * 
       * This can be set via the config or the corresponding environment variables.

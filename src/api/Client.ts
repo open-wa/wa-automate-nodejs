@@ -738,8 +738,15 @@ export class Client {
 
   // STANDARD SIMPLE LISTENERS
   private async preprocessMessage(message: Message) : Promise<Message> {
-    if(this._createConfig.messagePreprocessor && MessagePreprocessors[this._createConfig.messagePreprocessor]) {
-      return (await MessagePreprocessors[this._createConfig.messagePreprocessor](message, this) || message)
+    let fil = "";
+    try {
+       fil = typeof this._createConfig.preprocFilter == "function" ? this._createConfig.preprocFilter : typeof this._createConfig.preprocFilter == "string" ? eval(this._createConfig.preprocFilter || "undefined") : undefined
+    } catch (error) {
+        //do nothing
+    }
+    const m = fil && [message].filter(typeof fil == "function" ? fil : x=>x)[0];
+    if(m && this._createConfig.messagePreprocessor && MessagePreprocessors[this._createConfig.messagePreprocessor]) {
+      return (await MessagePreprocessors[this._createConfig.messagePreprocessor](m, this) || message)
     }
     return message;
   }
@@ -753,8 +760,8 @@ export class Client {
    * @fires [[Message]]
    */
    public async onMessage(fn: (message: Message) => void, queueOptions ?: Options<PriorityQueue, DefaultAddOptions>) : Promise<Listener | boolean> {
-    const _fn = async (message : Message) => fn(await this.preprocessMessage(message))
-    return this.registerListener(SimpleListener.Message, _fn, this?._createConfig?.pQueueDefault || queueOptions);
+    // const _fn = async (message : Message) => fn(await this.preprocessMessage(message))
+    return this.registerListener(SimpleListener.Message, fn, this?._createConfig?.pQueueDefault || queueOptions);
   }
 
    /**
