@@ -22,7 +22,8 @@ import { isAuthenticated, QRManager, waitForRipeSession } from '../controllers/a
 import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, FilePath } from './model/aliases';
 import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
 import * as path from 'path';
-import { CustomProduct, Label, Order, Product } from './model/product';
+import { CustomProduct, Order, Product } from './model/product';
+import { Label } from './model/label';
 import { defaultProcessOptions, Mp4StickerConversionProcessOptions, StickerMetadata } from './model/media';
 import { getAndInjectLicense, getAndInjectLivePatch, getLicense } from "../controllers/patch_manager";
 import { SimpleListener } from './model/events';
@@ -867,6 +868,17 @@ export class Client {
    */
   public async onIncomingCall(fn: (call: Call) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.IncomingCall, fn);
+  }
+  
+  /**
+   * Listens to label change events
+   * 
+   * @event 
+   * @param fn callback
+   * @fires [[Label]]
+   */
+   public async onLabel(fn: (label: Label) => void) : Promise<Listener | boolean> {
+    return this.registerListener(SimpleListener.Label, fn);
   }
 
   /**

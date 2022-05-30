@@ -113,3 +113,4 @@ export type EasyApiResponse = {
 export * from './config'
 export * from './media'
 export * from './aliases'
+export * from './label'

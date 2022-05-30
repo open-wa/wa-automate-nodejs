@@ -67,6 +67,10 @@
      */
     Button = 'onButton',
     /**
+     * Represents [[onLabel]]
+     */
+    Label = 'onLabel',
+    /**
      * Requires licence
      * Represents [[onStory]]
      */
