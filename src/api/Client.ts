@@ -761,8 +761,8 @@ export class Client {
    * @fires [[Message]]
    */
    public async onMessage(fn: (message: Message) => void, queueOptions ?: Options<PriorityQueue, DefaultAddOptions>) : Promise<Listener | boolean> {
-    // const _fn = async (message : Message) => fn(await this.preprocessMessage(message))
-    return this.registerListener(SimpleListener.Message, fn, this?._createConfig?.pQueueDefault || queueOptions);
+    const _fn = async (message : Message) => fn(await this.preprocessMessage(message))
+    return this.registerListener(SimpleListener.Message, _fn, this?._createConfig?.pQueueDefault || queueOptions);
   }
 
    /**
