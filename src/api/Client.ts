@@ -301,6 +301,7 @@ export class Client {
     carryoverConcurrencyCount: true
   })
   private _onLogoutSet = false
+  private _preprocIdempotencyCheck = {}
   /**
    * This is used to track if a listener is already used via webhook. Before, webhooks used to be set once per listener. Now a listener can be set via multiple webhooks, or revoked from a specific webhook.
    * For this reason, listeners assigned to a webhook are only set once and map through all possible webhooks to and fire only if the specific listener is assigned.
@@ -737,18 +738,29 @@ export class Client {
    return this._queues
   }
 
+
   // STANDARD SIMPLE LISTENERS
   private async preprocessMessage(message: Message) : Promise<Message> {
+    if(this._preprocIdempotencyCheck[message.id]) {
+      log.info(`preprocessMessage: ${message.id} already being processed`)
+      return message;
+    }
+    this._preprocIdempotencyCheck[message.id] = true;
     let fil = "";
     try {
        fil = typeof this._createConfig.preprocFilter == "function" ? this._createConfig.preprocFilter : typeof this._createConfig.preprocFilter == "string" ? eval(this._createConfig.preprocFilter || "undefined") : undefined
     } catch (error) {
         //do nothing
     }
-    const m = fil && [message].filter(typeof fil == "function" ? fil : x=>x)[0];
+    const m = fil ? [message].filter(typeof fil == "function" ? fil : x=>x)[0] : message;
+    log.info(`Preproc START: ${this._createConfig.messagePreprocessor} ${fil} ${message.id} ${m.id}`)
     if(m && this._createConfig.messagePreprocessor && MessagePreprocessors[this._createConfig.messagePreprocessor]) {
-      return (await MessagePreprocessors[this._createConfig.messagePreprocessor](m, this) || message)
+      log.info(`Preproccessing message: ${this._createConfig.messagePreprocessor}`)
+      const preprocres = (await MessagePreprocessors[this._createConfig.messagePreprocessor](m, this) || message)
+      delete this._preprocIdempotencyCheck[message.id];
+      return preprocres
     }
+    delete this._preprocIdempotencyCheck[message.id];
     return message;
   }
 
