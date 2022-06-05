@@ -2634,8 +2634,7 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
   }
 
   /**
-   * 
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * @deprecated
    * 
    * Retrieves a message object which results in a valid sticker instead of a blank one. This also works with animated stickers.
    * 
@@ -2644,7 +2643,7 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
    * @param messageId The message ID `message.id`
    * @returns message object OR `false`
    */
-  public async getStickerDecryptable(messageId: MessageId) : Promise<Message | boolean> {
+  public async getStickerDecryptable(messageId: MessageId) : Promise<Message | false> {
     const m = await this.pup(
       messageId => WAPI.getStickerDecryptable(messageId),
       messageId

@@ -47,9 +47,9 @@ const AUTO_DECRYPT_SAVE: MessagePreProcessor = async (message: Message, client: 
     const filename = `${message.id.split("_").slice(-1)[0]}.${mime.extension(
       message.mimetype
     )}`;
-    const mediaData = await client.decryptMedia(message);
     const filePath = `media/${filename}`;
     try {
+      const mediaData = await client.decryptMedia(message);
       outputFileSync(filePath, Buffer.from(mediaData.split(",")[1], "base64"));
     } catch (error) {
       console.error(error);
