@@ -7,6 +7,7 @@ import {
     getOpenApiWriter,
     makeConverter,
   } from 'typeconv'
+import { writeJsonSync } from 'fs-extra';
 
 export const getTypeSchemas : any = async () => {
     const reader = getTypeScriptReader(  );
@@ -23,5 +24,8 @@ export const getTypeSchemas : any = async () => {
             res[k] = schemas[k];
         })
     }))
+    writeJsonSync('../bin/oas-type-schemas.json', res);
     return res;
   }
+
+getTypeSchemas();

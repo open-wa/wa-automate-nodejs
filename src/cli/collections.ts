@@ -1,6 +1,7 @@
 import { generatePostmanJson, Spin } from "..";
 import p2s from 'postman-2-swagger';
-import { writeJsonSync } from 'fs-extra'
+import * as path from 'path';
+import { writeJsonSync, readJsonSync} from 'fs-extra'
 
 export const collections = {}
 
@@ -8,7 +9,7 @@ export const generateCollections : any = async (config: { [x: string]: any; sess
     let swCol = null;
     let pmCol = null;
     //TODO GENERATE TYPE SCHEMAS ON BUILD. AXIOS GET FROM GITHUB!
-    const _types = {}
+    const _types = readJsonSync(path.resolve(__dirname, '../../bin/oas-type-schemas.json')) || {}
     spinner.info('Generating Swagger Spec');
     pmCol = await generatePostmanJson(config);
     spinner.succeed(`Postman collection generated: open-wa-${config.sessionId}.postman_collection.json`);
