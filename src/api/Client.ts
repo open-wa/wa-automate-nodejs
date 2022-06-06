@@ -822,6 +822,16 @@ export class Client {
     return this.registerListener(SimpleListener.Button, fn);
   }
 
+  /**
+   * Listens to broadcast messages
+   * @event 
+   * @param fn callback
+   * @fires [[Message]]
+   */
+   public async onBroadcast(fn: (message: Message) => void) : Promise<Listener | boolean> {
+    return this.registerListener(SimpleListener.Broadcast, fn);
+  }
+
   /** 
    * Listens to battery changes
    * 
@@ -1436,6 +1446,20 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
 
    /**
     * {@license:insiders@}
+    * 
+    * :::documentation-page{title="Welcome"}
+    * 
+    * Please install :inline-code[unified]!
+    * 
+    * ::copyright-notice{year="2020"}
+    * 
+    * :::
+    * ::license-required[insiders]
+    * 
+    * ::span{year="2020"}
+    * 
+    * :span{year="2020"}
+    * 
     * <span theme="badge contrast license">Insiders</span>
     * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
     * 
@@ -1514,7 +1538,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     title: string,
     description: string,
     text: Content,
-    chatId: ChatId) : Promise<MessageId | string | boolean> {
+    chatId: ChatId) : Promise<MessageId | boolean> {
     return await this.pup(
       ({ thumb,
         url,
@@ -1587,7 +1611,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
       throw new CustomError(ERROR_NAME.STICKER_NOT_DECRYPTED,'Sticker not decrypted')
     }
     const mediaData = await decryptMedia(m);
-    return `data:${m.mimetype};base64,${mediaData.toString('base64')}`
+    return `data:${m.mimetype};base64,${mediaData.toString('base64')}` as DataURL
   }
 
   /**
@@ -1915,7 +1939,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
       type:"png",
       encoding: "base64"
     });
-    return `data:image/png;base64,${screenshot}`;
+    return `data:image/png;base64,${screenshot}` as DataURL;
   }
 
   /**
@@ -3352,7 +3376,7 @@ public async getStatus(contactId: ContactId) : Promise<{
         } 
       }
       }
-    const processingResponse = await this.prepareWebp(image as string, stickerMetadata);
+    const processingResponse = await this.prepareWebp(image as DataURL, stickerMetadata);
     if(!processingResponse) return false;
     const {webpBase64, metadata} = processingResponse;
       return await this.pup(
@@ -3471,7 +3495,7 @@ public async getStatus(contactId: ContactId) : Promise<{
       }
       }
     
-    const processingResponse = await this.prepareWebp(image as string, stickerMetadata);
+    const processingResponse = await this.prepareWebp(image as DataURL, stickerMetadata);
     if(!processingResponse) return false;
     const {webpBase64, metadata} = processingResponse;
       return await this.pup(

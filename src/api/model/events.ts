@@ -67,6 +67,10 @@
      */
     Button = 'onButton',
     /**
+     * Represents [[onBroadcast]]
+     */
+    Broadcast = 'onBroadcast',
+    /**
      * Represents [[onLabel]]
      */
     Label = 'onLabel',
