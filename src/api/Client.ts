@@ -36,7 +36,7 @@ import { MessagePreprocessors } from '../structures/preProcessors';
 import { NextFunction, Request, Response } from 'express';
 import { base64MimeType, ensureDUrl, generateGHIssueLink, getDUrl, isBase64, isDataURL, now } from '../utils/tools';
 import { Call } from './model/call';
-import { Button, LocationButtonBody, Section } from './model/button';
+import { AdvancedButton, Button, LocationButtonBody, Section } from './model/button';
 import { JsonObject } from 'type-fest';
 import { log } from '../logging/logging';
 import { ReactionEvent } from './model/reactions';
@@ -144,6 +144,7 @@ declare module WAPI {
   const clearChat: (chatId: string) => Promise<any>;
   const inviteInfo: (link: string) => Promise<any>;
   const sendButtons: (to: string, body: any, buttons: string, title: string, footer: string) => Promise<any>;
+  const sendAdvancedButtons: (to: string, body: any, buttons: string, text: string, footer: string, filename ?: string) => Promise<any>;
   const sendBanner: (to: string, base64: string) => Promise<any>;
   const sendListMessage: (to: ChatId, sections : any, title : string, description : string, actionText : string) => Promise<any>;
   const ghostForward: (chatId: string, messageId: string) => Promise<boolean>;
@@ -1423,6 +1424,45 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
         return WAPI.sendButtons(to, body, buttons, title, footer);
       },
       { to, body, buttons, title, footer }
+    ) as Promise<boolean | MessageId>;
+  }
+
+  
+  /**
+   * {@license:insiders@}
+   * 
+   * Send advanced buttons with media body. This is an insiders feature for MD accounts.
+   * 
+   * Body can be location, image, video or document. Buttons can be quick reply, url or call buttons.
+   * 
+   * @param  {ChatId} to chat id
+   * @param  {string | LocationButtonBody} body The body of the buttons message
+   * @param  {AdvancedButton[]} buttons Array of buttons - limit is 3!
+   * @param  {string} title The title/header of the buttons message
+   * @param  {string} footer The footer of the buttons message
+   * @param  {string} filename Required if body is a file!!
+   */
+  public async sendAdvancedButtons(to: ChatId, body : string | LocationButtonBody, buttons : AdvancedButton[], text : string, footer : string, filename : string) : Promise<boolean | MessageId> {
+    if(typeof body !== "string" && body.lat) {
+      //this is a location body
+      // eslint-disable-next-line no-self-assign
+      body = body;
+    } else if(typeof body == "string" && !isDataURL(body) && !isBase64(body) && !body.includes("data:")) {
+      //must be a file then
+      const relativePath = path.join(path.resolve(process.cwd(),body|| ''));
+      if(typeof body == "string" && fs.existsSync(body) || fs.existsSync(relativePath)) {
+        body = await datauri(fs.existsSync(body)  ? body : relativePath);
+      } else if(typeof body == "string" && isUrl(body)){
+        body = await getDUrl(body);
+      } else throw new CustomError(ERROR_NAME.FILE_NOT_FOUND,`Cannot find file. Make sure the file reference is relative, a valid URL or a valid DataURL: ${body.slice(0,25)}`)
+    } else if(typeof body == "string" && (body.includes("data:") && body.includes("undefined") || body.includes("application/octet-stream") && filename && mime.lookup(filename))) {
+      body = `data:${mime.lookup(filename)};base64,${(body as string).split(',')[1]}`
+    }
+    return await this.pup(
+      ({ to,  body, buttons, text, footer, filename }) => {
+        return WAPI.sendAdvancedButtons(to, body, buttons, text, footer, filename);
+      },
+      { to, body, buttons, text, footer, filename }
     ) as Promise<boolean | MessageId>;
   }
 

@@ -2,6 +2,12 @@ export interface Button {
     id: string,
     text: string
 }
+export interface AdvancedButton {
+    id ?: string
+    text: string
+    url ?: string
+    number ?: string
+}
 
 export interface Row {
     title: string,

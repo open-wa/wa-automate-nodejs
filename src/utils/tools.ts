@@ -134,7 +134,7 @@ export const getDUrl: (
     });
     const dUrl: DataURL = `data:${
       res.headers['content-type']
-    };base64,${Buffer.from(res.data, 'binary').toString('base64')}`;
+    };base64,${Buffer.from(res.data, 'binary').toString('base64')}` as DataURL;
     return dUrl;
   } catch (error) {
     throw error;
@@ -152,7 +152,7 @@ export const base64MimeType: (dUrl: DataURL) => string = (dUrl: DataURL) => {
     return result;
   }
 
-  const mime = dUrl.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
+  const mime = (dUrl as string).match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
 
   if (mime && mime.length) {
     result = mime[1];
