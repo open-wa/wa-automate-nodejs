@@ -754,8 +754,8 @@ export class Client {
         //do nothing
     }
     const m = fil ? [message].filter(typeof fil == "function" ? fil : x=>x)[0] : message;
-    log.info(`Preproc START: ${this._createConfig.messagePreprocessor} ${fil} ${message.id} ${m.id}`)
-    if(m && this._createConfig.messagePreprocessor && MessagePreprocessors[this._createConfig.messagePreprocessor]) {
+    if(m && this._createConfig.messagePreprocessor && MessagePreprocessors[this._createConfig.messagePreprocessor] && message.mimetype) {
+      log.info(`Preproc START: ${this._createConfig.messagePreprocessor} ${fil} ${message.id} ${m.id}`)
       log.info(`Preproccessing message: ${this._createConfig.messagePreprocessor}`)
       const preprocres = (await MessagePreprocessors[this._createConfig.messagePreprocessor](m, this) || message)
       delete this._preprocIdempotencyCheck[message.id];
@@ -1487,20 +1487,6 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    /**
     * {@license:insiders@}
     * 
-    * :::documentation-page{title="Welcome"}
-    * 
-    * Please install :inline-code[unified]!
-    * 
-    * ::copyright-notice{year="2020"}
-    * 
-    * :::
-    * ::license-required[insiders]
-    * 
-    * ::span{year="2020"}
-    * 
-    * :span{year="2020"}
-    * 
-    * <span theme="badge contrast license">Insiders</span>
     * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
     * 
     * Send a list message. This will not work when being sent from business accounts!
