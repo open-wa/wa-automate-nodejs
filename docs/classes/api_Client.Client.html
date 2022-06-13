@@ -258,6 +258,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#reply" class="tsd-kind-icon">reply</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#reportSpam" class="tsd-kind-icon">report<wbr>Spam</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#revokeGroupInviteLink" class="tsd-kind-icon">revoke<wbr>Group<wbr>Invite<wbr>Link</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#sendAdvancedButtons" class="tsd-kind-icon">send<wbr>Advanced<wbr>Buttons</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#sendAudio" class="tsd-kind-icon">send<wbr>Audio</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#sendBanner" class="tsd-kind-icon">send<wbr>Banner</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="api_Client.Client.html#sendButtons" class="tsd-kind-icon">send<wbr>Buttons</a></li>
@@ -5522,6 +5523,63 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="sendAdvancedButtons" class="tsd-anchor"></a>
+					<h3>send<wbr>Advanced<wbr>Buttons</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">send<wbr>Advanced<wbr>Buttons<span class="tsd-signature-symbol">(</span>to<span class="tsd-signature-symbol">: </span><a href="../modules/api_model_aliases.html#ChatId" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a>, body<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_button.LocationButtonBody.html" class="tsd-signature-type" data-tsd-kind="Interface">LocationButtonBody</a>, buttons<span class="tsd-signature-symbol">: </span><a href="../interfaces/api_model_button.AdvancedButton.html" class="tsd-signature-type" data-tsd-kind="Interface">AdvancedButton</a><span class="tsd-signature-symbol">[]</span>, text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, footer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, filename<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><a href="../modules/api_model_aliases.html#MessageId" class="tsd-signature-type" data-tsd-kind="Type alias">MessageId</a><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>{@license:insiders@}</p>
+								</div>
+								<p>Send advanced buttons with media body. This is an insiders feature for MD accounts.</p>
+								<p>Body can be location, image, video or document. Buttons can be quick reply, url or call buttons.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>to: <a href="../modules/api_model_aliases.html#ChatId" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>chat id</p>
+									</div>
+								</li>
+								<li>
+									<h5>body: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/api_model_button.LocationButtonBody.html" class="tsd-signature-type" data-tsd-kind="Interface">LocationButtonBody</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The body of the buttons message</p>
+									</div>
+								</li>
+								<li>
+									<h5>buttons: <a href="../interfaces/api_model_button.AdvancedButton.html" class="tsd-signature-type" data-tsd-kind="Interface">AdvancedButton</a><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Array of buttons - limit is 3!</p>
+									</div>
+								</li>
+								<li>
+									<h5>text: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>footer: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The footer of the buttons message</p>
+									</div>
+								</li>
+								<li>
+									<h5>filename: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Required if body is a file!!</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><a href="../modules/api_model_aliases.html#MessageId" class="tsd-signature-type" data-tsd-kind="Type alias">MessageId</a><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="sendAudio" class="tsd-anchor"></a>
 					<h3>send<wbr>Audio</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -6239,15 +6297,7 @@
 								<div class="lead">
 									<p>{@license:insiders@}</p>
 								</div>
-								<p>:::documentation-page{title=&quot;Welcome&quot;}</p>
-								<p>Please install :inline-code[unified]!</p>
-								<p>::copyright-notice{year=&quot;2020&quot;}</p>
-								<p>:::
-								::license-required[insiders]</p>
-								<p>::span{year=&quot;2020&quot;}</p>
-								<p>:span{year=&quot;2020&quot;}</p>
-								<p><span theme="badge contrast license">Insiders</span>
-								<a href="https://gum.co/open-wa?tier=Insiders%20Program">REQUIRES AN INSIDERS LICENSE-KEY</a></p>
+								<p><a href="https://gum.co/open-wa?tier=Insiders%20Program">REQUIRES AN INSIDERS LICENSE-KEY</a></p>
 								<p>Send a list message. This will not work when being sent from business accounts!</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -8415,6 +8465,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_Client.Client.html#revokeGroupInviteLink" class="tsd-kind-icon">revoke<wbr>Group<wbr>Invite<wbr>Link</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="api_Client.Client.html#sendAdvancedButtons" class="tsd-kind-icon">send<wbr>Advanced<wbr>Buttons</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="api_Client.Client.html#sendAudio" class="tsd-kind-icon">send<wbr>Audio</a>
