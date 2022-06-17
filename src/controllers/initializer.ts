@@ -3,7 +3,7 @@ import boxen from 'boxen';
 import osName from 'os-name';
 import { default as updateNotifier } from 'update-notifier';
 import { Client } from '../api/Client';
-import { ConfigObject, SessionExpiredError } from '../api/model/index';
+import { AdvancedConfig, ConfigObject, SessionExpiredError } from '../api/model/index';
 import * as path from 'path';
 import * as os from 'os';
 import { phoneIsOutOfReach, isAuthenticated, waitForRipeSession, QRManager } from './auth';
@@ -45,10 +45,10 @@ export let screenshot;
  * ...
  * })....
  * ```
- * @param config ConfigObject] The extended custom configuration
+ * @param config AdvancedConfig The extended custom configuration
  */
 //@ts-ignore
-export async function create(config: ConfigObject = {}): Promise<Client> {
+export async function create(config: AdvancedConfig | ConfigObject = {}): Promise<Client> {
   const START_TIME = Date.now();
   if(config.logging) {
     if(Array.isArray(config?.logging))

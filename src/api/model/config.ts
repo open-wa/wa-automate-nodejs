@@ -7,11 +7,11 @@ import { SimpleListener } from './events';
 /**
  * The different types of qr code output.
  */
-export enum QRFormat{
+export enum QRFormat {
     PNG = 'png',
     JPEG = 'jpeg',
     WEBM = 'webm'
-  }
+}
 
 
 export enum CLOUD_PROVIDERS {
@@ -39,34 +39,34 @@ export enum DIRECTORY_STRATEGY {
     DATE_CHAT = "DATE_CHAT"
 }
 
-type SessionId = `${string}`;
-type LicenseKey = `${string}`;
+type SessionId = string;
+type LicenseKey = string;
 type HostAccountNumber = `${number}`;
 type HostAccountNumberOrSessionID = HostAccountNumber | SessionId;
 type LicenseKeyConfigObject = {
-    [key : HostAccountNumberOrSessionID] : LicenseKey
+    [key: HostAccountNumberOrSessionID]: LicenseKey
 }
 type LicenseKeyConfigFunctionReturn = LicenseKeyConfigObject | LicenseKey
-type LicenseKeyConfigFunction = (sessionId ?: SessionId, number ?: HostAccountNumber) => LicenseKeyConfigFunctionReturn | Promise<LicenseKeyConfigFunctionReturn>
+type LicenseKeyConfigFunction = (sessionId?: SessionId, number?: HostAccountNumber) => LicenseKeyConfigFunctionReturn | Promise<LicenseKeyConfigFunctionReturn>
 type LicenseKeyConfig = LicenseKeyConfigFunction | LicenseKeyConfigObject | LicenseKey
 
-  /**
-   * The available languages for the host security notification
-   */
-  export enum NotificationLanguage {
-      PTBR = 'pt-br',
-      ENGB = 'en-gb',
-      DEDE = 'de-de',
-      IDID = 'id-id',
-      ITIT = 'it-it',
-      NLNL = 'nl-nl',
-      ES = 'es',
-  }
+/**
+ * The available languages for the host security notification
+ */
+export enum NotificationLanguage {
+    PTBR = 'pt-br',
+    ENGB = 'en-gb',
+    DEDE = 'de-de',
+    IDID = 'id-id',
+    ITIT = 'it-it',
+    NLNL = 'nl-nl',
+    ES = 'es',
+}
 
-  export enum OnError {
-      /**
-       * Return it as a string
-       */
+export enum OnError {
+    /**
+     * Return it as a string
+     */
     AS_STRING = "AS_STRING",
     /**
      * Do not log anything, just return `false`
@@ -75,7 +75,7 @@ type LicenseKeyConfig = LicenseKeyConfigFunction | LicenseKeyConfigObject | Lice
     /**
      * throw the error
      */
-     THROW = "THROW",
+    THROW = "THROW",
     /**
      * Log the error and return false
      */
@@ -92,12 +92,12 @@ type LicenseKeyConfig = LicenseKeyConfigFunction | LicenseKeyConfigObject | Lice
      * Do nothing.
      */
     NOTHING = "NOTHING"
-  }
-  
-  /**
-   * The set values of quality you can set for the quality of the qr code output. Ten being the highest quality.
-   */
-  export enum QRQuality {
+}
+
+/**
+ * The set values of quality you can set for the quality of the qr code output. Ten being the highest quality.
+ */
+export enum QRQuality {
     ONE = 0.1,
     TWO = 0.2,
     THREE = 0.3,
@@ -108,41 +108,41 @@ type LicenseKeyConfig = LicenseKeyConfigFunction | LicenseKeyConfigObject | Lice
     EIGHT = 0.8,
     NINE = 0.9,
     TEN = 1.0,
-  }
+}
 
 
-  export enum LicenseType {
-      CUSTOM = "CUSTOM",
-      B2B_RESTRICTED_VOLUME_LICENSE = "B2B_RESTRICTED_VOLUME_LICENSE",
-      INSIDER = "Insiders Program",
-      TEXT_STORY = "Text Story License Key",
-      IMAGE_STORY = "Image Story License Key",
-      VIDEO_STORY = "Video Story License Key",
-      PREMIUM = "Premium License Key",
-      NONE = "NONE"
-  }
+export enum LicenseType {
+    CUSTOM = "CUSTOM",
+    B2B_RESTRICTED_VOLUME_LICENSE = "B2B_RESTRICTED_VOLUME_LICENSE",
+    INSIDER = "Insiders Program",
+    TEXT_STORY = "Text Story License Key",
+    IMAGE_STORY = "Image Story License Key",
+    VIDEO_STORY = "Video Story License Key",
+    PREMIUM = "Premium License Key",
+    NONE = "NONE"
+}
 
 export interface SessionData {
-    WABrowserId ?: string,
-    WASecretBundle ?: string,
-    WAToken1 ?: string,
-    WAToken2 ?: string,
+    WABrowserId?: string,
+    WASecretBundle?: string,
+    WAToken1?: string,
+    WAToken2?: string,
 }
 
 export interface DevTools {
     /**
      * Username for devtools
      */
-    user : string,
+    user: string,
     /**
      * Password for devtools
      */
-    pass : string
+    pass: string
 }
 
 export interface EventPayload {
     //epoch timestamp
-    ts : number;
+    ts: number;
     //session id
     sessionId: string;
     //id of the webhook event. Useful for idempotency
@@ -152,8 +152,8 @@ export interface EventPayload {
     //the actual data emitted from the original event
     data: any;
     //The event payload can have other undocumented properties
-    [k : string]: any;
-  }
+    [k: string]: any;
+}
 
 export interface Webhook {
     /**
@@ -175,7 +175,7 @@ export interface Webhook {
      * 
      * Please note, for security reasons, this is not returned when listing webhooks however it is returned when registering a webhook for verification purposes.
      */
-    requestConfig ?: AxiosRequestConfig;
+    requestConfig?: AxiosRequestConfig;
     /**
      * The ID of the given webhook setup. Use this ID with [[removeWebhook]]
      */
@@ -187,7 +187,7 @@ export interface Webhook {
     /**
      * Time when the webhook was registered in epoch time 
      */
-     ts: number;
+    ts: number;
 }
 export interface ProxyServerCredentials {
     /**
@@ -201,13 +201,13 @@ export interface ProxyServerCredentials {
     /**
     * Username for Proxy Server authentication
     */
-    username : string,
+    username: string,
     /**
     * Password for Proxy Server authentication
     */
-    password : string,        
+    password: string,
 }
-    
+
 export interface ConfigObject {
     /**
      * The authentication object (as a JSON object or a base64 encoded string) that is required to migrate a session from one instance to another or to just restart an existing instance.
@@ -241,7 +241,7 @@ export interface ConfigObject {
      * 
      * Setting the sessionData in the environmental variable will override the sessionData object in the config.
      */
-    sessionData ?: SessionData | Base64,
+    sessionData?: SessionData | Base64,
     /**
      * ALPHA EXPERIMENTAL FEATURE! DO NOT USE IN PRODUCTION, REQUIRES TESTING.
      * 
@@ -251,41 +251,41 @@ export interface ConfigObject {
      * 
      * https://medium.com/@jaredpotter1/connecting-puppeteer-to-existing-chrome-window-8a10828149e0
      */
-    browserWSEndpoint ?: string,
+    browserWSEndpoint?: string,
     /**
      * This flag allows you to disable or enable the use of the puppeteer stealth plugin. It is a good idea to use it, however it can cause issues sometimes. Set this to false if you are experiencing `browser.setMaxListeneres` issue. For now the default for this is false.
      * @default `false`
      */
-    useStealth ?: boolean,
+    useStealth?: boolean,
     /**
      * The path relative to the current working directory (i.e where you run the command to start your process). This will be used to store and read your `.data.json` files. defualt to ''
      */
-    sessionDataPath ?: string,
+    sessionDataPath?: string,
     /**
      * Disable cors see: https://pptr.dev/#?product=Puppeteer&version=v3.0.4&show=api-pagesetbypasscspenabled If you are having an issue with sending media try to set this to true. Otherwise leave it set to false.
      * @default `false`
      */
-    bypassCSP ?: boolean,
+    bypassCSP?: boolean,
     /**
      * This allows you to pass any array of custom chrome/chromium argument strings to the puppeteer instance.
      * You can find all possible arguements [here](https://peter.sh/experiments/chromium-command-line-switches/).
      */
-    chromiumArgs ?: string[],
+    chromiumArgs?: string[],
     /**
      * If set to true, skipBrokenMethodsCheck will bypass the health check before startup. It is highly suggested to not set this to true.
      * @default `false`
      */
-    skipBrokenMethodsCheck ?: boolean,
+    skipBrokenMethodsCheck?: boolean,
     /**
      * If set to true, `skipUpdateCheck` will bypass the latest version check. This saves some time on boot (around 150 ms).
      * @default `false`
      */
-    skipUpdateCheck ?: boolean,
+    skipUpdateCheck?: boolean,
     /**
      * This is the name of the session. You have to make sure that this is unique for every session.
      * @default `session`
      */
-    sessionId ?: string,
+    sessionId?: string,
     /**
      * In order to unlock the functionality to send texts to unknown numbers, you need a License key.
      * One License Key is valid for each number. Each License Key starts from £5 per month.
@@ -296,26 +296,26 @@ export interface ConfigObject {
      * 1. You can change the number assigned to that License Key at any time, just message me the new number on the private discord channel.
      * 2. In order to cancel your License Key, simply stop your membership.
      */
-    licenseKey ?: LicenseKeyConfig,
+    licenseKey?: LicenseKey,
     /**
      * You may set a custom user agent. However, due to recent developments, this is not really neccessary any more.
      */
-    customUserAgent ?: string,
+    customUserAgent?: string,
     /**
      * You can enable remote devtools by setting this to trye. If you set this to true there will be security on the devtools url.
      * If you want, you can also pass a username & password.
      */
-    devtools ?: boolean | DevTools,
+    devtools?: boolean | DevTools,
     /**
      * Setting this to true will block any network calls to crash log servers. This should keep anything you do under the radar. 
      * @default `true`
      */
-    blockCrashLogs ?: boolean,
+    blockCrashLogs?: boolean,
     /**
      * Setting this to false turn off the cache. This may improve memory usage.
      * @default `false`
      */
-    cacheEnabled ?: boolean,
+    cacheEnabled?: boolean,
     /**
      * This is the specific browser revision to be downlaoded and used. You can find browser revision strings here: http://omahaproxy.appspot.com/
      * Learn more about it here: https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-browserfetcher
@@ -323,16 +323,16 @@ export interface ConfigObject {
      * If you go too far back things will start breaking !!!!!!
      * NOTE: THIS WILL OVERRIDE useChrome and executablePath. ONLY USE THIS IF YOU KNOW WHAT YOU ARE DOING.
      */
-    browserRevision ?: string,
+    browserRevision?: string,
     /**
      * Setting this to true will throw an error if a session is not able to get a QR code or is unable to restart a session.
      */
-    throwErrorOnTosBlock ?: boolean,
+    throwErrorOnTosBlock?: boolean,
     /**
      * By default, all instances of @open-wa/wa-automate are headless (i.e you don't see a chrome window open), you can set this to false to show the chrome/chromium window.
      * @default `true`
      */
-    headless ?: boolean,
+    headless?: boolean,
     /**
      * @deprecated
      * 
@@ -341,7 +341,7 @@ export interface ConfigObject {
      * Setting this to true will result in new QR codes being generated if the end user takes too long to scan the QR code.
      * @default `true`
      */
-    autoRefresh ?: boolean,
+    autoRefresh?: boolean,
     /**
      * @deprecated
      * 
@@ -349,21 +349,21 @@ export interface ConfigObject {
      * 
      * This determines the interval at which to refresh the QR code. By default, WA updates the qr code every 18-19 seconds so make sure this value is set to UNDER 18 seconds!!
      */
-    qrRefreshS ?: number,
+    qrRefreshS?: number,
     /**
      * This determines how long the process should wait for a QR code to be scanned before killing the process entirely. To have the system wait continuously, set this to `0`.
      * @default 60
      */
-    qrTimeout ?: number,
+    qrTimeout?: number,
     /**
      * Some features, like video upload, do not work without a chrome instance. Set this to the path of your chrome instance or you can use `useChrome:true` to automatically detect a chrome instance for you. Please note, this overrides `useChrome`.
      */
-    executablePath ?: string,
+    executablePath?: string,
     /**
      * If true, the program will automatically try to detect the instance of chorme on the machine. Please note this DOES NOT override executablePath.
      * @default `false`
      */
-    useChrome ?: boolean,
+    useChrome?: boolean,
     /**
      * If sent, adds a call to waPage.authenticate with those credentials. Set `corsFix` to true if using a proxy results in CORS errors.
      */
@@ -385,22 +385,22 @@ export interface ConfigObject {
      * })
      * ```
      */
-    restartOnCrash ?: any,
+    restartOnCrash?: any,
     /**
      * Setting this to true will simplify logs for use within docker containers by disabling spins (will still print raw messages).
      * @default `false`
      */
-    disableSpins ?: boolean,
+    disableSpins?: boolean,
     /**
      * If true, this will log any console messages from the browser.
      * @default `false`
      */
-    logConsole ?: boolean
+    logConsole?: boolean
     /**
      * If true, this will log any error messages from the browser instance
      * @default `false`
      */
-    logConsoleErrors ?: boolean,
+    logConsoleErrors?: boolean,
     /**
     * This determines how long the process should wait for the session authentication. If exceeded, checks if phone is out of reach (turned of or without internet connection) and throws an error. It does not relate to the amount of time spent waiting for a qr code scan (see [[qrTimeout]]). To have the system wait continuously, set this to `0`.
     * @default `60`
@@ -410,17 +410,17 @@ export interface ConfigObject {
      * Setting this to `true` will kill the whole process when the client is disconnected from the page or if the browser is closed. 
      * @default `false`
      */
-    killProcessOnBrowserClose ?: boolean;
+    killProcessOnBrowserClose?: boolean;
     /**
      * If true, client will check if the page is valid before each command. If page is not valid, it will throw an error.
      * @default `false`
      */
-    safeMode ?: boolean;
+    safeMode?: boolean;
     /**
      * If true, the process will not save a data.json file. This means that sessions will not be saved and you will need to pass sessionData as a config param or create the session data.json file yourself
      * @default `false`
      */
-    skipSessionSave ?: boolean;
+    skipSessionSave?: boolean;
     /**
      * If true, the process will open a browser window where you will see basic event logs and QR codes to authenticate the session. Usually it will open on port 3000. It can also be set to a preferred port.
      * 
@@ -434,7 +434,7 @@ export interface ConfigObject {
      * 
      * @default `false | 3000`
      */
-    popup ?: boolean | number;
+    popup?: boolean | number;
     /**
      * This needs to be used in conjuction with `popup`, if `popup` is not true or a number (representing a desired port) then this will not work.
      * 
@@ -442,7 +442,7 @@ export interface ConfigObject {
      * 
      * As mentioned in [popup](#popup), the url for the qr code is `http://localhost:3000/qr` if the port is 3000.
      */
-    qrPopUpOnly ?: boolean
+    qrPopUpOnly?: boolean
     /**
      * If true, the process will try infer as many config variables as possible from the environment variables. The format of the variables are as below:
      * ```
@@ -469,73 +469,73 @@ export interface ConfigObject {
      * ```
      * @default `false`
      */
-    inDocker ?: boolean;
+    inDocker?: boolean;
     /**
      * The output quality of the qr code during authentication. This can be any increment of 0.1 from 0.1 to 1.0.
      * @default `1.0`
      */
-    qrQuality ?: QRQuality;
+    qrQuality?: QRQuality;
     /**
      * The output format of the qr code. `png`, `jpeg` or `webm`.
      *  
      * @default `png`
      */
-    qrFormat ?:  QRFormat;
+    qrFormat?: QRFormat;
     /**
      * The language of the host notification. See: https://github.com/open-wa/wa-automate-nodejs/issues/709#issuecomment-673419088
      */
-    hostNotificationLang ?: NotificationLanguage;
+    hostNotificationLang?: NotificationLanguage;
     /**
      * Setting this to true will block all assets from loading onto the page. This may result in some load time improvements but also increases instability. 
      * @default `false`
      */
-    blockAssets ?: boolean;
+    blockAssets?: boolean;
     /**
      * [ALPHA FEATURE - ONLY IMPLEMENTED FOR TESTING - DO NOT USE IN PRODUCTION YET]
      * Setting this to true will result in the library making sure it is always starting with the latest version of itself. This overrides `skipUpdateCheck`.
      * @default `false`
      */
-    keepUpdated ?: boolean;
+    keepUpdated?: boolean;
     /**
      * Syncs the viewport size with the window size which is how normal browsers act. Only relevant when `headless: false` and this overrides `viewport` config.
      * @default `true`
      */
-    resizable ?: boolean;
+    resizable?: boolean;
     /**
      * Set the desired viewport height and width. For CLI, use [width]x[height] format. E.g `--viewport 1920x1080`.
      */
-    viewport ?: {
+    viewport?: {
         /**
          * Page width in pixels
          * @default `1440`
          */
-        width ?: number;
+        width?: number;
         /**
          * Page height in pixels
          * @default `900`
          */
-        height ?: number;
+        height?: number;
     };
     /**
      * As the library is constantly evolving, some parts will be replaced with more efficient and improved code. In some of the infinite edge cases these new changes may not work for you. Set this to true to roll back on 'late beta' features. The reason why legacy is false by default is that in order for features to be tested they have to be released and used by everyone to find the edge cases and fix them. 
      * @default `false`
      */
-    legacy ?: boolean;
+    legacy?: boolean;
     /**
      * Deletes the session data file (if found) on logout event. This results in a quicker login when you restart the process.
      * @default `false`
      */
-    deleteSessionDataOnLogout ?: boolean;
+    deleteSessionDataOnLogout?: boolean;
     /**
      * If set to true, the system will kill the whole node process when either an [[authTimeout]] or a [[qrTimeout]] has been reached. This is useful to prevent hanging processes.
      * @default `false`
      */
-    killProcessOnTimeout ?: boolean;
+    killProcessOnTimeout?: boolean;
     /**
      * Setting this to true will bypass web security. DO NOT DO THIS IF YOU DO NOT HAVE TO. CORS issue may arise when using a proxy.
      * @default `false`
      */
-    corsFix ?: boolean;
+    corsFix?: boolean;
     /**
      * Amount of time (in ms) to wait for a client method (specifically methods that interact with the WA web session) to resolve. If a client method results takes longer than the timout value then it will result in a [[PageEvaluationTimeout]] error.
      * 
@@ -546,12 +546,12 @@ export interface ConfigObject {
      * If set to `0`, the process will wait indefinitely for a client method to resolve.
      * @default 0
      */
-    callTimeout ?: number;
+    callTimeout?: number;
     /**
      * When true, this option will take a screenshot of the browser when an unexpected error occurs within the browser during `create` initialization. The path will be `[working directory]/logs/[session ID]/[start timestamp]/[timestamp].jpg`
      * @default `false`
      */
-    screenshotOnInitializationBrowserError ?: boolean;
+    screenshotOnInitializationBrowserError?: boolean;
     /**
      * Setting listeners may not be your cup of tea. With eventMode, all [[SimpleListener]] events will be registered automatically and be filed via the built in Events Listener.
      * 
@@ -559,7 +559,7 @@ export interface ConfigObject {
      * 
      * @default `true`;
      */
-    eventMode ?: boolean;
+    eventMode?: boolean;
     /**
      * If true, the system will automatically create a log of all processes relating to actions sent to the web session.
      * 
@@ -568,39 +568,39 @@ export interface ConfigObject {
      * `[pd]/[sessionId]/[start timestamp].log`
      * @default false
      */
-    logFile ?: boolean;
+    logFile?: boolean;
     /**
      * When true, the system will attempt to correct chatIds and groupChatIds. This means you can ignore `@c.us` and `@g.us` distinctions in some parameters.
      * @default false
      */
-    idCorrection ?: boolean;
+    idCorrection?: boolean;
     /**
      * 
      * Redundant until self-hostable sticker server is available.
      * 
      * @default `https://sticker-api.openwa.dev`
      */
-    stickerServerEndpoint ?: string | boolean;
+    stickerServerEndpoint?: string | boolean;
     /**
      * This will force the library to use the default cached raw github link for patches to shave a few hundred milliseconds from your launch time. If you use this option, you will need to wait about 5 minutes before trying out new patches.
      * @default `false`
      */
-     ghPatch ?: boolean;
+    ghPatch?: boolean;
     /**
      * Setting this to `true` will save a local copy of the patches.json file (as patches.ignore.data.json) which will be used in subsequent instantiations of the session. While the rest of the launch procedure is running, the library will fetch and save a recent version of the patches to ensure your patches don't go stale. This will be ignored if the cached patches are more than a day old.
      * @default `false`
      */
-    cachedPatch ?: boolean;
+    cachedPatch?: boolean;
     /**
      * Setting `this` to true will replace the `console.table` with a stringified logging of the debug info object instead. This would be useful to set for smaller terminal windows. If `disableSpins` is `true` then this will also be `true`.
      * @default `false`
      */
-    logDebugInfoAsObject ?: boolean;
+    logDebugInfoAsObject?: boolean;
     /**
      * Kill the client when a logout is detected
      * @default `false`
      */
-    killClientOnLogout ?: boolean;
+    killClientOnLogout?: boolean;
     /**
      * This will make the `create` command return `false` if the detected session data is expired.
      * 
@@ -608,13 +608,13 @@ export interface ConfigObject {
      * 
      * @default `false`
      */
-    throwOnExpiredSessionData ?: boolean;
+    throwOnExpiredSessionData?: boolean;
     /**
      * Some sessions may experience issues with sending media when using proxies. Using the native proxy system instead of the recommended 3rd party library may fix these issues.
      * 
      * @default `false`
      */
-     useNativeProxy ?: boolean;
+    useNativeProxy?: boolean;
     /**
      * Set this to `true` to make the library work on Raspberry Pi OS.
      * 
@@ -632,105 +632,105 @@ export interface ConfigObject {
      * 
      * @default `false`
      */
-     raspi ?: boolean;
-     /**
-      * Default pqueue options applied to all listeners that can take pqueue options as a second optional parameter. For now, this only includes `onMessage` and `onAnyMessage`.
-      * 
-      * See: https://github.com/sindresorhus/p-queue#options
-      * 
-      * Example: process 5 events within every 3 seconds window. Make sure to only process at most 2 at any one time. Make sure there is at least 100ms between each event processing.
-      * 
-      * ```javascript
-      *     {   
-      *         intervalCap: 5, //process 5 events
-      *         interval: 3000, //within every three second window
-      *         concurrency: 2, //make sure to process, at most, 2 events at any one time
-      *         timeout: 100, //make sure there is a 100ms gap between each event processing.
-      *         carryoverConcurrencyCount: true //If there are more than 5 events in that period, process them within the next 3 second period. Make sure this is always set to true!!!
-      *     }
-      * ```
-      * 
-      * @default `undefined`
-      */
-     pQueueDefault ?: any
-     /**
-      * Set a preprocessor for messages. See [[PREPROCESSORS]] for more info.
-      * 
-      * options: `SCRUB`, `BODY_ONLY`, `AUTO_DECRYPT`, `AUTO_DECRYPT_SAVE`, `UPLOAD_CLOUD`.
-      * @default `undefined`
-      */
-     messagePreprocessor ?: PREPROCESSORS,
-     /**
-      * Set an array filter to be used with messagePreprocessor to limit which messages are preprocessed.
-      * 
-      * E.g if you want to scrub all messages that are not from a group, you can do the following:
-      * `"m=>!m.isGroupMsg"`
-      * 
-      * @default `undefined`
-      */
-      preprocFilter ?: string,
-     /**
-      * REQUIRED IF `messagePreprocessor` IS SET TO `UPLOAD_CLOUD`.
-      * 
-      * This can be set via the config or the corresponding environment variables.
-      */
-     cloudUploadOptions ?: {
-         /**
-          * `AWS`, `GCP` or `WASABI`
-          * 
-          * env: `OW_CLOUD_ACCESS_KEY_ID`
-          */
-         provider: CLOUD_PROVIDERS,
-         /**
-          * S3 compatible access key ID. 
-          * 
-          * e.g: `AKIAIOSFODNN7EXAMPLE` or `GOOGTS7C7FUP3AIRVJTE2BCD`
-          * 
-          * env: `OW_CLOUD_ACCESS_KEY_ID`
-          */
-         accessKeyId : string,
-         /**
-          * S3 compatible secret access key.
-          * 
-          * e.g `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY`
-          * 
-          * env: `OW_CLOUD_SECRET_ACCESS_KEY`
-          */
-         secretAccessKey : string,
-         /**
-          * Bucket name
-          * 
-          * env: `OW_CLOUD_BUCKET`
-          */
-         bucket: string,
-         /**
-          * Bucket region.
-          * 
-          * Not required for `GCP` provider
-          * 
-          * env: `OW_CLOUD_REGION`
-          * 
-          */ 
-         region ?: string
-         /**
-          * Ignore processing of messages that are sent by the host account itself
-          * 
-          * env: `OW_CLOUD_IGNORE_HOST`
-          */
-         ignoreHostAccount ?: boolean
-         /**
-          * The directory strategy to use when uploading files. Or just set it to a custom directory string.
-          * 
-          * env: `OW_DIRECTORY`
-          */
-         directory ?: DIRECTORY_STRATEGY | string
-     },
-     /**
-      * What to do when an error is detected on a client method.
-      * 
-      * @default `OnError.NOTHING`
-      */
-    onError ?: OnError
+    raspi?: boolean;
+    /**
+     * Default pqueue options applied to all listeners that can take pqueue options as a second optional parameter. For now, this only includes `onMessage` and `onAnyMessage`.
+     * 
+     * See: https://github.com/sindresorhus/p-queue#options
+     * 
+     * Example: process 5 events within every 3 seconds window. Make sure to only process at most 2 at any one time. Make sure there is at least 100ms between each event processing.
+     * 
+     * ```javascript
+     *     {   
+     *         intervalCap: 5, //process 5 events
+     *         interval: 3000, //within every three second window
+     *         concurrency: 2, //make sure to process, at most, 2 events at any one time
+     *         timeout: 100, //make sure there is a 100ms gap between each event processing.
+     *         carryoverConcurrencyCount: true //If there are more than 5 events in that period, process them within the next 3 second period. Make sure this is always set to true!!!
+     *     }
+     * ```
+     * 
+     * @default `undefined`
+     */
+    pQueueDefault?: any
+    /**
+     * Set a preprocessor for messages. See [[PREPROCESSORS]] for more info.
+     * 
+     * options: `SCRUB`, `BODY_ONLY`, `AUTO_DECRYPT`, `AUTO_DECRYPT_SAVE`, `UPLOAD_CLOUD`.
+     * @default `undefined`
+     */
+    messagePreprocessor?: PREPROCESSORS,
+    /**
+     * Set an array filter to be used with messagePreprocessor to limit which messages are preprocessed.
+     * 
+     * E.g if you want to scrub all messages that are not from a group, you can do the following:
+     * `"m=>!m.isGroupMsg"`
+     * 
+     * @default `undefined`
+     */
+    preprocFilter?: string,
+    /**
+     * REQUIRED IF `messagePreprocessor` IS SET TO `UPLOAD_CLOUD`.
+     * 
+     * This can be set via the config or the corresponding environment variables.
+     */
+    cloudUploadOptions?: {
+        /**
+         * `AWS`, `GCP` or `WASABI`
+         * 
+         * env: `OW_CLOUD_ACCESS_KEY_ID`
+         */
+        provider: CLOUD_PROVIDERS,
+        /**
+         * S3 compatible access key ID. 
+         * 
+         * e.g: `AKIAIOSFODNN7EXAMPLE` or `GOOGTS7C7FUP3AIRVJTE2BCD`
+         * 
+         * env: `OW_CLOUD_ACCESS_KEY_ID`
+         */
+        accessKeyId: string,
+        /**
+         * S3 compatible secret access key.
+         * 
+         * e.g `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY`
+         * 
+         * env: `OW_CLOUD_SECRET_ACCESS_KEY`
+         */
+        secretAccessKey: string,
+        /**
+         * Bucket name
+         * 
+         * env: `OW_CLOUD_BUCKET`
+         */
+        bucket: string,
+        /**
+         * Bucket region.
+         * 
+         * Not required for `GCP` provider
+         * 
+         * env: `OW_CLOUD_REGION`
+         * 
+         */
+        region?: string
+        /**
+         * Ignore processing of messages that are sent by the host account itself
+         * 
+         * env: `OW_CLOUD_IGNORE_HOST`
+         */
+        ignoreHostAccount?: boolean
+        /**
+         * The directory strategy to use when uploading files. Or just set it to a custom directory string.
+         * 
+         * env: `OW_DIRECTORY`
+         */
+        directory?: DIRECTORY_STRATEGY | string
+    },
+    /**
+     * What to do when an error is detected on a client method.
+     * 
+     * @default `OnError.NOTHING`
+     */
+    onError?: OnError
     /**
      * 
      * Please note that multi-device is still in beta so a lot of things may not work. It is HIGHLY suggested to NOT use this in production!!!!
@@ -742,63 +742,67 @@ export interface ConfigObject {
      * Some features (e.g [[sendLinkWithAutoPreview]])  **do not** work with multi-device beta. Check [this `api`](#).
      * :::
      */
-    multiDevice ?: boolean
+    multiDevice?: boolean
     /**
      * Base64 encoded S3 Bucket & Authentication object for session data files. The object should be in the same format as cloudUploadOptions.
      */
-    sessionDataBucketAuth ?: string
+    sessionDataBucketAuth?: string
     /**
      * Set the automatic emoji detection character. Set this to `false` to disable auto emoji. Default is `:`.
      * 
      * @default `:`
      */
-    autoEmoji ?: string | false;
+    autoEmoji?: string | false;
     /**
      * Set the maximum amount of chats to be present in a session.
      */
-    maxChats ?: number;
+    maxChats?: number;
     /**
      * Set the maximum amount of messages to be present in a session. 
      */
-     maxMessages ?: number;
-     /**
-      * Your Discord ID to get onto the sticker leaderboard!
-      */
-     discord ?: string
-     /**
-      * Don't implicitly determine if the host logged out.
-      */
-     ignoreNuke ?: boolean
-     /**
-      * Makes sure the headless session is usable even on first login.
-      * Headful sessions are ususally only usable on reauthentication.
-      */
-     ensureHeadfulIntegrity ?: boolean
-     /**
-      * wait for a valid headful session. Not required in recent versions.
-      * default: `true`
-      */
-      waitForRipeSession ?: boolean
-      /**
-       * Automatically kill the process after a set amount of qr codes
-       */
-       qrMax ?: number
-       /**
-        * Expose a URL where you can easily scan the qr code
-        */
-       ezqr ?: boolean
-       /**
-        * An array of [winston](https://github.com/winstonjs/winston/blob/master/docs/transports.md#additional-transports) logging transport configurations.
-        * 
-        * [Check this discussion to see how to set up logging](https://github.com/open-wa/wa-automate-nodejs/discussions/2373)
-        */
-       logging ?: ConfigLogTransport[]
-       /**
-        * The URL of your instance of [serverless meta grabber](https://github.com/RemiixInc/meta-grabber-serverless) by [RemiixInc](https://github.com/RemiixInc).
-        * 
-        * default: `https://link.openwa.cloud/api`
-        */
-        linkParser ?: string
+    maxMessages?: number;
+    /**
+     * Your Discord ID to get onto the sticker leaderboard!
+     */
+    discord?: string
+    /**
+     * Don't implicitly determine if the host logged out.
+     */
+    ignoreNuke?: boolean
+    /**
+     * Makes sure the headless session is usable even on first login.
+     * Headful sessions are ususally only usable on reauthentication.
+     */
+    ensureHeadfulIntegrity?: boolean
+    /**
+     * wait for a valid headful session. Not required in recent versions.
+     * default: `true`
+     */
+    waitForRipeSession?: boolean
+    /**
+     * Automatically kill the process after a set amount of qr codes
+     */
+    qrMax?: number
+    /**
+     * Expose a URL where you can easily scan the qr code
+     */
+    ezqr?: boolean
+    /**
+     * An array of [winston](https://github.com/winstonjs/winston/blob/master/docs/transports.md#additional-transports) logging transport configurations.
+     * 
+     * [Check this discussion to see how to set up logging](https://github.com/open-wa/wa-automate-nodejs/discussions/2373)
+     */
+    logging?: ConfigLogTransport[]
+    /**
+     * The URL of your instance of [serverless meta grabber](https://github.com/RemiixInc/meta-grabber-serverless) by [RemiixInc](https://github.com/RemiixInc).
+     * 
+     * default: `https://link.openwa.cloud/api`
+     */
+    linkParser?: string
     /**@internal */
-    [x: string]: any 
+    [x: string]: any
+}
+
+export type AdvancedConfig = ConfigObject & {
+    licenseKey: LicenseKeyConfig
 }
