@@ -123,6 +123,11 @@ export async function getLicense(config: ConfigObject, me: {
       //run the funciton to get the key
       config.licenseKey = await (config.licenseKey as (sessionId: string, number: string) => Promise<string>)(config.sessionId, me._serialized)
     }
+    if(typeof config.licenseKey === "object") {
+      //attempt to get the key from the object
+      config.licenseKey = config.licenseKey[me._serialized] || config.licenseKey[config.sessionId]
+    }
+    //asume by now the key is a string
   spinner?.start(`Fetching License: ${Array.isArray(config.licenseKey) ? config.licenseKey : typeof config.licenseKey === "string" ? config.licenseKey.indexOf("-") == -1 ? config.licenseKey.slice(-4) : config.licenseKey.split("-").slice(-1)[0] : config.licenseKey}`, hasSpin ? undefined : 2);
   try {
     const START = Date.now();
