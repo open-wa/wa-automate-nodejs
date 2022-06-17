@@ -89,7 +89,7 @@
     "husky": "^7.0.0",
     "line-reader": "^0.4.0",
     "marked": "^4.0.10",
-    "ts-json-schema-generator": "^0.97.0",
+    "ts-json-schema-generator": "^v1.1.0-next.5",
     "node-emoji": "^1.10.0",
     "onchange": "^7.0.2",
     "precise-commits": "^1.0.2",
