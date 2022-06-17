@@ -124,7 +124,7 @@ export const configFile: (config ?: string) => JsonObject = (config ?: string) =
     } else {
         attempt()
     }
-    log.info(`Using config file: ${(confFile as any).confPath || "???"}`)
+    log.info(`Using config file: ${(confFile as any || {}).confPath || "???"}`)
     return confFile;
 }
 
