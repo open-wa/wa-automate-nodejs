@@ -136,6 +136,7 @@ export const cli: () => {
     PORT: number,
     spinner: Spin
 } = () => {
+    let loggingSetup = false;
     const _cli = meow(helptext, {
         flags: {
             ...meowFlags(),
@@ -146,6 +147,20 @@ export const cli: () => {
         },
         booleanDefault: undefined
     });
+
+    const _setupLogging = (_config : any) => {
+        if(loggingSetup) return;
+        //firstly set up logger
+        if(_config?.logging || _config?.verbose){
+            if(!_config?.logging && _config?.verbose) _config.logging = []
+            if(_config?.logging && !(_config?.logging || []).find(transport => transport.type === "console")) _config.logging.push({type: 'console'})
+            if(Array.isArray(_config?.logging))
+            _config.logging = setupLogging(_config?.logging, `easy-api-${_config?.sessionId || 'session'}`)
+            loggingSetup = true;
+        }
+    }
+
+    _setupLogging(_cli.flags)
 
     /**
      * Config order should follow airmanship rules. Least maneuverable to most maneuverable.
@@ -188,12 +203,7 @@ export const cli: () => {
     };
     
     //firstly set up logger
-    if(cliConfig?.logging || cliConfig?.verbose){
-        if(!cliConfig?.logging && cliConfig?.verbose) cliConfig.logging = []
-        if(cliConfig?.logging && !(cliConfig?.logging || []).find(transport => transport.type === "console")) cliConfig.logging.push({type: 'console'})
-        if(Array.isArray(cliConfig?.logging))
-        cliConfig.logging = setupLogging(cliConfig?.logging, `easy-api-${cliConfig?.sessionId || 'session'}`)
-    }
+    _setupLogging(cliConfig);
 
     const PORT = Number((typeof cliConfig.forcePort === "boolean" && cliConfig.forcePort ? process.env.PORT : cliConfig.forcePort) || cliConfig.port || process.env.PORT || 8080);
     const spinner = new Spin(cliConfig.sessionId, 'STARTUP', cliConfig?.disableSpins);
