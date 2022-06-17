@@ -107,7 +107,8 @@ export enum DIRECTORY_STRATEGY {
       TEXT_STORY = "Text Story License Key",
       IMAGE_STORY = "Image Story License Key",
       VIDEO_STORY = "Video Story License Key",
-      PREMIUM = "Premium License Key"
+      PREMIUM = "Premium License Key",
+      NONE = "NONE"
   }
 
 export interface SessionData {
