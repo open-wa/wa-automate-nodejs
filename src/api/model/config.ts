@@ -39,6 +39,17 @@ export enum DIRECTORY_STRATEGY {
     DATE_CHAT = "DATE_CHAT"
 }
 
+type SessionId = `${string}`;
+type LicenseKey = `${string}`;
+type HostAccountNumber = `${number}`;
+type HostAccountNumberOrSessionID = HostAccountNumber | SessionId;
+type LicenseKeyConfigObject = {
+    [key : HostAccountNumberOrSessionID] : LicenseKey
+}
+type LicenseKeyConfigFunctionReturn = LicenseKeyConfigObject | LicenseKey
+type LicenseKeyConfigFunction = (sessionId ?: SessionId, number ?: HostAccountNumber) => LicenseKeyConfigFunctionReturn | Promise<LicenseKeyConfigFunctionReturn>
+type LicenseKeyConfig = LicenseKeyConfigFunction | LicenseKeyConfigObject | LicenseKey
+
   /**
    * The available languages for the host security notification
    */
@@ -285,7 +296,7 @@ export interface ConfigObject {
      * 1. You can change the number assigned to that License Key at any time, just message me the new number on the private discord channel.
      * 2. In order to cancel your License Key, simply stop your membership.
      */
-    licenseKey ?: string | string[],
+    licenseKey ?: LicenseKeyConfig,
     /**
      * You may set a custom user agent. However, due to recent developments, this is not really neccessary any more.
      */
