@@ -11,7 +11,7 @@ import uuidAPIKey from 'uuid-apikey';
 import { ev, Spin } from '../controllers/events';
 import isUrl from 'is-url-superb';
 import * as path from 'path';
-import { setupLogging } from '../logging/logging';
+import { log, setupLogging } from '../logging/logging';
 import { optionList } from './cli-options';
 
 let checkUrl = url => typeof url === 'string' ? isUrl(url) : false;
@@ -97,19 +97,34 @@ export const envArgs: () => JsonObject = () => {
     return env
 }
 
-export const configFile: (config : string) => JsonObject = (config : string) => {
+export const configFile: (config ?: string) => JsonObject = (config ?: string) => {
     let confFile = {};
     const conf = config || process.env.WA_CLI_CONFIG
+    const backup = () => {
+        if(!confFile) confFile = tryOpenFileAsObject(`cli.config.json`);
+        if(!confFile) confFile = tryOpenFileAsObject(`cli.config.js`);
+    }
+    const attempt = (firstAttempt ?: string) => {
+        try {
+            confFile = tryOpenFileAsObject(firstAttempt || `cli.config.json`);
+            backup();
+        } catch (error) {
+            log.error(error)
+            log.error("Trying cli.config.js")
+            backup();
+        }
+    }
     if (conf) {
         if (isBase64(conf as string)) {
             confFile = JSON.parse(Buffer.from(conf as string, 'base64').toString('ascii'))
         } else {
-            confFile = tryOpenFileAsObject(conf as string || `cli.config.json`);
+            attempt(conf as string)
             if (!confFile) console.error(`Unable to read config file json: ${conf}`)
         }
     } else {
-        confFile = tryOpenFileAsObject(`cli.config.json`);
+        attempt()
     }
+    log.info(`Using config file: ${(confFile as any).confPath || "???"}`)
     return confFile;
 }
 
