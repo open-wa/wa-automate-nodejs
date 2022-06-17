@@ -119,6 +119,10 @@ export async function getLicense(config: ConfigObject, me: {
   const hasSpin = !!spinner;
   if (!spinner)
     spinner = new Spin(config.sessionId || "session", "FETCH_LICENSE", config.disableSpins, true);
+    if(typeof config.licenseKey === "function") {
+      //run the funciton to get the key
+      config.licenseKey = await (config.licenseKey as (sessionId: string, number: string) => Promise<string>)(config.sessionId, me._serialized)
+    }
   spinner?.start(`Fetching License: ${Array.isArray(config.licenseKey) ? config.licenseKey : typeof config.licenseKey === "string" ? config.licenseKey.indexOf("-") == -1 ? config.licenseKey.slice(-4) : config.licenseKey.split("-").slice(-1)[0] : config.licenseKey}`, hasSpin ? undefined : 2);
   try {
     const START = Date.now();
