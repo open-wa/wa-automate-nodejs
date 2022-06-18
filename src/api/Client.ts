@@ -680,6 +680,15 @@ export class Client {
     })
   }
 
+/**
+ * It calls the JavaScript garbage collector
+ * @returns Nothing.
+ */
+  public async gc() : Promise<void> {
+    await this._page.evaluate(() => gc())
+    return;
+  }
+
   /**
    * Listens to a log out event
    * 
