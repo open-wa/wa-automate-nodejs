@@ -568,8 +568,12 @@ export class Client {
           _args
           })     
     }
-    if(callTimeout) return await Promise.race([this._page.evaluate(pageFunction, ...args),new Promise((resolve, reject) => setTimeout(reject, this._createConfig?.callTimeout, new PageEvaluationTimeout()))])
-    const res = await this._page.evaluate(pageFunction, ...args);
+    if(this._createConfig?.aggressiveGarbageCollection) {
+      const gc = await this._page.evaluate(() => gc())
+    }
+    const mainPromise = this._page.evaluate(pageFunction, ...args)
+    if(callTimeout) return await Promise.race([mainPromise,new Promise((resolve, reject) => setTimeout(reject, this._createConfig?.callTimeout, new PageEvaluationTimeout()))])
+    const res = await mainPromise;
     if(_t && logging) {
       log.info(`OUT ${invocation_id}: ${Date.now() - _t}ms`, {res})
     }

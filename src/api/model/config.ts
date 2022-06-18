@@ -799,6 +799,12 @@ export interface ConfigObject {
      * default: `https://link.openwa.cloud/api`
      */
     linkParser?: string
+    /**
+     * Setting this to true will run `gc()` on before every command sent to the browser.
+     * 
+     * This is experimental and may not work or it may have unforeseen sideeffects.
+     */
+    aggressiveGarbageCollection?: boolean
     /**@internal */
     [x: string]: any
 }
