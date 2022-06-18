@@ -39,8 +39,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
     spinner?.info(`Browser launched: ${(now() - startBrowser).toFixed(0)}ms`)
     waPage = await getWAPage(browser);
   }
-  //@ts-ignore
-  waPage._client.send('Network.setBypassServiceWorker', {bypass: true})
+  await waPage._client().send('Network.setBypassServiceWorker', {bypass: true})
   const postBrowserLaunchTs = now();
   waPage.on("framenavigated", async frame => {
     try {
