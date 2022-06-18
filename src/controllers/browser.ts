@@ -39,7 +39,12 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
     spinner?.info(`Browser launched: ${(now() - startBrowser).toFixed(0)}ms`)
     waPage = await getWAPage(browser);
   }
-  await waPage._client().send('Network.setBypassServiceWorker', {bypass: true})
+  const pageCDPClient = await waPage.target().createCDPSession();
+  await pageCDPClient.send('Network.setBypassServiceWorker', {bypass: true})
+  if(waPage._client) {
+    const cl = (typeof waPage._client === 'function' ? waPage._client() : waPage._client) as CDPSession
+    if(cl.send) await cl.send('Network.setBypassServiceWorker', {bypass: true})
+  }
   const postBrowserLaunchTs = now();
   waPage.on("framenavigated", async frame => {
     try {
