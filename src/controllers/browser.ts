@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import ON_DEATH from 'death';
 // import puppeteer from 'puppeteer-extra';
 import { puppeteerConfig, useragent, width, height} from '../config/puppeteer.config';
-import { Browser, Page } from 'puppeteer';
+import { Browser, CDPSession, Page } from 'puppeteer';
 import { Spin, EvEmitter } from './events';
 import { ConfigObject } from '../api/model';
 import { FileNotFoundError, getTextFile } from 'pico-s3';
