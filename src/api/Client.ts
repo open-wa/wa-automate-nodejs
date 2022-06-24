@@ -40,6 +40,7 @@ import { AdvancedButton, Button, LocationButtonBody, Section } from './model/but
 import { JsonObject } from 'type-fest';
 import { log } from '../logging/logging';
 import { ReactionEvent } from './model/reactions';
+import { pidTreeUsage } from '../utils/pid_utils';
 
 
 /** @ignore */
@@ -1314,6 +1315,13 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    */
   public async healthCheck() : Promise<HealthCheck> {
     return await this._page.evaluate(() => WAPI.healthCheck());
+  }
+
+  /**
+   * Get the stats of the current process and the corresponding browser process.
+   */
+  public async getProcessStats() : Promise<any> {
+    return await pidTreeUsage([process.pid, this._page.browser().process().pid])
   }
 
   
