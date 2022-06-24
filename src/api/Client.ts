@@ -83,7 +83,7 @@ declare module WAPI {
   const sendPaymentRequest: (chatId : string, amount1000 : number, currency : string, noteMessage : string) => Promise<any>;
   const sendMessageWithMentions: (to: string, content: string, hideTags: boolean, mentions: string[]) => Promise<string>;
   const tagEveryone: (groupId: string, content: string, hideTags: boolean, formatting: string, messageBeforeTags: boolean) => Promise<string>;
-  const sendReplyWithMentions: (to: string, content: string, replyMessageId: string) => Promise<string>;
+  const sendReplyWithMentions: (to: string, content: string, replyMessageId: string, hideTags: string, mentions : string[]) => Promise<string>;
   const postTextStatus: (text: string, textRgba: string, backgroundRgba: string, font: string) => Promise<string | boolean>;
   const postImageStatus: (data: string, caption: string) => Promise<string | boolean>;
   const postVideoStatus: (data: string, caption: string) => Promise<string | boolean>;
@@ -1538,16 +1538,18 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * @param to chat id: `xxxxx@c.us`
    * @param content text message
    * @param replyMessageId id of message to reply to
+   * @param hideTags Removes all tags within the message
+   * @param mentions You can optionally add an array of contact IDs to tag only specific people
    */
-  public async sendReplyWithMentions(to: ChatId, content: Content, replyMessageId: MessageId) : Promise<boolean | MessageId> {
+  public async sendReplyWithMentions(to: ChatId, content: Content, replyMessageId: MessageId, hideTags ?: boolean, mentions ?: ContactId[]) : Promise<boolean | MessageId> {
     //remove all @c.us from the content
     content = content.replace(/@c.us/,"");
     return await this.pup(
-      ({ to, content, replyMessageId }) => {
+      ({ to, content, replyMessageId, hideTags, mentions}) => {
         WAPI.sendSeen(to);
-        return WAPI.sendReplyWithMentions(to, content, replyMessageId);
+        return WAPI.sendReplyWithMentions(to, content, replyMessageId, hideTags, mentions);
       },
-      { to, content, replyMessageId }
+      { to, content, replyMessageId, hideTags, mentions }
     ) as Promise<boolean | MessageId>;
   }
 
