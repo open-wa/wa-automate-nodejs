@@ -3944,9 +3944,11 @@ public async getStatus(contactId: ContactId) : Promise<{
       const rb = req?.body || {};
       let {args} = rb
       const m = rb?.method || this._createConfig.sessionId && this._createConfig.sessionId!== 'session' && req.path.includes(this._createConfig.sessionId) ? req.path.replace(`/${this._createConfig.sessionId}/`,'') :  req.path.replace('/','');
+      log.info(`MDLWR - ${m} : ${JSON.stringify(rb || {})}`)
       let methodRequiresArgs = false
       if(args && !Array.isArray(args)) {
         const methodArgs = parseFunction().parse(this[m]).args
+        log.info(`methodArgs: ${methodArgs}`)
         if(methodArgs?.length > 0) methodRequiresArgs = true;
         args = methodArgs.map(argName=> args[argName]);
       }
