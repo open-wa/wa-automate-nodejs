@@ -1,11 +1,11 @@
 import { default as mime } from 'mime-types';
-import { Page, EvaluateFn, PageEventObject, ElementHandle } from 'puppeteer';
+import { Page, EvaluateFunc, PageEventObject } from 'puppeteer';
 import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration, GroupChatCreationResponse, EphemeralDuration } from './model/chat';
 import { Contact, NumberCheck } from './model/contact';
 import { Message } from './model/message';
 import { default as axios, AxiosRequestConfig} from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
-import { useragent, puppeteerConfig } from '../config/puppeteer.config'
+import { useragent } from '../config/puppeteer.config'
 import { ConfigObject, STATE, LicenseType, Webhook, OnError, EventPayload } from './model';
 import { PageEvaluationTimeout, CustomError, ERROR_NAME, AddParticipantError  } from './model/errors';
 import PQueue, { DefaultAddOptions, Options } from 'p-queue';
@@ -528,7 +528,7 @@ export class Client {
   }
 
 
-  private async pup(pageFunction:EvaluateFn<any>, ...args) {
+  private async pup(pageFunction:EvaluateFunc<any>, ...args) {
     const invocation_id =  uuidv4().slice(-5);
     const {safeMode, callTimeout, idCorrection, logging} = this._createConfig;
     let _t : number;
@@ -1288,13 +1288,14 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * 
    * [[Detecting Logouts]]
    */
-  public async forceRefocus() : Promise<void> {
+  public async forceRefocus() : Promise<boolean> {
     const useHere: string = await this._page.evaluate(()=>WAPI.getUseHereString());
     await this._page.waitForFunction(
       `[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML.toLowerCase().includes("${useHere.toLowerCase()}")})`,
       { timeout: 0 }
     );
-    return await this._page.evaluate(`[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML.toLowerCase().includes("${useHere.toLowerCase()}")}).click()`);
+    await this._page.evaluate(`[...document.querySelectorAll("div[role=button")].find(e=>{return e.innerHTML.toLowerCase().includes("${useHere.toLowerCase()}")}).click()`);
+    return true;
   }
 
   /**
@@ -1304,6 +1305,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    */
   public async isPhoneDisconnected() : Promise<boolean> {
     const phoneNotConnected: string = await this._page.evaluate(()=>WAPI.getLocaledString('active Internet connection'));
+    //@ts-ignore
     return await this.pup(`!![...document.querySelectorAll("div")].find(e=>{return e.innerHTML.toLowerCase().includes("${phoneNotConnected.toLowerCase()}")})`)
   }
 
@@ -1973,7 +1975,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
       const snapshotElement = chatId ? (await this._page.evaluateHandle(
         ({ chatId }) => WAPI.getSnapshotElement(chatId),
         { chatId }
-      ) as ElementHandle) : this.getPage()
+      ) as any) : this.getPage()
     const screenshot = await snapshotElement.screenshot({
       type:"png",
       encoding: "base64"
