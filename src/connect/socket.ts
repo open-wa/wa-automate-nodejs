@@ -71,7 +71,7 @@ export class SocketClient {
     } = {};
 
     /**
-     * The main way to create the socket baed client.
+     * The main way to create the socket based client.
      * @param url URL of the socket server (i.e the EASY API instance address)
      * @param apiKey optional api key if set
      * @returns SocketClient
