@@ -30,3 +30,7 @@ bin/cli.config.json
 **.log
 **.log.gz
 **-audit.json
+package-lock.json
+package-lock.json
+package-lock.json
+package-lock.json
