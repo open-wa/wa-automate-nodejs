@@ -1434,7 +1434,10 @@ window.WAPI.sendImage = async function (imgBase64, chatid, filename, caption, qu
             quotedStanzaID:quotedMsg.id.id
         };
     }
-    return await Store.Chat.find(chatid).then(async (chat) => {
+    // constructor user if not exists (workarround) #2770
+    var idUser = await new Store.WidFactory.createWid(chatId, {intentionallyUsePrivateConstructor: true});
+    // 
+    return await Store.Chat.find(idUser).then(async (chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
         return await window.WAPI.procFiles(chat,mediaBlob).then(async mc => {
             var media = mc.models[0];
