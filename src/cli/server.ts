@@ -79,6 +79,10 @@ export const setupApiDocs : (cliConfig : cliFlags) => void = (cliConfig : cliFla
         if (req.originalUrl == "/api-docs") return res.redirect('api-docs/')
         next()
     }, swaggerUi.serve, swaggerUi.setup(collections["swagger"], swOptions));
+    /**
+     * Redirect to api docs if no path is specified
+     */
+    app.use('/',  (req, res) => res.redirect('/api-docs'))
 }
 
 export const setupSwaggerStatsMiddleware : (cliConfig : cliFlags) => Promise<void> = async (cliConfig : cliFlags) => {
