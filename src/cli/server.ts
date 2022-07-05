@@ -82,7 +82,7 @@ export const setupApiDocs : (cliConfig : cliFlags) => void = (cliConfig : cliFla
     /**
      * Redirect to api docs if no path is specified
      */
-    app.use('/',  (req, res) => res.redirect('/api-docs'))
+    app.get('/',  (req, res) => res.redirect('/api-docs'))
 }
 
 export const setupSwaggerStatsMiddleware : (cliConfig : cliFlags) => Promise<void> = async (cliConfig : cliFlags) => {
