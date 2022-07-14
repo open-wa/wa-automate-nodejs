@@ -132,7 +132,7 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
   const qrManager = new QRManager(config);
   const RAM_INFO = `Total: ${parseFloat(`${os.totalmem() / 1000000000}`).toFixed(2)} GB | Free: ${parseFloat(`${os.freemem() / 1000000000}`).toFixed(2)} GB`
   log.info("RAM INFO", RAM_INFO)
-  const PPTR_VERSION = readJsonSync(path.join(__dirname,'../../node_modules/puppeteer/package.json'), {throws:false})?.version || "UNKNOWN";
+  const PPTR_VERSION = readJsonSync(require.resolve("puppeteer/package.json"), {throws:false})?.version || "UNKNOWN";
   log.info("PPTR VERSION INFO", PPTR_VERSION)
   try {
     if(typeof config === 'string') console.error("AS OF VERSION 3+ YOU CAN NO LONGER SET THE SESSION ID AS THE FIRST PARAMETER OF CREATE. CREATE CAN ONLY TAKE A CONFIG OBJECT. IF YOU STILL HAVE CONFIGS AS A SECOND PARAMETER, THEY WILL HAVE NO EFFECT! PLEASE SEE DOCS.")
