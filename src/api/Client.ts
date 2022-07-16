@@ -246,6 +246,7 @@ declare module WAPI {
   const simulateRecording: (to: string, on: boolean) => Promise<boolean>;
   const archiveChat: (id: string, archive: boolean) => Promise<boolean>;
   const pinChat: (id: string, pin: boolean) => Promise<boolean>;
+  const markAllRead: () => Boolean;
   const isConnected: () => Boolean;
   const logout: () => Boolean;
   const loadEarlierMessages: (contactId: string) => Promise<Message []>;
@@ -2822,14 +2823,20 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
    * Sets a chat status to seen. Marks all messages as ack: 3
    * @param chatId chat id: `xxxxx@c.us`
    */
-  public async sendSeen(chatId: ChatId) : Promise<boolean> {
+   public async sendSeen(chatId: ChatId) : Promise<boolean> {
     return await this.pup(
      chatId => WAPI.sendSeen(chatId),
       chatId
     ) as Promise<boolean>;
   }
-
   
+  /**
+   * Runs sendSeen on all chats
+   */
+  public async markAllRead() : Promise<boolean> {
+    return await this.pup(() => WAPI.markAllRead()) as Promise<boolean>;
+  }
+
   /**
    * Sets a chat status to unread. May be useful to get host's attention
    * @param chatId chat id: `xxxxx@c.us`
