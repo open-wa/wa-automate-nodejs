@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Client | @open-wa/wa-automate - v4.42.8</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.42.8">
+	<title>Client | @open-wa/wa-automate - v4.43.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.43.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v4.42.8</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.43.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -1650,9 +1650,9 @@
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p><a href="https://gum.co/open-wa?tier=Insiders%20Program">REQUIRES AN INSIDERS LICENSE-KEY</a></p>
+									<p>Automatically reject calls on the host account device. Please note that the device that is calling you will continue to ring.</p>
 								</div>
-								<p>Automatically reject calls on the host account device. Please note that the device that is calling you will continue to ring.</p>
+								<p>Update: Due to the nature of MD, the host account will continue ringing.</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -6399,7 +6399,7 @@
 					<a name="sendLocation" class="tsd-anchor"></a>
 					<h3>send<wbr>Location</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">send<wbr>Location<span class="tsd-signature-symbol">(</span>to<span class="tsd-signature-symbol">: </span><a href="../modules/api_model_aliases.html#ChatId" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a>, lat<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, lng<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, loc<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><a href="../modules/api_model_aliases.html#MessageId" class="tsd-signature-type" data-tsd-kind="Type alias">MessageId</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">send<wbr>Location<span class="tsd-signature-symbol">(</span>to<span class="tsd-signature-symbol">: </span><a href="../modules/api_model_aliases.html#ChatId" class="tsd-signature-type" data-tsd-kind="Type alias">ChatId</a>, lat<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, lng<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, loc<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, address<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, url<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><a href="../modules/api_model_aliases.html#MessageId" class="tsd-signature-type" data-tsd-kind="Type alias">MessageId</a><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -6407,8 +6407,9 @@
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Sends a location message to given chat</p>
+									<p>Note: <code>address</code> and <code>url</code> are parameters available to insiders only.</p>
 								</div>
+								<p>Sends a location message to given chat</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -6434,6 +6435,18 @@
 									<h5>loc: <span class="tsd-signature-type">string</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>location text: &#39;LONDON!&#39;</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> address: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>address text: &#39;1 Regents Park!&#39;</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> url: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>address text link: &#39;<a href="https://example.com&#39;">https://example.com&#39;</a></p>
 									</div>
 								</li>
 							</ul>
@@ -7303,9 +7316,8 @@
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p><a href="https://gum.co/open-wa?tier=Insiders%20Program">REQUIRES AN INSIDERS LICENSE-KEY</a></p>
+									<p>Change the group chant description</p>
 								</div>
-								<p>Change the group chant description</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
