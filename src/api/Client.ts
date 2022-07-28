@@ -1620,16 +1620,20 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
 
 
   /**
+   * Note: `address` and `url` are parameters available to insiders only.
+   * 
    * Sends a location message to given chat
    * @param to chat id: `xxxxx@c.us`
    * @param lat latitude: '51.5074'
    * @param lng longitude: '0.1278'
    * @param loc location text: 'LONDON!'
+   * @param address address text: '1 Regents Park!'
+   * @param url address text link: 'https://example.com'
    */
-  public async sendLocation(to: ChatId, lat: string, lng: string, loc: string) : Promise<boolean | MessageId> {
+  public async sendLocation(to: ChatId, lat: string, lng: string, loc: string, address ?:string, url ?: string) : Promise<boolean | MessageId> {
     return await this.pup(
-      ({ to, lat, lng, loc }) => WAPI.sendLocation(to, lat, lng, loc),
-      { to, lat, lng, loc }
+      ({ to, lat, lng, loc, address, url }) => WAPI.sendLocation(to, lat, lng, loc, address, url),
+      { to, lat, lng, loc, address, url }
     ) as Promise<boolean | MessageId>;
   }
 
