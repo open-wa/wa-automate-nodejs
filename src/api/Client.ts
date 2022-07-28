@@ -3284,8 +3284,6 @@ public async getStatus(contactId: ContactId) : Promise<{
 }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
-   * 
   * Change the group chant description
   * @param groupId '0000000000-00000000@g.us' the group id.
   * @param description string The new group description
