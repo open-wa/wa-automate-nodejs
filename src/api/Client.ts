@@ -3350,9 +3350,10 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
    * 
    * Automatically reject calls on the host account device. Please note that the device that is calling you will continue to ring.
+   * 
+   * Update: Due to the nature of MD, the host account will continue ringing.
    * 
    * @param message optional message to send to the calling account when their call is detected and rejected
    */
