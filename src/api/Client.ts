@@ -95,7 +95,7 @@ declare module WAPI {
   const editProduct : (id: string, name : string, price : number, currency : string, images : DataURL[], description : string, url ?: string, internalId ?: string, isHidden ?: boolean) => Promise<any>;
   const sendProduct : (chatId : string, productId : string) => Promise<any>;
   const removeProduct : (productId : string) => Promise<any>;
-  const sendLocation: (to: string, lat: any, lng: any, loc: string) => Promise<string>;
+  const sendLocation: (to: string, lat: any, lng: any, loc: string, address ?: string, url ?: string) => Promise<string>;
   const addParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
   const sendGiphyAsSticker: (chatId: string, url: string) => Promise<any>;
   const getMessageById: (mesasgeId: string) => Message;
