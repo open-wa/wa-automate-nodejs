@@ -165,6 +165,30 @@ export interface Message {
     }
 }
 
+export interface MessageInfoInteraction {
+  /**
+   * The contact ID of the contact that interacted with the message.
+   */
+  id: ContactId,
+  /**
+   * The timestamp of the interaction. You have to x 1000 to use in a JS Date object.
+   */
+  t: number,
+}
+
+export interface MessageInfo {
+  deliveryRemaining: number;
+  playedRemaining: number;
+  readRemaining: number;
+  delivery: MessageInfoInteraction[];
+  read: MessageInfoInteraction[];
+  played: MessageInfoInteraction[];
+  /**
+   * The ID of the message
+   */
+  id: MessageId;
+}
+
 
 /**
  * Message types

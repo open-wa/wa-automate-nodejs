@@ -2,7 +2,7 @@ import { default as mime } from 'mime-types';
 import { Page, EvaluateFunc, PageEventObject } from 'puppeteer';
 import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration, GroupChatCreationResponse, EphemeralDuration } from './model/chat';
 import { Contact, NumberCheck } from './model/contact';
-import { Message } from './model/message';
+import { Message, MessageInfo } from './model/message';
 import { default as axios, AxiosRequestConfig} from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent } from '../config/puppeteer.config'
@@ -99,6 +99,7 @@ declare module WAPI {
   const addParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
   const sendGiphyAsSticker: (chatId: string, url: string) => Promise<any>;
   const getMessageById: (mesasgeId: string) => Message;
+  const getMessageInfo: (mesasgeId: string) => Promise<any>;
   const getOrder: (id: string) => Order;
   const getMyLastMessage: (chatId: string) => Promise<Message>;
   const getStarredMessages: (chatId: string) => Promise<Message[]>;
@@ -2559,6 +2560,19 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
       messageId => WAPI.getMessageById(messageId),
       messageId
     ) as Promise<Message>;
+  }
+
+  /**
+   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * 
+   * Get the detailed message info for a group message sent out by the host account.
+   * @param messageId The message Id
+   */
+  public async getMessageInfo(messageId: MessageId): Promise<MessageInfo> {
+    return await this.pup(
+      messageId => WAPI.getMessageInfo(messageId),
+      messageId
+    ) as Promise<MessageInfo>;
   }
 
   /**
