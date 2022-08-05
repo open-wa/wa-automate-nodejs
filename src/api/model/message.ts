@@ -143,6 +143,10 @@ export interface Message {
    */
   isViewOnce: boolean;
   /**
+   * Use this to traverse the quote chain.
+   */
+  quoteMap: QuoteMap;
+  /**
    * The URL of the file after being uploaded to the cloud using a cloud upload message preprocessor.
    */
    cloudUrl?: string;
@@ -163,6 +167,19 @@ export interface Message {
       "description": string,
       "buttonText":  string,
     }
+}
+
+export interface QuoteMap {
+  [messageId: string]: {
+    /**
+     * The body of the message
+     */
+    body: string;
+    /**
+     * The message ID of the message that was quoted. Null if no message was quoted.
+     */
+    quotes ?: MessageId
+  };
 }
 
 export interface MessageInfoInteraction {
