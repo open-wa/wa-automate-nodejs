@@ -926,7 +926,7 @@ export class Client {
   }
 
   /**
-   *[REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   *{@license:insiders@}
    * 
    * Listens to new orders. Only works on business accounts
    */
@@ -935,7 +935,7 @@ export class Client {
   }
 
   /**
-   *[REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   *{@license:insiders@}
    * 
    * Listens to new orders. Only works on business accounts
    */
@@ -944,7 +944,7 @@ export class Client {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Listens to reaction add and change events
    * 
@@ -957,7 +957,7 @@ export class Client {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Listens to chat state, including when a specific user is recording and typing within a group chat.
    * 
@@ -1014,7 +1014,7 @@ export class Client {
   
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Fires callback with Chat object every time the host phone is removed to a group.
    * 
@@ -1027,7 +1027,7 @@ export class Client {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Fires callback with the relevant chat id every time the user clicks on a chat. This will only work in headful mode.
    * 
@@ -1040,7 +1040,7 @@ export class Client {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Fires callback with contact id when a new contact is added on the host phone.
    * 
@@ -1135,7 +1135,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Adds label from chat, message or contact. Only for business accounts.
    * @param label: The desired text of the new label. id will be something simple like anhy nnumber from 1-10, name is the label of the label if that makes sense.
@@ -1363,6 +1363,9 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
   }
 
   /**
+   * 
+   * {@license:restricted@}
+   * 
    * Sends a text message to given chat
    * If you need to send a message to new numbers please see [these instructions:](https://docs.openwa.dev/pages/The%20Client/licensed-features.html#sending-messages-to-non-contact-numbers)
    * @param to chat id: `xxxxx@c.us`
@@ -1517,8 +1520,6 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    /**
     * {@license:insiders@}
     * 
-    * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
-    * 
     * Send a list message. This will not work when being sent from business accounts!
     * 
     * @param  {ChatId} to
@@ -1562,7 +1563,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
 
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Tags everyone in the group with a message
    * 
@@ -1786,7 +1787,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Check if a recipient has read receipts on.
    * 
@@ -1838,7 +1839,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Checks whether or not the group id provided is known to be unsafe by the contributors of the library.
    * @param groupChatId The group chat you want to deteremine is unsafe
@@ -2120,7 +2121,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
 
   /**
    * 
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Sends multiple contacts as a single message
    * 
@@ -2189,7 +2190,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
 
   /**
    * 
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Mutes a conversation for a given duration. If already muted, this will update the muted duration. Mute durations are relative from when the method is called.
    * @param chatId The id of the conversation you want to mute
@@ -2219,7 +2220,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
 
   /**
    * 
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Unmutes a conversation.
    * @param id The id of the conversation you want to mute
@@ -2461,9 +2462,9 @@ public async contactBlock(id: ContactId) : Promise<boolean> {
 
 
 /**
- * Report a contact for spam, block them and attempt to clear chat.
+ * {@license:restricted@}
  * 
- * [This is a restricted feature and requires a restricted key.](https://gum.co/open-wa?tier=1%20Restricted%20License%20Key)
+ * Report a contact for spam, block them and attempt to clear chat.
  * 
  * @param {string} id '000000000000@c.us'
  */
@@ -2568,7 +2569,7 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Get the detailed message info for a group message sent out by the host account.
    * @param messageId The message Id
@@ -2581,7 +2582,7 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Retrieves an order object
    * @param messageId or OrderId
@@ -2595,7 +2596,7 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Add a product to your catalog
    * 
@@ -2619,7 +2620,7 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Edit a product in your catalog
    * 
@@ -2642,7 +2643,7 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Send a product to a chat
    * 
@@ -2758,7 +2759,7 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
 
   /**
    * 
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * If a file is old enough, it will 404 if you try to decrypt it. This will allow you to force the host account to re upload the file and return a decryptable message.
    * 
@@ -2791,7 +2792,7 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Retrieves the groups that you have in common with a contact
    * @param contactId
@@ -2916,7 +2917,7 @@ public async getStatus(contactId: ContactId) : Promise<{
 
   /**
    * 
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Use a Baileys payload within your open-wa session
    * 
@@ -3316,7 +3317,7 @@ public async getStatus(contactId: ContactId) : Promise<{
 }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
   * Change the group chat title
   * @param groupId '0000000000-00000000@g.us' the group id.
@@ -3342,7 +3343,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Set the wallpaper background colour
    * @param {string} hex '#FFF123'
@@ -3408,7 +3409,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Sends a sticker from a given URL
    * @param to The recipient id.
@@ -3431,7 +3432,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * This function takes an image and sends it as a sticker to the recipient as a reply to another message.
    * 
@@ -3589,7 +3590,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * 
    * @param to ChatId The chat id you want to send the webp sticker to
    * @param file [[DataURL]], [[Base64]], URL (string GET), Relative filepath (string), or Buffer of the mp4 file
-   * @param messageId message id of the message you want this sticker to reply to. [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * @param messageId message id of the message you want this sticker to reply to. {@license:insiders@}
    */
   public async sendMp4AsSticker(to: ChatId, file: DataURL | Buffer | Base64 | string, processOptions: Mp4StickerConversionProcessOptions = defaultProcessOptions, stickerMetadata?: StickerMetadata, messageId ?: MessageId) : Promise<MessageId | string | boolean> {
     //@ts-ignore
@@ -3633,7 +3634,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * 
    * @param to ChatId The chat id you want to send the webp sticker to
    * @param emojiId The discord emoji id without indentifying chars. In discord you would write `:who:`, here use `who`
-   * @param messageId message id of the message you want this sticker to reply to. [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * @param messageId message id of the message you want this sticker to reply to. {@license:insiders@}
    */
   public async sendEmoji(to: ChatId, emojiId: string, messageId ?: MessageId) : Promise<MessageId | boolean | string> {
     const webp = await this.stickerServerRequest('emoji', {
@@ -3667,7 +3668,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * You can use this to send a raw webp file.
    * @param to ChatId The chat id you want to send the webp sticker to
@@ -3690,7 +3691,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
   /**
-   * [REQUIRES AN INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program)
+   * {@license:insiders@}
    * 
    * Turn the ephemeral setting in a chat to on or off
    * @param chatId The ID of the chat
