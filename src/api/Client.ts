@@ -2674,13 +2674,13 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
   /**
    * Retrieves the last message sent by the host account in any given chat or globally.
    * @param chatId This is optional. If no chat Id is set then the last message sent by the host account will be returned.
-   * @returns message object
+   * @returns message object or `undefined` if the host account's last message could not be found.
    */
-  public async getMyLastMessage(chatId?: ChatId) : Promise<Message> {
+  public async getMyLastMessage(chatId?: ChatId) : Promise<Message | undefined> {
     return await this.pup(
       chatId => WAPI.getMyLastMessage(chatId),
       chatId
-    ) as Promise<Message>;
+    ) as Promise<Message | undefined>;
   }
 
   /**
