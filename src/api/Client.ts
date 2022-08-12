@@ -287,6 +287,7 @@ export class Client {
   private _page: Page;
   private _currentlyBeingKilled = false;
   private _refreshing = false
+  private _loaded = false;
   private _prio: number = Number.MAX_SAFE_INTEGER;
   private _pageListeners : {
     event: keyof PageEventObject,
@@ -372,6 +373,7 @@ export class Client {
         }, -1)
         this._onLogoutSet = true;
       }
+      this._loaded = true;
   }
 
   private async registerAllSimpleListenersOnEv(){
@@ -584,6 +586,9 @@ export class Client {
   }
 
   private responseWrap(res: any) {
+    if(this._loaded && typeof res === "string" && res.includes("requires") && res.includes("license")) {
+      console.info('\x1b[36m', "🔶", res, "🔶" ,'\x1b[0m');
+    }
     if(this._createConfig.onError && typeof res == "string" && (res.startsWith("Error") || res.startsWith("ERROR"))) {
       const e = this._createConfig.onError;
       /**
