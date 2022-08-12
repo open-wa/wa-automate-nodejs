@@ -19,6 +19,7 @@ demo/**.mp4
 **.ignore**
 **_IGNORE_**
 **docs-v2**
+# **docs-v3**
 .vscode/launch.json
 **logs**
 bin/cli.config.json
