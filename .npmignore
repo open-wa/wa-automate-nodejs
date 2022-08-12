@@ -39,4 +39,9 @@ types-only
 bin/*config.json
 bin/*col.json
 bin/*collection.json
+bin/*_*
 logs
+docs*
+.eslintrc.json
+*.node-persist*
+.vscode/*
