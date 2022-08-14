@@ -27,7 +27,7 @@ ___
 
 • `Optional` **authTimeout**: `number`
 
-This determines how long the process should wait for the session authentication. If exceeded, checks if phone is out of reach (turned of or without internet connection) and throws an error. It does not relate to the amount of time spent waiting for a qr code scan (see [qrTimeout](/api/interfaces/api_model_config.ConfigObject.md#qrtimeout-36)). To have the system wait continuously, set this to `0`.
+This determines how long the process should wait for the session authentication. If exceeded, checks if phone is out of reach (turned of or without internet connection) and throws an error. It does not relate to the amount of time spent waiting for a qr code scan (see [qrTimeout](/api/interfaces/api_model_config.ConfigObject.md#qrtimeout)). To have the system wait continuously, set this to `0`.
 
 **`Default`**
 
@@ -53,7 +53,7 @@ ___
 
 **`Deprecated`**
 
-THIS IS LOCKED TO `true` AND CANNOT BE TURNED OFF. PLEASE SEE [authTimeout](/api/interfaces/api_model_config.ConfigObject.md#authtimeout-36)
+THIS IS LOCKED TO `true` AND CANNOT BE TURNED OFF. PLEASE SEE [authTimeout](/api/interfaces/api_model_config.ConfigObject.md#authtimeout)
 
 Setting this to true will result in new QR codes being generated if the end user takes too long to scan the QR code.
 
@@ -425,7 +425,7 @@ ___
 
 • `Optional` **killProcessOnTimeout**: `boolean`
 
-If set to true, the system will kill the whole node process when either an [authTimeout](/api/interfaces/api_model_config.ConfigObject.md#authtimeout-36) or a [qrTimeout](/api/interfaces/api_model_config.ConfigObject.md#qrtimeout-36) has been reached. This is useful to prevent hanging processes.
+If set to true, the system will kill the whole node process when either an [authTimeout](/api/interfaces/api_model_config.ConfigObject.md#authtimeout) or a [qrTimeout](/api/interfaces/api_model_config.ConfigObject.md#qrtimeout) has been reached. This is useful to prevent hanging processes.
 
 **`Default`**
 

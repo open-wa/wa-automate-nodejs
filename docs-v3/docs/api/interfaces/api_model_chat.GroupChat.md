@@ -21,7 +21,7 @@ custom_edit_url: null
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[ack](/api/interfaces/api_model_chat.BaseChat.md#ack-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[ack](/api/interfaces/api_model_chat.BaseChat.md#ack)
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[archive](/api/interfaces/api_model_chat.BaseChat.md#archive-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[archive](/api/interfaces/api_model_chat.BaseChat.md#archive)
 
 ___
 
@@ -43,7 +43,7 @@ Whether your host account is able to send messages to this chat
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[canSend](/api/interfaces/api_model_chat.BaseChat.md#cansend-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[canSend](/api/interfaces/api_model_chat.BaseChat.md#cansend)
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[changeNumberNewJid](/api/interfaces/api_model_chat.BaseChat.md#changenumbernewjid-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[changeNumberNewJid](/api/interfaces/api_model_chat.BaseChat.md#changenumbernewjid)
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[changeNumberOldJid](/api/interfaces/api_model_chat.BaseChat.md#changenumberoldjid-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[changeNumberOldJid](/api/interfaces/api_model_chat.BaseChat.md#changenumberoldjid)
 
 ___
 
@@ -75,7 +75,7 @@ The contact related to this chat
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[contact](/api/interfaces/api_model_chat.BaseChat.md#contact-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[contact](/api/interfaces/api_model_chat.BaseChat.md#contact)
 
 ___
 
@@ -87,7 +87,7 @@ The title of the chat
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[formattedTitle](/api/interfaces/api_model_chat.BaseChat.md#formattedtitle-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[formattedTitle](/api/interfaces/api_model_chat.BaseChat.md#formattedtitle)
 
 ___
 
@@ -99,7 +99,7 @@ Group metadata for this chat
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[groupMetadata](/api/interfaces/api_model_chat.BaseChat.md#groupmetadata-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[groupMetadata](/api/interfaces/api_model_chat.BaseChat.md#groupmetadata)
 
 ___
 
@@ -119,7 +119,7 @@ If the chat is a group chat is restricted
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[isAnnounceGrpRestrict](/api/interfaces/api_model_chat.BaseChat.md#isannouncegrprestrict-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[isAnnounceGrpRestrict](/api/interfaces/api_model_chat.BaseChat.md#isannouncegrprestrict)
 
 ___
 
@@ -141,7 +141,7 @@ This is unreliable. Use the method [`isChatOnline`](https://open-wa.github.io/wa
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[isOnline](/api/interfaces/api_model_chat.BaseChat.md#isonline-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[isOnline](/api/interfaces/api_model_chat.BaseChat.md#isonline)
 
 ___
 
@@ -153,7 +153,7 @@ Whether the chat is a group chat and the group is restricted
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[isReadOnly](/api/interfaces/api_model_chat.BaseChat.md#isreadonly-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[isReadOnly](/api/interfaces/api_model_chat.BaseChat.md#isreadonly)
 
 ___
 
@@ -163,7 +163,7 @@ ___
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[kind](/api/interfaces/api_model_chat.BaseChat.md#kind-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[kind](/api/interfaces/api_model_chat.BaseChat.md#kind)
 
 ___
 
@@ -175,7 +175,7 @@ The labels attached to this chat.
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[labels](/api/interfaces/api_model_chat.BaseChat.md#labels-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[labels](/api/interfaces/api_model_chat.BaseChat.md#labels)
 
 ___
 
@@ -187,7 +187,7 @@ The ID of the last message received in this chat
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[lastReceivedKey](/api/interfaces/api_model_chat.BaseChat.md#lastreceivedkey-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[lastReceivedKey](/api/interfaces/api_model_chat.BaseChat.md#lastreceivedkey)
 
 ___
 
@@ -201,7 +201,7 @@ This is unreliable. Use the method [`getLastSeen`](https://open-wa.github.io/wa-
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[lastSeen](/api/interfaces/api_model_chat.BaseChat.md#lastseen-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[lastSeen](/api/interfaces/api_model_chat.BaseChat.md#lastseen)
 
 ___
 
@@ -211,7 +211,7 @@ ___
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[modifyTag](/api/interfaces/api_model_chat.BaseChat.md#modifytag-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[modifyTag](/api/interfaces/api_model_chat.BaseChat.md#modifytag)
 
 ___
 
@@ -223,7 +223,7 @@ The messages in the chat
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[msgs](/api/interfaces/api_model_chat.BaseChat.md#msgs-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[msgs](/api/interfaces/api_model_chat.BaseChat.md#msgs)
 
 ___
 
@@ -235,7 +235,7 @@ The expiration timestamp of the chat mute
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[muteExpiration](/api/interfaces/api_model_chat.BaseChat.md#muteexpiration-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[muteExpiration](/api/interfaces/api_model_chat.BaseChat.md#muteexpiration)
 
 ___
 
@@ -247,7 +247,7 @@ The name of the chat
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[name](/api/interfaces/api_model_chat.BaseChat.md#name-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[name](/api/interfaces/api_model_chat.BaseChat.md#name)
 
 ___
 
@@ -259,7 +259,7 @@ Whether the chat is marked as spam
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[notSpam](/api/interfaces/api_model_chat.BaseChat.md#notspam-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[notSpam](/api/interfaces/api_model_chat.BaseChat.md#notspam)
 
 ___
 
@@ -271,7 +271,7 @@ Messages that are pending to be sent
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[pendingMsgs](/api/interfaces/api_model_chat.BaseChat.md#pendingmsgs-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[pendingMsgs](/api/interfaces/api_model_chat.BaseChat.md#pendingmsgs)
 
 ___
 
@@ -283,7 +283,7 @@ Whether the chat is pinned
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[pin](/api/interfaces/api_model_chat.BaseChat.md#pin-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[pin](/api/interfaces/api_model_chat.BaseChat.md#pin)
 
 ___
 
@@ -295,7 +295,7 @@ The presence state of the chat participant
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[presence](/api/interfaces/api_model_chat.BaseChat.md#presence-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[presence](/api/interfaces/api_model_chat.BaseChat.md#presence)
 
 ___
 
@@ -307,7 +307,7 @@ The timestamp of the last interaction in the chat
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[t](/api/interfaces/api_model_chat.BaseChat.md#t-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[t](/api/interfaces/api_model_chat.BaseChat.md#t)
 
 ___
 
@@ -319,4 +319,4 @@ The number of undread messages in this chat
 
 #### Inherited from
 
-[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[unreadCount](/api/interfaces/api_model_chat.BaseChat.md#unreadcount-36)
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[unreadCount](/api/interfaces/api_model_chat.BaseChat.md#unreadcount)

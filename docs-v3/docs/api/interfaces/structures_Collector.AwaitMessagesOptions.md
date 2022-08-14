@@ -25,7 +25,7 @@ Whether to dispose data when it's deleted
 
 #### Inherited from
 
-[CollectorOptions](/api/interfaces/structures_Collector.CollectorOptions.md).[dispose](/api/interfaces/structures_Collector.CollectorOptions.md#dispose-36)
+[CollectorOptions](/api/interfaces/structures_Collector.CollectorOptions.md).[dispose](/api/interfaces/structures_Collector.CollectorOptions.md#dispose)
 
 ___
 
@@ -45,7 +45,7 @@ Max time allowed idle
 
 #### Inherited from
 
-[CollectorOptions](/api/interfaces/structures_Collector.CollectorOptions.md).[idle](/api/interfaces/structures_Collector.CollectorOptions.md#idle-36)
+[CollectorOptions](/api/interfaces/structures_Collector.CollectorOptions.md).[idle](/api/interfaces/structures_Collector.CollectorOptions.md#idle)
 
 ___
 
@@ -57,7 +57,7 @@ The maximum amount of items to collect
 
 #### Inherited from
 
-[CollectorOptions](/api/interfaces/structures_Collector.CollectorOptions.md).[max](/api/interfaces/structures_Collector.CollectorOptions.md#max-36)
+[CollectorOptions](/api/interfaces/structures_Collector.CollectorOptions.md).[max](/api/interfaces/structures_Collector.CollectorOptions.md#max)
 
 ___
 
@@ -69,7 +69,7 @@ The maximum amount of items to process
 
 #### Inherited from
 
-[CollectorOptions](/api/interfaces/structures_Collector.CollectorOptions.md).[maxProcessed](/api/interfaces/structures_Collector.CollectorOptions.md#maxprocessed-36)
+[CollectorOptions](/api/interfaces/structures_Collector.CollectorOptions.md).[maxProcessed](/api/interfaces/structures_Collector.CollectorOptions.md#maxprocessed)
 
 ___
 
@@ -81,4 +81,4 @@ Max time to wait for items in milliseconds
 
 #### Inherited from
 
-[CollectorOptions](/api/interfaces/structures_Collector.CollectorOptions.md).[time](/api/interfaces/structures_Collector.CollectorOptions.md#time-36)
+[CollectorOptions](/api/interfaces/structures_Collector.CollectorOptions.md).[time](/api/interfaces/structures_Collector.CollectorOptions.md#time)

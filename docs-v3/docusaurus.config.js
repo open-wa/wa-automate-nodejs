@@ -173,8 +173,13 @@ async function createConfig(){
     onBrokenLinks: 'warn',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.ico',
-    organizationName: 'open-wa', // Usually your GitHub org/user name.
-    projectName: 'wa-automate-nodejs', // Usually your repo name.
+    organizationName: 'open-wa',
+    projectName: 'wa-automate-nodejs',
+    trailingSlash: false,
+    scripts: [
+      "https://gumroad.com/js/gumroad.js"
+    ],
+    // deploymentBranch: 'main',
     // Even if you don't use internalization, you can use this field to set useful
     // metadata like html lang. For example, if your site is Chinese, you may want
     // to replace "en" with "zh-Hans".
@@ -281,10 +286,15 @@ async function createConfig(){
             position: 'left',
           },
             {
-            to: 'docs/api/classes/api.Client',  // 'api' is the 'out' directory
+            to: 'docs/api/classes/api_Client.Client',  // 'api' is the 'out' directory
             activeBasePath: 'docs',
             label: 'The Client',
             position: 'left',
+          },
+          {
+            type: 'html',
+            position: 'right',
+            value: '<a class="navbar-lic-button" href="https://gum.co/BTMt?tier=1%20Restricted%20License">Get License</a>',
           },
           ],
         },
@@ -359,19 +369,22 @@ async function createConfig(){
           appId: '345AS1OFCF',
     
           // Public API key: it is safe to commit it
-          apiKey: '108f5634f8f85a775032719a8f5fdcb4',
+          apiKey: '04ffcb0cee53d965fb8605035ecdc04b',
     
           indexName: 'openwa',
     
           // Optional: see doc section below
-          contextualSearch: true,
+          contextualSearch: false,
     
           // Optional: Specify domains where the navigation should occur through window.location instead on history.push. Useful when our Algolia config crawls multiple documentation sites and we want to navigate with window.location.href to them.
           // externalUrlRegex: 'external\\.com|domain\\.com',
     
           // Optional: Algolia search parameters
-          searchParameters: {},
+          // searchParameters: {},
     
+          // Optional: path for search page that enabled by default (`false` to disable it)
+          searchPagePath: 'search',
+
           //... other Algolia params
         },
         // prism: {
@@ -420,7 +433,8 @@ async function createConfig(){
                       const [type, subtype] = labelMatch[1].split(":")
                       const heading = match.match(/#{3}.*/) && match.match(/#{3}.*/)[0] || ""
                       match = match.replace(heading, `${heading} <div class="label ${type} ${subtype}">${subtype}</div>`)
-                      match = match.replace(initLabelText,  `:::${type} May require ${subtype} license\nUse this link to get the [correct license](https://gum.co/open-wa?tier=Insiders%20Program).\n:::`)
+                      const variant = subtype == "restricted" ? '1%20Restricted%20License' : 'Insiders%20Program'
+                      match = match.replace(initLabelText,  `:::${type} May require ${subtype} license\nUse this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=${variant}).\n:::`)
                       return match;
                 }
                })
