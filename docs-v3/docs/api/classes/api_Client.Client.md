@@ -3494,7 +3494,8 @@ Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&ti
 :::
 
 Sends a text message to given chat
-If you need to send a message to new numbers please see [these instructions:](https://docs.openwa.dev/pages/The%20Client/licensed-features.html#sending-messages-to-non-contact-numbers)
+
+A license is **NOT** required to send messages with existing chats/contacts. A license is only required for starting conversations with new numbers.
 
 #### Parameters
 
