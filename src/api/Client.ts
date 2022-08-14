@@ -1443,6 +1443,8 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
 
   
   /**
+   * {@license:insiders@}
+   * 
    * Send generic quick reply buttons. This is an insiders feature for MD accounts.
    * 
    * @param  {ChatId} to chat id
@@ -2919,7 +2921,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * 
    * {@license:insiders@}
    * 
-   * Use a Baileys payload within your open-wa session
+   * Use a raw payload within your open-wa session
    * 
    * @param chatId
    * @param payload {any} 
