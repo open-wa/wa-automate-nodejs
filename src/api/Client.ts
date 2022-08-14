@@ -1367,7 +1367,9 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * {@license:restricted@}
    * 
    * Sends a text message to given chat
-   * If you need to send a message to new numbers please see [these instructions:](https://docs.openwa.dev/pages/The%20Client/licensed-features.html#sending-messages-to-non-contact-numbers)
+   * 
+   * A license is **NOT** required to send messages with existing chats/contacts. A license is only required for starting conversations with new numbers.
+   * 
    * @param to chat id: `xxxxx@c.us`
    * @param content text message
    */
@@ -1763,7 +1765,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     } catch (error) {
       log.error(error)
     }
-    if(linkData) return await this.sendMessageWithThumb(thumbnail || thumb,url,linkData.title, linkData.description, text, to);
+    if(linkData && (thumbnail || thumb)) return await this.sendMessageWithThumb(thumbnail || thumb,url,linkData.title, linkData.description, text, to);
     else return await this.pup(
       ({ to,url, text, thumbnail }) => WAPI.sendLinkWithAutoPreview(to,url,text, thumbnail),
       { to,url, text, thumbnail }
