@@ -130,6 +130,7 @@
     "fs-extra": "^10.0.0",
     "get-port": "^5.1.1",
     "hasha": "^5.2.0",
+    "helmet": "^5.1.1",
     "image-type": "^4.1.0",
     "is-url-superb": "^5.0.0",
     "json5": "^2.2.0",

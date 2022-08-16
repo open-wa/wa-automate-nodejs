@@ -249,6 +249,11 @@ Merge<Merge<{
 },
 {
 {
+    name: 'helmet',
+    type: Boolean,
+    description: "Enable helmet middleware for security.",
+},
+{
     name: 'allow-ips',
     type: String,
     //@ts-ignore

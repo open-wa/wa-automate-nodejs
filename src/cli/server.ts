@@ -11,6 +11,7 @@ import qs from 'qs';
 import { convert } from 'xmlbuilder2';
 import { chatwootMiddleware, setupChatwootOutgoingMessageHandler } from './integrations/chatwoot';
 import {IpFilter} from'express-ipfilter'
+import helmet from "helmet";
 
 export const app = express();
 export let server = http.createServer(app);
@@ -38,6 +39,10 @@ export const setupHttpServer = (cliConfig: cliFlags) => {
         let allowIps = cliConfig.allowIps as string[] | string
         if(!Array.isArray(cliConfig.allowIps)) allowIps = [cliConfig.allowIps as string]
         app.use(IpFilter(allowIps as string[], { mode: 'allow' }))
+    }
+    if(cliConfig.helmet) {
+        //@ts-ignore
+        app.use(helmet())
     }
 }
 
