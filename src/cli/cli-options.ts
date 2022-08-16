@@ -248,6 +248,17 @@ Merge<Merge<{
     description: "Offload the EASY API to local instance of pm2. You can add pm2 specific arguments also if you want."
 },
 {
+    name: 'privkey',
+    type: String,
+    typeLabel: '{yellow {underline "./privatekey.pem"}}',
+    description: "The private key to use for the TLS connection. --cert is also required"
+},
+{
+    name: 'cert',
+    type: String,
+    typeLabel: '{yellow {underline "./certificate.pem"}}',
+    description: "The certificate to use for the TLS connection. --privkey is also required"
+},
 {
     name: 'helmet',
     type: Boolean,

@@ -1,6 +1,6 @@
 //@ts-ignore
 import express from 'express';
-import http from 'http';
+import http, { ServerOptions } from 'http';
 import { collections } from './collections';
 import robots from "express-robots-txt";
 import swaggerUi from 'swagger-ui-express';
@@ -8,6 +8,7 @@ import { default as axios } from 'axios'
 import parseFunction from 'parse-function';
 import { Client, ev, SimpleListener, ChatId, Message, log } from '..';
 import qs from 'qs';
+import * as fs from 'fs';
 import { convert } from 'xmlbuilder2';
 import { chatwootMiddleware, setupChatwootOutgoingMessageHandler } from './integrations/chatwoot';
 import {IpFilter} from'express-ipfilter'
@@ -44,6 +45,18 @@ export const setupHttpServer = (cliConfig: cliFlags) => {
         //@ts-ignore
         app.use(helmet())
     }
+    const privkey = `${process.env.PRIV || cliConfig.privkey || ""}`;
+    const cert =    `${process.env.CERT || cliConfig.cert || ""}`;
+    if(privkey && cert) {
+    const privContents = fs.readFileSync(privkey);
+    const certContents = fs.readFileSync(cert);
+        if(privContents && certContents) {
+            const options = {key: privContents,cert: certContents}
+            server = http.createServer(options as ServerOptions, app);
+            return;
+        }
+    }
+    server = http.createServer(app);
 }
 
 export const setUpExpressApp : () => void = () => {
