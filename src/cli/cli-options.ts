@@ -248,6 +248,15 @@ Merge<Merge<{
     description: "Offload the EASY API to local instance of pm2. You can add pm2 specific arguments also if you want."
 },
 {
+{
+    name: 'allow-ips',
+    type: String,
+    //@ts-ignore
+    isMultiple: true,
+    typeLabel: '{blueBright {underline 192.168.0.1,192.168.0.2}}',
+    description: "Allow only these IPs to connect to the EASY API. By default, all IPs are allowed."
+},
+{
     name: 'help',
     description: 'Print this usage guide.'
 }

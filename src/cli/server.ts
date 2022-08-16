@@ -10,9 +10,10 @@ import { Client, ev, SimpleListener, ChatId, Message, log } from '..';
 import qs from 'qs';
 import { convert } from 'xmlbuilder2';
 import { chatwootMiddleware, setupChatwootOutgoingMessageHandler } from './integrations/chatwoot';
+import {IpFilter} from'express-ipfilter'
 
 export const app = express();
-export const server = http.createServer(app);
+export let server = http.createServer(app);
 
 const trimChatId = (chatId : ChatId) => chatId.replace("@c.us","").replace("@g.us","")
 
@@ -30,6 +31,15 @@ const socketListenerCallbacks : {
 const existingListeners = [];
 
 const getCallbacks : (listener: SimpleListener) => any[] = (listener : SimpleListener) => Object.keys(socketListenerCallbacks).flatMap(k=>socketListenerCallbacks[k]).map(o=>o[listener]).filter(x=>x)
+
+export const setupHttpServer = (cliConfig: cliFlags) => {
+    //check if there is an allow IP list:
+    if(cliConfig.allowIps){
+        let allowIps = cliConfig.allowIps as string[] | string
+        if(!Array.isArray(cliConfig.allowIps)) allowIps = [cliConfig.allowIps as string]
+        app.use(IpFilter(allowIps as string[], { mode: 'allow' }))
+    }
+}
 
 export const setUpExpressApp : () => void = () => {
     app.use(robots({ UserAgent: '*', Disallow: '/' }))

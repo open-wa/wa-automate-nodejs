@@ -5,7 +5,7 @@ import tcpPortUsed from 'tcp-port-used';
 import { default as axios } from 'axios'
 import { cli } from './setup';
 import { collections, generateCollections } from './collections';
-import { setUpExpressApp, setupAuthenticationLayer, setupRefocusDisengageMiddleware, setupApiDocs, setupSwaggerStatsMiddleware, setupMediaMiddleware, app, setupSocketServer, server, setupBotPressHandler, setupTwilioCompatibleWebhook, enableCORSRequests, setupChatwoot } from './server';
+import { setUpExpressApp, setupAuthenticationLayer, setupRefocusDisengageMiddleware, setupApiDocs, setupSwaggerStatsMiddleware, setupMediaMiddleware, app, setupSocketServer, server, setupBotPressHandler, setupTwilioCompatibleWebhook, enableCORSRequests, setupChatwoot, setupHttpServer } from './server';
 import localtunnel from 'localtunnel';
 
 let checkUrl = (s : any) => (typeof s === "string") && isUrl(s);
@@ -88,6 +88,7 @@ async function start() {
 
     try {
         const client = await create({ ...createConfig });
+        setupHttpServer(cliConfig)
         if(cliConfig.autoReject){
             await client.autoReject(cliConfig.onCall)
         } else if(cliConfig.onCall) {
