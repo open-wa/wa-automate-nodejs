@@ -39,7 +39,10 @@ export const setupHttpServer = (cliConfig: cliFlags) => {
     if(cliConfig.allowIps){
         let allowIps = cliConfig.allowIps as string[] | string
         if(!Array.isArray(cliConfig.allowIps)) allowIps = [cliConfig.allowIps as string]
-        app.use(IpFilter(allowIps as string[], { mode: 'allow' }))
+        if(Array.isArray(allowIps) && allowIps.length > 0 && allowIps[0]) {
+          console.log("Allowed IPs", allowIps)
+          app.use(IpFilter(allowIps as string[], { mode: 'allow' }))
+        }
     }
     if(cliConfig.helmet) {
         //@ts-ignore
