@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Collector | @open-wa/wa-automate - v4.43.5</title>
-	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.43.5">
+	<title>Collector | @open-wa/wa-automate - v4.44.0</title>
+	<meta name="description" content="Documentation for @open-wa/wa-automate - v4.44.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 	<link rel="stylesheet" href="../assets/css/pages.css">
@@ -31,7 +31,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@open-wa/wa-automate - v4.43.5</a>
+					<a href="../index.html" class="title">@open-wa/wa-automate - v4.44.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -1198,7 +1198,7 @@
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Adds a <strong>one-time</strong><code>listener</code> function for the event named <code>eventName</code> to the_beginning_ of the listeners array. The next time <code>eventName</code> is triggered, this
+									<p>Adds a <strong>one-time</strong><code>listener</code> function for the event named <code>eventName</code> to the <em>beginning</em> of the listeners array. The next time <code>eventName</code> is triggered, this
 									listener is removed, and then invoked.</p>
 								</div>
 								<pre><code class="language-js"><span style="color: #001080">server</span><span style="color: #000000">.</span><span style="color: #795E26">prependOnceListener</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;connection&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">stream</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
@@ -1365,8 +1365,8 @@
 									listener array for the specified <code>eventName</code>, then <code>removeListener()</code> must be
 								called multiple times to remove each instance.</p>
 								<p>Once an event is emitted, all listeners attached to it at the
-									time of emitting are called in order. This implies that any<code>removeListener()</code> or <code>removeAllListeners()</code> calls <em>after</em> emitting and_before_ the last listener finishes execution will
-								not remove them from<code>emit()</code> in progress. Subsequent events behave as expected.</p>
+									time of emitting are called in order. This implies that any<code>removeListener()</code> or <code>removeAllListeners()</code> calls <em>after</em> emitting and <em>before</em> the last listener finishes execution
+								will not remove them from<code>emit()</code> in progress. Subsequent events behave as expected.</p>
 								<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">myEmitter</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">MyEmitter</span><span style="color: #000000">();</span>
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">callbackA</span><span style="color: #000000"> = () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
@@ -2050,24 +2050,19 @@
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>By default <code>EventEmitter</code>s will print a warning if more than <code>10</code> listeners are
-										added for a particular event. This is a useful default that helps finding
-										memory leaks. The <code>EventEmitter.setMaxListeners()</code> method allows the default limit to be
-										modified (if eventTargets is empty) or modify the limit specified in every <code>EventTarget</code> | <code>EventEmitter</code> passed as arguments.
-									The value can be set to<code>Infinity</code> (or <code>0</code>) to indicate an unlimited number of listeners.</p>
+									<p>```js
+										const {
+										setMaxListeners,
+										EventEmitter
+									} = require(&#39;events&#39;);</p>
 								</div>
-								<pre><code class="language-js"><span style="color: #001080">EventEmitter</span><span style="color: #000000">.</span><span style="color: #795E26">setMaxListeners</span><span style="color: #000000">(</span><span style="color: #098658">20</span><span style="color: #000000">);</span>
-<span style="color: #008000">// Equivalent to</span>
-<span style="color: #001080">EventEmitter</span><span style="color: #000000">.</span><span style="color: #001080">defaultMaxListeners</span><span style="color: #000000"> = </span><span style="color: #098658">20</span><span style="color: #000000">;</span>
-
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">eventTarget</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">EventTarget</span><span style="color: #000000">();</span>
-<span style="color: #008000">// Only way to increase limit for `EventTarget` instances</span>
-<span style="color: #008000">// as these doesn&#039;t expose its own `setMaxListeners` method</span>
-<span style="color: #001080">EventEmitter</span><span style="color: #000000">.</span><span style="color: #795E26">setMaxListeners</span><span style="color: #000000">(</span><span style="color: #098658">20</span><span style="color: #000000">, </span><span style="color: #001080">eventTarget</span><span style="color: #000000">);</span>
-</code></pre>
+								<p>const target = new EventTarget();
+								const emitter = new EventEmitter();</p>
+								<p>setMaxListeners(5, target, emitter);
+								```</p>
 								<dl class="tsd-comment-tags">
 									<dt>since</dt>
-									<dd><p>v15.3.0, v14.17.0</p>
+									<dd><p>v15.4.0</p>
 									</dd>
 								</dl>
 							</div>
@@ -2075,6 +2070,9 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> n: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>A non-negative number. The maximum number of listeners per <code>EventTarget</code> event.</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>eventTargets: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">DOMEventTarget</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">EventEmitter</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></h5>
