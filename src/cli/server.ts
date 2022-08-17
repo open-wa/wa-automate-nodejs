@@ -1,6 +1,7 @@
 //@ts-ignore
 import express from 'express';
-import http, { ServerOptions } from 'http';
+import https from 'node:https'
+import http, {ServerOptions} from 'node:http'
 import { collections } from './collections';
 import robots from "express-robots-txt";
 import swaggerUi from 'swagger-ui-express';
@@ -11,7 +12,7 @@ import qs from 'qs';
 import * as fs from 'fs';
 import { convert } from 'xmlbuilder2';
 import { chatwootMiddleware, setupChatwootOutgoingMessageHandler } from './integrations/chatwoot';
-import {IpFilter} from'express-ipfilter'
+import {IpFilter, IpDeniedError} from'express-ipfilter'
 import helmet from "helmet";
 
 export const app = express();
@@ -41,7 +42,25 @@ export const setupHttpServer = (cliConfig: cliFlags) => {
         if(!Array.isArray(cliConfig.allowIps)) allowIps = [cliConfig.allowIps as string]
         if(Array.isArray(allowIps) && allowIps.length > 0 && allowIps[0]) {
           console.log("Allowed IPs", allowIps)
-          app.use(IpFilter(allowIps as string[], { mode: 'allow' }))
+          let allowIpsOptions : any = {
+            mode: 'allow',
+            forbidden: 'You are not authorized to access this page.',
+            log: false
+          }
+          if(cliConfig.verbose) allowIpsOptions = {
+            ...allowIpsOptions,
+            logLevel: 'deny',
+            log: true
+          }
+          app.use(IpFilter(allowIps as string[], allowIpsOptions))
+          app.use((err, req, res, next) => {
+            if (err instanceof IpDeniedError) {
+              res.status(401)
+              res.send("Access Denied");
+              return;
+            }
+            next()
+          })
         }
     }
     if(cliConfig.helmet) {
@@ -51,11 +70,18 @@ export const setupHttpServer = (cliConfig: cliFlags) => {
     const privkey = `${process.env.PRIV || cliConfig.privkey || ""}`;
     const cert =    `${process.env.CERT || cliConfig.cert || ""}`;
     if(privkey && cert) {
-    const privContents = fs.readFileSync(privkey);
-    const certContents = fs.readFileSync(cert);
+        console.log("HTTPS Mode:", privkey, cert)
+        const privContents = fs.readFileSync(privkey);
+        const certContents = fs.readFileSync(cert);
+        app.use((req, res, next) => {
+            if (!req.secure && req.get('x-forwarded-proto') !== 'https' && process.env.NODE_ENV !== "development") {
+              return res.redirect('https://' + req.get('host') + req.url);
+            }
+            next();
+        })
         if(privContents && certContents) {
             const options = {key: privContents,cert: certContents}
-            server = http.createServer(options as ServerOptions, app);
+            server = https.createServer(options as ServerOptions, app);
             return;
         }
     }
