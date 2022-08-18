@@ -796,7 +796,7 @@ ___
 
 ▸ **prependOnceListener**(`eventName`, `listener`): [`MessageCollector`](/api/classes/structures_MessageCollector.MessageCollector.md)
 
-Adds a **one-time**`listener` function for the event named `eventName` to the_beginning_ of the listeners array. The next time `eventName` is triggered, this
+Adds a **one-time**`listener` function for the event named `eventName` to the _beginning_ of the listeners array. The next time `eventName` is triggered, this
 listener is removed, and then invoked.
 
 ```js
@@ -932,8 +932,8 @@ listener array for the specified `eventName`, then `removeListener()` must be
 called multiple times to remove each instance.
 
 Once an event is emitted, all listeners attached to it at the
-time of emitting are called in order. This implies that any`removeListener()` or `removeAllListeners()` calls _after_ emitting and_before_ the last listener finishes execution will
-not remove them from`emit()` in progress. Subsequent events behave as expected.
+time of emitting are called in order. This implies that any`removeListener()` or `removeAllListeners()` calls _after_ emitting and _before_ the last listener finishes execution
+will not remove them from`emit()` in progress. Subsequent events behave as expected.
 
 ```js
 const myEmitter = new MyEmitter();
@@ -1494,33 +1494,28 @@ ___
 
 ▸ `Static` **setMaxListeners**(`n?`, ...`eventTargets`): `void`
 
-By default `EventEmitter`s will print a warning if more than `10` listeners are
-added for a particular event. This is a useful default that helps finding
-memory leaks. The `EventEmitter.setMaxListeners()` method allows the default limit to be
-modified (if eventTargets is empty) or modify the limit specified in every `EventTarget` | `EventEmitter` passed as arguments.
-The value can be set to`Infinity` (or `0`) to indicate an unlimited number of listeners.
-
 ```js
-EventEmitter.setMaxListeners(20);
-// Equivalent to
-EventEmitter.defaultMaxListeners = 20;
+const {
+  setMaxListeners,
+  EventEmitter
+} = require('events');
 
-const eventTarget = new EventTarget();
-// Only way to increase limit for `EventTarget` instances
-// as these doesn't expose its own `setMaxListeners` method
-EventEmitter.setMaxListeners(20, eventTarget);
+const target = new EventTarget();
+const emitter = new EventEmitter();
+
+setMaxListeners(5, target, emitter);
 ```
 
 **`Since`**
 
-v15.3.0, v14.17.0
+v15.4.0
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `n?` | `number` |
-| `...eventTargets` | (`EventEmitter` \| `DOMEventTarget`)[] |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `n?` | `number` | A non-negative number. The maximum number of listeners per `EventTarget` event. |
+| `...eventTargets` | (`EventEmitter` \| `DOMEventTarget`)[] | - |
 
 #### Returns
 

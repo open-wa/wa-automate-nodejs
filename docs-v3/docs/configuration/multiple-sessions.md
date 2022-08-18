@@ -45,7 +45,7 @@ Client sessions are living breathing objects. They CANNOT be stringified and par
 For example, let's say you have a `marketing` and `sales` sessions.
 
 
-```
+```javascript
 ...
 
 const clientSessionRegistry = {};

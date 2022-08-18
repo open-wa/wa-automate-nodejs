@@ -4,26 +4,10 @@
 
 ### Insiders Features
 
-open-wa is at the forefront of open source WA developmentand runs on donations from backers. To encourage donations, backers have access to exclusive features with an [Insiders Program license key](https://gum.co/open-wa).
+open-wa is at the forefront of open source WA development. Some cutting edge features are available exclusively to license holders. Although there are multiple types of licenses, the most affordable is the Insiders license with the most amount of unlockable features. To identify which features are unlcoked with an Insiders license, look out for the "Insiders" tag in [the Client documentation](/docs/api/classes/api_Client.Client).
 
+<img src='/img/license-identifier.png' />
 
-| Function                          | Description |
-| --------------------------------- | ----------- |
-| [[setGroupToAdminsOnly]]                  | Changes group setting so only admins can send messages            |
-| [[setGroupEditToAdminsOnly]]                   | Changes group setting so only admins can edit group info            |
-| [[setGroupTitle]]                   | Changes the group title           |
-| [[setGroupDescription]]                   | Changes the group description         |
-| [[setProfilePic]]                   | Change the host phones profile picture           |
-| [[onRemovedFromGroup]]                   | Detect when host phone is removed from a group           |
-| [[onContactAdded]]                   | Detect when host phone adds a new contact           |
-| [[getCommonGroups]]                   | Retreive all common groups between the host device and a conttact           |
-| [[clearAllChats]]                   | Easily clear memory by clearing all chats of all messages on the host device and WA Web           |
-| [[sendReplyWithMentions]]                   | Send a reply to a message with mentions           |
-| [[onChatOpened]]                   | Detect when a chat is selected in the UI           |
-| [[onChatState]]                   | Detect when someone is typing or recording a voicenote           |
-| [[getStickerDecryptable]]                   | Convert a normal sticker message (results in blank image) to one that is able to grab and decrypt the actual sticker           |
-| [[forceStaleMediaUpdate]]                   | If a media message is old, the file url will result in a `404` error. forceStaleMediaUpdate forces the mobile app to reupload the file.           |
-| [[tagEveryone]]                   | Send a group message with everyone tagged.           |
 
 ### Sending messages to non-contact numbers
 
@@ -45,7 +29,13 @@ There are 3 ways to start a chat with a new number:
 
 ### Story Keys
 
-After a lot of effort, ability to send text, image and video stories is available exclusively in this library. If you want access to the feature of posting Whatsapp Stories, please contact 
+:::caution
+
+Unfortunately, due to MD updates story features are currently broken.
+
+:::
+
+After a lot of effort, ability to send text, image and video stories is available exclusively in this library. If you want access to the feature of posting Whatsapp Stories, please contact shah@openwa.dev
 
 ## How to get a License Key
 
@@ -59,50 +49,67 @@ After a lot of effort, ability to send text, image and video stories is availabl
    <img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/membership.png"/>
    </div>
 
-6. Add licenseKey to your config:
-
-```javascript
-...
-create({
-  licenseKey: "..."
-})
-
-//or for multiple license keys to stack features.
-
-create({
-  licenseKey: ["...","..."]
-})
-...
-```
-
+6. Use your license with the instructions below:
+  
 ## How to use your license
 
 This depends on how you're using the library. If you're using it with your own custom code then you can enter the licenseKey like so within the config of your `create` command:
 
-```javascript
 
+<!-- prettier-ignore-start -->
+
+import Tabs from "@theme/Tabs"
+import TabItem from "@theme/TabItem"
+
+<Tabs groupId="usage-mode" defaultValue="cli" 
+values={[ 
+  { label: "EASY API", value: "cli" }, 
+  { label: "Code", value: "code" }, 
+  { label: "Docker", value: "docker" },
+]}>
+
+<!-- prettier-ignore-end -->
+
+<TabItem value="cli">
+
+
+```shell
+> npx @open-wa/wa-automate --license-key FE764A87-BB9B48EE-BBBC035C-9736F87
+```
+
+</TabItem>
+
+
+<TabItem value="code">
+
+
+```javascript
 create({
   licenseKey: "FE764A87-BB9B48EE-BBBC035C-9736F87"
 })
-
 ```
 
-If you're using the CLI then you can add it as a CLI flag:
+</TabItem>
 
-```bash
-> npx @open-wa/wa-automate --license-key 
+
+<TabItem value="docker">
+
+
+```shell
+> docker run openwa/wa-automate --license-key FE764A87-BB9B48EE-BBBC035C-9736F87
 ```
+
+</TabItem>
+
+
+</Tabs>
 
 ## Keys
 
 | Name | link | Description
 | --------------------------------- | ----------- |  ----------- |
-| Insiders | [LINK](https://gum.co/BTMt?tier=Insiders%20Program) | [All Insiders Features](https://open-wa.github.io/wa-automate-nodejs/pages/The%20Client/licensed-features.html#insiders-features)
+| Insiders | [LINK](https://gum.co/BTMt?tier=Insiders%20Program) | [All Insiders Features](#insiders-features)#insiders-features
 | Restricted | [LINK](https://gum.co/open-wa?tier=1%20Restricted%20License%20Key) | Send messages to non-contacts
-| Text Story | [LINK](https://gum.co/BTMt?tier=1%20Text%20Story%20License%20Key) | Send Text Stories
-| Image Story | [LINK](https://gum.co/BTMt?tier=1%20Image%20Story%20License%20Key) | Send Image Stories
-| Video Story | [LINK](https://gum.co/BTMt?tier=1%20Video%20Story%20License%20Key) | Send Video Stories
-| Premium | [LINK](https://gum.co/BTMt?tier=1%20Premium%20License%20Key) | All the above + [Send Custom Products](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#sendcustomproduct)
 
 All keys include access to all insider's features. You do not need a Premium Key to send messages to non-contacts.
 

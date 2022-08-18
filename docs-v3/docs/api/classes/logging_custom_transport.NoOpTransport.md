@@ -31,6 +31,22 @@ TransportStream.constructor
 
 ## Properties
 
+### closed
+
+• `Readonly` **closed**: `boolean`
+
+Is true after 'close' has been emitted.
+
+**`Since`**
+
+v8.0.0
+
+#### Inherited from
+
+TransportStream.closed
+
+___
+
 ### destroyed
 
 • **destroyed**: `boolean`
@@ -44,6 +60,22 @@ v8.0.0
 #### Inherited from
 
 TransportStream.destroyed
+
+___
+
+### errored
+
+• `Readonly` **errored**: `Error`
+
+Returns error if the stream has been destroyed with an error.
+
+**`Since`**
+
+v18.0.0
+
+#### Inherited from
+
+TransportStream.errored
 
 ___
 
@@ -195,6 +227,22 @@ v9.4.0
 #### Inherited from
 
 TransportStream.writableLength
+
+___
+
+### writableNeedDrain
+
+• `Readonly` **writableNeedDrain**: `boolean`
+
+Is `true` if the stream's buffer has been full and stream will emit 'drain'.
+
+**`Since`**
+
+v15.2.0, v14.17.0
+
+#### Inherited from
+
+TransportStream.writableNeedDrain
 
 ___
 
@@ -1750,8 +1798,8 @@ ___
 The `writable.uncork()` method flushes all data buffered since [cork](/api/classes/logging_custom_transport.NoOpTransport.md#cork) was called.
 
 When using `writable.cork()` and `writable.uncork()` to manage the buffering
-of writes to a stream, it is recommended that calls to `writable.uncork()` be
-deferred using `process.nextTick()`. Doing so allows batching of all`writable.write()` calls that occur within a given Node.js event loop phase.
+of writes to a stream, defer calls to `writable.uncork()` using`process.nextTick()`. Doing so allows batching of all`writable.write()` calls that occur within a given Node.js event
+loop phase.
 
 ```js
 stream.cork();
@@ -1809,7 +1857,7 @@ stop until the `'drain'` event is emitted.
 While a stream is not draining, calls to `write()` will buffer `chunk`, and
 return false. Once all currently buffered chunks are drained (accepted for
 delivery by the operating system), the `'drain'` event will be emitted.
-It is recommended that once `write()` returns false, no more chunks be written
+Once `write()` returns false, do not write more chunks
 until the `'drain'` event is emitted. While calling `write()` on a stream that
 is not draining is allowed, Node.js will buffer all written chunks until
 maximum memory usage occurs, at which point it will abort unconditionally.
@@ -1883,6 +1931,33 @@ TransportStream.write
 #### Inherited from
 
 TransportStream.write
+
+___
+
+### fromWeb
+
+▸ `Static` **fromWeb**(`writableStream`, `options?`): `Writable`
+
+A utility method for creating a `Writable` from a web `WritableStream`.
+
+**`Since`**
+
+v17.0.0
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `writableStream` | `WritableStream`<`any`\> |
+| `options?` | `Pick`<`WritableOptions`, ``"signal"`` \| ``"decodeStrings"`` \| ``"highWaterMark"`` \| ``"objectMode"``\> |
+
+#### Returns
+
+`Writable`
+
+#### Inherited from
+
+TransportStream.fromWeb
 
 ___
 
@@ -2186,33 +2261,28 @@ ___
 
 ▸ `Static` **setMaxListeners**(`n?`, ...`eventTargets`): `void`
 
-By default `EventEmitter`s will print a warning if more than `10` listeners are
-added for a particular event. This is a useful default that helps finding
-memory leaks. The `EventEmitter.setMaxListeners()` method allows the default limit to be
-modified (if eventTargets is empty) or modify the limit specified in every `EventTarget` | `EventEmitter` passed as arguments.
-The value can be set to`Infinity` (or `0`) to indicate an unlimited number of listeners.
-
 ```js
-EventEmitter.setMaxListeners(20);
-// Equivalent to
-EventEmitter.defaultMaxListeners = 20;
+const {
+  setMaxListeners,
+  EventEmitter
+} = require('events');
 
-const eventTarget = new EventTarget();
-// Only way to increase limit for `EventTarget` instances
-// as these doesn't expose its own `setMaxListeners` method
-EventEmitter.setMaxListeners(20, eventTarget);
+const target = new EventTarget();
+const emitter = new EventEmitter();
+
+setMaxListeners(5, target, emitter);
 ```
 
 **`Since`**
 
-v15.3.0, v14.17.0
+v15.4.0
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `n?` | `number` |
-| `...eventTargets` | (`EventEmitter` \| `DOMEventTarget`)[] |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `n?` | `number` | A non-negative number. The maximum number of listeners per `EventTarget` event. |
+| `...eventTargets` | (`EventEmitter` \| `DOMEventTarget`)[] | - |
 
 #### Returns
 
@@ -2221,3 +2291,29 @@ v15.3.0, v14.17.0
 #### Inherited from
 
 TransportStream.setMaxListeners
+
+___
+
+### toWeb
+
+▸ `Static` **toWeb**(`streamWritable`): `WritableStream`<`any`\>
+
+A utility method for creating a web `WritableStream` from a `Writable`.
+
+**`Since`**
+
+v17.0.0
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `streamWritable` | `Writable` |
+
+#### Returns
+
+`WritableStream`<`any`\>
+
+#### Inherited from
+
+TransportStream.toWeb
