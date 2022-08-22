@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import JSON5 from 'json5';
 import { log } from '../logging/logging';
 
-export const tryOpenFileAsObject : (fileLocation: string, needArray ?: boolean) => any = (fileLocation : string , needArray = false) => {
+export const tryOpenFileAsObject : (fileLocation: string, needArray ?: boolean) => Promise<any> = async (fileLocation : string , needArray = false) => {
     let res = undefined;
     let fp = undefined;
     const relativePath = path.join(path.resolve(process.cwd(), fileLocation || ''));
@@ -15,6 +15,10 @@ export const tryOpenFileAsObject : (fileLocation: string, needArray ?: boolean) 
         try {
             const data = isJs ? (require(fp) || {}).default : JSON5.parse(fs.readFileSync(fp, 'utf8'));
             if (data && (Array.isArray(data) == needArray)) res = data;
+            if(data && typeof data === "function") {
+                log.info("Found config as function, executing.")
+                res = await data(process.env.CURRENT_SESSION_ID || "session")
+            }
         } catch (error) {
             throw `Unable to parse config file as JSON. Please make sure ${fp} is a valid JSON config file`;
         }
