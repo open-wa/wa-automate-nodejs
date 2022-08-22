@@ -40,8 +40,8 @@ export const chatwootMiddleware: (cliConfig: cliFlags, client: Client) => expres
                 const [firstAttachment, ...restAttachments] = attachments;
                 const sendAttachment = async (attachment: any, c?: string) => client.sendImage(to,attachment.data_url, attachment.data_url.substring(attachment.data_url.lastIndexOf('/') + 1), c || '',null,true)
                 //send the text as the caption with the first message only
-                promises.push(sendAttachment(firstAttachment, content))
-                restAttachments.map(sendAttachment).map(promises.push)
+                promises.push(sendAttachment(firstAttachment, content));
+                (restAttachments || []).map(sendAttachment).map(promises.push)
             } else {
                 //no attachments
                 if (!content) return;
