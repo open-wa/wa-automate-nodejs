@@ -11,6 +11,7 @@ import uuidAPIKey from 'uuid-apikey';
 import { ev, Spin } from '../controllers/events';
 import isUrl from 'is-url-superb';
 import * as path from 'path';
+import * as fs from 'fs';
 import { log, setupLogging } from '../logging/logging';
 import { optionList } from './cli-options';
 
@@ -97,45 +98,52 @@ export const envArgs: () => JsonObject = () => {
     return env
 }
 
-export const configFile: (config ?: string) => JsonObject = (config ?: string) => {
-    let confFile = {};
+export const configFile: (config ?: string) => Promise<JsonObject> = async (config ?: string) => {
+    let confFile = null;
     const conf = config || process.env.WA_CLI_CONFIG
-    const backup = () => {
-        if(!confFile) confFile = tryOpenFileAsObject(`cli.config.json`);
-        if(!confFile) confFile = tryOpenFileAsObject(`cli.config.js`);
+    //check if it is a directory:
+    const isDir = fs.existsSync(conf) && fs.lstatSync(conf).isDirectory();
+    log.info(`Config ${config} is directory: ${isDir}`)
+    const backup = async () => {
+        if(!confFile) confFile = await tryOpenFileAsObject(`cli.config.json`);
+        if(!confFile) confFile = await tryOpenFileAsObject(`cli.config.js`);
     }
-    const attempt = (firstAttempt ?: string) => {
+    const attempt = async (firstAttempt ?: string, skipBackup ?: boolean) => {
         try {
-            confFile = tryOpenFileAsObject(firstAttempt || `cli.config.json`);
-            backup();
+            if(!confFile) confFile = await tryOpenFileAsObject(firstAttempt || `cli.config.json`);
+            if(!skipBackup) await backup();
         } catch (error) {
             log.error(error)
             log.error("Trying cli.config.js")
-            backup();
+            await backup();
         }
     }
     if (conf) {
         if (isBase64(conf as string)) {
             confFile = JSON.parse(Buffer.from(conf as string, 'base64').toString('ascii'))
         } else {
-            attempt(conf as string)
+            if(isDir) {
+                await attempt(`${isDir && conf as string}/cli.config.json`, true);
+                await attempt(`${isDir && conf as string}/cli.config.js`, true);
+                await backup();
+            } else attempt(conf as string)
             if (!confFile) console.error(`Unable to read config file json: ${conf}`)
         }
     } else {
-        attempt()
+        await attempt()
     }
     log.info(`Using config file: ${(confFile as any || {}).confPath || "???"}`)
-    return confFile;
+    return confFile || {};
 }
 
-export const cli: () => {
+export const cli: () => Promise<{
     createConfig: ConfigObject,
     cliConfig: Merge<ConfigObject, {
         [k: string]: any
     }>,
     PORT: number,
     spinner: Spin
-} = () => {
+}> = async () => {
     let loggingSetup = false;
     const _cli = meow(helptext, {
         flags: {
@@ -147,6 +155,8 @@ export const cli: () => {
         },
         booleanDefault: undefined
     });
+
+    process.env.CURRENT_SESSION_ID = (_cli.flags?.sessionId as string) || process.env.WA_SESSION_ID || 'session'
 
     const _setupLogging = (_config : any) => {
         if(loggingSetup) return;
@@ -170,6 +180,8 @@ export const cli: () => {
      * 3. CLI flags
      */
 
+    const resolvedConfigFromFile =  (await configFile(_cli.flags.config as string) || {})
+
     const nonCliConfigs = {
         /**
          * Environmental Variables
@@ -178,7 +190,7 @@ export const cli: () => {
          /**
           * The configuration file OR the --config base64 encoded config object
           */
-         ...(configFile(_cli.flags.config as string) || {}),
+         ...resolvedConfigFromFile,
     }
 
     optionList.filter(option=>option.default)
@@ -204,6 +216,8 @@ export const cli: () => {
     
     //firstly set up logger
     _setupLogging(cliConfig);
+
+    process.env.CURRENT_SESSION_ID = cliConfig.sessionId
 
     const PORT = Number((typeof cliConfig.forcePort === "boolean" && cliConfig.forcePort ? process.env.PORT : cliConfig.forcePort) || cliConfig.port || process.env.PORT || 8080);
     const spinner = new Spin(cliConfig.sessionId, 'STARTUP', cliConfig?.disableSpins);

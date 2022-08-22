@@ -29,7 +29,7 @@ const ready: (config : any) => Promise<void> = async (config : any) => {
 
 async function start() {
 
-    const { cliConfig, createConfig, PORT, spinner } = cli()
+    const { cliConfig, createConfig, PORT, spinner } = await cli()
     process.env.OWA_CLI = "true"
     spinner.start("Launching EASY API")
     setUpExpressApp();
