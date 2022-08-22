@@ -112,8 +112,8 @@ Merge<Merge<{
     name: 'config',
     alias: 'c',
     type: String,
-    typeLabel: '{yellowBright {underline ./config.json}}',
-    description: "The relative json file that contains the config. By default the system will look for config.json which will override any config variables set. Default: './config.json'."
+    typeLabel: '{yellowBright {underline ./cli.config.json}}',
+    description: "The relative json file that contains the config. By default the system will look for cli.config.json which will override any config variables set. Default: './cli.config.json'."
 },
 {
     name: 'session',
