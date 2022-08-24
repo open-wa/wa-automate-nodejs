@@ -169,7 +169,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
     }
   }
 
-  if(sessionjson) {
+  if(sessionjson && Object.keys(sessionjson).length) {
   spinner?.info(config.multiDevice ?  "multi-device enabled. Session data skipped..." : 'Existing session data detected. Injecting...')
   if(!config?.multiDevice) await waPage.evaluateOnNewDocument(
   session => {
@@ -181,7 +181,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
     if(config?.multiDevice) {
       spinner?.info("No session data detected. Opting in for MD.")
       spinner?.info("Make sure to keep the session alive for at least 5 minutes after scanning the QR code before trying to restart a session!!")
-      await waPage.evaluateOnNewDocument(
+      if(config?.legacy) await waPage.evaluateOnNewDocument(
         session => {
               localStorage.clear();
               Object.keys(session).forEach(key=>localStorage.setItem(key,session[key]));
