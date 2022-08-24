@@ -106,6 +106,7 @@
   },
   "dependencies": {
     "@discordjs/collection": "^0.5.0",
+    "@open-wa/wa-automate-socket-client": "*",
     "@open-wa/wa-decrypt": "^4.3.1",
     "atob": "^2.1.2",
     "aws4": "^1.11.0",
