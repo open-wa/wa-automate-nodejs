@@ -3984,10 +3984,11 @@ public async getStatus(contactId: ContactId) : Promise<{
    */
   middleware = (useSessionIdInPath = false) => async (req : Request, res : Response, next : NextFunction) : Promise<any> => {
     if(useSessionIdInPath && !req.path.includes(this._createConfig.sessionId) && this._createConfig.sessionId!== 'session') return next();
+    const methodFromPath = this._createConfig.sessionId && this._createConfig.sessionId!== 'session' && req.path.includes(this._createConfig.sessionId) ? req.path.replace(`/${this._createConfig.sessionId}/`,'') :  req.path.replace('/','');
     if(req.method==='POST') {
       const rb = req?.body || {};
       let {args} = rb
-      const m = rb?.method || this._createConfig.sessionId && this._createConfig.sessionId!== 'session' && req.path.includes(this._createConfig.sessionId) ? req.path.replace(`/${this._createConfig.sessionId}/`,'') :  req.path.replace('/','');
+      const m = rb?.method || methodFromPath;
       log.info(`MDLWR - ${m} : ${JSON.stringify(rb || {})}`)
       let methodRequiresArgs = false
       if(args && !Array.isArray(args)) {
@@ -4020,6 +4021,17 @@ public async getStatus(contactId: ContactId) : Promise<{
         }
       }
       return res.status(404).send(`Cannot find method: ${m}`)
+    }
+    if(req.method === "GET") {
+      if(["snapshot", "getSnapshot" ].includes(methodFromPath)) {
+        const snapshot = await this.getSnapshot();
+        const snapshotBuffer = Buffer.from(snapshot.split(',')[1], 'base64')
+        res.writeHead(200,{
+          'Content-Type': 'image/png',
+          'Content-Length': snapshotBuffer.length
+        });
+        return res.end(snapshotBuffer)
+      }
     }
     return next();
   }
