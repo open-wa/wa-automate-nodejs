@@ -15,6 +15,7 @@ import { now, processSendData, timeout, timePromise } from '../utils/tools';
 import { QRManager } from './auth';
 import { scriptLoader } from './script_preloader';
 import { earlyInjectionCheck } from './patch_manager';
+import { injectProgObserver } from './init_patch';
 
 let browser,
 wapiInjected = false,
@@ -208,6 +209,8 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
     const WEB_START_TS = new Date().getTime();
     const webRes = await waPage.goto(puppeteerConfig.WAUrl)
     const WEB_END_TS = new Date().getTime();
+    await waPage.exposeFunction("ProgressBarEvent", ({value, text}) => spinner?.info(`${(value || value === 0) && `${value}%:\t`} ${text}`))
+    await injectProgObserver(waPage)
     if(webRes==null) {
       spinner?.info(`Page loaded but something may have gone wrong: ${WEB_END_TS - WEB_START_TS}ms`)
     } else {
