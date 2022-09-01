@@ -9,9 +9,25 @@ export interface Message {
    */ 
   selectedButtonId: string;
   /**
-   * The id of the message
+   * The id of the message. Consists of the Chat ID and a unique string.
+   * 
+   * Example:
+   * 
+   * ```
+   * false_447123456789@c.us_7D914FEA78BE10277743F4B785045C37
+   * ```
    */
   id: MessageId;
+  /**
+   * The unique segment of the message id.
+   * 
+   * Example:
+   * 
+   * ```
+   * 7D914FEA78BE10277743F4B785045C37
+   * ```
+   */
+  mId: string,
   /**
    * The body of the message. If the message type is `chat` , `body` will be the text of the chat. If the message type is some sort of media, then this body will be the thumbnail of the media.
    */
