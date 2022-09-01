@@ -153,7 +153,13 @@ ___
 
 • **id**: [`MessageId`](/api/types/api_model_aliases.MessageId.md)
 
-The id of the message
+The id of the message. Consists of the Chat ID and a unique string.
+
+Example:
+
+```
+false_447123456789@c.us_7D914FEA78BE10277743F4B785045C37
+```
 
 ___
 
@@ -275,6 +281,20 @@ ___
 • `Optional` **loc**: `string`
 
 The text associated with a location message
+
+___
+
+### mId
+
+• **mId**: `string`
+
+The unique segment of the message id.
+
+Example:
+
+```
+7D914FEA78BE10277743F4B785045C37
+```
 
 ___
 

@@ -1,11 +1,11 @@
 ---
-id: "structures_Collector.Collection"
+id: "connect.Collection"
 title: "Class: Collection<K, V>"
 sidebar_label: "Collection"
 custom_edit_url: null
 ---
 
-[structures/Collector](/api/modules/structures_Collector.md).Collection
+[connect](/api/modules/connect.md).Collection
 
 ## Type parameters
 
@@ -70,7 +70,7 @@ BaseCollection<K, V\>.constructor
 
 #### Inherited from
 
-BaseCollection.\_\_@toStringTag@780
+BaseCollection.\_\_@toStringTag@22445
 
 ___
 
@@ -100,7 +100,7 @@ ___
 
 #### Inherited from
 
-BaseCollection.\_\_@species@782
+BaseCollection.\_\_@species@22790
 
 ___
 
@@ -126,7 +126,7 @@ Returns an iterable of entries in the map.
 
 #### Inherited from
 
-BaseCollection.\_\_@iterator@56
+BaseCollection.\_\_@iterator@21310
 
 ___
 
@@ -268,7 +268,7 @@ ___
 
 ### each
 
-▸ **each**(`fn`): [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>
+▸ **each**(`fn`): [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>
 
 Identical to
 [Map.forEach()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/forEach),
@@ -287,17 +287,17 @@ collection
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `void` | Function to execute for each element |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `void` | Function to execute for each element |
 
 #### Returns
 
-[`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>
+[`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>
 
 #### Inherited from
 
 BaseCollection.each
 
-▸ **each**<`T`\>(`fn`, `thisArg`): [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>
+▸ **each**<`T`\>(`fn`, `thisArg`): [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>
 
 #### Type parameters
 
@@ -309,12 +309,12 @@ BaseCollection.each
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `T`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `void` |
+| `fn` | (`this`: `T`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `void` |
 | `thisArg` | `T` |
 
 #### Returns
 
-[`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>
+[`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>
 
 #### Inherited from
 
@@ -339,7 +339,7 @@ collection.ensure(guildId, () => defaultGuildConfig);
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `key` | `K` | The key to get if it exists, or set otherwise |
-| `defaultValueGenerator` | (`key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `V` | A function that generates the default value |
+| `defaultValueGenerator` | (`key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `V` | A function that generates the default value |
 
 #### Returns
 
@@ -416,7 +416,7 @@ collection.every(user => !user.bot);
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => key is K2 | Function used to test (should return a boolean) |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => key is K2 | Function used to test (should return a boolean) |
 
 #### Returns
 
@@ -438,7 +438,7 @@ BaseCollection.every
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => value is V2 |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => value is V2 |
 
 #### Returns
 
@@ -454,7 +454,7 @@ BaseCollection.every
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `boolean` |
 
 #### Returns
 
@@ -477,7 +477,7 @@ BaseCollection.every
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => key is K2 |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => key is K2 |
 | `thisArg` | `This` |
 
 #### Returns
@@ -501,7 +501,7 @@ BaseCollection.every
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => value is V2 |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => value is V2 |
 | `thisArg` | `This` |
 
 #### Returns
@@ -524,7 +524,7 @@ BaseCollection.every
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `boolean` |
 | `thisArg` | `This` |
 
 #### Returns
@@ -561,7 +561,7 @@ collection.filter(user => user.username === 'Bob');
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => key is K2 | The function to test with (should return boolean) |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => key is K2 | The function to test with (should return boolean) |
 
 #### Returns
 
@@ -583,7 +583,7 @@ BaseCollection.filter
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => value is V2 |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => value is V2 |
 
 #### Returns
 
@@ -599,7 +599,7 @@ BaseCollection.filter
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `boolean` |
 
 #### Returns
 
@@ -622,7 +622,7 @@ BaseCollection.filter
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => key is K2 |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => key is K2 |
 | `thisArg` | `This` |
 
 #### Returns
@@ -646,7 +646,7 @@ BaseCollection.filter
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => value is V2 |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => value is V2 |
 | `thisArg` | `This` |
 
 #### Returns
@@ -669,7 +669,7 @@ BaseCollection.filter
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `boolean` |
 | `thisArg` | `This` |
 
 #### Returns
@@ -708,7 +708,7 @@ collection.find(user => user.username === 'Bob');
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => value is V2 | The function to test with (should return boolean) |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => value is V2 | The function to test with (should return boolean) |
 
 #### Returns
 
@@ -724,7 +724,7 @@ BaseCollection.find
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `boolean` |
 
 #### Returns
 
@@ -747,7 +747,7 @@ BaseCollection.find
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => value is V2 |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => value is V2 |
 | `thisArg` | `This` |
 
 #### Returns
@@ -770,7 +770,7 @@ BaseCollection.find
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `boolean` |
 | `thisArg` | `This` |
 
 #### Returns
@@ -807,7 +807,7 @@ collection.findKey(user => user.username === 'Bob');
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => key is K2 | The function to test with (should return boolean) |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => key is K2 | The function to test with (should return boolean) |
 
 #### Returns
 
@@ -823,7 +823,7 @@ BaseCollection.findKey
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `boolean` |
 
 #### Returns
 
@@ -846,7 +846,7 @@ BaseCollection.findKey
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => key is K2 |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => key is K2 |
 | `thisArg` | `This` |
 
 #### Returns
@@ -869,7 +869,7 @@ BaseCollection.findKey
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `boolean` |
 | `thisArg` | `This` |
 
 #### Returns
@@ -974,7 +974,7 @@ collection.flatMap(guild => guild.members.cache);
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `Collection`<`K`, `T`\> | Function that produces a new Collection |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `Collection`<`K`, `T`\> | Function that produces a new Collection |
 
 #### Returns
 
@@ -997,7 +997,7 @@ BaseCollection.flatMap
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `Collection`<`K`, `T`\> |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `Collection`<`K`, `T`\> |
 | `thisArg` | `This` |
 
 #### Returns
@@ -1280,7 +1280,7 @@ collection.map(user => user.tag);
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `T` | Function that produces an element of the new array, taking three arguments |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `T` | Function that produces an element of the new array, taking three arguments |
 
 #### Returns
 
@@ -1303,7 +1303,7 @@ BaseCollection.map
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `T` |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `T` |
 | `thisArg` | `This` |
 
 #### Returns
@@ -1339,7 +1339,7 @@ collection.mapValues(user => user.tag);
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `T` | Function that produces an element of the new collection, taking three arguments |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `T` | Function that produces an element of the new collection, taking three arguments |
 
 #### Returns
 
@@ -1362,7 +1362,7 @@ BaseCollection.mapValues
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `T` |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `T` |
 | `thisArg` | `This` |
 
 #### Returns
@@ -1398,7 +1398,7 @@ const [big, small] = collection.partition(guild => guild.memberCount > 250);
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => key is K2 | Function used to test (should return a boolean) |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => key is K2 | Function used to test (should return a boolean) |
 
 #### Returns
 
@@ -1420,7 +1420,7 @@ BaseCollection.partition
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => value is V2 |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => value is V2 |
 
 #### Returns
 
@@ -1436,7 +1436,7 @@ BaseCollection.partition
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `boolean` |
 
 #### Returns
 
@@ -1459,7 +1459,7 @@ BaseCollection.partition
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => key is K2 |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => key is K2 |
 | `thisArg` | `This` |
 
 #### Returns
@@ -1483,7 +1483,7 @@ BaseCollection.partition
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => value is V2 |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => value is V2 |
 | `thisArg` | `This` |
 
 #### Returns
@@ -1506,7 +1506,7 @@ BaseCollection.partition
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `boolean` |
 | `thisArg` | `This` |
 
 #### Returns
@@ -1610,7 +1610,7 @@ collection.reduce((acc, guild) => acc + guild.memberCount, 0);
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `fn` | (`accumulator`: `T`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `T` | Function used to reduce, taking four arguments; `accumulator`, `currentValue`, `currentKey`, and `collection` |
+| `fn` | (`accumulator`: `T`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `T` | Function used to reduce, taking four arguments; `accumulator`, `currentValue`, `currentKey`, and `collection` |
 | `initialValue?` | `T` | Starting value for the accumulator |
 
 #### Returns
@@ -1625,14 +1625,14 @@ ___
 
 ### reverse
 
-▸ **reverse**(): [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>
+▸ **reverse**(): [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>
 
 Identical to [Array.reverse()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reverse)
 but returns a Collection instead of an Array.
 
 #### Returns
 
-[`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>
+[`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>
 
 #### Inherited from
 
@@ -1642,7 +1642,7 @@ ___
 
 ### set
 
-▸ **set**(`key`, `value`): [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>
+▸ **set**(`key`, `value`): [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>
 
 #### Parameters
 
@@ -1653,7 +1653,7 @@ ___
 
 #### Returns
 
-[`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>
+[`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>
 
 #### Inherited from
 
@@ -1678,7 +1678,7 @@ collection.some(user => user.discriminator === '0000');
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` | Function used to test (should return a boolean) |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `boolean` | Function used to test (should return a boolean) |
 
 #### Returns
 
@@ -1700,7 +1700,7 @@ BaseCollection.some
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `T`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
+| `fn` | (`this`: `T`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `boolean` |
 | `thisArg` | `T` |
 
 #### Returns
@@ -1715,7 +1715,7 @@ ___
 
 ### sort
 
-▸ **sort**(`compareFunction?`): [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>
+▸ **sort**(`compareFunction?`): [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>
 
 The sort method sorts the items of a collection in place and returns it.
 The sort is not necessarily stable in Node 10 or older.
@@ -1735,7 +1735,7 @@ collection.sort((userA, userB) => userA.createdTimestamp - userB.createdTimestam
 
 #### Returns
 
-[`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>
+[`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>
 
 #### Inherited from
 
@@ -1783,7 +1783,7 @@ Removes items that satisfy the provided filter function.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` | Function used to test (should return a boolean) |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `boolean` | Function used to test (should return a boolean) |
 
 #### Returns
 
@@ -1807,7 +1807,7 @@ BaseCollection.sweep
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `T`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
+| `fn` | (`this`: `T`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `boolean` |
 | `thisArg` | `T` |
 
 #### Returns
@@ -1822,7 +1822,7 @@ ___
 
 ### tap
 
-▸ **tap**(`fn`): [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>
+▸ **tap**(`fn`): [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>
 
 Runs a function on the collection and returns the collection.
 
@@ -1839,17 +1839,17 @@ collection
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `fn` | (`collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `void` | Function to execute |
+| `fn` | (`collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `void` | Function to execute |
 
 #### Returns
 
-[`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>
+[`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>
 
 #### Inherited from
 
 BaseCollection.tap
 
-▸ **tap**<`T`\>(`fn`, `thisArg`): [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>
+▸ **tap**<`T`\>(`fn`, `thisArg`): [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>
 
 #### Type parameters
 
@@ -1861,12 +1861,12 @@ BaseCollection.tap
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `T`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `void` |
+| `fn` | (`this`: `T`, `collection`: [`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>) => `void` |
 | `thisArg` | `T` |
 
 #### Returns
 
-[`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>
+[`Collection`](/api/classes/connect.Collection.md)<`K`, `V`\>
 
 #### Inherited from
 
