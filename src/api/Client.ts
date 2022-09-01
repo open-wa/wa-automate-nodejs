@@ -19,7 +19,7 @@ import { readJsonSync } from 'fs-extra'
 import { HealthCheck, SessionInfo } from './model/sessionInfo';
 import { deleteSessionData, injectApi, initPage, kill, invalidateSesssionData} from '../controllers/browser';
 import { isAuthenticated, QRManager, waitForRipeSession } from '../controllers/auth';
-import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, FilePath } from './model/aliases';
+import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, AdvancedFile } from './model/aliases';
 import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
 import * as path from 'path';
 import { CustomProduct, Order, Product } from './model/product';
@@ -1693,7 +1693,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    */
   public async sendImage(
     to: ChatId,
-    file: DataURL | FilePath,
+    file: AdvancedFile,
     filename: string,
     caption: Content,
     quotedMsgId?: MessageId,
@@ -1829,7 +1829,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    */
   public async sendFile(
     to: ChatId,
-    file: DataURL | FilePath,
+    file: AdvancedFile,
     filename: string,
     caption: Content,
     quotedMsgId?: MessageId,
@@ -1868,7 +1868,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    */
   public async sendPtt(
     to: ChatId,
-    file: DataURL | FilePath,
+    file: AdvancedFile,
     quotedMsgId: MessageId,
   ) : Promise<MessageId> {
     return this.sendImage(to, file, 'ptt.ogg', '', quotedMsgId, true, true) as Promise<MessageId> ;
@@ -1882,7 +1882,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    */
   public async sendAudio(
     to: ChatId,
-    file: DataURL | FilePath,
+    file: AdvancedFile,
     quotedMsgId ?: MessageId,
   ) : Promise<MessageId> {
     return this.sendFile(to,file, 'file.mp3', '', quotedMsgId, true, false, false, false) as Promise<MessageId> ;
@@ -1902,7 +1902,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    */
   public async sendVideoAsGif(
     to: ChatId,
-    file: DataURL | FilePath,
+    file: AdvancedFile,
     filename: string,
     caption: Content,
     quotedMsgId?: MessageId,

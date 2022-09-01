@@ -110,3 +110,13 @@ export type Base64 = Brand<string, "Base64">;
  * Learn more here: https://www.w3schools.com/html/html_filepaths.asp
  */
 export type FilePath = Brand<string, "FilePath">;
+
+/**
+ * A URL of a file used with a GET request
+ */
+export type GetURL = Brand<string, "GetURL">;
+
+/**
+ * Some file based actions in open-wa are powerful enough to take a dataurl, url or filepath
+ */
+export type AdvancedFile = DataURL | FilePath | GetURL
