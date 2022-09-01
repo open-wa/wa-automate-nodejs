@@ -2815,7 +2815,7 @@ Send an audio file with the default audio player (not PTT/voice message)
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `to` | [`ChatId`](/api/types/api_model_aliases.ChatId.md) | chat id `xxxxx@c.us` |
-| `file` | [`DataURL`](/api/types/api_model_aliases.DataURL.md) \| [`FilePath`](/api/types/api_model_aliases.FilePath.md) | - |
+| `file` | [`AdvancedFile`](/api/types/api_model_aliases.AdvancedFile.md) | - |
 | `quotedMsgId?` | [`MessageId`](/api/types/api_model_aliases.MessageId.md) | string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message |
 
 #### Returns
@@ -2955,7 +2955,7 @@ If you want a specific filetype, then explcitly select the correct mime-type fro
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `to` | [`ChatId`](/api/types/api_model_aliases.ChatId.md) | chat id `xxxxx@c.us` |
-| `file` | [`DataURL`](/api/types/api_model_aliases.DataURL.md) \| [`FilePath`](/api/types/api_model_aliases.FilePath.md) | DataURL data:image/xxx;base64,xxx or the RELATIVE (should start with `./` or `../`) path of the file you want to send. With the latest version, you can now set this to a normal URL (for example [GET] `https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_2500kB.jpg`). |
+| `file` | [`AdvancedFile`](/api/types/api_model_aliases.AdvancedFile.md) | DataURL data:image/xxx;base64,xxx or the RELATIVE (should start with `./` or `../`) path of the file you want to send. With the latest version, you can now set this to a normal URL (for example [GET] `https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_2500kB.jpg`). |
 | `filename` | `string` | string xxxxx |
 | `caption` | [`Content`](/api/types/api_model_aliases.Content.md) | string xxxxx With an [INSIDERS LICENSE-KEY](https://gum.co/open-wa?tier=Insiders%20Program) you can also tag people in groups with `@[number]`. For example if you want to mention the user with the number `44771234567`, just add `@44771234567` in the caption. |
 | `quotedMsgId?` | [`MessageId`](/api/types/api_model_aliases.MessageId.md) | string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message |
@@ -3051,7 +3051,7 @@ Sends a image to given chat, with caption or not, using base64
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `to` | [`ChatId`](/api/types/api_model_aliases.ChatId.md) | chat id `xxxxx@c.us` |
-| `file` | [`DataURL`](/api/types/api_model_aliases.DataURL.md) \| [`FilePath`](/api/types/api_model_aliases.FilePath.md) | DataURL data:image/xxx;base64,xxx or the RELATIVE (should start with `./` or `../`) path of the file you want to send. With the latest version, you can now set this to a normal URL (for example [GET] `https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_2500kB.jpg`). |
+| `file` | [`AdvancedFile`](/api/types/api_model_aliases.AdvancedFile.md) | DataURL data:image/xxx;base64,xxx or the RELATIVE (should start with `./` or `../`) path of the file you want to send. With the latest version, you can now set this to a normal URL (for example [GET] `https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_2500kB.jpg`). |
 | `filename` | `string` | string xxxxx |
 | `caption` | [`Content`](/api/types/api_model_aliases.Content.md) | string xxxxx |
 | `quotedMsgId?` | [`MessageId`](/api/types/api_model_aliases.MessageId.md) | - |
@@ -3335,7 +3335,7 @@ Attempts to send a file as a voice note. Useful if you want to send an mp3 file.
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `to` | [`ChatId`](/api/types/api_model_aliases.ChatId.md) | chat id `xxxxx@c.us` |
-| `file` | [`DataURL`](/api/types/api_model_aliases.DataURL.md) \| [`FilePath`](/api/types/api_model_aliases.FilePath.md) | base64 data:image/xxx;base64,xxx or the path of the file you want to send. |
+| `file` | [`AdvancedFile`](/api/types/api_model_aliases.AdvancedFile.md) | base64 data:image/xxx;base64,xxx or the path of the file you want to send. |
 | `quotedMsgId` | [`MessageId`](/api/types/api_model_aliases.MessageId.md) | string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message |
 
 #### Returns
@@ -3566,7 +3566,7 @@ Sends a video to given chat as a gif, with caption or not, using base64
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `to` | [`ChatId`](/api/types/api_model_aliases.ChatId.md) | chat id `xxxxx@c.us` |
-| `file` | [`DataURL`](/api/types/api_model_aliases.DataURL.md) \| [`FilePath`](/api/types/api_model_aliases.FilePath.md) | DataURL data:image/xxx;base64,xxx or the RELATIVE (should start with `./` or `../`) path of the file you want to send. With the latest version, you can now set this to a normal URL (for example [GET] `https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_2500kB.jpg`). |
+| `file` | [`AdvancedFile`](/api/types/api_model_aliases.AdvancedFile.md) | DataURL data:image/xxx;base64,xxx or the RELATIVE (should start with `./` or `../`) path of the file you want to send. With the latest version, you can now set this to a normal URL (for example [GET] `https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_2500kB.jpg`). |
 | `filename` | `string` | string xxxxx |
 | `caption` | [`Content`](/api/types/api_model_aliases.Content.md) | string xxxxx |
 | `quotedMsgId?` | [`MessageId`](/api/types/api_model_aliases.MessageId.md) | string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message |

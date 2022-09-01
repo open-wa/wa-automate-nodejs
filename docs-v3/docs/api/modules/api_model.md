@@ -42,6 +42,12 @@ Re-exports [AdvancedConfig](/api/types/api_model_config.AdvancedConfig.md)
 
 ___
 
+### AdvancedFile
+
+Re-exports [AdvancedFile](/api/types/api_model_aliases.AdvancedFile.md)
+
+___
+
 ### Base64
 
 Re-exports [Base64](/api/types/api_model_aliases.Base64.md)
@@ -183,6 +189,12 @@ ___
 ### FilePath
 
 Re-exports [FilePath](/api/types/api_model_aliases.FilePath.md)
+
+___
+
+### GetURL
+
+Re-exports [GetURL](/api/types/api_model_aliases.GetURL.md)
 
 ___
 

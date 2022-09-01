@@ -9,6 +9,7 @@ custom_edit_url: null
 ## Type Aliases
 
 - [AccountNumber](/api/types/api_model_aliases.AccountNumber.md)
+- [AdvancedFile](/api/types/api_model_aliases.AdvancedFile.md)
 - [Base64](/api/types/api_model_aliases.Base64.md)
 - [ChatId](/api/types/api_model_aliases.ChatId.md)
 - [ChatServer](/api/types/api_model_aliases.ChatServer.md)
@@ -17,6 +18,7 @@ custom_edit_url: null
 - [CountryCode](/api/types/api_model_aliases.CountryCode.md)
 - [DataURL](/api/types/api_model_aliases.DataURL.md)
 - [FilePath](/api/types/api_model_aliases.FilePath.md)
+- [GetURL](/api/types/api_model_aliases.GetURL.md)
 - [GroupChatId](/api/types/api_model_aliases.GroupChatId.md)
 - [GroupChatServer](/api/types/api_model_aliases.GroupChatServer.md)
 - [MessageId](/api/types/api_model_aliases.MessageId.md)
