@@ -100,7 +100,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
   let quickAuthed = false;
   let proxy;
   if(proxyAddr) {
-    proxy = (await import('puppeteer-page-proxy')).default
+    proxy = (await import('smashah-puppeteer-page-proxy')).default
   }
   if(interceptAuthentication || proxyAddr || blockCrashLogs || true){
       await waPage.setRequestInterception(true);  
