@@ -209,7 +209,10 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
     const WEB_START_TS = new Date().getTime();
     const webRes = await waPage.goto(puppeteerConfig.WAUrl)
     const WEB_END_TS = new Date().getTime();
-    await waPage.exposeFunction("ProgressBarEvent", ({value, text}) => spinner?.info(`${(value || value === 0) && `${value}%:\t`} ${text}`))
+    await waPage.exposeFunction("ProgressBarEvent", ({value, text}) => {
+      spinner?.info(`${(value || value === 0) && `${value}%:\t`} ${text}`)
+      spinner?.emit({value,text},"internal_launch_progress")
+    })
     await injectProgObserver(waPage)
     if(webRes==null) {
       spinner?.info(`Page loaded but something may have gone wrong: ${WEB_END_TS - WEB_START_TS}ms`)
