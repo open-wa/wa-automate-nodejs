@@ -7,6 +7,7 @@ import { cli } from './setup';
 import { collections, generateCollections } from './collections';
 import { setUpExpressApp, setupAuthenticationLayer, setupRefocusDisengageMiddleware, setupApiDocs, setupSwaggerStatsMiddleware, setupMediaMiddleware, app, setupSocketServer, server, setupBotPressHandler, setupTwilioCompatibleWebhook, enableCORSRequests, setupChatwoot, setupHttpServer } from './server';
 import localtunnel from 'localtunnel';
+import { setupChatwootOutgoingMessageHandler } from './integrations/chatwoot';
 
 let checkUrl = (s : any) => (typeof s === "string") && isUrl(s);
 
@@ -187,7 +188,7 @@ async function start() {
             if(cliConfig.tunnel) {
                 spinner.info(`\n• Setting up external tunnel`);
                 const tunnel = await localtunnel({ port: PORT });
-                cliConfig.tunnel = tunnel.url;
+                cliConfig.apiHost = cliConfig.tunnel = tunnel.url;
                 spinner.succeed(`\n\t${terminalLink('External address', tunnel.url)}`)
             } 
             const apiDocsUrl = cliConfig.apiHost ? `${cliConfig.apiHost}/api-docs/ ` : `${cliConfig.host.includes('http') ? '' : 'http://'}${cliConfig.host}:${PORT}/api-docs/ `;
@@ -199,6 +200,7 @@ async function start() {
                 const statsLink = terminalLink('API Stats', swaggerStatsUrl);
                 spinner.succeed(`\n\t${statsLink}`)
             }
+            await setupChatwootOutgoingMessageHandler(cliConfig, client);
         }
         await ready({...createConfig, ...cliConfig, ...client.getSessionInfo(), hostAccountNumber: await client.getHostNumber()});
         if (cliConfig.emitUnread) {

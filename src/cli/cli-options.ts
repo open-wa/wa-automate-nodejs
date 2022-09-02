@@ -36,6 +36,11 @@ Merge<Merge<{
     type: String,
     typeLabel: '{blue {underline mEEwUGEEML2ZThMm252rLg1M}}',
     description: "The access token of the specific Chatwoot inbox you set up for this session"
+},{
+    name: 'force-update-cw-webhook',
+    type: Boolean,
+    default: false,
+    description: "Updates the chatwoot inbox webhook with the --api-host value on every launch"
 },
 {
     name: 'port',

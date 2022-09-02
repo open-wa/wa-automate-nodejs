@@ -1,5 +1,6 @@
-import { Client, ev, SimpleListener, ChatId, Message, Contact } from '../..';
-import { app, cliFlags } from '../server';
+import uuidAPIKey from 'uuid-apikey';
+import { Client, ev, ChatId, Message, Contact, log } from '../..';
+import { cliFlags } from '../server';
 import { Request, Response } from "express";
 import { default as axios } from 'axios'
 import { default as FormData } from 'form-data'
@@ -13,6 +14,8 @@ const convoReg = {
     //WID : chatwoot conversation ID
     "example@c.us": "1"
 }
+
+export const chatwoot_webhook_check_event_name = "cli.integrations.chatwoot.check"
 
 export type expressMiddleware = (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>
 
@@ -38,10 +41,10 @@ export const chatwootMiddleware: (cliConfig: cliFlags, client: Client) => expres
             if (attachments?.length > 0) {
                 //has attachments
                 const [firstAttachment, ...restAttachments] = attachments;
-                const sendAttachment = async (attachment: any, c?: string) => client.sendImage(to,attachment.data_url, attachment.data_url.substring(attachment.data_url.lastIndexOf('/') + 1), c || '',null,true)
+                const sendAttachment = async (attachment: any, c?: string) => attachment && client.sendImage(to,attachment.data_url, attachment.data_url.substring(attachment.data_url.lastIndexOf('/') + 1), c || '',null,true)
                 //send the text as the caption with the first message only
                 promises.push(sendAttachment(firstAttachment, content));
-                (restAttachments || []).map(sendAttachment).map(promises.push)
+                ((restAttachments || []).map(attachment=>sendAttachment(attachment)) || []).map(p=>promises.push(p))
             } else {
                 //no attachments
                 if (!content) return;
@@ -58,6 +61,13 @@ export const chatwootMiddleware: (cliConfig: cliFlags, client: Client) => expres
                     promises.push(client.sendLocation(to, lat, lng, loc))
                 } else {
                     //not a location message
+                    /**
+                     * Check for url
+                     */
+                    const urlregex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g
+                    if(content.match(urlregex) && content.match(urlregex)[0]) {
+                        promises.push(client.sendLinkWithAutoPreview(to,content.match(urlregex)[0], content))
+                    } else
                     promises.push(client.sendText(to, content));
                 }
             }
@@ -75,15 +85,66 @@ export const chatwootMiddleware: (cliConfig: cliFlags, client: Client) => expres
 }
 
 export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: Client) => Promise<void> = async (cliConfig: cliFlags, client: Client) => {
+    log.info(`Setting up chatwoot integration: ${cliConfig.chatwootUrl}`)
     const u = cliConfig.chatwootUrl as string //e.g `"localhost:3000/api/v1/accounts/3"
     const api_access_token = cliConfig.chatwootApiAccessToken as string
     const _u = new URL(u)
     const origin = _u.origin;
     const port = _u.port || 80;
-    const [accountId, inboxId] = u.match(/\/(app|(api\/v1))\/accounts\/\d*\/(inbox|inboxes)\/\d*/g)[0].split('/').filter(Number)
+    const accountNumber = await client.getHostNumber()
+    const proms = [];
+    let expectedSelfWebhookUrl = cliConfig.apiHost ? `${cliConfig.apiHost}/chatwoot ` : `${(cliConfig.host as string).includes('http') ? '' : 'http://'}${cliConfig.host}:${cliConfig.port}/chatwoot `;
+    expectedSelfWebhookUrl = expectedSelfWebhookUrl.trim()
+    if(cliConfig.key) expectedSelfWebhookUrl = `${expectedSelfWebhookUrl}?api_key=${cliConfig.key}`
+    let [accountId, inboxId] = (u.match(/\/(app|(api\/v1))\/accounts\/\d*\/(inbox|inboxes)\/\d*/g) || [''])[0].split('/').filter(Number)
+    inboxId = inboxId || u.match(/inboxes\/\d*/g) && u.match(/inboxes\/\d*/g)[0].replace('inboxes/', '')
     // const accountId = u.match(/accounts\/\d*/g) && u.match(/accounts\/\d*/g)[0].replace('accounts/', '')
-    const resolvedInbox = inboxId || u.match(/inboxes\/\d*/g) && u.match(/inboxes\/\d*/g)[0].replace('inboxes/', '')
-    const cwReq = (path, method, data?: any, _headers ?: any) => {
+    /**
+     * Is the inbox and or account id undefined??
+     */
+    if(!accountId) {
+        log.info(`CHATWOOT INTEGRATION: account ID missing. Attempting to infer from access token....`)
+        /**
+         * If the account ID is undefined then get the account ID from the access_token
+         */
+         accountId = (await axios.get(`${origin}/api/v1/profile`, {headers: {api_access_token}})).data.account_id
+         log.info(`CHATWOOT INTEGRATION: Got account ID: ${accountId}`)
+    }
+    if(!inboxId) {
+        log.info(`CHATWOOT INTEGRATION: inbox ID missing. Attempting to find correct inbox....`)
+        /**
+         * Find the inbox with the correct setup.
+         */
+        const inboxArray = (await axios.get(`${origin}/api/v1/accounts/${accountId}/inboxes`, {headers: {api_access_token}})).data.payload
+        const possibleInbox = inboxArray.find(inbox=>inbox?.additional_attributes?.hostAccountNumber === accountNumber)
+        if(possibleInbox) {
+            log.info(`CHATWOOT INTEGRATION: found inbox: ${JSON.stringify(possibleInbox)}`)
+            log.info(`CHATWOOT INTEGRATION: found inbox id: ${possibleInbox.channel_id}`)
+            inboxId = possibleInbox.channel_id
+        }
+        else {
+            log.info(`CHATWOOT INTEGRATION: inbox not found. Attempting to create inbox....`)
+            /**
+             * Create inbox
+             */
+            const {data: new_inbox} = (await axios.post(`${origin}/api/v1/accounts/${accountId}/inboxes`, {
+                "name": `open-wa-${accountNumber}`,
+                "channel": {
+                  "phone_number": `${accountNumber}`,
+                  "type": "api",
+                  "webhook_url": expectedSelfWebhookUrl,
+                  "additional_attributes": {
+                      "sessionId": client.getSessionId(),
+                      "hostAccountNumber": `${accountNumber}`
+                  }
+                }
+              }, {headers: {api_access_token}}))
+              inboxId = new_inbox.id;
+              log.info(`CHATWOOT INTEGRATION: inbox created. id: ${inboxId}`)
+        }
+    }
+    
+    const cwReq = (method, path, data?: any, _headers ?: any) => {
         const url = `${origin}/api/v1/accounts/${accountId}/${path}`.replace('app.bentonow.com','chat.bentonow.com')
         // console.log(url,method,data)
         return axios({
@@ -97,19 +158,70 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
     })
 }
 
-    const { data: get_inbox } = await cwReq(`inboxes/${resolvedInbox}`, 'get')
-    // const inboxId = `openwa_${sessionId}`
+    let { data: get_inbox } = await cwReq('get', `inboxes/${inboxId}`)
+
+    /**
+     * Update the webhook
+     */
+     const updatePayload = {
+        "channel": {
+          "additional_attributes": {
+              "sessionId": client.getSessionId(),
+              "hostAccountNumber": `${accountNumber}`,
+              "instanceId": `${client.getInstanceId()}`
+          }
+        }
+      }
+    if(cliConfig.forceUpdateCwWebhook) updatePayload.channel['webhook_url'] = expectedSelfWebhookUrl
+     const updateInboxPromise = cwReq('patch',`inboxes/${inboxId}`, updatePayload)
+     if(cliConfig.forceUpdateCwWebhook) get_inbox = (await updateInboxPromise).data;
+    else proms.push(updateInboxPromise)
+
     /**
      * Get the inbox and test it.
      */
     if(!(get_inbox?.webhook_url || "").includes("/chatwoot")) console.log("Please set the chatwoot inbox webhook to this sessions URL with path /chatwoot")
+    /**
+     * Check the webhook URL
+     */
+     const chatwootWebhookCheck = async () => {
+        let checkCodePromise;
+        const cancelCheckProm = () => (checkCodePromise.cancel && typeof checkCodePromise.cancel === "function") && checkCodePromise.cancel()
+        try {
+        const wUrl = get_inbox.webhook_url.split('?')[0].replace(/\/+$/, "").trim()
+        const checkWhURL = `${wUrl}${wUrl.endsWith("/")?'':`/`}checkWebhook${cliConfig.key ? `?api_key=${cliConfig.key}` : ''}`
+        log.info(`Verifying webhook url: ${checkWhURL}`)
+        const checkCode = uuidAPIKey.create().apiKey //random generated string
+        await new Promise(async (resolve, reject) => {
+            checkCodePromise = ev.waitFor(chatwoot_webhook_check_event_name, 5000).catch(reject)
+            await axios.post(checkWhURL,{
+                checkCode
+            }, {headers:{api_key: cliConfig.key || ''}}).catch(reject)
+            const checkCodeResponse = await checkCodePromise;
+            if(checkCodeResponse && checkCodeResponse[0]?.checkCode==checkCode) resolve(true); else reject(`Webhook check code is incorrect. Expected ${checkCode} - incoming ${((checkCodeResponse || [])[0] || {}).checkCode}`)
+        })
+        log.info('Chatwoot webhook verification successful')
+    } catch (error) {
+        cancelCheckProm()
+        const e = `Unable to verify the chatwoot webhook URL on this inbox: ${error.message}`;
+        console.error(e)
+        log.error(e)
+    } finally {
+        cancelCheckProm()
+    }
+}
+
+    proms.push(chatwootWebhookCheck())
+
+
+
     /**
      * Get Contacts and conversations
      */
     const searchContact = async (number: string) => {
         try {
             const n = number.replace('@c.us', '')
-            const { data } = await cwReq(`contacts/search?q=${n}&sort=phone_number`, 'get')
+            const { data } = await cwReq('get',`contacts/search?q=${n}&sort=phone_number`)
             if (data.payload.length) {
                 return data.payload.find(x => (x.phone_number || "").includes(n)) || false
             } else false
@@ -120,8 +232,8 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
 
     const getContactConversation = async (number: string) => {
         try {
-            const { data } = await cwReq(`contacts/${contactReg[number]}/conversations`, 'get');
-            const allContactConversations = data.payload.filter(c=>c.inbox_id===resolvedInbox).sort((a,b)=>a.id-b.id)
+            const { data } = await cwReq('get',`contacts/${contactReg[number]}/conversations`);
+            const allContactConversations = data.payload.filter(c=>c.inbox_id===inboxId).sort((a,b)=>a.id-b.id)
             const [opened, notOpen] = [allContactConversations.filter(c=>c.status==='open'), allContactConversations.filter(c=>c.status!='open')]
             return opened[0] || notOpen[0];
         } catch (error) {
@@ -131,9 +243,9 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
 
     const createConversation = async (contact_id: number) => {
         try {
-            const { data } = await cwReq(`conversations`, 'post', {
+            const { data } = await cwReq('post', `conversations`,  {
                 contact_id,
-                "inbox_id": resolvedInbox
+                "inbox_id": inboxId
             });
             return data;
         } catch (error) {
@@ -143,7 +255,7 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
 
     const createContact = async (contact: Contact) => {
         try {
-            const { data } = await cwReq(`contacts`, 'post', {
+            const { data } = await cwReq('post', `contacts`, {
                 "identifier": contact.id,
                 "name": contact.formattedName || contact.id,
                 "phone_number": `+${contact.id.replace('@c.us', '')}`,
@@ -157,7 +269,7 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
 
     const sendConversationMessage = async (content, contactId, message) => {
         try {
-            const { data } = await cwReq(`conversations/${convoReg[contactId]}/messages`, 'post', {
+            const { data } = await cwReq( 'post',`conversations/${convoReg[contactId]}/messages`, {
                 content,
                 "message_type": 0,
                 "private": false
@@ -180,7 +292,7 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
         formData.append('content', content)
         formData.append('message_type', 'incoming')
         try {
-            const { data } = await cwReq(`conversations/${convoReg[contactId]}/messages`, 'post', formData, formData.getHeaders());
+            const { data } = await cwReq('post',`conversations/${convoReg[contactId]}/messages`,  formData, formData.getHeaders());
             return data;
         } catch (error) {
             return;
@@ -193,7 +305,7 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
     /**
      * Update the chatwoot contact and conversation registries
      */
-    client.onMessage(async message => {
+    const setOnMessageProm = client.onMessage(async message => {
         if (message.from.includes('g')) {
             //chatwoot integration does not support group chats
             return;
@@ -251,4 +363,7 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
         if(hasAttachments) await sendAttachmentMessage(text, message.from, message)
         else await sendConversationMessage(text, message.from, message)
     })
+    proms.push(setOnMessageProm)
+    await Promise.all(proms);
+    return;
 }

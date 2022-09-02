@@ -11,7 +11,7 @@ import { Client, ev, SimpleListener, ChatId, Message, log } from '..';
 import qs from 'qs';
 import * as fs from 'fs';
 import { convert } from 'xmlbuilder2';
-import { chatwootMiddleware, setupChatwootOutgoingMessageHandler } from './integrations/chatwoot';
+import { chatwootMiddleware, chatwoot_webhook_check_event_name } from './integrations/chatwoot';
 import {IpFilter, IpDeniedError} from'express-ipfilter'
 import helmet from "helmet";
 
@@ -279,7 +279,13 @@ export const setupTwilioCompatibleWebhook : (cliConfig : cliFlags, client: Clien
 
 export const setupChatwoot : (cliConfig : cliFlags, client: Client) => void = async (cliConfig : cliFlags, client: Client) => {
     app.post('/chatwoot', chatwootMiddleware(cliConfig, client));
-    await setupChatwootOutgoingMessageHandler(cliConfig, client);
+    app.post(`/chatwoot/checkWebhook`,async (req,res)=>{
+        const {body} = req;
+        log.info(`chatwoot webhook check request received: ${body.checkCode}`)
+        await ev.emitAsync(chatwoot_webhook_check_event_name, body);
+        return res.send({})
+    })
+    // await setupChatwootOutgoingMessageHandler(cliConfig, client);
 }
 
 export const setupBotPressHandler : (cliConfig : cliFlags, client: Client) => void = (cliConfig : cliFlags, client: Client) => {
