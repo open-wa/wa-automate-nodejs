@@ -200,6 +200,7 @@ declare module WAPI {
   const getKickedGroups: () => Promise<String[]>;
   const launchMetrics: () => Promise<any>;
   const getLicenseType: () => Promise<String | false>;
+  const getTunnelCode: () => Promise<String | false>;
   const getChatWithNonContacts: () => Contact[];
   const syncContacts: () => boolean;
   const getAmountOfLoadedMessages: () => number;
@@ -2335,6 +2336,14 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    */
   public async getLicenseType() : Promise<LicenseType | false> {
     return await this.pup(() => WAPI.getLicenseType()) as Promise<LicenseType | false>;
+  }
+
+  /**
+   * The EASY API uses this string to secure a subdomain on the openwa public tunnel service.
+   * @returns
+   */
+  public async getTunnelCode() : Promise<string> {
+    return await this.pup(() => WAPI.getTunnelCode()) as Promise<string>;
   }
 
   /**

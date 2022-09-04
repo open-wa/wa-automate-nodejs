@@ -187,7 +187,11 @@ async function start() {
             });
             if(cliConfig.tunnel) {
                 spinner.info(`\n• Setting up external tunnel`);
-                const tunnel = await localtunnel({ port: PORT });
+                const tunnel = await localtunnel({ 
+                    port: PORT,
+                    host: "https://public.openwa.cloud",
+                    subdomain: await client.getTunnelCode()
+                 });
                 cliConfig.apiHost = cliConfig.tunnel = tunnel.url;
                 spinner.succeed(`\n\t${terminalLink('External address', tunnel.url)}`)
             } 
