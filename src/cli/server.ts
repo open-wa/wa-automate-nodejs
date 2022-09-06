@@ -1,7 +1,7 @@
 //@ts-ignore
 import express from 'express';
 import https from 'https'
-import http, {ServerOptions} from 'node:http'
+import http, {ServerOptions} from 'http'
 import { collections } from './collections';
 import robots from "express-robots-txt";
 import swaggerUi from 'swagger-ui-express';
