@@ -1,6 +1,6 @@
 //@ts-ignore
 import express from 'express';
-import https from 'node:https'
+import https from 'https'
 import http, {ServerOptions} from 'node:http'
 import { collections } from './collections';
 import robots from "express-robots-txt";

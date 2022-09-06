@@ -89,7 +89,7 @@ async function start() {
 
     try {
         const client = await create({ ...createConfig });
-        setupHttpServer(cliConfig)
+        await setupHttpServer(cliConfig)
         if(cliConfig.autoReject){
             await client.autoReject(cliConfig.onCall)
         } else if(cliConfig.onCall) {
