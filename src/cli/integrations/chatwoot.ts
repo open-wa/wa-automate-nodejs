@@ -93,7 +93,7 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
     const port = _u.port || 80;
     const accountNumber = await client.getHostNumber()
     const proms = [];
-    let expectedSelfWebhookUrl = cliConfig.apiHost ? `${cliConfig.apiHost}/chatwoot ` : `${(cliConfig.host as string).includes('http') ? '' : 'http://'}${cliConfig.host}:${cliConfig.port}/chatwoot `;
+    let expectedSelfWebhookUrl = cliConfig.apiHost ? `${cliConfig.apiHost}/chatwoot ` : `${(cliConfig.host as string).includes('http') ? '' : `http${cliConfig.https || (cliConfig.cert && cliConfig.privkey) ? 's' : ''}://`}${cliConfig.host}:${cliConfig.port}/chatwoot `;
     expectedSelfWebhookUrl = expectedSelfWebhookUrl.trim()
     if(cliConfig.key) expectedSelfWebhookUrl = `${expectedSelfWebhookUrl}?api_key=${cliConfig.key}`
     let [accountId, inboxId] = (u.match(/\/(app|(api\/v1))\/accounts\/\d*\/(inbox|inboxes)\/\d*/g) || [''])[0].split('/').filter(Number)

@@ -82,6 +82,7 @@ export const setupHttpServer = (cliConfig: cliFlags) => {
         if(privContents && certContents) {
             const options = {key: privContents,cert: certContents}
             server = https.createServer(options as ServerOptions, app);
+            cliConfig.https = true;
             return;
         }
     }
