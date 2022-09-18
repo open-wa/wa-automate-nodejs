@@ -264,6 +264,11 @@ export const deleteSessionData = (config: ConfigObject) : boolean => {
     log.info(l)
     fs.unlinkSync(sessionjsonpath);
   }
+  const mdDir = config['userDataDir'];
+  if(mdDir) {
+    log.info(`Deleting MD session directory: ${mdDir}`)
+    fs.rmdirSync(mdDir, {recursive: true})
+  }
   return true;
 }
 
