@@ -1,4 +1,5 @@
 export * from './chat';
+export * from './call';
 export * from './contact';
 export * from './message';
 export * from './errors';
