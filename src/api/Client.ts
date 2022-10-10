@@ -195,6 +195,7 @@ declare module WAPI {
   const getWAVersion: () => String;
   const getStoryViewers: (id: string) => Promise<String[]>;
   const getMe: () => any;
+  const getFeatures: () => any;
   const getAllLabels: () => any;
   const iAmAdmin: () => Promise<String[]>;
   const getKickedGroups: () => Promise<String[]>;
@@ -1471,6 +1472,12 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * 
    * Send advanced buttons with media body. This is an insiders feature for MD accounts.
    * 
+   * :::caution
+   *
+   *  Button messages are being progressively handicapped by recipient mobile devices. Some recipients may not see some types of button messages even though their devices will receive them.
+   * 
+   *  :::
+   * 
    * Body can be location, image, video or document. Buttons can be quick reply, url or call buttons.
    * 
    * @param  {ChatId} to chat id
@@ -1993,6 +2000,13 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
   public async getMe() : Promise<any> {
     return await this._page.evaluate(() => WAPI.getMe());
   }
+
+/**
+ * Returns an object with properties of internal features and boolean values that represent if the respective feature is enabled or not.
+ */
+ public async getFeatures() : Promise<any> {
+  return await this._page.evaluate(() => WAPI.getFeatures());
+}
 
   /**
    * Returns a PNG DataURL screenshot of the session
