@@ -8,6 +8,7 @@
     "build": "TYPEDOC_WATCH=false docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
+    "deploy_with_ssh": "USE_SSH=true npm run deploy   ",
     "clear": "docusaurus clear",
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",

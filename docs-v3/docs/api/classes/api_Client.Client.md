@@ -1158,6 +1158,18 @@ ___
 
 ___
 
+### getFeatures
+
+▸ **getFeatures**(): `Promise`<`any`\>
+
+Returns an
+
+#### Returns
+
+`Promise`<`any`\>
+
+___
+
 ### getGeneratedUserAgent
 
 ▸ **getGeneratedUserAgent**(`userA?`): `Promise`<`string`\>
@@ -1764,6 +1776,18 @@ Retrieves an array of user ids that have 'read' your story.
 #### Returns
 
 `Promise`<[`ContactId`](/api/types/api_model_aliases.ContactId.md)[]\>
+
+___
+
+### getTunnelCode
+
+▸ **getTunnelCode**(): `Promise`<`string`\>
+
+The EASY API uses this string to secure a subdomain on the openwa public tunnel service.
+
+#### Returns
+
+`Promise`<`string`\>
 
 ___
 
@@ -2784,6 +2808,12 @@ Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&ti
 :::
 
 Send advanced buttons with media body. This is an insiders feature for MD accounts.
+
+:::caution
+
+ Button messages are being progressively handicapped by recipient mobile devices. Some recipients may not see some types of button messages even though their devices will receive them.
+
+ :::
 
 Body can be location, image, video or document. Buttons can be quick reply, url or call buttons.
 
