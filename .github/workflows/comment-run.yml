@@ -22,3 +22,5 @@ jobs:
       env:
         NPM_TOKEN: ${{secrets.NPM_TOKEN}}
         GITHUB_TOKEN: ${{ secrets.CUSTOM_GH_TOKEN }}
+        GIT_USER: smashah
+        GIT_PASS: ${{ secrets.CUSTOM_GH_TOKEN }}
