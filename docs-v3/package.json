@@ -9,7 +9,7 @@
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "deploy_with_ssh": "USE_SSH=true npm run deploy",
-    "deploy_with_ssh_ci": "npm ci && npm i -D && USE_SSH=true npm run deploy",
+    "deploy_with_ssh_ci": "npm ci && npm i -D && npm run deploy",
     "clear": "docusaurus clear",
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
