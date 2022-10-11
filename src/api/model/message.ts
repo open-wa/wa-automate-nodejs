@@ -154,6 +154,12 @@ export interface Message {
   mediaData: unknown;
   shareDuration: number;
   isAnimated: boolean;
+  ctwaContext ?: {
+    sourceUrl: string,
+    thumbnail: string | null,
+    mediaType: number,
+    isSuspiciousLink: boolean | null
+  },
   /**
    * Is the message a "view once" message
    */

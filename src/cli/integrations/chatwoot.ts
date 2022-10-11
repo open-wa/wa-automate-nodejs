@@ -339,7 +339,7 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
         let hasAttachments = false;
         switch (message.type) {
             case 'location':
-                text = `${message.lat},${message.lng}`;
+                text = `Location Message:\n\n${message.loc}\n\nhttps://www.google.com/maps?q=${message.lat},${message.lng}`;
                 break;
             case 'buttons_response':
                 text = message.selectedButtonId;
@@ -357,7 +357,7 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
                 }
                 break;
             default:
-                text = message.body || "__UNHANDLED__";
+                text = message?.ctwaContext?.sourceUrl ? `${message.body}\n\n${message.ctwaContext.sourceUrl}` : message.body || "__UNHANDLED__";
                 break;
         }
         if(hasAttachments) await sendAttachmentMessage(text, message.from, message)
