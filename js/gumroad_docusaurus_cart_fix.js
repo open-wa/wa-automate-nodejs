@@ -10,16 +10,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     grNode.style.padding = '4px'
                     const isMobile = !!document.getElementsByClassName('menu__list').length
                     const addTo = document.getElementsByClassName('menu__list')[0] || document.getElementsByClassName("navbar__items navbar__items--right")[0]
-                    if(isMobile) {
-                        addTo.appendChild(grNode);
-                        grNode.style.padding = '16px'
-                        grNode.style.width = cartbtn.style.width = '-webkit-fill-available'
-                    }
-                    else addTo.insertBefore(grNode,document.getElementsByClassName('DocSearch DocSearch-Button')[0].parentElement)
+                    window.grObserver.disconnect();
+                    // if(isMobile) {
+                    //     addTo.appendChild(grNode);
+                    //     grNode.style.padding = '16px'
+                    //     grNode.style.width = cartbtn.style.width = '-webkit-fill-available'
+                    // }
+                    // else addTo.insertBefore(grNode,document.getElementsByClassName('DocSearch DocSearch-Button')[0].parentElement)
                 }
             }
         })
-        window.grObserver.observe(document.body, {childList: true, subtree: true });
+        window.grObserver.observe(document.body, {childList: true });
     }
  });
 
