@@ -126,7 +126,7 @@ export const configFile: (config ?: string) => Promise<JsonObject> = async (conf
                 await attempt(`${isDir && conf as string}/cli.config.json`, true);
                 await attempt(`${isDir && conf as string}/cli.config.js`, true);
                 await backup();
-            } else attempt(conf as string)
+            } else await attempt(conf as string)
             if (!confFile) console.error(`Unable to read config file json: ${conf}`)
         }
     } else {

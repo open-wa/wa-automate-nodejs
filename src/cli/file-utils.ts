@@ -24,6 +24,7 @@ export const tryOpenFileAsObject : (fileLocation: string, needArray ?: boolean) 
         }
     } else return
     log.info(`${fp} is ${res ? 'valid' : 'invalid'}`);
+    log.info(`contents: ${JSON.stringify(res)}`);
     return res && {
         ...(res || {}),
         confPath: fp
