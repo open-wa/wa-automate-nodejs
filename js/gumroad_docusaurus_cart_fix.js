@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         window.grObserver = new MutationObserver((mutationList, observer) => {
             for (const mutation of mutationList) {
                 if(mutation.type === "childList" && mutation.addedNodes && [...mutation.addedNodes].find(node=>node.className==="gumroad")) { 
-                  console.log('Gattem', mutation);
+                  console.log('Gattexxxm', mutation);
                     const grNode = [...mutation.addedNodes].find(node=>node.className==="gumroad")
                     const cartbtn = grNode.getElementsByClassName('cart-button')[0]
                     grNode.style.position = cartbtn.style.position = ''
