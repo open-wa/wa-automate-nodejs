@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function(event) {
     (new MutationObserver((mutationList, observer) => {
         for (const mutation of mutationList) {
-            if(mutation.type === "childList" && mutation.addedNodes.find(node=>node.className==="gumroad")) { 
+            if(mutation.type === "childList" && mutation.addedNodes && mutation.addedNodes.find(node=>node.className==="gumroad")) { 
               console.log('Gattem', mutation);
                 const grNode = mutation.addedNodes.find(node=>node.className==="gumroad")
                 const cartbtn = grNode.getElementsByClassName('cart-button')[0]
