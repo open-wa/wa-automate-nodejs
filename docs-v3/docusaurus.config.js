@@ -176,7 +176,11 @@ async function createConfig(){
     organizationName: 'open-wa',
     projectName: 'wa-automate-nodejs',
     trailingSlash: false,
-    scripts: [
+    scripts: [  {
+      src: '/js/gumroad_docusaurus_cart_fix.js',
+      async: true,
+      defer: true
+      },
       "https://gumroad.com/js/gumroad.js"
     ],
     // deploymentBranch: 'main',

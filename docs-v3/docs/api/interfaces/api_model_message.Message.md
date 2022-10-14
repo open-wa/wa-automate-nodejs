@@ -93,6 +93,21 @@ ___
 
 ___
 
+### ctwaContext
+
+• `Optional` **ctwaContext**: `Object`
+
+#### Type declaration
+
+| Name | Type |
+| :------ | :------ |
+| `isSuspiciousLink` | `boolean` |
+| `mediaType` | `number` |
+| `sourceUrl` | `string` |
+| `thumbnail` | `string` |
+
+___
+
 ### deprecatedMms3Url
 
 • **deprecatedMms3Url**: `string`

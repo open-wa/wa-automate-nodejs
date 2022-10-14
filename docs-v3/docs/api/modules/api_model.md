@@ -66,6 +66,12 @@ Re-exports [CLOUD_PROVIDERS](/api/enums/api_model_config.CLOUD_PROVIDERS.md)
 
 ___
 
+### Call
+
+Re-exports [Call](/api/interfaces/api_model_call.Call.md)
+
+___
+
 ### CartItem
 
 Re-exports [CartItem](/api/interfaces/api_model_product.CartItem.md)

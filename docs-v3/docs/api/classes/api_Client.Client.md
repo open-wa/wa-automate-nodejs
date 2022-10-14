@@ -1162,7 +1162,7 @@ ___
 
 ▸ **getFeatures**(): `Promise`<`any`\>
 
-Returns an
+Returns an object with properties of internal features and boolean values that represent if the respective feature is enabled or not.
 
 #### Returns
 
@@ -1401,6 +1401,24 @@ In both of those instances this method will return undefined.
 `Promise`<`number` \| `boolean`\>
 
 number timestamp when chat was last online or undefined.
+
+___
+
+### getLicenseLink
+
+▸ **getLicenseLink**(`params?`): `Promise`<`string`\>
+
+Generate a license link
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `params?` | `string` |
+
+#### Returns
+
+`Promise`<`string`\>
 
 ___
 
@@ -2813,7 +2831,7 @@ Send advanced buttons with media body. This is an insiders feature for MD accoun
 
  Button messages are being progressively handicapped by recipient mobile devices. Some recipients may not see some types of button messages even though their devices will receive them.
 
- :::
+:::
 
 Body can be location, image, video or document. Buttons can be quick reply, url or call buttons.
 
