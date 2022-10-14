@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
             for (const mutation of mutationList) {
                 if(mutation.type === "childList" && mutation.addedNodes && [...mutation.addedNodes].find(node=>node.className==="gumroad")) { 
                     window.grObserver.disconnect();
-                  console.log('Gattwwwxxm', mutation);
                     const grNode = [...mutation.addedNodes].find(node=>node.className==="gumroad")
                     const cartbtn = grNode.getElementsByClassName('cart-button')[0]
                     grNode.style.position = cartbtn.style.position = 'unset'
