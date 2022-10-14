@@ -7,8 +7,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                   console.log('Gattwwwxxm', mutation);
                     const grNode = [...mutation.addedNodes].find(node=>node.className==="gumroad")
                     const cartbtn = grNode.getElementsByClassName('cart-button')[0]
-                    grNode.style.position = cartbtn.style.position = ''
-                    grNode.style.padding = '4px'
+                    grNode.style.position = cartbtn.style.position = 'unset'
                     const isMobile = !!document.getElementsByClassName('menu__list').length
                     const addTo = document.getElementsByClassName('menu__list')[0] || document.getElementsByClassName("navbar__items navbar__items--right")[0]
                     if(isMobile) {
