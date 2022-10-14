@@ -417,6 +417,7 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
       console.log(boxen("Use the link below to easily report issues:👇👇👇", {padding: 1, borderColor: 'red'}))
       spinner.succeed(issueLink)
       spinner.succeed(`🚀 @OPEN-WA ready for account: ${me.user.slice(-4)}`);
+      if(!debugInfo.CLI && !config.licenseKey) spinner.succeed(`Use this link to get a license: ${await client.getLicenseLink()}`);
       spinner.emit('SUCCESS');
       spinner.remove();
       return client;

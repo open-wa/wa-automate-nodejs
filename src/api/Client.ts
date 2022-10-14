@@ -1365,6 +1365,13 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
   }
 
   /**
+   * Generate a license link
+   */
+  public async getLicenseLink(params ?: string) : Promise<string> {
+    return await this.link(params)
+  }
+
+  /**
    * 
    * {@license:restricted@}
    * 
@@ -1476,7 +1483,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    *
    *  Button messages are being progressively handicapped by recipient mobile devices. Some recipients may not see some types of button messages even though their devices will receive them.
    * 
-   *  :::
+   * :::
    * 
    * Body can be location, image, video or document. Buttons can be quick reply, url or call buttons.
    * 

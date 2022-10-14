@@ -210,6 +210,7 @@ async function start() {
         if (cliConfig.emitUnread) {
             await client.emitUnreadMessages()
         }
+        if(!createConfig.licenseKey) spinner.succeed(`Use this link to get a license: ${await client.getLicenseLink()}`);
     } catch (e) {
         spinner.fail(`Error ${e.message} ${e}`)
     }
