@@ -168,6 +168,7 @@ export const cli: () => Promise<{
             _config.logging = setupLogging(_config?.logging, `easy-api-${_config?.sessionId || 'session'}`)
             loggingSetup = true;
         }
+        if(_config.verbose) _config.disableSpins = true;
     }
 
     _setupLogging(_cli.flags)
