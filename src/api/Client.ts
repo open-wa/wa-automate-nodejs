@@ -64,6 +64,7 @@ declare module WAPI {
   const onOrder: (callback: Function) => any;
   const onNewProduct: (callback: Function) => any;
   const onIncomingCall: (callback: Function) => any;
+  const onCallState: (callback: Function) => any;
   const onAddedToGroup: (callback: Function) => any;
   const onBattery: (callback: Function) => any;
   const onPlugged: (callback: Function) => any;
@@ -912,10 +913,19 @@ export class Client {
    * @event 
    * @returns Observable stream of call request objects
    */
-  public async onIncomingCall(fn: (call: Call) => void) : Promise<Listener | boolean> {
+   public async onIncomingCall(fn: (call: Call) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.IncomingCall, fn);
   }
-  
+
+  /**
+   * Listens to changes on call state
+   * @event 
+   * @returns Observable stream of call objects
+   */
+   public async onCallState(fn: (call: Call) => void) : Promise<Listener | boolean> {
+    return this.registerListener(SimpleListener.CallState, fn);
+  }
+
   /**
    * Listens to label change events
    * 

@@ -40,6 +40,10 @@
      */
     IncomingCall = 'onIncomingCall',
     /**
+     * Represents [[onIncomingCall]]
+     */
+    CallState = 'onCallState',
+    /**
      * Represents [[onGlobalParticipantsChanged]]
      */
     GlobalParticipantsChanged = 'onGlobalParticipantsChanged',
