@@ -96,9 +96,9 @@ export const setUpExpressApp : () => void = () => {
     setupMetaMiddleware();
 }
 
-export const enableCORSRequests : () => void = async () => {
+export const enableCORSRequests : (cliConfig : cliFlags) => void = async (cliConfig : cliFlags) => {
     const {default : cors} = await import('cors');
-    app.use(cors());
+    app.use(cors(typeof cliConfig.cors === 'object' && cliConfig.cors));
 }
 
 export const setupAuthenticationLayer : (cliConfig : cliFlags) => void = (cliConfig : cliFlags) => {
@@ -362,7 +362,13 @@ export const setupBotPressHandler : (cliConfig : cliFlags, client: Client) => vo
 
 export const setupSocketServer : (cliConfig, client : Client) => Promise<void> = async (cliConfig, client : Client) => {
     const { Server } = await import("socket.io");
-    const io = new Server(server);
+    const socketServerOptions = cliConfig.cors ? {
+        cors: typeof cliConfig.cors === 'object' ? cliConfig.cors : {
+              origin: "*",
+              methods: ["GET", "POST"],
+        },
+    } : null
+    const io = socketServerOptions ? new Server(server, socketServerOptions) : new Server(server);
     if (cliConfig.key) {
         io.use((socket, next) => {
             if (socket.handshake.auth["apiKey"] == cliConfig.key) next()
