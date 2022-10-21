@@ -34,7 +34,7 @@ async function start() {
     process.env.OWA_CLI = "true"
     spinner.start("Launching EASY API")
     setUpExpressApp();
-    if(cliConfig.cors) await enableCORSRequests();
+    if(cliConfig.cors) await enableCORSRequests(cliConfig);
     try {
         const { status, data } = await axios.post(`http://localhost:${PORT}/getConnectionState`);
         if (status === 200 && data.response === "CONNECTED") {
