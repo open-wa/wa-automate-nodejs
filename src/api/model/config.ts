@@ -17,7 +17,10 @@ export enum QRFormat {
 export enum CLOUD_PROVIDERS {
     GCP = "GCP",
     WASABI = "WASABI",
-    AWS = "AWS"
+    AWS = "AWS",
+    CONTABO = "CONTABO",
+    DO = "DO",
+    MINIO = "MINIO"
 }
 
 export enum DIRECTORY_STRATEGY {
@@ -724,6 +727,14 @@ export interface ConfigObject {
          * env: `OW_DIRECTORY`
          */
         directory?: DIRECTORY_STRATEGY | string
+        /**
+         * Setting this to true will make the uploaded file public
+         */
+        public?: boolean
+        /**
+         * Extra headers to add to the upload request
+         */
+        headers?: {[k:string]:string}
     },
     /**
      * What to do when an error is detected on a client method.

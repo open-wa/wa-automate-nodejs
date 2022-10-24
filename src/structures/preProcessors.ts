@@ -86,6 +86,8 @@ const UPLOAD_CLOUD: MessagePreProcessor = async (message: Message, client: Clien
       secretAccessKey: process.env.OW_CLOUD_SECRET_ACCESS_KEY || cloudUploadOptions.secretAccessKey, 
       bucket: process.env.OW_CLOUD_BUCKET || cloudUploadOptions.bucket,
       region: process.env.OW_CLOUD_REGION || cloudUploadOptions.region,
+      public: process.env.OW_CLOUD_PUBLIC && true || cloudUploadOptions.public,
+      headers: cloudUploadOptions.headers,
     }
     const dirStrat = process.env.OW_DIRECTORY || cloudUploadOptions.directory
     if(dirStrat) {
