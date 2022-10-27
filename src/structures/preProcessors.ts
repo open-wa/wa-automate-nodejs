@@ -13,7 +13,7 @@ let uploadQueue;
 const SCRUB: MessagePreProcessor = async (
   message: Message
 ) => {
-  if (message.deprecatedMms3Url)
+  if (message.deprecatedMms3Url && message.mimetype)
     return {
       ...message,
       content: "",
@@ -24,7 +24,7 @@ const SCRUB: MessagePreProcessor = async (
 
 const BODY_ONLY: MessagePreProcessor =
   async (message: Message) => {
-    if (message.deprecatedMms3Url)
+    if (message.deprecatedMms3Url && message.mimetype)
       return {
         ...message,
         content: "",
@@ -34,7 +34,7 @@ const BODY_ONLY: MessagePreProcessor =
 
 const AUTO_DECRYPT: MessagePreProcessor =
   async (message: Message, client: Client) => {
-    if (message.deprecatedMms3Url)
+    if (message.deprecatedMms3Url && message.mimetype)
       return {
         ...message,
         body: await client.decryptMedia(message),
@@ -43,7 +43,7 @@ const AUTO_DECRYPT: MessagePreProcessor =
   };
 
 const AUTO_DECRYPT_SAVE: MessagePreProcessor = async (message: Message, client: Client) => {
-  if (message.deprecatedMms3Url) {
+  if (message.deprecatedMms3Url && message.mimetype) {
     const filename = `${message.mId}.${mime.extension(
       message.mimetype
     )}`;
@@ -66,7 +66,7 @@ const AUTO_DECRYPT_SAVE: MessagePreProcessor = async (message: Message, client: 
 };
 
 const UPLOAD_CLOUD: MessagePreProcessor = async (message: Message, client: Client) => {
-  if (message?.deprecatedMms3Url) {
+  if (message?.deprecatedMms3Url && message.mimetype) {
     const {cloudUploadOptions} = client.getConfig();
     if(message.fromMe && (cloudUploadOptions.ignoreHostAccount || process.env.OW_CLOUD_IGNORE_HOST)) return message;
     if(!uploadQueue) {
@@ -150,7 +150,7 @@ const UPLOAD_CLOUD: MessagePreProcessor = async (message: Message, client: Clien
   return message;
 };
 
-type MessagePreProcessor = (message: Message, client?: Client) => Promise<Message>
+export type MessagePreProcessor = (message: Message, client?: Client) => Promise<Message>
 
 /**
  * An object that contains all available [[PREPROCESSORS]].

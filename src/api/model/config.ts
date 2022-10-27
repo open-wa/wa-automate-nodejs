@@ -1,5 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
-import { PREPROCESSORS } from '../../structures/preProcessors';
+import { MessagePreProcessor, PREPROCESSORS } from '../../structures/preProcessors';
 import { ConfigLogTransport } from '../../logging/logging';
 import { Base64 } from "./aliases";
 import { SimpleListener } from './events';
@@ -662,7 +662,7 @@ export interface ConfigObject {
      * options: `SCRUB`, `BODY_ONLY`, `AUTO_DECRYPT`, `AUTO_DECRYPT_SAVE`, `UPLOAD_CLOUD`.
      * @default `undefined`
      */
-    messagePreprocessor?: PREPROCESSORS,
+    messagePreprocessor?: PREPROCESSORS | MessagePreProcessor | (PREPROCESSORS | MessagePreProcessor)[],
     /**
      * Set an array filter to be used with messagePreprocessor to limit which messages are preprocessed.
      * 

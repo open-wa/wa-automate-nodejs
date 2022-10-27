@@ -778,10 +778,25 @@ export class Client {
         //do nothing
     }
     const m = fil ? [message].filter(typeof fil == "function" ? fil : x=>x)[0] : message;
-    if(m && this._createConfig.messagePreprocessor && MessagePreprocessors[this._createConfig.messagePreprocessor] && message.mimetype) {
-      log.info(`Preproc START: ${this._createConfig.messagePreprocessor} ${fil} ${message.id} ${m.id}`)
-      log.info(`Preproccessing message: ${this._createConfig.messagePreprocessor}`)
-      const preprocres = (await MessagePreprocessors[this._createConfig.messagePreprocessor](m, this) || message)
+    if(m && this._createConfig.messagePreprocessor) {
+      if(!Array.isArray(this._createConfig.messagePreprocessor)) this._createConfig.messagePreprocessor = [this._createConfig.messagePreprocessor];
+      /**
+       * Map/chain over the preprocs and resolve.
+       * 
+       * Each promise will update the _m value which is just a mutatable message object.
+       */
+      let _m = m;
+      await Promise.all(this._createConfig.messagePreprocessor.map(async (preproc, index) => {
+        let custom = false;
+        const start = Date.now()
+        if(typeof preproc === "function") {
+          custom = true;
+          _m = await preproc(_m, this)
+        } else if(typeof preproc === "string" && MessagePreprocessors[preproc]) _m = await MessagePreprocessors[preproc](_m, this)
+        log.info(`Preproc ${custom ? 'CUSTOM' : preproc} ${index} ${fil} ${message.id} ${m.id} ${Date.now() - start}ms`)
+        return _m;
+      }))
+      const preprocres = _m || message
       delete this._preprocIdempotencyCheck[message.id];
       return preprocres
     }
