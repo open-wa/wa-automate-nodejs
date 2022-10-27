@@ -656,7 +656,7 @@ export interface ConfigObject {
      */
     pQueueDefault?: any
     /**
-     * Set a preprocessor, or multiple chained preprocessors, for messages. See [MPConfigType]() for more info.
+     * Set a preprocessor, or multiple chained preprocessors, for messages. See [MPConfigType](/) for more info.
      * 
      * options: `SCRUB`, `BODY_ONLY`, `AUTO_DECRYPT`, `AUTO_DECRYPT_SAVE`, `UPLOAD_CLOUD`.
      * @default `undefined`

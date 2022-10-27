@@ -12,6 +12,7 @@ custom_edit_url: null
 
 ## Type Aliases
 
+- [MPConfigType](/api/types/structures_preProcessors.MPConfigType.md)
 - [MessagePreProcessor](/api/types/structures_preProcessors.MessagePreProcessor.md)
 
 ## Variables

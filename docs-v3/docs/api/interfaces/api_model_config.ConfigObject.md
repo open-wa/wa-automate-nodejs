@@ -552,9 +552,9 @@ ___
 
 ### messagePreprocessor
 
-• `Optional` **messagePreprocessor**: [`MessagePreProcessor`](/api/types/structures_preProcessors.MessagePreProcessor.md) \| [`PREPROCESSORS`](/api/enums/structures_preProcessors.PREPROCESSORS.md) \| ([`MessagePreProcessor`](/api/types/structures_preProcessors.MessagePreProcessor.md) \| [`PREPROCESSORS`](/api/enums/structures_preProcessors.PREPROCESSORS.md))[]
+• `Optional` **messagePreprocessor**: `any`
 
-Set a preprocessor for messages. See PREPROCESSORS for more info.
+Set a preprocessor, or multiple chained preprocessors, for messages. See [MPConfigType](/) for more info.
 
 options: `SCRUB`, `BODY_ONLY`, `AUTO_DECRYPT`, `AUTO_DECRYPT_SAVE`, `UPLOAD_CLOUD`.
 
