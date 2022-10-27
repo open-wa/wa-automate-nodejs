@@ -1,6 +1,7 @@
 ---
-sidebar_position: 1
-title: INTRODUCTION
+position: 0
+sidebar_position: 0
+title: Introduction
 ---
 
 # Introduction

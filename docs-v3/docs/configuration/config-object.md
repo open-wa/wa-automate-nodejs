@@ -9,7 +9,7 @@ sidebar_position: 0
 
 There are quite a few ways you can customize your session.
 
-Find out about all possible options here: [api.ConfigObject]
+Find out about all possible options here: [api.ConfigObject](/docs/api/interfaces/api_model_config.ConfigObject)
 
 Set the desired config options as parameter on [create].
 

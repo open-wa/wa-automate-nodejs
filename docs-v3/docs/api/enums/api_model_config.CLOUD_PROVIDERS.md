@@ -15,9 +15,27 @@ custom_edit_url: null
 
 ___
 
+### CONTABO
+
+• **CONTABO** = ``"CONTABO"``
+
+___
+
+### DO
+
+• **DO** = ``"DO"``
+
+___
+
 ### GCP
 
 • **GCP** = ``"GCP"``
+
+___
+
+### MINIO
+
+• **MINIO** = ``"MINIO"``
 
 ___
 

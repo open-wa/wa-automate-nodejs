@@ -1452,6 +1452,7 @@ If you have set `onAnyMessage` or `onMessage` with the second parameter (PQueue 
 | `onBattery` | `default`<`default`, `DefaultAddOptions`\> |
 | `onBroadcast` | `default`<`default`, `DefaultAddOptions`\> |
 | `onButton` | `default`<`default`, `DefaultAddOptions`\> |
+| `onCallState` | `default`<`default`, `DefaultAddOptions`\> |
 | `onChatDeleted` | `default`<`default`, `DefaultAddOptions`\> |
 | `onChatOpened` | `default`<`default`, `DefaultAddOptions`\> |
 | `onChatState` | `default`<`default`, `DefaultAddOptions`\> |
@@ -4280,6 +4281,26 @@ Message
 #### Returns
 
 `Promise`<`boolean` \| `Listener`\>
+
+___
+
+### onCallState
+
+▸ **onCallState**(`fn`): `Promise`<`boolean` \| `Listener`\>
+
+Listens to changes on call state
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `fn` | (`call`: [`Call`](/api/interfaces/api_model_call.Call.md)) => `void` |
+
+#### Returns
+
+`Promise`<`boolean` \| `Listener`\>
+
+Observable stream of call objects
 
 ___
 

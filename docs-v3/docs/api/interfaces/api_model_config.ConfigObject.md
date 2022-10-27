@@ -191,8 +191,10 @@ This can be set via the config or the corresponding environment variables.
 | `accessKeyId` | `string` | S3 compatible access key ID.   e.g: `AKIAIOSFODNN7EXAMPLE` or `GOOGTS7C7FUP3AIRVJTE2BCD`  env: `OW_CLOUD_ACCESS_KEY_ID` |
 | `bucket` | `string` | Bucket name  env: `OW_CLOUD_BUCKET` |
 | `directory?` | `string` | The directory strategy to use when uploading files. Or just set it to a custom directory string.  env: `OW_DIRECTORY` |
+| `headers?` | { `[k: string]`: `string`;  } | Extra headers to add to the upload request |
 | `ignoreHostAccount?` | `boolean` | Ignore processing of messages that are sent by the host account itself  env: `OW_CLOUD_IGNORE_HOST` |
 | `provider` | [`CLOUD_PROVIDERS`](/api/enums/api_model_config.CLOUD_PROVIDERS.md) | `AWS`, `GCP` or `WASABI`  env: `OW_CLOUD_ACCESS_KEY_ID` |
+| `public?` | `boolean` | Setting this to true will make the uploaded file public |
 | `region?` | `string` | Bucket region.  Not required for `GCP` provider  env: `OW_CLOUD_REGION` |
 | `secretAccessKey` | `string` | S3 compatible secret access key.  e.g `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY`  env: `OW_CLOUD_SECRET_ACCESS_KEY` |
 
@@ -550,7 +552,7 @@ ___
 
 ### messagePreprocessor
 
-• `Optional` **messagePreprocessor**: [`PREPROCESSORS`](/api/enums/structures_preProcessors.PREPROCESSORS.md)
+• `Optional` **messagePreprocessor**: [`MessagePreProcessor`](/api/types/structures_preProcessors.MessagePreProcessor.md) \| [`PREPROCESSORS`](/api/enums/structures_preProcessors.PREPROCESSORS.md) \| ([`MessagePreProcessor`](/api/types/structures_preProcessors.MessagePreProcessor.md) \| [`PREPROCESSORS`](/api/enums/structures_preProcessors.PREPROCESSORS.md))[]
 
 Set a preprocessor for messages. See PREPROCESSORS for more info.
 

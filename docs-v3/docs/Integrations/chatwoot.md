@@ -7,8 +7,6 @@ you can directly integrate open-wa/wa-automate directly using the easy-api or do
 
 - before you start you need to have below details from chatwoot
 
-
-
     | item | description  | example  |
     | ------------ | ------------ | ------------ |
     | chatwoot API URL |it can be self-hosted or chatwoot hosted    |for self-hosted `http://localhost:3000`  and can be` https://app.chatwoot.com/platform/api/v1` for chatwoot hosted|

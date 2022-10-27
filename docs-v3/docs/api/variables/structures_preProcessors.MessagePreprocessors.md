@@ -15,4 +15,4 @@ An object that contains all available [PREPROCESSORS](/api/enums/structures_preP
 
 #### Index signature
 
-▪ [processorName: `string`]: `MessagePreProcessor`
+▪ [processorName: `string`]: [`MessagePreProcessor`](/api/types/structures_preProcessors.MessagePreProcessor.md)

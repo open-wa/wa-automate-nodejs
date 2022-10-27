@@ -9,6 +9,14 @@ custom_edit_url: null
 
 ## Properties
 
+### State
+
+• **State**: [`CallState`](/api/enums/api_model_call.CallState.md)
+
+State of the call
+
+___
+
 ### canHandleLocally
 
 • **canHandleLocally**: `boolean`

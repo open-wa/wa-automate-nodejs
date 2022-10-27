@@ -1,6 +1,7 @@
 ---
 title: Get started with wa-automate via Docker
 sidebar_label: Docker
+sidebar_position: 1
 description:
   Guide showing how to use wa-automate with Docker. This also covers how to import
   data as well as persistence.
@@ -23,7 +24,7 @@ You can use the following docker command as a drop-in replacement for the normal
 
 The docker image already has some defaults that do not need to be set via additional CLI flags.
 
-## Custom code
+## Using the docker image with your own code
 
 You can extend the docker image and use it as a base for your own custom project. This is useful so you don't have to worry about dependencies. The image is optimised and slimmed out to prevent needless bloat.
 

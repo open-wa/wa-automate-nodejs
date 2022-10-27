@@ -70,7 +70,7 @@ BaseCollection<K, V\>.constructor
 
 #### Inherited from
 
-BaseCollection.\_\_@toStringTag@798
+BaseCollection.\_\_@toStringTag@16187
 
 ___
 
@@ -100,7 +100,7 @@ ___
 
 #### Inherited from
 
-BaseCollection.\_\_@species@800
+BaseCollection.\_\_@species@16189
 
 ___
 
@@ -126,7 +126,7 @@ Returns an iterable of entries in the map.
 
 #### Inherited from
 
-BaseCollection.\_\_@iterator@56
+BaseCollection.\_\_@iterator@15431
 
 ___
 

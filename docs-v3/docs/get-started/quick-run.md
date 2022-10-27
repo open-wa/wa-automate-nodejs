@@ -1,6 +1,7 @@
 ---
 title: Get started with wa-automate via Docker
 sidebar_label: Easy API
+sidebar_position: 0
 description:
   Guide showing how to use wa-automate with Docker. This also covers how to import
   data as well as persistence.

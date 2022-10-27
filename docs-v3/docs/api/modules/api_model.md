@@ -72,6 +72,12 @@ Re-exports [Call](/api/interfaces/api_model_call.Call.md)
 
 ___
 
+### CallState
+
+Re-exports [CallState](/api/enums/api_model_call.CallState.md)
+
+___
+
 ### CartItem
 
 Re-exports [CartItem](/api/interfaces/api_model_product.CartItem.md)

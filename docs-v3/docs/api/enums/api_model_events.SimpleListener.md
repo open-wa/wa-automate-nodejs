@@ -59,6 +59,14 @@ Represents onButton
 
 ___
 
+### CallState
+
+• **CallState** = ``"onCallState"``
+
+Represents onIncomingCall
+
+___
+
 ### ChatDeleted
 
 • **ChatDeleted** = ``"onChatDeleted"``

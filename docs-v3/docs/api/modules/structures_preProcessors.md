@@ -10,6 +10,10 @@ custom_edit_url: null
 
 - [PREPROCESSORS](/api/enums/structures_preProcessors.PREPROCESSORS.md)
 
+## Type Aliases
+
+- [MessagePreProcessor](/api/types/structures_preProcessors.MessagePreProcessor.md)
+
 ## Variables
 
 - [MessagePreprocessors](/api/variables/structures_preProcessors.MessagePreprocessors.md)
