@@ -203,3 +203,8 @@ export enum PREPROCESSORS {
    */
   UPLOAD_CLOUD = "UPLOAD_CLOUD",
 }
+
+/**
+ * The actual type for [config.messagePreprocessor](/docs/api/interfaces/api_model_config.ConfigObject#messagepreprocessor)
+ */
+export type MPConfigType = PREPROCESSORS | MessagePreProcessor | (PREPROCESSORS | MessagePreProcessor)[]
