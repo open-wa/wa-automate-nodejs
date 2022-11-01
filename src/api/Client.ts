@@ -895,7 +895,8 @@ export class Client {
   }
 
   /**
-   * Requires a Story License Key 
+   * {@license:restricted@}
+   * 
    * Listens to when a contact posts a new story.
    * @event
    * 
