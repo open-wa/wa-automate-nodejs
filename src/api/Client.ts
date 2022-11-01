@@ -3831,11 +3831,14 @@ public async getStatus(contactId: ContactId) : Promise<{
 
 
 /**
- * Consumes a list of id strings of statuses to delete.
- * @param statusesToDelete string [] | stringan array of ids of statuses to delete.
+ * {@license:restricted@}
+ * 
+ * Consumes a list of id strings of stories to delete.
+ * 
+ * @param statusesToDelete string [] | string an array of ids of stories to delete.
  * @returns boolean. True if it worked.
  */
-  public async deleteStatus(statusesToDelete: string | string []) : Promise<boolean> {
+  public async deleteStory(statusesToDelete: string | string []) : Promise<boolean> {
     return await this.pup(
       ({ statusesToDelete }) => WAPI.deleteStatus(statusesToDelete),
       { statusesToDelete }
@@ -3843,30 +3846,36 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
 /**
- * Deletes all your existing statuses.
+ * {@license:restricted@}
+ * 
+ * Deletes all your existing stories.
  * @returns boolean. True if it worked.
  */
-  public async deleteAllStatus() : Promise<boolean> {
+  public async deleteAllStories() : Promise<boolean> {
     return await this.pup(() => WAPI.deleteAllStatus());
   }
 
   /**
-   * retrieves all existing statuses.
+   * {@license:restricted@}
+   * 
+   * Retrieves all existing stories.
    *
    * Only works with a Story License Key
    */
-  public async getMyStatusArray() : Promise<Message[]> {
+  public async getMyStoryArray() : Promise<Message[]> {
     return await this.pup(() => WAPI.getMyStatusArray());
   }
 
     
   /**
-     * Retrieves an array of user ids that have 'read' your story.
-     * 
-     * @param id string The id of the story
-     * 
-     * Only works with a Story License Key
-     */
+   * {@license:restricted@}
+   * 
+   * Retrieves an array of user ids that have 'read' your story.
+   * 
+   * @param id string The id of the story
+   * 
+   * Only works with a Story License Key
+   */
     public async getStoryViewers(id: string) : Promise<ContactId[]> {
       return await this.pup(({ id }) => WAPI.getStoryViewers(id),{id}) as Promise<ContactId[]>;
     }
