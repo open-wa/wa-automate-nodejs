@@ -15,6 +15,7 @@ import { now, processSendData, timeout, timePromise } from '../utils/tools';
 import { QRManager } from './auth';
 import { scriptLoader } from './script_preloader';
 import { earlyInjectionCheck } from './patch_manager';
+import { setupDataDirWatcher } from './data_dir_watcher';
 import { injectProgObserver } from './init_patch';
 
 let browser,
@@ -267,7 +268,8 @@ export const deleteSessionData = (config: ConfigObject) : boolean => {
   const mdDir = config['userDataDir'];
   if(mdDir) {
     log.info(`Deleting MD session directory: ${mdDir}`)
-    fs.rmdirSync(mdDir, {recursive: true})
+    //@ts-ignore
+    fs.rmdirSync(mdDir, { force: true, recursive: true})
   }
   return true;
 }
@@ -404,7 +406,8 @@ async function initBrowser(sessionId?: string, config:any={}, spinner ?: Spin) {
     spinner?.info(`Data dir doesnt exist, creating...: ${config["userDataDir"]}`)
     fs.mkdirSync(config["userDataDir"], {recursive: true});
   }
-  const browser = (config?.browserWSEndpoint) ? await puppeteer.connect({...config}): await puppeteer.launch({
+    setupDataDirWatcher(config)
+    const browser = (config?.browserWSEndpoint) ? await puppeteer.connect({...config}): await puppeteer.launch({
     headless: true,
     args,
     ...config,
