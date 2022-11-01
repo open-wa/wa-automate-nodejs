@@ -3845,6 +3845,12 @@ public async getStatus(contactId: ContactId) : Promise<{
     );
   }
 
+  /**
+   * @deprecated
+   * Alias for deleteStory
+   */
+  public deleteStatus = this.deleteStory;
+
 /**
  * {@license:restricted@}
  * 
@@ -3854,6 +3860,12 @@ public async getStatus(contactId: ContactId) : Promise<{
   public async deleteAllStories() : Promise<boolean> {
     return await this.pup(() => WAPI.deleteAllStatus());
   }
+
+  /**
+   * @deprecated
+   * Alias for deleteStory
+   */
+   public deleteAllStatus = this.deleteAllStories;
 
   /**
    * {@license:restricted@}
@@ -3866,6 +3878,12 @@ public async getStatus(contactId: ContactId) : Promise<{
     return await this.pup(() => WAPI.getMyStatusArray());
   }
 
+  /**
+   * @deprecated
+   * Alias for deleteStory
+   */
+   public getMyStatusArray = this.getMyStoryArray;
+
     
   /**
    * {@license:restricted@}
@@ -3874,9 +3892,10 @@ public async getStatus(contactId: ContactId) : Promise<{
    * 
    * @param id string The id of the story
    * 
-   * Only works with a Story License Key
    */
-    public async getStoryViewers(id: string) : Promise<ContactId[]> {
+    public async getStoryViewers(id ?: string) : Promise<ContactId[] | {
+      [k: MessageId] : ContactId[]
+    }> {
       return await this.pup(({ id }) => WAPI.getStoryViewers(id),{id}) as Promise<ContactId[]>;
     }
   
