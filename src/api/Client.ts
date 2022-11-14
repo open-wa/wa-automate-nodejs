@@ -130,6 +130,7 @@ declare module WAPI {
   const setGroupEditToAdminsOnly: (groupId: string, onlyAdmins: boolean) => Promise<boolean>;
   const setGroupDescription: (groupId: string, description: string) => Promise<boolean>;
   const setGroupTitle: (groupId: string, title: string) => Promise<boolean>;
+  const sendPoll: (groupId: string, name: string, options: string[]) => Promise<string>;
   const sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => Promise<string | boolean>;
   const sendStickerAsReply: (webpBase64: string, to: string, messageId: string, metadata?: any) => Promise<string | boolean>;
   const createGroup: (groupName: string, contactId: string|string[]) => Promise<any>;
@@ -1930,7 +1931,24 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
   }
 
 
-
+  /**
+   * Send a poll to a group chat
+   * @param to chat id - a group chat is required
+   * @param name the name of the poll
+   * @param options an array of poll options
+   */
+  public async sendPoll(
+    to: GroupChatId,
+    name: string,
+    options: string[]
+  ) : Promise<MessageId> {
+    return  await this.pup(
+      ({ to, name, options }) => {
+        return WAPI.sendPoll(to, name, options );
+      },
+      { to, name, options }
+    )
+  }
 
   /**
    * Sends a video to given chat as a gif, with caption or not, using base64
