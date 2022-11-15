@@ -1895,9 +1895,10 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     ptt?:boolean,
     withoutPreview?:boolean,
     hideTags ?: boolean,
-    viewOnce ?: boolean
+    viewOnce ?: boolean,
+    requestConfig ?: any
   ) : Promise<MessageId | boolean> {
-    return this.sendImage(to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags, viewOnce);
+    return this.sendImage(to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags, viewOnce, requestConfig);
   }
 
   /**
@@ -2057,8 +2058,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     hideTags ?: boolean,
     viewOnce ?: boolean
   ) : Promise<MessageId | boolean> {
-     const base64 = await getDUrl(url, requestConfig);
-      return await this.sendFile(to,base64,filename,caption,quotedMsgId,waitForId,ptt,withoutPreview, hideTags, viewOnce)
+      return await this.sendFile(to,url,filename,caption,quotedMsgId,waitForId,ptt,withoutPreview, hideTags, viewOnce, requestConfig)
   }
 
 /**
