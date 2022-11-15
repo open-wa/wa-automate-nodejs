@@ -34,7 +34,7 @@ import { Listener } from 'eventemitter2';
 import PriorityQueue from 'p-queue/dist/priority-queue';
 import { MessagePreprocessors } from '../structures/preProcessors';
 import { NextFunction, Request, Response } from 'express';
-import { base64MimeType, ensureDUrl, generateGHIssueLink, getDUrl, isBase64, isDataURL, now } from '../utils/tools';
+import { assertFile, base64MimeType, ensureDUrl, FileOutputTypes, generateGHIssueLink, getDUrl, isBase64, isDataURL, now, rmFileAsync } from '../utils/tools';
 import { Call } from './model/call';
 import { AdvancedButton, Button, LocationButtonBody, Section } from './model/button';
 import { JsonObject } from 'type-fest';
@@ -102,6 +102,7 @@ declare module WAPI {
   const getMessageById: (mesasgeId: string) => Message;
   const getMessageInfo: (mesasgeId: string) => Promise<any>;
   const getOrder: (id: string) => Order;
+  const createTemporaryFileInput: () => any;
   const getMyLastMessage: (chatId: string) => Promise<Message>;
   const getStarredMessages: (chatId: string) => Promise<Message[]>;
   const starMessage: (messageId: string) => Promise<boolean>;
@@ -1743,32 +1744,47 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     ptt?:boolean,
     withoutPreview?:boolean,
     hideTags ?: boolean,
-    viewOnce ?: boolean
+    viewOnce ?: boolean,
+    requestConfig ?: any
   ) : Promise<MessageId | boolean> {
-      //check if the 'base64' file exists
-      if(!isDataURL(file) && !isBase64(file) && !file.includes("data:")) {
-        //must be a file then
-        const relativePath = path.join(path.resolve(process.cwd(),file|| ''));
-        if(fs.existsSync(file) || fs.existsSync(relativePath)) {
-          file = await datauri(fs.existsSync(file)  ? file : relativePath);
-        } else if(isUrl(file)){
-          return await this.sendFileFromUrl(to,file,filename,caption,quotedMsgId,{},waitForId,ptt,withoutPreview, hideTags, viewOnce);
-        } else throw new CustomError(ERROR_NAME.FILE_NOT_FOUND,`Cannot find file. Make sure the file reference is relative, a valid URL or a valid DataURL: ${file.slice(0,25)}`)
-      } else if(file.includes("data:") && file.includes("undefined") || file.includes("application/octet-stream") && filename && mime.lookup(filename)) {
-        file = `data:${mime.lookup(filename)};base64,${file.split(',')[1]}`
-      }
+    const err = [
+     'Not able to send message to broadcast',
+     'Not a contact',
+     'Error: Number not linked to WhatsApp Account',
+     'ERROR: Please make sure you have at least one chat'
+    ];
+
+    /**
+     * TODO: File upload improvements
+     * 1. *Create an arbitrary file input element
+     * 2. *Take the file parameter and create a tempfile in temp dir
+     * 3. Forward the tempfile path to the file input, upload the file to the browser context.
+     * 4. Instruct the WAPI.sendImage function to consume the file from the element in step 1.
+     * 5. *Destroy the input element from the page (happens in wapi.sendimage)
+     * 6. *Unlink/rm the tempfile
+     * 7. Return the ID of the WAPI.sendImage function.
+     */
+    const [[inputElementId, inputElement], fileAsLocalTemp] = await Promise.all([
+      (async ()=>{
+        const inputElementId = await this._page.evaluate(()=>WAPI.createTemporaryFileInput());
+        const inputElement = await this._page.$(`#${inputElementId}`);
+        return [inputElementId, inputElement];
+      })(),
+      assertFile(file, filename, FileOutputTypes.TEMP_FILE_PATH as any,requestConfig || {})
+    ])
+    await inputElement.uploadFile(fileAsLocalTemp as string);
+    file = inputElementId;
     
-   const err = [
-    'Not able to send message to broadcast',
-    'Not a contact',
-    'Error: Number not linked to WhatsApp Account',
-    'ERROR: Please make sure you have at least one chat'
-   ];
+    /**
+     * Old method of asserting that the file be a data url - cons = time wasted serializing/deserializing large file to and from b64.
+     */
+    // file = await assertFile(file, filename, FileOutputTypes.DATA_URL as any,requestConfig || {}) as string
 
     const res = await this.pup(
       ({ to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags, viewOnce}) =>  WAPI.sendImage(file, to, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags, viewOnce),
       { to, file, filename, caption, quotedMsgId, waitForId, ptt, withoutPreview, hideTags, viewOnce}
     )
+    if(fileAsLocalTemp) await rmFileAsync(fileAsLocalTemp as string)
     if(err.includes(res)) console.error(res);
     return (err.includes(res) ? false : res)  as MessageId | boolean;
   }

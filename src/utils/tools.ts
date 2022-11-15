@@ -1,15 +1,20 @@
+import Crypto from "crypto";
 import * as fs from 'fs'
 import * as path from 'path';
 import datauri from 'datauri'
 import isUrl from 'is-url-superb'
 import { JsonObject } from 'type-fest';
-import { ConfigObject, CustomError, DataURL, ERROR_NAME } from '../api/model';
+import { AdvancedFile, ConfigObject, CustomError, DataURL, ERROR_NAME } from '../api/model';
 import { default as axios, AxiosRequestConfig } from 'axios';
 import { SessionInfo } from '../api/model/sessionInfo';
 import { execSync } from 'child_process';
 import {
   performance
 } from 'perf_hooks';
+import mime from 'mime';
+import { tmpdir } from 'os';
+import { Readable } from "stream";
+import { log } from "../logging/logging";
 
 //@ts-ignore
 process.send = process.send || function () {};
@@ -248,9 +253,13 @@ export const generateGHIssueLink = (config : ConfigObject, sessionInfo: SessionI
  * download it and convert it to a DataURL. If Base64, returns it.
  * @param {string} file - The file to be converted to a DataURL.
  * @param {AxiosRequestConfig} requestConfig - AxiosRequestConfig = {}
+ * @param {string} filename - Filename with an extension so a datauri mimetype can be inferred.
  * @returns A DataURL
  */
-export const ensureDUrl = async (file : string, requestConfig: AxiosRequestConfig = {}) => {
+export const ensureDUrl = async (file : string | Buffer, requestConfig: AxiosRequestConfig = {}, filename?: string) => {
+  if(Buffer.isBuffer(file)) {
+    return `data:${mime.lookup(filename)};base64,${file.toString('base64').split(',')[1]}`
+  } else
   if(!isDataURL(file) && !isBase64(file)) {
       //must be a file then
       const relativePath = path.join(path.resolve(process.cwd(),file|| ''));
@@ -260,5 +269,104 @@ export const ensureDUrl = async (file : string, requestConfig: AxiosRequestConfi
         file = await getDUrl(file, requestConfig);
       } else throw new CustomError(ERROR_NAME.FILE_NOT_FOUND,'Cannot find file. Make sure the file reference is relative, a valid URL or a valid DataURL')
     }
+    if(file.includes("data:") && file.includes("undefined") || file.includes("application/octet-stream") && filename && mime.lookup(filename)) {
+      file = `data:${mime.lookup(filename)};base64,${file.split(',')[1]}`
+    }
     return file;
 }
+
+export const FileInputTypes = {
+  "VALIDATED_FILE_PATH": "VALIDATED_FILE_PATH",
+  "URL": "URL",
+  "DATA_URL": "DATA_URL",
+  "BASE_64": "BASE_64",
+  "BUFFER": "BUFFER",
+  "READ_STREAM": "READ_STREAM",
+}
+
+export const FileOutputTypes = {
+  ...FileInputTypes,
+  "TEMP_FILE_PATH": "TEMP_FILE_PATH",
+}
+
+/**
+ * Remove file asynchronously
+ * @param file Filepath
+ * @returns 
+ */
+export function rmFileAsync(file: string) {
+  return new Promise((resolve, reject) => {
+    fs.unlink(file, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(true);
+      }
+    })
+  })
+}
+
+/**
+ * Takes a file parameter and consistently returns the desired type of file.
+ * @param file The file path, URL, base64 or DataURL string of the file
+ * @param outfileName The ouput filename of the file
+ * @param desiredOutputType The type of file output required from this function
+ * @param requestConfig optional axios config if file parameter is a url
+ */
+export const assertFile : (file: AdvancedFile | Buffer, outfileName: string, desiredOutputType: keyof typeof FileOutputTypes, requestConfig ?: any ) => Promise<string | Buffer | Readable > = async (file, outfileName,  desiredOutputType, requestConfig) => {
+  let inputType;
+  if(typeof file == 'string') {
+    if(isDataURL(file)) inputType = FileInputTypes.DATA_URL
+    else if(isBase64(file)) inputType = FileInputTypes.BASE_64
+    /**
+     * Check if it is a path
+     */
+    else {
+      const relativePath = path.join(path.resolve(process.cwd(),file|| ''));
+      if(fs.existsSync(file) || fs.existsSync(relativePath)) {
+        // file = await datauri(fs.existsSync(file)  ? file : relativePath);
+        inputType = FileInputTypes.VALIDATED_FILE_PATH; 
+      } else if(isUrl(file)) inputType = FileInputTypes.URL; 
+      /**
+       * If not file type is determined by now then it is some sort of unidentifiable string. Throw an error.
+       */
+      if(!inputType) throw new CustomError(ERROR_NAME.FILE_NOT_FOUND,`Cannot find file. Make sure the file reference is relative, a valid URL or a valid DataURL: ${file.slice(0,25)}`)
+    }
+  } else {
+    if(Buffer.isBuffer(file)) inputType = FileInputTypes.BUFFER
+    /**
+     * Leave space to determine if incoming file parameter is any other type of object (maybe one day people will submit a path object as a param?)
+     */
+  }
+  if(inputType === desiredOutputType) return file;
+  switch(desiredOutputType) {
+    case FileOutputTypes.DATA_URL:
+    case FileOutputTypes.BASE_64:
+      return await ensureDUrl(file as string, requestConfig, outfileName);
+      break;
+    case FileOutputTypes.TEMP_FILE_PATH: {
+      /**
+       * Create a temp file in tempdir, return the tempfile.
+       */
+      const tempFilePath = path.join(tmpdir(),`${Crypto.randomBytes(6).readUIntLE(0, 6).toString(36)}.${outfileName}`);
+      log.info(`Saved temporary file to ${tempFilePath}`)
+      if(inputType != FileInputTypes.BUFFER){
+        file = await ensureDUrl(file as string, requestConfig, outfileName);
+        file = Buffer.from(file.split(',')[1], 'base64')
+      }
+      await fs.writeFileSync(tempFilePath, file);
+      return tempFilePath
+      break;
+    }
+    case FileOutputTypes.BUFFER:
+      return Buffer.from((await ensureDUrl(file as string, requestConfig, outfileName)).split(',')[1], 'base64');
+      break;
+    case FileOutputTypes.READ_STREAM: {
+      if(inputType === FileInputTypes.VALIDATED_FILE_PATH) return fs.createReadStream(file)
+      else if(inputType != FileInputTypes.BUFFER) file = Buffer.from((await ensureDUrl(file as string, requestConfig, outfileName)).split(',')[1], 'base64')
+      return Readable.from(file)
+      break;
+    }
+  }
+  return file;
+} 
