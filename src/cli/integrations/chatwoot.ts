@@ -14,6 +14,9 @@ const convoReg = {
     //WID : chatwoot conversation ID
     "example@c.us": "1"
 }
+const ignoreMap = {
+    "example_message_id": true
+}
 
 export const chatwoot_webhook_check_event_name = "cli.integrations.chatwoot.check"
 
@@ -71,7 +74,13 @@ export const chatwootMiddleware: (cliConfig: cliFlags, client: Client) => expres
                     promises.push(client.sendText(to, content));
                 }
             }
-            return await Promise.all(promises)
+            const outgoingMessageIds = await Promise.all(promises)
+            log.info(`Outgoing message IDs: ${JSON.stringify(outgoingMessageIds)}`)
+            /**
+             * Add these message IDs to the ignore map
+             */
+            outgoingMessageIds.map(id=>ignoreMap[`${id}`]=true)
+            return outgoingMessageIds
         }
         try {
             const processAndSendResult = await processMesssage();
@@ -235,7 +244,13 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
             const { data } = await cwReq('get',`contacts/${contactReg[number]}/conversations`);
             const allContactConversations = data.payload.filter(c=>c.inbox_id===inboxId).sort((a,b)=>a.id-b.id)
             const [opened, notOpen] = [allContactConversations.filter(c=>c.status==='open'), allContactConversations.filter(c=>c.status!='open')]
-            return opened[0] || notOpen[0];
+            const hasOpenConvo = opened[0] ? true : false;
+            const resolvedConversation = opened[0] || notOpen[0];
+            if(!hasOpenConvo) {
+                //reopen convo
+                await openConversation(resolvedConversation.id)
+            }
+            return resolvedConversation;
         } catch (error) {
             return;
         }
@@ -267,11 +282,22 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
         }
     }
 
-    const sendConversationMessage = async (content, contactId, message) => {
+    const openConversation = async (conversationId, status = "opened") => {
+        try {
+            const { data } = await cwReq( 'post',`conversations/${conversationId}/messages`, {
+                status
+            });
+            return data;
+        } catch (error) {
+            return;
+        }
+    }
+
+    const sendConversationMessage = async (content, contactId, message: Message) => {
         try {
             const { data } = await cwReq( 'post',`conversations/${convoReg[contactId]}/messages`, {
                 content,
-                "message_type": 0,
+                "message_type": message.fromMe ? "outgoing" : "incoming",
                 "private": false
             });
             return data;
@@ -299,37 +325,31 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
         }
     }
 
-
-
-    // const inboxId = s.match(/conversations\/\d*/g) && s.match(/conversations\/\d*/g)[0].replace('conversations/','')
-    /**
-     * Update the chatwoot contact and conversation registries
-     */
-    const setOnMessageProm = client.onMessage(async message => {
-        if (message.from.includes('g')) {
+    const processWAMessage = async (message : Message) => {
+        if (message.chatId.includes('g')) {
             //chatwoot integration does not support group chats
             return;
         }
         /**
          * Does the contact exist in chatwoot?
          */
-        if (!contactReg[message.from]) {
-            const contact = await searchContact(message.from)
+        if (!contactReg[message.chatId]) {
+            const contact = await searchContact(message.chatId)
             if (contact) {
-                contactReg[message.from] = contact.id
+                contactReg[message.chatId] = contact.id
             } else {
                 //create the contact
-                contactReg[message.from] = (await createContact(message.sender)).id
+                contactReg[message.chatId] = (await createContact(message.sender)).id
             }
         }
 
-        if (!convoReg[message.from]) {
-            const conversation = await getContactConversation(message.from);
+        if (!convoReg[message.chatId]) {
+            const conversation = await getContactConversation(message.chatId);
             if (conversation) {
-                convoReg[message.from] = conversation.id
+                convoReg[message.chatId] = conversation.id
             } else {
                 //create the conversation
-                convoReg[message.from] = (await createConversation(contactReg[message.from])).id
+                convoReg[message.chatId] = (await createConversation(contactReg[message.chatId])).id
             }
         }
         /**
@@ -360,10 +380,27 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
                 text = message?.ctwaContext?.sourceUrl ? `${message.body}\n\n${message.ctwaContext.sourceUrl}` : message.body || "__UNHANDLED__";
                 break;
         }
-        if(hasAttachments) await sendAttachmentMessage(text, message.from, message)
-        else await sendConversationMessage(text, message.from, message)
+        if(hasAttachments) await sendAttachmentMessage(text, message.chatId, message)
+        else await sendConversationMessage(text, message.chatId, message)
+    }
+    // const inboxId = s.match(/conversations\/\d*/g) && s.match(/conversations\/\d*/g)[0].replace('conversations/','')
+    /**
+     * Update the chatwoot contact and conversation registries
+     */
+    const setOnMessageProm = client.onMessage(processWAMessage)
+    const setOnAckProm = client.onAck(async ackEvent =>{
+        if(ackEvent.ack == 1 && ackEvent.isNewMsg && ackEvent.self==="in") {
+            if(ignoreMap[ackEvent.id]) {
+                delete ignoreMap[ackEvent.id]
+                return;
+            }
+            const _message = await client.getMessageById(ackEvent.id)
+            return await processWAMessage(_message)
+        }
+        return;
     })
     proms.push(setOnMessageProm)
+    proms.push(setOnAckProm)
     await Promise.all(proms);
     return;
 }
