@@ -71,7 +71,8 @@ export interface Message {
    */
   to: ChatId;
   /**
-   * Indicates whether the message was sent by the host account
+   * Indicates whether the message is coming into the session or going out of the session. You can have a message sent by the host account show as `in` when the message was sent from another
+   * session or from the host account device itself.
    */
   self: "in" | "out";
   /**
