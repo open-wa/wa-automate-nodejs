@@ -7,6 +7,78 @@ custom_edit_url: null
 
 [api/Client](/api/modules/api_Client.md).Client
 
+## Properties
+
+### deleteAllStatus
+
+• **deleteAllStatus**: () => `Promise`<`boolean`\>
+
+#### Type declaration <div class="label license restricted">restricted</div>
+
+▸ (): `Promise`<`boolean`\>
+
+:::license May require restricted license
+Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
+:::
+
+Deletes all your existing stories.
+
+##### Returns
+
+`Promise`<`boolean`\>
+
+boolean. True if it worked.
+
+___
+
+### deleteStatus
+
+• **deleteStatus**: (`statusesToDelete`: `string` \| `string`[]) => `Promise`<`boolean`\>
+
+#### Type declaration <div class="label license restricted">restricted</div>
+
+▸ (`statusesToDelete`): `Promise`<`boolean`\>
+
+:::license May require restricted license
+Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
+:::
+
+Consumes a list of id strings of stories to delete.
+
+##### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `statusesToDelete` | `string` \| `string`[] | string [] \| string an array of ids of stories to delete. |
+
+##### Returns
+
+`Promise`<`boolean`\>
+
+boolean. True if it worked.
+
+___
+
+### getMyStatusArray
+
+• **getMyStatusArray**: () => `Promise`<[`Message`](/api/interfaces/api_model_message.Message.md)[]\>
+
+#### Type declaration <div class="label license restricted">restricted</div>
+
+▸ (): `Promise`<[`Message`](/api/interfaces/api_model_message.Message.md)[]\>
+
+:::license May require restricted license
+Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
+:::
+
+Retrieves all existing stories.
+
+Only works with a Story License Key
+
+##### Returns
+
+`Promise`<[`Message`](/api/interfaces/api_model_message.Message.md)[]\>
+
 ## Methods
 
 ### B <div class="label license insiders">insiders</div>
@@ -428,11 +500,15 @@ Decrypts a media message.
 
 ___
 
-### deleteAllStatus
+### deleteAllStories <div class="label license restricted">restricted</div>
 
-▸ **deleteAllStatus**(): `Promise`<`boolean`\>
+▸ **deleteAllStories**(): `Promise`<`boolean`\>
 
-Deletes all your existing statuses.
+:::license May require restricted license
+Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
+:::
+
+Deletes all your existing stories.
 
 #### Returns
 
@@ -502,17 +578,21 @@ Deletes chats from a certain index (default 1000). E.g if this startingFrom para
 
 ___
 
-### deleteStatus
+### deleteStory <div class="label license restricted">restricted</div>
 
-▸ **deleteStatus**(`statusesToDelete`): `Promise`<`boolean`\>
+▸ **deleteStory**(`statusesToDelete`): `Promise`<`boolean`\>
 
-Consumes a list of id strings of statuses to delete.
+:::license May require restricted license
+Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
+:::
+
+Consumes a list of id strings of stories to delete.
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `statusesToDelete` | `string` \| `string`[] | string [] \| stringan array of ids of statuses to delete. |
+| `statusesToDelete` | `string` \| `string`[] | string [] \| string an array of ids of stories to delete. |
 
 #### Returns
 
@@ -1566,11 +1646,15 @@ message object or `undefined` if the host account's last message could not be fo
 
 ___
 
-### getMyStatusArray
+### getMyStoryArray <div class="label license restricted">restricted</div>
 
-▸ **getMyStatusArray**(): `Promise`<[`Message`](/api/interfaces/api_model_message.Message.md)[]\>
+▸ **getMyStoryArray**(): `Promise`<[`Message`](/api/interfaces/api_model_message.Message.md)[]\>
 
-retrieves all existing statuses.
+:::license May require restricted license
+Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
+:::
+
+Retrieves all existing stories.
 
 Only works with a Story License Key
 
@@ -1780,9 +1864,13 @@ message object OR `false`
 
 ___
 
-### getStoryViewers
+### getStoryViewers <div class="label license restricted">restricted</div>
 
-▸ **getStoryViewers**(`id`): `Promise`<[`ContactId`](/api/types/api_model_aliases.ContactId.md)[]\>
+▸ **getStoryViewers**(`id?`): `Promise`<[`ContactId`](/api/types/api_model_aliases.ContactId.md)[] \| { `[k: MessageId]`: [`ContactId`](/api/types/api_model_aliases.ContactId.md)[];  }\>
+
+:::license May require restricted license
+Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
+:::
 
 Retrieves an array of user ids that have 'read' your story.
 
@@ -1790,11 +1878,11 @@ Retrieves an array of user ids that have 'read' your story.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `id` | `string` | string The id of the story  Only works with a Story License Key |
+| `id?` | `string` | string The id of the story |
 
 #### Returns
 
-`Promise`<[`ContactId`](/api/types/api_model_aliases.ContactId.md)[]\>
+`Promise`<[`ContactId`](/api/types/api_model_aliases.ContactId.md)[] \| { `[k: MessageId]`: [`ContactId`](/api/types/api_model_aliases.ContactId.md)[];  }\>
 
 ___
 
@@ -3091,7 +3179,7 @@ ___
 
 ### sendImage
 
-▸ **sendImage**(`to`, `file`, `filename`, `caption`, `quotedMsgId?`, `waitForId?`, `ptt?`, `withoutPreview?`, `hideTags?`, `viewOnce?`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
+▸ **sendImage**(`to`, `file`, `filename`, `caption`, `quotedMsgId?`, `waitForId?`, `ptt?`, `withoutPreview?`, `hideTags?`, `viewOnce?`, `requestConfig?`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
 Sends a image to given chat, with caption or not, using base64
 
@@ -3109,6 +3197,7 @@ Sends a image to given chat, with caption or not, using base64
 | `withoutPreview?` | `boolean` | - |
 | `hideTags?` | `boolean` | boolean default: false [INSIDERS] set this to try silent tag someone in the caption |
 | `viewOnce?` | `boolean` | - |
+| `requestConfig?` | `any` | - |
 
 #### Returns
 
@@ -3345,6 +3434,26 @@ Sends a payment request message to given chat
 #### Returns
 
 `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
+
+___
+
+### sendPoll
+
+▸ **sendPoll**(`to`, `name`, `options`): `Promise`<[`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
+
+Send a poll to a group chat
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `to` | [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) | chat id - a group chat is required |
+| `name` | `string` | the name of the poll |
+| `options` | `string`[] | an array of poll options |
+
+#### Returns
+
+`Promise`<[`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
 ___
 
@@ -4681,11 +4790,14 @@ STATE observable sream of states
 
 ___
 
-### onStory
+### onStory <div class="label license restricted">restricted</div>
 
 ▸ **onStory**(`fn`): `Promise`<`boolean` \| `Listener`\>
 
-Requires a Story License Key 
+:::license May require restricted license
+Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
+:::
+
 Listens to when a contact posts a new story.
 
 **`Fires`**
