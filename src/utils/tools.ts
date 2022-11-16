@@ -1,5 +1,6 @@
 import Crypto from "crypto";
 import * as fs from 'fs'
+import * as fsp from 'fs/promises'
 import * as path from 'path';
 import datauri from 'datauri'
 import isUrl from 'is-url-superb'
@@ -8,6 +9,7 @@ import { AdvancedFile, ConfigObject, CustomError, DataURL, ERROR_NAME } from '..
 import { default as axios, AxiosRequestConfig } from 'axios';
 import { SessionInfo } from '../api/model/sessionInfo';
 import { execSync } from 'child_process';
+import { homedir } from 'os'
 import {
   performance
 } from 'perf_hooks';
@@ -370,3 +372,34 @@ export const assertFile : (file: AdvancedFile | Buffer, outfileName: string, des
   }
   return file;
 } 
+
+/**
+ * Checks if a given path exists.
+ * 
+ * If exists, returns the resolved absolute path. Otherwise returns false.
+ * 
+ * @param _path a relative, absolute or homedir path to a folder or a file
+ * @param failSilent If you're expecting for the file to not exist and just want the `false` response then set this to true to prevent false-positive error messages in the logs.
+ * @returns string | false
+ */
+export const pathExists : (_path : string, failSilent?: boolean) => Promise<string | false> = async (_path : string, failSilent ?: boolean) => {
+  _path = fixPath(_path)
+  try {
+      await fsp.access(_path,  fsp.constants.R_OK | fsp.constants.W_OK)
+      return _path;
+  } catch (error) {
+      if(!failSilent) log.error('Given check path threw an error', error)
+      return false;
+  }
+}
+
+/**
+ * Returns an absolute file path reference
+ * @param _path a relative, absolute or homedir path to a folder or a file
+ * @returns string
+ */
+export const fixPath : (_path : string) => string = ( _path : string) => {
+  _path = _path.replace("~",homedir())
+  _path = _path.includes('./') ? path.join(process.cwd(), _path) : _path;
+  return _path;
+}

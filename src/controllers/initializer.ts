@@ -225,7 +225,7 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
       //kill the browser
       spinner.fail("Session data most likely expired due to manual host account logout. Please re-authenticate this session.")
       await kill(waPage)
-      if(config?.deleteSessionDataOnLogout) deleteSessionData(config)
+      if(config?.deleteSessionDataOnLogout) await deleteSessionData(config)
       if(config?.throwOnExpiredSessionData) {
         throw new SessionExpiredError();
       } else

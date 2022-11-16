@@ -1,9 +1,9 @@
 import * as path from 'path';
-import * as fs from 'fs';
+import * as fs from 'fs/promises';
 import ON_DEATH from 'death';
 // import puppeteer from 'puppeteer-extra';
 import { puppeteerConfig, useragent, width, height} from '../config/puppeteer.config';
-import { Browser, CDPSession, Page } from 'puppeteer';
+import { Browser, Page } from 'puppeteer';
 import { Spin, EvEmitter } from './events';
 import { ConfigObject } from '../api/model';
 import { FileNotFoundError, getTextFile } from 'pico-s3';
@@ -11,7 +11,7 @@ import { FileNotFoundError, getTextFile } from 'pico-s3';
 const puppeteer = require('puppeteer-extra')
 import terminate from 'terminate/promise';
 import { log } from '../logging/logging';
-import { now, processSendData, timeout, timePromise } from '../utils/tools';
+import { now, pathExists, processSendData, timeout, timePromise } from '../utils/tools';
 import { QRManager } from './auth';
 import { scriptLoader } from './script_preloader';
 import { earlyInjectionCheck } from './patch_manager';
@@ -155,7 +155,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
    * AUTH
    */
   spinner?.info('Loading session data')
-  let sessionjson : any = getSessionDataFromFile(sessionId, config, spinner)
+  let sessionjson : any = await getSessionDataFromFile(sessionId, config, spinner)
   if(!sessionjson && sessionjson !== "" && config.sessionDataBucketAuth) {
     try {
       spinner?.info('Unable to find session data file locally, attempting to find session data in cloud storage..')
@@ -227,16 +227,16 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
   return waPage;
 }
 
-const getSessionDataFromFile = (sessionId: string, config: ConfigObject, spinner ?: Spin) => {
+const getSessionDataFromFile = async (sessionId: string, config: ConfigObject, spinner ?: Spin) => {
   if(config?.sessionData == "NUKE") return '' 
   //check if [session].json exists in __dirname
-  const sessionjsonpath = getSessionDataFilePath(sessionId,config)
+  const sessionjsonpath = await getSessionDataFilePath(sessionId,config)
   let sessionjson = '';
   const sd = process.env[`${sessionId.toUpperCase()}_DATA_JSON`] ? JSON.parse(process.env[`${sessionId.toUpperCase()}_DATA_JSON`]) : config?.sessionData;
   sessionjson = (typeof sd === 'string' && sd !== "") ? JSON.parse(Buffer.from(sd, 'base64').toString('ascii')) : sd;
-  if (sessionjsonpath && typeof sessionjsonpath == 'string' && fs.existsSync(sessionjsonpath)) {
+  if (sessionjsonpath && typeof sessionjsonpath == 'string' && await pathExists(sessionjsonpath)) {
     spinner.succeed(`Found session data file: ${sessionjsonpath}`)
-    const s = fs.readFileSync(sessionjsonpath, "utf8");
+    const s = await fs.readFile(sessionjsonpath, "utf8");
     try {
       sessionjson = JSON.parse(s);
     } catch (error) {
@@ -256,43 +256,41 @@ const getSessionDataFromFile = (sessionId: string, config: ConfigObject, spinner
   return sessionjson;
 }
 
-export const deleteSessionData = (config: ConfigObject) : boolean => {
-  const sessionjsonpath = getSessionDataFilePath(config?.sessionId || 'session', config)
-  if(typeof sessionjsonpath == 'string' && fs.existsSync(sessionjsonpath)) {
+export const deleteSessionData = async (config: ConfigObject) : Promise<boolean> => {
+  const sessionjsonpath = await getSessionDataFilePath(config?.sessionId || 'session', config)
+  if(typeof sessionjsonpath == 'string' && await pathExists(sessionjsonpath)) {
     const l = `logout detected, deleting session data file: ${sessionjsonpath}`
     console.log(l)
     log.info(l)
-    fs.unlinkSync(sessionjsonpath);
+    await fs.unlink(sessionjsonpath);
   }
-  const mdDir = config['userDataDir'];
-  if(mdDir) {
+  const mdDir = await pathExists(config['userDataDir']);
+  if(config['userDataDir'] && mdDir) {
     log.info(`Deleting MD session directory: ${mdDir}`)
-    //@ts-ignore
-    fs.rmdirSync(mdDir, { force: true, recursive: true})
+    await fs.rm(mdDir, { force: true, recursive: true})
+    log.info(`MD directory ${mdDir} deleted: ${!(await pathExists(mdDir, true))}`)
   }
   return true;
 }
 
-export const invalidateSesssionData = (config: ConfigObject) : boolean => {
-  const sessionjsonpath = getSessionDataFilePath(config?.sessionId || 'session', config)
-  if(typeof sessionjsonpath == 'string' && fs.existsSync(sessionjsonpath)) {
+export const invalidateSesssionData = async (config: ConfigObject) : Promise<boolean> => {
+  const sessionjsonpath = await getSessionDataFilePath(config?.sessionId || 'session', config)
+  if(typeof sessionjsonpath == 'string' && await pathExists(sessionjsonpath)) {
     const l = `logout detected, invalidating session data file: ${sessionjsonpath}`
     console.log(l)
     log.info(l)
-    fs.writeFile(sessionjsonpath, "LOGGED OUT", (err) => {
-      if (err) { console.error(err); return; }
-    });
+    fs.writeFile(sessionjsonpath, "LOGGED OUT");
   }
   return true;
 }
 
-export const getSessionDataFilePath = (sessionId: string, config: ConfigObject) : string | false => {
+export const getSessionDataFilePath = async (sessionId: string, config: ConfigObject) : Promise<string | false> => {
   const p = require?.main?.path || process?.mainModule?.path;
   const sessionjsonpath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(process.cwd(),config?.sessionDataPath || '')) : path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
   const altSessionJsonPath = p ? (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(p,config?.sessionDataPath || '')) : path.join(path.resolve(p,config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`) : false;
-  if(fs.existsSync(sessionjsonpath)){
+  if(pathExists(sessionjsonpath)){
     return sessionjsonpath
-  } else if(p && altSessionJsonPath && fs.existsSync(altSessionJsonPath)){
+  } else if(p && altSessionJsonPath && await pathExists(altSessionJsonPath)){
     return altSessionJsonPath
   }
   return false
@@ -401,9 +399,9 @@ async function initBrowser(sessionId?: string, config:any={}, spinner ?: Spin) {
     spinner?.info(`Data dir: ${config["userDataDir"]}`)
   }
   if(config?.corsFix) args.push('--disable-web-security');
-  if(config["userDataDir"] && !fs.existsSync(config["userDataDir"])) {
+  if(config["userDataDir"] && !(await pathExists(config["userDataDir"]))) {
     spinner?.info(`Data dir doesnt exist, creating...: ${config["userDataDir"]}`)
-    fs.mkdirSync(config["userDataDir"], {recursive: true});
+    fs.mkdir(config["userDataDir"], {recursive: true});
   }
   const browser = (config?.browserWSEndpoint) ? await puppeteer.connect({...config}): await puppeteer.launch({
     headless: true,

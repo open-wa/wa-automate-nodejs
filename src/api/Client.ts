@@ -369,7 +369,7 @@ export class Client {
             await this._queues?.onLogout?.onEmpty();
             await this._queues?.onLogout?.onIdle();
             await invalidateSesssionData(this._createConfig)
-            if(this._createConfig?.deleteSessionDataOnLogout) deleteSessionData(this._createConfig)
+            if(this._createConfig?.deleteSessionDataOnLogout) await deleteSessionData(this._createConfig)
             if(this._createConfig?.killClientOnLogout) {
               console.log("Session logged out. Killing client")
               log.warn("Session logged out. Killing client")
