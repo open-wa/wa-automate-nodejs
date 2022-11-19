@@ -6,7 +6,7 @@ import datauri from 'datauri'
 import isUrl from 'is-url-superb'
 import { JsonObject } from 'type-fest';
 import { AdvancedFile, ConfigObject, CustomError, DataURL, ERROR_NAME } from '../api/model';
-import { default as axios, AxiosRequestConfig } from 'axios';
+import { default as axios, AxiosRequestConfig, AxiosResponseHeaders } from 'axios';
 import { SessionInfo } from '../api/model/sessionInfo';
 import { execSync } from 'child_process';
 import { homedir } from 'os'
@@ -17,6 +17,17 @@ import mime from 'mime';
 import { tmpdir } from 'os';
 import { Readable } from "stream";
 import { log } from "../logging/logging";
+import { import_ } from '@brillout/import'
+
+let _ft = null;
+
+const ft = async () =>{
+  if(!_ft) {
+    const x = await import_('file-type');
+    _ft = x
+  }
+  return _ft;
+}
 
 //@ts-ignore
 process.send = process.send || function () {};
@@ -114,16 +125,17 @@ export const isBase64: (str: string) => boolean = (str: string) => {
 export const isDataURL: (s: string) => boolean = (s: string) =>
   !!s.match(/^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/g);
 
+
 /**
  * @internal
- * A convinience method to download the [[DataURL]] of a file
+ * A convinience method to download the buffer of a downloaded file
  * @param url The url
  * @param optionsOverride You can use this to override the [axios request config](https://github.com/axios/axios#request-config)
  */
-export const getDUrl: (
+export const getBufferFromUrl: (
   url: string,
   optionsOverride?: AxiosRequestConfig
-) => Promise<DataURL> = async (
+) => Promise<[Buffer, AxiosResponseHeaders]> = async (
   url: string,
   optionsOverride: AxiosRequestConfig = {}
 ) => {
@@ -139,9 +151,32 @@ export const getDUrl: (
       ...optionsOverride,
       responseType: 'arraybuffer',
     });
+    return [Buffer.from(res.data, 'binary'), res.headers];
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+/**
+ * @internal
+ * A convinience method to download the [[DataURL]] of a file
+ * @param url The url
+ * @param optionsOverride You can use this to override the [axios request config](https://github.com/axios/axios#request-config)
+ */
+export const getDUrl: (
+  url: string,
+  optionsOverride?: AxiosRequestConfig
+) => Promise<DataURL> = async (
+  url: string,
+  optionsOverride: AxiosRequestConfig = {}
+) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const [buff, headers] = await getBufferFromUrl(url, optionsOverride)
     const dUrl: DataURL = `data:${
-      res.headers['content-type']
-    };base64,${Buffer.from(res.data, 'binary').toString('base64')}` as DataURL;
+      headers['content-type']
+    };base64,${buff.toString('base64')}` as DataURL;
     return dUrl;
   } catch (error) {
     throw error;
@@ -260,6 +295,10 @@ export const generateGHIssueLink = (config : ConfigObject, sessionInfo: SessionI
  */
 export const ensureDUrl = async (file : string | Buffer, requestConfig: AxiosRequestConfig = {}, filename?: string) => {
   if(Buffer.isBuffer(file)) {
+    if(!filename) {
+      const { ext } = await (await ft()).fileTypeFromBuffer(file);
+      filename = `file.${ext}`;
+    }
     return `data:${mime.lookup(filename)};base64,${file.toString('base64').split(',')[1]}`
   } else
   if(!isDataURL(file) && !isBase64(file)) {
@@ -270,6 +309,10 @@ export const ensureDUrl = async (file : string | Buffer, requestConfig: AxiosReq
       } else if(isUrl(file)){
         file = await getDUrl(file, requestConfig);
       } else throw new CustomError(ERROR_NAME.FILE_NOT_FOUND,'Cannot find file. Make sure the file reference is relative, a valid URL or a valid DataURL')
+    }
+    if(!filename) {
+      const { ext } = await (await ft()).fileTypeFromBuffer(Buffer.from(file.split(',')[1], 'base64'));
+      filename = `file.${ext}`;
     }
     if(file.includes("data:") && file.includes("undefined") || file.includes("application/octet-stream") && filename && mime.lookup(filename)) {
       file = `data:${mime.lookup(filename)};base64,${file.split(',')[1]}`
@@ -350,13 +393,16 @@ export const assertFile : (file: AdvancedFile | Buffer, outfileName: string, des
       /**
        * Create a temp file in tempdir, return the tempfile.
        */
-      const tempFilePath = path.join(tmpdir(),`${Crypto.randomBytes(6).readUIntLE(0, 6).toString(36)}.${outfileName}`);
-      log.info(`Saved temporary file to ${tempFilePath}`)
+      let tfn = `${Crypto.randomBytes(6).readUIntLE(0, 6).toString(36)}.${outfileName}`;
       if(inputType != FileInputTypes.BUFFER){
         file = await ensureDUrl(file as string, requestConfig, outfileName);
+        const ext = mime.extension(file.match(/[^:]\w+\/[\w-+\d.]+(?=;|,)/)[0]);
+        if(ext && !tfn.endsWith(ext)) tfn = `${tfn}.${ext}`;
         file = Buffer.from(file.split(',')[1], 'base64')
       }
+      const tempFilePath = path.join(tmpdir(),tfn);
       await fs.writeFileSync(tempFilePath, file);
+      log.info(`Saved temporary file to ${tempFilePath}`)
       return tempFilePath
       break;
     }
