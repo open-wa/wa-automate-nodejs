@@ -123,8 +123,9 @@ export async function getLicense(config: ConfigObject, me: {
       //run the funciton to get the key
       config.licenseKey = await (config.licenseKey as (sessionId: string, number: string) => Promise<string>)(config.sessionId, me._serialized)
     }
-    if(typeof config.licenseKey === "object") {
+    if(config.licenseKey && typeof config.licenseKey === "object") {
       //attempt to get the key from the object
+      //@ts-ignore
       config.licenseKey = config.licenseKey[me._serialized] || config.licenseKey[config.sessionId]
     }
     //asume by now the key is a string
