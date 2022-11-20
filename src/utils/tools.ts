@@ -19,6 +19,10 @@ import { Readable } from "stream";
 import { log } from "../logging/logging";
 import { import_ } from '@brillout/import'
 
+const IGNORE_FILE_EXTS = [
+  'mpga'
+]
+
 let _ft = null;
 
 const ft = async () =>{
@@ -397,7 +401,7 @@ export const assertFile : (file: AdvancedFile | Buffer, outfileName: string, des
       if(inputType != FileInputTypes.BUFFER){
         file = await ensureDUrl(file as string, requestConfig, outfileName);
         const ext = mime.extension(file.match(/[^:]\w+\/[\w-+\d.]+(?=;|,)/)[0]);
-        if(ext && !tfn.endsWith(ext)) tfn = `${tfn}.${ext}`;
+        if(ext && !IGNORE_FILE_EXTS.includes(ext) && !tfn.endsWith(ext)) tfn = `${tfn}.${ext}`;
         file = Buffer.from(file.split(',')[1], 'base64')
       }
       const tempFilePath = path.join(tmpdir(),tfn);
