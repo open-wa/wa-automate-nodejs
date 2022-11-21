@@ -18,6 +18,12 @@ import { tmpdir } from 'os';
 import { Readable } from "stream";
 import { log } from "../logging/logging";
 import { import_ } from '@brillout/import'
+const fsconstants = fsp.constants || {
+  F_OK: 0,
+  R_OK: 4,
+  W_OK: 2,
+  X_OK: 1
+};
 
 const IGNORE_FILE_EXTS = [
   'mpga'
@@ -435,7 +441,7 @@ export const assertFile : (file: AdvancedFile | Buffer, outfileName: string, des
 export const pathExists : (_path : string, failSilent?: boolean) => Promise<string | false> = async (_path : string, failSilent ?: boolean) => {
   _path = fixPath(_path)
   try {
-      await fsp.access(_path,  fsp.constants.R_OK | fsp.constants.W_OK)
+      await fsp.access(_path, fsconstants.R_OK | fsconstants.W_OK)
       return _path;
   } catch (error) {
       if(!failSilent) log.error('Given check path threw an error', error)
