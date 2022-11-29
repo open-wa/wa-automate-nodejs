@@ -44,7 +44,7 @@ const AUTO_DECRYPT: MessagePreProcessor =
 
 const AUTO_DECRYPT_SAVE: MessagePreProcessor = async (message: Message, client: Client) => {
   if (message.deprecatedMms3Url && message.mimetype) {
-    const filename = `${message.mId}.${mime.extension(
+    const filename = `${message.mId}.${mime.getExtension(
       message.mimetype
     )}`;
     const filePath = `media/${filename}`;
@@ -72,7 +72,7 @@ const UPLOAD_CLOUD: MessagePreProcessor = async (message: Message, client: Clien
     if(!uploadQueue) {
       uploadQueue = new PQueue({ concurrency: 2, interval: 1000, carryoverConcurrencyCount: true, intervalCap: 2 });
     }
-    const filename = `${message.mId || `${Date.now()}`}.${mime.extension(
+    const filename = `${message.mId || `${Date.now()}`}.${mime.getExtension(
       message.mimetype
     )}`;
     const mediaData = await client.decryptMedia(message);

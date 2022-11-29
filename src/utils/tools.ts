@@ -309,7 +309,7 @@ export const ensureDUrl = async (file : string | Buffer, requestConfig: AxiosReq
       const { ext } = await (await ft()).fileTypeFromBuffer(file);
       filename = `file.${ext}`;
     }
-    return `data:${mime.lookup(filename)};base64,${file.toString('base64').split(',')[1]}`
+    return `data:${mime.getType(filename)};base64,${file.toString('base64').split(',')[1]}`
   } else
   if(!isDataURL(file) && !isBase64(file)) {
       //must be a file then
@@ -324,8 +324,8 @@ export const ensureDUrl = async (file : string | Buffer, requestConfig: AxiosReq
       const { ext } = await (await ft()).fileTypeFromBuffer(Buffer.from(file.split(',')[1], 'base64'));
       filename = `file.${ext}`;
     }
-    if(file.includes("data:") && file.includes("undefined") || file.includes("application/octet-stream") && filename && mime.lookup(filename)) {
-      file = `data:${mime.lookup(filename)};base64,${file.split(',')[1]}`
+    if(file.includes("data:") && file.includes("undefined") || file.includes("application/octet-stream") && filename && mime.getType(filename)) {
+      file = `data:${mime.getType(filename)};base64,${file.split(',')[1]}`
     }
     return file;
 }
@@ -406,7 +406,7 @@ export const assertFile : (file: AdvancedFile | Buffer, outfileName: string, des
       let tfn = `${Crypto.randomBytes(6).readUIntLE(0, 6).toString(36)}.${outfileName}`;
       if(inputType != FileInputTypes.BUFFER){
         file = await ensureDUrl(file as string, requestConfig, outfileName);
-        const ext = mime.extension(file.match(/[^:]\w+\/[\w-+\d.]+(?=;|,)/)[0]);
+        const ext = mime.getExtension(file.match(/[^:]\w+\/[\w-+\d.]+(?=;|,)/)[0]);
         if(ext && !IGNORE_FILE_EXTS.includes(ext) && !tfn.endsWith(ext)) tfn = `${tfn}.${ext}`;
         file = Buffer.from(file.split(',')[1], 'base64')
       }
