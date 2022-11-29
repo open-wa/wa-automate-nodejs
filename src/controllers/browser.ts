@@ -394,7 +394,7 @@ async function initBrowser(sessionId?: string, config:any={}, spinner ?: Spin) {
   let args = [...puppeteerConfig.chromiumArgs,...(config?.chromiumArgs||[])];
   if(config?.multiDevice) {
     args = args.filter(x=>x!='--incognito')
-    config["userDataDir"] = config["userDataDir"] ||  `${config?.sessionDataPath || config?.inDocker ? '/sessions' : config?.sessionDataPath || '.' }/_IGNORE_${config?.sessionId || 'session'}`
+    config["userDataDir"] = config["userDataDir"] ||  `${config?.sessionDataPath || (config?.inDocker ? '/sessions' : config?.sessionDataPath || '.') }/_IGNORE_${config?.sessionId || 'session'}`
     spinner?.info('MD Enabled, turning off incognito mode.')
     spinner?.info(`Data dir: ${config["userDataDir"]}`)
   }
