@@ -1,9 +1,12 @@
 {
     "name": "@open-wa/wa-automate-types-only",
-    "version": "4.49.1",
+    "version": "4.51.1",
     "description": "Types generated from the @open-wa/wa-automate package",
     "scripts": {
         "build": "tsc",
+        "deploy": "npm run build && npm version",
+        "pub": "npm run build && npm run _ver && npm publish",
+        "_ver": "awk -F'\"' '/\"version\": \".+\"/{ print $4; exit; }' ../package.json | xargs -I{} npm version {} --allow-same-version",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "types": "dist/index.d.ts",
