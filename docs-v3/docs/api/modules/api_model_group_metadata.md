@@ -14,5 +14,6 @@ custom_edit_url: null
 ## Interfaces
 
 - [GroupMetadata](/api/interfaces/api_model_group_metadata.GroupMetadata.md)
+- [NewCommunityGroup](/api/interfaces/api_model_group_metadata.NewCommunityGroup.md)
 - [Participant](/api/interfaces/api_model_group_metadata.Participant.md)
 - [ParticipantChangedEventModel](/api/interfaces/api_model_group_metadata.ParticipantChangedEventModel.md)

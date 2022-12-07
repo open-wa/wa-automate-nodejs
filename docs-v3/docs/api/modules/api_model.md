@@ -240,6 +240,12 @@ Re-exports [GroupChatServer](/api/types/api_model_aliases.GroupChatServer.md)
 
 ___
 
+### GroupId
+
+Re-exports [GroupId](/api/types/api_model_aliases.GroupId.md)
+
+___
+
 ### Label
 
 Re-exports [Label](/api/interfaces/api_model_label.Label.md)
@@ -333,6 +339,24 @@ ___
 ### PageEvaluationTimeout
 
 Re-exports [PageEvaluationTimeout](/api/classes/api_model_errors.PageEvaluationTimeout.md)
+
+___
+
+### PollData
+
+Re-exports [PollData](/api/interfaces/api_model_message.PollData.md)
+
+___
+
+### PollOption
+
+Re-exports [PollOption](/api/interfaces/api_model_message.PollOption.md)
+
+___
+
+### PollVote
+
+Re-exports [PollVote](/api/interfaces/api_model_message.PollVote.md)
 
 ___
 

@@ -21,6 +21,7 @@ custom_edit_url: null
 - [GetURL](/api/types/api_model_aliases.GetURL.md)
 - [GroupChatId](/api/types/api_model_aliases.GroupChatId.md)
 - [GroupChatServer](/api/types/api_model_aliases.GroupChatServer.md)
+- [GroupId](/api/types/api_model_aliases.GroupId.md)
 - [MessageId](/api/types/api_model_aliases.MessageId.md)
 - [NonSerializedId](/api/types/api_model_aliases.NonSerializedId.md)
 - [WaServers](/api/types/api_model_aliases.WaServers.md)

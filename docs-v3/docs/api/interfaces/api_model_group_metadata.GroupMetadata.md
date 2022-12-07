@@ -17,6 +17,14 @@ The timestamp of when the group was created
 
 ___
 
+### defaultSubgroup
+
+• **defaultSubgroup**: `boolean`
+
+Communities have a default group chat
+
+___
+
 ### desc
 
 • `Optional` **desc**: `string`
@@ -33,11 +41,41 @@ The account that set the description last.
 
 ___
 
+### groupType
+
+• **groupType**: ``"DEAFULT"`` \| ``"SUBGROUP"`` \| ``"COMMUNITY"``
+
+The type of group
+
+___
+
 ### id
 
 • **id**: [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md)
 
 The chat id of the group GroupChatId
+
+___
+
+### isParentGroup
+
+• `Optional` **isParentGroup**: `boolean`
+
+Is this group a parent group (a.k.a community)
+
+___
+
+### isParentGroupClosed
+
+• **isParentGroupClosed**: `boolean`
+
+___
+
+### joinedSubgroups
+
+• **joinedSubgroups**: \`${number}@g.us\`[]
+
+List of Group IDs that the host account has joined as part of this community
 
 ___
 

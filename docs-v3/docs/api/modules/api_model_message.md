@@ -16,4 +16,7 @@ custom_edit_url: null
 - [Message](/api/interfaces/api_model_message.Message.md)
 - [MessageInfo](/api/interfaces/api_model_message.MessageInfo.md)
 - [MessageInfoInteraction](/api/interfaces/api_model_message.MessageInfoInteraction.md)
+- [PollData](/api/interfaces/api_model_message.PollData.md)
+- [PollOption](/api/interfaces/api_model_message.PollOption.md)
+- [PollVote](/api/interfaces/api_model_message.PollVote.md)
 - [QuoteMap](/api/interfaces/api_model_message.QuoteMap.md)

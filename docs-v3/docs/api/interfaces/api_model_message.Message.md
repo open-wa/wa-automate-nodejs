@@ -198,6 +198,16 @@ If the message has been forwarded
 
 ___
 
+### isGroupJoinRequest
+
+• `Optional` **isGroupJoinRequest**: `boolean`
+
+When a user requests to join a group wihtin a community the request is received by the host as a message. This boolean will allow you to easily determine if the incoming message is a request to join a group.
+
+If this is `true` then you need to determine within your own code whether or not to accept the user to the group which is indicated with `quotedRemoteJid` using `addParticipant`.
+
+___
+
 ### isGroupMsg
 
 • **isGroupMsg**: `boolean`
@@ -339,6 +349,14 @@ ___
 
 ___
 
+### pollOptions
+
+• `Optional` **pollOptions**: [`PollOption`](/api/interfaces/api_model_message.PollOption.md)[]
+
+The options of a poll
+
+___
+
 ### quoteMap
 
 • **quoteMap**: [`QuoteMap`](/api/interfaces/api_model_message.QuoteMap.md)
@@ -356,6 +374,22 @@ ___
 ### quotedMsgObj
 
 • `Optional` **quotedMsgObj**: [`Message`](/api/interfaces/api_model_message.Message.md)
+
+___
+
+### quotedParentGroupJid
+
+• `Optional` **quotedParentGroupJid**: `string`
+
+The parent group ID (community ID - communities are just groups made up of other groups) of the group represented by `quotedRemoteJid`
+
+___
+
+### quotedRemoteJid
+
+• `Optional` **quotedRemoteJid**: `string`
+
+The ID of the quoted group. Usually present when a user is requesting to join a group.
 
 ___
 
@@ -387,6 +421,14 @@ ___
 • **sender**: [`Contact`](/api/interfaces/api_model_contact.Contact.md)
 
 The contact object of the account that sent the message
+
+___
+
+### senderId
+
+• `Optional` **senderId**: `string`
+
+The ID of the message sender
 
 ___
 

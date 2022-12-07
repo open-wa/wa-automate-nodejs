@@ -340,6 +340,32 @@ Unblock contact
 
 ___
 
+### createCommunity <div class="label license insiders">insiders</div>
+
+▸ **createCommunity**(`communityName`, `communitySubject`, `icon`, `existingGroups?`, `newGroups?`): `Promise`<\`${number}@g.us\`\>
+
+:::license May require insiders license
+Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
+:::
+
+Create a new community
+
+#### Parameters
+
+| Name | Type | Default value | Description |
+| :------ | :------ | :------ | :------ |
+| `communityName` | `string` | `undefined` | The community name |
+| `communitySubject` | `string` | `undefined` | - |
+| `icon` | [`DataURL`](/api/types/api_model_aliases.DataURL.md) | `undefined` | DataURL of a 1:1 ratio jpeg for the community icon |
+| `existingGroups` | [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md)[] | `[]` | An array of existing group IDs, that are not already part of a community, to add to this new community. |
+| `newGroups?` | [`NewCommunityGroup`](/api/interfaces/api_model_group_metadata.NewCommunityGroup.md)[] | `undefined` | An array of new group objects that |
+
+#### Returns
+
+`Promise`<\`${number}@g.us\`\>
+
+___
+
 ### createGroup
 
 ▸ **createGroup**(`groupName`, `contacts`): `Promise`<[`GroupChatCreationResponse`](/api/interfaces/api_model_chat.GroupChatCreationResponse.md)\>
@@ -1695,6 +1721,24 @@ ___
 #### Returns
 
 `Page`
+
+___
+
+### getPollData
+
+▸ **getPollData**(`messageId`): `Promise`<[`PollData`](/api/interfaces/api_model_message.PollData.md)\>
+
+Returns poll data including results and votes.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `messageId` | [`MessageId`](/api/types/api_model_aliases.MessageId.md) | The message id of the Poll |
+
+#### Returns
+
+`Promise`<[`PollData`](/api/interfaces/api_model_message.PollData.md)\>
 
 ___
 
@@ -3079,7 +3123,7 @@ ___
 
 ### sendFile
 
-▸ **sendFile**(`to`, `file`, `filename`, `caption`, `quotedMsgId?`, `waitForId?`, `ptt?`, `withoutPreview?`, `hideTags?`, `viewOnce?`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
+▸ **sendFile**(`to`, `file`, `filename`, `caption`, `quotedMsgId?`, `waitForId?`, `ptt?`, `withoutPreview?`, `hideTags?`, `viewOnce?`, `requestConfig?`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
 Sends a file to given chat, with caption or not, using base64. This is exactly the same as sendImage
 
@@ -3101,6 +3145,7 @@ If you want a specific filetype, then explcitly select the correct mime-type fro
 | `withoutPreview?` | `boolean` | boolean default: false set this to true if you want to send the file without a preview (i.e as a file). This is useful for preventing auto downloads on recipient devices. |
 | `hideTags?` | `boolean` | boolean default: false [INSIDERS] set this to try silent tag someone in the caption |
 | `viewOnce?` | `boolean` | - |
+| `requestConfig?` | `any` | - |
 
 #### Returns
 
