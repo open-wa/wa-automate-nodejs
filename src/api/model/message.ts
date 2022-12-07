@@ -152,6 +152,24 @@ export interface Message {
   deprecatedMms3Url: string;
   quotedMsg ?: Message;
   quotedMsgObj ?: Message;
+  /**
+   * When a user requests to join a group wihtin a community the request is received by the host as a message. This boolean will allow you to easily determine if the incoming message is a request to join a group.
+   * 
+   * If this is `true` then you need to determine within your own code whether or not to accept the user to the group which is indicated with `quotedRemoteJid` using `addParticipant`.
+   */
+  isGroupJoinRequest ?: boolean;
+  /**
+   * The ID of the message sender
+   */
+  senderId ?: string,
+  /**
+   * The ID of the quoted group. Usually present when a user is requesting to join a group.
+   */
+  quotedRemoteJid ?: string,
+  /**
+   * The parent group ID (community ID - communities are just groups made up of other groups) of the group represented by `quotedRemoteJid`
+   */
+  quotedParentGroupJid ?: string,
   mediaData: unknown;
   shareDuration: number;
   isAnimated: boolean;
@@ -190,6 +208,76 @@ export interface Message {
       "description": string,
       "buttonText":  string,
     }
+    /**
+     * The options of a poll
+     */
+    pollOptions ?: PollOption[]
+}
+
+export interface PollOption {
+  name: string,
+  localId: number
+}
+
+export interface PollData {
+  /**
+   * The total amount of votes recorded so far
+   */
+  totalVotes: number,
+  /**
+   * The poll options and their respective count of votes.
+   */
+  pollOptions: (PollOption & { count: number })[],
+  /**
+   * An arrray of vote objects
+   */
+  votes: PollVote[]
+  /**
+   * The message object of the poll
+   */
+  pollMessage: Message
+}
+
+export interface PollVote {
+  ack: number,
+  /**
+   * The message ID of this vote. For some reason this is different from the msgKey and includes exclamaition marks.
+   */
+  id: string,
+  /**
+   * The message key of this vote
+   */
+  msgKey: string,
+  /**
+   * The Message ID of the original Poll message
+   */
+  parentMsgKey: string,
+  /**
+   * The original poll options available on the poll
+   */
+  pollOptions: PollOption[],
+  /**
+   * The selected option IDs of the voter
+   */
+  selectedOptionLocalIds: number[],
+  /**
+   * The selected option values by this voter
+   */
+  selectedOptionValues: string[],
+  /**
+   * The contact ID of the voter
+   */
+  sender: ContactId,
+  /**
+   * The contact object of the voter
+   */
+  senderObj: Contact,
+  /**
+   * Timestamp of the vote
+   */
+  senderTimestampMs: number,
+  stale: boolean
+
 }
 
 export interface QuoteMap {

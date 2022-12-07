@@ -2,7 +2,7 @@ import { default as mime } from 'mime-types';
 import { Page, EvaluateFunc, PageEventObject } from 'puppeteer';
 import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration, GroupChatCreationResponse, EphemeralDuration } from './model/chat';
 import { Contact, NumberCheck } from './model/contact';
-import { Message, MessageInfo } from './model/message';
+import { Message, MessageInfo, PollData } from './model/message';
 import { default as axios, AxiosRequestConfig} from 'axios';
 import { ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent } from '../config/puppeteer.config'
@@ -115,6 +115,7 @@ declare module WAPI {
   const setProfilePic: (data: string) => Promise<boolean>;
   const setPresence: (available: boolean) => void;
   const getMessageReaders: (messageId: string) => Contact[];
+  const getPollData: (messageId: string) => any;
   const getStatus: (contactId: string) => void;
   const B: (chatId: string, payload: any) => MessageId;
   const getCommonGroups: (contactId: string) => Promise<{id:string,title:string}[]>;
@@ -3487,6 +3488,19 @@ public async getStatus(contactId: ContactId) : Promise<{
       (messageId) => WAPI.getMessageReaders(messageId),
       messageId
     ) as Promise<Contact[]>;
+  }
+
+
+  /**
+   * Returns poll data including results and votes.
+   * 
+   * @param messageId The message id of the Poll
+   */
+  public async getPollData(messageId: MessageId) : Promise<PollData> {
+    return await this.pup(
+      (messageId) => WAPI.getPollData(messageId),
+      messageId
+    ) as Promise<PollData>;
   }
 
   /**
