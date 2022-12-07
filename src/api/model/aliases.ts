@@ -28,13 +28,18 @@ export type CountryCode = 1 | 7 | 20 | 27 | 30 | 31 | 32 | 33 | 34 | 36 | 39 | 4
 export type AccountNumber = `${number}`;
 
 /**
+ * A new group or community has the format of a random number followed by `@g.us`
+ */
+export type GroupId = `${number}@${GroupChatServer}`;
+
+/**
  * A group chat ends with `@g.us` and usually has two parts, the timestamp of when it was created, and the user id of the number that created the group. For example `[creator number]-[timestamp]@g.us`
  * 
  * Example:
  * 
  * `"447123456789-1445627445@g.us"`
  */
-export type GroupChatId = `${AccountNumber}-${number}@${GroupChatServer}` | `${number}@${GroupChatServer}`;
+export type GroupChatId = `${AccountNumber}-${number}@${GroupChatServer}` | GroupId;
 
 /**
  * A contact id ends with `@c.us` and only contains the number of the contact. For example, if the country code of a contact is `44` and their number is `7123456789` then the contact id would be `447123456789@c.us`

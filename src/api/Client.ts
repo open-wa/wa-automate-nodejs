@@ -4,7 +4,7 @@ import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration, GroupChatC
 import { Contact, NumberCheck } from './model/contact';
 import { Message, MessageInfo, PollData } from './model/message';
 import { default as axios, AxiosRequestConfig} from 'axios';
-import { ParticipantChangedEventModel } from './model/group-metadata';
+import { NewCommunityGroup, ParticipantChangedEventModel } from './model/group-metadata';
 import { useragent } from '../config/puppeteer.config'
 import { ConfigObject, STATE, LicenseType, Webhook, OnError, EventPayload } from './model';
 import { PageEvaluationTimeout, CustomError, ERROR_NAME, AddParticipantError  } from './model/errors';
@@ -19,7 +19,7 @@ import { readJsonSync } from 'fs-extra'
 import { HealthCheck, SessionInfo } from './model/sessionInfo';
 import { deleteSessionData, injectApi, initPage, kill, invalidateSesssionData} from '../controllers/browser';
 import { isAuthenticated, QRManager, waitForRipeSession } from '../controllers/auth';
-import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, AdvancedFile } from './model/aliases';
+import { ChatId, GroupChatId, Content, Base64, MessageId, ContactId, DataURL, AdvancedFile, GroupId } from './model/aliases';
 import { bleachMessage, decryptMedia } from '@open-wa/wa-decrypt';
 import * as path from 'path';
 import { CustomProduct, Order, Product } from './model/product';
@@ -136,6 +136,7 @@ declare module WAPI {
   const sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => Promise<string | boolean>;
   const sendStickerAsReply: (webpBase64: string, to: string, messageId: string, metadata?: any) => Promise<string | boolean>;
   const createGroup: (groupName: string, contactId: string|string[]) => Promise<any>;
+  const createCommunity: (communityName: string, communitySubject: string, icon : string, existingGroups : string[], newGroups : any[]) => Promise<any>;
   const sendCustomProduct: (to: ChatId, image: DataURL, productData: CustomProduct) => Promise<string | boolean>;
   const sendSeen: (to: string) => Promise<boolean>;
   const markAsUnread: (to: string) => Promise<boolean>;
@@ -3239,6 +3240,24 @@ public async getStatus(contactId: ContactId) : Promise<{
     return await this.pup(
       ({ groupName, contacts }) => WAPI.createGroup(groupName, contacts),
       { groupName, contacts }
+    );
+  }
+
+  /**
+   * {@license:insiders@}
+   * 
+   * Create a new community
+   * 
+   * @param communityName The community name
+   * @param communitySubject: The community subject line
+   * @param icon DataURL of a 1:1 ratio jpeg for the community icon
+   * @param existingGroups An array of existing group IDs, that are not already part of a community, to add to this new community.
+   * @param newGroups An array of new group objects that
+   */
+   public async createCommunity(communityName: string, communitySubject: string, icon : DataURL, existingGroups : GroupChatId[] = [], newGroups ?: NewCommunityGroup[]) : Promise<GroupId> {
+    return await this.pup(
+      ({ communityName, communitySubject, icon, existingGroups, newGroups  }) => WAPI.createCommunity(communityName, communitySubject, icon, existingGroups, newGroups ),
+      { communityName, communitySubject, icon, existingGroups, newGroups  }
     );
   }
 
