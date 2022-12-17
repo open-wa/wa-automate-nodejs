@@ -19,7 +19,7 @@ import { injectProgObserver } from './init_patch';
 
 let browser,
 wapiInjected = false,
-dumbCache = undefined,
+pageCache = undefined,
 wapiAttempts = 1;
 
 export let BROWSER_START_TS = 0;
@@ -102,31 +102,49 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
   if(proxyAddr) {
     proxy = (await import('smashah-puppeteer-page-proxy')).default
   }
+  /**
+   * Detect a locally cached page
+   */
+  if(process.env.WA_LOCAL_PAGE_CACHE) {
+    const localPageCacheExists = await pathExists(process.env.WA_LOCAL_PAGE_CACHE, true)
+    log.info(`Local page cache env var set: ${process.env.WA_LOCAL_PAGE_CACHE} ${localPageCacheExists}`)
+    if(localPageCacheExists) {
+      log.info(`Local page cache file exists. Loading...`)
+      pageCache = await fs.readFile(process.env.WA_LOCAL_PAGE_CACHE, "utf8");
+    }
+  }
   if(interceptAuthentication || proxyAddr || blockCrashLogs || true){
       await waPage.setRequestInterception(true);  
       waPage.on('response', async response => {
         try {
           if(response.request().url() == "https://web.whatsapp.com/") {
             const t = await response.text()
-            if(t.includes(`class="no-js"`) && t.includes(`self.`) && !dumbCache) {
+            if(t.includes(`class="no-js"`) && t.includes(`self.`) && !pageCache) {
               //this is a valid response, save it for later
-              dumbCache = t;
+              pageCache = t;
               log.info("saving valid page to dumb cache")
+              /**
+               * Save locally
+               */
+              if(process.env.WA_LOCAL_PAGE_CACHE) {
+                log.info(`Writing page cache to local file: ${process.env.WA_LOCAL_PAGE_CACHE}`)
+                await fs.writeFile(process.env.WA_LOCAL_PAGE_CACHE, pageCache);
+              }
             }
           }
         } catch (error) {
-          log.error("dumb cache error", error)
+          log.error("page cache error", error)
         }
       })
       const authCompleteEv = new EvEmitter(sessionId, 'AUTH');
       waPage.on('request', async request => {
         //local refresh cache:
-        if(request.url()==="https://web.whatsapp.com/" && dumbCache) {
-          //if the dumbCache isn't set and this response includes 
-          log.info("reviving page from dumb cache")
+        if(request.url()==="https://web.whatsapp.com/" && pageCache) {
+          //if the pageCache isn't set and this response includes 
+          log.info("reviving page from page cache")
             return await request.respond({
               status: 200,
-              body: dumbCache
+              body: pageCache
             });
         }
         if (
