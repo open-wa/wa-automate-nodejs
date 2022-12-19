@@ -7,78 +7,6 @@ custom_edit_url: null
 
 [api/Client](/api/modules/api_Client.md).Client
 
-## Properties
-
-### deleteAllStatus
-
-• **deleteAllStatus**: () => `Promise`<`boolean`\>
-
-#### Type declaration <div class="label license restricted">restricted</div>
-
-▸ (): `Promise`<`boolean`\>
-
-:::license May require restricted license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
-:::
-
-Deletes all your existing stories.
-
-##### Returns
-
-`Promise`<`boolean`\>
-
-boolean. True if it worked.
-
-___
-
-### deleteStatus
-
-• **deleteStatus**: (`statusesToDelete`: `string` \| `string`[]) => `Promise`<`boolean`\>
-
-#### Type declaration <div class="label license restricted">restricted</div>
-
-▸ (`statusesToDelete`): `Promise`<`boolean`\>
-
-:::license May require restricted license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
-:::
-
-Consumes a list of id strings of stories to delete.
-
-##### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `statusesToDelete` | `string` \| `string`[] | string [] \| string an array of ids of stories to delete. |
-
-##### Returns
-
-`Promise`<`boolean`\>
-
-boolean. True if it worked.
-
-___
-
-### getMyStatusArray
-
-• **getMyStatusArray**: () => `Promise`<[`Message`](/api/interfaces/api_model_message.Message.md)[]\>
-
-#### Type declaration <div class="label license restricted">restricted</div>
-
-▸ (): `Promise`<[`Message`](/api/interfaces/api_model_message.Message.md)[]\>
-
-:::license May require restricted license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
-:::
-
-Retrieves all existing stories.
-
-Only works with a Story License Key
-
-##### Returns
-
-`Promise`<[`Message`](/api/interfaces/api_model_message.Message.md)[]\>
-
 ## Methods
 
 ### B <div class="label license insiders">insiders</div>
@@ -526,6 +454,20 @@ Decrypts a media message.
 
 ___
 
+### deleteAllStatus
+
+▸ **deleteAllStatus**(): `Promise`<`boolean`\>
+
+**`Deprecated`**
+
+Alias for deleteStory
+
+#### Returns
+
+`Promise`<`boolean`\>
+
+___
+
 ### deleteAllStories <div class="label license restricted">restricted</div>
 
 ▸ **deleteAllStories**(): `Promise`<`boolean`\>
@@ -597,6 +539,26 @@ Deletes chats from a certain index (default 1000). E.g if this startingFrom para
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `startingFrom?` | `number` | the chat index to start from. Please do not set this to anything less than 10 @default: `1000` |
+
+#### Returns
+
+`Promise`<`boolean`\>
+
+___
+
+### deleteStatus
+
+▸ **deleteStatus**(`statusesToDelete`): `Promise`<`boolean`\>
+
+**`Deprecated`**
+
+Alias for deleteStory
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `statusesToDelete` | `string` \| `string`[] |
 
 #### Returns
 
@@ -1572,6 +1534,7 @@ If you have set `onAnyMessage` or `onMessage` with the second parameter (PQueue 
 | `onNewProduct` | `default`<`default`, `DefaultAddOptions`\> |
 | `onOrder` | `default`<`default`, `DefaultAddOptions`\> |
 | `onPlugged` | `default`<`default`, `DefaultAddOptions`\> |
+| `onPollVote` | `default`<`default`, `DefaultAddOptions`\> |
 | `onReaction` | `default`<`default`, `DefaultAddOptions`\> |
 | `onRemovedFromGroup` | `default`<`default`, `DefaultAddOptions`\> |
 | `onStateChanged` | `default`<`default`, `DefaultAddOptions`\> |
@@ -1669,6 +1632,20 @@ Retrieves the last message sent by the host account in any given chat or globall
 `Promise`<[`Message`](/api/interfaces/api_model_message.Message.md)\>
 
 message object or `undefined` if the host account's last message could not be found.
+
+___
+
+### getMyStatusArray
+
+▸ **getMyStatusArray**(): `Promise`<[`Message`](/api/interfaces/api_model_message.Message.md)[]\>
+
+**`Deprecated`**
+
+Alias for deleteStory
+
+#### Returns
+
+`Promise`<[`Message`](/api/interfaces/api_model_message.Message.md)[]\>
 
 ___
 
@@ -4756,6 +4733,28 @@ boolean true if plugged, false if unplugged
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `fn` | (`plugged`: `boolean`) => `void` | callback |
+
+#### Returns
+
+`Promise`<`boolean` \| `Listener`\>
+
+___
+
+### onPollVote
+
+▸ **onPollVote**(`fn`): `Promise`<`boolean` \| `Listener`\>
+
+Listens to poll vote events
+
+**`Fires`**
+
+PollData
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `fn` | (`pollDate`: [`PollData`](/api/interfaces/api_model_message.PollData.md)) => `void` | callback |
 
 #### Returns
 

@@ -174,6 +174,14 @@ Represents onPlugged
 
 ___
 
+### PollVote
+
+• **PollVote** = ``"onPollVote"``
+
+Represents onButton
+
+___
+
 ### Reaction
 
 • **Reaction** = ``"onReaction"``
