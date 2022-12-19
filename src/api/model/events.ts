@@ -71,6 +71,10 @@
      */
     Button = 'onButton',
     /**
+     * Represents [[onButton]]
+     */
+    PollVote = 'onPollVote',
+    /**
      * Represents [[onBroadcast]]
      */
     Broadcast = 'onBroadcast',

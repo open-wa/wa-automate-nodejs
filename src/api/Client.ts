@@ -867,6 +867,16 @@ export class Client {
   }
 
   /**
+   * Listens to poll vote events
+   * @event 
+   * @param fn callback
+   * @fires [[PollData]]
+   */
+   public async onPollVote(fn: (pollDate: PollData) => void) : Promise<Listener | boolean> {
+    return this.registerListener(SimpleListener.PollVote, fn);
+  }
+
+  /**
    * Listens to broadcast messages
    * @event 
    * @param fn callback
