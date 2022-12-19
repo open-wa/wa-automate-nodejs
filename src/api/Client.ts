@@ -3927,7 +3927,9 @@ public async getStatus(contactId: ContactId) : Promise<{
    * @deprecated
    * Alias for deleteStory
    */
-  public deleteStatus = this.deleteStory;
+  public async deleteStatus(statusesToDelete: string | string []) : Promise<boolean> {
+    return await this.deleteStory(statusesToDelete)
+  }
 
 /**
  * {@license:restricted@}
@@ -3943,7 +3945,9 @@ public async getStatus(contactId: ContactId) : Promise<{
    * @deprecated
    * Alias for deleteStory
    */
-   public deleteAllStatus = this.deleteAllStories;
+   public async deleteAllStatus() : Promise<boolean> {
+    return await this.deleteAllStories();
+  }
 
   /**
    * {@license:restricted@}
@@ -3960,7 +3964,9 @@ public async getStatus(contactId: ContactId) : Promise<{
    * @deprecated
    * Alias for deleteStory
    */
-   public getMyStatusArray = this.getMyStoryArray;
+  public async getMyStatusArray() : Promise<Message[]> {
+    return await this.getMyStoryArray();
+  }
 
     
   /**
