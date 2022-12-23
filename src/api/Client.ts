@@ -1784,6 +1784,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
       })(),
       assertFile(file, filename, FileOutputTypes.TEMP_FILE_PATH as any,requestConfig || {})
     ])
+    //@ts-ignore
     await inputElement.uploadFile(fileAsLocalTemp as string);
     file = inputElementId;
     
