@@ -213,7 +213,7 @@ export class QRManager {
         }
         if (!gotResult && (qrData === 'QR_CODE_SUCCESS' || qrData === md)) {
           gotResult = true;
-          spinner?.succeed(qrData === md ? "Multi device support for this project is EXPERIMENTAL. Some things may not work...." : "QR code scanned. Loading session...")
+          spinner?.succeed("QR code scanned. Loading session...")
           return resolve(await isInsideChat(waPage).toPromise())
         }
         if (!gotResult) this.grabAndEmit(qrData, waPage, config, spinner);
