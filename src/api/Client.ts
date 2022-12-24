@@ -1318,8 +1318,8 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
   public async kill(reason = "MANUALLY_KILLED") : Promise<boolean> {
     if(this._currentlyBeingKilled) return;
     this._currentlyBeingKilled = true;
-    console.log('Killing client. Shutting Down');
-    log.info('Killing client. Shutting Down')
+    console.log(`Killing client. Shutting Down: ${reason}`);
+    log.info(`Killing client. Shutting Down: ${reason}`)
     const browser = await this?._page?.browser()
     const pid = browser?.process() ? browser?.process()?.pid : null;
     try{
