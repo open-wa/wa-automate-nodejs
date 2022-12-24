@@ -294,6 +294,7 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
     }
 
     const sendConversationMessage = async (content, contactId, message: Message) => {
+        log.info(`INCOMING MESSAGE ${contactId}: ${content} ${message.id}`)
         try {
             const { data } = await cwReq( 'post',`conversations/${convoReg[contactId]}/messages`, {
                 content,
@@ -309,6 +310,7 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
     const sendAttachmentMessage = async (content, contactId, message : Message) => {
         // decrypt message
         const file = await client.decryptMedia(message)
+        log.info(`INCOMING MESSAGE ATTACHMENT ${contactId}: ${content} ${message.id}`)
         let formData = new FormData();
         formData.append('attachments[]', Buffer.from(file.split(',')[1], 'base64'), {
             knownLength: 1,
