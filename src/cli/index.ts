@@ -33,6 +33,7 @@ async function start() {
     const { cliConfig, createConfig, PORT, spinner } = await cli()
     process.env.OWA_CLI = "true"
     spinner.start("Launching EASY API")
+    if(cliConfig.verbose) log.info(`config: `,{cliConfig, createConfig, PORT})
     setUpExpressApp();
     if(cliConfig.cors) await enableCORSRequests(cliConfig);
     try {
@@ -189,7 +190,7 @@ async function start() {
                 spinner.info(`\n• Setting up external tunnel`);
                 const tunnel = await localtunnel({ 
                     port: PORT,
-                    host: "https://public.openwa.cloud",
+                    host: process.env.WA_TUNNEL_SERVER || "https://public.openwa.cloud",
                     subdomain: await client.getTunnelCode()
                  });
                 cliConfig.apiHost = cliConfig.tunnel = tunnel.url;

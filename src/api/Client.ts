@@ -206,7 +206,7 @@ declare module WAPI {
   const getKickedGroups: () => Promise<String[]>;
   const launchMetrics: () => Promise<any>;
   const getLicenseType: () => Promise<String | false>;
-  const getTunnelCode: () => Promise<String | false>;
+  const getTunnelCode: (sessionId: string) => Promise<String | false>;
   const getChatWithNonContacts: () => Contact[];
   const syncContacts: () => boolean;
   const getAmountOfLoadedMessages: () => number;
@@ -2437,7 +2437,8 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * @returns
    */
   public async getTunnelCode() : Promise<string> {
-    return await this.pup(() => WAPI.getTunnelCode()) as Promise<string>;
+    const sessionId = this.getSessionId();
+    return await this.pup(sessionId => WAPI.getTunnelCode(sessionId),sessionId) as Promise<string>;
   }
 
   /**
