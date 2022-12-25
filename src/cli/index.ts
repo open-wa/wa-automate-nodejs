@@ -161,8 +161,7 @@ async function start() {
             if (createConfig.messagePreprocessor === "AUTO_DECRYPT_SAVE") {
                 setupMediaMiddleware();
             }
-
-            app.use(client.middleware((cliConfig && cliConfig.useSessionIdInPath)));
+            app.use(client.middleware((cliConfig && cliConfig.useSessionIdInPath), PORT));
 
             if (cliConfig.socket) {
                 spinner.info("Setting up socket")

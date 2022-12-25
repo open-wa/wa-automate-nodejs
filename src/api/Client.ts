@@ -34,7 +34,7 @@ import { Listener } from 'eventemitter2';
 import PriorityQueue from 'p-queue/dist/priority-queue';
 import { MessagePreprocessors } from '../structures/preProcessors';
 import { NextFunction, Request, Response } from 'express';
-import { assertFile, base64MimeType, ensureDUrl, FileOutputTypes, generateGHIssueLink, getDUrl, isBase64, isDataURL, now, rmFileAsync } from '../utils/tools';
+import { assertFile, processSendData, base64MimeType, ensureDUrl, FileOutputTypes, generateGHIssueLink, getDUrl, isBase64, isDataURL, now, rmFileAsync } from '../utils/tools';
 import { Call } from './model/call';
 import { AdvancedButton, Button, LocationButtonBody, Section } from './model/button';
 import { JsonObject } from 'type-fest';
@@ -295,6 +295,7 @@ export class Client {
   private _currentlyBeingKilled = false;
   private _refreshing = false
   private _loaded = false;
+  private _hostAccountNumber;
   private _prio: number = Number.MAX_SAFE_INTEGER;
   private _pageListeners : {
     event: keyof PageEventObject,
@@ -2421,7 +2422,8 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * @returns Number
    */
   public async getHostNumber() : Promise<string> {
-    return await this.pup(() => WAPI.getHostNumber()) as Promise<string>;
+    if(!this._hostAccountNumber) this._hostAccountNumber = await this.pup(() => WAPI.getHostNumber()) as Promise<string>;
+    return this._hostAccountNumber
   }
 
   /**
@@ -4151,9 +4153,40 @@ public async getStatus(contactId: ContactId) : Promise<{
    * 
    * For example, if you have a session with id  `host` if you set useSessionIdInPath to true, then all requests will need to be prefixed with the path `host`. E.g `localhost:8082/sendText` becomes `localhost:8082/host/sendText`
    */
-  middleware = (useSessionIdInPath = false) => async (req : Request, res : Response, next : NextFunction) : Promise<any> => {
+  middleware = (useSessionIdInPath = false, PORT ?: number) => async (req : Request, res : Response, next : NextFunction) : Promise<any> => {
     if(useSessionIdInPath && !req.path.includes(this._createConfig.sessionId) && this._createConfig.sessionId!== 'session') return next();
     const methodFromPath = this._createConfig.sessionId && this._createConfig.sessionId!== 'session' && req.path.includes(this._createConfig.sessionId) ? req.path.replace(`/${this._createConfig.sessionId}/`,'') :  req.path.replace('/','');
+    if(req.get('owa-check-property') && req.get('owa-check-value')) {
+      const checkProp = req.get('owa-check-property')
+      const checkValue = req.get('owa-check-value')
+      const sessionId = this._createConfig.sessionId 
+      const hostAccountNumber = await this.getHostNumber();
+      let checkPassed = false
+      switch (checkProp) {
+        case 'session': 
+          checkPassed = sessionId === checkValue
+          break;
+        case 'number':
+          checkPassed = hostAccountNumber.includes(checkValue);
+          break;
+      }
+      if(!checkPassed) {
+        if(PORT) processSendData({port:PORT});
+        return res.status(412).send({
+          success: false,
+          error: {
+            name: 'CHECK_FAILED',
+            message:`Check FAILED - Are you sure you meant to send the request to this session?`,
+            data: {
+              incomingCheckProperty : checkProp,
+              incomingCheckValue : checkValue,
+              sessionId,
+              hostAccountNumber: `${hostAccountNumber.substr(-4)}`
+            }
+          }
+        })
+      }
+      }
     if(req.method==='POST') {
       const rb = req?.body || {};
       let {args} = rb
