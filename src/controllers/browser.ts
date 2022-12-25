@@ -3,7 +3,7 @@ import * as fs from 'fs/promises';
 import ON_DEATH from 'death';
 // import puppeteer from 'puppeteer-extra';
 import { puppeteerConfig, useragent, width, height} from '../config/puppeteer.config';
-import { Browser, Page } from 'puppeteer';
+import { Browser, Page, executablePath } from 'puppeteer';
 import { Spin, EvEmitter } from './events';
 import { ConfigObject } from '../api/model';
 import { FileNotFoundError, getTextFile } from 'pico-s3';
@@ -406,7 +406,10 @@ async function initBrowser(sessionId?: string, config:any={}, spinner ?: Spin) {
       browserDownloadSpinner.succeed('Something went wrong while downloading the browser');
     }
   }
-  
+  /**
+   * Explicit fallback due to pptr 19
+   */
+  if(!config.executablePath) config.executablePath = executablePath()
   if(config?.proxyServerCredentials?.address && config?.useNativeProxy) puppeteerConfig.chromiumArgs.push(`--proxy-server=${config.proxyServerCredentials.address}`)
   if(config?.browserWsEndpoint) config.browserWSEndpoint = config.browserWsEndpoint;
   let args = [...puppeteerConfig.chromiumArgs,...(config?.chromiumArgs||[])];
