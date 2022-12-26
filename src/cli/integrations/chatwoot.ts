@@ -164,6 +164,8 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
             api_access_token,
             ..._headers
         }
+    }).catch(error=>{
+        log.error(`CW REQ ERROR: ${error?.response?.status} ${error?.response?.message}`, error?.toJSON())
     })
 }
 
