@@ -153,10 +153,10 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
         }
     }
     
-    const cwReq = (method, path, data?: any, _headers ?: any) => {
+    const cwReq = async (method, path, data?: any, _headers ?: any) => {
         const url = `${origin}/api/v1/accounts/${accountId}/${path}`.replace('app.bentonow.com','chat.bentonow.com')
         // console.log(url,method,data)
-        return axios({
+        const response = await axios({
         method,
         data,
         url,
@@ -168,6 +168,8 @@ export const setupChatwootOutgoingMessageHandler: (cliConfig: cliFlags, client: 
         log.error(`CW REQ ERROR: ${error?.response?.status} ${error?.response?.message}`, error?.toJSON())
         throw error
     })
+    log.info(`CW REQUEST: ${response.status} ${method} ${url} ${JSON.stringify(data)}`)
+    return response
 }
 
     let { data: get_inbox } = await cwReq('get', `inboxes/${inboxId}`)
