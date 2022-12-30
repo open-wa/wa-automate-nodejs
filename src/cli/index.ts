@@ -5,10 +5,8 @@ import tcpPortUsed from 'tcp-port-used';
 import { default as axios } from 'axios'
 import { cli } from './setup';
 import { collections, generateCollections } from './collections';
-import { setUpExpressApp, setupAuthenticationLayer, setupRefocusDisengageMiddleware, setupApiDocs, setupSwaggerStatsMiddleware, setupMediaMiddleware, app, setupSocketServer, server, setupBotPressHandler, setupTwilioCompatibleWebhook, enableCORSRequests, setupChatwoot, setupHttpServer } from './server';
-import localtunnel from 'localtunnel';
+import { setUpExpressApp, setupTunnel, setupMetaProcessMiddleware, setupAuthenticationLayer, setupRefocusDisengageMiddleware, setupApiDocs, setupSwaggerStatsMiddleware, setupMediaMiddleware, app, setupSocketServer, server, setupBotPressHandler, setupTwilioCompatibleWebhook, enableCORSRequests, setupChatwoot, setupHttpServer } from './server';
 import { setupChatwootOutgoingMessageHandler } from './integrations/chatwoot';
-
 let checkUrl = (s : any) => (typeof s === "string") && isUrl(s);
 
 const ready: (config : any) => Promise<void> = async (config : any) => {
@@ -90,6 +88,7 @@ async function start() {
 
     try {
         const client = await create({ ...createConfig });
+        setupMetaProcessMiddleware(client, cliConfig)
         await setupHttpServer(cliConfig)
         if(cliConfig.autoReject){
             await client.autoReject(cliConfig.onCall)
@@ -187,13 +186,9 @@ async function start() {
             });
             if(cliConfig.tunnel) {
                 spinner.info(`\n• Setting up external tunnel`);
-                const tunnel = await localtunnel({ 
-                    port: PORT,
-                    host: process.env.WA_TUNNEL_SERVER || "https://public.openwa.cloud",
-                    subdomain: await client.getTunnelCode()
-                 });
-                cliConfig.apiHost = cliConfig.tunnel = tunnel.url;
-                spinner.succeed(`\n\t${terminalLink('External address', tunnel.url)}`)
+                const tunnelUrl = await setupTunnel(cliConfig, await client.getTunnelCode(), PORT)
+                spinner.succeed(`\n\t${terminalLink('External address', tunnelUrl)}`)
+
             } 
             const apiDocsUrl = cliConfig.apiHost ? `${cliConfig.apiHost}/api-docs/ ` : `${cliConfig.host.includes('http') ? '' : 'http://'}${cliConfig.host}:${PORT}/api-docs/ `;
             const link = terminalLink('API Explorer', apiDocsUrl);

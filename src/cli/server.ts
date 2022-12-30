@@ -14,10 +14,13 @@ import { convert } from 'xmlbuilder2';
 import { chatwootMiddleware, chatwoot_webhook_check_event_name } from './integrations/chatwoot';
 import {IpFilter, IpDeniedError} from'express-ipfilter'
 import helmet from "helmet";
+import localtunnel from 'localtunnel';
+import { spawn } from 'child_process';
 
 export const app = express();
 export let server = http.createServer(app);
 
+let tunnel;
 const trimChatId = (chatId : ChatId) => chatId.replace("@c.us","").replace("@g.us","")
 
 export type cliFlags = {
@@ -220,6 +223,64 @@ const setupMetaMiddleware = () => {
     })
 }
 
+export const setupMetaProcessMiddleware = (client : Client, cliConfig) => {
+    /**
+     * Kill the client. End the process.
+     */
+    let closing = false;
+    const nuke = async (req, res, restart) => {
+        res.set("Connection", "close");
+        res.send(closing ? `Already closing! Stop asking!!` : 'Closing after connections closed. Waiting max 5 seconds');
+        res.end()
+        res.connection.end();
+        res.connection.destroy();
+        if(closing) return;
+        closing = true;
+        await client.kill("API_KILL");
+        log.info("Waiting for maximum ")
+        if(tunnel && tunnel.close && typeof tunnel.close === 'function') tunnel.close()
+        await Promise.race([
+            new Promise((resolve)=>server.close(() => {
+                console.log('Server closed');
+                resolve(true);
+            })),
+            new Promise(resolve => setTimeout(resolve, 5000, 'timeout'))
+        ]);
+        if(process.env.pm_id && process.env.PM2_USAGE) {
+            const cmd = `pm2 ${restart ? 'restart' : 'stop'} ${process.env.pm_id}`;
+            log.info(`PM2 DETECTED, RUNNING COMMAND: ${cmd}`)
+            const cmda = cmd.split(' ')
+            spawn(cmda[0], cmda.splice(1), { stdio: 'inherit' })
+        } else {
+            if(restart) setTimeout(function () {
+                process.on("exit", function () {
+                    spawn(process.argv.shift(), process.argv, {
+                        cwd: process.cwd(),
+                        detached : true,
+                        stdio: "inherit"
+                    });
+                });
+                process.exit();
+            }, 5000);
+            else process.exit(restart ? 0 : 10);
+        }
+    }
+    /**
+     * Exit code 10 will prevent pm2 process from auto-restarting
+     */
+    app.post('/meta/process/exit', async (req, res) => {
+        return await nuke(req,res,false)
+    })
+
+    /**
+     * Will only restart if the process is managed by pm2
+     * 
+     * Note: Only works when `--pm2` flag is enabled.
+     */
+    app.post('/meta/process/restart', async (req, res) => {
+        return await nuke(req,res,true)
+    })
+}
 export const getCommands : () => any = () => Object.entries(collections['swagger'].paths).reduce((acc,[key,value])=>{acc[key.replace("/","")]=(value as any)?.post?.requestBody?.content["application/json"]?.example?.args || {};return acc},{})
 
 export const listListeners : () => string[] = () => {
@@ -231,6 +292,15 @@ export const setupMediaMiddleware : () => void = () => {
     app.use("/media", express.static('media'))
 }
 
+export const setupTunnel : (cliConfig, tunnelCode: string, PORT: number) => Promise<string> = async (cliConfig, tunnelCode: string,PORT: number) => {
+    tunnel = await localtunnel({ 
+        port: PORT,
+        host: process.env.WA_TUNNEL_SERVER || "https://public.openwa.cloud",
+        subdomain: tunnelCode
+     });
+    cliConfig.apiHost = cliConfig.tunnel = tunnel.url;
+    return tunnel.url;
+}
 
 export const setupTwilioCompatibleWebhook : (cliConfig : cliFlags, client: Client) => void = (cliConfig : cliFlags, client: Client) => {
     const url = cliConfig.twilioWebhook as string
