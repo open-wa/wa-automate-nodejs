@@ -23,7 +23,7 @@ import { log, setupLogging } from '../logging/logging';
 
 export const pkg = readJsonSync(path.join(__dirname,'../../package.json')),
 configWithCases = readJsonSync(path.join(__dirname,'../../bin/config-schema.json')),
-timeout = (ms : number) => {
+timeout : (ms: number) => Promise<string> = (ms : number) => {
   return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
 }
 
@@ -246,7 +246,9 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
      },debugInfo,spinner)
 
     if (authenticated == 'timeout') {
-      const outOfReach = await Promise.race([phoneIsOutOfReach(waPage), timeout(20 * 1000)]);
+      const oorProms : Promise<boolean | string>[] = [phoneIsOutOfReach(waPage)];
+      if(config?.oorTimeout!== 0) oorProms.push(timeout((config?.oorTimeout || 60) * 1000))
+      const outOfReach : string | boolean = await Promise.race(oorProms) as any
       spinner.emit(outOfReach && outOfReach !== 'timeout' ? 'appOffline' : 'authTimeout');
       spinner.fail(outOfReach && outOfReach !== 'timeout' ? 'Authentication timed out. Please open the app on the phone. Shutting down' : 'Authentication timed out. Shutting down. Consider increasing authTimeout config variable: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#authtimeout');
       await kill(waPage);

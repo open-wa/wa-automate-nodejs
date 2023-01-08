@@ -409,6 +409,11 @@ export interface ConfigObject {
     */
     authTimeout?: number;
     /**
+     * phoneIsOutOfReach check timeout
+     * @default `60`
+     */
+    oorTimeout?: number,
+    /**
      * Setting this to `true` will kill the whole process when the client is disconnected from the page or if the browser is closed. 
      * @default `false`
      */
