@@ -3506,7 +3506,7 @@ ___
 
 ### sendPtt
 
-▸ **sendPtt**(`to`, `file`, `quotedMsgId`): `Promise`<[`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
+▸ **sendPtt**(`to`, `file`, `quotedMsgId?`): `Promise`<[`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
 Attempts to send a file as a voice note. Useful if you want to send an mp3 file.
 

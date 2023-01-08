@@ -1942,9 +1942,9 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
   public async sendPtt(
     to: ChatId,
     file: AdvancedFile,
-    quotedMsgId: MessageId,
+    quotedMsgId?: MessageId,
   ) : Promise<MessageId> {
-    return this.sendImage(to, file, 'ptt.ogg', '', quotedMsgId, true, true) as Promise<MessageId> ;
+    return this.sendImage(to, file, 'ptt.ogg', '', quotedMsgId ? quotedMsgId : null, true, true) as Promise<MessageId> ;
   }
   
   /**
