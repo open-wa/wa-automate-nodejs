@@ -20,7 +20,7 @@ import { spawn } from 'child_process';
 export const app = express();
 export let server = http.createServer(app);
 
-let tunnel;
+let tunnel : localtunnel.Tunnel;
 const trimChatId = (chatId : ChatId) => chatId.replace("@c.us","").replace("@g.us","")
 
 export type cliFlags = {
