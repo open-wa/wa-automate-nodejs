@@ -22,10 +22,10 @@ Make sure to use a [[DataURL]] for the second parameter.
 [[sendPtt]] sends an audio clip as a 'push to talk' type file. This allows recipients to play the clip as they would any other voice note.
 
 ```javascript
-    client.sendFile(chatId, dataUrl)
+    client.sendPtt(chatId, dataUrl)
 
     //Send the audio as reply to a message (quotedMessageId)
-    client.sendFile(chatId, dataUrl, )quotedMessageId
+    client.sendPtt(chatId, dataUrl, quotedMessageId)
 ```
 
 ## Send File
