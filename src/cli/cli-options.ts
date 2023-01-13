@@ -45,10 +45,10 @@ Merge<Merge<{
 {
     name: 'port',
     alias: 'p',
-    default: 8002,
+    default: 8080,
     type: Number,
     typeLabel: '{blue {underline 8080}}',
-    description: "Set the port for the api. Default to 8002."
+    description: "Set the port for the api. Default to 8080."
 },
 {
     name: 'forcePort',
