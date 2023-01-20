@@ -4,7 +4,7 @@ import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration, GroupChatC
 import { Contact, NumberCheck } from './model/contact';
 import { Message, MessageInfo, PollData } from './model/message';
 import { default as axios, AxiosRequestConfig} from 'axios';
-import { NewCommunityGroup, ParticipantChangedEventModel } from './model/group-metadata';
+import { NewCommunityGroup, ParticipantChangedEventModel, GenericGroupChangeEvent } from './model/group-metadata';
 import { useragent } from '../config/puppeteer.config'
 import { ConfigObject, STATE, LicenseType, Webhook, OnError, EventPayload } from './model';
 import { PageEvaluationTimeout, CustomError, ERROR_NAME, AddParticipantError  } from './model/errors';
@@ -888,7 +888,15 @@ export class Client {
   }
 
   /** 
+   * @deprecated
+   * 
    * Listens to battery changes
+   * 
+   * :::caution
+   *
+   *  This will most likely not work with multi-device mode (the only remaining mode) since the session is no longer connected to the phone but directly to WA servers.
+   * 
+   * :::
    * 
    * @event 
    * @param fn callback
@@ -1042,6 +1050,17 @@ export class Client {
    */
   public async onGlobalParticipantsChanged(fn: (participantChangedEvent: ParticipantChangedEventModel) => void) : Promise<Listener | boolean> {
     return this.registerListener(SimpleListener.GlobalParticipantsChanged, fn);
+  }
+
+  /**
+   * Listens to all group (gp2) events. This can be useful if you want to catch when a group title, subject or picture is changed.
+   * 
+   * @event
+   * @param fn callback function that handles a [[ParticipantChangedEventModel]] as the first and only parameter.
+   * @returns `true` if the callback was registered
+   */
+  public async onGroupChange(fn: (genericGroupChangeEvent: GenericGroupChangeEvent) => void) : Promise<Listener | boolean> {
+    return this.registerListener(SimpleListener.GroupChange, fn);
   }
 
   /**

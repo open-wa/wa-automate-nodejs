@@ -1,6 +1,8 @@
-import { ChatId, ContactId, GroupChatId, NonSerializedId, DataURL, GroupId } from './aliases';
+import { ChatId, ContactId, GroupChatId, NonSerializedId, DataURL, GroupId, MessageId } from './aliases';
+import { Contact } from './contact'
 
 export interface Participant {
+  contact: Contact,
   id: NonSerializedId,
   isAdmin: boolean,
   isSuperAdmin: boolean
@@ -105,4 +107,25 @@ export interface NewCommunityGroup {
   subject : string,
   icon ?: DataURL,
   ephemeralDuration ?: number
+}
+
+export interface GenericGroupChangeEvent {
+  /**
+   * The contact who triggered this event. (E.g the contact who changed the group picture)
+   */
+  author: Contact,
+  /**
+   * Some more information about the event
+   */
+  body: string,
+  groupMetadata: GroupMetadata,
+  /**
+   * Base 64 encoded image
+   */
+  groupPic: string
+  id: MessageId,
+  /**
+   * Type of the event
+   */
+  type: 'picutre' | 'create' | 'delete' | 'subject' | 'revoke_invite' | 'description' | 'restrict' | 'announce' | 'no_frequently_forwarded' | 'announce_msg_bounce' | 'add' | 'remove' | 'demote' | 'promote' | 'invite' | 'leave' | 'modify' | 'v4_add_invite_sent' | 'v4_add_invite_join' | 'growth_locked' | 'growth_unlocked' | 'linked_group_join'
 }

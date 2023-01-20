@@ -112,4 +112,9 @@
      * Represents [[onReaction]]
      */
     Reaction = 'onReaction',
+    /**
+     * Requires licence
+     * Represents [[onGroupChange]]
+     */
+    GroupChange = 'onGroupChange'
   }
