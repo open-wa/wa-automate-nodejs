@@ -593,6 +593,18 @@ What to do when an error is detected on a client method.
 
 ___
 
+### oorTimeout
+
+• `Optional` **oorTimeout**: `number`
+
+phoneIsOutOfReach check timeout
+
+**`Default`**
+
+`60`
+
+___
+
 ### pQueueDefault
 
 • `Optional` **pQueueDefault**: `any`

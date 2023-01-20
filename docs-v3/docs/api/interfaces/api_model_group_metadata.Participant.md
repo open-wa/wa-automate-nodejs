@@ -9,6 +9,12 @@ custom_edit_url: null
 
 ## Properties
 
+### contact
+
+• **contact**: [`Contact`](/api/interfaces/api_model_contact.Contact.md)
+
+___
+
 ### id
 
 • **id**: [`NonSerializedId`](/api/types/api_model_aliases.NonSerializedId.md)

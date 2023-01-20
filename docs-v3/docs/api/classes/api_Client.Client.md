@@ -1526,6 +1526,7 @@ If you have set `onAnyMessage` or `onMessage` with the second parameter (PQueue 
 | `onChatState` | `default`<`default`, `DefaultAddOptions`\> |
 | `onContactAdded` | `default`<`default`, `DefaultAddOptions`\> |
 | `onGlobalParticipantsChanged` | `default`<`default`, `DefaultAddOptions`\> |
+| `onGroupChange` | `default`<`default`, `DefaultAddOptions`\> |
 | `onIncomingCall` | `default`<`default`, `DefaultAddOptions`\> |
 | `onLabel` | `default`<`default`, `DefaultAddOptions`\> |
 | `onLogout` | `default`<`default`, `DefaultAddOptions`\> |
@@ -2380,7 +2381,7 @@ ___
 
 ### middleware
 
-▸ **middleware**(`useSessionIdInPath?`): (`req`: `Request`<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`<`string`, `any`\>\>, `res`: `Response`<`any`, `Record`<`string`, `any`\>\>, `next`: `NextFunction`) => `Promise`<`any`\>
+▸ **middleware**(`useSessionIdInPath?`, `PORT?`): (`req`: `Request`<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`<`string`, `any`\>\>, `res`: `Response`<`any`, `Record`<`string`, `any`\>\>, `next`: `NextFunction`) => `Promise`<`any`\>
 
 This exposes a simple express middlware that will allow users to quickly boot up an api based off this client. Checkout demo/index.ts for an example
 How to use the middleware:
@@ -2460,6 +2461,7 @@ axios.post('localhost:8082', {
 | Name | Type | Default value | Description |
 | :------ | :------ | :------ | :------ |
 | `useSessionIdInPath` | `boolean` | `false` | boolean Set this to true if you want to keep each session in it's own path.  For example, if you have a session with id  `host` if you set useSessionIdInPath to true, then all requests will need to be prefixed with the path `host`. E.g `localhost:8082/sendText` becomes `localhost:8082/host/sendText` |
+| `PORT?` | `number` | `undefined` | - |
 
 #### Returns
 
@@ -3516,7 +3518,7 @@ Attempts to send a file as a voice note. Useful if you want to send an mp3 file.
 | :------ | :------ | :------ |
 | `to` | [`ChatId`](/api/types/api_model_aliases.ChatId.md) | chat id `xxxxx@c.us` |
 | `file` | [`AdvancedFile`](/api/types/api_model_aliases.AdvancedFile.md) | base64 data:image/xxx;base64,xxx or the path of the file you want to send. |
-| `quotedMsgId` | [`MessageId`](/api/types/api_model_aliases.MessageId.md) | string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message |
+| `quotedMsgId?` | [`MessageId`](/api/types/api_model_aliases.MessageId.md) | string true_0000000000@c.us_JHB2HB23HJ4B234HJB to send as a reply to a message |
 
 #### Returns
 
@@ -4353,7 +4355,15 @@ ___
 
 ▸ **onBattery**(`fn`): `Promise`<`boolean` \| `Listener`\>
 
+**`Deprecated`**
+
 Listens to battery changes
+
+:::caution
+
+ This will most likely not work with multi-device mode (the only remaining mode) since the session is no longer connected to the phone but directly to WA servers.
+
+:::
 
 **`Fires`**
 
@@ -4552,6 +4562,26 @@ Listens to add and remove events on Groups on a global level. It is memory effic
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `fn` | (`participantChangedEvent`: [`ParticipantChangedEventModel`](/api/interfaces/api_model_group_metadata.ParticipantChangedEventModel.md)) => `void` | callback function that handles a ParticipantChangedEventModel as the first and only parameter. |
+
+#### Returns
+
+`Promise`<`boolean` \| `Listener`\>
+
+`true` if the callback was registered
+
+___
+
+### onGroupChange
+
+▸ **onGroupChange**(`fn`): `Promise`<`boolean` \| `Listener`\>
+
+Listens to all group (gp2) events. This can be useful if you want to catch when a group title, subject or picture is changed.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `fn` | (`genericGroupChangeEvent`: [`GenericGroupChangeEvent`](/api/interfaces/api_model_group_metadata.GenericGroupChangeEvent.md)) => `void` | callback function that handles a ParticipantChangedEventModel as the first and only parameter. |
 
 #### Returns
 

@@ -13,6 +13,7 @@ custom_edit_url: null
 
 ## Interfaces
 
+- [GenericGroupChangeEvent](/api/interfaces/api_model_group_metadata.GenericGroupChangeEvent.md)
 - [GroupMetadata](/api/interfaces/api_model_group_metadata.GroupMetadata.md)
 - [NewCommunityGroup](/api/interfaces/api_model_group_metadata.NewCommunityGroup.md)
 - [Participant](/api/interfaces/api_model_group_metadata.Participant.md)

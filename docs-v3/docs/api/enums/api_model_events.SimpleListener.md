@@ -108,6 +108,15 @@ Represents onGlobalParticipantsChanged
 
 ___
 
+### GroupChange
+
+• **GroupChange** = ``"onGroupChange"``
+
+Requires licence
+Represents onGroupChange
+
+___
+
 ### IncomingCall
 
 • **IncomingCall** = ``"onIncomingCall"``
