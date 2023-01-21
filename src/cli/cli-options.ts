@@ -94,7 +94,7 @@ Merge<Merge<{
     name: 'ef',
     type: String,
     //@ts-ignore
-    default: ["qr", "STARTUP", "MD_DETECT"],
+    default: ["qr", "STARTUP", "MD_DETECT", "qrUrl"],
     isMultiple: true,
     typeLabel: '{blueBright {underline qr,STARTUP}}',
     description: "Filters which namespaces trigger the webhook set in -e/--ev."
