@@ -1986,17 +1986,21 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * @param to chat id - a group chat is required
    * @param name the name of the poll
    * @param options an array of poll options
+   * @param quotedMsgId A message to quote when sending the poll
+   * @param allowMultiSelect Whether or not to allow multiple selections. default false
    */
   public async sendPoll(
     to: GroupChatId,
     name: string,
-    options: string[]
+    options: string[],
+    quotedMsgId ?: MessageId,
+    allowMultiSelect ?: boolean
   ) : Promise<MessageId> {
     return  await this.pup(
-      ({ to, name, options }) => {
-        return WAPI.sendPoll(to, name, options );
+      ({ to, name, options , quotedMsgId, allowMultiSelect }) => {
+        return WAPI.sendPoll(to, name, options, quotedMsgId, allowMultiSelect );
       },
-      { to, name, options }
+      { to, name, options, quotedMsgId, allowMultiSelect }
     )
   }
 
