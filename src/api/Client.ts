@@ -132,7 +132,7 @@ declare module WAPI {
   const setGroupEditToAdminsOnly: (groupId: string, onlyAdmins: boolean) => Promise<boolean>;
   const setGroupDescription: (groupId: string, description: string) => Promise<boolean>;
   const setGroupTitle: (groupId: string, title: string) => Promise<boolean>;
-  const sendPoll: (groupId: string, name: string, options: string[]) => Promise<string>;
+  const sendPoll: (groupId: string, name: string, options: string[], quotedMsgId ?: string, allowMultiSelect ?: boolean) => Promise<string>;
   const sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => Promise<string | boolean>;
   const sendStickerAsReply: (webpBase64: string, to: string, messageId: string, metadata?: any) => Promise<string | boolean>;
   const createGroup: (groupName: string, contactId: string|string[]) => Promise<any>;
