@@ -13,10 +13,10 @@ jobs:
       - uses: actions/checkout@v3
         with:
           token: ${{ secrets.CUSTOM_GH_TOKEN }}
-        env:
-          GIT_USER: smashah
-          GIT_PASS: ${{ secrets.CUSTOM_GH_TOKEN }}
       - run: npm ci
       - run: npm run build
       - run: npm i
       - run: npm run docs
+        env:
+          GIT_USER: smashah
+          GIT_PASS: ${{ secrets.CUSTOM_GH_TOKEN }}
