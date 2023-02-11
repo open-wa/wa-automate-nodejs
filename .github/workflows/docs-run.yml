@@ -1,0 +1,16 @@
+name: Node.js CI
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm ci
+      - run: npm i
+      - run: npm run docs
