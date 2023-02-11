@@ -15,3 +15,6 @@ jobs:
       - run: npm run build
       - run: npm i
       - run: npm run docs
+        env:
+          GIT_USER: "shah@idk.uno"
+          GIT_PASS: ${{ secrets.GITHUB_TOKEN }}
