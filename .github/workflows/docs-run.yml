@@ -16,6 +16,8 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm i
+      - run: git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      - run: git config --global user.name "github-actions[bot]"
       - run: npm run docs
         env:
           GIT_USER: smashah
