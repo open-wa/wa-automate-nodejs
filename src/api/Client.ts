@@ -3988,6 +3988,14 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
   
   /**
+   * @deprecated
+   * 
+   * :::danger
+   *
+   * Status features are broken for now. Please join our discord community for updates.
+   * 
+   * :::
+   * 
    * [REQUIRES A TEXT STORY LICENSE-KEY](https://gum.co/open-wa)
    * 
    * Sends a formatted text story.
@@ -4011,6 +4019,14 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
   /**
+   * @deprecated
+   * 
+   * :::danger
+   *
+   * Status features are broken for now. Please join our discord community for updates.
+   * 
+   * :::
+   * 
    * [REQUIRES AN IMAGE STORY LICENSE-KEY](https://gum.co/open-wa)
    * 
    * Posts an image story.
@@ -4026,6 +4042,14 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
   /**
+   * @deprecated
+   * 
+   * :::danger
+   *
+   * Status features are broken for now. Please join our discord community for updates.
+   * 
+   * :::
+   * 
    * [REQUIRES A VIDEO STORY LICENSE-KEY](https://gum.co/open-wa)
    * 
    * Posts a video story.
