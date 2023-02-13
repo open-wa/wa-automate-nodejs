@@ -179,6 +179,7 @@ declare module WAPI {
     chatId: string
   ) => Promise<boolean>;
   const getBusinessProfilesProducts: (to: string) => Promise<any>;
+  const getCommunityInfo: (groupId: string) => Promise<any>;
   const postStatus: (text: string, params: any) => Promise<any>;
   const deleteStatus: (statusesToDelete: string | string[]) => Promise<any>;
   const sendImageWithProduct: (base64: string, to: string, caption: string, bizNumber: string, productId: string) => any;
@@ -2564,6 +2565,19 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     ) as Promise<any>;
   }
 
+
+  /**
+   * Returns the community metadata. Like group metadata but with a `subGroups` property which is the group metadata of the community subgroups.
+   * @param communityId community id
+   */
+  public async getCommunityInfo(communityId: GroupChatId) : Promise<GroupMetadata & {
+    subGroups: GroupMetadata[]
+  }> {
+    return await this.pup(
+      communityId => WAPI.getCommunityInfo(communityId),
+      communityId
+    ) as Promise<any>;
+  }
 
   /**
    * 
