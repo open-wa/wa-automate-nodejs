@@ -1,8 +1,7 @@
-import { ChatId, ContactId, MessageId } from "./aliases";
+import { ChatId, ContactId, MessageId, GroupChatId } from "./aliases";
 import { Button, Row, Section } from "./button";
 import { Chat } from "./chat";
 import { Contact } from "./contact";
-import { GroupChatId } from '../../../types-only/dist/api/model/aliases';
 
 export interface Message {
   /**
