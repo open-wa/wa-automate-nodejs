@@ -222,6 +222,7 @@ declare module WAPI {
   const getIndicatedNewMessages: () => any;
   const getAllChatsWithMessages: (withNewMessageOnly?: boolean) => any;
   const getAllChats: () => any;
+  const getCommunities: () => any;
   const healthCheck: () => any;
   const getState: () => string;
   const getUnsentMessages: () => Promise<Message[]>;
@@ -525,6 +526,17 @@ export class Client {
    */
   public getSessionInfo() : SessionInfo {
     return this._sessionInfo;
+  }
+
+  /**
+   * Easily resize page on the fly. Useful if you're showing screenshots in a web-app.
+   */
+  public async resizePage(width = 1920, height = 1080) : Promise<boolean> {
+    await this._page.setViewport({
+      width,
+      height
+    });
+    return true;
   }
 
   /**
@@ -2549,6 +2561,14 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
       const chats = await this.pup(() => WAPI.getAllChats()) as Chat[];
       return chats.filter(chat => chat.isGroup);
     }
+  }
+
+  /**
+   * Retrieve all commmunity Ids
+   * @returns array of group ids
+   */
+  public async getAllCommunities() : Promise<GroupId[]> {
+      return await this.pup(() => WAPI.getCommunities()) as GroupId[];
   }
 
   /**
