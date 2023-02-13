@@ -145,6 +145,7 @@ declare module WAPI {
   const contactBlock: (id: string) => Promise<boolean>;
   const checkReadReceipts: (contactId: string) => Promise<boolean | string>;
   const REPORTSPAM: (id: string) => Promise<boolean>;
+  const acceptGroupJoinRequest: (id: string) => Promise<boolean>;
   const contactUnblock: (id: string) => Promise<boolean>;
   const deleteConversation: (chatId: string) => Promise<boolean>;
   const isChatMuted: (chatId: string) => Promise<boolean>;
@@ -2563,6 +2564,16 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     ) as Promise<any>;
   }
 
+
+  /**
+   * 
+   * Accepts a request from a recipient to join a group. Takes the message ID of the request message.
+   * 
+   * @param {string} messageId
+   */
+  public async acceptGroupJoinRequest(messageId: MessageId) : Promise<boolean> {
+    return await this.pup(messageId => WAPI.acceptGroupJoinRequest(messageId),messageId)
+  }
   
 /** Joins a group via the invite link, code, or message
  * @param link This param is the string which includes the invite link or code. The following work:
