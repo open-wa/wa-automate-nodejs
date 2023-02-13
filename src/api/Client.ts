@@ -2120,9 +2120,13 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
 
   /**
    * Returns a PNG DataURL screenshot of the session
+   * @param chatId Chat ID to open before taking a snapshot
+   * @param width Width of the viewport for the snapshot. Height also required if you want to resize.
+   * @param height Height of the viewport for the snapshot. Width also required if you want to resize.
    * @returns `Promise<DataURL>`
    */
-  public async getSnapshot(chatId?: ChatId) : Promise<DataURL> {
+  public async getSnapshot(chatId ?: ChatId, width ?: number, height ?: number) : Promise<DataURL> {
+     if(width && height) await this.resizePage(width,height)
       const snapshotElement = chatId ? (await this._page.evaluateHandle(
         ({ chatId }) => WAPI.getSnapshotElement(chatId),
         { chatId }
