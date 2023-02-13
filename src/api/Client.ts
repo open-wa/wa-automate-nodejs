@@ -4,7 +4,7 @@ import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration, GroupChatC
 import { Contact, NumberCheck } from './model/contact';
 import { Message, MessageInfo, PollData } from './model/message';
 import { default as axios, AxiosRequestConfig} from 'axios';
-import { NewCommunityGroup, ParticipantChangedEventModel, GenericGroupChangeEvent } from './model/group-metadata';
+import { NewCommunityGroup, ParticipantChangedEventModel, GenericGroupChangeEvent, GroupMetadata } from './model/group-metadata';
 import { useragent } from '../config/puppeteer.config'
 import { ConfigObject, STATE, LicenseType, Webhook, OnError, EventPayload } from './model';
 import { PageEvaluationTimeout, CustomError, ERROR_NAME, AddParticipantError  } from './model/errors';

@@ -2,6 +2,7 @@ import { ChatId, ContactId, MessageId } from "./aliases";
 import { Button, Row, Section } from "./button";
 import { Chat } from "./chat";
 import { Contact } from "./contact";
+import { GroupChatId } from '../../../types-only/dist/api/model/aliases';
 
 export interface Message {
   /**
@@ -157,7 +158,7 @@ export interface Message {
    * 
    * If this is `true` then you need to determine within your own code whether or not to accept the user to the group which is indicated with `quotedRemoteJid` using `addParticipant`.
    */
-  isGroupJoinRequest ?: boolean;
+  isGroupJoinRequest ?: GroupChatId;
   /**
    * The ID of the message sender
    */
@@ -169,7 +170,7 @@ export interface Message {
   /**
    * The parent group ID (community ID - communities are just groups made up of other groups) of the group represented by `quotedRemoteJid`
    */
-  quotedParentGroupJid ?: string,
+  quotedParentGroupJid ?: GroupChatId,
   mediaData: unknown;
   shareDuration: number;
   isAnimated: boolean;
