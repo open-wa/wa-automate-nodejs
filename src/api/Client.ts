@@ -180,6 +180,7 @@ declare module WAPI {
   ) => Promise<boolean>;
   const getBusinessProfilesProducts: (to: string) => Promise<any>;
   const getCommunityInfo: (groupId: string) => Promise<any>;
+  const getCommunityParticipantIds: (groupId: string) => Promise<any>;
   const postStatus: (text: string, params: any) => Promise<any>;
   const deleteStatus: (statusesToDelete: string | string[]) => Promise<any>;
   const sendImageWithProduct: (base64: string, to: string, caption: string, bizNumber: string, productId: string) => any;
@@ -2589,6 +2590,25 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     return await this.pup(messageId => WAPI.acceptGroupJoinRequest(messageId),messageId)
   }
   
+  /**
+   * Retrieves community members Ids
+   * @param communityId community id
+   */
+  public async getCommunityParticipantIds(communityId: GroupChatId) :  Promise<{
+    id: GroupChatId,
+    participants: ContactId[],
+    subgroup: boolean
+  }[]>{
+    return await this.pup(
+      communityId => WAPI.getCommunityParticipantIds(communityId),
+      communityId
+    ) as Promise<{
+      id: GroupChatId,
+      participants: ContactId[],
+      subgroup: boolean
+    }[]>;
+  }
+
 /** Joins a group via the invite link, code, or message
  * @param link This param is the string which includes the invite link or code. The following work:
  * - Follow this link to join my WA group: https://chat.whatsapp.com/DHTGJUfFJAV9MxOpZO1fBZ
