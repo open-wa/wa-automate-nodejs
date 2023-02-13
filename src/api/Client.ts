@@ -183,6 +183,7 @@ declare module WAPI {
   const getCommunityAdminIds: (groupId: string) => Promise<any>;
   const getCommunityAdmins: (groupId: string) => Promise<any>;
   const getCommunityParticipantIds: (groupId: string) => Promise<any>;
+  const getCommunityParticipants: (groupId: string) => Promise<any>;
   const postStatus: (text: string, params: any) => Promise<any>;
   const deleteStatus: (statusesToDelete: string | string[]) => Promise<any>;
   const sendImageWithProduct: (base64: string, to: string, caption: string, bizNumber: string, productId: string) => any;
@@ -2630,6 +2631,25 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     }[]>;
   }
 
+
+  /**
+   * Retrieves community members as Contact objects
+   * @param communityId community id
+   */
+  public async getCommunityParticipants(communityId: GroupChatId) :  Promise<{
+    id: GroupChatId,
+    participants: Contact[],
+    subgroup: boolean
+  }[]>{
+    return await this.pup(
+      communityId => WAPI.getCommunityParticipants(communityId),
+      communityId
+    ) as Promise<{
+      id: GroupChatId,
+      participants: Contact[],
+      subgroup: boolean
+    }[]>;
+  }
 
   /**
    * Retrieves community admins as Contact objects
