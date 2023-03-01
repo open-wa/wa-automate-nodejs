@@ -32,6 +32,24 @@ Use a raw payload within your open-wa session
 
 ___
 
+### acceptGroupJoinRequest
+
+▸ **acceptGroupJoinRequest**(`messageId`): `Promise`<`boolean`\>
+
+Accepts a request from a recipient to join a group. Takes the message ID of the request message.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `messageId` | [`MessageId`](/api/types/api_model_aliases.MessageId.md) |
+
+#### Returns
+
+`Promise`<`boolean`\>
+
+___
+
 ### addLabel
 
 ▸ **addLabel**(`label`, `chatId`): `Promise`<`boolean`\>
@@ -903,6 +921,20 @@ array of [Chat]
 
 ___
 
+### getAllCommunities
+
+▸ **getAllCommunities**(): `Promise`<\`${number}@g.us\`[]\>
+
+Retrieve all commmunity Ids
+
+#### Returns
+
+`Promise`<\`${number}@g.us\`[]\>
+
+array of group ids
+
+___
+
 ### getAllContacts
 
 ▸ **getAllContacts**(): `Promise`<[`Contact`](/api/interfaces/api_model_contact.Contact.md)[]\>
@@ -1161,6 +1193,96 @@ Promise returning an array of common groups {
 id:string,
 title:string
 }
+
+___
+
+### getCommunityAdminIds
+
+▸ **getCommunityAdminIds**(`communityId`): `Promise`<{ `admins`: [`ContactId`](/api/types/api_model_aliases.ContactId.md)[] ; `id`: [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) ; `subgroup`: `boolean`  }[]\>
+
+Retrieves community admin Ids
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `communityId` | [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) | community id |
+
+#### Returns
+
+`Promise`<{ `admins`: [`ContactId`](/api/types/api_model_aliases.ContactId.md)[] ; `id`: [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) ; `subgroup`: `boolean`  }[]\>
+
+___
+
+### getCommunityAdmins
+
+▸ **getCommunityAdmins**(`communityId`): `Promise`<{ `admins`: [`Contact`](/api/interfaces/api_model_contact.Contact.md)[] ; `id`: [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) ; `subgroup`: `boolean`  }[]\>
+
+Retrieves community admins as Contact objects
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `communityId` | [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) | community id |
+
+#### Returns
+
+`Promise`<{ `admins`: [`Contact`](/api/interfaces/api_model_contact.Contact.md)[] ; `id`: [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) ; `subgroup`: `boolean`  }[]\>
+
+___
+
+### getCommunityInfo
+
+▸ **getCommunityInfo**(`communityId`): `Promise`<[`GroupMetadata`](/api/interfaces/api_model_group_metadata.GroupMetadata.md) & { `subGroups`: [`GroupMetadata`](/api/interfaces/api_model_group_metadata.GroupMetadata.md)[]  }\>
+
+Returns the community metadata. Like group metadata but with a `subGroups` property which is the group metadata of the community subgroups.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `communityId` | [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) | community id |
+
+#### Returns
+
+`Promise`<[`GroupMetadata`](/api/interfaces/api_model_group_metadata.GroupMetadata.md) & { `subGroups`: [`GroupMetadata`](/api/interfaces/api_model_group_metadata.GroupMetadata.md)[]  }\>
+
+___
+
+### getCommunityParticipantIds
+
+▸ **getCommunityParticipantIds**(`communityId`): `Promise`<{ `id`: [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) ; `participants`: [`ContactId`](/api/types/api_model_aliases.ContactId.md)[] ; `subgroup`: `boolean`  }[]\>
+
+Retrieves community members Ids
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `communityId` | [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) | community id |
+
+#### Returns
+
+`Promise`<{ `id`: [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) ; `participants`: [`ContactId`](/api/types/api_model_aliases.ContactId.md)[] ; `subgroup`: `boolean`  }[]\>
+
+___
+
+### getCommunityParticipants
+
+▸ **getCommunityParticipants**(`communityId`): `Promise`<{ `id`: [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) ; `participants`: [`Contact`](/api/interfaces/api_model_contact.Contact.md)[] ; `subgroup`: `boolean`  }[]\>
+
+Retrieves community members as Contact objects
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `communityId` | [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) | community id |
+
+#### Returns
+
+`Promise`<{ `id`: [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) ; `participants`: [`Contact`](/api/interfaces/api_model_contact.Contact.md)[] ; `subgroup`: `boolean`  }[]\>
 
 ___
 
@@ -1806,15 +1928,17 @@ ___
 
 ### getSnapshot
 
-▸ **getSnapshot**(`chatId?`): `Promise`<[`DataURL`](/api/types/api_model_aliases.DataURL.md)\>
+▸ **getSnapshot**(`chatId?`, `width?`, `height?`): `Promise`<[`DataURL`](/api/types/api_model_aliases.DataURL.md)\>
 
 Returns a PNG DataURL screenshot of the session
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `chatId?` | [`ChatId`](/api/types/api_model_aliases.ChatId.md) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `chatId?` | [`ChatId`](/api/types/api_model_aliases.ChatId.md) | Chat ID to open before taking a snapshot |
+| `width?` | `number` | Width of the viewport for the snapshot. Height also required if you want to resize. |
+| `height?` | `number` | Height of the viewport for the snapshot. Width also required if you want to resize. |
 
 #### Returns
 
@@ -2577,6 +2701,14 @@ ___
 
 ▸ **postImageStatus**(`data`, `caption`): `Promise`<`string` \| `boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
+**`Deprecated`**
+
+:::danger
+
+Status features are broken for now. Please join our discord community for updates.
+
+:::
+
 [REQUIRES AN IMAGE STORY LICENSE-KEY](https://gum.co/open-wa)
 
 Posts an image story.
@@ -2599,6 +2731,14 @@ ___
 ### postTextStatus
 
 ▸ **postTextStatus**(`text`, `textRgba`, `backgroundRgba`, `font`): `Promise`<`string` \| `boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
+
+**`Deprecated`**
+
+:::danger
+
+Status features are broken for now. Please join our discord community for updates.
+
+:::
 
 [REQUIRES A TEXT STORY LICENSE-KEY](https://gum.co/open-wa)
 
@@ -2624,6 +2764,14 @@ ___
 ### postVideoStatus
 
 ▸ **postVideoStatus**(`data`, `caption`): `Promise`<`string` \| `boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
+
+**`Deprecated`**
+
+:::danger
+
+Status features are broken for now. Please join our discord community for updates.
+
+:::
 
 [REQUIRES A VIDEO STORY LICENSE-KEY](https://gum.co/open-wa)
 
@@ -2902,6 +3050,25 @@ Report a contact for spam, block them and attempt to clear chat.
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `id` | [`ChatId`](/api/types/api_model_aliases.ChatId.md) | '000000000000@c.us' |
+
+#### Returns
+
+`Promise`<`boolean`\>
+
+___
+
+### resizePage
+
+▸ **resizePage**(`width?`, `height?`): `Promise`<`boolean`\>
+
+Easily resize page on the fly. Useful if you're showing screenshots in a web-app.
+
+#### Parameters
+
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `width` | `number` | `1920` |
+| `height` | `number` | `1080` |
 
 #### Returns
 
@@ -3463,7 +3630,7 @@ ___
 
 ### sendPoll
 
-▸ **sendPoll**(`to`, `name`, `options`): `Promise`<[`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
+▸ **sendPoll**(`to`, `name`, `options`, `quotedMsgId?`, `allowMultiSelect?`): `Promise`<[`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
 Send a poll to a group chat
 
@@ -3474,6 +3641,8 @@ Send a poll to a group chat
 | `to` | [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) | chat id - a group chat is required |
 | `name` | `string` | the name of the poll |
 | `options` | `string`[] | an array of poll options |
+| `quotedMsgId?` | [`MessageId`](/api/types/api_model_aliases.MessageId.md) | A message to quote when sending the poll |
+| `allowMultiSelect?` | `boolean` | Whether or not to allow multiple selections. default false |
 
 #### Returns
 

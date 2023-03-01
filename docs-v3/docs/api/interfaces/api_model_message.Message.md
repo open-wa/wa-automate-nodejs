@@ -200,7 +200,7 @@ ___
 
 ### isGroupJoinRequest
 
-• `Optional` **isGroupJoinRequest**: `boolean`
+• `Optional` **isGroupJoinRequest**: [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md)
 
 When a user requests to join a group wihtin a community the request is received by the host as a message. This boolean will allow you to easily determine if the incoming message is a request to join a group.
 
@@ -379,7 +379,7 @@ ___
 
 ### quotedParentGroupJid
 
-• `Optional` **quotedParentGroupJid**: `string`
+• `Optional` **quotedParentGroupJid**: [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md)
 
 The parent group ID (community ID - communities are just groups made up of other groups) of the group represented by `quotedRemoteJid`
 

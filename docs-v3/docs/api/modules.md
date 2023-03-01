@@ -28,7 +28,6 @@ custom_edit_url: null
 - [api/model/product](/api/modules/api_model_product.md)
 - [api/model/reactions](/api/modules/api_model_reactions.md)
 - [api/model/sessionInfo](/api/modules/api_model_sessionInfo.md)
-- [controllers/data\_dir\_watcher](/api/modules/controllers_data_dir_watcher.md)
 - [controllers/events](/api/modules/controllers_events.md)
 - [controllers/init\_patch](/api/modules/controllers_init_patch.md)
 - [controllers/initializer](/api/modules/controllers_initializer.md)
