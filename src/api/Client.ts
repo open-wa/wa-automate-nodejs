@@ -179,6 +179,7 @@ declare module WAPI {
     chatId: string
   ) => Promise<boolean>;
   const getBusinessProfilesProducts: (to: string) => Promise<any>;
+  const editMessage: (messageId: string, text: string) => Promise<any>;
   const getCommunityInfo: (groupId: string) => Promise<any>;
   const getCommunityAdminIds: (groupId: string) => Promise<any>;
   const getCommunityAdmins: (groupId: string) => Promise<any>;
@@ -1509,6 +1510,25 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
         return WAPI.sendMessageWithMentions(to, content, hideTags, mentions);
       },
       { to, content, hideTags,mentions }
+    ) as Promise<boolean | MessageId>;
+  }
+
+
+  /**
+   * NOTE: This is experimental, most accounts do not have access to this feature in their apps.
+   * 
+   * Edit an existing message
+   * 
+   * @param messageId The message ID to edit
+   * @param text The new text content
+   * @returns 
+   */
+  public async editMessage(messageId: MessageId, text: Content) : Promise<boolean | MessageId> {
+    return await this.pup(
+      ({ messageId, text }) => {
+        return WAPI.editMessage(messageId, text);
+      },
+      { messageId, text }
     ) as Promise<boolean | MessageId>;
   }
 
