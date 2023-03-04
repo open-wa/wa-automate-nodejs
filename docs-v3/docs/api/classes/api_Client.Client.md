@@ -705,6 +705,27 @@ Download profile pics from the message object.
 
 ___
 
+### editMessage
+
+▸ **editMessage**(`messageId`, `text`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
+
+NOTE: This is experimental, most accounts do not have access to this feature in their apps.
+
+Edit an existing message
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `messageId` | [`MessageId`](/api/types/api_model_aliases.MessageId.md) | The message ID to edit |
+| `text` | [`Content`](/api/types/api_model_aliases.Content.md) | The new text content |
+
+#### Returns
+
+`Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
+
+___
+
 ### editProduct <div class="label license insiders">insiders</div>
 
 ▸ **editProduct**(`productId`, `name?`, `price?`, `currency?`, `images?`, `description?`, `url?`, `internalId?`, `isHidden?`): `Promise`<[`Product`](/api/interfaces/api_model_product.Product.md)\>
