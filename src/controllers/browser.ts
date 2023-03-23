@@ -156,7 +156,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
           await waPage.evaluate('window.WA_AUTHENTICATED=true;');
           quickAuthed = true;
         }
-      if (request.url().includes('https://crashlogs.whatsapp.net/') && blockCrashLogs){
+      if (["https://dit.whatsapp.net/deidentified_telemetry", "https://crashlogs.whatsapp.net/"].find(u=>request.url().includes(u)) && blockCrashLogs){
         request.abort();
       }
       else if (proxyAddr && !config?.useNativeProxy) {
