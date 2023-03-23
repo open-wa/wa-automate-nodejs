@@ -158,6 +158,7 @@ declare module WAPI {
   const sendListMessage: (to: ChatId, sections : any, title : string, description : string, actionText : string) => Promise<any>;
   const ghostForward: (chatId: string, messageId: string) => Promise<boolean>;
   const revokeGroupInviteLink: (chatId: string) => Promise<string> | Promise<boolean>;
+  const getGroupApprovalRequests: (chatId: string) => Promise<string> | Promise<boolean>;
   const getGroupInviteLink: (chatId: string) => Promise<string>;
   const sendImage: (
     base64: string,
@@ -3303,6 +3304,20 @@ public async getStatus(contactId: ContactId) : Promise<{
       chatId
     ) as Promise<string | boolean>;
   }
+
+
+  /**
+   * Gets the contact IDs of members requesting approval to join the group 
+   * @param groupChatId
+   * @returns `Promise<ContactId[]>`
+   */
+  public async getGroupApprovalRequests(groupChatId: GroupChatId) : Promise<ContactId[]>{
+    return await this.pup(
+      groupChatId => WAPI.getGroupApprovalRequests(groupChatId),
+      groupChatId
+    ) as Promise<ContactId[]>;
+  }
+
 
   /**
    * Deletes message of given message id
