@@ -159,6 +159,7 @@ declare module WAPI {
   const ghostForward: (chatId: string, messageId: string) => Promise<boolean>;
   const revokeGroupInviteLink: (chatId: string) => Promise<string> | Promise<boolean>;
   const getGroupApprovalRequests: (chatId: string) => Promise<string> | Promise<boolean>;
+  const approveGroupJoinRequest: (groupChatId: string, contactId: string) => Promise<string> | Promise<boolean>;
   const getGroupInviteLink: (chatId: string) => Promise<string>;
   const sendImage: (
     base64: string,
@@ -3318,6 +3319,19 @@ public async getStatus(contactId: ContactId) : Promise<{
     ) as Promise<ContactId[]>;
   }
 
+
+  /**
+    * Approves a group join request
+   * @param groupChatId The group chat id
+   * @param contactId The contact id of the person who is requesting to join the group
+   * @returns `Promise<boolean>`
+   */
+  public async approveGroupJoinRequest(groupChatId: GroupChatId, contactId: ContactId) : Promise<boolean | string>{
+    return await this.pup(
+      ({groupChatId, contactId}) => WAPI.approveGroupJoinRequest(groupChatId, contactId),
+      {groupChatId, contactId}
+    ) as Promise<string | boolean>;
+  }
 
   /**
    * Deletes message of given message id
