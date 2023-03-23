@@ -365,7 +365,7 @@ export class Client {
      * Wait for internal session to load earlier messages
      */
     log.info('Waiting for internal session to finish syncing')
-    const syncT = await timePromise(()=>this._page.waitForFunction(()=>WAPI.isSessionLoaded(), {timeout: 20000, polling: 'mutation'}))
+    const syncT = await timePromise(()=>this._page.waitForFunction(()=>WAPI.isSessionLoaded(), {timeout: 20000, polling: 'mutation'})).catch(()=>20001)
     log.info(`Internal session finished syncing in ${syncT}ms`)
       if(this._createConfig?.eventMode) {
         await this.registerAllSimpleListenersOnEv();
