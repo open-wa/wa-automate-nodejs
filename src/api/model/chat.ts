@@ -85,6 +85,10 @@ export interface BaseChat {
    * @deprecated This is unreliable. Use the method [`getLastSeen`](https://open-wa.github.io/wa-automate-nodejs/classes/client.html#getlastseen) instead.
    */
   lastSeen?: any;
+  /**
+   * URL of the chat picture if available
+   */
+  pic?:string;
 }
 
 export interface SingleChat extends BaseChat {
