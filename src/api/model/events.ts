@@ -48,6 +48,10 @@
      */
     GlobalParticipantsChanged = 'onGlobalParticipantsChanged',
     /**
+     * Represents [[onGroupApprovalRequest]]
+     */
+    GroupApprovalRequest = 'onGroupApprovalRequest',
+    /**
      * Represents [[onChatState]]
      */
     ChatState = 'onChatState',

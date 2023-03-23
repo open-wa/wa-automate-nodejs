@@ -1076,6 +1076,17 @@ export class Client {
   }
 
   /**
+   * Listents to group approval requests. Emits a message object. Use it with `message.isGroupApprovalRequest()` to check if it is a group approval request.
+   * 
+   * @event
+   * @param fn callback function that handles a [[Message]] as the first and only parameter.
+   * @returns `true` if the callback was registered
+   */
+  public async onGroupApprovalRequest(fn: (groupApprovalRequestMessage: Message) => void) : Promise<Listener | boolean> {
+    return this.registerListener(SimpleListener.GroupApprovalRequest, fn);
+  }
+
+  /**
    * Listens to all group (gp2) events. This can be useful if you want to catch when a group title, subject or picture is changed.
    * 
    * @event
