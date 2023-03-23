@@ -96,6 +96,27 @@ If the host account is not an administrator, returns `INSUFFICIENT_PERMISSIONS`
 
 ___
 
+### approveGroupJoinRequest
+
+▸ **approveGroupJoinRequest**(`groupChatId`, `contactId`): `Promise`<`string` \| `boolean`\>
+
+Approves a group join request
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `groupChatId` | [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) | The group chat id |
+| `contactId` | [`ContactId`](/api/types/api_model_aliases.ContactId.md) | The contact id of the person who is requesting to join the group |
+
+#### Returns
+
+`Promise`<`string` \| `boolean`\>
+
+`Promise<boolean>`
+
+___
+
 ### archiveChat
 
 ▸ **archiveChat**(`id`, `archive`): `Promise`<`boolean`\>
@@ -1419,6 +1440,26 @@ Get Admins of a Group
 
 ___
 
+### getGroupApprovalRequests
+
+▸ **getGroupApprovalRequests**(`groupChatId`): `Promise`<[`ContactId`](/api/types/api_model_aliases.ContactId.md)[]\>
+
+Gets the contact IDs of members requesting approval to join the group
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `groupChatId` | [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) |
+
+#### Returns
+
+`Promise`<[`ContactId`](/api/types/api_model_aliases.ContactId.md)[]\>
+
+`Promise<ContactId[]>`
+
+___
+
 ### getGroupInfo
 
 ▸ **getGroupInfo**(`groupId`): `Promise`<`any`\>
@@ -1669,6 +1710,7 @@ If you have set `onAnyMessage` or `onMessage` with the second parameter (PQueue 
 | `onChatState` | `default`<`default`, `DefaultAddOptions`\> |
 | `onContactAdded` | `default`<`default`, `DefaultAddOptions`\> |
 | `onGlobalParticipantsChanged` | `default`<`default`, `DefaultAddOptions`\> |
+| `onGroupApprovalRequest` | `default`<`default`, `DefaultAddOptions`\> |
 | `onGroupChange` | `default`<`default`, `DefaultAddOptions`\> |
 | `onIncomingCall` | `default`<`default`, `DefaultAddOptions`\> |
 | `onLabel` | `default`<`default`, `DefaultAddOptions`\> |
@@ -2915,6 +2957,28 @@ A webhook object. This will include a webhook ID and an array of all successfull
 
 ___
 
+### rejectGroupJoinRequest
+
+▸ **rejectGroupJoinRequest**(`groupChatId`, `contactId`): `Promise`<`string` \| `boolean`\>
+
+Rejects a group join request
+ *
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `groupChatId` | [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) | The group chat id  * |
+| `contactId` | [`ContactId`](/api/types/api_model_aliases.ContactId.md) | The contact id of the person who is requesting to join the group  * |
+
+#### Returns
+
+`Promise`<`string` \| `boolean`\>
+
+`Promise<boolean>`
+
+___
+
 ### removeAllListeners
 
 ▸ **removeAllListeners**(): `boolean`
@@ -4037,6 +4101,27 @@ Sets the chat state
 
 ___
 
+### setGroupApprovalMode
+
+▸ **setGroupApprovalMode**(`groupId`, `requireApproval`): `Promise`<`boolean`\>
+
+Turn on or off the approval requirement for new members to join a group
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `groupId` | [`GroupChatId`](/api/types/api_model_aliases.GroupChatId.md) | '0000000000-00000000@g.us' the group id. |
+| `requireApproval` | `boolean` | set to true to turn on the approval requirement, false to turn off |
+
+#### Returns
+
+`Promise`<`boolean`\>
+
+boolean true if action completed successfully.
+
+___
+
 ### setGroupDescription
 
 ▸ **setGroupDescription**(`groupId`, `description`): `Promise`<`boolean`\>
@@ -4752,6 +4837,26 @@ Listens to add and remove events on Groups on a global level. It is memory effic
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `fn` | (`participantChangedEvent`: [`ParticipantChangedEventModel`](/api/interfaces/api_model_group_metadata.ParticipantChangedEventModel.md)) => `void` | callback function that handles a ParticipantChangedEventModel as the first and only parameter. |
+
+#### Returns
+
+`Promise`<`boolean` \| `Listener`\>
+
+`true` if the callback was registered
+
+___
+
+### onGroupApprovalRequest
+
+▸ **onGroupApprovalRequest**(`fn`): `Promise`<`boolean` \| `Listener`\>
+
+Listents to group approval requests. Emits a message object. Use it with `message.isGroupApprovalRequest()` to check if it is a group approval request.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `fn` | (`groupApprovalRequestMessage`: [`Message`](/api/interfaces/api_model_message.Message.md)) => `void` | callback function that handles a Message as the first and only parameter. |
 
 #### Returns
 
