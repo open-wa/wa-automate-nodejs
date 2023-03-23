@@ -34,7 +34,7 @@ import { Listener } from 'eventemitter2';
 import PriorityQueue from 'p-queue/dist/priority-queue';
 import { MessagePreprocessors } from '../structures/preProcessors';
 import { NextFunction, Request, Response } from 'express';
-import { assertFile, processSendData, base64MimeType, ensureDUrl, FileOutputTypes, generateGHIssueLink, getDUrl, isBase64, isDataURL, now, rmFileAsync } from '../utils/tools';
+import { assertFile, processSendData, base64MimeType, ensureDUrl, FileOutputTypes, generateGHIssueLink, getDUrl, isBase64, isDataURL, now, rmFileAsync, timePromise } from '../utils/tools';
 import { Call } from './model/call';
 import { AdvancedButton, Button, LocationButtonBody, Section } from './model/button';
 import { JsonObject } from 'type-fest';
@@ -360,6 +360,12 @@ export class Client {
    * Run all tasks to set up client AFTER init is fully completed
    */
   async loaded() : Promise<void> {
+    /**
+     * Wait for internal session to load earlier messages
+     */
+    log.info('Waiting for internal session to finish syncing')
+    const syncT = await timePromise(()=>this._page.waitForFunction(()=>WAPI.isSessionLoaded(), {timeout: 20000, polling: 'mutation'}))
+    log.info(`Internal session finished syncing in ${syncT}ms`)
       if(this._createConfig?.eventMode) {
         await this.registerAllSimpleListenersOnEv();
       }
