@@ -370,6 +370,7 @@ export function rmFileAsync(file: string) {
  */
 export const assertFile : (file: AdvancedFile | Buffer, outfileName: string, desiredOutputType: keyof typeof FileOutputTypes, requestConfig ?: any ) => Promise<string | Buffer | Readable > = async (file, outfileName,  desiredOutputType, requestConfig) => {
   let inputType;
+  outfileName = sanitizeAccentedChars(outfileName)
   if(typeof file == 'string') {
     if(isDataURL(file)) inputType = FileInputTypes.DATA_URL
     else if(isBase64(file)) inputType = FileInputTypes.BASE_64
@@ -458,4 +459,17 @@ export const fixPath : (_path : string) => string = ( _path : string) => {
   _path = _path.replace("~",homedir())
   _path = _path.includes('./') ? path.join(process.cwd(), _path) : _path;
   return _path;
+}
+
+/**
+ * 
+ * Accented filenames break file sending in docker containers. This is used to replace accented chars in strings to prevent file sending failures.
+ * 
+ * @param input The raw string
+ * @returns A sanitized string with all accented chars removed
+ */
+export const sanitizeAccentedChars : (input : string) => string = (input: string) => {
+  return input
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
 }
