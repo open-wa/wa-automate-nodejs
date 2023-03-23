@@ -130,6 +130,7 @@ declare module WAPI {
   const demoteParticipant: (groupId: string, contactId: string) => Promise<boolean | string>;
   const setGroupToAdminsOnly: (groupId: string, onlyAdmins: boolean) => Promise<boolean>;
   const setGroupEditToAdminsOnly: (groupId: string, onlyAdmins: boolean) => Promise<boolean>;
+  const setGroupApprovalMode: (groupId: string, requireApproval: boolean) => Promise<boolean>;
   const setGroupDescription: (groupId: string, description: string) => Promise<boolean>;
   const setGroupTitle: (groupId: string, title: string) => Promise<boolean>;
   const sendPoll: (groupId: string, name: string, options: string[], quotedMsgId ?: string, allowMultiSelect ?: boolean) => Promise<string>;
@@ -3603,6 +3604,20 @@ public async getStatus(contactId: ContactId) : Promise<{
     { groupId, onlyAdmins }
   ) as Promise<boolean>;
 }
+
+  /**
+   * 
+  * Turn on or off the approval requirement for new members to join a group
+  * @param groupId '0000000000-00000000@g.us' the group id.
+  * @param requireApproval set to true to turn on the approval requirement, false to turn off
+  * @returns boolean true if action completed successfully.
+  */
+  public async setGroupApprovalMode(groupId: GroupChatId, requireApproval: boolean) : Promise<boolean> {
+    return await this.pup(
+      ({ groupId, requireApproval }) => WAPI.setGroupEditToAdminsOnly(groupId, requireApproval),
+      { groupId, requireApproval }
+    ) as Promise<boolean>;
+  }
 
   /**
   * Change the group chant description
