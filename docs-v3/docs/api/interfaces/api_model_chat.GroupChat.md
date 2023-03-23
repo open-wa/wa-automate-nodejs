@@ -275,6 +275,18 @@ Messages that are pending to be sent
 
 ___
 
+### pic
+
+• `Optional` **pic**: `string`
+
+URL of the chat picture if available
+
+#### Inherited from
+
+[BaseChat](/api/interfaces/api_model_chat.BaseChat.md).[pic](/api/interfaces/api_model_chat.BaseChat.md#pic)
+
+___
+
 ### pin
 
 • **pin**: `number`

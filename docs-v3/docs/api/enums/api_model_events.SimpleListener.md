@@ -108,6 +108,14 @@ Represents onGlobalParticipantsChanged
 
 ___
 
+### GroupApprovalRequest
+
+• **GroupApprovalRequest** = ``"onGroupApprovalRequest"``
+
+Represents onGroupApprovalRequest
+
+___
+
 ### GroupChange
 
 • **GroupChange** = ``"onGroupChange"``

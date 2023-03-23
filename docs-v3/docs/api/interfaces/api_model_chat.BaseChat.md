@@ -177,6 +177,14 @@ Messages that are pending to be sent
 
 ___
 
+### pic
+
+• `Optional` **pic**: `string`
+
+URL of the chat picture if available
+
+___
+
 ### pin
 
 • **pin**: `number`
