@@ -249,7 +249,7 @@ declare module WAPI {
   const getUseHereString: () => Promise<string>;
   const getLocaledString: (query: string) => Promise<string>;
   const getHostNumber: () => string;
-  const getAllGroups: () => Promise<Chat[]>;
+  const getAllGroups: (withNewMessagesOnly:string) => Promise<Chat[]>;
   const getGroupParticipantIDs: (groupId: string) => Promise<string[]>;
   const getGroupInfo: (groupId: string) => Promise<any>;
   const joinGroupViaLink: (link: string, returnChatObj?: boolean) => Promise<string | boolean | number | Chat>;
