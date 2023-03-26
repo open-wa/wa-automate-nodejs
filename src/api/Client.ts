@@ -1449,6 +1449,15 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
   }
 
   /**
+   * 
+   * @deprecated
+   * 
+   * :::danger
+   *
+   * Buttons are broken for the foreseeable future. Please DO NOT get a license solely for access to buttons. They are no longer reliable due to recent changes at WA.
+   * 
+   * :::
+   * 
    * Test the button commands on MD accounts with an insiders key. This is a temporary feature to help fix issue #2658
    */
   public async testButtons(chatId: ChatId): Promise<any>  {
@@ -1574,7 +1583,14 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
 
   
   /**
-   * {@license:insiders@}
+   * 
+   * @deprecated
+   * 
+   * :::danger
+   *
+   * Buttons are broken for the foreseeable future. Please DO NOT get a license solely for access to buttons. They are no longer reliable due to recent changes at WA.
+   * 
+   * :::
    * 
    * Send generic quick reply buttons. This is an insiders feature for MD accounts.
    * 
@@ -1595,16 +1611,17 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
 
   
   /**
-   * {@license:insiders@}
    * 
-   * Send advanced buttons with media body. This is an insiders feature for MD accounts.
+   * @deprecated
    * 
-   * :::caution
+   * :::danger
    *
-   *  Button messages are being progressively handicapped by recipient mobile devices. Some recipients may not see some types of button messages even though their devices will receive them.
+   * Buttons are broken for the foreseeable future. Please DO NOT get a license solely for access to buttons. They are no longer reliable due to recent changes at WA.
    * 
    * :::
    * 
+   * Send advanced buttons with media body. This is an insiders feature for MD accounts.
+   *  
    * Body can be location, image, video or document. Buttons can be quick reply, url or call buttons.
    * 
    * @param  {ChatId} to chat id
@@ -1657,7 +1674,14 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
 
 
    /**
-    * {@license:insiders@}
+    * @deprecated
+    * 
+    * 
+    * :::danger
+    *
+    * Buttons are broken for the foreseeable future. Please DO NOT get a license solely for access to buttons. They are no longer reliable due to recent changes at WA.
+    * 
+    * :::
     * 
     * Send a list message. This will not work when being sent from business accounts!
     * 
@@ -3216,6 +3240,12 @@ public async getStatus(contactId: ContactId) : Promise<{
   /**
    * 
    * {@license:insiders@}
+   * 
+   * :::danger
+   *
+   * Buttons are broken for the foreseeable future. Please DO NOT get a license solely for access to buttons. They are no longer reliable due to recent changes at WA.
+   * 
+   * :::
    * 
    * Use a raw payload within your open-wa session
    * 
