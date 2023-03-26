@@ -17,6 +17,12 @@ custom_edit_url: null
 Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
 :::
 
+:::danger
+
+Buttons are broken for the foreseeable future. Please DO NOT get a license solely for access to buttons. They are no longer reliable due to recent changes at WA.
+
+:::
+
 Use a raw payload within your open-wa session
 
 #### Parameters
@@ -3181,22 +3187,20 @@ Revokes the current invite link for a group chat. Any previous links will stop w
 
 ___
 
-### sendAdvancedButtons <div class="label license insiders">insiders</div>
+### sendAdvancedButtons
 
 ▸ **sendAdvancedButtons**(`to`, `body`, `buttons`, `text`, `footer`, `filename`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
+**`Deprecated`**
+
+:::danger
+
+Buttons are broken for the foreseeable future. Please DO NOT get a license solely for access to buttons. They are no longer reliable due to recent changes at WA.
+
 :::
 
 Send advanced buttons with media body. This is an insiders feature for MD accounts.
-
-:::caution
-
- Button messages are being progressively handicapped by recipient mobile devices. Some recipients may not see some types of button messages even though their devices will receive them.
-
-:::
-
+ 
 Body can be location, image, video or document. Buttons can be quick reply, url or call buttons.
 
 #### Parameters
@@ -3257,12 +3261,16 @@ Note this is a bit of hack on top of a location message. During testing it is sh
 
 ___
 
-### sendButtons <div class="label license insiders">insiders</div>
+### sendButtons
 
 ▸ **sendButtons**(`to`, `body`, `buttons`, `title?`, `footer?`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
+**`Deprecated`**
+
+:::danger
+
+Buttons are broken for the foreseeable future. Please DO NOT get a license solely for access to buttons. They are no longer reliable due to recent changes at WA.
+
 :::
 
 Send generic quick reply buttons. This is an insiders feature for MD accounts.
@@ -3572,12 +3580,16 @@ Automatically sends a link with the auto generated link preview. You can also ad
 
 ___
 
-### sendListMessage <div class="label license insiders">insiders</div>
+### sendListMessage
 
 ▸ **sendListMessage**(`to`, `sections`, `title`, `description`, `actionText`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
+**`Deprecated`**
+
+:::danger
+
+Buttons are broken for the foreseeable future. Please DO NOT get a license solely for access to buttons. They are no longer reliable due to recent changes at WA.
+
 :::
 
 Send a list message. This will not work when being sent from business accounts!
@@ -4438,6 +4450,14 @@ ___
 ### testButtons
 
 ▸ **testButtons**(`chatId`): `Promise`<`any`\>
+
+**`Deprecated`**
+
+:::danger
+
+Buttons are broken for the foreseeable future. Please DO NOT get a license solely for access to buttons. They are no longer reliable due to recent changes at WA.
+
+:::
 
 Test the button commands on MD accounts with an insiders key. This is a temporary feature to help fix issue #2658
 
