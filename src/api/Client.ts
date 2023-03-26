@@ -2595,14 +2595,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * @returns array of groups
    */
   public async getAllGroups(withNewMessagesOnly = false) : Promise<Chat[]> {
-    if (withNewMessagesOnly) {
-      // prettier-ignore
-      const chats = await this.pup(() => WAPI.getAllChatsWithNewMsg()) as Chat[];
-      return chats.filter(chat => chat.isGroup);
-    } else {
-      const chats = await this.pup(() => WAPI.getAllChats()) as Chat[];
-      return chats.filter(chat => chat.isGroup);
-    }
+      return await this.pup((withNewMessagesOnly) => WAPI.getAllGroups(withNewMessagesOnly), withNewMessagesOnly) as Chat[];
   }
 
   /**
