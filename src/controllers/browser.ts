@@ -234,7 +234,7 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
     await waPage.exposeFunction("CriticalInternalMessage", async ({value, text}) => {
       spinner?.info(`${text}`)
       spinner?.emit({value,text},"critical_internal_message");
-      if(value==="TEMP_BAN") await kill(waPage, undefined, true, undefined, "TEMP_BAN")
+      if(value==="TEMP_BAN" && !(config.killProcessOnBan === false)) await kill(waPage, undefined, true, undefined, "TEMP_BAN")
     })
     await injectProgObserver(waPage)
     if(webRes==null) {

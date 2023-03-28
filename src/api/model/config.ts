@@ -539,6 +539,12 @@ export interface ConfigObject {
      */
     killProcessOnTimeout?: boolean;
     /**
+     * If set to true, the system will kill the whole node process when a "TEMPORARY BAN" is detected. This is useful to prevent hanging processes.
+     * It is `true` by default because it is a very rare event and it is better to kill the process than to leave it hanging.
+     * @default `true`
+     */
+    killProcessOnBan?: boolean;
+    /**
      * Setting this to true will bypass web security. DO NOT DO THIS IF YOU DO NOT HAVE TO. CORS issue may arise when using a proxy.
      * @default `false`
      */
