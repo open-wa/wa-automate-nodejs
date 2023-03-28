@@ -11,13 +11,13 @@ import { deleteSessionData, initPage, injectApi, kill } from './browser';
 import { Spin } from './events'
 import { integrityCheck, checkWAPIHash } from './launch_checks';
 import CFonts from 'cfonts';
-import { generateGHIssueLink, getConfigFromProcessEnv, now } from '../utils/tools';
+import { generateGHIssueLink, getConfigFromProcessEnv, now, timePromise } from '../utils/tools';
 import { SessionInfo } from '../api/model/sessionInfo';
 import { Page } from 'puppeteer';
 import { createHash } from 'crypto';
 import { readJsonSync } from 'fs-extra'
 import { upload } from 'pico-s3';
-import { injectInitPatch } from './init_patch'
+import { injectInitPatch, injectInternalEventHandler } from './init_patch'
 import { earlyInjectionCheck, getLicense, getPatch, getAndInjectLivePatch, getAndInjectLicense } from './patch_manager';
 import { log, setupLogging } from '../logging/logging';
 
@@ -285,6 +285,8 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
       spinner.emit('successfulScan');
       spinner.succeed();
     }
+    const tI = await timePromise(()=> injectInternalEventHandler(waPage))
+    log.info(`Injected internal event handler: ${tI} ms`)
     if(attemptingReauth) {
       await waPage.evaluate("window.Store = undefined")
       if(config?.waitForRipeSession) {

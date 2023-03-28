@@ -61,8 +61,8 @@ const isTosBlocked  = (waPage: Page): Observable<string | boolean> => {
 
 export const waitForRipeSession = async (waPage: Page): Promise<boolean> => {
   try {
-    await waPage.waitForFunction(`window.checkRipeSession()`,
-      { timeout: 0, polling: 500 });
+    await waPage.waitForFunction(`window.isRipeSession()`,
+      { timeout: 0, polling: 'mutation' });
     return true;
   } catch (error) {
     return false;
