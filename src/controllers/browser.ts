@@ -231,6 +231,11 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
       spinner?.info(`${(value || value === 0) && `${value}%:\t`} ${text}`)
       spinner?.emit({value,text},"internal_launch_progress")
     })
+    await waPage.exposeFunction("CriticalInternalMessage", async ({value, text}) => {
+      spinner?.info(`${text}`)
+      spinner?.emit({value,text},"critical_internal_message");
+      if(value==="TEMP_BAN") await kill(waPage, undefined, true, undefined, "TEMP_BAN")
+    })
     await injectProgObserver(waPage)
     if(webRes==null) {
       spinner?.info(`Page loaded but something may have gone wrong: ${WEB_END_TS - WEB_START_TS}ms`)
