@@ -1,5 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs/promises';
+import * as readline from 'readline';
 import ON_DEATH from 'death';
 // import puppeteer from 'puppeteer-extra';
 import { puppeteerConfig, useragent, width, height} from '../config/puppeteer.config';
@@ -39,6 +40,20 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
     browser = await initBrowser(sessionId,config, spinner);
     spinner?.info(`Browser launched: ${(now() - startBrowser).toFixed(0)}ms`)
     waPage = await getWAPage(browser);
+    readline.emitKeypressEvents(process.stdin);
+    process.stdin.setRawMode(true);
+    console.log('Press "s" to trigger an event. Press "Ctrl+C" to quit.');
+    process.stdin.on('keypress', async (str: string, key: readline.Key) => {
+      if (key.name === 's') {
+        const path = `./screenshot_${config.sessionId || "session"}_${Date.now()}.png`;
+        console.log(`Taking screenshot: ${path} ...`);
+        await waPage.screenshot({path})
+      }
+    
+      if (key.ctrl && key.name === 'c') {
+        process.exit();
+      }
+    });
   }
   //@ts-ignore
   await (typeof waPage._client === 'function' && waPage._client() || waPage._client).send('Network.setBypassServiceWorker', {bypass: true})
