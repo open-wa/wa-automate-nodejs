@@ -411,6 +411,19 @@ Kill the client when a logout is detected
 
 ___
 
+### killProcessOnBan
+
+• `Optional` **killProcessOnBan**: `boolean`
+
+If set to true, the system will kill the whole node process when a "TEMPORARY BAN" is detected. This is useful to prevent hanging processes.
+It is `true` by default because it is a very rare event and it is better to kill the process than to leave it hanging.
+
+**`Default`**
+
+`true`
+
+___
+
 ### killProcessOnBrowserClose
 
 • `Optional` **killProcessOnBrowserClose**: `boolean`
