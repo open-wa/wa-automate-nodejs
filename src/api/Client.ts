@@ -1612,11 +1612,11 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
   
   /**
    * 
-   * @deprecated
+   * {@license:insiders@}
    * 
    * :::danger
    *
-   * Buttons are broken for the foreseeable future. Please DO NOT get a license solely for access to buttons. They are no longer reliable due to recent changes at WA.
+   * Template messages (URL & CALL buttons) are broken for the foreseeable future. Please DO NOT get a license solely for access to URL or CALL buttons. They are no longer reliable due to recent changes at WA.
    * 
    * :::
    * 
