@@ -358,6 +358,12 @@ export interface ConfigObject {
      */
     qrTimeout?: number,
     /**
+     * This determines how long the process should wait for a session to load fully before continuing the launch process.
+     * Set this to 0 to wait forever. Default is 5 seconds.
+     * @default 5
+     */
+    waitForRipeSessionTimeout?: number,
+    /**
      * Some features, like video upload, do not work without a chrome instance. Set this to the path of your chrome instance or you can use `useChrome:true` to automatically detect a chrome instance for you. Please note, this overrides `useChrome`.
      */
     executablePath?: string,
