@@ -1674,14 +1674,8 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
 
 
    /**
-    * @deprecated
     * 
-    * 
-    * :::danger
-    *
-    * Buttons are broken for the foreseeable future. Please DO NOT get a license solely for access to buttons. They are no longer reliable due to recent changes at WA.
-    * 
-    * :::
+    * {@license:insiders@}
     * 
     * Send a list message. This will not work when being sent from business accounts!
     * 
