@@ -40,20 +40,22 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
     browser = await initBrowser(sessionId,config, spinner);
     spinner?.info(`Browser launched: ${(now() - startBrowser).toFixed(0)}ms`)
     waPage = await getWAPage(browser);
-    readline.emitKeypressEvents(process.stdin);
-    process.stdin.setRawMode(true);
-    console.log('Press "s" to trigger an event. Press "Ctrl+C" to quit.');
-    process.stdin.on('keypress', async (str: string, key: readline.Key) => {
-      if (key.name === 's') {
-        const path = `./screenshot_${config.sessionId || "session"}_${Date.now()}.png`;
-        console.log(`Taking screenshot: ${path} ...`);
-        await waPage.screenshot({path})
-      }
-    
-      if (key.ctrl && key.name === 'c') {
-        process.exit();
-      }
-    });
+    if(process.stdin.setRawMode && typeof process.stdin.setRawMode == "function") {
+      readline.emitKeypressEvents(process.stdin);
+      process.stdin.setRawMode(true);
+      console.log('Press "s" to take a screenshot. Press "Ctrl+C" to quit.');
+      process.stdin.on('keypress', async (str: string, key: readline.Key) => {
+        if (key.name === 's') {
+          const path = `./screenshot_${config.sessionId || "session"}_${Date.now()}.png`;
+          console.log(`Taking screenshot: ${path} ...`);
+          await waPage.screenshot({path})
+        }
+      
+        if (key.ctrl && key.name === 'c') {
+          process.exit();
+        }
+      });
+    } else console.log("Unable to set raw mode on stdin. Keypress events will not be emitted. You cannot take a screenshot by pressing 's' during launch.")
   }
   //@ts-ignore
   await (typeof waPage._client === 'function' && waPage._client() || waPage._client).send('Network.setBypassServiceWorker', {bypass: true})
