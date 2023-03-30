@@ -1036,3 +1036,16 @@ ___
 
 wait for a valid headful session. Not required in recent versions.
 default: `true`
+
+___
+
+### waitForRipeSessionTimeout
+
+• `Optional` **waitForRipeSessionTimeout**: `number`
+
+This determines how long the process should wait for a session to load fully before continuing the launch process.
+Set this to 0 to wait forever. Default is 5 seconds.
+
+**`Default`**
+
+5
