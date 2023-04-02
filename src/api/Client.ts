@@ -232,7 +232,7 @@ declare module WAPI {
   const healthCheck: () => any;
   const getState: () => string;
   const getUnsentMessages: () => Promise<Message[]>;
-  const forceUpdateConnectionState: () => Promise<string>;
+  const forceUpdateConnectionState: (killBeforeReconnect: boolean) => Promise<string>;
   const getBatteryLevel: () => number;
   const getIsPlugged: () => boolean;
   const clearAllChats: (ts ?: number) => Promise<boolean>;
@@ -1358,11 +1358,12 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
   }
 
   /**
-   * Forces the session to update the connection state. This will take a few seconds to determine the 'correct' state.
+   * Forces the session to update the connection state.
+   * @param killBeforeAttemptingToReconnect Setting this to true will force the session to drop the current socket connection before attempting to reconnect. This is useful if you want to force the session to reconnect immediately.
    * @returns updated connection state
    */
-  public async forceUpdateConnectionState() : Promise<STATE> {
-    return await this._page.evaluate(() => WAPI.forceUpdateConnectionState()) as STATE;
+  public async forceUpdateConnectionState(killBeforeReconnect?: boolean) : Promise<STATE> {
+    return await this._page.evaluate((killBeforeReconnect) => WAPI.forceUpdateConnectionState(killBeforeReconnect),killBeforeReconnect) as STATE;
   }
 
   /**
