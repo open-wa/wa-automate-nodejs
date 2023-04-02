@@ -537,6 +537,14 @@ false
 
 ___
 
+### logInternalEvents
+
+• `Optional` **logInternalEvents**: `boolean`
+
+This will make the library log all internal wa web events to the console. This is useful for debugging purposes. DO NOT TURN THIS ON UNLESS ASKED TO.
+
+___
+
 ### logging
 
 • `Optional` **logging**: [`ConfigLogTransport`](/api/types/logging_logging.ConfigLogTransport.md)[]
