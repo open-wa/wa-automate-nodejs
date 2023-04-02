@@ -616,6 +616,10 @@ export interface ConfigObject {
      */
     logDebugInfoAsObject?: boolean;
     /**
+     * This will make the library log all internal wa web events to the console. This is useful for debugging purposes. DO NOT TURN THIS ON UNLESS ASKED TO.
+     */
+    logInternalEvents?: boolean;
+    /**
      * Kill the client when a logout is detected
      * @default `false`
      */

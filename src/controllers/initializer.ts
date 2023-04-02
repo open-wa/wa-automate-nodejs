@@ -285,6 +285,7 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
       spinner.emit('successfulScan');
       spinner.succeed();
     }
+    if(config.logInternalEvents) await waPage.evaluate("debugEvents=true")
     const tI = await timePromise(()=> injectInternalEventHandler(waPage))
     log.info(`Injected internal event handler: ${tI} ms`)
     if(attemptingReauth) {
