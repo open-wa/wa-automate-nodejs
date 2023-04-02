@@ -844,9 +844,15 @@ ___
 
 ### forceUpdateConnectionState
 
-▸ **forceUpdateConnectionState**(): `Promise`<[`STATE`](/api/enums/api_model.STATE.md)\>
+▸ **forceUpdateConnectionState**(`killBeforeReconnect?`): `Promise`<[`STATE`](/api/enums/api_model.STATE.md)\>
 
-Forces the session to update the connection state. This will take a few seconds to determine the 'correct' state.
+Forces the session to update the connection state.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `killBeforeReconnect?` | `boolean` |
 
 #### Returns
 
