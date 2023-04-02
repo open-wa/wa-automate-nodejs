@@ -701,7 +701,13 @@ export class Client {
       return true
     }
     this._listeners[funcName] = fn;
-    const exists = await this.pup(({funcName})=>window[funcName]?true:false,{funcName});
+    /**
+     * First check if the function is exposed to the page
+     */
+    const exists = await this.pup(({checkFuncName})=>window[checkFuncName]?true:false,{checkFuncName:funcName});
+    /**
+     * If it is exposed to the page then set the listener to that exposed function
+     */
     if(exists) return await set();
     const res = await this._page.exposeFunction(funcName, (obj: any) =>fn(obj)).then(set).catch(()=>set) as Promise<boolean>;
     return res;
