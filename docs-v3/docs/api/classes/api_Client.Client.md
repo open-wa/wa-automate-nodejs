@@ -1434,6 +1434,24 @@ String useragent of wa-web session
 
 ___
 
+### getGptArray
+
+▸ **getGptArray**(`last?`): `Promise`<{ `content`: `string` ; `role`: ``"user"`` \| ``"assistant"``  }[]\>
+
+Returns a properly formatted array of messages from to send to the openai api
+
+#### Parameters
+
+| Name | Type | Default value | Description |
+| :------ | :------ | :------ | :------ |
+| `last` | `number` | `10` | The amount of previous messages to retrieve. Defaults to 10 |
+
+#### Returns
+
+`Promise`<{ `content`: `string` ; `role`: ``"user"`` \| ``"assistant"``  }[]\>
+
+___
+
 ### getGroupAdmins
 
 ▸ **getGroupAdmins**(`groupId`): `Promise`<[`ContactId`](/api/types/api_model_aliases.ContactId.md)[]\>
