@@ -227,6 +227,7 @@ declare module WAPI {
   const getAllUnreadMessages: () => any;  
   const getIndicatedNewMessages: () => any;
   const getAllChatsWithMessages: (withNewMessageOnly?: boolean) => any;
+  const getGptArray: (last?: number) => any;
   const getAllChats: () => any;
   const getCommunities: () => any;
   const healthCheck: () => any;
@@ -2607,6 +2608,23 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    */
   public async getAllChatsWithMessages(withNewMessageOnly = false) : Promise<Chat[]> {
     return JSON.parse(await this.pup(withNewMessageOnly => WAPI.getAllChatsWithMessages(withNewMessageOnly), withNewMessageOnly)) as Promise<Chat[]>;
+  }
+
+
+  /**
+   * Returns a properly formatted array of messages from to send to the openai api
+   * 
+   * @param last The amount of previous messages to retrieve. Defaults to 10
+   * @returns 
+   */
+  public async getGptArray(last = 10) : Promise<{
+    role: "user" | "assistant",
+    content: string
+  }[]> {
+    return await this.pup(last => WAPI.getGptArray(last), last) as Promise<{
+      role: "user" | "assistant",
+      content: string
+    }[]>;
   }
 
   /**
