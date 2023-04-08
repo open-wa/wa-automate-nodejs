@@ -9,6 +9,97 @@ export interface NumberCheck {
     canReceiveMessage: boolean,
     numberExists: boolean
 }
+
+export interface BizCategory {
+  id: string
+  localized_display_name: string
+}
+
+export interface BizProfileOptions {
+  commerceExperience: "catalog" | "none" | "shop"
+  cartEnabled: boolean
+}
+
+export interface BusinessHours {
+  config: {
+    [day in "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun"]: {
+      mode: "specific_hours" | "open_24h" | "appointment_only"
+      hours: number[][]
+    }
+  }
+  timezone: string
+}
+
+export interface BusinessProfile {
+  /**
+   * The Contact ID of the business
+   */
+  id: ContactId
+  /**
+   * Some special string that identifies the business (?)
+   */
+  tag: string
+  /**
+   * The business description
+   */
+  description: string
+  /**
+   * The business' categories
+   */
+  categories: BizCategory[]
+  /**
+   * The business' profile options
+   */
+  profileOptions: BizProfileOptions
+  /**
+   * The business' email address
+   */
+  email: string
+  /**
+   * Array of strings that represent the business' websites
+   */
+  website: string[]
+  /**
+   * The operating hours of the business
+   */
+  businessHours: BusinessHours
+  /**
+   * The status of the business' catalog
+   */
+  catalogStatus: "catalog_exists" | string
+  /**
+   * The address of the business
+   */
+  address: string
+  /**
+   * The facebook page of the business
+   */
+  fbPage: any
+  /**
+   * The instagram profile of the business
+   */
+  igProfessional: any
+  isProfileLinked: boolean
+  coverPhoto: {
+    /**
+     * The id of the cover photo
+     */
+    id: string
+    /**
+     * The URL of the cover photo. It might download as an .enc but just change the extension to .jpg
+     */
+    url: string
+  }
+  /**
+   * The latitude of the business location if set
+   */
+  latitude: number,
+  /**
+   * The longitude of the business location if set
+   */
+  longitude: number
+}
+
 export interface Contact {
   formattedName: string;
   id: ContactId;
@@ -49,4 +140,10 @@ export interface Contact {
   verifiedName: string;
   isOnline?: boolean;
   lastSeen?: number;
+  /**
+   * If the contact is a business, the business information will be added to the contact object.
+   * 
+   * In some circumstances this will be out of date or lacking certain fields. In those cases you have to use `client.getBusinessProfile` 
+   */
+  businessProfile?: BusinessProfile;
 }

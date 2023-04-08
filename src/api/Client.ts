@@ -1,7 +1,7 @@
 import { default as mime } from 'mime-types';
 import { Page, EvaluateFunc, PageEventObject } from 'puppeteer';
 import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration, GroupChatCreationResponse, EphemeralDuration } from './model/chat';
-import { Contact, NumberCheck } from './model/contact';
+import { BusinessProfile, Contact, NumberCheck } from './model/contact';
 import { Message, MessageInfo, PollData } from './model/message';
 import { default as axios, AxiosRequestConfig} from 'axios';
 import { NewCommunityGroup, ParticipantChangedEventModel, GenericGroupChangeEvent, GroupMetadata } from './model/group-metadata';
@@ -184,6 +184,7 @@ declare module WAPI {
     chatId: string
   ) => Promise<boolean>;
   const getBusinessProfilesProducts: (to: string) => Promise<any>;
+  const getBusinessProfile: (to: string) => Promise<any>;
   const editMessage: (messageId: string, text: string) => Promise<any>;
   const getCommunityInfo: (groupId: string) => Promise<any>;
   const getCommunityAdminIds: (groupId: string) => Promise<any>;
@@ -2278,7 +2279,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
   /**
    * Find any product listings of the given number. Use this to query a catalog
    *
-   * @param id id of buseinss profile (i.e the number with @c.us)
+   * @param id id of business profile (i.e the number with @c.us)
    * @returns None
    */
   public async getBusinessProfilesProducts(id: ContactId) : Promise<any>   {
@@ -2288,6 +2289,18 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     );
   }
 
+  /**
+   * Get the business info of a given contact id
+   *
+   * @param id id of business profile (i.e the number with @c.us)
+   * @returns None
+   */
+  public async getBusinessProfile(id: ContactId) : Promise<BusinessProfile>   {
+    return await this.pup(
+      ({ id }) => WAPI.getBusinessProfile(id),
+      { id }
+    );
+  }
 
   /**
    * Sends product with image to chat
