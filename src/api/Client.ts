@@ -1594,6 +1594,13 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * 
    * {@license:insiders@}
    * 
+   * :::danger
+   * 
+   * WA BIZ accounts CANNOT send buttons. This is a WA limitation. DO NOT get a license solely for access to buttons on wa business accounts.
+   * THIS IS NOT WORKING FOR GROUPS YET.
+   * 
+   * :::
+   * 
    * Send generic quick reply buttons. This is an insiders feature for MD accounts.
    * 
    * @param  {ChatId} to chat id
@@ -1619,8 +1626,12 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * :::danger
    *
    * Template messages (URL & CALL buttons) are broken for the foreseeable future. Please DO NOT get a license solely for access to URL or CALL buttons. They are no longer reliable due to recent changes at WA.
+   * WA BIZ accounts CANNOT send buttons. This is a WA limitation. DO NOT get a license solely for access to buttons on wa business accounts.
+   * 
+   * THIS IS NOT WORKING FOR GROUPS YET.
    * 
    * :::
+   * 
    * 
    * Send advanced buttons with media body. This is an insiders feature for MD accounts.
    *  
@@ -1678,6 +1689,13 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    /**
     * 
     * {@license:insiders@}
+    * 
+    * :::danger
+    * 
+    * It is not currently possible to send a listmessage to a group chat. This is a WA limitation.
+    * Please DO NOT get a license solely for access to list messages in group chats.
+    * 
+    * :::
     * 
     * Send a list message. This will not work when being sent from business accounts!
     * 
