@@ -228,7 +228,7 @@ declare module WAPI {
   const getAllUnreadMessages: () => any;  
   const getIndicatedNewMessages: () => any;
   const getAllChatsWithMessages: (withNewMessageOnly?: boolean) => any;
-  const getGptArray: (last?: number) => any;
+  const getGptArray: (chatId: string, last?: number) => any;
   const getAllChats: () => any;
   const getCommunities: () => any;
   const healthCheck: () => any;
@@ -2648,11 +2648,11 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * @param last The amount of previous messages to retrieve. Defaults to 10
    * @returns 
    */
-  public async getGptArray(last = 10) : Promise<{
+  public async getGptArray(chatId: ChatId, last = 10) : Promise<{
     role: "user" | "assistant",
     content: string
   }[]> {
-    return await this.pup(last => WAPI.getGptArray(last), last) as Promise<{
+    return await this.pup(({chatId, last}) => WAPI.getGptArray(chatId, last), {chatId, last}) as Promise<{
       role: "user" | "assistant",
       content: string
     }[]>;
