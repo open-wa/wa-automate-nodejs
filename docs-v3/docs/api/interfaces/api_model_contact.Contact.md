@@ -9,6 +9,16 @@ custom_edit_url: null
 
 ## Properties
 
+### businessProfile
+
+• `Optional` **businessProfile**: [`BusinessProfile`](/api/interfaces/api_model_contact.BusinessProfile.md)
+
+If the contact is a business, the business information will be added to the contact object.
+
+In some circumstances this will be out of date or lacking certain fields. In those cases you have to use `client.getBusinessProfile`
+
+___
+
 ### formattedName
 
 • **formattedName**: `string`
