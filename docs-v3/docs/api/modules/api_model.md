@@ -60,6 +60,30 @@ Re-exports [BaseChat](/api/interfaces/api_model_chat.BaseChat.md)
 
 ___
 
+### BizCategory
+
+Re-exports [BizCategory](/api/interfaces/api_model_contact.BizCategory.md)
+
+___
+
+### BizProfileOptions
+
+Re-exports [BizProfileOptions](/api/interfaces/api_model_contact.BizProfileOptions.md)
+
+___
+
+### BusinessHours
+
+Re-exports [BusinessHours](/api/interfaces/api_model_contact.BusinessHours.md)
+
+___
+
+### BusinessProfile
+
+Re-exports [BusinessProfile](/api/interfaces/api_model_contact.BusinessProfile.md)
+
+___
+
 ### CLOUD\_PROVIDERS
 
 Re-exports [CLOUD_PROVIDERS](/api/enums/api_model_config.CLOUD_PROVIDERS.md)

@@ -1127,6 +1127,26 @@ retrieves an array of IDs of accounts blocked by the host account.
 
 ___
 
+### getBusinessProfile
+
+▸ **getBusinessProfile**(`id`): `Promise`<[`BusinessProfile`](/api/interfaces/api_model_contact.BusinessProfile.md)\>
+
+Get the business info of a given contact id
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `id` | [`ContactId`](/api/types/api_model_aliases.ContactId.md) | id of business profile (i.e the number with @c.us) |
+
+#### Returns
+
+`Promise`<[`BusinessProfile`](/api/interfaces/api_model_contact.BusinessProfile.md)\>
+
+None
+
+___
+
 ### getBusinessProfilesProducts
 
 ▸ **getBusinessProfilesProducts**(`id`): `Promise`<`any`\>
@@ -1137,7 +1157,7 @@ Find any product listings of the given number. Use this to query a catalog
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `id` | [`ContactId`](/api/types/api_model_aliases.ContactId.md) | id of buseinss profile (i.e the number with @c.us) |
+| `id` | [`ContactId`](/api/types/api_model_aliases.ContactId.md) | id of business profile (i.e the number with @c.us) |
 
 #### Returns
 
@@ -1436,7 +1456,7 @@ ___
 
 ### getGptArray
 
-▸ **getGptArray**(`last?`): `Promise`<{ `content`: `string` ; `role`: ``"user"`` \| ``"assistant"``  }[]\>
+▸ **getGptArray**(`chatId`, `last?`): `Promise`<{ `content`: `string` ; `role`: ``"user"`` \| ``"assistant"``  }[]\>
 
 Returns a properly formatted array of messages from to send to the openai api
 
@@ -1444,6 +1464,7 @@ Returns a properly formatted array of messages from to send to the openai api
 
 | Name | Type | Default value | Description |
 | :------ | :------ | :------ | :------ |
+| `chatId` | [`ChatId`](/api/types/api_model_aliases.ChatId.md) | `undefined` | - |
 | `last` | `number` | `10` | The amount of previous messages to retrieve. Defaults to 10 |
 
 #### Returns
@@ -3222,6 +3243,9 @@ Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&ti
 :::danger
 
 Template messages (URL & CALL buttons) are broken for the foreseeable future. Please DO NOT get a license solely for access to URL or CALL buttons. They are no longer reliable due to recent changes at WA.
+WA BIZ accounts CANNOT send buttons. This is a WA limitation. DO NOT get a license solely for access to buttons on wa business accounts.
+
+THIS IS NOT WORKING FOR GROUPS YET.
 
 :::
 
@@ -3293,6 +3317,13 @@ ___
 
 :::license May require insiders license
 Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
+:::
+
+:::danger
+
+WA BIZ accounts CANNOT send buttons. This is a WA limitation. DO NOT get a license solely for access to buttons on wa business accounts.
+THIS IS NOT WORKING FOR GROUPS YET.
+
 :::
 
 Send generic quick reply buttons. This is an insiders feature for MD accounts.
@@ -3608,6 +3639,13 @@ ___
 
 :::license May require insiders license
 Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
+:::
+
+:::danger
+
+It is not currently possible to send a listmessage to a group chat. This is a WA limitation.
+Please DO NOT get a license solely for access to list messages in group chats.
+
 :::
 
 Send a list message. This will not work when being sent from business accounts!
