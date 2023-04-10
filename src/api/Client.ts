@@ -809,9 +809,11 @@ export class Client {
 
   // STANDARD SIMPLE LISTENERS
   private async preprocessMessage(message: Message) : Promise<Message> {
+    let alreadyProcessed = false;
     if(this._preprocIdempotencyCheck[message.id]) {
       log.info(`preprocessMessage: ${message.id} already being processed`)
-      return message;
+      // return message;
+      alreadyProcessed = true;
     }
     this._preprocIdempotencyCheck[message.id] = true;
     let fil = "";
@@ -834,8 +836,8 @@ export class Client {
         const start = Date.now()
         if(typeof preproc === "function") {
           custom = true;
-          _m = await preproc(_m, this)
-        } else if(typeof preproc === "string" && MessagePreprocessors[preproc]) _m = await MessagePreprocessors[preproc](_m, this)
+          _m = await preproc(_m, this, alreadyProcessed)
+        } else if(typeof preproc === "string" && MessagePreprocessors[preproc]) _m = await MessagePreprocessors[preproc](_m, this, alreadyProcessed)
         log.info(`Preproc ${custom ? 'CUSTOM' : preproc} ${index} ${fil} ${message.id} ${m.id} ${Date.now() - start}ms`)
         return _m;
       }))

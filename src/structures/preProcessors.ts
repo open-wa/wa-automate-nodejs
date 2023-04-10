@@ -42,12 +42,20 @@ const AUTO_DECRYPT: MessagePreProcessor =
     return message;
   };
 
-const AUTO_DECRYPT_SAVE: MessagePreProcessor = async (message: Message, client: Client) => {
+const AUTO_DECRYPT_SAVE: MessagePreProcessor = async (message: Message, client: Client, alreadyBeingProcessed ?: boolean) => {
   if (message.deprecatedMms3Url && message.mimetype) {
     const filename = `${message.mId}.${mime.getExtension(
       message.mimetype
     )}`;
     const filePath = `media/${filename}`;
+    if(alreadyBeingProcessed) {
+      return {
+        ...message,
+        body: filename,
+        content: "",
+        filePath,
+      };
+    }
     try {
       const mediaData = await client.decryptMedia(message);
       outputFileSync(filePath, Buffer.from(mediaData.split(",")[1], "base64"));
@@ -65,7 +73,7 @@ const AUTO_DECRYPT_SAVE: MessagePreProcessor = async (message: Message, client: 
   return message;
 };
 
-const UPLOAD_CLOUD: MessagePreProcessor = async (message: Message, client: Client) => {
+const UPLOAD_CLOUD: MessagePreProcessor = async (message: Message, client: Client, alreadyBeingProcessed ?: boolean) => {
   if (message?.deprecatedMms3Url && message.mimetype) {
     const {cloudUploadOptions} = client.getConfig();
     if(message.fromMe && (cloudUploadOptions.ignoreHostAccount || process.env.OW_CLOUD_IGNORE_HOST)) return message;
@@ -133,7 +141,7 @@ const UPLOAD_CLOUD: MessagePreProcessor = async (message: Message, client: Clien
     }
 
     const url = getCloudUrl(opts);
-    if(!processedFiles[filename]) {
+    if(!processedFiles[filename] && !alreadyBeingProcessed) {
       processedFiles[filename] = true;
       try {
         await uploadQueue.add(() => upload(opts).catch(()=>{}));
@@ -150,7 +158,14 @@ const UPLOAD_CLOUD: MessagePreProcessor = async (message: Message, client: Clien
   return message;
 };
 
-export type MessagePreProcessor = (message: Message, client?: Client) => Promise<Message>
+/**
+ * A function that takes a message and returns a message.
+ * 
+ * @param message The message to be processed
+ * @param client The client that received the message
+ * @param alreadyProcessed Whether the message has already been processed by another preprocessor. (This is useful in cases where you want to mutate the message for both onMessage and onAnyMessage events but only want to do the actual process, like uploading to s3, once.)
+ */
+export type MessagePreProcessor = (message: Message, client?: Client, alreadyProcessed ?: boolean) => Promise<Message>
 
 /**
  * An object that contains all available [[PREPROCESSORS]].
