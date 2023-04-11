@@ -211,8 +211,65 @@ export interface Message {
     /**
      * The options of a poll
      */
-    pollOptions ?: PollOption[]
+    pollOptions ?: PollOption[],
+    /**
+     * The reaction of the host account to this message
+     */
+    reactionByMe ?: ReactionSender,  
+    reactions: {
+      aggregateEmoji: string,
+      /**
+       * The senders of this reaction
+       */
+      senders: ReactionSender[]
+      /**
+       * If the host account has reacted to this message with this reaction
+       */
+      hasReactionByMe: boolean
+      /**
+       * The message ID of the reaction itself
+       */
+      id: string
+    }[]
 }
+
+export interface ReactionSender {
+    /**
+     * The ID of the message being reacted to
+     */
+    parentMsgKey: MessageId,
+    /**
+     * The contact ID of the sender of the reaction
+     */
+    senderUserJid: ContactId,
+    /**
+     * The message ID of the reaction itself
+     */
+    msgKey: MessageId,
+    /**
+     * The text of the reaction
+     */
+    reactionText: string,
+    /**
+     * The timestamp of the reaction
+     */
+    timestamp: number,
+    orphan: number,
+    /**
+     * If the reaction was seen/read
+     */
+    read: boolean,
+    /**
+     * The timestamp of the reaction
+     */
+    t?: number,
+    /**
+     * The message ID of the reaction itself
+     */
+    id: MessageId,
+    isSendFailure: boolean,
+    ack?: number
+  }
 
 export interface PollOption {
   name: string,
