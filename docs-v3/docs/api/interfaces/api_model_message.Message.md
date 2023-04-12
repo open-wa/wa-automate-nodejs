@@ -393,6 +393,20 @@ The ID of the quoted group. Usually present when a user is requesting to join a 
 
 ___
 
+### reactionByMe
+
+• `Optional` **reactionByMe**: [`ReactionSender`](/api/interfaces/api_model_message.ReactionSender.md)
+
+The reaction of the host account to this message
+
+___
+
+### reactions
+
+• **reactions**: { `aggregateEmoji`: `string` ; `hasReactionByMe`: `boolean` ; `id`: `string` ; `senders`: [`ReactionSender`](/api/interfaces/api_model_message.ReactionSender.md)[]  }[]
+
+___
+
 ### recvFresh
 
 • **recvFresh**: `boolean`

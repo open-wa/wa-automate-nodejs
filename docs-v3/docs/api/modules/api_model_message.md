@@ -20,3 +20,4 @@ custom_edit_url: null
 - [PollOption](/api/interfaces/api_model_message.PollOption.md)
 - [PollVote](/api/interfaces/api_model_message.PollVote.md)
 - [QuoteMap](/api/interfaces/api_model_message.QuoteMap.md)
+- [ReactionSender](/api/interfaces/api_model_message.ReactionSender.md)

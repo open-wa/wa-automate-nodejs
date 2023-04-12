@@ -432,6 +432,12 @@ Re-exports [ReactionRecord](/api/types/api_model_reactions.ReactionRecord.md)
 
 ___
 
+### ReactionSender
+
+Re-exports [ReactionSender](/api/interfaces/api_model_message.ReactionSender.md)
+
+___
+
 ### SessionData
 
 Re-exports [SessionData](/api/interfaces/api_model_config.SessionData.md)
