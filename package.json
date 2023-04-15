@@ -154,7 +154,7 @@
     "pidtree": "^0.6.0",
     "pidusage": "^3.0.0",
     "postman-2-swagger": "^0.5.0",
-    "puppeteer": "^19.4.1",
+    "puppeteer": "^19.9.0",
     "puppeteer-extra": "^3.3.4",
     "puppeteer-extra-plugin-block-resources": "^2.4.2",
     "puppeteer-extra-plugin-devtools": "^2.4.4",
