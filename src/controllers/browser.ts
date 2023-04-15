@@ -451,6 +451,21 @@ async function initBrowser(sessionId?: string, config:any={}, spinner ?: Spin) {
     args,
     ...config,
     devtools: false
+  }).catch(e=>{
+    spinner?.fail('Error launching browser')
+    console.error(e)
+    if(e.message.includes("ENOENT")) {
+      config.executablePath = executablePath()
+      console.log("Falling back to chromium:", config.executablePath)
+      return puppeteer.launch({
+        headless: true,
+        args,
+        ...config,
+        devtools: false
+      })
+    }
+    spinner?.fail(e.message)
+    throw e;
   });
   BROWSER_START_TS = Date.now();
   //devtools
