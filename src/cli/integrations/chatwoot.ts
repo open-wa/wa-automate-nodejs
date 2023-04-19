@@ -494,6 +494,10 @@ class ChatwootClient {
             //chatwoot integration does not support group chats
             return;
         }
+        if(message.chatId.includes('broadcast')){
+            //chatwoot integration does not support broadcast or story messages
+            return;
+        }
         /**
          * Does the contact exist in chatwoot?
          */
