@@ -489,92 +489,96 @@ class ChatwootClient {
     }
 
     async processWAMessage (message: Message) {
-        let isNewConversation = false;
-        if (message.chatId.includes('g')) {
-            //chatwoot integration does not support group chats
-            return;
-        }
-        if(message.chatId.includes('broadcast')){
-            //chatwoot integration does not support broadcast or story messages
-            return;
-        }
-        /**
-         * Does the contact exist in chatwoot?
-         */
-        if (!contactReg[message.chatId]) {
-            const contact = await this.searchContact(message.chatId)
-            if (contact) {
-                contactReg[message.chatId] = contact.id
-            } else {
-                //create the contact
-                contactReg[message.chatId] = (await this.createContact(message.sender)).id
+        try {
+            let isNewConversation = false;
+            if (message.chatId.includes('g')) {
+                //chatwoot integration does not support group chats
+                return;
             }
-        }
-
-        if (!convoReg[message.chatId]) {
-            const conversation = await this.getContactConversation(message.chatId);
-            if (conversation) {
-                convoReg[message.chatId] = conversation.id
-            } else {
-                //create the conversation
-                convoReg[message.chatId] = (await this.createConversation(contactReg[message.chatId])).id
-                isNewConversation = convoReg[message.chatId]
+            if(message.chatId.includes('broadcast')){
+                //chatwoot integration does not support broadcast or story messages
+                return;
             }
-        }
-        /**
-         * Does the conversation exist in 
-         */
-        let text = message.body;
-        let hasAttachments = false;
-        switch (message.type) {
-            case 'list_response':
-                /**
-                 * Possible CSAT response:
-                 */
-                await this.processCSATResponse(message)
-                break;
-            case 'location':
-                text = `Location Message:\n\n${message.loc}\n\nhttps://www.google.com/maps?q=${message.lat},${message.lng}`;
-                break;
-            case 'buttons_response':
-                text = message.selectedButtonId;
-                break;
-            case 'document':
-            case 'image':
-            case 'audio':
-            case 'ptt':
-            case 'video':
-                if (message.cloudUrl) {
-                    text = `FILE:\t${message.cloudUrl}\n\nMESSAGE:\t${message.text}`;
+            /**
+             * Does the contact exist in chatwoot?
+             */
+            if (!contactReg[message.chatId]) {
+                const contact = await this.searchContact(message.chatId)
+                if (contact) {
+                    contactReg[message.chatId] = contact.id
                 } else {
-                    text = message.text;
-                    hasAttachments = true;
+                    //create the contact
+                    contactReg[message.chatId] = (await this.createContact(message.sender)).id
                 }
-                break;
-            default:
-                text = message?.ctwaContext?.sourceUrl ? `${message.body}\n\n${message.ctwaContext.sourceUrl}` : message.body || "__UNHANDLED__";
-                break;
-        }
-        const newCWMessage = hasAttachments ? await this.sendAttachmentMessage(text, message.chatId, message) : await this.sendConversationMessage(text, message.chatId, message)
-        if(isNewConversation!==false) {
+            }
+    
+            if (!convoReg[message.chatId]) {
+                const conversation = await this.getContactConversation(message.chatId);
+                if (conversation) {
+                    convoReg[message.chatId] = conversation.id
+                } else {
+                    //create the conversation
+                    convoReg[message.chatId] = (await this.createConversation(contactReg[message.chatId])).id
+                    isNewConversation = convoReg[message.chatId]
+                }
+            }
             /**
-             * Wait 3 seconds before trying to check for an automated message
-            */
-            await timeout(3000)
-            /**
-             * Check the messages to see if a message_type: 3 comes through after the initial message;
+             * Does the conversation exist in 
              */
-            const msgs = await this.getAllInboxMessages(`${isNewConversation}`)
-            if(!msgs) return;
-            /**
-             * Message IDs are numbers (for now)
-             */
-            const possibleWelcomeMessage = msgs.filter(m => m.id>newCWMessage.id).find(m => m.message_type === 3 && m.content_type !== 'input_csat')
-            if(!possibleWelcomeMessage) return;
-            /**
-             * Ok reply with the welcome message now
-             */
-            await this.client.sendText(message.chatId, possibleWelcomeMessage.content || "...")
+            let text = message.body;
+            let hasAttachments = false;
+            switch (message.type) {
+                case 'list_response':
+                    /**
+                     * Possible CSAT response:
+                     */
+                    await this.processCSATResponse(message)
+                    break;
+                case 'location':
+                    text = `Location Message:\n\n${message.loc}\n\nhttps://www.google.com/maps?q=${message.lat},${message.lng}`;
+                    break;
+                case 'buttons_response':
+                    text = message.selectedButtonId;
+                    break;
+                case 'document':
+                case 'image':
+                case 'audio':
+                case 'ptt':
+                case 'video':
+                    if (message.cloudUrl) {
+                        text = `FILE:\t${message.cloudUrl}\n\nMESSAGE:\t${message.text}`;
+                    } else {
+                        text = message.text;
+                        hasAttachments = true;
+                    }
+                    break;
+                default:
+                    text = message?.ctwaContext?.sourceUrl ? `${message.body}\n\n${message.ctwaContext.sourceUrl}` : message.body || "__UNHANDLED__";
+                    break;
+            }
+            const newCWMessage = hasAttachments ? await this.sendAttachmentMessage(text, message.chatId, message) : await this.sendConversationMessage(text, message.chatId, message)
+            if(isNewConversation!==false) {
+                /**
+                 * Wait 3 seconds before trying to check for an automated message
+                */
+                await timeout(3000)
+                /**
+                 * Check the messages to see if a message_type: 3 comes through after the initial message;
+                 */
+                const msgs = await this.getAllInboxMessages(`${isNewConversation}`)
+                if(!msgs) return;
+                /**
+                 * Message IDs are numbers (for now)
+                 */
+                const possibleWelcomeMessage = msgs.filter(m => m.id>newCWMessage.id).find(m => m.message_type === 3 && m.content_type !== 'input_csat')
+                if(!possibleWelcomeMessage) return;
+                /**
+                 * Ok reply with the welcome message now
+                 */
+                await this.client.sendText(message.chatId, possibleWelcomeMessage.content || "...")
+            }
+        } catch (error) {
+            console.error(`Something went wrong processing this message: ${message.id}`, error)
         }
     }
 
