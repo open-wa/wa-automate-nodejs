@@ -54,21 +54,21 @@ export interface GroupMetadata {
    */
    isParentGroup ?: boolean
    /**
-    * The type of group
+   * The type of group
+   */
+   groupType: 'DEAFULT' | 'SUBGROUP' | 'COMMUNITY'
+   /**
+    * Communities have a default group chat
     */
-    groupType: 'DEAFULT' | 'SUBGROUP' | 'COMMUNITY'
-    /**
-     * Communities have a default group chat
-     */
-    defaultSubgroup: boolean
-    /**
-     * 
-     */
-    isParentGroupClosed: boolean
-    /**
-     * List of Group IDs that the host account has joined as part of this community
-     */
-    joinedSubgroups: GroupId[]
+   defaultSubgroup: boolean
+   /**
+    * 
+    */
+   isParentGroupClosed: boolean
+   /**
+    * List of Group IDs that the host account has joined as part of this community
+    */
+   joinedSubgroups: GroupId[]
 }
 
 export enum groupChangeEvent {

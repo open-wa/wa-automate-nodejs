@@ -150,6 +150,10 @@ export interface Message {
    */
   clientUrl: string;
   deprecatedMms3Url: string;
+  /**
+   * If this message is quoting (replying to) another message
+   */
+  isQuotedMsgAvailable: boolean;
   quotedMsg ?: Message;
   quotedMsgObj ?: Message;
   /**

@@ -3460,7 +3460,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
   /**
-   * Retrieves all undread Messages
+   * Retrieves all unread Messages
    * @param includeMe
    * @param includeNotifications
    * @param use_unread_count
@@ -3468,7 +3468,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    */
   public async getUnreadMessages(includeMe: boolean, includeNotifications: boolean, use_unread_count: boolean) : Promise<Chat & {
     messages: Message[]
-  }> {
+  }[]> {
     return await this.pup(
       ({ includeMe, includeNotifications, use_unread_count }) => WAPI.getUnreadMessages(includeMe, includeNotifications, use_unread_count),
       { includeMe, includeNotifications, use_unread_count }
