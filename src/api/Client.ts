@@ -72,6 +72,7 @@ declare module WAPI {
   const onGlobalParticipantsChanged: (callback: Function) => any;
   const onStory: (callback: Function) => any;
   const setChatBackgroundColourHex: (hex: string) => boolean;
+  const joinWebBeta: (join: boolean) => boolean;
   const darkMode: (activate: boolean) => boolean;
   const autoReject: (message: string) => boolean;
   const emitUnreadMessages: () => boolean;
@@ -3798,6 +3799,18 @@ public async getStatus(contactId: ContactId) : Promise<{
     return await this.pup(
       (hex) => WAPI.setChatBackgroundColourHex(hex),
       hex
+    ) as Promise<boolean>;
+  }
+
+  /**
+   * Join or leave the wa web beta program. Will return true of operation was successful.
+   * 
+   * @param {boolean} join true to join the beta, false to leave
+  */
+  public async joinWebBeta(join: boolean) : Promise<boolean> {
+    return await this.pup(
+      (join) => WAPI.joinWebBeta(join),
+      join
     ) as Promise<boolean>;
   }
 
