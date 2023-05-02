@@ -2160,9 +2160,9 @@ ___
 
 ### getUnreadMessages
 
-▸ **getUnreadMessages**(`includeMe`, `includeNotifications`, `use_unread_count`): `Promise`<[`SingleChat`](/api/interfaces/api_model_chat.SingleChat.md) & { `messages`: [`Message`](/api/interfaces/api_model_message.Message.md)[]  } & [`GroupChat`](/api/interfaces/api_model_chat.GroupChat.md) & { `messages`: [`Message`](/api/interfaces/api_model_message.Message.md)[]  }\>
+▸ **getUnreadMessages**(`includeMe`, `includeNotifications`, `use_unread_count`): `Promise`<[`SingleChat`](/api/interfaces/api_model_chat.SingleChat.md) & { `messages`: [`Message`](/api/interfaces/api_model_message.Message.md)[]  }[] & [`GroupChat`](/api/interfaces/api_model_chat.GroupChat.md) & { `messages`: [`Message`](/api/interfaces/api_model_message.Message.md)[]  }[]\>
 
-Retrieves all undread Messages
+Retrieves all unread Messages
 
 #### Parameters
 
@@ -2174,7 +2174,7 @@ Retrieves all undread Messages
 
 #### Returns
 
-`Promise`<[`SingleChat`](/api/interfaces/api_model_chat.SingleChat.md) & { `messages`: [`Message`](/api/interfaces/api_model_message.Message.md)[]  } & [`GroupChat`](/api/interfaces/api_model_chat.GroupChat.md) & { `messages`: [`Message`](/api/interfaces/api_model_message.Message.md)[]  }\>
+`Promise`<[`SingleChat`](/api/interfaces/api_model_chat.SingleChat.md) & { `messages`: [`Message`](/api/interfaces/api_model_message.Message.md)[]  }[] & [`GroupChat`](/api/interfaces/api_model_chat.GroupChat.md) & { `messages`: [`Message`](/api/interfaces/api_model_message.Message.md)[]  }[]\>
 
 any
 
@@ -2407,6 +2407,24 @@ Joins a group via the invite link, code, or message
 `Promise`<`string` \| `number` \| `boolean` \| [`Chat`](/api/types/api_model_chat.Chat.md)\>
 
 `Promise<string | boolean | number>` Either false if it didn't work, or the group id.
+
+___
+
+### joinWebBeta
+
+▸ **joinWebBeta**(`join`): `Promise`<`boolean`\>
+
+Join or leave the wa web beta program. Will return true of operation was successful.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `join` | `boolean` | true to join the beta, false to leave |
+
+#### Returns
+
+`Promise`<`boolean`\>
 
 ___
 
