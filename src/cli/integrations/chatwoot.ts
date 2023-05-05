@@ -474,11 +474,10 @@ class ChatwootClient {
         log.info(`INCOMING MESSAGE ATTACHMENT ${contactId}: ${content} ${message.id}`)
         const formData = new FormData();
         formData.append('attachments[]', Buffer.from(file.split(',')[1], 'base64'), {
-            knownLength: 1,
             filename: `${message.t}.${mime.extension(message.mimetype)}`,
             contentType: (file.match(/[^:\s*]\w+\/[\w-+\d.]+(?=[;| ])/) || ["application/octet-stream"])[0]
         });
-        formData.append('content', content)
+        formData.append('content', content || "")
         formData.append('message_type', 'incoming')
         try {
             const { data } = await this.cwReq('post', `conversations/${convoReg[contactId]}/messages`, formData, formData.getHeaders());
