@@ -144,8 +144,8 @@ export const isDataURL: (s: string) => boolean = (s: string) =>
  */
 export const getBufferFromUrl: (
   url: string,
-  optionsOverride?: AxiosRequestConfig
-) => Promise<[Buffer, AxiosResponseHeaders]> = async (
+  optionsOverride?: any
+) => Promise<[Buffer, any]> = async (
   url: string,
   optionsOverride: AxiosRequestConfig = {}
 ) => {
