@@ -244,6 +244,14 @@ ___
 
 ___
 
+### isQuotedMsgAvailable
+
+• **isQuotedMsgAvailable**: `boolean`
+
+If this message is quoting (replying to) another message
+
+___
+
 ### isViewOnce
 
 • **isViewOnce**: `boolean`
