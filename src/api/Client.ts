@@ -1596,12 +1596,14 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
   
   /**
    * 
-   * {@license:insiders@}
+   * @deprecated
    * 
    * :::danger
    * 
    * WA BIZ accounts CANNOT send buttons. This is a WA limitation. DO NOT get a license solely for access to buttons on wa business accounts.
    * THIS IS NOT WORKING FOR GROUPS YET.
+   * 
+   * BUTTONS ARE DEPRECATED FOR NOW. DO NOT GET A LICENSE TO USE BUTTONS.
    * 
    * :::
    * 
@@ -1624,8 +1626,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
 
   
   /**
-   * 
-   * {@license:insiders@}
+   * @deprecated
    * 
    * :::danger
    *
@@ -1633,6 +1634,8 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * WA BIZ accounts CANNOT send buttons. This is a WA limitation. DO NOT get a license solely for access to buttons on wa business accounts.
    * 
    * THIS IS NOT WORKING FOR GROUPS YET.
+   * 
+   * ADVANCED ARE DEPRECATED FOR NOW. DO NOT GET A LICENSE TO USE BUTTONS.
    * 
    * :::
    * 
@@ -1692,12 +1695,14 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
 
    /**
     * 
-    * {@license:insiders@}
+    * @deprecated
     * 
     * :::danger
     * 
     * It is not currently possible to send a listmessage to a group chat. This is a WA limitation.
     * Please DO NOT get a license solely for access to list messages in group chats.
+    * 
+    * LIST MESSAGES ARE DEPRECATED TILL FURTHER NOTICE
     * 
     * :::
     * 
