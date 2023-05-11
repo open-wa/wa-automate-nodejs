@@ -176,7 +176,7 @@
     "ts-morph": "^12.0.0",
     "type-fest": "^1.1.1",
     "update-notifier": "^5.0.0",
-    "uuid": "^8.3.2",
+    "uuid": "^9.0.0",
     "uuid-apikey": "^1.5.3",
     "winston": "^3.6.0",
     "winston-daily-rotate-file": "^4.5.5",
