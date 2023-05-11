@@ -3250,13 +3250,11 @@ Revokes the current invite link for a group chat. Any previous links will stop w
 
 ___
 
-### sendAdvancedButtons <div class="label license insiders">insiders</div>
+### sendAdvancedButtons
 
 ▸ **sendAdvancedButtons**(`to`, `body`, `buttons`, `text`, `footer`, `filename`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+**`Deprecated`**
 
 :::danger
 
@@ -3264,6 +3262,8 @@ Template messages (URL & CALL buttons) are broken for the foreseeable future. Pl
 WA BIZ accounts CANNOT send buttons. This is a WA limitation. DO NOT get a license solely for access to buttons on wa business accounts.
 
 THIS IS NOT WORKING FOR GROUPS YET.
+
+ADVANCED ARE DEPRECATED FOR NOW. DO NOT GET A LICENSE TO USE BUTTONS.
 
 :::
 
@@ -3329,18 +3329,18 @@ Note this is a bit of hack on top of a location message. During testing it is sh
 
 ___
 
-### sendButtons <div class="label license insiders">insiders</div>
+### sendButtons
 
 ▸ **sendButtons**(`to`, `body`, `buttons`, `title?`, `footer?`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+**`Deprecated`**
 
 :::danger
 
 WA BIZ accounts CANNOT send buttons. This is a WA limitation. DO NOT get a license solely for access to buttons on wa business accounts.
 THIS IS NOT WORKING FOR GROUPS YET.
+
+BUTTONS ARE DEPRECATED FOR NOW. DO NOT GET A LICENSE TO USE BUTTONS.
 
 :::
 
@@ -3651,18 +3651,18 @@ Automatically sends a link with the auto generated link preview. You can also ad
 
 ___
 
-### sendListMessage <div class="label license insiders">insiders</div>
+### sendListMessage
 
 ▸ **sendListMessage**(`to`, `sections`, `title`, `description`, `actionText`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+**`Deprecated`**
 
 :::danger
 
 It is not currently possible to send a listmessage to a group chat. This is a WA limitation.
 Please DO NOT get a license solely for access to list messages in group chats.
+
+LIST MESSAGES ARE DEPRECATED TILL FURTHER NOTICE
 
 :::
 
