@@ -444,7 +444,7 @@ BaseCollection.every
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `unknown` |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
 
 #### Returns
 
@@ -514,7 +514,7 @@ BaseCollection.every
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `unknown` |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
 | `thisArg` | `This` |
 
 #### Returns
@@ -589,7 +589,7 @@ BaseCollection.filter
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `unknown` |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
 
 #### Returns
 
@@ -659,7 +659,7 @@ BaseCollection.filter
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `unknown` |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
 | `thisArg` | `This` |
 
 #### Returns
@@ -678,9 +678,9 @@ ___
 
 Searches for a single item where the given function returns a truthy value. This behaves like
 [Array.find()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find).
-All collections used in Discord.js are mapped using their `id` property, and if you want to find by id you
+<warn>All collections used in Discord.js are mapped using their `id` property, and if you want to find by id you
 should use the `get` method. See
-[MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get) for details.
+[MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get) for details.</warn>
 
 **`Example`**
 
@@ -714,7 +714,7 @@ BaseCollection.find
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `unknown` |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
 
 #### Returns
 
@@ -760,7 +760,7 @@ BaseCollection.find
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `unknown` |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
 | `thisArg` | `This` |
 
 #### Returns
@@ -813,7 +813,7 @@ BaseCollection.findKey
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `unknown` |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
 
 #### Returns
 
@@ -859,7 +859,7 @@ BaseCollection.findKey
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `unknown` |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
 | `thisArg` | `This` |
 
 #### Returns
@@ -1482,7 +1482,7 @@ BaseCollection.partition
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `unknown` |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
 
 #### Returns
 
@@ -1552,7 +1552,7 @@ BaseCollection.partition
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `unknown` |
+| `fn` | (`this`: `This`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
 | `thisArg` | `This` |
 
 #### Returns
@@ -1724,7 +1724,7 @@ collection.some(user => user.discriminator === '0000');
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `unknown` | Function used to test (should return a boolean) |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` | Function used to test (should return a boolean) |
 
 #### Returns
 
@@ -1746,7 +1746,7 @@ BaseCollection.some
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `T`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `unknown` |
+| `fn` | (`this`: `T`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
 | `thisArg` | `T` |
 
 #### Returns
@@ -1819,34 +1819,6 @@ BaseCollection.sorted
 
 ___
 
-### subtract
-
-▸ **subtract**<`T`\>(`other`): `Collection`<`K`, `V`\>
-
-The subtract method returns a new structure containing items where the keys and values of the original structure are not present in the other.
-
-#### Type parameters
-
-| Name |
-| :------ |
-| `T` |
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `other` | `ReadonlyCollection`<`K`, `T`\> | The other Collection to filter against |
-
-#### Returns
-
-`Collection`<`K`, `V`\>
-
-#### Inherited from
-
-BaseCollection.subtract
-
-___
-
 ### sweep
 
 ▸ **sweep**(`fn`): `number`
@@ -1857,7 +1829,7 @@ Removes items that satisfy the provided filter function.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `unknown` | Function used to test (should return a boolean) |
+| `fn` | (`value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` | Function used to test (should return a boolean) |
 
 #### Returns
 
@@ -1881,7 +1853,7 @@ BaseCollection.sweep
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | (`this`: `T`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `unknown` |
+| `fn` | (`this`: `T`, `value`: `V`, `key`: `K`, `collection`: [`Collection`](/api/classes/structures_Collector.Collection.md)<`K`, `V`\>) => `boolean` |
 | `thisArg` | `T` |
 
 #### Returns
