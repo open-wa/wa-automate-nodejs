@@ -5,7 +5,7 @@
  * Please see: https://discord.js.org/#/docs/main/stable/class/Collector
  */
 // import { EventEmitter2 } from 'eventemitter2';
-import BaseCollection from '@discordjs/collection';
+import {Collection as BaseCollection} from '@discordjs/collection'
 import { EventEmitter } from 'events';
 
 export class Collection<K, V> extends BaseCollection<K, V> {
