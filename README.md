@@ -1,3 +1,6 @@
+> [!WARNING]  
+> By visiting this page you [explicitly agree to the Terms of Service (read here)](https://github.com/open-wa/wa-automate-nodejs/blob/master/tos.md)
+
 <div align="center">
 <img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/hotfix-logo.png" width="128" height="128"/>
 
