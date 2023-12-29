@@ -23,7 +23,7 @@ const sensitiveKeys = [
 ];
 
 function isSensitiveKey(keyStr) {
-  if (keyStr) {
+  if (keyStr && typeof keyStr == "string") {
     return sensitiveKeys.some(regex => regex.test(keyStr));
   }
 }
