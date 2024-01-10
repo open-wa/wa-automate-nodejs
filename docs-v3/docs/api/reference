@@ -1,10 +1,13 @@
 ---
 id: "reference"
-title: "@open-wa/wa-automate - v4.66.3"
+title: "@open-wa/wa-automate - v4.66.4"
 sidebar_label: "Readme"
 sidebar_position: 0
 custom_edit_url: null
 ---
+
+> [!WARNING]  
+> By visiting this page you [explicitly agree to the Terms of Service (read here)](https://github.com/open-wa/wa-automate-nodejs/blob/master/tos.md)
 
 <div align="center">
 <img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/hotfix-logo.png" width="128" height="128"/>
@@ -29,9 +32,9 @@ custom_edit_url: null
 
 <p align="center">
   <a href="#functions-list">Key Features</a> •
-  <a href="https://docs.openwa.dev/pages/Getting%20Started/installation.html">Getting Started</a> •
-  <a href="https://docs.openwa.dev/pages/Getting%20Started/quick-run.html">Easy API</a> •
-  <a href="https://docs.openwa.dev/classes/api_Client.Client.html">Documentation</a> •
+  <a href="https://docs.openwa.dev/docs/get-started/installation">Getting Started</a> •
+  <a href="https://docs.openwa.dev/docs/get-started/quick-run">Easy API</a> •
+  <a href="https://docs.openwa.dev/docs/api/classes/api_Client.Client">Documentation</a> •
   <a href="https://openwa.page.link/key">Get a License Key</a> •
   <a href="#support">Support</a>
 </p>
