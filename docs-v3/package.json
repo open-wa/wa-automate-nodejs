@@ -32,7 +32,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "remark-gfm": "^3.0.1",
-    "remark-typedoc-symbol-links": "1.0.1",
+    "remark-typedoc-symbol-links": "1.2.2",
     "replace-in-file": "^6.3.5",
     "sass": "^1.54.0",
     "unified": "8.4.2",
@@ -42,7 +42,7 @@
     "@docusaurus/module-type-aliases": "^2.1.0",
     "@tsconfig/docusaurus": "^1.0.5",
     "docusaurus-plugin-typedoc": "^0.17.5",
-    "typedoc": ">=0.22.0",
+    "typedoc": ">=0.23.10",
     "typedoc-plugin-markdown": "^3.12.1",
     "typescript": "^4.4.4"
   },
