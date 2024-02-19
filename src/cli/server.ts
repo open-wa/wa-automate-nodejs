@@ -14,13 +14,17 @@ import { convert } from 'xmlbuilder2';
 import { chatwootMiddleware, chatwoot_webhook_check_event_name } from './integrations/chatwoot';
 import {IpFilter, IpDeniedError} from'express-ipfilter'
 import helmet from "helmet";
-import localtunnel from 'localtunnel';
+import { tunnel } from "cloudflared";
+
 import { spawn } from 'child_process';
+import { createCustomDomainTunnel } from './integrations/cloudflare';
 
 export const app = express();
 export let server = http.createServer(app);
 
-let tunnel : localtunnel.Tunnel;
+// will be used to clean up cloudflared tunnel
+let stop;
+
 const trimChatId = (chatId : ChatId) => chatId.replace("@c.us","").replace("@g.us","")
 
 export type cliFlags = {
@@ -238,7 +242,7 @@ export const setupMetaProcessMiddleware = (client : Client, cliConfig) => {
         closing = true;
         await client.kill("API_KILL");
         log.info("Waiting for maximum ")
-        if(tunnel && tunnel.close && typeof tunnel.close === 'function') tunnel.close()
+        if(stop && typeof stop === 'function') stop()
         await Promise.race([
             new Promise((resolve)=>server.close(() => {
                 console.log('Server closed');
@@ -287,19 +291,18 @@ export const listListeners : () => string[] = () => {
     return Object.keys(SimpleListener).map(eventKey => SimpleListener[eventKey])
 }
 
-
 export const setupMediaMiddleware : () => void = () => {
     app.use("/media", express.static('media'))
 }
 
-export const setupTunnel : (cliConfig, tunnelCode: string, PORT: number) => Promise<string> = async (cliConfig, tunnelCode: string,PORT: number) => {
-    tunnel = await localtunnel({ 
-        port: PORT,
-        host: process.env.WA_TUNNEL_SERVER || "https://public.openwa.cloud",
-        subdomain: tunnelCode
-     });
-    cliConfig.apiHost = cliConfig.tunnel = tunnel.url;
-    return tunnel.url;
+export const setupTunnel : (cliConfig, PORT: number) => Promise<string> = async (cliConfig, PORT: number) => {
+    const cfT = cliConfig.cfTunnelHostDomain ? await createCustomDomainTunnel(cliConfig,PORT) : tunnel({ "--url": `localhost:${PORT}` });
+    stop = cfT.stop;
+    const url = await cfT.url;
+    const conns = await Promise.all(cfT.connections);
+    log.info(`Connections Ready! ${conns}`)
+    cliConfig.apiHost = cliConfig.tunnel = url;
+    return url;
 }
 
 export const setupTwilioCompatibleWebhook : (cliConfig : cliFlags, client: Client) => void = (cliConfig : cliFlags, client: Client) => {

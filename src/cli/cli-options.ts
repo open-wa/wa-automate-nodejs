@@ -244,7 +244,19 @@ Merge<Merge<{
 {
     name: 'tunnel',
     type: Boolean,
-    description: "Expose a tunnel to your EASY API session - this is for testing and it is unsecured."
+    description: "Expose a tunnel to your EASY API session - this is for testing and it is unsecured. By default it will use a random cloudflare tunnel URL. Make sure you have cloudflared installed and running."
+},
+{
+    name: 'cf-tunnel-host-domain',
+    type: String,
+    typeLabel: '{yellow {underline "mycool.site"}}',
+    description: "If you have a domain set up in a cloudflare account and have run cloudflared login on your machine, you can use this to expose the tunnel on your own domain. For example, if you set --cf-tunnel-host-domain mycool.site, the tunnel will be exposed on https://session_id_owa.mycool.site"
+},
+{
+    name: 'cf-tunnel-namespace',
+    type: String,
+    typeLabel: '{yellow {underline "owa"}}',
+    description: "You can set a sub-subdomain namespace on which the tunnel will be exposed. Needs to be set in conjunction with --tunnel & --cf-tunnel-host-domain. For example, if you set --cf-tunnel-namespace owa, the tunnel will be exposed on https://session_id.owa.mycool.site"
 },
 {
     name: 'pm2',

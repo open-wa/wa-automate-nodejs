@@ -186,7 +186,7 @@ async function start() {
             });
             if(cliConfig.tunnel) {
                 spinner.info(`\n• Setting up external tunnel`);
-                const tunnelUrl = await setupTunnel(cliConfig, await client.getTunnelCode(), PORT)
+                const tunnelUrl = await setupTunnel(cliConfig, PORT)
                 spinner.succeed(`\n\t${terminalLink('External address', tunnelUrl)}`)
 
             } 
