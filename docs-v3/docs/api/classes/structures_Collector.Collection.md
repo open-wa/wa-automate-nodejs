@@ -70,7 +70,7 @@ BaseCollection<K, V\>.constructor
 
 #### Inherited from
 
-BaseCollection.\_\_@toStringTag@1097
+BaseCollection.\_\_@toStringTag@814
 
 ___
 
@@ -100,7 +100,7 @@ ___
 
 #### Inherited from
 
-BaseCollection.\_\_@species@2118
+BaseCollection.\_\_@species@2149
 
 ## Methods
 

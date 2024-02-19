@@ -503,8 +503,6 @@ ___
 
 ▸ **deleteAllStatus**(): `Promise`<`boolean`\>
 
-**`Deprecated`**
-
 Alias for deleteStory
 
 #### Returns
@@ -594,8 +592,6 @@ ___
 ### deleteStatus
 
 ▸ **deleteStatus**(`statusesToDelete`): `Promise`<`boolean`\>
-
-**`Deprecated`**
 
 Alias for deleteStory
 
@@ -1876,8 +1872,6 @@ ___
 
 ▸ **getMyStatusArray**(): `Promise`<[`Message`](/api/interfaces/api_model_message.Message.md)[]\>
 
-**`Deprecated`**
-
 Alias for deleteStory
 
 #### Returns
@@ -2829,19 +2823,13 @@ boolean true: worked
 
 ___
 
-### postImageStatus
+### postImageStatus <div class="label license restricted">restricted</div>
 
 ▸ **postImageStatus**(`data`, `caption`): `Promise`<`string` \| `boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-**`Deprecated`**
-
-:::danger
-
-Status features are broken for now. Please join our discord community for updates.
-
+:::license May require restricted license
+Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
 :::
-
-[REQUIRES AN IMAGE STORY LICENSE-KEY](https://gum.co/open-wa)
 
 Posts an image story.
 
@@ -2860,19 +2848,13 @@ Posts an image story.
 
 ___
 
-### postTextStatus
+### postTextStatus <div class="label license restricted">restricted</div>
 
 ▸ **postTextStatus**(`text`, `textRgba`, `backgroundRgba`, `font`): `Promise`<`string` \| `boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-**`Deprecated`**
-
-:::danger
-
-Status features are broken for now. Please join our discord community for updates.
-
+:::license May require restricted license
+Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
 :::
-
-[REQUIRES A TEXT STORY LICENSE-KEY](https://gum.co/open-wa)
 
 Sends a formatted text story.
 
@@ -2893,19 +2875,13 @@ Sends a formatted text story.
 
 ___
 
-### postVideoStatus
+### postVideoStatus <div class="label license restricted">restricted</div>
 
 ▸ **postVideoStatus**(`data`, `caption`): `Promise`<`string` \| `boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-**`Deprecated`**
-
-:::danger
-
-Status features are broken for now. Please join our discord community for updates.
-
+:::license May require restricted license
+Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
 :::
-
-[REQUIRES A VIDEO STORY LICENSE-KEY](https://gum.co/open-wa)
 
 Posts a video story.
 
