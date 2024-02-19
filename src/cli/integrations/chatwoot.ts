@@ -43,6 +43,7 @@ export const chatwootMiddleware: (cliConfig: cliFlags, client: Client) => expres
         const processMesssage = async () => {
             const promises = [];
             const { body } = req
+            if(body.source_id) return;
             if (!body) return;
             if (body.event == "conversation_status_changed" && body.status == "resolved") {
                 log.info("Trying to send CSAT")
@@ -428,7 +429,7 @@ class ChatwootClient {
         try {
             const { data } = await this.cwReq('post', `contacts`, {
                 "identifier": contact.id,
-                "name": contact.formattedName || contact.id,
+                "name": contact.formattedName || contact.name || contact.shortName || contact.id,
                 "phone_number": `+${contact.id.replace('@c.us', '')}`,
                 "avatar_url": contact.profilePicThumbObj.eurl,
                 "custom_attributes": {
@@ -460,7 +461,9 @@ class ChatwootClient {
                 content,
                 "message_type": message.fromMe ? "outgoing" : "incoming",
                 "private": false,
-                echo_id: message.id
+                echo_id: message.id,
+                source_id: message.id,
+                "content_attributes": message
             });
             return data;
         } catch (error) {
@@ -506,8 +509,8 @@ class ChatwootClient {
                 if (contact) {
                     contactReg[message.chatId] = contact.id
                 } else {
-                    //create the contact
-                    contactReg[message.chatId] = (await this.createContact(message.sender)).id
+                    //create the contact (have to use chat.contact because it may be triggered by an agent doing an outgoing message)
+                    contactReg[message.chatId] = (await this.createContact(message.chat.contact)).id
                 }
             }
     
