@@ -12,7 +12,7 @@ jobs:
     - name: Update NPM
       run: sudo npm install -g npm@7.9.0
     - name: Set npm token
-      run: echo "${{secrets.NPM_TOKEN}}" > ~/.npmrc
+      run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
     - uses: actions/checkout@v2
       with:
         # 0 indicates all history
