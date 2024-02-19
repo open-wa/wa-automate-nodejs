@@ -22,6 +22,27 @@ const sensitiveKeys = [
   /api[-._]?key/i,
 ];
 
+const getCircularReplacer = () => {
+  const seen = new WeakSet();
+  return (_key: string, value: any) => {
+    if (typeof value === "object" && value !== null) {
+      if (seen.has(value)) {
+        return "[Circular]";
+      }
+      seen.add(value);
+    }
+    return value;
+  };
+}
+
+const k = (obj : any) => {
+  try {
+    return klona(obj)
+  } catch (error) {
+    return klona(JSON.parse(JSON.stringify(obj, getCircularReplacer())))
+  }
+}
+
 function isSensitiveKey(keyStr) {
   if (keyStr && typeof keyStr == "string") {
     return sensitiveKeys.some(regex => regex.test(keyStr));
@@ -39,7 +60,7 @@ function redactObject(obj) {
 }
 
 function redact(obj) {
-  const copy = klona(obj); // Making a deep copy to prevent side effects
+  const copy = k(obj); // Making a deep copy to prevent side effects
   redactObject(copy);
 
   const splat = copy[Symbol.for("splat")];
@@ -56,7 +77,7 @@ function truncate(str: string, n: number) {
 const formatRedact = winston.format(redact);
 
 const stringSaver = winston.format((info : any)=>{
-  const copy = klona(info);
+  const copy = k(info);
   const splat = copy[Symbol.for("splat")];
   if(splat) {
     copy.message = `${copy.message} ${splat.filter((x:any)=>typeof x !== 'object').join(' ')}`

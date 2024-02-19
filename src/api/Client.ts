@@ -1958,10 +1958,10 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     let thumb;
     try {
       linkData = (await axios.get(`${this._createConfig?.linkParser || "https://link.openwa.cloud/api"}?url=${url}`)).data;
-      log.info("Got link data", linkData)
+      log.info("Got link data")
       if(!thumbnail) thumb = await getDUrl(linkData.image);
     } catch (error) {
-      log.error(error)
+      console.error(error)
     }
     if(linkData && (thumbnail || thumb)) return await this.sendMessageWithThumb(thumbnail || thumb,url,linkData.title, linkData.description, text, to);
     else return await this.pup(
