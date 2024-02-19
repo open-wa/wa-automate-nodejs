@@ -4195,15 +4195,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
   
   /**
-   * @deprecated
-   * 
-   * :::danger
-   *
-   * Status features are broken for now. Please join our discord community for updates.
-   * 
-   * :::
-   * 
-   * [REQUIRES A TEXT STORY LICENSE-KEY](https://gum.co/open-wa)
+   * {@license:restricted@}
    * 
    * Sends a formatted text story.
    * @param text The text to be displayed in the story 
@@ -4226,15 +4218,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
   /**
-   * @deprecated
-   * 
-   * :::danger
-   *
-   * Status features are broken for now. Please join our discord community for updates.
-   * 
-   * :::
-   * 
-   * [REQUIRES AN IMAGE STORY LICENSE-KEY](https://gum.co/open-wa)
+   * {@license:restricted@}
    * 
    * Posts an image story.
    * @param data data url string `data:[<MIME-type>][;charset=<encoding>][;base64],<data>`
@@ -4249,15 +4233,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
   /**
-   * @deprecated
-   * 
-   * :::danger
-   *
-   * Status features are broken for now. Please join our discord community for updates.
-   * 
-   * :::
-   * 
-   * [REQUIRES A VIDEO STORY LICENSE-KEY](https://gum.co/open-wa)
+   * {@license:restricted@}
    * 
    * Posts a video story.
    * @param data data url string `data:[<MIME-type>][;charset=<encoding>][;base64],<data>`
@@ -4288,7 +4264,6 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
   /**
-   * @deprecated
    * Alias for deleteStory
    */
   public async deleteStatus(statusesToDelete: string | string []) : Promise<boolean> {
@@ -4306,7 +4281,6 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
   /**
-   * @deprecated
    * Alias for deleteStory
    */
    public async deleteAllStatus() : Promise<boolean> {
@@ -4325,7 +4299,6 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
   /**
-   * @deprecated
    * Alias for deleteStory
    */
   public async getMyStatusArray() : Promise<Message[]> {
