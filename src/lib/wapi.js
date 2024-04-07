@@ -36,7 +36,7 @@ if (!window.Store || !window.Store.Msg) {
                 { id: "GroupActions", module: "WAWebExitGroupAction", conditions: (module) => (module.sendExitGroup && module.localExitGroup) ? module : null },
                 { id: "Participants", module: "WAWebGroupsParticipantsApi", conditions: (module) => (module.addParticipants && module.removeParticipants && module.promoteParticipants && module.demoteParticipants) ? module : null },
                 { id: "WidFactory", module: "WAWebWidFactory", conditions: (module) => (module.isWidlike && module.createWid && module.createWidFromWidLike) ? module : null },
-                { id: "Sticker", module: "WAWebStickerPackCollection", conditions: (module) => (module.default && module.default.Sticker) ? module.default.Sticker : null },
+                { id: "Sticker", module: "WAWebStickerPackCollection", resolver: m=> m.StickerPackCollection, conditions: (module) => (module.default && module.default.Sticker) ? module.default.Sticker : null },
                 { id: "UploadUtils", module: "WAWebUploadManager", conditions: (module) => (module.default && module.default.encryptAndUpload) ? module.default : null }
             ];
             neededObjects.map((needObj) => {
