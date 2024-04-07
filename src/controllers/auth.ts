@@ -21,14 +21,19 @@ export const isAuthenticated = (waPage: Page): Promise<unknown> => race(needsToS
 export const needsToScan = (waPage: Page): Observable<unknown> => {
   return from(new Promise(async resolve => {
     try {
-      await Promise.race([
-        waPage.waitForFunction('checkQrRefresh()', { timeout: 0, polling: 1000 }).catch(() => { }),
-        await waPage
-          .waitForSelector('body > div > div > .landing-wrapper', {
-            timeout: 0
-          }).catch(() => resolve(true))
-      ]).catch(() => { })
-      await waPage.waitForSelector("canvas[aria-label='Scan me!']", { timeout: 0 }).catch(() => { })
+      /**
+       * TODO: COMMENTING OUT THE BELOW LINES MAY CAUSE A REGRESSION IN RELOGIN? REVERT IF NEEDED.
+       */
+      // const raceResult = await Promise.race([
+      //   waPage.waitForFunction('checkQrRefresh()', { timeout: 0, polling: 1000 }).catch(() => { }),
+      //   await waPage
+      //     .waitForSelector('body > div > div > .landing-wrapper', {
+      //       timeout: 0
+      //     }).catch(() => resolve(true))
+      // ]).catch(() => { })
+      // console.log("🚀 ~ needsToScan ~ raceResult:", raceResult)
+      const elementResult = await waPage.waitForSelector("canvas[aria-label='Scan me!']", { timeout: 0 }).catch(() => { })
+      console.log("🚀 ~ needsToScan ~ elementResult:", elementResult)
       resolve(false)
     } catch (error) {
       console.log("needsToScan -> error", error)
@@ -168,6 +173,7 @@ export class QRManager {
             }
             this.hash = data;
           }).catch(e => {
+            console.error(e)
             this.hash = 'START';
           })
         }
