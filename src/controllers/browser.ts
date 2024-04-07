@@ -63,13 +63,11 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
   waPage.on("framenavigated", async frame => {
     try {
       const frameNavPromises = [];
-      const content = await frame.content()
-      const webpPackKey = (((content.match(/self.(?:.*)=self.*\|\|\[\]/g) || [])[0] || "").match(/self.*\w?=/g) || [""])[0].replace("=","").replace("self.","") || false
-      log.info(`FRAME NAV, ${frame.url()}, ${webpPackKey}`)
-      if(webpPackKey) {
+      // const content = await frame.content() //not using content right now so save some ms by commenting out
+      log.info(`FRAME NAV DETECTED, ${frame.url()}, Reinjecting APIs...`)
+        // there's no more webpack so reinject anyways
         frameNavPromises.push(injectApi(waPage, spinner, true))
         frameNavPromises.push(qrManager.waitFirstQr(waPage, config, spinner))
-      }
       if(frame.url().includes('post_logout=1')) {
           console.log("Session most likely logged out")
       }
