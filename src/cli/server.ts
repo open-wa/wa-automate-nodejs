@@ -300,7 +300,7 @@ export const setupTunnel : (cliConfig, PORT: number) => Promise<string> = async 
     stop = cfT.stop;
     const url = await cfT.url;
     const conns = await Promise.all(cfT.connections);
-    log.info(`Connections Ready! ${conns}`)
+    log.info(`Connections Ready! ${JSON.stringify(conns, null, 2)}`)
     cliConfig.apiHost = cliConfig.tunnel = url;
     return url;
 }

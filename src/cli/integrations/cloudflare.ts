@@ -13,7 +13,7 @@ export const createCustomDomainTunnel: (cliConfig, PORT: number) => Promise<{
     const FQDN = `${sessionName}${cfTunnelNamespace ? `.${cfTunnelNamespace}` : `_owa`}.${cfTunnelHostDomain}`
     const hostname = `https://${FQDN}`
     const target = `http://localhost:${PORT}`
-    const logData = (data) => log.info(`CLOUDFLARE TUNNEL: ${typeof data === "object" ? JSON.stringify(data,null,2) : data}`);
+    const logData = (data) => log.info(`CLOUDFLARE TUNNEL: ${typeof data === "object" ? Buffer.isBuffer(data) ? data.toString() : JSON.stringify(data,null,2) : data}`);
     // simlpe helper function to convert child proc to a promise and log the output
     const cfp = (child) => {
         return new Promise((resolve, reject) => {
@@ -55,7 +55,7 @@ export const createCustomDomainTunnel: (cliConfig, PORT: number) => Promise<{
     // wait for the all 4 connections to be established
     const conns = await Promise.all(connections);
     // show the connections
-    log.info("Connections Ready!", conns);
+    log.info(`Connections Ready! ${JSON.stringify(conns, null, 2)}`)
 
     return {
         url: hostname,
