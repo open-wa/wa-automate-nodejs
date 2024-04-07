@@ -115,7 +115,7 @@ exports.run = async () => {
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
     await page.addScriptTag({
-      url: "https://twemoji.maxcdn.com/v/latest/twemoji.min.js"
+      url: "https://unpkg.com/twemoji@latest/dist/twemoji.min.js"
     });
     await page.setViewport({ width: 800, height: 800, deviceScaleFactor: 2 });
     await page.setContent(html(marked.parse(release.body),packageName,release));
