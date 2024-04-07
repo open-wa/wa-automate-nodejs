@@ -112,7 +112,7 @@ exports.run = async () => {
     }));
     const release = await getRelease(changelog, version);
     if (release === undefined) throw new Error('no release found');
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({ headless: "new", timeout:0  });
     const page = await browser.newPage();
     await page.addScriptTag({
       url: "https://unpkg.com/twemoji@latest/dist/twemoji.min.js"
