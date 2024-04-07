@@ -45,3 +45,10 @@ docs*
 .eslintrc.json
 *.node-persist*
 .vscode/*
+**/bin/cli.config**
+**/bin/localhost**
+**/bin/**zst           
+**/bin/cli.config.js
+**/bin/localhost.crt
+**/bin/localhost.key
+**/bin/session.data.zst

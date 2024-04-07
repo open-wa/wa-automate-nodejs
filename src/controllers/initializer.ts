@@ -208,7 +208,7 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
       */
      const invariantAviodanceTs = now();
     await Promise.race([
-    (waPage as Page).waitForFunction(`(()=>{if(!window.webpackChunkwhatsapp_web_client && window.webpackChunkwhatsapp_web_client.length) return false; return window.webpackChunkwhatsapp_web_client.length > 15})()`, {timeout: 10000}).catch(()=>{}), //modules are loaded
+    (waPage as Page).waitForFunction(`(()=>{return Object.entries(require("__debug").modulesMap).length > 15})()`, {timeout: 10000}).catch(()=>{}), //modules are loaded
     (waPage as Page).waitForFunction(`[...document.getElementsByTagName('div')].filter(x=>x.dataset && x.dataset.testid)[0]?.dataset?.testid === 'qrcode'`, {timeout: 10000}).catch(()=>{}), //qr code is loaded
     (waPage as Page).waitForFunction(`document.getElementsByTagName('circle').length===1`, {timeout: 10000}).catch(()=>{}) //qr spinner is present
     ])
@@ -302,7 +302,7 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
     if(attemptingReauth) {
       await waPage.evaluate("window.Store = undefined")
       if(config?.waitForRipeSession) {
-        spinner.start("Waiting for ripe session...")
+        spinner.start("Waiting for ripe session....")
         if(await waitForRipeSession(waPage, config?.waitForRipeSessionTimeout)) spinner.succeed("Session ready for injection");
         else spinner.fail("You may experience issues in headless mode. Continuing...")
       }
