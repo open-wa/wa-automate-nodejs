@@ -39,8 +39,10 @@ if (!window.Store || !window.Store.Msg) {
                 { id: "Sticker", module: "WAWebStickerPackCollection", resolver: m=> m.StickerPackCollection, conditions: (module) => (module.default && module.default.Sticker) ? module.default.Sticker : null },
                 { id: "UploadUtils", module: "WAWebUploadManager", conditions: (module) => (module.default && module.default.encryptAndUpload) ? module.default : null }
             ];
+            const e = (m) => require("__debug").modulesMap[m]?.exports || false
             neededObjects.map((needObj) => {
                 if (!needObj.module) return;
+                if(!e(needObj.module)) return;
                 let neededModule = require(needObj.module)
                 needObj.foundedModule = neededModule;
             });

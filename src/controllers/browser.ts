@@ -360,6 +360,11 @@ export async function injectPreApiScripts(page: Page, spinner ?: Spin) : Promise
 }
 
 export async function injectWapi(page: Page, spinner ?: Spin, force = false) : Promise<Page> {
+
+  console.log(`Waiting for require...`)
+  const tR = await timePromise(()=>page.waitForFunction('window.require || false', {timeout: 5000, polling: 50}).catch(()=>{console.log("No require found in frame")}))
+  console.log(`Found require: ${tR}ms`)
+
   const bruteInjectionAttempts = 1;
   await earlyInjectionCheck(page)
   const check = `window.WAPI && window.Store ? true : false`;

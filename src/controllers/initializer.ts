@@ -178,7 +178,7 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
 
     const WA_AUTOMATE_VERSION = `${pkg.version}${notifier?.update && (notifier?.update.latest !== pkg.version) ? ` UPDATE AVAILABLE: ${notifier?.update.latest}` : ''}`;
     
-    await waPage.waitForFunction('window.Debug!=undefined && window.Debug.VERSION!=undefined');
+    await waPage.waitForFunction('window.Debug!=undefined && window.Debug.VERSION!=undefined && require');
     //@ts-ignore
     const WA_VERSION = await waPage.evaluate(() => window.Debug ? window.Debug.VERSION : 'I think you have been TOS_BLOCKed')
     const canInjectEarly = await earlyInjectionCheck(waPage as Page)
@@ -208,7 +208,7 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
       */
      const invariantAviodanceTs = now();
     await Promise.race([
-    (waPage as Page).waitForFunction(`(()=>{return require("__debug").modulesMap["WAWebLoadMainBundleFileDefinitions"] ? true : false})()`, {timeout: 10000}).catch(()=>{}), //modules are loaded
+    (waPage as Page).waitForFunction(`(()=>{return require && require("__debug").modulesMap["WAWebLoadMainBundleFileDefinitions"] ? true : false})()`, {timeout: 10000}).catch(()=>{}), //modules are loaded
     (waPage as Page).waitForFunction(`[...document.getElementsByTagName('div')].filter(x=>x.dataset && x.dataset.testid)[0]?.dataset?.testid === 'qrcode'`, {timeout: 10000}).catch(()=>{}), //qr code is loaded
     (waPage as Page).waitForFunction(`document.getElementsByTagName('circle').length===1`, {timeout: 10000}).catch(()=>{}) //qr spinner is present
     ])
