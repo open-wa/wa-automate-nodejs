@@ -334,7 +334,12 @@ export const getSessionDataFilePath = async (sessionId: string, config: ConfigOb
   return false
 }
 
-export const addScript = async (page: Page, js : string) : Promise<unknown> => page.evaluate(await scriptLoader.getScript(js)).catch(e => log.error(`Injection error: ${js}`, e))
+export const addScript = async (page: Page, js : string, asScriptTag ?: boolean) : Promise<unknown> => {
+  const content = await scriptLoader.getScript(js)
+  const injectResult = await ( asScriptTag ? page.addScriptTag({content, type: 'text/javascript'}) :  page.evaluate(content).catch(e => log.error(`Injection error: ${js}`, e)))
+  log.info(`Injection Result of ${js}: ${injectResult}`)
+  return injectResult
+}
 // (page: Page, js : string) : Promise<unknown> => page.addScriptTag({
 //   path: require.resolve(path.join(__dirname, '../lib', js))
 // })
@@ -344,11 +349,11 @@ export async function injectPreApiScripts(page: Page, spinner ?: Spin) : Promise
   if(await page.evaluate("!['jsSHA','axios', 'QRCode', 'Base64', 'objectHash'].find(x=>!window[x])")) return;
   const t1 = await timePromise(() => Promise.all(
    [
-     'jsSha.min.js',
+    //  'jsSha.min.js', //only needed in getFileHash which is not used anymore
      'qr.min.js',
-     'base64.js',
+    //  'base64.js', //only needed in base64ImageToFile and atob is a fallback
      'hash.js'
-   ].map(js=>addScript(page,js))
+   ].map(js=>addScript(page, js))
    ))
    spinner?.info(`Base inject: ${t1}ms`);
    return page;
@@ -445,7 +450,7 @@ async function initBrowser(sessionId?: string, config:any={}, spinner ?: Spin) {
     fs.mkdir(config["userDataDir"], {recursive: true});
   }
   const browser = (config?.browserWSEndpoint) ? await puppeteer.connect({...config}): await puppeteer.launch({
-    headless: true,
+    headless: "new",
     args,
     ...config,
     devtools: false
@@ -456,7 +461,7 @@ async function initBrowser(sessionId?: string, config:any={}, spinner ?: Spin) {
       config.executablePath = executablePath()
       console.log("Falling back to chromium:", config.executablePath)
       return puppeteer.launch({
-        headless: true,
+        headless: "new",
         args,
         ...config,
         devtools: false

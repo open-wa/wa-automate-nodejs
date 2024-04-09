@@ -44,7 +44,7 @@ if (!window.Store || !window.Store.Msg) {
                 let neededModule = require(needObj.module)
                 needObj.foundedModule = neededModule;
             });
-            window.Store = {...Object.values(require("WAWebLoadMainBundleFileDefinitions")).map(x=>{
+            window.Store = {...Object.values(require("__debug").modulesMap["WAWebLoadMainBundleFileDefinitions"]?.exports || {}).map(x=>{
                 const module = x();
                 const collectionName = module.modelClass?.prototype?.proxyName
                 if(!collectionName) return false;

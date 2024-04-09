@@ -208,7 +208,7 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
       */
      const invariantAviodanceTs = now();
     await Promise.race([
-    (waPage as Page).waitForFunction(`(()=>{return Object.entries(require("__debug").modulesMap).length > 15})()`, {timeout: 10000}).catch(()=>{}), //modules are loaded
+    (waPage as Page).waitForFunction(`(()=>{return require("__debug").modulesMap["WAWebLoadMainBundleFileDefinitions"] ? true : false})()`, {timeout: 10000}).catch(()=>{}), //modules are loaded
     (waPage as Page).waitForFunction(`[...document.getElementsByTagName('div')].filter(x=>x.dataset && x.dataset.testid)[0]?.dataset?.testid === 'qrcode'`, {timeout: 10000}).catch(()=>{}), //qr code is loaded
     (waPage as Page).waitForFunction(`document.getElementsByTagName('circle').length===1`, {timeout: 10000}).catch(()=>{}) //qr spinner is present
     ])
