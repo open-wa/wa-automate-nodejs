@@ -66,8 +66,12 @@ export async function initPage(sessionId?: string, config?:ConfigObject, qrManag
       // const content = await frame.content() //not using content right now so save some ms by commenting out
       log.info(`FRAME NAV DETECTED, ${frame.url()}, Reinjecting APIs...`)
         // there's no more webpack so reinject anyways
-        frameNavPromises.push(injectApi(waPage, spinner, true))
-        frameNavPromises.push(qrManager.waitFirstQr(waPage, config, spinner))
+        const hasWapi = await waPage.evaluate("window.WAPI ? true : false")
+        if(!hasWapi) {
+          log.info("FN: WAPI missing. Reinjecting APIs...")
+          frameNavPromises.push(injectApi(waPage, spinner, true))
+          frameNavPromises.push(qrManager.waitFirstQr(waPage, config, spinner))
+        } else log.info("FN: WAPI intact. Skipping reinjection...")
       if(frame.url().includes('post_logout=1')) {
           console.log("Session most likely logged out")
       }
