@@ -182,7 +182,9 @@ declare module WAPI {
     title: string,
     description: string,
     text: string,
-    chatId: string
+    chatId: string,
+    quotedMsgId: string,
+    customSize: any
   ) => Promise<boolean>;
   const getBusinessProfilesProducts: (to: string) => Promise<any>;
   const getBusinessProfile: (to: string) => Promise<any>;
@@ -1775,7 +1777,8 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * @param description The long description of the link preview
    * @param text The text you want to inslude in the message section. THIS HAS TO INCLUDE THE URL otherwise the url will be prepended to the text automatically.
    * @param chatId The chat you want to send this message to.
-   * 
+   * @param quotedMsgId [INSIDERS] Send this link preview message in response to a given quoted message
+   * @param customSize [INSIDERS] Anchor the size of the thumbnail (e.g {height: 100, width: 100})
    */
   public async sendMessageWithThumb(
     thumb: string,
@@ -1783,21 +1786,28 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     title: string,
     description: string,
     text: Content,
-    chatId: ChatId) : Promise<MessageId | boolean> {
+    chatId: ChatId,
+    quotedMsgId?: MessageId,
+    customSize?: {height: number, width: number}
+    ) : Promise<MessageId | boolean> {
     return await this.pup(
       ({ thumb,
         url,
         title,
         description,
         text,
-        chatId
+        chatId,
+        quotedMsgId,
+        customSize
       }) => {
         WAPI.sendMessageWithThumb(thumb,
           url,
           title,
           description,
           text,
-          chatId);
+          chatId,
+          quotedMsgId,
+          customSize);
       },
       {
         thumb,
@@ -1805,8 +1815,9 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
         title,
         description,
         text,
-        chatId
-
+        chatId,
+        quotedMsgId,
+        customSize
       }
     ) as Promise<boolean>;
   }
@@ -1936,9 +1947,11 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
  * @param url string A youtube link.
  * @param text string Custom text as body of the message, this needs to include the link or it will be appended after the link.
  * @param thumbnail string Base64 of the jpeg/png which will be used to override the automatically generated thumbnail.
+ * @param quotedMsgId [INSIDERS] Send this link preview message in response to a given quoted message
+ * @param customSize [INSIDERS] Anchor the size of the thumbnail (e.g {height: 100, width: 100})
  */
-  public async sendYoutubeLink(to: ChatId, url: string, text: Content = '', thumbnail ?: Base64) : Promise<boolean | MessageId> {
-    return this.sendLinkWithAutoPreview(to,url,text, thumbnail);
+  public async sendYoutubeLink(to: ChatId, url: string, text: Content = '', thumbnail ?: Base64, quotedMsgId?: MessageId, customSize?: {height: number, width: number}) : Promise<boolean | MessageId> {
+    return this.sendLinkWithAutoPreview(to,url,text, thumbnail, quotedMsgId, customSize);
   }
 
 /**
@@ -1947,12 +1960,16 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
  * @param url string A link.
  * @param text string Custom text as body of the message, this needs to include the link or it will be appended after the link.
  * @param thumbnail Base64 of the jpeg/png which will be used to override the automatically generated thumbnail.
+ * @param quotedMsgId [INSIDERS] Send this link preview message in response to a given quoted message
+ * @param customSize [INSIDERS] Anchor the size of the thumbnail (e.g {height: 100, width: 100})
  */
   public async sendLinkWithAutoPreview(
     to: ChatId,
     url: string,
     text?: Content,
-    thumbnail ?: Base64
+    thumbnail ?: Base64,
+    quotedMsgId?: MessageId,
+    customSize?: {height: number, width: number}
   ) : Promise<boolean | MessageId>  {
     let linkData;
     let thumb;
@@ -1963,7 +1980,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     } catch (error) {
       console.error(error)
     }
-    if(linkData && (thumbnail || thumb)) return await this.sendMessageWithThumb(thumbnail || thumb,url,linkData.title, linkData.description, text, to);
+    if(linkData && (thumbnail || thumb)) return await this.sendMessageWithThumb(thumbnail || thumb,url,linkData.title, linkData.description, text, to, quotedMsgId, customSize);
     else return await this.pup(
       ({ to,url, text, thumbnail }) => WAPI.sendLinkWithAutoPreview(to,url,text, thumbnail),
       { to,url, text, thumbnail }
