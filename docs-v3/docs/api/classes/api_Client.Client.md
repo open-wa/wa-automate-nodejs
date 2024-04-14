@@ -3608,7 +3608,7 @@ ___
 
 ### sendLinkWithAutoPreview
 
-▸ **sendLinkWithAutoPreview**(`to`, `url`, `text?`, `thumbnail?`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
+▸ **sendLinkWithAutoPreview**(`to`, `url`, `text?`, `thumbnail?`, `quotedMsgId?`, `customSize?`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
 Automatically sends a link with the auto generated link preview. You can also add a custom message.
 
@@ -3620,6 +3620,10 @@ Automatically sends a link with the auto generated link preview. You can also ad
 | `url` | `string` | string A link. |
 | `text?` | [`Content`](/api/types/api_model_aliases.Content.md) | string Custom text as body of the message, this needs to include the link or it will be appended after the link. |
 | `thumbnail?` | [`Base64`](/api/types/api_model_aliases.Base64.md) | Base64 of the jpeg/png which will be used to override the automatically generated thumbnail. |
+| `quotedMsgId?` | [`MessageId`](/api/types/api_model_aliases.MessageId.md) | [INSIDERS] Send this link preview message in response to a given quoted message |
+| `customSize?` | `Object` | [INSIDERS] Anchor the size of the thumbnail (e.g {height: 100, width: 100}) |
+| `customSize.height` | `number` | - |
+| `customSize.width` | `number` | - |
 
 #### Returns
 
@@ -3687,7 +3691,7 @@ ___
 
 ### sendMessageWithThumb
 
-▸ **sendMessageWithThumb**(`thumb`, `url`, `title`, `description`, `text`, `chatId`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
+▸ **sendMessageWithThumb**(`thumb`, `url`, `title`, `description`, `text`, `chatId`, `quotedMsgId?`, `customSize?`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
 Sends a link to a chat that includes a link preview.
 
@@ -3701,6 +3705,10 @@ Sends a link to a chat that includes a link preview.
 | `description` | `string` | The long description of the link preview |
 | `text` | [`Content`](/api/types/api_model_aliases.Content.md) | The text you want to inslude in the message section. THIS HAS TO INCLUDE THE URL otherwise the url will be prepended to the text automatically. |
 | `chatId` | [`ChatId`](/api/types/api_model_aliases.ChatId.md) | The chat you want to send this message to. |
+| `quotedMsgId?` | [`MessageId`](/api/types/api_model_aliases.MessageId.md) | [INSIDERS] Send this link preview message in response to a given quoted message |
+| `customSize?` | `Object` | [INSIDERS] Anchor the size of the thumbnail (e.g {height: 100, width: 100}) |
+| `customSize.height` | `number` | - |
+| `customSize.width` | `number` | - |
 
 #### Returns
 
@@ -4078,7 +4086,7 @@ ___
 
 ### sendYoutubeLink
 
-▸ **sendYoutubeLink**(`to`, `url`, `text?`, `thumbnail?`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
+▸ **sendYoutubeLink**(`to`, `url`, `text?`, `thumbnail?`, `quotedMsgId?`, `customSize?`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
 Automatically sends a youtube link with the auto generated link preview. You can also add a custom message.
 
@@ -4090,6 +4098,10 @@ Automatically sends a youtube link with the auto generated link preview. You can
 | `url` | `string` | `undefined` | string A youtube link. |
 | `text` | [`Content`](/api/types/api_model_aliases.Content.md) | `''` | string Custom text as body of the message, this needs to include the link or it will be appended after the link. |
 | `thumbnail?` | [`Base64`](/api/types/api_model_aliases.Base64.md) | `undefined` | string Base64 of the jpeg/png which will be used to override the automatically generated thumbnail. |
+| `quotedMsgId?` | [`MessageId`](/api/types/api_model_aliases.MessageId.md) | `undefined` | [INSIDERS] Send this link preview message in response to a given quoted message |
+| `customSize?` | `Object` | `undefined` | [INSIDERS] Anchor the size of the thumbnail (e.g {height: 100, width: 100}) |
+| `customSize.height` | `number` | `undefined` | - |
+| `customSize.width` | `number` | `undefined` | - |
 
 #### Returns
 
