@@ -90,6 +90,7 @@ declare module WAPI {
   const postTextStatus: (text: string, textRgba: string, backgroundRgba: string, font: string) => Promise<string | boolean>;
   const postImageStatus: (data: string, caption: string) => Promise<string | boolean>;
   const postVideoStatus: (data: string, caption: string) => Promise<string | boolean>;
+  const sendStoryWithThumb:  (thumb:string, url: string, title: string, description: string, text: string, textRgba: string, backgroundRgba: string, font: string) => Promise<string>;
   const setChatState: (chatState: ChatState, chatId: string) => void;
   const reply: (to: string, content: string, quotedMsg: string | Message) => Promise<string|boolean>;
   const getGeneratedUserAgent: (userAgent?: string) => string;
@@ -4232,6 +4233,46 @@ public async getStatus(contactId: ContactId) : Promise<{
       ({ text, textRgba, backgroundRgba, font }) => WAPI.postTextStatus(text, textRgba, backgroundRgba, font),
       { text, textRgba, backgroundRgba, font }
     ) as Promise<boolean | string>;
+  }
+  
+  /**
+   * {@license:restricted@}
+   * 
+   * Sends a formatted text story with a thumbnail.
+   * @param url The URL to share in the story
+   * @param text The text to be displayed in the story 
+   * @param textRgba The colour of the text in the story in hex format, make sure to add the alpha value also. E.g "#FF00F4F2"
+   * @param backgroundRgba  The colour of the background in the story in hex format, make sure to add the alpha value also. E.g "#4FF31FF2"
+   * @param font The font of the text to be used in the story. This has to be a number. Each number refers to a specific predetermined font. Here are the fonts you can choose from:
+   * @param thumbnail base64 thumbnail override, if not provided the link server will try to figure it out.
+   * 0: Sans Serif
+   * 1: Serif
+   * 2: [Norican Regular](https://fonts.google.com/specimen/Norican)
+   * 3: [Bryndan Write](https://www.dafontfree.net/freefonts-bryndan-write-f160189.htm)
+   * @returns `Promise<MessageId>` returns status id if it worked, false if it didn't
+   */
+  public async postThumbnailStatus(
+    url: string,
+    text: Content,
+    textRgba : string,
+    backgroundRgba: string,
+    font: number,
+    thumbnail ?: Base64,
+    ) : Promise<MessageId>{
+    let linkData;
+    let thumb = thumbnail as string;
+    try {
+      linkData = (await axios.get(`${this._createConfig?.linkParser || "https://link.openwa.cloud/api"}?url=${url}`)).data;
+      log.info("Got link data")
+      if(!thumbnail) thumb = await getDUrl(linkData.image);
+    } catch (error) {
+      console.error(error)
+    }
+    const { title, description } = linkData
+    return await this.pup(
+      ({ thumb, url, title, description, text, textRgba, backgroundRgba, font }) => WAPI.sendStoryWithThumb(thumb, url, title, description, text, textRgba, backgroundRgba, font),
+      { thumb, url, title, description, text, textRgba, backgroundRgba, font }
+    ) as Promise<MessageId>;
   }
 
   /**
