@@ -2875,6 +2875,35 @@ Sends a formatted text story.
 
 ___
 
+### postThumbnailStatus <div class="label license restricted">restricted</div>
+
+▸ **postThumbnailStatus**(`url`, `text`, `textRgba`, `backgroundRgba`, `font`, `thumbnail?`): `Promise`<[`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
+
+:::license May require restricted license
+Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
+:::
+
+Sends a formatted text story with a thumbnail.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `url` | `string` | The URL to share in the story |
+| `text` | [`Content`](/api/types/api_model_aliases.Content.md) | The text to be displayed in the story |
+| `textRgba` | `string` | The colour of the text in the story in hex format, make sure to add the alpha value also. E.g "#FF00F4F2" |
+| `backgroundRgba` | `string` | The colour of the background in the story in hex format, make sure to add the alpha value also. E.g "#4FF31FF2" |
+| `font` | `number` | The font of the text to be used in the story. This has to be a number. Each number refers to a specific predetermined font. Here are the fonts you can choose from: |
+| `thumbnail?` | [`Base64`](/api/types/api_model_aliases.Base64.md) | base64 thumbnail override, if not provided the link server will try to figure it out. 0: Sans Serif 1: Serif 2: [Norican Regular](https://fonts.google.com/specimen/Norican) 3: [Bryndan Write](https://www.dafontfree.net/freefonts-bryndan-write-f160189.htm) |
+
+#### Returns
+
+`Promise`<[`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
+
+`Promise<MessageId>` returns status id if it worked, false if it didn't
+
+___
+
 ### postVideoStatus <div class="label license restricted">restricted</div>
 
 ▸ **postVideoStatus**(`data`, `caption`): `Promise`<`string` \| `boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
