@@ -4008,7 +4008,7 @@ public async getStatus(contactId: ContactId) : Promise<{
         }
       }
       try {
-        const {data} = await axios.post(`${((fallback ?  pkg.stickerUrl : 'https://sticker-api.openwa.dev')|| this._createConfig.stickerServerEndpoint).replace(/\/$/, '')}/${func}`, {
+        const {data} = await axios.post(`${(this._createConfig?.stickerServerEndpoint || (fallback ?  pkg.stickerUrl : 'https://sticker-api.openwa.dev')).replace(/\/$/, '')}/${func}`, {
           ...a,
         sessionInfo,
         config: this.getConfig()
