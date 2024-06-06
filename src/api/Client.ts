@@ -355,7 +355,7 @@ export class Client {
     this._sessionInfo = sessionInfo;
     this._sessionInfo.INSTANCE_ID = uuidv4();
     this._listeners = {};
-    if(this._createConfig.stickerServerEndpoint!== false) this._createConfig.stickerServerEndpoint = true;
+    // if(this._createConfig.stickerServerEndpoint!== false) this._createConfig.stickerServerEndpoint = true;
     this._setOnClose();
   }
 
@@ -3982,7 +3982,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
   private async stickerServerRequest(func: string, a : any = {}, fallback = false){
-    if(!this._createConfig.stickerServerEndpoint) return false;
+    const stickerUrl =this._createConfig.stickerServerEndpoint || (fallback ? pkg.stickerUrl : "https://sticker-api.openwa.dev")
     if(func === 'convertMp4BufferToWebpDataUrl') fallback = true;
     const sessionInfo = this.getSessionInfo()
     sessionInfo.WA_AUTOMATE_VERSION = sessionInfo.WA_AUTOMATE_VERSION.split(' ')[0]
@@ -4008,7 +4008,9 @@ public async getStatus(contactId: ContactId) : Promise<{
         }
       }
       try {
-        const {data} = await axios.post(`${(this._createConfig?.stickerServerEndpoint || (fallback ?  pkg.stickerUrl : 'https://sticker-api.openwa.dev')).replace(/\/$/, '')}/${func}`, {
+        const url = `${stickerUrl.replace(/\/$/, '')}/${func}`
+        log.info(`Requesting sticker from ${url}`)
+        const {data} = await axios.post(url, {
           ...a,
         sessionInfo,
         config: this.getConfig()
@@ -4038,13 +4040,15 @@ public async getStatus(contactId: ContactId) : Promise<{
       console.error("Not an image. Please use convertMp4BufferToWebpDataUrl to process video stickers");
       return false
     }
-    if(this._createConfig.stickerServerEndpoint) {
+    // if(this._createConfig.stickerServerEndpoint) {
       return await this.stickerServerRequest('prepareWebp', {
         image,
         stickerMetadata
       })
-    }
-   
+    // } else {
+    //   log.error("config.stickerServerEndpoint is missing")
+    //   return false
+    // }
   }
 
   /**
