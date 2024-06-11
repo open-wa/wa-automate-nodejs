@@ -46,14 +46,7 @@ if (!window.Store || !window.Store.Msg) {
                 let neededModule = require(needObj.module)
                 needObj.foundedModule = neededModule;
             });
-            window.Store = {...Object.values(require("__debug").modulesMap["WAWebLoadMainBundleFileDefinitions"]?.exports || {}).map(x=>{
-                const module = x();
-                const collectionName = module.modelClass?.prototype?.proxyName
-                if(!collectionName) return false;
-                const capName = collectionName.charAt(0).toUpperCase() + collectionName.slice(1);
-                return [capName, module]
-            }).filter(x=>x).reduce((acc,curr) => {return {...acc,[curr[0]]: curr[1]}}, {}),
-            ...(window.Store || {})}
+            window.Store = {...{...require("WAWebCollections")},...(window.Store || {})}
             neededObjects.forEach((needObj) => {
                 if (needObj.foundedModule) {
                     window.Store[needObj.id] = needObj.resolver ? needObj.resolver(needObj.foundedModule) : needObj.foundedModule;

@@ -208,7 +208,7 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
       */
      const invariantAviodanceTs = now();
     await Promise.race([
-    (waPage as Page).waitForFunction(`(()=>{return require && require("__debug").modulesMap["WAWebLoadMainBundleFileDefinitions"] ? true : false})()`, {timeout: 10000}).catch(()=>{}), //modules are loaded
+    (waPage as Page).waitForFunction(`(()=>{return require && require("__debug").modulesMap["WAWebCollections"] ? true : false})()`, {timeout: 10000}).catch(()=>{}), //modules are loaded
     (waPage as Page).waitForFunction(`[...document.getElementsByTagName('div')].filter(x=>x.dataset && x.dataset.testid)[0]?.dataset?.testid === 'qrcode'`, {timeout: 10000}).catch(()=>{}), //qr code is loaded
     (waPage as Page).waitForFunction(`document.getElementsByTagName('circle').length===1`, {timeout: 10000}).catch(()=>{}) //qr spinner is present
     ])
@@ -315,7 +315,10 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
     if (canInjectEarly) {
       //check if page is valid after 5 seconds
       spinner.start('Checking if session is valid');
-      if(config?.safeMode) await timeout(5000);
+      if(config?.safeMode) {
+        await timeout(5000);
+        await injectApi(waPage, spinner, true)
+      }
     }
     //@ts-ignore
     const VALID_SESSION = await waPage.waitForFunction(`window.Store && window.Store.Msg ? true : false`,{ timeout: 9000, polling: 200 }).catch(async e=>{

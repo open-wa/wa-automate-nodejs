@@ -144,7 +144,7 @@ export async function getLicense(config: ConfigObject, me: {
 
 export async function earlyInjectionCheck(page: Page): Promise<(page: Page) => boolean> {
   //@ts-ignore
-  await page.waitForFunction(`require("__debug").modulesMap["WAWebLoadMainBundleFileDefinitions"] ? true : false`, { timeout: 10, polling: 500 }).catch(()=>{})
+  await page.waitForFunction(`require("__debug").modulesMap["WAWebCollections"] ? true : false`, { timeout: 10, polling: 500 }).catch(()=>{})
   //@ts-ignore
   // return await page.evaluate(() => { if (window.webpackChunkwhatsapp_web_client) { window.webpackChunkbuild = window.webpackChunkwhatsapp_web_client; } else { (function () { const f = Object.entries(window).filter(([, o]) => o && o.push && (o.push != [].push)); if (f[0]) { window.webpackChunkbuild = window[f[0][0]]; } })(); } return (typeof window.webpackChunkbuild !== "undefined"); });
   return true;
