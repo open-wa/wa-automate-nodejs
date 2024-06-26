@@ -355,7 +355,6 @@ export class Client {
     this._sessionInfo = sessionInfo;
     this._sessionInfo.INSTANCE_ID = uuidv4();
     this._listeners = {};
-    // if(this._createConfig.stickerServerEndpoint!== false) this._createConfig.stickerServerEndpoint = true;
     this._setOnClose();
   }
 
@@ -3633,11 +3632,9 @@ public async getStatus(contactId: ContactId) : Promise<{
     const mimeInfo = base64MimeType(image);
     if(!mimeInfo || mimeInfo.includes("image")){
       let imgData;
-      if(this._createConfig.stickerServerEndpoint) {
         imgData = await this.stickerServerRequest('convertGroupIcon', {
           image
         })
-      }
       return await this.pup(
         ({ groupId, imgData }) => WAPI.setGroupIcon(groupId, imgData),
         { groupId, imgData }
@@ -3982,7 +3979,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   }
 
   private async stickerServerRequest(func: string, a : any = {}, fallback = false){
-    const stickerUrl =this._createConfig.stickerServerEndpoint || (fallback ? pkg.stickerUrl : "https://sticker-api.openwa.dev")
+    const stickerUrl = this._createConfig.stickerServerEndpoint || (fallback ? pkg.stickerUrl : "https://sticker-api.openwa.dev") ||  "https://sticker-api.openwa.dev"
     if(func === 'convertMp4BufferToWebpDataUrl') fallback = true;
     const sessionInfo = this.getSessionInfo()
     sessionInfo.WA_AUTOMATE_VERSION = sessionInfo.WA_AUTOMATE_VERSION.split(' ')[0]
@@ -4040,15 +4037,10 @@ public async getStatus(contactId: ContactId) : Promise<{
       console.error("Not an image. Please use convertMp4BufferToWebpDataUrl to process video stickers");
       return false
     }
-    // if(this._createConfig.stickerServerEndpoint) {
       return await this.stickerServerRequest('prepareWebp', {
         image,
         stickerMetadata
       })
-    // } else {
-    //   log.error("config.stickerServerEndpoint is missing")
-    //   return false
-    // }
   }
 
   /**
@@ -4109,14 +4101,11 @@ public async getStatus(contactId: ContactId) : Promise<{
         } 
       }
       } 
-      let convertedStickerDataUrl;
-      if(this._createConfig.stickerServerEndpoint) {
-        convertedStickerDataUrl = await this.stickerServerRequest('convertMp4BufferToWebpDataUrl', {
+      const convertedStickerDataUrl = await this.stickerServerRequest('convertMp4BufferToWebpDataUrl', {
           file,
           processOptions,
           stickerMetadata
         })
-      } 
     try {
       if(!convertedStickerDataUrl) return false;
       return await (messageId && this._createConfig.licenseKey) ? this.sendRawWebpAsStickerAsReply(to, messageId, convertedStickerDataUrl, true) : this.sendRawWebpAsSticker(to, convertedStickerDataUrl, true);
