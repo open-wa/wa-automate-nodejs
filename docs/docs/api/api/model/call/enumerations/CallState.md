@@ -1,0 +1,73 @@
+# Enumeration: CallState
+
+## Enumeration Members
+
+### ACTIVE
+
+> **ACTIVE**: `"ACTIVE"`
+
+***
+
+### CONNECTING
+
+> **CONNECTING**: `"CONNECTING"`
+
+***
+
+### CONNECTION\_LOST
+
+> **CONNECTION\_LOST**: `"CONNECTION_LOST"`
+
+***
+
+### ENDED
+
+> **ENDED**: `"ENDED"`
+
+***
+
+### FAILED
+
+> **FAILED**: `"FAILED"`
+
+***
+
+### HANDLED\_REMOTELY
+
+> **HANDLED\_REMOTELY**: `"HANDLED_REMOTELY"`
+
+***
+
+### INCOMING\_RING
+
+> **INCOMING\_RING**: `"INCOMING_RING"`
+
+***
+
+### NOT\_ANSWERED
+
+> **NOT\_ANSWERED**: `"NOT_ANSWERED"`
+
+***
+
+### OUTGOING\_CALLING
+
+> **OUTGOING\_CALLING**: `"OUTGOING_CALLING"`
+
+***
+
+### OUTGOING\_RING
+
+> **OUTGOING\_RING**: `"OUTGOING_RING"`
+
+***
+
+### REJECTED
+
+> **REJECTED**: `"REJECTED"`
+
+***
+
+### REMOTE\_CALL\_IN\_PROGRESS
+
+> **REMOTE\_CALL\_IN\_PROGRESS**: `"REMOTE_CALL_IN_PROGRESS"`

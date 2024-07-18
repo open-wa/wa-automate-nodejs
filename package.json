@@ -15,7 +15,7 @@
     "build": "rm -rf dist/ && tsc && npm run build:lib && npm run build:config-for-bin",
     "build:skipmid": "tsc && npm run build:lib",
     "build:lib": "ts-node prebuild.ts",
-    "docs": "npm run --prefix docs-v3 deploy_with_ssh_ci",
+    "docs": "npm run --prefix docs deploy_with_ssh_ci",
     "types:publish": "npm run --prefix types-only pub",
     "watch": "npm run build && tsc-watch ./src/index.ts --outDir ./dist --onSuccess \"node ./dist/index.js\" --onFailure \"echo Error while compiling\" --compiler typescript/bin/tsc",
     "clean": "rm -rf session && rm -rf dist",

@@ -39,7 +39,7 @@ MessageCollector#Message
 
 #### Overrides
 
-[Collector](/api/classes/structures_Collector.Collector.md).[constructor](/api/classes/structures_Collector.Collector.md#constructor)
+[Collector](/api/classes/structures_Collector.Collector.md).[constructor](/api/classes/structures_Collector.Collector.md#constructor-16)
 
 ## Properties
 
@@ -49,7 +49,7 @@ MessageCollector#Message
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[_idletimeout](/api/classes/structures_Collector.Collector.md#_idletimeout)
+[Collector](/api/classes/structures_Collector.Collector.md).[_idletimeout](/api/classes/structures_Collector.Collector.md#_idletimeout-16)
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[_timeout](/api/classes/structures_Collector.Collector.md#_timeout)
+[Collector](/api/classes/structures_Collector.Collector.md).[_timeout](/api/classes/structures_Collector.Collector.md#_timeout-16)
 
 ___
 
@@ -75,7 +75,7 @@ ___
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[collected](/api/classes/structures_Collector.Collector.md#collected)
+[Collector](/api/classes/structures_Collector.Collector.md).[collected](/api/classes/structures_Collector.Collector.md#collected-16)
 
 ___
 
@@ -85,7 +85,7 @@ ___
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[ended](/api/classes/structures_Collector.Collector.md#ended)
+[Collector](/api/classes/structures_Collector.Collector.md).[ended](/api/classes/structures_Collector.Collector.md#ended-16)
 
 ___
 
@@ -115,7 +115,7 @@ ___
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[filter](/api/classes/structures_Collector.Collector.md#filter)
+[Collector](/api/classes/structures_Collector.Collector.md).[filter](/api/classes/structures_Collector.Collector.md#filter-16)
 
 ___
 
@@ -131,7 +131,7 @@ ___
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[options](/api/classes/structures_Collector.Collector.md#options)
+[Collector](/api/classes/structures_Collector.Collector.md).[options](/api/classes/structures_Collector.Collector.md#options-16)
 
 ___
 
@@ -149,11 +149,11 @@ ___
 
 ### captureRejectionSymbol
 
-▪ `Static` `Readonly` **captureRejectionSymbol**: typeof [`captureRejectionSymbol`](/api/classes/structures_Collector.Collector.md#capturerejectionsymbol)
+▪ `Static` `Readonly` **captureRejectionSymbol**: typeof [`captureRejectionSymbol`](/api/classes/structures_Collector.Collector.md#capturerejectionsymbol-16)
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[captureRejectionSymbol](/api/classes/structures_Collector.Collector.md#capturerejectionsymbol)
+[Collector](/api/classes/structures_Collector.Collector.md).[captureRejectionSymbol](/api/classes/structures_Collector.Collector.md#capturerejectionsymbol-16)
 
 ___
 
@@ -165,7 +165,7 @@ Sets or gets the default captureRejection value for all emitters.
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[captureRejections](/api/classes/structures_Collector.Collector.md#capturerejections)
+[Collector](/api/classes/structures_Collector.Collector.md).[captureRejections](/api/classes/structures_Collector.Collector.md#capturerejections-16)
 
 ___
 
@@ -175,13 +175,13 @@ ___
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[defaultMaxListeners](/api/classes/structures_Collector.Collector.md#defaultmaxlisteners)
+[Collector](/api/classes/structures_Collector.Collector.md).[defaultMaxListeners](/api/classes/structures_Collector.Collector.md#defaultmaxlisteners-16)
 
 ___
 
 ### errorMonitor
 
-▪ `Static` `Readonly` **errorMonitor**: typeof [`errorMonitor`](/api/classes/structures_Collector.Collector.md#errormonitor)
+▪ `Static` `Readonly` **errorMonitor**: typeof [`errorMonitor`](/api/classes/structures_Collector.Collector.md#errormonitor-16)
 
 This symbol shall be used to install a listener for only monitoring `'error'`
 events. Listeners installed using this symbol are called before the regular
@@ -193,7 +193,7 @@ regular `'error'` listener is installed.
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[errorMonitor](/api/classes/structures_Collector.Collector.md#errormonitor)
+[Collector](/api/classes/structures_Collector.Collector.md).[errorMonitor](/api/classes/structures_Collector.Collector.md#errormonitor-16)
 
 ## Accessors
 
@@ -230,7 +230,7 @@ Allows collectors to be consumed with for-await-of loops
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[[asyncIterator]](/api/classes/structures_Collector.Collector.md#[asynciterator])
+[Collector](/api/classes/structures_Collector.Collector.md).[[asyncIterator]](/api/classes/structures_Collector.Collector.md#[asynciterator]-16)
 
 ___
 
@@ -257,7 +257,7 @@ v0.1.26
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[addListener](/api/classes/structures_Collector.Collector.md#addlistener)
+[Collector](/api/classes/structures_Collector.Collector.md).[addListener](/api/classes/structures_Collector.Collector.md#addlistener-16)
 
 ___
 
@@ -273,7 +273,7 @@ Checks whether the collector should end, and if so, ends it.
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[checkEnd](/api/classes/structures_Collector.Collector.md#checkend)
+[Collector](/api/classes/structures_Collector.Collector.md).[checkEnd](/api/classes/structures_Collector.Collector.md#checkend-16)
 
 ___
 
@@ -295,7 +295,7 @@ Clears an immediate.
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[clearImmediate](/api/classes/structures_Collector.Collector.md#clearimmediate)
+[Collector](/api/classes/structures_Collector.Collector.md).[clearImmediate](/api/classes/structures_Collector.Collector.md#clearimmediate-16)
 
 ___
 
@@ -317,7 +317,7 @@ Clears an interval.
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[clearInterval](/api/classes/structures_Collector.Collector.md#clearinterval)
+[Collector](/api/classes/structures_Collector.Collector.md).[clearInterval](/api/classes/structures_Collector.Collector.md#clearinterval-16)
 
 ___
 
@@ -339,7 +339,7 @@ Clears a timeout.
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[clearTimeout](/api/classes/structures_Collector.Collector.md#cleartimeout)
+[Collector](/api/classes/structures_Collector.Collector.md).[clearTimeout](/api/classes/structures_Collector.Collector.md#cleartimeout-16)
 
 ___
 
@@ -355,7 +355,7 @@ Destroys all assets used by the base client.
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[destroy](/api/classes/structures_Collector.Collector.md#destroy)
+[Collector](/api/classes/structures_Collector.Collector.md).[destroy](/api/classes/structures_Collector.Collector.md#destroy-16)
 
 ___
 
@@ -377,7 +377,7 @@ Handles a message for possible disposal.
 
 #### Overrides
 
-[Collector](/api/classes/structures_Collector.Collector.md).[dispose](/api/classes/structures_Collector.Collector.md#dispose)
+[Collector](/api/classes/structures_Collector.Collector.md).[dispose](/api/classes/structures_Collector.Collector.md#dispose-16)
 
 ___
 
@@ -440,7 +440,7 @@ v0.1.26
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[emit](/api/classes/structures_Collector.Collector.md#emit)
+[Collector](/api/classes/structures_Collector.Collector.md).[emit](/api/classes/structures_Collector.Collector.md#emit-16)
 
 ___
 
@@ -474,7 +474,7 @@ v6.0.0
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[eventNames](/api/classes/structures_Collector.Collector.md#eventnames)
+[Collector](/api/classes/structures_Collector.Collector.md).[eventNames](/api/classes/structures_Collector.Collector.md#eventnames-16)
 
 ___
 
@@ -499,7 +499,7 @@ ___
 ▸ **getMaxListeners**(): `number`
 
 Returns the current max listener value for the `EventEmitter` which is either
-set by `emitter.setMaxListeners(n)` or defaults to [defaultMaxListeners](/api/classes/structures_MessageCollector.MessageCollector.md#defaultmaxlisteners).
+set by `emitter.setMaxListeners(n)` or defaults to [defaultMaxListeners](/api/classes/structures_MessageCollector.MessageCollector.md#defaultmaxlisteners-16).
 
 **`Since`**
 
@@ -511,7 +511,7 @@ v1.0.0
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[getMaxListeners](/api/classes/structures_Collector.Collector.md#getmaxlisteners)
+[Collector](/api/classes/structures_Collector.Collector.md).[getMaxListeners](/api/classes/structures_Collector.Collector.md#getmaxlisteners-16)
 
 ___
 
@@ -537,7 +537,7 @@ Collector#collect
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[handleCollect](/api/classes/structures_Collector.Collector.md#handlecollect)
+[Collector](/api/classes/structures_Collector.Collector.md).[handleCollect](/api/classes/structures_Collector.Collector.md#handlecollect-16)
 
 ___
 
@@ -563,7 +563,7 @@ Collector#dispose
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[handleDispose](/api/classes/structures_Collector.Collector.md#handledispose)
+[Collector](/api/classes/structures_Collector.Collector.md).[handleDispose](/api/classes/structures_Collector.Collector.md#handledispose-16)
 
 ___
 
@@ -589,7 +589,7 @@ v3.2.0
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[listenerCount](/api/classes/structures_Collector.Collector.md#listenercount)
+[Collector](/api/classes/structures_Collector.Collector.md).[listenerCount](/api/classes/structures_Collector.Collector.md#listenercount-32)
 
 ___
 
@@ -623,7 +623,7 @@ v0.1.26
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[listeners](/api/classes/structures_Collector.Collector.md#listeners)
+[Collector](/api/classes/structures_Collector.Collector.md).[listeners](/api/classes/structures_Collector.Collector.md#listeners-16)
 
 ___
 
@@ -650,7 +650,7 @@ v10.0.0
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[off](/api/classes/structures_Collector.Collector.md#off)
+[Collector](/api/classes/structures_Collector.Collector.md).[off](/api/classes/structures_Collector.Collector.md#off-16)
 
 ___
 
@@ -701,7 +701,7 @@ v0.1.101
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[on](/api/classes/structures_Collector.Collector.md#on)
+[Collector](/api/classes/structures_Collector.Collector.md).[on](/api/classes/structures_Collector.Collector.md#on-32)
 
 ___
 
@@ -750,7 +750,7 @@ v0.3.0
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[once](/api/classes/structures_Collector.Collector.md#once)
+[Collector](/api/classes/structures_Collector.Collector.md).[once](/api/classes/structures_Collector.Collector.md#once-32)
 
 ___
 
@@ -788,7 +788,7 @@ v6.0.0
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[prependListener](/api/classes/structures_Collector.Collector.md#prependlistener)
+[Collector](/api/classes/structures_Collector.Collector.md).[prependListener](/api/classes/structures_Collector.Collector.md#prependlistener-16)
 
 ___
 
@@ -824,7 +824,7 @@ v6.0.0
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[prependOnceListener](/api/classes/structures_Collector.Collector.md#prependoncelistener)
+[Collector](/api/classes/structures_Collector.Collector.md).[prependOnceListener](/api/classes/structures_Collector.Collector.md#prependoncelistener-16)
 
 ___
 
@@ -875,7 +875,7 @@ v9.4.0
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[rawListeners](/api/classes/structures_Collector.Collector.md#rawlisteners)
+[Collector](/api/classes/structures_Collector.Collector.md).[rawListeners](/api/classes/structures_Collector.Collector.md#rawlisteners-16)
 
 ___
 
@@ -907,7 +907,7 @@ v0.1.26
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[removeAllListeners](/api/classes/structures_Collector.Collector.md#removealllisteners)
+[Collector](/api/classes/structures_Collector.Collector.md).[removeAllListeners](/api/classes/structures_Collector.Collector.md#removealllisteners-16)
 
 ___
 
@@ -1009,7 +1009,7 @@ v0.1.26
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[removeListener](/api/classes/structures_Collector.Collector.md#removelistener)
+[Collector](/api/classes/structures_Collector.Collector.md).[removeListener](/api/classes/structures_Collector.Collector.md#removelistener-16)
 
 ___
 
@@ -1033,7 +1033,7 @@ Resets the collectors timeout and idle timer.
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[resetTimer](/api/classes/structures_Collector.Collector.md#resettimer)
+[Collector](/api/classes/structures_Collector.Collector.md).[resetTimer](/api/classes/structures_Collector.Collector.md#resettimer-16)
 
 ___
 
@@ -1056,7 +1056,7 @@ Sets an immediate that will be automatically cancelled if the client is destroye
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[setImmediate](/api/classes/structures_Collector.Collector.md#setimmediate)
+[Collector](/api/classes/structures_Collector.Collector.md).[setImmediate](/api/classes/structures_Collector.Collector.md#setimmediate-16)
 
 ___
 
@@ -1080,7 +1080,7 @@ Sets an interval that will be automatically cancelled if the client is destroyed
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[setInterval](/api/classes/structures_Collector.Collector.md#setinterval)
+[Collector](/api/classes/structures_Collector.Collector.md).[setInterval](/api/classes/structures_Collector.Collector.md#setinterval-16)
 
 ___
 
@@ -1111,7 +1111,7 @@ v0.3.5
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[setMaxListeners](/api/classes/structures_Collector.Collector.md#setmaxlisteners)
+[Collector](/api/classes/structures_Collector.Collector.md).[setMaxListeners](/api/classes/structures_Collector.Collector.md#setmaxlisteners-32)
 
 ___
 
@@ -1135,7 +1135,7 @@ Sets a timeout that will be automatically cancelled if the client is destroyed.
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[setTimeout](/api/classes/structures_Collector.Collector.md#settimeout)
+[Collector](/api/classes/structures_Collector.Collector.md).[setTimeout](/api/classes/structures_Collector.Collector.md#settimeout-16)
 
 ___
 
@@ -1161,7 +1161,7 @@ Collector#end
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[stop](/api/classes/structures_Collector.Collector.md#stop)
+[Collector](/api/classes/structures_Collector.Collector.md).[stop](/api/classes/structures_Collector.Collector.md#stop-16)
 
 ___
 
@@ -1240,7 +1240,7 @@ v15.2.0, v14.17.0
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[getEventListeners](/api/classes/structures_Collector.Collector.md#geteventlisteners)
+[Collector](/api/classes/structures_Collector.Collector.md).[getEventListeners](/api/classes/structures_Collector.Collector.md#geteventlisteners-16)
 
 ___
 
@@ -1280,7 +1280,7 @@ Since v3.2.0 - Use `listenerCount` instead.
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[listenerCount](/api/classes/structures_Collector.Collector.md#listenercount-1)
+[Collector](/api/classes/structures_Collector.Collector.md).[listenerCount](/api/classes/structures_Collector.Collector.md#listenercount-33)
 
 ___
 
@@ -1362,7 +1362,7 @@ that iterates `eventName` events emitted by the `emitter`
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[on](/api/classes/structures_Collector.Collector.md#on-1)
+[Collector](/api/classes/structures_Collector.Collector.md).[on](/api/classes/structures_Collector.Collector.md#on-33)
 
 ___
 
@@ -1468,7 +1468,7 @@ v11.13.0, v10.16.0
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[once](/api/classes/structures_Collector.Collector.md#once-1)
+[Collector](/api/classes/structures_Collector.Collector.md).[once](/api/classes/structures_Collector.Collector.md#once-33)
 
 ▸ `Static` **once**(`emitter`, `eventName`, `options?`): `Promise`<`any`[]\>
 
@@ -1486,7 +1486,7 @@ v11.13.0, v10.16.0
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[once](/api/classes/structures_Collector.Collector.md#once-1)
+[Collector](/api/classes/structures_Collector.Collector.md).[once](/api/classes/structures_Collector.Collector.md#once-33)
 
 ___
 
@@ -1523,4 +1523,4 @@ v15.4.0
 
 #### Inherited from
 
-[Collector](/api/classes/structures_Collector.Collector.md).[setMaxListeners](/api/classes/structures_Collector.Collector.md#setmaxlisteners-1)
+[Collector](/api/classes/structures_Collector.Collector.md).[setMaxListeners](/api/classes/structures_Collector.Collector.md#setmaxlisteners-33)

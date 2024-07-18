@@ -264,7 +264,7 @@ ___
 
 ### captureRejectionSymbol
 
-▪ `Static` `Readonly` **captureRejectionSymbol**: typeof [`captureRejectionSymbol`](/api/classes/structures_Collector.Collector.md#capturerejectionsymbol)
+▪ `Static` `Readonly` **captureRejectionSymbol**: typeof [`captureRejectionSymbol`](/api/classes/structures_Collector.Collector.md#capturerejectionsymbol-16)
 
 #### Inherited from
 
@@ -296,7 +296,7 @@ ___
 
 ### errorMonitor
 
-▪ `Static` `Readonly` **errorMonitor**: typeof [`errorMonitor`](/api/classes/structures_Collector.Collector.md#errormonitor)
+▪ `Static` `Readonly` **errorMonitor**: typeof [`errorMonitor`](/api/classes/structures_Collector.Collector.md#errormonitor-16)
 
 This symbol shall be used to install a listener for only monitoring `'error'`
 events. Listeners installed using this symbol are called before the regular
@@ -567,7 +567,7 @@ ___
 ▸ **cork**(): `void`
 
 The `writable.cork()` method forces all written data to be buffered in memory.
-The buffered data will be flushed when either the [uncork](/api/classes/logging_custom_transport.LogToEvTransport.md#uncork) or [end](/api/classes/logging_custom_transport.LogToEvTransport.md#end) methods are called.
+The buffered data will be flushed when either the [uncork](/api/classes/logging_custom_transport.LogToEvTransport.md#uncork-16) or [end](/api/classes/logging_custom_transport.LogToEvTransport.md#end-16) methods are called.
 
 The primary intent of `writable.cork()` is to accommodate a situation in which
 several small chunks are written to the stream in rapid succession. Instead of
@@ -758,7 +758,7 @@ to the `Writable`. The optional `chunk` and `encoding` arguments allow one
 final additional chunk of data to be written immediately before closing the
 stream.
 
-Calling the [write](/api/classes/logging_custom_transport.LogToEvTransport.md#write) method after calling [end](/api/classes/logging_custom_transport.LogToEvTransport.md#end) will raise an error.
+Calling the [write](/api/classes/logging_custom_transport.LogToEvTransport.md#write-16) method after calling [end](/api/classes/logging_custom_transport.LogToEvTransport.md#end-16) will raise an error.
 
 ```js
 // Write 'hello, ' and then end with 'world!'.
@@ -863,7 +863,7 @@ ___
 ▸ **getMaxListeners**(): `number`
 
 Returns the current max listener value for the `EventEmitter` which is either
-set by `emitter.setMaxListeners(n)` or defaults to [defaultMaxListeners](/api/classes/logging_custom_transport.LogToEvTransport.md#defaultmaxlisteners).
+set by `emitter.setMaxListeners(n)` or defaults to [defaultMaxListeners](/api/classes/logging_custom_transport.LogToEvTransport.md#defaultmaxlisteners-16).
 
 **`Since`**
 
@@ -1795,7 +1795,7 @@ ___
 
 ▸ **uncork**(): `void`
 
-The `writable.uncork()` method flushes all data buffered since [cork](/api/classes/logging_custom_transport.LogToEvTransport.md#cork) was called.
+The `writable.uncork()` method flushes all data buffered since [cork](/api/classes/logging_custom_transport.LogToEvTransport.md#cork-16) was called.
 
 When using `writable.cork()` and `writable.uncork()` to manage the buffering
 of writes to a stream, defer calls to `writable.uncork()` using`process.nextTick()`. Doing so allows batching of all`writable.write()` calls that occur within a given Node.js event
@@ -1873,7 +1873,7 @@ by default until they are piped or a `'data'` or `'readable'` event handler
 is added.
 
 If the data to be written can be generated or fetched on demand, it is
-recommended to encapsulate the logic into a `Readable` and use [pipe](/api/classes/logging_custom_transport.LogToEvTransport.md#pipe). However, if calling `write()` is preferred, it is
+recommended to encapsulate the logic into a `Readable` and use [pipe](/api/classes/logging_custom_transport.LogToEvTransport.md#pipe-16). However, if calling `write()` is preferred, it is
 possible to respect backpressure and avoid memory issues using the `'drain'` event:
 
 ```js

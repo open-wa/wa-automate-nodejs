@@ -1778,7 +1778,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * @param text The text you want to inslude in the message section. THIS HAS TO INCLUDE THE URL otherwise the url will be prepended to the text automatically.
    * @param chatId The chat you want to send this message to.
    * @param quotedMsgId [INSIDERS] Send this link preview message in response to a given quoted message
-   * @param customSize [INSIDERS] Anchor the size of the thumbnail (e.g {height: 100, width: 100})
+   * @param customSize [INSIDERS] Anchor the size of the thumbnail
    */
   public async sendMessageWithThumb(
     thumb: string,
@@ -1948,7 +1948,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
  * @param text string Custom text as body of the message, this needs to include the link or it will be appended after the link.
  * @param thumbnail string Base64 of the jpeg/png which will be used to override the automatically generated thumbnail.
  * @param quotedMsgId [INSIDERS] Send this link preview message in response to a given quoted message
- * @param customSize [INSIDERS] Anchor the size of the thumbnail (e.g {height: 100, width: 100})
+ * @param customSize [INSIDERS] Anchor the size of the thumbnail
  */
   public async sendYoutubeLink(to: ChatId, url: string, text: Content = '', thumbnail ?: Base64, quotedMsgId?: MessageId, customSize?: {height: number, width: number}) : Promise<boolean | MessageId> {
     return this.sendLinkWithAutoPreview(to,url,text, thumbnail, quotedMsgId, customSize);
@@ -1961,7 +1961,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
  * @param text string Custom text as body of the message, this needs to include the link or it will be appended after the link.
  * @param thumbnail Base64 of the jpeg/png which will be used to override the automatically generated thumbnail.
  * @param quotedMsgId [INSIDERS] Send this link preview message in response to a given quoted message
- * @param customSize [INSIDERS] Anchor the size of the thumbnail (e.g {height: 100, width: 100})
+ * @param customSize [INSIDERS] Anchor the size of the thumbnail
  */
   public async sendLinkWithAutoPreview(
     to: ChatId,
@@ -3187,10 +3187,6 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
    * 
    * Retrieves the groups that you have in common with a contact
    * @param contactId
-   * @returns Promise returning an array of common groups {
-   * id:string,
-   * title:string
-   * }
    */
   public async getCommonGroups(contactId: ContactId) : Promise<{
     id: string,
@@ -3292,8 +3288,7 @@ public async contactUnblock(id: ContactId) : Promise<boolean> {
 
 /**
  * Get the status of a contact
- * @param contactId {string} to '000000000000@c.us'
- * returns: {id: string,status: string}
+ * @param contactId to '000000000000@c.us'
  */
 
 public async getStatus(contactId: ContactId) : Promise<{
@@ -3318,8 +3313,18 @@ public async getStatus(contactId: ContactId) : Promise<{
    * 
    * Use a raw payload within your open-wa session
    * 
+   * @example
+   * If there is a code block, then both TypeDoc and VSCode will treat
+   * text outside of the code block as regular text.
+   * 
+   * ```ts
+   * await B('44123456789@c.us', {
+   *  test: 1
+   * })
+   * ```
+   * {@link loadAllEarlierMessages}
    * @param chatId
-   * @param payload {any} 
+   * @param payload
    * returns: MessageId
    */
    public async B(chatId: ChatId, payload: {
@@ -4081,7 +4086,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * 
    * @param to ChatId The chat id you want to send the webp sticker to
    * @param file [[DataURL]], [[Base64]], URL (string GET), Relative filepath (string), or Buffer of the mp4 file
-   * @param messageId message id of the message you want this sticker to reply to. {@license:insiders@}
+   * @param messageId message id of the message you want this sticker to reply to. @license:insiders@
    */
   public async sendMp4AsSticker(to: ChatId, file: DataURL | Buffer | Base64 | string, processOptions: Mp4StickerConversionProcessOptions = defaultProcessOptions, stickerMetadata?: StickerMetadata, messageId ?: MessageId) : Promise<MessageId | string | boolean> {
     //@ts-ignore
@@ -4122,7 +4127,7 @@ public async getStatus(contactId: ContactId) : Promise<{
    * 
    * @param to ChatId The chat id you want to send the webp sticker to
    * @param emojiId The discord emoji id without indentifying chars. In discord you would write `:who:`, here use `who`
-   * @param messageId message id of the message you want this sticker to reply to. {@license:insiders@}
+   * @param messageId message id of the message you want this sticker to reply to. @license:insiders@
    */
   public async sendEmoji(to: ChatId, emojiId: string, messageId ?: MessageId) : Promise<MessageId | boolean | string> {
     const webp = await this.stickerServerRequest('emoji', {

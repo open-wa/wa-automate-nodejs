@@ -9,13 +9,11 @@ custom_edit_url: null
 
 ## Methods
 
-### B <div class="label license insiders">insiders</div>
+### B
 
 ▸ **B**(`chatId`, `payload`): `Promise`<[`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 :::danger
 
@@ -213,13 +211,11 @@ Checks if a number is a valid WA number
 
 ___
 
-### checkReadReceipts <div class="label license insiders">insiders</div>
+### checkReadReceipts
 
 ▸ **checkReadReceipts**(`contactId`): `Promise`<`string` \| `boolean`\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Check if a recipient has read receipts on.
 
@@ -313,13 +309,11 @@ Unblock contact
 
 ___
 
-### createCommunity <div class="label license insiders">insiders</div>
+### createCommunity
 
 ▸ **createCommunity**(`communityName`, `communitySubject`, `icon`, `existingGroups?`, `newGroups?`): `Promise`<\`${number}@g.us\`\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Create a new community
 
@@ -358,13 +352,11 @@ Create a group and add contacts to it
 
 ___
 
-### createLabel <div class="label license insiders">insiders</div>
+### createLabel
 
 ▸ **createLabel**(`label`): `Promise`<`string` \| `boolean`\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Adds label from chat, message or contact. Only for business accounts.
 
@@ -402,13 +394,11 @@ Returns a new message collector for the chat which is related to the first param
 
 ___
 
-### createNewProduct <div class="label license insiders">insiders</div>
+### createNewProduct
 
 ▸ **createNewProduct**(`name`, `price`, `currency`, `images`, `description`, `url?`, `internalId?`, `isHidden?`): `Promise`<[`Product`](/api/interfaces/api_model_product.Product.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Add a product to your catalog
 
@@ -511,13 +501,11 @@ Alias for deleteStory
 
 ___
 
-### deleteAllStories <div class="label license restricted">restricted</div>
+### deleteAllStories
 
 ▸ **deleteAllStories**(): `Promise`<`boolean`\>
 
-:::license May require restricted license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
-:::
+{@license:restricted@}
 
 Deletes all your existing stories.
 
@@ -607,13 +595,11 @@ Alias for deleteStory
 
 ___
 
-### deleteStory <div class="label license restricted">restricted</div>
+### deleteStory
 
 ▸ **deleteStory**(`statusesToDelete`): `Promise`<`boolean`\>
 
-:::license May require restricted license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
-:::
+{@license:restricted@}
 
 Consumes a list of id strings of stories to delete.
 
@@ -749,13 +735,11 @@ Edit an existing message
 
 ___
 
-### editProduct <div class="label license insiders">insiders</div>
+### editProduct
 
 ▸ **editProduct**(`productId`, `name?`, `price?`, `currency?`, `images?`, `description?`, `url?`, `internalId?`, `isHidden?`): `Promise`<[`Product`](/api/interfaces/api_model_product.Product.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Edit a product in your catalog
 
@@ -812,13 +796,11 @@ Detecting Logouts
 
 ___
 
-### forceStaleMediaUpdate <div class="label license insiders">insiders</div>
+### forceStaleMediaUpdate
 
 ▸ **forceStaleMediaUpdate**(`messageId`): `Promise`<``false`` \| [`Message`](/api/interfaces/api_model_message.Message.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 If a file is old enough, it will 404 if you try to decrypt it. This will allow you to force the host account to re upload the file and return a decryptable message.
 
@@ -1239,13 +1221,11 @@ The label name
 
 ___
 
-### getCommonGroups <div class="label license insiders">insiders</div>
+### getCommonGroups
 
 ▸ **getCommonGroups**(`contactId`): `Promise`<{ `id`: `string` ; `title`: `string`  }[]\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Retrieves the groups that you have in common with a contact
 
@@ -1807,13 +1787,11 @@ message object
 
 ___
 
-### getMessageInfo <div class="label license insiders">insiders</div>
+### getMessageInfo
 
 ▸ **getMessageInfo**(`messageId`): `Promise`<[`MessageInfo`](/api/interfaces/api_model_message.MessageInfo.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Get the detailed message info for a group message sent out by the host account.
 
@@ -1880,13 +1858,11 @@ Alias for deleteStory
 
 ___
 
-### getMyStoryArray <div class="label license restricted">restricted</div>
+### getMyStoryArray
 
 ▸ **getMyStoryArray**(): `Promise`<[`Message`](/api/interfaces/api_model_message.Message.md)[]\>
 
-:::license May require restricted license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
-:::
+{@license:restricted@}
 
 Retrieves all existing stories.
 
@@ -1898,13 +1874,11 @@ Only works with a Story License Key
 
 ___
 
-### getOrder <div class="label license insiders">insiders</div>
+### getOrder
 
 ▸ **getOrder**(`id`): `Promise`<[`Order`](/api/interfaces/api_model_product.Order.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Retrieves an order object
 
@@ -2118,13 +2092,11 @@ message object OR `false`
 
 ___
 
-### getStoryViewers <div class="label license restricted">restricted</div>
+### getStoryViewers
 
 ▸ **getStoryViewers**(`id?`): `Promise`<[`ContactId`](/api/types/api_model_aliases.ContactId.md)[] \| { `[k: MessageId]`: [`ContactId`](/api/types/api_model_aliases.ContactId.md)[];  }\>
 
-:::license May require restricted license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
-:::
+{@license:restricted@}
 
 Retrieves an array of user ids that have 'read' your story.
 
@@ -2345,13 +2317,11 @@ Boolean
 
 ___
 
-### isGroupIdUnsafe <div class="label license insiders">insiders</div>
+### isGroupIdUnsafe
 
 ▸ **isGroupIdUnsafe**(`groupChatId`): `Promise`<`string` \| `boolean`\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Checks whether or not the group id provided is known to be unsafe by the contributors of the library.
 
@@ -2733,13 +2703,11 @@ axios.post('localhost:8082', {
 
 ___
 
-### muteChat <div class="label license insiders">insiders</div>
+### muteChat
 
 ▸ **muteChat**(`chatId`, `muteDuration`): `Promise`<`string` \| `number` \| `boolean`\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Mutes a conversation for a given duration. If already muted, this will update the muted duration. Mute durations are relative from when the method is called.
 
@@ -2758,13 +2726,11 @@ boolean true: worked or error code or message
 
 ___
 
-### onNewProduct <div class="label license insiders">insiders</div>
+### onNewProduct
 
 ▸ **onNewProduct**(`fn`): `Promise`<`boolean` \| `Listener`\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Listens to new orders. Only works on business accounts
 
@@ -2780,13 +2746,11 @@ Listens to new orders. Only works on business accounts
 
 ___
 
-### onOrder <div class="label license insiders">insiders</div>
+### onOrder
 
 ▸ **onOrder**(`fn`): `Promise`<`boolean` \| `Listener`\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Listens to new orders. Only works on business accounts
 
@@ -2823,13 +2787,11 @@ boolean true: worked
 
 ___
 
-### postImageStatus <div class="label license restricted">restricted</div>
+### postImageStatus
 
 ▸ **postImageStatus**(`data`, `caption`): `Promise`<`string` \| `boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require restricted license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
-:::
+{@license:restricted@}
 
 Posts an image story.
 
@@ -2848,13 +2810,11 @@ Posts an image story.
 
 ___
 
-### postTextStatus <div class="label license restricted">restricted</div>
+### postTextStatus
 
 ▸ **postTextStatus**(`text`, `textRgba`, `backgroundRgba`, `font`): `Promise`<`string` \| `boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require restricted license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
-:::
+{@license:restricted@}
 
 Sends a formatted text story.
 
@@ -2875,13 +2835,11 @@ Sends a formatted text story.
 
 ___
 
-### postThumbnailStatus <div class="label license restricted">restricted</div>
+### postThumbnailStatus
 
 ▸ **postThumbnailStatus**(`url`, `text`, `textRgba`, `backgroundRgba`, `font`, `thumbnail?`): `Promise`<[`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require restricted license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
-:::
+{@license:restricted@}
 
 Sends a formatted text story with a thumbnail.
 
@@ -2904,13 +2862,11 @@ Sends a formatted text story with a thumbnail.
 
 ___
 
-### postVideoStatus <div class="label license restricted">restricted</div>
+### postVideoStatus
 
 ▸ **postVideoStatus**(`data`, `caption`): `Promise`<`string` \| `boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require restricted license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
-:::
+{@license:restricted@}
 
 Posts a video story.
 
@@ -2997,10 +2953,16 @@ ___
 
 ### refresh
 
-▸ **refresh**(): `Promise`<`boolean`\>
+▸ **refresh**(`skipFreshPage?`): `Promise`<`boolean`\>
 
 Refreshes the page and reinjects all necessary files. This may be useful for when trying to save memory
 This will attempt to re register all listeners EXCEPT onLiveLocation and onParticipantChanged
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `skipFreshPage?` | `boolean` |
 
 #### Returns
 
@@ -3194,13 +3156,11 @@ Sends a reply to a given message. Please note, you need to have at least sent on
 
 ___
 
-### reportSpam <div class="label license restricted">restricted</div>
+### reportSpam
 
 ▸ **reportSpam**(`id`): `Promise`<`boolean`\>
 
-:::license May require restricted license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
-:::
+{@license:restricted@}
 
 Report a contact for spam, block them and attempt to clear chat.
 
@@ -3588,13 +3548,11 @@ The advantage is that it will not show up in the recipients gallery. This functi
 
 ___
 
-### sendImageAsStickerAsReply <div class="label license insiders">insiders</div>
+### sendImageAsStickerAsReply
 
 ▸ **sendImageAsStickerAsReply**(`to`, `image`, `messageId`, `stickerMetadata?`): `Promise`<`string` \| `boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 This function takes an image and sends it as a sticker to the recipient as a reply to another message.
 
@@ -3767,13 +3725,11 @@ Use this to send an mp4 file as a sticker. This can also be used to convert GIFs
 
 ___
 
-### sendMultipleContacts <div class="label license insiders">insiders</div>
+### sendMultipleContacts
 
 ▸ **sendMultipleContacts**(`to`, `contactIds`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Sends multiple contacts as a single message
 
@@ -3834,13 +3790,11 @@ Send a poll to a group chat
 
 ___
 
-### sendProduct <div class="label license insiders">insiders</div>
+### sendProduct
 
 ▸ **sendProduct**(`chatId`, `productId`): `Promise`<[`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Send a product to a chat
 
@@ -3901,13 +3855,11 @@ You can use this to send a raw webp file.
 
 ___
 
-### sendRawWebpAsStickerAsReply <div class="label license insiders">insiders</div>
+### sendRawWebpAsStickerAsReply
 
 ▸ **sendRawWebpAsStickerAsReply**(`to`, `messageId`, `webpBase64`, `animated?`): `Promise`<`string` \| `boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 You can use this to send a raw webp file.
 
@@ -3992,13 +3944,11 @@ Sends a sticker (including GIF) from a given URL
 
 ___
 
-### sendStickerfromUrlAsReply <div class="label license insiders">insiders</div>
+### sendStickerfromUrlAsReply
 
 ▸ **sendStickerfromUrlAsReply**(`to`, `url`, `messageId`, `requestConfig?`, `stickerMetadata?`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Sends a sticker from a given URL
 
@@ -4020,13 +3970,11 @@ Sends a sticker from a given URL
 
 ___
 
-### sendText <div class="label license restricted">restricted</div>
+### sendText
 
 ▸ **sendText**(`to`, `content`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require restricted license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
-:::
+{@license:restricted@}
 
 Sends a text message to given chat
 
@@ -4138,13 +4086,11 @@ Automatically sends a youtube link with the auto generated link preview. You can
 
 ___
 
-### setChatBackgroundColourHex <div class="label license insiders">insiders</div>
+### setChatBackgroundColourHex
 
 ▸ **setChatBackgroundColourHex**(`hex`): `Promise`<`boolean`\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Set the wallpaper background colour
 
@@ -4160,13 +4106,11 @@ Set the wallpaper background colour
 
 ___
 
-### setChatEphemeral <div class="label license insiders">insiders</div>
+### setChatEphemeral
 
 ▸ **setChatEphemeral**(`chatId`, `ephemeral`): `Promise`<`boolean`\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Turn the ephemeral setting in a chat to on or off
 
@@ -4310,13 +4254,11 @@ boolean true if it was set, false if it didn't work. It usually doesn't work if 
 
 ___
 
-### setGroupTitle <div class="label license insiders">insiders</div>
+### setGroupTitle
 
 ▸ **setGroupTitle**(`groupId`, `title`): `Promise`<`boolean`\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Change the group chat title
 
@@ -4502,13 +4444,11 @@ Syncs contacts with phone. This promise does not resolve so it will instantly re
 
 ___
 
-### tagEveryone <div class="label license insiders">insiders</div>
+### tagEveryone
 
 ▸ **tagEveryone**(`groupId`, `content`, `hideTags?`, `formatting?`, `messageBeforeTags?`): `Promise`<`boolean` \| [`MessageId`](/api/types/api_model_aliases.MessageId.md)\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Tags everyone in the group with a message
 
@@ -4585,13 +4525,11 @@ Use this simple command to test firing callback events.
 
 ___
 
-### unmuteChat <div class="label license insiders">insiders</div>
+### unmuteChat
 
 ▸ **unmuteChat**(`chatId`): `Promise`<`string` \| `number` \| `boolean`\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Unmutes a conversation.
 
@@ -4633,7 +4571,7 @@ ___
 
 ▸ **updateWebhook**(`webhookId`, `events`): `Promise`<``false`` \| [`Webhook`](/api/interfaces/api_model_config.Webhook.md)\>
 
-Update registered events for a specific webhook. This will override all existing events. If you'd like to remove all listeners from a webhook, consider using [removeWebhook](/api/classes/api_Client.Client.md#removewebhook).
+Update registered events for a specific webhook. This will override all existing events. If you'd like to remove all listeners from a webhook, consider using [removeWebhook](/api/classes/api_Client.Client.md#removewebhook-16).
 
 In order to update authentication details for a webhook, remove it completely and then reregister it with the correct credentials.
 
@@ -4853,13 +4791,11 @@ Chat
 
 ___
 
-### onChatOpened <div class="label license insiders">insiders</div>
+### onChatOpened
 
 ▸ **onChatOpened**(`fn`): `Promise`<`boolean` \| `Listener`\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Fires callback with the relevant chat id every time the user clicks on a chat. This will only work in headful mode.
 
@@ -4877,13 +4813,11 @@ Fires callback with the relevant chat id every time the user clicks on a chat. T
 
 ___
 
-### onChatState <div class="label license insiders">insiders</div>
+### onChatState
 
 ▸ **onChatState**(`fn`): `Promise`<`boolean` \| `Listener`\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Listens to chat state, including when a specific user is recording and typing within a group chat.
 
@@ -4913,13 +4847,11 @@ Here is an example of the fired object:
 
 ___
 
-### onContactAdded <div class="label license insiders">insiders</div>
+### onContactAdded
 
 ▸ **onContactAdded**(`fn`): `Promise`<`boolean` \| `Listener`\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Fires callback with contact id when a new contact is added on the host phone.
 
@@ -5198,13 +5130,11 @@ PollData
 
 ___
 
-### onReaction <div class="label license insiders">insiders</div>
+### onReaction
 
 ▸ **onReaction**(`fn`): `Promise`<`boolean` \| `Listener`\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Listens to reaction add and change events
 
@@ -5224,13 +5154,11 @@ ReactionEvent
 
 ___
 
-### onRemovedFromGroup <div class="label license insiders">insiders</div>
+### onRemovedFromGroup
 
 ▸ **onRemovedFromGroup**(`fn`): `Promise`<`boolean` \| `Listener`\>
 
-:::license May require insiders license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=Insiders%20Program).
-:::
+{@license:insiders@}
 
 Fires callback with Chat object every time the host phone is removed to a group.
 
@@ -5270,13 +5198,11 @@ STATE observable sream of states
 
 ___
 
-### onStory <div class="label license restricted">restricted</div>
+### onStory
 
 ▸ **onStory**(`fn`): `Promise`<`boolean` \| `Listener`\>
 
-:::license May require restricted license
-Use this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License).
-:::
+{@license:restricted@}
 
 Listens to when a contact posts a new story.
 
