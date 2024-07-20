@@ -40,11 +40,19 @@ if (!window.Store || !window.Store.Msg) {
                 { id: "UploadUtils", module: "WAWebUploadManager", conditions: (module) => (module.default && module.default.encryptAndUpload) ? module.default : null }
             ];
             const e = (m) => require("__debug").modulesMap[m] || false
+            const shouldRequire = m => {
+                const a = e(m);
+                if(!a) return false;
+                return a.dependencies != null && a.depPosition >= a.dependencies.length
+            }
             neededObjects.map((needObj) => {
-                if (!needObj.module) return;
-                if(!e(needObj.module)) return;
-                let neededModule = require(needObj.module)
-                needObj.foundedModule = neededModule;
+                const m = needObj.module;
+                if (!m) return;
+                if(!e(m)) return;
+                if(shouldRequire(m)) {
+                    let neededModule = require(m)
+                    needObj.foundedModule = neededModule;
+                }
             });
             window.Store = {...{...require("WAWebCollections")},...(window.Store || {})}
             neededObjects.forEach((needObj) => {

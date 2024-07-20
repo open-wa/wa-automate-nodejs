@@ -164,8 +164,9 @@ const UPLOAD_CLOUD: MessagePreProcessor = async (message: Message, client: Clien
  * @param message The message to be processed
  * @param client The client that received the message
  * @param alreadyProcessed Whether the message has already been processed by another preprocessor. (This is useful in cases where you want to mutate the message for both onMessage and onAnyMessage events but only want to do the actual process, like uploading to s3, once.)
+ * @param source The source of the message. This is useful for knowing if the message is from onMessage or onAnyMessage. Only processing one source will prevent duplicate processing.
  */
-export type MessagePreProcessor = (message: Message, client?: Client, alreadyProcessed ?: boolean) => Promise<Message>
+export type MessagePreProcessor = (message: Message, client?: Client, alreadyProcessed ?: boolean, source ?: 'onMessage' | 'onAnyMessage') => Promise<Message>
 
 /**
  * An object that contains all available [[PREPROCESSORS]].

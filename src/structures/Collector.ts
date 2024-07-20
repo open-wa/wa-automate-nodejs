@@ -358,7 +358,7 @@ export class Collector extends EventEmitter {
    * @returns {Timeout}
    */
   setInterval(fn: (...args: any[]) => any, delay: number, ...args: any[]): NodeJS.Timeout {
-    const interval = setInterval(fn, delay, ...args);
+    const interval = setInterval(fn, delay, ...args) as any;
     this._intervals.add(interval);
     return interval;
   }
