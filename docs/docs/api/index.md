@@ -1,4 +1,4 @@
-# @open-wa/wa-automate v4.71.14
+# @open-wa/wa-automate v4.71.15
 
 ## Modules
 
@@ -21,7 +21,6 @@
 - [api/model/product](/api/api/model/product/index.md)
 - [api/model/reactions](/api/api/model/reactions/index.md)
 - [api/model/sessionInfo](/api/api/model/sessionInfo/index.md)
-- [controllers/data\_dir\_watcher](/api/controllers/data_dir_watcher/index.md)
 - [controllers/events](/api/controllers/events/index.md)
 - [controllers/init\_patch](/api/controllers/init_patch/index.md)
 - [controllers/initializer](/api/controllers/initializer/index.md)

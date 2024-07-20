@@ -3212,14 +3212,10 @@ boolean
 
 ### refresh()
 
-> **refresh**(`skipFreshPage`?): `Promise`\<`boolean`\>
+> **refresh**(): `Promise`\<`boolean`\>
 
 Refreshes the page and reinjects all necessary files. This may be useful for when trying to save memory
 This will attempt to re register all listeners EXCEPT onLiveLocation and onParticipantChanged
-
-#### Parameters
-
-• **skipFreshPage?**: `boolean`
 
 #### Returns
 
