@@ -532,6 +532,19 @@ Notes:
 
 ***
 
+### linkCode?
+
+> `optional` **linkCode**: `string`
+
+There is a new way to login to your host account by entering a link code after a confirmation step from the host account device. In order to use this feature you MUST set the host account number as a string or number beforehand as a property of the config object.
+
+e.g
+```
+linkCode: '1234567890'
+```
+
+***
+
 ### linkParser?
 
 > `optional` **linkParser**: `string`
@@ -913,9 +926,11 @@ When true, this option will take a screenshot of the browser when an unexpected 
 
 ***
 
-### sessionData?
+### ~~sessionData?~~
 
 > `optional` **sessionData**: [`Base64`](/reference/api/model/aliases/type-aliases/Base64.md) \| [`SessionData`](/reference/api/model/config/interfaces/SessionData.md)
+
+#### Deprecated
 
 The authentication object (as a JSON object or a base64 encoded string) that is required to migrate a session from one instance to another or to just restart an existing instance.
 This sessionData is provided in a generated JSON file (it's a json file but contains the JSON data as a base64 encoded string) upon QR scan or an event.
