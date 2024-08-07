@@ -23,14 +23,14 @@ In open-wa, the way to activate the link code request is to set the host account
 If you're using the Easy API, you can set the link code in the config object like so:
 
 ```bash
-> npx @open-wa/wa-automate --linkCode '447123456789'
+> npx @open-wa/wa-automate --link-code '447123456789'
 ```
 
 Or if you're using the `cli.config.json` file:
 
 ```json
 {
-  "linkCode": "1234567890"
+  "linkCode": "447123456789"
 }
 ```
 
@@ -40,6 +40,6 @@ You can also set the link code manually in the code like so:
 
 ```javascript
 create({
-  linkCode: '1234567890'
+  linkCode: '447123456789'
 })
 ```
