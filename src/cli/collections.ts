@@ -20,7 +20,7 @@ export const generateCollections: any = async (config: { [x: string]: any; sessi
             "description": "All methods from the Client",
             "externalDocs": {
                 "description": "Find out more",
-                "url": "https://docs.openwa.dev/classes/api_Client.Client.html"
+                "url": "https://docs.openwa.dev/docs/reference/api/Client/classes/Client"
             }
         },
         {

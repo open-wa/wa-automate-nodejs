@@ -5,7 +5,7 @@ description:
 sidebar_position: 0
 ---
 
-# Configration
+# Configuration
 
 There are quite a few ways you can customize your session.
 
@@ -31,7 +31,6 @@ const launchConfig = {
     cacheEnabled:false,
     sessionId: 'hr'
 };
-
 
 function start(client) {
   client.onMessage(async message => {

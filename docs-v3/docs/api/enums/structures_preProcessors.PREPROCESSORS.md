@@ -54,4 +54,4 @@ ___
 
 Uploads file to a cloud storage provider (GCP/AWS for now).
 
-If this preprocessor is set then you have to also set [`cloudUploadOptions`](https://docs.openwa.dev/interfaces/api_model_config.ConfigObject.html#cloudUploadOptions) in the config.
+If this preprocessor is set then you have to also set [`cloudUploadOptions`](https://docs.openwa.dev/docs/reference/api/model/config/interfaces/ConfigObject#clouduploadoptions) in the config.

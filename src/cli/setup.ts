@@ -85,7 +85,7 @@ export const helptext = commandLineUsage([{
     ]
 },
 {
-    content: `Please check here for more information on some of the above mentioned parameters: {underline https://docs.openwa.dev/interfaces/api_model_config.configobject}`
+    content: `Please check here for more information on some of the above mentioned parameters: {underline https://docs.openwa.dev/docs/reference/api/model/config/interfaces/ConfigObject}`
 },
 {
     content: 'Project home: {underline https://github.com/open-wa/wa-automate-nodejs}'

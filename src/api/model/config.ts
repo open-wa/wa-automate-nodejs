@@ -212,6 +212,7 @@ export interface ProxyServerCredentials {
 
 export interface ConfigObject {
     /**
+     * @deprecated
      * The authentication object (as a JSON object or a base64 encoded string) that is required to migrate a session from one instance to another or to just restart an existing instance.
      * This sessionData is provided in a generated JSON file (it's a json file but contains the JSON data as a base64 encoded string) upon QR scan or an event.
      * 
