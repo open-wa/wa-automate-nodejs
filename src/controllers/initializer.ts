@@ -271,7 +271,9 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
     } else {
       spinner.info('Authenticate to continue');
       const race = [];
-      race.push(qrManager.smartQr(waPage, config, spinner))
+      if(config?.linkCode) {
+        race.push(qrManager.linkCode(waPage, config, spinner))
+      } else race.push(qrManager.smartQr(waPage, config, spinner))
       if (config?.qrTimeout!==0) {
         let to = (config?.qrTimeout || 60) * 1000
         if(config?.multiDevice) to = to * 2

@@ -246,6 +246,15 @@ export interface ConfigObject {
      */
     sessionData?: SessionData | Base64,
     /**
+     * There is a new way to login to your host account by entering a link code after a confirmation step from the host account device. In order to use this feature you MUST set the host account number as a string or number beforehand as a property of the config object.
+     * 
+     * e.g
+     * ```
+     * linkCode: '1234567890'
+     * ```
+     */
+    linkCode?: string;
+    /**
      * ALPHA EXPERIMENTAL FEATURE! DO NOT USE IN PRODUCTION, REQUIRES TESTING.
      * 
      * Learn more:
