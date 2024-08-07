@@ -1,4 +1,4 @@
-function tailwindPlugin(context, options) {
+export function tailwindPlugin(context, options) {
     return {
       name: 'tailwind-plugin',
       injectHtmlTags() {
@@ -24,5 +24,3 @@ function tailwindPlugin(context, options) {
       },
     };
   }
-  
-  module.exports = tailwindPlugin;

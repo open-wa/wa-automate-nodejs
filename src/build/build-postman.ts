@@ -157,8 +157,8 @@ const postmanRequestGeneratorGenerator = setup => method => {
             }
         },
         url,
-        "documentationUrl": `https://docs.openwa.dev/classes/api_Client.Client.html#${method.name}`,
-        "description": `${method.text}\n[External Documentation](https://docs.openwa.dev/classes/api_Client.Client.html#${method.name})`
+        "documentationUrl": `https://docs.openwa.dev/docs/reference/api/Client/classes/Client#${method.name}`,
+        "description": `${method.text}\n[External Documentation](https://docs.openwa.dev/docs/reference/api/Client/classes/Client#${method.name})`
     };
     if (!(setup === null || setup === void 0 ? void 0 : setup.key))
         delete request.auth;
