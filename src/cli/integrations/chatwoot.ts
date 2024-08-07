@@ -392,6 +392,7 @@ class ChatwootClient {
                 return data.payload.find(x => (x.phone_number || "").includes(n)) || false
             } else false
         } catch (error) {
+            log.error(`CW SEARCH CONTACT ERROR: ${error.message}`)
             return;
         }
     }
@@ -409,6 +410,7 @@ class ChatwootClient {
             }
             return resolvedConversation;
         } catch (error) {
+            log.error(`CW GET CONVERSATION ERROR: ${error.message}`)
             return;
         }
     }
@@ -421,6 +423,7 @@ class ChatwootClient {
             });
             return data;
         } catch (error) {
+            log.error(`CW CREATE CONVERSATION ERROR: ${error.message}`)
             return;
         }
     }
@@ -439,6 +442,7 @@ class ChatwootClient {
             })
             return data.payload.contact
         } catch (error) {
+            log.error(`CW CREATE CONTACT ERROR: ${error.message}`)
             return;
         }
     }
@@ -450,6 +454,7 @@ class ChatwootClient {
             });
             return data;
         } catch (error) {
+            log.error(`CW OPEN CONVERSATION ERROR: ${error.message}`)
             return;
         }
     }
@@ -467,6 +472,7 @@ class ChatwootClient {
             });
             return data;
         } catch (error) {
+            log.error(`CW SEND CONVERSATION MESSAGE ERROR: ${error.message}`)
             return;
         }
     }
@@ -486,6 +492,7 @@ class ChatwootClient {
             const { data } = await this.cwReq('post', `conversations/${convoReg[contactId]}/messages`, formData, formData.getHeaders());
             return data;
         } catch (error) {
+            log.error(`CW SEND ATTACHMENT MESSAGE ERROR: ${error.message}`)
             return;
         }
     }
@@ -520,6 +527,9 @@ class ChatwootClient {
                     convoReg[message.chatId] = conversation.id
                 } else {
                     //create the conversation
+                    /**
+                     * TODO: Handle create conversation error
+                     */
                     convoReg[message.chatId] = (await this.createConversation(contactReg[message.chatId])).id
                     isNewConversation = convoReg[message.chatId]
                 }
