@@ -32,8 +32,11 @@ export const needsToScan = (waPage: Page): Observable<unknown> => {
       //     }).catch(() => resolve(true))
       // ]).catch(() => { })
       // console.log("🚀 ~ needsToScan ~ raceResult:", raceResult)
-      const elementResult = await waPage.waitForSelector("canvas[aria-label='Scan me!']", { timeout: 0 }).catch(() => { })
-      console.log("🚀 ~ needsToScan ~ elementResult:", elementResult)
+      const elementResult = await Promise.race([
+        waPage.waitForSelector("canvas[aria-label='Scan this QR code to link a device!']", { timeout: 0 }).catch(() => { }),
+        waPage.waitForSelector("canvas[aria-label]", { timeout: 0 }).catch(() => { })
+      ])
+      log.info("🚀 ~ needsToScan ~ elementResult:", elementResult)
       resolve(false)
     } catch (error) {
       console.log("needsToScan -> error", error)
