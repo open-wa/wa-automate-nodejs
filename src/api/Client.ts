@@ -3770,7 +3770,7 @@ public async getStatus(contactId: ContactId) : Promise<{
   */
   public async setGroupApprovalMode(groupId: GroupChatId, requireApproval: boolean) : Promise<boolean> {
     return await this.pup(
-      ({ groupId, requireApproval }) => WAPI.setGroupEditToAdminsOnly(groupId, requireApproval),
+      ({ groupId, requireApproval }) => WAPI.setGroupApprovalMode(groupId, requireApproval),
       { groupId, requireApproval }
     ) as Promise<boolean>;
   }
