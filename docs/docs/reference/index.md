@@ -1,4 +1,4 @@
-# @open-wa/wa-automate v4.72.1
+# @open-wa/wa-automate v4.72.2
 
 ## Modules
 
