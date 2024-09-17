@@ -18,6 +18,7 @@ export function CookieConsent({ demo = false, onAcceptCallback = () => { }, onDe
     };
 
     const decline = () => {
+        if(window.posthog) window.posthog.opt_out_capturing().
         setIsOpen(false);
         setTimeout(() => {
             setHide(true);
@@ -62,7 +63,7 @@ export function CookieConsent({ demo = false, onAcceptCallback = () => { }, onDe
                     </div>
                     <div className="flex gap-2 p-4 py-5 border-t border-border bg-background/20">
                         <Button onClick={accept} className="w-full">Accept</Button>
-                        <Button onClick={decline} className="w-full" variant="secondary">Double Accept</Button>
+                        <Button onClick={decline} className="w-full" variant="secondary">Decline</Button>
                     </div>
                 </div>
             </div>

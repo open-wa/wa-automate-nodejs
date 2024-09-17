@@ -31,107 +31,117 @@ const config: Config = {
   },
   plugins: [
     [
-      'docusaurus-plugin-typedoc',
-      typedocOptions
+      "posthog-docusaurus",
+      {
+        apiKey: "phc_9zr5WmTqQuRIxWcCf0IuwzsyeemirNExjQJa4c9ZjFn",
+        appUrl: "https://posthog.synthetiko.com", // optional, defaults to "https://us.i.posthog.com"
+        enableInDevelopment: true, // optional
+        enable_heatmaps: true,
+        loaded: () => {console.log("POSTHOG LOADED")},
+      },
     ],
-    // '@docusaurus/plugin-debug',
-    markdownReplacerPlugin,
-    tailwindPlugin
+  [
+    'docusaurus-plugin-typedoc',
+    typedocOptions
+  ],
+  // '@docusaurus/plugin-debug',
+  markdownReplacerPlugin,
+  tailwindPlugin
   ],
 
-  presets: [
-    [
-      'classic',
-      {
-        docs: {
-          sidebarPath: './sidebars.ts',
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          remarkPlugins: [variable],
-          admonitions: {
-            keywords: ['note', 'tip', 'info', 'warning', 'danger', 'license'],
-            extendDefaults: true,
-          },
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+presets: [
+  [
+    'classic',
+    {
+      docs: {
+        sidebarPath: './sidebars.ts',
+        // Please change this to your repo.
+        // Remove this to remove the "edit this page" links.
+        remarkPlugins: [variable],
+        admonitions: {
+          keywords: ['note', 'tip', 'info', 'warning', 'danger', 'license'],
+          extendDefaults: true,
         },
-        blog: {
-          showReadingTime: true,
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
-        },
-        theme: {
-          customCss: './src/css/custom.css',
-        },
-      } satisfies Preset.Options,
-    ],
+        editUrl:
+          'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+      },
+      blog: {
+        showReadingTime: true,
+        // Please change this to your repo.
+        // Remove this to remove the "edit this page" links.
+        editUrl:
+          'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+      },
+      theme: {
+        customCss: './src/css/custom.css',
+      },
+    } satisfies Preset.Options,
   ],
+],
 
   themeConfig: {
-    // Replace with your project's social card
-    image: 'img/docusaurus-social-card.jpg',
+  // Replace with your project's social card
+  image: 'img/docusaurus-social-card.jpg',
     navbar: {
-      title: 'open-wa/wa-automate',
+    title: 'open-wa/wa-automate',
       logo: {
-        alt: 'Open-wa',
+      alt: 'Open-wa',
         src: 'img/logo.png',
       },
-      items: [
+    items: [
 
-        {
-          type: 'dropdown',
-          docId: 'intro',
-          position: 'left',
-          label: 'Get Started',
-          items: [
-            {
-              label: 'CLI/EASY API',
-              href: '/docs/get-started/quick-run',
-            },
-            {
-              label: 'NodeJS',
-              href: '/docs/get-started/installation',
-            },
-            {
-              label: 'Docker',
-              to: "/docs/get-started/docker/",
-            }
-          ],
-        },
-        // {
-        //   type: 'docSidebar',
-        //   sidebarId: 'tutorialSidebar',
-        //   position: 'left',
-        //   label: 'Tutorial',
-        // },
-        { to: '/blog', label: 'Blog', position: 'left' },
-        { to: '/docs/reference/api/Client/classes/Client', label: 'The Client API', position: 'left' },
-        {
-          type: 'dropdown',
-          position: 'right',
-          label: 'Community',
-          items: [
-            { to: customFields.githubUrl, label: 'Github' },
-            { to: customFields.discordInviteUrl, label: 'Discord' },
-            { to: customFields.twitterUrl, label: 'Twitter' },
-          ],
-        },
-        {
-          href: customFields.githubUrl,
-          label: 'GitHub',
-          position: 'right',
-        },
-        {
-          type: 'html',
-          position: 'right',
-          value: '<a class="navbar-lic-button" href="https://gum.co/BTMt?tier=1%20Restricted%20License">Get License</a>',
-        },
-      ],
+      {
+        type: 'dropdown',
+        docId: 'intro',
+        position: 'left',
+        label: 'Get Started',
+        items: [
+          {
+            label: 'CLI/EASY API',
+            href: '/docs/get-started/quick-run',
+          },
+          {
+            label: 'NodeJS',
+            href: '/docs/get-started/installation',
+          },
+          {
+            label: 'Docker',
+            to: "/docs/get-started/docker/",
+          }
+        ],
+      },
+      // {
+      //   type: 'docSidebar',
+      //   sidebarId: 'tutorialSidebar',
+      //   position: 'left',
+      //   label: 'Tutorial',
+      // },
+      { to: '/blog', label: 'Blog', position: 'left' },
+      { to: '/docs/reference/api/Client/classes/Client', label: 'The Client API', position: 'left' },
+      {
+        type: 'dropdown',
+        position: 'right',
+        label: 'Community',
+        items: [
+          { to: customFields.githubUrl, label: 'Github' },
+          { to: customFields.discordInviteUrl, label: 'Discord' },
+          { to: customFields.twitterUrl, label: 'Twitter' },
+        ],
+      },
+      {
+        href: customFields.githubUrl,
+        label: 'GitHub',
+        position: 'right',
+      },
+      {
+        type: 'custom-glnb',
+        position: 'right',
+        // value: '<a class="navbar-lic-button" href="https://gum.co/BTMt?tier=1%20Restricted%20License">Get License</a>'
+      },
+    ],
     },
-    footer: {
-      style: 'dark',
+  footer: {
+    style: 'dark',
       links: [
         {
           title: 'Docs',
@@ -194,37 +204,37 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} open-wa. Docs by Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} open-wa. Docs by Docusaurus.`,
     },
 
-    algolia: {
-      // The application ID provided by Algolia
-      appId: '345AS1OFCF',
+  algolia: {
+    // The application ID provided by Algolia
+    appId: '345AS1OFCF',
 
       // Public API key: it is safe to commit it
       apiKey: '04ffcb0cee53d965fb8605035ecdc04b',
 
-      indexName: 'openwa',
+        indexName: 'openwa',
 
-      // Optional: see doc section below
-      contextualSearch: false,
+          // Optional: see doc section below
+          contextualSearch: false,
 
-      // Optional: Specify domains where the navigation should occur through window.location instead on history.push. Useful when our Algolia config crawls multiple documentation sites and we want to navigate with window.location.href to them.
-      // externalUrlRegex: 'external\\.com|domain\\.com',
+            // Optional: Specify domains where the navigation should occur through window.location instead on history.push. Useful when our Algolia config crawls multiple documentation sites and we want to navigate with window.location.href to them.
+            // externalUrlRegex: 'external\\.com|domain\\.com',
 
-      // Optional: Algolia search parameters
-      // searchParameters: {},
+            // Optional: Algolia search parameters
+            // searchParameters: {},
 
-      // Optional: path for search page that enabled by default (`false` to disable it)
-      searchPagePath: 'search',
+            // Optional: path for search page that enabled by default (`false` to disable it)
+            searchPagePath: 'search',
 
       //... other Algolia params
     },
-    prism: {
-      theme: prismThemes.github,
+  prism: {
+    theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
     },
-  } satisfies Preset.ThemeConfig,
+} satisfies Preset.ThemeConfig,
 };
 
 export default config;
