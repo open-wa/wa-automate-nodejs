@@ -33,6 +33,20 @@ export interface Message {
    */
   body: string;
   /**
+   * The device ID of the device that sent the message. This is only present if the message was sent from host account-linked session. This is useful for determining if a message was sent from a different mobile device (note that whenever a device) or a desktop session.
+   * 
+   * Note: This will emit a number for the current controlled session also but the only way to know if the number represents the current session is by checking `local` (it will be `true` if the message was sent from the current session).
+   * 
+   * If the device ID is `0` then the message was sent from the "root" host account device.
+   * 
+   * This might be undefined for incoming messages.
+   */
+  device: number;
+  /**
+   * If the message was sent from this controlled session this will be `true`. This is useful for determining if a message was sent from a different mobile device (note that whenever a device) or a desktop session.
+   */
+  local: boolean;
+  /**
    * a convenient way to get the main text content from a message.
    */
   text: string;
