@@ -114,6 +114,20 @@ The URL of the file after being uploaded to the cloud using a cloud upload messa
 
 ***
 
+### device
+
+> **device**: `number`
+
+The device ID of the device that sent the message. This is only present if the message was sent from host account-linked session. This is useful for determining if a message was sent from a different mobile device (note that whenever a device) or a desktop session.
+
+Note: This will emit a number for the current controlled session also but the only way to know if the number represents the current session is by checking `local` (it will be `true` if the message was sent from the current session).
+
+If the device ID is `0` then the message was sent from the "root" host account device.
+
+This might be undefined for incoming messages.
+
+***
+
 ### duration?
 
 > `optional` **duration**: `string` \| `number`
@@ -321,6 +335,14 @@ The longitude of a location message
 > `optional` **loc**: `string`
 
 The text associated with a location message
+
+***
+
+### local
+
+> **local**: `boolean`
+
+If the message was sent from this controlled session this will be `true`. This is useful for determining if a message was sent from a different mobile device (note that whenever a device) or a desktop session.
 
 ***
 
