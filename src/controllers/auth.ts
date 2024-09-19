@@ -113,7 +113,7 @@ export class QRManager {
   config: ConfigObject = null;
   firstEmitted = false;
   _internalQrPngLoaded = false;
-  qrCheck = `document.querySelector("canvas[aria-label='Scan me!']")?document.querySelector("canvas[aria-label='Scan me!']").parentElement.getAttribute("data-ref"):false`
+  qrCheck = `document.querySelector("canvas[aria-label]")?document.querySelector("canvas[aria-label]").parentElement.getAttribute("data-ref"):false`
 
   constructor(config = null) {
     this.config = config;
