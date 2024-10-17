@@ -128,7 +128,7 @@ const postmanRequestGeneratorGenerator = setup => method => {
             "apikey": [
                 {
                     "key": "value",
-                    "value": setup === null || setup === void 0 ? void 0 : setup.key,
+                    "value": setup === null || setup === void 0 ? void 0 : setup.preAuthDocs && setup.key,
                     "type": "string"
                 },
                 {
