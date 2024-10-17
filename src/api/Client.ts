@@ -1,5 +1,5 @@
 import { default as mime } from 'mime-types';
-import { Page, EvaluateFunc, PageEventObject } from 'puppeteer';
+import { Page, EvaluateFunc, PageEvent } from 'puppeteer';
 import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration, GroupChatCreationResponse, EphemeralDuration } from './model/chat';
 import { BusinessProfile, Contact, NumberCheck } from './model/contact';
 import { Message, MessageInfo, PollData } from './model/message';
@@ -317,11 +317,11 @@ export class Client {
   private _hostAccountNumber;
   private _prio: number = Number.MAX_SAFE_INTEGER;
   private _pageListeners : {
-    event: keyof PageEventObject,
+    event: keyof PageEvent,
     callback: any,
     priority ?: number
   }[] = [];
-  private _registeredPageListeners : (keyof PageEventObject)[] = [];
+  private _registeredPageListeners : (keyof PageEvent)[] = [];
   private _onLogoutCallbacks : any[] = [];
   private _queues: {
     [key in SimpleListener] ?: PQueue
@@ -722,7 +722,7 @@ export class Client {
   // NON-STANDARD LISTENERS
 
   private registerPageEventListener(_event: string, callback : any, priority ?: number) {
-    const event : keyof PageEventObject = _event as keyof PageEventObject
+    const event : keyof PageEvent = _event as keyof PageEvent
     this._pageListeners.push({
       event,
       callback,
@@ -730,7 +730,7 @@ export class Client {
     })
     if(this._registeredPageListeners.includes(event)) return true;
     this._registeredPageListeners.push(event);
-    log.info(`setting page listener: ${event}`, this._registeredPageListeners)
+    log.info(`setting page listener: ${String(event)}`, this._registeredPageListeners)
     this._page.on(event, async (...args) => {
       await Promise.all(this._pageListeners.filter(l => l.event === event).filter(({priority})=>priority!==-1).sort((a,b)=>(b.priority || 0)-(a.priority || 0)).map(l => l.callback(...args)))
       await Promise.all(this._pageListeners.filter(l => l.event === event).filter(({priority})=>priority==-1).sort((a,b)=>(b.priority || 0)-(a.priority || 0)).map(l => l.callback(...args)))
@@ -766,7 +766,7 @@ export class Client {
       intervalCap: 1,
       carryoverConcurrencyCount: true
     })
-    if(this._registeredPageListeners.includes(event)) return true;
+    if(this._registeredPageListeners.includes(event as keyof PageEvent)) return true;
     this.registerPageEventListener(event, async frame => {
         if(frame.url().includes('post_logout=1')) {
           console.log("LOGGED OUT")
@@ -2566,6 +2566,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
   }
 
   /**
+   * @deprecated No longer works due to multi-device changes
    * Retrieves Battery Level
    * @returns Number
    */
