@@ -387,6 +387,7 @@ export class Client {
             if(!emojiId) return;
             await this._autoEmojiQ.add(async() => this.sendEmoji(message.from,emojiId,message.id).catch(()=>{}))
           }
+          return message
         })
         this._autoEmojiSet = true;
       }
@@ -811,7 +812,7 @@ export class Client {
 
 
   // STANDARD SIMPLE LISTENERS
-  private async preprocessMessage(message: Message) : Promise<Message> {
+  private async preprocessMessage(message: Message, source: 'onMessage' | 'onAnyMessage') : Promise<Message> {
     let alreadyProcessed = false;
     if(this._preprocIdempotencyCheck[message.id]) {
       log.info(`preprocessMessage: ${message.id} already being processed`)
@@ -839,8 +840,8 @@ export class Client {
         const start = Date.now()
         if(typeof preproc === "function") {
           custom = true;
-          _m = await preproc(_m, this, alreadyProcessed)
-        } else if(typeof preproc === "string" && MessagePreprocessors[preproc]) _m = await MessagePreprocessors[preproc](_m, this, alreadyProcessed)
+          _m = await preproc(_m, this, alreadyProcessed, source)
+        } else if(typeof preproc === "string" && MessagePreprocessors[preproc]) _m = await MessagePreprocessors[preproc](_m, this, alreadyProcessed, source)
         log.info(`Preproc ${custom ? 'CUSTOM' : preproc} ${index} ${fil} ${message.id} ${m.id} ${Date.now() - start}ms`)
         return _m;
       }))
@@ -861,7 +862,7 @@ export class Client {
    * @fires [[Message]]
    */
    public async onMessage(fn: (message: Message) => void, queueOptions ?: Options<PriorityQueue, DefaultAddOptions>) : Promise<Listener | boolean> {
-    const _fn = async (message : Message) => fn(await this.preprocessMessage(message))
+    const _fn = async (message : Message) => fn(await this.preprocessMessage(message, 'onMessage'))
     return this.registerListener(SimpleListener.Message, _fn, this?._createConfig?.pQueueDefault || queueOptions);
   }
 
@@ -874,7 +875,7 @@ export class Client {
    * @fires [[Message]] 
    */
   public async onAnyMessage(fn: (message: Message) => void, queueOptions ?: Options<PriorityQueue, DefaultAddOptions>) : Promise<Listener | boolean> {
-    const _fn = async (message : Message) => fn(await this.preprocessMessage(message))
+    const _fn = async (message : Message) => fn(await this.preprocessMessage(message, 'onAnyMessage'))
     return this.registerListener(SimpleListener.AnyMessage, _fn, this?._createConfig?.pQueueDefault || queueOptions);
   }
 
