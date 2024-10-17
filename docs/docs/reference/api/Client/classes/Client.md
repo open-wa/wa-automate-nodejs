@@ -1196,17 +1196,20 @@ Easily get the amount of messages loaded up in the session. This will allow you 
 
 ***
 
-### getBatteryLevel()
+### ~~getBatteryLevel()~~
 
 > **getBatteryLevel**(): `Promise`\<`number`\>
-
-Retrieves Battery Level
 
 #### Returns
 
 `Promise`\<`number`\>
 
 Number
+
+#### Deprecated
+
+No longer works due to multi-device changes
+Retrieves Battery Level
 
 ***
 
