@@ -48,7 +48,7 @@ Use this command to install the library for the first time and to keep the libra
 
 ## CLI
 
-Want to convert your WA account to an API instantly? You can now with the CLI. For more details see [Easy API](https://docs.openwa.dev/pages/Getting%20Started/quick-run.html)
+Want to convert your WA account to an API instantly? You can now with the CLI. For more details see [Easy API](https://docs.openwa.dev/docs/get-started/quick-run)
 
 ```bash
 > npx @open-wa/wa-automate --help
