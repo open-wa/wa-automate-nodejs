@@ -1,120 +1,139 @@
 ---
-title: Get started with wa-automate via Docker
-sidebar_label: Easy API
+title: Quick Start Guide - wa-automate EASY API
+sidebar_label: Quick Start
 sidebar_position: 0
-description:
-  Guide showing how to use wa-automate with Docker. This also covers how to import
-  data as well as persistence.
+description: A comprehensive guide to quickly set up wa-automate and create a Open-wa EASY API with zero installation requirements.
 ---
 
-# Zero Install EASY API
+# Quick Start Guide
 
-Ever wanted to create an API out of your WA number? You're in luck! 
+Want to create an API from your WA number in seconds? This guide will show you how!
 
-Open the terminal, and enter this:
+## Prerequisites
 
-```bash
-> npx @open-wa/wa-automate
-```
+Before you begin, ensure you have the following installed on your system:
+- Node.js
+- npm (Node Package Manager)
+- npx (Node Package Runner)
 
-> P.S you have to make sure you have `node`, `npm`, and `npx` installed on your system.
+## Basic Usage
 
-When you run the code, it will also give you a URL to an API explorer where you can play around with the various API endpoints with documentation.
-
-You can see all the help text like so:
-
-```bash
-> npx @open-wa/wa-automate --help
-```
-
-You can set a custom port:
+1. Open your terminal and run:
 
 ```bash
-> npx @open-wa/wa-automate -p 8080
+npx @open-wa/wa-automate
 ```
 
-and an api key which will prevent unauthorized requests. This will result in a key being automatically generated for you:
+This command will:
+- Start a @open-wa EASY API server
+- Provide you with a URL to an interactive API explorer
+- Generate documentation for all available endpoints
+
+## Configuration Options
+
+### Port Configuration
+Set a custom port for your API server:
 
 ```bash
-> npx @open-wa/wa-automate -p 8080 -k
+npx @open-wa/wa-automate -p 8080
 ```
 
-or you can set your own, I got the following secure key from [https://randomkeygen.com/](https://randomkeygen.com/):
+### API Security
+Protect your API with an authentication key:
 
 ```bash
-> npx @open-wa/wa-automate -p 8080 -k 'K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy'
+# Auto-generate a secure key
+npx @open-wa/wa-automate -p 8080 -k
+
+# Use a custom key
+npx @open-wa/wa-automate -p 8080 -k 'YOUR_SECURE_KEY'
 ```
 
-You can easily force the program to maintain focus (`--keep-alive` or `-a`):
+:::note
+
+[randomkeygen.com](https://randomkeygen.com/) is a great resource for generating secure keys. 
+
+:::
+
+### Tunneling
+Your EASY API instance, by default, will be only accessible in your local network. This is useful and secure for local development but if you want to be able to access the API outside of your network you can do so easily with the `--tunnel` flag.
 
 ```bash
-> npx @open-wa/wa-automate -p 8080 -k 'K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy' --keep-alive
-
-//or
-
-> npx @open-wa/wa-automate -p 8080 -k 'K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy' --keep-alive
+npx @open-wa/wa-automate -p 8080 -k 'YOUR_SECURE_KEY' --tunnel
 ```
 
-## Restarting session
+:::note
 
-As of version 2.0.0 of this library, you can now provide session data as a base64 string. This is the default method goin forward and your `.data.json` files should have this string if you've run the program in version 2.0.0+.
+You will might need to manually install  **cloudflared** for this to work.
 
-There are 3 param tags that can be used to set session data `-s`, `--session` or `--session-data` - all work but make sure you wrap the string with double quotes `"` and NOT sinle quotes `'`.
+:::
+
+## Session Management
+
+Starting from version 2.0.0, sessions are managed using base64 strings. You can restore a session using any of these equivalent commands:
 
 ```bash
-> npx @open-wa/wa-automate -p 8080 -k 'K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy' --session-data "eyJXQUJyb...ifQ=="
-//or
-> npx @open-wa/wa-automate -p 8080 -k 'K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy' --session "eyJXQUJyb...ifQ=="
-//or
-> npx @open-wa/wa-automate -p 8080 -k 'K6MEQJRV3trXMPZ5eQd1Jl8NaaaRZxqy' -s "eyJXQUJyb...ifQ=="
+# Using --session-data (recommended)
+npx @open-wa/wa-automate --session-data "YOUR_BASE64_SESSION_DATA"
+
+# Using --session
+npx @open-wa/wa-automate --session "YOUR_BASE64_SESSION_DATA"
+
+# Using -s (shorthand)
+npx @open-wa/wa-automate -s "YOUR_BASE64_SESSION_DATA"
 ```
 
-## Running on a server
+:::note
+Always wrap your session data string in double quotes (`""`), not single quotes.
+:::
 
-If you're not running this on your localhost, you'll need to set the server hostname for the api-docs to work correctly.
+## Server Deployment
+
+When deploying to a remote server, specify your API hostname for proper documentation:
 
 ```bash
-> npx @open-wa/wa-automate -p 8080 --api-host 'https://my-wa-api.dev:8080'
+npx @open-wa/wa-automate -p 8080 --api-host 'https://your-api-domain.com:8080'
 ```
 
-## Webhooks
+## Webhook Integration
 
-You can also set a webhook address to send all requests to. I like using [webhook.site](https://webhook.site/) to check and test events.
+Set up webhooks to receive real-time event notifications:
 
 ```bash
-> npx @open-wa/wa-automate -w 'https://webhook.site/7a00ac21-60f2-411e-a571-515b37b2025a'
+npx @open-wa/wa-automate -w 'https://your-webhook-url.com/endpoint'
 ```
 
-Now if you go to:
+:::tip Testing Webhooks
 
-```http
-https://webhook.site/#!/7a00ac21-60f2-411e-a571-515b37b2025a
+For testing webhooks, you can use services like [webhook.site](https://webhook.site/). Remember to clear your test data afterward for privacy!
+
+:::
+
+## API Documentation
+
+The API documentation is automatically available at:
+```
+http://[your-host]/api-docs/
 ```
 
- you'll be able to see all the events come through.
+This interactive documentation includes:
+- Complete endpoint listing
+- Request/response examples
+- Testing interface
+- Authentication details
 
-If you do use this link please make sure to clear all of your requests for your privacy.
+## Getting Help
 
-## API Docs
-
-By default, the CLI generates and serves a swagger api explorer at `[host]/api-docs/`
-
-For example:
+View all available options and their descriptions:
 
 ```bash
-> npx @open-wa/wa-automate -w 'https://webhook.site/7a00ac21-60f2-411e-a571-515b37b2025a' -p 8008
+npx @open-wa/wa-automate --help
 ```
 
-will server the api docs at
+## Postman Collection
 
-```http
-http://localhost:8008/api-docs/
-```
+A Postman collection is automatically generated for your specific setup, including API keys, hostname, ports, and more. You can easily import this collection into Postman for further testing and exploration.
 
-## Postman collection
+## Coming Soon
 
-The CLI will also automatically generate a postman collection for your specific set up (including api keys, hostname, ports, etc.) which you can then easily import into postman.
-
-## Coming soon
-
-Soon SDKs for most programming lanugages will be created using the CLI as a base 'server'. Check this issue for updates: [#894](https://github.com/open-wa/wa-automate-nodejs/issues/894)
+SDKs for most programming languages will be created using the CLI as a base 'server'. Check this issue for updates: [#894](https://github.com/open-wa/wa-automate-nodejs/issues/894)

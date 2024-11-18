@@ -11,9 +11,9 @@ open-wa is a collection of tools designed to enable you to easily automate your 
 There are multiple ways to run this library:
 
 - CLI (npx/docker)
-  - npx
-  - docker
+  - [npx](/docs/get-started/quick-run)
+  - [Docker](/docs/get-started/docker)
 
-- Your own code
-  - Locally
-  - Socketed
+- Your own custom code
+  - [Locally](/docs/get-started/installation)
+  - [Socketed](/docs/get-started/socketmode)
