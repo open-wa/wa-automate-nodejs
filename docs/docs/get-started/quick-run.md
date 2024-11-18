@@ -70,22 +70,16 @@ You will might need to manually install  **cloudflared** for this to work.
 
 ## Session Management
 
-Starting from version 2.0.0, sessions are managed using base64 strings. You can restore a session using any of these equivalent commands:
+You may want to run multiple instances of the easy api for different host accounts. To enable this you will need to ensure that each session has a unique session ID and a seperate port.
 
 ```bash
 # Using --session-data (recommended)
-npx @open-wa/wa-automate --session-data "YOUR_BASE64_SESSION_DATA"
+npx @open-wa/wa-automate --session-id sales --port 8081
 
 # Using --session
-npx @open-wa/wa-automate --session "YOUR_BASE64_SESSION_DATA"
+npx @open-wa/wa-automate --session-id marketing --port 8082
 
-# Using -s (shorthand)
-npx @open-wa/wa-automate -s "YOUR_BASE64_SESSION_DATA"
 ```
-
-:::note
-Always wrap your session data string in double quotes (`""`), not single quotes.
-:::
 
 ## Server Deployment
 
@@ -121,6 +115,59 @@ This interactive documentation includes:
 - Request/response examples
 - Testing interface
 - Authentication details
+
+## Process Management with PM2
+
+Starting from V4.35.0, you can manage your EASY API process using PM2. This provides several benefits:
+- Automatic session recovery after restarts
+- Memory usage management
+- Process monitoring and logging
+- Scheduled restarts
+
+:::info Prerequisites
+Make sure you have PM2 installed globally:
+```bash
+npm install -g pm2@latest
+```
+:::
+
+### Basic PM2 Integration
+
+Use the `--pm2` flag to offload your process to PM2:
+
+```bash
+npx @open-wa/wa-automate --pm2 --session-id STICKER-BOT
+```
+
+:::note
+The process name is taken from the `--session-id` flag (default: `@OPEN-WA EASY API`). PM2 will not read the session ID from `cli.config.json`.
+:::
+
+To use a different PM2 process name while keeping your existing session ID:
+
+```bash
+npx @open-wa/wa-automate --pm2 --name STICKER-BOT
+```
+
+### Advanced PM2 Configuration
+
+PM2 offers powerful process management features that you can utilize:
+
+```bash
+npx @open-wa/wa-automate --pm2 "--max-memory-restarts 300M --cron-restart=\"0 */3 * * *\" --restart-delay=3000" --name STICKER-BOT
+```
+
+This example:
+- Restarts the process if memory exceeds 300MB
+- Schedules restarts every 3 hours
+- Adds a 3-second delay between restarts
+
+:::warning
+When using PM2 flags, do not use the `=` sign between the `--pm2` flag and its value. The following will NOT work:
+```bash
+npx @open-wa/wa-automate --pm2="--max-memory-restarts 300M"
+```
+:::
 
 ## Getting Help
 

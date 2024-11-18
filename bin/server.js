@@ -25,6 +25,8 @@ async function start() {
                 require.resolve(CLI),
                 '--name',
                 procName,
+                '--stop-exit-codes',
+                '88',
                 ...pm2Flags,
                 '--',
                 ...cliFlags.filter(x=>!pm2Flags.includes(x))
