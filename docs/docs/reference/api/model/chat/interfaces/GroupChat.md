@@ -94,6 +94,14 @@ Group metadata for this chat
 
 ***
 
+### groupType
+
+> **groupType**: `"COMMUNITY"` \| `"DEFAULT"` \| `"LINKED_ANNOUNCEMENT_GROUP"` \| `"LINKED_GENERAL_GROUP"` \| `"LINKED_SUBGROUP"`
+
+The type of the group
+
+***
+
 ### id
 
 > **id**: [`GroupChatId`](/reference/api/model/aliases/type-aliases/GroupChatId.md)
