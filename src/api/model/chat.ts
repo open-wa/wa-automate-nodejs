@@ -111,6 +111,10 @@ export interface GroupChat extends BaseChat {
     * Whether the chat is a group chat
     */
    isGroup: true;
+   /**
+    * The type of the group
+    */
+   groupType: 'DEFAULT' | 'COMMUNITY' | 'LINKED_ANNOUNCEMENT_GROUP' | 'LINKED_GENERAL_GROUP' | 'LINKED_SUBGROUP'
 }
 
 export type Chat =  SingleChat | GroupChat;
