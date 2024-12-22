@@ -3,6 +3,9 @@ import { Button, Row, Section } from "./button";
 import { Chat } from "./chat";
 import { Contact } from "./contact";
 
+
+export type MessagePinDuration = "FifteenSeconds" | "FiveSeconds" | "OneDay" | "OneMinute" | "SevenDays" | "ThirtyDays"
+
 export interface Message {
   /**
    * The ID of the selected button

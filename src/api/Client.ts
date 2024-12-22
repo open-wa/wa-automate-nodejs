@@ -2,7 +2,7 @@ import { default as mime } from 'mime-types';
 import { Page, EvaluateFunc, PageEvent } from 'puppeteer';
 import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration, GroupChatCreationResponse, EphemeralDuration } from './model/chat';
 import { BusinessProfile, Contact, NumberCheck } from './model/contact';
-import { Message, MessageInfo, PollData } from './model/message';
+import { Message, MessageInfo, MessagePinDuration, PollData } from './model/message';
 import { default as axios, AxiosRequestConfig} from 'axios';
 import { NewCommunityGroup, ParticipantChangedEventModel, GenericGroupChangeEvent, GroupMetadata } from './model/group-metadata';
 import { useragent } from '../config/puppeteer.config'
@@ -273,6 +273,7 @@ declare module WAPI {
   const simulateRecording: (to: string, on: boolean) => Promise<boolean>;
   const archiveChat: (id: string, archive: boolean) => Promise<boolean>;
   const pinChat: (id: string, pin: boolean) => Promise<boolean>;
+  const pinMessage: (id: string, pin: boolean, pinDuration: string) => Promise<boolean>;
   const markAllRead: () => Boolean;
   const isConnected: () => Boolean;
   const logout: () => Boolean;
@@ -2441,7 +2442,7 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
    * Pin/Unpin chats
    * 
    * @param id The id of the conversation
-   * @param archive boolean true => pin, false => unpin
+   * @param pin boolean true => pin, false => unpin
    * @return boolean true: worked
    */
   public async pinChat(id: ChatId, pin: boolean) : Promise<boolean>{
@@ -2451,6 +2452,20 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     ) as Promise<boolean>;
   }
 
+  /**
+   * Pin/Unpin message
+   * 
+   * @param id The id of the message
+   * @param pin boolean true => pin, false => unpin
+   * @param pinDuration The length of time to pin the message. Default `ThirtyDays`
+   * @return boolean true: worked
+   */
+  public async pinMessage(id: MessageId, pin: boolean, pinDuration: MessagePinDuration = "ThirtyDays") : Promise<boolean>{
+    return await this.pup(
+      ({ id, pin, pinDuration }) => WAPI.pinMessage(id, pin, pinDuration),
+      { id, pin, pinDuration }
+    ) as Promise<boolean>;
+  }
 
   /**
    * 
