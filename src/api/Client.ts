@@ -274,6 +274,7 @@ declare module WAPI {
   const archiveChat: (id: string, archive: boolean) => Promise<boolean>;
   const pinChat: (id: string, pin: boolean) => Promise<boolean>;
   const pinMessage: (id: string, pin: boolean, pinDuration: string) => Promise<boolean>;
+  const keepMessage: (id: string, keep: boolean) => Promise<boolean>;
   const markAllRead: () => Boolean;
   const isConnected: () => Boolean;
   const logout: () => Boolean;
@@ -2464,6 +2465,19 @@ public async testCallback(callbackToTest: SimpleListener, testData: any)  : Prom
     return await this.pup(
       ({ id, pin, pinDuration }) => WAPI.pinMessage(id, pin, pinDuration),
       { id, pin, pinDuration }
+    ) as Promise<boolean>;
+  }
+
+  /**
+   * Keep a message inside an ephemeral chat
+   * 
+   * @param id The id of the message
+   * @return boolean true: worked
+   */
+  public async keepMessage(id: MessageId, keep: boolean) : Promise<boolean>{
+    return await this.pup(
+      ({ id, keep  }) => WAPI.keepMessage(id, keep),
+      { id, keep }
     ) as Promise<boolean>;
   }
 
