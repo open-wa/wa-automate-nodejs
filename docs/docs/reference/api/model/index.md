@@ -314,6 +314,12 @@ Re-exports [MessageInfoInteraction](/reference/api/model/message/interfaces/Mess
 
 ***
 
+### MessagePinDuration
+
+Re-exports [MessagePinDuration](/reference/api/model/message/type-aliases/MessagePinDuration.md)
+
+***
+
 ### MessageTypes
 
 Re-exports [MessageTypes](/reference/api/model/message/enumerations/MessageTypes.md)

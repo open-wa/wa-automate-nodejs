@@ -17,3 +17,7 @@
 - [PollVote](/reference/api/model/message/interfaces/PollVote.md)
 - [QuoteMap](/reference/api/model/message/interfaces/QuoteMap.md)
 - [ReactionSender](/reference/api/model/message/interfaces/ReactionSender.md)
+
+### Type Aliases
+
+- [MessagePinDuration](/reference/api/model/message/type-aliases/MessagePinDuration.md)

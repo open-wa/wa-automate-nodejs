@@ -2597,6 +2597,28 @@ true to join the beta, false to leave
 
 ***
 
+### keepMessage()
+
+> **keepMessage**(`id`, `keep`): `Promise`\<`boolean`\>
+
+Keep a message inside an ephemeral chat
+
+#### Parameters
+
+• **id**: [`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)
+
+The id of the message
+
+• **keep**: `boolean`
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+boolean true: worked
+
+***
+
 ### kill()
 
 > **kill**(`reason`): `Promise`\<`boolean`\>
@@ -2986,6 +3008,36 @@ Pin/Unpin chats
 The id of the conversation
 
 • **pin**: `boolean`
+
+boolean true => pin, false => unpin
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+boolean true: worked
+
+***
+
+### pinMessage()
+
+> **pinMessage**(`id`, `pin`, `pinDuration`): `Promise`\<`boolean`\>
+
+Pin/Unpin message
+
+#### Parameters
+
+• **id**: [`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)
+
+The id of the message
+
+• **pin**: `boolean`
+
+boolean true => pin, false => unpin
+
+• **pinDuration**: [`MessagePinDuration`](/reference/api/model/message/type-aliases/MessagePinDuration.md) = `"ThirtyDays"`
+
+The length of time to pin the message. Default `ThirtyDays`
 
 #### Returns
 
