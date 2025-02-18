@@ -33,8 +33,8 @@ const config: Config = {
     [
       "posthog-docusaurus",
       {
-        apiKey: "phc_Qs2dUPQ8enwIy39BPV3ToHcTPiaHzixepIIPS8QREzD",
-        appUrl: "https://posthog.synthetiko.com", // optional, defaults to "https://us.i.posthog.com"
+        apiKey: "phc_GrfaoqGrdjmXZ0cFyJQkP6I7PpVj2LUBbnsVkYBrIUa",
+        appUrl: "https://us.i.posthog.com", // optional, defaults to "https://us.i.posthog.com"
         enableInDevelopment: true, // optional
         enable_heatmaps: true,
         loaded: () => {console.log("POSTHOG LOADED")},

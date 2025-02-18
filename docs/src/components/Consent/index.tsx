@@ -2,6 +2,7 @@ import { CookieIcon } from "lucide-react";
 import { Button } from "../..//ui/button";
 import { cn } from "../../lib/utils";
 import { useState, useEffect } from "react";
+import { optOutOpenReplayTracking } from "../OpenReplay/OpenReplay";
 
 
 export function CookieConsent({ demo = false, onAcceptCallback = () => { }, onDeclineCallback = () => { } }) {
@@ -23,6 +24,8 @@ export function CookieConsent({ demo = false, onAcceptCallback = () => { }, onDe
         setTimeout(() => {
             setHide(true);
         }, 700);
+        //stop tracker
+        optOutOpenReplayTracking();
         onDeclineCallback();
     };
 

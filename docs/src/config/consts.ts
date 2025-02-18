@@ -35,6 +35,8 @@ export const customFields = {
     twitterUrl: "https://twitter.com/openwadev",
     videosUrl: "",
     cliOptionsTable: cliOptionsToMDTable(),
+    openReplayIngestPoint: 'https://openreplay.synthetiko.com/ingest',
+    openReplayProjectKey: 'H2nrOVVUP38T7Lr1tqZg',
     labels: {
         // "license:insiders": `:::note May require Insiders license\nUse this link to get the [correct license](../../backend/users.m).\n:::`
         "license:insiders": `<span theme="badge contrast license">Insiders</span>`

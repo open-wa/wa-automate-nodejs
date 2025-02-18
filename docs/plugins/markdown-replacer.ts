@@ -29,7 +29,7 @@ export function markdownReplacerPlugin(context, options) {
               const initLabelText = labelMatch[0]
               const [type, subtype] = labelMatch[1].split(":")
               const heading = match.match(/#{3}.*/) && match.match(/#{3}.*/)[0] || ""
-              match = match.replace(heading, `${heading} <div class="label ${type} ${subtype}">${subtype}</div>`)
+              match = match.replace(heading, `${heading} <div className="label ${type} ${subtype}">${subtype}</div>`)
               const variant = subtype == "restricted" ? '1%20Restricted%20License' : 'Insiders%20Program'
               match = match.replace(initLabelText, `:::${type} May require ${subtype} license\nUse this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=${variant}).\n:::`)
               // match = match.replace(initLabelText, `${type} May require ${subtype} license\nUse this link to get the [correct license](https://gum.co/open-wa?wanted=true&tier=${variant}).\n`)
