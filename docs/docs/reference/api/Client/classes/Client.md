@@ -2,7 +2,7 @@
 
 ## Methods
 
-### B() <div class="label license insiders">insiders</div>
+### B() <div className="label license insiders">insiders</div>
 
 > **B**(`chatId`, `payload`): `Promise`\<[`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)\>
 
@@ -229,7 +229,7 @@ Checks if a number is a valid WA number
 
 ***
 
-### checkReadReceipts() <div class="label license insiders">insiders</div>
+### checkReadReceipts() <div className="label license insiders">insiders</div>
 
 > **checkReadReceipts**(`contactId`): `Promise`\<`string` \| `boolean`\>
 
@@ -327,7 +327,7 @@ Unblock contact
 
 ***
 
-### createCommunity() <div class="label license insiders">insiders</div>
+### createCommunity() <div className="label license insiders">insiders</div>
 
 > **createCommunity**(`communityName`, `communitySubject`, `icon`, `existingGroups`, `newGroups`?): `Promise`\<\`$\{number\}@g.us\`\>
 
@@ -383,7 +383,7 @@ group name: 'New group'
 
 ***
 
-### createLabel() <div class="label license insiders">insiders</div>
+### createLabel() <div className="label license insiders">insiders</div>
 
 > **createLabel**(`label`): `Promise`\<`string` \| `boolean`\>
 
@@ -431,7 +431,7 @@ The options for the collector. For example, how long the collector shall run for
 
 ***
 
-### createNewProduct() <div class="label license insiders">insiders</div>
+### createNewProduct() <div className="label license insiders">insiders</div>
 
 > **createNewProduct**(`name`, `price`, `currency`, `images`, `description`, `url`?, `internalId`?, `isHidden`?): `Promise`\<[`Product`](/reference/api/model/product/interfaces/Product.md)\>
 
@@ -585,7 +585,7 @@ Alias for deleteStory
 
 ***
 
-### deleteAllStories() <div class="label license restricted">restricted</div>
+### deleteAllStories() <div className="label license restricted">restricted</div>
 
 > **deleteAllStories**(): `Promise`\<`boolean`\>
 
@@ -683,7 +683,7 @@ Alias for deleteStory
 
 ***
 
-### deleteStory() <div class="label license restricted">restricted</div>
+### deleteStory() <div className="label license restricted">restricted</div>
 
 > **deleteStory**(`statusesToDelete`): `Promise`\<`boolean`\>
 
@@ -830,7 +830,7 @@ The new text content
 
 ***
 
-### editProduct() <div class="label license insiders">insiders</div>
+### editProduct() <div className="label license insiders">insiders</div>
 
 > **editProduct**(`productId`, `name`?, `price`?, `currency`?, `images`?, `description`?, `url`?, `internalId`?, `isHidden`?): `Promise`\<[`Product`](/reference/api/model/product/interfaces/Product.md)\>
 
@@ -901,6 +901,30 @@ array of message IDs
 
 ***
 
+### favSticker()
+
+> **favSticker**(`msgId`, `fav`): `Promise`\<`string`\>
+
+Set/Unset a sticker as a fav.
+
+#### Parameters
+
+• **msgId**: [`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)
+
+The message Id related to the sticker you want to fav
+
+• **fav**: `boolean` = `true`
+
+set this to true to fav a sticker, set it to false to remove the sticker from favorites. default true
+
+#### Returns
+
+`Promise`\<`string`\>
+
+favId The ID (filehash) of the fav sticker
+
+***
+
 ### forceRefocus()
 
 > **forceRefocus**(): `Promise`\<`boolean`\>
@@ -917,7 +941,7 @@ Use this when [[STATE]] is `CONFLICT`. You can read more about managing state he
 
 ***
 
-### forceStaleMediaUpdate() <div class="label license insiders">insiders</div>
+### forceStaleMediaUpdate() <div className="label license insiders">insiders</div>
 
 > **forceStaleMediaUpdate**(`messageId`): `Promise`\<`false` \| [`Message`](/reference/api/model/message/interfaces/Message.md)\>
 
@@ -1337,7 +1361,7 @@ The label name
 
 ***
 
-### getCommonGroups() <div class="label license insiders">insiders</div>
+### getCommonGroups() <div className="label license insiders">insiders</div>
 
 > **getCommonGroups**(`contactId`): `Promise`\<`object`[]\>
 
@@ -1502,6 +1526,18 @@ contact detial as promise
 #### Returns
 
 `string`
+
+***
+
+### getFavStickers()
+
+> **getFavStickers**(): `Promise`\<`Partial`\<[`Message`](/reference/api/model/message/interfaces/Message.md)\>\>
+
+Get an array of fav'ed stickers
+
+#### Returns
+
+`Promise`\<`Partial`\<[`Message`](/reference/api/model/message/interfaces/Message.md)\>\>
 
 ***
 
@@ -1961,7 +1997,7 @@ message object
 
 ***
 
-### getMessageInfo() <div class="label license insiders">insiders</div>
+### getMessageInfo() <div className="label license insiders">insiders</div>
 
 > **getMessageInfo**(`messageId`): `Promise`\<[`MessageInfo`](/reference/api/model/message/interfaces/MessageInfo.md)\>
 
@@ -2034,7 +2070,7 @@ Alias for deleteStory
 
 ***
 
-### getMyStoryArray() <div class="label license restricted">restricted</div>
+### getMyStoryArray() <div className="label license restricted">restricted</div>
 
 > **getMyStoryArray**(): `Promise`\<[`Message`](/reference/api/model/message/interfaces/Message.md)[]\>
 
@@ -2052,7 +2088,7 @@ Only works with a Story License Key
 
 ***
 
-### getOrder() <div class="label license insiders">insiders</div>
+### getOrder() <div className="label license insiders">insiders</div>
 
 > **getOrder**(`id`): `Promise`\<[`Order`](/reference/api/model/product/interfaces/Order.md)\>
 
@@ -2286,7 +2322,7 @@ If you run this without a valid insiders key, it will return false and cause an 
 
 ***
 
-### getStoryViewers() <div class="label license restricted">restricted</div>
+### getStoryViewers() <div className="label license restricted">restricted</div>
 
 > **getStoryViewers**(`id`?): `Promise`\<[`ContactId`](/reference/api/model/aliases/type-aliases/ContactId.md)[] \| `object`\>
 
@@ -2512,7 +2548,7 @@ Boolean
 
 ***
 
-### isGroupIdUnsafe() <div class="label license insiders">insiders</div>
+### isGroupIdUnsafe() <div className="label license insiders">insiders</div>
 
 > **isGroupIdUnsafe**(`groupChatId`): `Promise`\<`string` \| `boolean`\>
 
@@ -2927,7 +2963,7 @@ For example, if you have a session with id  `host` if you set useSessionIdInPath
 
 ***
 
-### muteChat() <div class="label license insiders">insiders</div>
+### muteChat() <div className="label license insiders">insiders</div>
 
 > **muteChat**(`chatId`, `muteDuration`): `Promise`\<`string` \| `number` \| `boolean`\>
 
@@ -2955,7 +2991,7 @@ boolean true: worked or error code or message
 
 ***
 
-### onNewProduct() <div class="label license insiders">insiders</div>
+### onNewProduct() <div className="label license insiders">insiders</div>
 
 > **onNewProduct**(`fn`): `Promise`\<`boolean` \| `Listener`\>
 
@@ -2975,7 +3011,7 @@ Listens to new orders. Only works on business accounts
 
 ***
 
-### onOrder() <div class="label license insiders">insiders</div>
+### onOrder() <div className="label license insiders">insiders</div>
 
 > **onOrder**(`fn`): `Promise`\<`boolean` \| `Listener`\>
 
@@ -3047,7 +3083,7 @@ boolean true: worked
 
 ***
 
-### postImageStatus() <div class="label license restricted">restricted</div>
+### postImageStatus() <div className="label license restricted">restricted</div>
 
 > **postImageStatus**(`data`, `caption`): `Promise`\<`string` \| `boolean` \| [`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)\>
 
@@ -3075,7 +3111,7 @@ The caption for the story
 
 ***
 
-### postTextStatus() <div class="label license restricted">restricted</div>
+### postTextStatus() <div className="label license restricted">restricted</div>
 
 > **postTextStatus**(`text`, `textRgba`, `backgroundRgba`, `font`): `Promise`\<`string` \| `boolean` \| [`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)\>
 
@@ -3117,7 +3153,7 @@ The font of the text to be used in the story. This has to be a number. Each numb
 
 ***
 
-### postThumbnailStatus() <div class="label license restricted">restricted</div>
+### postThumbnailStatus() <div className="label license restricted">restricted</div>
 
 > **postThumbnailStatus**(`url`, `text`, `textRgba`, `backgroundRgba`, `font`, `thumbnail`?): `Promise`\<[`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)\>
 
@@ -3165,7 +3201,7 @@ base64 thumbnail override, if not provided the link server will try to figure it
 
 ***
 
-### postVideoStatus() <div class="label license restricted">restricted</div>
+### postVideoStatus() <div className="label license restricted">restricted</div>
 
 > **postVideoStatus**(`data`, `caption`): `Promise`\<`string` \| `boolean` \| [`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)\>
 
@@ -3487,7 +3523,7 @@ boolean If set to true, the chat will 'blue tick' all messages before sending th
 
 ***
 
-### reportSpam() <div class="label license restricted">restricted</div>
+### reportSpam() <div className="label license restricted">restricted</div>
 
 > **reportSpam**(`id`): `Promise`\<`boolean`\>
 
@@ -3763,6 +3799,30 @@ message id of the message you want this sticker to reply to. @license:insiders@
 
 ***
 
+### sendFavSticker()
+
+> **sendFavSticker**(`chatId`, `favId`): `Promise`\<[`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)\>
+
+Set/Unset a sticker as a fav.
+
+#### Parameters
+
+• **chatId**: [`ChatId`](/reference/api/model/aliases/type-aliases/ChatId.md)
+
+The chat in which you want to send the sticker
+
+• **favId**: `string`
+
+set this to true to favourite a sticker, set it to false to remove the sticker from favorites
+
+#### Returns
+
+`Promise`\<[`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)\>
+
+MessageId of the sent sticker message
+
+***
+
 ### sendFile()
 
 > **sendFile**(`to`, `file`, `filename`, `caption`, `quotedMsgId`?, `waitForId`?, `ptt`?, `withoutPreview`?, `hideTags`?, `viewOnce`?, `requestConfig`?): `Promise`\<`boolean` \| [`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)\>
@@ -3994,7 +4054,7 @@ The advantage is that it will not show up in the recipients gallery. This functi
 
 ***
 
-### sendImageAsStickerAsReply() <div class="label license insiders">insiders</div>
+### sendImageAsStickerAsReply() <div className="label license insiders">insiders</div>
 
 > **sendImageAsStickerAsReply**(`to`, `image`, `messageId`, `stickerMetadata`?): `Promise`\<`string` \| `boolean` \| [`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)\>
 
@@ -4259,7 +4319,7 @@ message id of the message you want this sticker to reply to. @license:insiders@
 
 ***
 
-### sendMultipleContacts() <div class="label license insiders">insiders</div>
+### sendMultipleContacts() <div className="label license insiders">insiders</div>
 
 > **sendMultipleContacts**(`to`, `contactIds`): `Promise`\<`boolean` \| [`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)\>
 
@@ -4348,7 +4408,7 @@ Whether or not to allow multiple selections. default false
 
 ***
 
-### sendProduct() <div class="label license insiders">insiders</div>
+### sendProduct() <div className="label license insiders">insiders</div>
 
 > **sendProduct**(`chatId`, `productId`): `Promise`\<[`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)\>
 
@@ -4430,7 +4490,7 @@ Boolean Set to true if the webp is animated. Default `false`
 
 ***
 
-### sendRawWebpAsStickerAsReply() <div class="label license insiders">insiders</div>
+### sendRawWebpAsStickerAsReply() <div className="label license insiders">insiders</div>
 
 > **sendRawWebpAsStickerAsReply**(`to`, `messageId`, `webpBase64`, `animated`): `Promise`\<`string` \| `boolean` \| [`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)\>
 
@@ -4545,7 +4605,7 @@ Sends a sticker (including GIF) from a given URL
 
 ***
 
-### sendStickerfromUrlAsReply() <div class="label license insiders">insiders</div>
+### sendStickerfromUrlAsReply() <div className="label license insiders">insiders</div>
 
 > **sendStickerfromUrlAsReply**(`to`, `url`, `messageId`, `requestConfig`, `stickerMetadata`?): `Promise`\<`boolean` \| [`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)\>
 
@@ -4583,7 +4643,7 @@ The id of the message to reply to
 
 ***
 
-### sendText() <div class="label license restricted">restricted</div>
+### sendText() <div className="label license restricted">restricted</div>
 
 > **sendText**(`to`, `content`): `Promise`\<`boolean` \| [`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)\>
 
@@ -4754,7 +4814,7 @@ string Base64 of the jpeg/png which will be used to override the automatically g
 
 ***
 
-### setChatBackgroundColourHex() <div class="label license insiders">insiders</div>
+### setChatBackgroundColourHex() <div className="label license insiders">insiders</div>
 
 > **setChatBackgroundColourHex**(`hex`): `Promise`\<`boolean`\>
 
@@ -4776,7 +4836,7 @@ Set the wallpaper background colour
 
 ***
 
-### setChatEphemeral() <div class="label license insiders">insiders</div>
+### setChatEphemeral() <div className="label license insiders">insiders</div>
 
 > **setChatEphemeral**(`chatId`, `ephemeral`): `Promise`\<`boolean`\>
 
@@ -4944,7 +5004,7 @@ boolean true if it was set, false if it didn't work. It usually doesn't work if 
 
 ***
 
-### setGroupTitle() <div class="label license insiders">insiders</div>
+### setGroupTitle() <div className="label license insiders">insiders</div>
 
 > **setGroupTitle**(`groupId`, `title`): `Promise`\<`boolean`\>
 
@@ -5148,7 +5208,7 @@ Syncs contacts with phone. This promise does not resolve so it will instantly re
 
 ***
 
-### tagEveryone() <div class="label license insiders">insiders</div>
+### tagEveryone() <div className="label license insiders">insiders</div>
 
 > **tagEveryone**(`groupId`, `content`, `hideTags`?, `formatting`?, `messageBeforeTags`?): `Promise`\<`boolean` \| [`MessageId`](/reference/api/model/aliases/type-aliases/MessageId.md)\>
 
@@ -5240,7 +5300,7 @@ Use this simple command to test firing callback events.
 
 ***
 
-### unmuteChat() <div class="label license insiders">insiders</div>
+### unmuteChat() <div className="label license insiders">insiders</div>
 
 > **unmuteChat**(`chatId`): `Promise`\<`string` \| `number` \| `boolean`\>
 
@@ -5506,7 +5566,7 @@ callback
 
 ***
 
-### onChatOpened() <div class="label license insiders">insiders</div>
+### onChatOpened() <div className="label license insiders">insiders</div>
 
 > **onChatOpened**(`fn`): `Promise`\<`boolean` \| `Listener`\>
 
@@ -5530,7 +5590,7 @@ callback function that handles a [[ChatId]] as the first and only parameter.
 
 ***
 
-### onChatState() <div class="label license insiders">insiders</div>
+### onChatState() <div className="label license insiders">insiders</div>
 
 > **onChatState**(`fn`): `Promise`\<`boolean` \| `Listener`\>
 
@@ -5564,7 +5624,7 @@ Here is an example of the fired object:
 
 ***
 
-### onContactAdded() <div class="label license insiders">insiders</div>
+### onContactAdded() <div className="label license insiders">insiders</div>
 
 > **onContactAdded**(`fn`): `Promise`\<`boolean` \| `Listener`\>
 
@@ -5860,7 +5920,7 @@ callback
 
 ***
 
-### onReaction() <div class="label license insiders">insiders</div>
+### onReaction() <div className="label license insiders">insiders</div>
 
 > **onReaction**(`fn`): `Promise`\<`boolean` \| `Listener`\>
 
@@ -5886,7 +5946,7 @@ callback
 
 ***
 
-### onRemovedFromGroup() <div class="label license insiders">insiders</div>
+### onRemovedFromGroup() <div className="label license insiders">insiders</div>
 
 > **onRemovedFromGroup**(`fn`): `Promise`\<`boolean` \| `Listener`\>
 
@@ -5930,7 +5990,7 @@ STATE observable sream of states
 
 ***
 
-### onStory() <div class="label license restricted">restricted</div>
+### onStory() <div className="label license restricted">restricted</div>
 
 > **onStory**(`fn`): `Promise`\<`boolean` \| `Listener`\>
 
