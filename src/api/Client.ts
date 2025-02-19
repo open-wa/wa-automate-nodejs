@@ -299,6 +299,9 @@ declare module WAPI {
     includeMe: boolean,
     includeNotifications: boolean,
   ) => [Message]
+  const favSticker : (msgId: string, fav: boolean) => string
+  const sendFavSticker : (chatId: string, favId : string) => string
+  const getFavStickers : () => any[]
 }
 /* eslint-enable */
 
@@ -3440,6 +3443,40 @@ public async getStatus(contactId: ContactId) : Promise<{
     );
   }
 
+
+  /**
+   * Set/Unset a sticker as a fav.
+   * @param msgId The message Id related to the sticker you want to fav
+   * @param fav set this to true to fav a sticker, set it to false to remove the sticker from favorites. default true
+   * @returns favId The ID (filehash) of the fav sticker
+   */
+  public async favSticker(msgId: MessageId, fav = true) : Promise<string>{
+    return await this.pup(
+      ({msgId, fav}) => WAPI.favSticker(msgId, fav),
+      {msgId, fav}
+    );
+  }
+
+
+  /**
+   * Set/Unset a sticker as a fav.
+   * @param chatId The chat in which you want to send the sticker
+   * @param favId set this to true to favourite a sticker, set it to false to remove the sticker from favorites
+   * @returns MessageId of the sent sticker message
+   */
+  public async sendFavSticker(chatId: ChatId, favId: string) : Promise<MessageId>{
+    return await this.pup(
+      ({chatId, favId}) => WAPI.sendFavSticker(chatId, favId),
+      {chatId, favId}
+    );
+  }
+
+  /**
+   * Get an array of fav'ed stickers
+   */
+  public async getFavStickers(): Promise<Partial<Message>> {
+    return await this.pup(()=>WAPI.getFavStickers())
+  }
 
   /**
     * Revokes the current invite link for a group chat. Any previous links will stop working
