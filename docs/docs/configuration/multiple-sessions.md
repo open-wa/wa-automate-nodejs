@@ -1,10 +1,28 @@
 # Multiple Sessions
 
+:::tip New Multi-Session Server Mode
+For easier management of multiple sessions, check out the new [Multi-Session Mode](/docs/get-started/multi-session) which provides a dedicated server with REST API and web interface for managing multiple WhatsApp sessions.
+:::
+
 You can run multiple sessions of @open-wa/wa-automate in the same process. This allows you to do interesting things for example:
 
 1. Design and run automated tests for you WA bot.
 2. Connect two or more WA numbers to a single (or multiple) message handler(s)
 3. Use one client to make sure another one is alive by pinging it.
+
+## Approaches
+
+There are two main approaches for running multiple sessions:
+
+### 1. Multi-Session Server Mode (Recommended)
+Use the dedicated multi-session server for easier management:
+```bash
+node bin/multi-session.js --port 8080 --max-sessions 10
+```
+See [Multi-Session Mode](/docs/get-started/multi-session) for complete documentation.
+
+### 2. Programmatic Multiple Sessions
+Create multiple sessions in your own code as described below.
 
 Please see demo/index.ts for a working example
 
