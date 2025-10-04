@@ -72,15 +72,15 @@
           "pages": [
             {
               "title": "Installation",
-              "source": "./docs-source/getting-started/installation.md"
+              "source": "../docs/docs/get-started/installation.md"
             },
             {
               "title": "Easy API",
-              "source": "./docs-source/getting-started/quick-run.md"
+              "source": "../docs/docs/get-started/quick-run.md"
             },
             {
               "title": "Docker",
-              "source": "./docs-source/getting-started/docker.md"
+              "source": "../docs/docs/get-started/docker.md"
             }
           ]
         },
@@ -89,35 +89,35 @@
           "pages": [
             {
               "title": "Creating a Client",
-              "source": "./docs-source/configuration/the-client.md",
+              "source": "../docs/docs/configuration/the-client.md",
               "children": [
                 {
                   "title": "Multiple Sessions",
-                  "source": "./docs-source/configuration/multiple-sessions.md"
+                  "source": "../docs/docs/configuration/multiple-sessions.md"
                 }
               ]
             },
             {
               "title": "The Config Object",
-              "source": "./docs-source/configuration/config-object.md"
+              "source": "../docs/docs/configuration/config-object.md"
             },
             {
               "title": "Launch Events",
-              "source": "./docs-source/configuration/launch-events.md",
+              "source": "../docs/docs/configuration/launch-events.md",
               "children": [
                 {
                   "title": "Capturing QR Code",
-                  "source": "./docs-source/configuration/capture-qr.md"
+                  "source": "../docs/docs/configuration/capture-qr.md"
                 },
                 {
                   "title": "Capturing Session Data",
-                  "source": "./docs-source/configuration/capture-sd.md"
+                  "source": "../docs/docs/configuration/capture-sd.md"
                 }
               ]
             },
             {
               "title": "Licensed Features",
-              "source": "./docs-source/configuration/licensed-features.md"
+              "source": "../docs/docs/configuration/licensed-features.mdx"
             },
           ]
         },
@@ -126,63 +126,63 @@
           "pages": [
             {
               "title": "Send Messages",
-              "source": "./docs-source/how-to/send-messages.md"
+              "source": "../docs/docs/how-to/send-messages.md"
             },
             {
               "title": "Receive Messages",
-              "source": "./docs-source/how-to/receive-messages.md"
+              "source": "../docs/docs/how-to/receive-messages.md"
             },
             {
               "title": "Send Files",
-              "source": "./docs-source/how-to/send-files.md",
+              "source": "../docs/docs/how-to/send-files.md",
               "children": [
                 {
                   "title": "Send Videos",
-                  "source": "./docs-source/how-to/send-videos.md",
+                  "source": "../docs/docs/how-to/send-videos.md",
                 },
               ]
             },
             {
               "title": "Sending & Receiving Location",
-              "source": "./docs-source/how-to/location.md"
+              "source": "../docs/docs/how-to/location.md"
             },
             {
               "title": "Groups",
-              "source": "./docs-source/how-to/groups.md",
+              "source": "../docs/docs/how-to/groups.md",
               "children": [
                 {
                   "title": "Manage Participants",
-                  "source": "./docs-source/how-to/manage-participants.md",
+                  "source": "../docs/docs/how-to/manage-participants.md",
                 },
               ]
             },
             {
               "title": "React to group events",
-              "source": "./docs-source/how-to/react-to-group-events.md"
+              "source": "../docs/docs/how-to/react-to-group-events.md"
             },
             {
               "title": "Detect a logout",
-              "source": "./docs-source/how-to/detect-logout.md"
+              "source": "../docs/docs/how-to/detect-logout.md"
             },
             {
               "title": "Handle Errors",
-              "source": "./docs-source/how-to/handle-errors.md"
+              "source": "../docs/docs/how-to/handle-errors.md"
             },
             {
               "title": "Decrypt Media",
-              "source": "./docs-source/how-to/decrypt-media.md"
+              "source": "../docs/docs/how-to/decrypt-media.md"
             },
             {
               "title": "Detect Incoming Calls",
-              "source": "./docs-source/how-to/incoming-calls.md"
+              "source": "../docs/docs/how-to/incoming-calls.md"
             },
             {
               "title": "Use a proxy",
-              "source": "./docs-source/how-to/use-a-proxy.md"
+              "source": "../docs/docs/how-to/use-a-proxy.md"
             },
             {
               "title": "More Examples",
-              "source": "./docs-source/how-to/misc.md"
+              "source": "../docs/docs/how-to/misc.md"
             },
           ]
         },
@@ -191,7 +191,7 @@
           "pages": [
             {
               "title": "Best Practices",
-              "source": "./docs-source/advanced/best-practices.md"
+              "source": "../docs/docs/advanced/best-practices.md"
             }
           ]
         }
@@ -199,7 +199,7 @@
       "output": "pages"
     },
     // "mode": "file",
-    "out": "docs",
+    "out": "../docs/docs/reference",
     "exclude": [
       "**.config",
       "**/**ignore**",
