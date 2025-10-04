@@ -1,5 +1,5 @@
 {
-  "name": "docs",
+  "name": "@wa-automate-monorepo/docs",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -11,11 +11,7 @@
     "clear": "docusaurus clear",
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
-    "write-heading-ids": "docusaurus write-heading-ids",
-    "deploy_with_ssh": "USE_SSH=true npm run deploy",
-    "deploy_with_ssh_ci": "npm ci && npm i -D && npm run deploy",
-    "typecheck": "tsc",
-    "tw": "npx tailwindcss -i ./src/input.css -o ./src/output.css --watch"
+    "write-heading-ids": "docusaurus write-heading-ids"
   },
   "dependencies": {
     "@docusaurus/core": "^3.7.0",
