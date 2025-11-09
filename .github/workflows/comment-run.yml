@@ -1,5 +1,5 @@
-name: "Comment run"
-on:
+wame./setting
+
   issue_comment:
     types: [created, edited]
 
