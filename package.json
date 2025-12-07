@@ -1,0 +1,26 @@
+{
+  "name": "wa-automate-docker",
+  "version": "1.0.0",
+  "description": "This is a simple app that will expose an API that you can use to control your whatsapp instance.",
+  "type": "module",
+  "scripts": {
+    "postinstall": "node ./scripts/postinstall.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm update && npx @open-wa/wa-automate --in-docker -p 8080 --npm-options=--ignore-scripts",
+    "sessiondata" : "npx @open-wa/wa-automate --disable-spins --session-data-only"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-wa/wa-automate-docker.git"
+  },
+  "author": "SMASHAH <shah@idk.uno> (smashah.dev)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/open-wa/wa-automate-docker/issues"
+  },
+  "homepage": "https://github.com/open-wa/wa-automate-docker#readme",
+  "dependencies": {
+    "@open-wa/wa-automate": "latest",
+    "npm": "^7.12.1"
+  }
+}
