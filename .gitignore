@@ -1,0 +1,28 @@
+node_modules
+dist
+session
+newsession
+**buttons.js
+**req.ts
+**qr_code_session.png
+**.re.js
+**.postman_collection.json
+**.sw_col.json
+tempchangelog.txt
+.npmrc
+.DS_Store
+demo/buttons.js
+demo/**.jpeg
+demo/**.png
+demo/**.mp4
+**.ignore.ts
+**.ignore**
+**_IGNORE_**
+.vscode/launch.json
+**logs**
+bin/cli.config.json
+
+# managed by open-wa
+**.data.json
+**.node-persist**
+# end managed by open-wa
