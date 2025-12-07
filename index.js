@@ -1,0 +1,1 @@
+export {decryptMedia} from './dist/decrypt.js'
