@@ -1,0 +1,21 @@
+{
+    "name": "@open-wa/wa-automate",
+    "version": "5.0.0-alpha.1",
+    "description": "WhatsApp automation CLI and API server",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "bin": {
+        "wa-automate": "./dist/cli.js"
+    },
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "test": "jest"
+    },
+    "dependencies": {
+        "@open-wa/core": "workspace:*"
+    },
+    "devDependencies": {
+        "typescript": "^5.2.0"
+    }
+}
