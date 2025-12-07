@@ -1,0 +1,29 @@
+{
+    "environments": [
+      {
+        "id": "production",
+        "name": "Production",
+        "region": "us-west-2",
+        "source": {
+          "branch": "master"
+        },
+        "services": [
+          {
+            "id": "my-webapp",
+            "name": "my-webapp",
+            "type": "fargate",
+            "cpu": 0.5,
+            "memory": 1024,
+            "domain": "example.com",
+            "dockerfilePath": "Dockerfile",
+            "port": 8080,
+            "minInstances": 1,
+            "maxInstances": 1,
+            "envVariables": {
+              "SOMETHING_STATIC": "123",
+            }
+          }
+        ]
+      }
+    ]
+  }
