@@ -1,0 +1,42 @@
+node_modules
+dist
+session
+newsession
+**buttons.js
+**req.ts
+**qr_code_session.png
+**.re.js
+**.data.json
+tempchangelog.txt
+.npmrc
+.DS_Store
+demo/buttons.js
+**.ignore.ts
+**.zip
+.dopw
+.env
+# managed by open-wa
+**.node-persist**
+# end managed by open-wa
+logs/**
+**.ignore**
+**.postman_collection.json
+***sw_col.json
+notes
+dist-obf
+devSessions
+_user.json
+*audit.json
+*.log
+*.log.gz
+
+# managed by open-wa
+**_IGNORE_**
+# end managed by open-wa
+**postman_collection.json
+**sw_col.json
+
+
+.env
+.dopw
+.terraform**

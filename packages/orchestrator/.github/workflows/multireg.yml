@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  # repository_dispatch:
+  #   types: [library_updated]
+  # push:
+  #   branches: [production]
+  #   tags:
+  #     - 'v*'
+  # pull_request:
+  #   branches:
+  #     - main
+  #     - production
+  #   types: [opened, reopened]
+
+jobs:
+  multi:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: |
+          echo "$GITHUB_CONTEXT"
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            us-central1-docker.pkg.dev/open-wa-31bb1/open-wa/wa-orch
+            ghcr.io/smashah/wa-orch
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            type=schedule
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+            type=ref,event=branch,enable=${{ endsWith(github.ref, github.event.repository.default_branch) || github.event_name == 'push'}}
+            type=raw,value=latest,enable=${{ !endsWith(github.ref, 'production' ) }}
+          flavor: |
+            latest=false
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Login to GAR
+        uses: docker/login-action@v1
+        with:
+          username: _json_key
+          password: ${{ secrets.GCR_JSON_KEY }}
+          registry: us-central1-docker.pkg.dev
+      -
+        name: Login to GitHub Container Registry
+        uses: docker/login-action@v1 
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CR_PAT }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          # platforms: linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - 
+        name: Add comment to PR
+        if: ${{ github.event.action == 'opened' || github.event_name == 'push' &&  github.event.pull_request.comments_url}}
+        env:
+          URL: ${{ github.event.pull_request.comments_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl \
+            -X POST \
+            $URL \
+            -H "Content-Type: application/json" \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            --data '{ "body": "Image ready: `> docker pull us-central1-docker.pkg.dev/open-wa-31bb1/open-wa/wa-orch:pr-${{ github.event.pull_request.number }}`" }'

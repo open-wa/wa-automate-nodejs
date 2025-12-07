@@ -1,0 +1,29 @@
+version: '3'
+# A docker setup where you can easily update to the latest production container with curl -H "Authorization: Bearer mytoken" localhost:8080/v1/update
+
+# Note this may not work because the image is hosted on artifact registry and which is different from a standard docker repo
+services:
+  orch:
+    image: us-central1-docker.pkg.dev/open-wa-31bb1/open-wa/wa-orch:production
+    init: true
+    env_file:
+      - orch.env
+    # Assuming PORT=80 in orch.env
+    ports:
+      - "80:80"
+    restart: always
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${HOME}/watchtower-config.json:/config.json
+    command: --debug --http-api-update
+    environment:
+      - WATCHTOWER_HTTP_API_TOKEN=mytoken
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+    ports:
+      - 8080:8080

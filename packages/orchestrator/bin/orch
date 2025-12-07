@@ -1,0 +1,26 @@
+#!/bin/bash
+echo $PWD
+NM="$PWD/node_modules"
+OW="$NM/@open-wa-enterprise/wa-orchestrate"
+DST="$NM/@open-wa-enterprise/wa-orchestrate/dist"
+CLI="$NM/@open-wa/wa-automate/bin/server.js"
+PM="$NM/pm2"
+BN="$NM/.bin"
+PMBN="$NM/.bin/pm2"
+echo $NM
+echo $OW
+echo $PM
+echo $CLI
+jemalloc_path=$(find /usr/lib/ -maxdepth 2 -name "libjemalloc*.so" 2>/dev/null)
+
+# 
+# Update pm2 to run with jemalloc
+# 
+if [[ -n "$PM2_JEMALLOC" ]] && [[ -n "$jemalloc_path" ]]; then
+  LD_PRELOAD=$jemalloc_path $PMBN update
+fi
+
+
+NODE_ENV=prod EASY_API_PATH="$CLI" $PMBN start "$DST/index.js" --name admin "$@" -- --trace-warnings
+
+# NODE_ENV=prod ./node_modules/.bin/pm2-runtime start ../dist/index.js --name admin -- --trace-warnings
