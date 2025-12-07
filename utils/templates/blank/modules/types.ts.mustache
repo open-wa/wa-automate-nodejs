@@ -1,0 +1,7 @@
+import { Node, NodeDef } from "node-red";
+import { <%NodeTypePascalCase%>Options } from "../shared/types";
+
+export interface <%NodeTypePascalCase%>NodeDef extends NodeDef, <%NodeTypePascalCase%>Options {}
+
+// export interface <%NodeTypePascalCase%>Node extends Node {}
+export type <%NodeTypePascalCase%>Node = Node;

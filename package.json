@@ -1,0 +1,92 @@
+{
+  "name": "@open-wa/node-red-contrib-wa-automate",
+  "version": "2.7.1",
+  "description": "Official @open-wa node-red integration.",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": "https://github.com/open-wa/node-red-contrib-wa-automate",
+  "keywords": [
+    "node-red",
+    "whatsapp",
+    "javascript",
+    "bot",
+    "automation"
+  ],
+  "scripts": {
+    "preinstall": "echo 'export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true'",
+    "add-node": "node ./utils/add-node.js",
+    "copy": "copyfiles -u 2 \"./src/nodes/**/*.{png,svg}\" \"./dist/nodes/\"",
+    "build:editor": "rollup -c rollup.config.editor.js",
+    "build:editor:watch": "rollup -c rollup.config.editor.js -w",
+    "build:runtime": "tsc -p tsconfig.runtime.json",
+    "build:runtime:watch": "tsc -p tsconfig.runtime.watch.json --watch --preserveWatchOutput",
+    "build": "rm -rf dist && yarn copy && yarn build:editor && yarn build:runtime",
+    "test": "jest --forceExit --detectOpenHandles --colors",
+    "test:watch": "jest --forceExit --detectOpenHandles --watchAll",
+    "dev": "rm -rf dist && yarn copy && concurrently --kill-others --names 'COPY,EDITOR,RUNTIME,TEST' --prefix '({name})' --prefix-colors 'yellow.bold,cyan.bold,greenBright.bold,magenta.bold' 'onchange -v \"src/**/*.png\" \"src/**/*.svg\" -- yarn copy' 'yarn build:editor:watch' 'yarn build:runtime:watch' 'sleep 10; yarn test:watch'",
+    "lint": "prettier --ignore-path .eslintignore --check '**/*.{js,ts,md}'; eslint --ext .js,.ts .",
+    "lint:fix": "prettier --ignore-path .eslintignore --write '**/*.{js,ts,md}'; eslint --ext .js,.ts . --fix"
+  },
+  "author": "Mohammed Shah <@smashah>",
+  "license": "H-DNH V1.0",
+  "node-red": {
+    "nodes": {
+      "listen": "./dist/nodes/listen/listen.js",
+      "cmd": "./dist/nodes/cmd/cmd.js",
+      "owa-server": "./dist/nodes/owa-server/owa-server.js"
+    }
+  },
+  "dependenciesMeta": {
+    "puppeteer": {
+      "built": false
+    }
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^8.2.3",
+    "@types/express": "^4.17.13",
+    "@types/jest": "^26.0.24",
+    "@types/node": "^16.3.3",
+    "@types/node-red": "^1.1.1",
+    "@types/node-red-node-test-helper": "^0.2.2",
+    "@types/sinon": "^10.0.2",
+    "@types/supertest": "^2.0.11",
+    "@typescript-eslint/eslint-plugin": "^4.28.3",
+    "@typescript-eslint/parser": "^4.28.3",
+    "colorette": "^1.2.2",
+    "concurrently": "^6.2.0",
+    "copyfiles": "^2.4.1",
+    "eslint": "^7.30.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-jest": "^24.3.6",
+    "eslint-plugin-prettier": "^3.4.0",
+    "glob": "^7.1.7",
+    "jest": "^27.0.6",
+    "mustache": "^4.2.0",
+    "node-red": "^1.3.5",
+    "node-red-node-test-helper": "^0.2.7",
+    "onchange": "^7.1.0",
+    "prettier": "^2.3.2",
+    "rollup": "^2.53.2",
+    "ts-jest": "^27.0.3",
+    "type-fest": "^1.2.2",
+    "typescript": "^4.3.5",
+    "yarpm": "^1.1.1"
+  },
+  "dependencies": {
+    "@open-wa/wa-automate-socket-client": "^3.2.0",
+    "@open-wa/wa-automate-types-only": "*"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "testMatch": [
+      "**/__tests__/**/*.test.ts"
+    ]
+  }
+}

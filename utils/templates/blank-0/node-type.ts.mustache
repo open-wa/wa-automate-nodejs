@@ -1,0 +1,26 @@
+import { NodeInitializer } from "node-red";
+import { <%NodeTypePascalCase%>Node, <%NodeTypePascalCase%>NodeDef } from "./modules/types";
+
+const nodeInit: NodeInitializer = (RED): void => {
+  function <%NodeTypePascalCase%>NodeConstructor(
+    this: <%NodeTypePascalCase%>Node,
+    config: <%NodeTypePascalCase%>NodeDef
+  ): void {
+    RED.nodes.createNode(this, config);
+
+    this.on("input", (msg, send, done) => {
+      // Node-RED <1.0: this.send(msg);
+      // Node-RED >=1.0: send(msg); done();
+      // For more info: https://nodered.org/blog/2019/09/20/node-done
+      const sendAnyNR = send || this.send;
+      sendAnyNR(msg);
+      if (done) {
+        done();
+      }
+    });
+  }
+
+  RED.nodes.registerType("<%NodeTypeKebabCase%>", <%NodeTypePascalCase%>NodeConstructor);
+};
+
+export = nodeInit;

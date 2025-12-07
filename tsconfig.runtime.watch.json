@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.runtime.json",
+  "compilerOptions": {
+    "incremental": true,
+    "skipLibCheck": true,
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+  }
+}
