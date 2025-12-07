@@ -5,7 +5,7 @@
  * Please see: https://discord.js.org/#/docs/main/stable/class/Collector
  */
 // import { EventEmitter2 } from 'eventemitter2';
-import {Collection as BaseCollection} from '@discordjs/collection';
+import { Collection as BaseCollection } from '@discordjs/collection';
 import { EventEmitter } from 'events';
 
 export class Collection<K, V> extends BaseCollection<K, V> {
@@ -358,7 +358,7 @@ export class Collector extends EventEmitter {
    * @returns {Timeout}
    */
   setInterval(fn: (...args: any[]) => any, delay: number, ...args: any[]): NodeJS.Timeout {
-    const interval = setInterval(fn, delay, ...args);
+    const interval: any = setInterval(fn, delay, ...args);
     this._intervals.add(interval);
     return interval;
   }
