@@ -1,0 +1,14 @@
+import { EditorRED } from "node-red";
+import { <%NodeTypePascalCase%>EditorNodeProperties } from "./modules/types";
+
+declare const RED: EditorRED;
+
+RED.nodes.registerType<<%NodeTypePascalCase%>EditorNodeProperties>("<%NodeTypeKebabCase%>", {
+  category: "config",
+  defaults: {
+    name: { value: "" },
+  },
+  label: function () {
+    return this.name || "<%NodeLabel%>";
+  },
+});

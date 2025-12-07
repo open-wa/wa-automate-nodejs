@@ -1,0 +1,13 @@
+.idea
+.vscode
+yarn-debug.log*
+yarn-error.log*
+node_modules/
+*.tsbuildinfo
+dist
+.yarn
+**.tgz
+# managed by open-wa
+**.data.json
+**.node-persist**
+# end managed by open-wa

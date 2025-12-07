@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "ES2018",
+    "module": "commonjs",
+    "lib": ["es2018", "esnext.asynciterable", "dom"],
+    "allowJs": false,
+    "noEmitOnError": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "skipLibCheck": true,
+    "removeComments": false,
+    "noEmit": false,
+    "importHelpers": false,
+    "preserveWatchOutput": true,
+
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "preserveConstEnums": true,
+    "forceConsistentCasingInFileNames": true,
+
+    "typeRoots": ["./src/types", "./node_modules/@types"]
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
