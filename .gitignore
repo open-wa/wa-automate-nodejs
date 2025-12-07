@@ -9,7 +9,7 @@ newsession
 **.postman_collection.json
 **.sw_col.json
 tempchangelog.txt
-.npmrc
+
 .DS_Store
 demo/buttons.js
 demo/**.jpeg
@@ -31,3 +31,23 @@ bin/cli.config.json
 **.log
 **.log.gz
 **-audit.json
+# Monorepo specific
+node_modules/
+.turbo/
+dist/
+build/
+*.log
+.env
+.env.*
+!.env.example
+
+# Package specific
+packages/*/dist
+packages/*/build
+apps/*/dist
+apps/*/build
+apps/*/.next
+
+# Testing
+coverage/
+*.test.js

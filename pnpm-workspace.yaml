@@ -1,0 +1,12 @@
+packages:
+  # Core packages
+  - 'packages/*'
+
+  # Applications
+  - 'apps/*'
+
+  # Third-party integrations
+  - 'integrations/*'
+
+  # Multi-language SDKs (future)
+  - 'sdks/*'
