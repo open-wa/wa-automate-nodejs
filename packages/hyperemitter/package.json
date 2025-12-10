@@ -1,0 +1,36 @@
+{
+  "name": "@open-wa/hyperemitter",
+  "version": "0.0.0-pre",
+  "private": true,
+  "description": "HyperEmitter: high-performance, schema-driven event emitter for the open-wa v5 stack.",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "bench:baseline": "node benchmarks/baseline/run-baseline.js",
+    "bench:baseline:ci": "node benchmarks/baseline/run-baseline.js --ci"
+  },
+  "keywords": [
+    "eventemitter",
+    "events",
+    "pubsub",
+    "hyperemitter",
+    "open-wa"
+  ],
+  "author": "open-wa",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "emittery": "^1.0.1",
+    "eventemitter2": "^6.4.9",
+    "eventemitter3": "^5.0.1",
+    "mitt": "^3.0.1",
+    "tseep": "^1.0.1"
+  }
+}

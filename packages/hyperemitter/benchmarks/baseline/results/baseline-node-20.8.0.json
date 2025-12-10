@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "nodeVersion": "20.8.0",
+    "date": "2025-12-10T21:01:48.069Z",
+    "iterations": 200000,
+    "warmup": 20000
+  },
+  "exact": {
+    "node:events": {
+      "opsPerSec": 24776623.201804563,
+      "nsPerOp": 40.360625088214874,
+      "durationMs": 8.072125017642975
+    },
+    "eventemitter3": {
+      "opsPerSec": 65228913.23291844,
+      "nsPerOp": 15.330624878406525,
+      "durationMs": 3.066124975681305
+    },
+    "eventemitter2": {
+      "opsPerSec": 33949372.862869516,
+      "nsPerOp": 29.455625116825104,
+      "durationMs": 5.891125023365021
+    },
+    "emittery": {
+      "opsPerSec": 513965.4579144545,
+      "nsPerOp": 1945.656044781208,
+      "durationMs": 389.1312089562416
+    },
+    "mitt": {
+      "opsPerSec": 18363434.3054735,
+      "nsPerOp": 54.45604473352432,
+      "durationMs": 10.891208946704865
+    },
+    "tseep": {
+      "skipped": true,
+      "reason": "module not installed"
+    }
+  },
+  "wildcard": {
+    "eventemitter2": {
+      "opsPerSec": 2834857.194209256,
+      "nsPerOp": 352.7514550089836,
+      "durationMs": 70.55029100179672
+    },
+    "emittery": {
+      "opsPerSec": 250568.0195367393,
+      "nsPerOp": 3990.932289958,
+      "durationMs": 798.1864579916
+    }
+  }
+}
