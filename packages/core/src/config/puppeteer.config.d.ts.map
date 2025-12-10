@@ -1,1 +1,0 @@
-{"version":3,"file":"puppeteer.config.d.ts","sourceRoot":"","sources":["puppeteer.config.ts"],"names":[],"mappings":"AAAA,QAAA,MAAM,eAAe;;;;;CAuDpB,CAAC;AAEF,eAAO,MAAM,eAAe,GAAI,WAAU,MAAM,KAAI,MAAuJ,CAAC;AAC5M,eAAO,MAAM,SAAS,QAA+B,CAAA;AACrD,OAAO,EAAE,eAAe,EAAE,CAAC;AAE3B,eAAO,MAAM,KAAK,QAAwB,CAAC;AAC3C,eAAO,MAAM,MAAM,QAAyB,CAAC"}
