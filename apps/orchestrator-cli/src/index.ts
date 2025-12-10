@@ -12,16 +12,20 @@ import Axe from 'axe';
 import requestReceived from 'request-received';
 import responseTime from 'response-time';
 import requestId from 'express-request-id';
-import { create, restart, logs, deleteMiddleware, proxy, list, reload, reloadAll, update, updateAndReloadAll, stop, start, reloadOrchAuth, forceReauthenticateOrchServer, forceDeleteSessionDataFromOWABucket, status, stopProcess, flush, updateAndRestartAll, restartAll } from './endpoints';
-import { authMiddleware } from './middlewares/auth';
-import { authenticateInstance, user } from './watcher/firebase_auth';
-import { getMachineId } from './data/machine';
-import { registerOrUpdateBucket } from './watcher/firebase_db';
-import { OrchState, SessionState } from './data/state';
-import { bucket } from './data/bucket';
-import { addSysLogTransport, log, simpleCabinLog } from './utils/logging';
-import { startPm2ProcessWatcher } from './controllers/pm2_controller';
-import { MainProcessHandlingQueue } from './controllers/background_q';
+import {
+  create, restart, logs, deleteMiddleware, proxy, list, reload, reloadAll, update, updateAndReloadAll, stop, start,
+  reloadOrchAuth, forceReauthenticateOrchServer, forceDeleteSessionDataFromOWABucket, status, stopProcess, flush,
+  updateAndRestartAll, restartAll,
+  authMiddleware,
+  authenticateInstance, user,
+  getMachineId,
+  registerOrUpdateBucket,
+  OrchState, SessionState,
+  bucket,
+  addSysLogTransport, log, simpleCabinLog,
+  startPm2ProcessWatcher,
+  MainProcessHandlingQueue
+} from '@open-wa/orchestrator';
 
 log.info(`ENVIRONMENT: ${process.env.NODE_ENV}`)
 
@@ -31,7 +35,7 @@ const axe = new Axe({
     pre: [
       function (level, err, message, meta) {
         try {
-          if(meta?.is_http && meta?.response?.status_code=="200") return [err, message, {}];
+          if (meta?.is_http && meta?.response?.status_code == "200") return [err, message, {}];
           return [err, message, meta];
         } catch (error) {
           return [err, message, meta];
@@ -49,7 +53,7 @@ process.env.API_KEY = process.env.API_KEY || 'kMmKKFCGIjyZy55024iOnQKo7Br60Ltg';
 export const PORT = process.env.PORT || 3000;
 //CHANGE THESE CONSTANTS
 export const ipaddress: () => string = () => process.env.ORCH_IP_ADDR || 'localhost';
-if(process.env.PAPERTRAIL_PORT && process.env.PAPERTRAIL_SUBDOMAIN) addSysLogTransport({
+if (process.env.PAPERTRAIL_PORT && process.env.PAPERTRAIL_SUBDOMAIN) addSysLogTransport({
   host: `${process.env.PAPERTRAIL_SUBDOMAIN}.papertrailapp.com`,
   port: process.env.PAPERTRAIL_PORT,
   protocol: 'tls4',
@@ -248,7 +252,7 @@ async function startSupervisor() {
     //recononect existing processes
     await new Promise((resolve, reject) => pm2.list(async (err, list) => {
       console.log('PM2 LIST:', err, list)
-      if(err) reject(err)
+      if (err) reject(err)
       await Promise.all(list.map(async session => {
         console.log('PM2_NAME', session.name)
         if ((session?.pm2_env as any)?.WA_API_HOST_ADDR) {
@@ -260,7 +264,7 @@ async function startSupervisor() {
            * if not then set the session url in the firestore
            */
           if (sessionId && sessionStateFromFirestore) {
-            log.info(`reconnecting: ${sessionId} @ ${host} ${sessionStateFromFirestore.get(sessionId)?.getInternalProxyAddress()}` )
+            log.info(`reconnecting: ${sessionId} @ ${host} ${sessionStateFromFirestore.get(sessionId)?.getInternalProxyAddress()}`)
             if (sessionStateFromFirestore.has(sessionId) && sessionStateFromFirestore.get(sessionId)?.getInternalProxyAddress() === host) {
               log.info('session already exists in firestore and is up to date')
             } else if (sessionStateFromFirestore.has(sessionId) && sessionStateFromFirestore.get(sessionId)?.getInternalProxyAddress() !== host) {
@@ -290,8 +294,8 @@ async function startSupervisor() {
     const sessionsFromFirestoreArr: SessionState[] = [];
     sessionStateFromFirestore?.forEach(session => sessionsFromFirestoreArr.push(session))
     const unstartedSessions = sessionsFromFirestoreArr.filter(({ sessionId }) => !Object.keys(runningSessions).includes(sessionId));
-    log.info('Unstarted sessions which will be resurrected', unstartedSessions.map(x=>x.sessionId))
-    
+    log.info('Unstarted sessions which will be resurrected', unstartedSessions.map(x => x.sessionId))
+
     /**
      * This creates an ordered array of session objects.
      * The ordered unstarted sessions orders by whether or not the session was previously started or not.
@@ -299,31 +303,31 @@ async function startSupervisor() {
      * A previously online session should be recreted with priority over a session that was stopped for any reason.
      */
     const orderedUnstartedSessions = [
-      ...unstartedSessions.filter(s=>s.processState==="online"),
-      ...unstartedSessions.filter(s=>s.processState!="online")
+      ...unstartedSessions.filter(s => s.processState === "online"),
+      ...unstartedSessions.filter(s => s.processState != "online")
     ];
     console.log("orderedUnstartedSessions", orderedUnstartedSessions)
     orderedUnstartedSessions.map(async ({ sessionId }) => {
       const session = sessionStateFromFirestore?.get(sessionId);
       log.info("FROM BACKEND:", session)
       if (!session) return;
-      if(session.orchState === OrchState.DELETE) {
+      if (session.orchState === OrchState.DELETE) {
         log.info('Session recreation skipped', session.sessionId, session.orchState);
         return;
       }
       const shouldStopImmediately = session.orchState === OrchState.STOP || session.processState === 'stop'
-        // console.log("🚀 ~ file: index.ts ~ line 185 ~ unstartedSessions.map ~ session.orchState", session.orchState)
-        // await createSessionFromSessionState(sessionStateFromFirestore[sessionId])
+      // console.log("🚀 ~ file: index.ts ~ line 185 ~ unstartedSessions.map ~ session.orchState", session.orchState)
+      // await createSessionFromSessionState(sessionStateFromFirestore[sessionId])
       MainProcessHandlingQueue.add(async () => {
         log.info(`Resurrecting lost session ${sessionId}`)
         await session.addAuditLog(`Resurrected session ${sessionId}`)
-        const resurrection =  await session.attemptRecreation()
+        const resurrection = await session.attemptRecreation()
         log.info(`Session ${sessionId} ressurected`, resurrection)
-        if(shouldStopImmediately) {
-        log.info(`Session ${sessionId} will now stop`, resurrection)
-        await stopProcess(sessionId, "STOP_ON_RESURRECTION")
-        log.info(`Session ${sessionId} stopped`, resurrection)
-      }
+        if (shouldStopImmediately) {
+          log.info(`Session ${sessionId} will now stop`, resurrection)
+          await stopProcess(sessionId, "STOP_ON_RESURRECTION")
+          log.info(`Session ${sessionId} stopped`, resurrection)
+        }
       })
       // /**
       //  * Timeout for 5 seconds before starting the next one, skip if this sessionId is the last one

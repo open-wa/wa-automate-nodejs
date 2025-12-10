@@ -1,0 +1,12 @@
+{
+    "name": "registry",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "serve public",
+        "build": "echo 'No build step'"
+    },
+    "dependencies": {
+        "serve": "^14.2.0"
+    }
+}

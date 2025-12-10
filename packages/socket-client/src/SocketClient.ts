@@ -1,6 +1,8 @@
 import { EventEmitter2 } from 'eventemitter2';
 import { io, Socket } from "socket.io-client";
-import { Client as _Client, SimpleListener, Chat, ChatId, Message } from "@open-wa/wa-automate-types-only";
+// import { Client as _Client, SimpleListener, Chat, ChatId, Message } from "@open-wa/wa-automate-types-only";
+import { Client as _Client, SimpleListener } from "@open-wa/wa-automate-types-only";
+import { Chat, ChatId, Message, ContactId } from "@open-wa/schema";
 import { v4 as uuidv4 } from 'uuid';
 import { MessageCollector } from './MessageCollector';
 import { AwaitMessagesOptions, Collection, CollectorFilter, CollectorOptions } from './Collector';
@@ -100,7 +102,7 @@ export class SocketClient {
         process.on('SIGINT', () => {
             this.close()
             process.exit();
-        }); 
+        });
         this.socket.emit("register_ev");
         this.socket.onAny((event, value) => this.ev.emit(event, value))
         await this._ensureListenersRegistered();
@@ -123,7 +125,7 @@ export class SocketClient {
     /**
      * Attempt to kill the session and close the socket
      */
-     public async killSession(): Promise<void> {
+    public async killSession(): Promise<void> {
         await this.ask("kill");
         this.socket.close();
     }
@@ -199,7 +201,7 @@ export class SocketClient {
         });
         this.socket.on("disconnect", () => {
             debug("disconnected")
-            if(this.flushListenersOnDisconnect) this.flushListeners();
+            if (this.flushListenersOnDisconnect) this.flushListeners();
             // console.log("Disconnected from host!")
         });
         return new Proxy(this, {

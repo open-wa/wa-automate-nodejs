@@ -1,0 +1,1784 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Open WA API",
+    "version": "5.0.0",
+    "description": "API definition for Open WA v5"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "components": {
+    "schemas": {},
+    "parameters": {}
+  },
+  "paths": {
+    "/sendText": {
+      "post": {
+        "description": "Sends a text message to a chat",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "to": {
+                    "type": "string",
+                    "description": "The chat id to send to"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "The text content to send"
+                  },
+                  "options": {
+                    "nullable": true,
+                    "description": "Message options"
+                  }
+                },
+                "required": [
+                  "to",
+                  "content"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "_serialized": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "_serialized"
+                      ]
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sendImage": {
+      "post": {
+        "description": "Sends an image to a chat",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "to": {
+                    "type": "string"
+                  },
+                  "imgData": {
+                    "type": "string",
+                    "description": "Base64 data or URL"
+                  },
+                  "filename": {
+                    "type": "string"
+                  },
+                  "caption": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string",
+                    "description": "Quoted message ID"
+                  },
+                  "waitForId": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "required": [
+                  "to",
+                  "imgData"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "_serialized": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "_serialized"
+                      ]
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getAllMessages": {
+      "post": {
+        "description": "Retrieves all messages in the session",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "chatId": {
+                    "type": "string"
+                  },
+                  "includeMe": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "includeNotifications": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "body": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "chat",
+                          "audio",
+                          "ptt",
+                          "image",
+                          "video",
+                          "document",
+                          "sticker",
+                          "location",
+                          "vcard",
+                          "multi_vcard",
+                          "revoked",
+                          "order",
+                          "buttons_response",
+                          "list_response",
+                          "unknown"
+                        ]
+                      },
+                      "t": {
+                        "type": "number"
+                      },
+                      "notifyName": {
+                        "type": "string"
+                      },
+                      "from": {
+                        "type": "string"
+                      },
+                      "to": {
+                        "type": "string"
+                      },
+                      "self": {
+                        "type": "string",
+                        "enum": [
+                          "in",
+                          "out"
+                        ]
+                      },
+                      "ack": {
+                        "type": "integer",
+                        "enum": [
+                          -1,
+                          0,
+                          1,
+                          2,
+                          3,
+                          4
+                        ]
+                      },
+                      "invis": {
+                        "type": "boolean"
+                      },
+                      "isNewMsg": {
+                        "type": "boolean"
+                      },
+                      "star": {
+                        "type": "boolean"
+                      },
+                      "recvFresh": {
+                        "type": "boolean"
+                      },
+                      "broadcast": {
+                        "type": "boolean"
+                      },
+                      "isForwarded": {
+                        "type": "boolean"
+                      },
+                      "labels": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "mentionedJidList": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "caption": {
+                        "type": "string"
+                      },
+                      "sender": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "shortName": {
+                            "type": "string"
+                          },
+                          "pushname": {
+                            "type": "string"
+                          },
+                          "formattedName": {
+                            "type": "string"
+                          },
+                          "isBusiness": {
+                            "type": "boolean"
+                          },
+                          "isEnterprise": {
+                            "type": "boolean"
+                          },
+                          "isMe": {
+                            "type": "boolean"
+                          },
+                          "isMyContact": {
+                            "type": "boolean"
+                          },
+                          "isPSA": {
+                            "type": "boolean"
+                          },
+                          "isUser": {
+                            "type": "boolean"
+                          },
+                          "isWAContact": {
+                            "type": "boolean"
+                          },
+                          "labels": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "msgs": {
+                            "type": "array",
+                            "items": {
+                              "nullable": true
+                            }
+                          },
+                          "profilePicThumbObj": {
+                            "type": "object",
+                            "properties": {
+                              "eurl": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "object",
+                                "properties": {
+                                  "server": {
+                                    "type": "string"
+                                  },
+                                  "user": {
+                                    "type": "string"
+                                  },
+                                  "_serialized": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "server",
+                                  "user",
+                                  "_serialized"
+                                ]
+                              },
+                              "img": {
+                                "type": "string"
+                              },
+                              "imgFull": {
+                                "type": "string"
+                              },
+                              "tag": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "statusMute": {
+                            "type": "boolean"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "verifiedLevel": {
+                            "type": "number"
+                          },
+                          "verifiedName": {
+                            "type": "string"
+                          },
+                          "isOnline": {
+                            "type": "boolean"
+                          },
+                          "lastSeen": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ]
+                      },
+                      "timestamp": {
+                        "type": "number"
+                      },
+                      "content": {
+                        "type": "string"
+                      },
+                      "isGroupMsg": {
+                        "type": "boolean"
+                      },
+                      "isMMS": {
+                        "type": "boolean"
+                      },
+                      "isMedia": {
+                        "type": "boolean"
+                      },
+                      "isNotification": {
+                        "type": "boolean"
+                      },
+                      "isPSA": {
+                        "type": "boolean"
+                      },
+                      "fromMe": {
+                        "type": "boolean"
+                      },
+                      "chat": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "formattedTitle": {
+                            "type": "string"
+                          },
+                          "isGroup": {
+                            "type": "boolean"
+                          },
+                          "contact": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "shortName": {
+                                "type": "string"
+                              },
+                              "pushname": {
+                                "type": "string"
+                              },
+                              "formattedName": {
+                                "type": "string"
+                              },
+                              "isBusiness": {
+                                "type": "boolean"
+                              },
+                              "isEnterprise": {
+                                "type": "boolean"
+                              },
+                              "isMe": {
+                                "type": "boolean"
+                              },
+                              "isMyContact": {
+                                "type": "boolean"
+                              },
+                              "isPSA": {
+                                "type": "boolean"
+                              },
+                              "isUser": {
+                                "type": "boolean"
+                              },
+                              "isWAContact": {
+                                "type": "boolean"
+                              },
+                              "labels": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "msgs": {
+                                "type": "array",
+                                "items": {
+                                  "nullable": true
+                                }
+                              },
+                              "profilePicThumbObj": {
+                                "type": "object",
+                                "properties": {
+                                  "eurl": {
+                                    "type": "string"
+                                  },
+                                  "id": {
+                                    "type": "object",
+                                    "properties": {
+                                      "server": {
+                                        "type": "string"
+                                      },
+                                      "user": {
+                                        "type": "string"
+                                      },
+                                      "_serialized": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "server",
+                                      "user",
+                                      "_serialized"
+                                    ]
+                                  },
+                                  "img": {
+                                    "type": "string"
+                                  },
+                                  "imgFull": {
+                                    "type": "string"
+                                  },
+                                  "tag": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "statusMute": {
+                                "type": "boolean"
+                              },
+                              "type": {
+                                "type": "string"
+                              },
+                              "verifiedLevel": {
+                                "type": "number"
+                              },
+                              "verifiedName": {
+                                "type": "string"
+                              },
+                              "isOnline": {
+                                "type": "boolean"
+                              },
+                              "lastSeen": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "id"
+                            ]
+                          },
+                          "groupMetadata": {
+                            "nullable": true
+                          },
+                          "presence": {
+                            "nullable": true
+                          },
+                          "t": {
+                            "type": "number"
+                          },
+                          "unreadCount": {
+                            "type": "number"
+                          },
+                          "lastReceivedKey": {
+                            "nullable": true
+                          },
+                          "msgs": {
+                            "type": "array",
+                            "items": {
+                              "nullable": true
+                            }
+                          },
+                          "isReadOnly": {
+                            "type": "boolean"
+                          },
+                          "muteExpiration": {
+                            "type": "number"
+                          },
+                          "notSpam": {
+                            "type": "boolean"
+                          },
+                          "pin": {
+                            "type": "number"
+                          },
+                          "ack": {
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "isGroup",
+                          "contact"
+                        ]
+                      },
+                      "chatId": {
+                        "type": "string"
+                      },
+                      "author": {
+                        "type": "string"
+                      },
+                      "clientUrl": {
+                        "type": "string"
+                      },
+                      "deprecatedMms3Url": {
+                        "type": "string"
+                      },
+                      "isQuotedMsgAvailable": {
+                        "type": "boolean"
+                      },
+                      "quotedMsg": {
+                        "nullable": true
+                      },
+                      "quotedMsgObj": {
+                        "nullable": true
+                      },
+                      "senderId": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "body",
+                      "type",
+                      "t",
+                      "from",
+                      "to",
+                      "self",
+                      "ack",
+                      "sender",
+                      "timestamp",
+                      "content",
+                      "isGroupMsg",
+                      "isMedia",
+                      "isNotification",
+                      "fromMe",
+                      "chat",
+                      "chatId",
+                      "isQuotedMsgAvailable"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getAllChats": {
+      "post": {
+        "description": "Retrieves all chats",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "withNewMessagesOnly": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "formattedTitle": {
+                        "type": "string"
+                      },
+                      "isGroup": {
+                        "type": "boolean"
+                      },
+                      "contact": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "shortName": {
+                            "type": "string"
+                          },
+                          "pushname": {
+                            "type": "string"
+                          },
+                          "formattedName": {
+                            "type": "string"
+                          },
+                          "isBusiness": {
+                            "type": "boolean"
+                          },
+                          "isEnterprise": {
+                            "type": "boolean"
+                          },
+                          "isMe": {
+                            "type": "boolean"
+                          },
+                          "isMyContact": {
+                            "type": "boolean"
+                          },
+                          "isPSA": {
+                            "type": "boolean"
+                          },
+                          "isUser": {
+                            "type": "boolean"
+                          },
+                          "isWAContact": {
+                            "type": "boolean"
+                          },
+                          "labels": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "msgs": {
+                            "type": "array",
+                            "items": {
+                              "nullable": true
+                            }
+                          },
+                          "profilePicThumbObj": {
+                            "type": "object",
+                            "properties": {
+                              "eurl": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "object",
+                                "properties": {
+                                  "server": {
+                                    "type": "string"
+                                  },
+                                  "user": {
+                                    "type": "string"
+                                  },
+                                  "_serialized": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "server",
+                                  "user",
+                                  "_serialized"
+                                ]
+                              },
+                              "img": {
+                                "type": "string"
+                              },
+                              "imgFull": {
+                                "type": "string"
+                              },
+                              "tag": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "statusMute": {
+                            "type": "boolean"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "verifiedLevel": {
+                            "type": "number"
+                          },
+                          "verifiedName": {
+                            "type": "string"
+                          },
+                          "isOnline": {
+                            "type": "boolean"
+                          },
+                          "lastSeen": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ]
+                      },
+                      "groupMetadata": {
+                        "nullable": true
+                      },
+                      "presence": {
+                        "nullable": true
+                      },
+                      "t": {
+                        "type": "number"
+                      },
+                      "unreadCount": {
+                        "type": "number"
+                      },
+                      "lastReceivedKey": {
+                        "nullable": true
+                      },
+                      "msgs": {
+                        "type": "array",
+                        "items": {
+                          "nullable": true
+                        }
+                      },
+                      "isReadOnly": {
+                        "type": "boolean"
+                      },
+                      "muteExpiration": {
+                        "type": "number"
+                      },
+                      "notSpam": {
+                        "type": "boolean"
+                      },
+                      "pin": {
+                        "type": "number"
+                      },
+                      "ack": {
+                        "nullable": true
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "isGroup",
+                      "contact"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getAllContacts": {
+      "post": {
+        "description": "Retrieves all contacts",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "shortName": {
+                        "type": "string"
+                      },
+                      "pushname": {
+                        "type": "string"
+                      },
+                      "formattedName": {
+                        "type": "string"
+                      },
+                      "isBusiness": {
+                        "type": "boolean"
+                      },
+                      "isEnterprise": {
+                        "type": "boolean"
+                      },
+                      "isMe": {
+                        "type": "boolean"
+                      },
+                      "isMyContact": {
+                        "type": "boolean"
+                      },
+                      "isPSA": {
+                        "type": "boolean"
+                      },
+                      "isUser": {
+                        "type": "boolean"
+                      },
+                      "isWAContact": {
+                        "type": "boolean"
+                      },
+                      "labels": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "msgs": {
+                        "type": "array",
+                        "items": {
+                          "nullable": true
+                        }
+                      },
+                      "profilePicThumbObj": {
+                        "type": "object",
+                        "properties": {
+                          "eurl": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "object",
+                            "properties": {
+                              "server": {
+                                "type": "string"
+                              },
+                              "user": {
+                                "type": "string"
+                              },
+                              "_serialized": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "server",
+                              "user",
+                              "_serialized"
+                            ]
+                          },
+                          "img": {
+                            "type": "string"
+                          },
+                          "imgFull": {
+                            "type": "string"
+                          },
+                          "tag": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "statusMute": {
+                        "type": "boolean"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "verifiedLevel": {
+                        "type": "number"
+                      },
+                      "verifiedName": {
+                        "type": "string"
+                      },
+                      "isOnline": {
+                        "type": "boolean"
+                      },
+                      "lastSeen": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getMessageById": {
+      "post": {
+        "description": "Retrieves a specific message by ID",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "messageId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "messageId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "body": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "chat",
+                        "audio",
+                        "ptt",
+                        "image",
+                        "video",
+                        "document",
+                        "sticker",
+                        "location",
+                        "vcard",
+                        "multi_vcard",
+                        "revoked",
+                        "order",
+                        "buttons_response",
+                        "list_response",
+                        "unknown"
+                      ]
+                    },
+                    "t": {
+                      "type": "number"
+                    },
+                    "notifyName": {
+                      "type": "string"
+                    },
+                    "from": {
+                      "type": "string"
+                    },
+                    "to": {
+                      "type": "string"
+                    },
+                    "self": {
+                      "type": "string",
+                      "enum": [
+                        "in",
+                        "out"
+                      ]
+                    },
+                    "ack": {
+                      "type": "integer",
+                      "enum": [
+                        -1,
+                        0,
+                        1,
+                        2,
+                        3,
+                        4
+                      ]
+                    },
+                    "invis": {
+                      "type": "boolean"
+                    },
+                    "isNewMsg": {
+                      "type": "boolean"
+                    },
+                    "star": {
+                      "type": "boolean"
+                    },
+                    "recvFresh": {
+                      "type": "boolean"
+                    },
+                    "broadcast": {
+                      "type": "boolean"
+                    },
+                    "isForwarded": {
+                      "type": "boolean"
+                    },
+                    "labels": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "mentionedJidList": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "caption": {
+                      "type": "string"
+                    },
+                    "sender": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "shortName": {
+                          "type": "string"
+                        },
+                        "pushname": {
+                          "type": "string"
+                        },
+                        "formattedName": {
+                          "type": "string"
+                        },
+                        "isBusiness": {
+                          "type": "boolean"
+                        },
+                        "isEnterprise": {
+                          "type": "boolean"
+                        },
+                        "isMe": {
+                          "type": "boolean"
+                        },
+                        "isMyContact": {
+                          "type": "boolean"
+                        },
+                        "isPSA": {
+                          "type": "boolean"
+                        },
+                        "isUser": {
+                          "type": "boolean"
+                        },
+                        "isWAContact": {
+                          "type": "boolean"
+                        },
+                        "labels": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "msgs": {
+                          "type": "array",
+                          "items": {
+                            "nullable": true
+                          }
+                        },
+                        "profilePicThumbObj": {
+                          "type": "object",
+                          "properties": {
+                            "eurl": {
+                              "type": "string"
+                            },
+                            "id": {
+                              "type": "object",
+                              "properties": {
+                                "server": {
+                                  "type": "string"
+                                },
+                                "user": {
+                                  "type": "string"
+                                },
+                                "_serialized": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "server",
+                                "user",
+                                "_serialized"
+                              ]
+                            },
+                            "img": {
+                              "type": "string"
+                            },
+                            "imgFull": {
+                              "type": "string"
+                            },
+                            "tag": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "statusMute": {
+                          "type": "boolean"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "verifiedLevel": {
+                          "type": "number"
+                        },
+                        "verifiedName": {
+                          "type": "string"
+                        },
+                        "isOnline": {
+                          "type": "boolean"
+                        },
+                        "lastSeen": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    "timestamp": {
+                      "type": "number"
+                    },
+                    "content": {
+                      "type": "string"
+                    },
+                    "isGroupMsg": {
+                      "type": "boolean"
+                    },
+                    "isMMS": {
+                      "type": "boolean"
+                    },
+                    "isMedia": {
+                      "type": "boolean"
+                    },
+                    "isNotification": {
+                      "type": "boolean"
+                    },
+                    "isPSA": {
+                      "type": "boolean"
+                    },
+                    "fromMe": {
+                      "type": "boolean"
+                    },
+                    "chat": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "formattedTitle": {
+                          "type": "string"
+                        },
+                        "isGroup": {
+                          "type": "boolean"
+                        },
+                        "contact": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "shortName": {
+                              "type": "string"
+                            },
+                            "pushname": {
+                              "type": "string"
+                            },
+                            "formattedName": {
+                              "type": "string"
+                            },
+                            "isBusiness": {
+                              "type": "boolean"
+                            },
+                            "isEnterprise": {
+                              "type": "boolean"
+                            },
+                            "isMe": {
+                              "type": "boolean"
+                            },
+                            "isMyContact": {
+                              "type": "boolean"
+                            },
+                            "isPSA": {
+                              "type": "boolean"
+                            },
+                            "isUser": {
+                              "type": "boolean"
+                            },
+                            "isWAContact": {
+                              "type": "boolean"
+                            },
+                            "labels": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "msgs": {
+                              "type": "array",
+                              "items": {
+                                "nullable": true
+                              }
+                            },
+                            "profilePicThumbObj": {
+                              "type": "object",
+                              "properties": {
+                                "eurl": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "object",
+                                  "properties": {
+                                    "server": {
+                                      "type": "string"
+                                    },
+                                    "user": {
+                                      "type": "string"
+                                    },
+                                    "_serialized": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "server",
+                                    "user",
+                                    "_serialized"
+                                  ]
+                                },
+                                "img": {
+                                  "type": "string"
+                                },
+                                "imgFull": {
+                                  "type": "string"
+                                },
+                                "tag": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "statusMute": {
+                              "type": "boolean"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "verifiedLevel": {
+                              "type": "number"
+                            },
+                            "verifiedName": {
+                              "type": "string"
+                            },
+                            "isOnline": {
+                              "type": "boolean"
+                            },
+                            "lastSeen": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "id"
+                          ]
+                        },
+                        "groupMetadata": {
+                          "nullable": true
+                        },
+                        "presence": {
+                          "nullable": true
+                        },
+                        "t": {
+                          "type": "number"
+                        },
+                        "unreadCount": {
+                          "type": "number"
+                        },
+                        "lastReceivedKey": {
+                          "nullable": true
+                        },
+                        "msgs": {
+                          "type": "array",
+                          "items": {
+                            "nullable": true
+                          }
+                        },
+                        "isReadOnly": {
+                          "type": "boolean"
+                        },
+                        "muteExpiration": {
+                          "type": "number"
+                        },
+                        "notSpam": {
+                          "type": "boolean"
+                        },
+                        "pin": {
+                          "type": "number"
+                        },
+                        "ack": {
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "isGroup",
+                        "contact"
+                      ]
+                    },
+                    "chatId": {
+                      "type": "string"
+                    },
+                    "author": {
+                      "type": "string"
+                    },
+                    "clientUrl": {
+                      "type": "string"
+                    },
+                    "deprecatedMms3Url": {
+                      "type": "string"
+                    },
+                    "isQuotedMsgAvailable": {
+                      "type": "boolean"
+                    },
+                    "quotedMsg": {
+                      "nullable": true
+                    },
+                    "quotedMsgObj": {
+                      "nullable": true
+                    },
+                    "senderId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "body",
+                    "type",
+                    "t",
+                    "from",
+                    "to",
+                    "self",
+                    "ack",
+                    "sender",
+                    "timestamp",
+                    "content",
+                    "isGroupMsg",
+                    "isMedia",
+                    "isNotification",
+                    "fromMe",
+                    "chat",
+                    "chatId",
+                    "isQuotedMsgAvailable"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/deleteMessage": {
+      "post": {
+        "description": "Deletes a message",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "chatId": {
+                    "type": "string"
+                  },
+                  "messageId": {
+                    "anyOf": [
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "onlyLocal": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "required": [
+                  "chatId",
+                  "messageId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/forwardMessages": {
+      "post": {
+        "description": "Forwards messages to a chat",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "to": {
+                    "type": "string"
+                  },
+                  "messages": {
+                    "anyOf": [
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "skipMyMessages": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "required": [
+                  "to",
+                  "messages"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_serialized": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "_serialized"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sendLocation": {
+      "post": {
+        "description": "Sends a location to a chat",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "to": {
+                    "type": "string"
+                  },
+                  "lat": {
+                    "nullable": true
+                  },
+                  "lng": {
+                    "nullable": true
+                  },
+                  "loc": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "to"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "_serialized": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "_serialized"
+                      ]
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getGroupMembers": {
+      "post": {
+        "description": "Retrieves members of a group",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "groupId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "groupId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "shortName": {
+                        "type": "string"
+                      },
+                      "pushname": {
+                        "type": "string"
+                      },
+                      "formattedName": {
+                        "type": "string"
+                      },
+                      "isBusiness": {
+                        "type": "boolean"
+                      },
+                      "isEnterprise": {
+                        "type": "boolean"
+                      },
+                      "isMe": {
+                        "type": "boolean"
+                      },
+                      "isMyContact": {
+                        "type": "boolean"
+                      },
+                      "isPSA": {
+                        "type": "boolean"
+                      },
+                      "isUser": {
+                        "type": "boolean"
+                      },
+                      "isWAContact": {
+                        "type": "boolean"
+                      },
+                      "labels": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "msgs": {
+                        "type": "array",
+                        "items": {
+                          "nullable": true
+                        }
+                      },
+                      "profilePicThumbObj": {
+                        "type": "object",
+                        "properties": {
+                          "eurl": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "object",
+                            "properties": {
+                              "server": {
+                                "type": "string"
+                              },
+                              "user": {
+                                "type": "string"
+                              },
+                              "_serialized": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "server",
+                              "user",
+                              "_serialized"
+                            ]
+                          },
+                          "img": {
+                            "type": "string"
+                          },
+                          "imgFull": {
+                            "type": "string"
+                          },
+                          "tag": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "statusMute": {
+                        "type": "boolean"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "verifiedLevel": {
+                        "type": "number"
+                      },
+                      "verifiedName": {
+                        "type": "string"
+                      },
+                      "isOnline": {
+                        "type": "boolean"
+                      },
+                      "lastSeen": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+    "name": "@open-wa/schema",
+    "version": "5.0.0-alpha.1",
+    "description": "Zod-based schema definitions for open-wa",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "require": "./dist/index.js",
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "scripts": {
+        "generate": "ts-node scripts/gen-types.ts && ts-node scripts/gen-openapi.ts && ts-node scripts/gen-client-implementation.ts",
+        "build": "pnpm generate && tsc",
+        "dev": "tsc --watch",
+        "lint": "eslint src --ext .ts",
+        "test": "jest"
+    },
+    "dependencies": {
+        "@asteasolutions/zod-to-openapi": "^6.4.0",
+        "zod": "^3.22.4",
+        "zod-to-json-schema": "^3.22.3"
+    },
+    "devDependencies": {
+        "@types/jest": "^29.0.0",
+        "jest": "^29.0.0",
+        "ts-jest": "^29.0.0",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.2.0",
+        "zod-to-ts": "^1.2.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

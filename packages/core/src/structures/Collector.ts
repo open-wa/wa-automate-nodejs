@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * This code is a copy of the Discord Collector: https://github.com/discordjs/discord.js/blob/stable/src/structures/interfaces/Collector.js

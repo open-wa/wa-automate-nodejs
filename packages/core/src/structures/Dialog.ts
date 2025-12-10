@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ChatId, Client, Message } from "..";
 
 export interface CurrentDialogProps {

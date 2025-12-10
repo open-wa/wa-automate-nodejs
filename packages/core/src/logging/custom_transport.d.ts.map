@@ -1,0 +1,1 @@
+{"version":3,"file":"custom_transport.d.ts","sourceRoot":"","sources":["custom_transport.ts"],"names":[],"mappings":"AAAA,OAAO,eAAe,MAAM,mBAAmB,CAAC;AAGhD,qBAAa,gBAAiB,SAAQ,eAAe;gBACvC,IAAI,CAAC,EAAE,GAAG;IAItB,GAAG,CAAC,IAAI,KAAA,EAAE,QAAQ,KAAA;CAUnB;AAED,qBAAa,aAAc,SAAQ,eAAe;gBACpC,IAAI,CAAC,EAAE,GAAG;IAItB,GAAG,CAAC,IAAI,KAAA,EAAE,QAAQ,KAAA;CAMnB"}

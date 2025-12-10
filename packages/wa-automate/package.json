@@ -13,9 +13,14 @@
     "test": "jest"
   },
   "dependencies": {
-    "@open-wa/core": "workspace:*"
+    "@elastic/elasticsearch": "^9.2.0",
+    "@hono/node-server": "^1.0.0",
+    "@open-wa/core": "workspace:*",
+    "hono": "^3.0.0",
+    "socket.io": "^4.5.4"
   },
   "devDependencies": {
+    "@types/socket.io": "^3.0.2",
     "typescript": "^5.2.0"
   }
 }

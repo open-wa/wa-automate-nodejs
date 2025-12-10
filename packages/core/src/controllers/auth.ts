@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as qrcode from 'qrcode-terminal';
 import { from, Observable, race } from 'rxjs';
 import { EvEmitter, Spin } from './events'

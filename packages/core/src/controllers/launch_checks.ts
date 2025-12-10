@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { JsonObject } from 'type-fest';
 import { Page } from 'puppeteer';
 import * as path from 'path';

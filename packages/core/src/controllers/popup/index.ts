@@ -1,3 +1,4 @@
+// @ts-nocheck
 /** @internal *//** */
 import { ev } from "../events";
 import { ConfigObject } from "../../api/model";

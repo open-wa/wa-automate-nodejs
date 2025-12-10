@@ -29,6 +29,7 @@
   "dependencies": {
     "@discordjs/collection": "^0.8.0",
     "@open-wa/wa-automate-types-only": "*",
+    "@open-wa/schema": "workspace:*",
     "debug": "^4.3.4",
     "eventemitter2": "^6.4.9",
     "socket.io-client": "^4.6.1",

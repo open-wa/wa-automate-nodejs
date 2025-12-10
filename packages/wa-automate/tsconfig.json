@@ -3,7 +3,13 @@
     "compilerOptions": {
         "outDir": "./dist",
         "rootDir": "./src",
-        "strict": false
+        "strict": false,
+        "baseUrl": ".",
+        "paths": {
+            "@open-wa/schema": [
+                "../schema/dist/index.d.ts"
+            ]
+        }
     },
     "include": [
         "src/**/*"

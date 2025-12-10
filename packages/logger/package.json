@@ -1,0 +1,26 @@
+{
+    "name": "@open-wa/logger",
+    "version": "5.0.0",
+    "description": "Centralized logging and terminal UI for open-wa v5",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc -w",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "chalk": "^4.1.2",
+        "figlet": "^1.5.2",
+        "log-update": "^4.0.0",
+        "ora": "^5.4.1",
+        "winston": "^3.11.0",
+        "winston-transport": "^4.6.0",
+        "zod": "^3.22.4"
+    },
+    "devDependencies": {
+        "@types/figlet": "^1.5.8",
+        "@types/node": "^20.10.0",
+        "typescript": "^5.3.2"
+    }
+}

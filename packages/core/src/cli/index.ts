@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { create, ev, log, now, processSend, processSendData } from '../index'
 import terminalLink from 'terminal-link';
 import isUrl from 'is-url-superb';

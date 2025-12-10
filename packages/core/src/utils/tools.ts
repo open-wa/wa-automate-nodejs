@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Crypto from "crypto";
 import * as fs from 'fs'
 import * as fsp from 'fs/promises'

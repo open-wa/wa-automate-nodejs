@@ -1,0 +1,12 @@
+{
+    "name": "open-wa-ui",
+    "components": [
+        {
+            "name": "wa-message",
+            "description": "WhatsApp message component",
+            "dependencies": [
+                "@open-wa/ui-components"
+            ]
+        }
+    ]
+}

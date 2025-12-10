@@ -26,14 +26,18 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@types/socket.io": "^3.0.2",
     "prettier": "^3.0.0",
+    "syncpack": "^11.0.0",
     "turbo": "^1.10.0",
-    "typescript": "^5.2.0",
-    "syncpack": "^11.0.0"
+    "typescript": "^5.2.0"
   },
   "engines": {
     "node": ">=18.0.0",
     "pnpm": ">=8.0.0"
   },
-  "packageManager": "pnpm@8.15.0"
+  "packageManager": "pnpm@8.15.0",
+  "dependencies": {
+    "@elastic/elasticsearch": "^9.2.0"
+  }
 }

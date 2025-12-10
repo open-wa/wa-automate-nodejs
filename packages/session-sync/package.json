@@ -1,0 +1,23 @@
+{
+    "name": "@open-wa/session-sync",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "test": "vitest run"
+    },
+    "dependencies": {
+        "pico-s3": "^2.11.0",
+        "tar-fs": "^3.0.0",
+        "simple-zstd": "^1.4.1",
+        "chokidar": "^4.0.0",
+        "@open-wa/schema": "workspace:*"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0",
+        "vitest": "^0.34.0",
+        "@types/node": "^20.0.0",
+        "@types/tar-fs": "^2.0.0"
+    }
+}

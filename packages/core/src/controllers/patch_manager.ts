@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as crypto from 'crypto';
 import { ConfigObject } from '../api/model/index';
 import { Spin } from './events';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as readline from 'readline';

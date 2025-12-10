@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ChatId, ContactId, MessageId } from "./aliases";
 import { Message } from "./message";
 

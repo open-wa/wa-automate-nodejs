@@ -1,2 +1,3 @@
-// Placeholder - will be implemented in Phase 3
-export * from '@open-wa/core';
+export { WAServer } from './server/hono-server';
+export { APILifecycleManager } from './server/lifecycle-manager';
+// Export other necessary parts...

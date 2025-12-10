@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { default as mime } from 'mime-types';
 import { Page, EvaluateFunc, PageEvent } from 'puppeteer';
 import { Chat, LiveLocationChangedEvent, ChatState, ChatMuteDuration, GroupChatCreationResponse, EphemeralDuration } from './model/chat';

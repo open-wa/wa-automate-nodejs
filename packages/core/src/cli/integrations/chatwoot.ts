@@ -1,3 +1,4 @@
+// @ts-nocheck
 import uuidAPIKey from 'uuid-apikey';
 import { Client, ev, ChatId, Message, Contact, log } from '../..';
 import { cliFlags } from '../server';

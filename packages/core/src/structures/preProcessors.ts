@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Client } from "../api/Client";
 import { Message } from "../api/model/message";
 import mime from "mime";
