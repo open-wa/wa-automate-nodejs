@@ -169,15 +169,18 @@ export function zObjectToTuple<
  * @param params - Configuration including metadata, input schema, parameter order, and output schema
  * @returns A Zod function schema with dual-mode input support
  */
-export function defineMethodV2<T extends z.ZodObject<any>>(
+export function defineMethodV2<
+    T extends z.ZodObject<any>,
+    R extends z.ZodTypeAny
+>(
     name: string,
     params: {
         meta: Omit<ClientFunctionMetadata, 'functionName' | 'parameterOrder'>;
         input: T;
         parameterOrder: Array<keyof T['shape']>; // Type-safe keys
-        output: z.ZodTypeAny;
+        output: R;
     }
-) {
+): z.ZodFunction<z.ZodUnion<[z.ZodTuple<[T]>, z.ZodTuple<any>]>, R> {
     // 1. Create Tuple Schema from Object + Order
     const tupleSchema = zObjectToTuple(params.input, params.parameterOrder as any);
 
@@ -191,7 +194,7 @@ export function defineMethodV2<T extends z.ZodObject<any>>(
     const funcSchema = z.function({
         input: inputUnion,
         output: params.output
-    } as any);
+    }) as z.ZodFunction<z.ZodUnion<[z.ZodTuple<[T]>, z.ZodTuple<any>]>, R>;
 
     // 4. Register Metadata
     clientRegistry.set(funcSchema, {

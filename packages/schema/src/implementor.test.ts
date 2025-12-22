@@ -16,16 +16,17 @@ describe('implementor.ts', () => {
     });
 
     it('should correctly normalize positional arguments', async () => {
-        let receivedParams: any = null;
+        interface TestParams { id: string; count: number; }
+        let receivedParams: TestParams | null = null;
         const mockClient = {
-            testFunc: implementMethod(testSchema, async function (params) {
+            testFunc: implementMethod(testSchema, async function (params: TestParams) {
                 receivedParams = params;
                 return 'ok';
             })
         };
 
         await mockClient.testFunc('user-1', 42);
-        expect(receivedParams).toEqual({ id: 'user-1', count: 42 });
+        expect(receivedParams).toEqual({ id: 'user-1', count: 42 } as TestParams);
     });
 
     it('should correctly normalize named object arguments', async () => {

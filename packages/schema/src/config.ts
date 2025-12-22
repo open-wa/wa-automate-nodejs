@@ -81,7 +81,7 @@ export const CloudUploadOptionsSchema = z.object({
     ignoreHostAccount: z.boolean().optional(),
     directory: z.union([z.nativeEnum(DIRECTORY_STRATEGY), z.string()]).optional(),
     public: z.boolean().optional(),
-    headers: z.record(z.string()).optional(),
+    headers: z.record(z.string(), z.string()).optional(),
 });
 
 export const ConfigSchema = z.object({
@@ -115,7 +115,7 @@ export const ConfigSchema = z.object({
     sessionId: z.string().default('session')
         .describe('Name of the session. Must be unique.'),
 
-    licenseKey: z.union([z.string(), z.record(z.string()), z.function()]).optional()
+    licenseKey: z.union([z.string(), z.record(z.string(), z.string()), z.function()]).optional()
         .describe('License key for unknown number messaging.'),
 
     customUserAgent: z.string().optional()

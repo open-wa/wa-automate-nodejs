@@ -20,14 +20,13 @@ import { clientRegistry } from './registry';
  * }
  */
 export function implementMethod<
-    Schema extends z.ZodFunction<any, any>,
-    ParamsObj = any
+    Schema extends z.ZodFunction<any, any>
 >(
     schema: Schema,
     // Optional override. If omitted, defaults to generic WAPI call via this.pup
-    implementation?: (this: any, params: ParamsObj) => Promise<z.infer<Schema['_def']['returns']>>
-) {
-    const meta = clientRegistry.get(schema);
+    implementation?: (this: any, params: any) => Promise<ReturnType<z.infer<Schema>>>
+): (...args: Parameters<z.infer<Schema>>) => Promise<ReturnType<z.infer<Schema>>> {
+    const meta = clientRegistry.get(schema as any);
     if (!meta) {
         throw new Error('Schema is not registered in clientRegistry');
     }
@@ -65,7 +64,7 @@ export function implementMethod<
             (params: any) => (window as any).WAPI[meta.wapiOverride || meta.functionName!](params),
             resolvedParams
         );
-    }) as any; // Cast as any because schema.implementAsync return type can sometimes be complex with ZodFunction
+    });
 }
 
 /**
