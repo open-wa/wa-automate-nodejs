@@ -32,13 +32,13 @@
     "@open-wa/schema": "workspace:*",
     "debug": "^4.3.4",
     "eventemitter2": "^6.4.9",
-    "socket.io-client": "^4.6.1",
-    "uuid": "^9.0.0"
+    "socket.io-client": "catalog:",
+    "uuid": "catalog:"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.0",
-    "jest": "^29.5.0",
-    "ts-jest": "^29.1.0",
-    "typescript": "^5.2.0"
+    "@types/jest": "catalog:",
+    "jest": "catalog:",
+    "ts-jest": "catalog:",
+    "typescript": "catalog:"
   }
 }

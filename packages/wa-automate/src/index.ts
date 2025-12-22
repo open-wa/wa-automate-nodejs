@@ -1,3 +1,4 @@
 export { WAServer } from './server/hono-server';
 export { APILifecycleManager } from './server/lifecycle-manager';
-// Export other necessary parts...
+export { SessionManager } from './session/SessionManager';
+export { Config, ConfigSchema } from '@open-wa/schema';

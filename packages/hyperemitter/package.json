@@ -26,6 +26,9 @@
   ],
   "author": "open-wa",
   "license": "Apache-2.0",
+  "dependencies": {
+    "@open-wa/logger": "workspace:*"
+  },
   "devDependencies": {
     "emittery": "^1.0.1",
     "eventemitter2": "^6.4.9",

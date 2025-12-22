@@ -1,0 +1,44 @@
+import { AdvancedFile, ConfigObject, DataURL } from '../api/model';
+import { AxiosRequestConfig } from 'axios';
+import { SessionInfo } from '../api/model/sessionInfo';
+import { Readable } from "stream";
+export declare const timeout: (ms: any) => Promise<unknown>;
+export declare const smartUserAgent: (ua: string, version?: string) => string;
+export declare const getConfigFromProcessEnv: any;
+export declare const without: any;
+export declare const camelize: (str: string) => string;
+export declare const isBase64: (str: string) => boolean;
+export declare const isDataURL: (s: string) => boolean;
+export declare const getBufferFromUrl: (url: string, optionsOverride?: any) => Promise<[Buffer, any]>;
+export declare const getDUrl: (url: string, optionsOverride?: AxiosRequestConfig) => Promise<DataURL>;
+export declare const base64MimeType: (dUrl: DataURL) => string;
+export declare const processSend: (message: string) => void;
+export declare const perf: () => import("perf_hooks").Performance;
+export declare const now: () => number;
+export declare function timePromise(fn: () => Promise<any>): Promise<string>;
+export declare const processSendData: (data?: any) => boolean;
+export declare const generateGHIssueLink: (config: ConfigObject, sessionInfo: SessionInfo, extras?: any) => string;
+export declare const ensureDUrl: (file: string | Buffer, requestConfig?: AxiosRequestConfig, filename?: string) => Promise<string | Buffer<ArrayBufferLike>>;
+export declare const FileInputTypes: {
+    VALIDATED_FILE_PATH: string;
+    URL: string;
+    DATA_URL: string;
+    BASE_64: string;
+    BUFFER: string;
+    READ_STREAM: string;
+};
+export declare const FileOutputTypes: {
+    TEMP_FILE_PATH: string;
+    VALIDATED_FILE_PATH: string;
+    URL: string;
+    DATA_URL: string;
+    BASE_64: string;
+    BUFFER: string;
+    READ_STREAM: string;
+};
+export declare function rmFileAsync(file: string): Promise<unknown>;
+export declare const assertFile: (file: AdvancedFile | Buffer, outfileName: string, desiredOutputType: keyof typeof FileOutputTypes, requestConfig?: any) => Promise<string | Buffer | Readable>;
+export declare const pathExists: (_path: string, failSilent?: boolean) => Promise<string | false>;
+export declare const fixPath: (_path: string) => string;
+export declare const sanitizeAccentedChars: (input: string) => string;
+//# sourceMappingURL=tools.d.ts.map

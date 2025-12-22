@@ -1,28 +1,37 @@
 {
-    "extends": "../../tsconfig.base.json",
+    "include": [
+        "**/*.ts",
+        "**/*.tsx"
+    ],
     "compilerOptions": {
+        "strict": true,
+        "esModuleInterop": true,
+        "jsx": "react-jsx",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "lib": [
+            "DOM",
+            "DOM.Iterable",
+            "ES2022"
+        ],
+        "types": [
+            "vite/client"
+        ],
+        "isolatedModules": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "target": "ES2022",
+        "allowJs": true,
+        "forceConsistentCasingInFileNames": true,
         "baseUrl": ".",
         "paths": {
             "@/*": [
-                "./*"
+                "./src/*"
+            ],
+            "fumadocs-mdx:collections/*": [
+                ".source/*"
             ]
         },
-        "jsx": "preserve",
-        "plugins": [
-            {
-                "name": "next"
-            }
-        ],
-        "moduleResolution": "bundler"
-    },
-    "include": [
-        "next-env.d.ts",
-        "**/*.ts",
-        "**/*.tsx",
-        ".next/types/**/*.ts",
-        ".source.ts"
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+        "noEmit": true
+    }
 }

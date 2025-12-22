@@ -5,14 +5,14 @@ import { default as getPort } from 'get-port';
 import humanId from 'human-id';
 import { ipaddress, PORT } from '..';
 import { OrchestratedSessionConfig, OrchState, SessionState } from '../data/state';
-import { ConfigObject } from '@open-wa/wa-automate';
+import { Config } from '@open-wa/wa-automate';
 import { bucket } from '../data/bucket';
 import { s3SDAuth, user } from '../watcher/firebase_auth';
 import { log } from '../utils/logging';
 import { stopManager } from '../controllers/pm2_controller';
 
 let minPort = 3001;
-const KEEP_MIN_PORT = process.env.KEEP_MIN_PORT && Number(process.env.KEEP_MIN_PORT) 
+const KEEP_MIN_PORT = process.env.KEEP_MIN_PORT && Number(process.env.KEEP_MIN_PORT)
 
 export interface CreateSessionResponse {
   success: boolean,
@@ -40,18 +40,18 @@ export const createSession: (configData: OrchestratedSessionConfig, recreating?:
   /**
    * DELETE THE PORT ASSIGNMENT FROM THE CONFIG. This causes confusion because the orchestration service determines port a and the config may have port b.
    */
-  if(configData.port) delete configData.port;
-  if(rest.port) delete rest.port;
+  if (configData.port) delete configData.port;
+  if (rest.port) delete rest.port;
   if (!apiKey) apiKey = uuidv4();
   let sessionId = rest?.sessionId;
-  if(!sessionId) {
+  if (!sessionId) {
     return {
       success: false,
       sessionId,
       message: `sessionId is missing. It needs to be set explicitly: ${sessionId}. Recreating: ${recreating}`
     };
   }
-  if(sessionId==="__AUTO__"){
+  if (sessionId === "__AUTO__") {
     /**
      * Create a random session ID string. This is the old behaviour. Now if a session ID is not explicitly set it will throw an error.
      */
@@ -73,7 +73,7 @@ export const createSession: (configData: OrchestratedSessionConfig, recreating?:
     }
     log.info(`starting ${sessionId}`)
     const PORT_TOP = KEEP_MIN_PORT || minPort;
-    const PORT_BOTTOM =  Number(process.env.MAX_PORT || 65535);
+    const PORT_BOTTOM = Number(process.env.MAX_PORT || 65535);
     log.info(`checking for free ports between ${PORT_TOP}, ${PORT_BOTTOM}`)
     const port = await getPort({ port: getPort.makeRange(PORT_TOP, PORT_BOTTOM) })
     log.info(`Using PORT ${port} for ${sessionId}`)
@@ -85,7 +85,7 @@ export const createSession: (configData: OrchestratedSessionConfig, recreating?:
       "WA_API_HOST_ADDR": `http://${ipaddress()}:${port}/`,
     };
     log.info("env", env)
-    const logging : any [] = [
+    const logging: any[] = [
     ]
     if (process.env.PAPERTRAIL_PORT && process.env.PAPERTRAIL_SUBDOMAIN) {
       logging.push({
@@ -100,7 +100,7 @@ export const createSession: (configData: OrchestratedSessionConfig, recreating?:
       })
     }
     const useChrome = process.env.USE_CHROME === "false" ? false : true;
-    const config: ConfigObject = {
+    const config: Config = {
       /**
        * Can be overridden
        */
@@ -142,7 +142,7 @@ export const createSession: (configData: OrchestratedSessionConfig, recreating?:
     delete config.osecret
     // delete config.port
     config.popup = port;
-    if(process.env.NODE_ENV === 'dev') config.sessionDataPath = './devSessions'
+    if (process.env.NODE_ENV === 'dev') config.sessionDataPath = './devSessions'
     const s3obj = {
       "provider": "GCP",
       "bucket": process.env.GCP_BUCKET,
@@ -175,7 +175,7 @@ export const createSession: (configData: OrchestratedSessionConfig, recreating?:
     try {
       await new Promise((resolve, reject) => pm2.start({
         name: sessionId,
-        script: process.env.EASY_API_PATH ||  process.env.NODE_ENV === 'dev' ? "./node_modules/@open-wa/wa-automate/bin/server.js" : "/usr/src/app/node_modules/@open-wa/wa-automate/bin/server.js",
+        script: process.env.EASY_API_PATH || process.env.NODE_ENV === 'dev' ? "./node_modules/@open-wa/wa-automate/bin/server.js" : "/usr/src/app/node_modules/@open-wa/wa-automate/bin/server.js",
         max_memory_restart: '800M',
         instances: 1,
         exec_mode: (process.env.CLUSTER_MODE && Boolean(process.env.CLUSTER_MODE)) || config.cluster ? "cluster" : "fork",

@@ -1,4 +1,5 @@
 import winston from 'winston';
+import type { LogContext } from './context';
 import type { LoggerConfig } from '../config/schema';
 import { sanitizeLogContext } from '../security/sanitizer';
 import { createTransport } from '../transports/index';
@@ -27,7 +28,7 @@ function sanitizingFormat() {
         // Sanitize the log context before output
         return {
             ...info,
-            context: sanitizeLogContext(info.context ?? {}),
+            context: sanitizeLogContext((info.context ?? {}) as LogContext),
         };
     })();
 }

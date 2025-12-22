@@ -1,12 +1,8 @@
 # syntax=docker/dockerfile:1.4
-# Stage 1: Builder
-# Installs build dependencies and performs npm install to compile native modules (if any)
-FROM node:20-bullseye-slim AS builder
 
-WORKDIR /usr/src/app
-
+# Stage 1: Dependencies
+FROM node:18 AS deps
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 # Install build tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -16,16 +12,34 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy package files
-COPY package.json .
+# Install pnpm
+RUN npm install -g pnpm
 
-# Install dependencies (including native modules)
-# We install @open-wa/wa-automate explicitly to ensure it's captured
-RUN npm install @open-wa/wa-automate@latest --ignore-scripts
-RUN npm install --ignore-scripts
+WORKDIR /app
 
-# Stage 2: Final Runtime
-FROM node:20-bullseye-slim
+# Copy package configuration files for dependency resolution
+COPY pnpm-lock.yaml package.json pnpm-workspace.yaml ./
+COPY packages/*/package.json ./packages/
+COPY apps/*/package.json ./apps/
+
+# Fetch dependencies (for deterministic builds)
+RUN pnpm fetch
+
+# Stage 2: Builder
+FROM node:18 AS builder
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy source code and dependencies from deps stage
+COPY --from=deps /app ./
+
+# Build: monorepo
+RUN pnpm build
+
+# Stage 3: Runtime
+FROM node:18-slim
 
 ENV APP_DIR=/usr/src/app
 ENV NODE_ENV=production
@@ -69,7 +83,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libstdc++6 \
     libx11-6 \
     libx11-xcb1 \
-    libxcb1 \
     libxcomposite1 \
     libxcursor1 \
     libxdamage1 \
@@ -98,17 +111,18 @@ RUN groupadd -r owauser && useradd -r -g owauser -G audio,video owauser \
     && mkdir -p /sessions /config \
     && chown -R owauser:owauser /sessions /config
 
-# Copy node_modules from builder
-COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/package.json .
-
-# Copy app source (if any locally)
-COPY . .
+# Copy built packages from builder stage
+COPY --from=builder /app/packages ./packages
+# Copy node_modules (includes workspace symlinks)
+COPY --from=builder /app/node_modules ./node_modules
+# Copy root package.json
+COPY --from=builder /app/package.json .
 
 # Fix permissions
 RUN chown -R owauser:owauser $APP_DIR
 
 USER owauser
 
+EXPOSE 8080
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["./node_modules/.bin/wa-automate", "--use-chrome", "--in-docker", "--qr-timeout", "0", "--popup", "--debug", "--force-port"]
+CMD ["node", "packages/wa-automate/dist/cli.js", "--use-chrome", "--in-docker", "--qr-timeout", "0", "--popup", "--debug", "--force-port"]

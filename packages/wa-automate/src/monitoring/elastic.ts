@@ -1,89 +1,179 @@
-import { Client } from '@elastic/elasticsearch';
+import { Client as ElasticClient } from '@elastic/elasticsearch';
 
 export interface ElasticConfig {
     url: string;
     username?: string;
     password?: string;
-    maxBufferSize?: number;
+    bufferSize?: number;
     pipeline?: string;
     indexPrefix?: string;
 }
 
-export interface RequestRecord {
-    '@timestamp': string;
-    method: string;
-    path: string;
-    status: number;
-    duration: number;
-    requestHeaders?: Record<string, string>;
-    responseHeaders?: Record<string, string>;
-    ip?: string;
+export interface ElasticDoc {
+    timestamp: string;
+    level?: 'info' | 'warn' | 'error' | 'debug';
+    message: string;
+    component?: string;
+    sessionId?: string;
+    schemaId?: string;
+    requestId?: string;
+    driver?: string;
+    method?: string;
+    event?: string;
+    duration?: number;
+    statusCode?: number;
     userAgent?: string;
+    ip?: string;
     [key: string]: any;
 }
 
 export class ElasticEmitter {
-    private client: Client;
-    private buffer: RequestRecord[] = [];
-    private maxBufferSize: number;
-    private pipeline?: string;
-    private indexPrefix: string;
-    private flushInterval: NodeJS.Timeout;
+    private client: ElasticClient;
+    private config: ElasticConfig;
+    private buffer: ElasticDoc[] = [];
+    private flushInterval?: NodeJS.Timeout;
 
     constructor(config: ElasticConfig) {
-        this.client = new Client({
-            node: config.url,
-            auth: config.username && config.password
-                ? { username: config.username, password: config.password }
-                : undefined,
+        this.config = {
+            bufferSize: 50,
+            indexPrefix: 'open-wa-',
+            ...config
+        };
+        
+        this.client = new ElasticClient({
+            node: this.config.url,
+            auth: this.config.username && this.config.password ? {
+                username: this.config.username,
+                password: this.config.password
+            } : undefined,
+            maxRetries: 3,
+            requestTimeout: 5000,
+            sniffOnStart: true
         });
-
-        this.maxBufferSize = config.maxBufferSize || 50;
-        this.pipeline = config.pipeline;
-        this.indexPrefix = config.indexPrefix || 'open-wa-';
-
-        // Auto-flush every 30 seconds
-        this.flushInterval = setInterval(() => {
-            void this.flush();
-        }, 30000);
     }
 
-    async processRecord(record: RequestRecord): Promise<void> {
-        this.buffer.push(record);
+    public async start(): Promise<void> {
+        try {
+            await this.client.ping();
+            console.log('ElasticSearch connected');
+            
+            // Setup periodic flush
+            const flushIntervalMs = 10000; // 10 seconds
+            this.flushInterval = setInterval(() => {
+                this.flush();
+            }, flushIntervalMs);
 
-        if (this.buffer.length >= this.maxBufferSize) {
-            await this.flush();
+        } catch (error) {
+            console.error('Failed to connect to ElasticSearch:', error);
+            throw error;
         }
     }
 
-    async flush(): Promise<void> {
+    public log(logEntry: Omit<ElasticDoc, 'timestamp'>): void {
+        const fullDoc: ElasticDoc = {
+            timestamp: new Date().toISOString(),
+            level: logEntry.level || 'info',
+            message: logEntry.message,
+            component: logEntry.component,
+            sessionId: logEntry.sessionId,
+            schemaId: logEntry.schemaId,
+            requestId: logEntry.requestId,
+            driver: logEntry.driver,
+            method: logEntry.method,
+            event: logEntry.event,
+            duration: logEntry.duration,
+            statusCode: logEntry.statusCode,
+            userAgent: logEntry.userAgent,
+            ip: logEntry.ip,
+            ...logEntry
+        };
+
+        this.buffer.push(fullDoc);
+
+        if (this.buffer.length >= (this.config.bufferSize || 50)) {
+            this.flush();
+        }
+    }
+
+    public async flush(): Promise<void> {
         if (this.buffer.length === 0) return;
 
-        const records = [...this.buffer];
+        const docs = [...this.buffer];
         this.buffer = [];
 
         try {
-            const body = records.flatMap((doc) => [
-                { index: { _index: `${this.indexPrefix}${new Date().toISOString().slice(0, 7)}` } },
-                doc,
+            const indexName = `${this.config.indexPrefix}${new Date().toISOString().split('T')[0]}`;
+            
+            const body = docs.flatMap(document => [
+                { 
+                    index: { 
+                        _index: indexName 
+                    }, 
+                    create: {} 
+                }
             ]);
 
-            await this.client.bulk({
-                body,
-                pipeline: this.pipeline,
-            });
+            const response = await this.client.bulk({ body });
 
-            console.log(`Flushed ${records.length} records to ElasticSearch`);
+            if (response.errors) {
+                console.error('ElasticSearch bulk index errors:', response.items.filter((item: any) => item.index?.error));
+            } else {
+                console.log(`Indexed ${docs.length} documents to ElasticSearch`);
+            }
+
+            // Add pipeline if specified
+            if (this.config.pipeline) {
+                const pipelineResponse = await this.client.bulk({
+                    body: docs.flatMap(document => [
+                        { index: { _index: indexName, pipeline: this.config.pipeline } },
+                        { create: {} }
+                    ])
+                });
+
+                if (pipelineResponse.errors) {
+                    console.error('ElasticSearch pipeline errors:', pipelineResponse.items.filter((item: any) => item.index?.error));
+                }
+            }
+
         } catch (error) {
-            console.error('ElasticSearch flush failed:', error);
-            // Put records back in buffer
-            this.buffer.unshift(...records);
+            console.error('Failed to flush to ElasticSearch:', error);
+            // Put documents back in buffer to retry later
+            this.buffer.unshift(...docs);
         }
     }
 
-    async close(): Promise<void> {
-        clearInterval(this.flushInterval);
+    public async stop(): Promise<void> {
+        if (this.flushInterval) {
+            clearInterval(this.flushInterval);
+        }
+        
         await this.flush();
-        await this.client.close();
+        
+        try {
+            await this.client.close();
+        } catch (error) {
+            console.error('Error closing ElasticSearch client:', error);
+        }
+    }
+
+    public sanitizeHeaders(doc: Partial<ElasticDoc>): ElasticDoc {
+        const sanitized = { ...doc };
+        
+        // Remove sensitive headers
+        const sensitiveKeys = ['authorization', 'cookie', 'password', 'token'];
+        if (sanitized.userAgent) {
+            sanitized.userAgent = '[REDACTED]';
+        }
+        if (sanitized.ip) {
+            sanitized.ip = '[REDACTED]';
+        }
+        
+        Object.keys(sanitized).forEach(key => {
+            if (sensitiveKeys.includes(key.toLowerCase())) {
+                delete (sanitized as any)[key];
+            }
+        });
+
+        return sanitized as ElasticDoc;
     }
 }

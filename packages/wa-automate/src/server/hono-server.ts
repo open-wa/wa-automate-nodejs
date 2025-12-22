@@ -7,6 +7,7 @@ import { Registry, Config } from '@open-wa/schema';
 import { apiKeyMiddleware } from '../middleware/api-key';
 import { rateLimitMiddleware } from '../middleware/rate-limit';
 import { SocketManager } from './socket-manager';
+import { ElasticEmitter, ElasticConfig } from '../monitoring/elastic';
 
 export class WAServer {
     private app: Hono;
@@ -14,16 +15,40 @@ export class WAServer {
     private config: Config;
     // @ts-ignore
     private _socketManager?: SocketManager;
+    private client: any;
+    private elasticEmitter?: ElasticEmitter;
 
     constructor(config: Config) {
         this.app = new Hono();
         this.config = config;
         this.setupMiddleware();
         this.registerRoutes();
+        
+        if (config.elasticUrl) {
+            this.elasticEmitter = new ElasticEmitter({
+                url: config.elasticUrl,
+                username: config.elasticUsername,
+                password: config.elasticPassword,
+                bufferSize: config.elasticBufferSize,
+                pipeline: config.elasticPipeline,
+                indexPrefix: config.elasticIndexPrefix
+            });
+        }
+    }
+
+    public setClient(client: any) {
+        this.client = client;
+        if (this._socketManager) {
+            this._socketManager.setClient(client);
+        }
+    }
+    
+    private isSessionConnected() {
+        if (!this.client) return false;
+        return this.client.isConnected ? this.client.isConnected() : false;
     }
 
     private setupMiddleware() {
-        // CORS
         const origin = this.parseCorsOrigin(this.config.cors);
 
         this.app.use('/*', cors({
@@ -31,18 +56,27 @@ export class WAServer {
             credentials: true
         }));
 
-        // Logger
         if (this.config.logLevel !== 'silent') {
             this.app.use('*', logger());
         }
 
-        // Rate limiting
         this.app.use('/api/*', rateLimitMiddleware(100, 60000));
 
-        // API Key auth
         if (this.config.apiKey) {
             this.app.use('/api/*', apiKeyMiddleware(this.config.apiKey));
         }
+        
+        this.app.use('/api/*', async (c, next) => {
+             if (this.config.apiLifecycle === 'post-connection' && !this.isSessionConnected()) {
+                 return c.json({ error: 'API not available until connected', status: 503 }, 503);
+             }
+             
+             if (this.config.apiLifecycle === 'hybrid' && !this.isSessionConnected()) {
+                  return c.json({ error: 'API not available until connected', status: 503 }, 503);
+             }
+             
+             await next();
+        });
     }
 
     private parseCorsOrigin(corsConfig: string | string[]): string | string[] | ((origin: string) => string | undefined | null) {
@@ -64,14 +98,13 @@ export class WAServer {
     }
 
     private registerRoutes() {
-        // Health check
         this.app.get('/health', (c) => c.json({
             status: 'ok',
             version: '5.0.0',
-            socketMode: this.config.socketMode
+            socketMode: this.config.socketMode,
+            connected: this.isSessionConnected()
         }));
 
-        // QR endpoint (EZQR)
         this.app.get('/qr', (c) => {
             if (!this.latestQR) {
                 return c.json({ error: 'QR code not available', note: 'Session might be connected or generating QR' }, 404);
@@ -79,12 +112,11 @@ export class WAServer {
             return c.json({ qr: this.latestQR, note: 'Scan this QR code in WhatsApp' });
         });
 
-        // List all endpoints
         this.app.get('/api', (c) => {
             const capabilities = Registry.getAllMethods();
             const endpoints = capabilities.map(cap => ({
                 method: 'POST',
-                path: `/ api / ${cap.name} `,
+                path: `/api/${cap.name}`,
                 name: cap.name,
                 description: cap.metadata.description,
                 category: cap.metadata.category,
@@ -93,23 +125,51 @@ export class WAServer {
             return c.json({ endpoints });
         });
 
-        // Dynamic capability routes
         const capabilities = Registry.getAllMethods();
         capabilities.forEach((capability) => {
-            const path = `/ api / ${capability.name} `;
+            const path = `/api/${capability.name}`;
 
             this.app.post(path, async (c) => {
+                const startTime = Date.now();
                 try {
                     const body = await c.req.json();
-                    // Validate input using the schema
+                    
+                    if (!this.client) {
+                        return c.json({ error: 'Client not initialized' }, 500);
+                    }
+
                     const validated = capability.inputSchema.parse(body);
 
-                    // TODO: Execute actual WAPI method using the driver/client. 
-                    // This will be hooked up to the actual client instance.
-                    const result = { success: true, data: validated, method: capability.name };
+                    const result = await this.client[capability.name](validated);
 
-                    return c.json(result);
+                    if (this.elasticEmitter) {
+                        this.elasticEmitter.log({
+                            level: 'info',
+                            component: 'api',
+                            method: capability.name,
+                            sessionId: this.config.sessionId,
+                            requestId: c.get('requestId'),
+                            duration: Date.now() - startTime,
+                            statusCode: 200,
+                            message: `Successfully executed ${capability.name}`
+                        });
+                    }
+
+                    return c.json({ success: true, data: result });
                 } catch (error: any) {
+                    if (this.elasticEmitter) {
+                        this.elasticEmitter.log({
+                            level: 'error',
+                            component: 'api',
+                            method: capability.name,
+                            sessionId: this.config.sessionId,
+                            requestId: c.get('requestId'),
+                            duration: Date.now() - startTime,
+                            statusCode: 500,
+                            message: error.message || 'Internal Server Error'
+                        });
+                    }
+
                     if (error?.name === 'ZodError') {
                         return c.json({ error: 'Validation Error', details: error.errors }, 400);
                     }
@@ -126,22 +186,31 @@ export class WAServer {
             hostname: this.config.host,
         });
 
-        // Socket.io setup
         if (this.config.socketMode) {
-            // @ts-ignore
-            this.io = new SocketIOServer(server as any, {
+            this.io = new SocketIOServer(server, {
                 cors: {
                     origin: this.parseCorsOrigin(this.config.cors),
                     methods: ["GET", "POST"],
                     credentials: true
                 },
             });
-            // Initialize Socket Manager
             this._socketManager = new SocketManager(this.io);
+            if (this.client) {
+                this._socketManager.setClient(this.client);
+            }
+        }
 
+        if (this.elasticEmitter) {
+            await this.elasticEmitter.start();
         }
 
         console.log(`Server running on http://${this.config.host}:${this.config.port}`);
+    }
+
+    public async stop() {
+        if (this.elasticEmitter) {
+            await this.elasticEmitter.stop();
+        }
     }
 
     public getApp() {
@@ -150,5 +219,11 @@ export class WAServer {
 
     public getIO() {
         return this.io;
+    }
+
+    public async stop() {
+        if (this.elasticEmitter) {
+            await this.elasticEmitter.stop();
+        }
     }
 }

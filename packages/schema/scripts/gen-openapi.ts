@@ -23,7 +23,7 @@ methods.forEach((method) => {
             body: {
                 content: {
                     'application/json': {
-                        schema: method.inputSchema,
+                        schema: method.inputSchema as any,
                     },
                 },
             },
@@ -33,7 +33,7 @@ methods.forEach((method) => {
                 description: 'Successful response',
                 content: {
                     'application/json': {
-                        schema: method.outputSchema,
+                        schema: method.outputSchema as any,
                     },
                 },
             },

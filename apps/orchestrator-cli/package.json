@@ -16,24 +16,24 @@
     "dependencies": {
         "@open-wa/orchestrator": "workspace:*",
         "@open-wa/core": "workspace:*",
-        "hono": "^3.0.0",
-        "@hono/node-server": "^1.0.0",
-        "express": "^4.17.3",
-        "dotenv": "^16.0.0",
-        "pm2": "^5.3.0",
-        "cors": "^2.8.5",
-        "helmet": "^6.0.0",
-        "morgan": "^1.10.0",
-        "cabin": "^11.0.3",
-        "axe": "^11.0.2",
-        "public-ip": "4.0.4",
-        "response-time": "^2.3.2",
-        "request-received": "^0.0.3",
-        "express-request-id": "1.4.1"
+        "hono": "catalog:",
+        "@hono/node-server": "catalog:",
+        "express": "catalog:",
+        "dotenv": "catalog:",
+        "pm2": "catalog:",
+        "cors": "catalog:",
+        "helmet": "catalog:",
+        "morgan": "catalog:",
+        "cabin": "catalog:",
+        "axe": "catalog:",
+        "public-ip": "catalog:",
+        "response-time": "catalog:",
+        "request-received": "catalog:",
+        "express-request-id": "catalog:"
     },
     "devDependencies": {
-        "typescript": "^5.2.0",
-        "@types/node": "^20.0.0",
-        "@types/express": "^4.17.14"
+        "typescript": "catalog:",
+        "@types/node": "catalog:",
+        "@types/express": "catalog:"
     }
 }

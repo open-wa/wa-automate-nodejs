@@ -30,8 +30,8 @@
     "lucide-react": "^0.408.0",
     "posthog-docusaurus": "^2.0.1",
     "prism-react-renderer": "^2.3.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "replace-in-file": "^8.1.0",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7"

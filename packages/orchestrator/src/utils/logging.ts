@@ -27,7 +27,7 @@ export function simpleCabinLog(options: { req: Request; res: Response; ctx: any;
 
   const responseTimeHeader = res.getHeader('x-response-time');
   if (responseTimeHeader) {
-    const milliseconds = Number(ms(responseTimeHeader as string));
+    const milliseconds = Number(ms(responseTimeHeader as any));
     const responseColor =
       milliseconds >= 1000
         ? 'red'

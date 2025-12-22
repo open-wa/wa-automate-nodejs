@@ -7,6 +7,8 @@ import {
   cleanupAbort,
   createRecord
 } from '../utils/listener';
+import { createLogger, Logger } from '@open-wa/logger';
+import type { LogContext } from '@open-wa/logger';
 
 type AnyFn = (...args: any[]) => any;
 
@@ -18,6 +20,9 @@ export class HyperEmitter<TMap extends EventMap = EventMap> {
   private readonly captureRejections: boolean;
   private readonly onError?: (err: unknown) => void;
   private readonly finalizer?: FinalizationRegistry<unknown>;
+  private readonly logger?: Logger;
+  private readonly debugEnabled: boolean;
+  private readonly baseLogContext: LogContext;
 
   private exactListeners: Map<string, ListenerRecord<AnyFn>[]>;
   private wildcardTree: RadixTree<ListenerRecord<AnyFn>>;
@@ -28,6 +33,14 @@ export class HyperEmitter<TMap extends EventMap = EventMap> {
     this.delimiter = options.delimiter ?? '.';
     this.captureRejections = options.captureRejections ?? false;
     this.onError = options.onError;
+    this.debugEnabled = !!options.debug;
+    this.baseLogContext = {
+      component: 'hyperemitter',
+      ...options.loggerContext
+    };
+    this.logger =
+      options.logger?.withContext?.(this.baseLogContext) ??
+      createLogger({ component: 'hyperemitter', ...options.loggerContext });
 
     // WeakRef support
     if (typeof FinalizationRegistry !== 'undefined') {
@@ -188,6 +201,11 @@ export class HyperEmitter<TMap extends EventMap = EventMap> {
     }
 
     attachAbort(record, () => this.off(event as any, record.fn as any));
+    this.logDebug('listener_registered', {
+      event,
+      once: record.once,
+      wildcard: isWildcard
+    });
   }
 
   private dispatch(list: ListenerRecord<AnyFn>[] | undefined, args: any[]): number {
@@ -271,7 +289,10 @@ export class HyperEmitter<TMap extends EventMap = EventMap> {
     }
 
     // Fallback logging
-    console.error('HyperEmitter listener rejection', err);
+    this.logger?.error('listener_rejection', {
+      error: err as any,
+      ...this.baseLogContext
+    });
   }
 
   private removeWildcard(event: string, listener: AnyFn) {
@@ -284,5 +305,10 @@ export class HyperEmitter<TMap extends EventMap = EventMap> {
         break;
       }
     }
+  }
+
+  private logDebug(message: string, meta?: LogContext) {
+    if (!this.debugEnabled) return;
+    this.logger?.debug(message, { ...this.baseLogContext, ...meta });
   }
 }

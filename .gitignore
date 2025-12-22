@@ -47,7 +47,10 @@ packages/*/build
 apps/*/dist
 apps/*/build
 apps/*/.next
+apps/*/.output
+apps/*/.tanstack
 
 # Testing
 coverage/
 *.test.js
+

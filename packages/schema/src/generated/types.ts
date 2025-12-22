@@ -5,11 +5,11 @@
  */
 
 export type SendTextInput = {
-    /** The chat id to send to */
+    /** Recipient chat ID */
     to: string;
-    /** The text content to send */
+    /** Message content */
     content: string;
-    /** Message options */
+    /** Additional message options */
     options?: any | undefined;
 };
 export type SendTextOutput = ({
@@ -17,13 +17,17 @@ export type SendTextOutput = ({
 } | boolean) | string;
 
 export type SendImageInput = {
+    /** Recipient chat ID */
     to: string;
-    /** Base64 data or URL */
-    imgData: string;
+    /** Image file (path, URL, DataURL, or Base64) */
+    imgData: string | any;
+    /** Filename with extension */
     filename?: string | undefined;
+    /** Media caption */
     caption?: string | undefined;
-    /** Quoted message ID */
+    /** Message ID */
     id?: string | undefined;
+    /** Wait for message ID */
     waitForId?: boolean;
 };
 export type SendImageOutput = ({
@@ -31,8 +35,11 @@ export type SendImageOutput = ({
 } | boolean) | string;
 
 export type GetAllMessagesInput = {
+    /** Recipient chat ID */
     chatId?: string | undefined;
+    /** Include own messages */
     includeMe?: boolean;
+    /** Include notification messages */
     includeNotifications?: boolean;
 };
 export type GetAllMessagesOutput = {
@@ -156,6 +163,7 @@ export type GetAllMessagesOutput = {
 }[];
 
 export type GetAllChatsInput = {
+    /** Only chats with unread messages */
     withNewMessagesOnly?: boolean;
 };
 export type GetAllChatsOutput = {
@@ -245,6 +253,7 @@ export type GetAllContactsOutput = {
 }[];
 
 export type GetMessageByIdInput = {
+    /** Message ID */
     messageId: string;
 };
 export type GetMessageByIdOutput = {
@@ -368,15 +377,21 @@ export type GetMessageByIdOutput = {
 };
 
 export type DeleteMessageInput = {
+    /** Recipient chat ID */
     chatId: string;
+    /** Message ID(s) to process */
     messageId: string[] | string;
+    /** Delete only locally */
     onlyLocal?: boolean;
 };
 export type DeleteMessageOutput = boolean;
 
 export type ForwardMessagesInput = {
+    /** Recipient chat ID */
     to: string;
+    /** Message ID(s) to process */
     messages: string[] | string;
+    /** Skip own messages */
     skipMyMessages?: boolean;
 };
 export type ForwardMessagesOutput = {
@@ -384,9 +399,13 @@ export type ForwardMessagesOutput = {
 }[] | boolean;
 
 export type SendLocationInput = {
+    /** Recipient chat ID */
     to: string;
-    lat?: any;
-    lng?: any;
+    /** Latitude coordinate */
+    lat: number | string;
+    /** Longitude coordinate */
+    lng: number | string;
+    /** Location name or description */
     loc?: string | undefined;
 };
 export type SendLocationOutput = {
@@ -394,6 +413,7 @@ export type SendLocationOutput = {
 } | boolean;
 
 export type GetGroupMembersInput = {
+    /** Group chat ID */
     groupId: string;
 };
 export type GetGroupMembersOutput = {

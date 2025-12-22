@@ -26,15 +26,16 @@
                 "properties": {
                   "to": {
                     "type": "string",
-                    "description": "The chat id to send to"
+                    "description": "Recipient chat ID"
                   },
                   "content": {
                     "type": "string",
-                    "description": "The text content to send"
+                    "minLength": 1,
+                    "description": "Message content"
                   },
                   "options": {
                     "nullable": true,
-                    "description": "Message options"
+                    "description": "Additional message options"
                   }
                 },
                 "required": [
@@ -87,25 +88,34 @@
                 "type": "object",
                 "properties": {
                   "to": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Recipient chat ID"
                   },
                   "imgData": {
-                    "type": "string",
-                    "description": "Base64 data or URL"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {}
+                    ],
+                    "description": "Image file (path, URL, DataURL, or Base64)"
                   },
                   "filename": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Filename with extension"
                   },
                   "caption": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Media caption"
                   },
                   "id": {
                     "type": "string",
-                    "description": "Quoted message ID"
+                    "description": "Message ID"
                   },
                   "waitForId": {
                     "type": "boolean",
-                    "default": false
+                    "default": false,
+                    "description": "Wait for message ID"
                   }
                 },
                 "required": [
@@ -158,15 +168,18 @@
                 "type": "object",
                 "properties": {
                   "chatId": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Recipient chat ID"
                   },
                   "includeMe": {
                     "type": "boolean",
-                    "default": true
+                    "default": true,
+                    "description": "Include own messages"
                   },
                   "includeNotifications": {
                     "type": "boolean",
-                    "default": false
+                    "default": false,
+                    "description": "Include notification messages"
                   }
                 }
               }
@@ -645,7 +658,8 @@
                 "properties": {
                   "withNewMessagesOnly": {
                     "type": "boolean",
-                    "default": false
+                    "default": false,
+                    "description": "Only chats with unread messages"
                   }
                 }
               }
@@ -988,7 +1002,8 @@
                 "type": "object",
                 "properties": {
                   "messageId": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Message ID"
                   }
                 },
                 "required": [
@@ -1466,24 +1481,29 @@
                 "type": "object",
                 "properties": {
                   "chatId": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Recipient chat ID"
                   },
                   "messageId": {
                     "anyOf": [
                       {
                         "type": "array",
                         "items": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Message ID"
                         }
                       },
                       {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Message ID"
                       }
-                    ]
+                    ],
+                    "description": "Message ID(s) to process"
                   },
                   "onlyLocal": {
                     "type": "boolean",
-                    "default": false
+                    "default": false,
+                    "description": "Delete only locally"
                   }
                 },
                 "required": [
@@ -1518,24 +1538,29 @@
                 "type": "object",
                 "properties": {
                   "to": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Recipient chat ID"
                   },
                   "messages": {
                     "anyOf": [
                       {
                         "type": "array",
                         "items": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Message ID"
                         }
                       },
                       {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Message ID"
                       }
-                    ]
+                    ],
+                    "description": "Message ID(s) to process"
                   },
                   "skipMyMessages": {
                     "type": "boolean",
-                    "default": false
+                    "default": false,
+                    "description": "Skip own messages"
                   }
                 },
                 "required": [
@@ -1588,20 +1613,40 @@
                 "type": "object",
                 "properties": {
                   "to": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Recipient chat ID"
                   },
                   "lat": {
-                    "nullable": true
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "description": "Latitude coordinate"
                   },
                   "lng": {
-                    "nullable": true
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "description": "Longitude coordinate"
                   },
                   "loc": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Location name or description"
                   }
                 },
                 "required": [
-                  "to"
+                  "to",
+                  "lat",
+                  "lng"
                 ]
               }
             }
@@ -1646,7 +1691,8 @@
                 "type": "object",
                 "properties": {
                   "groupId": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Group chat ID"
                   }
                 },
                 "required": [

@@ -137,7 +137,7 @@
     "ts-node": "^10.9.1",
     "tsc-watch": "^4.0.0",
     "typeconv": "^1.7.0",
-    "typedoc": "^0.23.21"
+    "typedoc": "0.28.15"
   },
   "publishConfig": {
     "access": "public"

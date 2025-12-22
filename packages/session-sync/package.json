@@ -15,9 +15,9 @@
         "@open-wa/schema": "workspace:*"
     },
     "devDependencies": {
-        "typescript": "^5.0.0",
-        "vitest": "^0.34.0",
-        "@types/node": "^20.0.0",
-        "@types/tar-fs": "^2.0.0"
+        "typescript": "catalog:",
+        "vitest": "catalog:",
+        "@types/node": "catalog:",
+        "@types/tar-fs": "catalog:"
     }
 }

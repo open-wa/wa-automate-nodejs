@@ -22,4 +22,16 @@ export interface HyperEmitterOptions {
   delimiter?: string;
   captureRejections?: boolean;
   onError?: (error: unknown) => void;
+  /**
+   * Enable debug logging (uses @open-wa/logger).
+   */
+  debug?: boolean;
+  /**
+   * Optional logger instance; if omitted, a child logger will be created.
+   */
+  logger?: import('@open-wa/logger').Logger;
+  /**
+   * Additional bound context for logger child.
+   */
+  loggerContext?: import('@open-wa/logger').LogContext;
 }

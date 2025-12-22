@@ -22,11 +22,11 @@ const methods = Registry.getAllMethods();
 
 methods.forEach((method) => {
     const inputIdentifier = `${capitalize(method.name)}Input`;
-    const { node: inputNode } = zodToTs(method.inputSchema, inputIdentifier);
+    const { node: inputNode } = zodToTs(method.inputSchema as any, inputIdentifier);
     const inputType = printNode(inputNode);
 
     const outputIdentifier = `${capitalize(method.name)}Output`;
-    const { node: outputNode } = zodToTs(method.outputSchema, outputIdentifier);
+    const { node: outputNode } = zodToTs(method.outputSchema as any, outputIdentifier);
     const outputType = printNode(outputNode);
 
     output += `
