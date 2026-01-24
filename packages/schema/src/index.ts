@@ -3,6 +3,7 @@ export * from './config';
 export * from './client-config';
 export * from './common-types';
 export * from './methods';
+export * from './events';
 export * from './enums';
 export * from './implementor';
 export {

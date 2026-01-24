@@ -42,6 +42,7 @@ import { JsonObject } from 'type-fest';
 import { log } from '../logging/logging';
 import { ReactionEvent } from './model/reactions';
 import { pidTreeUsage } from '../utils/pid_utils';
+import { EventManager } from '../events/EventManager';
 
 
 /** @ignore */
@@ -348,6 +349,8 @@ export class Client {
    */
    private _registeredWebhookListeners = {};
 
+  public events: EventManager;
+
 
 
   /**
@@ -361,6 +364,7 @@ export class Client {
     this._sessionInfo = sessionInfo;
     this._sessionInfo.INSTANCE_ID = uuidv4();
     this._listeners = {};
+    this.events = new EventManager(this._createConfig.sessionId || this._sessionInfo.INSTANCE_ID);
     this._setOnClose();
   }
 
