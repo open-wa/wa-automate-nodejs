@@ -627,4 +627,24 @@ export abstract class BaseClient {
     * Mark message as seen
     */
   public sendSeen = implementMethod(Methods.sendSeen);
+
+  /**
+    * Decrypts media from a message
+    */
+  public decryptMedia = implementMethod(Methods.decryptMedia);
+
+  /**
+    * Downloads and decrypts media from a message to a file
+    */
+  public downloadMedia = implementMethod(Methods.downloadMedia);
+
+  /**
+    * Downloads a file from a URL and sends it to a chat
+    */
+  public sendFileFromUrl = implementMethod(Methods.sendFileFromUrl);
+
+  /**
+    * Loads earlier messages from a chat
+    */
+  public loadEarlierMessages = implementMethod(Methods.loadEarlierMessages);
 }

@@ -28,3 +28,6 @@ export * from './business';
 
 // Utility Methods
 export * from './utilities';
+
+// Media Methods
+export * from './media';
