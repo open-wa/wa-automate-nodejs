@@ -12,11 +12,14 @@
         }
     },
     "scripts": {
-        "generate": "ts-node scripts/gen-types.ts && ts-node scripts/gen-openapi.ts && ts-node scripts/gen-client-implementation.ts",
+        "generate": "ts-node scripts/gen-types.ts && ts-node scripts/gen-client-implementation.ts",
         "build": "pnpm generate && tsc",
         "dev": "tsc --watch",
         "lint": "eslint src --ext .ts",
-        "test": "jest"
+        "test": "jest",
+        "test:contracts": "jest --testMatch='**/*.contract.test.ts'",
+        "verify": "ts-node scripts/verify-v5-pipeline.ts",
+        "ci": "pnpm verify && pnpm test:contracts && pnpm build"
     },
     "dependencies": {
         "@asteasolutions/zod-to-openapi": "^6.4.0",

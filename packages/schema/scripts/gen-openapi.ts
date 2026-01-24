@@ -1,8 +1,8 @@
 import { OpenApiGeneratorV3, OpenAPIRegistry } from '@asteasolutions/zod-to-openapi';
 import fs from 'fs';
 import path from 'path';
-import { Registry } from '../src/registry';
-import '../src/methods'; // Ensure methods are registered
+import { clientRegistry } from '../src/registry';
+import '../src/methods';
 
 const generatedDir = path.join(__dirname, '../src/generated');
 if (!fs.existsSync(generatedDir)) {
@@ -11,51 +11,65 @@ if (!fs.existsSync(generatedDir)) {
 
 const registry = new OpenAPIRegistry();
 
-// Register all methods as API paths
-const methods = Registry.getAllMethods();
+const methods = clientRegistry.getAll();
 
-methods.forEach((method) => {
-    registry.registerPath({
-        method: 'post',
-        path: `/${method.name}`,
-        description: method.metadata.description,
-        request: {
-            body: {
-                content: {
-                    'application/json': {
-                        schema: method.inputSchema as any,
+methods.forEach((def) => {
+    try {
+        console.log(`Registering ${def.meta.functionName}...`);
+        registry.registerPath({
+            method: 'post',
+            path: `/${def.meta.functionName}`,
+            description: def.meta.description,
+            request: {
+                body: {
+                    content: {
+                        'application/json': {
+                            schema: def.meta.inputSchema as any,
+                        },
                     },
                 },
             },
-        },
-        responses: {
-            200: {
-                description: 'Successful response',
-                content: {
-                    'application/json': {
-                        schema: method.outputSchema as any,
+            responses: {
+                200: {
+                    description: 'Successful response',
+                    content: {
+                        'application/json': {
+                            schema: def.meta.outputSchema as any,
+                        },
                     },
                 },
             },
-        },
-    });
+        });
+    } catch (error) {
+        console.error(`\n❌ Failed to register path for ${def.meta.functionName}`);
+        console.error(`   Input schema type: ${(def.meta.inputSchema as any)?._def?.typeName}`);
+        console.error(`   Output schema type: ${(def.meta.outputSchema as any)?._def?.typeName}`);
+        throw error;
+    }
 });
 
 const generator = new OpenApiGeneratorV3(registry.definitions);
 
-const document = generator.generateDocument({
-    openapi: '3.0.0',
-    info: {
-        title: 'Open WA API',
-        version: '5.0.0',
-        description: 'API definition for Open WA v5',
-    },
-    servers: [
-        {
-            url: 'http://localhost:3000',
+let document;
+try {
+    document = generator.generateDocument({
+        openapi: '3.0.0',
+        info: {
+            title: 'Open WA API',
+            version: '5.0.0',
+            description: 'API definition for Open WA v5',
         },
-    ],
-});
+        servers: [
+            {
+                url: 'http://localhost:3000',
+            },
+        ],
+    });
+} catch (error) {
+    console.error('\n❌ Failed during document generation');
+    console.error('This usually means one of the schemas has an unsupported type for OpenAPI');
+    throw error;
+}
 
 fs.writeFileSync(
     path.join(generatedDir, 'openapi.json'),
