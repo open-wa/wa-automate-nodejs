@@ -4,7 +4,7 @@ import path from 'path';
 import { clientRegistry } from '../src/registry';
 import '../src/methods';
 
-const generatedDir = path.join(__dirname, '../src/generated');
+const generatedDir = path.join(__dirname, '../generated');
 if (!fs.existsSync(generatedDir)) {
     fs.mkdirSync(generatedDir, { recursive: true });
 }

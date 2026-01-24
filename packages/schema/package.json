@@ -9,11 +9,26 @@
             "require": "./dist/index.js",
             "import": "./dist/index.js",
             "types": "./dist/index.d.ts"
+        },
+        "./generated": {
+            "require": "./dist/generated/index.js",
+            "import": "./dist/generated/index.js",
+            "types": "./dist/generated/index.d.ts"
+        },
+        "./implementor": {
+            "require": "./dist/implementor.js",
+            "import": "./dist/implementor.js",
+            "types": "./dist/implementor.d.ts"
+        },
+        "./methods": {
+            "require": "./dist/methods/index.js",
+            "import": "./dist/methods/index.js",
+            "types": "./dist/methods/index.d.ts"
         }
     },
     "scripts": {
         "generate": "ts-node scripts/gen-types.ts && ts-node scripts/gen-client-implementation.ts",
-        "build": "pnpm generate && tsc",
+        "build": "pnpm generate && tsc && tsc --project tsconfig.generated.json",
         "dev": "tsc --watch",
         "lint": "eslint src --ext .ts",
         "test": "jest",

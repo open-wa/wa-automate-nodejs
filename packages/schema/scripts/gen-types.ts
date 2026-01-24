@@ -5,7 +5,7 @@ import { Registry } from '../src/registry';
 import '../src/methods'; // Ensure methods are registered
 
 // Create generated directory
-const generatedDir = path.join(__dirname, '../src/generated');
+const generatedDir = path.join(__dirname, '../generated');
 if (!fs.existsSync(generatedDir)) {
     fs.mkdirSync(generatedDir, { recursive: true });
 }

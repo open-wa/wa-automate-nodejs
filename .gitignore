@@ -54,3 +54,27 @@ apps/*/.tanstack
 coverage/
 *.test.js
 
+# Build artifacts (TypeScript compilation)
+*.tsbuildinfo
+**/.tsbuildinfo
+
+# Generated files should not be committed
+packages/*/generated/
+**/generated/*.js
+**/generated/*.d.ts
+**/generated/*.map
+
+# Compiled JavaScript files in source directories
+packages/*/src/**/*.js
+packages/*/src/**/*.d.ts
+packages/*/src/**/*.map
+apps/*/src/**/*.js
+apps/*/src/**/*.d.ts
+apps/*/src/**/*.map
+
+# Exclude JS config files and scripts from ignore
+!*.config.js
+!**/scripts/**/*.js
+!jest.config.js
+!vitest.config.js
+
