@@ -364,7 +364,17 @@ export class Client {
     this._sessionInfo = sessionInfo;
     this._sessionInfo.INSTANCE_ID = uuidv4();
     this._listeners = {};
-    this.events = new EventManager(this._createConfig.sessionId || this._sessionInfo.INSTANCE_ID);
+    
+    let eventRegistry;
+    try {
+      const schema = require('@open-wa/schema');
+      eventRegistry = schema.eventRegistry;
+    } catch {}
+    
+    this.events = new EventManager(
+      this._createConfig.sessionId || this._sessionInfo.INSTANCE_ID,
+      eventRegistry
+    );
     this._setOnClose();
   }
 

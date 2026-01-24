@@ -21,23 +21,6 @@ export interface EventRegistry {
     get(name: string): EventDefinition | undefined;
 }
 
-let cachedRegistry: EventRegistry = {
-    get: () => undefined
-};
-
-let registryLoadPromise: Promise<void> | null = null;
-
-function ensureRegistryLoaded(): void {
-    if (!registryLoadPromise) {
-        registryLoadPromise = (async () => {
-            try {
-                const schema = await import('@open-wa/schema');
-                cachedRegistry = schema.eventRegistry as EventRegistry;
-            } catch {}
-        })();
-    }
-}
-
 export interface EventContext {
     sessionId: string;
     timestamp: number;
@@ -59,11 +42,14 @@ export class EventManager {
     private queues = new Map<string, PQueue>();
     private handleCounter = 0;
     private sessionId: string;
+    private registry: EventRegistry;
     
-    constructor(sessionId: string) {
+    constructor(sessionId: string, registry?: EventRegistry) {
         this.sessionId = sessionId;
         this.emitter.setMaxListeners(100);
-        ensureRegistryLoaded();
+        this.registry = registry || {
+            get: () => undefined
+        };
     }
     
     on<T>(
@@ -73,7 +59,7 @@ export class EventManager {
     ): ListenerHandle {
         const id = `listener_${++this.handleCounter}`;
         
-        const eventDef = cachedRegistry.get(eventName);
+        const eventDef = this.registry.get(eventName);
         const mergedOptions = {
             ...eventDef?.meta.defaultQueueOptions,
             ...options,
