@@ -3,6 +3,7 @@ packages:
   - 'apps/*'
   - 'packages/driver-interface'
   - 'packages/driver-puppeteer'
+  - 'packages/driver-playwright'
 
   # Third-party integrations
   - 'integrations/*'
@@ -101,3 +102,4 @@ catalog:
   # Browser automation
   puppeteer: ^22.0.0
   puppeteer-extra: ^3.3.6
+  playwright: ^1.41.0

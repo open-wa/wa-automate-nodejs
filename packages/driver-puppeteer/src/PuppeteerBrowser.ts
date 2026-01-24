@@ -1,4 +1,4 @@
-import { IBrowser, IPage } from '@open-wa/driver-interface';
+import { IBrowser, IPage, DriverCapabilities } from '@open-wa/driver-interface';
 import type { Browser } from 'puppeteer';
 import { PuppeteerPage } from './PuppeteerPage';
 
@@ -6,17 +6,18 @@ export class PuppeteerBrowser implements IBrowser {
     readonly name = 'puppeteer' as const;
     
     constructor(
-        private browser: Browser
+        private browser: Browser,
+        private capabilities: DriverCapabilities
     ) {}
     
     async newPage(): Promise<IPage> {
         const page = await this.browser.newPage();
-        return new PuppeteerPage(page);
+        return new PuppeteerPage(page, this.capabilities);
     }
     
     async pages(): Promise<IPage[]> {
         const pages = await this.browser.pages();
-        return pages.map(p => new PuppeteerPage(p));
+        return pages.map(p => new PuppeteerPage(p, this.capabilities));
     }
     
     async close(): Promise<void> {

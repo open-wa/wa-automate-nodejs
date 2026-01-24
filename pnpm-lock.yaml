@@ -970,6 +970,22 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
+  packages/driver-playwright:
+    dependencies:
+      '@open-wa/driver-interface':
+        specifier: workspace:*
+        version: link:../driver-interface
+      playwright:
+        specifier: ^1.41.0
+        version: 1.58.0
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.10.3
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
   packages/driver-puppeteer:
     dependencies:
       '@open-wa/driver-interface':
@@ -1247,7 +1263,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: 'catalog:'
-        version: 0.34.6(lightningcss@1.30.2)(terser@5.44.1)
+        version: 0.34.6(lightningcss@1.30.2)(playwright@1.58.0)(terser@5.44.1)
 
   packages/socket-client:
     dependencies:
@@ -7504,6 +7520,11 @@ packages:
   fs.realpath@1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
 
+  fsevents@2.3.2:
+    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -11004,6 +11025,16 @@ packages:
   pkg-up@3.1.0:
     resolution: {integrity: sha512-nDywThFk1i4BQK4twPQ6TA4RT8bDY96yeuCVBWL3ePARCiEKDRSrNGbFIgUJpLp+XeIR65v8ra7WuJOFUBtkMA==}
     engines: {node: '>=8'}
+
+  playwright-core@1.58.0:
+    resolution: {integrity: sha512-aaoB1RWrdNi3//rOeKuMiS65UCcgOVljU46At6eFcOFPFHWtd2weHRRow6z/n+Lec0Lvu0k9ZPKJSjPugikirw==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  playwright@1.58.0:
+    resolution: {integrity: sha512-2SVA0sbPktiIY/MCOPX8e86ehA/e+tDNq+e5Y8qjKYti2Z/JG7xnronT/TXTIkKbYGWlCbuucZ6dziEgkoEjQQ==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   plur@5.1.0:
     resolution: {integrity: sha512-VP/72JeXqak2KiOzjgKtQen5y3IZHn+9GOuLDafPv0eXa47xq0At93XahYBs26MsifCQ4enGKwbjBTKgb9QJXg==}
@@ -21814,6 +21845,9 @@ snapshots:
 
   fs.realpath@1.0.0: {}
 
+  fsevents@2.3.2:
+    optional: true
+
   fsevents@2.3.3:
     optional: true
 
@@ -26142,6 +26176,14 @@ snapshots:
     dependencies:
       find-up: 3.0.0
 
+  playwright-core@1.58.0: {}
+
+  playwright@1.58.0:
+    dependencies:
+      playwright-core: 1.58.0
+    optionalDependencies:
+      fsevents: 2.3.2
+
   plur@5.1.0:
     dependencies:
       irregular-plurals: 3.5.0
@@ -29548,7 +29590,7 @@ snapshots:
     optionalDependencies:
       vite: 7.2.7(@types/node@24.10.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
 
-  vitest@0.34.6(lightningcss@1.30.2)(terser@5.44.1):
+  vitest@0.34.6(lightningcss@1.30.2)(playwright@1.58.0)(terser@5.44.1):
     dependencies:
       '@types/chai': 4.3.20
       '@types/chai-subset': 1.3.6(@types/chai@4.3.20)
@@ -29574,6 +29616,8 @@ snapshots:
       vite: 5.4.21(@types/node@20.19.26)(lightningcss@1.30.2)(terser@5.44.1)
       vite-node: 0.34.6(@types/node@20.19.26)(lightningcss@1.30.2)(terser@5.44.1)
       why-is-node-running: 2.3.0
+    optionalDependencies:
+      playwright: 1.58.0
     transitivePeerDependencies:
       - less
       - lightningcss

@@ -1,18 +1,22 @@
 import { IPage, IElementHandle, DriverCapabilities } from '@open-wa/driver-interface';
-import type { Page, CDPSession } from 'puppeteer';
-import { PuppeteerElementHandle } from './PuppeteerElementHandle';
+import type { Page, CDPSession } from 'playwright';
+import { PlaywrightElementHandle } from './PlaywrightElementHandle';
+import { PlaywrightBrowserType } from './PlaywrightDriver';
 
-export class PuppeteerPage implements IPage {
-    readonly name = 'puppeteer' as const;
+export class PlaywrightPage implements IPage {
+    readonly name = 'playwright' as const;
     
     constructor(
         private page: Page,
+        _browserType: PlaywrightBrowserType,
         private capabilities: DriverCapabilities
     ) {}
     
     async goto(url: string, options?: { waitUntil?: 'load' | 'domcontentloaded' | 'networkidle'; timeoutMs?: number }): Promise<void> {
+        const waitUntil = options?.waitUntil === 'networkidle' ? 'networkidle' : options?.waitUntil;
+        
         await this.page.goto(url, {
-            waitUntil: options?.waitUntil as any,
+            waitUntil: waitUntil as any,
             timeout: options?.timeoutMs,
         });
     }
@@ -30,30 +34,30 @@ export class PuppeteerPage implements IPage {
     }
     
     async setViewport(viewport: { width: number; height: number }): Promise<void> {
-        await this.page.setViewport(viewport);
+        await this.page.setViewportSize(viewport);
     }
     
     async setUserAgent(ua: string): Promise<void> {
-        await this.page.setUserAgent(ua);
+        await this.page.setExtraHTTPHeaders({ 'User-Agent': ua });
     }
     
     async waitForSelector(selector: string, options?: { timeoutMs?: number }): Promise<IElementHandle | null> {
         const element = await this.page.waitForSelector(selector, { timeout: options?.timeoutMs });
-        return element ? new PuppeteerElementHandle(element) : null;
+        return element ? new PlaywrightElementHandle(element) : null;
     }
     
     async waitForFunction<Arg>(fn: (arg: Arg) => boolean, arg: Arg, options?: { timeoutMs?: number }): Promise<void> {
-        await this.page.waitForFunction(fn as any, { timeout: options?.timeoutMs }, arg as any);
+        await this.page.waitForFunction(fn as any, arg as any, { timeout: options?.timeoutMs });
     }
     
     async $(selector: string): Promise<IElementHandle | null> {
         const element = await this.page.$(selector);
-        return element ? new PuppeteerElementHandle(element) : null;
+        return element ? new PlaywrightElementHandle(element) : null;
     }
     
     async $$(selector: string): Promise<IElementHandle[]> {
         const elements = await this.page.$$(selector);
-        return elements.map(el => new PuppeteerElementHandle(el));
+        return elements.map(el => new PlaywrightElementHandle(el));
     }
     
     async click(selector: string): Promise<void> {
@@ -65,7 +69,10 @@ export class PuppeteerPage implements IPage {
     }
     
     async screenshot(options?: { type?: 'png' | 'jpeg'; fullPage?: boolean }): Promise<Uint8Array> {
-        const buffer = await this.page.screenshot(options);
+        const buffer = await this.page.screenshot({
+            type: options?.type,
+            fullPage: options?.fullPage,
+        });
         return new Uint8Array(buffer);
     }
     
@@ -81,6 +88,7 @@ export class PuppeteerPage implements IPage {
         return this.page.isClosed();
     }
     
+    // Capability-specific methods
     has<C extends string>(cap: C): boolean {
         return (this.capabilities as any)[cap]?.supported === true;
     }
@@ -96,36 +104,58 @@ export class PuppeteerPage implements IPage {
         }
     }
     
+    // CDP Support (Chromium-based only)
     cdp(): CDPSession {
         this.require('cdp');
-        return (this.page as any).target().createCDPSession();
+        const context = this.page.context();
+        return (context as any).newCDPSession(this.page) as CDPSession;
     }
     
+    // Request Interception
     async setRequestInterception(enabled: boolean): Promise<void> {
         this.require('requestInterception');
-        await this.page.setRequestInterception(enabled);
+        if (enabled) {
+            await this.page.route('**/*', route => route.continue());
+        } else {
+            await this.page.unroute('**/*');
+        }
     }
     
+    // Service Worker Bypass
     async setBypassServiceWorker(bypass: boolean): Promise<void> {
         this.require('serviceWorkerBypass');
-        await this.page.setBypassServiceWorker(bypass);
+        await this.page.context().route('**/*', (route) => {
+            if (bypass && route.request().serviceWorker()) {
+                route.abort();
+            } else {
+                route.continue();
+            }
+        });
     }
     
+    // PDF Generation (Chromium only)
     async pdf(options?: { path?: string; format?: string }): Promise<Uint8Array> {
         this.require('pdf');
         const buffer = await this.page.pdf(options as any);
         return new Uint8Array(buffer);
     }
     
+    // Tracing
     async startTracing(options?: { path?: string; screenshots?: boolean }): Promise<void> {
         this.require('tracing');
-        await this.page.tracing.start(options);
+        await this.page.context().tracing.start(options as any);
     }
     
     async stopTracing(): Promise<Uint8Array> {
         this.require('tracing');
-        const buffer = await this.page.tracing.stop();
-        return buffer ? new Uint8Array(buffer) : new Uint8Array();
+        const tempPath = `/tmp/trace-${Date.now()}.zip`;
+        await this.page.context().tracing.stop({ path: tempPath });
+        
+        const fs = await import('fs/promises');
+        const buffer = await fs.readFile(tempPath);
+        await fs.unlink(tempPath).catch(() => {});
+        
+        return new Uint8Array(buffer);
     }
     
     unwrap(): Page {
