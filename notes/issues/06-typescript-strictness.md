@@ -1,8 +1,10 @@
-# Issue #5: TypeScript Strictness Improvements
+# Issue #06: TypeScript Strictness Improvements
 
-**Priority**: 🟢 MEDIUM  
+**Priority**: LOW (after core stabilizes)  
 **Effort**: 2-3 days (incremental)  
-**Impact**: Improved type safety, fewer runtime errors
+**Risk**: MEDIUM  
+**Depends on**: 01, 01a, 02, 03 (core must stabilize first)  
+**Blocks**: None
 
 ---
 
@@ -11,12 +13,10 @@
 TypeScript is configured with relaxed settings for legacy compatibility:
 
 ```json
-// Current tsconfig.json (various packages)
 {
     "compilerOptions": {
         "strict": false,
-        "noImplicitAny": false,
-        // etc.
+        "noImplicitAny": false
     }
 }
 ```
@@ -29,30 +29,19 @@ This allows type errors to slip through, causing runtime issues.
 
 Don't flip strict on globally. Use a phased approach:
 
-1. **Phase 1**: Make `@open-wa/schema` strict (it's the boundary layer)
-2. **Phase 2**: Add non-blocking strict checks to CI
-3. **Phase 3**: Migrate packages one at a time
-4. **Phase 4**: Require new files to be strict
+| Phase | Scope | Effort |
+|-------|-------|--------|
+| 1 | Make `@open-wa/schema` strict | 0.5 day |
+| 2 | Add non-blocking strict checks to CI | 0.5 day |
+| 3 | Migrate packages one at a time | 1-2 days |
+| 4 | Require new files to be strict (ESLint) | 0.5 day |
 
 ---
 
-## Step 1: Make @open-wa/schema Strict
+## Phase 1: Make @open-wa/schema Strict
 
 **File**: `packages/schema/tsconfig.json`
 
-### Current
-```json
-{
-    "extends": "../../tsconfig.base.json",
-    "compilerOptions": {
-        "outDir": "./dist",
-        "rootDir": "./src"
-    },
-    "include": ["src/**/*"]
-}
-```
-
-### Proposed
 ```json
 {
     "extends": "../../tsconfig.base.json",
@@ -90,22 +79,16 @@ Don't flip strict on globally. Use a phased approach:
 
 ---
 
-## Step 2: Fix Type Errors in Schema Package
-
-After enabling strict mode, you'll likely see errors. Here are common patterns:
+## Common Fix Patterns
 
 ### Pattern 1: Implicit any in callbacks
 
 ```typescript
 // Before (error: Parameter 'x' implicitly has 'any' type)
-methods.forEach((method) => {
-    // ...
-});
+methods.forEach((method) => { /* ... */ });
 
 // After
-methods.forEach((method: CapabilityDefinition) => {
-    // ...
-});
+methods.forEach((method: MethodDefinition) => { /* ... */ });
 ```
 
 ### Pattern 2: Possible undefined
@@ -114,10 +97,10 @@ methods.forEach((method: CapabilityDefinition) => {
 // Before (error: Object is possibly 'undefined')
 const name = meta.functionName;
 
-// After (option 1: assert)
+// After (option 1: assert - only when you KNOW it exists)
 const name = meta.functionName!;
 
-// After (option 2: check)
+// After (option 2: check - preferred)
 if (!meta.functionName) throw new Error('Missing functionName');
 const name = meta.functionName;
 ```
@@ -128,7 +111,7 @@ const name = meta.functionName;
 // Before (error: Element implicitly has 'any' type)
 const value = obj[key];
 
-// After
+// After (type-safe access)
 const value = obj[key as keyof typeof obj];
 
 // Or use Map instead of object
@@ -138,9 +121,7 @@ const value = map.get(key);
 
 ---
 
-## Step 3: Add Strict tsconfig for CI
-
-Create a strict config that can be run in CI without breaking builds:
+## Phase 2: Non-Blocking CI Check
 
 **File**: `packages/*/tsconfig.strict.json`
 
@@ -170,35 +151,33 @@ jobs:
       - uses: actions/setup-node@v3
       - run: pnpm install
       
-      # Non-blocking strict check
-      - name: Strict TypeScript Check (informational)
+      # Non-blocking strict check (informational)
+      - name: Strict TypeScript Check
         run: pnpm exec tsc -p packages/schema/tsconfig.strict.json || true
         continue-on-error: true
 ```
 
 ---
 
-## Step 4: Package-by-Package Migration Order
+## Phase 3: Package Migration Order
 
 Migrate in order of criticality and dependency:
 
-| Order | Package | Reason |
-|-------|---------|--------|
-| 1 | `@open-wa/schema` | Boundary layer, most critical |
-| 2 | `@open-wa/logger` | Small, standalone |
-| 3 | `@open-wa/wa-decrypt` | Small, focused |
-| 4 | `@open-wa/hyperemitter` | New code, should be clean |
-| 5 | `@open-wa/socket-client` | Client-facing |
-| 6 | `@open-wa/session-sync` | Relatively small |
-| 7 | `@open-wa/core` | Large, complex (defer) |
-| 8 | `@open-wa/wa-automate` | Large, server code (defer) |
-| 9 | `@open-wa/orchestrator` | Legacy code (defer) |
+| Order | Package | Reason | Effort |
+|-------|---------|--------|--------|
+| 1 | `@open-wa/schema` | Boundary layer, most critical | LOW |
+| 2 | `@open-wa/logger` | Small, standalone | LOW |
+| 3 | `@open-wa/wa-decrypt` | Small, focused | LOW |
+| 4 | `@open-wa/hyperemitter` | New code, should be clean | LOW |
+| 5 | `@open-wa/socket-client` | Client-facing | MEDIUM |
+| 6 | `@open-wa/session-sync` | Relatively small | MEDIUM |
+| 7 | `@open-wa/core` | Large, complex | HIGH (defer) |
+| 8 | `@open-wa/wa-automate` | Large, server code | HIGH (defer) |
+| 9 | `@open-wa/orchestrator` | Legacy code | HIGH (defer) |
 
 ---
 
-## Step 5: Require Strict for New Files
-
-Use ESLint to enforce stricter typing on new code:
+## Phase 4: Enforce Strict for New Code
 
 **File**: `.eslintrc.json`
 
@@ -211,19 +190,11 @@ Use ESLint to enforce stricter typing on new code:
         "plugin:@typescript-eslint/recommended"
     ],
     "rules": {
-        // Warn on any usage in new code
         "@typescript-eslint/no-explicit-any": "warn",
-        
-        // Error on implicit any
-        "@typescript-eslint/no-implicit-any": "error",
-        
-        // Require explicit return types on public methods
         "@typescript-eslint/explicit-function-return-type": ["warn", {
             "allowExpressions": true,
             "allowTypedFunctionExpressions": true
         }],
-        
-        // Prevent unused variables
         "@typescript-eslint/no-unused-vars": ["error", {
             "argsIgnorePattern": "^_"
         }]
@@ -243,11 +214,9 @@ Use ESLint to enforce stricter typing on new code:
 
 ---
 
-## Step 6: Common Type Safety Improvements
+## Type Safety Improvements
 
 ### Use Zod for Runtime Validation
-
-Instead of `as any` casts, use Zod parsing:
 
 ```typescript
 // Before (unsafe)
@@ -268,30 +237,7 @@ function handleRequest(body: unknown) {
 }
 ```
 
-### Use Type Guards
-
-```typescript
-// Type guard for Message
-function isMessage(obj: unknown): obj is Message {
-    return (
-        typeof obj === 'object' &&
-        obj !== null &&
-        'id' in obj &&
-        'body' in obj
-    );
-}
-
-// Usage
-function processItem(item: unknown) {
-    if (isMessage(item)) {
-        console.log(item.body); // TypeScript knows it's a Message
-    }
-}
-```
-
-### Use Branded Types
-
-For IDs that shouldn't be mixed:
+### Use Branded Types for IDs
 
 ```typescript
 // In @open-wa/schema
@@ -299,7 +245,6 @@ export type ChatId = string & { __brand: 'ChatId' };
 export type ContactId = string & { __brand: 'ContactId' };
 export type MessageId = string & { __brand: 'MessageId' };
 
-// Helper to create branded values
 export function toChatId(raw: string): ChatId {
     return raw as ChatId;
 }
@@ -316,9 +261,23 @@ sendMessage(contactId, 'Hello');  // ERROR: ContactId != ChatId
 
 ---
 
-## Step 7: Verification
+## Progress Tracking
 
-After making changes:
+| Package | Strict Mode | No `any` | Tests Pass | Status |
+|---------|:-----------:|:--------:|:----------:|--------|
+| schema | ⬜ | ⬜ | ⬜ | Not started |
+| logger | ⬜ | ⬜ | ⬜ | Not started |
+| wa-decrypt | ⬜ | ⬜ | ⬜ | Not started |
+| hyperemitter | ⬜ | ⬜ | ⬜ | Not started |
+| socket-client | ⬜ | ⬜ | ⬜ | Not started |
+| session-sync | ⬜ | ⬜ | ⬜ | Not started |
+| core | ⬜ | ⬜ | ⬜ | Deferred |
+| wa-automate | ⬜ | ⬜ | ⬜ | Deferred |
+| orchestrator | ⬜ | ⬜ | ⬜ | Deferred |
+
+---
+
+## Verification
 
 ```bash
 # Run type check on specific package
@@ -333,24 +292,6 @@ pnpm typecheck
 grep -r "as any" packages/schema/src --include="*.ts" | wc -l
 # Goal: 0 or close to it
 ```
-
----
-
-## Progress Tracking
-
-Track migration progress per package:
-
-| Package | Strict Mode | No `any` | Tests Pass | Status |
-|---------|-------------|----------|------------|--------|
-| schema | ⬜ | ⬜ | ⬜ | Not started |
-| logger | ⬜ | ⬜ | ⬜ | Not started |
-| wa-decrypt | ⬜ | ⬜ | ⬜ | Not started |
-| hyperemitter | ⬜ | ⬜ | ⬜ | Not started |
-| socket-client | ⬜ | ⬜ | ⬜ | Not started |
-| session-sync | ⬜ | ⬜ | ⬜ | Not started |
-| core | ⬜ | ⬜ | ⬜ | Deferred |
-| wa-automate | ⬜ | ⬜ | ⬜ | Deferred |
-| orchestrator | ⬜ | ⬜ | ⬜ | Deferred |
 
 ---
 

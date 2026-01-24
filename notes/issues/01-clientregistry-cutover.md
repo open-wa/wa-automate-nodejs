@@ -1,150 +1,63 @@
-# Issue #1: Switch Generators and Server to clientRegistry
+# Issue #01: Switch Generators and Server to clientRegistry
 
 **Priority**: 🔴 CRITICAL  
-**Effort**: 1-2 days  
-**Impact**: Makes v5 schema-first promise real
+**Effort**: 1 day  
+**Risk**: 🟡 Medium  
+**Depends on**: None  
+**Blocks**: 01a, 02, 03, 04, 05b
 
 ---
 
 ## Problem Statement
 
-The V2 schema system (`defineMethodV2` + `clientRegistry`) is complete with 121 methods, but the code that **consumes** these schemas still uses the legacy `Registry`:
+The V2 schema system (`defineMethodV2` + `clientRegistry`) has 121 methods, but the code that **consumes** these schemas still uses the legacy `Registry`:
 
-| File | Current | Should Use |
-|------|---------|------------|
-| `gen-openapi.ts` | `Registry.getAllMethods()` | `clientRegistry.getAll()` |
-| `gen-types.ts` | `Registry.getAllMethods()` | `clientRegistry.getAll()` |
-| Hono server | Legacy patterns | `clientRegistry.getAll()` |
+| File | Line | Current | Should Use |
+|------|------|---------|------------|
+| `packages/schema/scripts/gen-openapi.ts` | 15 | `Registry.getAllMethods()` | `clientRegistry.getAll()` |
+| `packages/schema/scripts/gen-types.ts` | 21 | `Registry.getAllMethods()` | `clientRegistry.getAll()` |
+| `packages/wa-automate/src/server/hono-server.ts` | 116, 128 | `Registry.getAllMethods()` | `clientRegistry.getAll()` |
+| `packages/wa-automate/src/server/socket-manager.ts` | 34 | `Registry.getAllMethods()` | `clientRegistry.getAll()` |
 
-This means v5's "schema-first" promise isn't actually delivered.
+**Note**: `gen-client-implementation.ts` already uses `clientRegistry.getAll()` ✅
 
 ---
 
-## Step 1: Extend ClientFunctionMetadata to Store Schemas
+## Pre-Migration Checklist
 
-**File**: `packages/schema/src/registry.ts`
+```bash
+# 1. Snapshot current generated outputs for comparison
+mkdir -p /tmp/schema-backup
+cp packages/schema/src/generated/openapi.json /tmp/schema-backup/
+cp packages/schema/src/generated/types.ts /tmp/schema-backup/
+cp packages/schema/src/generated/BaseClient.ts /tmp/schema-backup/
 
-### Current Code (lines 85-99)
-
-```typescript
-export interface ClientFunctionMetadata {
-    functionName?: string;
-    wapiOverride?: string;
-    id?: string;
-    slug?: string;
-    namespace?: string;
-    action?: ActionType;
-    api_slug?: string;
-    description?: string;
-    deprecated?: boolean;
-    license?: LicenseTier;
-    functionality?: FunctionalityScope;
-    httpMethod?: HttpMethod;
-    parameterOrder: string[];
-}
-```
-
-### Proposed Change
-
-```typescript
-export interface ClientFunctionMetadata {
-    functionName?: string;
-    wapiOverride?: string;
-    id?: string;
-    slug?: string;
-    namespace?: string;
-    action?: ActionType;
-    api_slug?: string;
-    description?: string;
-    deprecated?: boolean;
-    license?: LicenseTier;
-    functionality?: FunctionalityScope;
-    httpMethod?: HttpMethod;
-    parameterOrder: string[];
-    
-    // NEW: Store schemas directly for generator access
-    inputSchema?: z.ZodObject<any>;
-    outputSchema?: z.ZodTypeAny;
-}
+# 2. Verify current state
+cd packages/schema
+pnpm generate  # Should work with legacy Registry
 ```
 
 ---
 
-## Step 2: Update defineMethodV2 to Store Schemas
-
-**File**: `packages/schema/src/registry.ts`
-
-### Current Code (lines 172-207)
-
-```typescript
-export function defineMethodV2<
-    T extends z.ZodObject<any>,
-    R extends z.ZodTypeAny
->(
-    name: string,
-    params: {
-        meta: Omit<ClientFunctionMetadata, 'functionName' | 'parameterOrder'>;
-        input: T;
-        parameterOrder: Array<keyof T['shape']>;
-        output: R;
-    }
-): z.ZodFunction<z.ZodUnion<[z.ZodTuple<[T]>, z.ZodTuple<any>]>, R> {
-    // ... existing code ...
-    
-    // 4. Register Metadata
-    clientRegistry.set(funcSchema, {
-        functionName: name,
-        parameterOrder: params.parameterOrder as string[],
-        ...params.meta
-    });
-
-    return funcSchema;
-}
-```
-
-### Proposed Change
-
-```typescript
-export function defineMethodV2<
-    T extends z.ZodObject<any>,
-    R extends z.ZodTypeAny
->(
-    name: string,
-    params: {
-        meta: Omit<ClientFunctionMetadata, 'functionName' | 'parameterOrder' | 'inputSchema' | 'outputSchema'>;
-        input: T;
-        parameterOrder: Array<keyof T['shape']>;
-        output: R;
-    }
-): z.ZodFunction<z.ZodUnion<[z.ZodTuple<[T]>, z.ZodTuple<any>]>, R> {
-    // ... existing code ...
-    
-    // 4. Register Metadata WITH schemas
-    clientRegistry.set(funcSchema, {
-        functionName: name,
-        parameterOrder: params.parameterOrder as string[],
-        inputSchema: params.input,      // NEW: Store input schema
-        outputSchema: params.output,    // NEW: Store output schema
-        ...params.meta
-    });
-
-    return funcSchema;
-}
-```
-
----
-
-## Step 3: Update gen-openapi.ts
+## Step 1: Update gen-openapi.ts
 
 **File**: `packages/schema/scripts/gen-openapi.ts`
 
-### Current Code
+### Current Code (lines 1-42)
 
 ```typescript
+import { OpenApiGeneratorV3, OpenAPIRegistry } from '@asteasolutions/zod-to-openapi';
+import fs from 'fs';
+import path from 'path';
 import { Registry } from '../src/registry';
 import '../src/methods';
 
-// ...
+const generatedDir = path.join(__dirname, '../src/generated');
+if (!fs.existsSync(generatedDir)) {
+    fs.mkdirSync(generatedDir, { recursive: true });
+}
+
+const registry = new OpenAPIRegistry();
 
 const methods = Registry.getAllMethods();
 
@@ -158,141 +71,142 @@ methods.forEach((method) => {
 });
 ```
 
-### Proposed Change
+### Updated Code
 
 ```typescript
+import { OpenApiGeneratorV3, OpenAPIRegistry } from '@asteasolutions/zod-to-openapi';
+import fs from 'fs';
+import path from 'path';
 import { clientRegistry } from '../src/registry';
-import '../src/methods';
+import '../src/methods'; // Trigger registration side-effects
 
-// ...
+const generatedDir = path.join(__dirname, '../src/generated');
+if (!fs.existsSync(generatedDir)) {
+    fs.mkdirSync(generatedDir, { recursive: true });
+}
 
+const openApiRegistry = new OpenAPIRegistry();
+
+// Get all V2 methods from clientRegistry
 const methods = clientRegistry.getAll();
 
-methods.forEach(([_schema, meta]) => {
-    if (!meta.inputSchema || !meta.outputSchema) {
-        console.warn(`Skipping ${meta.functionName}: missing schemas`);
+methods.forEach(([schema, meta]) => {
+    if (!meta.functionName) {
+        console.warn('Skipping method without functionName');
         return;
     }
     
-    // Determine HTTP method from metadata or default to POST
-    const httpMethod = (meta.httpMethod === 'AUTO' || !meta.httpMethod) 
-        ? 'post' 
-        : meta.httpMethod.toLowerCase();
+    // Determine HTTP method from metadata
+    let httpMethod: 'get' | 'post' | 'put' | 'delete' = 'post';
+    if (meta.httpMethod && meta.httpMethod !== 'AUTO') {
+        httpMethod = meta.httpMethod.toLowerCase() as any;
+    } else if (meta.action === 'read') {
+        httpMethod = 'get';
+    } else if (meta.action === 'delete') {
+        httpMethod = 'delete';
+    } else if (meta.action === 'update') {
+        httpMethod = 'put';
+    }
     
-    // Build API path from namespace + slug
+    // Build path with namespace
     const apiPath = meta.api_slug 
         || (meta.namespace ? `/${meta.namespace}/${meta.functionName}` : `/${meta.functionName}`);
     
-    registry.registerPath({
-        method: httpMethod as any,
+    // Extract input/output schemas from ZodFunction
+    // ZodFunction structure: args = ZodUnion<[ZodTuple<[InputObject]>, ZodTuple<positional>]>
+    const inputUnion = schema._def.args;
+    const inputSchema = inputUnion._def.options[0]._def.items[0]; // First option, first item
+    const outputSchema = schema._def.returns;
+    
+    openApiRegistry.registerPath({
+        method: httpMethod,
         path: apiPath,
         description: meta.description || meta.functionName,
-        tags: meta.namespace ? [meta.namespace] : undefined,
-        request: {
+        tags: meta.namespace ? [meta.namespace] : ['core'],
+        request: httpMethod !== 'get' ? {
             body: {
                 content: {
                     'application/json': {
-                        schema: meta.inputSchema as any,
+                        schema: inputSchema as any,
                     },
                 },
             },
-        },
+        } : undefined,
         responses: {
             200: {
                 description: 'Successful response',
                 content: {
                     'application/json': {
-                        schema: meta.outputSchema as any,
+                        schema: outputSchema as any,
                     },
                 },
+            },
+            400: {
+                description: 'Validation error',
+            },
+            500: {
+                description: 'Internal server error',
             },
         },
     });
 });
+
+const generator = new OpenApiGeneratorV3(openApiRegistry.definitions);
+
+const document = generator.generateDocument({
+    openapi: '3.0.0',
+    info: {
+        title: 'Open WA API',
+        version: '5.0.0',
+        description: 'API definition for Open WA v5 - Schema-first design',
+    },
+    servers: [
+        { url: 'http://localhost:3000', description: 'Local development' },
+    ],
+});
+
+fs.writeFileSync(
+    path.join(generatedDir, 'openapi.json'),
+    JSON.stringify(document, null, 2)
+);
+
+console.log(`Successfully generated openapi.json with ${methods.length} methods`);
 ```
 
 ---
 
-## Step 4: Update gen-types.ts
+## Step 2: Update gen-types.ts
 
 **File**: `packages/schema/scripts/gen-types.ts`
 
-### Current Code
+### Current Code (lines 1-44)
 
 ```typescript
 import { printNode, zodToTs } from 'zod-to-ts';
-// Uses Registry.getAllMethods() (implied from pattern)
-```
-
-### Proposed Change
-
-```typescript
 import fs from 'fs';
 import path from 'path';
-import { printNode, zodToTs } from 'zod-to-ts';
-import { clientRegistry } from '../src/registry';
+import { Registry } from '../src/registry';
 import '../src/methods';
 
-const generatedDir = path.join(__dirname, '../src/generated');
-if (!fs.existsSync(generatedDir)) {
-    fs.mkdirSync(generatedDir, { recursive: true });
-}
+// ...
 
-let output = `/* eslint-disable */
-/**
- * Auto-generated types from @open-wa/schema
- * Do not edit manually.
- */
+const methods = Registry.getAllMethods();
 
-`;
-
-const methods = clientRegistry.getAll();
-
-methods.forEach(([_schema, meta]) => {
-    if (!meta.inputSchema || !meta.outputSchema) return;
-    
-    const name = meta.functionName!;
-    const inputName = `${name}Input`;
-    const outputName = `${name}Output`;
-    
-    // Generate input type
-    const { node: inputNode } = zodToTs(meta.inputSchema, inputName);
-    output += `export type ${inputName} = ${printNode(inputNode)};\n\n`;
-    
-    // Generate output type
-    const { node: outputNode } = zodToTs(meta.outputSchema, outputName);
-    output += `export type ${outputName} = ${printNode(outputNode)};\n\n`;
+methods.forEach((method) => {
+    const inputIdentifier = `${capitalize(method.name)}Input`;
+    const { node: inputNode } = zodToTs(method.inputSchema as any, inputIdentifier);
+    // ...
 });
-
-fs.writeFileSync(path.join(generatedDir, 'types.ts'), output);
-console.log('Successfully generated types.ts');
 ```
 
----
-
-## Step 5: Update gen-client-implementation.ts
-
-**File**: `packages/schema/scripts/gen-client-implementation.ts`
-
-### Current Issue
-
-The generated `BaseClient.ts` has a broken `pup` method:
+### Updated Code
 
 ```typescript
-protected async pup(_func: any, args: any): Promise<any> {
-    return this.execute('unknown', args);  // BUG: 'unknown' is wrong
-}
-```
-
-### Proposed Fix
-
-```typescript
+import { printNode, zodToTs } from 'zod-to-ts';
 import fs from 'fs';
 import path from 'path';
 import { clientRegistry } from '../src/registry';
-import '../src/methods';
-
-console.log('Loading schemas and generating client...');
+import '../src/methods'; // Trigger registration side-effects
 
 const generatedDir = path.join(__dirname, '../src/generated');
 if (!fs.existsSync(generatedDir)) {
@@ -301,88 +215,223 @@ if (!fs.existsSync(generatedDir)) {
 
 let output = `/* eslint-disable */
 /**
- * Auto-generated BaseClient from @open-wa/schema
- * Do not edit manually.
+ * This file was automatically generated by packages/schema/scripts/gen-types.ts
+ * Do not edit this file manually.
  */
-import { implementMethod } from '../implementor';
-import * as Methods from '../methods';
-
-export abstract class BaseClient {
-    /**
-     * Execute a WAPI method via the browser bridge
-     * @param methodName - The WAPI method name
-     * @param args - Arguments to pass
-     */
-    protected abstract execute(methodName: string, args: any): Promise<any>;
-
 `;
 
+// Get all V2 methods from clientRegistry
 const methods = clientRegistry.getAll();
-methods.forEach(([_schema, meta]) => {
-    const name = meta.functionName!;
-    const description = meta.description || name;
-    const deprecated = meta.deprecated ? '@deprecated' : '';
-    const license = meta.license !== 'none' ? `@license ${meta.license}` : '';
+
+methods.forEach(([schema, meta]) => {
+    if (!meta.functionName) return;
     
+    const methodName = meta.functionName;
+    
+    // Extract input/output schemas from ZodFunction
+    const inputUnion = schema._def.args;
+    const inputSchema = inputUnion._def.options[0]._def.items[0]; // Object schema
+    const outputSchema = schema._def.returns;
+    
+    const inputIdentifier = `${capitalize(methodName)}Input`;
+    const { node: inputNode } = zodToTs(inputSchema, inputIdentifier);
+    const inputType = printNode(inputNode);
+
+    const outputIdentifier = `${capitalize(methodName)}Output`;
+    const { node: outputNode } = zodToTs(outputSchema, outputIdentifier);
+    const outputType = printNode(outputNode);
+
     output += `
-    /**
-     * ${description}
-     * ${deprecated}
-     * ${license}
-     */
-    public ${name} = implementMethod(Methods.${name});
+export type ${inputIdentifier} = ${inputType};
+export type ${outputIdentifier} = ${outputType};
 `;
 });
 
-output += `}
-`;
+// Write types.ts
+fs.writeFileSync(path.join(generatedDir, 'types.ts'), output);
+console.log(`Successfully generated types.ts with ${methods.length} method types`);
 
-fs.writeFileSync(path.join(generatedDir, 'BaseClient.ts'), output);
-console.log('Successfully generated BaseClient.ts with', methods.length, 'methods');
+function capitalize(s: string) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+}
 ```
 
 ---
 
-## Step 6: Update Hono Server Route Registration
+## Step 3: Update Hono Server Route Registration
 
-**File**: `packages/wa-automate/src/server/` (locate the Hono setup file)
+**File**: `packages/wa-automate/src/server/hono-server.ts`
 
-### Proposed Pattern
+### Changes Required
 
 ```typescript
-import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
-import { clientRegistry } from '@open-wa/schema';
+// Line 6: Update import
+- import { Registry, Config } from '@open-wa/schema';
++ import { clientRegistry, Config } from '@open-wa/schema';
++ import '@open-wa/schema/methods'; // Trigger registration
 
-export function registerSchemaRoutes(app: Hono, client: Client) {
-    const methods = clientRegistry.getAll();
-    
-    methods.forEach(([_schema, meta]) => {
-        if (!meta.inputSchema || !meta.functionName) return;
-        
-        const httpMethod = (meta.httpMethod === 'AUTO' || !meta.httpMethod)
-            ? 'post'
-            : meta.httpMethod.toLowerCase();
-        
-        const path = meta.api_slug 
-            || (meta.namespace ? `/${meta.namespace}/${meta.functionName}` : `/${meta.functionName}`);
-        
-        // Register route with Zod validation
-        app[httpMethod](path, zValidator('json', meta.inputSchema), async (c) => {
-            const params = c.req.valid('json');
-            
-            try {
-                const result = await client[meta.functionName!](params);
-                return c.json({ success: true, data: result });
-            } catch (error) {
-                return c.json({ success: false, error: error.message }, 500);
-            }
-        });
-    });
-    
-    console.log(`Registered ${methods.length} schema-driven routes`);
-}
+// Line 116 (in registerRoutes method):
+- const capabilities = Registry.getAllMethods();
++ const capabilities = clientRegistry.getAll();
+
+// Lines 117-126 (endpoint listing):
+- const endpoints = capabilities.map(cap => ({
++ const endpoints = capabilities.map(([_schema, meta]) => ({
+      method: 'POST',
+-     path: `/api/${cap.name}`,
+-     name: cap.name,
+-     description: cap.metadata.description,
+-     category: cap.metadata.category,
++     path: `/api/${meta.functionName}`,
++     name: meta.functionName,
++     description: meta.description,
++     category: meta.namespace,
+  }));
+
+// Line 128:
+- const capabilities = Registry.getAllMethods();
++ // Already have capabilities from above
+
+// Lines 129-179 (route registration):
+- capabilities.forEach((capability) => {
++ capabilities.forEach(([schema, meta]) => {
++     const methodName = meta.functionName!;
+-     const path = `/api/${capability.name}`;
++     const path = `/api/${methodName}`;
+      
++     // Extract input schema from ZodFunction
++     const inputUnion = schema._def.args;
++     const inputSchema = inputUnion._def.options[0]._def.items[0];
+      
+      this.app.post(path, async (c) => {
+          const startTime = Date.now();
+          try {
+              const body = await c.req.json();
+              
+              if (!this.client) {
+                  return c.json({ error: 'Client not initialized' }, 500);
+              }
+
+-             const validated = capability.inputSchema.parse(body);
++             const validated = inputSchema.parse(body);
+
+-             const result = await this.client[capability.name](validated);
++             const result = await this.client[methodName](validated);
+
+              if (this.elasticEmitter) {
+                  this.elasticEmitter.log({
+                      level: 'info',
+                      component: 'api',
+-                     method: capability.name,
++                     method: methodName,
+                      // ... rest unchanged
+                  });
+              }
+
+              return c.json({ success: true, data: result });
+          } catch (error: any) {
+              // ... error handling unchanged
+          }
+      });
+  });
 ```
+
+---
+
+## Step 4: Update Socket Manager
+
+**File**: `packages/wa-automate/src/server/socket-manager.ts`
+
+### Changes Required
+
+```typescript
+// Line 2: Update import
+- import { Registry, CapabilityDefinition, z } from '@open-wa/schema';
++ import { clientRegistry, z } from '@open-wa/schema';
++ import '@open-wa/schema/methods';
+
+// Line 34:
+- const capabilities = Registry.getAllMethods();
++ const capabilities = clientRegistry.getAll();
+
+// Lines 36-69:
+- capabilities.forEach((capability) => {
++ capabilities.forEach(([schema, meta]) => {
++     const methodName = meta.functionName!;
++     const inputUnion = schema._def.args;
++     const inputSchema = inputUnion._def.options[0]._def.items[0];
+      
+-     socket.on(capability.name, async (data: any, callback: Function) => {
++     socket.on(methodName, async (data: any, callback: Function) => {
+          try {
+              let input = data;
+
+-             if (data && Array.isArray(data.args) && capability.inputSchema instanceof z.ZodObject) {
+-                 const shape = (capability.inputSchema as any).shape;
++             if (data && Array.isArray(data.args) && inputSchema instanceof z.ZodObject) {
++                 const shape = inputSchema.shape;
+                  const keys = Object.keys(shape);
+                  const args = data.args;
+                  input = {};
+                  keys.forEach((key, index) => {
+                      if (args[index] !== undefined) {
+                          input[key] = args[index];
+                      }
+                  });
+              }
+
+-             const validated = capability.inputSchema.parse(input);
++             const validated = inputSchema.parse(input);
+
+-             const result = await this.executeCapability(capability, validated);
++             const result = await this.executeMethod(methodName, validated);
+
+              if (callback && typeof callback === 'function') {
+                  callback({ success: true, data: result });
+              }
+          } catch (error: any) {
+              // ... error handling unchanged
+          }
+      });
+  });
+}
+
+- private async executeCapability(capability: CapabilityDefinition, input: any): Promise<any> {
++ private async executeMethod(methodName: string, input: any): Promise<any> {
+      if (!this.client) {
+          throw new Error('Client not initialized');
+      }
+
+-     const method = this.client[capability.name];
++     const method = this.client[methodName];
+      if (typeof method !== 'function') {
+-         throw new Error(`Method ${capability.name} not implemented on Client`);
++         throw new Error(`Method ${methodName} not implemented on Client`);
+      }
+
+      const result = await method(input);
+      return result;
+  }
+```
+
+---
+
+## Step 5: Fix Duplicate `stop` Method
+
+**File**: `packages/wa-automate/src/server/hono-server.ts`
+
+**Delete lines 224-228** (duplicate stop method):
+
+```typescript
+// DELETE THIS BLOCK (lines 224-228):
+    public async stop() {
+        if (this.elasticEmitter) {
+            await this.elasticEmitter.stop();
+        }
+    }
+```
+
+Keep only the first `stop` method at lines 210-214.
 
 ---
 
@@ -390,43 +439,40 @@ export function registerSchemaRoutes(app: Hono, client: Client) {
 
 After making these changes:
 
-1. **Rebuild the schema package**:
-   ```bash
-   cd packages/schema
-   pnpm build
-   ```
+```bash
+# 1. Rebuild the schema package
+cd packages/schema
+pnpm generate
 
-2. **Check generated files**:
-   ```bash
-   ls -la src/generated/
-   # Should see: BaseClient.ts, types.ts, openapi.json
-   ```
+# 2. Compare generated files
+diff /tmp/schema-backup/openapi.json src/generated/openapi.json
+diff /tmp/schema-backup/types.ts src/generated/types.ts
 
-3. **Verify OpenAPI spec**:
-   ```bash
-   cat src/generated/openapi.json | jq '.paths | keys | length'
-   # Should output: 121 (or close to it)
-   ```
+# 3. Check method count
+cat src/generated/openapi.json | jq '.paths | keys | length'
+# Should output: 121 (or close to it)
 
-4. **Check for namespace grouping**:
-   ```bash
-   cat src/generated/openapi.json | jq '.paths | keys | .[:10]'
-   # Should see paths like /messages/sendText, /chats/getChat, etc.
-   ```
+# 4. Check for namespace grouping
+cat src/generated/openapi.json | jq '.paths | keys | .[0:10]'
+# Should see paths like /messages/sendText or /sendText
+
+# 5. Rebuild everything
+cd ../..
+pnpm build
+
+# 6. Run tests (if available)
+pnpm test
+```
 
 ---
 
-## Expected Outcomes
+## Breaking Changes
 
-After this change:
-
-| Before | After |
-|--------|-------|
-| OpenAPI has legacy methods only | OpenAPI has all 121 V2 methods |
-| Types don't match V2 schemas | Types generated from V2 schemas |
-| Routes manually registered | Routes auto-generated from clientRegistry |
-| No namespace grouping | Methods grouped by namespace |
-| httpMethod always POST | httpMethod respects metadata (GET, POST, DELETE, etc.) |
+| Change | Impact | Mitigation |
+|--------|--------|------------|
+| Path structure may change | API clients need updating | Set `api_slug` to match legacy `name` |
+| Schema extraction uses internal APIs | May break on Zod updates | Add fallback checks |
+| Type names unchanged | Low impact | None needed |
 
 ---
 
@@ -434,7 +480,35 @@ After this change:
 
 If something breaks:
 
-1. Keep the legacy `Registry` functional (don't delete it yet)
-2. Add a feature flag: `USE_V2_REGISTRY=true`
-3. Generators check flag and use appropriate registry
-4. Once stable, remove legacy path
+1. **Immediate Rollback**:
+   ```bash
+   git stash
+   # or
+   git checkout -- packages/schema/scripts/
+   git checkout -- packages/wa-automate/src/server/
+   ```
+
+2. **Restore Generated Files**:
+   ```bash
+   cp /tmp/schema-backup/* packages/schema/src/generated/
+   ```
+
+3. **Feature Flag Option** (if needed):
+   ```typescript
+   const USE_V2_REGISTRY = process.env.USE_V2_REGISTRY === 'true';
+   const methods = USE_V2_REGISTRY 
+       ? clientRegistry.getAll() 
+       : Registry.getAllMethods();
+   ```
+
+---
+
+## Expected Outcomes
+
+| Before | After |
+|--------|-------|
+| OpenAPI has legacy methods only | OpenAPI has all 121 V2 methods |
+| Types don't match V2 schemas | Types generated from V2 schemas |
+| Routes manually use legacy Registry | Routes auto-generated from clientRegistry |
+| No namespace grouping | Methods grouped by namespace (optional) |
+| httpMethod always POST | httpMethod respects metadata |

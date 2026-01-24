@@ -221,9 +221,4 @@ export class WAServer {
         return this.io;
     }
 
-    public async stop() {
-        if (this.elasticEmitter) {
-            await this.elasticEmitter.stop();
-        }
-    }
 }
