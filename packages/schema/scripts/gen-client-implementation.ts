@@ -38,15 +38,14 @@ export abstract class BaseClient {
 
 `;
 
-// 2. Generate V2 Methods
-// 1. Generate Methods (All are V2 now)
+// Generate V2 Methods
 const methods = clientRegistry.getAll();
-methods.forEach(([_schema, meta]) => {
-  const name = meta.functionName!;
+methods.forEach((def) => {
+  const name = def.meta.functionName;
 
   output += `
   /**
-    * ${meta.description || name}
+    * ${def.meta.description || name}
     */
   public ${name} = implementMethod(Methods.${name});
 `;

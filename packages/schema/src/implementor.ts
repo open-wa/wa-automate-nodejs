@@ -23,25 +23,22 @@ export function implementMethod<
     Schema extends z.ZodFunction<any, any>
 >(
     schema: Schema,
-    // Optional override. If omitted, defaults to generic WAPI call via this.pup
     implementation?: (this: any, params: any) => Promise<ReturnType<z.infer<Schema>>>
 ): (...args: Parameters<z.infer<Schema>>) => Promise<ReturnType<z.infer<Schema>>> {
-    const meta = clientRegistry.get(schema as any);
-    if (!meta) {
+    const def = clientRegistry.getBySchema(schema as any);
+    if (!def) {
         throw new Error('Schema is not registered in clientRegistry');
     }
 
-    // Use native Zod implementation for built-in validation
+    const meta = def.meta;
+
     return schema.implementAsync(async function (this: any, ...args: any[]) {
         let resolvedParams: any = {};
 
-        // 1. Argument Normalization (Already validated by Zod at this point)
-        // Check if called with a single Object argument (Named style)
         if (args.length === 1 && typeof args[0] === 'object' && !Array.isArray(args[0])) {
             resolvedParams = args[0];
         } else {
-            // Positional arguments -> Map to keys using metadata
-            resolvedParams = (meta.parameterOrder || []).reduce((acc, key, index) => {
+            resolvedParams = (meta.parameterOrder || []).reduce((acc: any, key: string, index: number) => {
                 if (index < args.length) {
                     acc[key] = args[index];
                 }
@@ -49,19 +46,16 @@ export function implementMethod<
             }, {} as any);
         }
 
-        // 2. Custom Implementation (if provided)
         if (implementation) {
             return await implementation.call(this, resolvedParams);
         }
 
-        // 3. Default Fallback: Execute via this.pup()
         if (!this || typeof this.pup !== 'function') {
             throw new Error(`Method ${meta.functionName} requires this.pup() for default implementation`);
         }
 
-        // Dynamically call WAPI on the browser side
         return await this.pup(
-            (params: any) => (window as any).WAPI[meta.wapiOverride || meta.functionName!](params),
+            (params: any) => (window as any).WAPI[meta.wapiOverride || meta.functionName](params),
             resolvedParams
         );
     });

@@ -1,5 +1,6 @@
 import { Server as SocketIOServer } from 'socket.io';
-import { Registry, CapabilityDefinition, z } from '@open-wa/schema';
+import { clientRegistry, z } from '@open-wa/schema';
+import '@open-wa/schema/methods';
 
 export class SocketManager {
     private io: SocketIOServer;
@@ -31,15 +32,18 @@ export class SocketManager {
     }
 
     private registerCapabilityHandlers(socket: any) {
-        const capabilities = Registry.getAllMethods();
+        const methods = clientRegistry.getAll();
 
-        capabilities.forEach((capability) => {
-            socket.on(capability.name, async (data: any, callback: Function) => {
+        methods.forEach((def) => {
+            const methodName = def.meta.functionName;
+            const inputSchema = def.meta.inputSchema;
+            
+            socket.on(methodName, async (data: any, callback: Function) => {
                 try {
                     let input = data;
 
-                    if (data && Array.isArray(data.args) && capability.inputSchema instanceof z.ZodObject) {
-                        const shape = (capability.inputSchema as any).shape;
+                    if (data && Array.isArray(data.args) && inputSchema instanceof z.ZodObject) {
+                        const shape = inputSchema.shape;
                         const keys = Object.keys(shape);
                         const args = data.args;
                         input = {};
@@ -50,9 +54,9 @@ export class SocketManager {
                         });
                     }
 
-                    const validated = capability.inputSchema.parse(input);
+                    const validated = inputSchema.parse(input);
 
-                    const result = await this.executeCapability(capability, validated);
+                    const result = await this.executeMethod(methodName, validated);
 
                     if (callback && typeof callback === 'function') {
                         callback({ success: true, data: result });
@@ -69,14 +73,14 @@ export class SocketManager {
         });
     }
 
-    private async executeCapability(capability: CapabilityDefinition, input: any): Promise<any> {
+    private async executeMethod(methodName: string, input: any): Promise<any> {
         if (!this.client) {
             throw new Error('Client not initialized');
         }
 
-        const method = this.client[capability.name];
+        const method = this.client[methodName];
         if (typeof method !== 'function') {
-            throw new Error(`Method ${capability.name} not implemented on Client`);
+            throw new Error(`Method ${methodName} not implemented on Client`);
         }
 
         const result = await method(input);

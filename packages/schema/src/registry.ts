@@ -83,7 +83,7 @@ export class Registry {
  * Supports RBAC, licensing, and automation features
  */
 export interface ClientFunctionMetadata {
-    functionName?: string;
+    functionName: string; // Required now
     wapiOverride?: string; // If the functionName is different from the WAPI name
     id?: string; // Fallback to functionName
     slug?: string; // Fallback to kebab-case(functionName)
@@ -96,6 +96,18 @@ export interface ClientFunctionMetadata {
     functionality?: FunctionalityScope; // Default to 'both'
     httpMethod?: HttpMethod; // Defaults to 'AUTO'
     parameterOrder: string[]; // Critical for mapping positional args to object keys
+    
+    // Stored directly for generator access
+    inputSchema: z.ZodObject<any>;
+    outputSchema: z.ZodTypeAny;
+}
+
+/**
+ * Complete method definition with schema and metadata
+ */
+export interface MethodDefinition {
+    schema: z.ZodFunction<any, any>;
+    meta: ClientFunctionMetadata;
 }
 
 /**
@@ -122,20 +134,82 @@ export const parameterRegistry = {
 };
 
 /**
- * Global registry for client function capabilities using a regular Map to allow iteration
+ * Primary registry: keyed by function name
  */
-const clientMetadataMap = new Map<z.ZodFunction<any, any>, ClientFunctionMetadata>();
+const methodsByName = new Map<string, MethodDefinition>();
+
+/**
+ * Reverse lookup: for implementMethod() ergonomics
+ * WeakMap so dynamically-created schemas don't leak
+ */
+const nameBySchema = new WeakMap<z.ZodFunction<any, any>, string>();
 
 export const clientRegistry = {
-    set<T extends z.ZodFunction<any, any>>(schema: T, metadata: ClientFunctionMetadata): T {
-        clientMetadataMap.set(schema, metadata);
-        return schema;
+    /**
+     * Register a method definition
+     * @throws Error if method name is already registered
+     */
+    register(def: MethodDefinition): z.ZodFunction<any, any> {
+        const name = def.meta.functionName;
+        
+        if (methodsByName.has(name)) {
+            throw new Error(`Method "${name}" already registered`);
+        }
+        
+        methodsByName.set(name, def);
+        nameBySchema.set(def.schema, name);
+        
+        return def.schema;
     },
-    get<T extends z.ZodFunction<any, any>>(schema: T): ClientFunctionMetadata | undefined {
-        return clientMetadataMap.get(schema);
+    
+    /**
+     * Get method by name (primary lookup)
+     */
+    get(name: string): MethodDefinition | undefined {
+        return methodsByName.get(name);
     },
-    getAll(): Array<[z.ZodFunction<any, any>, ClientFunctionMetadata]> {
-        return Array.from(clientMetadataMap.entries());
+    
+    /**
+     * Get method by schema (for implementMethod compatibility)
+     */
+    getBySchema(schema: z.ZodFunction<any, any>): MethodDefinition | undefined {
+        const name = nameBySchema.get(schema);
+        return name ? methodsByName.get(name) : undefined;
+    },
+    
+    /**
+     * Check if method exists
+     */
+    has(name: string): boolean {
+        return methodsByName.has(name);
+    },
+    
+    /**
+     * Get all registered methods
+     */
+    getAll(): MethodDefinition[] {
+        return Array.from(methodsByName.values());
+    },
+    
+    /**
+     * Get all method names
+     */
+    getNames(): string[] {
+        return Array.from(methodsByName.keys());
+    },
+    
+    /**
+     * Get methods by namespace
+     */
+    getByNamespace(namespace: string): MethodDefinition[] {
+        return this.getAll().filter(def => def.meta.namespace === namespace);
+    },
+    
+    /**
+     * Clear registry (for testing)
+     */
+    clear(): void {
+        methodsByName.clear();
     }
 };
 
@@ -175,32 +249,33 @@ export function defineMethodV2<
 >(
     name: string,
     params: {
-        meta: Omit<ClientFunctionMetadata, 'functionName' | 'parameterOrder'>;
+        meta: Omit<ClientFunctionMetadata, 'functionName' | 'parameterOrder' | 'inputSchema' | 'outputSchema'>;
         input: T;
-        parameterOrder: Array<keyof T['shape']>; // Type-safe keys
+        parameterOrder: Array<keyof T['shape']>;
         output: R;
     }
 ): z.ZodFunction<z.ZodUnion<[z.ZodTuple<[T]>, z.ZodTuple<any>]>, R> {
-    // 1. Create Tuple Schema from Object + Order
     const tupleSchema = zObjectToTuple(params.input, params.parameterOrder as any);
 
-    // 2. Create the Union Input: (ParamsObject) | (...PositionalArgs)
     const inputUnion = z.union([
-        z.tuple([params.input]), // Case A: func({ a: 1, b: 2 })
-        tupleSchema              // Case B: func(1, 2)
+        z.tuple([params.input]),
+        tupleSchema
     ]);
 
-    // 3. Create Function Schema
     const funcSchema = z.function({
         input: inputUnion,
         output: params.output
     }) as z.ZodFunction<z.ZodUnion<[z.ZodTuple<[T]>, z.ZodTuple<any>]>, R>;
 
-    // 4. Register Metadata
-    clientRegistry.set(funcSchema, {
-        functionName: name,
-        parameterOrder: params.parameterOrder as string[],
-        ...params.meta
+    clientRegistry.register({
+        schema: funcSchema,
+        meta: {
+            functionName: name,
+            parameterOrder: params.parameterOrder as string[],
+            inputSchema: params.input,
+            outputSchema: params.output,
+            ...params.meta
+        }
     });
 
     return funcSchema;

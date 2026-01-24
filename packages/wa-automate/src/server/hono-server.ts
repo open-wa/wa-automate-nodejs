@@ -3,7 +3,8 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { serve } from '@hono/node-server';
 import { Server as SocketIOServer } from 'socket.io';
-import { Registry, Config } from '@open-wa/schema';
+import { clientRegistry, Config } from '@open-wa/schema';
+import '@open-wa/schema/methods';
 import { apiKeyMiddleware } from '../middleware/api-key';
 import { rateLimitMiddleware } from '../middleware/rate-limit';
 import { SocketManager } from './socket-manager';
@@ -113,21 +114,25 @@ export class WAServer {
         });
 
         this.app.get('/api', (c) => {
-            const capabilities = Registry.getAllMethods();
-            const endpoints = capabilities.map(cap => ({
+            const methods = clientRegistry.getAll();
+            const endpoints = methods.map(def => ({
                 method: 'POST',
-                path: `/api/${cap.name}`,
-                name: cap.name,
-                description: cap.metadata.description,
-                category: cap.metadata.category,
+                path: `/api/${def.meta.functionName}`,
+                name: def.meta.functionName,
+                description: def.meta.description,
+                category: def.meta.namespace,
             }));
 
             return c.json({ endpoints });
         });
 
-        const capabilities = Registry.getAllMethods();
-        capabilities.forEach((capability) => {
-            const path = `/api/${capability.name}`;
+        const methods = clientRegistry.getAll();
+        methods.forEach((def) => {
+            const methodName = def.meta.functionName;
+            const path = `/api/${methodName}`;
+            
+            const inputUnion = def.schema._def.args;
+            const inputSchema = inputUnion._def.options[0]._def.items[0];
 
             this.app.post(path, async (c) => {
                 const startTime = Date.now();
@@ -138,20 +143,20 @@ export class WAServer {
                         return c.json({ error: 'Client not initialized' }, 500);
                     }
 
-                    const validated = capability.inputSchema.parse(body);
+                    const validated = inputSchema.parse(body);
 
-                    const result = await this.client[capability.name](validated);
+                    const result = await this.client[methodName](validated);
 
                     if (this.elasticEmitter) {
                         this.elasticEmitter.log({
                             level: 'info',
                             component: 'api',
-                            method: capability.name,
+                            method: methodName,
                             sessionId: this.config.sessionId,
                             requestId: c.get('requestId'),
                             duration: Date.now() - startTime,
                             statusCode: 200,
-                            message: `Successfully executed ${capability.name}`
+                            message: `Successfully executed ${methodName}`
                         });
                     }
 
@@ -161,7 +166,7 @@ export class WAServer {
                         this.elasticEmitter.log({
                             level: 'error',
                             component: 'api',
-                            method: capability.name,
+                            method: methodName,
                             sessionId: this.config.sessionId,
                             requestId: c.get('requestId'),
                             duration: Date.now() - startTime,
