@@ -1,0 +1,25 @@
+{
+    "name": "@open-wa/driver-interface",
+    "version": "5.0.0-alpha.1",
+    "description": "Browser driver abstraction interfaces for open-wa",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "require": "./dist/index.js",
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "lint": "eslint src --ext .ts"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "devDependencies": {
+        "typescript": "catalog:"
+    }
+}

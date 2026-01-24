@@ -1,0 +1,31 @@
+{
+    "name": "@open-wa/driver-puppeteer",
+    "version": "5.0.0-alpha.1",
+    "description": "Puppeteer driver implementation for open-wa",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "require": "./dist/index.js",
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "lint": "eslint src --ext .ts"
+    },
+    "dependencies": {
+        "@open-wa/driver-interface": "workspace:*",
+        "puppeteer": "catalog:",
+        "puppeteer-extra": "catalog:"
+    },
+    "devDependencies": {
+        "@types/node": "catalog:",
+        "typescript": "catalog:"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}
