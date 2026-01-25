@@ -8,6 +8,9 @@
     ".": {
       "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./cli": {
+      "require": "./dist/cli/index.js"
     }
   },
   "scripts": {

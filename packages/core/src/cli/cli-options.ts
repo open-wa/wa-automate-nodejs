@@ -177,7 +177,7 @@ Merge<Merge<{
     default: false
 },
 {
-    name: 'pre-auth-docs',
+    name: 'read-env',
     type: Boolean,
     description: "Grab config options from the environment variables.",
     default: false
