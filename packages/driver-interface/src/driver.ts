@@ -31,6 +31,7 @@ export interface IPage {
     reload(): Promise<void>;
     
     evaluate<Arg, Ret>(fn: (arg: Arg) => Ret | Promise<Ret>, arg: Arg): Promise<Ret>;
+    evaluateScript<Ret = unknown>(script: string): Promise<Ret>;
     
     setViewport(viewport: { width: number; height: number }): Promise<void>;
     setUserAgent(ua: string): Promise<void>;

@@ -29,6 +29,10 @@ export class PuppeteerPage implements IPage {
         return await this.page.evaluate(fn as any, arg as any) as Ret;
     }
     
+    async evaluateScript<Ret = unknown>(script: string): Promise<Ret> {
+        return await this.page.evaluate(script) as Ret;
+    }
+    
     async setViewport(viewport: { width: number; height: number }): Promise<void> {
         await this.page.setViewport(viewport);
     }
