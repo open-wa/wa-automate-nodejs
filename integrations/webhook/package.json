@@ -1,0 +1,34 @@
+{
+  "name": "@open-wa/integration-webhook",
+  "version": "5.0.0-alpha.1",
+  "description": "Webhook delivery integration plugin for open-wa",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src --ext .ts",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@open-wa/core": "workspace:*",
+    "@open-wa/logger": "workspace:*",
+    "axios": "^1.6.0",
+    "p-queue": "^8.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
