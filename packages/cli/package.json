@@ -1,0 +1,52 @@
+{
+  "name": "@open-wa/cli",
+  "version": "5.0.0-alpha.1",
+  "description": "CLI for @open-wa WhatsApp automation - Easy API mode",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "wa": "./dist/bin.js",
+    "wa-automate": "./dist/bin.js",
+    "openwa": "./dist/bin.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/bin.js",
+    "test": "vitest",
+    "lint": "eslint src --ext .ts",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@open-wa/client": "workspace:*",
+    "@open-wa/core": "workspace:*",
+    "@open-wa/hyperemitter": "workspace:*",
+    "@open-wa/logger": "workspace:*",
+    "@open-wa/schema": "workspace:*",
+    "@open-wa/driver-puppeteer": "workspace:*",
+    "chalk": "^4.1.2",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "helmet": "^7.1.0",
+    "meow": "^9.0.0",
+    "p-queue": "^6.6.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
