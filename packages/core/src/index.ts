@@ -1,16 +1,7 @@
-import { Client } from './api/Client';
-import { SimpleListener } from './api/model';
+export { createClient } from './createClient.js';
+export type { CreateClientOptions, OpenWAClient } from './createClient.js';
 
-export * from './api/model';
-export * from './api/Client';
-export { create } from './controllers/initializer';
-export * from '@open-wa/wa-decrypt';
-export { ev, Spin } from './controllers/events'
-export * from './utils/tools'
-export * from './logging/logging'
-export * from './structures/preProcessors'
-export * from '@open-wa/wa-automate-socket-client';
-export { Client, SimpleListener }
-//dont need to export this
-// export { getConfigWithCase } from './utils/configSchema'
-export * from './build/build-postman'
+export * from './events/index.js';
+export * from './plugins/index.js';
+export * from './session/index.js';
+export * from './transport/index.js';

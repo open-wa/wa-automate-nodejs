@@ -1,2 +1,1 @@
-export * from './EventManager';
-export * from './WapiBridge';
+export * from './eventMap.js';
