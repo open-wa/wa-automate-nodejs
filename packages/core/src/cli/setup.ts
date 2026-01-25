@@ -15,6 +15,17 @@ import * as fs from 'fs';
 import { log, setupLogging } from '../logging/logging';
 import { optionList } from './cli-options';
 
+// Re-export from @open-wa/config for consumers who want the new config system
+export {
+    defineConfig,
+    resolveConfig,
+    loadConfigFile,
+    loadFromEnv,
+    ConfigSchema,
+    type Config,
+    type PartialConfig,
+} from '@open-wa/config';
+
 let checkUrl = url => typeof url === 'string' ? isUrl(url) : false;
 
 const configWithCases = readJsonSync(path.join(__dirname,'../../bin/config-schema.json'));

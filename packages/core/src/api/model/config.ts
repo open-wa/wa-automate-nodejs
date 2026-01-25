@@ -853,3 +853,26 @@ export interface ConfigObject {
 export type AdvancedConfig = ConfigObject & {
     licenseKey: LicenseKeyConfig
 }
+
+// =============================================================================
+// Re-exports from @open-wa/config for gradual migration
+// =============================================================================
+
+/**
+ * New Zod-based configuration types from @open-wa/config.
+ * These provide runtime validation and better TypeScript support.
+ * 
+ * @example
+ * import { ConfigSchema, Config } from '@open-wa/core';
+ * 
+ * // Validate config at runtime
+ * const validatedConfig = ConfigSchema.parse(userConfig);
+ */
+export {
+    ConfigSchema as ZodConfigSchema,
+    type Config as ZodConfig,
+    type PartialConfig as ZodPartialConfig,
+    parseConfig,
+    validateConfig,
+    getDefaultConfig,
+} from '@open-wa/config';

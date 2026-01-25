@@ -21,6 +21,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@open-wa/config": "workspace:*",
     "puppeteer": "^23.6.0",
     "axios": "^1.4.0",
     "fs-extra": "^10.1.0",
