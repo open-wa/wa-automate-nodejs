@@ -29,6 +29,7 @@
     "uuid": "catalog:"
   },
   "devDependencies": {
+    "@open-wa/driver-puppeteer": "workspace:*",
     "@types/node": "catalog:",
     "@types/uuid": "catalog:",
     "typescript": "catalog:",

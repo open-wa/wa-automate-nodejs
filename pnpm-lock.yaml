@@ -856,9 +856,6 @@ importers:
       '@open-wa/driver-playwright':
         specifier: workspace:*
         version: link:../driver-playwright
-      '@open-wa/driver-puppeteer':
-        specifier: workspace:*
-        version: link:../driver-puppeteer
       '@open-wa/hyperemitter':
         specifier: workspace:*
         version: link:../hyperemitter
@@ -875,6 +872,9 @@ importers:
         specifier: 'catalog:'
         version: 9.0.1
     devDependencies:
+      '@open-wa/driver-puppeteer':
+        specifier: workspace:*
+        version: link:../driver-puppeteer
       '@types/node':
         specifier: 'catalog:'
         version: 24.10.3

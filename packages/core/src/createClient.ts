@@ -13,6 +13,10 @@ export interface CreateClientOptions {
   sessionStore?: SessionStore;
   debug?: boolean;
   waWebUrl?: string;
+  headless?: boolean;
+  qrTimeoutMs?: number;
+  executablePath?: string;
+  browserArgs?: string[];
 }
 
 export interface OpenWAClient {
@@ -25,6 +29,8 @@ export interface OpenWAClient {
   start(): Promise<void>;
   stop(reason?: string): Promise<void>;
   getState(): STATE;
+  screenshot(): Promise<Uint8Array | null>;
+  evaluateScript<T = unknown>(script: string): Promise<T | null>;
 }
 
 export async function createClient(options: CreateClientOptions): Promise<OpenWAClient> {
@@ -55,6 +61,10 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     events,
     logger,
     waWebUrl: options.waWebUrl,
+    headless: options.headless,
+    qrTimeoutMs: options.qrTimeoutMs,
+    executablePath: options.executablePath,
+    browserArgs: options.browserArgs,
   });
   
   const pluginHost = new PluginHost(events, logger);
@@ -90,6 +100,8 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       
       await session.setState('AUTHENTICATING');
       
+      await transport.waitForQr();
+      
       await transport.injectWapi();
       
       await session.setState('READY');
@@ -114,6 +126,18 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     
     getState() {
       return session.getState();
+    },
+    
+    async screenshot() {
+      const page = transport.getPage();
+      if (!page || page.isClosed()) return null;
+      return page.screenshot({ fullPage: true });
+    },
+    
+    async evaluateScript<T = unknown>(script: string): Promise<T | null> {
+      const page = transport.getPage();
+      if (!page || page.isClosed()) return null;
+      return page.evaluateScript<T>(script);
     }
   };
   
