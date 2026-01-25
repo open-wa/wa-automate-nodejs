@@ -217,6 +217,31 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
+  apps/cli:
+    dependencies:
+      '@open-wa/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      chalk:
+        specifier: ^4.1.2
+        version: 4.1.2
+      json5:
+        specifier: ^2.2.1
+        version: 2.2.3
+      meow:
+        specifier: ^9.0.0
+        version: 9.0.0
+      type-fest:
+        specifier: ^2.1.0
+        version: 2.19.0
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.10.3
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
   apps/dashboard:
     dependencies:
       '@open-wa/ui-components':
