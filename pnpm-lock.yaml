@@ -6,6 +6,9 @@ settings:
 
 catalogs:
   default:
+    '@discordjs/collection':
+      specifier: ^2.1.1
+      version: 2.1.1
     '@elastic/elasticsearch':
       specifier: ^9.2.0
       version: 9.2.0
@@ -219,9 +222,9 @@ importers:
 
   apps/cli:
     dependencies:
-      '@open-wa/core':
+      '@open-wa/legacy':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../packages/legacy
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -396,9 +399,9 @@ importers:
       '@hono/node-server':
         specifier: 'catalog:'
         version: 1.19.7(hono@3.12.12)
-      '@open-wa/core':
+      '@open-wa/legacy':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../packages/legacy
       '@open-wa/orchestrator':
         specifier: workspace:*
         version: link:../../packages/orchestrator
@@ -528,6 +531,56 @@ importers:
         specifier: ^14.2.0
         version: 14.2.5
 
+  integrations/chatwoot:
+    dependencies:
+      '@open-wa/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@open-wa/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      axios:
+        specifier: ^1.6.0
+        version: 1.13.2
+      form-data:
+        specifier: ^4.0.0
+        version: 4.0.5
+      mime-types:
+        specifier: ^2.1.35
+        version: 2.1.35
+      uuid-apikey:
+        specifier: ^1.5.3
+        version: 1.5.3
+    devDependencies:
+      '@types/mime-types':
+        specifier: ^2.1.4
+        version: 2.1.4
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.10.3
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  integrations/cloudflare:
+    dependencies:
+      '@open-wa/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@open-wa/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      cloudflared:
+        specifier: ^0.5.0
+        version: 0.5.3
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.10.3
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
   integrations/node-red:
     dependencies:
       '@open-wa/schema':
@@ -631,6 +684,136 @@ importers:
         specifier: ^1.1.1
         version: 1.2.0
 
+  integrations/s3:
+    dependencies:
+      '@open-wa/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@open-wa/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      mime:
+        specifier: ^4.0.0
+        version: 4.1.0
+      p-queue:
+        specifier: ^8.0.0
+        version: 8.1.1
+      pico-s3:
+        specifier: ^1.0.0
+        version: 1.1.4
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.10.3
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  integrations/webhook:
+    dependencies:
+      '@open-wa/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@open-wa/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      axios:
+        specifier: ^1.6.0
+        version: 1.13.2
+      p-queue:
+        specifier: ^8.0.0
+        version: 8.1.1
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.10.3
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  packages/cli:
+    dependencies:
+      '@open-wa/client':
+        specifier: workspace:*
+        version: link:../client
+      '@open-wa/core':
+        specifier: workspace:*
+        version: link:../core
+      '@open-wa/driver-puppeteer':
+        specifier: workspace:*
+        version: link:../driver-puppeteer
+      '@open-wa/hyperemitter':
+        specifier: workspace:*
+        version: link:../hyperemitter
+      '@open-wa/logger':
+        specifier: workspace:*
+        version: link:../logger
+      '@open-wa/schema':
+        specifier: workspace:*
+        version: link:../schema
+      chalk:
+        specifier: ^4.1.2
+        version: 4.1.2
+      cors:
+        specifier: ^2.8.5
+        version: 2.8.5
+      express:
+        specifier: ^4.21.0
+        version: 4.22.1
+      helmet:
+        specifier: ^7.1.0
+        version: 7.2.0
+      meow:
+        specifier: ^9.0.0
+        version: 9.0.0
+      p-queue:
+        specifier: ^6.6.2
+        version: 6.6.2
+    devDependencies:
+      '@types/cors':
+        specifier: ^2.8.17
+        version: 2.8.19
+      '@types/express':
+        specifier: ^4.17.21
+        version: 4.17.25
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.10.3
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 0.34.6(lightningcss@1.30.2)(playwright@1.58.0)(terser@5.44.1)
+
+  packages/client:
+    dependencies:
+      '@open-wa/core':
+        specifier: workspace:*
+        version: link:../core
+      '@open-wa/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@open-wa/hyperemitter':
+        specifier: workspace:*
+        version: link:../hyperemitter
+      '@open-wa/logger':
+        specifier: workspace:*
+        version: link:../logger
+      '@open-wa/schema':
+        specifier: workspace:*
+        version: link:../schema
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.10.3
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 0.34.6(lightningcss@1.30.2)(playwright@1.58.0)(terser@5.44.1)
+
   packages/config:
     dependencies:
       cosmiconfig:
@@ -663,6 +846,134 @@ importers:
         version: 0.34.6(lightningcss@1.30.2)(playwright@1.58.0)(terser@5.44.1)
 
   packages/core:
+    dependencies:
+      '@open-wa/config':
+        specifier: workspace:*
+        version: link:../config
+      '@open-wa/driver-interface':
+        specifier: workspace:*
+        version: link:../driver-interface
+      '@open-wa/driver-playwright':
+        specifier: workspace:*
+        version: link:../driver-playwright
+      '@open-wa/driver-puppeteer':
+        specifier: workspace:*
+        version: link:../driver-puppeteer
+      '@open-wa/hyperemitter':
+        specifier: workspace:*
+        version: link:../hyperemitter
+      '@open-wa/logger':
+        specifier: workspace:*
+        version: link:../logger
+      '@open-wa/schema':
+        specifier: workspace:*
+        version: link:../schema
+      p-queue:
+        specifier: 6.6.2
+        version: 6.6.2
+      uuid:
+        specifier: 'catalog:'
+        version: 9.0.1
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.10.3
+      '@types/uuid':
+        specifier: 'catalog:'
+        version: 8.3.4
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 0.34.6(lightningcss@1.30.2)(playwright@1.58.0)(terser@5.44.1)
+
+  packages/domain:
+    dependencies:
+      '@discordjs/collection':
+        specifier: 'catalog:'
+        version: 2.1.1
+      '@open-wa/hyperemitter':
+        specifier: workspace:*
+        version: link:../hyperemitter
+      '@open-wa/schema':
+        specifier: workspace:*
+        version: link:../schema
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.10.3
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 0.34.6(lightningcss@1.30.2)(playwright@1.58.0)(terser@5.44.1)
+
+  packages/driver-interface:
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  packages/driver-playwright:
+    dependencies:
+      '@open-wa/driver-interface':
+        specifier: workspace:*
+        version: link:../driver-interface
+      playwright:
+        specifier: ^1.41.0
+        version: 1.58.0
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.10.3
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  packages/driver-puppeteer:
+    dependencies:
+      '@open-wa/driver-interface':
+        specifier: workspace:*
+        version: link:../driver-interface
+      puppeteer:
+        specifier: 'catalog:'
+        version: 22.15.0(typescript@5.9.3)
+      puppeteer-extra:
+        specifier: 'catalog:'
+        version: 3.3.6(puppeteer-core@23.11.1)(puppeteer@22.15.0(typescript@5.9.3))
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.10.3
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  packages/hyperemitter:
+    dependencies:
+      '@open-wa/logger':
+        specifier: workspace:*
+        version: link:../logger
+    devDependencies:
+      emittery:
+        specifier: ^1.0.1
+        version: 1.2.0
+      eventemitter2:
+        specifier: ^6.4.9
+        version: 6.4.9
+      eventemitter3:
+        specifier: ^5.0.1
+        version: 5.0.1
+      mitt:
+        specifier: ^3.0.1
+        version: 3.0.1
+      tseep:
+        specifier: ^1.0.1
+        version: 1.3.1
+
+  packages/legacy:
     dependencies:
       '@brillout/import':
         specifier: ^0.2.1
@@ -1023,69 +1334,6 @@ importers:
         specifier: ^5.2.0
         version: 5.9.3
 
-  packages/driver-interface:
-    devDependencies:
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-
-  packages/driver-playwright:
-    dependencies:
-      '@open-wa/driver-interface':
-        specifier: workspace:*
-        version: link:../driver-interface
-      playwright:
-        specifier: ^1.41.0
-        version: 1.58.0
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 24.10.3
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-
-  packages/driver-puppeteer:
-    dependencies:
-      '@open-wa/driver-interface':
-        specifier: workspace:*
-        version: link:../driver-interface
-      puppeteer:
-        specifier: 'catalog:'
-        version: 22.15.0(typescript@5.9.3)
-      puppeteer-extra:
-        specifier: 'catalog:'
-        version: 3.3.6(puppeteer-core@23.11.1)(puppeteer@22.15.0(typescript@5.9.3))
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 24.10.3
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-
-  packages/hyperemitter:
-    dependencies:
-      '@open-wa/logger':
-        specifier: workspace:*
-        version: link:../logger
-    devDependencies:
-      emittery:
-        specifier: ^1.0.1
-        version: 1.2.0
-      eventemitter2:
-        specifier: ^6.4.9
-        version: 6.4.9
-      eventemitter3:
-        specifier: ^5.0.1
-        version: 5.0.1
-      mitt:
-        specifier: ^3.0.1
-        version: 3.0.1
-      tseep:
-        specifier: ^1.0.1
-        version: 1.3.1
-
   packages/logger:
     dependencies:
       chalk:
@@ -1122,9 +1370,9 @@ importers:
 
   packages/orchestrator:
     dependencies:
-      '@open-wa/core':
+      '@open-wa/legacy':
         specifier: workspace:*
-        version: link:../core
+        version: link:../legacy
       ansi-colors:
         specifier: ^4.1.3
         version: 4.1.3
@@ -1267,9 +1515,9 @@ importers:
       '@open-wa/config':
         specifier: workspace:*
         version: link:../config
-      '@open-wa/core':
+      '@open-wa/legacy':
         specifier: workspace:*
-        version: link:../core
+        version: link:../legacy
       zod:
         specifier: 'catalog:'
         version: 4.2.1
@@ -1430,9 +1678,9 @@ importers:
       '@hono/node-server':
         specifier: 'catalog:'
         version: 1.19.7(hono@3.12.12)
-      '@open-wa/core':
+      '@open-wa/legacy':
         specifier: workspace:*
-        version: link:../core
+        version: link:../legacy
       '@open-wa/session-sync':
         specifier: workspace:*
         version: link:../session-sync
@@ -2246,6 +2494,10 @@ packages:
     resolution: {integrity: sha512-TFsm3ZPXnASn/9qlCLPTYHIuP9awO20MSFtjVcS5TO/7KnRPdBv02++1LV59GCaY64lVP2NgOhRrNBLPHsGeBA==}
     engines: {node: '>=16.9.0'}
     deprecated: no longer supported
+
+  '@discordjs/collection@2.1.1':
+    resolution: {integrity: sha512-LiSusze9Tc7qF03sLCujF5iZp7K+vRNEDBZ86FT9aQAv3vxMLihUvKvpsCWiQ2DJq1tVckopKm1rxomgNUc9hg==}
+    engines: {node: '>=18'}
 
   '@effect/data@0.17.1':
     resolution: {integrity: sha512-QCYkLE5Y5Dm5Yax5R3GmW4ZIgTx7W+kSZ7yq5eqQ/mFWa8i4yxbLuu8cudqzdeZtRtTGZKlhDxfFfgVtMywXJg==}
@@ -8135,6 +8387,10 @@ packages:
     resolution: {integrity: sha512-DWlwuXLLqbrIOltR6tFQXShj/+7Cyp0gLi6uAb8qMdFh/YBBFbKSgQ6nbXmScYd8emMctuthmgIa7tUfo9Rtyg==}
     engines: {node: '>=14.0.0'}
 
+  helmet@7.2.0:
+    resolution: {integrity: sha512-ZRiwvN089JfMXokizgqEPXsl2Guk094yExfoDXR0cBYWxtBbaSww/w+vT4WEJsBW2iTUi1GgZ6swmoug3Oy4Xw==}
+    engines: {node: '>=16.0.0'}
+
   help-me@1.1.0:
     resolution: {integrity: sha512-P/IZ8yOMne3SCTHbVY429NZ67B/2bVQlcYGZh2iPPbdLrEQ/qY5aGChn0YTDmt7Sb4IKRI51fypItav+lNl76w==}
 
@@ -10002,6 +10258,11 @@ packages:
     engines: {node: '>=10.0.0'}
     hasBin: true
 
+  mime@4.1.0:
+    resolution: {integrity: sha512-X5ju04+cAzsojXKes0B/S4tcYtFAJ6tTMuSPBEn9CPGlrWr8Fiw7qYeLT0XyH80HSoAoqWCaz+MWKh22P7G1cw==}
+    engines: {node: '>=16'}
+    hasBin: true
+
   mimer@2.0.2:
     resolution: {integrity: sha512-izxvjsB7Ur5HrTbPu6VKTrzxSMBFBqyZQc6dWlZNQ4/wAvf886fD4lrjtFd8IQ8/WmZKdxKjUtqFFNaj3hQ52g==}
     engines: {node: '>= 12'}
@@ -10783,6 +11044,10 @@ packages:
     resolution: {integrity: sha512-RwFpb72c/BhQLEXIZ5K2e+AhgNVmIejGlTgiB9MzZ0e93GRvqZ7uSi0dvRF7/XIXDeNkra2fNHBxTyPDGySpjQ==}
     engines: {node: '>=8'}
 
+  p-queue@8.1.1:
+    resolution: {integrity: sha512-aNZ+VfjobsWryoiPnEApGGmf5WmNsCo9xu8dfaYamG5qaLP7ClhLN6NgsFe6SwJ2UbLEBK5dv9x8Mn5+RVhMWQ==}
+    engines: {node: '>=18'}
+
   p-reduce@1.0.0:
     resolution: {integrity: sha512-3Tx1T3oM1xO/Y8Gj0sWyE78EIJZ+t+aEmXUdvQgvGmSMri7aPTHoovbXEreWKkL5j21Er60XAWLTzKbAKYOujQ==}
     engines: {node: '>=4'}
@@ -10802,6 +11067,10 @@ packages:
   p-timeout@5.1.0:
     resolution: {integrity: sha512-auFDyzzzGZZZdHz3BtET9VEz0SE/uMEAx7uWfGPucfzEwwe/xH0iVeZibQmANYE/hp9T2+UUZT5m+BKyrDp3Ew==}
     engines: {node: '>=12'}
+
+  p-timeout@6.1.4:
+    resolution: {integrity: sha512-MyIV3ZA/PmyBN/ud8vV9XzwTrNtR4jFrObymZYnZqMmW0zA8Z17vnT0rBgFE/TlohB+YCHqXMgZzb3Csp49vqg==}
+    engines: {node: '>=14.16'}
 
   p-try@1.0.0:
     resolution: {integrity: sha512-U1etNYuMJoIz3ZXSrrySFjsXQTWOx2/jdi86L+2pRvph/qMKL6sbcCYdH23fqsbm8TH2Gn0OybpT4eSFlCVHww==}
@@ -11053,6 +11322,9 @@ packages:
   pick-deep@1.0.0:
     resolution: {integrity: sha512-Uy0VUtabou1sPl/vVClBFrWi4Ae/D3Vqu44FJawmm4lnduu5E16ykw8kh15fiUeLQ6lbmXQ0EMr3YIsqpLZl+A==}
     engines: {node: '>=6.0.0'}
+
+  pico-s3@1.1.4:
+    resolution: {integrity: sha512-GAHyE7TST5RHnWSiuyoDUzqRHkXeS5nrxzrc1oNOVyAQyR4zD+veNc1d/tNnVb3kkFpjrE3t6pOkXDKHLfN2/g==}
 
   pico-s3@2.11.0:
     resolution: {integrity: sha512-0s7ADLmQdgZ5clqbGdXamOwig++1PrcjtgMvnB/F17GOA8e9WbbZeNHa3hxZfnhn9O0n/w1HXKzfbxsJppcqJg==}
@@ -15262,6 +15534,8 @@ snapshots:
 
   '@discordjs/collection@0.8.0': {}
 
+  '@discordjs/collection@2.1.1': {}
+
   '@effect/data@0.17.1': {}
 
   '@effect/io@0.38.0(@effect/data@0.17.1)':
@@ -18845,6 +19119,12 @@ snapshots:
   axios@0.26.1:
     dependencies:
       follow-redirects: 1.15.11
+    transitivePeerDependencies:
+      - debug
+
+  axios@0.26.1(debug@4.4.3):
+    dependencies:
+      follow-redirects: 1.15.11(debug@4.4.3)
     transitivePeerDependencies:
       - debug
 
@@ -22727,6 +23007,8 @@ snapshots:
 
   helmet@6.2.0: {}
 
+  helmet@7.2.0: {}
+
   help-me@1.1.0:
     dependencies:
       callback-stream: 1.1.0
@@ -25146,6 +25428,8 @@ snapshots:
 
   mime@3.0.0: {}
 
+  mime@4.1.0: {}
+
   mimer@2.0.2: {}
 
   mimic-fn@1.2.0: {}
@@ -25981,6 +26265,11 @@ snapshots:
       eventemitter3: 4.0.7
       p-timeout: 3.2.0
 
+  p-queue@8.1.1:
+    dependencies:
+      eventemitter3: 5.0.1
+      p-timeout: 6.1.4
+
   p-reduce@1.0.0: {}
 
   p-timeout@1.2.1:
@@ -25996,6 +26285,8 @@ snapshots:
       p-finally: 1.0.0
 
   p-timeout@5.1.0: {}
+
+  p-timeout@6.1.4: {}
 
   p-try@1.0.0: {}
 
@@ -26302,6 +26593,15 @@ snapshots:
     dependencies:
       '@strikeentco/get': 1.0.1
       '@strikeentco/set': 1.0.2
+
+  pico-s3@1.1.4:
+    dependencies:
+      aws4: 1.13.2
+      axios: 0.26.1(debug@4.4.3)
+      datauri: 4.1.0
+      debug: 4.4.3
+    transitivePeerDependencies:
+      - supports-color
 
   pico-s3@2.11.0:
     dependencies:

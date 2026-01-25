@@ -44,7 +44,7 @@ export class Transport {
       details: {}
     });
     
-    this.logger.info('transport_initialized', { driver: this.driver.name });
+    this.logger.info('transport_initialized', { driverName: this.driver.name });
   }
   
   async navigate(): Promise<void> {

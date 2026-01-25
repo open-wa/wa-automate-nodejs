@@ -13,6 +13,31 @@ export type MessageId = z.infer<typeof MessageIdSchema>;
 export const GroupChatIdSchema = z.string().brand('GroupChatId');
 export type GroupChatId = z.infer<typeof GroupChatIdSchema>;
 
+export const GroupIdSchema = z.string().brand('GroupId');
+export type GroupId = z.infer<typeof GroupIdSchema>;
+
+export type DataURL = `data:${string};base64,${string}`;
+export type Base64 = string;
+export type Content = string | DataURL | Base64 | Buffer;
+
+export const GroupMetadataSchema = z.object({
+    id: GroupIdSchema,
+    subject: z.string(),
+    creation: z.number(),
+    owner: ContactIdSchema.optional(),
+    desc: z.string().optional(),
+    descTime: z.number().optional(),
+    descOwner: ContactIdSchema.optional(),
+    restrict: z.boolean().optional(),
+    announce: z.boolean().optional(),
+    participants: z.array(z.object({
+        id: ContactIdSchema,
+        isAdmin: z.boolean(),
+        isSuperAdmin: z.boolean().optional(),
+    })),
+}).passthrough();
+export type GroupMetadata = z.infer<typeof GroupMetadataSchema>;
+
 // Id
 export const IdSchema = z.object({
     server: z.string(),

@@ -11,12 +11,10 @@ import type {
 import type {
   ChatId,
   ContactId,
-  GroupId,
   MessageId,
   Message,
   Chat,
   Contact,
-  GroupMetadata,
 } from '@open-wa/schema';
 import {
   MessageCollector,
@@ -253,7 +251,8 @@ export class Client implements MessagingMethods, GroupMethods, ChatMethods, Cont
    * Listen for all incoming messages.
    */
   onMessage(callback: (message: Message) => void): () => void {
-    const handler = (payload: { message: Message }) => callback(payload.message);
+    const handler = (payload: { ctx: { correlationId: string; ts: number }; message: unknown }) => 
+      callback(payload.message as Message);
     this.events.on('message.received', handler);
     return () => this.events.off('message.received', handler);
   }
@@ -262,31 +261,36 @@ export class Client implements MessagingMethods, GroupMethods, ChatMethods, Cont
    * Listen for message acknowledgements (sent, delivered, read).
    */
   onAck(callback: (ack: { messageId: MessageId; ack: number }) => void): () => void {
-    const handler = (payload: { messageId: MessageId; ack: number }) => callback(payload);
-    this.events.on('message.ack', handler);
-    return () => this.events.off('message.ack', handler);
+    const handler = (payload: { ctx: { correlationId: string; ts: number }; ack: unknown }) => 
+      callback(payload.ack as { messageId: MessageId; ack: number });
+    this.events.on('ack.changed', handler);
+    return () => this.events.off('ack.changed', handler);
   }
   
   /**
    * Listen for state changes (CONNECTED, DISCONNECTED, etc.).
    */
   onStateChanged(callback: (state: STATE) => void): () => void {
-    const handler = (payload: { state: STATE }) => callback(payload.state);
-    this.events.on('session.state_changed', handler);
-    return () => this.events.off('session.state_changed', handler);
+    const handler = (payload: { step: string; details?: { prev: STATE; next: STATE } }) => {
+      if (payload.details?.next) callback(payload.details.next);
+    };
+    this.events.on('session.state.changed', handler);
+    return () => this.events.off('session.state.changed', handler);
   }
   
   // ─────────────────────────────────────────────────────────────────
   // Private helpers
   // ─────────────────────────────────────────────────────────────────
   
-  private _bindMethods<T extends Record<string, Function>>(
+  private _bindMethods<T extends object>(
     methods: (client: Client) => T,
     target: Client
   ): void {
     const boundMethods = methods(target);
     for (const [name, method] of Object.entries(boundMethods)) {
-      (target as any)[name] = method.bind(target);
+      if (typeof method === 'function') {
+        (target as any)[name] = method.bind(target);
+      }
     }
   }
   

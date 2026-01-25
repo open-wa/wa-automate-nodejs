@@ -15,7 +15,7 @@ export interface ListenerRecord<T extends ListenerFn> {
 export function createRecord<T extends ListenerFn>(
   fn: T,
   opts: ListenerOptions,
-  finalizer?: FinalizationRegistry<{ event: string; fn: T }>
+  finalizer?: FinalizationRegistry<unknown>
 ): ListenerRecord<T> {
   const record: ListenerRecord<T> = {
     fn,
@@ -30,7 +30,7 @@ export function createRecord<T extends ListenerFn>(
     if (finalizer) {
       const token = {};
       record.finalizerToken = token;
-      finalizer.register(opts.weak, token);
+      finalizer.register(opts.weak, token, token);
     }
   }
 

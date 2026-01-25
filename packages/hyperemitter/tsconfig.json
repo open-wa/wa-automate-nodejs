@@ -8,10 +8,12 @@
     "sourceMap": true,
     "module": "ESNext",
     "target": "ES2022",
+    "lib": ["ES2022"],
     "moduleResolution": "Bundler",
     "strict": true,
     "noEmit": false,
-    "stripInternal": true
+    "stripInternal": true,
+    "composite": true
   },
   "include": [
     "src/**/*"

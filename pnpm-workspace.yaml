@@ -103,3 +103,6 @@ catalog:
   puppeteer: ^22.0.0
   puppeteer-extra: ^3.3.6
   playwright: ^1.41.0
+  
+  # Discord.js collection (for Collectors)
+  "@discordjs/collection": ^2.1.1

@@ -17,12 +17,5 @@
     "incremental": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"],
-  "references": [
-    { "path": "../core" },
-    { "path": "../domain" },
-    { "path": "../hyperemitter" },
-    { "path": "../logger" },
-    { "path": "../schema" }
-  ]
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }

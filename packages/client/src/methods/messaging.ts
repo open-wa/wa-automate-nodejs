@@ -49,7 +49,7 @@ export function messagingMethods(client: Client): MessagingMethods {
       return evaluate(
         ({ to, content }) => WAPI.sendMessage(to, content),
         { to, content }
-      );
+      ) as Promise<MessageId>;
     },
     
     async sendImage(
@@ -63,7 +63,7 @@ export function messagingMethods(client: Client): MessagingMethods {
         ({ to, file, filename, caption, quotedMsgId }) => 
           WAPI.sendImage(file, to, filename, caption, quotedMsgId, true),
         { to, file, filename, caption, quotedMsgId }
-      );
+      ) as Promise<MessageId>;
     },
     
     async sendFile(
@@ -76,7 +76,7 @@ export function messagingMethods(client: Client): MessagingMethods {
         ({ to, file, filename, caption }) => 
           WAPI.sendFile(file, to, filename, caption),
         { to, file, filename, caption }
-      );
+      ) as Promise<MessageId>;
     },
     
     async sendLocation(
@@ -90,7 +90,7 @@ export function messagingMethods(client: Client): MessagingMethods {
         ({ to, lat, lng, locationText, address }) => 
           WAPI.sendLocation(to, lat, lng, locationText, address),
         { to, lat, lng, locationText, address }
-      );
+      ) as Promise<MessageId>;
     },
     
     async sendContact(to: ChatId, contact: ContactId | ContactId[]): Promise<boolean> {
@@ -109,14 +109,14 @@ export function messagingMethods(client: Client): MessagingMethods {
         ({ to, stickerData, metadata }) => 
           WAPI.sendImageAsSticker(stickerData, to, metadata),
         { to, stickerData, metadata }
-      );
+      ) as Promise<MessageId | boolean>;
     },
     
     async reply(to: ChatId, content: string, quotedMsgId: MessageId): Promise<MessageId | boolean> {
       return evaluate(
         ({ to, content, quotedMsgId }) => WAPI.reply(to, content, quotedMsgId),
         { to, content, quotedMsgId }
-      );
+      ) as Promise<MessageId | boolean>;
     },
     
     async forwardMessages(

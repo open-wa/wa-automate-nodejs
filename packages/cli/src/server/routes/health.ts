@@ -7,7 +7,7 @@ export function createHealthRoutes(client: Client, options: CliOptions): Router 
   
   router.get('/', (_req: Request, res: Response) => {
     const state = client.getState();
-    const isHealthy = state === 'READY' || state === 'CONNECTED';
+    const isHealthy = state === 'READY';
     
     res.status(isHealthy ? 200 : 503).json({
       status: isHealthy ? 'healthy' : 'unhealthy',

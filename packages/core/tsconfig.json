@@ -17,12 +17,5 @@
     "incremental": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"],
-  "references": [
-    { "path": "../config" },
-    { "path": "../driver-interface" },
-    { "path": "../hyperemitter" },
-    { "path": "../logger" },
-    { "path": "../schema" }
-  ]
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }

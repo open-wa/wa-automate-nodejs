@@ -1,6 +1,6 @@
 import { EventEmitter as NodeEmitter } from 'node:events';
 import { RadixTree } from '../routing/RadixTree';
-import { ListenerOptions, HyperEmitterOptions, EventMap } from '../types';
+import { ListenerOptions, HyperEmitterOptions } from '../types';
 import {
   ListenerRecord,
   attachAbort,
@@ -12,10 +12,7 @@ import type { LogContext } from '@open-wa/logger';
 
 type AnyFn = (...args: any[]) => any;
 
-/**
- * HyperEmitter: high-performance hybrid emitter with MQTT-style wildcards.
- */
-export class HyperEmitter<TMap extends EventMap = EventMap> {
+export class HyperEmitter<TMap extends object = Record<string, unknown>> {
   private readonly delimiter: string;
   private readonly captureRejections: boolean;
   private readonly onError?: (err: unknown) => void;
@@ -58,7 +55,7 @@ export class HyperEmitter<TMap extends EventMap = EventMap> {
 
   on<K extends keyof TMap & string>(
     event: K,
-    listener: TMap[K],
+    listener: (payload: TMap[K]) => void | Promise<void>,
     options: ListenerOptions = {}
   ): this {
     const record = createRecord(listener as AnyFn, options, this.finalizer as any);
@@ -68,7 +65,7 @@ export class HyperEmitter<TMap extends EventMap = EventMap> {
 
   once<K extends keyof TMap & string>(
     event: K,
-    listener: TMap[K],
+    listener: (payload: TMap[K]) => void | Promise<void>,
     options: ListenerOptions = {}
   ): this {
     const record = createRecord(listener as AnyFn, options, this.finalizer as any);
@@ -77,7 +74,7 @@ export class HyperEmitter<TMap extends EventMap = EventMap> {
     return this;
   }
 
-  off<K extends keyof TMap & string>(event: K, listener: TMap[K]): this {
+  off<K extends keyof TMap & string>(event: K, listener: (payload: TMap[K]) => void | Promise<void>): this {
     const list = this.exactListeners.get(event);
     if (list) {
       const idx = list.findIndex(l => l.fn === listener);
@@ -95,14 +92,14 @@ export class HyperEmitter<TMap extends EventMap = EventMap> {
 
   emit<K extends keyof TMap & string>(
     event: K,
-    ...args: Parameters<TMap[K]>
+    payload: TMap[K]
   ): boolean {
     const exact = this.exactListeners.get(event as string);
     const wildcard = this.hasWildcards
       ? this.wildcardTree.match(event as string)
       : undefined;
 
-    const called = this.dispatch(exact, args) | this.dispatch(wildcard, args);
+    const called = this.dispatch(exact, [payload]) | this.dispatch(wildcard, [payload]);
     return Boolean(called);
   }
 

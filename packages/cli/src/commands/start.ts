@@ -2,7 +2,7 @@ import type { CliOptions } from '../options.js';
 import type { Client } from '@open-wa/client';
 import { createClient, Transport } from '@open-wa/core';
 import { createLogger } from '@open-wa/logger';
-import { createPuppeteerDriver } from '@open-wa/driver-puppeteer';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
 import { createServer, type ServerInstance } from '../server/createServer.js';
 
 export interface StartResult {
@@ -22,9 +22,7 @@ export async function start(options: CliOptions): Promise<StartResult> {
     headless: options.headless,
   });
   
-  const driver = createPuppeteerDriver({
-    headless: options.headless,
-  });
+  const driver = new PuppeteerDriver();
   
   const openwaClient = await createClient({
     sessionId: options.sessionId,
@@ -105,7 +103,7 @@ export async function start(options: CliOptions): Promise<StartResult> {
   
   if (!options.noKillOnLogout) {
     client.onStateChanged((state) => {
-      if (state === 'UNPAIRED' || state === 'CONFLICT') {
+      if (state === 'DISCONNECTED' || state === 'STOPPED') {
         logger.info('session_logged_out', { state });
         process.exit(0);
       }

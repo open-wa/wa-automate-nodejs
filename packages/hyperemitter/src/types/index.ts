@@ -1,6 +1,8 @@
 export type AnyFn = (...args: any[]) => any;
 
-export type EventMap = Record<string, AnyFn>;
+export type EventMap = { [key: string]: unknown };
+
+export type EventListener<T> = (payload: T) => void | Promise<void>;
 
 export interface ListenerOptions {
   /**

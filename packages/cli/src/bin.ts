@@ -15,9 +15,8 @@ async function main(): Promise<void> {
   console.log(logo);
   
   const cli = meow(helpText, {
-    importMeta: import.meta,
     flags: meowFlags as any,
-  });
+  } as any);
   
   if (cli.flags.help) {
     cli.showHelp();

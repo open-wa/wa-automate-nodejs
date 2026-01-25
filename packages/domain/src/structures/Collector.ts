@@ -13,12 +13,8 @@ import { EventEmitter } from 'events';
  * Extended Collection with JSON serialization support.
  */
 export class Collection<K, V> extends BaseCollection<K, V> {
-  toJSON(): unknown[] {
-    return this.map((e: unknown) =>
-      typeof (e as { toJSON?: () => unknown }).toJSON === 'function'
-        ? (e as { toJSON: () => unknown }).toJSON()
-        : e
-    );
+  override toJSON(): [K, V][] {
+    return this.map((v, k) => [k, v] as [K, V]) as unknown as [K, V][];
   }
 }
 
@@ -299,10 +295,10 @@ export abstract class Collector<T = unknown> extends EventEmitter {
           yield queue.shift()!;
         } else {
           await new Promise<boolean>((resolve) => {
-            const tick = (): boolean => {
+            const tick = (): void => {
               this.removeListener('collect', tick);
               this.removeListener('end', tick);
-              return resolve(true);
+              resolve(true);
             };
             this.on('collect', tick);
             this.on('end', tick);

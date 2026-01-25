@@ -1,4 +1,4 @@
-import { HyperEmitter, EventMap } from '@open-wa/hyperemitter';
+import { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Message, MessageId, ChatId, Chat } from '@open-wa/schema';
 import { Collector, CollectorFilter, CollectorOptions, Collection } from './Collector.js';
 
@@ -6,11 +6,11 @@ export interface MessageCollectorOptions extends CollectorOptions {
   maxProcessed?: number;
 }
 
-export interface MessageCollectorEvents extends EventMap {
-  'message.received': (payload: { message: Message }) => void;
-  'message.deleted': (payload: { messageId: string; chatId: string }) => void;
-  'chat.deleted': (payload: { chatId: string }) => void;
-  'group.removedFromGroup': (payload: { groupId: string }) => void;
+export interface MessageCollectorEvents {
+  'message.received': { message: Message };
+  'message.deleted': { messageId: string; chatId: string };
+  'chat.deleted': { chatId: string };
+  'group.removedFromGroup': { groupId: string };
 }
 
 export class MessageCollector extends Collector<Message> {
