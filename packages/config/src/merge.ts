@@ -2,7 +2,24 @@
  * @open-wa/config - Config Merger
  *
  * Merges configuration from multiple sources with proper precedence.
- * Precedence: CLI args > env vars > config file > defaults
+ *
+ * ## Precedence Order (left to right, later overrides earlier)
+ *
+ * ```
+ * DEFAULTS → FILE → ENV → CLI → PROGRAMMATIC
+ *   (1)      (2)    (3)   (4)       (5)
+ * ```
+ *
+ * | Priority | Source        | Description                                      |
+ * |----------|---------------|--------------------------------------------------|
+ * | 1 (low)  | DEFAULTS      | Hardcoded defaults from Zod schema               |
+ * | 2        | FILE          | wa.config.ts/js/json, .warc, cli.config.js/cjs   |
+ * | 3        | ENV           | Environment variables with WA_* prefix           |
+ * | 4        | CLI           | Command-line arguments (--port, --headless, etc) |
+ * | 5 (high) | PROGRAMMATIC  | Runtime overrides (testing only)                 |
+ *
+ * Each source can override values from previous sources.
+ * Example: WA_PORT=3000 overrides port from wa.config.ts
  */
 import { deepmergeCustom } from 'deepmerge-ts';
 import { ConfigSchema, getDefaultConfig, parseConfig, type Config, type PartialConfig } from './schema';
@@ -17,13 +34,22 @@ const deepmerge = deepmergeCustom({
 });
 
 /**
- * Configuration sources in order of precedence (lowest to highest)
+ * Configuration sources in order of precedence (lowest to highest).
+ *
+ * Order: DEFAULTS (1) → FILE (2) → ENV (3) → CLI (4) → PROGRAMMATIC (5)
+ *
+ * Each subsequent source overrides the previous.
  */
 export enum ConfigSource {
+  /** Priority 1 (lowest): Hardcoded defaults from Zod schema */
   DEFAULTS = 'defaults',
+  /** Priority 2: Config files (wa.config.ts/js/json, .warc, cli.config.js/cjs) */
   FILE = 'file',
+  /** Priority 3: Environment variables (WA_* prefix) */
   ENV = 'env',
+  /** Priority 4: Command-line arguments */
   CLI = 'cli',
+  /** Priority 5 (highest): Programmatic overrides (testing only) */
   PROGRAMMATIC = 'programmatic',
 }
 
