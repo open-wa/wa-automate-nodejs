@@ -39,7 +39,7 @@
     "dependencies": {
         "@asteasolutions/zod-to-openapi": "^6.4.0",
         "@open-wa/config": "workspace:*",
-        "@open-wa/core": "workspace:*",
+        "@open-wa/legacy": "workspace:*",
         "zod": "catalog:",
         "zod-to-json-schema": "^3.22.3"
     },

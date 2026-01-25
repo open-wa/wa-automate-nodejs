@@ -15,7 +15,7 @@
     },
     "dependencies": {
         "@open-wa/orchestrator": "workspace:*",
-        "@open-wa/core": "workspace:*",
+        "@open-wa/legacy": "workspace:*",
         "hono": "catalog:",
         "@hono/node-server": "catalog:",
         "express": "catalog:",
