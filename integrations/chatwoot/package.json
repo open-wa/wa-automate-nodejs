@@ -1,0 +1,37 @@
+{
+  "name": "@open-wa/integration-chatwoot",
+  "version": "5.0.0-alpha.1",
+  "description": "Chatwoot integration plugin for open-wa",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src --ext .ts",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@open-wa/core": "workspace:*",
+    "@open-wa/logger": "workspace:*",
+    "axios": "^1.6.0",
+    "form-data": "^4.0.0",
+    "mime-types": "^2.1.35",
+    "uuid-apikey": "^1.5.3"
+  },
+  "devDependencies": {
+    "@types/mime-types": "^2.1.4",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
