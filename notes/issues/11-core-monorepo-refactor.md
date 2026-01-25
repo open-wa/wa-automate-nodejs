@@ -573,66 +573,521 @@ Key features already available:
 - **AbortSignal support** - listeners can be cancelled via signal
 - **Radix tree routing** - high-performance pattern matching
 
-### 5.2 Event Map (Typed)
+### 5.2 Event Map (Comprehensive v2)
+
+> **Updated 2026-01-25**: Comprehensive event map based on deep analysis of launch procedure, 
+> session recovery, preprocessing, webhooks, patches, and CLI/server lifecycle.
+
+#### 5.2.1 Event Metadata System
+
+Each event has metadata annotations to control routing:
+
+```typescript
+// packages/core/src/events/meta.ts
+
+/** Metadata for every event key */
+export interface OpenWAEventMeta {
+  /** NEVER trigger webhooks (internal instrumentation only) */
+  internal: boolean;
+  /** Contains secrets/PII (QR codes, session blobs, link codes) */
+  sensitive: boolean;
+}
+
+/** Runtime event name with session suffix: {namespace}.{sessionId} */
+export type OpenWAEventName<K extends keyof OpenWAEventMap> = `${K}.${string}`;
+
+/** Common context attached to operational events */
+export interface EventContext {
+  correlationId: string;  // Trace a single launch/retry/reinject cycle
+  attempt?: number;       // Incrementing retry attempt (0 for first)
+  ts: number;             // Timestamp (ms)
+}
+
+/** Standard "step" payload for launch/patch/persistence steps */
+export interface StepEvent<TDetails = Record<string, unknown>> extends EventContext {
+  step: string;
+  details?: TDetails;
+  error?: { name: string; message: string; stack?: string };
+  durationMs?: number;
+}
+```
+
+#### 5.2.2 Complete Event Map
 
 ```typescript
 // packages/core/src/events/eventMap.ts
 
 export interface OpenWAEventMap {
-  // === Lifecycle Events ===
-  'core.starting': { config: ResolvedConfig };
-  'core.started': {};
-  'core.stopping': { reason?: string };
-  'core.stopped': {};
+  // ============================================================================
+  // LAUNCH NAMESPACE (ALL INTERNAL - never trigger webhooks)
+  // The launch procedure is delicate with circular retries
+  // ============================================================================
   
-  // === Driver Events ===
-  'driver.launching': { driver: 'puppeteer' | 'playwright' };
-  'driver.launched': {};
-  'driver.disconnected': { reason?: string };
-  'driver.reconnecting': { attempt: number };
+  // --- Launch lifecycle ---
+  'launch.create.start': StepEvent<{ configSummary?: Record<string, unknown> }>;
+  'launch.create.retry': StepEvent<{ reason: string; nextAttempt: number }>;
+  'launch.create.ready': StepEvent<{ state: STATE }>;
   
-  // === Session Events ===
-  'session.creating': { sessionId: string };
-  'session.created': { sessionId: string };
-  'session.restored': { sessionId: string };
-  'session.destroyed': { sessionId: string };
+  // --- Config & logging setup ---
+  'launch.config.setup.before': StepEvent;
+  'launch.config.setup.after': StepEvent;
+  'launch.logging.setup.before': StepEvent;
+  'launch.logging.setup.after': StepEvent;
   
-  // === Auth Events ===
-  'auth.qr': { sessionId: string; qr: string; attempt: number };
-  'auth.qr.expired': { sessionId: string };
-  'auth.authenticated': { sessionId: string };
-  'auth.failed': { sessionId: string; error: Error };
-  'auth.logout': { sessionId: string };
+  // --- Update check ---
+  'launch.update.check.before': StepEvent<{ currentVersion?: string }>;
+  'launch.update.check.after': StepEvent<{ updateAvailable?: boolean; latestVersion?: string }>;
   
-  // === Client Events ===
-  'client.ready': { sessionId: string };
-  'client.state': { state: ClientState };
+  // --- Browser initialization ---
+  'launch.browser.init.before': StepEvent<{ browserArgs?: string[]; headless?: boolean }>;
+  'launch.browser.init.after': StepEvent<{ pid?: number }>;
   
-  // === Message Events ===
-  'message.received': { message: Message };
-  'message.sent': { message: Message };
-  'message.ack': { messageId: string; ack: MessageAck };
-  'message.revoked': { messageId: string };
-  'message.reaction': { reaction: ReactionEvent };
+  // --- Page setup ---
+  'launch.page.init.before': StepEvent;
+  'launch.page.init.after': StepEvent<{ userAgent?: string; viewport?: { w: number; h: number } }>;
+  'launch.page.interception.before': StepEvent<{ enabled: boolean }>;
+  'launch.page.interception.after': StepEvent;
   
-  // === Chat Events ===
-  'chat.new': { chat: Chat };
-  'chat.archived': { chatId: ChatId };
-  'chat.unread': { chatId: ChatId; count: number };
+  // --- Navigation ---
+  'launch.navigation.gotoWaWeb.before': StepEvent<{ url: string }>;
+  'launch.navigation.gotoWaWeb.after': StepEvent<{ finalUrl?: string }>;
   
-  // === Group Events ===
-  'group.join': { groupId: GroupChatId };
-  'group.leave': { groupId: GroupChatId };
-  'group.participant.add': ParticipantChangedEventModel;
-  'group.participant.remove': ParticipantChangedEventModel;
-  'group.participant.promote': ParticipantChangedEventModel;
-  'group.participant.demote': ParticipantChangedEventModel;
+  // --- Module loading ---
+  'launch.modules.wait.before': StepEvent<{ timeoutMs?: number }>;
+  'launch.modules.wait.after': StepEvent<{ success: boolean }>;
   
-  // === Error Events ===
+  // --- Early injection check ---
+  'launch.injection.earlyCheck.before': StepEvent;
+  'launch.injection.earlyCheck.after': StepEvent<{ canInjectPreAuth: boolean }>;
+  
+  // --- Auth flow ---
+  'launch.auth.check.before': StepEvent<{ timeoutMs?: number }>;
+  'launch.auth.check.after': StepEvent<{ isAuthenticated: boolean; method?: 'race' | 'direct' }>;
+  'launch.auth.nuke.detected': StepEvent<{ reason: string }>;  // Session expired
+  'launch.auth.timeout': StepEvent<{ timeoutMs: number; phoneOutOfReach?: boolean }>;
+  'launch.auth.phoneOutOfReach': StepEvent<{ reason?: string }>;
+  
+  // --- QR / Link code (SENSITIVE) ---
+  'launch.auth.qr.requested': StepEvent<{ smartQr?: boolean }>;
+  'launch.auth.qr.generated': StepEvent<{ qr: string; ascii?: string; attemptInThisCycle?: number }>;  // SENSITIVE
+  'launch.auth.qr.scanned': StepEvent;
+  'launch.auth.qr.expired': StepEvent;
+  'launch.auth.linkCode.requested': StepEvent;
+  'launch.auth.linkCode.generated': StepEvent<{ linkCode: string }>;  // SENSITIVE
+  
+  // --- Pairing/syncing transitions ---
+  'launch.auth.pairing': StepEvent;
+  'launch.auth.syncing': StepEvent;
+  
+  // --- License preload (parallel) ---
+  'launch.license.preload.before': StepEvent;
+  'launch.license.preload.after': StepEvent<{ success: boolean }>;
+  
+  // --- WAPI injection ---
+  'launch.wapi.inject.before': StepEvent<{ injectPreApiScripts: boolean }>;
+  'launch.wapi.inject.after': StepEvent<{ success: boolean }>;
+  
+  // --- Session validity check ---
+  'launch.session.validityCheck.before': StepEvent;
+  'launch.session.validityCheck.after': StepEvent<{ valid: boolean; hasStore: boolean; hasMsg: boolean }>;
+  'launch.session.invalid.retry': StepEvent<{ reason: string }>;  // Triggers recursive create()
+  
+  // --- License check/injection ---
+  'launch.license.check.before': StepEvent;
+  'launch.license.check.after': StepEvent<{ status: 'ok' | 'missing' | 'invalid' | 'expired'; detail?: string }>;
+  
+  // --- Init patch ---
+  'launch.patch.init.before': StepEvent;
+  'launch.patch.init.after': StepEvent<{ applied: string[] }>;
+  
+  // --- Client finalization ---
+  'launch.client.finalize.before': StepEvent;
+  'launch.client.finalize.after': StepEvent<{ state: STATE }>;
+  
+  // ============================================================================
+  // SESSION NAMESPACE (reinjection, recovery, state changes)
+  // ============================================================================
+  
+  'session.state.changed': StepEvent<{ prev: STATE; next: STATE; reason?: string }>;
+  'session.connection.disconnected': StepEvent<{ reason?: string; wasLoggedIn?: boolean }>;
+  'session.connection.reconnecting': StepEvent<{ reason?: string }>;
+  'session.connection.reconnected': StepEvent<{ downtimeMs?: number }>;
+  
+  // --- Reinjection (when frame navigates and WAPI is missing) ---
+  'session.frame.navigated': StepEvent<{ url?: string; isMainFrame: boolean }>;  // INTERNAL
+  'session.reinject.detected': StepEvent<{ reason: 'wapi_missing' | 'stale_session' | 'reload' | string }>;
+  'session.reinject.before': StepEvent<{ reason: string }>;
+  'session.reinject.after': StepEvent<{ success: boolean }>;
+  'session.reinject.qr.waiting': StepEvent<{ reason?: string }>;
+  
+  'session.stale.detected': StepEvent<{ reason?: string }>;
+  'session.logout': StepEvent<{ reason?: string }>;
+  
+  // ============================================================================
+  // MESSAGE NAMESPACE (covers SimpleListener.Message, AnyMessage, MessageDeleted)
+  // ============================================================================
+  
+  'message.received': { ctx: EventContext; message: Message };
+  'message.any': { ctx: EventContext; message: Message };
+  'message.deleted': { ctx: EventContext; messageId: string; chatId: string; by?: string };
+  
+  // ============================================================================
+  // ACK NAMESPACE
+  // ============================================================================
+  
+  'ack.changed': { ctx: EventContext; ack: Ack };
+  
+  // ============================================================================
+  // GROUP NAMESPACE
+  // ============================================================================
+  
+  'group.addedToGroup': { ctx: EventContext; groupId: string; by?: string };
+  'group.removedFromGroup': { ctx: EventContext; groupId: string; by?: string };
+  'group.participants.changed.global': { ctx: EventContext; change: GroupParticipantChange };
+  'group.approval.request': { ctx: EventContext; groupId: string; requesterId: string };
+  'group.changed': { ctx: EventContext; groupId: string; changeType: string };
+  
+  // ============================================================================
+  // CHAT NAMESPACE
+  // ============================================================================
+  
+  'chat.deleted': { ctx: EventContext; chatId: string };
+  'chat.opened': { ctx: EventContext; chat: Chat };
+  'chat.state': { ctx: EventContext; state: ChatState };
+  
+  // ============================================================================
+  // DEVICE NAMESPACE
+  // ============================================================================
+  
+  'device.battery': { ctx: EventContext; battery: BatteryStatus };
+  'device.plugged': { ctx: EventContext; plugged: boolean; battery?: number };
+  
+  // ============================================================================
+  // CALL NAMESPACE
+  // ============================================================================
+  
+  'call.incoming': { ctx: EventContext; call: IncomingCall };
+  'call.state': { ctx: EventContext; state: CallState };
+  
+  // ============================================================================
+  // AUTH NAMESPACE (runtime, distinct from launch.auth.*)
+  // ============================================================================
+  
+  'auth.logout': { ctx: EventContext; reason?: string };
+  
+  // ============================================================================
+  // UI NAMESPACE (buttons, polls)
+  // ============================================================================
+  
+  'ui.button': { ctx: EventContext; messageId: string; buttonId: string; from: string };
+  'ui.poll.vote': { ctx: EventContext; vote: PollVote };
+  
+  // ============================================================================
+  // BROADCAST / LABEL / STORY / COMMERCE / REACTION
+  // ============================================================================
+  
+  'broadcast.received': { ctx: EventContext; message: Message };
+  'label.changed': { ctx: EventContext; labelId: string; action: 'added' | 'removed' | 'renamed' };
+  'story.received': { ctx: EventContext; storyId: string; from: string; timestamp: number };
+  'commerce.order': { ctx: EventContext; orderId: string; from: string };
+  'commerce.product.new': { ctx: EventContext; productId: string; catalogId?: string };
+  'reaction.added': { ctx: EventContext; reaction: Reaction };
+  
+  // ============================================================================
+  // MEDIA NAMESPACE (preprocessing pipeline + upload)
+  // INTERNAL - instrumentation for media processing
+  // ============================================================================
+  
+  'media.preprocess.before': { ctx: EventContext; message: Message; processors: MessagePreProcessor[] };
+  'media.preprocess.after': { ctx: EventContext; message: Message; results: MediaProcessResult[] };
+  
+  // Per-processor events
+  'media.processor.SCRUB.before': { ctx: EventContext; message: Message };
+  'media.processor.SCRUB.after': { ctx: EventContext; result: MediaProcessResult };
+  'media.processor.BODY_ONLY.before': { ctx: EventContext; message: Message };
+  'media.processor.BODY_ONLY.after': { ctx: EventContext; result: MediaProcessResult };
+  'media.processor.AUTO_DECRYPT.before': { ctx: EventContext; message: Message };
+  'media.processor.AUTO_DECRYPT.after': { ctx: EventContext; result: MediaProcessResult };
+  'media.processor.AUTO_DECRYPT_SAVE.before': { ctx: EventContext; message: Message; saveDir?: string };
+  'media.processor.AUTO_DECRYPT_SAVE.after': { ctx: EventContext; result: MediaProcessResult };
+  'media.processor.UPLOAD_CLOUD.before': { ctx: EventContext; message: Message; provider: 's3' | 'gcs' | string };
+  'media.processor.UPLOAD_CLOUD.after': { ctx: EventContext; result: MediaProcessResult };
+  
+  // S3 upload specific
+  'media.upload.s3.before': { ctx: EventContext; messageId: string; bucket: string; key: string };
+  'media.upload.s3.after': { ctx: EventContext; messageId: string; bucket: string; key: string; url?: string; etag?: string };
+  
+  // ============================================================================
+  // WEBHOOK NAMESPACE (ALL INTERNAL - to prevent infinite loops!)
+  // ============================================================================
+  
+  'webhook.registered': { ctx: EventContext; webhook: WebhookRegistration };
+  'webhook.unregistered': { ctx: EventContext; webhookId: string };
+  'webhook.trigger.before': { ctx: EventContext; webhookId: string; event: string; payload: unknown };
+  'webhook.trigger.after': { ctx: EventContext; webhookId: string; event: string; enqueued: boolean; reasonIfSkipped?: string };
+  'webhook.queue.enqueued': { ctx: EventContext; delivery: WebhookDeliveryAttempt };
+  'webhook.queue.dequeued': { ctx: EventContext; deliveryId: string; webhookId: string };
+  'webhook.deliver.before': { ctx: EventContext; attempt: WebhookDeliveryAttempt };
+  'webhook.deliver.after': { ctx: EventContext; result: WebhookDeliveryResult };
+  
+  // ============================================================================
+  // PERSISTENCE NAMESPACE (session save, compress, zip, upload)
+  // INTERNAL + SENSITIVE - contains session data
+  // ============================================================================
+  
+  'persistence.session.save.before': StepEvent<{ target: 'disk' | 's3' | 'memory' }>;
+  'persistence.session.save.after': StepEvent<{ artifacts: PersistenceArtifact[] }>;
+  'persistence.compress.zstd.before': StepEvent<{ inputBytes?: number }>;
+  'persistence.compress.zstd.after': StepEvent<{ artifact: PersistenceArtifact }>;
+  'persistence.archive.zip.before': StepEvent<{ inputs: Array<{ path: string; sizeBytes?: number }> }>;
+  'persistence.archive.zip.after': StepEvent<{ artifact: PersistenceArtifact }>;
+  'persistence.upload.s3.before': StepEvent<{ bucket: string; key: string; kind: 'sessionData' | 'zstd' | 'zip' }>;
+  'persistence.upload.s3.after': StepEvent<{ bucket: string; key: string; etag?: string; sizeBytes?: number }>;
+  
+  // ============================================================================
+  // PATCH NAMESPACE (before/after patch application)
+  // INTERNAL - instrumentation only
+  // ============================================================================
+  
+  'patch.apply.before': StepEvent<{ patchId: string; description?: string }>;
+  'patch.apply.after': StepEvent<{ patchId: string; applied: boolean }>;
+  'patch.init.before': StepEvent;
+  'patch.init.after': StepEvent<{ applied: string[] }>;
+  
+  // ============================================================================
+  // LICENSE NAMESPACE (runtime license checks)
+  // INTERNAL - instrumentation only
+  // ============================================================================
+  
+  'license.check.before': StepEvent<{ source: 'local' | 'remote' | 'cached' }>;
+  'license.check.after': StepEvent<{ status: 'ok' | 'missing' | 'invalid' | 'expired'; detail?: string }>;
+  'license.inject.before': StepEvent;
+  'license.inject.after': StepEvent<{ success: boolean }>;
+  
+  // ============================================================================
+  // CLI / SERVER NAMESPACE
+  // INTERNAL - lifecycle events
+  // ============================================================================
+  
+  'cli.launched': { ctx: EventContext; argv: string[]; version?: string };
+  'server.start.before': StepEvent<{ host?: string; port?: number }>;
+  'server.start.after': StepEvent<{ host: string; port: number }>;
+  'server.port.live': { ctx: EventContext; url: string; host: string; port: number };
+  
+  // ============================================================================
+  // ERROR NAMESPACE
+  // ============================================================================
+  
   'error': { scope: string; error: Error; fatal?: boolean };
-  
-  // === Internal Events (not for plugins) ===
-  'internal.launch_progress': { value: number; text: string };
+}
+```
+
+#### 5.2.3 Event Metadata Map (Webhook/Transport Filtering)
+
+```typescript
+// packages/core/src/events/meta.ts
+
+export const OpenWAEventMeta: Record<keyof OpenWAEventMap, OpenWAEventMeta> = {
+  // --- launch.* (ALL internal, some sensitive) ---
+  'launch.create.start': { internal: true, sensitive: false },
+  'launch.create.retry': { internal: true, sensitive: false },
+  'launch.create.ready': { internal: true, sensitive: false },
+  'launch.config.setup.before': { internal: true, sensitive: false },
+  'launch.config.setup.after': { internal: true, sensitive: false },
+  'launch.logging.setup.before': { internal: true, sensitive: false },
+  'launch.logging.setup.after': { internal: true, sensitive: false },
+  'launch.update.check.before': { internal: true, sensitive: false },
+  'launch.update.check.after': { internal: true, sensitive: false },
+  'launch.browser.init.before': { internal: true, sensitive: false },
+  'launch.browser.init.after': { internal: true, sensitive: false },
+  'launch.page.init.before': { internal: true, sensitive: false },
+  'launch.page.init.after': { internal: true, sensitive: false },
+  'launch.page.interception.before': { internal: true, sensitive: false },
+  'launch.page.interception.after': { internal: true, sensitive: false },
+  'launch.navigation.gotoWaWeb.before': { internal: true, sensitive: false },
+  'launch.navigation.gotoWaWeb.after': { internal: true, sensitive: false },
+  'launch.modules.wait.before': { internal: true, sensitive: false },
+  'launch.modules.wait.after': { internal: true, sensitive: false },
+  'launch.injection.earlyCheck.before': { internal: true, sensitive: false },
+  'launch.injection.earlyCheck.after': { internal: true, sensitive: false },
+  'launch.auth.check.before': { internal: true, sensitive: false },
+  'launch.auth.check.after': { internal: true, sensitive: false },
+  'launch.auth.nuke.detected': { internal: true, sensitive: false },
+  'launch.auth.timeout': { internal: true, sensitive: false },
+  'launch.auth.phoneOutOfReach': { internal: true, sensitive: false },
+  'launch.auth.qr.requested': { internal: true, sensitive: false },
+  'launch.auth.qr.generated': { internal: true, sensitive: true },  // QR CODE = SENSITIVE
+  'launch.auth.qr.scanned': { internal: true, sensitive: false },
+  'launch.auth.qr.expired': { internal: true, sensitive: false },
+  'launch.auth.linkCode.requested': { internal: true, sensitive: false },
+  'launch.auth.linkCode.generated': { internal: true, sensitive: true },  // LINK CODE = SENSITIVE
+  'launch.auth.pairing': { internal: true, sensitive: false },
+  'launch.auth.syncing': { internal: true, sensitive: false },
+  'launch.license.preload.before': { internal: true, sensitive: false },
+  'launch.license.preload.after': { internal: true, sensitive: false },
+  'launch.wapi.inject.before': { internal: true, sensitive: false },
+  'launch.wapi.inject.after': { internal: true, sensitive: false },
+  'launch.session.validityCheck.before': { internal: true, sensitive: false },
+  'launch.session.validityCheck.after': { internal: true, sensitive: false },
+  'launch.session.invalid.retry': { internal: true, sensitive: false },
+  'launch.license.check.before': { internal: true, sensitive: false },
+  'launch.license.check.after': { internal: true, sensitive: false },
+  'launch.patch.init.before': { internal: true, sensitive: false },
+  'launch.patch.init.after': { internal: true, sensitive: false },
+  'launch.client.finalize.before': { internal: true, sensitive: false },
+  'launch.client.finalize.after': { internal: true, sensitive: false },
+
+  // --- session.* (mostly internal except state/connection) ---
+  'session.state.changed': { internal: false, sensitive: false },
+  'session.connection.disconnected': { internal: false, sensitive: false },
+  'session.connection.reconnecting': { internal: false, sensitive: false },
+  'session.connection.reconnected': { internal: false, sensitive: false },
+  'session.frame.navigated': { internal: true, sensitive: false },
+  'session.reinject.detected': { internal: true, sensitive: false },
+  'session.reinject.before': { internal: true, sensitive: false },
+  'session.reinject.after': { internal: true, sensitive: false },
+  'session.reinject.qr.waiting': { internal: true, sensitive: false },
+  'session.stale.detected': { internal: true, sensitive: false },
+  'session.logout': { internal: false, sensitive: false },
+
+  // --- message/ack/chat/group/device/call/etc. (webhook-eligible) ---
+  'message.received': { internal: false, sensitive: false },
+  'message.any': { internal: false, sensitive: false },
+  'message.deleted': { internal: false, sensitive: false },
+  'ack.changed': { internal: false, sensitive: false },
+  'group.addedToGroup': { internal: false, sensitive: false },
+  'group.removedFromGroup': { internal: false, sensitive: false },
+  'group.participants.changed.global': { internal: false, sensitive: false },
+  'group.approval.request': { internal: false, sensitive: false },
+  'group.changed': { internal: false, sensitive: false },
+  'chat.deleted': { internal: false, sensitive: false },
+  'chat.opened': { internal: false, sensitive: false },
+  'chat.state': { internal: false, sensitive: false },
+  'device.battery': { internal: false, sensitive: false },
+  'device.plugged': { internal: false, sensitive: false },
+  'call.incoming': { internal: false, sensitive: false },
+  'call.state': { internal: false, sensitive: false },
+  'auth.logout': { internal: false, sensitive: false },
+  'ui.button': { internal: false, sensitive: false },
+  'ui.poll.vote': { internal: false, sensitive: false },
+  'broadcast.received': { internal: false, sensitive: false },
+  'label.changed': { internal: false, sensitive: false },
+  'story.received': { internal: false, sensitive: false },
+  'commerce.order': { internal: false, sensitive: false },
+  'commerce.product.new': { internal: false, sensitive: false },
+  'reaction.added': { internal: false, sensitive: false },
+
+  // --- media.* (internal instrumentation) ---
+  'media.preprocess.before': { internal: true, sensitive: false },
+  'media.preprocess.after': { internal: true, sensitive: false },
+  'media.processor.SCRUB.before': { internal: true, sensitive: false },
+  'media.processor.SCRUB.after': { internal: true, sensitive: false },
+  'media.processor.BODY_ONLY.before': { internal: true, sensitive: false },
+  'media.processor.BODY_ONLY.after': { internal: true, sensitive: false },
+  'media.processor.AUTO_DECRYPT.before': { internal: true, sensitive: false },
+  'media.processor.AUTO_DECRYPT.after': { internal: true, sensitive: false },
+  'media.processor.AUTO_DECRYPT_SAVE.before': { internal: true, sensitive: false },
+  'media.processor.AUTO_DECRYPT_SAVE.after': { internal: true, sensitive: false },
+  'media.processor.UPLOAD_CLOUD.before': { internal: true, sensitive: false },
+  'media.processor.UPLOAD_CLOUD.after': { internal: true, sensitive: false },
+  'media.upload.s3.before': { internal: true, sensitive: false },
+  'media.upload.s3.after': { internal: true, sensitive: false },
+
+  // --- webhook.* (ALWAYS internal to prevent infinite loops!) ---
+  'webhook.registered': { internal: true, sensitive: false },
+  'webhook.unregistered': { internal: true, sensitive: false },
+  'webhook.trigger.before': { internal: true, sensitive: false },
+  'webhook.trigger.after': { internal: true, sensitive: false },
+  'webhook.queue.enqueued': { internal: true, sensitive: false },
+  'webhook.queue.dequeued': { internal: true, sensitive: false },
+  'webhook.deliver.before': { internal: true, sensitive: false },
+  'webhook.deliver.after': { internal: true, sensitive: false },
+
+  // --- persistence.* (internal + sensitive) ---
+  'persistence.session.save.before': { internal: true, sensitive: true },
+  'persistence.session.save.after': { internal: true, sensitive: true },
+  'persistence.compress.zstd.before': { internal: true, sensitive: true },
+  'persistence.compress.zstd.after': { internal: true, sensitive: true },
+  'persistence.archive.zip.before': { internal: true, sensitive: true },
+  'persistence.archive.zip.after': { internal: true, sensitive: true },
+  'persistence.upload.s3.before': { internal: true, sensitive: true },
+  'persistence.upload.s3.after': { internal: true, sensitive: true },
+
+  // --- patch/license (internal instrumentation) ---
+  'patch.apply.before': { internal: true, sensitive: false },
+  'patch.apply.after': { internal: true, sensitive: false },
+  'patch.init.before': { internal: true, sensitive: false },
+  'patch.init.after': { internal: true, sensitive: false },
+  'license.check.before': { internal: true, sensitive: false },
+  'license.check.after': { internal: true, sensitive: false },
+  'license.inject.before': { internal: true, sensitive: false },
+  'license.inject.after': { internal: true, sensitive: false },
+
+  // --- cli/server (internal lifecycle) ---
+  'cli.launched': { internal: true, sensitive: false },
+  'server.start.before': { internal: true, sensitive: false },
+  'server.start.after': { internal: true, sensitive: false },
+  'server.port.live': { internal: true, sensitive: false },
+
+  // --- error ---
+  'error': { internal: false, sensitive: false },
+};
+```
+
+#### 5.2.4 Wildcard Pattern Examples
+
+```typescript
+// Using HyperEmitter MQTT-style wildcards with the new event map
+
+// All launch events (internal only)
+events.on('launch.#', (payload) => { /* instrumentation */ });
+
+// All auth events during launch
+events.on('launch.auth.+', (payload) => { /* auth flow tracking */ });
+
+// All QR-related events (be careful - sensitive!)
+events.on('launch.auth.qr.+', (payload) => { /* QR handling */ });
+
+// All message events
+events.on('message.+', (payload) => { /* message.received, message.any, message.deleted */ });
+
+// All group participant changes
+events.on('group.participants.+', (payload) => { /* add, remove, promote, demote */ });
+
+// All media processor events
+events.on('media.processor.+.before', (payload) => { /* before any processor */ });
+events.on('media.processor.+.after', (payload) => { /* after any processor */ });
+
+// All session events
+events.on('session.+', (payload) => { /* connection, reinject, stale, logout */ });
+
+// All events for a specific session (using session suffix at runtime)
+events.on('#.session1', (payload) => { /* all events for session1 */ });
+```
+
+#### 5.2.5 Transport Filtering Helper
+
+```typescript
+// packages/core/src/events/transport.ts
+
+import { OpenWAEventMeta, OpenWAEventMetaMap } from './meta';
+
+/** Filter events eligible for webhooks (not internal, not sensitive) */
+export function isWebhookEligible(event: keyof OpenWAEventMap): boolean {
+  const meta = OpenWAEventMetaMap[event];
+  return !meta.internal && !meta.sensitive;
+}
+
+/** Filter events eligible for external logging (not sensitive) */
+export function isLoggingEligible(event: keyof OpenWAEventMap): boolean {
+  const meta = OpenWAEventMetaMap[event];
+  return !meta.sensitive;
+}
+
+/** Get all events in a namespace */
+export function getEventsInNamespace(namespace: string): (keyof OpenWAEventMap)[] {
+  return Object.keys(OpenWAEventMetaMap)
+    .filter(key => key.startsWith(namespace + '.')) as (keyof OpenWAEventMap)[];
 }
 ```
 
