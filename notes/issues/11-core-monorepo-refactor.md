@@ -4,10 +4,17 @@
 > **Priority**: High  
 > **Effort**: Large (3-5 days for scaffolding + migration foundation)  
 > **Related**: #07 (Driver Abstraction), #10 (Config Package)
+> **Updated**: 2026-01-25 - Simplified architecture using existing packages
 
 ## Executive Summary
 
-Split the monolithic `packages/core` (~77 files, ~17k lines, ~75 dependencies) into focused, single-responsibility packages. Rename current core to `packages/legacy` for reference, create a new minimal `packages/core` as the orchestration backbone, and establish an `integrations/` folder for 3rd party integrations using an event-based plugin system.
+Split the monolithic `packages/core` (~77 files, ~17k lines, ~75 dependencies) into focused, single-responsibility packages. Rename current core to `packages/legacy` for reference, create a new minimal `packages/core` as the orchestration backbone, and establish an `integrations/` folder for 3rd party integrations using an opencode-style plugin system.
+
+**Key Simplifications (v2)**:
+- **USE EXISTING `packages/hyperemitter`** - No need for new events package (already has typed EventMap, MQTT wildcards, WeakRef, Node EventEmitter bridges)
+- **USE EXISTING `packages/logger`** - No need for new logging package (already has Winston core, transports, security sanitizers, middleware)
+- **KEEP IN CORE**: `transport-web` and `session` are core components, not separate packages
+- **CORE'S ROLE**: Launches browser (via driver-interface), handles auth/session (QR code), exposes generated client, sets up event backbone (hyperemitter), manages plugin lifecycle
 
 ---
 
@@ -117,12 +124,20 @@ wa/
 ├── packages/
 │   ├── legacy/                 # Renamed from current core (frozen)
 │   │
-│   ├── core/                   # NEW: Orchestration backbone only
+│   ├── core/                   # NEW: Orchestration backbone
 │   │   ├── src/
 │   │   │   ├── createClient.ts      # Main entry point
 │   │   │   ├── lifecycle.ts         # State machine
 │   │   │   ├── pluginHost.ts        # Plugin registration + execution
-│   │   │   └── context.ts           # Plugin context definition
+│   │   │   ├── context.ts           # Plugin context definition
+│   │   │   ├── session/             # Session/auth (IN CORE)
+│   │   │   │   ├── sessionManager.ts
+│   │   │   │   ├── stores/          # File, memory, custom stores
+│   │   │   │   └── qrManager.ts     # QR code handling
+│   │   │   └── transport/           # WhatsApp Web protocol (IN CORE)
+│   │   │       ├── transport.ts     # Protocol abstraction
+│   │   │       ├── wapi/            # WAPI injection/bridge
+│   │   │       └── patches/         # Patch management
 │   │   └── package.json
 │   │
 │   ├── client/                 # NEW: User-facing API facade
@@ -138,32 +153,18 @@ wa/
 │   │   │   └── types/               # Re-exported from schema
 │   │   └── package.json
 │   │
-│   ├── session/                # NEW: Session/auth persistence
+│   ├── hyperemitter/           # EXISTING: Typed event bus (USE THIS)
 │   │   ├── src/
-│   │   │   ├── sessionManager.ts    # State machine for session
-│   │   │   ├── stores/              # File, memory, custom stores
-│   │   │   └── qrManager.ts         # QR code handling
+│   │   │   ├── core/HyperEmitter.ts # TypedEventEmitter with wildcards
+│   │   │   └── routing/RadixTree.ts # MQTT-style pattern matching
 │   │   └── package.json
 │   │
-│   ├── events/                 # NEW: Typed event bus
+│   ├── logger/                 # EXISTING: Logger abstraction (USE THIS)
 │   │   ├── src/
-│   │   │   ├── eventBus.ts          # TypedEventEmitter
-│   │   │   ├── eventMap.ts          # All event definitions
-│   │   │   └── types.ts             # Event payload types
-│   │   └── package.json
-│   │
-│   ├── logging/                # NEW: Logger abstraction
-│   │   ├── src/
-│   │   │   ├── logger.ts            # Logger interface
-│   │   │   ├── winston.ts           # Winston implementation
-│   │   │   └── console.ts           # Simple console logger
-│   │   └── package.json
-│   │
-│   ├── transport-web/          # NEW: WhatsApp Web protocol boundary
-│   │   ├── src/
-│   │   │   ├── transport.ts         # Protocol abstraction
-│   │   │   ├── wapi/                # WAPI injection/bridge
-│   │   │   └── patches/             # Patch management
+│   │   │   ├── core/logger.ts       # createLogger, Logger interface
+│   │   │   ├── transports/          # elasticsearch, cloudflare, file, console
+│   │   │   ├── security/            # sanitizer, censors
+│   │   │   └── middleware/          # hono, socket
 │   │   └── package.json
 │   │
 │   ├── driver-interface/       # EXISTING: Browser abstraction
@@ -215,7 +216,7 @@ wa/
     └── playground/
 ```
 
-### 2.2 Dependency Graph
+### 2.2 Dependency Graph (Simplified)
 
 ```
                     ┌─────────────┐
@@ -228,45 +229,51 @@ wa/
                            │
     ┌──────────────────────┼──────────────────────┐
     │                      │                      │
-┌───▼───┐            ┌─────▼─────┐          ┌─────▼─────┐
-│events │            │  logging  │          │driver-intf│
-└───┬───┘            └─────┬─────┘          └─────┬─────┘
+┌───▼────────┐       ┌─────▼─────┐          ┌─────▼─────┐
+│hyperemitter│       │  logger   │          │driver-intf│
+│ (EXISTING) │       │(EXISTING) │          │           │
+└───┬────────┘       └─────┬─────┘          └─────┬─────┘
     │                      │                      │
     │    ┌─────────────────┼──────────────────────┤
     │    │                 │                      │
-    │ ┌──▼──┐        ┌─────▼─────┐    ┌──────────▼──────────┐
-    │ │sess-│        │transport- │    │  driver-puppeteer   │
-    │ │ion  │        │   web     │    │  driver-playwright  │
-    │ └──┬──┘        └─────┬─────┘    └──────────┬──────────┘
-    │    │                 │                     │
-    │    └────────────┬────┴─────────────────────┘
-    │                 │
-    │          ┌──────▼──────┐
-    └──────────►    core     │  (orchestration backbone)
-               └──────┬──────┘
-                      │
-               ┌──────▼──────┐
-               │   client    │  (user-facing API)
-               └──────┬──────┘
-                      │
-               ┌──────▼──────┐
-               │     cli     │
-               └──────┬──────┘
-                      │
-        ┌─────────────┼─────────────┐
-        │             │             │
-   ┌────▼────┐  ┌─────▼─────┐ ┌─────▼─────┐
-   │chatwoot │  │cloudflare │ │    s3     │
-   └─────────┘  └───────────┘ └───────────┘
-        (integrations - use plugin API only)
+    │    │                 │         ┌────────────▼────────────┐
+    │    │                 │         │  driver-puppeteer       │
+    │    │                 │         │  driver-playwright      │
+    │    │                 │         └────────────┬────────────┘
+    │    │                 │                      │
+    │    └─────────────────┼──────────────────────┘
+    │                      │
+    │               ┌──────▼──────┐
+    └───────────────►    core     │  (orchestration backbone)
+                    │ - session   │  (session/auth IN CORE)
+                    │ - transport │  (WAPI/patches IN CORE)
+                    │ - plugins   │
+                    └──────┬──────┘
+                           │
+                    ┌──────▼──────┐
+                    │   client    │  (user-facing API)
+                    └──────┬──────┘
+                           │
+                    ┌──────▼──────┐
+                    │     cli     │
+                    └──────┬──────┘
+                           │
+         ┌─────────────────┼─────────────────┐
+         │                 │                 │
+    ┌────▼────┐      ┌─────▼─────┐     ┌─────▼─────┐
+    │chatwoot │      │cloudflare │     │    s3     │
+    └─────────┘      └───────────┘     └───────────┘
+         (integrations - use plugin API only)
 ```
 
 ### 2.3 Key Constraints
 
 1. **Integrations NEVER import from core/client directly** - only via plugin API
-2. **Driver-specific code ONLY in driver-* packages** - transport-web uses driver-interface
+2. **Driver-specific code ONLY in driver-* packages** - core uses driver-interface
 3. **No circular dependencies** - strict layering enforced by package boundaries
-4. **Events are typed** - central EventMap in packages/events
+4. **Events are typed** - central EventMap used with HyperEmitter
+5. **Core is the orchestrator** - launches browser, handles auth, exposes client, manages plugins
+6. **Use existing packages** - hyperemitter for events, logger for logging (don't recreate)
 
 ---
 
@@ -283,20 +290,20 @@ wa/
 | **controllers/browser.ts** | `driver-puppeteer/` | Puppeteer-specific |
 | **controllers/browser.ignore.ts** | `driver-puppeteer/` | Puppeteer-specific |
 | **controllers/initializer.ts** | `core/` | Becomes lifecycle.ts |
-| **controllers/auth.ts** | `session/` | QR + auth logic |
-| **controllers/events.ts** | `events/` | Typed event bus |
-| **controllers/popup/** | `cli/` or `session/` | QR popup server |
-| **controllers/patch_manager.ts** | `transport-web/` | WAPI patches |
-| **controllers/script_preloader.ts** | `transport-web/` | Script loading |
-| **controllers/init_patch.ts** | `transport-web/` | Initialization |
+| **controllers/auth.ts** | `core/session/` | QR + auth logic (IN CORE) |
+| **controllers/events.ts** | Use `hyperemitter` | EXISTING - don't recreate |
+| **controllers/popup/** | `cli/` or `core/session/` | QR popup server |
+| **controllers/patch_manager.ts** | `core/transport/` | WAPI patches (IN CORE) |
+| **controllers/script_preloader.ts** | `core/transport/` | Script loading (IN CORE) |
+| **controllers/init_patch.ts** | `core/transport/` | Initialization (IN CORE) |
 | **controllers/launch_checks.ts** | `core/` | Launch validation |
-| **events/EventManager.ts** | `events/` | Already event-focused |
-| **events/WapiBridge.ts** | `transport-web/` | WAPI communication |
+| **events/EventManager.ts** | `core/` | Queue-aware event handling (uses hyperemitter) |
+| **events/WapiBridge.ts** | `core/transport/` | WAPI communication (IN CORE) |
 | **structures/Collector.ts** | `domain/` | Pure data structure |
 | **structures/MessageCollector.ts** | `domain/` | Pure data structure |
 | **structures/preProcessors.ts** | `integrations/s3/` | S3 integration |
-| **logging/logging.ts** | `logging/` | Logger implementation |
-| **logging/custom_transport.ts** | `logging/` | Winston transport |
+| **logging/logging.ts** | Use `logger` | EXISTING - don't recreate |
+| **logging/custom_transport.ts** | Use `logger` | EXISTING - don't recreate |
 | **utils/tools.ts** | `utils/` or inline | Evaluate per-function |
 | **utils/pid_utils.ts** | `core/` | Process utilities |
 | **config/puppeteer.config.ts** | `driver-puppeteer/` | Puppeteer-specific |
@@ -307,52 +314,46 @@ wa/
 | **cli/integrations/chatwoot.ts** | `integrations/chatwoot/` | Extract |
 | **cli/integrations/cloudflare.ts** | `integrations/cloudflare/` | Extract |
 
-### 3.2 New Package Creation Order
+### 3.2 New Package Creation Order (Simplified)
 
-Based on dependency graph (extract from bottom up):
+Based on dependency graph (fewer packages to create):
 
-1. **Phase 0** (Already done): `schema`, `config`, `driver-interface`
-2. **Phase 1**: `events`, `logging`
-3. **Phase 2**: `session`, `transport-web`
-4. **Phase 3**: `driver-puppeteer`, `driver-playwright`
-5. **Phase 4**: `core` (new backbone)
-6. **Phase 5**: `domain`, `client`
-7. **Phase 6**: `cli`
-8. **Phase 7**: `integrations/*`
-9. **Phase 8**: `codegen`
+1. **Phase 0** (Already done): `schema`, `config`, `driver-interface`, `hyperemitter`, `logger`
+2. **Phase 1**: `driver-puppeteer`, `driver-playwright`
+3. **Phase 2**: `core` (new backbone - includes session, transport, plugin host)
+4. **Phase 3**: `domain`, `client`
+5. **Phase 4**: `cli`
+6. **Phase 5**: `integrations/*`
+7. **Phase 6**: `codegen`
+
+**Removed from plan** (use existing or keep in core):
+- ~~packages/events~~ → Use `packages/hyperemitter`
+- ~~packages/logging~~ → Use `packages/logger`
+- ~~packages/transport-web~~ → Keep in `core/transport/`
+- ~~packages/session~~ → Keep in `core/session/`
 
 ---
 
 ## 4. Integration Framework Design
 
-### 4.1 Plugin Interface
+### 4.1 Plugin Interface (opencode-inspired)
+
+Based on [@opencode-ai/plugin](https://github.com/anomalyco/opencode/tree/master/packages/plugin) pattern.
 
 ```typescript
 // packages/core/src/plugin.ts
 
-export interface OpenWAPlugin {
-  /** Unique plugin name */
-  name: string;
-  
-  /** Semantic version */
-  version?: string;
-  
-  /** Dependency requirements */
-  requires?: {
-    core?: string;
-    client?: string;
-  };
-  
-  /**
-   * Called when plugin is registered.
-   * Return a cleanup function for disposal.
-   */
-  apply(ctx: PluginContext): void | (() => void | Promise<void>);
-}
+import type { HyperEmitter } from '@open-wa/hyperemitter';
+import type { Logger } from '@open-wa/logger';
+import type { ResolvedConfig } from '@open-wa/config';
+import type { OpenWAEventMap } from './events/eventMap';
 
-export interface PluginContext {
-  /** Typed event bus */
-  events: EventBus<OpenWAEventMap>;
+/**
+ * Plugin input context - provided to plugin factory function
+ */
+export interface PluginInput {
+  /** Typed event bus (HyperEmitter with OpenWAEventMap) */
+  events: HyperEmitter<OpenWAEventMap>;
   
   /** Logger instance */
   logger: Logger;
@@ -360,27 +361,90 @@ export interface PluginContext {
   /** Resolved configuration */
   config: ResolvedConfig;
   
-  /** Session manager */
-  session: SessionManager;
+  /** Session ID */
+  sessionId: string;
   
   /** Client instance (available after client.ready) */
   client?: ClientFacade;
+}
+
+/**
+ * Plugin factory function - returns hooks
+ * Pattern: (input: PluginInput) => Promise<Hooks>
+ */
+export type Plugin = (input: PluginInput) => Promise<Hooks>;
+
+/**
+ * Plugin hooks - lifecycle and event handlers
+ */
+export interface Hooks {
+  /** Handle any event (catch-all) */
+  event?: (input: { event: keyof OpenWAEventMap; payload: unknown }) => Promise<void>;
   
-  /** Transport instance (available after driver.launched) */
-  transport?: WebTransport;
+  /** Custom tools (for CLI/API) */
+  tool?: {
+    [key: string]: ToolDefinition;
+  };
+  
+  /** Cleanup function called on dispose */
+  dispose?: () => Promise<void>;
+  
+  // === Lifecycle Hooks ===
+  'core.starting'?: (payload: { config: ResolvedConfig }) => Promise<void>;
+  'core.started'?: () => Promise<void>;
+  'core.stopping'?: (payload: { reason?: string }) => Promise<void>;
+  
+  // === Auth Hooks ===
+  'auth.qr'?: (payload: { sessionId: string; qr: string; attempt: number }) => Promise<void>;
+  'auth.authenticated'?: (payload: { sessionId: string }) => Promise<void>;
+  
+  // === Client Hooks ===
+  'client.ready'?: (payload: { sessionId: string }) => Promise<void>;
+  
+  // === Message Hooks ===
+  'message.received'?: (payload: { message: Message }) => Promise<void>;
+  'message.sent'?: (payload: { message: Message }) => Promise<void>;
+  'message.ack'?: (payload: { messageId: string; ack: MessageAck }) => Promise<void>;
+  
+  // === Interception Hooks (before/after pattern) ===
+  'message.send.before'?: (
+    input: { to: string; content: unknown },
+    output: { content: unknown; metadata?: Record<string, unknown> }
+  ) => Promise<void>;
+  
+  'message.send.after'?: (
+    input: { messageId: string; to: string },
+    output: { metadata?: Record<string, unknown> }
+  ) => Promise<void>;
+}
+
+/**
+ * Tool definition (for plugin-provided tools)
+ */
+export interface ToolDefinition {
+  description: string;
+  args: Record<string, z.ZodType>;
+  execute: (args: Record<string, unknown>, context: ToolContext) => Promise<string>;
+}
+
+export interface ToolContext {
+  sessionId: string;
+  logger: Logger;
+  abort: AbortSignal;
 }
 ```
 
 ### 4.2 Plugin Registration
 
 ```typescript
-// Library usage
+// Library usage - factory function pattern
 import { createClient } from '@open-wa/core';
 import { chatwootPlugin } from '@open-wa/integration-chatwoot';
 
 const client = await createClient({
   sessionId: 'main',
   plugins: [
+    // Plugin factory - receives PluginInput, returns Hooks
     chatwootPlugin({
       url: 'https://chatwoot.example.com',
       apiKey: '...',
@@ -407,31 +471,87 @@ export default defineConfig({
 ```typescript
 // packages/core/src/pluginHost.ts
 
+import type { Plugin, Hooks, PluginInput } from './plugin';
+import type { HyperEmitter } from '@open-wa/hyperemitter';
+import type { Logger } from '@open-wa/logger';
+
 export class PluginHost {
-  private plugins: Map<string, RegisteredPlugin> = new Map();
-  private disposers: Map<string, () => Promise<void>> = new Map();
+  private plugins: Map<string, { hooks: Hooks; name: string }> = new Map();
+  private logger: Logger;
   
-  async register(plugin: OpenWAPlugin, ctx: PluginContext): Promise<void> {
-    if (this.plugins.has(plugin.name)) {
-      throw new Error(`Plugin ${plugin.name} already registered`);
+  constructor(private events: HyperEmitter<OpenWAEventMap>, logger: Logger) {
+    this.logger = logger.withContext({ component: 'plugin-host' });
+  }
+  
+  async register(name: string, plugin: Plugin, input: PluginInput): Promise<void> {
+    if (this.plugins.has(name)) {
+      throw new Error(`Plugin ${name} already registered`);
     }
     
-    const disposer = await plugin.apply(ctx);
+    const hooks = await plugin(input);
+    this.plugins.set(name, { hooks, name });
     
-    this.plugins.set(plugin.name, { plugin, ctx });
-    if (disposer) {
-      this.disposers.set(plugin.name, disposer);
+    // Wire up event hooks to HyperEmitter
+    this.wireHooks(name, hooks);
+    
+    this.logger.info('plugin_registered', { plugin: name });
+  }
+  
+  private wireHooks(name: string, hooks: Hooks): void {
+    // Wire lifecycle hooks to events
+    const hookEvents = [
+      'core.starting', 'core.started', 'core.stopping',
+      'auth.qr', 'auth.authenticated',
+      'client.ready',
+      'message.received', 'message.sent', 'message.ack'
+    ] as const;
+    
+    for (const event of hookEvents) {
+      const handler = hooks[event];
+      if (handler) {
+        this.events.on(event as any, async (payload: any) => {
+          try {
+            await handler(payload);
+          } catch (err) {
+            this.logger.error('plugin_hook_error', { plugin: name, event, error: err });
+          }
+        });
+      }
     }
     
-    ctx.logger.info(`Plugin ${plugin.name} registered`);
+    // Wire catch-all event handler
+    if (hooks.event) {
+      // Use wildcard pattern for catch-all
+      this.events.on('#' as any, async (payload: any) => {
+        // Note: HyperEmitter doesn't provide event name in callback
+        // This would need adjustment in actual implementation
+      });
+    }
   }
   
   async dispose(): Promise<void> {
-    for (const [name, disposer] of this.disposers) {
-      await disposer();
+    for (const [name, { hooks }] of this.plugins) {
+      if (hooks.dispose) {
+        try {
+          await hooks.dispose();
+        } catch (err) {
+          this.logger.error('plugin_dispose_error', { plugin: name, error: err });
+        }
+      }
     }
     this.plugins.clear();
-    this.disposers.clear();
+  }
+  
+  getTools(): Record<string, { plugin: string; tool: ToolDefinition }> {
+    const tools: Record<string, { plugin: string; tool: ToolDefinition }> = {};
+    for (const [name, { hooks }] of this.plugins) {
+      if (hooks.tool) {
+        for (const [toolName, toolDef] of Object.entries(hooks.tool)) {
+          tools[`${name}.${toolName}`] = { plugin: name, tool: toolDef };
+        }
+      }
+    }
+    return tools;
   }
 }
 ```
@@ -440,10 +560,23 @@ export class PluginHost {
 
 ## 5. Event System Design
 
-### 5.1 Event Map (Typed)
+### 5.1 Using Existing HyperEmitter
+
+**We use the existing `packages/hyperemitter` package** - no need to create a new events package.
+
+Key features already available:
+- **Typed EventMap** - `HyperEmitter<TMap extends EventMap>`
+- **MQTT-style wildcards** - `+` (single level) and `#` (multi-level)
+- **WeakRef support** - automatic cleanup of garbage-collected listeners
+- **Node EventEmitter bridges** - `fromNodeEmitter()`, `toNodeEmitter()`
+- **EventTarget support** - `onEventTarget()`
+- **AbortSignal support** - listeners can be cancelled via signal
+- **Radix tree routing** - high-performance pattern matching
+
+### 5.2 Event Map (Typed)
 
 ```typescript
-// packages/events/src/eventMap.ts
+// packages/core/src/events/eventMap.ts
 
 export interface OpenWAEventMap {
   // === Lifecycle Events ===
@@ -503,50 +636,40 @@ export interface OpenWAEventMap {
 }
 ```
 
-### 5.2 Typed Event Bus
+### 5.3 Event Bus Setup in Core
 
 ```typescript
-// packages/events/src/eventBus.ts
+// packages/core/src/createClient.ts
 
-import { EventEmitter2 } from 'eventemitter2';
+import { HyperEmitter } from '@open-wa/hyperemitter';
+import { createLogger } from '@open-wa/logger';
+import type { OpenWAEventMap } from './events/eventMap';
 
-export class TypedEventBus<TEventMap extends Record<string, unknown>> {
-  private emitter = new EventEmitter2({ wildcard: true });
+export async function createClient(config: CreateClientOptions) {
+  const logger = createLogger({ component: 'core' });
   
-  on<K extends keyof TEventMap>(
-    event: K,
-    handler: (payload: TEventMap[K]) => void | Promise<void>
-  ): () => void {
-    this.emitter.on(event as string, handler);
-    return () => this.emitter.off(event as string, handler);
-  }
+  // Create typed event bus using existing HyperEmitter
+  const events = new HyperEmitter<OpenWAEventMap>({
+    delimiter: '.',
+    captureRejections: true,
+    onError: (err) => logger.error('event_error', { error: err }),
+    logger: logger,
+    debug: config.debug ?? false,
+  });
   
-  emit<K extends keyof TEventMap>(event: K, payload: TEventMap[K]): void {
-    this.emitter.emit(event as string, payload);
-  }
+  // Events are now fully typed:
+  events.emit('core.starting', { config: resolvedConfig });
   
-  once<K extends keyof TEventMap>(
-    event: K,
-    handler: (payload: TEventMap[K]) => void | Promise<void>
-  ): void {
-    this.emitter.once(event as string, handler);
-  }
+  // Wildcard subscriptions work:
+  events.on('message.+' as any, (payload) => {
+    // Catches message.received, message.sent, message.ack, etc.
+  });
   
-  waitFor<K extends keyof TEventMap>(
-    event: K,
-    timeout?: number
-  ): Promise<TEventMap[K]> {
-    return new Promise((resolve, reject) => {
-      const timer = timeout ? setTimeout(() => {
-        reject(new Error(`Timeout waiting for ${String(event)}`));
-      }, timeout) : null;
-      
-      this.once(event, (payload) => {
-        if (timer) clearTimeout(timer);
-        resolve(payload);
-      });
-    });
-  }
+  events.on('group.participant.#' as any, (payload) => {
+    // Catches all group.participant.* events
+  });
+  
+  // ... rest of initialization
 }
 ```
 
@@ -590,71 +713,73 @@ export * from './api/model';
 
 ---
 
-## 7. Phased Implementation Plan
+## 7. Phased Implementation Plan (Simplified)
 
 ### Phase 0: Foundation (DONE)
 - [x] `packages/schema` - Zod schemas
 - [x] `packages/config` - Config management
 - [x] `packages/driver-interface` - Browser abstraction
+- [x] `packages/hyperemitter` - Typed event bus with wildcards (USE THIS)
+- [x] `packages/logger` - Winston-based logging (USE THIS)
 
-### Phase 1: Event System (1-2 days)
-- [ ] Create `packages/events`
-- [ ] Implement `TypedEventBus<OpenWAEventMap>`
-- [ ] Define all event types in `eventMap.ts`
-- [ ] Write comprehensive tests
-
-### Phase 2: Logging (0.5 day)
-- [ ] Create `packages/logging`
-- [ ] Extract winston implementation from core
-- [ ] Add logger interface for custom implementations
-
-### Phase 3: Session Management (1-2 days)
-- [ ] Create `packages/session`
-- [ ] Extract auth.ts logic
-- [ ] Implement session state machine
-- [ ] Add pluggable storage (file, memory, custom)
-
-### Phase 4: Rename Core to Legacy (0.5 day)
+### Phase 1: Rename Core to Legacy (0.5 day)
 - [ ] Rename `packages/core` → `packages/legacy`
 - [ ] Update all internal imports
 - [ ] Add deprecation warnings
 - [ ] Verify existing tests pass
 
-### Phase 5: New Core Backbone (2-3 days)
-- [ ] Create new `packages/core`
-- [ ] Implement `createClient()` lifecycle
-- [ ] Implement `PluginHost`
-- [ ] Wire up events, config, driver-interface
-- [ ] Write integration tests
-
-### Phase 6: Transport Layer (2-3 days)
-- [ ] Create `packages/transport-web`
-- [ ] Extract WAPI injection/bridge
-- [ ] Extract patch management
-- [ ] Integrate with driver-interface
-
-### Phase 7: Driver Implementations (1-2 days)
+### Phase 2: Driver Implementations (1-2 days)
 - [ ] Create `packages/driver-puppeteer`
 - [ ] Move puppeteer-specific code from legacy
 - [ ] Create `packages/driver-playwright` (stub)
 
-### Phase 8: Client Package (2-3 days)
+### Phase 3: New Core Backbone (3-4 days)
+- [ ] Create new `packages/core`
+- [ ] Implement `createClient()` lifecycle
+- [ ] Implement `PluginHost` (opencode-style)
+- [ ] Implement `core/session/` (session management, QR, auth)
+- [ ] Implement `core/transport/` (WAPI injection, patches)
+- [ ] Wire up hyperemitter, config, driver-interface
+- [ ] Define `OpenWAEventMap` for typed events
+- [ ] Write integration tests
+
+### Phase 4: Domain & Client Packages (2-3 days)
+- [ ] Create `packages/domain`
+- [ ] Move Collector, MessageCollector to domain/
 - [ ] Create `packages/client`
 - [ ] Extract Client.ts methods into organized modules
 - [ ] Setup codegen for method stubs
 - [ ] Ensure API parity with legacy
 
-### Phase 9: CLI Package (1-2 days)
+### Phase 5: CLI Package (1-2 days)
 - [ ] Create `packages/cli`
 - [ ] Extract CLI logic from legacy
 - [ ] Update to use new packages
 - [ ] Add plugin loading from config
 
-### Phase 10: Integrations (1-2 days per integration)
+### Phase 6: Integrations (1-2 days per integration)
 - [ ] Create `integrations/chatwoot`
 - [ ] Create `integrations/cloudflare`
 - [ ] Create `integrations/s3`
 - [ ] Create `integrations/webhook`
+
+### Phase 7: Codegen (1 day)
+- [ ] Create `packages/codegen`
+- [ ] Move Postman generation
+- [ ] Add client method generation from schemas
+
+---
+
+## Summary of Changes (v2)
+
+| Original Plan | Updated Plan | Reason |
+|---------------|--------------|--------|
+| Create `packages/events` | Use `packages/hyperemitter` | Already exists with typed EventMap, wildcards, WeakRef |
+| Create `packages/logging` | Use `packages/logger` | Already exists with Winston, transports, security |
+| Create `packages/session` | Keep in `core/session/` | Core component - no external use case |
+| Create `packages/transport-web` | Keep in `core/transport/` | Core component - no external use case |
+| Object-based plugin interface | Factory function pattern | Matches opencode plugin pattern |
+| 10 phases | 7 phases | Fewer packages to create |
 
 ---
 
@@ -702,52 +827,63 @@ export * from './api/model';
 | integrations/ at root | Clear separation, not internal packages | 2026-01-25 |
 | TypedEventBus over raw EventEmitter | Compile-time safety for events | 2026-01-25 |
 | Hybrid Fastify + EventEmitter pattern | Best of both: simple registration + fine-grained hooks | 2026-01-25 |
+| **Use existing hyperemitter** | Already has typed EventMap, wildcards, WeakRef, bridges | 2026-01-25 |
+| **Use existing logger** | Already has Winston, transports, security, middleware | 2026-01-25 |
+| **Keep session in core** | Core component - no external use case | 2026-01-25 |
+| **Keep transport in core** | Core component - no external use case | 2026-01-25 |
+| **Factory function plugins** | Matches opencode pattern: `Plugin = (input) => Promise<Hooks>` | 2026-01-25 |
 
 ## Appendix C: Plugin Architecture Comparison (Librarian Research)
 
-| Feature           | VSCode     | Webpack          | Fastify       | NestJS       |
-| ----------------- | ---------- | ---------------- | ------------- | ------------ |
-| **Core Pattern**      | DI + IPC   | Event Hooks      | Encapsulation | DI Container |
-| **Registration**      | Manifest   | `.apply(compiler)` | `.register(fn)` | `@Module()`    |
-| **TypeScript**        | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐         | ⭐⭐⭐⭐⭐    | ⭐⭐⭐⭐⭐   |
-| **Monorepo Friendly** | ⭐⭐⭐     | ⭐⭐⭐           | ⭐⭐⭐⭐⭐    | ⭐⭐⭐⭐     |
-| **Learning Curve**    | Medium     | Medium-High      | Low-Medium    | High         |
-| **Isolation**         | Process    | Logical          | Context       | Container    |
-| **Best For**          | Extensions | Build tools      | APIs          | Full apps    |
+| Feature           | VSCode     | Webpack          | Fastify       | opencode      | **open-wa (v2)** |
+| ----------------- | ---------- | ---------------- | ------------- | ------------- | ---------------- |
+| **Core Pattern**      | DI + IPC   | Event Hooks      | Encapsulation | Factory + Hooks | Factory + Hooks |
+| **Registration**      | Manifest   | `.apply(compiler)` | `.register(fn)` | `Plugin(input)` | `Plugin(input)` |
+| **TypeScript**        | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐         | ⭐⭐⭐⭐⭐    | ⭐⭐⭐⭐⭐   | ⭐⭐⭐⭐⭐ |
+| **Monorepo Friendly** | ⭐⭐⭐     | ⭐⭐⭐           | ⭐⭐⭐⭐⭐    | ⭐⭐⭐⭐⭐   | ⭐⭐⭐⭐⭐ |
+| **Learning Curve**    | Medium     | Medium-High      | Low-Medium    | Low           | Low |
+| **Isolation**         | Process    | Logical          | Context       | Hooks         | Hooks |
+| **Best For**          | Extensions | Build tools      | APIs          | AI agents     | WhatsApp bots |
 
-**Recommendation**: Hybrid Fastify-inspired + EventEmitter approach
+**Final Choice**: opencode-inspired factory function pattern
 
 ```typescript
-// Recommended plugin interface (from Librarian research)
-interface OpenWAPlugin {
-  name: string;
-  version?: string;
-  
-  // Lifecycle hooks
-  init?(client: Client): void | Promise<void>;
-  destroy?(): void | Promise<void>;
-  
-  // Event hooks (visitor pattern)
-  'message:received'?(message: Message, context: Context): void | Promise<void>;
-  'connection:ready'?(session: SessionInfo, context: Context): void | Promise<void>;
-  
-  // Performance optimization filter
-  filter?: {
-    events?: string[];
-    messageTypes?: string[];
-  };
+// opencode pattern (reference):
+export type Plugin = (input: PluginInput) => Promise<Hooks>
+
+export interface Hooks {
+  event?: (input: { event: Event }) => Promise<void>;
+  tool?: { [key: string]: ToolDefinition };
+  'chat.message'?: (input, output) => Promise<void>;
+  'tool.execute.before'?: (input, output) => Promise<void>;
+  // ...lifecycle hooks
 }
 
-// Factory pattern for configuration
-function chatwootPlugin(options: ChatwootOptions): OpenWAPlugin {
-  return {
-    name: 'chatwoot-integration',
-    async 'message:received'(message, { client }) {
-      await syncToChatwoot(message, options.apiKey);
-    },
-  };
+// open-wa implementation (adapted):
+export type Plugin = (input: PluginInput) => Promise<Hooks>
+
+export interface Hooks {
+  event?: (input: { event: string; payload: unknown }) => Promise<void>;
+  tool?: { [key: string]: ToolDefinition };
+  dispose?: () => Promise<void>;
+  
+  // Lifecycle hooks
+  'core.starting'?: (payload) => Promise<void>;
+  'client.ready'?: (payload) => Promise<void>;
+  
+  // Message hooks
+  'message.received'?: (payload) => Promise<void>;
+  'message.send.before'?: (input, output) => Promise<void>;
+  // ...
 }
 ```
+
+**Why this pattern**:
+1. Factory function allows configuration per-instance
+2. Hooks object is declarative and type-safe
+3. `before`/`after` hooks enable interception
+4. `dispose` hook ensures cleanup
+5. Matches successful production pattern (opencode)
 
 ## Appendix D: Pre-Refactoring Checklist (Metis Research)
 
@@ -797,10 +933,60 @@ function chatwootPlugin(options: ChatwootOptions): OpenWAPlugin {
 
 ## Appendix E: Existing Patterns to Preserve
 
-| Pattern | Location | Preserve? |
-|---------|----------|-----------|
-| Node-Red socket integration | `integrations/node-red/` | ✅ Good pattern |
-| EventEmitter2 wildcards | `controllers/events.ts` | ✅ Keep for flexibility |
-| Schema auto-generation | `packages/schema/` | ✅ Expand to client |
-| Driver abstraction | `packages/driver-interface/` | ✅ Foundation in place |
-| Discord-style Collector | `structures/Collector.ts` | ✅ Move to domain/ |
+| Pattern | Location | Preserve? | Notes |
+|---------|----------|-----------|-------|
+| Node-Red socket integration | `integrations/node-red/` | ✅ Good pattern | |
+| EventEmitter2 wildcards | `controllers/events.ts` | ✅ Via hyperemitter | HyperEmitter has MQTT wildcards |
+| Schema auto-generation | `packages/schema/` | ✅ Expand to client | |
+| Driver abstraction | `packages/driver-interface/` | ✅ Foundation in place | |
+| Discord-style Collector | `structures/Collector.ts` | ✅ Move to domain/ | |
+| **HyperEmitter** | `packages/hyperemitter/` | ✅ Use as event bus | Already built - typed, wildcards, WeakRef |
+| **Logger** | `packages/logger/` | ✅ Use for all logging | Already built - Winston, transports, security |
+
+## Appendix F: Existing Package Inventory
+
+### packages/hyperemitter (USE THIS)
+
+```typescript
+// Key exports
+import { HyperEmitter } from '@open-wa/hyperemitter';
+
+const events = new HyperEmitter<MyEventMap>({
+  delimiter: '.',
+  captureRejections: true,
+  onError: (err) => console.error(err),
+  logger: myLogger,
+  debug: true,
+});
+
+// Typed events
+events.on('message.received', (payload) => { /* payload is typed */ });
+
+// MQTT-style wildcards
+events.on('message.+', handler);      // single-level: message.received, message.sent
+events.on('group.participant.#', h);  // multi-level: group.participant.add, etc.
+
+// Node EventEmitter bridge
+const cleanup = events.fromNodeEmitter(nodeEmitter, 'data');
+
+// WeakRef support (auto-cleanup)
+events.on('event', handler, { weak: true });
+```
+
+### packages/logger (USE THIS)
+
+```typescript
+// Key exports
+import { createLogger, rootLogger } from '@open-wa/logger';
+import { sanitizeLogContext, createSanitizer } from '@open-wa/logger';
+import { honoLogger, socketLogger } from '@open-wa/logger';
+import * as transports from '@open-wa/logger/transports';
+
+const logger = createLogger({ component: 'core' });
+logger.info('message', { key: 'value' });
+logger.error('error', { error: err });
+
+// Transports: elasticsearch, cloudflare, file, console, mq
+// Security: sanitizer, censors (phone numbers, etc.)
+// Middleware: hono, socket.io
+```
