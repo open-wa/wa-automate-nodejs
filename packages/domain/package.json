@@ -1,0 +1,35 @@
+{
+  "name": "@open-wa/domain",
+  "version": "5.0.0-alpha.1",
+  "description": "Domain data structures for open-wa WhatsApp automation (Collectors, etc.)",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest",
+    "lint": "eslint src --ext .ts",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@discordjs/collection": "catalog:",
+    "@open-wa/hyperemitter": "workspace:*",
+    "@open-wa/schema": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
