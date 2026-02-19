@@ -20,4 +20,4 @@ export * from '@open-wa/wa-automate-socket-client';
 export { Client, SimpleListener }
 //dont need to export this
 // export { getConfigWithCase } from './utils/configSchema'
-export * from './build/build-postman'
+// export * from './build/build-postman'

@@ -1,7 +1,7 @@
 import { printNode, zodToTs } from 'zod-to-ts';
 import fs from 'fs';
 import path from 'path';
-import { Registry } from '../src/registry';
+import { clientRegistry } from '../src/registry';
 import '../src/methods'; // Ensure methods are registered
 
 // Create generated directory
@@ -18,15 +18,16 @@ let output = `/* eslint-disable */
 `;
 
 // Generate types for all methods
-const methods = Registry.getAllMethods();
+const methods = clientRegistry.getAll();
 
 methods.forEach((method) => {
-    const inputIdentifier = `${capitalize(method.name)}Input`;
-    const { node: inputNode } = zodToTs(method.inputSchema as any, inputIdentifier);
+    const name = method.meta.functionName;
+    const inputIdentifier = `${capitalize(name)}Input`;
+    const { node: inputNode } = zodToTs(method.meta.inputSchema as any, inputIdentifier);
     const inputType = printNode(inputNode);
 
-    const outputIdentifier = `${capitalize(method.name)}Output`;
-    const { node: outputNode } = zodToTs(method.outputSchema as any, outputIdentifier);
+    const outputIdentifier = `${capitalize(name)}Output`;
+    const { node: outputNode } = zodToTs(method.meta.outputSchema as any, outputIdentifier);
     const outputType = printNode(outputNode);
 
     output += `

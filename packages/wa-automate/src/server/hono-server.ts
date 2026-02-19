@@ -8,7 +8,7 @@ import '@open-wa/schema/methods';
 import { apiKeyMiddleware } from '../middleware/api-key';
 import { rateLimitMiddleware } from '../middleware/rate-limit';
 import { SocketManager } from './socket-manager';
-import { ElasticEmitter, ElasticConfig } from '../monitoring/elastic';
+import { ElasticEmitter } from '../monitoring/elastic';
 
 export class WAServer {
     private app: Hono;
@@ -76,7 +76,7 @@ export class WAServer {
                   return c.json({ error: 'API not available until connected', status: 503 }, 503);
              }
              
-             await next();
+             return await next();
         });
     }
 
@@ -131,7 +131,7 @@ export class WAServer {
             const methodName = def.meta.functionName;
             const path = `/api/${methodName}`;
             
-            const inputUnion = def.schema._def.args;
+            const inputUnion = (def.schema._def as any).input;
             const inputSchema = inputUnion._def.options[0]._def.items[0];
 
             this.app.post(path, async (c) => {

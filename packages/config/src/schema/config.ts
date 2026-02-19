@@ -120,6 +120,7 @@ export const S3SyncSchema = z.object({
   endpoint: z.string().optional().describe('Custom S3 endpoint'),
   host: z.string().optional().describe('PicoS3 support'),
   syncInterval: z.number().default(600000).describe('Sync interval in ms'),
+  enableLocalCompression: z.boolean().optional().describe('Enable local session compression'),
 });
 
 export const LoggingTransportSchema = z.object({

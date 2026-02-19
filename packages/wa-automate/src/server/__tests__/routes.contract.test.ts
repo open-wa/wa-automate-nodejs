@@ -1,4 +1,4 @@
-import { Hono } from 'hono';
+// import { Hono } from 'hono';
 import { clientRegistry } from '@open-wa/schema';
 import '@open-wa/schema/methods';
 

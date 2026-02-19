@@ -1,26 +1,27 @@
-import { create, ev } from '@open-wa/core';
+import { create, ev } from '@open-wa/legacy';
 import { WAServer } from './server/hono-server';
-import { Config, ConfigSchema } from '@open-wa/schema';
+import { ConfigSchema } from '@open-wa/schema';
 
 const getVal = (index: number) => index !== -1 ? process.argv[index + 1] : undefined;
-const getBool = (index: number) => !((index !== -1 && process.argv[index + 1]) === false);
+// const getBool = (index: number) => !((index !== -1 && process.argv[index + 1]) === false);
+
+const sessionIdIndex = process.argv.findIndex(arg => arg === '--session-id');
+const portIndex = process.argv.findIndex(arg => arg === '--port');
+const hostIndex = process.argv.findIndex(arg => arg === '--host');
+const apiKeyIndex = process.argv.findIndex(arg => arg === '--api-key');
+const logLevelIndex = process.argv.findIndex(arg => arg === '--log-level');
+const noEzqrIndex = process.argv.findIndex(arg => arg === '--no-ezqr');
+const nameIndex = process.argv.findIndex(arg => arg === '--name');
+
+const sessionId = getVal(sessionIdIndex) || 'session';
+const port = getVal(portIndex) ? parseInt(getVal(portIndex)!) : 8002;
+const host = getVal(hostIndex) || '0.0.0.0';
+const apiKey = getVal(apiKeyIndex);
+const logLevel = getVal(logLevelIndex) || 'info';
+const noEzqr = noEzqrIndex !== -1;
+const procName = getVal(nameIndex) || getVal(sessionIdIndex) || '@OPEN-WA EASY API';
 
 async function start(): Promise<{ server: WAServer; client: any }> {
-    const sessionIdIndex = process.argv.findIndex(arg => arg === '--session-id');
-    const portIndex = process.argv.findIndex(arg => arg === '--port');
-    const hostIndex = process.argv.findIndex(arg => arg === '--host');
-    const apiKeyIndex = process.argv.findIndex(arg => arg === '--api-key');
-    const logLevelIndex = process.argv.findIndex(arg => arg === '--log-level');
-    const noEzqrIndex = process.argv.findIndex(arg => arg === '--no-ezqr');
-    const nameIndex = process.argv.findIndex(arg => arg === '--name');
-
-    const sessionId = getVal(sessionIdIndex) || 'session';
-    const port = getVal(portIndex) ? parseInt(getVal(portIndex)!) : 8002;
-    const host = getVal(hostIndex) || '0.0.0.0';
-    const apiKey = getVal(apiKeyIndex);
-    const logLevel = getVal(logLevelIndex) || 'info';
-    const noEzqr = noEzqrIndex !== -1;
-    const procName = getVal(nameIndex) || '@OPEN-WA EASY API';
 
     const configParseResult = ConfigSchema.safeParse({
         sessionId,
@@ -52,7 +53,7 @@ async function start(): Promise<{ server: WAServer; client: any }> {
     ev.on(`qrData.${sessionId}`, () => {});
 
     console.log('Starting WhatsApp Client...');
-    const client = await create(config);
+    const client = await create(config as any);
 
     server.setClient(client);
 
@@ -74,7 +75,7 @@ if (pm2Index !== -1) {
             pm2.stdout.on('data', () => resolve());
         });
 
-        const stringedArgs = getVal(pm2Index) || '';
+        // const stringedArgs = getVal(pm2Index) || '';
         const pm2Flags = process.argv.slice(2) || [];
         const cliPath = '/Users/Mohammed/projects/tools/wa/packages/wa-automate/dist/cli.js';
         

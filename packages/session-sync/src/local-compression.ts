@@ -1,7 +1,5 @@
 import chokidar from 'chokidar';
 import tar from 'tar-fs';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
 const zstd = require('simple-zstd');
 import fs from 'fs';
 import path from 'path';
@@ -9,12 +7,13 @@ import { EventEmitter } from 'events';
 
 export interface CompressionOptions {
     sessionPath: string;
+    sessionId: string;
     outputPath?: string; // Defaults to sessionPath/session.data.zst
     intervalMs?: number; // Throttle interval, default 10 mins (600000ms)
 }
 
 export class LocalSessionCompression extends EventEmitter {
-    private watcher: chokidar.FSWatcher | null = null;
+    private watcher: any = null;
     private isCompressing: boolean = false;
     private lastCompressionTime: number = 0;
     private throttleTimer: NodeJS.Timeout | null = null;
@@ -107,7 +106,7 @@ export class LocalSessionCompression extends EventEmitter {
             await new Promise<void>((resolve, reject) => {
                 pack.pipe(zstdStream).pipe(dest)
                     .on('finish', () => resolve())
-                    .on('error', (err) => reject(err));
+                    .on('error', (err: any) => reject(err));
             });
 
             const size = fs.statSync(outputPath).size;

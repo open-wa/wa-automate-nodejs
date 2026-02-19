@@ -1,9 +1,9 @@
 import { Context, Next } from 'hono';
-import { ElasticEmitter, RequestRecord } from './elastic';
+import { ElasticEmitter, ElasticDoc } from './elastic';
 
 export function elasticMiddleware(
     emitter: ElasticEmitter,
-    sanitize?: (record: RequestRecord) => void
+    sanitize?: (record: Partial<ElasticDoc>) => void
 ) {
     return async (c: Context, next: Next) => {
         const start = Date.now();
@@ -12,16 +12,14 @@ export function elasticMiddleware(
 
         const duration = Date.now() - start;
 
-        const record: RequestRecord = {
-            '@timestamp': new Date().toISOString(),
+        const record: Partial<ElasticDoc> = {
+            message: `Request to ${c.req.path}`,
             method: c.req.method,
             path: c.req.path,
-            status: c.res.status,
+            statusCode: c.res.status,
             duration,
-            requestHeaders: Object.fromEntries((c.req.raw.headers as any).entries()),
-            responseHeaders: Object.fromEntries((c.res.headers as any).entries()),
-            ip: c.req.header('x-real-ip') || c.req.header('x-forwarded-for'),
             userAgent: c.req.header('user-agent'),
+            ip: c.req.header('x-real-ip') || c.req.header('x-forwarded-for'),
         };
 
         // Sanitize sensitive data
@@ -29,12 +27,9 @@ export function elasticMiddleware(
             sanitize(record);
         } else {
             // Default sanitization
-            if (record.requestHeaders) {
-                delete record.requestHeaders.authorization;
-                delete record.requestHeaders['x-api-key'];
-            }
+            emitter.sanitizeHeaders(record);
         }
 
-        await emitter.processRecord(record);
+        emitter.log(record as any);
     };
 }

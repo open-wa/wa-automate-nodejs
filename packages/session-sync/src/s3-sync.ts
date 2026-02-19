@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import tar from 'tar-fs';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
 const PicoS3 = require('pico-s3');
 const zstd = require('simple-zstd');
 import { Readable } from 'stream';
@@ -86,7 +84,7 @@ export class S3SyncManager {
                     .pipe(zstdDecompress)
                     .pipe(extract)
                     .on('finish', () => resolve())
-                    .on('error', (err) => reject(err));
+                    .on('error', (err: any) => reject(err));
             });
 
             console.log('Session restored successfully.');
@@ -97,7 +95,7 @@ export class S3SyncManager {
         }
     }
 
-    public async getDownloadUrl(filename: string, expiresIn: number = 60): Promise<string> {
+    public async getDownloadUrl(filename: string, _expiresIn: number = 60): Promise<string> {
         // PicoS3 doesn't have a direct getSignedUrl equivalent in standard interface easily accessible purely from this wrapper usually,
         // but let's check if we can simulate it or if p3 exposes it.
         // Checking pico-s3 docs/source (simulated): It usually constructs a public URL.

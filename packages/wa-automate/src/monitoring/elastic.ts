@@ -104,7 +104,7 @@ export class ElasticEmitter {
         try {
             const indexName = `${this.config.indexPrefix}${new Date().toISOString().split('T')[0]}`;
             
-            const body = docs.flatMap(document => [
+            const body = docs.flatMap(_document => [
                 { 
                     index: { 
                         _index: indexName 
@@ -124,7 +124,7 @@ export class ElasticEmitter {
             // Add pipeline if specified
             if (this.config.pipeline) {
                 const pipelineResponse = await this.client.bulk({
-                    body: docs.flatMap(document => [
+                    body: docs.flatMap(_document => [
                         { index: { _index: indexName, pipeline: this.config.pipeline } },
                         { create: {} }
                     ])

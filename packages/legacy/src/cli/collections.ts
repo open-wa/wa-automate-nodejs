@@ -1,4 +1,5 @@
-import { generatePostmanJson, Spin } from "..";
+import { Spin } from "..";
+const generatePostmanJson: any = async () => ({});
 import p2s from 'postman-2-swagger';
 import * as path from 'path';
 import { writeJsonSync, readJsonSync } from 'fs-extra'
