@@ -16,8 +16,6 @@
         "@tanstack/react-start": "catalog:",
         "@tanstack/router-plugin": "catalog:",
         "clsx": "catalog:",
-        "lucide-react": "catalog:",
-        "nitro": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
         "socket.io-client": "catalog:",

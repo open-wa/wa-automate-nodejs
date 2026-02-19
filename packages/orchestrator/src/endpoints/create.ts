@@ -100,7 +100,7 @@ export const createSession: (configData: OrchestratedSessionConfig, recreating?:
       })
     }
     const useChrome = process.env.USE_CHROME === "false" ? false : true;
-    const config: Config = {
+    const config: any = {
       /**
        * Can be overridden
        */

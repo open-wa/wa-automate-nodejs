@@ -87,7 +87,7 @@ export const messageIdCodec = {
 export const createFileCodec = (outputType: string) => {
     return {
         decode: async (input: any): Promise<any> => {
-            const { assertFile } = await import('@open-wa/core');
+            const { assertFile } = await import('@open-wa/legacy');
             return await assertFile(input, 'file', outputType as any);
         },
         encode: (output: any) => output
@@ -126,7 +126,7 @@ export const base64ToDataUrlCodec = {
  */
 export const urlToDataUrlCodec = {
     decode: async (url: string): Promise<string> => {
-        const { getDUrl } = await import('@open-wa/core');
+        const { getDUrl } = await import('@open-wa/legacy');
         return await getDUrl(url);
     },
     encode: (_dataUrl: string): string => {

@@ -13,6 +13,10 @@
     }
   },
   "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
     "bench:baseline": "node benchmarks/baseline/run-baseline.js",
     "bench:baseline:ci": "node benchmarks/baseline/run-baseline.js --ci"
   },

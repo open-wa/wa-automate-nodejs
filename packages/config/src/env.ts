@@ -39,7 +39,7 @@ function getSchemaFieldType(key: string): 'number' | 'boolean' | 'array' | 'obje
   // Unwrap optional/default wrappers
   let inner: z.ZodTypeAny = field;
   while (inner instanceof z.ZodOptional || inner instanceof z.ZodDefault) {
-    inner = inner._def.innerType;
+    inner = inner._def.innerType as z.ZodTypeAny;
   }
 
   // Check types

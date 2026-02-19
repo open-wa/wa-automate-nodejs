@@ -16,8 +16,6 @@
         "@tanstack/router-plugin": "catalog:",
         "@tanstack/react-router-ssr-query": "catalog:",
         "clsx": "catalog:",
-        "lucide-react": "catalog:",
-        "nitro": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
         "tailwind-merge": "catalog:",

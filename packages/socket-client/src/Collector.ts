@@ -5,7 +5,7 @@
  * Please see: https://discord.js.org/#/docs/main/stable/class/Collector
  */
 // import { EventEmitter2 } from 'eventemitter2';
-import {Collection as BaseCollection} from '@discordjs/collection';
+import { Collection as BaseCollection } from '@discordjs/collection';
 import { EventEmitter } from 'events';
 
 export class Collection<K, V> extends BaseCollection<K, V> {
@@ -350,18 +350,6 @@ export class Collector extends EventEmitter {
     this._timeouts.delete(timeout);
   }
 
-  /**
-   * Sets an interval that will be automatically cancelled if the client is destroyed.
-   * @param {Function} fn Function to execute
-   * @param {number} delay Time to wait between executions (in milliseconds)
-   * @param {...*} args Arguments for the function
-   * @returns {Timeout}
-   */
-  setInterval(fn: (...args: any[]) => any, delay: number, ...args: any[]): NodeJS.Timeout {
-    const interval = setInterval(fn, delay, ...args);
-    this._intervals.add(interval);
-    return interval;
-  }
 
   /**
    * Clears an interval.
@@ -422,7 +410,7 @@ export class Collector extends EventEmitter {
    * @param {...*} args Arguments for the function
    * @returns {Timeout}
    */
-setTimeout(fn: (...args: any[]) => any, delay: number, ...args: any[]): NodeJS.Timeout {
+  setTimeout(fn: (...args: any[]) => any, delay: number, ...args: any[]): NodeJS.Timeout {
     const timeout = global.setTimeout(() => {
       fn(...args);
       this._timeouts.delete(timeout);
@@ -439,9 +427,9 @@ setTimeout(fn: (...args: any[]) => any, delay: number, ...args: any[]): NodeJS.T
    * @returns {Timeout}
    */
   setInterval(fn: (...args: any[]) => any, delay: number, ...args: any[]): NodeJS.Timeout {
-    const interval = global.setInterval(fn, delay, ...args);
+    const interval = global.setInterval(fn, delay, ...args) as unknown as NodeJS.Timeout;
     this._intervals.add(interval);
-    return interval as NodeJS.Timeout;
+    return interval;
   }
 
 
