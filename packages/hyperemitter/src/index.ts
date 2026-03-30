@@ -1,7 +1,7 @@
-export { HyperEmitter } from './core/HyperEmitter';
+export { HyperEmitter } from './core/HyperEmitter.js';
 export type {
   EventMap,
   EventListener,
   ListenerOptions,
   HyperEmitterOptions
-} from './types';
+} from './types/index.js';

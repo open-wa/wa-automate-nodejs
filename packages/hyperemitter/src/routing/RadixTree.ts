@@ -1,4 +1,4 @@
-import { RadixNode } from './RadixNode';
+import { RadixNode } from './RadixNode.js';
 
 /**
  * Radix tree with MQTT-style wildcards.

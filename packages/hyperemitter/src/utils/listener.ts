@@ -1,4 +1,4 @@
-import { ListenerOptions } from '../types';
+import { ListenerOptions } from '../types/index.js';
 
 export type ListenerFn = (...args: any[]) => any;
 

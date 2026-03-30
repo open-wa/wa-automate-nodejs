@@ -3,18 +3,19 @@
   "version": "0.0.0-pre",
   "private": true,
   "description": "HyperEmitter: high-performance, schema-driven event emitter for the open-wa v5 stack.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.cts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/index.cjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.cts"
     }
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "tsdown src/index.ts --format cjs",
+    "dev": "tsdown src/index.ts --format cjs --watch",
+    "lint": "oxlint src",
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
     "bench:baseline": "node benchmarks/baseline/run-baseline.js",
@@ -37,6 +38,7 @@
     "eventemitter2": "^6.4.9",
     "eventemitter3": "^5.0.1",
     "mitt": "^3.0.1",
-    "tseep": "^1.0.1"
+    "tseep": "^1.0.1",
+    "typescript": "catalog:"
   }
 }
