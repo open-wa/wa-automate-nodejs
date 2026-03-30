@@ -4,6 +4,10 @@
   "description": "[DEPRECATED] Legacy WhatsApp automation logic - migrate to @open-wa/client",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "licenseCheckUrl": "https://funcs.openwa.dev/license-check",
+  "brokenMethodReportUrl": "https://funcs.openwa.dev/report-bm",
+  "patches": "https://cdn.openwa.dev/patches.json",
+  "stickerUrl": "https://sticker-api.openwa.dev",
   "exports": {
     ".": {
       "require": "./dist/index.js",
