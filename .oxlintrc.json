@@ -1,0 +1,89 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "off",
+    "suspicious": "off",
+    "pedantic": "off",
+    "perf": "off",
+    "style": "off",
+    "restriction": "off",
+    "nursery": "off"
+  },
+  "plugins": [
+    "typescript",
+    "import",
+    "react",
+    "jsx-a11y",
+    "vitest",
+    "jest",
+    "oxc"
+  ],
+  "rules": {
+    "eslint/no-unused-vars": "off",
+    "eslint/no-shadow": "off",
+    "eslint/no-new": "off",
+    "eslint/no-unneeded-ternary": "off",
+    "eslint/no-useless-escape": "off",
+    "eslint/no-useless-catch": "off",
+    "eslint/no-async-promise-executor": "off",
+    "eslint/no-eval": "off",
+    "eslint/no-unused-expressions": "off",
+    "eslint/no-unsafe-optional-chaining": "off",
+    "eslint/no-extra-boolean-cast": "off",
+    "eslint/preserve-caught-error": "off",
+    "import/no-unassigned-import": "off",
+    "import/no-named-as-default-member": "off",
+    "jest/no-conditional-expect": "off",
+    "jest/require-to-throw-message": "off",
+    "jest/valid-title": "off",
+    "oxc/no-async-endpoint-handlers": "off",
+    "react/react-in-jsx-scope": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "jsx-a11y/lang": "off",
+    "jsx-a11y/html-has-lang": "off",
+    "jsx-a11y/prefer-tag-over-role": "off",
+    "typescript-eslint/no-extraneous-class": "off",
+    "jest/no-disabled-tests": "off"
+  },
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.output/**",
+    "**/.turbo/**",
+    "**/.docusaurus/**",
+    "**/build/**",
+    "**/*.gen.ts",
+    "packages/orchestrator/tests/**"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "apps/dashboard/src/**/*.{ts,tsx}",
+        "apps/orchestrator-dashboard/src/**/*.{ts,tsx}",
+        "apps/docs/src/**/*.{ts,tsx}"
+      ],
+      "plugins": [
+        "typescript",
+        "import",
+        "react",
+        "jsx-a11y",
+        "oxc"
+      ]
+    },
+    {
+      "files": [
+        "**/*.{test,spec}.{ts,tsx,js,jsx}",
+        "**/__tests__/**/*.{ts,tsx,js,jsx}"
+      ],
+      "plugins": [
+        "typescript",
+        "import",
+        "vitest",
+        "oxc"
+      ],
+      "env": {
+        "node": true
+      }
+    }
+  ]
+}
