@@ -17,6 +17,7 @@ This directory contains comprehensive research findings from the Letta Code AI a
 7. [Commands](./project-commands.md) - Build and development commands
 8. [Current Focus](./project-current-focus.md) - Active development and recent changes
 9. [v5 Migration Planning](./v5-migration-planning.md) - Complete v5 migration context and constraints
+10. [v5 Runtime Architecture Audit](./v5-runtime-architecture-audit.md) - Current vs target wiring map, legacy cutover gaps, and mermaid diagrams
 
 ## Purpose
 
