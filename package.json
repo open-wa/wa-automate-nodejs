@@ -22,9 +22,15 @@
     "lint": "turbo lint",
     "clean": "turbo clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "typecheck": "turbo typecheck"
+    "typecheck": "turbo typecheck",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "publish-packages": "turbo run build && changeset publish",
+    "release-image": "node tools/release-image.js"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.6.0",
+    "@changesets/cli": "^2.30.0",
     "@types/node": "catalog:",
     "@types/socket.io": "catalog:",
     "prettier": "catalog:",

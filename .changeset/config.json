@@ -1,0 +1,36 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
+  "changelog": [
+    "@changesets/changelog-github",
+    { "repo": "open-wa/wa-automate-nodejs" }
+  ],
+  "commit": false,
+  "fixed": [
+    [
+      "@open-wa/cli",
+      "@open-wa/client",
+      "@open-wa/config",
+      "@open-wa/core",
+      "@open-wa/domain",
+      "@open-wa/driver-interface",
+      "@open-wa/driver-playwright",
+      "@open-wa/driver-puppeteer",
+      "@open-wa/hyperemitter",
+      "@open-wa/legacy",
+      "@open-wa/logger",
+      "@open-wa/orchestrator",
+      "@open-wa/schema",
+      "@open-wa/session-sync",
+      "@open-wa/socket-client",
+      "@open-wa/ui-components",
+      "@open-wa/utils",
+      "@open-wa/wa-automate",
+      "@open-wa/wa-decrypt"
+    ]
+  ],
+  "linked": [],
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": []
+}
