@@ -4,20 +4,17 @@
     "private": true,
     "description": "WhatsApp CLI - Easy API mode for @open-wa/wa-automate",
     "bin": {
-        "wa": "./dist/index.js",
-        "wa-automate": "./dist/index.js"
+        "wa": "./dist/index.cjs",
+        "wa-automate": "./dist/index.cjs"
     },
     "scripts": {
-        "build": "tsc",
-        "dev": "tsc --watch",
-        "start": "node dist/index.js"
+        "build": "tsdown src/index.ts --format cjs",
+        "dev": "tsdown src/index.ts --format cjs --watch",
+        "lint": "oxlint src",
+        "start": "node dist/index.cjs"
     },
     "dependencies": {
-        "@open-wa/legacy": "workspace:*",
-        "chalk": "^4.1.2",
-        "json5": "^2.2.1",
-        "meow": "^9.0.0",
-        "type-fest": "^2.1.0"
+        "@open-wa/cli": "workspace:*"
     },
     "devDependencies": {
         "typescript": "catalog:",

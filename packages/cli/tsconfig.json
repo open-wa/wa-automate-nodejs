@@ -11,7 +11,13 @@
     "composite": true,
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@open-wa/wa-automate": [
+        "../wa-automate/dist/index.d.ts"
+      ]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]
