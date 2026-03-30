@@ -42,7 +42,7 @@ describe('representative method validation', () => {
         },
         {
             name: 'getChat',
-            expectedInputKeys: ['chatId'],
+            expectedInputKeys: ['contactId'],
             expectedNamespace: 'chats',
         },
         {

@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import { WAServer } from '../hono-server';
 import { ConfigSchema } from '@open-wa/schema';
 
@@ -13,7 +12,6 @@ describe('Hono Middleware', () => {
             });
 
             const server = new WAServer(config);
-            await server.start();
 
             const res = await server.getApp().request('/api/sendText', {
                 method: 'POST',
@@ -33,7 +31,6 @@ describe('Hono Middleware', () => {
             });
 
             const server = new WAServer(config);
-            await server.start();
 
             const res = await server.getApp().request('/api/sendText', {
                 method: 'POST',
@@ -49,7 +46,6 @@ describe('Hono Middleware', () => {
         it('should return server status', async () => {
             const config = ConfigSchema.parse({ sessionId: 'test', port: 8006 });
             const server = new WAServer(config);
-            await server.start();
 
             const res = await server.getApp().request('/health');
 
@@ -59,6 +55,29 @@ describe('Hono Middleware', () => {
                 status: 'ok',
                 version: '5.0.0',
             });
+        });
+    });
+
+    describe('Client method invocation', () => {
+        it('should invoke client methods using positional argument order', async () => {
+            const config = ConfigSchema.parse({ sessionId: 'test', port: 8007, apiLifecycle: 'immediate' });
+            const server = new WAServer(config);
+            const sendText = jest.fn().mockResolvedValue('mock-message-id');
+
+            server.setClient({
+                isConnected: () => true,
+                sendText,
+            });
+
+            const res = await server.getApp().request('/api/sendText', {
+                method: 'POST',
+                body: JSON.stringify({ to: '123@c.us', content: 'hello' }),
+                headers: { 'Content-Type': 'application/json' },
+            });
+
+            expect(res.status).toBe(200);
+            expect(sendText).toHaveBeenCalledWith('123@c.us', 'hello', undefined);
+            await expect(res.json()).resolves.toMatchObject({ success: true, data: 'mock-message-id' });
         });
     });
 });

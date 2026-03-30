@@ -2,28 +2,31 @@
   "name": "@open-wa/wa-automate",
   "version": "5.0.0-alpha.1",
   "description": "WhatsApp automation CLI and API server",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
   "bin": {
-    "wa-automate": "./dist/cli.js"
+    "wa-automate": "./dist/cli.cjs"
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "test": "jest"
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "lint": "oxlint src",
+    "test": "vitest run"
   },
   "dependencies": {
     "@elastic/elasticsearch": "catalog:",
     "@hono/node-server": "catalog:",
+    "@open-wa/client": "workspace:*",
+    "@open-wa/core": "workspace:*",
+    "@open-wa/driver-puppeteer": "workspace:*",
     "@open-wa/logger": "workspace:*",
     "@open-wa/schema": "workspace:*",
-    "@open-wa/legacy": "workspace:*",
     "@open-wa/session-sync": "workspace:*",
     "hono": "catalog:",
     "socket.io": "catalog:"
   },
   "devDependencies": {
-    "@types/socket.io": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

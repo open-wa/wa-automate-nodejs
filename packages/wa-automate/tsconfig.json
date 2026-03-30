@@ -6,8 +6,20 @@
         "strict": false,
         "baseUrl": ".",
         "paths": {
+            "@open-wa/core": [
+                "../core/dist/index.d.ts"
+            ],
+            "@open-wa/client": [
+                "../client/dist/index.d.ts"
+            ],
+            "@open-wa/driver-puppeteer": [
+                "../driver-puppeteer/dist/index.d.ts"
+            ],
             "@open-wa/schema": [
                 "../schema/dist/index.d.ts"
+            ],
+            "@open-wa/schema/*": [
+                "../schema/dist/*"
             ]
         }
     },

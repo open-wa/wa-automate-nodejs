@@ -3,12 +3,14 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { serve } from '@hono/node-server';
 import { Server as SocketIOServer } from 'socket.io';
-import { clientRegistry, Config } from '@open-wa/schema';
+import { Config } from '@open-wa/schema';
+import { getHttpMethodDefinitions, HttpMethodDefinition } from '@open-wa/schema/http-manifest';
 import '@open-wa/schema/methods';
 import { apiKeyMiddleware } from '../middleware/api-key';
 import { rateLimitMiddleware } from '../middleware/rate-limit';
 import { SocketManager } from './socket-manager';
 import { ElasticEmitter } from '../monitoring/elastic';
+import { invokeClientMethod } from './invoke-client-method';
 
 export class WAServer {
     private app: Hono;
@@ -99,6 +101,8 @@ export class WAServer {
     }
 
     private registerRoutes() {
+        const methodDefinitions = getHttpMethodDefinitions();
+
         this.app.get('/health', (c) => c.json({
             status: 'ok',
             version: '5.0.0',
@@ -114,38 +118,29 @@ export class WAServer {
         });
 
         this.app.get('/api', (c) => {
-            const methods = clientRegistry.getAll();
-            const endpoints = methods.map(def => ({
+            const endpoints = methodDefinitions.map((def) => ({
                 method: 'POST',
-                path: `/api/${def.meta.functionName}`,
-                name: def.meta.functionName,
-                description: def.meta.description,
-                category: def.meta.namespace,
+                path: def.path,
+                name: def.functionName,
+                description: def.description,
+                category: def.namespace,
             }));
 
             return c.json({ endpoints });
         });
 
-        const methods = clientRegistry.getAll();
-        methods.forEach((def) => {
-            const methodName = def.meta.functionName;
-            const path = `/api/${methodName}`;
-            
-            const inputUnion = (def.schema._def as any).input;
-            const inputSchema = inputUnion._def.options[0]._def.items[0];
+        methodDefinitions.forEach((def: HttpMethodDefinition) => {
+            const methodName = def.functionName;
+            const path = def.path;
+            const inputSchema = def.inputSchema;
 
             this.app.post(path, async (c) => {
                 const startTime = Date.now();
                 try {
                     const body = await c.req.json();
                     
-                    if (!this.client) {
-                        return c.json({ error: 'Client not initialized' }, 500);
-                    }
-
                     const validated = inputSchema.parse(body);
-
-                    const result = await this.client[methodName](validated);
+                    const result = await invokeClientMethod(this.client, def, validated);
 
                     if (this.elasticEmitter) {
                         this.elasticEmitter.log({

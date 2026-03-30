@@ -1,6 +1,8 @@
 import { Server as SocketIOServer } from 'socket.io';
-import { clientRegistry, z } from '@open-wa/schema';
+import { z } from '@open-wa/schema';
+import { getHttpMethodDefinitions } from '@open-wa/schema/http-manifest';
 import '@open-wa/schema/methods';
+import { invokeClientMethod } from './invoke-client-method';
 
 export class SocketManager {
     private io: SocketIOServer;
@@ -32,11 +34,11 @@ export class SocketManager {
     }
 
     private registerCapabilityHandlers(socket: any) {
-        const methods = clientRegistry.getAll();
+        const methods = getHttpMethodDefinitions();
 
         methods.forEach((def) => {
-            const methodName = def.meta.functionName;
-            const inputSchema = def.meta.inputSchema;
+            const methodName = def.functionName;
+            const inputSchema = def.inputSchema;
             
             socket.on(methodName, async (data: any, callback: Function) => {
                 try {
@@ -56,7 +58,7 @@ export class SocketManager {
 
                     const validated = inputSchema.parse(input);
 
-                    const result = await this.executeMethod(methodName, validated);
+                    const result = await invokeClientMethod(this.client, def, validated);
 
                     if (callback && typeof callback === 'function') {
                         callback({ success: true, data: result });
@@ -71,20 +73,6 @@ export class SocketManager {
                 }
             });
         });
-    }
-
-    private async executeMethod(methodName: string, input: any): Promise<any> {
-        if (!this.client) {
-            throw new Error('Client not initialized');
-        }
-
-        const method = this.client[methodName];
-        if (typeof method !== 'function') {
-            throw new Error(`Method ${methodName} not implemented on Client`);
-        }
-
-        const result = await method(input);
-        return result;
     }
 
     public emit(event: string, data: any) {

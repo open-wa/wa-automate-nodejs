@@ -1,27 +1,54 @@
-import { create, ev } from '@open-wa/legacy';
+#!/usr/bin/env node
+import { createClient, Transport } from '@open-wa/core';
+import { Client as ClientFacade } from '@open-wa/client';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
 import { WAServer } from './server/hono-server';
 import { ConfigSchema } from '@open-wa/schema';
 
-const getVal = (index: number) => index !== -1 ? process.argv[index + 1] : undefined;
-// const getBool = (index: number) => !((index !== -1 && process.argv[index + 1]) === false);
+interface ParsedCliArgs {
+    sessionId: string;
+    port: number;
+    host: string;
+    apiKey?: string;
+    logLevel: string;
+    noEzqr: boolean;
+    procName: string;
+    pm2: boolean;
+    forwardedArgs: string[];
+}
 
-const sessionIdIndex = process.argv.findIndex(arg => arg === '--session-id');
-const portIndex = process.argv.findIndex(arg => arg === '--port');
-const hostIndex = process.argv.findIndex(arg => arg === '--host');
-const apiKeyIndex = process.argv.findIndex(arg => arg === '--api-key');
-const logLevelIndex = process.argv.findIndex(arg => arg === '--log-level');
-const noEzqrIndex = process.argv.findIndex(arg => arg === '--no-ezqr');
-const nameIndex = process.argv.findIndex(arg => arg === '--name');
+function getVal(argv: string[], flag: string): string | undefined {
+    const index = argv.findIndex(arg => arg === flag);
+    return index !== -1 ? argv[index + 1] : undefined;
+}
 
-const sessionId = getVal(sessionIdIndex) || 'session';
-const port = getVal(portIndex) ? parseInt(getVal(portIndex)!) : 8002;
-const host = getVal(hostIndex) || '0.0.0.0';
-const apiKey = getVal(apiKeyIndex);
-const logLevel = getVal(logLevelIndex) || 'info';
-const noEzqr = noEzqrIndex !== -1;
-const procName = getVal(nameIndex) || getVal(sessionIdIndex) || '@OPEN-WA EASY API';
+export function parseCliArgs(argv: string[] = process.argv.slice(2)): ParsedCliArgs {
+    const sessionId = getVal(argv, '--session-id') || 'session';
+    const portValue = getVal(argv, '--port');
+    const port = portValue ? parseInt(portValue, 10) : 8002;
+    const host = getVal(argv, '--host') || '0.0.0.0';
+    const apiKey = getVal(argv, '--api-key');
+    const logLevel = getVal(argv, '--log-level') || 'info';
+    const noEzqr = argv.includes('--no-ezqr');
+    const procName = getVal(argv, '--name') || sessionId || '@OPEN-WA EASY API';
+    const pm2 = argv.includes('--pm2');
 
-async function start(): Promise<{ server: WAServer; client: any }> {
+    return {
+        sessionId,
+        port,
+        host,
+        apiKey,
+        logLevel,
+        noEzqr,
+        procName,
+        pm2,
+        forwardedArgs: argv,
+    };
+}
+
+export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise<{ server: WAServer; client: ClientFacade }> {
+
+    const { sessionId, port, host, apiKey, logLevel, noEzqr } = parsedArgs;
 
     const configParseResult = ConfigSchema.safeParse({
         sessionId,
@@ -45,59 +72,94 @@ async function start(): Promise<{ server: WAServer; client: any }> {
 
     await server.start();
 
-    ev.on(`qr.${sessionId}`, (data: string) => {
-        console.log('CLI: Received QR Code update');
-        server.setQR(data);
+    console.log('Starting WhatsApp Client...');
+
+    const driver = new PuppeteerDriver();
+    const openwaClient = await createClient({
+        sessionId: config.sessionId,
+        driver,
+        debug: config.logLevel === 'debug',
+        headless: config.headless,
+        qrTimeoutMs: config.qrTimeout ? config.qrTimeout * 1000 : undefined,
+        executablePath: config.executablePath,
     });
 
-    ev.on(`qrData.${sessionId}`, () => {});
+    openwaClient.events.on('launch.auth.qr.generated', (event) => {
+        const qr = event.details?.qr;
+        if (!qr) {
+            return;
+        }
 
-    console.log('Starting WhatsApp Client...');
-    const client = await create(config as any);
+        console.log('CLI: Received QR Code update');
+        server.setQR(qr);
+    });
+
+    const transport = new Transport({
+        driver,
+        events: openwaClient.events,
+        logger: openwaClient.logger,
+        headless: config.headless,
+        qrTimeoutMs: config.qrTimeout ? config.qrTimeout * 1000 : undefined,
+        executablePath: config.executablePath,
+    });
+
+    const client = new ClientFacade({
+        client: openwaClient,
+        transport,
+    });
 
     server.setClient(client);
 
-    if (await client.isConnected()) {
-        console.log('WhatsApp Client connected, API fully operational');
-    }
+    await client.start();
+
+    console.log(`WhatsApp Client ready with state: ${client.getState()}`);
 
     return { server, client };
 }
 
-const pm2Index = process.argv.findIndex(arg => arg === '--pm2');
-if (pm2Index !== -1) {
-    const { spawn } = require('child_process');
-    try {
-        const pm2 = spawn('pm2');
-        
-        new Promise<void>((resolve, reject) => {
-            pm2.on('error', reject);
-            pm2.stdout.on('data', () => resolve());
-        });
+export async function main(argv: string[] = process.argv.slice(2)): Promise<void> {
+    const parsedArgs = parseCliArgs(argv);
 
-        // const stringedArgs = getVal(pm2Index) || '';
-        const pm2Flags = process.argv.slice(2) || [];
-        const cliPath = '/Users/Mohammed/projects/tools/wa/packages/wa-automate/dist/cli.js';
-        
-        spawn('pm2', [
-            'start',
-            cliPath,
-            '--name', procName,
-            '--stop-exit-codes', '88',
-            ...pm2Flags,
-            '--',
-            ...pm2Flags.filter((x: any) => !pm2Flags.includes(x))
-        ], {
-            stdio: 'inherit',
-            detached: true
-        });
-    } catch (error: any) {
-        if (error.errorno === -2) {
-            console.error('pm2 not found. Please install with: npm install -g pm2');
+    if (parsedArgs.pm2) {
+        const { spawn } = require('child_process');
+        try {
+            const pm2 = spawn('pm2');
+
+            new Promise<void>((resolve, reject) => {
+                pm2.on('error', reject);
+                pm2.stdout.on('data', () => resolve());
+            });
+
+            const pm2Flags = parsedArgs.forwardedArgs;
+            const cliPath = '/Users/Mohammed/projects/tools/wa/packages/wa-automate/dist/cli.js';
+
+            spawn('pm2', [
+                'start',
+                cliPath,
+                '--name', parsedArgs.procName,
+                '--stop-exit-codes', '88',
+                ...pm2Flags,
+                '--',
+                ...pm2Flags.filter((x: string) => !pm2Flags.includes(x))
+            ], {
+                stdio: 'inherit',
+                detached: true
+            });
+            return;
+        } catch (error: any) {
+            if (error.errorno === -2) {
+                console.error('pm2 not found. Please install with: npm install -g pm2');
+                return;
+            }
+            throw error;
         }
     }
-} else {
-    start().catch((err: any) => {
+
+    await start(parsedArgs);
+}
+
+if (require.main === module) {
+    main().catch((err: any) => {
         console.error('Failed to start:', err);
         process.exit(1);
     });
