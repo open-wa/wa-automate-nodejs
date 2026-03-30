@@ -36,7 +36,7 @@ export interface ChatMethods {
   unmuteChat(chatId: ChatId): Promise<boolean>;
   markAsUnread(chatId: ChatId): Promise<boolean>;
   getAllMessages(chatId: ChatId, includeMe?: boolean, includeNotifications?: boolean): Promise<Message[]>;
-  loadEarlierMessages(chatId: ChatId): Promise<Message[]>;
+  loadEarlierMessages(chatId: ChatId, count?: number, includeMe?: boolean): Promise<Message[]>;
 }
 
 export function chatMethods(client: Client): ChatMethods {
@@ -142,7 +142,7 @@ export function chatMethods(client: Client): ChatMethods {
       );
     },
     
-    async loadEarlierMessages(chatId: ChatId): Promise<Message[]> {
+    async loadEarlierMessages(chatId: ChatId, _count = 20, _includeMe = false): Promise<Message[]> {
       return evaluate(
         ({ chatId }) => WAPI.loadEarlierMessages(chatId),
         { chatId }

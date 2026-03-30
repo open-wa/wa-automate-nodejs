@@ -25,8 +25,11 @@ import {
   Collection,
   CollectorFilter,
 } from '@open-wa/domain';
+import { ListenerManager, type ListenerHandle } from './events/index.js';
+import type { QueueOptions } from '@open-wa/schema';
 
 import { messagingMethods, type MessagingMethods } from './methods/messaging.js';
+import { mediaMethods, type MediaMethods } from './methods/media.js';
 import { groupMethods, type GroupMethods } from './methods/groups.js';
 import { chatMethods, type ChatMethods } from './methods/chats.js';
 import { contactMethods, type ContactMethods } from './methods/contacts.js';
@@ -81,16 +84,22 @@ export type EvaluateFn = <Arg, Ret>(
  * client.onMessage(msg => console.log(msg));
  * ```
  */
-export class Client implements MessagingMethods, GroupMethods, ChatMethods, ContactMethods {
+export class Client implements MessagingMethods, MediaMethods, GroupMethods, ChatMethods, ContactMethods {
   private readonly _client: OpenWAClient;
   private readonly _transport: Transport;
+  private readonly _listenerManager: ListenerManager;
   
   constructor(config: ClientConfig) {
     this._client = config.client;
     this._transport = config.transport;
+    this._listenerManager = new ListenerManager({
+      sessionId: config.client.sessionId,
+      events: config.client.events,
+    });
     
     // Bind method modules
     this._bindMethods(messagingMethods, this);
+    this._bindMethods(mediaMethods, this);
     this._bindMethods(groupMethods, this);
     this._bindMethods(chatMethods, this);
     this._bindMethods(contactMethods, this);
@@ -250,32 +259,46 @@ export class Client implements MessagingMethods, GroupMethods, ChatMethods, Cont
   /**
    * Listen for all incoming messages.
    */
-  onMessage(callback: (message: Message) => void): () => void {
-    const handler = (payload: { ctx: { correlationId: string; ts: number }; message: unknown }) => 
-      callback(payload.message as Message);
-    this.events.on('message.received', handler);
-    return () => this.events.off('message.received', handler);
+  onMessage(callback: (message: Message) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
+    return this._listenerManager.on('message', async (payload) => {
+      await callback(payload);
+    }, options);
   }
   
   /**
    * Listen for message acknowledgements (sent, delivered, read).
    */
-  onAck(callback: (ack: { messageId: MessageId; ack: number }) => void): () => void {
-    const handler = (payload: { ctx: { correlationId: string; ts: number }; ack: unknown }) => 
-      callback(payload.ack as { messageId: MessageId; ack: number });
-    this.events.on('ack.changed', handler);
-    return () => this.events.off('ack.changed', handler);
+  onAck(callback: (ack: { messageId: MessageId; ack: number }) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
+    return this._listenerManager.on('ack', async (payload) => {
+      await callback({ messageId: payload.id, ack: payload.ack });
+    }, options);
   }
   
   /**
    * Listen for state changes (CONNECTED, DISCONNECTED, etc.).
    */
-  onStateChanged(callback: (state: STATE) => void): () => void {
-    const handler = (payload: { step: string; details?: { prev: STATE; next: STATE } }) => {
-      if (payload.details?.next) callback(payload.details.next);
-    };
-    this.events.on('session.state.changed', handler);
-    return () => this.events.off('session.state.changed', handler);
+  onStateChanged(callback: (state: STATE) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
+    return this._listenerManager.on('stateChanged', async (payload) => {
+      await callback(payload.state);
+    }, options);
+  }
+
+  onAnyMessage(callback: (message: Message) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
+    return this._listenerManager.on('anyMessage', async (payload) => {
+      await callback(payload);
+    }, options);
+  }
+
+  onMessageDeleted(callback: (payload: { messageId: string; chatId: string; by?: string }) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
+    return this._listenerManager.on('messageDeleted', async (payload) => {
+      await callback(payload);
+    }, options);
+  }
+
+  onLogout(callback: (payload: { reason?: string; timestamp: number }) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
+    return this._listenerManager.on('logout', async (payload) => {
+      await callback(payload);
+    }, options);
   }
   
   // ─────────────────────────────────────────────────────────────────
@@ -313,6 +336,9 @@ export class Client implements MessagingMethods, GroupMethods, ChatMethods, Cont
   declare react: MessagingMethods['react'];
   declare sendSeen: MessagingMethods['sendSeen'];
   declare getMessageById: MessagingMethods['getMessageById'];
+  declare sendFileFromUrl: MediaMethods['sendFileFromUrl'];
+  declare decryptMedia: MediaMethods['decryptMedia'];
+  declare downloadMedia: MediaMethods['downloadMedia'];
   
   // Group methods
   declare createGroup: GroupMethods['createGroup'];
