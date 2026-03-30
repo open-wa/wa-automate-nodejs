@@ -4,14 +4,15 @@
     "private": true,
     "description": "Multi-session orchestration CLI",
     "bin": {
-        "wa-orch": "./dist/index.js",
+        "wa-orch": "./dist/index.cjs",
         "orch": "./bin/orch",
         "opm2": "./bin/opm2"
     },
     "scripts": {
-        "build": "tsc",
-        "dev": "tsc --watch",
-        "start": "node dist/index.js"
+        "build": "tsdown src/index.ts --format cjs",
+        "dev": "tsdown src/index.ts --format cjs --watch",
+        "lint": "oxlint src",
+        "start": "node dist/index.cjs"
     },
     "dependencies": {
         "@open-wa/orchestrator": "workspace:*",

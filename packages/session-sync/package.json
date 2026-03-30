@@ -1,10 +1,12 @@
 {
     "name": "@open-wa/session-sync",
     "version": "1.0.0",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.cts",
     "scripts": {
-        "build": "tsc",
+        "build": "tsdown src/index.ts --format cjs",
+        "dev": "tsdown src/index.ts --format cjs --watch",
+        "lint": "oxlint src",
         "test": "vitest run"
     },
     "dependencies": {

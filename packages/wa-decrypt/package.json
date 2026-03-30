@@ -2,11 +2,13 @@
   "name": "@open-wa/wa-decrypt",
   "version": "4.4.0",
   "description": "A lightweight implementation of the open-wa/wa-automate-nodejs media decryption code",
-  "main": "./dist/decrypt.js",
-  "types": "dist/decrypt.d.ts",
+  "main": "./dist/decrypt.cjs",
+  "types": "dist/decrypt.d.cts",
   "scripts": {
     "test": "ts-node ./test/index.ts",
-    "build": "tsc"
+    "build": "tsdown src/decrypt.ts --format cjs",
+    "dev": "tsdown src/decrypt.ts --format cjs --watch",
+    "lint": "oxlint src test"
   },
   "engines": {
     "node": ">=12"

@@ -2,20 +2,20 @@
   "name": "@open-wa/integration-cloudflare",
   "version": "5.0.0-alpha.1",
   "description": "Cloudflare Tunnel integration plugin for open-wa",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.mts"
     }
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "lint": "eslint src --ext .ts",
+    "build": "tsdown src/index.ts --format esm --format cjs",
+    "dev": "tsdown src/index.ts --format esm --format cjs --watch",
+    "lint": "oxlint src",
     "clean": "rm -rf dist"
   },
   "dependencies": {

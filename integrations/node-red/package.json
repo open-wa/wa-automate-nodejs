@@ -24,11 +24,11 @@
     "build": "rm -rf dist && pnpm run copy && pnpm run build:editor && pnpm run build:runtime",
     "clean:editor": "rm -rf dist/*.html && rm -rf dist/*.js",
     "clean:runtime": "rm -rf dist/*.js",
-    "test": "jest --forceExit --detectOpenHandles --colors",
-    "test:watch": "jest --forceExit --detectOpenHandles --watchAll",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest --passWithNoTests",
     "dev": "rm -rf dist && pnpm run copy && concurrently --kill-others --names 'COPY,EDITOR,RUNTIME,TEST' --prefix '({name})' --prefix-colors 'yellow.bold,cyan.bold,greenBright.bold,magenta.bold' 'onchange -v \"src/**/*.png\" \"src/**/*.svg\" -- pnpm run copy' 'pnpm run build:editor:watch' 'pnpm run build:runtime:watch' 'sleep 10; pnpm run test:watch'",
-    "lint": "prettier --ignore-path .eslintignore --check '**/*.{js,ts,md}'; eslint --ext .js,.ts .",
-    "lint:fix": "prettier --ignore-path .eslintignore --write '**/*.{js,ts,md}'; eslint --ext .js,.ts . --fix"
+    "lint": "oxlint src utils rollup.config.editor.js",
+    "lint:fix": "oxlint src utils rollup.config.editor.js --fix"
   },
   "author": "Mohammed Shah <@smashah>",
   "license": "H-DNH V1.0",
@@ -47,30 +47,22 @@
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.2.3",
     "@types/express": "catalog:",
-    "@types/jest": "catalog:",
     "@types/node": "catalog:",
     "@types/node-red": "^1.1.1",
     "@types/node-red-node-test-helper": "^0.2.2",
     "@types/sinon": "^10.0.2",
     "@types/supertest": "^2.0.11",
-    "@typescript-eslint/eslint-plugin": "^5.45.0",
-    "@typescript-eslint/parser": "^5.45.0",
     "colorette": "^1.2.2",
     "concurrently": "^7.6.0",
     "copyfiles": "^2.4.1",
-    "eslint": "^8.12.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-jest": "^24.3.6",
-    "eslint-plugin-prettier": "^3.4.0",
     "glob": "^7.1.7",
-    "jest": "catalog:",
+    "vitest": "catalog:",
     "mustache": "^4.2.0",
     "node-red": "^1.3.5",
     "node-red-node-test-helper": "^0.2.7",
     "onchange": "^7.1.0",
     "prettier": "catalog:",
     "rollup": "^2.53.2",
-    "ts-jest": "catalog:",
     "type-fest": "^2.1.0",
     "typescript": "catalog:",
     "yarpm": "^1.1.1"
@@ -79,17 +71,5 @@
     "@open-wa/socket-client": "workspace:*",
     "@open-wa/schema": "workspace:*",
     "@open-wa/wa-automate-types-only": "*"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "roots": [
-      "<rootDir>/src"
-    ],
-    "transform": {
-      "^.+\\.ts$": "ts-jest"
-    },
-    "testMatch": [
-      "**/__tests__/**/*.test.ts"
-    ]
   }
 }

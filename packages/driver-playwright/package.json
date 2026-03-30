@@ -2,19 +2,19 @@
     "name": "@open-wa/driver-playwright",
     "version": "5.0.0-alpha.1",
     "description": "Playwright driver implementation for open-wa",
-    "main": "./dist/index.js",
-    "types": "./dist/index.d.ts",
+    "main": "./dist/index.cjs",
+    "types": "./dist/index.d.cts",
     "exports": {
         ".": {
-            "require": "./dist/index.js",
-            "import": "./dist/index.js",
-            "types": "./dist/index.d.ts"
+            "require": "./dist/index.cjs",
+            "import": "./dist/index.cjs",
+            "types": "./dist/index.d.cts"
         }
     },
     "scripts": {
-        "build": "tsc",
-        "dev": "tsc --watch",
-        "lint": "eslint src --ext .ts"
+        "build": "tsdown src/index.ts --format cjs",
+        "dev": "tsdown src/index.ts --format cjs --watch",
+        "lint": "oxlint src"
     },
     "dependencies": {
         "@open-wa/driver-interface": "workspace:*",

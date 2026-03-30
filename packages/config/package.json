@@ -2,18 +2,19 @@
   "name": "@open-wa/config",
   "version": "5.0.0-alpha.1",
   "description": "Configuration management for open-wa - schemas, loading, merging, and validation",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     },
     "./schema": {
-      "types": "./dist/schema.d.ts",
-      "import": "./dist/schema.js",
+      "types": "./dist/schema.d.mts",
+      "import": "./dist/schema.mjs",
       "require": "./dist/schema.cjs"
     }
   },
@@ -22,11 +23,11 @@
     "schema.json"
   ],
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "eslint src --ext .ts",
+    "lint": "oxlint src scripts",
     "typecheck": "tsc --noEmit",
     "generate:schema": "ts-node scripts/generate-json-schema.ts"
   },
@@ -39,7 +40,6 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "tsup": "^8.0.0",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },

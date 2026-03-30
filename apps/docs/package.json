@@ -3,17 +3,17 @@
   "private": true,
   "sideEffects": false,
   "type": "module",
-  "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "start": "serve dist/client",
-    "types": "fumadocs-mdx && tsc --noEmit",
-    "check": "fumadocs-mdx && tsc --noEmit",
-    "lint": "biome check",
-    "format": "biome format --write",
-    "postinstall": "fumadocs-mdx",
-    "copy": "node scripts/copy-openapi.js",
-    "openapi": "node scripts/copy-openapi.js"
+    "scripts": {
+        "dev": "vite dev",
+        "build": "vite build",
+        "start": "serve dist/client",
+        "types": "fumadocs-mdx && tsc --noEmit",
+        "check": "fumadocs-mdx && tsc --noEmit",
+        "lint": "oxlint src scripts",
+        "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,md,mdx}\" \"scripts/**/*.{ts,js}\"",
+        "postinstall": "fumadocs-mdx",
+        "copy": "node scripts/copy-openapi.js",
+        "openapi": "node scripts/copy-openapi.js"
   },
   "dependencies": {
     "@orama/orama": "^3.1.16",
@@ -42,11 +42,10 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react": "catalog:",
-    "@biomejs/biome": "^2.3.8",
-    "serve": "catalog:",
-    "typescript": "catalog:",
-    "vite": "catalog:",
+        "@vitejs/plugin-react": "catalog:",
+        "serve": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
     "vite-tsconfig-paths": "catalog:"
   }
 }

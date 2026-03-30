@@ -2,10 +2,13 @@
   "name": "@open-wa/socket-client",
   "version": "3.3.0",
   "description": "Easily connect to remote instances of the EASY API",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "scripts": {
-    "build": "tsc",
-    "test": "npx jest"
+    "build": "tsdown src/index.ts --format cjs",
+    "dev": "tsdown src/index.ts --format cjs --watch",
+    "lint": "oxlint src test",
+    "test": "vitest run --passWithNoTests",
+    "test:integration": "vitest run test/SocketClient.test.ts"
   },
   "repository": {
     "type": "git",
@@ -36,9 +39,7 @@
     "uuid": "catalog:"
   },
   "devDependencies": {
-    "@types/jest": "catalog:",
-    "jest": "catalog:",
-    "ts-jest": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

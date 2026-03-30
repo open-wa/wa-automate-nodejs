@@ -2,21 +2,21 @@
   "name": "@open-wa/core",
   "version": "5.0.0-alpha.1",
   "description": "Core orchestration backbone for open-wa WhatsApp automation",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.mts"
     }
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "test": "vitest",
-    "lint": "eslint src --ext .ts",
+    "build": "tsdown src/index.ts --format esm --format cjs",
+    "dev": "tsdown src/index.ts --format esm --format cjs --watch",
+    "test": "vitest run",
+    "lint": "oxlint src",
     "clean": "rm -rf dist"
   },
   "dependencies": {
@@ -31,7 +31,6 @@
   "devDependencies": {
     "@open-wa/driver-puppeteer": "workspace:*",
     "@types/node": "catalog:",
-    "@types/uuid": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },

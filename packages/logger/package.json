@@ -2,12 +2,13 @@
     "name": "@open-wa/logger",
     "version": "5.0.0",
     "description": "Centralized logging and terminal UI for open-wa v5",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "main": "dist/index.cjs",
+    "types": "dist/index.d.cts",
     "scripts": {
-        "build": "tsc",
-        "dev": "tsc -w",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "build": "tsdown src/index.ts --format cjs",
+        "dev": "tsdown src/index.ts --format cjs --watch",
+        "lint": "oxlint src",
+        "test": "vitest run --passWithNoTests"
     },
     "dependencies": {
         "chalk": "^4.1.2",
@@ -20,7 +21,8 @@
     },
     "devDependencies": {
         "@types/figlet": "^1.5.8",
-        "@types/node": "^20.10.0",
-        "typescript": "^5.3.2"
+        "@types/node": "catalog:",
+        "typescript": "catalog:",
+        "vitest": "catalog:"
     }
 }
