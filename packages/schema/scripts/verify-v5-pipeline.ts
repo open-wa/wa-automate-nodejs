@@ -40,7 +40,7 @@ methods.forEach((def) => {
 check('All methods have complete metadata', metaComplete);
 
 console.log('\n📄 Generated Files:');
-const generatedDir = path.join(__dirname, '../generated');
+const generatedDir = path.join(__dirname, '../src/generated');
 
 const openApiPath = path.join(generatedDir, 'openapi.json');
 check('openapi.json exists', fs.existsSync(openApiPath));

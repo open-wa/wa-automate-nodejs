@@ -2,6 +2,10 @@ import { z } from 'zod';
 import { defineListenerV2 } from './registry';
 
 export const StateEnum = z.enum([
+    'STARTING',
+    'AUTHENTICATING',
+    'READY',
+    'STOPPED',
     'CONNECTED',
     'DISCONNECTED', 
     'SYNCING',

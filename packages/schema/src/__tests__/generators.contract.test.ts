@@ -6,7 +6,7 @@ import '../methods';
 const generatedDir = path.join(__dirname, '../generated');
 
 describe('generator outputs', () => {
-    describe.skip('openapi.json', () => {
+    describe('openapi.json', () => {
         const openapiPath = path.join(generatedDir, 'openapi.json');
         
         it('should exist', () => {
@@ -43,7 +43,7 @@ describe('generator outputs', () => {
             expect(fs.existsSync(typesPath)).toBe(true);
         });
 
-        it.skip('should have type exports for methods', () => {
+        it('should have type exports for methods', () => {
             const content = fs.readFileSync(typesPath, 'utf-8');
             
             expect(content).toContain('SendTextInput');
@@ -69,6 +69,7 @@ describe('generator outputs', () => {
 
     describe('BaseClient.ts', () => {
         const baseClientPath = path.join(generatedDir, 'BaseClient.ts');
+        const generatedIndexPath = path.join(generatedDir, 'index.ts');
         
         it('should exist', () => {
             expect(fs.existsSync(baseClientPath)).toBe(true);
@@ -87,6 +88,13 @@ describe('generator outputs', () => {
             
             const matches = content.match(/implementMethod/g) || [];
             expect(matches.length).toBeGreaterThanOrEqual(methodCount);
+        });
+
+        it('should create a generated package index', () => {
+            expect(fs.existsSync(generatedIndexPath)).toBe(true);
+            const content = fs.readFileSync(generatedIndexPath, 'utf-8');
+            expect(content).toContain("export * from './BaseClient'");
+            expect(content).toContain("export * from './types'");
         });
     });
 });

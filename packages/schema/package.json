@@ -2,38 +2,43 @@
     "name": "@open-wa/schema",
     "version": "5.0.0-alpha.1",
     "description": "Zod-based schema definitions for open-wa",
-    "main": "./dist/index.js",
-    "types": "./dist/index.d.ts",
+    "main": "./dist/index.cjs",
+    "types": "./dist/index-B5ts62xc.d.cts",
     "exports": {
         ".": {
-            "require": "./dist/index.js",
-            "import": "./dist/index.js",
-            "types": "./dist/index.d.ts"
+            "require": "./dist/index.cjs",
+            "import": "./dist/index.cjs",
+            "types": "./dist/index-B5ts62xc.d.cts"
         },
         "./generated": {
-            "require": "./dist/generated/index.js",
-            "import": "./dist/generated/index.js",
-            "types": "./dist/generated/index.d.ts"
+            "require": "./dist/generated/index.cjs",
+            "import": "./dist/generated/index.cjs",
+            "types": "./dist/generated/index.d.cts"
         },
         "./implementor": {
-            "require": "./dist/implementor.js",
-            "import": "./dist/implementor.js",
-            "types": "./dist/implementor.d.ts"
+            "require": "./dist/implementor.cjs",
+            "import": "./dist/implementor.cjs",
+            "types": "./dist/implementor.d.cts"
         },
         "./methods": {
-            "require": "./dist/methods/index.js",
-            "import": "./dist/methods/index.js",
-            "types": "./dist/methods/index.d.ts"
+            "require": "./dist/methods/index.cjs",
+            "import": "./dist/methods/index.cjs",
+            "types": "./dist/methods/index.d.cts"
+        },
+        "./http-manifest": {
+            "require": "./dist/http-manifest.cjs",
+            "import": "./dist/http-manifest.cjs",
+            "types": "./dist/http-manifest.d.cts"
         }
     },
     "scripts": {
-        "generate": "ts-node scripts/gen-types.ts && ts-node scripts/gen-client-implementation.ts",
-        "build": "pnpm generate && tsc && tsc --project tsconfig.generated.json",
-        "dev": "tsc --watch",
-        "lint": "eslint src --ext .ts",
-        "test": "jest",
-        "test:contracts": "jest --testMatch='**/*.contract.test.ts'",
-        "verify": "ts-node scripts/verify-v5-pipeline.ts",
+        "generate": "tsx scripts/gen-openapi.ts && tsx scripts/gen-types.ts && tsx scripts/gen-client-implementation.ts",
+        "build": "pnpm generate && tsdown",
+        "dev": "tsdown --watch",
+        "lint": "oxlint src scripts",
+        "test": "vitest run",
+        "test:contracts": "pnpm generate && vitest run src/__tests__/*.contract.test.ts",
+        "verify": "tsx scripts/verify-v5-pipeline.ts",
         "ci": "pnpm verify && pnpm test:contracts && pnpm build"
     },
     "dependencies": {
@@ -45,11 +50,9 @@
         "zod-to-json-schema": "^3.22.3"
     },
     "devDependencies": {
-        "@types/jest": "catalog:",
-        "jest": "catalog:",
-        "ts-jest": "catalog:",
         "ts-node": "catalog:",
         "typescript": "catalog:",
+        "vitest": "catalog:",
         "zod-to-ts": "^1.2.0"
     },
     "publishConfig": {

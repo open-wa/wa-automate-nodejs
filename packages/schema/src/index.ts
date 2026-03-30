@@ -37,3 +37,4 @@ export {
     UnixMillisToDateSchema
 } from './codecs';
 export * from './parameters';
+export * from './http-manifest';

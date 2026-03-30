@@ -1,79 +1,167 @@
-import { OpenApiGeneratorV3, OpenAPIRegistry } from '@asteasolutions/zod-to-openapi';
 import fs from 'fs';
 import path from 'path';
-import { clientRegistry } from '../src/registry';
+import { getHttpMethodDefinitions } from '../src/http-manifest';
 import '../src/methods';
 
-const generatedDir = path.join(__dirname, '../generated');
+const generatedDir = path.join(__dirname, '../src/generated');
 if (!fs.existsSync(generatedDir)) {
-    fs.mkdirSync(generatedDir, { recursive: true });
+  fs.mkdirSync(generatedDir, { recursive: true });
 }
 
-const registry = new OpenAPIRegistry();
+type OpenApiSchema = {
+  type?: string;
+  description?: string;
+  enum?: Array<string | number | boolean | null>;
+  items?: OpenApiSchema;
+  properties?: Record<string, OpenApiSchema>;
+  required?: string[];
+  additionalProperties?: boolean;
+  nullable?: boolean;
+  oneOf?: OpenApiSchema[];
+};
 
-const methods = clientRegistry.getAll();
+const methods = getHttpMethodDefinitions();
 
-methods.forEach((def) => {
-    try {
-        console.log(`Registering ${def.meta.functionName}...`);
-        registry.registerPath({
-            method: 'post',
-            path: `/${def.meta.functionName}`,
-            description: def.meta.description,
-            request: {
-                body: {
-                    content: {
-                        'application/json': {
-                            schema: def.meta.inputSchema as any,
-                        },
-                    },
-                },
-            },
-            responses: {
-                200: {
-                    description: 'Successful response',
-                    content: {
-                        'application/json': {
-                            schema: def.meta.outputSchema as any,
-                        },
-                    },
-                },
-            },
-        });
-    } catch (error) {
-        console.error(`\n❌ Failed to register path for ${def.meta.functionName}`);
-        console.error(`   Input schema type: ${(def.meta.inputSchema as any)?._def?.typeName}`);
-        console.error(`   Output schema type: ${(def.meta.outputSchema as any)?._def?.typeName}`);
-        throw error;
+const toOpenApiSchema = (schema: any): OpenApiSchema => {
+  const definition = schema?._def;
+  const typeName = definition?.typeName ?? definition?.type;
+  const description = schema?.description;
+
+  switch (typeName) {
+    case 'string':
+    case 'ZodString':
+      return { type: 'string', description };
+    case 'number':
+    case 'ZodNumber':
+      return { type: 'number', description };
+    case 'boolean':
+    case 'ZodBoolean':
+      return { type: 'boolean', description };
+    case 'array':
+    case 'ZodArray': {
+      const itemType = schema.element ?? definition?.type;
+      return { type: 'array', description, items: toOpenApiSchema(itemType) };
     }
-});
+    case 'object':
+    case 'ZodObject': {
+      const shape = typeof schema?.shape === 'function' ? schema.shape : schema?.shape ?? {};
+      const properties: Record<string, OpenApiSchema> = {};
+      const required: string[] = [];
 
-const generator = new OpenApiGeneratorV3(registry.definitions);
+      Object.entries(shape).forEach(([key, value]) => {
+        properties[key] = toOpenApiSchema(value as any);
+        const valueType = (value as any)?._def?.typeName ?? (value as any)?._def?.type;
+        if (valueType !== 'optional' && valueType !== 'ZodOptional' && valueType !== 'default' && valueType !== 'ZodDefault') {
+          required.push(key);
+        }
+      });
 
-let document;
-try {
-    document = generator.generateDocument({
-        openapi: '3.0.0',
-        info: {
-            title: 'Open WA API',
-            version: '5.0.0',
-            description: 'API definition for Open WA v5',
-        },
-        servers: [
-            {
-                url: 'http://localhost:3000',
+      return {
+        type: 'object',
+        description,
+        properties,
+        required: required.length > 0 ? required : undefined,
+        additionalProperties: false,
+      };
+    }
+    case 'enum':
+    case 'ZodEnum':
+      return { type: 'string', description, enum: Array.from(schema?.options ?? []) as Array<string | number | boolean | null> };
+    case 'literal':
+    case 'ZodLiteral': {
+      const value = schema?.value;
+      const literalType = value === null ? 'string' : typeof value;
+      return { type: literalType === 'object' ? 'string' : literalType, description, enum: [value as any], nullable: value === null };
+    }
+    case 'union':
+    case 'ZodUnion': {
+      const options = definition?.options ?? [];
+      return { description, oneOf: options.map((option: any) => toOpenApiSchema(option)) };
+    }
+    case 'optional':
+    case 'ZodOptional': {
+      const innerType = schema?.unwrap?.() ?? definition?.innerType;
+      return toOpenApiSchema(innerType);
+    }
+    case 'nullable':
+    case 'ZodNullable': {
+      const innerType = schema?.unwrap?.() ?? definition?.innerType;
+      return { ...toOpenApiSchema(innerType), nullable: true };
+    }
+    case 'default':
+    case 'ZodDefault': {
+      const innerType = definition?.innerType;
+      return toOpenApiSchema(innerType);
+    }
+    case 'transform':
+    case 'ZodEffects':
+    case 'ZodTransform': {
+      const innerType = definition?.schema ?? definition?.innerType;
+      return toOpenApiSchema(innerType);
+    }
+    case 'void':
+    case 'ZodVoid':
+      return { type: 'object', description, properties: {}, additionalProperties: false };
+    default:
+      return { type: 'object', description, additionalProperties: true };
+  }
+};
+
+const document = {
+  openapi: '3.0.0',
+  info: {
+    title: 'Open WA API',
+    version: '5.0.0',
+    description: 'API definition for Open WA v5',
+  },
+  servers: [
+    {
+      url: 'http://localhost:3000',
+    },
+  ],
+  paths: methods.reduce<Record<string, any>>((paths, def) => {
+    const methodName = def.functionName;
+    const routePath = def.path;
+    const inputSchema = def.inputSchema;
+    const outputSchema = def.outputSchema;
+
+    paths[routePath] = {
+      post: {
+        tags: [def.namespace],
+        operationId: methodName,
+        summary: def.description,
+        description: def.description,
+        requestBody: {
+          required: def.parameterOrder.length > 0,
+          content: {
+            'application/json': {
+              schema: toOpenApiSchema(inputSchema),
             },
-        ],
-    });
-} catch (error) {
-    console.error('\n❌ Failed during document generation');
-    console.error('This usually means one of the schemas has an unsupported type for OpenAPI');
-    throw error;
-}
+          },
+        },
+        responses: {
+          200: {
+            description: 'Successful response',
+            content: {
+              'application/json': {
+                schema: toOpenApiSchema(outputSchema),
+              },
+            },
+          },
+          400: {
+            description: 'Validation error',
+          },
+          500: {
+            description: 'Internal server error',
+          },
+        },
+      },
+    };
 
-fs.writeFileSync(
-    path.join(generatedDir, 'openapi.json'),
-    JSON.stringify(document, null, 2)
-);
+    return paths;
+  }, {}),
+};
 
-console.log('Successfully generated openapi.json');
+fs.writeFileSync(path.join(generatedDir, 'openapi.json'), JSON.stringify(document, null, 2));
+
+console.log(`Successfully generated openapi.json with ${methods.length} methods`);
