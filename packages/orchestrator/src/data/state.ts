@@ -1,4 +1,4 @@
-import { ConfigObject } from "@open-wa/wa-automate/dist/api/model/config";
+import { Config } from "@open-wa/config";
 import axios from "axios";
 import { deleteDoc, doc, DocumentReference, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref } from "firebase/storage";
@@ -17,7 +17,7 @@ import { bucket } from "../data/bucket";
 /**
  * Background queue
  */
-const addToBg = async (p : () => Promise<any>) => await bgq.add(p)
+const addToBg = async (p: () => Promise<any>) => await bgq.add(p)
 
 export interface SessionStateInterface {
     internalProxyAddress?: string;
@@ -28,11 +28,11 @@ export interface SessionStateInterface {
     processStateTs?: number;
     _proxyMiddleware?: RequestHandler;
     config?: OrchestratedSessionConfig;
-    auditLog : AuditLogEntry[],
+    auditLog: AuditLogEntry[],
     orchState: OrchState
 }
 
-export type OrchestratedSessionConfig = ConfigObject & {
+export type OrchestratedSessionConfig = Config & {
     [k: string]: any;
 }
 
@@ -56,7 +56,7 @@ export class SessionState implements SessionStateInterface {
     processState = 'UNSET';
     port = 0;
     processStateTs = 0;
-    processDetails : any ;
+    processDetails: any;
     sessionId: string;
     stopping = false;
     _proxyMiddleware !: RequestHandler
@@ -65,20 +65,22 @@ export class SessionState implements SessionStateInterface {
     orchState: OrchState = OrchState.IDLE;
     auditLog: AuditLogEntry[] = []
     delete_doc = false;
-    stopReason ?: string;
+    stopReason?: string;
 
-    constructor(sessionId: string, internalProxyAddress: string, config?: OrchestratedSessionConfig, orchState?: OrchState, processState ?: string) {
+    constructor(sessionId: string, internalProxyAddress: string, config?: OrchestratedSessionConfig, orchState?: OrchState, processState?: string) {
         this.sessionId = sessionId;
         this.internalProxyAddress = internalProxyAddress;
         if (config) this.config = config;
         this.setPort(config?.port || 0)
-        if(orchState) this.orchState = orchState;
-        if(processState) this.processState = processState
+        if (orchState) this.orchState = orchState;
+        if (processState) this.processState = processState
     }
 
-    setPort(port : string | number){
+    setPort(port: string | number) {
         this.port = portSanitizer(Number(port));
-        (this.config || {}).port = this.port
+        if (this.config) {
+            this.config.port = this.port;
+        }
         return this.port;
     }
 
@@ -93,13 +95,13 @@ export class SessionState implements SessionStateInterface {
         return this.config
     }
 
-    getPort() : number {
+    getPort(): number {
         return this.config?.port || 0;
     }
 
-    async forcePortReport() : Promise<false | number | undefined> {
+    async forcePortReport(): Promise<false | number | undefined> {
         const portReportResult = await requestPortReport(this.sessionId)
-        if(portReportResult && portReportResult.port) {
+        if (portReportResult && portReportResult.port) {
             this.updatePort(portReportResult.port)
             return portReportResult.port
         }
@@ -111,15 +113,15 @@ export class SessionState implements SessionStateInterface {
      * @param newPort new port
      * @returns 
      */
-    updatePort(newPort : number) : number {
+    updatePort(newPort: number): number {
         newPort = portSanitizer(newPort)
         /**
          * If the port is the same then ignore
          */
-        if(portEqualityChecker(this.port, newPort)) return this.port;
+        if (portEqualityChecker(this.port, newPort)) return this.port;
         this.addAuditLog(`UPDATING PORT ${this.sessionId}: ${newPort}`)
         this.setPort(newPort)
-        
+
         /**
          * Update internal proxy address
          */
@@ -170,7 +172,7 @@ export class SessionState implements SessionStateInterface {
     }
 
     createProxyMiddleware(force = false): void {
-        if(force) {
+        if (force) {
             log.info("REBUILDING PROXY MIDDLEWARE", this.internalProxyAddress)
         }
         this._proxyMiddleware = createProxyMiddleware({
@@ -180,16 +182,16 @@ export class SessionState implements SessionStateInterface {
                 /**
                  * Set check headers
                  */
-                if(!req.get('owa-check-property')) {
-                    proxyReq.setHeader('owa-check-property','session')
+                if (!req.get('owa-check-property')) {
+                    proxyReq.setHeader('owa-check-property', 'session')
                     proxyReq.setHeader('owa-check-value', this.sessionId)
                 }
-                if(process.env.VERBOSE) log.info(`Proxying req ${req.path}`, {
+                if (process.env.VERBOSE) log.info(`Proxying req ${req.path}`, {
                     sessionId: this.sessionId,
                     path: req.path,
                     body: req['body'] || {}
                 })
-                if(this.processState == "online" || this.processState == "reload" || this.processState == "restart" ) {
+                if (this.processState == "online" || this.processState == "reload" || this.processState == "restart") {
                     if (req['body'] && !req.path.includes("socket.io")) {
                         const bodyData = JSON.stringify(req.body);
                         // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
@@ -215,19 +217,19 @@ export class SessionState implements SessionStateInterface {
                 // add new header to response
                 // proxyRes.headers['x-added'] = 'foobar';
                 // proxyRes.statusCode
-                if(proxyRes.statusCode==412) {
+                if (proxyRes.statusCode == 412) {
                     log.error('Looks like a request was sent to the wrong session. Request was successfully caught by the session and ignored.')
                     /**
                      * The request failed because it was sent to the wrong session.
                      * Trigger a port report on both sessions.
                      */
-                    if(req.get('owa-check-property') === 'session' && req.get('owa-check-value')) {
+                    if (req.get('owa-check-property') === 'session' && req.get('owa-check-value')) {
                         await bucket?.sessions.get(req.get('owa-check-value') || '')?.forcePortReport();
                     }
                 }
                 // remove header from response
                 // delete proxyRes.headers['x-removed'];
-              },
+            },
             pathRewrite: (path) => path.replace(`/api/${this.sessionId}/`, '/'),
             logLevel: 'debug',
             /**
@@ -242,10 +244,10 @@ export class SessionState implements SessionStateInterface {
                  * 
                  * You do this by checking if the third parameter is an instance of Socket (standard flow third param is a res obj)
                  */
-                if(res?.constructor?.name === 'Socket') return;
+                if (res?.constructor?.name === 'Socket') return;
                 console.log("🚀 ~ file: state.ts:228 ~ SessionState ~ onError: ~ target", err, target)
                 const procPort = await this.getProcessPort()
-                if(procPort && Number(this.port) !== Number(procPort)) {
+                if (procPort && Number(this.port) !== Number(procPort)) {
                     log.info("PORT MISMATCH", this.port, procPort)
                     const bodyData = JSON.stringify({
                         error: `Internal Port may have changed. Please try again. State: ${this.processState} ${this.port} ${procPort}`,
@@ -256,12 +258,12 @@ export class SessionState implements SessionStateInterface {
                     // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
                     res.writeHead(501, {
                         'Content-Type': 'application/json',
-                      });
+                    });
                     res.end(bodyData);
                     return;
                 }
-                if(err['code'] === "ECONNREFUSED") {
-                    log.info("Session is down?", this.processState,this.port)
+                if (err['code'] === "ECONNREFUSED") {
+                    log.info("Session is down?", this.processState, this.port)
                     //the server is no longer runnning?
                     const bodyData = JSON.stringify({
                         error: `Session is not online. Try /start or /restart. State: ${this.processState} ${this.port}`,
@@ -271,13 +273,13 @@ export class SessionState implements SessionStateInterface {
                     // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
                     res.writeHead(504, {
                         'Content-Type': 'application/json',
-                      });
+                    });
                     res.end(bodyData);
                     return;
                 }
                 res.writeHead(504, {
                     'Content-Type': 'application/json',
-                  });
+                });
                 res.end(JSON.stringify({
                     error: `Something went wrong trying to proxy this request. State: ${this.processState} ${this.port}`,
                     state: this.processState,
@@ -285,7 +287,7 @@ export class SessionState implements SessionStateInterface {
                     err
                 }));
                 return;
-              }
+            }
         });
         return;
     }
@@ -306,8 +308,8 @@ export class SessionState implements SessionStateInterface {
 
     async getProcessPort(): Promise<number | false> {
         try {
-        const port = await getPortForPm2Process(this.sessionId)
-        if (port) return port
+            const port = await getPortForPm2Process(this.sessionId)
+            if (port) return port
         } catch (error) {
             log.error("Process description or port assignment does not exist")
             return false;
@@ -337,12 +339,12 @@ export class SessionState implements SessionStateInterface {
         }))
     }
 
-    async attemptRecreation(): Promise<CreateSessionResponse>{
+    async attemptRecreation(): Promise<CreateSessionResponse> {
         log.info(`RESURRECTING ${this.sessionId}`)
         this.orchState = OrchState.START
         this.addAuditLog("Recreating session.")
         await this.commit()
-        const createRes = await createSession(this.config || {}, true)
+        const createRes = await createSession((this.config || {}) as OrchestratedSessionConfig, true)
         return createRes;
     }
 
@@ -351,7 +353,7 @@ export class SessionState implements SessionStateInterface {
         this.addAuditLog("Creating session.")
         log.info(`CREATING ${this.sessionId}`, this.config)
         await this.commit()
-        const createRes =  await createSession(this.config || {})
+        const createRes = await createSession((this.config || {}) as OrchestratedSessionConfig)
         log.info(`CREATE RES ${this.sessionId}`, createRes)
         // return await new Promise((resolve, reject) => pm2.start(this.sessionId, (err, data) => {
         //     log.info("🚀 ~ file: state.ts ~ line 135 ~ SessionState ~ returnawaitnewPromise ~ err, data", err, data)
@@ -384,11 +386,11 @@ export class SessionState implements SessionStateInterface {
         this.delete_doc = true;
         this.addAuditLog("Deleting session.")
         try {
-            const deletePromises : any[] = [];
+            const deletePromises: any[] = [];
             let deleteResult;
             //check if the session exists.
-            const procDesc = await this.getProcessDescription().catch(()=>false);
-            if(procDesc) {
+            const procDesc = await this.getProcessDescription().catch(() => false);
+            if (procDesc) {
                 deleteResult = new Promise((resolve, reject) => pm2.delete(this.sessionId, (err, data) => {
                     if (err) reject(err)
                     else resolve(data)
@@ -412,14 +414,14 @@ export class SessionState implements SessionStateInterface {
             } catch (error) {
                 log.error(`Something went wrong deleting the data dir: ${dataDir}`)
             }
-            try{
+            try {
                 await Promise.all(deletePromises);
             } catch (error) {
-            log.info("🚀 ~ file: state.ts ~ line 163 ~ SessionState ~ delete ~ error", error)
+                log.info("🚀 ~ file: state.ts ~ line 163 ~ SessionState ~ delete ~ error", error)
             }
             // await deleteDoc(this.getDocumentRef());
-        // await this.commit();
-        return deleteResult;
+            // await this.commit();
+            return deleteResult;
         } catch (error) {
             log.info("🚀 ~ file: state.ts ~ line 148 ~ SessionState ~ delete ~ error", error)
             throw error
@@ -431,14 +433,14 @@ export class SessionState implements SessionStateInterface {
     }
 
     async stop(reason: string): Promise<Proc | undefined | void> {
-        if(this.stopping) return;
+        if (this.stopping) return;
         this.stopping = true;
         this.stopReason = reason;
         log.info(`STOPPING ${this.sessionId}. REASON:`, reason)
         this.orchState = OrchState.STOP
         this.addAuditLog(`Stopping session. ${reason}`)
         await this.commit()
-        const res =  await new Promise((resolve, reject) => pm2.stop(this.sessionId, (err, data) => {
+        const res = await new Promise((resolve, reject) => pm2.stop(this.sessionId, (err, data) => {
             if (err) reject(err)
             else resolve(data)
         }))
@@ -467,7 +469,7 @@ export class SessionState implements SessionStateInterface {
             processState: this.processState,
             processStateTs: this.processStateTs,
             orchState: this.orchState,
-            stopReason: this.processState ?  this.stopReason : undefined
+            stopReason: this.processState ? this.stopReason : undefined
         }
     }
 
@@ -475,29 +477,29 @@ export class SessionState implements SessionStateInterface {
         event: string,
         at: number,
         process: any
-    }) : Promise<boolean> {
+    }): Promise<boolean> {
         this.processState = event.event;
-        this.processStateTs =  event.at;
+        this.processStateTs = event.at;
         this.setPort(event.process.PORT);
         this.processDetails = event.process;
-        await addToBg(()=>this.commit());
+        await addToBg(() => this.commit());
         return true;
     }
-    
+
 
     async commit(): Promise<boolean> {
-        try{
-            if(this.delete_doc){
+        try {
+            if (this.delete_doc) {
                 log.info("🚀 ~ file: state.ts ~ line 210 ~ SessionState ~ commit ~ this.delete_doc", this.delete_doc)
                 await deleteDoc(this.getDocumentRef());
                 return true;
             }
-        } catch (err){
+        } catch (err) {
             log.info("🚀 ~ file: state.ts ~ line 217 ~ SessionState ~ commit ~ err", err)
         }
         try {
             const data = JSON.parse(JSON.stringify(this.toJSON()));
-            await setDoc(doc(db, "buckets", myBucketId, "sessions", this.sessionId), data, { merge: true,  });
+            await setDoc(doc(db, "buckets", myBucketId, "sessions", this.sessionId), data, { merge: true, });
             return true
         } catch (error) {
             log.info("🚀 ~ file: state.ts ~ line 124 ~ SessionState ~ commit ~ error", error)
@@ -505,17 +507,17 @@ export class SessionState implements SessionStateInterface {
         }
     }
 
-    async getSessionData() : Promise<string | null>{
+    async getSessionData(): Promise<string | null> {
         this.addAuditLog("Attempting to grab session data from open-wa session store")
-        if(!user?.uid) return null;
+        if (!user?.uid) return null;
         let url;
         try {
-          url = await getDownloadURL(ref(storage, `/${user.uid}/${this.sessionId}.data.json`))   
-        } catch (error : any) {
-            if(error.code === 404) log.error("Session Data not found for ", this.sessionId)
+            url = await getDownloadURL(ref(storage, `/${user.uid}/${this.sessionId}.data.json`))
+        } catch (error: any) {
+            if (error.code === 404) log.error("Session Data not found for ", this.sessionId)
             return null
         }
-        if(!url) return null
+        if (!url) return null
         await this.commit()
         try {
             return axios.get(url).then(res => res.data.toString())

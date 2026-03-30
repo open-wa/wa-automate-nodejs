@@ -9,6 +9,7 @@
     "dev": "tsc --watch"
   },
   "dependencies": {
+    "@open-wa/config": "workspace:*",
     "@open-wa/legacy": "workspace:*",
     "ansi-colors": "^4.1.3",
     "api-key-auth": "^0.2.3",

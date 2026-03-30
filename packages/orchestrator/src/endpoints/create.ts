@@ -40,8 +40,8 @@ export const createSession: (configData: OrchestratedSessionConfig, recreating?:
   /**
    * DELETE THE PORT ASSIGNMENT FROM THE CONFIG. This causes confusion because the orchestration service determines port a and the config may have port b.
    */
-  if (configData.port) delete configData.port;
-  if (rest.port) delete rest.port;
+  if (configData.port) delete (configData as any).port;
+  if (rest.port) delete (rest as any).port;
   if (!apiKey) apiKey = uuidv4();
   let sessionId = rest?.sessionId;
   if (!sessionId) {
@@ -100,7 +100,7 @@ export const createSession: (configData: OrchestratedSessionConfig, recreating?:
       })
     }
     const useChrome = process.env.USE_CHROME === "false" ? false : true;
-    const config: any = {
+    const baseConfig: Partial<OrchestratedSessionConfig> = {
       /**
        * Can be overridden
        */
@@ -121,22 +121,22 @@ export const createSession: (configData: OrchestratedSessionConfig, recreating?:
       apiKey,
       //@ts-ignore
       logging,
-      ...(configData || {}),
-      popup: true,
-      /**
-       * Cannot be overridden
-       */
-      qrLogSkip: true,
-      port,
-      sessionId
-      // skipSessionSave: true,
-      // chromiumArgs: [
-      //   '--single-process',
-      //   '--no-zygote',
-      //   '--renderer-process-limit=1',
-      //   '--no-first-run'
-      // ]
-    }
+    };
+
+    const config: OrchestratedSessionConfig = Object.assign(
+      baseConfig,
+      configData || {},
+      {
+        popup: true,
+        /**
+         * Cannot be overridden
+         */
+        qrLogSkip: true,
+        port,
+        sessionId
+      }
+    ) as OrchestratedSessionConfig;
+
     //remove sensitive keys from config:
     delete config.oid
     delete config.osecret
