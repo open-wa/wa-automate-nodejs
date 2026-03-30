@@ -1,0 +1,43 @@
+{
+    "name": "@open-wa/utils",
+    "version": "5.0.0-alpha.1",
+    "description": "Shared utility functions for open-wa",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsup",
+        "dev": "tsup --watch",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "json5": "^2.2.3",
+        "pidtree": "^0.6.0",
+        "pidusage": "^3.0.2"
+    },
+    "devDependencies": {
+        "@types/json5": "^2.2.0",
+        "@types/node": "catalog:",
+        "@types/pidusage": "^2.0.5",
+        "tsup": "^8.0.0",
+        "typescript": "catalog:"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "keywords": [
+        "open-wa",
+        "whatsapp",
+        "utils"
+    ]
+}
