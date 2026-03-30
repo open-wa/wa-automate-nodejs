@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { assertFile, getDUrl } from '@open-wa/utils';
 
 /**
  * Chat ID Codec
@@ -87,8 +88,7 @@ export const messageIdCodec = {
 export const createFileCodec = (outputType: string) => {
     return {
         decode: async (input: any): Promise<any> => {
-            const { assertFile } = await import('@open-wa/legacy');
-            return await assertFile(input, 'file', outputType as any);
+            return await assertFile(input, outputType);
         },
         encode: (output: any) => output
     };
@@ -126,7 +126,6 @@ export const base64ToDataUrlCodec = {
  */
 export const urlToDataUrlCodec = {
     decode: async (url: string): Promise<string> => {
-        const { getDUrl } = await import('@open-wa/legacy');
         return await getDUrl(url);
     },
     encode: (_dataUrl: string): string => {
