@@ -1,7 +1,9 @@
 import pidtree from 'pidtree';
 import pidusage from 'pidusage';
 
-export const pidTreeUsage = async (pid: number | number[]) => {
+type PidStat = { cpu: number; memory: number; ppid: number; pid: number; ctime: number; elapsed: number; timestamp: number };
+
+export const pidTreeUsage = async (pid: number | number[]): Promise<{ [key: string]: PidStat } | Record<string, never>> => {
     let pidArray = Array.isArray(pid) ? pid : [pid];
     try {
         const pids: number[] = (await Promise.all(pidArray.map(p => pidtree(p)))).flat() as number[];
