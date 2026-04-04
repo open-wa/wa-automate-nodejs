@@ -12,9 +12,13 @@ function createTestClient() {
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } as any,
     session: {} as any,
     plugins: {} as any,
+    config: {},
+    registerFinalizationHook: vi.fn(() => () => undefined),
     start: vi.fn(),
     stop: vi.fn(),
     getState: vi.fn(() => 'READY' as STATE),
+    getReadiness: vi.fn(),
+    getTransport: vi.fn(),
     screenshot: vi.fn(),
     evaluateScript: vi.fn(),
   };
@@ -108,12 +112,11 @@ describe('Client listeners', () => {
     const { client, events } = createTestClient();
     const callback = vi.fn();
 
-    client.onMessageDeleted(callback);
+    client.onAck(callback);
 
-    events.emit('message.deleted', {
+    events.emit('ack.changed', {
       ctx: { correlationId: 'c4', ts: Date.now() },
-      messageId: undefined,
-      chatId: '123@c.us',
+      ack: undefined,
     } as any);
 
     await new Promise((resolve) => setTimeout(resolve, 20));

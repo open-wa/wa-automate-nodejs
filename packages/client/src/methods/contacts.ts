@@ -5,6 +5,7 @@ import type {
   Contact,
   GroupId,
 } from '@open-wa/schema';
+import { createUnsupportedMethodStub } from '../runtimeSurface.js';
 
 declare const WAPI: {
   getContact: (contactId: string) => Contact;
@@ -35,6 +36,8 @@ export interface ContactMethods {
 
 export function contactMethods(client: Client): ContactMethods {
   const evaluate = client.evaluate.bind(client);
+  const unsupportedGetBlockedContacts = createUnsupportedMethodStub<ContactMethods['getBlockedContacts']>('getBlockedContacts');
+  const unsupportedGetCommonGroups = createUnsupportedMethodStub<ContactMethods['getCommonGroups']>('getCommonGroups');
   
   return {
     async getContact(contactId: ContactId): Promise<Contact | null> {
@@ -87,17 +90,11 @@ export function contactMethods(client: Client): ContactMethods {
     },
     
     async getBlockedContacts(): Promise<ContactId[]> {
-      return evaluate(
-        () => WAPI.getBlockedIds(),
-        undefined
-      ) as Promise<ContactId[]>;
+      return unsupportedGetBlockedContacts();
     },
     
     async getCommonGroups(contactId: ContactId): Promise<Array<{ id: GroupId; title: string }>> {
-      return evaluate(
-        ({ contactId }) => WAPI.getCommonGroups(contactId),
-        { contactId }
-      ) as Promise<Array<{ id: GroupId; title: string }>>;
+      return unsupportedGetCommonGroups(contactId);
     },
     
     async getLastSeen(contactId: ContactId): Promise<number | null> {

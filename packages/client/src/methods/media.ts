@@ -1,7 +1,8 @@
 import axios from 'axios';
-import { decryptMedia as decryptMediaBuffer } from '@open-wa/wa-decrypt';
+import { decryptMedia as decryptMediaBuffer } from '@open-wa/decrypt';
 import type { Client } from '../Client.js';
 import type { ChatId, DataURL, Message, MessageId } from '@open-wa/schema';
+import { createUnsupportedMethodStub } from '../runtimeSurface.js';
 
 type DownloadHeaders = Record<string, string>;
 
@@ -31,6 +32,8 @@ function isMessageId(message: Message | MessageId): message is MessageId {
 }
 
 export function mediaMethods(client: Client): MediaMethods {
+  const unsupportedSendFileFromUrl = createUnsupportedMethodStub<MediaMethods['sendFileFromUrl']>('sendFileFromUrl');
+
   return {
     async decryptMedia(message: Message | MessageId): Promise<DataURL> {
       const resolvedMessage = (isMessageId(message)
@@ -64,16 +67,14 @@ export function mediaMethods(client: Client): MediaMethods {
       caption = '',
       headers?: DownloadHeaders
     ): Promise<MessageId | boolean> {
-      const response = await axios.get<ArrayBuffer>(url, {
-        responseType: 'arraybuffer',
-        headers,
-      });
-
-      const mimeType = response.headers['content-type'] || 'application/octet-stream';
-      const base64 = Buffer.from(response.data).toString('base64');
-      const dataUrl = `data:${mimeType};base64,${base64}` as DataURL;
-
-      return client.sendFile(to, dataUrl, filename, caption);
+      void axios;
+      void client;
+      void to;
+      void url;
+      void filename;
+      void caption;
+      void headers;
+      return unsupportedSendFileFromUrl(to, url, filename, caption, headers);
     },
   };
 }

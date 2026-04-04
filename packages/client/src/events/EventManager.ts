@@ -106,6 +106,8 @@ export class ListenerManager {
   private readonly sessionId: string;
   private readonly handles = new Map<string, ListenerHandle>();
   private readonly queues = new Map<string, PQueue>();
+  private readonly listeners = new Map<EventName, Map<string, EventHandler<EventName>>>();
+  private readonly bridgeHandlers = new Map<EventName, (rawPayload: OpenWAEventMap[keyof OpenWAEventMap]) => void | Promise<void>>();
   private handleCounter = 0;
 
   constructor(config: ListenerManagerConfig) {
@@ -115,11 +117,12 @@ export class ListenerManager {
 
   on<K extends EventName>(eventName: K, handler: EventHandler<K>, options?: QueueOptions): ListenerHandle {
     const eventDef = eventRegistry.get(eventName);
-    const bridge = EVENT_BRIDGES[eventName];
 
-    if (!eventDef || !bridge) {
+    if (!eventDef || !EVENT_BRIDGES[eventName]) {
       throw new Error(`Unsupported listener event: ${eventName}`);
     }
+
+    this.ensureAutobind(eventName);
 
     const id = `listener_${++this.handleCounter}`;
     const mergedOptions = {
@@ -141,7 +144,69 @@ export class ListenerManager {
       this.queues.set(queueKey, queue);
     }
 
-    const wrappedHandler = async (rawPayload: OpenWAEventMap[keyof OpenWAEventMap]) => {
+    const wrappedHandler: EventHandler<K> = async (validatedPayload, ctx) => {
+      const execute = async () => {
+        await handler(validatedPayload, ctx);
+      };
+
+      if (queue) {
+        await queue.add(execute, { priority: mergedOptions.priority ?? 0 });
+      } else {
+        await execute();
+      }
+    };
+
+    const eventListeners = this.listeners.get(eventName) ?? new Map<string, EventHandler<EventName>>();
+    eventListeners.set(id, wrappedHandler as EventHandler<EventName>);
+    this.listeners.set(eventName, eventListeners);
+
+    const handle: ListenerHandle = {
+      id,
+      event: eventName,
+      active: true,
+      off: () => {
+        const boundListeners = this.listeners.get(eventName);
+        boundListeners?.delete(id);
+        if (boundListeners && boundListeners.size === 0) {
+          this.listeners.delete(eventName);
+        }
+        this.queues.delete(`${eventName}_${id}`);
+        handle.active = false;
+        this.handles.delete(id);
+      },
+    };
+
+    this.handles.set(id, handle);
+    return handle;
+  }
+
+  autobindAll(): void {
+    for (const eventName of Object.keys(EVENT_BRIDGES) as EventName[]) {
+      this.ensureAutobind(eventName);
+    }
+  }
+
+  async waitForQueuesToDrain(): Promise<void> {
+    const queues = [...this.queues.values()];
+    for (const queue of queues) {
+      await queue.onEmpty();
+      await queue.onIdle();
+    }
+  }
+
+  private ensureAutobind<K extends EventName>(eventName: K): void {
+    if (this.bridgeHandlers.has(eventName)) {
+      return;
+    }
+
+    const eventDef = eventRegistry.get(eventName);
+    const bridge = EVENT_BRIDGES[eventName];
+
+    if (!eventDef || !bridge) {
+      throw new Error(`Unsupported listener event: ${eventName}`);
+    }
+
+    const runtimeHandler = async (rawPayload: OpenWAEventMap[keyof OpenWAEventMap]) => {
       const ctx: EventContext = {
         sessionId: this.sessionId,
         timestamp: Date.now(),
@@ -160,32 +225,13 @@ export class ListenerManager {
         return;
       }
 
-      const execute = async () => {
-        await handler(validatedPayload, ctx);
-      };
-
-      if (queue) {
-        await queue.add(execute, { priority: mergedOptions.priority ?? 0 });
-      } else {
-        await execute();
+      const listeners = [...(this.listeners.get(eventName)?.values() ?? [])] as Array<EventHandler<K>>;
+      for (const listener of listeners) {
+        await listener(validatedPayload, ctx);
       }
     };
 
-    this.events.on(bridge.runtimeEvent, wrappedHandler as (payload: OpenWAEventMap[typeof bridge.runtimeEvent]) => void | Promise<void>);
-
-    const handle: ListenerHandle = {
-      id,
-      event: eventName,
-      active: true,
-      off: () => {
-        this.events.off(bridge.runtimeEvent, wrappedHandler as (payload: OpenWAEventMap[typeof bridge.runtimeEvent]) => void | Promise<void>);
-        this.queues.delete(`${eventName}_${id}`);
-        handle.active = false;
-        this.handles.delete(id);
-      },
-    };
-
-    this.handles.set(id, handle);
-    return handle;
+    this.bridgeHandlers.set(eventName, runtimeHandler as (rawPayload: OpenWAEventMap[keyof OpenWAEventMap]) => void | Promise<void>);
+    this.events.on(bridge.runtimeEvent, runtimeHandler as (payload: OpenWAEventMap[typeof bridge.runtimeEvent]) => void | Promise<void>);
   }
 }

@@ -20,7 +20,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@open-wa/wa-decrypt": "workspace:*",
+    "@open-wa/decrypt": "workspace:*",
     "@open-wa/core": "workspace:*",
     "@open-wa/domain": "workspace:*",
     "@open-wa/hyperemitter": "workspace:*",

@@ -1,5 +1,8 @@
 import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
+import * as fs from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import type {
   OpenWAClient,
   OpenWAEventMap,
@@ -26,6 +29,7 @@ import {
   CollectorFilter,
 } from '@open-wa/domain';
 import { ListenerManager, type ListenerHandle } from './events/index.js';
+import { throwUnsupportedListener } from './runtimeSurface.js';
 import type { QueueOptions } from '@open-wa/schema';
 
 import { messagingMethods, type MessagingMethods } from './methods/messaging.js';
@@ -68,13 +72,12 @@ export type EvaluateFn = <Arg, Ret>(
  * 
  * @example
  * ```typescript
- * import { createClient, Transport } from '@open-wa/core';
+ * import { createClient } from '@open-wa/core';
  * import { Client } from '@open-wa/client';
  * 
  * const openwa = await createClient({ driver, plugins: [] });
- * const transport = new Transport({ driver, events: openwa.events, logger: openwa.logger });
  * 
- * const client = new Client({ client: openwa, transport });
+ * const client = new Client({ client: openwa, transport: openwa.getTransport() });
  * await client.start();
  * 
  * // Send a message
@@ -88,6 +91,11 @@ export class Client implements MessagingMethods, MediaMethods, GroupMethods, Cha
   private readonly _client: OpenWAClient;
   private readonly _transport: Transport;
   private readonly _listenerManager: ListenerManager;
+  private _loadedPromise?: Promise<void>;
+  private _loaded = false;
+  private _phoneVersion?: string;
+  private _retainedHooksInstalled = false;
+  private _logoutCleanupPromise?: Promise<void>;
   
   constructor(config: ClientConfig) {
     this._client = config.client;
@@ -103,6 +111,8 @@ export class Client implements MessagingMethods, MediaMethods, GroupMethods, Cha
     this._bindMethods(groupMethods, this);
     this._bindMethods(chatMethods, this);
     this._bindMethods(contactMethods, this);
+
+    this._client.registerFinalizationHook(() => this.loaded());
   }
   
   // ─────────────────────────────────────────────────────────────────
@@ -144,6 +154,13 @@ export class Client implements MessagingMethods, MediaMethods, GroupMethods, Cha
   get plugins(): PluginHost {
     return this._client.plugins;
   }
+
+  /**
+   * Phone WhatsApp version captured during the loaded-equivalent finalization phase.
+   */
+  get phoneVersion(): string | undefined {
+    return this._phoneVersion;
+  }
   
   // ─────────────────────────────────────────────────────────────────
   // Lifecycle
@@ -168,6 +185,25 @@ export class Client implements MessagingMethods, MediaMethods, GroupMethods, Cha
    */
   getState(): STATE {
     return this._client.getState();
+  }
+
+  /**
+   * Loaded-equivalent finalization phase.
+   * Waits for sync/session readiness, autobinds listener bridges, and captures phone version.
+   */
+  async loaded(): Promise<void> {
+    if (this._loaded) {
+      return;
+    }
+
+    if (!this._loadedPromise) {
+      this._loadedPromise = this._runLoadedFinalization().catch((error) => {
+        this._loadedPromise = undefined;
+        throw error;
+      });
+    }
+
+    await this._loadedPromise;
   }
   
   // ─────────────────────────────────────────────────────────────────
@@ -290,9 +326,9 @@ export class Client implements MessagingMethods, MediaMethods, GroupMethods, Cha
   }
 
   onMessageDeleted(callback: (payload: { messageId: string; chatId: string; by?: string }) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
-    return this._listenerManager.on('messageDeleted', async (payload) => {
-      await callback(payload);
-    }, options);
+    void callback;
+    void options;
+    return throwUnsupportedListener('onMessageDeleted');
   }
 
   onLogout(callback: (payload: { reason?: string; timestamp: number }) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
@@ -315,6 +351,169 @@ export class Client implements MessagingMethods, MediaMethods, GroupMethods, Cha
         (target as any)[name] = method.bind(target);
       }
     }
+  }
+
+  private async _runLoadedFinalization(): Promise<void> {
+    this.logger.info('client_loaded_waiting_for_sync', { sessionId: this.sessionId });
+    await this._waitForSessionLoaded();
+
+    this.registerAllSimpleListenersOnEv();
+    this._phoneVersion = await this._capturePhoneVersion();
+    this._installRetainedFinalizationHooks();
+    this._loaded = true;
+
+    this.logger.info('client_loaded', {
+      sessionId: this.sessionId,
+      phoneVersion: this._phoneVersion ?? 'unknown',
+    });
+  }
+
+  private async _waitForSessionLoaded(timeoutMs = 20_000, pollingMs = 50): Promise<void> {
+    const startedAt = Date.now();
+
+    while (Date.now() - startedAt <= timeoutMs) {
+      const loaded = await this._transport.evaluate(() => {
+        const root = globalThis as typeof globalThis & {
+          WAPI?: { isSessionLoaded?: () => boolean };
+          isSessionLoaded?: () => boolean;
+        };
+
+        if (typeof root.WAPI?.isSessionLoaded === 'function') {
+          return Boolean(root.WAPI.isSessionLoaded());
+        }
+
+        if (typeof root.isSessionLoaded === 'function') {
+          return Boolean(root.isSessionLoaded());
+        }
+
+        return false;
+      }, undefined);
+
+      if (loaded) {
+        return;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, pollingMs));
+    }
+
+    throw new Error('Timed out waiting for internal session sync to finish');
+  }
+
+  private registerAllSimpleListenersOnEv(): void {
+    this._listenerManager.autobindAll();
+  }
+
+  private async _capturePhoneVersion(): Promise<string | undefined> {
+    const phoneVersion = await this._transport.evaluate(() => {
+      const root = globalThis as typeof globalThis & {
+        WAPI?: {
+          getMe?: () => { phone?: { wa_version?: string } } | null;
+          getWAVersion?: () => string;
+        };
+      };
+
+      const me = typeof root.WAPI?.getMe === 'function' ? root.WAPI.getMe() : null;
+      return me?.phone?.wa_version ?? root.WAPI?.getWAVersion?.() ?? undefined;
+    }, undefined);
+
+    return phoneVersion ?? undefined;
+  }
+
+  private _installRetainedFinalizationHooks(): void {
+    if (this._retainedHooksInstalled) {
+      return;
+    }
+
+    this.events.on('session.logout', () => {
+      if (!this._logoutCleanupPromise) {
+        this._logoutCleanupPromise = this._runLogoutCleanup().finally(() => {
+          this._loaded = false;
+          this._loadedPromise = undefined;
+          this._phoneVersion = undefined;
+          this._logoutCleanupPromise = undefined;
+        });
+      }
+    });
+
+    this._retainedHooksInstalled = true;
+  }
+
+  private async _runLogoutCleanup(): Promise<void> {
+    const { deleteSessionDataOnLogout = false, killClientOnLogout = false } = this._client.config;
+
+    if (!deleteSessionDataOnLogout && !killClientOnLogout) {
+      return;
+    }
+
+    await this._listenerManager.waitForQueuesToDrain();
+    await this._invalidateSessionData();
+
+    if (deleteSessionDataOnLogout) {
+      await this._deleteSessionData();
+    }
+
+    if (killClientOnLogout) {
+      this.logger.warn('client_logout_kill_requested', { sessionId: this.sessionId });
+      await this._client.stop('LOGGED_OUT');
+    }
+  }
+
+  private async _invalidateSessionData(): Promise<void> {
+    const sessionDataPath = this._resolveSessionDataFilePath();
+
+    if (!sessionDataPath) {
+      return;
+    }
+
+    this.logger.info('logout_invalidate_session_data', {
+      sessionId: this.sessionId,
+      sessionDataPath,
+    });
+
+    await fs.writeFile(sessionDataPath, 'LOGGED OUT', 'utf8');
+  }
+
+  private async _deleteSessionData(): Promise<void> {
+    const sessionDataPath = this._resolveSessionDataFilePath();
+    if (sessionDataPath) {
+      this.logger.info('logout_delete_session_data', {
+        sessionId: this.sessionId,
+        sessionDataPath,
+      });
+      await fs.unlink(sessionDataPath);
+    }
+
+    const userDataDir = this._client.config.userDataDir;
+    if (userDataDir && existsSync(userDataDir)) {
+      this.logger.info('logout_delete_user_data_dir', {
+        sessionId: this.sessionId,
+        userDataDir,
+      });
+      await fs.rm(userDataDir, { force: true, recursive: true });
+    }
+  }
+
+  private _resolveSessionDataFilePath(): string | undefined {
+    const configuredPath = this._client.config.sessionDataPath ?? '';
+    const sessionFileName = `${this.sessionId}.data.json`;
+    const candidate = configuredPath.includes('.data.json')
+      ? path.resolve(process.cwd(), configuredPath)
+      : path.resolve(process.cwd(), configuredPath, sessionFileName);
+
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+
+    const mainPath = require?.main?.path ?? process?.mainModule?.path;
+    if (!mainPath) {
+      return undefined;
+    }
+
+    const alternate = configuredPath.includes('.data.json')
+      ? path.resolve(mainPath, configuredPath)
+      : path.resolve(mainPath, configuredPath, sessionFileName);
+
+    return existsSync(alternate) ? alternate : undefined;
   }
   
   // ─────────────────────────────────────────────────────────────────

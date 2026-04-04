@@ -9,12 +9,15 @@ export type { ContactMethods } from './methods/contacts.js';
 
 export {
   MessageCollector,
-  MessageCollectorOptions,
-  MessageCollectorEvents,
-  AwaitMessagesOptions,
   awaitMessages,
   Collector,
   Collection,
+} from '@open-wa/domain';
+
+export type {
+  MessageCollectorOptions,
+  MessageCollectorEvents,
+  AwaitMessagesOptions,
   CollectorFilter,
   CollectorOptions,
 } from '@open-wa/domain';

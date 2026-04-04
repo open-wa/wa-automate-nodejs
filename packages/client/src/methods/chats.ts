@@ -4,6 +4,7 @@ import type {
   Chat,
   Message,
 } from '@open-wa/schema';
+import { createUnsupportedMethodStub } from '../runtimeSurface.js';
 
 type ChatMuteDuration = 'FOREVER' | 'EIGHT_HOURS' | 'ONE_WEEK' | number;
 
@@ -41,6 +42,10 @@ export interface ChatMethods {
 
 export function chatMethods(client: Client): ChatMethods {
   const evaluate = client.evaluate.bind(client);
+  const unsupportedPinChat = createUnsupportedMethodStub<ChatMethods['pinChat']>('pinChat');
+  const unsupportedUnpinChat = createUnsupportedMethodStub<ChatMethods['unpinChat']>('unpinChat');
+  const unsupportedMuteChat = createUnsupportedMethodStub<ChatMethods['muteChat']>('muteChat');
+  const unsupportedUnmuteChat = createUnsupportedMethodStub<ChatMethods['unmuteChat']>('unmuteChat');
   
   return {
     async getChat(chatId: ChatId): Promise<Chat | null> {
@@ -94,33 +99,19 @@ export function chatMethods(client: Client): ChatMethods {
     },
     
     async pinChat(chatId: ChatId): Promise<boolean> {
-      return evaluate(
-        ({ chatId }) => WAPI.pinChat(chatId, true),
-        { chatId }
-      );
+      return unsupportedPinChat(chatId);
     },
     
     async unpinChat(chatId: ChatId): Promise<boolean> {
-      return evaluate(
-        ({ chatId }) => WAPI.pinChat(chatId, false),
-        { chatId }
-      );
+      return unsupportedUnpinChat(chatId);
     },
     
     async muteChat(chatId: ChatId, duration: ChatMuteDuration = 'FOREVER'): Promise<boolean> {
-      const result = await evaluate(
-        ({ chatId, duration }) => WAPI.muteChat(chatId, duration),
-        { chatId, duration }
-      );
-      return result === true || typeof result === 'string';
+      return unsupportedMuteChat(chatId, duration);
     },
     
     async unmuteChat(chatId: ChatId): Promise<boolean> {
-      const result = await evaluate(
-        ({ chatId }) => WAPI.unmuteChat(chatId),
-        { chatId }
-      );
-      return result === true || typeof result === 'string';
+      return unsupportedUnmuteChat(chatId);
     },
     
     async markAsUnread(chatId: ChatId): Promise<boolean> {

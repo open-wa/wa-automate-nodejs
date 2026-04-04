@@ -8,6 +8,7 @@ import type {
   Base64,
   Content,
 } from '@open-wa/schema';
+import { createUnsupportedMethodStub } from '../runtimeSurface.js';
 
 declare const WAPI: {
   sendMessage: (to: string, content: string) => Promise<string>;
@@ -43,6 +44,9 @@ export interface MessagingMethods {
 
 export function messagingMethods(client: Client): MessagingMethods {
   const evaluate = client.evaluate.bind(client);
+  const unsupportedSendFile = createUnsupportedMethodStub<MessagingMethods['sendFile']>('sendFile');
+  const unsupportedEditMessage = createUnsupportedMethodStub<MessagingMethods['editMessage']>('editMessage');
+  const unsupportedReact = createUnsupportedMethodStub<MessagingMethods['react']>('react');
   
   return {
     async sendText(to: ChatId, content: string): Promise<MessageId> {
@@ -72,11 +76,11 @@ export function messagingMethods(client: Client): MessagingMethods {
       filename: string,
       caption = ''
     ): Promise<MessageId> {
-      return evaluate(
-        ({ to, file, filename, caption }) => 
-          WAPI.sendFile(file, to, filename, caption),
-        { to, file, filename, caption }
-      ) as Promise<MessageId>;
+      void to;
+      void file;
+      void filename;
+      void caption;
+      return unsupportedSendFile(to, file, filename, caption);
     },
     
     async sendLocation(
@@ -144,17 +148,11 @@ export function messagingMethods(client: Client): MessagingMethods {
     },
     
     async editMessage(messageId: MessageId, newContent: string): Promise<boolean> {
-      return evaluate(
-        ({ messageId, newContent }) => WAPI.editMessage(messageId, newContent),
-        { messageId, newContent }
-      );
+      return unsupportedEditMessage(messageId, newContent);
     },
     
     async react(messageId: MessageId, emoji: string): Promise<boolean> {
-      return evaluate(
-        ({ messageId, emoji }) => WAPI.react(messageId, emoji),
-        { messageId, emoji }
-      );
+      return unsupportedReact(messageId, emoji);
     },
     
     async sendSeen(chatId: ChatId): Promise<boolean> {

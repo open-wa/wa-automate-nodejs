@@ -7,6 +7,7 @@ import type {
   Chat,
   DataURL,
 } from '@open-wa/schema';
+import { createUnsupportedMethodStub } from '../runtimeSurface.js';
 
 declare const WAPI: {
   createGroup: (groupName: string, contactId: string | string[]) => Promise<any>;
@@ -44,6 +45,9 @@ export interface GroupMethods {
 
 export function groupMethods(client: Client): GroupMethods {
   const evaluate = client.evaluate.bind(client);
+  const unsupportedSetGroupTitle = createUnsupportedMethodStub<GroupMethods['setGroupTitle']>('setGroupTitle');
+  const unsupportedSetGroupDescription = createUnsupportedMethodStub<GroupMethods['setGroupDescription']>('setGroupDescription');
+  const unsupportedGetGroupInfo = createUnsupportedMethodStub<GroupMethods['getGroupInfo']>('getGroupInfo');
   
   return {
     async createGroup(name: string, participants: ContactId | ContactId[]): Promise<{ gid: GroupId } | null> {
@@ -86,17 +90,11 @@ export function groupMethods(client: Client): GroupMethods {
     },
     
     async setGroupTitle(groupId: GroupId, title: string): Promise<boolean> {
-      return evaluate(
-        ({ groupId, title }) => WAPI.setGroupTitle(groupId, title),
-        { groupId, title }
-      );
+      return unsupportedSetGroupTitle(groupId, title);
     },
     
     async setGroupDescription(groupId: GroupId, description: string): Promise<boolean> {
-      return evaluate(
-        ({ groupId, description }) => WAPI.setGroupDescription(groupId, description),
-        { groupId, description }
-      );
+      return unsupportedSetGroupDescription(groupId, description);
     },
     
     async setGroupIcon(groupId: GroupId, image: DataURL): Promise<boolean> {
@@ -107,10 +105,7 @@ export function groupMethods(client: Client): GroupMethods {
     },
     
     async getGroupInfo(groupId: GroupId): Promise<GroupMetadata | null> {
-      return evaluate(
-        ({ groupId }) => WAPI.getGroupInfo(groupId),
-        { groupId }
-      );
+      return unsupportedGetGroupInfo(groupId);
     },
     
     async getGroupMembers(groupId: GroupId): Promise<ContactId[]> {
