@@ -22,12 +22,14 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
 
-    "moduleResolution": "node",
-    "baseUrl": "./",
+
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "preserveConstEnums": true,
     "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "src/*": ["./src/*"]
+    },
 
     "typeRoots": ["./src/types", "./node_modules/@types"]
   },

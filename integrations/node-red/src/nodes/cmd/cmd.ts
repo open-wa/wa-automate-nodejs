@@ -64,7 +64,7 @@ const nodeInit: NodeInitializer = (RED): void => {
 
       if (config.server)
         this.server = RED.nodes.getNode(config.server) as OwaServerNode;
-      const executeCommand = () => this.server?.client.ask(method as keyof Client, argmnts)
+      const executeCommand = () => this.server?.client.ask(method as any, argmnts)
       const timeoutPomise = this.timeout === -1 ? false : new Promise((res) => {
         _t = setTimeout(() => {
           res('TIMEOUT')

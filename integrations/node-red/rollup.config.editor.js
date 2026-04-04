@@ -52,6 +52,7 @@ const makePlugins = (nodeType) => [
     ],
     target: "es5",
     tsconfig: false,
+    ignoreDeprecations: "6.0",
     noEmitOnError: process.env.ROLLUP_WATCH ? false : true,
   }),
   htmlBundle(),
