@@ -1,0 +1,19 @@
+{
+  "name": "@open-wa/cf-proxy",
+  "version": "5.0.0",
+  "description": "Cloudflare Worker Reverse-Tunnel Proxy for Open-WA Sessions",
+  "main": "./src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240320.1",
+    "typescript": "^5.5.0",
+    "wrangler": "^3.0.0"
+  }
+}

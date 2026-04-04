@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "open-wa-proxy",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-03-20",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "SESSION_TUNNEL",
+        "class_name": "SessionTunnel"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_classes": ["SessionTunnel"]
+    }
+  ]
+}
