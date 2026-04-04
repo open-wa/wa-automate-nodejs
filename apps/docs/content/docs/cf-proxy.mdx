@@ -1,0 +1,135 @@
+---
+title: Cloudflare Session Proxy
+description: Deploy a reverse-tunnel proxy on Cloudflare Workers to access your sessions remotely — no port forwarding required.
+---
+
+# Cloudflare Session Proxy
+
+The **Cloudflare Session Proxy** (`@open-wa/cf-proxy`) lets you access your WhatsApp sessions from anywhere, without exposing them to the internet or opening any ports. Sessions connect *outward* to a Cloudflare Durable Object, which then relays requests from remote consumers.
+
+## How It Works
+
+```
+Consumer (HTTP / SocketClient)
+       │
+       ▼
+ CF Worker (auth gate)
+       │
+       ▼
+ Durable Object (per-session)
+       │
+       ▼
+ CLI TunnelClient ──► local session
+```
+
+1. You deploy the Worker to your own Cloudflare account.
+2. Your CLI session connects outward to the Worker as an **upstream**.
+3. Consumers make requests via the Worker URL — the Durable Object relays them through the tunnel.
+4. When no traffic is flowing, the WebSocket hibernates at **$0 idle cost**.
+
+## Setup
+
+### 1. Deploy the Worker
+
+```bash
+cd packages/cf-proxy
+wrangler secret put UPSTREAM_TOKEN   # token your CLI uses to attach
+wrangler secret put CONSUMER_TOKEN   # token consumers use to access
+wrangler deploy
+```
+
+Your proxy will be available at `https://open-wa-proxy.<your-account>.workers.dev`.
+
+### 2. Start a Session with the Proxy
+
+Pass `--proxy-host` and `--proxy-token` when starting a session:
+
+```bash
+wa --session-id my-session \
+   --proxy-host https://open-wa-proxy.account.workers.dev \
+   --proxy-token <UPSTREAM_TOKEN>
+```
+
+Or set them in your config file:
+
+```json
+{
+  "sessionId": "my-session",
+  "proxyHost": "https://open-wa-proxy.account.workers.dev",
+  "proxyToken": "<UPSTREAM_TOKEN>"
+}
+```
+
+The CLI will establish an upstream WebSocket to the proxy and begin relaying requests.
+
+## Consuming Sessions
+
+### Via SocketClient (recommended)
+
+The easiest way is via the `cf-proxy://` URL scheme — `SocketClient.connect()` will automatically use the tunnel transport:
+
+```typescript
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect(
+  'cf-proxy://open-wa-proxy.account.workers.dev?sessionId=my-session&token=CONSUMER_TOKEN'
+);
+
+// Use exactly like a regular SocketClient
+await client.onMessage(msg => console.log(msg.body));
+await client.sendText('1234@c.us', 'Hello via tunnel!');
+```
+
+### Via TunnelSocketClient directly
+
+```typescript
+import { TunnelSocketClient } from '@open-wa/socket-client';
+
+const client = await TunnelSocketClient.connect({
+  proxyHost: 'https://open-wa-proxy.account.workers.dev',
+  proxyToken: 'CONSUMER_TOKEN',
+  sessionId: 'my-session',
+});
+
+const result = await client.sendText('1234@c.us', 'Hello!');
+```
+
+### Via HTTP
+
+You can also make plain HTTP requests through the proxy:
+
+```bash
+curl -X POST \
+  https://open-wa-proxy.account.workers.dev/sessions/my-session/api/sendText \
+  -H "Authorization: Bearer CONSUMER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"args":["1234@c.us","Hello via tunnel!"]}'
+```
+
+## Authentication
+
+The proxy uses a **dual-token** model:
+
+| Token | Purpose | Set via |
+|-------|---------|---------|
+| `UPSTREAM_TOKEN` | CLI session authenticates to attach as upstream | `wrangler secret` + `--proxy-token` |
+| `CONSUMER_TOKEN` | Consumers authenticate to access sessions | `wrangler secret` + consumer code |
+
+> **Note:** The session's own auth middleware (e.g. `--api-key`) still applies on top of the proxy authentication. The proxy tokens control *access to the tunnel*, not the session API itself.
+
+## Multiple Sessions
+
+A single Worker deployment supports **unlimited sessions**. Each session gets its own Durable Object instance, keyed by `sessionId`. Just start multiple CLI sessions with the same `--proxy-host` but different `--session-id` values:
+
+```bash
+wa --session-id sales   --proxy-host https://open-wa-proxy.account.workers.dev --proxy-token TOKEN
+wa --session-id support --proxy-host https://open-wa-proxy.account.workers.dev --proxy-token TOKEN
+```
+
+Consumers address sessions by ID in the URL path: `/sessions/sales/...`, `/sessions/support/...`.
+
+## Cost
+
+- **Idle sessions**: $0 — WebSocket Hibernation means the DO is not billed while waiting.
+- **Active traffic**: Standard Cloudflare Workers pricing (duration charges only while processing messages).
+- **No egress fees**: Cloudflare does not charge for outbound bandwidth.

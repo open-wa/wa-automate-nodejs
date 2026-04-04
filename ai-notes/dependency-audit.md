@@ -1,5 +1,7 @@
 # Dependency Audit for `wa` (pnpm workspace)
 
+**Status:** historical audit snapshot. The `packages/schema -> @open-wa/legacy` dependency and deprecated catalog entries for `@types/socket.io` / `@types/uuid` were removed in the current cutover slice. See `docs/decisions/2026-03-30-v5-cutover-decisions.md` for the active decision record.
+
 **Date:** 2026-03-30  
 **Repository:** `/Users/Mohammed/projects/tools/wa`  
 **Package manager:** `pnpm`  

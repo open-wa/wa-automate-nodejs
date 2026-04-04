@@ -1547,6 +1547,124 @@ What this **does not** finish yet:
 - `packages/cli` still exists as a published wrapper package rather than being retired entirely
 - a future slice may still remove `apps/cli` if the repo no longer needs the extra app wrapper layer
 
+### Additional completed slice: toolchain modernization (Oxc / Vitest / tsdown)
+
+After the CLI cleanup slice, the repo’s non-app-bundler toolchain was migrated broadly to the new stack:
+
+- Oxlint/Oxc replaced the repo’s ESLint/Biome lint commands
+- Vitest replaced the non-legacy Jest package test commands
+- tsdown replaced `tsc`/`tsup` builds across the maintained workspace packages where feasible
+- package surfaces were updated to align with tsdown’s `.cjs` / `.mjs` / `.d.cts` / `.d.mts` outputs
+
+#### Completed changes
+
+- root:
+  - added `oxlint`
+  - added `tsdown`
+  - added `tsx` for schema generator scripts
+  - replaced root lint command with `oxlint .`
+- lint migration:
+  - removed `.eslintrc` files from root / orchestrator / node-red
+  - removed Biome from `apps/docs`
+  - switched package lint scripts to `oxlint`
+- test migration:
+  - migrated `schema`, `wa-automate`, `socket-client`, and `legacy` package runners to Vitest
+  - added a lightweight `tools/vitest-jest-compat.ts` setup shim for old `jest.*` calls
+  - moved live socket-client test coverage behind `test:integration`
+- build migration:
+  - migrated `config` and `utils` from `tsup` to `tsdown`
+  - migrated non-legacy `tsc` package builds to `tsdown`
+  - added package-specific `tsdown.config.ts` files where multi-entry output was needed
+
+#### Verified outcomes
+
+- `pnpm lint` now passes using Oxlint
+- key Vitest suites pass:
+  - `@open-wa/schema`
+  - `@open-wa/wa-automate`
+  - `@open-wa/socket-client` default runner path
+- key tsdown builds pass:
+  - `@open-wa/config`
+  - `@open-wa/utils`
+  - `@open-wa/core`
+  - `@open-wa/client`
+  - `@open-wa/schema`
+  - `@open-wa/wa-automate`
+  - `@open-wa/cli`
+  - `@open-wa/cli-app`
+  - `@open-wa/legacy`
+  - `@open-wa/orchestrator`
+  - `@open-wa/orchestrator-cli`
+- Vite app builds still pass after tool version updates:
+  - `apps/docs`
+  - `apps/dashboard`
+  - `apps/orchestrator-dashboard`
+
+#### Manual QA evidence
+
+After the toolchain migration, both wrapper CLIs were executed against the rebuilt `.cjs` outputs and hit the same shared runtime successfully.
+
+`packages/cli`:
+
+```bash
+node dist/bin.cjs --session-id qa-final-cli --port 8120 --host 127.0.0.1 --no-ezqr
+curl http://127.0.0.1:8120/health
+```
+
+Observed:
+
+- server started on `http://127.0.0.1:8120`
+- QR event propagated
+- client reached `READY`
+- `/health` returned:
+
+```json
+{"status":"ok","version":"5.0.0","socketMode":true,"connected":false}
+```
+
+`apps/cli`:
+
+```bash
+node dist/index.cjs --session-id qa-app-cli --port 8121 --host 127.0.0.1 --no-ezqr
+curl http://127.0.0.1:8121/health
+```
+
+Observed:
+
+- server started on `http://127.0.0.1:8121`
+- QR event propagated
+- client reached `READY`
+- `/health` returned:
+
+```json
+{"status":"ok","version":"5.0.0","socketMode":true,"connected":false}
+```
+
+#### Explicit exception / limitation
+
+`integrations/node-red` runtime compilation was **not** left on tsdown.
+
+Reason:
+
+- tsdown/Rolldown hit an upstream panic on that runtime build path during migration
+- the failure was not repo logic but a bundler/runtime tooling bug
+
+Decision:
+
+- keep `node-red` linting on Oxlint
+- keep `node-red` tests on Vitest
+- revert `node-red` runtime build to `tsc` temporarily until the tsdown/Rolldown bug is resolved
+
+This is currently the one deliberate “wherever possible” exception in the tooling migration.
+
+#### Final state notes
+
+- root lint now runs through `oxlint .`
+- legacy package lint/test/build were also moved off ESLint/Jest/tsc
+- the legacy package still has a small number of failing tests under Vitest, but those failures are behavioral assertions in old config-handling tests rather than runner-migration failures
+- non-app library/runtime packages now build through tsdown, with package metadata adjusted to match emitted `.cjs` / `.mjs` / `.d.cts` / `.d.mts` outputs
+- Vite apps remain Vite apps; they were upgraded and verified, but not forcibly rewritten to raw Rolldown
+
 ---
 
 ## 16. Remaining Points Plan
@@ -1759,3 +1877,68 @@ After the completed schema/runtime slice, the recommended order is now:
 - complex methods restore high-value feature parity for real users
 - CLI cleanup should happen after the surviving runtime path is stable
 - backward compatibility docs/shims are strongest when written against the near-final surviving surfaces
+
+---
+
+## 18. Implemented Slice Log (2026-03-30, shared API extraction)
+
+This section records the follow-up slice completed after the earlier CLI/runtime cutover work.
+
+### Completed in this slice
+
+#### Shared API package extraction
+
+- created `packages/api` as the reusable Easy API transport owner
+- added reusable exports for:
+  - `createApiServer`
+  - `createApiMiddleware`
+  - auth middleware
+  - rate limiting
+  - socket handling
+  - runtime explorer/meta helpers
+  - OpenAPI/Postman document generation
+- moved reusable server concerns out of direct `wa-automate` ownership by making:
+  - `packages/wa-automate/src/server/hono-server.ts`
+  - `packages/wa-automate/src/server/socket-manager.ts`
+  - `packages/wa-automate/src/server/invoke-client-method.ts`
+  - `packages/wa-automate/src/middleware/*`
+  - `packages/wa-automate/src/monitoring/elastic.ts`
+  thin wrappers/re-exports over `@open-wa/api`
+
+#### Runtime explorer and compatibility-serving surface
+
+- added runtime explorer/meta routes to the shared API layer:
+  - `/api-docs/`
+  - `/meta/swagger.json`
+  - `/meta/postman.json`
+  - `/meta/basic/commands`
+  - `/meta/basic/listeners`
+- added shared request dispatch support for:
+  - `POST /api/<method>`
+  - `POST /api` with `{ method, args }`
+  - positional array args
+  - named object args
+  - optional session-in-path validation in the embeddable middleware layer
+
+#### Dependency cleanup aligned with the v5 spine
+
+- removed the direct `@open-wa/legacy` dependency from `packages/schema`
+- removed deprecated catalog entries for:
+  - `@types/socket.io`
+  - `@types/uuid`
+
+#### Decision freeze documentation
+
+- added `docs/decisions/2026-03-30-v5-cutover-decisions.md`
+- marked the earlier audit docs as historical snapshots where they no longer describe the active package graph
+
+### Explicitly deferred in this slice
+
+- `/meta/codegen/:language`
+- `swagger-stats`
+- media-serving parity routes
+- product integration route migration (Chatwoot/Twilio/BotPress/tunnel)
+- orchestrator modernization
+- wrapper-package retirement
+
+These were deferred intentionally to avoid guessing at release-contract policy during the shared-API extraction.

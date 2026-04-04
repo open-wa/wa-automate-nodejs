@@ -1,5 +1,7 @@
 # Issue #10: Backward Compatibility Anti-Doc
 
+**Implementation note:** the main v5 spine now includes a shared `@open-wa/api` package and `packages/schema` no longer depends directly on `@open-wa/legacy`. This document still governs what should remain deferred or intentionally unpreserved beyond that slice.
+
 **Priority**: HIGH  
 **Purpose**: A full-codebase audit of what v5 should intentionally leave behind, deprecate, redesign, or refuse to preserve so the library can remain maintainable, modern, and durable for years.
 

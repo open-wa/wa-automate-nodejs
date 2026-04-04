@@ -1,5 +1,7 @@
 # v5 Runtime Architecture Audit
 
+**Status:** historical audit snapshot from before the shared `@open-wa/api` extraction. See `docs/decisions/2026-03-30-v5-cutover-decisions.md` for the current cutover decisions.
+
 **Date**: 2026-03-30  
 **Repository**: `/Users/Mohammed/projects/tools/wa`  
 **Purpose**: Document the current runtime/package wiring, the intended v5 target wiring, and the gaps blocking a true v5 cutover.

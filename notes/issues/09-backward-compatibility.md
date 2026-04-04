@@ -1,5 +1,7 @@
 # Issue #09: Backward Compatibility Release Contract
 
+**Implementation note:** the reusable API layer now exists in `packages/api`, and the active preserve/defer decisions for this slice are recorded in `docs/decisions/2026-03-30-v5-cutover-decisions.md`. This issue remains the policy source for broader release-contract work that was intentionally deferred.
+
 **Priority**: HIGH  
 **Effort**: 1-2 days planning + 2-4 days implementation later  
 **Risk**: HIGH  
