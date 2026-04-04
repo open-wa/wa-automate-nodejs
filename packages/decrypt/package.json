@@ -1,0 +1,50 @@
+{
+  "name": "@open-wa/decrypt",
+  "version": "5.0.0-alpha.1",
+  "description": "Lightweight WhatsApp media decryption — zero external dependencies",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "vitest run",
+    "lint": "oxlint src",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@open-wa/schema": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@open-wa/schema": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@open-wa/schema": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "open-wa",
+    "whatsapp",
+    "decrypt",
+    "media"
+  ]
+}
