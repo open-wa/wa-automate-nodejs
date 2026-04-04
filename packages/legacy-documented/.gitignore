@@ -1,0 +1,10 @@
+# Build output
+dist/
+*.tsbuildinfo
+
+# Testing
+coverage/
+*.test.js
+
+# Logs
+*.log
