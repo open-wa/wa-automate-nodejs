@@ -151,6 +151,18 @@ describe('ConfigSchema', () => {
       }
     });
 
+    it('should accept userDataDir for persistent browser profiles', () => {
+      const config = {
+        userDataDir: '/tmp/openwa-profile',
+      };
+
+      const result = ConfigSchema.safeParse(config);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.userDataDir).toBe('/tmp/openwa-profile');
+      }
+    });
+
     it('should handle numeric values', () => {
       const config = {
         port: 3000,

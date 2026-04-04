@@ -106,11 +106,13 @@ describe('Environment Variable Loader', () => {
       const env = {
         WA_BROWSER_WS_ENDPOINT: 'ws://localhost:9222',
         WA_SKIP_UPDATE_CHECK: 'true',
+        WA_USER_DATA_DIR: '/tmp/from-env-profile',
       };
       const config = loadFromEnv({ env });
 
       expect(config.browserWSEndpoint).toBe('ws://localhost:9222');
       expect(config.skipUpdateCheck).toBe(true);
+      expect(config.userDataDir).toBe('/tmp/from-env-profile');
     });
 
     it('should return empty object when no WA_ vars present', () => {

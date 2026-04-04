@@ -29,7 +29,7 @@
     "test:watch": "vitest",
     "lint": "oxlint src scripts",
     "typecheck": "tsc --noEmit",
-    "generate:schema": "ts-node scripts/generate-json-schema.ts"
+    "generate:schema": "tsx scripts/generate-json-schema.ts"
   },
   "dependencies": {
     "cosmiconfig": "^9.0.0",

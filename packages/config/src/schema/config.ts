@@ -140,7 +140,9 @@ export const ConfigSchema = z.object({
   sessionData: z
     .union([SessionDataSchema, z.string()])
     .optional()
-    .describe('The authentication object (as a JSON object or a base64 encoded string).'),
+    .describe(
+      'Deprecated compatibility input for JSON or base64 session restore. This MD-obsolete flow remains only for legacy migration. Prefer userDataDir for persistent auth state.'
+    ),
 
   linkCode: z.string().optional().describe('Link code for new login method.'),
 
@@ -149,9 +151,21 @@ export const ConfigSchema = z.object({
   sessionDataPath: z
     .string()
     .default('')
-    .describe('Path relative to CWD to store .data.json files.'),
+    .describe(
+      'Deprecated legacy path for .data.json session restore files. This only exists for MD-obsolete JSON session compatibility. Prefer userDataDir.'
+    ),
 
-  skipSessionSave: z.boolean().default(false).describe('Do not save session data.json file.'),
+  userDataDir: z
+    .string()
+    .optional()
+    .describe('Browser profile directory used for persistent session storage.'),
+
+  skipSessionSave: z
+    .boolean()
+    .default(false)
+    .describe(
+      'Deprecated legacy flag for .data.json session persistence. This only affects the MD-obsolete JSON restore path. Prefer userDataDir-managed persistence.'
+    ),
 
   licenseKey: z
     .union([z.string(), z.record(z.string(), z.string()), z.function()])
@@ -207,7 +221,12 @@ export const ConfigSchema = z.object({
 
   qrFormat: z.nativeEnum(QRFormat).default(QRFormat.PNG).describe('QR code output format.'),
 
-  qrPopUpOnly: z.boolean().optional().describe('Only serve QR code png via web server.'),
+  qrPopUpOnly: z
+    .boolean()
+    .optional()
+    .describe(
+      'Downgraded legacy QR convenience flag. v5 may still expose QR PNG output, but popup and local QR parity is not a guaranteed runtime contract.'
+    ),
 
   qrMax: z.number().optional().describe('Automatically kill the process after a set amount of qr codes.'),
 
@@ -226,7 +245,12 @@ export const ConfigSchema = z.object({
   callTimeout: z.number().default(0).describe('Wait time for client method resolution.'),
 
   // Popup & UI
-  popup: z.union([z.boolean(), z.number()]).default(false).describe('Open browser window for status and QR.'),
+  popup: z
+    .union([z.boolean(), z.number()])
+    .default(false)
+    .describe(
+      'Downgraded legacy compatibility option. Opens a local browser window for status or manual inspection, but v5 does not guarantee legacy popup QR parity.'
+    ),
 
   // Logging & Debugging
   logConsole: z.boolean().default(false).describe('Log console messages from browser.'),
@@ -354,6 +378,41 @@ export const ConfigSchema = z.object({
     .default('hybrid')
     .describe('When to start the API: immediate, after connection, or hybrid (QR only first).'),
 
+  dashboard: z
+    .boolean()
+    .default(true)
+    .describe('Launch the session management dashboard. Disable with --no-dashboard.'),
+
+  dashboardPort: z
+    .number()
+    .int()
+    .min(1)
+    .max(65535)
+    .default(3000)
+    .describe('Port for the dashboard sidecar. Defaults to 3000.'),
+
+  proxyHost: z
+    .string()
+    .optional()
+    .describe('Host of the Cloudflare session proxy worker, e.g. wss://proxy.account.workers.dev'),
+
+  proxyToken: z
+    .string()
+    .optional()
+    .describe('Token used to authenticate this session with the Cloudflare proxy upstream.'),
+
+
+  integrations: z
+    .record(
+      z.string(),
+      z.object({
+        enabled: z.boolean().default(false),
+        config: z.record(z.string(), z.string()).default({}),
+      })
+    )
+    .optional()
+    .describe('Integration configurations (chatwoot, webhook, n8n, etc.). Changes require restart.'),
+
   // Server Configuration
   apiKey: z.string().optional().describe('API key for authentication (minimum 8 characters).'),
 
@@ -375,6 +434,27 @@ export const ConfigSchema = z.object({
 
   // Session Sync (S3)
   s3Sync: S3SyncSchema.optional().describe('S3 Session Synchronization configuration'),
+
+  // ── Plugin System ──────────────────────────────────────────
+  /**
+   * Plugins to load. Can be npm package names or local file paths.
+   * @example ['@open-wa/integration-chatwoot', './my-local-plugin']
+   */
+  plugins: z.array(z.string()).default([]).describe('Plugin references to load (npm packages or file paths).'),
+
+  /**
+   * Plugin-specific configuration keyed by plugin name.
+   * Each plugin validates its own config via its configSchema.
+   *
+   * @example
+   * ```js
+   * pluginConfig: {
+   *   chatwoot: { chatwootUrl: '...', chatwootApiAccessToken: '...' },
+   *   webhook: { url: 'https://...', events: 'all' },
+   * }
+   * ```
+   */
+  pluginConfig: z.record(z.string(), z.unknown()).default({}).describe('Plugin configuration keyed by plugin name.'),
 });
 
 // ============================================================================

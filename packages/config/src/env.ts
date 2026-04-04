@@ -175,7 +175,7 @@ export function loadFromEnv(options: LoadEnvOptions = {}): PartialConfig {
   const loadedVars: string[] = [];
 
   for (const [envName, value] of Object.entries(env)) {
-    if (!envName.startsWith(prefix) || value === undefined) continue;
+    if (!envName.startsWith(prefix) || typeof value !== 'string') continue;
 
     const configKey = envNameToConfigKey(envName, prefix);
     if (!configKey) continue; // Skip unrecognized env vars

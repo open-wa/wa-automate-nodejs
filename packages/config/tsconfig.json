@@ -12,10 +12,10 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "types": ["node"],
     "noEmit": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }

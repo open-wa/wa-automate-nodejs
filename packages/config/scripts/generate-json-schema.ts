@@ -2,7 +2,7 @@
  * Generate JSON Schema from Zod schema for IDE autocomplete
  */
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { ConfigSchema } from '../src/schema';
+import { ConfigSchema } from '../src/schema/config.ts';
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
