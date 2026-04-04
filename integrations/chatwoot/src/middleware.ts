@@ -1,6 +1,12 @@
-import type { Request, Response, NextFunction } from 'express';
+/**
+ * Chatwoot webhook handler — Hono-based replacement for Express middleware.
+ *
+ * Processes incoming Chatwoot webhooks and forwards
+ * outgoing messages to WhatsApp via the plugin's client.
+ */
+import { Hono } from 'hono';
 import type { ChatwootClient } from './client.js';
-import type { Logger } from '@open-wa/logger';
+import type { PluginClient, PluginLogger } from '@open-wa/plugin-sdk';
 
 interface WebhookBody {
   source_id?: string;
@@ -23,43 +29,43 @@ interface WebhookBody {
   private?: boolean;
 }
 
-interface WAClient {
-  sendText: (to: string, content: string) => Promise<string>;
-  sendImage: (to: string, url: string, filename: string, caption: string, quotedMsgId: null, waitForId: boolean) => Promise<string>;
-  sendLocation: (to: string, lat: string, lng: string, loc: string) => Promise<string>;
-  sendLinkWithAutoPreview: (to: string, url: string, text: string) => Promise<string>;
-}
-
-type ExpressMiddleware = (req: Request, res: Response, next?: NextFunction) => Promise<void>;
-
-export function createChatwootMiddleware(
+/**
+ * Create a Hono sub-app for the Chatwoot webhook route.
+ *
+ * Handles POST /webhook — the incoming webhook from Chatwoot.
+ * Mounted at /plugins/chatwoot/ by the PluginHost.
+ */
+export function createChatwootRouter(
   cwClient: ChatwootClient,
-  waClient: WAClient,
-  logger: Logger
-): ExpressMiddleware {
-  return async (req: Request, res: Response): Promise<void> => {
-    const body = req.body as WebhookBody;
+  waClient: PluginClient,
+  logger: PluginLogger
+): Hono {
+  const app = new Hono();
+
+  app.post('/webhook', async (c) => {
+    const body = await c.req.json<WebhookBody>();
 
     if (body.source_id || !body) {
-      res.status(200).send();
-      return;
+      return c.json({ ok: true }, 200);
     }
 
     try {
       const messageIds = await processWebhookMessage(body, cwClient, waClient, logger);
-      res.status(200).json(messageIds);
+      return c.json(messageIds, 200);
     } catch (error) {
       logger.error(`Webhook processing error: ${(error as Error).message}`);
-      res.status(400).json({ error: (error as Error).message });
+      return c.json({ error: (error as Error).message }, 400);
     }
-  };
+  });
+
+  return app;
 }
 
 async function processWebhookMessage(
   body: WebhookBody,
   cwClient: ChatwootClient,
-  waClient: WAClient,
-  logger: Logger
+  waClient: PluginClient,
+  logger: PluginLogger
 ): Promise<string[]> {
   const messageIds: string[] = [];
 
@@ -93,9 +99,7 @@ async function processWebhookMessage(
         to,
         firstAttachment.data_url,
         firstAttachment.data_url.substring(firstAttachment.data_url.lastIndexOf('/') + 1),
-        content ?? '',
-        null,
-        true
+        content ?? ''
       );
       messageIds.push(id);
       cwClient.markIgnored(id);
@@ -106,9 +110,7 @@ async function processWebhookMessage(
         to,
         attachment.data_url,
         attachment.data_url.substring(attachment.data_url.lastIndexOf('/') + 1),
-        '',
-        null,
-        true
+        ''
       );
       messageIds.push(id);
       cwClient.markIgnored(id);

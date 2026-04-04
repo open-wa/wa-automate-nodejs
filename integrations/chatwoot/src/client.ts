@@ -1,6 +1,3 @@
-import axios, { type AxiosResponse } from 'axios';
-import FormData from 'form-data';
-import mime from 'mime-types';
 import type { Logger } from '@open-wa/logger';
 import type { ChatwootConfig } from './config.js';
 
@@ -25,8 +22,15 @@ interface CWMessage {
   created_at?: number;
 }
 
+interface CWResponse<T> {
+  ok: boolean;
+  status: number;
+  data: T;
+}
+
 /**
  * Client for interacting with the Chatwoot API.
+ * Uses native fetch instead of axios.
  */
 export class ChatwootClient {
   private readonly apiAccessToken: string;
@@ -57,37 +61,54 @@ export class ChatwootClient {
     // Build expected webhook URL
     const protocol = config.https ? 'https' : 'http';
     const host = config.apiHost ?? `${protocol}://${config.host}:${config.port}`;
-    this.expectedSelfWebhookUrl = `${host}/chatwoot`;
+    this.expectedSelfWebhookUrl = `${host}/plugins/chatwoot/webhook`;
     if (config.apiKey) {
       this.expectedSelfWebhookUrl += `?api_key=${config.apiKey}`;
     }
   }
 
   /**
-   * Make a request to the Chatwoot API.
+   * Make a request to the Chatwoot API using native fetch.
    */
   async cwReq<T = unknown>(
-    method: 'get' | 'post' | 'patch' | 'put' | 'delete',
+    method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE',
     path: string,
     data?: unknown,
     headers?: Record<string, string>
-  ): Promise<AxiosResponse<T>> {
+  ): Promise<CWResponse<T>> {
     const url = `${this.origin}/api/v1/accounts/${this.accountId}/${path}`;
+
+    const isFormData = typeof FormData !== 'undefined' && data instanceof FormData;
+    const fetchHeaders: Record<string, string> = {
+      api_access_token: this.apiAccessToken,
+      ...headers,
+    };
+    if (!isFormData && data) {
+      fetchHeaders['Content-Type'] = 'application/json';
+    }
+
     try {
-      const response = await axios({
+      const response = await fetch(url, {
         method,
-        url,
-        data,
-        headers: {
-          api_access_token: this.apiAccessToken,
-          ...headers,
-        },
+        headers: fetchHeaders,
+        body: data
+          ? isFormData
+            ? (data as BodyInit)
+            : JSON.stringify(data)
+          : undefined,
       });
-      this.logger.debug(`CW REQUEST: ${response.status} ${method.toUpperCase()} ${url}`);
-      return response;
+
+      this.logger.debug(`CW REQUEST: ${response.status} ${method} ${url}`);
+
+      const responseData = await response.json() as T;
+
+      return {
+        ok: response.ok,
+        status: response.status,
+        data: responseData,
+      };
     } catch (error) {
-      const axiosError = error as { response?: { status: number; message?: string } };
-      this.logger.error(`CW REQ ERROR: ${axiosError.response?.status} ${axiosError.response?.message}`);
+      this.logger.error(`CW REQ ERROR: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -100,9 +121,10 @@ export class ChatwootClient {
 
     // Get account ID if not set
     if (!this.accountId) {
-      const { data } = await axios.get(`${this.origin}/api/v1/profile`, {
+      const response = await fetch(`${this.origin}/api/v1/profile`, {
         headers: { api_access_token: this.apiAccessToken },
       });
+      const data = await response.json() as { account_id: number };
       this.accountId = String(data.account_id);
       this.logger.info(`Got account ID: ${this.accountId}`);
     }
@@ -111,7 +133,7 @@ export class ChatwootClient {
     if (!this.inboxId) {
       this.logger.info('Inbox ID missing, searching...');
       const { data } = await this.cwReq<{ payload: Array<{ id: number; additional_attributes?: { hostAccountNumber?: string } }> }>(
-        'get',
+        'GET',
         'inboxes'
       );
       
@@ -124,7 +146,7 @@ export class ChatwootClient {
         this.logger.info(`Found existing inbox: ${this.inboxId}`);
       } else {
         this.logger.info('Creating new inbox...');
-        const { data: newInbox } = await this.cwReq<{ id: number }>('post', 'inboxes', {
+        const { data: newInbox } = await this.cwReq<{ id: number }>('POST', 'inboxes', {
           name: `open-wa-${hostAccountNumber ?? sessionId}`,
           channel: {
             phone_number: hostAccountNumber,
@@ -143,7 +165,7 @@ export class ChatwootClient {
 
     // Update inbox webhook if needed
     if (this.forceUpdateCwWebhook) {
-      await this.cwReq('patch', `inboxes/${this.inboxId}`, {
+      await this.cwReq('PATCH', `inboxes/${this.inboxId}`, {
         channel: {
           webhook_url: this.expectedSelfWebhookUrl,
         },
@@ -159,7 +181,7 @@ export class ChatwootClient {
     const cleanNumber = phoneNumber.replace('@c.us', '');
     try {
       const { data } = await this.cwReq<{ payload: Contact[] }>(
-        'get',
+        'GET',
         `contacts/search?q=${cleanNumber}&sort=phone_number`
       );
       return data.payload.find((c) => c.phone_number?.includes(cleanNumber)) ?? null;
@@ -180,7 +202,7 @@ export class ChatwootClient {
     profilePicThumbObj?: { eurl?: string };
   }): Promise<Contact | null> {
     try {
-      const { data } = await this.cwReq<{ payload: { contact: Contact } }>('post', 'contacts', {
+      const { data } = await this.cwReq<{ payload: { contact: Contact } }>('POST', 'contacts', {
         identifier: contact.id,
         name: contact.formattedName ?? contact.name ?? contact.shortName ?? contact.id,
         phone_number: `+${contact.id.replace('@c.us', '')}`,
@@ -205,7 +227,7 @@ export class ChatwootClient {
 
     try {
       const { data } = await this.cwReq<{ payload: Conversation[] }>(
-        'get',
+        'GET',
         `contacts/${cwContactId}/conversations`
       );
       
@@ -218,7 +240,6 @@ export class ChatwootClient {
 
       const resolvedConvo = inboxConvos[0];
       if (resolvedConvo) {
-        // Reopen the conversation
         await this.openConversation(resolvedConvo.id);
         return resolvedConvo;
       }
@@ -235,7 +256,7 @@ export class ChatwootClient {
    */
   async createConversation(contactId: number): Promise<Conversation | null> {
     try {
-      const { data } = await this.cwReq<Conversation>('post', 'conversations', {
+      const { data } = await this.cwReq<Conversation>('POST', 'conversations', {
         contact_id: contactId,
         inbox_id: this.inboxId,
       });
@@ -251,7 +272,7 @@ export class ChatwootClient {
    */
   async openConversation(conversationId: number, status = 'open'): Promise<void> {
     try {
-      await this.cwReq('post', `conversations/${conversationId}/toggle_status`, { status });
+      await this.cwReq('POST', `conversations/${conversationId}/toggle_status`, { status });
     } catch (error) {
       this.logger.error(`Open conversation error: ${(error as Error).message}`);
     }
@@ -270,7 +291,7 @@ export class ChatwootClient {
 
     this.logger.info(`WA=>CW ${contactId}: ${content.substring(0, 50)}...`);
     try {
-      const { data } = await this.cwReq<CWMessage>('post', `conversations/${convoId}/messages`, {
+      const { data } = await this.cwReq<CWMessage>('POST', `conversations/${convoId}/messages`, {
         content,
         message_type: message.fromMe ? 'outgoing' : 'incoming',
         private: false,
@@ -286,6 +307,7 @@ export class ChatwootClient {
 
   /**
    * Send an attachment message to a conversation.
+   * Uses native FormData (works in Node 18+, Bun, Deno, etc).
    */
   async sendAttachmentMessage(
     content: string,
@@ -297,23 +319,34 @@ export class ChatwootClient {
     if (!convoId) return null;
 
     try {
-      const formData = new FormData();
-      const extension = mime.extension(message.mimetype) || 'bin';
+      // Determine the file extension from MIME type
+      const mimeToExt: Record<string, string> = {
+        'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp',
+        'audio/ogg': 'ogg', 'audio/mpeg': 'mp3', 'audio/mp4': 'mp4',
+        'video/mp4': 'mp4', 'video/quicktime': 'mov',
+        'application/pdf': 'pdf',
+      };
+      const extension = mimeToExt[message.mimetype] ?? 'bin';
       const filename = `${message.t}.${extension}`;
 
-      formData.append('attachments[]', Buffer.from(fileData.split(',')[1], 'base64'), {
-        filename,
-        contentType: message.mimetype,
-      });
+      // Convert base64 to Blob (works in Node 18+, Bun, Deno, Workers)
+      const base64Data = fileData.includes(',') ? fileData.split(',')[1] : fileData;
+      const binaryData = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
+      const blob = new Blob([binaryData], { type: message.mimetype });
+
+      const formData = new FormData();
+      formData.append('attachments[]', blob, filename);
       formData.append('content', content || '');
       formData.append('message_type', 'incoming');
 
-      const { data } = await this.cwReq<CWMessage>(
-        'post',
-        `conversations/${convoId}/messages`,
-        formData,
-        formData.getHeaders()
-      );
+      const url = `${this.origin}/api/v1/accounts/${this.accountId}/conversations/${convoId}/messages`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { api_access_token: this.apiAccessToken },
+        body: formData,
+      });
+
+      const data = await response.json() as CWMessage;
       return data;
     } catch (error) {
       this.logger.error(`Send attachment error: ${(error as Error).message}`);
@@ -331,7 +364,7 @@ export class ChatwootClient {
 
     try {
       const { data } = await this.cwReq<{ payload: CWMessage[] }>(
-        'get',
+        'GET',
         `conversations/${convoId}/messages`
       );
       return data.payload;
