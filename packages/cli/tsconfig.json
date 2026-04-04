@@ -12,7 +12,6 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "baseUrl": ".",
     "paths": {
       "@open-wa/wa-automate": [
         "../wa-automate/dist/index.d.ts"

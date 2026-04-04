@@ -26,10 +26,12 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@open-wa/wa-automate": "workspace:*"
+    "@open-wa/wa-automate": "workspace:*",
+    "ws": "^8.20.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@types/ws": "^8.18.1",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
