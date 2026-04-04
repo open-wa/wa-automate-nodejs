@@ -3,7 +3,7 @@ import { io, Socket } from "socket.io-client";
 import { SimpleListener } from "@open-wa/schema";
 // Import Client type and other types from legacy for now until full migration is complete
 import { Client as _Client, Chat, ChatId, Message } from "@open-wa/wa-automate-types-only";
-import { v4 as uuidv4 } from 'uuid';
+const uuidv4 = () => typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 import { MessageCollector } from './MessageCollector';
 import { AwaitMessagesOptions, Collection, CollectorFilter, CollectorOptions } from './Collector';
 import makeDebug from 'debug';
@@ -79,11 +79,24 @@ export class SocketClient {
 
     /**
      * The main way to create the socket based client.
-     * @param url URL of the socket server (i.e the EASY API instance address)
+     * @param url URL of the socket server (i.e the EASY API instance address) or cf-proxy:// URL
      * @param apiKey optional api key if set
      * @returns SocketClient
      */
     static async connect(url: string, apiKey?: string, ev?: boolean): Promise<SocketClient & Client> {
+        if (url.startsWith('cf-proxy://')) {
+            const parsed = new URL(url.replace('cf-proxy://', 'https://'));
+            const proxyHost = 'https://' + parsed.host + parsed.pathname;
+            const sessionId = parsed.searchParams.get('sessionId') || 'session';
+            const proxyToken = parsed.searchParams.get('token') || apiKey || '';
+            const { TunnelSocketClient } = await import('./TunnelSocketClient');
+            return TunnelSocketClient.connect({
+                proxyHost,
+                proxyToken,
+                sessionId
+            }, ev) as any;
+        }
+
         return await new Promise((resolve, reject) => {
             const client = new this(url, apiKey, ev, false)
             client.socket.on("connect", async () => {

@@ -3,6 +3,14 @@
   "version": "3.3.0",
   "description": "Easily connect to remote instances of the EASY API",
   "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.cjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.cts"
+    }
+  },
   "scripts": {
     "build": "tsdown src/index.ts --format cjs",
     "dev": "tsdown src/index.ts --format cjs --watch",
@@ -30,13 +38,13 @@
   },
   "homepage": "https://github.com/open-wa/wa-automate-socket-client-nodejs#readme",
   "dependencies": {
-    "@discordjs/collection": "^0.8.0",
-    "@open-wa/wa-automate-types-only": "*",
     "@open-wa/schema": "workspace:*",
+    "@open-wa/wa-automate-types-only": "*",
     "debug": "^4.3.4",
     "eventemitter2": "^6.4.9",
+    "isomorphic-ws": "^5.0.0",
     "socket.io-client": "catalog:",
-    "uuid": "catalog:"
+    "ws": "^8.20.0"
   },
   "devDependencies": {
     "typescript": "catalog:",
