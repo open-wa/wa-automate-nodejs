@@ -42,9 +42,8 @@
         "ci": "pnpm verify && pnpm test:contracts && pnpm build"
     },
     "dependencies": {
-        "@asteasolutions/zod-to-openapi": "^6.4.0",
+        "@asteasolutions/zod-to-openapi": "^8.5.0",
         "@open-wa/config": "workspace:*",
-        "@open-wa/legacy": "workspace:*",
         "@open-wa/utils": "workspace:*",
         "zod": "catalog:",
         "zod-to-json-schema": "^3.22.3"
@@ -52,8 +51,7 @@
     "devDependencies": {
         "ts-node": "catalog:",
         "typescript": "catalog:",
-        "vitest": "catalog:",
-        "zod-to-ts": "^1.2.0"
+        "vitest": "catalog:"
     },
     "publishConfig": {
         "access": "public"

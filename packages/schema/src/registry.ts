@@ -110,6 +110,15 @@ export interface MethodDefinition {
     meta: ClientFunctionMetadata;
 }
 
+export type OpenWAMethodSchema<
+    T extends z.ZodObject<any>,
+    R extends z.ZodTypeAny
+> = z.ZodFunction<z.ZodUnion<[z.ZodTuple<[T]>, z.ZodTuple<any>]>, R> & {
+    openWAInput: T;
+    openWAOutput: R;
+    openWAFunctionName: string;
+};
+
 /**
  * Metadata for individual parameters
  * Used for documentation and example generation
@@ -254,7 +263,7 @@ export function defineMethodV2<
         parameterOrder: Array<keyof T['shape']>;
         output: R;
     }
-): z.ZodFunction<z.ZodUnion<[z.ZodTuple<[T]>, z.ZodTuple<any>]>, R> {
+): OpenWAMethodSchema<T, R> {
     const tupleSchema = zObjectToTuple(params.input, params.parameterOrder as any);
 
     const inputUnion = z.union([
@@ -262,10 +271,17 @@ export function defineMethodV2<
         tupleSchema
     ]);
 
-    const funcSchema = z.function({
-        input: inputUnion,
-        output: params.output
-    }) as z.ZodFunction<z.ZodUnion<[z.ZodTuple<[T]>, z.ZodTuple<any>]>, R>;
+    const funcSchema = Object.assign(
+        z.function({
+            input: inputUnion,
+            output: params.output
+        }),
+        {
+            openWAInput: params.input,
+            openWAOutput: params.output,
+            openWAFunctionName: name,
+        }
+    ) as OpenWAMethodSchema<T, R>;
 
     clientRegistry.register({
         schema: funcSchema,
