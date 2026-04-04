@@ -16,25 +16,10 @@
     },
     "dependencies": {
         "@open-wa/orchestrator": "workspace:*",
-        "@open-wa/legacy": "workspace:*",
-        "hono": "catalog:",
-        "@hono/node-server": "catalog:",
-        "express": "catalog:",
-        "dotenv": "catalog:",
-        "pm2": "catalog:",
-        "cors": "catalog:",
-        "helmet": "catalog:",
-        "morgan": "catalog:",
-        "cabin": "catalog:",
-        "axe": "catalog:",
-        "public-ip": "catalog:",
-        "response-time": "catalog:",
-        "request-received": "catalog:",
-        "express-request-id": "catalog:"
+        "dotenv": "catalog:"
     },
     "devDependencies": {
         "typescript": "catalog:",
-        "@types/node": "catalog:",
-        "@types/express": "catalog:"
+        "@types/node": "catalog:"
     }
 }
