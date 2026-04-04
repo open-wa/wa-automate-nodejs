@@ -14,7 +14,8 @@
     "scripts": {
         "build": "tsdown src/index.ts --format cjs",
         "dev": "tsdown src/index.ts --format cjs --watch",
-        "lint": "oxlint src"
+        "lint": "oxlint src",
+        "test": "vitest run"
     },
     "dependencies": {
         "@open-wa/driver-interface": "workspace:*",
@@ -23,7 +24,8 @@
     },
     "devDependencies": {
         "@types/node": "catalog:",
-        "typescript": "catalog:"
+        "typescript": "catalog:",
+        "vitest": "catalog:"
     },
     "publishConfig": {
         "access": "public"

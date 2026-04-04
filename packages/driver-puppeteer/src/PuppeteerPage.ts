@@ -1,16 +1,146 @@
-import { IPage, IElementHandle, DriverCapabilities } from '@open-wa/driver-interface';
-import type { Page, CDPSession } from 'puppeteer';
+import {
+    IPage,
+    IElementHandle,
+    DriverCapabilities,
+    type DisposableHandle,
+    type IConsoleMessage,
+    type IFrame,
+    type IRequest,
+    type IRequestContinueOverrides,
+    type IRequestResponse,
+    type NavigationWaitUntil,
+    type PageEventHandler,
+    type WaitForFunctionOptions,
+} from '@open-wa/driver-interface';
+import type { ConsoleMessage, Frame, HTTPRequest, Page, CDPSession } from 'puppeteer';
 import { PuppeteerElementHandle } from './PuppeteerElementHandle';
+
+type ListenerWrapper = (...args: any[]) => void | Promise<void>;
+
+class PuppeteerDisposableHandle implements DisposableHandle {
+    constructor(private readonly disposer: () => Promise<void> | void) {}
+
+    dispose(): Promise<void> | void {
+        return this.disposer();
+    }
+}
+
+class PuppeteerFrame implements IFrame {
+    constructor(private readonly frame: Frame, private readonly isMain: boolean) {}
+
+    url(): string {
+        return this.frame.url();
+    }
+
+    name(): string {
+        return this.frame.name();
+    }
+
+    isMainFrame(): boolean {
+        return this.isMain;
+    }
+
+    parentFrame(): IFrame | null {
+        const parent = this.frame.parentFrame();
+        return parent ? new PuppeteerFrame(parent, false) : null;
+    }
+
+    async content(): Promise<string> {
+        return this.frame.content();
+    }
+
+    unwrap(): Frame {
+        return this.frame;
+    }
+}
+
+class PuppeteerRequest implements IRequest {
+    constructor(private readonly request: HTTPRequest, private readonly page: Page) {}
+
+    url(): string {
+        return this.request.url();
+    }
+
+    method(): string {
+        return this.request.method();
+    }
+
+    headers(): Record<string, string> {
+        return this.request.headers();
+    }
+
+    resourceType(): string | null {
+        return this.request.resourceType?.() ?? null;
+    }
+
+    isNavigationRequest(): boolean {
+        return this.request.isNavigationRequest();
+    }
+
+    frame(): IFrame | null {
+        const frame = this.request.frame();
+        return frame ? new PuppeteerFrame(frame, frame === this.page.mainFrame()) : null;
+    }
+
+    async abort(errorCode?: string): Promise<void> {
+        await this.request.abort(errorCode as never);
+    }
+
+    async continue(overrides?: IRequestContinueOverrides): Promise<void> {
+        await this.request.continue(overrides);
+    }
+
+    async respond(response: IRequestResponse): Promise<void> {
+        await this.request.respond({
+            ...response,
+            body: response.body instanceof Uint8Array ? Buffer.from(response.body) : response.body,
+        } as never);
+    }
+
+    unwrap(): HTTPRequest {
+        return this.request;
+    }
+}
+
+class PuppeteerConsoleMessage implements IConsoleMessage {
+    constructor(private readonly message: ConsoleMessage) {}
+
+    type(): string {
+        return this.message.type();
+    }
+
+    text(): string {
+        return this.message.text();
+    }
+
+    location(): { url?: string; lineNumber?: number; columnNumber?: number } {
+        const location = this.message.location();
+        return {
+            url: location.url,
+            lineNumber: location.lineNumber,
+            columnNumber: location.columnNumber,
+        };
+    }
+
+    args(): unknown[] {
+        return this.message.args();
+    }
+
+    unwrap(): ConsoleMessage {
+        return this.message;
+    }
+}
 
 export class PuppeteerPage implements IPage {
     readonly name = 'puppeteer' as const;
+    private readonly listenerWrappers = new Map<string, Map<Function, Set<ListenerWrapper>>>();
     
     constructor(
         private page: Page,
         private capabilities: DriverCapabilities
     ) {}
     
-    async goto(url: string, options?: { waitUntil?: 'load' | 'domcontentloaded' | 'networkidle'; timeoutMs?: number }): Promise<void> {
+    async goto(url: string, options?: { waitUntil?: NavigationWaitUntil; timeoutMs?: number }): Promise<void> {
         await this.page.goto(url, {
             waitUntil: options?.waitUntil as any,
             timeout: options?.timeoutMs,
@@ -24,6 +154,10 @@ export class PuppeteerPage implements IPage {
     async reload(): Promise<void> {
         await this.page.reload();
     }
+
+    mainFrame(): IFrame {
+        return new PuppeteerFrame(this.page.mainFrame(), true);
+    }
     
     async evaluate<Arg, Ret>(fn: (arg: Arg) => Ret | Promise<Ret>, arg: Arg): Promise<Ret> {
         return await this.page.evaluate(fn as any, arg as any) as Ret;
@@ -31,6 +165,23 @@ export class PuppeteerPage implements IPage {
     
     async evaluateScript<Ret = unknown>(script: string): Promise<Ret> {
         return await this.page.evaluate(script) as Ret;
+    }
+
+    async addInitScript(script: string): Promise<DisposableHandle> {
+        const registration = await (this.page as any).evaluateOnNewDocument(script);
+        const identifier = this.getInitScriptIdentifier(registration);
+        let disposed = false;
+
+        return new PuppeteerDisposableHandle(async () => {
+            if (disposed) {
+                return;
+            }
+
+            disposed = true;
+            if (identifier && typeof (this.page as any).removeScriptToEvaluateOnNewDocument === 'function') {
+                await (this.page as any).removeScriptToEvaluateOnNewDocument(identifier);
+            }
+        });
     }
     
     async setViewport(viewport: { width: number; height: number }): Promise<void> {
@@ -40,14 +191,34 @@ export class PuppeteerPage implements IPage {
     async setUserAgent(ua: string): Promise<void> {
         await this.page.setUserAgent(ua);
     }
+
+    async setRequestInterception(enabled: boolean): Promise<void> {
+        this.require('requestInterception');
+        await this.page.setRequestInterception(enabled);
+    }
     
     async waitForSelector(selector: string, options?: { timeoutMs?: number }): Promise<IElementHandle | null> {
         const element = await this.page.waitForSelector(selector, { timeout: options?.timeoutMs });
         return element ? new PuppeteerElementHandle(element) : null;
     }
     
-    async waitForFunction<Arg>(fn: (arg: Arg) => boolean, arg: Arg, options?: { timeoutMs?: number }): Promise<void> {
-        await this.page.waitForFunction(fn as any, { timeout: options?.timeoutMs }, arg as any);
+    async waitForFunction<Arg>(script: string, options?: WaitForFunctionOptions): Promise<void>;
+    async waitForFunction<Arg>(fn: (arg: Arg) => boolean, arg: Arg, options?: WaitForFunctionOptions): Promise<void>;
+    async waitForFunction<Arg>(fnOrScript: string | ((arg: Arg) => boolean), argOrOptions?: Arg | WaitForFunctionOptions, maybeOptions?: WaitForFunctionOptions): Promise<void> {
+        if (typeof fnOrScript === 'string') {
+            const options = argOrOptions as WaitForFunctionOptions | undefined;
+            await this.page.waitForFunction(fnOrScript, {
+                timeout: options?.timeoutMs,
+                polling: options?.polling as any,
+            });
+            return;
+        }
+
+        const options = maybeOptions;
+        await this.page.waitForFunction(fnOrScript as any, {
+            timeout: options?.timeoutMs,
+            polling: options?.polling as any,
+        }, argOrOptions as any);
     }
     
     async $(selector: string): Promise<IElementHandle | null> {
@@ -76,6 +247,37 @@ export class PuppeteerPage implements IPage {
     async exposeFunction(name: string, fn: (...args: any[]) => any): Promise<void> {
         await this.page.exposeFunction(name, fn);
     }
+
+    on<K extends string>(event: K, handler: ((...args: any[]) => void | Promise<void>) | PageEventHandler<any>): DisposableHandle {
+        const wrapped = (...args: any[]) => {
+            const payload = this.wrapEventPayload(event, args);
+            if (event === 'close') {
+                return (handler as () => void | Promise<void>)();
+            }
+            return (handler as (payload: unknown) => void | Promise<void>)(payload);
+        };
+
+        this.getWrapperSet(event, handler as Function).add(wrapped);
+        this.page.on(event as any, wrapped as any);
+
+        return new PuppeteerDisposableHandle(() => {
+            this.removeWrappedListener(event, handler as Function, wrapped);
+        });
+    }
+
+    off<K extends string>(event: K, handler: ((...args: any[]) => void | Promise<void>) | PageEventHandler<any>): void {
+        const wrappers = this.listenerWrappers.get(event)?.get(handler as Function);
+        if (!wrappers || wrappers.size === 0) {
+            this.page.off(event as any, handler as any);
+            return;
+        }
+
+        for (const wrapped of wrappers) {
+            this.page.off(event as any, wrapped as any);
+        }
+
+        this.listenerWrappers.get(event)?.delete(handler as Function);
+    }
     
     async close(): Promise<void> {
         await this.page.close();
@@ -100,14 +302,9 @@ export class PuppeteerPage implements IPage {
         }
     }
     
-    cdp(): CDPSession {
+    async cdp(): Promise<CDPSession> {
         this.require('cdp');
-        return (this.page as any).target().createCDPSession();
-    }
-    
-    async setRequestInterception(enabled: boolean): Promise<void> {
-        this.require('requestInterception');
-        await this.page.setRequestInterception(enabled);
+        return await this.page.createCDPSession();
     }
     
     async setBypassServiceWorker(bypass: boolean): Promise<void> {
@@ -134,5 +331,71 @@ export class PuppeteerPage implements IPage {
     
     unwrap(): Page {
         return this.page;
+    }
+
+    private getWrapperSet(event: string, handler: Function): Set<ListenerWrapper> {
+        let wrappers = this.listenerWrappers.get(event);
+        if (!wrappers) {
+            wrappers = new Map();
+            this.listenerWrappers.set(event, wrappers);
+        }
+
+        let handlerWrappers = wrappers.get(handler);
+        if (!handlerWrappers) {
+            handlerWrappers = new Set();
+            wrappers.set(handler, handlerWrappers);
+        }
+
+        return handlerWrappers;
+    }
+
+    private removeWrappedListener(event: string, handler: Function, wrapped: ListenerWrapper): void {
+        this.page.off(event as any, wrapped as any);
+
+        const eventWrappers = this.listenerWrappers.get(event);
+        const handlerWrappers = eventWrappers?.get(handler);
+        if (!handlerWrappers) {
+            return;
+        }
+
+        handlerWrappers.delete(wrapped);
+        if (handlerWrappers.size === 0) {
+            eventWrappers?.delete(handler);
+        }
+        if (eventWrappers && eventWrappers.size === 0) {
+            this.listenerWrappers.delete(event);
+        }
+    }
+
+    private getInitScriptIdentifier(registration: unknown): string | undefined {
+        if (typeof registration === 'string') {
+            return registration;
+        }
+
+        if (registration && typeof registration === 'object') {
+            const candidate = (registration as { identifier?: unknown; id?: unknown }).identifier
+                ?? (registration as { identifier?: unknown; id?: unknown }).id;
+            return typeof candidate === 'string' ? candidate : undefined;
+        }
+
+        return undefined;
+    }
+
+    private wrapEventPayload(event: string, args: any[]): unknown {
+        const [payload] = args;
+        switch (event) {
+            case 'request':
+            case 'requestfailed':
+            case 'requestfinished':
+                return new PuppeteerRequest(payload as HTTPRequest, this.page);
+            case 'framenavigated':
+                return new PuppeteerFrame(payload as Frame, payload === this.page.mainFrame());
+            case 'console':
+                return new PuppeteerConsoleMessage(payload as ConsoleMessage);
+            case 'pageerror':
+                return payload as Error;
+            default:
+                return payload;
+        }
     }
 }
