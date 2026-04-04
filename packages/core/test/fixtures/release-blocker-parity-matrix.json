@@ -1,0 +1,184 @@
+[
+  {
+    "id": "event_bridge_delivery",
+    "title": "Browser-to-node runtime event bridge delivery",
+    "classification": "restore",
+    "releaseBlocker": true,
+    "status": "gap",
+    "packages": ["packages/core", "packages/client"],
+    "auditRefs": [
+      ".sisyphus/audits/v5-parity-audit-corrections.md:252",
+      ".sisyphus/audits/v5-parity-audit-corrections.md:374"
+    ],
+    "legacyRefs": [
+      "/Users/Mohammed/projects/tools/wa copy/src/api/Client.ts:714",
+      "/Users/Mohammed/projects/tools/wa copy/src/api/Client.ts:730",
+      "/Users/Mohammed/projects/tools/wa copy/src/api/Client.ts:4867"
+    ],
+    "currentRefs": [
+      "packages/core/src/transport/Transport.ts:302",
+      "packages/client/src/Client.ts:261"
+    ],
+    "proof": "packages/core/test/unit/releaseBlockerParity.test.ts"
+  },
+  {
+    "id": "frame_navigation_reinjection",
+    "title": "Frame-navigation reinjection",
+    "classification": "restore",
+    "releaseBlocker": true,
+    "status": "gap",
+    "packages": ["packages/core"],
+    "auditRefs": [
+      ".sisyphus/audits/v5-parity-audit-corrections.md:258",
+      ".sisyphus/audits/v5-parity-audit-corrections.md:332"
+    ],
+    "legacyRefs": [
+      "/Users/Mohammed/projects/tools/wa copy/src/controllers/browser.ts:64"
+    ],
+    "currentRefs": [
+      "packages/core/src/transport/Transport.ts:254",
+      "packages/driver-interface/src/driver.ts:26"
+    ],
+    "proof": "packages/core/test/unit/releaseBlockerParity.test.ts"
+  },
+  {
+    "id": "post_auth_reinjection_ripe_gate",
+    "title": "Post-auth reinjection and ripe-session gate",
+    "classification": "restore",
+    "releaseBlocker": true,
+    "status": "gap",
+    "packages": ["packages/core"],
+    "auditRefs": [
+      ".sisyphus/audits/v5-parity-audit-corrections.md:254",
+      ".sisyphus/audits/v5-parity-audit-corrections.md:376"
+    ],
+    "legacyRefs": [
+      "/Users/Mohammed/projects/tools/wa copy/src/controllers/initializer.ts:304",
+      "/Users/Mohammed/projects/tools/wa copy/src/controllers/auth.ts:70"
+    ],
+    "currentRefs": [
+      "packages/core/src/createClient.ts:436",
+      "packages/core/src/transport/Transport.ts:69"
+    ],
+    "proof": "packages/core/test/unit/releaseBlockerParity.test.ts"
+  },
+  {
+    "id": "client_loaded_finalization",
+    "title": "Client.loaded() side effects and finalization parity",
+    "classification": "restore",
+    "releaseBlocker": true,
+    "status": "gap",
+    "packages": ["packages/client", "packages/core"],
+    "auditRefs": [
+      ".sisyphus/audits/v5-parity-audit-corrections.md:256",
+      ".sisyphus/audits/v5-parity-audit-corrections.md:377"
+    ],
+    "legacyRefs": [
+      "/Users/Mohammed/projects/tools/wa copy/src/api/Client.ts:373"
+    ],
+    "currentRefs": [
+      "packages/client/src/Client.ts:151",
+      "packages/core/src/createClient.ts:554"
+    ],
+    "proof": "packages/client/src/__tests__/loaded-parity.test.ts"
+  },
+  {
+    "id": "user_data_dir_launch_threading",
+    "title": "userDataDir launch-path persistence threading",
+    "classification": "restore",
+    "releaseBlocker": true,
+    "status": "gap",
+    "packages": ["packages/core", "packages/driver-puppeteer"],
+    "auditRefs": [
+      ".sisyphus/audits/v5-parity-audit-corrections.md:302"
+    ],
+    "legacyRefs": [
+      "/Users/Mohammed/projects/tools/wa copy/src/controllers/browser.ts:311",
+      "/Users/Mohammed/projects/tools/wa copy/src/controllers/initializer.ts:146"
+    ],
+    "currentRefs": [
+      "packages/core/src/transport/Transport.ts:263",
+      "packages/driver-puppeteer/src/PuppeteerDriver.ts:47"
+    ],
+    "proof": "packages/core/test/unit/releaseBlockerParity.test.ts"
+  },
+  {
+    "id": "broken_method_integrity_gate",
+    "title": "Broken-method integrity gate",
+    "classification": "restore",
+    "releaseBlocker": true,
+    "status": "gap",
+    "packages": ["packages/core"],
+    "auditRefs": [
+      ".sisyphus/audits/v5-parity-audit-corrections.md:257",
+      ".sisyphus/audits/v5-parity-audit-corrections.md:378"
+    ],
+    "legacyRefs": [
+      "/Users/Mohammed/projects/tools/wa copy/src/controllers/launch_checks.ts:19",
+      "/Users/Mohammed/projects/tools/wa copy/src/controllers/initializer.ts:407"
+    ],
+    "currentRefs": [
+      "packages/core/src/transport/Transport.ts:407",
+      "packages/core/src/createClient.ts:422"
+    ],
+    "proof": "packages/core/test/unit/releaseBlockerParity.test.ts"
+  },
+  {
+    "id": "readiness_truth_host_vs_session",
+    "title": "Readiness truth and host-vs-session distinction",
+    "classification": "restore",
+    "releaseBlocker": true,
+    "status": "present",
+    "packages": ["packages/core", "packages/wa-automate"],
+    "auditRefs": [
+      ".sisyphus/plans/unfuckupgaps.md:77",
+      ".sisyphus/plans/unfuckupgaps.md:91"
+    ],
+    "legacyRefs": [
+      "/Users/Mohammed/projects/tools/wa copy/src/api/Client.ts:414"
+    ],
+    "currentRefs": [
+      "packages/core/src/session/index.ts:202",
+      "packages/wa-automate/src/server/__tests__/middleware.test.ts:72"
+    ],
+    "proof": "packages/wa-automate/src/server/__tests__/readiness-parity.test.ts"
+  },
+  {
+    "id": "popup_qr_parity",
+    "title": "Popup/local QR parity",
+    "classification": "downgrade",
+    "releaseBlocker": false,
+    "status": "accepted_non_blocker",
+    "packages": ["packages/wa-automate"],
+    "auditRefs": [
+      ".sisyphus/plans/unfuckupgaps.md:30",
+      ".sisyphus/plans/unfuckupgaps.md:47"
+    ],
+    "legacyRefs": [
+      "/Users/Mohammed/projects/tools/wa copy/src/controllers/popup/index.ts"
+    ],
+    "currentRefs": [
+      "packages/wa-automate/src/cli-runtime.ts:214"
+    ],
+    "proof": "packages/wa-automate/src/server/__tests__/readiness-parity.test.ts"
+  },
+  {
+    "id": "json_session_restore",
+    "title": "MD-obsolete JSON session restore",
+    "classification": "deprecate",
+    "releaseBlocker": false,
+    "status": "accepted_non_blocker",
+    "packages": ["packages/core"],
+    "auditRefs": [
+      ".sisyphus/plans/unfuckupgaps.md:47",
+      ".sisyphus/audits/v5-parity-audit-corrections.md:253"
+    ],
+    "legacyRefs": [
+      "/Users/Mohammed/projects/tools/wa copy/src/controllers/browser.ts:196"
+    ],
+    "currentRefs": [
+      "packages/core/src/transport/Transport.ts:254"
+    ],
+    "proof": "packages/wa-automate/src/server/__tests__/readiness-parity.test.ts"
+  }
+]

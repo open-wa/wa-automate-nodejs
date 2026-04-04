@@ -3,6 +3,9 @@ import { createClient, OpenWAClient } from '../../src/createClient.js';
 import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
 import { execSync } from 'child_process';
 
+const runCreateClientE2E = process.env.OPENWA_CORE_E2E === 'true';
+const describeCreateClientE2E = runCreateClientE2E ? describe : describe.skip;
+
 function findChromePath(): string | undefined {
   try {
     return execSync('which google-chrome || which chromium || which chromium-browser || ls ~/.cache/puppeteer/chrome/*/chrome-linux64/chrome 2>/dev/null | head -1', { encoding: 'utf-8' }).trim() || undefined;
@@ -11,7 +14,7 @@ function findChromePath(): string | undefined {
   }
 }
 
-describe('createClient E2E', () => {
+describeCreateClientE2E('createClient E2E', () => {
   let client: OpenWAClient | null = null;
 
   afterEach(async () => {
