@@ -4,7 +4,7 @@
   "description": "This is a simple app that will expose an API that you can use to control your whatsapp instance.",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node -e \"console.log('No tests defined for @open-wa/docker')\"",
     "start": "npm update && npx @open-wa/wa-automate --in-docker -p 8080 --npm-options=--ignore-scripts",
     "sessiondata": "npx @open-wa/wa-automate --disable-spins --session-data-only"
   },

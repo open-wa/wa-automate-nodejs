@@ -7,7 +7,7 @@
         "build": "tsdown src/index.ts --format cjs",
         "dev": "tsdown src/index.ts --format cjs --watch",
         "lint": "oxlint src",
-        "test": "vitest run"
+        "test": "vitest run --passWithNoTests"
     },
     "dependencies": {
         "pico-s3": "^2.11.0",
