@@ -1,0 +1,37 @@
+{
+  "name": "@open-wa/plugin-sdk",
+  "version": "5.0.0-alpha.1",
+  "description": "SDK for building open-wa plugins — types, helpers, and the createPlugin() factory",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.mts"
+    }
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts --format esm --dts",
+    "dev": "tsdown src/index.ts --format esm --dts --watch",
+    "lint": "oxlint src",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "hono": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Mohammed Shah <@smashah>",
+  "license": "H-DNH V1.0",
+  "keywords": [
+    "open-wa",
+    "plugin",
+    "sdk",
+    "whatsapp"
+  ]
+}
