@@ -70,7 +70,7 @@ export interface OpenWAEventMap {
   'launch.injection.earlyCheck.after': StepEvent<{ canInjectPreAuth: boolean }>;
   
   'launch.auth.check.before': StepEvent<{ timeoutMs?: number }>;
-  'launch.auth.check.after': StepEvent<{ isAuthenticated: boolean; method?: 'race' | 'direct' }>;
+  'launch.auth.check.after': StepEvent<{ isAuthenticated: boolean; method?: 'race' | 'direct' | 'shell_probe' }>;
   'launch.auth.nuke.detected': StepEvent<{ reason: string }>;
   'launch.auth.timeout': StepEvent<{ timeoutMs: number; phoneOutOfReach?: boolean }>;
   'launch.auth.phoneOutOfReach': StepEvent<{ reason?: string }>;
@@ -85,24 +85,76 @@ export interface OpenWAEventMap {
   'launch.auth.pairing': StepEvent;
   'launch.auth.syncing': StepEvent;
   
-  'launch.license.preload.before': StepEvent;
-  'launch.license.preload.after': StepEvent<{ success: boolean }>;
+  'launch.license.preload.before': StepEvent<{ source?: 'local' | 'remote' | 'cached' }>;
+  'launch.license.preload.after': StepEvent<{
+    success: boolean;
+    status?: 'valid' | 'metadata_only' | 'missing' | 'invalid' | 'expired';
+    source?: 'local' | 'remote' | 'cached' | 'none';
+    payloadSource?: 'server' | 'local_metadata';
+    detail?: string;
+    blockingFailure?: boolean;
+  }>;
   
   'launch.wapi.inject.before': StepEvent<{ injectPreApiScripts: boolean }>;
   'launch.wapi.inject.after': StepEvent<{ success: boolean }>;
+  'launch.helper.pre_api.before': StepEvent<{ mode: 'noop' | 'scripts' }>;
+  'launch.helper.pre_api.after': StepEvent<{ mode: 'noop' | 'scripts'; success: boolean; requiredLegacyHelpers?: readonly string[] }>;
   
-  'launch.session.validityCheck.before': StepEvent;
-  'launch.session.validityCheck.after': StepEvent<{ valid: boolean; hasStore: boolean; hasMsg: boolean }>;
+  'launch.session.validityCheck.before': StepEvent<{ phase: 'post_injection' | 'post_patch' | 'post_overlay' }>;
+  'launch.session.validityCheck.after': StepEvent<{
+    phase: 'post_injection' | 'post_patch' | 'post_overlay';
+    valid: boolean;
+    usable: boolean;
+    hasRuntime: boolean;
+    hasStore: boolean;
+    hasMsg: boolean;
+    sessionLoaded: boolean;
+    repairable: boolean;
+    repaired?: boolean;
+    bridgeReady?: boolean;
+    requiredMethods?: string[];
+    missingMethods?: string[];
+    failureReason?: 'runtime_missing' | 'store_missing' | 'session_not_loaded' | 'required_method_missing';
+  }>;
   'launch.session.invalid.retry': StepEvent<{ reason: string }>;
   
-  'launch.license.check.before': StepEvent;
-  'launch.license.check.after': StepEvent<{ status: 'ok' | 'missing' | 'invalid' | 'expired'; detail?: string }>;
+  'launch.license.check.before': StepEvent<{ source?: 'local' | 'remote' | 'cached' }>;
+  'launch.license.check.after': StepEvent<{
+    status: 'valid' | 'metadata_only' | 'missing' | 'invalid' | 'expired';
+    detail?: string;
+    source?: 'local' | 'remote' | 'cached';
+    payloadSource?: 'server' | 'local_metadata';
+    blockingFailure?: boolean;
+  }>;
   
-  'launch.patch.init.before': StepEvent;
-  'launch.patch.init.after': StepEvent<{ applied: string[] }>;
+  'launch.patch.init.before': StepEvent<{ phase?: 'preload'; source?: 'builtin' | 'remote' | 'cached' | 'none' }>;
+  'launch.patch.init.after': StepEvent<{
+    phase?: 'preload';
+    applied: string[];
+    available?: string[];
+    outcome?: 'ready' | 'none' | 'failed';
+    source?: 'builtin' | 'remote' | 'cached' | 'none';
+    tag?: string | null;
+    blockingFailure?: boolean;
+  }>;
+  'launch.patch.integrity.before': StepEvent<{ phase: 'post_patch' }>;
+  'launch.patch.integrity.after': StepEvent<{
+    phase: 'post_patch';
+    valid: boolean;
+    usable: boolean;
+    failureReason?: 'runtime_missing' | 'store_missing' | 'session_not_loaded' | 'required_method_missing';
+  }>;
   
-  'launch.client.finalize.before': StepEvent;
-  'launch.client.finalize.after': StepEvent<{ state: STATE }>;
+  'launch.client.finalize.before': StepEvent<{ validationStage: 'loaded_equivalent'; patchOutcome: string; licenseStatus: string }>;
+  'launch.client.finalize.after': StepEvent<{
+    state: STATE;
+    success: boolean;
+    outcome: 'ready' | 'failed';
+    detail?: string;
+  }>;
+
+  'internal_launch_progress': { value?: number; text?: string };
+  'critical_internal_message': { value?: string; text?: string };
 
   'session.state.changed': StepEvent<{ prev: STATE; next: STATE; reason?: string }>;
   'session.connection.disconnected': StepEvent<{ reason?: string; wasLoggedIn?: boolean }>;
@@ -173,15 +225,45 @@ export interface OpenWAEventMap {
   'persistence.upload.s3.before': StepEvent<{ bucket: string; key: string; kind: 'sessionData' | 'zstd' | 'zip' }>;
   'persistence.upload.s3.after': StepEvent<{ bucket: string; key: string; etag?: string; sizeBytes?: number }>;
 
-  'patch.apply.before': StepEvent<{ patchId: string; description?: string }>;
-  'patch.apply.after': StepEvent<{ patchId: string; applied: boolean }>;
-  'patch.init.before': StepEvent;
-  'patch.init.after': StepEvent<{ applied: string[] }>;
+  'patch.apply.before': StepEvent<{ patchId: string; description?: string; required?: boolean; source?: 'builtin' | 'remote' | 'cached' }>;
+  'patch.apply.after': StepEvent<{
+    patchId: string;
+    applied: boolean;
+    outcome?: 'applied' | 'not_applicable' | 'failed';
+    required?: boolean;
+    detail?: string;
+  }>;
+  'patch.init.before': StepEvent<{ phase?: 'apply'; patchIds?: string[]; preloadOutcome?: 'ready' | 'none' | 'failed' }>;
+  'patch.init.after': StepEvent<{
+    phase?: 'apply';
+    applied: string[];
+    outcome?: 'applied' | 'skipped' | 'failed';
+    blockingFailure?: boolean;
+    results?: Array<{
+      patchId: string;
+      description?: string;
+      required: boolean;
+      outcome: 'applied' | 'not_applicable' | 'failed';
+      detail?: string;
+    }>;
+  }>;
 
   'license.check.before': StepEvent<{ source: 'local' | 'remote' | 'cached' }>;
-  'license.check.after': StepEvent<{ status: 'ok' | 'missing' | 'invalid' | 'expired'; detail?: string }>;
+  'license.check.after': StepEvent<{
+    status: 'valid' | 'metadata_only' | 'missing' | 'invalid' | 'expired';
+    detail?: string;
+    source?: 'local' | 'remote' | 'cached';
+    payloadSource?: 'server' | 'local_metadata';
+    blockingFailure?: boolean;
+  }>;
   'license.inject.before': StepEvent;
-  'license.inject.after': StepEvent<{ success: boolean }>;
+  'license.inject.after': StepEvent<{
+    success: boolean;
+    status?: 'valid' | 'metadata_only' | 'missing' | 'invalid' | 'expired';
+    keyType?: string;
+    payloadSource?: 'server' | 'local_metadata';
+    detail?: string;
+  }>;
 
   'cli.launched': { ctx: EventContext; argv: string[]; version?: string };
   'server.start.before': StepEvent<{ host?: string; port?: number }>;
@@ -237,6 +319,8 @@ export const OpenWAEventMetaMap: Record<keyof OpenWAEventMap, OpenWAEventMeta> =
   'launch.license.preload.after': { internal: true, sensitive: false },
   'launch.wapi.inject.before': { internal: true, sensitive: false },
   'launch.wapi.inject.after': { internal: true, sensitive: false },
+  'launch.helper.pre_api.before': { internal: true, sensitive: false },
+  'launch.helper.pre_api.after': { internal: true, sensitive: false },
   'launch.session.validityCheck.before': { internal: true, sensitive: false },
   'launch.session.validityCheck.after': { internal: true, sensitive: false },
   'launch.session.invalid.retry': { internal: true, sensitive: false },
@@ -244,8 +328,13 @@ export const OpenWAEventMetaMap: Record<keyof OpenWAEventMap, OpenWAEventMeta> =
   'launch.license.check.after': { internal: true, sensitive: false },
   'launch.patch.init.before': { internal: true, sensitive: false },
   'launch.patch.init.after': { internal: true, sensitive: false },
+  'launch.patch.integrity.before': { internal: true, sensitive: false },
+  'launch.patch.integrity.after': { internal: true, sensitive: false },
   'launch.client.finalize.before': { internal: true, sensitive: false },
   'launch.client.finalize.after': { internal: true, sensitive: false },
+
+  'internal_launch_progress': { internal: true, sensitive: false },
+  'critical_internal_message': { internal: true, sensitive: false },
 
   'session.state.changed': { internal: false, sensitive: false },
   'session.connection.disconnected': { internal: false, sensitive: false },

@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "build": "tsdown src/index.ts --format esm --format cjs",
+    "build": "tsdown src/index.ts --format esm --format cjs && node scripts/copy-launch-script.mjs",
     "dev": "tsdown src/index.ts --format esm --format cjs --watch",
     "test": "vitest run",
     "lint": "oxlint src",
@@ -24,7 +24,9 @@
     "@open-wa/driver-interface": "workspace:*",
     "@open-wa/hyperemitter": "workspace:*",
     "@open-wa/logger": "workspace:*",
+    "@open-wa/plugin-sdk": "workspace:*",
     "@open-wa/schema": "workspace:*",
+    "hono": "catalog:",
     "p-queue": "6.6.2",
     "uuid": "catalog:"
   },
