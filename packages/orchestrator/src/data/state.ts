@@ -1,8 +1,8 @@
 import { Config } from "@open-wa/config";
-import axios from "axios";
+
 import { deleteDoc, doc, DocumentReference, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref } from "firebase/storage";
-import { createProxyMiddleware, RequestHandler } from "http-proxy-middleware";
+
 import pm2, { Proc, ProcessDescription } from 'pm2'
 import { bgq } from "../controllers/background_q";
 import { createSession, CreateSessionResponse } from "../endpoints";
@@ -26,7 +26,7 @@ export interface SessionStateInterface {
     lastEvMessage?: string;
     processState?: string;
     processStateTs?: number;
-    _proxyMiddleware?: RequestHandler;
+
     config?: OrchestratedSessionConfig;
     auditLog: AuditLogEntry[],
     orchState: OrchState
@@ -59,7 +59,7 @@ export class SessionState implements SessionStateInterface {
     processDetails: any;
     sessionId: string;
     stopping = false;
-    _proxyMiddleware !: RequestHandler
+
     lastEvMessage = 'UNSTARTED';
     config?: OrchestratedSessionConfig;
     orchState: OrchState = OrchState.IDLE;
@@ -99,14 +99,15 @@ export class SessionState implements SessionStateInterface {
         return this.config?.port || 0;
     }
 
-    async forcePortReport(): Promise<false | number | undefined> {
-        const portReportResult = await requestPortReport(this.sessionId)
-        if (portReportResult && portReportResult.port) {
-            this.updatePort(portReportResult.port)
-            return portReportResult.port
-        }
-        return portReportResult as undefined | false
-    }
+    // Legacy: The orchestrator no longer proxy-binds via CF Tunnel.
+    // async forcePortReport(): Promise<false | number | undefined> {
+    //     const portReportResult = await requestPortReport(this.sessionId)
+    //     if (portReportResult && portReportResult.port) {
+    //         this.updatePort(portReportResult.port)
+    //         return portReportResult.port
+    //     }
+    //     return portReportResult as undefined | false
+    // }
 
     /**
      * Update the port assignment of this session
@@ -127,9 +128,8 @@ export class SessionState implements SessionStateInterface {
          */
         this.setInternalProxyAddress(`http://localhost:${newPort}`)
         /**
-         * Update proxy middleware
+         * Port updated — proxy handler reads internalProxyAddress directly
          */
-        this.createProxyMiddleware(true)
         return this.port
     }
 
@@ -167,137 +167,7 @@ export class SessionState implements SessionStateInterface {
         log.info(`SETTING INTERNAL PROXY ADDR ${this.sessionId}`, internalProxyAddress)
         this.internalProxyAddress = internalProxyAddress;
         this.commit()
-        this.createProxyMiddleware();
         return this.internalProxyAddress
-    }
-
-    createProxyMiddleware(force = false): void {
-        if (force) {
-            log.info("REBUILDING PROXY MIDDLEWARE", this.internalProxyAddress)
-        }
-        this._proxyMiddleware = createProxyMiddleware({
-            target: `${this.internalProxyAddress}`,
-            ws: true,
-            onProxyReq: (proxyReq, req, res) => {
-                /**
-                 * Set check headers
-                 */
-                if (!req.get('owa-check-property')) {
-                    proxyReq.setHeader('owa-check-property', 'session')
-                    proxyReq.setHeader('owa-check-value', this.sessionId)
-                }
-                if (process.env.VERBOSE) log.info(`Proxying req ${req.path}`, {
-                    sessionId: this.sessionId,
-                    path: req.path,
-                    body: req['body'] || {}
-                })
-                if (this.processState == "online" || this.processState == "reload" || this.processState == "restart") {
-                    if (req['body'] && !req.path.includes("socket.io")) {
-                        const bodyData = JSON.stringify(req.body);
-                        // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
-                        proxyReq.setHeader('Content-Type', 'application/json');
-                        proxyReq.setHeader('req-proxied', 'true');
-                        proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
-                        // stream the content
-                        proxyReq.write(bodyData);
-                    }
-                } else {
-                    const bodyData = JSON.stringify({
-                        error: "Process is not online",
-                        state: this.processState
-                    })
-                    // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
-                    proxyReq.setHeader('Content-Type', 'application/json');
-                    proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
-                    // stream the content
-                    proxyReq.write(bodyData);
-                }
-            },
-            onProxyRes: async (proxyRes, req, _res) => {
-                // add new header to response
-                // proxyRes.headers['x-added'] = 'foobar';
-                // proxyRes.statusCode
-                if (proxyRes.statusCode == 412) {
-                    log.error('Looks like a request was sent to the wrong session. Request was successfully caught by the session and ignored.')
-                    /**
-                     * The request failed because it was sent to the wrong session.
-                     * Trigger a port report on both sessions.
-                     */
-                    if (req.get('owa-check-property') === 'session' && req.get('owa-check-value')) {
-                        await bucket?.sessions.get(req.get('owa-check-value') || '')?.forcePortReport();
-                    }
-                }
-                // remove header from response
-                // delete proxyRes.headers['x-removed'];
-            },
-            pathRewrite: (path) => path.replace(`/api/${this.sessionId}/`, '/'),
-            logLevel: 'debug',
-            /**
-             * This is only called if the actual request failed. If the request responds with non-200 then onError IS NOT triggered. Use onProxyRes instead
-             */
-            onError: async (err, req, res, target) => {
-                /**
-                 * Sometimes `error` emits different parameters:
-                 * ....emit('error', err, req, socket)
-                 * 
-                 * This is why you should first test whether or not this is a ws proxy req before processing it as a HTTP error.
-                 * 
-                 * You do this by checking if the third parameter is an instance of Socket (standard flow third param is a res obj)
-                 */
-                if (res?.constructor?.name === 'Socket') return;
-                console.log("🚀 ~ file: state.ts:228 ~ SessionState ~ onError: ~ target", err, target)
-                const procPort = await this.getProcessPort()
-                if (procPort && Number(this.port) !== Number(procPort)) {
-                    log.info("PORT MISMATCH", this.port, procPort)
-                    const bodyData = JSON.stringify({
-                        error: `Internal Port may have changed. Please try again. State: ${this.processState} ${this.port} ${procPort}`,
-                        state: this.processState,
-                        port: this.port,
-                        procPort: procPort
-                    })
-                    // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
-                    res.writeHead(501, {
-                        'Content-Type': 'application/json',
-                    });
-                    res.end(bodyData);
-                    return;
-                }
-                if (err['code'] === "ECONNREFUSED") {
-                    log.info("Session is down?", this.processState, this.port)
-                    //the server is no longer runnning?
-                    const bodyData = JSON.stringify({
-                        error: `Session is not online. Try /start or /restart. State: ${this.processState} ${this.port}`,
-                        state: this.processState,
-                        port: this.port,
-                    })
-                    // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
-                    res.writeHead(504, {
-                        'Content-Type': 'application/json',
-                    });
-                    res.end(bodyData);
-                    return;
-                }
-                res.writeHead(504, {
-                    'Content-Type': 'application/json',
-                });
-                res.end(JSON.stringify({
-                    error: `Something went wrong trying to proxy this request. State: ${this.processState} ${this.port}`,
-                    state: this.processState,
-                    port: this.port,
-                    err
-                }));
-                return;
-            }
-        });
-        return;
-    }
-
-    async getProxyMiddleware(): Promise<RequestHandler> {
-        if (!this._proxyMiddleware) {
-            await this.forcePortReport();
-            this.createProxyMiddleware();
-        }
-        return this._proxyMiddleware
     }
 
     async getProcessDescription(): Promise<ProcessDescription> {
@@ -520,7 +390,7 @@ export class SessionState implements SessionStateInterface {
         if (!url) return null
         await this.commit()
         try {
-            return axios.get(url).then(res => res.data.toString())
+            return fetch(url).then(res => res.text())
         } catch (error) {
             log.info("🚀 ~ file: state.ts ~ line 172 ~ SessionState ~ getSessionData ~ error", error)
             return null

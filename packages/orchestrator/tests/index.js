@@ -1,25 +1,25 @@
 const test = require('ava');
-const axios = require('axios');
 
 const origin = 'http://localhost:3000' 
 const api_access_token = ''
 
-const adminReq = (method, path, data, _headers) => {
+const adminReq = async (method, path, data, _headers) => {
     const url = `${origin}/${path}`
-    return axios({
-    method,
-    data,
-    url,
-    headers: {
-        api_access_token,
-        ..._headers
-    }
-})
+    const res = await fetch(url, {
+        method,
+        headers: {
+            'Content-Type': 'application/json',
+            api_access_token,
+            ..._headers
+        },
+        ...(data ? { body: JSON.stringify(data) } : {})
+    })
+    return { data: await res.json() }
 }
 
 
 //should start up
-test('should start up', t => {
+test('should start up', async t => {
     const {data} = await adminReq('get', '/list')
     console.log("🚀 ~ file: index.js ~ line 25 ~ data", data)
     t.pass();

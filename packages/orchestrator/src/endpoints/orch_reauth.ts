@@ -1,36 +1,39 @@
+import type { Context } from 'hono';
+import { getAuth } from '@firebase/auth';
+import { authenticateInstance } from '../watcher/firebase_auth';
 
-import { getAuth } from "@firebase/auth";
-import { authenticateInstance } from "../watcher/firebase_auth";
-import { Request, Response } from "express";
-
-export const forceReauthenticateOrchServer: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>> = async (req : Request, res : Response) => {
-    
-    try {
-        await getAuth().currentUser?.reload();
-      } catch (error) {
-        return res.status(200).json({success: false, error});
-      }
-      
-    if(!getAuth().currentUser) {
-      try {
-        await authenticateInstance()
-      } catch (error) {
-        return res.status(200).json({success: false, error});
-      }
-    }
-    if(getAuth().currentUser) {
-        return res.status(200).json({success: getAuth()?.currentUser?.uid || ""})
-    } else return res.status(200).json({success: false})
+export async function forceReauthenticateOrchServer(c: Context) {
+  try {
+    await getAuth().currentUser?.reload();
+  } catch (error) {
+    return c.json({ success: false, error });
   }
 
-
-export const reloadOrchAuth: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>> = async (req : Request, res : Response) => {
+  if (!getAuth().currentUser) {
     try {
-        await getAuth().currentUser?.reload();
+      await authenticateInstance();
     } catch (error) {
-        return res.status(200).json({success: false, error});
+      return c.json({ success: false, error });
     }
-    if(getAuth().currentUser) {
-        return res.status(200).json({success: getAuth()?.currentUser?.uid || ""})
-    } else return res.status(200).json({success: false})
   }
+
+  if (getAuth().currentUser) {
+    return c.json({ success: getAuth()?.currentUser?.uid || '' });
+  }
+
+  return c.json({ success: false });
+}
+
+export async function reloadOrchAuth(c: Context) {
+  try {
+    await getAuth().currentUser?.reload();
+  } catch (error) {
+    return c.json({ success: false, error });
+  }
+
+  if (getAuth().currentUser) {
+    return c.json({ success: getAuth()?.currentUser?.uid || '' });
+  }
+
+  return c.json({ success: false });
+}

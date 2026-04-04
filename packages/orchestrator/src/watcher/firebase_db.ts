@@ -1,14 +1,15 @@
-export { fb } from './firebase_init'
 import { getFirestore,  collection, setDoc, getDocs, where, query, DocumentReference, doc, getDoc } from "firebase/firestore";
 import { default as publicIp } from "public-ip";
 import { setBucketData } from "../data/bucket";
 import { getMachineId } from "../data/machine";
 import { log } from '../utils/logging';
 import { user } from "./firebase_auth";
-import { PORT } from '../index'
-import { createNewBucketOnly } from './firebase_init';
+import { ORCHESTRATOR_PORT } from '../runtime'
+import { fb, createNewBucketOnly } from './firebase_init';
 
-export const db = getFirestore();
+export { fb } from './firebase_init';
+
+export const db = getFirestore(fb);
 
 export let myBucketId : string;
 export const setBucketId : (id : string) => void = (id : string) => myBucketId = id;
@@ -21,7 +22,7 @@ export const getLatestApiKey : () => Promise<string | undefined>= async () => {
     } catch (error) {
         log.error("Error when trying to get new api key", error)
     }
-    process.env.API_KEY = bucket?.api_key || process.env.API_KEY || 'kMmKKFCGIjyZy55024iOnQKo7Br60Ltg';
+    process.env.API_KEY = bucket?.api_key || process.env.API_KEY;
     return process.env.API_KEY;
 }
 
@@ -30,7 +31,7 @@ export const registerOrUpdateBucket: () => Promise<boolean> = async () => {
     log.info('getting bucket data')
     const machineData = {
         ip: process.env.NODE_ENV === 'dev' ? 'localhost': await publicIp.v4(),
-        port: PORT,
+        port: ORCHESTRATOR_PORT,
         machineId: machineId,
         lastLaunch: Date.now(),
         owner: user?.uid || undefined
@@ -41,7 +42,7 @@ export const registerOrUpdateBucket: () => Promise<boolean> = async () => {
         if(myBucketId) {
             bucketRef = doc(db, 'buckets',myBucketId);
             const bucket = (await getDoc(bucketRef)).data()
-            process.env.API_KEY = bucket?.api_key || process.env.API_KEY || 'kMmKKFCGIjyZy55024iOnQKo7Br60Ltg';
+            process.env.API_KEY = bucket?.api_key || process.env.API_KEY;
             log.info("Bucket exists!!: ~ bucket", myBucketId, process.env.API_KEY)
             await setDoc(bucketRef, machineData, { merge: true });
             setBucketData({

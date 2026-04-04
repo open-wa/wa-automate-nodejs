@@ -10,5 +10,6 @@ export * from './controllers/pm2_controller';
 export * from './controllers/background_q';
 
 export * from './utils/networking';
-
-export const PORT = process.env.PORT || 3000;
+export * from './utils/resolve-easy-api-entry';
+export * from './runtime';
+export * from './server';

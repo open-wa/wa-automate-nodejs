@@ -1,27 +1,47 @@
-import { Request, Response, NextFunction } from "express";
-import { log } from "../utils/logging";
-import { getLatestApiKey } from "../watcher/firebase_db";
+import type { MiddlewareHandler } from 'hono';
+import { log } from '../utils/logging';
+import { getLatestApiKey } from '../watcher/firebase_db';
 
-export const authMiddleware: (req: Request, res: Response, next: NextFunction) => void = async (req: Request, res : Response, next : NextFunction) => {
-    const h = (_h : string) => req.headers[_h] || req.get(_h) || req.headers[_h.toLowerCase()] || req.get(_h.toLowerCase()) 
-    const apiKey = h("api_access_token") || h("api-access-token")
-    const hasCfTokens = h("CF-Access-Client-Id") && h("CF-Access-Client-Secret")
-    if(req.method == "GET" || req.path.includes('/api/') && !req.path.endsWith('/list')) {
-      log.info('you can bypass auth');
-      return next();
-    } else
-    if(hasCfTokens && process.env.CF_AUTH_ONLY) {
-      return next()
-    } else
-    if (apiKey !== process.env.API_KEY) {
-      /**
-       * Attempt to get the new api_access_token
-       */
-      const latestKey = await getLatestApiKey();
-      if(apiKey === latestKey) return next();
-      log.info('you need to auth')
-      res.status(401).json({error: 'unauthorised'})
-    } else {
-      return next()
-    }
-}
+/**
+ * API key authentication middleware.
+ *
+ * Bypasses auth for:
+ * - All GET requests
+ * - Proxy routes (/api/*) that aren't the /list endpoint
+ *
+ * Validates against:
+ * 1. The API_KEY environment variable
+ * 2. The latest key from Firebase (fallback for key rotation)
+ * 3. Cloudflare Access tokens (when CF_AUTH_ONLY is enabled)
+ */
+export const authMiddleware: MiddlewareHandler = async (c, next) => {
+  const header = (name: string) => c.req.header(name) || c.req.header(name.toLowerCase());
+
+  const apiKey = header('api_access_token') || header('api-access-token');
+  const hasCfTokens = header('CF-Access-Client-Id') && header('CF-Access-Client-Secret');
+
+  // Bypass auth for GET requests and proxy routes (except /list)
+  if (c.req.method === 'GET' || (c.req.path.includes('/api/') && !c.req.path.endsWith('/list'))) {
+    log.info('Auth bypass: GET or proxy route');
+    return next();
+  }
+
+  // Cloudflare Access tokens bypass
+  if (hasCfTokens && process.env.CF_AUTH_ONLY) {
+    return next();
+  }
+
+  // Validate API key
+  if (apiKey === process.env.API_KEY) {
+    return next();
+  }
+
+  // Fallback: check Firebase for rotated keys
+  const latestKey = await getLatestApiKey();
+  if (apiKey === latestKey) {
+    return next();
+  }
+
+  log.info('Auth rejected: invalid API key');
+  return c.json({ error: 'unauthorised' }, 401);
+};

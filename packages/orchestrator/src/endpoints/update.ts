@@ -1,102 +1,81 @@
-import { Request, Response } from "express";
-import crossSpawn from 'cross-spawn'
-import { _reloadAll } from "./reload";
-import { log } from "../utils/logging";
+import type { Context } from 'hono';
+import crossSpawn from 'cross-spawn';
+import PQueue from 'p-queue';
+import { _reloadAll } from './reload';
 import { _restartAll } from './restart';
-import PQueue from "p-queue";
+import { log } from '../utils/logging';
 
-const updateQueue =  new PQueue({
+const updateQueue = new PQueue({
   concurrency: 1,
   intervalCap: 1,
-  // interval: 10000,
-  // timeout: 10000,
-  carryoverConcurrencyCount: true
-})
+  carryoverConcurrencyCount: true,
+});
 
-const _update = () => new Promise((resolve, reject) => {
-  const cmd = crossSpawn.sync('npm', ['run', 'upd'], { stdio: 'inherit' });
-  log.info('UPDATE FINISHED WITH STATUS CODE', cmd.status, cmd)
-  if (cmd.stderr) {
-    log.error(cmd.stderr.toString())
-    reject(cmd.stderr?.toString())
-  }
-  if (cmd.status == 0) {
-    log.info('STATUS 0', cmd.stdout)
-    resolve(cmd.stdout?.toString() || true)
-  }
-})
+function _update(): Promise<string | true> {
+  return new Promise((resolve, reject) => {
+    const cmd = crossSpawn.sync('npm', ['run', 'upd'], { stdio: 'inherit' });
+    log.info('UPDATE FINISHED WITH STATUS CODE', cmd.status, cmd);
 
+    if (cmd.stderr) {
+      log.error(cmd.stderr.toString());
+      reject(cmd.stderr?.toString());
+      return;
+    }
 
-export const update: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>> = async (req: Request, res: Response) => {
-    const {background} = req.body;
-    try {
-      if(background) {
-        /**
-         * Check if the queue is empty:
-         */
-        if(updateQueue.pending) {
-          return res.send({
-            status: "Update job still in progress",
-            message: `${updateQueue.pending} update job(s) still pending.`
-          });
-        } else {
-          updateQueue.add(async ()=>{
-            return await _update()
-          })
-          return res.send({
-            status: "Update job sent to background",
-            message: `${updateQueue.pending} update job(s) pending.`
-          });
-        }
+    if (cmd.status === 0) {
+      log.info('STATUS 0', cmd.stdout);
+      resolve(cmd.stdout?.toString() || true);
+    }
+  });
+}
+
+export async function update(c: Context) {
+  const { background } = await c.req.json();
+
+  try {
+    if (background) {
+      if (updateQueue.pending) {
+        return c.json({
+          status: 'Update job still in progress',
+          message: `${updateQueue.pending} update job(s) still pending.`,
+        });
       }
-    const result = await _update()
-    return res.send({
-      status: "updated",
-      message: result
-    });
+
+      updateQueue.add(() => _update());
+      return c.json({
+        status: 'Update job sent to background',
+        message: `${updateQueue.pending} update job(s) pending.`,
+      });
+    }
+
+    const result = await _update();
+    return c.json({ status: 'updated', message: result });
   } catch (error) {
-    log.error("Update failed", error)
-    return res.send({
-      status: "error",
-      message: error
-    })
+    log.error('Update failed', error);
+    return c.json({ status: 'error', message: error });
   }
 }
 
-export const updateAndReloadAll: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>> = async (req: Request, res: Response) => {
+export async function updateAndReloadAll(c: Context) {
   try {
     const result = await _update();
-    const reloads = await _reloadAll()
-    log.info("🚀 ~ updateAndReloadAll: ~ reloads", reloads)
-    return res.send({
-      status: "updated and restarted",
-      message: result,
-      reloads
-    })
+    const reloads = await _reloadAll();
+    log.info('updateAndReloadAll reloads', reloads);
+    return c.json({ status: 'updated and reloaded', message: result, reloads });
   } catch (error) {
-    log.error("Update failed", error)
-    return res.send({
-      status: "error",
-      message: error
-    })
+    log.error('Update failed', error);
+    return c.json({ status: 'error', message: error });
   }
 }
 
-export const updateAndRestartAll: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>> = async (req: Request, res: Response) => {
+export async function updateAndRestartAll(c: Context) {
   try {
     const result = await _update();
-    const restarts = await _restartAll()
-    log.info("🚀 ~ updateAndRestartAll: ~ restarts", restarts)
-    return res.send({
-      status: "updated and restarted",
-      message: result,
-      restarts
-    })
+    const restarts = await _restartAll();
+    log.info('updateAndRestartAll restarts', restarts);
+    return c.json({ status: 'updated and restarted', message: result, restarts });
   } catch (error) {
-    log.error("Update failed", error)
-    return res.send({
-      status: "error",
-      message: error
-    })
+    log.error('Update failed', error);
+    return c.json({ status: 'error', message: error });
   }
 }
