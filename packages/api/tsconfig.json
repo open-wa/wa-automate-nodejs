@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "paths": {
+      "@open-wa/schema": [
+        "../schema/dist/index.d.ts"
+      ],
+      "@open-wa/schema/*": [
+        "../schema/dist/*"
+      ]
+    }
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
