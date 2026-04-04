@@ -6,15 +6,22 @@
  *
  * @packageDocumentation
  */
-import { Collection as BaseCollection } from '@discordjs/collection';
 import { EventEmitter } from 'events';
 
 /**
  * Extended Collection with JSON serialization support.
  */
-export class Collection<K, V> extends BaseCollection<K, V> {
-  override toJSON(): [K, V][] {
-    return this.map((v, k) => [k, v] as [K, V]) as unknown as [K, V][];
+export class Collection<K, V> extends Map<K, V> {
+  toJSON(): [K, V][] {
+    return Array.from(this.entries());
+  }
+
+  map<T>(fn: (value: V, key: K, collection: this) => T): T[] {
+    const result: T[] = [];
+    for (const [key, value] of this.entries()) {
+      result.push(fn(value, key, this));
+    }
+    return result;
   }
 }
 

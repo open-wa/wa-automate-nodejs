@@ -15,12 +15,11 @@
   "scripts": {
     "build": "tsdown src/index.ts --format cjs",
     "dev": "tsdown src/index.ts --format cjs --watch",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "lint": "oxlint src",
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@discordjs/collection": "catalog:",
     "@open-wa/hyperemitter": "workspace:*",
     "@open-wa/schema": "workspace:*"
   },

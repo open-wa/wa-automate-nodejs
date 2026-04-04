@@ -5,13 +5,19 @@
  * 
  * Please see: https://discord.js.org/#/docs/main/stable/class/Collector
  */
-// import { EventEmitter2 } from 'eventemitter2';
-import {Collection as BaseCollection} from '@discordjs/collection'
 import { EventEmitter } from 'events';
 
-export class Collection<K, V> extends BaseCollection<K, V> {
+export class Collection<K, V> extends Map<K, V> {
   toJSON(): any[] {
     return this.map((e: any) => (typeof e.toJSON === 'function' ? e.toJSON() : e));
+  }
+
+  map<T>(fn: (value: V, key: K, collection: this) => T): T[] {
+    const result: T[] = [];
+    for (const [key, value] of this.entries()) {
+      result.push(fn(value, key, this));
+    }
+    return result;
   }
 }
 
