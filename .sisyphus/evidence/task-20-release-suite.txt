@@ -1,0 +1,90 @@
+Release-candidate suite evidence for task 20
+Generated: 2026-04-04
+Verification basis: exact Task 20 rerun on current repo state plus Atlas confirmation for wa-automate focused typecheck
+
+Package test suite results
+==========================
+
+1) Full core suite
+Command: pnpm --filter @open-wa/core test
+Result: PASS
+Observed: 11 files passed, 1 file skipped, 70 tests passed, 1 skipped.
+
+2) Full client suite
+Command: pnpm --filter @open-wa/client test
+Result: PASS
+Observed: 6 files passed, 30 tests passed.
+
+3) Full driver-puppeteer suite
+Command: pnpm --filter @open-wa/driver-puppeteer test
+Result: PASS
+Observed: 1 file passed, 3 tests passed.
+
+4) Full wa-automate suite
+Command: pnpm --filter @open-wa/wa-automate test
+Result: PASS
+Observed: 4 files passed, 23 tests passed.
+
+Focused blocker-proof suite
+===========================
+
+Command group:
+- pnpm --filter @open-wa/core exec vitest run test/unit/releaseBlockerParity.test.ts
+- pnpm --filter @open-wa/client exec vitest run src/__tests__/loaded-parity.test.ts
+- pnpm --filter @open-wa/wa-automate exec vitest run src/server/__tests__/readiness-parity.test.ts
+
+Result: PASS
+Observed:
+- core releaseBlockerParity.test.ts: 6 tests passed
+- client loaded-parity.test.ts: 2 tests passed
+- wa-automate readiness-parity.test.ts: 1 test passed
+
+Package build results
+=====================
+
+Command group:
+- pnpm --filter @open-wa/core build
+- pnpm --filter @open-wa/client build
+- pnpm --filter @open-wa/driver-puppeteer build
+- pnpm --filter @open-wa/wa-automate build
+
+Result: PASS
+Observed:
+- core build: PASS
+- client build: PASS
+- driver-puppeteer build: PASS
+- wa-automate build: PASS (with MODULE_TYPELESS_PACKAGE_JSON warning from tsdown config parsing)
+
+Focused TypeScript results
+==========================
+
+Command group:
+- pnpm --filter @open-wa/core exec tsc --noEmit
+- pnpm --filter @open-wa/client exec tsc --noEmit
+- pnpm --filter @open-wa/driver-puppeteer exec tsc --noEmit --ignoreDeprecations 6.0
+- pnpm --filter @open-wa/wa-automate exec tsc --noEmit --ignoreDeprecations 6.0
+
+Result summary:
+- core: PASS
+- client: PASS
+- driver-puppeteer: PASS
+- wa-automate: PASS
+
+wa-automate focused typecheck confirmation:
+- Atlas verification reran `pnpm --filter @open-wa/wa-automate exec tsc --noEmit --ignoreDeprecations 6.0`
+- Captured result: `EXIT_CODE=0`
+- Captured stdout/stderr: empty
+
+Release-candidate conclusion
+============================
+
+Blocker-proof status: COMPLETE
+Broader release-candidate suite status: CLEAN
+
+Go/No-Go: GO
+
+Why:
+- Every release blocker from the task-1 parity matrix has automated proof and those focused proofs pass.
+- All four package-level test suites and all required package builds now pass.
+- All four required focused typecheck commands now pass, including `@open-wa/wa-automate`.
+- Accepted non-blockers remain explicitly separated: popup_qr_parity and json_session_restore do not block the release decision.

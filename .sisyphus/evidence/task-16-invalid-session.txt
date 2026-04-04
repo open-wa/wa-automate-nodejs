@@ -1,0 +1,11 @@
+Task 16 evidence backfill: invalid-session classification
+
+Sources:
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/core test
+
+Result: PASS
+Proved: invalid-session or NUKE-style auth failures were classified separately from ordinary auth timeout in the completed bootstrap logic.

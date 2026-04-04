@@ -1,0 +1,70 @@
+Task 20 parity evidence manifest
+Generated: 2026-04-04
+Verification basis: exact Task 20 rerun on current repo state plus Atlas confirmation for wa-automate focused typecheck
+
+Decision
+========
+Go/No-Go: GO
+
+Reason:
+- All seven release-blocker items from the task-1 parity matrix have automated proof and those focused proofs pass.
+- All four package test suites and all four required package builds now pass.
+- All four required focused typecheck commands now pass, including `pnpm --filter @open-wa/wa-automate exec tsc --noEmit --ignoreDeprecations 6.0`.
+
+Release blockers (all covered)
+==============================
+
+1. event_bridge_delivery
+   - Proof spec: packages/core/test/unit/releaseBlockerParity.test.ts
+   - Proof command: pnpm --filter @open-wa/core exec vitest run test/unit/releaseBlockerParity.test.ts
+   - Result: PASS
+
+2. frame_navigation_reinjection
+   - Proof spec: packages/core/test/unit/releaseBlockerParity.test.ts
+   - Proof command: pnpm --filter @open-wa/core exec vitest run test/unit/releaseBlockerParity.test.ts
+   - Result: PASS
+
+3. post_auth_reinjection_ripe_gate
+   - Proof spec: packages/core/test/unit/releaseBlockerParity.test.ts
+   - Proof command: pnpm --filter @open-wa/core exec vitest run test/unit/releaseBlockerParity.test.ts
+   - Result: PASS
+
+4. client_loaded_finalization
+   - Proof spec: packages/client/src/__tests__/loaded-parity.test.ts
+   - Proof command: pnpm --filter @open-wa/client exec vitest run src/__tests__/loaded-parity.test.ts
+   - Result: PASS
+
+5. user_data_dir_launch_threading
+   - Proof spec: packages/core/test/unit/releaseBlockerParity.test.ts
+   - Proof command: pnpm --filter @open-wa/core exec vitest run test/unit/releaseBlockerParity.test.ts
+   - Result: PASS
+
+6. broken_method_integrity_gate
+   - Proof spec: packages/core/test/unit/releaseBlockerParity.test.ts
+   - Proof command: pnpm --filter @open-wa/core exec vitest run test/unit/releaseBlockerParity.test.ts
+   - Result: PASS
+
+7. readiness_truth_host_vs_session
+   - Proof spec: packages/wa-automate/src/server/__tests__/readiness-parity.test.ts
+   - Proof command: pnpm --filter @open-wa/wa-automate exec vitest run src/server/__tests__/readiness-parity.test.ts
+   - Result: PASS
+
+Accepted divergences / deprecations (explicitly non-blocking)
+=============================================================
+
+- popup_qr_parity: accepted_non_blocker downgrade
+- json_session_restore: accepted_non_blocker deprecate
+
+Suite gate summary
+==================
+
+- Full package tests: core PASS, client PASS, driver-puppeteer PASS, wa-automate PASS
+- Package builds: core PASS, client PASS, driver-puppeteer PASS, wa-automate PASS
+- Focused typecheck: core PASS, client PASS, driver-puppeteer PASS, wa-automate PASS
+
+Supporting files
+================
+
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/evidence/task-20-evidence-manifest.json
+- .sisyphus/evidence/task-20-verify-manifest.mjs

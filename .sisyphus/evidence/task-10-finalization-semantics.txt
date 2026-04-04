@@ -1,0 +1,12 @@
+Task 10 evidence backfill: finalization semantics
+
+Sources:
+- .sisyphus/evidence/task-20-evidence-manifest.json
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/client exec vitest run src/__tests__/loaded-parity.test.ts
+- pnpm --filter @open-wa/client test
+
+Result: PASS
+Proved: finalization restored real behavior, including listener autobinding and phone-version capture, instead of adding state bookkeeping only.

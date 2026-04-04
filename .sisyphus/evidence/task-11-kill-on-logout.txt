@@ -1,0 +1,11 @@
+Task 11 evidence backfill: kill-on-logout gating
+
+Sources:
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/client test
+
+Result: PASS
+Proved: killClientOnLogout stayed explicit and ordered after cleanup, based on the recorded logout restoration and the passing client suite.

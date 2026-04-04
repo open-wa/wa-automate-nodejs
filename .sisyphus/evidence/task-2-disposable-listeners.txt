@@ -1,0 +1,12 @@
+Task 2 evidence backfill: disposable listener semantics
+
+Sources:
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/core test
+- pnpm --filter @open-wa/driver-puppeteer test
+
+Result: PASS
+Proved: listener ownership and cleanup stayed deterministic after the contract expansion, matching the recorded wrapper-per-handler disposal approach.

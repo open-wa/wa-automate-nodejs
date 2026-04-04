@@ -1,0 +1,11 @@
+Task 7 evidence backfill: same-runtime soft rebind
+
+Sources:
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/core test
+
+Result: PASS
+Proved: rebinding against the same runtime fingerprint was treated as a no-op and did not inflate listener count or create duplicate bridge state.

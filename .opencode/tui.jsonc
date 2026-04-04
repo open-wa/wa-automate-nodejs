@@ -1,0 +1,16 @@
+{
+  "plugin": [
+    [
+      "oc-plugin-vault-tec",
+      {
+        "enabled": true,
+        "set_theme": true,
+        "scanlines": true,
+        "scanline_speed": 0.012,
+        "vignette": 0.75,
+        "sidebar": true,
+        "tips": true
+      }
+    ]
+  ]
+}

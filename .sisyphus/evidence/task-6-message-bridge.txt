@@ -1,0 +1,13 @@
+Task 6 evidence backfill: runtime event bridge delivery
+
+Sources:
+- .sisyphus/evidence/task-20-evidence-manifest.json
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/core exec vitest run test/unit/releaseBlockerParity.test.ts
+- pnpm --filter @open-wa/core test
+
+Result: PASS
+Proved: browser-to-node runtime bridge delivery was restored and release-blocker proof for real event delivery passed.

@@ -1,0 +1,166 @@
+
+ RUN  v4.1.2 /Users/Mohammed/projects/tools/wa/packages/wa-automate
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  02:40:46
+   Duration  582ms (transform 49ms, setup 17ms, import 440ms, tests 13ms, environment 0ms)
+
+
+> @open-wa/monorepo@5.0.0-alpha.1 typecheck /Users/Mohammed/projects/tools/wa
+> turbo typecheck --filter='!@open-wa/legacy' --filter='!@open-wa/legacy-documented'
+
+• Packages in scope: @open-wa/api, @open-wa/cf-proxy, @open-wa/cli, @open-wa/cli-app, @open-wa/client, @open-wa/config, @open-wa/core, @open-wa/dashboard, @open-wa/dashboard-neo, @open-wa/docker, @open-wa/domain, @open-wa/driver-interface, @open-wa/driver-playwright, @open-wa/driver-puppeteer, @open-wa/hyperemitter, @open-wa/integration-chatwoot, @open-wa/integration-cloudflare, @open-wa/integration-s3, @open-wa/integration-webhook, @open-wa/logger, @open-wa/node-red, @open-wa/orchestrator, @open-wa/orchestrator-cli, @open-wa/orchestrator-dashboard, @open-wa/plugin-sdk, @open-wa/schema, @open-wa/screencaster, @open-wa/session-sync, @open-wa/socket-client, @open-wa/ui-components, @open-wa/utils, @open-wa/wa-automate, @open-wa/wa-decrypt, docs, registry
+• Running typecheck in 35 packages
+• Remote caching disabled
+@open-wa/screencaster:typecheck: cache miss, executing cf84967374c4b45f
+@open-wa/dashboard-neo:typecheck: cache miss, executing 6d643ace2a4a0a43
+@open-wa/cf-proxy:typecheck: cache miss, executing 6f94da762f312635
+@open-wa/config:typecheck: cache miss, executing 42aa5f1407a2b9cf
+@open-wa/hyperemitter:typecheck: cache miss, executing 7b4e23b4818b84ee
+@open-wa/utils:typecheck: cache miss, executing 1ce2a0b02ac99b8b
+@open-wa/screencaster:typecheck: 
+@open-wa/screencaster:typecheck: > @open-wa/screencaster@5.0.0-alpha.1 typecheck /Users/Mohammed/projects/tools/wa/packages/screencaster
+@open-wa/screencaster:typecheck: > tsc --noEmit
+@open-wa/screencaster:typecheck: 
+@open-wa/config:typecheck: 
+@open-wa/config:typecheck: > @open-wa/config@5.0.0-alpha.1 typecheck /Users/Mohammed/projects/tools/wa/packages/config
+@open-wa/config:typecheck: > tsc --noEmit
+@open-wa/config:typecheck: 
+@open-wa/cf-proxy:typecheck: 
+@open-wa/cf-proxy:typecheck: > @open-wa/cf-proxy@5.0.0 typecheck /Users/Mohammed/projects/tools/wa/packages/cf-proxy
+@open-wa/cf-proxy:typecheck: > tsc --noEmit
+@open-wa/cf-proxy:typecheck: 
+@open-wa/dashboard-neo:typecheck: 
+@open-wa/dashboard-neo:typecheck: > @open-wa/dashboard-neo@ typecheck /Users/Mohammed/projects/tools/wa/apps/dashboard-neo
+@open-wa/dashboard-neo:typecheck: > tsc --noEmit
+@open-wa/dashboard-neo:typecheck: 
+@open-wa/hyperemitter:typecheck: 
+@open-wa/hyperemitter:typecheck: > @open-wa/hyperemitter@0.0.0-pre typecheck /Users/Mohammed/projects/tools/wa/packages/hyperemitter
+@open-wa/hyperemitter:typecheck: > tsc --noEmit
+@open-wa/hyperemitter:typecheck: 
+@open-wa/utils:typecheck: 
+@open-wa/utils:typecheck: > @open-wa/utils@5.0.0-alpha.1 typecheck /Users/Mohammed/projects/tools/wa/packages/utils
+@open-wa/utils:typecheck: > tsc --noEmit
+@open-wa/utils:typecheck: 
+@open-wa/utils:typecheck: src/configLoader.ts(1,23): error TS7016: Could not find a declaration file for module 'path'. '/Users/Mohammed/node_modules/path/path.js' implicitly has an 'any' type.
+@open-wa/utils:typecheck:   Try `npm i --save-dev @types/path` if it exists or add a new declaration (.d.ts) file containing `declare module 'path';`
+@open-wa/utils:typecheck: src/configLoader.ts(2,21): error TS2591: Cannot find name 'fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+@open-wa/utils:typecheck: src/configLoader.ts(7,49): error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+@open-wa/utils:typecheck: src/configLoader.ts(27,34): error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+@open-wa/utils:typecheck: src/file.ts(1,21): error TS2591: Cannot find name 'fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+@open-wa/utils:typecheck: src/file.ts(2,23): error TS7016: Could not find a declaration file for module 'path'. '/Users/Mohammed/node_modules/path/path.js' implicitly has an 'any' type.
+@open-wa/utils:typecheck:   Try `npm i --save-dev @types/path` if it exists or add a new declaration (.d.ts) file containing `declare module 'path';`
+@open-wa/utils:typecheck: src/file.ts(3,25): error TS2591: Cannot find name 'crypto'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+@open-wa/utils:typecheck: src/file.ts(4,24): error TS2591: Cannot find name 'os'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+@open-wa/utils:typecheck: src/file.ts(5,26): error TS2591: Cannot find name 'stream'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+@open-wa/utils:typecheck: src/file.ts(9,13): error TS2304: Cannot find name 'URL'.
+@open-wa/utils:typecheck: src/file.ts(27,23): error TS2304: Cannot find name 'fetch'.
+@open-wa/utils:typecheck: src/file.ts(31,20): error TS2591: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+@open-wa/utils:typecheck: src/file.ts(38,9): error TS2591: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+@open-wa/utils:typecheck: src/file.ts(45,47): error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+@open-wa/utils:typecheck: src/file.ts(69,20): error TS2591: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+@open-wa/utils:typecheck: src/file.ts(72,55): error TS2591: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+@open-wa/utils:typecheck: src/file.ts(75,34): error TS2591: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+@open-wa/utils:typecheck: src/system.ts(15,9): error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+@open-wa/utils:typecheck:  ELIFECYCLE  Command failed with exit code 2.
+@open-wa/utils:typecheck:  WARN   Local package.json exists, but node_modules missing, did you mean to install?
+@open-wa/utils:typecheck: ERROR: command finished with error: command (/Users/Mohammed/projects/tools/wa/packages/utils) /Users/Mohammed/Library/pnpm/.tools/pnpm/10.26.1/bin/pnpm run typecheck exited (2)
+@open-wa/config:typecheck:  ELIFECYCLE  Command failed.
+@open-wa/hyperemitter:typecheck:  ELIFECYCLE  Command failed.
+@open-wa/dashboard-neo:typecheck:  ELIFECYCLE  Command failed.
+@open-wa/utils#typecheck: command (/Users/Mohammed/projects/tools/wa/packages/utils) /Users/Mohammed/Library/pnpm/.tools/pnpm/10.26.1/bin/pnpm run typecheck exited (2)
+
+ Tasks:    1 successful, 6 total
+Cached:    0 cached, 6 total
+  Time:    2.427s 
+Failed:    @open-wa/utils#typecheck
+
+ ERROR  run failed: command  exited (2)
+ ELIFECYCLE  Command failed with exit code 2.
+
+> @open-wa/core@5.0.0-alpha.1 build /Users/Mohammed/projects/tools/wa/packages/core
+> tsdown src/index.ts --format esm --format cjs && node scripts/copy-launch-script.mjs
+
+[34mℹ[39m [34mtsdown v0.21.7[39m powered by [38;2;255;126;23mrolldown v1.0.0-rc.12[39m
+[34mℹ[39m entry: [34msrc/index.ts[39m
+[34mℹ[39m tsconfig: [34mtsconfig.json[39m
+[34mℹ[39m Build start
+[34mℹ[39m Cleaning 13 files
+[34mℹ[39m [33m[CJS][39m [2mdist/[22m[1mindex.cjs[22m  [2m81.85 kB[22m [2m│ gzip: 18.54 kB[22m
+[34mℹ[39m [33m[CJS][39m 1 files, total: 81.85 kB
+[34mℹ[39m [33m[CJS][39m [2mdist/[22mindex.d.cts.map  [2m13.19 kB[22m [2m│ gzip: 3.08 kB[22m
+[34mℹ[39m [33m[CJS][39m [2mdist/[22m[32m[1mindex.d.cts[22m[39m      [2m29.44 kB[22m [2m│ gzip: 7.00 kB[22m
+[34mℹ[39m [33m[CJS][39m 2 files, total: 42.63 kB
+[32m✔[39m Build complete in [32m1191ms[39m
+[34mℹ[39m [34m[ESM][39m [2mdist/[22m[1mindex.mjs[22m        [2m 81.23 kB[22m [2m│ gzip: 18.43 kB[22m
+[34mℹ[39m [34m[ESM][39m [2mdist/[22mindex.mjs.map    [2m172.67 kB[22m [2m│ gzip: 37.18 kB[22m
+[34mℹ[39m [34m[ESM][39m [2mdist/[22mindex.d.mts.map  [2m 13.19 kB[22m [2m│ gzip:  3.08 kB[22m
+[34mℹ[39m [34m[ESM][39m [2mdist/[22m[32m[1mindex.d.mts[22m[39m      [2m 29.44 kB[22m [2m│ gzip:  7.00 kB[22m
+[34mℹ[39m [34m[ESM][39m 4 files, total: 296.52 kB
+[32m✔[39m Build complete in [32m1212ms[39m
+
+> @open-wa/client@5.0.0-alpha.1 build /Users/Mohammed/projects/tools/wa/packages/client
+> tsdown src/index.ts --format esm --format cjs
+
+[34mℹ[39m [34mtsdown v0.21.7[39m powered by [38;2;255;126;23mrolldown v1.0.0-rc.12[39m
+[34mℹ[39m entry: [34msrc/index.ts[39m
+[34mℹ[39m tsconfig: [34mtsconfig.json[39m
+[34mℹ[39m Build start
+[34mℹ[39m Cleaning 7 files
+[34mℹ[39m Hint: consider adding [34mdeps.onlyBundle[39m option to avoid unintended bundling of dependencies, or set [34mdeps.onlyBundle: false[39m to disable this hint.
+See more at [4mhttps://tsdown.dev/options/dependencies#deps-onlybundle[24m
+Detected dependencies in bundle:
+- [34meventemitter3[39m
+- [34mp-finally[39m
+- [34mp-timeout[39m
+- [34mp-queue[39m
+[34mℹ[39m [33m[CJS][39m [2mdist/[22m[1mindex.cjs[22m  [2m40.33 kB[22m [2m│ gzip: 9.60 kB[22m
+[34mℹ[39m [33m[CJS][39m 1 files, total: 40.33 kB
+[34mℹ[39m Hint: consider adding [34mdeps.onlyBundle[39m option to avoid unintended bundling of dependencies, or set [34mdeps.onlyBundle: false[39m to disable this hint.
+See more at [4mhttps://tsdown.dev/options/dependencies#deps-onlybundle[24m
+Detected dependencies in bundle:
+- [34meventemitter3[39m
+- [34mp-finally[39m
+- [34mp-timeout[39m
+- [34mp-queue[39m
+[34mℹ[39m [33m[CJS][39m [2mdist/[22mindex.d.cts.map  [2m 6.52 kB[22m [2m│ gzip: 1.58 kB[22m
+[34mℹ[39m [33m[CJS][39m [2mdist/[22m[32m[1mindex.d.cts[22m[39m      [2m13.68 kB[22m [2m│ gzip: 3.52 kB[22m
+[34mℹ[39m [33m[CJS][39m 2 files, total: 20.20 kB
+[32m✔[39m Build complete in [32m832ms[39m
+[34mℹ[39m [34m[ESM][39m [2mdist/[22m[1mindex.mjs[22m        [2m39.28 kB[22m [2m│ gzip:  9.54 kB[22m
+[34mℹ[39m [34m[ESM][39m [2mdist/[22mindex.mjs.map    [2m89.67 kB[22m [2m│ gzip: 19.39 kB[22m
+[34mℹ[39m [34m[ESM][39m [2mdist/[22mindex.d.mts.map  [2m 6.52 kB[22m [2m│ gzip:  1.58 kB[22m
+[34mℹ[39m [34m[ESM][39m [2mdist/[22m[32m[1mindex.d.mts[22m[39m      [2m13.68 kB[22m [2m│ gzip:  3.52 kB[22m
+[34mℹ[39m [34m[ESM][39m 4 files, total: 149.16 kB
+[32m✔[39m Build complete in [32m839ms[39m
+
+> @open-wa/wa-automate@5.0.0-alpha.1 build /Users/Mohammed/projects/tools/wa/packages/wa-automate
+> tsdown
+
+[34mℹ[39m [34mtsdown v0.21.7[39m powered by [38;2;255;126;23mrolldown v1.0.0-rc.12[39m
+[34mℹ[39m config file: [4m/Users/Mohammed/projects/tools/wa/packages/wa-automate/tsdown.config.ts[24m 
+(node:20912) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/Mohammed/projects/tools/wa/packages/wa-automate/tsdown.config.ts?no-cache=fc48214b-76f6-405b-ad3d-ba9b6259f182 is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/Mohammed/projects/tools/wa/packages/wa-automate/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[34mℹ[39m entry: [34m./src/index.ts, ./src/cli.ts[39m
+[34mℹ[39m tsconfig: [34mtsconfig.json[39m
+[34mℹ[39m Build start
+[34mℹ[39m Cleaning 11 files
+[34mℹ[39m Granting execute permission to [4mdist/cli.cjs[24m
+[34mℹ[39m [2mdist/[22m[1mindex.cjs[22m                     [2m 6.13 kB[22m [2m│ gzip: 1.66 kB[22m
+[34mℹ[39m [2mdist/[22m[1mcli.cjs[22m                       [2m 0.50 kB[22m [2m│ gzip: 0.31 kB[22m
+[34mℹ[39m [2mdist/[22mcli-runtime-BXzs5cU3.cjs.map  [2m16.03 kB[22m [2m│ gzip: 4.96 kB[22m
+[34mℹ[39m [2mdist/[22mcli-runtime-BXzs5cU3.cjs      [2m10.44 kB[22m [2m│ gzip: 3.47 kB[22m
+[34mℹ[39m [2mdist/[22mindex.cjs.map                 [2m10.15 kB[22m [2m│ gzip: 3.00 kB[22m
+[34mℹ[39m [2mdist/[22mcli.cjs.map                   [2m 0.49 kB[22m [2m│ gzip: 0.33 kB[22m
+[34mℹ[39m 6 files, total: 43.75 kB
+[34mℹ[39m [2mdist/[22mindex.d.cts.map                 [2m0.82 kB[22m [2m│ gzip: 0.38 kB[22m
+[34mℹ[39m [2mdist/[22mcli-runtime-CC5T9a8j.d.cts.map  [2m0.55 kB[22m [2m│ gzip: 0.27 kB[22m
+[34mℹ[39m [2mdist/[22m[32m[1mindex.d.cts[22m[39m                     [2m1.89 kB[22m [2m│ gzip: 0.73 kB[22m
+[34mℹ[39m [2mdist/[22m[32m[1mcli.d.cts[22m[39m                       [2m0.12 kB[22m [2m│ gzip: 0.12 kB[22m
+[34mℹ[39m [2mdist/[22m[32mcli-runtime-CC5T9a8j.d.cts[39m      [2m0.99 kB[22m [2m│ gzip: 0.45 kB[22m
+[34mℹ[39m 5 files, total: 4.37 kB
+[32m✔[39m Build complete in [32m978ms[39m

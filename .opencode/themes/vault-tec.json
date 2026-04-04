@@ -1,0 +1,225 @@
+{
+  "$schema": "https://opencode.ai/theme.json",
+  "defs": {
+    "green": "#20C20E",
+    "greenBright": "#33FF33",
+    "greenDim": "#147A16",
+    "greenDark": "#0F6B0F",
+    "greenFaint": "#0A4A0A",
+    "greenMuted": "#2D8B2D",
+    "crtBlack": "#040D04",
+    "crtPanel": "#061206",
+    "crtElement": "#0A1A0A",
+    "crtBorder": "#0F2B0F"
+  },
+  "theme": {
+    "primary": {
+      "dark": "green",
+      "light": "green"
+    },
+    "secondary": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "accent": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "error": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "warning": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "success": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "info": {
+      "dark": "green",
+      "light": "green"
+    },
+    "text": {
+      "dark": "green",
+      "light": "green"
+    },
+    "textMuted": {
+      "dark": "greenDim",
+      "light": "greenDim"
+    },
+    "background": {
+      "dark": "crtBlack",
+      "light": "crtBlack"
+    },
+    "backgroundPanel": {
+      "dark": "crtPanel",
+      "light": "crtPanel"
+    },
+    "backgroundElement": {
+      "dark": "crtElement",
+      "light": "crtElement"
+    },
+    "backgroundMenu": {
+      "dark": "crtElement",
+      "light": "crtElement"
+    },
+    "selectedListItemText": {
+      "dark": "crtBlack",
+      "light": "crtBlack"
+    },
+    "border": {
+      "dark": "crtBorder",
+      "light": "crtBorder"
+    },
+    "borderActive": {
+      "dark": "green",
+      "light": "green"
+    },
+    "borderSubtle": {
+      "dark": "crtElement",
+      "light": "crtElement"
+    },
+    "diffAdded": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "diffRemoved": {
+      "dark": "greenDim",
+      "light": "greenDim"
+    },
+    "diffContext": {
+      "dark": "greenDark",
+      "light": "greenDark"
+    },
+    "diffHunkHeader": {
+      "dark": "greenMuted",
+      "light": "greenMuted"
+    },
+    "diffHighlightAdded": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "diffHighlightRemoved": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "diffAddedBg": {
+      "dark": "#061506",
+      "light": "#061506"
+    },
+    "diffRemovedBg": {
+      "dark": "#061006",
+      "light": "#061006"
+    },
+    "diffContextBg": {
+      "dark": "crtPanel",
+      "light": "crtPanel"
+    },
+    "diffLineNumber": {
+      "dark": "greenFaint",
+      "light": "greenFaint"
+    },
+    "diffAddedLineNumberBg": {
+      "dark": "#041004",
+      "light": "#041004"
+    },
+    "diffRemovedLineNumberBg": {
+      "dark": "#050D05",
+      "light": "#050D05"
+    },
+    "markdownText": {
+      "dark": "green",
+      "light": "green"
+    },
+    "markdownHeading": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "markdownLink": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "markdownLinkText": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "markdownCode": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "markdownBlockQuote": {
+      "dark": "greenDim",
+      "light": "greenDim"
+    },
+    "markdownEmph": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "markdownStrong": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "markdownHorizontalRule": {
+      "dark": "greenDark",
+      "light": "greenDark"
+    },
+    "markdownListItem": {
+      "dark": "green",
+      "light": "green"
+    },
+    "markdownListEnumeration": {
+      "dark": "greenDim",
+      "light": "greenDim"
+    },
+    "markdownImage": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "markdownImageText": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "markdownCodeBlock": {
+      "dark": "green",
+      "light": "green"
+    },
+    "syntaxComment": {
+      "dark": "greenDark",
+      "light": "greenDark"
+    },
+    "syntaxKeyword": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "syntaxFunction": {
+      "dark": "green",
+      "light": "green"
+    },
+    "syntaxVariable": {
+      "dark": "green",
+      "light": "green"
+    },
+    "syntaxString": {
+      "dark": "greenDim",
+      "light": "greenDim"
+    },
+    "syntaxNumber": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "syntaxType": {
+      "dark": "greenBright",
+      "light": "greenBright"
+    },
+    "syntaxOperator": {
+      "dark": "greenMuted",
+      "light": "greenMuted"
+    },
+    "syntaxPunctuation": {
+      "dark": "greenDark",
+      "light": "greenDark"
+    }
+  }
+}

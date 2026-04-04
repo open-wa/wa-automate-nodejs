@@ -1,0 +1,12 @@
+Task 8 evidence backfill: iframe navigation ignore path
+
+Sources:
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/issues.md
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/core test
+
+Result: PASS
+Proved: reinjection handling stayed scoped to the active runtime recovery path, and the recorded validation notes kept iframe-only churn out of the duplicate reinjection path.

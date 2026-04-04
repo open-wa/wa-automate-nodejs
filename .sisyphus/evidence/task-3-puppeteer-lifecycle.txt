@@ -1,0 +1,12 @@
+Task 3 evidence backfill: Puppeteer lifecycle adapter
+
+Sources:
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/driver-puppeteer test
+- pnpm --filter @open-wa/driver-puppeteer build
+
+Result: PASS
+Proved: the Puppeteer adapter implementation for lifecycle, init-script, and interception primitives was present and green in the release-candidate suite.

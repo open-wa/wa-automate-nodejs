@@ -1,0 +1,13 @@
+Task 10 evidence backfill: finalization ordering
+
+Sources:
+- .sisyphus/evidence/task-20-evidence-manifest.json
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/client exec vitest run src/__tests__/loaded-parity.test.ts
+- pnpm --filter @open-wa/client test
+
+Result: PASS
+Proved: loaded-equivalent finalization occurred before client.ready and only once, matching the focused client parity proof.
