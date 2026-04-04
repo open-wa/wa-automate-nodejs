@@ -1,5 +1,6 @@
+import { describe, it, expect, vi as jest } from 'vitest';
 import { WAServer } from '../hono-server';
-import { ConfigSchema } from '@open-wa/schema';
+import { ConfigSchema } from '@open-wa/config';
 
 describe('Hono Middleware', () => {
     describe('API Lifecycle', () => {
@@ -39,6 +40,10 @@ describe('Hono Middleware', () => {
             });
 
             expect(res.status).toBe(503);
+            await expect(res.json()).resolves.toMatchObject({
+                error: 'API not available until the session is truly ready',
+                status: 503,
+            });
         });
     });
 
@@ -50,10 +55,49 @@ describe('Hono Middleware', () => {
             const res = await server.getApp().request('/health');
 
             expect(res.status).toBe(200);
-            const body = await res.json();
+            const body = (await res.json()) as Record<string, any>;
             expect(body).toMatchObject({
                 status: 'ok',
                 version: '5.0.0',
+                host: {
+                    available: true,
+                    api: true,
+                },
+            });
+            expect(body.session).toMatchObject({
+                ready: false,
+            });
+        });
+
+        it('should report host availability separately from session readiness', async () => {
+            const config = ConfigSchema.parse({ sessionId: 'test', port: 8008, apiLifecycle: 'post-connection' });
+            const server = new WAServer(config);
+
+            server.setReadinessProvider(() => ({
+                ready: false,
+                status: 'not_ready',
+                state: 'AUTHENTICATING',
+                exposureSafe: false,
+                pending: ['runtimeUsable', 'finalization'],
+                blockers: [],
+            }));
+
+            const res = await server.getApp().request('/health');
+
+            expect(res.status).toBe(200);
+            await expect(res.json()).resolves.toMatchObject({
+                status: 'ok',
+                connected: false,
+                host: {
+                    available: true,
+                    api: true,
+                },
+                session: {
+                    ready: false,
+                    status: 'not_ready',
+                    state: 'AUTHENTICATING',
+                    pending: ['runtimeUsable', 'finalization'],
+                },
             });
         });
     });

@@ -25,9 +25,6 @@ export function elasticMiddleware(
         // Sanitize sensitive data
         if (sanitize) {
             sanitize(record);
-        } else {
-            // Default sanitization
-            emitter.sanitizeHeaders(record);
         }
 
         emitter.log(record as any);

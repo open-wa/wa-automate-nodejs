@@ -1,5 +1,5 @@
 import { WAServer } from './hono-server';
-import type { Config } from '@open-wa/schema';
+import type { Config } from '@open-wa/config';
 import { SessionManager } from '../session/SessionManager';
 
 export class APILifecycleManager {

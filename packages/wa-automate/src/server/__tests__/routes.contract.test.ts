@@ -1,4 +1,5 @@
 // import { Hono } from 'hono';
+import { describe, it, expect } from 'vitest';
 import { clientRegistry } from '@open-wa/schema';
 import '@open-wa/schema/methods';
 

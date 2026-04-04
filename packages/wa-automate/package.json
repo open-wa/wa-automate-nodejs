@@ -16,13 +16,18 @@
   "dependencies": {
     "@elastic/elasticsearch": "catalog:",
     "@hono/node-server": "catalog:",
+    "@open-wa/api": "workspace:*",
     "@open-wa/client": "workspace:*",
+    "@open-wa/config": "workspace:*",
     "@open-wa/core": "workspace:*",
     "@open-wa/driver-puppeteer": "workspace:*",
     "@open-wa/logger": "workspace:*",
     "@open-wa/schema": "workspace:*",
     "@open-wa/session-sync": "workspace:*",
+    "boxen": "^5.0.0",
+    "chrome-launcher": "^0.15.0",
     "hono": "catalog:",
+    "qrcode-terminal": "^0.12.0",
     "socket.io": "catalog:"
   },
   "devDependencies": {

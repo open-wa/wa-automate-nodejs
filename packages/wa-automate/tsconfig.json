@@ -1,11 +1,19 @@
 {
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
+        "target": "ES2022",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "lib": [
+            "ES2022"
+        ],
         "outDir": "./dist",
         "rootDir": "./src",
         "strict": false,
-        "baseUrl": ".",
         "paths": {
+            "@open-wa/api": [
+                "../api/dist/index.d.ts"
+            ],
             "@open-wa/core": [
                 "../core/dist/index.d.ts"
             ],
