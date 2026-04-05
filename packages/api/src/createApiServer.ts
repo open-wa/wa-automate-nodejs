@@ -171,9 +171,20 @@ export class ApiServer {
       console.log(`Server running on http://${this.config.host}:${this.config.port}`);
     });
 
-    // Inject WebSocket support into the HTTP server (Node.js adapter)
+    // Inject WebSocket support carefully to avoid hijacking socket.io's upgrade requests
     if (this.injectWebSocket) {
-      this.injectWebSocket(server);
+      let honoUpgradeListener: Function | null = null;
+      this.injectWebSocket({
+        on: (event: string, listener: Function) => {
+          if (event === 'upgrade') honoUpgradeListener = listener;
+        }
+      });
+      if (honoUpgradeListener) {
+        server.on('upgrade', (req, socket, head) => {
+          if (req.url?.startsWith('/socket.io/')) return;
+          honoUpgradeListener!(req, socket, head);
+        });
+      }
     }
 
     if (this.config.socketMode) {

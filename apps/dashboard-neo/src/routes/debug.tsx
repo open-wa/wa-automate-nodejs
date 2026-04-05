@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useState, useEffect } from "react"
+import { BarChart, Settings, FileText } from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
 import { getClient } from "@/lib/api-client"
 
@@ -17,7 +18,7 @@ function formatBytes(bytes: number): string {
 }
 
 function DebugPage() {
-  const { connected, ask } = useSocket()
+  const { connected } = useSocket()
   const [debug, setDebug] = useState<DebugInfo>({ memory: null, config: null, logs: [] })
   const [tab, setTab] = useState<"memory" | "config" | "logs">("memory")
 
@@ -70,9 +71,9 @@ function DebugPage() {
   }, [connected])
 
   const tabs = [
-    { id: "memory" as const, label: "Memory", icon: "📊" },
-    { id: "config" as const, label: "Config", icon: "⚙️" },
-    { id: "logs" as const, label: "Logs", icon: "📜" },
+    { id: "memory" as const, label: "Memory", icon: <BarChart size={16} /> },
+    { id: "config" as const, label: "Config", icon: <Settings size={16} /> },
+    { id: "logs" as const, label: "Logs", icon: <FileText size={16} /> },
   ]
 
   return (

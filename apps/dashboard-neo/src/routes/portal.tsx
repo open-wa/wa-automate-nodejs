@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useState, useEffect, useRef, useCallback } from "react"
+import { Tv, ArrowLeft, ArrowRight, XCircle } from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
 import { ScreencastClient } from "@open-wa/screencaster/client"
-import type { FrameMessage, NavStateMessage } from "@open-wa/screencaster/client"
+import type { NavStateMessage } from "@open-wa/screencaster/client"
 import { getApiUrl } from "@/lib/api-client"
 
 export const Route = createFileRoute("/portal")({ component: PortalPage })
@@ -46,9 +47,9 @@ function PortalPage() {
       if (state === "idle") setPortalActive(false)
     })
 
-    client.on("frame", (data, metadata) => {
+    client.on("frame", (data) => {
       fpsCountRef.current++
-      renderFrame(data, metadata)
+      renderFrame(data)
     })
 
     client.on("nav-state", (state) => {
@@ -88,7 +89,7 @@ function PortalPage() {
     setNavState(null)
   }, [])
 
-  const renderFrame = (base64Data: string, metadata?: FrameMessage["metadata"]) => {
+  const renderFrame = (base64Data: string) => {
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
@@ -172,7 +173,7 @@ function PortalPage() {
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
       {/* Toolbar */}
       <div className="flex items-center gap-3 border-b px-4 py-3">
-        <h1 className="text-lg font-semibold">🪄 Magic Portal</h1>
+        <h1 className="text-lg font-semibold flex items-center gap-2"><Tv size={20} /> Magic Portal</h1>
         <span className="text-xs text-muted-foreground">Headless Head — See your session live</span>
         <div className="flex-1" />
 
@@ -196,7 +197,7 @@ function PortalPage() {
               className="rounded p-1 text-xs hover:bg-muted disabled:opacity-30"
               title="Go back"
             >
-              ←
+              <ArrowLeft size={16} />
             </button>
             <button
               onClick={() => clientRef.current?.goForward()}
@@ -204,7 +205,7 @@ function PortalPage() {
               className="rounded p-1 text-xs hover:bg-muted disabled:opacity-30"
               title="Go forward"
             >
-              →
+              <ArrowRight size={16} />
             </button>
           </div>
         )}
@@ -233,7 +234,7 @@ function PortalPage() {
       <div className="flex flex-1 items-center justify-center overflow-hidden bg-black/5 dark:bg-black/20">
         {status === "idle" && (
           <div className="text-center text-muted-foreground">
-            <div className="text-6xl">🪄</div>
+            <Tv size={64} className="mx-auto text-muted-foreground opacity-50 mb-4" />
             <p className="mt-4 text-sm">Click "Start Portal" to see your WhatsApp session in real-time</p>
             <p className="mt-1 text-xs">Targeting API server at: {getApiUrl()}</p>
           </div>
@@ -241,7 +242,7 @@ function PortalPage() {
 
         {status === "error" && (
           <div className="text-center text-destructive">
-            <div className="text-4xl">❌</div>
+            <XCircle size={48} className="mx-auto text-destructive opacity-80 mb-2" />
             <p className="mt-2 text-sm">{errorMsg}</p>
           </div>
         )}

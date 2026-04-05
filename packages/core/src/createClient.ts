@@ -487,6 +487,11 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         return emitFatalBootstrapError('bootstrap.injection', error);
       }
 
+      const attemptingReauth = await transport.detectAttemptingReauth().catch(() => false);
+      logger.info('launch_auth_mode_detected', {
+        attemptingReauth,
+      });
+
       const runtimeCapability = await runValidationStage('post_injection', {
         correlationId: 'bootstrap-runtime-validation',
         allowRepair: true,
@@ -524,7 +529,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         });
       }
 
-      const authResult = await transport.waitForAuthentication();
+      const authResult = await transport.waitForAuthentication({ attemptingReauth });
       if (authResult.outcome === 'qr_timeout') {
         emitFailedFinalization('QR scan took too long. Increase qrTimeout or set qrTimeout=0 to wait forever.');
         return emitFatalBootstrapError(
@@ -566,7 +571,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       }
 
       const postAuthRuntime = await transport.reconcilePostAuthRuntime({
-        freshAuth: authResult.qrSeen,
+        freshAuth: !attemptingReauth,
       });
 
       if (!postAuthRuntime.ripeSessionLoaded) {

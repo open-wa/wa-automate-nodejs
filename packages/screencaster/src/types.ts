@@ -156,7 +156,7 @@ export type ClientMessage =
  */
 export interface IScreencastPage {
     /** Get a CDP session for sending raw CDP commands */
-    cdp(): IScreencastCDPSession;
+    cdp(): IScreencastCDPSession | Promise<IScreencastCDPSession>;
 
     /** Navigate to a URL */
     goto(url: string, options?: { waitUntil?: string }): Promise<void>;

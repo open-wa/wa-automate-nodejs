@@ -27,6 +27,7 @@
     "@tanstack/router-plugin": "^1.167.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "catalog:",
+    "lucide-react": "catalog:",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "shadcn": "^4.1.2",

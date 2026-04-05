@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react"
-import { getClient, getClientSync } from "@/lib/api-client"
+import { getClient } from "@/lib/api-client"
 
 export type SessionState = {
   connected: boolean

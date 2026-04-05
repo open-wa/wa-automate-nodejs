@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useEvents } from "@/lib/hooks/use-events"
 import { useState } from "react"
+import { Pause, Play, Copy } from "lucide-react"
 
 export const Route = createFileRoute("/events")({ component: EventsPage })
 
@@ -35,7 +36,11 @@ function EventsPage() {
               : "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400"
           }`}
         >
-          {paused ? "⏸ Paused" : "▶ Live"}
+          {paused ? (
+            <span className="flex items-center gap-1.5"><Pause size={14} /> Paused</span>
+          ) : (
+            <span className="flex items-center gap-1.5"><Play size={14} /> Live</span>
+          )}
         </button>
 
         <button
@@ -96,7 +101,7 @@ function EventsPage() {
                       className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
                       title="Copy"
                     >
-                      📋
+                      <Copy size={16} />
                     </button>
                   </td>
                 </tr>

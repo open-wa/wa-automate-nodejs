@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react"
-import { getClient, getClientSync, type SocketClient, type Client } from "@/lib/api-client"
+import { getClient, getClientSync, getApiUrl, type SocketClient, type Client } from "@/lib/api-client"
 
 type ConnectedClient = SocketClient & Client
 
@@ -16,6 +16,11 @@ export function useSocket() {
 
     async function connect() {
       try {
+        const targetUrl = getApiUrl()
+        console.groupCollapsed(`[Dashboard] Initializing API Connection`)
+        console.info(`Target URL: ${targetUrl}`)
+        console.groupEnd()
+
         const client = await getClient()
         if (!mounted) return
         clientRef.current = client
@@ -23,15 +28,27 @@ export function useSocket() {
         setError(null)
 
         client.socket.on("connect", () => {
+          console.info(`[Dashboard] Successfully connected to API server at ${targetUrl}`)
           if (mounted) setConnected(true)
         })
-        client.socket.on("disconnect", () => {
+        
+        client.socket.on("disconnect", (reason: string) => {
+          console.warn(`[Dashboard] Disconnected from API server: ${reason}`)
           if (mounted) setConnected(false)
         })
-        client.socket.on("connect_error", (err: Error) => {
+        
+        client.socket.on("connect_error", (err: Error & { req?: any, code?: string }) => {
+          console.error(`[Dashboard] API Connection Error to ${targetUrl}:`, {
+            message: err.message,
+            name: err.name,
+            code: err.code,
+            req: err.req ? 'present' : 'none',
+            hint: `Ensure the Open-WA API server is running on ${targetUrl} and socketMode is enabled.`
+          })
           if (mounted) setError(err.message)
         })
       } catch (err) {
+        console.error(`[Dashboard] Failed to initialize API client:`, err)
         if (mounted) {
           setError(err instanceof Error ? err.message : "Connection failed")
           setConnected(false)

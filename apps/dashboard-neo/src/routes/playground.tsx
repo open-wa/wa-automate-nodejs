@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useState, useEffect } from "react"
+import { FlaskConical } from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
 
 export const Route = createFileRoute("/playground")({ component: PlaygroundPage })
@@ -193,7 +194,9 @@ function PlaygroundPage() {
         ) : (
           <div className="flex flex-1 items-center justify-center text-muted-foreground">
             <div className="text-center">
-              <div className="text-4xl">🧪</div>
+              <div className="flex justify-center mb-2 opacity-50">
+                <FlaskConical size={48} />
+              </div>
               <p className="mt-2 text-sm">Select a method to get started</p>
             </div>
           </div>

@@ -84,7 +84,7 @@ export class ScreencastManager {
         await this.teardownCDP();
 
         this.page = page;
-        this.cdpSession = page.cdp();
+        this.cdpSession = await page.cdp();
 
         // Set up frame listener
         this.setupFrameListener();

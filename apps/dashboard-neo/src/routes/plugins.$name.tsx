@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { useEffect, useState, lazy, Suspense } from "react"
+import { useEffect, useState } from "react"
+import { Plug, Puzzle, FileText } from "lucide-react"
 
 interface PluginPageData {
   name: string
@@ -74,7 +75,7 @@ function PluginPageRoute() {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-center">
-          <span className="text-4xl">🔌</span>
+          <Plug size={48} className="text-muted-foreground opacity-50 mb-2" />
           <h2 className="text-lg font-semibold">Plugin Not Found</h2>
           <p className="text-sm text-muted-foreground max-w-sm">
             {error ?? `No plugin named "${name}" is currently loaded.`}
@@ -89,7 +90,7 @@ function PluginPageRoute() {
       {/* Plugin Header */}
       <div className="flex items-start gap-4">
         <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-2xl">
-          🧩
+          <Puzzle size={24} className="text-primary" />
         </div>
         <div className="flex flex-col gap-1">
           <h1 className="text-xl font-semibold">{plugin.name}</h1>
@@ -137,7 +138,7 @@ function PluginPageRoute() {
           <div className="flex flex-col gap-2">
             {plugin.pages.map((page) => (
               <div key={page.path} className="flex items-center gap-2 text-sm">
-                <span>{page.icon ?? "📄"}</span>
+                <span>{page.icon ?? <FileText size={16} className="text-muted-foreground" />}</span>
                 <span>{page.title}</span>
                 <span className="text-xs text-muted-foreground">({page.path})</span>
               </div>

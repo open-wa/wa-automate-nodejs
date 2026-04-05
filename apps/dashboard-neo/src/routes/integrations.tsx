@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { useState, useEffect } from "react"
+import { useState, useEffect, type ReactNode } from "react"
+import { MessageSquare, Link as LinkIcon, Zap, RefreshCw, Database } from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
 
 export const Route = createFileRoute("/integrations")({ component: IntegrationsPage })
@@ -11,7 +12,7 @@ type Integration = {
   description: string
   enabled: boolean
   config: Record<string, string>
-  icon: string
+  icon: ReactNode
 }
 
 const AVAILABLE_INTEGRATIONS: Omit<Integration, "enabled" | "config">[] = [
@@ -20,35 +21,35 @@ const AVAILABLE_INTEGRATIONS: Omit<Integration, "enabled" | "config">[] = [
     name: "Chatwoot",
     type: "crm",
     description: "Connect your WhatsApp session to Chatwoot for customer support management",
-    icon: "💬",
+    icon: <MessageSquare size={24} className="text-muted-foreground" />,
   },
   {
     id: "webhook",
     name: "Webhook",
     type: "automation",
     description: "Forward events to an external webhook URL",
-    icon: "🔗",
+    icon: <LinkIcon size={24} className="text-muted-foreground" />,
   },
   {
     id: "n8n",
     name: "n8n",
     type: "automation",
     description: "Connect to n8n workflows via webhook",
-    icon: "⚡",
+    icon: <Zap size={24} className="text-muted-foreground" />,
   },
   {
     id: "make",
     name: "Make (Integromat)",
     type: "automation",
     description: "Trigger Make scenarios from WhatsApp events",
-    icon: "🔄",
+    icon: <RefreshCw size={24} className="text-muted-foreground" />,
   },
   {
     id: "gsheet",
     name: "Google Sheets",
     type: "data",
     description: "Log messages and events to a Google Sheet",
-    icon: "📊",
+    icon: <Database size={24} className="text-muted-foreground" />,
   },
 ]
 
@@ -75,7 +76,7 @@ const CONFIG_FIELDS: Record<string, { key: string; label: string; placeholder: s
 }
 
 function IntegrationsPage() {
-  const { connected, ask } = useSocket()
+  const { connected } = useSocket()
   const [integrations, setIntegrations] = useState<Integration[]>([])
   const [editing, setEditing] = useState<string | null>(null)
   const [configValues, setConfigValues] = useState<Record<string, string>>({})
@@ -156,7 +157,9 @@ function IntegrationsPage() {
           <div key={integ.id} className="rounded-xl border bg-card p-5 shadow-sm">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{integ.icon}</span>
+                <div className="flex size-10 items-center justify-center rounded-lg bg-muted border">
+                  {integ.icon}
+                </div>
                 <div>
                   <h3 className="font-semibold">{integ.name}</h3>
                   <p className="text-xs text-muted-foreground">{integ.description}</p>

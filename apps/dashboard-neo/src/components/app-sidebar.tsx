@@ -31,27 +31,39 @@ interface PluginManifestEntry {
   tools: string[]
 }
 
+import {
+  Zap,
+  Activity,
+  BookOpen,
+  FlaskConical,
+  Bug,
+  MessageSquare,
+  Tv,
+  Puzzle,
+  Plug,
+} from "lucide-react"
+
 const navItems = [
   {
     group: "Overview",
     items: [
-      { title: "Session", href: "/", icon: "⚡" },
-      { title: "Events", href: "/events", icon: "📡" },
+      { title: "Session", href: "/", icon: <Zap size={18} /> },
+      { title: "Events", href: "/events", icon: <Activity size={18} /> },
     ],
   },
   {
     group: "Developer",
     items: [
-      { title: "API Docs", href: "/api-docs", icon: "📖" },
-      { title: "Playground", href: "/playground", icon: "🧪" },
-      { title: "Debug", href: "/debug", icon: "🔧" },
+      { title: "API Docs", href: "/api-docs", icon: <BookOpen size={18} /> },
+      { title: "Playground", href: "/playground", icon: <FlaskConical size={18} /> },
+      { title: "Debug", href: "/debug", icon: <Bug size={18} /> },
     ],
   },
   {
     group: "Communication",
     items: [
-      { title: "Chat", href: "/chat", icon: "💬" },
-      { title: "Portal", href: "/portal", icon: "🪄" },
+      { title: "Chat", href: "/chat", icon: <MessageSquare size={18} /> },
+      { title: "Portal", href: "/portal", icon: <Tv size={18} /> },
     ],
   },
 ]
@@ -96,7 +108,7 @@ export function AppSidebar() {
     plugin.pages.map((page) => ({
       title: page.title,
       href: `/plugins/${plugin.name}${page.path === "/" ? "" : `/${page.path}`}`,
-      icon: page.icon ?? "🧩",
+      icon: page.icon ?? <Puzzle size={18} />,
     }))
   )
 
@@ -108,7 +120,7 @@ export function AppSidebar() {
     pluginNavItems.push({
       title: plugin.name,
       href: `/plugins/${plugin.name}`,
-      icon: "🔌",
+      icon: <Plug size={18} />,
     })
   }
 
@@ -136,11 +148,9 @@ export function AppSidebar() {
                   const isActive = item.href === "/" ? currentPath === "/" : currentPath.startsWith(item.href)
                   return (
                     <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton asChild isActive={isActive}>
-                        <Link to={item.href}>
-                          <span className="text-base">{item.icon}</span>
-                          <span>{item.title}</span>
-                        </Link>
+                      <SidebarMenuButton isActive={isActive} render={<Link to={item.href} />}>
+                        <span className="text-base">{item.icon}</span>
+                        <span>{item.title}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   )
@@ -160,11 +170,9 @@ export function AppSidebar() {
                   const isActive = currentPath.startsWith(item.href)
                   return (
                     <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton asChild isActive={isActive}>
-                        <Link to={item.href}>
-                          <span className="text-base">{item.icon}</span>
-                          <span>{item.title}</span>
-                        </Link>
+                      <SidebarMenuButton isActive={isActive} render={<Link to={item.href} />}>
+                        <span className="text-base">{item.icon}</span>
+                        <span>{item.title}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   )

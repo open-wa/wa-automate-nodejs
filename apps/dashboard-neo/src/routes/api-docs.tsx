@@ -14,7 +14,7 @@ export const Route = createFileRoute("/api-docs")({ component: ApiDocsPage })
  * pointing at the classic /api-docs/ HTML page.
  */
 function ApiDocsPage() {
-  const { connected } = useSocket()
+  useSocket()
   const [apiUrl, setApiUrl] = useState<string | null>(null)
   const [useIframe, setUseIframe] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -65,7 +65,7 @@ function ScalarReference({ url }: { url: string }) {
 
   useEffect(() => {
     import("@scalar/api-reference-react").then((mod) => {
-      setScalarComponent(() => mod.ApiReferenceReact || mod.default)
+      setScalarComponent(() => mod.ApiReferenceReact || (mod as any).default)
     }).catch(() => {
       // Fallback handled by parent
     })

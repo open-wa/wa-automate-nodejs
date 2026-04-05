@@ -384,6 +384,13 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
 
     server.setClient(client as any);
 
+    openwaClient.events.on('launch.browser.init.after', async () => {
+        const page = openwaClient.getTransport().getPage();
+        if (page) {
+            await server.setPage(page as any).catch(() => {});
+        }
+    });
+
     await client.start();
 
     const readiness = openwaClient.getReadiness();

@@ -386,6 +386,24 @@ Exact order:
 
 **This ordering is likely part of the “magic sauce.”**
 
+### 12a. Legacy starts the live patch fetch early
+
+**Lines:** `initializer.ts:334`, then apply at `399-402`
+
+```ts
+const patchPromise = getPatch(config, spinner, debugInfo)
+...
+await getAndInjectLivePatch(waPage,spinner, await patchPromise, config, debugInfo)
+```
+
+**What it does:**
+- starts the patch fetch as soon as the session passes the concrete `VALID_SESSION` gate
+- overlaps patch network latency with the rest of the post-auth setup work
+
+**Why it exists:**
+- if patching is needed, you want that request in flight early, not after a bunch of later finalization work
+- this reduces the chances that a fragile post-auth/finalization issue prevents the session from ever attempting live patch fetch
+
 ---
 
 ### 13. First-login integrity refresh is special-cased
@@ -498,6 +516,51 @@ Current order now is:
 
 This is directionally closer to legacy than before, but still more layered.
 
+### 5a. v5 patch fetch is later than legacy and easier to skip entirely
+
+**Files:** `createClient.ts:615-643`, `Transport.ts:2354-2427`, `httpClient.ts:41-80`
+
+Current v5 patch fetch details:
+
+- default CDN URL:
+  - `packages/core/src/transport/Transport.ts:361`
+  - `https://cdn.openwa.dev/patches.json`
+- GitHub raw fallback URL:
+  - `Transport.ts:363`
+- remote fetch implementation:
+  - `Transport.ts:2398-2427`
+  - `httpClient.ts:41-80`
+
+Current v5 only begins patch preload after all of these have already completed:
+
+1. post-auth runtime reconciliation — `createClient.ts:568-587`
+2. runtime bridge registration — `createClient.ts:589-593`
+3. second post-auth runtime validation — `createClient.ts:595-613`
+4. session debug extraction — `createClient.ts:615-629`
+
+Only then does it do:
+
+```ts
+const patchPreloadPromise = transport.preloadPatchArtifacts(...)
+```
+
+**Why this matters:**
+- if launch dies before that point, v5 never even tries the CDN patch fetch
+- this can make it look like “sessions are not fetching patches from the CDN” when really they never reached the patch stage
+
+**Why you may not see the log even when patching is working:**
+- remote success logs only here:
+  - `Transport.ts:2383-2385`
+  - `patches_fetched_from_remote`
+- if `cachedPatch === true` and a valid cache exists, the log becomes:
+  - `patches_loaded_from_cache` (`Transport.ts:2371-2375`)
+- if remote fetch fails and builtin-only continues, you’ll only see:
+  - `remote_patch_fetch_failed` (`Transport.ts:703-707`)
+
+**Net effect:**
+- legacy begins live patch work earlier and is therefore more likely to fetch/log patches even on fragile launches
+- v5 delays patch fetch until much later, so launch regressions upstream can suppress patch fetch entirely
+
 ---
 
 ## Where v5 is taking too much liberty
@@ -577,6 +640,18 @@ v5:
 
 **Why this matters:**
 - every extra blocking phase is another place for a “works in legacy / stuck in v5” divergence
+
+### 6. Patch fetch starts too late in v5
+
+Legacy:
+- starts `getPatch(...)` immediately after `VALID_SESSION` passes
+
+v5:
+- starts patch preload only after post-auth reconciliation, runtime bridge registration, post-auth validation, and debug extraction
+
+**Why this is risky:**
+- a launch failure anywhere in that larger envelope prevents CDN patch fetch from even being attempted
+- it also removes the latency overlap legacy got “for free” by kicking off patch retrieval earlier
 
 ---
 
@@ -663,6 +738,7 @@ This is the biggest architectural lesson from legacy.
 3. Delayed/abstracted re-auth branching instead of handling it early and explicitly
 4. Introduced a nominal helper phase but not the real helper injections
 5. Added more post-auth blocking gates than legacy exposed
+6. Starts CDN patch fetch later than legacy, so fragile launches may never even attempt live patch retrieval
 
 ---
 

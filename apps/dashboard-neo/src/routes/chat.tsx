@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useState, useEffect, useRef, useCallback } from "react"
+import { MessageSquare } from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
 import { getClient } from "@/lib/api-client"
 
@@ -243,7 +244,9 @@ function ChatPage() {
         ) : (
           <div className="flex flex-1 items-center justify-center text-muted-foreground">
             <div className="text-center">
-              <div className="text-4xl">💬</div>
+              <div className="flex justify-center mb-2 opacity-50">
+                <MessageSquare size={48} />
+              </div>
               <p className="mt-2 text-sm">Select a chat to start messaging</p>
             </div>
           </div>

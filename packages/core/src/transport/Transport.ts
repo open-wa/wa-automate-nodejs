@@ -79,9 +79,16 @@ const BLOCKED_ASSET_RESOURCE_TYPES = new Set(['image', 'stylesheet', 'font']);
 
 /** JavaScript snippet to extract QR data from the WA Web page */
 const QR_CHECK_SCRIPT = `document.querySelector("canvas[aria-label]")?.parentElement?.getAttribute("data-ref") || null`;
+const QR_SELECTOR_PRIMARY = "canvas[aria-label='Scan this QR code to link a device!']";
+const QR_SELECTOR_FALLBACK = 'canvas[aria-label]';
+const PRE_API_HELPER_READY_CHECK_SCRIPT = `Boolean(!['jsSHA','axios','QRCode','Base64','objectHash'].find(x=>!window[x]))`;
 
 const WAPI_RUNTIME_CHECK_SCRIPT = 'Boolean(window.WAPI)';
 const STORE_MSG_CHECK_SCRIPT = 'Boolean(window.Store && window.Store.Msg)';
+const ATTEMPTING_REAUTH_CHECK_SCRIPT = `Boolean(
+  typeof localStorage !== 'undefined'
+  && (localStorage['WAToken2'] || localStorage['last-wid-md'])
+)`;
 const SESSION_INVALID_CHECK_SCRIPT = `Boolean(
   typeof localStorage !== 'undefined'
   && Object.prototype.hasOwnProperty.call(localStorage, 'old-logout-cred')
@@ -1338,71 +1345,88 @@ export class Transport {
     });
 
     this.qrWatcherAbort = new AbortController();
-    const startTime = Date.now();
 
-    return new Promise<string | null>((resolve) => {
-      const poll = async () => {
-        if (this.qrWatcherAbort?.signal.aborted) {
-          return resolve(null);
-        }
+    try {
+      await this.waitForFunctionProbe(`Boolean(${QR_CHECK_SCRIPT})`, {
+        timeoutMs: this.qrTimeoutMs,
+        polling: 'mutation',
+      });
+    } catch {
+      this.events.emit('launch.auth.timeout', {
+        correlationId: 'qr-wait',
+        ts: Date.now(),
+        step: 'qr_timeout',
+        details: { timeoutMs: this.qrTimeoutMs }
+      });
+      return null;
+    }
 
-        if (this.qrTimeoutMs !== 0 && Date.now() - startTime > this.qrTimeoutMs) {
-          this.events.emit('launch.auth.timeout', {
-            correlationId: 'qr-wait',
-            ts: Date.now(),
-            step: 'qr_timeout',
-            details: { timeoutMs: this.qrTimeoutMs }
-          });
-          return resolve(null);
-        }
+    if (this.qrWatcherAbort?.signal.aborted) {
+      return null;
+    }
 
-        try {
-          const qrData = await this.page!.evaluateScript<string | null>(QR_CHECK_SCRIPT);
-
-          if (qrData && typeof qrData === 'string' && qrData !== this.lastQrData) {
-            this.lastQrData = qrData;
-            this.qrAttempt++;
-
-            this.events.emit('launch.auth.qr.generated', {
-              correlationId: 'qr-wait',
-              ts: Date.now(),
-              step: 'qr_generated',
-              details: {
-                qr: qrData,
-                attemptInThisCycle: this.qrAttempt
-              }
-            });
-
-            this.logger.info('qr_code_generated', { attempt: this.qrAttempt });
-            return resolve(qrData);
+    try {
+      const qrData = await this.page.evaluateScript<string | null>(QR_CHECK_SCRIPT);
+      if (qrData && typeof qrData === 'string' && qrData !== this.lastQrData) {
+        this.lastQrData = qrData;
+        this.qrAttempt++;
+        this.events.emit('launch.auth.qr.generated', {
+          correlationId: 'qr-wait',
+          ts: Date.now(),
+          step: 'qr_generated',
+          details: {
+            qr: qrData,
+            attemptInThisCycle: this.qrAttempt
           }
-        } catch (err) {
-          this.logger.debug('qr_check_error', { error: err });
-        }
-
-        setTimeout(poll, this.qrPollingMs);
-      };
-
-      poll();
-    });
+        });
+        this.logger.info('qr_code_generated', { attempt: this.qrAttempt });
+      }
+      return qrData;
+    } catch (error) {
+      this.logger.debug('qr_check_error', { error });
+      return null;
+    }
   }
 
   async waitForSessionLoaded(timeoutMs: number = this.authTimeoutMs): Promise<boolean> {
-    return this.waitForBooleanScript(
-      AUTHENTICATED_SHELL_CHECK_SCRIPT,
-      timeoutMs,
-      'auth-wait',
-      'launch.auth.qr.scanned'
-    );
+    if (!this.page) {
+      throw new Error('Transport not initialized');
+    }
+
+    try {
+      await this.page.waitForFunction(AUTHENTICATED_SHELL_CHECK_SCRIPT, {
+        timeoutMs,
+        polling: 'mutation',
+      });
+      this.events.emit('launch.auth.qr.scanned', {
+        correlationId: 'auth-wait',
+        ts: Date.now(),
+        step: 'qr_scanned',
+      });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   async waitForRipeSession(timeoutMs: number = this.authTimeoutMs): Promise<boolean> {
-    return this.waitForBooleanScript(
-      RIPE_SESSION_CHECK_SCRIPT,
-      timeoutMs,
-      'ripe-session-wait',
-      'launch.auth.qr.scanned'
-    );
+    if (!this.page) {
+      throw new Error('Transport not initialized');
+    }
+
+    try {
+      await this.page.waitForFunction(RIPE_SESSION_CHECK_SCRIPT, {
+        timeoutMs,
+        polling: 1000,
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async detectAttemptingReauth(): Promise<boolean> {
+    return this.evaluateBooleanScript(ATTEMPTING_REAUTH_CHECK_SCRIPT);
   }
 
   async reconcilePostAuthRuntime(options: {
@@ -1465,48 +1489,42 @@ export class Transport {
     };
   }
 
-  private async waitForBooleanScript(
-    script: string,
-    timeoutMs: number,
-    correlationId: string,
-    successEventName: 'launch.auth.qr.scanned',
-  ): Promise<boolean> {
-    const startTime = Date.now();
+  private async waitForInitialAuthSignal(): Promise<'authenticated' | 'qr_needed' | 'invalid_session' | 'auth_timeout'> {
+    if (!this.page) {
+      throw new Error('Transport not initialized');
+    }
 
-    return new Promise<boolean>((resolve) => {
-      const poll = async () => {
-        if (timeoutMs !== 0 && Date.now() - startTime > timeoutMs) {
-          this.events.emit('launch.auth.timeout', {
-            correlationId: 'auth-wait',
-            ts: Date.now(),
-            step: 'auth_timeout',
-            details: { timeoutMs },
-          });
-          return resolve(false);
-        }
+    const timeoutMs = this.authTimeoutMs;
+    const signals: Array<Promise<'authenticated' | 'qr_needed' | 'invalid_session' | 'auth_timeout'>> = [
+      this.page.waitForFunction(AUTHENTICATED_SHELL_CHECK_SCRIPT, {
+        timeoutMs,
+        polling: 'mutation',
+      }).then(() => 'authenticated' as const),
+      Promise.race([
+        this.page.waitForSelector(QR_SELECTOR_PRIMARY, { timeoutMs }),
+        this.page.waitForSelector(QR_SELECTOR_FALLBACK, { timeoutMs }),
+      ]).then(() => 'qr_needed' as const),
+    ];
 
-        try {
-          const conditionSatisfied = await this.evaluateBooleanScript(script);
-          if (conditionSatisfied) {
-            this.events.emit(successEventName, {
-              correlationId,
-              ts: Date.now(),
-              step: 'qr_scanned',
-            });
-            return resolve(true);
-          }
-        } catch (error) {
-          this.logger.debug('boolean_script_wait_error', { correlationId, error });
-        }
+    if (!this.ignoreNuke) {
+      signals.push(
+        this.page.waitForFunction(SESSION_INVALID_CHECK_SCRIPT, {
+          timeoutMs,
+          polling: 'mutation',
+        }).then(() => 'invalid_session' as const),
+      );
+    }
 
-        setTimeout(poll, this.qrPollingMs);
-      };
+    if (timeoutMs !== 0) {
+      signals.push(new Promise((resolve) => {
+        setTimeout(() => resolve('auth_timeout'), timeoutMs);
+      }));
+    }
 
-      poll();
-    });
+    return Promise.race(signals);
   }
 
-  async waitForAuthentication(): Promise<AuthSettlementResult> {
+  async waitForAuthentication(_options?: { attemptingReauth?: boolean }): Promise<AuthSettlementResult> {
     if (!this.page) {
       throw new Error('Transport not initialized');
     }
@@ -1525,235 +1543,187 @@ export class Transport {
       details: { smartQr: false },
     });
 
-    const authStartTime = Date.now();
-    let qrFlowStartedAt: number | null = null;
-    let authMethod: AuthSettlementResult['authMethod'] = 'resumed_session';
-    let linkCodeRequested = false;
-    let linkCodeAvailabilityChecked = false;
-    let linkCodeSupported = false;
+    const initialSignal = await this.waitForInitialAuthSignal();
 
-    return new Promise<AuthSettlementResult>((resolve) => {
-      const poll = async () => {
-        try {
-          const sessionLoaded = await this.evaluateBooleanScript(AUTHENTICATED_SHELL_CHECK_SCRIPT);
-          if (sessionLoaded) {
-            this.events.emit('launch.auth.check.after', {
-              correlationId: 'auth-settle',
-              ts: Date.now(),
-              step: 'auth_check',
-              details: { isAuthenticated: true, method: 'shell_probe' },
-            });
+    if (initialSignal === 'authenticated') {
+      this.events.emit('launch.auth.check.after', {
+        correlationId: 'auth-settle',
+        ts: Date.now(),
+        step: 'auth_check',
+        details: { isAuthenticated: true, method: 'shell_probe' },
+      });
 
-            if (qrFlowStartedAt !== null) {
-              this.events.emit('launch.auth.qr.scanned', {
-                correlationId: 'auth-settle',
-                ts: Date.now(),
-                step: 'qr_scanned',
-              });
-            }
-
-            return resolve({
-              outcome: 'authenticated',
-              qrSeen: qrFlowStartedAt !== null,
-              qrAttempts: this.qrAttempt,
-              authMethod,
-            });
-          }
-
-          if (!this.ignoreNuke) {
-            const sessionInvalid = await this.evaluateBooleanScript(SESSION_INVALID_CHECK_SCRIPT);
-            if (sessionInvalid) {
-              this.events.emit('launch.auth.nuke.detected', {
-                correlationId: 'auth-settle',
-                ts: Date.now(),
-                step: 'nuke_detected',
-                details: { reason: 'old_logout_cred_detected' },
-              });
-
-              return resolve({
-                outcome: 'invalid_session',
-                qrSeen: qrFlowStartedAt !== null,
-                qrAttempts: this.qrAttempt,
-                authMethod,
-              });
-            }
-          }
-
-          if (this.linkCode && !linkCodeRequested) {
-            if (!linkCodeAvailabilityChecked) {
-              linkCodeSupported = await this.evaluateBooleanScript(LINK_CODE_AVAILABLE_CHECK_SCRIPT).catch(() => false);
-              linkCodeAvailabilityChecked = true;
-            }
-
-            if (linkCodeSupported) {
-              linkCodeRequested = true;
-              this.events.emit('launch.auth.linkCode.requested', {
-                correlationId: 'auth-settle',
-                ts: Date.now(),
-                step: 'link_code_requested',
-              });
-
-              const generatedLinkCode = await this.page!.evaluateScript<string | null>(`(() => {
-                try {
-                  return typeof window.linkCode === 'function' ? window.linkCode(${JSON.stringify(this.linkCode)}) : null;
-                } catch {
-                  return null;
-                }
-              })()`);
-
-              if (generatedLinkCode && typeof generatedLinkCode === 'string') {
-                if (qrFlowStartedAt === null) {
-                  qrFlowStartedAt = Date.now();
-                  this.lastQrData = null;
-                }
-
-                this.qrAttempt += 1;
-                authMethod = 'link_code';
-                this.events.emit('launch.auth.linkCode.generated', {
-                  correlationId: 'auth-settle',
-                  ts: Date.now(),
-                  step: 'link_code_generated',
-                  details: { linkCode: generatedLinkCode },
-                });
-
-                this.logger.info('link_code_generated', { attempt: this.qrAttempt });
-
-                if (this.qrMax && this.qrAttempt > this.qrMax) {
-                  return resolve({
-                    outcome: 'qr_max',
-                    qrSeen: true,
-                    qrAttempts: this.qrAttempt,
-                    authMethod,
-                  });
-                }
-              }
-            } else {
-              linkCodeRequested = true;
-              this.logger.warn('link_code_not_available', {
-                reason: 'window.linkCode_not_exposed',
-                fallback: 'qr_flow',
-              });
-            }
-          }
-
-          const qrData = await this.page!.evaluateScript<string | null>(QR_CHECK_SCRIPT);
-          if (qrData && typeof qrData === 'string') {
-            if (qrFlowStartedAt === null) {
-              qrFlowStartedAt = Date.now();
-              this.lastQrData = null;
-            }
-
-            if (qrData !== this.lastQrData) {
-              this.lastQrData = qrData;
-              this.qrAttempt++;
-              authMethod = 'qr';
-
-              if (this.qrMax && this.qrAttempt > this.qrMax) {
-                return resolve({
-                  outcome: 'qr_max',
-                  qrSeen: true,
-                  qrAttempts: this.qrAttempt,
-                  authMethod,
-                });
-              }
-
-              this.events.emit('launch.auth.qr.generated', {
-                correlationId: 'auth-settle',
-                ts: Date.now(),
-                step: 'qr_generated',
-                details: {
-                  qr: qrData,
-                  attemptInThisCycle: this.qrAttempt,
-                },
-              });
-
-              this.logger.info('qr_code_generated', { attempt: this.qrAttempt });
-            }
-
-            if (this.qrTimeoutMs !== 0 && Date.now() - qrFlowStartedAt > this.qrTimeoutMs) {
-              this.events.emit('launch.auth.timeout', {
-                correlationId: 'auth-settle',
-                ts: Date.now(),
-                step: 'qr_timeout',
-                details: { timeoutMs: this.qrTimeoutMs },
-              });
-
-              return resolve({
-                outcome: 'qr_timeout',
-                qrSeen: true,
-                qrAttempts: this.qrAttempt,
-              });
-            }
-          } else if (qrFlowStartedAt === null && this.authTimeoutMs !== 0 && Date.now() - authStartTime > this.authTimeoutMs) {
-            const phoneOutOfReach = await this.waitForPhoneOutOfReach();
-
-            this.events.emit('launch.auth.timeout', {
-              correlationId: 'auth-settle',
-              ts: Date.now(),
-              step: 'auth_timeout',
-              details: {
-                timeoutMs: this.authTimeoutMs,
-                phoneOutOfReach,
-              },
-            });
-
-            if (phoneOutOfReach) {
-              this.events.emit('launch.auth.phoneOutOfReach', {
-                correlationId: 'auth-settle',
-                ts: Date.now(),
-                step: 'phone_out_of_reach',
-                details: { reason: 'trying_to_reach_phone' },
-              });
-
-              return resolve({
-                outcome: 'phone_out_of_reach',
-                qrSeen: false,
-                qrAttempts: this.qrAttempt,
-                authMethod,
-              });
-            }
-
-            return resolve({
-              outcome: 'auth_timeout',
-              qrSeen: false,
-              qrAttempts: this.qrAttempt,
-              authMethod,
-            });
-          }
-        } catch (error) {
-          this.logger.debug('auth_settlement_check_error', { error });
-        }
-
-        setTimeout(poll, this.qrPollingMs);
+      return {
+        outcome: 'authenticated',
+        qrSeen: false,
+        qrAttempts: this.qrAttempt,
+        authMethod: 'resumed_session',
       };
+    }
 
-      poll();
-    });
+    if (initialSignal === 'invalid_session') {
+      this.events.emit('launch.auth.nuke.detected', {
+        correlationId: 'auth-settle',
+        ts: Date.now(),
+        step: 'nuke_detected',
+        details: { reason: 'old_logout_cred_detected' },
+      });
+
+      return {
+        outcome: 'invalid_session',
+        qrSeen: false,
+        qrAttempts: this.qrAttempt,
+        authMethod: 'resumed_session',
+      };
+    }
+
+    if (initialSignal === 'auth_timeout') {
+      const phoneOutOfReach = await this.waitForPhoneOutOfReach();
+
+      this.events.emit('launch.auth.timeout', {
+        correlationId: 'auth-settle',
+        ts: Date.now(),
+        step: 'auth_timeout',
+        details: {
+          timeoutMs: this.authTimeoutMs,
+          phoneOutOfReach,
+        },
+      });
+
+      if (phoneOutOfReach) {
+        this.events.emit('launch.auth.phoneOutOfReach', {
+          correlationId: 'auth-settle',
+          ts: Date.now(),
+          step: 'phone_out_of_reach',
+          details: { reason: 'trying_to_reach_phone' },
+        });
+
+        return {
+          outcome: 'phone_out_of_reach',
+          qrSeen: false,
+          qrAttempts: this.qrAttempt,
+          authMethod: 'resumed_session',
+        };
+      }
+
+      return {
+        outcome: 'auth_timeout',
+        qrSeen: false,
+        qrAttempts: this.qrAttempt,
+        authMethod: 'resumed_session',
+      };
+    }
+
+    if (this.linkCode) {
+      const linkCodeSupported = await this.evaluateBooleanScript(LINK_CODE_AVAILABLE_CHECK_SCRIPT).catch(() => false);
+      if (linkCodeSupported) {
+        this.events.emit('launch.auth.linkCode.requested', {
+          correlationId: 'auth-settle',
+          ts: Date.now(),
+          step: 'link_code_requested',
+        });
+
+        const generatedLinkCode = await this.page.evaluateScript<string | null>(`(() => {
+          try {
+            return typeof window.linkCode === 'function' ? window.linkCode(${JSON.stringify(this.linkCode)}) : null;
+          } catch {
+            return null;
+          }
+        })()`);
+
+        if (generatedLinkCode && typeof generatedLinkCode === 'string') {
+          this.qrAttempt += 1;
+          this.events.emit('launch.auth.linkCode.generated', {
+            correlationId: 'auth-settle',
+            ts: Date.now(),
+            step: 'link_code_generated',
+            details: { linkCode: generatedLinkCode },
+          });
+          this.logger.info('link_code_generated', { attempt: this.qrAttempt });
+
+          if (this.qrMax && this.qrAttempt > this.qrMax) {
+            return {
+              outcome: 'qr_max',
+              qrSeen: true,
+              qrAttempts: this.qrAttempt,
+              authMethod: 'link_code',
+            };
+          }
+
+          const linkCodeTimeoutMs = this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
+          const sessionLoaded = await this.waitForSessionLoaded(linkCodeTimeoutMs || this.authTimeoutMs);
+          return sessionLoaded
+            ? {
+              outcome: 'authenticated',
+              qrSeen: true,
+              qrAttempts: this.qrAttempt,
+              authMethod: 'link_code',
+            }
+            : {
+              outcome: 'qr_timeout',
+              qrSeen: true,
+              qrAttempts: this.qrAttempt,
+              authMethod: 'link_code',
+            };
+        }
+      } else {
+        this.logger.warn('link_code_not_available', {
+          reason: 'window.linkCode_not_exposed',
+          fallback: 'qr_flow',
+        });
+      }
+    }
+
+    const qrData = await this.waitForQr();
+    if (!qrData) {
+      return {
+        outcome: 'qr_timeout',
+        qrSeen: false,
+        qrAttempts: this.qrAttempt,
+        authMethod: 'qr',
+      };
+    }
+
+    if (this.qrMax && this.qrAttempt > this.qrMax) {
+      return {
+        outcome: 'qr_max',
+        qrSeen: true,
+        qrAttempts: this.qrAttempt,
+        authMethod: 'qr',
+      };
+    }
+
+    const qrScanTimeoutMs = this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
+    const sessionLoaded = await this.waitForSessionLoaded(qrScanTimeoutMs || this.authTimeoutMs);
+    return sessionLoaded
+      ? {
+        outcome: 'authenticated',
+        qrSeen: true,
+        qrAttempts: this.qrAttempt,
+        authMethod: 'qr',
+      }
+      : {
+        outcome: 'qr_timeout',
+        qrSeen: true,
+        qrAttempts: this.qrAttempt,
+        authMethod: 'qr',
+      };
   }
 
   private async waitForPhoneOutOfReach(): Promise<boolean> {
-    const startTime = Date.now();
+    if (!this.page) {
+      throw new Error('Transport not initialized');
+    }
 
-    return new Promise<boolean>((resolve) => {
-      const poll = async () => {
-        if (this.oorTimeoutMs !== 0 && Date.now() - startTime > this.oorTimeoutMs) {
-          return resolve(false);
-        }
-
-        try {
-          const phoneOutOfReach = await this.evaluateBooleanScript(PHONE_OUT_OF_REACH_CHECK_SCRIPT);
-          if (phoneOutOfReach) {
-            return resolve(true);
-          }
-        } catch (error) {
-          this.logger.debug('phone_out_of_reach_check_error', { error });
-        }
-
-        setTimeout(poll, this.qrPollingMs);
-      };
-
-      poll();
-    });
+    try {
+      await this.page.waitForFunction(PHONE_OUT_OF_REACH_CHECK_SCRIPT, {
+        timeoutMs: this.oorTimeoutMs,
+        polling: 'mutation',
+      });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   stopQrWatcher(): void {
@@ -1877,11 +1847,13 @@ export class Transport {
   }
 
   private async runPreApiHelperPhase(): Promise<void> {
+    const helpersReady = await this.evaluateBooleanScript(PRE_API_HELPER_READY_CHECK_SCRIPT).catch(() => false);
+
     this.events.emit('launch.helper.pre_api.before', {
       correlationId: 'transport-pre-api-helper',
       ts: Date.now(),
       step: 'pre_api_helper_phase',
-      details: { mode: 'noop' },
+      details: { mode: helpersReady ? 'noop' : 'scripts' },
     });
 
     const wapiScript = await Transport.getAssetScript('wapi.js');
@@ -1891,21 +1863,35 @@ export class Transport {
       throw new Error(`wapi.js still depends on legacy helper globals: ${audit.forbiddenMatches.join(', ')}`);
     }
 
-    this.logger.info('pre_api_helper_phase_complete', {
-      mode: audit.requiredLegacyHelpers.length > 0 ? 'required_but_unimplemented' : 'noop',
-      requiredLegacyHelpers: audit.requiredLegacyHelpers,
-    });
-
     if (audit.requiredLegacyHelpers.length > 0) {
       throw new Error(`Legacy pre-api helper phase is required but not implemented for: ${audit.requiredLegacyHelpers.join(', ')}`);
     }
+
+    if (!helpersReady) {
+      const helperAssets: Array<'qr.min.js' | 'hash.js'> = ['qr.min.js', 'hash.js'];
+      for (const asset of helperAssets) {
+        const assetPath = Transport.resolveAssetPath(asset);
+        const helperScript = await Transport.getAssetScript(asset);
+        this.logger.info('transport_injection_asset_evaluating', {
+          asset,
+          assetPath,
+          bytes: helperScript.length,
+        });
+        await this.page!.evaluateScript(helperScript);
+      }
+    }
+
+    this.logger.info('pre_api_helper_phase_complete', {
+      mode: helpersReady ? 'noop' : 'scripts',
+      requiredLegacyHelpers: audit.requiredLegacyHelpers,
+    });
 
     this.events.emit('launch.helper.pre_api.after', {
       correlationId: 'transport-pre-api-helper',
       ts: Date.now(),
       step: 'pre_api_helper_phase',
       details: {
-        mode: 'noop',
+        mode: helpersReady ? 'noop' : 'scripts',
         success: true,
         requiredLegacyHelpers: audit.requiredLegacyHelpers,
       },
@@ -2017,7 +2003,7 @@ export class Transport {
     }
   }
 
-  private static async getAssetScript(assetFileName: 'launch.js' | 'wapi.js'): Promise<string> {
+  private static async getAssetScript(assetFileName: 'launch.js' | 'wapi.js' | 'qr.min.js' | 'hash.js'): Promise<string> {
     const cached = Transport.assetScriptCache.get(assetFileName);
     if (cached) {
       return cached;
@@ -2028,7 +2014,7 @@ export class Transport {
     return scriptPromise;
   }
 
-  private static resolveAssetPath(assetFileName: 'launch.js' | 'wapi.js'): string {
+  private static resolveAssetPath(assetFileName: 'launch.js' | 'wapi.js' | 'qr.min.js' | 'hash.js'): string {
     const moduleDir = Transport.resolveCurrentModuleDir();
     const candidates = [
       join(moduleDir, 'assets', assetFileName),

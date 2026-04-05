@@ -55,7 +55,20 @@ export function getClientSync() {
 export function getApiUrl(): string {
   if (typeof window === "undefined") return "http://localhost:8080"
   
-  // 1. Check for URL Search Params (e.g. ?port=8081)
+  // 1. Check for Vite environment variables (development overrides)
+  if (import.meta.env?.VITE_EASY_API_PORT || import.meta.env?.VITE_EASY_API_HOST) {
+    const rawHost = import.meta.env.VITE_EASY_API_HOST || window.location.hostname
+    const hasProtocol = rawHost.startsWith('http://') || rawHost.startsWith('https://')
+    const protocol = hasProtocol ? '' : `${window.location.protocol}//`
+    const cleanHost = rawHost.replace(/\/$/, "") // remove trailing slash
+    
+    // Explicit port override via env takes precedence, fallback to existing parsed port if missing
+    const portParams = import.meta.env.VITE_EASY_API_PORT ? `:${import.meta.env.VITE_EASY_API_PORT}` : ''
+    
+    return `${protocol}${cleanHost}${portParams}`
+  }
+
+  // 2. Check for URL Search Params (e.g. ?port=8081)
   const urlParams = new URLSearchParams(window.location.search)
   const portParam = urlParams.get("port")
 

@@ -6,27 +6,135 @@ settings:
 
 catalogs:
   default:
+    '@elastic/elasticsearch':
+      specifier: ^9.2.0
+      version: 9.2.0
+    '@hono/node-server':
+      specifier: ^1.19.12
+      version: 1.19.12
     '@tailwindcss/vite':
       specifier: ^4.2.2
       version: 4.2.2
+    '@tanstack/react-query':
+      specifier: ^5.95.2
+      version: 5.95.2
+    '@tanstack/react-router':
+      specifier: ^1.168.8
+      version: 1.168.8
+    '@tanstack/react-router-devtools':
+      specifier: ^1.166.11
+      version: 1.166.11
+    '@tanstack/react-router-ssr-query':
+      specifier: ^1.166.10
+      version: 1.166.10
+    '@tanstack/react-start':
+      specifier: ^1.167.14
+      version: 1.167.14
+    '@tanstack/router-generator':
+      specifier: ^1.166.22
+      version: 1.166.22
+    '@tanstack/router-plugin':
+      specifier: ^1.167.10
+      version: 1.167.10
+    '@tanstack/start-static-server-functions':
+      specifier: ^1.166.23
+      version: 1.166.23
+    '@types/express':
+      specifier: ^4.17.14
+      version: 4.17.25
+    '@types/node':
+      specifier: ^25.5.0
+      version: 25.5.0
+    '@types/react':
+      specifier: ^19.2.14
+      version: 19.2.14
+    '@types/react-dom':
+      specifier: ^19.2.3
+      version: 19.2.3
+    '@types/tar-fs':
+      specifier: ^2.0.0
+      version: 2.0.4
     '@vitejs/plugin-react':
       specifier: ^6.0.1
       version: 6.0.1
+    autoprefixer:
+      specifier: ^10.4.14
+      version: 10.4.22
     clsx:
       specifier: 2.1.1
       version: 2.1.1
+    dotenv:
+      specifier: ^16.0.0
+      version: 16.6.1
+    hono:
+      specifier: ^4.12.9
+      version: 4.12.9
+    lucide-react:
+      specifier: ^0.378.0
+      version: 0.378.0
+    pm2:
+      specifier: ^5.3.0
+      version: 5.4.3
+    postcss:
+      specifier: ^8.4.24
+      version: 8.5.8
+    prettier:
+      specifier: ^3.0.0
+      version: 3.8.1
+    public-ip:
+      specifier: 4.0.4
+      version: 4.0.4
+    puppeteer:
+      specifier: ^24.40.0
+      version: 24.40.0
+    puppeteer-extra:
+      specifier: ^3.3.6
+      version: 3.3.6
+    react:
+      specifier: ^19.2.4
+      version: 19.2.4
+    react-dom:
+      specifier: ^19.2.4
+      version: 19.2.4
+    serve:
+      specifier: ^14.2.5
+      version: 14.2.5
+    socket.io:
+      specifier: ^4.5.4
+      version: 4.8.1
     socket.io-client:
       specifier: ^4.7.5
       version: 4.8.1
     tailwind-merge:
       specifier: 2.6.0
       version: 2.6.0
+    tailwindcss:
+      specifier: ^4.1.17
+      version: 4.2.2
+    ts-node:
+      specifier: ^10.9.1
+      version: 10.9.2
+    typescript:
+      specifier: ^6.0.2
+      version: 6.0.2
+    uuid:
+      specifier: ^9.0.0
+      version: 9.0.1
     vite:
       specifier: ^8.0.3
       version: 8.0.3
+    vite-tsconfig-paths:
+      specifier: ^6.1.1
+      version: 6.1.1
     vitest:
       specifier: ^4.1.2
       version: 4.1.2
+    winston:
+      specifier: ^3.8.2
+      version: 3.19.0
+    zod:
+      specifier: ^4.2.1
+      version: 4.3.6
 
 overrides:
   axios: npm:redaxios@0.5.1
@@ -197,6 +305,9 @@ importers:
       clsx:
         specifier: 'catalog:'
         version: 2.1.1
+      lucide-react:
+        specifier: 'catalog:'
+        version: 0.378.0(react@19.2.4)
       react:
         specifier: ^19.2.4
         version: 19.2.4

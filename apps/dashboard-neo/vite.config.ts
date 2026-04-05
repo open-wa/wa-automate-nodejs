@@ -14,6 +14,10 @@ const config = defineConfig({
     TanStackRouterVite(),
     viteReact(),
   ],
+  define: {
+    'import.meta.env.VITE_EASY_API_PORT': JSON.stringify(process.env.EASY_API_PORT || ''),
+    'import.meta.env.VITE_EASY_API_HOST': JSON.stringify(process.env.EASY_API_HOST || ''),
+  },
   build: {
     rollupOptions: {
       external: [

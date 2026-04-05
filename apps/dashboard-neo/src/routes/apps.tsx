@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { Puzzle } from "lucide-react"
 
 export const Route = createFileRoute("/apps")({ component: AppsPage })
 
@@ -12,7 +13,9 @@ function AppsPage() {
   return (
     <div className="flex h-[calc(100vh-3.5rem)] items-center justify-center">
       <div className="max-w-md text-center">
-        <div className="text-6xl">🧩</div>
+        <div className="flex justify-center mb-4 text-muted-foreground opacity-70">
+          <Puzzle size={56} />
+        </div>
         <h1 className="mt-4 text-2xl font-bold">Apps & Plugins</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Browse and install skills, plugins, and extensions into your running session.

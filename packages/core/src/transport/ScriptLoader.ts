@@ -1,8 +1,11 @@
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export const CORE_TRANSPORT_ASSETS = [
+  'qr.min.js',
+  'hash.js',
   'init_patch.js',
   'prog_observer.js',
   'wapi.js',
@@ -15,9 +18,7 @@ const WAPI_FORBIDDEN_LEGACY_HELPER_PATTERNS = [
   { helper: 'axios', pattern: /\baxios(?:\.\w+|\s*\()/ },
   { helper: 'jsSHA', pattern: /\bjsSHA\b/ },
   { helper: 'Base64', pattern: /window\.Base64\b/ },
-  { helper: 'QRCode', pattern: /\bQRCode\s*\(/ },
   { helper: 'CryptoJS', pattern: /\bCryptoJS\./ },
-  { helper: 'objectHash', pattern: /\bobjectHash\./ },
 ] as const;
 
 export function auditWapiHelperAssetRequirements(wapiSource: string): {
@@ -62,9 +63,10 @@ export class ScriptLoader {
 
     // In source, this file lives in src/transport and assets sit beside it in ./assets.
     // In bundled output, assets are copied to dist/transport/assets by copy-launch-script.mjs.
+    const _dirname = typeof __dirname !== 'undefined' ? __dirname : dirname(fileURLToPath(import.meta.url));
     const candidates = [
-      join(__dirname, 'assets'),
-      join(__dirname, 'transport', 'assets'),
+      join(_dirname, 'assets'),
+      join(_dirname, 'transport', 'assets'),
     ];
 
     const resolved = candidates.find((candidate) => existsSync(candidate));

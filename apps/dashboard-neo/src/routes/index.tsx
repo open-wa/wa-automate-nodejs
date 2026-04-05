@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useSession } from "@/lib/hooks/use-session"
 import { useSocket } from "@/lib/hooks/use-socket"
-
+import { Zap, Smartphone, Tag, Clock, Battery, Globe, Plug } from "lucide-react"
+import type { ReactNode } from "react"
 export const Route = createFileRoute("/")({ component: SessionPage })
 
 function formatUptime(seconds: number): string {
@@ -49,38 +50,38 @@ function SessionPage() {
         <StatCard
           title="Status"
           value={session.connected ? "Connected" : "Disconnected"}
-          icon="⚡"
+          icon={<Zap size={20} className="text-muted-foreground" />}
           variant={session.connected ? "success" : "destructive"}
         />
         <StatCard
           title="Host Number"
           value={session.hostNumber || "—"}
-          icon="📱"
+          icon={<Smartphone size={20} className="text-muted-foreground" />}
         />
         <StatCard
           title="WA Version"
           value={session.waVersion || "—"}
-          icon="🔖"
+          icon={<Tag size={20} className="text-muted-foreground" />}
         />
         <StatCard
           title="Uptime"
           value={formatUptime(session.uptime)}
-          icon="⏱️"
+          icon={<Clock size={20} className="text-muted-foreground" />}
         />
         <StatCard
           title="Battery"
           value={session.battery !== null ? `${session.battery}%` : "—"}
-          icon="🔋"
+          icon={<Battery size={20} className="text-muted-foreground" />}
         />
         <StatCard
           title="Connection State"
           value={session.connectionState}
-          icon="🌐"
+          icon={<Globe size={20} className="text-muted-foreground" />}
         />
         <StatCard
           title="Socket"
           value={connected ? "Connected" : "Disconnected"}
-          icon="🔌"
+          icon={<Plug size={20} className="text-muted-foreground" />}
           variant={connected ? "success" : "destructive"}
         />
       </div>
@@ -96,7 +97,7 @@ function StatCard({
 }: {
   title: string
   value: string
-  icon: string
+  icon: ReactNode
   variant?: "success" | "destructive"
 }) {
   return (

@@ -31,7 +31,6 @@ catalog:
   '@vitejs/plugin-react': ^6.0.1
   autoprefixer: ^10.4.14
   axe: ^11.0.2
-
   cabin: ^11.0.3
   clsx: 2.1.1
   cors: ^2.8.5
