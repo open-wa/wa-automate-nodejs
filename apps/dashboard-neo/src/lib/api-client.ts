@@ -52,11 +52,21 @@ export function getClientSync() {
  * In production the dashboard is served as a sidecar, so the API
  * is on a different port (8080 by default).
  */
-function getApiUrl(): string {
+export function getApiUrl(): string {
   if (typeof window === "undefined") return "http://localhost:8080"
-  // The API URL can be injected via a meta tag or env var
+  
+  // 1. Check for URL Search Params (e.g. ?port=8081)
+  const urlParams = new URLSearchParams(window.location.search)
+  const portParam = urlParams.get("port")
+
+  // 2. The API URL can be injected via a meta tag or env var
   const meta = document.querySelector<HTMLMetaElement>('meta[name="owa-api-url"]')
   if (meta?.content) return meta.content
-  // Default: same host, port 8080
-  return `${window.location.protocol}//${window.location.hostname}:8080`
+  
+  // 3. Fallback to host port
+  const port = portParam || window.location.port
+  const host = window.location.hostname
+  const protocol = window.location.protocol
+  
+  return port ? `${protocol}//${host}:${port}` : `${protocol}//${host}`
 }

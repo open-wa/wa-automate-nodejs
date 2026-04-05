@@ -1,25 +1,27 @@
 import { defineConfig } from "vite"
 import { devtools } from "@tanstack/devtools-vite"
-import { tanstackStart } from "@tanstack/react-start/plugin/vite"
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite"
 import viteReact from "@vitejs/plugin-react"
-import viteTsConfigPaths from "vite-tsconfig-paths"
 import tailwindcss from "@tailwindcss/vite"
-import { nitro } from "nitro/vite"
-
 const config = defineConfig({
+  base: '/dashboard/',
+  resolve: {
+    tsconfigPaths: true,
+  },
   plugins: [
     devtools(),
-    nitro(),
-    // this is the plugin that enables path aliases
-    viteTsConfigPaths({
-      projects: ["./tsconfig.json"],
-    }),
     tailwindcss(),
-    tanstackStart(),
+    TanStackRouterVite(),
     viteReact(),
   ],
   build: {
     rollupOptions: {
+      external: [
+        "@open-wa/schema",
+        "@open-wa/utils",
+        "@open-wa/config",
+        "jiti"
+      ],
       onwarn(warning, warn) {
         if (warning.code === "MODULE_LEVEL_DIRECTIVE" && warning.message.includes("use client")) {
           return
@@ -28,6 +30,9 @@ const config = defineConfig({
       },
     },
   },
+  ssr: {
+    noExternal: ['@open-wa/utils', 'jiti']
+  }
 })
 
 export default config

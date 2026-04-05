@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import { serve } from '@hono/node-server';
+import { getRequestListener } from '@hono/node-server';
+import { createServer } from 'http';
 import { createNodeWebSocket } from '@hono/node-ws';
 import { Server as SocketIOServer } from 'socket.io';
 import { getHttpMethodDefinitions, type Config } from '@open-wa/schema';
@@ -12,7 +13,7 @@ import { registerMetaRoutes } from './routes/meta';
 import { registerDebugRoutes } from './routes/debug';
 import { SocketManager } from './socket/SocketManager';
 import { ElasticEmitter } from './monitoring/elastic';
-import { launchDashboard, stopDashboard, isDashboardRunning } from './dashboard/launcher';
+import { setupViteDevServer, mountDashboardProduction } from './dashboard/middleware';
 import type { ApiServerOptions, ClientMethodMap } from './types';
 import type { IScreencastPage } from '@open-wa/screencaster/server';
 import type { PluginHost } from '@open-wa/core';
@@ -43,6 +44,7 @@ export class ApiServer {
   private latestQR: string | null = null;
   private screencastManager: ScreencastManager;
   private injectWebSocket: ((server: unknown) => void) | null = null;
+  private isDashboardActive: boolean = false;
   private pluginHost?: PluginHost;
   private readinessProvider?: () => {
     state?: string;
@@ -142,10 +144,31 @@ export class ApiServer {
   }
 
   public async start() {
-    const server = serve({
-      fetch: this.app.fetch,
-      port: this.config.port,
-      hostname: this.config.host,
+    let viteDevServer: any = null;
+    if (this.config.dashboard) {
+      viteDevServer = await setupViteDevServer();
+      if (!viteDevServer) {
+        this.isDashboardActive = await mountDashboardProduction(this.app);
+      } else {
+        this.isDashboardActive = true;
+      }
+    }
+
+    const honoListener = getRequestListener(this.app.fetch);
+    
+    const requestListener = (req: any, res: any) => {
+      if (viteDevServer && req.url?.startsWith('/dashboard')) {
+        viteDevServer.middlewares(req, res, () => {
+          honoListener(req, res);
+        });
+        return;
+      }
+      honoListener(req, res);
+    };
+
+    const server = createServer(requestListener);
+    server.listen(this.config.port, this.config.host, () => {
+      console.log(`Server running on http://${this.config.host}:${this.config.port}`);
     });
 
     // Inject WebSocket support into the HTTP server (Node.js adapter)
@@ -169,27 +192,9 @@ export class ApiServer {
     if (this.elasticEmitter) {
       await this.elasticEmitter.start();
     }
-
-    console.log(`Server running on http://${this.config.host}:${this.config.port}`);
-
-    // Launch dashboard sidecar
-    if (this.config.dashboard) {
-      launchDashboard({
-        port: this.config.dashboardPort,
-        apiPort: this.config.port,
-        apiHost: this.config.host,
-        onReady: (url) => {
-          console.log(`\n🚀 Dashboard ready at ${url}\n`);
-        },
-        onError: (err) => {
-          console.warn(`Dashboard failed to start: ${err.message}`);
-        },
-      });
-    }
   }
 
   public async stop() {
-    stopDashboard();
     await this.screencastManager.destroy();
     if (this.elasticEmitter) {
       await this.elasticEmitter.stop();
@@ -197,7 +202,7 @@ export class ApiServer {
   }
 
   public isDashboardRunning() {
-    return isDashboardRunning();
+    return this.isDashboardActive;
   }
 
   private isSessionConnected() {

@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { useSocket } from "@/lib/hooks/use-socket"
 import { ScreencastClient } from "@open-wa/screencaster/client"
 import type { FrameMessage, NavStateMessage } from "@open-wa/screencaster/client"
+import { getApiUrl } from "@/lib/api-client"
 
 export const Route = createFileRoute("/portal")({ component: PortalPage })
 
@@ -35,7 +36,7 @@ function PortalPage() {
     setStatus("connecting")
     setErrorMsg(null)
 
-    const wsUrl = `ws://${window.location.hostname}:8080/screencast`
+    const wsUrl = getApiUrl().replace(/^http/, "ws") + "/screencast"
     const client = new ScreencastClient({ url: wsUrl, autoStart: true })
     clientRef.current = client
 
@@ -234,7 +235,7 @@ function PortalPage() {
           <div className="text-center text-muted-foreground">
             <div className="text-6xl">🪄</div>
             <p className="mt-4 text-sm">Click "Start Portal" to see your WhatsApp session in real-time</p>
-            <p className="mt-1 text-xs">Requires the API server to be running at port 8080</p>
+            <p className="mt-1 text-xs">Targeting API server at: {getApiUrl()}</p>
           </div>
         )}
 

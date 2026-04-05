@@ -1,32 +1,22 @@
-import { HeadContent, Outlet, Scripts, createRootRoute } from "@tanstack/react-router"
+import { Outlet, createRootRoute } from "@tanstack/react-router"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SessionStatusBadge } from "@/components/session-status-badge"
 import { Separator } from "@/components/ui/separator"
 
-import appCss from "../styles.css?url"
-
 export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "open-wa Dashboard" },
-      { name: "description", content: "Session management dashboard for open-wa" },
-    ],
-    links: [{ rel: "stylesheet", href: appCss }],
-  }),
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      port: search.port ? Number(search.port) : undefined,
+    }
+  },
   component: RootComponent,
 })
 
 function RootComponent() {
   return (
-    <html lang="en" dir="rtl" className="dark">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
+    <>
         <TooltipProvider>
           <SidebarProvider>
             <AppSidebar />
@@ -45,8 +35,6 @@ function RootComponent() {
             </SidebarInset>
           </SidebarProvider>
         </TooltipProvider>
-        <Scripts />
-      </body>
-    </html>
+    </>
   )
 }
