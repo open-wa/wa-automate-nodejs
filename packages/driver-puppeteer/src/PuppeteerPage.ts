@@ -54,6 +54,20 @@ class PuppeteerFrame implements IFrame {
     }
 }
 
+function normalizeSnippet(input: string): string {
+    return input.replace(/\s+/g, ' ').trim().slice(0, 160);
+}
+
+function enrichEvaluateError(kind: 'evaluate' | 'evaluateScript', source: string, error: unknown): never {
+    const normalized = error instanceof Error ? error : new Error(String(error));
+    const preview = normalizeSnippet(source);
+    const enriched = new Error(
+        `[puppeteer:${kind}] ${normalized.message} | scriptBytes=${source.length} | scriptPreview=${preview}`,
+    );
+    enriched.stack = normalized.stack ?? enriched.message;
+    throw enriched;
+}
+
 class PuppeteerRequest implements IRequest {
     constructor(private readonly request: HTTPRequest, private readonly page: Page) {}
 
@@ -160,11 +174,20 @@ export class PuppeteerPage implements IPage {
     }
     
     async evaluate<Arg, Ret>(fn: (arg: Arg) => Ret | Promise<Ret>, arg: Arg): Promise<Ret> {
-        return await this.page.evaluate(fn as any, arg as any) as Ret;
+        try {
+            return await this.page.evaluate(fn as any, arg as any) as Ret;
+        } catch (error) {
+            const fnSource = typeof fn === 'function' ? fn.toString() : '[anonymous evaluate fn]';
+            return enrichEvaluateError('evaluate', fnSource, error);
+        }
     }
     
     async evaluateScript<Ret = unknown>(script: string): Promise<Ret> {
-        return await this.page.evaluate(script) as Ret;
+        try {
+            return await this.page.evaluate(script) as Ret;
+        } catch (error) {
+            return enrichEvaluateError('evaluateScript', script, error);
+        }
     }
 
     async addInitScript(script: string): Promise<DisposableHandle> {

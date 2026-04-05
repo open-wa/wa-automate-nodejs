@@ -2200,7 +2200,13 @@ export class Transport {
       throw new Error('Transport not initialized');
     }
 
+    const wapiAssetPath = Transport.resolveWapiScriptPath();
     const wapiScript = await Transport.getAssetScript('wapi.js');
+    this.logger.info('transport_injection_asset_evaluating', {
+      asset: 'wapi.js',
+      assetPath: wapiAssetPath,
+      bytes: wapiScript.length,
+    });
     await this.page.evaluateScript(wapiScript);
 
     await this.waitForFunctionProbe(WAPI_RUNTIME_CHECK_SCRIPT, { timeoutMs: 3000, polling: 50 });
@@ -2214,7 +2220,13 @@ export class Transport {
       this.logger.warn('wapi_bootstrap_missing_runtime_after_wapi_asset');
     }
 
+    const launchAssetPath = Transport.resolveLaunchScriptPath();
     const launchScript = await Transport.getAssetScript('launch.js');
+    this.logger.info('transport_injection_asset_evaluating', {
+      asset: 'launch.js',
+      assetPath: launchAssetPath,
+      bytes: launchScript.length,
+    });
     await this.page.evaluateScript(launchScript);
 
     await this.waitForFunctionProbe(WAPI_RUNTIME_CHECK_SCRIPT, { timeoutMs: 3000, polling: 50 });

@@ -1,8 +1,10 @@
-import ora, { type Ora } from 'ora';
+import ora from 'ora';
 
-let activeSpinner: Ora | null = null;
+type SpinnerInstance = ReturnType<typeof ora>;
 
-export function start(text: string): Ora {
+let activeSpinner: SpinnerInstance | null = null;
+
+export function start(text: string): void {
     if (activeSpinner) {
         activeSpinner.stop();
     }
@@ -11,8 +13,6 @@ export function start(text: string): Ora {
         text,
         color: 'cyan',
     }).start();
-
-    return activeSpinner;
 }
 
 export function succeed(text?: string): void {

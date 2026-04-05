@@ -83,6 +83,18 @@ interface RuntimeBridgeProbeResult {
 interface RuntimeBridgeInstallResult {
   status: 'registered' | 'already_registered' | 'missing_runtime' | 'missing_method' | 'failed';
   error?: string;
+  errorStack?: string;
+}
+
+interface RegistrationFailureContext {
+  bridgeId?: string;
+  bindingName?: string;
+  wapiMethod?: string;
+  runtimeId?: string;
+  installStatus?: RuntimeBridgeInstallResult['status'];
+  installError?: string;
+  installErrorStack?: string;
+  runtimeAsset?: string;
 }
 
 function createGenerationToken(prefix: string): string {
@@ -298,18 +310,28 @@ export class InjectionController {
 
       bridge.boundRuntimeId = null;
 
-      if (bridge.required) {
-        allRequiredBound = false;
-        if (result.status === 'missing_method') {
-          missingRuntimeMethods.add(bridge.wapiMethod);
+        if (bridge.required) {
+          allRequiredBound = false;
+          if (result.status === 'missing_method') {
+            missingRuntimeMethods.add(bridge.wapiMethod);
+          }
+          this.noteRegistrationFailure(
+            `runtime_bridge:${bridge.id}`,
+            new Error(result.error ?? result.status),
+            true,
+            {
+              bridgeId: bridge.id,
+              bindingName: bridge.bindingName,
+              wapiMethod: bridge.wapiMethod,
+              runtimeId,
+              installStatus: result.status,
+              installError: result.error,
+              installErrorStack: result.errorStack,
+              runtimeAsset: 'wapi.js',
+            },
+          );
         }
-        this.noteRegistrationFailure(
-          `runtime_bridge:${bridge.id}`,
-          new Error(result.error ?? result.status),
-          true,
-        );
       }
-    }
 
     if (anyBridgeBound) {
       await this.ensureBridgeCleanupHandle(runtimeId);
@@ -840,6 +862,7 @@ export class InjectionController {
         return {
           status: 'failed',
           error: error instanceof Error ? error.message : String(error),
+          errorStack: error instanceof Error ? error.stack : undefined,
         } satisfies RuntimeBridgeInstallResult;
       }
     }, {
@@ -897,7 +920,7 @@ export class InjectionController {
     }
   }
 
-  private noteRegistrationFailure(scope: string, error: unknown, required: boolean): void {
+  private noteRegistrationFailure(scope: string, error: unknown, required: boolean, context?: RegistrationFailureContext): void {
     const normalized = error instanceof Error ? error : new Error(String(error));
     const degradedReasons = required
       ? [...this.health.degradedReasons, scope]
@@ -918,6 +941,17 @@ export class InjectionController {
       scope,
       required,
       error: normalized.message,
+      errorStack: context?.installErrorStack ?? normalized.stack,
+      phase: this.health.phase,
+      generation: this.health.generation,
+      pageUrl: this.page?.url?.(),
+      bridgeId: context?.bridgeId,
+      bindingName: context?.bindingName,
+      wapiMethod: context?.wapiMethod,
+      runtimeId: context?.runtimeId,
+      installStatus: context?.installStatus,
+      installError: context?.installError,
+      runtimeAsset: context?.runtimeAsset,
     });
   }
 }

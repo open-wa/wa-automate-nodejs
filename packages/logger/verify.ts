@@ -12,7 +12,7 @@ logger.error('Error level message', { error: new Error('Test error') });
 
 console.log('--- Testing Terminal UI ---');
 terminal.banner.show('Logger Test');
-const spinner = terminal.spinner.start('Testing spinner...');
+terminal.spinner.start('Testing spinner...');
 setTimeout(() => {
     terminal.spinner.succeed('Spinner success!');
 }, 1000);
