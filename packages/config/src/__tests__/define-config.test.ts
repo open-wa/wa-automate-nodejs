@@ -36,6 +36,16 @@ describe('defineConfig', () => {
       sessionId: 'async-session',
     });
   });
+
+  it('remains a shape helper and does not validate the config payload', () => {
+    const config = defineConfig({
+      port: 'not-a-number' as unknown as number,
+    });
+
+    expect(config).toEqual({
+      port: 'not-a-number',
+    });
+  });
 });
 
 describe('resolveConfigInput', () => {

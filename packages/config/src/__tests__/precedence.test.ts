@@ -134,6 +134,24 @@ describe('Configuration Precedence', () => {
       expect(result.sources).toContain(ConfigSource.CLI);
     });
 
+    it('preserves merge ownership after CLI source-local validation has already produced overrides', () => {
+      const validatedCliOverrides = { port: 9090, headless: false };
+      const result = resolveConfigSync({
+        fileConfig: { port: 3000, headless: true },
+        envOptions: { env: { WA_PORT: '4000' } },
+        cliOverrides: validatedCliOverrides,
+      });
+
+      expect(result.config.port).toBe(9090);
+      expect(result.config.headless).toBe(false);
+      expect(result.sources).toEqual([
+        ConfigSource.DEFAULTS,
+        ConfigSource.FILE,
+        ConfigSource.ENV,
+        ConfigSource.CLI,
+      ]);
+    });
+
     it('PROGRAMMATIC (priority 5): overrides all other sources', () => {
       const result = resolveConfigSync({
         fileConfig: { port: 3000 },

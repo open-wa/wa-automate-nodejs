@@ -3,10 +3,17 @@ import { Client as ClientFacade } from '@open-wa/client';
 import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
 import { WAServer } from './server/hono-server';
 import { resolveConfig, type PartialConfig, type Config, type TrackedConfig } from '@open-wa/config';
-import boxen from 'boxen';
-import qrcode from 'qrcode-terminal';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { getCliOutputSink } from './cli/output-sink';
+
+export interface CliRuntimeResult {
+    server: WAServer;
+    client: ClientFacade;
+    config: Config;
+    events: ClientFacade['events'];
+}
 
 const CHROME_CACHE_FILE = resolve(process.cwd(), '.open-wa', 'chrome-executable-path.json');
 
@@ -19,16 +26,6 @@ interface ExecutablePathResolution {
     executablePath?: string;
     source: 'config' | 'cache' | 'chrome_installation' | 'driver_default';
     warning?: string;
-}
-
-function renderTerminalQr(qr: string, sessionId: string) {
-    qrcode.generate(qr, { small: true }, (terminalQrCode) => {
-        console.log(boxen(terminalQrCode, {
-            title: sessionId,
-            padding: 1,
-            titleAlignment: 'center',
-        }));
-    });
 }
 
 export interface ParsedCliArgs {
@@ -262,34 +259,41 @@ export async function resolveExecutablePath(
 
 function printStartupSummary(config: Config, resolution: ExecutablePathResolution, preferLocalChrome: boolean) {
     const host = config.host.includes('http') ? config.host : `http://${config.host}`;
-    console.log(`Easy API session: ${config.sessionId}`);
-    console.log(`Health: ${host}:${config.port}/health`);
-    console.log(`API Explorer: ${host}:${config.port}/api-docs/`);
-    console.log(`Swagger JSON: ${host}:${config.port}/meta/swagger.json`);
-    console.log(`Postman JSON: ${host}:${config.port}/meta/postman.json`);
-    console.log(`Socket mode: ${config.socketMode ? 'enabled' : 'disabled'}`);
-    console.log(`Browser mode: ${config.headless ? 'headless' : 'headful'}`);
+    const sink = getCliOutputSink();
+    sink.write({ level: 'info', message: `Easy API session: ${config.sessionId}` });
+    sink.write({ level: 'info', message: `Health: ${host}:${config.port}/health` });
+    sink.write({ level: 'info', message: `API Explorer: ${host}:${config.port}/api-docs/` });
+    sink.write({ level: 'info', message: `Swagger JSON: ${host}:${config.port}/meta/swagger.json` });
+    sink.write({ level: 'info', message: `Postman JSON: ${host}:${config.port}/meta/postman.json` });
+    sink.write({ level: 'info', message: `Socket mode: ${config.socketMode ? 'enabled' : 'disabled'}` });
+    sink.write({ level: 'info', message: `Browser mode: ${config.headless ? 'headless' : 'headful'}` });
     if (config.dashboard) {
-        console.log(`Dashboard: http://localhost:${config.dashboardPort}`);
+        sink.write({ level: 'info', message: `Dashboard: ${host}:${config.port}/dashboard/` });
     } else {
-        console.log('Dashboard: disabled (--no-dashboard)');
+        sink.write({ level: 'info', message: 'Dashboard: disabled (--no-dashboard)' });
     }
     if (resolution.source === 'config' && config.executablePath) {
-        console.log(`Browser executable: explicit override (${config.executablePath})`);
+        sink.write({ level: 'info', message: `Browser executable: explicit override (${config.executablePath})` });
     } else if (resolution.source === 'cache') {
-        console.log(`Browser executable: local Chrome from cache (${resolution.executablePath})`);
+        sink.write({ level: 'info', message: `Browser executable: local Chrome from cache (${resolution.executablePath})` });
     } else if (resolution.source === 'chrome_installation') {
-        console.log(`Browser executable: local Chrome detected (${resolution.executablePath})`);
+        sink.write({ level: 'info', message: `Browser executable: local Chrome detected (${resolution.executablePath})` });
     } else if (preferLocalChrome) {
-        console.log('Browser executable: driver default fallback (local Chrome unavailable)');
+        sink.write({ level: 'info', message: 'Browser executable: driver default fallback (local Chrome unavailable)' });
     }
     if (config.webhook) {
-        console.warn(`Webhook configured (${config.webhook}) but v5 CLI webhook registration parity is not yet restored.`);
+        sink.write({
+            level: 'warn',
+            message: `Webhook configured (${config.webhook}) but v5 CLI webhook registration parity is not yet restored.`,
+        });
     }
 }
 
-export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise<{ server: WAServer; client: ClientFacade; config: Config }> {
+export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise<CliRuntimeResult> {
     const { configPath, cliOverrides, verbose, unsupportedWarnings } = parsedArgs;
+    const sink = getCliOutputSink();
+
+    sink.status({ phase: 'boot' });
 
     const { config, sources, configFilePath, rawConfigs } = await resolveConfig({
         configPath,
@@ -306,27 +310,32 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
     });
 
     if (verbose) {
-        console.log(`Config sources: ${sources.join(', ')}`);
+        sink.write({ level: 'info', message: `Config sources: ${sources.join(', ')}` });
         if (configFilePath) {
-            console.log(`Config file: ${configFilePath}`);
+            sink.write({ level: 'info', message: `Config file: ${configFilePath}` });
         }
     }
 
-    unsupportedWarnings.forEach((warning) => console.warn(`Compatibility warning: ${warning}`));
+    sink.status({ phase: 'config.resolved', sessionId: config.sessionId });
+
+    unsupportedWarnings.forEach((warning) => sink.write({ level: 'warn', message: `Compatibility warning: ${warning}` }));
 
     const preferLocalChrome = shouldPreferLocalChrome(config, rawConfigs);
     const executableResolution = await resolveExecutablePath(config, { preferLocalChrome });
     if (executableResolution.warning) {
-        console.warn(executableResolution.warning);
+        sink.write({ level: 'warn', message: executableResolution.warning });
     }
 
     const server = new WAServer(config);
+    sink.status({ phase: 'server.starting', sessionId: config.sessionId });
 
     await server.start();
+    sink.status({ phase: 'server.started', sessionId: config.sessionId });
 
     printStartupSummary(config, executableResolution, preferLocalChrome);
 
-    console.log('Starting WhatsApp Client...');
+    sink.status({ phase: 'client.starting', sessionId: config.sessionId });
+    sink.write({ level: 'info', message: 'Starting WhatsApp Client...' });
 
     const driver = new PuppeteerDriver();
     const openwaClient = await createClient({
@@ -359,9 +368,10 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         }
 
         if (config.qrLogSkip) {
-            console.log('New QR Code generated. Not printing in console because qrLogSkip is set to true');
+            sink.write({ level: 'info', message: 'New QR Code generated. Not printing in console because qrLogSkip is set to true' });
         } else {
-            renderTerminalQr(qr, config.sessionId);
+            sink.status({ phase: 'auth.qr', sessionId: config.sessionId, detail: 'QR code generated' });
+            sink.qr({ qr, sessionId: config.sessionId });
         }
 
         server.setQR(qr);
@@ -377,43 +387,59 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
     await client.start();
 
     const readiness = openwaClient.getReadiness();
-    console.log(`WhatsApp Client ready with state: ${client.getState()} (status=${readiness.status}, exposureSafe=${readiness.exposureSafe})`);
+    sink.status({
+        phase: 'client.ready',
+        sessionId: config.sessionId,
+        detail: `status=${readiness.status}, exposureSafe=${readiness.exposureSafe}`,
+    });
+    sink.write({
+        level: 'info',
+        message: `WhatsApp Client ready with state: ${client.getState()} (status=${readiness.status}, exposureSafe=${readiness.exposureSafe})`,
+    });
 
-    return { server, client, config };
+    return { server, client, config, events: openwaClient.events };
 }
 
-export async function main(argv: string[] = process.argv.slice(2)): Promise<{ server: WAServer; client: ClientFacade; config: Config } | void> {
+export async function main(argv: string[] = process.argv.slice(2)): Promise<CliRuntimeResult | void> {
     const parsedArgs = parseCliArgs(argv);
 
     if (parsedArgs.pm2) {
         const { spawn } = require('child_process');
+        const sink = getCliOutputSink();
         try {
-            const pm2 = spawn('pm2');
+            const pm2 = spawn('pm2', ['--version']);
 
-            new Promise<void>((resolve, reject) => {
+            await new Promise<void>((resolve, reject) => {
                 pm2.on('error', reject);
+                pm2.on('exit', (code: number | null) => {
+                    if (code === 0) {
+                        resolve();
+                        return;
+                    }
+
+                    reject(new Error(`pm2 probe exited with code ${code ?? 'unknown'}`));
+                });
                 pm2.stdout.on('data', () => resolve());
             });
 
-            const pm2Flags = parsedArgs.forwardedArgs;
-            const cliPath = '/Users/Mohammed/projects/tools/wa/packages/wa-automate/dist/cli.cjs';
+            const pm2Flags = parsedArgs.forwardedArgs.filter((flag: string) => flag !== '--pm2');
+            const cliPath = fileURLToPath(new URL('../dist/cli.cjs', import.meta.url));
 
             spawn('pm2', [
                 'start',
                 cliPath,
                 '--name', parsedArgs.procName,
                 '--stop-exit-codes', '88',
-                ...pm2Flags,
                 '--',
-                ...pm2Flags.filter((x: string) => !pm2Flags.includes(x))
+                ...pm2Flags,
             ], {
                 stdio: 'inherit',
                 detached: true
             });
             return;
         } catch (error: any) {
-            if (error.errorno === -2) {
-                console.error('pm2 not found. Please install with: npm install -g pm2');
+            if (error?.code === 'ENOENT' || error?.errno === -2) {
+                sink.write({ level: 'error', message: 'pm2 not found. Please install with: npm install -g pm2' });
                 return;
             }
             throw error;

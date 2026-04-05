@@ -5,6 +5,7 @@ export interface TunnelClientOptions {
   proxyToken: string;
   sessionId: string;
   localSessionPort: number;
+  log?: (level: 'info' | 'warn' | 'error', message: string) => void;
 }
 
 export class TunnelClient {
@@ -13,6 +14,25 @@ export class TunnelClient {
   private isDestroyed = false;
 
   constructor(private options: TunnelClientOptions) {}
+
+  private log(level: 'info' | 'warn' | 'error', message: string) {
+    if (this.options.log) {
+      this.options.log(level, message);
+      return;
+    }
+
+    if (level === 'warn') {
+      console.warn(message);
+      return;
+    }
+
+    if (level === 'error') {
+      console.error(message);
+      return;
+    }
+
+    console.log(message);
+  }
 
   public connect() {
     if (this.isDestroyed) return;
@@ -26,7 +46,7 @@ export class TunnelClient {
     this.ws = new WebSocket(connectUrl);
 
     this.ws.on('open', () => {
-      console.log(`[TunnelClient] Connected upstream for session ${this.options.sessionId}`);
+      this.log('info', `[TunnelClient] Connected upstream for session ${this.options.sessionId}`);
     });
 
     this.ws.on('message', async (data: Buffer) => {
@@ -53,13 +73,13 @@ export class TunnelClient {
 
     this.ws.on('close', () => {
       if (!this.isDestroyed) {
-        console.log(`[TunnelClient] Disconnected. Reconnecting in 3s...`);
+        this.log('warn', `[TunnelClient] Disconnected. Reconnecting in 3s...`);
         this.reconnectTimeout = setTimeout(() => this.connect(), 3000);
       }
     });
 
     this.ws.on('error', (err: any) => {
-      console.error(`[TunnelClient] WebSocket error:`, err.message);
+      this.log('error', `[TunnelClient] WebSocket error: ${err.message}`);
     });
   }
 
@@ -91,7 +111,7 @@ export class TunnelClient {
 
       this.ws?.send(JSON.stringify(responseMsg));
     } catch (e: any) {
-      console.error(`[TunnelClient] Failed to proxy http_request:`, e);
+      this.log('error', `[TunnelClient] Failed to proxy http_request: ${e instanceof Error ? e.message : String(e)}`);
       this.ws?.send(JSON.stringify({
         type: 'http_response',
         id: msg.id,
@@ -125,7 +145,7 @@ export class TunnelClient {
 
       this.ws?.send(JSON.stringify(responseMsg));
     } catch (e: any) {
-      console.error(`[TunnelClient] Failed to proxy rpc_request:`, e);
+      this.log('error', `[TunnelClient] Failed to proxy rpc_request: ${e instanceof Error ? e.message : String(e)}`);
       this.ws?.send(JSON.stringify({
         type: 'rpc_response',
         id: msg.id,
@@ -141,5 +161,9 @@ export class TunnelClient {
       this.ws.close();
       this.ws = null;
     }
+  }
+
+  public disconnect() {
+    this.destroy();
   }
 }
