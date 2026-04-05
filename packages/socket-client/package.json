@@ -6,14 +6,15 @@
   "types": "./dist/index.d.cts",
   "exports": {
     ".": {
-      "import": "./dist/index.cjs",
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.cjs",
-      "types": "./dist/index.d.cts"
+      "default": "./dist/index.cjs"
     }
   },
   "scripts": {
-    "build": "tsdown src/index.ts --format cjs",
-    "dev": "tsdown src/index.ts --format cjs --watch",
+    "build": "tsdown src/index.ts --format cjs,esm",
+    "dev": "tsdown src/index.ts --format cjs,esm --watch",
     "lint": "oxlint src test",
     "test": "vitest run --passWithNoTests",
     "test:integration": "vitest run test/SocketClient.test.ts"
@@ -38,8 +39,7 @@
   },
   "homepage": "https://github.com/open-wa/wa-automate-socket-client-nodejs#readme",
   "dependencies": {
-    "@open-wa/schema": "workspace:*",
-    "@open-wa/wa-automate-types-only": "*",
+    "@open-wa/wa-automate-types-only": "workspace:*",
     "debug": "^4.3.4",
     "eventemitter2": "^6.4.9",
     "isomorphic-ws": "^5.0.0",
@@ -49,5 +49,6 @@
   "devDependencies": {
     "typescript": "catalog:",
     "vitest": "catalog:"
-  }
+  },
+  "type": "module"
 }

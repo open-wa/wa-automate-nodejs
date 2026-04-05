@@ -3,7 +3,8 @@ import path from 'path';
 import { getHttpMethodDefinitions } from '../src/http-manifest';
 import '../src/methods';
 
-const generatedDir = path.join(__dirname, '../src/generated');
+import { fileURLToPath } from "node:url";
+const generatedDir = path.join(fileURLToPath(new URL(".", import.meta.url)), '../src/generated');
 if (!fs.existsSync(generatedDir)) {
   fs.mkdirSync(generatedDir, { recursive: true });
 }

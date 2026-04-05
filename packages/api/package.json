@@ -20,10 +20,14 @@
     "@elastic/elasticsearch": "catalog:",
     "@hono/node-server": "catalog:",
     "@hono/node-ws": "^1.3.0",
-    "@open-wa/screencaster": "workspace:*",
     "@open-wa/schema": "workspace:*",
+    "@open-wa/screencaster": "workspace:*",
     "hono": "catalog:",
-    "socket.io": "catalog:"
+    "socket.io": "catalog:",
+    "tree-kill": "^1.2.2"
+  },
+  "peerDependencies": {
+    "vite": "*"
   },
   "devDependencies": {
     "@types/node": "catalog:",

@@ -4,7 +4,8 @@ import { clientRegistry } from '../src/registry';
 import '../src/methods'; // Ensure methods are registered
 
 // Create generated directory
-const generatedDir = path.join(__dirname, '../src/generated');
+import { fileURLToPath } from "node:url";
+const generatedDir = path.join(fileURLToPath(new URL(".", import.meta.url)), '../src/generated');
 if (!fs.existsSync(generatedDir)) {
     fs.mkdirSync(generatedDir, { recursive: true });
 }

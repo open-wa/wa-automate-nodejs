@@ -70,6 +70,6 @@
   "dependencies": {
     "@open-wa/socket-client": "workspace:*",
     "@open-wa/schema": "workspace:*",
-    "@open-wa/wa-automate-types-only": "*"
+    "@open-wa/wa-automate-types-only": "workspace:*"
   }
 }

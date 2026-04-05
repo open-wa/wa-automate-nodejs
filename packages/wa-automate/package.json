@@ -1,5 +1,6 @@
 {
   "name": "@open-wa/wa-automate",
+  "type": "module",
   "version": "5.0.0-alpha.1",
   "description": "WhatsApp automation CLI and API server",
   "main": "./dist/index.cjs",

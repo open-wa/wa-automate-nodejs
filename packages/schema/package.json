@@ -1,34 +1,61 @@
 {
     "name": "@open-wa/schema",
     "version": "5.0.0-alpha.1",
+    "type": "module",
     "description": "Zod-based schema definitions for open-wa",
     "main": "./dist/index.cjs",
-    "types": "./dist/index-B5ts62xc.d.cts",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
     "exports": {
         ".": {
-            "require": "./dist/index.cjs",
-            "import": "./dist/index.cjs",
-            "types": "./dist/index-B5ts62xc.d.cts"
+            "require": {
+                "types": "./dist/index.d.cts",
+                "default": "./dist/index.cjs"
+            },
+            "import": {
+                "types": "./dist/index.d.mts",
+                "default": "./dist/index.mjs"
+            }
         },
         "./generated": {
-            "require": "./dist/generated/index.cjs",
-            "import": "./dist/generated/index.cjs",
-            "types": "./dist/generated/index.d.cts"
+            "require": {
+                "types": "./dist/generated/index.d.cts",
+                "default": "./dist/generated/index.cjs"
+            },
+            "import": {
+                "types": "./dist/generated/index.d.mts",
+                "default": "./dist/generated/index.mjs"
+            }
         },
         "./implementor": {
-            "require": "./dist/implementor.cjs",
-            "import": "./dist/implementor.cjs",
-            "types": "./dist/implementor.d.cts"
+            "require": {
+                "types": "./dist/implementor.d.cts",
+                "default": "./dist/implementor.cjs"
+            },
+            "import": {
+                "types": "./dist/implementor.d.mts",
+                "default": "./dist/implementor.mjs"
+            }
         },
         "./methods": {
-            "require": "./dist/methods/index.cjs",
-            "import": "./dist/methods/index.cjs",
-            "types": "./dist/methods/index.d.cts"
+            "require": {
+                "types": "./dist/methods/index.d.cts",
+                "default": "./dist/methods/index.cjs"
+            },
+            "import": {
+                "types": "./dist/methods/index.d.mts",
+                "default": "./dist/methods/index.mjs"
+            }
         },
         "./http-manifest": {
-            "require": "./dist/http-manifest.cjs",
-            "import": "./dist/http-manifest.cjs",
-            "types": "./dist/http-manifest.d.cts"
+            "require": {
+                "types": "./dist/http-manifest.d.cts",
+                "default": "./dist/http-manifest.cjs"
+            },
+            "import": {
+                "types": "./dist/http-manifest.d.mts",
+                "default": "./dist/http-manifest.mjs"
+            }
         }
     },
     "scripts": {

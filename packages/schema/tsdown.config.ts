@@ -8,7 +8,7 @@ export default defineConfig({
     'methods/index': './src/methods/index.ts',
     'generated/index': './src/generated/index.ts',
   },
-  format: ['cjs'],
+  format: ['cjs', 'esm'],
   dts: true,
   sourcemap: true,
   clean: true,

@@ -48,11 +48,12 @@ const makePlugins = (nodeType) => [
     include: [
       `src/nodes/${nodeType}/${nodeType}.html/**/*.ts`,
       `src/nodes/${nodeType}/shared/**/*.ts`,
-      "src/nodes/shared/**/*.ts",
+      "src/nodes/shared/common.ts",
     ],
     target: "es5",
     tsconfig: false,
     ignoreDeprecations: "6.0",
+    skipLibCheck: true,
     noEmitOnError: process.env.ROLLUP_WATCH ? false : true,
   }),
   htmlBundle(),
@@ -71,7 +72,7 @@ const makeConfigItem = (nodeType) => ({
     clearScreen: false,
   },
   external: [
-    // '@open-wa/wa-automate/dist/api/model'
+    /^@open-wa\//,
   ]
 });
 

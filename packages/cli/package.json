@@ -26,16 +26,23 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@open-wa/core": "workspace:*",
     "@open-wa/wa-automate": "workspace:*",
-    "ws": "^8.20.0"
+    "ink": "^5.2.1",
+    "qrcode": "^1.5.4",
+    "react": "^18.3.1",
+    "ws": "^8.20.0",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@types/react": "^18.3.12",
     "@types/ws": "^8.18.1",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "type": "module"
 }
