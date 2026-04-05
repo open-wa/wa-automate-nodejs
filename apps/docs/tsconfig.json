@@ -28,7 +28,7 @@
                 "./src/*"
             ],
             "fumadocs-mdx:collections/*": [
-                ".source/*"
+                "./.source/*"
             ]
         },
         "noEmit": true
