@@ -1,8 +1,8 @@
 import { EventEmitter2 } from 'eventemitter2';
 import { io, Socket } from "socket.io-client";
-import { SimpleListener } from "@open-wa/schema";
-// Import Client type and other types from legacy for now until full migration is complete
-import { Client as _Client, Chat, ChatId, Message } from "@open-wa/wa-automate-types-only";
+import type { SimpleListener, Chat, ChatId, Message } from "@open-wa/wa-automate-types-only";
+import type { BaseClient as _Client } from "@open-wa/wa-automate-types-only";
+import { TunnelSocketClient } from './TunnelSocketClient';
 const uuidv4 = () => typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 import { MessageCollector } from './MessageCollector';
 import { AwaitMessagesOptions, Collection, CollectorFilter, CollectorOptions } from './Collector';
@@ -89,7 +89,6 @@ export class SocketClient {
             const proxyHost = 'https://' + parsed.host + parsed.pathname;
             const sessionId = parsed.searchParams.get('sessionId') || 'session';
             const proxyToken = parsed.searchParams.get('token') || apiKey || '';
-            const { TunnelSocketClient } = await import('./TunnelSocketClient');
             return TunnelSocketClient.connect({
                 proxyHost,
                 proxyToken,
@@ -112,10 +111,12 @@ export class SocketClient {
         if (!this.ev) this.ev = new EventEmitter2({
             wildcard: true
         })
-        process.on('SIGINT', () => {
-            this.close()
-            process.exit();
-        }); 
+        if (typeof process !== 'undefined' && process.on) {
+            process.on('SIGINT', () => {
+                this.close()
+                process.exit();
+            });
+        }
         this.socket.emit("register_ev");
         this.socket.onAny((event, value) => this.ev.emit(event, value))
         await this._ensureListenersRegistered();
@@ -278,10 +279,18 @@ export class SocketClient {
         debug("ask", method, args)
         // if (!this.socket.connected) return new Error("Socket not connected!")
         return new Promise((_resolve, reject) => {
-            const resolve = (...args) => {
-                debug("resolve", method, args)
-                //@ts-ignore
-                _resolve(...args)
+            const resolve = (response: any) => {
+                debug("resolve", method, response)
+                if (response && typeof response === "object" && "success" in response) {
+                    if (response.success) {
+                        _resolve(response.data)
+                    } else {
+                        reject(new Error(response.error || "Unknown socket error"))
+                    }
+                } else {
+                    //@ts-ignore
+                    _resolve(response)
+                }
             }
             if (typeof args !== "object" && !Array.isArray(args) && (typeof args === "string" || typeof args === "number")) args = [args] as any
             try {

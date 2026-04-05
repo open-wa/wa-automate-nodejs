@@ -1,4 +1,4 @@
-import { SocketClient } from "@open-wa/wa-automate-socket-client";
+import { SocketClient } from "@open-wa/socket-client";
 import { NodeContextData, NodeInitializer } from "node-red";
 import { ClientStore, CLIENT_STORE } from '../shared/types';
 import { OwaServerNode, OwaServerNodeDef } from "./modules/types";

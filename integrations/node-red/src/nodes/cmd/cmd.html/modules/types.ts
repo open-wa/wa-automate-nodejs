@@ -1,4 +1,4 @@
-import { ServerSubscriber } from './../../../shared/types';
+import { ServerSubscriber } from './../../../shared/common';
 import { EditorNodeProperties } from "node-red";
 import { CmdOptions } from "../../shared/types";
 

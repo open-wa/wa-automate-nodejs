@@ -1,4 +1,4 @@
-import { EasyAPIServer } from './../../../shared/types';
+import { EasyAPIServer } from './../../../shared/common';
 import { EditorNodeProperties } from "node-red";
 import { OwaServerOptions } from "../../shared/types";
 

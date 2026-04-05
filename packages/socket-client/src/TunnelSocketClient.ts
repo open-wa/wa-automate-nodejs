@@ -1,6 +1,6 @@
 import { EventEmitter2 } from 'eventemitter2';
-import { SimpleListener } from "@open-wa/schema";
-import { Client as _Client } from "@open-wa/wa-automate-types-only";
+import type { SimpleListener } from "@open-wa/wa-automate-types-only";
+import type { BaseClient as _Client } from "@open-wa/wa-automate-types-only";
 import makeDebug from 'debug';
 import WebSocket from 'isomorphic-ws';
 

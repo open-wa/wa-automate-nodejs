@@ -1,95 +1,6 @@
 import { EventEmitter2 } from 'eventemitter2';
-import type {  Chat, ChatId, Message, MessageId  } from '@open-wa/wa-automate-types-only';
+import type { SimpleListener, Chat, ChatId, Message, MessageId  } from '@open-wa/wa-automate-types-only';
 import { Collector, CollectorOptions } from './Collector';
-// { SimpleListener , Chat, ChatId, Message, MessageId }
-/**
- * An enum of all the "simple listeners". A simple listener is a listener that just takes one parameter which is the callback function to handle the event.
- */
- export enum SimpleListener {
-  /**
-   * Represents [[onMessage]]
-   */
-  Message = 'onMessage',
-  /**
-   * Represents [[onAnyMessage]]
-   */
-  AnyMessage = 'onAnyMessage',
-  /**
-   * Represents [[onMessageDeleted]]
-   */
-  MessageDeleted = 'onMessageDeleted',
-  /**
-   * Represents [[onAck]]
-   */
-  Ack = 'onAck',
-  /**
-   * Represents [[onAddedToGroup]]
-   */
-  AddedToGroup = 'onAddedToGroup',
-  /**
-   * Represents [[onChatDeleted]]
-   */
-  ChatDeleted = 'onChatDeleted',
-  /**
-   * Represents [[onBattery]]
-   */
-  Battery = 'onBattery',
-  /**
-   * Represents [[onChatOpened]]
-   */
-  ChatOpened = 'onChatOpened',
-  /**
-   * Represents [[onIncomingCall]]
-   */
-  IncomingCall = 'onIncomingCall',
-  /**
-   * Represents [[onGlobalParticipantsChanged]]
-   */
-  GlobalParticipantsChanged = 'onGlobalParticipantsChanged',
-  /**
-   * Represents [[onChatState]]
-   */
-  ChatState = 'onChatState',
-  /**
-   * Represents [[onLogout]]
-   */
-  Logout = 'onLogout',
-  // Next two require extra params so not available to use via webhook register
-  // LiveLocation = 'onLiveLocation',
-  // ParticipantsChanged = 'onParticipantsChanged',
-  /**
-   * Represents [[onPlugged]]
-   */
-  Plugged = 'onPlugged',
-  /**
-   * Represents [[onStateChanged]]
-   */
-  StateChanged = 'onStateChanged',
-  /**
-   * Represents [[onButton]]
-   */
-  Button = 'onButton',
-  /**
-   * Requires licence
-   * Represents [[onStory]]
-   */
-  Story = 'onStory',
-  /**
-   * Requires licence
-   * Represents [[onRemovedFromGroup]]
-   */
-  RemovedFromGroup = 'onRemovedFromGroup',
-  /**
-   * Requires licence
-   * Represents [[onContactAdded]]
-   */
-  ContactAdded = 'onContactAdded',
-  /**
-   * Requires licence
-   * Represents [[onContactAdded]]
-   */
-  Order = 'onOrder',
-}
 /**
  * @typedef {CollectorOptions} MessageCollectorOptions
  * @property {number} max The maximum amount of messages to collect
@@ -145,17 +56,17 @@ export class MessageCollector extends Collector {
     const groupRemovalHandler = this.wrapHandler(this._handleGroupRemoval)
 
     this.incrementMaxListeners();
-    this.ev.on(this.eventSignature(SimpleListener.Message), collectHandler);
-    this.ev.on(this.eventSignature(SimpleListener.MessageDeleted),disposeHandler);
-    this.ev.on(this.eventSignature(SimpleListener.ChatDeleted), deleteHandler);
-    this.ev.on(this.eventSignature(SimpleListener.RemovedFromGroup), groupRemovalHandler);
+    this.ev.on(this.eventSignature('onMessage'), collectHandler);
+    this.ev.on(this.eventSignature('onMessageDeleted'),disposeHandler);
+    this.ev.on(this.eventSignature('onChatDeleted'), deleteHandler);
+    this.ev.on(this.eventSignature('onRemovedFromGroup'), groupRemovalHandler);
     // this.ev.on(Events.GUILD_DELETE, this._handleGuildDeletion);
 
     this.once('end', () => {
-      this.ev.removeListener(this.eventSignature(SimpleListener.Message), collectHandler);
-      this.ev.removeListener(this.eventSignature(SimpleListener.MessageDeleted), disposeHandler);
-      this.ev.removeListener(this.eventSignature(SimpleListener.ChatDeleted), deleteHandler);
-      this.ev.removeListener(this.eventSignature(SimpleListener.RemovedFromGroup), groupRemovalHandler);
+      this.ev.removeListener(this.eventSignature('onMessage'), collectHandler);
+      this.ev.removeListener(this.eventSignature('onMessageDeleted'), disposeHandler);
+      this.ev.removeListener(this.eventSignature('onChatDeleted'), deleteHandler);
+      this.ev.removeListener(this.eventSignature('onRemovedFromGroup'), groupRemovalHandler);
       // this.ev.removeListener(Events.GUILD_DELETE, this._handleGuildDeletion);
       this.decrementMaxListeners();
     });
@@ -240,7 +151,7 @@ export class MessageCollector extends Collector {
       console.error('This does not relate to WA', guild)
   }
 
-  eventSignature(event: SimpleListener) : string {
+  eventSignature(event: string) : string {
       return `${event}.${this.sessionId}.${this.instanceId}`
   }
 

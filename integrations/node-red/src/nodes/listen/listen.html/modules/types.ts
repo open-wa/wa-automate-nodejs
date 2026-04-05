@@ -1,5 +1,5 @@
 import { EditorNodeProperties } from "node-red";
-import { ServerSubscriber } from "../../../shared/types";
+import { ServerSubscriber } from "../../../shared/common";
 import { ListenOptions } from "../../shared/types";
 
 export interface ListenEditorNodeProperties
