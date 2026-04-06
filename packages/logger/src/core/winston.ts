@@ -10,7 +10,7 @@ export function createWinstonLogger(config: LoggerConfig): winston.Logger {
     return winston.createLogger({
         level: config.level,
         format: winston.format.combine(
-            winston.format.timestamp({ format: 'ISO' }),
+            winston.format.timestamp(),
             winston.format.errors({ stack: config.includeStack }),
             sanitizingFormat(), // Custom format for scrubbing
             config.format === 'json'

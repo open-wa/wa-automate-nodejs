@@ -150,6 +150,7 @@ export class InjectionController {
   private lifecycleQueue: Promise<void> = Promise.resolve();
   private health: RuntimeHealth = createHealth();
   private activeBridgeCleanupRuntimeId: string | null = null;
+  private readonly runtimeBridgeResetTimeoutMs = 1_500;
 
   constructor(private readonly logger: Pick<Logger, 'debug' | 'warn'>) { }
 
@@ -502,6 +503,11 @@ export class InjectionController {
           await this.disposeBridgeRegistry();
           const generation = this.captureGenerationSnapshot();
           await this.notifyNavigationObservers(frame, generation);
+        }).catch((error) => {
+          this.logger.warn('injection_controller_lifecycle_task_failed', {
+            phase: 'framenavigated',
+            error: error instanceof Error ? error.message : String(error),
+          });
         });
       }),
     );
@@ -556,38 +562,61 @@ export class InjectionController {
       return;
     }
 
-    try {
-      await this.page.evaluate(({ reason: resetReason }) => {
-        const root = globalThis as typeof globalThis & {
-          __OPENWA_RUNTIME_BRIDGE__?: {
-            runtimeId: string | null;
-            runtimeRef: unknown;
-            listeners: Record<string, { dispose?: (() => unknown) | undefined }>;
-            lastResetAt?: number;
-            lastResetReason?: string;
-          };
+    this.logger.warn('injection_controller_runtime_bridge_reset_skipped', {
+      reason,
+    });
+    return;
+
+    const cleanupPromise = this.page.evaluate(({ reason: resetReason }) => {
+      const root = globalThis as typeof globalThis & {
+        __OPENWA_RUNTIME_BRIDGE__?: {
+          runtimeId: string | null;
+          runtimeRef: unknown;
+          listeners: Record<string, { dispose?: (() => unknown) | undefined }>;
+          lastResetAt?: number;
+          lastResetReason?: string;
         };
+      };
 
-        const state = root.__OPENWA_RUNTIME_BRIDGE__;
-        if (!state) {
-          return;
+      const state = root.__OPENWA_RUNTIME_BRIDGE__;
+      if (!state) {
+        return;
+      }
+
+      for (const listener of Object.values(state.listeners ?? {})) {
+        try {
+          listener.dispose?.();
+        } catch {
+          // Ignore page-side listener cleanup failures during reset.
         }
+      }
 
-        for (const listener of Object.values(state.listeners ?? {})) {
-          try {
-            listener.dispose?.();
-          } catch {
-            // Ignore page-side listener cleanup failures during reset.
-          }
-        }
+      state.runtimeId = null;
+      state.runtimeRef = null;
+      state.listeners = {};
+      state.lastResetAt = Date.now();
+      state.lastResetReason = resetReason;
+      root.__OPENWA_RUNTIME_BRIDGE__ = state;
+    }, { reason });
 
-        state.runtimeId = null;
-        state.runtimeRef = null;
-        state.listeners = {};
-        state.lastResetAt = Date.now();
-        state.lastResetReason = resetReason;
-        root.__OPENWA_RUNTIME_BRIDGE__ = state;
-      }, { reason });
+    try {
+      let cleanupError: unknown;
+      const guardedCleanupPromise = cleanupPromise.catch((error) => {
+        cleanupError = error;
+      });
+
+      await Promise.race([
+        guardedCleanupPromise,
+        new Promise<void>((_, reject) => {
+          setTimeout(() => {
+            reject(new Error(`runtime_bridge_reset_timeout:${this.runtimeBridgeResetTimeoutMs}`));
+          }, this.runtimeBridgeResetTimeoutMs);
+        }),
+      ]);
+
+      if (cleanupError) {
+        throw cleanupError;
+      }
     } catch (error) {
       this.logger.warn('injection_controller_runtime_bridge_reset_failed', {
         reason,

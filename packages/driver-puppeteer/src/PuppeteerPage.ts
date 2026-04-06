@@ -68,6 +68,21 @@ function enrichEvaluateError(kind: 'evaluate' | 'evaluateScript', source: string
     throw enriched;
 }
 
+function enrichWaitError(
+    kind: 'waitForSelector' | 'waitForFunction' | 'waitForFunctionFn',
+    details: Record<string, unknown>,
+    error: unknown,
+): never {
+    const normalized = error instanceof Error ? error : new Error(String(error));
+    const detailText = Object.entries(details)
+        .filter(([, value]) => typeof value !== 'undefined')
+        .map(([key, value]) => `${key}=${typeof value === 'string' ? value : JSON.stringify(value)}`)
+        .join(' | ');
+    const enriched = new Error(`[puppeteer:${kind}] ${normalized.message}${detailText ? ` | ${detailText}` : ''}`);
+    enriched.stack = normalized.stack ?? enriched.message;
+    throw enriched;
+}
+
 class PuppeteerRequest implements IRequest {
     constructor(private readonly request: HTTPRequest, private readonly page: Page) {}
 
@@ -221,8 +236,15 @@ export class PuppeteerPage implements IPage {
     }
     
     async waitForSelector(selector: string, options?: { timeoutMs?: number }): Promise<IElementHandle | null> {
-        const element = await this.page.waitForSelector(selector, { timeout: options?.timeoutMs });
-        return element ? new PuppeteerElementHandle(element) : null;
+        try {
+            const element = await this.page.waitForSelector(selector, { timeout: options?.timeoutMs });
+            return element ? new PuppeteerElementHandle(element) : null;
+        } catch (error) {
+            return enrichWaitError('waitForSelector', {
+                selector,
+                timeoutMs: options?.timeoutMs,
+            }, error);
+        }
     }
     
     async waitForFunction<Arg>(script: string, options?: WaitForFunctionOptions): Promise<void>;
@@ -230,18 +252,36 @@ export class PuppeteerPage implements IPage {
     async waitForFunction<Arg>(fnOrScript: string | ((arg: Arg) => boolean), argOrOptions?: Arg | WaitForFunctionOptions, maybeOptions?: WaitForFunctionOptions): Promise<void> {
         if (typeof fnOrScript === 'string') {
             const options = argOrOptions as WaitForFunctionOptions | undefined;
-            await this.page.waitForFunction(fnOrScript, {
-                timeout: options?.timeoutMs,
-                polling: options?.polling as any,
-            });
-            return;
+            try {
+                await this.page.waitForFunction(fnOrScript, {
+                    timeout: options?.timeoutMs,
+                    polling: options?.polling as any,
+                });
+                return;
+            } catch (error) {
+                return enrichWaitError('waitForFunction', {
+                    timeoutMs: options?.timeoutMs,
+                    polling: options?.polling,
+                    scriptBytes: fnOrScript.length,
+                    scriptPreview: normalizeSnippet(fnOrScript),
+                }, error);
+            }
         }
 
         const options = maybeOptions;
-        await this.page.waitForFunction(fnOrScript as any, {
-            timeout: options?.timeoutMs,
-            polling: options?.polling as any,
-        }, argOrOptions as any);
+        try {
+            await this.page.waitForFunction(fnOrScript as any, {
+                timeout: options?.timeoutMs,
+                polling: options?.polling as any,
+            }, argOrOptions as any);
+        } catch (error) {
+            return enrichWaitError('waitForFunctionFn', {
+                timeoutMs: options?.timeoutMs,
+                polling: options?.polling,
+                fnPreview: normalizeSnippet(fnOrScript.toString()),
+                argPreview: typeof argOrOptions === 'undefined' ? undefined : normalizeSnippet(JSON.stringify(argOrOptions)),
+            }, error);
+        }
     }
     
     async $(selector: string): Promise<IElementHandle | null> {

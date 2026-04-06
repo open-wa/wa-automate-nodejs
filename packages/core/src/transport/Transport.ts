@@ -83,23 +83,32 @@ const QR_SELECTOR_PRIMARY = "canvas[aria-label='Scan this QR code to link a devi
 const QR_SELECTOR_FALLBACK = 'canvas[aria-label]';
 const PRE_API_HELPER_READY_CHECK_SCRIPT = `Boolean(!['jsSHA','axios','QRCode','Base64','objectHash'].find(x=>!window[x]))`;
 
-const WAPI_RUNTIME_CHECK_SCRIPT = 'Boolean(window.WAPI)';
-const STORE_MSG_CHECK_SCRIPT = 'Boolean(window.Store && window.Store.Msg)';
-const ATTEMPTING_REAUTH_CHECK_SCRIPT = `Boolean(
+const WAPI_RUNTIME_CHECK_SCRIPT = '!!window.WAPI';
+const STORE_MSG_CHECK_SCRIPT = '!!window.Store && window.Store.Msg';
+const ATTEMPTING_REAUTH_CHECK_SCRIPT = `!!(
   typeof localStorage !== 'undefined'
   && (localStorage['WAToken2'] || localStorage['last-wid-md'])
 )`;
-const SESSION_INVALID_CHECK_SCRIPT = `Boolean(
+const SESSION_INVALID_CHECK_SCRIPT = `!!(
   typeof localStorage !== 'undefined'
   && Object.prototype.hasOwnProperty.call(localStorage, 'old-logout-cred')
 )`;
-const PHONE_OUT_OF_REACH_CHECK_SCRIPT = `Boolean(
+const PHONE_OUT_OF_REACH_CHECK_SCRIPT = `!!(
   typeof document !== 'undefined'
   && document.querySelector('body')
   && document.querySelector('body').innerText.includes('Trying to reach phone')
 )`;
-const LINK_CODE_AVAILABLE_CHECK_SCRIPT = `Boolean(typeof window.linkCode === 'function')`;
-const AUTHENTICATED_SHELL_CHECK_SCRIPT = `Boolean(
+const LINK_CODE_AVAILABLE_CHECK_SCRIPT = `!!(typeof window.linkCode === 'function')`;
+const LEGACY_IS_INSIDE_CHAT_CHECK_SCRIPT = `!!(
+  !!window.WA_AUTHENTICATED
+  || (document.getElementsByClassName('app')[0]
+    && document.getElementsByClassName('app')[0].attributes
+    && !!document.getElementsByClassName('app')[0].attributes.tabindex)
+  || (document.getElementsByClassName('two')[0]
+    && document.getElementsByClassName('two')[0].attributes
+    && !!document.getElementsByClassName('two')[0].attributes.tabindex)
+)`;
+const AUTHENTICATED_SHELL_CHECK_SCRIPT = `!!(
   (window.isSessionLoaded && window.isSessionLoaded()) ||
   window.WA_AUTHENTICATED ||
   document.querySelector('#pane-side') ||
@@ -118,7 +127,7 @@ const RIPE_SESSION_CHECK_SCRIPT = `(() => {
     return false;
   }
 })()`;
-const DOCUMENT_READY_CHECK_SCRIPT = `Boolean(
+const DOCUMENT_READY_CHECK_SCRIPT = `!!(
   typeof document === 'undefined'
   || document.readyState === 'interactive'
   || document.readyState === 'complete'
@@ -342,8 +351,8 @@ const BUILTIN_PATCH_ARTIFACTS: readonly PatchArtifact[] = [
       window.__OPENWA_PATCH_LIFECYCLE__['runtime-bootstrap-overlay'] = {
         appliedAt: Date.now(),
         mode: 'bootstrap_attestation',
-        hasRuntime: Boolean(window.WAPI),
-        hasStoreMsg: Boolean(window.Store && window.Store.Msg),
+        hasRuntime: !!window.WAPI,
+        hasStoreMsg: !!(window.Store && window.Store.Msg),
       };
       return true;
     })();`,
@@ -453,6 +462,7 @@ export class Transport {
       executablePath: this.executablePath,
       args: this.browserArgs,
       userDataDir: this.userDataDir,
+      defaultViewport: null,
     });
     this.page = await this.browser.newPage();
 
@@ -633,49 +643,75 @@ export class Transport {
       throw new Error('Transport not initialized');
     }
 
-    const [hasRuntime, hasStoreMsg, sessionLoaded] = await Promise.all([
-      this.evaluateBooleanScript(WAPI_RUNTIME_CHECK_SCRIPT),
-      this.evaluateBooleanScript(STORE_MSG_CHECK_SCRIPT),
-      this.evaluateBooleanScript(AUTHENTICATED_SHELL_CHECK_SCRIPT),
-    ]);
+    const probes = [
+      { key: 'hasRuntime', script: WAPI_RUNTIME_CHECK_SCRIPT },
+      { key: 'hasStoreMsg', script: STORE_MSG_CHECK_SCRIPT },
+      { key: 'sessionLoaded', script: AUTHENTICATED_SHELL_CHECK_SCRIPT },
+    ] as const;
 
-    return {
-      hasRuntime,
-      hasStoreMsg,
-      sessionLoaded,
+    const capability: RuntimeCapabilityProbe = {
+      hasRuntime: false,
+      hasStoreMsg: false,
+      sessionLoaded: false,
     };
+
+    for (const probe of probes) {
+      try {
+        const value = await this.evaluateBooleanScript(probe.script);
+        capability[probe.key] = value;
+      } catch (error) {
+        this.logger.error('runtime_capability_probe_failed', {
+          probe: probe.key,
+          scriptPreview: probe.script.replace(/\s+/g, ' ').trim().slice(0, 180),
+          error: error instanceof Error ? error : new Error(String(error)),
+        });
+        this.logger.error('probe_runtime_capability_failed', {
+          probe: probe.key,
+          error: error instanceof Error ? error : new Error(String(error)),
+        });
+        break;
+      }
+    }
+
+    return capability;
   }
 
   async validateRuntimeUsability(stage: RuntimeValidationStage): Promise<RuntimeValidationResult> {
-    const capability = await this.probeRuntimeCapability();
-    const integrity = capability.hasRuntime
-      ? await this.probeBrokenMethodIntegrity()
-      : {
-        bridgeReady: false,
-        requiredMethods: this.injectionController.getRequiredRuntimeMethods(),
-        missingMethods: [],
-      } satisfies RuntimeMethodIntegrityResult;
+    try {
 
-    const failureReason = !capability.hasRuntime
-      ? 'runtime_missing'
-      : (stage === 'post_patch' || stage === 'post_overlay') && !capability.hasStoreMsg
-        ? 'store_missing'
-        : (stage === 'post_patch' || stage === 'post_overlay') && !capability.sessionLoaded
-          ? 'session_not_loaded'
-          : integrity.missingMethods.length > 0 || !integrity.bridgeReady
-            ? 'required_method_missing'
-            : undefined;
+      const capability = await this.probeRuntimeCapability();
+      const integrity = capability.hasRuntime
+        ? await this.probeBrokenMethodIntegrity()
+        : {
+          bridgeReady: false,
+          requiredMethods: this.injectionController.getRequiredRuntimeMethods(),
+          missingMethods: [],
+        } satisfies RuntimeMethodIntegrityResult;
 
-    const usable = failureReason === undefined;
+      const failureReason = !capability.hasRuntime
+        ? 'runtime_missing'
+        : (stage === 'post_patch' || stage === 'post_overlay') && !capability.hasStoreMsg
+          ? 'store_missing'
+          : (stage === 'post_patch' || stage === 'post_overlay') && !capability.sessionLoaded
+            ? 'session_not_loaded'
+            : integrity.missingMethods.length > 0 || !integrity.bridgeReady
+              ? 'required_method_missing'
+              : undefined;
 
-    return {
-      ...capability,
-      ...integrity,
-      stage,
-      usable,
-      repairable: !usable,
-      failureReason,
-    };
+      const usable = failureReason === undefined;
+
+      return {
+        ...capability,
+        ...integrity,
+        stage,
+        usable,
+        repairable: !usable,
+        failureReason,
+      };
+    } catch (error) {
+      console.log("ERRORED OUT IN VALIDATE RUNTIME USABILITY", error)
+      throw error;
+    }
   }
 
   async repairRuntimeIntegrity(reason: RuntimeValidationFailureReason): Promise<boolean> {
@@ -1489,36 +1525,49 @@ export class Transport {
     };
   }
 
-  private async waitForInitialAuthSignal(): Promise<'authenticated' | 'qr_needed' | 'invalid_session' | 'auth_timeout'> {
+  private async needsToScan(): Promise<false> {
     if (!this.page) {
       throw new Error('Transport not initialized');
     }
 
-    const timeoutMs = this.authTimeoutMs;
-    const signals: Array<Promise<'authenticated' | 'qr_needed' | 'invalid_session' | 'auth_timeout'>> = [
-      this.page.waitForFunction(AUTHENTICATED_SHELL_CHECK_SCRIPT, {
-        timeoutMs,
-        polling: 'mutation',
-      }).then(() => 'authenticated' as const),
-      Promise.race([
-        this.page.waitForSelector(QR_SELECTOR_PRIMARY, { timeoutMs }),
-        this.page.waitForSelector(QR_SELECTOR_FALLBACK, { timeoutMs }),
-      ]).then(() => 'qr_needed' as const),
+    await Promise.race([
+      this.page.waitForSelector(QR_SELECTOR_PRIMARY, { timeoutMs: 0 }),
+      this.page.waitForSelector(QR_SELECTOR_FALLBACK, { timeoutMs: 0 }),
+    ]);
+    return false;
+  }
+
+  private async isInsideChat(): Promise<true> {
+    if (!this.page) {
+      throw new Error('Transport not initialized');
+    }
+
+    await this.page.waitForFunction(LEGACY_IS_INSIDE_CHAT_CHECK_SCRIPT, {
+      timeoutMs: 0,
+    });
+    return true;
+  }
+
+  private async sessionDataInvalid(): Promise<'NUKE'> {
+    if (!this.page) {
+      throw new Error('Transport not initialized');
+    }
+
+    await this.page.waitForFunction(SESSION_INVALID_CHECK_SCRIPT, {
+      timeoutMs: 0,
+      polling: 'mutation',
+    });
+    return 'NUKE';
+  }
+
+  async isAuthenticated(): Promise<unknown> {
+    const signals: Array<Promise<unknown>> = [
+      this.needsToScan(),
+      this.isInsideChat(),
     ];
 
     if (!this.ignoreNuke) {
-      signals.push(
-        this.page.waitForFunction(SESSION_INVALID_CHECK_SCRIPT, {
-          timeoutMs,
-          polling: 'mutation',
-        }).then(() => 'invalid_session' as const),
-      );
-    }
-
-    if (timeoutMs !== 0) {
-      signals.push(new Promise((resolve) => {
-        setTimeout(() => resolve('auth_timeout'), timeoutMs);
-      }));
+      signals.push(this.sessionDataInvalid());
     }
 
     return Promise.race(signals);
@@ -1543,9 +1592,16 @@ export class Transport {
       details: { smartQr: false },
     });
 
-    const initialSignal = await this.waitForInitialAuthSignal();
+    const authRace: Array<Promise<unknown>> = [this.isAuthenticated().catch(() => undefined)];
+    if (this.authTimeoutMs !== 0) {
+      authRace.push(new Promise((resolve) => {
+        setTimeout(() => resolve('timeout'), this.authTimeoutMs);
+      }));
+    }
 
-    if (initialSignal === 'authenticated') {
+    const authenticated = await Promise.race(authRace);
+
+    if (authenticated === true) {
       this.events.emit('launch.auth.check.after', {
         correlationId: 'auth-settle',
         ts: Date.now(),
@@ -1561,7 +1617,7 @@ export class Transport {
       };
     }
 
-    if (initialSignal === 'invalid_session') {
+    if (authenticated === 'NUKE') {
       this.events.emit('launch.auth.nuke.detected', {
         correlationId: 'auth-settle',
         ts: Date.now(),
@@ -1577,7 +1633,7 @@ export class Transport {
       };
     }
 
-    if (initialSignal === 'auth_timeout') {
+    if (authenticated === 'timeout') {
       const phoneOutOfReach = await this.waitForPhoneOutOfReach();
 
       this.events.emit('launch.auth.timeout', {
@@ -2082,7 +2138,13 @@ export class Transport {
     this.runtimeRecoveryQueue = this.runtimeRecoveryQueue.then(
       () => this.runRuntimeRecovery({ requestId, trigger, generation }),
       () => this.runRuntimeRecovery({ requestId, trigger, generation }),
-    );
+    ).catch((error) => {
+      this.logger.warn('runtime_recovery_failed', {
+        trigger,
+        requestId: String(requestId),
+        error: error instanceof Error ? error.message : String(error),
+      });
+    });
   }
 
   private isLatestRuntimeRecoveryRequest(requestId: number): boolean {
