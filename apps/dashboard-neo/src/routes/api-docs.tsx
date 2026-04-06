@@ -1,6 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { useSocket } from "@/lib/hooks/use-socket"
+import { getApiUrl } from "@/lib/api-client"
+import { ApiReferenceReact } from "@scalar/api-reference-react"
+import "@scalar/api-reference-react/style.css"
+import "@/styles.css"
 
 export const Route = createFileRoute("/api-docs")({ component: ApiDocsPage })
 
@@ -8,89 +12,75 @@ export const Route = createFileRoute("/api-docs")({ component: ApiDocsPage })
  * API Documentation page using Scalar API Reference.
  *
  * Renders the OpenAPI spec from the Easy API's /meta/swagger.json endpoint.
- * Uses dynamic import to keep the Scalar bundle out of the main chunk.
+ * Scalar styles are mapped to shadcn theme tokens via CSS variable overrides
+ * in styles.css, and CSS layer ordering prevents Tailwind v4 conflicts.
  *
- * If @scalar/api-reference-react is not installed, falls back to an iframe
- * pointing at the classic /api-docs/ HTML page.
+ * Configuration disables:
+ * - AI agent (agent.disabled)
+ * - MCP integration (mcp.disabled)
+ * - Dark mode toggle (handled by our ThemeToggle)
+ * - Search (uses dashboard nav instead)
+ * - Default fonts (uses our Geist font)
  */
 function ApiDocsPage() {
   useSocket()
   const [apiUrl, setApiUrl] = useState<string | null>(null)
-  const [useIframe, setUseIframe] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (typeof window === "undefined") return
-    const url = `${window.location.protocol}//${window.location.hostname}:8080`
-    setApiUrl(url)
-
-    // Try to dynamically import Scalar
-    import("@scalar/api-reference-react")
-      .then(() => setUseIframe(false))
-      .catch(() => setUseIframe(true))
+    setApiUrl(getApiUrl())
   }, [])
 
   if (!apiUrl) {
     return (
       <div className="flex h-[calc(100vh-3.5rem)] items-center justify-center">
-        <p className="text-sm text-muted-foreground">Loading API documentation...</p>
-      </div>
-    )
-  }
-
-  if (useIframe) {
-    return (
-      <div className="h-[calc(100vh-3.5rem)]">
-        <iframe
-          src={`${apiUrl}/api-docs/`}
-          className="size-full border-0"
-          title="API Documentation"
-        />
-      </div>
-    )
-  }
-
-  return (
-    <div className="h-[calc(100vh-3.5rem)]" ref={containerRef}>
-      <ScalarReference url={`${apiUrl}/meta/swagger.json`} />
-    </div>
-  )
-}
-
-/**
- * Lazy-loaded Scalar API Reference component.
- */
-function ScalarReference({ url }: { url: string }) {
-  const [ScalarComponent, setScalarComponent] = useState<React.ComponentType<any> | null>(null)
-
-  useEffect(() => {
-    import("@scalar/api-reference-react").then((mod) => {
-      setScalarComponent(() => mod.ApiReferenceReact || (mod as any).default)
-    }).catch(() => {
-      // Fallback handled by parent
-    })
-  }, [])
-
-  if (!ScalarComponent) {
-    return (
-      <div className="flex h-full items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="size-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">Loading Scalar API Reference...</p>
+          <p className="text-sm text-muted-foreground">Loading API documentation...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <ScalarComponent
-      configuration={{
-        url,
-        theme: "kepler",
-        layout: "modern",
-        hideModels: false,
-        hideClientButton: false,
-      }}
-    />
+    <div className="scalar-container">
+      <ApiReferenceReact
+        configuration={{
+          url: `${apiUrl}/meta/swagger.json`,
+          theme: "none",
+          layout: "classic",
+          hideModels: false,
+          hideClientButton: false,
+          hideDarkModeToggle: true,
+          withDefaultFonts: false,
+          darkMode: document.documentElement.classList.contains("dark"),
+          // Disable AI agent features
+          agent: {
+            disabled: true,
+          },
+          // Disable MCP integration
+          mcp: {
+            disabled: true,
+          },
+          // Apply our own CSS on top of Scalar's base
+          customCss: `
+            /* Hide Scalar branding / powered-by links */
+            .scalar-card-footer-powered-by,
+            a[href*="scalar.com"],
+            .powered-by,
+            [class*="powered-by"],
+            [class*="PoweredBy"],
+            .scalar-api-reference__footer,
+            footer[class*="scalar"] {
+              display: none !important;
+            }
+            /* Use our font */
+            .scalar-api-reference, .scalar-app {
+              font-family: var(--font-sans) !important;
+            }
+          `,
+        } as any}
+      />
+    </div>
   )
 }

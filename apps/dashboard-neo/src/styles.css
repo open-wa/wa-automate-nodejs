@@ -1,6 +1,35 @@
+@layer scalar-base, scalar-theme, scalar-config, theme, base, components, utilities;
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 @import "@fontsource-variable/geist";
+
+/* Map Scalar API Reference CSS variables to shadcn theme tokens */
+:root {
+  --scalar-background-1: var(--background);
+  --scalar-background-2: var(--muted);
+  --scalar-background-3: var(--card);
+  --scalar-background-accent: var(--accent);
+
+  --scalar-color-1: var(--foreground);
+  --scalar-color-2: var(--muted-foreground);
+  --scalar-color-3: var(--muted-foreground);
+  --scalar-color-accent: var(--primary);
+  --scalar-color-green: oklch(0.696 0.17 162.48);
+  --scalar-color-red: var(--destructive);
+  --scalar-color-blue: var(--primary);
+
+  --scalar-border-color: var(--border);
+  --scalar-radius: var(--radius);
+  --scalar-radius-lg: var(--radius);
+  --scalar-font: var(--font-sans);
+  --scalar-font-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --scalar-shadow-1: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --scalar-shadow-2: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+
+  --scalar-button-1: var(--primary);
+  --scalar-button-1-hover: var(--primary);
+  --scalar-button-1-color: var(--primary-foreground);
+}
 
 @custom-variant dark (&:is(.dark *));
 
@@ -117,7 +146,7 @@
 }
 
 @layer base {
-  * {
+  *:not(.scalar-container *) {
     @apply border-border outline-ring/50;
     }
   body {
@@ -126,4 +155,23 @@
   html {
     @apply font-sans;
     }
+}
+
+/* Scalar API Reference — lightweight containment within dashboard layout */
+.scalar-container {
+  position: relative;
+  height: calc(100vh - 3.5rem);
+  overflow: auto;
+  isolation: isolate;
+}
+
+/* Launch QR scan line animation */
+@keyframes scan {
+  0%, 100% { top: 0.75rem; }
+  50% { top: calc(100% - 0.75rem); }
+}
+
+.animate-scan {
+  animation: scan 2s ease-in-out infinite;
+  position: absolute;
 }
