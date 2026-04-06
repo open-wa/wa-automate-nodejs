@@ -2,15 +2,17 @@ import { Outlet, createRootRoute } from "@tanstack/react-router"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AppSidebar } from "@/components/app-sidebar"
-import { SessionStatusBadge } from "@/components/session-status-badge"
+import { ConnectionBadge } from "@/components/connection-badge"
 import { Separator } from "@/components/ui/separator"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { DemoToggle } from "@/components/demo-toggle"
 
 export const Route = createRootRoute({
   validateSearch: (search: Record<string, unknown>) => {
     return {
       port: search.port ? Number(search.port) : undefined,
+      demo: search.demo === 'true' || search.demo === true,
     }
   },
   component: RootComponent,
@@ -28,9 +30,10 @@ function RootComponent() {
                 <Separator orientation="vertical" className="mx-2 h-4" />
                 <div className="flex flex-1 items-center justify-between">
                   <h1 className="text-sm font-medium">open-wa Dashboard</h1>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <DemoToggle />
                     <ThemeToggle />
-                    <SessionStatusBadge />
+                    <ConnectionBadge />
                   </div>
                 </div>
               </header>

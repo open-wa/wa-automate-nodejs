@@ -5,13 +5,19 @@
  * The SocketClient uses a Proxy to expose all Client methods directly,
  * so `client.sendText(...)` works out of the box.
  *
- * The dashboard connects to the Easy API server (default: localhost:8080)
- * which always runs in socket mode in v5.
+ * Connection resolution priority:
+ * 1. Vite env vars (VITE_EASY_API_PORT / VITE_EASY_API_HOST)
+ * 2. localStorage overrides (from ConnectionBadge)
+ * 3. URL search params (?port=8002)
+ * 4. meta tag (owa-api-url)
+ * 5. Current window origin (same host:port)
  */
 export { SocketClient } from "@open-wa/socket-client"
 export type { Client, ClientMethods } from "@open-wa/socket-client"
 
 import { SocketClient } from "@open-wa/socket-client"
+
+const STORAGE_KEY = "wa-dashboard-connection"
 
 // We lazy-connect so SSR doesn't try to open a socket.
 let _client: (SocketClient & import("@open-wa/socket-client").Client) | null = null
@@ -48,12 +54,28 @@ export function getClientSync() {
 }
 
 /**
- * Derive the API URL from the current window location or fallback.
- * In production the dashboard is served as a sidecar, so the API
- * is on a different port (8080 by default).
+ * Reset the cached client. Call this before reconnecting with new settings.
+ */
+export function resetClient() {
+  if (_client?.socket) {
+    try { _client.socket.disconnect() } catch { /* ignore */ }
+  }
+  _client = null
+  _connecting = null
+}
+
+/**
+ * Derive the API URL from the configured sources.
+ *
+ * Priority:
+ * 1. VITE_EASY_API_PORT / VITE_EASY_API_HOST (build-time env)
+ * 2. localStorage override from ConnectionBadge
+ * 3. ?port= URL search param
+ * 4. <meta name="owa-api-url"> tag
+ * 5. Current window location (same origin)
  */
 export function getApiUrl(): string {
-  if (typeof window === "undefined") return "http://localhost:8080"
+  if (typeof window === "undefined") return "http://localhost:8002"
   
   // 1. Check for Vite environment variables (development overrides)
   if (import.meta.env?.VITE_EASY_API_PORT || import.meta.env?.VITE_EASY_API_HOST) {
@@ -68,15 +90,30 @@ export function getApiUrl(): string {
     return `${protocol}${cleanHost}${portParams}`
   }
 
-  // 2. Check for URL Search Params (e.g. ?port=8081)
+  // 2. Check localStorage for user-configured connection
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (raw) {
+      const { host, port } = JSON.parse(raw) as { host?: string; port?: string }
+      if (host || port) {
+        const h = host || window.location.hostname
+        const p = port ? `:${port}` : ""
+        return `${window.location.protocol}//${h}${p}`
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  // 3. Check for URL Search Params (e.g. ?port=8081)
   const urlParams = new URLSearchParams(window.location.search)
   const portParam = urlParams.get("port")
 
-  // 2. The API URL can be injected via a meta tag or env var
+  // 4. The API URL can be injected via a meta tag or env var
   const meta = document.querySelector<HTMLMetaElement>('meta[name="owa-api-url"]')
   if (meta?.content) return meta.content
   
-  // 3. Fallback to host port
+  // 5. Fallback to host port
   const port = portParam || window.location.port
   const host = window.location.hostname
   const protocol = window.location.protocol
