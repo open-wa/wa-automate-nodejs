@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { useState, useEffect } from "react"
 import { FlaskConical } from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
+import { getApiUrl } from "@/lib/api-client"
 
 export const Route = createFileRoute("/playground")({ component: PlaygroundPage })
 
@@ -25,7 +26,7 @@ function PlaygroundPage() {
   // Fetch available methods
   useEffect(() => {
     if (!connected) return
-    fetch(`${window.location.protocol}//${window.location.hostname}:8080/meta/swagger.json`)
+    fetch(`${getApiUrl()}/meta/swagger.json`)
       .then((r) => r.json())
       .then((spec: any) => {
         const defs: MethodDef[] = Object.entries(spec.paths || {}).map(([path, methods]: [string, any]) => {

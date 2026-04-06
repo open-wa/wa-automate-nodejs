@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { useState, useEffect, type ReactNode } from "react"
 import { MessageSquare, Link as LinkIcon, Zap, RefreshCw, Database } from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
+import { getApiUrl } from "@/lib/api-client"
 
 export const Route = createFileRoute("/integrations")({ component: IntegrationsPage })
 
@@ -85,7 +86,7 @@ function IntegrationsPage() {
   // Fetch current integration configs
   useEffect(() => {
     if (!connected) return
-    const apiUrl = `${window.location.protocol}//${window.location.hostname}:8080`
+    const apiUrl = getApiUrl()
     fetch(`${apiUrl}/meta/integrations`)
       .then((r) => r.json())
       .then((data: Record<string, { enabled: boolean; config: Record<string, string> }>) => {
@@ -112,7 +113,7 @@ function IntegrationsPage() {
   const save = async (integId: string) => {
     setSaving(true)
     try {
-      const apiUrl = `${window.location.protocol}//${window.location.hostname}:8080`
+      const apiUrl = getApiUrl()
       await fetch(`${apiUrl}/meta/integrations/${integId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -131,7 +132,7 @@ function IntegrationsPage() {
 
   const toggle = async (integId: string, enabled: boolean) => {
     try {
-      const apiUrl = `${window.location.protocol}//${window.location.hostname}:8080`
+      const apiUrl = getApiUrl()
       await fetch(`${apiUrl}/meta/integrations/${integId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
