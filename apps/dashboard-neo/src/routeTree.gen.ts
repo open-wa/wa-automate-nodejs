@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PlaygroundRouteImport } from './routes/playground'
 import { Route as IntegrationsRouteImport } from './routes/integrations'
+import { Route as HealthRouteImport } from './routes/health'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as DebugRouteImport } from './routes/debug'
+import { Route as ContactsRouteImport } from './routes/contacts'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as AppsRouteImport } from './routes/apps'
 import { Route as ApiDocsRouteImport } from './routes/api-docs'
@@ -35,6 +37,11 @@ const IntegrationsRoute = IntegrationsRouteImport.update({
   path: '/integrations',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HealthRoute = HealthRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsRoute = EventsRouteImport.update({
   id: '/events',
   path: '/events',
@@ -43,6 +50,11 @@ const EventsRoute = EventsRouteImport.update({
 const DebugRoute = DebugRouteImport.update({
   id: '/debug',
   path: '/debug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactsRoute = ContactsRouteImport.update({
+  id: '/contacts',
+  path: '/contacts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -76,8 +88,10 @@ export interface FileRoutesByFullPath {
   '/api-docs': typeof ApiDocsRoute
   '/apps': typeof AppsRoute
   '/chat': typeof ChatRoute
+  '/contacts': typeof ContactsRoute
   '/debug': typeof DebugRoute
   '/events': typeof EventsRoute
+  '/health': typeof HealthRoute
   '/integrations': typeof IntegrationsRoute
   '/playground': typeof PlaygroundRoute
   '/portal': typeof PortalRoute
@@ -88,8 +102,10 @@ export interface FileRoutesByTo {
   '/api-docs': typeof ApiDocsRoute
   '/apps': typeof AppsRoute
   '/chat': typeof ChatRoute
+  '/contacts': typeof ContactsRoute
   '/debug': typeof DebugRoute
   '/events': typeof EventsRoute
+  '/health': typeof HealthRoute
   '/integrations': typeof IntegrationsRoute
   '/playground': typeof PlaygroundRoute
   '/portal': typeof PortalRoute
@@ -101,8 +117,10 @@ export interface FileRoutesById {
   '/api-docs': typeof ApiDocsRoute
   '/apps': typeof AppsRoute
   '/chat': typeof ChatRoute
+  '/contacts': typeof ContactsRoute
   '/debug': typeof DebugRoute
   '/events': typeof EventsRoute
+  '/health': typeof HealthRoute
   '/integrations': typeof IntegrationsRoute
   '/playground': typeof PlaygroundRoute
   '/portal': typeof PortalRoute
@@ -115,8 +133,10 @@ export interface FileRouteTypes {
     | '/api-docs'
     | '/apps'
     | '/chat'
+    | '/contacts'
     | '/debug'
     | '/events'
+    | '/health'
     | '/integrations'
     | '/playground'
     | '/portal'
@@ -127,8 +147,10 @@ export interface FileRouteTypes {
     | '/api-docs'
     | '/apps'
     | '/chat'
+    | '/contacts'
     | '/debug'
     | '/events'
+    | '/health'
     | '/integrations'
     | '/playground'
     | '/portal'
@@ -139,8 +161,10 @@ export interface FileRouteTypes {
     | '/api-docs'
     | '/apps'
     | '/chat'
+    | '/contacts'
     | '/debug'
     | '/events'
+    | '/health'
     | '/integrations'
     | '/playground'
     | '/portal'
@@ -152,8 +176,10 @@ export interface RootRouteChildren {
   ApiDocsRoute: typeof ApiDocsRoute
   AppsRoute: typeof AppsRoute
   ChatRoute: typeof ChatRoute
+  ContactsRoute: typeof ContactsRoute
   DebugRoute: typeof DebugRoute
   EventsRoute: typeof EventsRoute
+  HealthRoute: typeof HealthRoute
   IntegrationsRoute: typeof IntegrationsRoute
   PlaygroundRoute: typeof PlaygroundRoute
   PortalRoute: typeof PortalRoute
@@ -183,6 +209,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IntegrationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/health': {
+      id: '/health'
+      path: '/health'
+      fullPath: '/health'
+      preLoaderRoute: typeof HealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events': {
       id: '/events'
       path: '/events'
@@ -195,6 +228,13 @@ declare module '@tanstack/react-router' {
       path: '/debug'
       fullPath: '/debug'
       preLoaderRoute: typeof DebugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contacts': {
+      id: '/contacts'
+      path: '/contacts'
+      fullPath: '/contacts'
+      preLoaderRoute: typeof ContactsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -240,8 +280,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDocsRoute: ApiDocsRoute,
   AppsRoute: AppsRoute,
   ChatRoute: ChatRoute,
+  ContactsRoute: ContactsRoute,
   DebugRoute: DebugRoute,
   EventsRoute: EventsRoute,
+  HealthRoute: HealthRoute,
   IntegrationsRoute: IntegrationsRoute,
   PlaygroundRoute: PlaygroundRoute,
   PortalRoute: PortalRoute,

@@ -34,10 +34,12 @@ interface PluginManifestEntry {
 import {
   Zap,
   Activity,
+  HeartPulse,
   BookOpen,
   FlaskConical,
   Bug,
   MessageSquare,
+  Contact,
   Tv,
   Puzzle,
   Plug,
@@ -48,6 +50,7 @@ const navItems = [
     group: "Overview",
     items: [
       { title: "Session", href: "/", icon: <Zap size={18} /> },
+      { title: "Health", href: "/health", icon: <HeartPulse size={18} /> },
       { title: "Events", href: "/events", icon: <Activity size={18} /> },
     ],
   },
@@ -63,6 +66,7 @@ const navItems = [
     group: "Communication",
     items: [
       { title: "Chat", href: "/chat", icon: <MessageSquare size={18} /> },
+      { title: "Contacts", href: "/contacts", icon: <Contact size={18} /> },
       { title: "Portal", href: "/portal", icon: <Tv size={18} /> },
     ],
   },
