@@ -55,7 +55,7 @@ function ChatPage() {
   // Fetch messages for selected chat
   useEffect(() => {
     if (!selectedChat || !connected) return
-    ask<MessageItem[]>("getAllMessagesInChat", { chatId: selectedChat.id, includeMe: true, includeNotifications: false })
+    ask<MessageItem[]>("getAllMessages", { chatId: selectedChat.id, includeMe: true, includeNotifications: false })
       .then((data) => {
         const msgs = (data || []).map((m: any) => ({
           id: m.id || m._serialized || String(Math.random()),
@@ -64,7 +64,7 @@ function ChatPage() {
           timestamp: m.timestamp || 0,
           sender: m.sender?.pushname || m.sender?.formattedName,
           type: m.type || "chat",
-        }))
+        })).slice(-50)
         setMessages(msgs)
         setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100)
       })
