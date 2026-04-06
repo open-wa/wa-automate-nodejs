@@ -27,6 +27,7 @@ function PortalPage() {
   const [navState, setNavState] = useState<NavStateMessage | null>(null)
   const [pageBound, setPageBound] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
   const clientRef = useRef<ScreencastClient | null>(null)
   const fpsCountRef = useRef(0)
 
@@ -37,8 +38,22 @@ function PortalPage() {
     setStatus("connecting")
     setErrorMsg(null)
 
+    // Capture initial dimensions from wrapper
+    let maxWidth = 1280
+    let maxHeight = 720
+    if (wrapperRef.current) {
+      const rect = wrapperRef.current.getBoundingClientRect()
+      // Reduce dimensions slightly to account for margins/padding if needed
+      maxWidth = Math.floor(rect.width) || maxWidth
+      maxHeight = Math.floor(rect.height) || maxHeight
+    }
+
     const wsUrl = getApiUrl().replace(/^http/, "ws") + "/screencast"
-    const client = new ScreencastClient({ url: wsUrl, autoStart: true })
+    const client = new ScreencastClient({ 
+      url: wsUrl, 
+      autoStart: true,
+      defaultOptions: { maxWidth, maxHeight }
+    })
     clientRef.current = client
 
     client.on("state-change", (state) => {
@@ -169,6 +184,31 @@ function PortalPage() {
     }
   }, [])
 
+  // Handle ResizeObserver
+  useEffect(() => {
+    if (!portalActive) return
+    const wrapper = wrapperRef.current
+    if (!wrapper) return
+
+    let timeoutId: ReturnType<typeof setTimeout>
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(() => {
+          clientRef.current?.resize(Math.floor(width), Math.floor(height))
+        }, 300)
+      }
+    })
+
+    observer.observe(wrapper)
+    return () => {
+      observer.disconnect()
+      clearTimeout(timeoutId)
+    }
+  }, [portalActive])
+
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
       {/* Toolbar */}
@@ -231,7 +271,10 @@ function PortalPage() {
       </div>
 
       {/* Canvas Area */}
-      <div className="flex flex-1 items-center justify-center overflow-hidden bg-black/5 dark:bg-black/20">
+      <div 
+        ref={wrapperRef}
+        className="flex flex-1 items-center justify-center overflow-hidden bg-black/5 dark:bg-black/20"
+      >
         {status === "idle" && (
           <div className="text-center text-muted-foreground">
             <Tv size={64} className="mx-auto text-muted-foreground opacity-50 mb-4" />

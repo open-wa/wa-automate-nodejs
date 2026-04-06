@@ -176,6 +176,10 @@ export class ScreencastClient {
         this.send({ type: 'go-forward' });
     }
 
+    resize(width: number, height: number): void {
+        this.send({ type: 'resize', width, height });
+    }
+
     // ────── Events ──────
 
     on<E extends EventName>(event: E, cb: ScreencastClientEvents[E]): this {

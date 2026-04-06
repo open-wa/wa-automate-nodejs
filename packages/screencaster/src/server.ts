@@ -201,6 +201,10 @@ export class ScreencastManager {
                 case 'go-forward':
                     await this.handleGoForward();
                     break;
+
+                case 'resize':
+                    await this.handleResize(msg.width, msg.height);
+                    break;
             }
         } catch (err) {
             this.sendTo(ws, {
@@ -474,6 +478,22 @@ export class ScreencastManager {
         if (history && history.currentIndex < history.entries.length - 1) {
             const entry = history.entries[history.currentIndex + 1];
             await this.cdpSession.send('Page.navigateToHistoryEntry', { entryId: entry.id });
+        }
+    }
+
+    private async handleResize(width: number, height: number): Promise<void> {
+        if (!this.cdpSession) return;
+        
+        try {
+            this.currentOptions.maxWidth = Math.floor(width);
+            this.currentOptions.maxHeight = Math.floor(height);
+
+            if (this.isScreencasting) {
+                await this.stopScreencast();
+                await this.startScreencast();
+            }
+        } catch (err) {
+            this.logError(err);
         }
     }
 

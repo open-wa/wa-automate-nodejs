@@ -132,6 +132,12 @@ export interface GoForwardMessage {
     type: 'go-forward';
 }
 
+export interface ResizeMessage {
+    type: 'resize';
+    width: number;
+    height: number;
+}
+
 export type ClientMessage =
     | StartMessage
     | StopMessage
@@ -141,7 +147,8 @@ export type ClientMessage =
     | ScrollMessage
     | NavigateMessage
     | GoBackMessage
-    | GoForwardMessage;
+    | GoForwardMessage
+    | ResizeMessage;
 
 // ────── Minimal Page Interface ──────
 
