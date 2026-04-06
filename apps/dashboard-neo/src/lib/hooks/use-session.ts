@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import { getClient } from "@/lib/api-client"
+import { useDemo } from "@/lib/demo/use-demo"
+import { demoSession } from "@/lib/demo/demo-data"
 
 export type SessionState = {
   connected: boolean
@@ -20,14 +22,39 @@ const INITIAL_STATE: SessionState = {
 }
 
 export function useSession() {
-  const [session, setSession] = useState<SessionState>(INITIAL_STATE)
+  const { isDemo } = useDemo()
+  const [session, setSession] = useState<SessionState>(
+    isDemo
+      ? {
+          connected: true,
+          hostNumber: demoSession.hostNumber,
+          waVersion: demoSession.waVersion,
+          battery: demoSession.battery,
+          connectionState: demoSession.connectionState,
+          uptime: demoSession.uptime,
+        }
+      : INITIAL_STATE,
+  )
   const [qr, setQr] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!isDemo)
   const uptimeRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const startTimeRef = useRef<number>(Date.now())
+  const startTimeRef = useRef<number>(Date.now() - (isDemo ? demoSession.uptime * 1000 : 0))
 
   useEffect(() => {
     if (typeof window === "undefined") return
+
+    // Demo mode — just tick uptime, no socket
+    if (isDemo) {
+      uptimeRef.current = setInterval(() => {
+        setSession((prev) => ({
+          ...prev,
+          uptime: Math.floor((Date.now() - startTimeRef.current) / 1000),
+        }))
+      }, 1000)
+      return () => {
+        if (uptimeRef.current) clearInterval(uptimeRef.current)
+      }
+    }
 
     let mounted = true
 
@@ -38,10 +65,10 @@ export function useSession() {
 
         // Fetch initial session data using SocketClient's Proxy methods
         const [hostNumber, waVersion, battery, connectionState] = await Promise.allSettled([
-          client.ask("getHostNumber" as any),
-          client.ask("getWAVersion" as any),
-          client.ask("getBatteryLevel" as any),
-          client.ask("getConnectionState" as any),
+          client.ask("getHostNumber" as any, {}),
+          client.ask("getWAVersion" as any, {}),
+          client.ask("getBatteryLevel" as any, {}),
+          client.ask("getConnectionState" as any, {}),
         ])
 
         if (!mounted) return
@@ -103,7 +130,8 @@ export function useSession() {
       mounted = false
       if (uptimeRef.current) clearInterval(uptimeRef.current)
     }
-  }, [])
+  }, [isDemo])
 
   return { session, qr, loading }
 }
+

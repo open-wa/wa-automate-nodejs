@@ -1,16 +1,21 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { getClient, getClientSync, getApiUrl, type SocketClient, type Client } from "@/lib/api-client"
+import { useDemo } from "@/lib/demo/use-demo"
+import { resolveDemoAsk } from "@/lib/demo/demo-data"
 
 type ConnectedClient = SocketClient & Client
 
 export function useSocket() {
-  const [connected, setConnected] = useState(false)
+  const { isDemo } = useDemo()
+  const [connected, setConnected] = useState(isDemo)
   const [error, setError] = useState<string | null>(null)
-  const clientRef = useRef<ConnectedClient | null>(getClientSync())
+  const clientRef = useRef<ConnectedClient | null>(isDemo ? null : getClientSync())
 
   useEffect(() => {
     // Only run on client
     if (typeof window === "undefined") return
+    // Demo mode — no real socket needed
+    if (isDemo) return
 
     let mounted = true
 
@@ -61,19 +66,23 @@ export function useSocket() {
     return () => {
       mounted = false
     }
-  }, [])
+  }, [isDemo])
 
   /**
-   * Call any Client method via the socket.
-   * Uses SocketClient.ask() which wraps socket.emit with a callback.
+   * Call any Client method via the socket (or mock in demo mode).
    */
   const ask = useCallback(
     async <T = unknown>(method: string, args?: Record<string, unknown> | unknown[]): Promise<T> => {
+      if (isDemo) {
+        // Simulate a small network delay for realism
+        await new Promise((r) => setTimeout(r, 80 + Math.random() * 120))
+        return resolveDemoAsk(method, args) as T
+      }
       const client = clientRef.current
       if (!client) throw new Error("Not connected")
       return client.ask(method as any, args as any) as Promise<T>
     },
-    [],
+    [isDemo],
   )
 
   return {
@@ -83,3 +92,4 @@ export function useSocket() {
     client: clientRef.current,
   }
 }
+

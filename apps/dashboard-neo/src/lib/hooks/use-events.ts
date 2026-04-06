@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { getClient } from "@/lib/api-client"
+import { useDemo } from "@/lib/demo/use-demo"
+import { demoEvents, demoEventDrips, type DemoEvent } from "@/lib/demo/demo-data"
 
 export type EventLog = {
   id: number
@@ -11,7 +13,8 @@ export type EventLog = {
 const MAX_EVENTS = 500
 
 export function useEvents() {
-  const [events, setEvents] = useState<EventLog[]>([])
+  const { isDemo } = useDemo()
+  const [events, setEvents] = useState<EventLog[]>(isDemo ? demoEvents : [])
   const [paused, setPaused] = useState(false)
   const [filter, setFilter] = useState("")
   const pausedRef = useRef(paused)
@@ -19,6 +22,28 @@ export function useEvents() {
 
   useEffect(() => {
     if (typeof window === "undefined") return
+
+    // Demo mode — drip-feed events periodically
+    if (isDemo) {
+      let dripIdx = 0
+      const interval = setInterval(() => {
+        if (pausedRef.current) return
+        const drip = demoEventDrips[dripIdx % demoEventDrips.length]
+        dripIdx++
+        setEvents((prev) =>
+          [
+            {
+              id: Date.now() + Math.random(),
+              timestamp: new Date().toLocaleTimeString(),
+              name: drip.name,
+              args: drip.payload ? [drip.payload] : [],
+            } satisfies DemoEvent,
+            ...prev,
+          ].slice(0, MAX_EVENTS),
+        )
+      }, 3000 + Math.random() * 3000)
+      return () => clearInterval(interval)
+    }
 
     let mounted = true
 
@@ -28,14 +53,15 @@ export function useEvents() {
         if (!mounted) return
 
         // Use EventEmitter2 wildcard to capture ALL events
-        client.ev.onAny((event: string, ...args: unknown[]) => {
+        client.ev.onAny((event: string | string[], ...args: unknown[]) => {
           if (!mounted || pausedRef.current) return
+          const eventName = Array.isArray(event) ? event.join('.') : event
           setEvents((prev) =>
             [
               {
                 id: Date.now() + Math.random(),
                 timestamp: new Date().toLocaleTimeString(),
-                name: event,
+                name: eventName,
                 args,
               },
               ...prev,
@@ -70,7 +96,7 @@ export function useEvents() {
     return () => {
       mounted = false
     }
-  }, [])
+  }, [isDemo])
 
   const clear = useCallback(() => setEvents([]), [])
 
@@ -89,3 +115,4 @@ export function useEvents() {
     count: events.length,
   }
 }
+
