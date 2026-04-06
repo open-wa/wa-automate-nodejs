@@ -6,13 +6,112 @@ import { resolveConfig, type PartialConfig, type Config, type TrackedConfig } fr
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { getCliOutputSink } from './cli/output-sink';
+import { getCliOutputSink, type CliOutputSink } from './cli/output-sink';
 
 export interface CliRuntimeResult {
     server: WAServer;
     client: ClientFacade;
     config: Config;
     events: ClientFacade['events'];
+}
+
+function attachLaunchNarration(
+    openwaClient: Awaited<ReturnType<typeof createClient>>,
+    sink: CliOutputSink,
+    sessionId: string,
+): () => void {
+    const unsubscribers: Array<() => void> = [];
+    const on = (event: string, handler: (...args: any[]) => void) => {
+        openwaClient.events.on(event as never, handler);
+        unsubscribers.push(() => openwaClient.events.off(event as never, handler));
+    };
+
+    on('launch.auth.check.before', (event: any) => {
+        sink.status({ phase: 'launch.auth', sessionId, detail: `Authenticating (timeout=${event?.details?.timeoutMs ?? '∞'}ms)` });
+    });
+
+    on('launch.auth.check.after', (event: any) => {
+        sink.write({ level: 'info', message: `Auth detected via ${event?.details?.method ?? 'unknown'} (${event?.details?.isAuthenticated ? 'authenticated' : 'not-authenticated'})` });
+    });
+
+    on('launch.helper.pre_api.before', (event: any) => {
+        sink.status({ phase: 'launch.helpers', sessionId, detail: event?.details?.mode === 'scripts' ? 'Injecting pre-API helper assets...' : 'Pre-API helpers already present' });
+    });
+
+    on('launch.helper.pre_api.after', (event: any) => {
+        sink.write({ level: 'info', message: `Pre-API helper phase complete (${event?.details?.mode ?? 'unknown'})` });
+    });
+
+    on('internal_launch_progress', (event: any) => {
+        const prefix = (event?.value || event?.value === 0) ? `${event.value}% ` : '';
+        if (event?.text) sink.write({ level: 'info', message: `${prefix}${event.text}`.trim() });
+    });
+
+    on('critical_internal_message', (event: any) => {
+        sink.write({ level: 'warn', message: `Internal launch message: ${event?.text ?? event?.value ?? 'unknown'}` });
+    });
+
+    on('launch.patch.init.before', (event: any) => {
+        if (event?.details?.phase === 'preload') {
+            sink.status({ phase: 'launch.patch', sessionId, detail: `Preparing live patches (source=${event?.details?.source ?? 'builtin'})` });
+        }
+    });
+
+    on('launch.patch.init.after', (event: any) => {
+        if (event?.details?.phase === 'preload') {
+            const source = event?.details?.source ?? 'unknown';
+            const tag = event?.details?.tag ? ` tag=${event.details.tag}` : '';
+            const available = Array.isArray(event?.details?.available) ? event.details.available.length : 0;
+            sink.write({ level: 'info', message: `Patch preload ready (source=${source}, available=${available}${tag})` });
+        }
+    });
+
+    on('patch.apply.before', (event: any) => {
+        sink.status({ phase: 'launch.patch', sessionId, detail: `Applying patch: ${event?.details?.patchId ?? 'unknown'}` });
+    });
+
+    on('patch.apply.after', (event: any) => {
+        sink.write({
+            level: event?.details?.outcome === 'failed' ? 'warn' : 'info',
+            message: `Patch ${event?.details?.patchId ?? 'unknown'}: ${event?.details?.outcome ?? (event?.details?.applied ? 'applied' : 'unknown')}${event?.details?.detail ? ` — ${event.details.detail}` : ''}`,
+        });
+    });
+
+    on('launch.patch.integrity.before', () => {
+        sink.status({ phase: 'launch.patch', sessionId, detail: 'Validating patched runtime...' });
+    });
+
+    on('launch.patch.integrity.after', (event: any) => {
+        sink.write({ level: event?.details?.usable ? 'info' : 'warn', message: `Patched runtime validation: ${event?.details?.usable ? 'usable' : 'failed'}${event?.details?.failureReason ? ` (${event.details.failureReason})` : ''}` });
+    });
+
+    on('launch.license.check.before', (event: any) => {
+        sink.status({ phase: 'launch.license', sessionId, detail: `Checking license (${event?.details?.source ?? 'local'})` });
+    });
+
+    on('launch.license.check.after', (event: any) => {
+        sink.write({ level: event?.details?.blockingFailure ? 'warn' : 'info', message: `License check: ${event?.details?.status ?? 'unknown'}${event?.details?.detail ? ` — ${event.details.detail}` : ''}` });
+    });
+
+    on('license.inject.before', () => {
+        sink.status({ phase: 'launch.license', sessionId, detail: 'Injecting license payload...' });
+    });
+
+    on('license.inject.after', (event: any) => {
+        sink.write({ level: event?.details?.success ? 'info' : 'warn', message: `License inject: ${event?.details?.success ? 'success' : 'failed'}${event?.details?.status ? ` (${event.details.status})` : ''}${event?.details?.detail ? ` — ${event.details.detail}` : ''}` });
+    });
+
+    on('launch.client.finalize.before', (event: any) => {
+        sink.status({ phase: 'launch.finalize', sessionId, detail: `Finalizing session (${event?.details?.validationStage ?? 'unknown'})` });
+    });
+
+    on('launch.client.finalize.after', (event: any) => {
+        sink.write({ level: event?.details?.success ? 'info' : 'warn', message: `Finalize: ${event?.details?.outcome ?? 'unknown'}${event?.details?.detail ? ` — ${event.details.detail}` : ''}` });
+    });
+
+    return () => {
+        unsubscribers.forEach((unsubscribe) => unsubscribe());
+    };
 }
 
 const CHROME_CACHE_FILE = resolve(process.cwd(), '.open-wa', 'chrome-executable-path.json');
@@ -142,6 +241,9 @@ export function parseCliArgs(argv: string[] = process.argv.slice(2)): ParsedCliA
     if (argv.includes('--log-console')) cliOverrides.logConsole = true;
     if (argv.includes('--aggressive-garbage-collection')) cliOverrides.aggressiveGarbageCollection = true;
     if (argv.includes('--no-dashboard')) cliOverrides.dashboard = false;
+
+    const qrTimeout = getVal(argv, '--qr-timeout');
+    if (qrTimeout) cliOverrides.qrTimeout = parseInt(qrTimeout, 10);
 
     const dashboardPort = getVal(argv, '--dashboard-port');
     if (dashboardPort) cliOverrides.dashboardPort = parseInt(dashboardPort, 10);
@@ -359,7 +461,8 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         licenseKey: config.licenseKey as any,
     });
 
-    server.setReadinessProvider(() => openwaClient.getReadiness());
+    server.setReadinessProvider(() => ({ ...openwaClient.getReadiness(), state: openwaClient.getState() }));
+    const detachLaunchNarration = attachLaunchNarration(openwaClient, sink, config.sessionId);
 
     openwaClient.events.on('launch.auth.qr.generated', (event) => {
         const qr = event.details?.qr;
@@ -384,6 +487,17 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
 
     server.setClient(client as any);
 
+    // Bridge core events to the socket manager so dashboard clients
+    // receive live events when they send register_ev.
+    server.setEventBridge({
+        onAny: (listener: (event: string, value: any) => void) => {
+            openwaClient.events.onAny(listener);
+        },
+        offAny: (listener: (event: string, value: any) => void) => {
+            openwaClient.events.offAny(listener);
+        },
+    });
+
     openwaClient.events.on('launch.browser.init.after', async () => {
         const page = openwaClient.getTransport().getPage();
         if (page) {
@@ -404,6 +518,7 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         message: `WhatsApp Client ready with state: ${client.getState()} (status=${readiness.status}, exposureSafe=${readiness.exposureSafe})`,
     });
 
+    detachLaunchNarration();
     return { server, client, config, events: openwaClient.events };
 }
 

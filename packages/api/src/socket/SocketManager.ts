@@ -5,9 +5,15 @@ import { normalizeMethodPayload } from '../compat/args';
 import { invokeClientMethod } from '../invoke-client-method';
 import type { ClientMethodMap } from '../types';
 
+export interface EventBridge {
+  onAny(listener: (event: string, value: any) => void): void;
+  offAny(listener: (event: string, value: any) => void): void;
+}
+
 export class SocketManager {
   private io: SocketIOServer;
   private client: ClientMethodMap | undefined;
+  private eventBridge: EventBridge | undefined;
 
   constructor(io: SocketIOServer) {
     this.io = io;
@@ -18,11 +24,30 @@ export class SocketManager {
     this.client = client;
   }
 
+  public setEventBridge(bridge: EventBridge) {
+    this.eventBridge = bridge;
+  }
+
   private setupHandlers() {
     this.io.on('connection', (socket) => {
       console.log('Client connected:', socket.id);
 
       this.registerCapabilityHandlers(socket);
+
+      // Legacy compat: when the client sends register_ev,
+      // bridge ALL internal events to this socket so the dashboard
+      // events page receives them in real-time.
+      socket.on('register_ev', () => {
+        if (this.eventBridge) {
+          const forwarder = (event: string, value: any) => {
+            socket.emit(event, value);
+          };
+          this.eventBridge.onAny(forwarder);
+          socket.on('disconnect', () => {
+            this.eventBridge?.offAny(forwarder);
+          });
+        }
+      });
 
       socket.on('sendToListener', (data) => {
         this.io.emit('listenerMessage', data);

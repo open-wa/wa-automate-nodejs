@@ -37,6 +37,7 @@ import { mediaMethods, type MediaMethods } from './methods/media.js';
 import { groupMethods, type GroupMethods } from './methods/groups.js';
 import { chatMethods, type ChatMethods } from './methods/chats.js';
 import { contactMethods, type ContactMethods } from './methods/contacts.js';
+import { utilitiesMethods, type UtilitiesMethods } from './methods/utilities.js';
 
 /**
  * Configuration for creating a WhatsApp Client.
@@ -87,7 +88,7 @@ export type EvaluateFn = <Arg, Ret>(
  * client.onMessage(msg => console.log(msg));
  * ```
  */
-export class Client implements MessagingMethods, MediaMethods, GroupMethods, ChatMethods, ContactMethods {
+export class Client implements MessagingMethods, MediaMethods, GroupMethods, ChatMethods, ContactMethods, UtilitiesMethods {
   private readonly _client: OpenWAClient;
   private readonly _transport: Transport;
   private readonly _listenerManager: ListenerManager;
@@ -111,6 +112,7 @@ export class Client implements MessagingMethods, MediaMethods, GroupMethods, Cha
     this._bindMethods(groupMethods, this);
     this._bindMethods(chatMethods, this);
     this._bindMethods(contactMethods, this);
+    this._bindMethods(utilitiesMethods, this);
 
     this._client.registerFinalizationHook(() => this.loaded());
   }
@@ -583,4 +585,17 @@ export class Client implements MessagingMethods, MediaMethods, GroupMethods, Cha
   declare getCommonGroups: ContactMethods['getCommonGroups'];
   declare getLastSeen: ContactMethods['getLastSeen'];
   declare isChatOnline: ContactMethods['isChatOnline'];
+  
+  // Utilities methods
+  declare getHostNumber: UtilitiesMethods['getHostNumber'];
+  declare getWAVersion: UtilitiesMethods['getWAVersion'];
+  declare getConnectionState: UtilitiesMethods['getConnectionState'];
+  declare getBatteryLevel: UtilitiesMethods['getBatteryLevel'];
+  declare getIsPlugged: UtilitiesMethods['getIsPlugged'];
+  declare getAmountOfLoadedMessages: UtilitiesMethods['getAmountOfLoadedMessages'];
+  declare getMe: UtilitiesMethods['getMe'];
+  declare getFeatures: UtilitiesMethods['getFeatures'];
+  declare getProcessStats: UtilitiesMethods['getProcessStats'];
+  declare setMyName: UtilitiesMethods['setMyName'];
+  declare setMyStatus: UtilitiesMethods['setMyStatus'];
 }

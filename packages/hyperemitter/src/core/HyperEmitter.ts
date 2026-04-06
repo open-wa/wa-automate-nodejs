@@ -25,6 +25,7 @@ export class HyperEmitter<TMap extends object = Record<string, unknown>> {
   private wildcardTree: RadixTree<ListenerRecord<AnyFn>>;
   private wildcardIndex: Map<ListenerRecord<AnyFn>, string>;
   private hasWildcards = false;
+  private anyListeners: Set<(event: string, payload: any) => void> = new Set();
 
   constructor(options: HyperEmitterOptions = {}) {
     this.delimiter = options.delimiter ?? '.';
@@ -100,7 +101,32 @@ export class HyperEmitter<TMap extends object = Record<string, unknown>> {
       : undefined;
 
     const called = this.dispatch(exact, [payload]) | this.dispatch(wildcard, [payload]);
+
+    // Notify catch-all listeners
+    for (const listener of this.anyListeners) {
+      try {
+        listener(event as string, payload);
+      } catch { /* swallow */ }
+    }
+
     return Boolean(called);
+  }
+
+  /**
+   * Register a catch-all listener that fires on every emit with (event, payload).
+   * Useful for event bridging / debugging.
+   */
+  onAny(listener: (event: string, payload: any) => void): this {
+    this.anyListeners.add(listener);
+    return this;
+  }
+
+  /**
+   * Remove a catch-all listener registered via onAny.
+   */
+  offAny(listener: (event: string, payload: any) => void): this {
+    this.anyListeners.delete(listener);
+    return this;
   }
 
   listenerCount(event?: keyof TMap & string): number {

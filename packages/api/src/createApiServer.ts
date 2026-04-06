@@ -12,6 +12,7 @@ import { createApiMiddleware } from './createApiMiddleware';
 import { registerMetaRoutes } from './routes/meta';
 import { registerDebugRoutes } from './routes/debug';
 import { SocketManager } from './socket/SocketManager';
+import { HealthStore } from './health/HealthStore';
 import { ElasticEmitter } from './monitoring/elastic';
 import { setupViteDevServer, mountDashboardProduction } from './dashboard/middleware';
 import type { ApiServerOptions, ClientMethodMap } from './types';
@@ -46,6 +47,7 @@ export class ApiServer {
   private injectWebSocket: ((server: unknown) => void) | null = null;
   private isDashboardActive: boolean = false;
   private pluginHost?: PluginHost;
+  private healthStore: HealthStore = new HealthStore();
   private readinessProvider?: () => {
     state?: string;
     status?: string;
@@ -85,6 +87,15 @@ export class ApiServer {
   public setClient(client: ClientMethodMap | undefined) {
     this.client = client;
     this.socketManager?.setClient(client);
+  }
+
+  public setEventBridge(bridge: import('./socket/SocketManager').EventBridge) {
+    this.socketManager?.setEventBridge(bridge);
+
+    // Also wire events into the HealthStore so /health returns accumulated data
+    bridge.onAny((event: string, payload: any) => {
+      this.healthStore.processEvent(event, payload);
+    });
   }
 
   public setReadinessProvider(
@@ -245,8 +256,9 @@ export class ApiServer {
   private registerRoutes() {
     const methodDefinitions = getHttpMethodDefinitions();
 
-    this.app.get('/health', (c) =>
-      c.json({
+    this.app.get('/health', (c) => {
+      const healthSnapshot = this.healthStore.getSnapshot();
+      return c.json({
         status: 'ok',
         version: '5.0.0',
         socketMode: this.config.socketMode,
@@ -268,8 +280,17 @@ export class ApiServer {
           blockers: [],
           exposureSafe: false,
         },
-      })
-    );
+        // QR code for pre-launch scanning
+        qr: this.latestQR ?? null,
+        // Accumulated health data for the dashboard
+        launchTimeline: healthSnapshot.launchTimeline,
+        patches: healthSnapshot.patches,
+        license: healthSnapshot.license,
+        reconnections: healthSnapshot.reconnections,
+        startedAt: healthSnapshot.startedAt,
+        lastEventAt: healthSnapshot.lastEventAt,
+      });
+    });
 
     this.app.get('/qr', (c) => {
       if (!this.config.ezqr) {
