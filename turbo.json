@@ -1,15 +1,30 @@
 {
-  "$schema": "https://turbo.build/schema.json",
-  "globalPassThroughEnv": ["NODE_ENV"],
-  "pipeline": {
+  "$schema": "https://v2-9-4.turborepo.dev/schema.json",
+  "globalPassThroughEnv": [
+    "NODE_ENV"
+  ],
+  "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", "build/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**",
+        "build/**"
+      ]
     },
     "test": {
-      "dependsOn": ["build"],
-      "outputs": ["coverage/**"],
-      "inputs": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.ts"]
+      "dependsOn": [
+        "build"
+      ],
+      "outputs": [
+        "coverage/**"
+      ],
+      "inputs": [
+        "src/**/*.tsx",
+        "src/**/*.ts",
+        "test/**/*.ts"
+      ]
     },
     "lint": {
       "outputs": []
@@ -22,6 +37,14 @@
       "cache": false
     },
     "typecheck": {
+      "outputs": []
+    },
+    "@open-wa/cf-proxy#build": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "registry#build": {
+      "dependsOn": ["^build"],
       "outputs": []
     }
   }
