@@ -276,6 +276,7 @@ export function parseCliArgs(argv: string[] = process.argv.slice(2)): ParsedCliA
     if (argv.includes('--log-console')) cliOverrides.logConsole = true;
     if (argv.includes('--aggressive-garbage-collection')) cliOverrides.aggressiveGarbageCollection = true;
     if (argv.includes('--no-dashboard')) cliOverrides.dashboard = false;
+    if (argv.includes('--ephemeral')) cliOverrides.ephemeral = true;
 
     const qrTimeout = getVal(argv, '--qr-timeout');
     if (qrTimeout) cliOverrides.qrTimeout = parseInt(qrTimeout, 10);
@@ -488,6 +489,7 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         executablePath: executableResolution.executablePath,
         browserArgs: config.chromiumArgs,
         userDataDir: config.userDataDir,
+        ephemeral: config.ephemeral,
         logConsole: config.logConsole,
         logConsoleErrors: config.logConsoleErrors,
         blockCrashLogs: config.blockCrashLogs,

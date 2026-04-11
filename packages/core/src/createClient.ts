@@ -58,6 +58,13 @@ export interface CreateClientOptions {
   executablePath?: string;
   browserArgs?: string[];
   userDataDir?: string;
+  /**
+   * When true, prevents auto-derivation of userDataDir from sessionId.
+   * The browser launches with an ephemeral temp profile discarded on exit.
+   * Useful for testing without leaving `_IGNORE_` directories behind.
+   * @default false
+   */
+  ephemeral?: boolean;
   linkCode?: string;
   qrMax?: number;
   ignoreNuke?: boolean;
@@ -170,6 +177,39 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     debug: options.debug ?? false,
   });
 
+  // ── userDataDir Resolution ────────────────────────────────────────────────
+  // Matches v4 behavior: auto-derive _IGNORE_{sessionId} unless explicitly
+  // set or ephemeral mode is enabled.
+  let resolvedUserDataDir: string | undefined;
+
+  if (options.ephemeral) {
+    // Ephemeral mode: intentionally use no persistent profile
+    resolvedUserDataDir = undefined;
+    logger.info('user_data_dir_resolved', {
+      mode: 'ephemeral',
+      userDataDir: null,
+      detail: 'Ephemeral mode enabled — browser will use a disposable temp profile with no session persistence',
+    });
+  } else if (options.userDataDir) {
+    // Explicitly provided by caller
+    resolvedUserDataDir = options.userDataDir;
+    logger.info('user_data_dir_resolved', {
+      mode: 'explicit',
+      userDataDir: resolvedUserDataDir,
+      detail: 'Using explicitly configured userDataDir for session persistence',
+    });
+  } else {
+    // Auto-derive from sessionId (v4 parity)
+    const basePath = options.sessionDataPath || '.';
+    resolvedUserDataDir = `${basePath}/_IGNORE_${sessionId}`;
+    logger.info('user_data_dir_resolved', {
+      mode: 'derived',
+      userDataDir: resolvedUserDataDir,
+      sessionId,
+      detail: `Auto-derived userDataDir from sessionId for session persistence (set ephemeral=true to disable)`,
+    });
+  }
+
   const session = new SessionManager({
     sessionId,
     events,
@@ -189,7 +229,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     navigationTimeoutMs: options.navigationTimeoutMs,
     executablePath: options.executablePath,
     browserArgs: options.browserArgs,
-    userDataDir: options.userDataDir,
+    userDataDir: resolvedUserDataDir,
     linkCode: options.linkCode,
     qrMax: options.qrMax,
     ignoreNuke: options.ignoreNuke,
@@ -257,7 +297,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       deleteSessionDataOnLogout: options.deleteSessionDataOnLogout,
       killClientOnLogout: options.killClientOnLogout,
       sessionDataPath: options.sessionDataPath,
-      userDataDir: options.userDataDir,
+      userDataDir: resolvedUserDataDir,
     },
     registerFinalizationHook,
 

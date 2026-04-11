@@ -160,6 +160,13 @@ export const ConfigSchema = z.object({
     .optional()
     .describe('Browser profile directory used for persistent session storage.'),
 
+  ephemeral: z
+    .boolean()
+    .default(false)
+    .describe(
+      'When true, prevents auto-derivation of userDataDir from sessionId. The browser launches with an ephemeral temp profile that is discarded on exit. Useful for testing without leaving _IGNORE_ directories behind.'
+    ),
+
   skipSessionSave: z
     .boolean()
     .default(false)
