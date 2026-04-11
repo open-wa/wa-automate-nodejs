@@ -1,1 +1,18 @@
-{}
+{
+    "switchboard.team.strictPrompts": false,
+    "switchboard.planner.strictPrompts": false,
+    "switchboard.review.strictPrompts": false,
+    "mcpServers": {
+        "switchboard": {
+            "command": "node",
+            "args": [
+                "/Users/Mohammed/projects/tools/wa/.switchboard/MCP/mcp-server.js"
+            ],
+            "env": {
+                "SWITCHBOARD_WORKSPACE_ROOT": "/Users/Mohammed/projects/tools/wa"
+            },
+            "disabled": false,
+            "alwaysAllow": []
+        }
+    }
+}

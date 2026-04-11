@@ -26,6 +26,7 @@
     "typecheck": "turbo typecheck --filter='!@open-wa/legacy' --filter='!@open-wa/legacy-documented'",
     "changeset": "changeset",
     "version-packages": "changeset version",
+    "repomix": "npx repomix@latest",
     "publish-packages": "turbo run build --filter='!@open-wa/legacy' --filter='!@open-wa/legacy-documented' && changeset publish",
     "release-image": "node tools/release-image.js"
   },

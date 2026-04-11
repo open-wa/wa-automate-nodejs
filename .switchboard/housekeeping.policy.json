@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "runIntervalMinutes": 60,
+  "processedMessageRetentionHours": 24,
+  "keepRecentProcessedPerAgent": 50,
+  "staleUnprocessedInboxRetentionHours": 72,
+  "staleUnprocessedUnknownAgentsOnly": true,
+  "staleSignalRetentionDays": 3
+}

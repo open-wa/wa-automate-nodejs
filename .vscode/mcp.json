@@ -1,0 +1,14 @@
+{
+  "servers": {
+    "switchboard": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/.switchboard/MCP/mcp-server.js"
+      ],
+      "env": {
+        "SWITCHBOARD_WORKSPACE_ROOT": "/Users/Mohammed/projects/tools/wa"
+      }
+    }
+  }
+}

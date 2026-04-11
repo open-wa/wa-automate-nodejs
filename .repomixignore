@@ -1,3 +1,7 @@
+# Add patterns to ignore here, one per line
+# Example:
+# *.log
+# tmp/
 node_modules
 dist
 session
@@ -22,6 +26,7 @@ demo/**.mp4
 # **docs-v3**
 .vscode/launch.json
 **logs**
+**legacy**
 bin/cli.config.json
 
 # managed by open-wa
@@ -83,3 +88,23 @@ apps/*/src/**/*.map
 .switchboard/kanban.db
 .switchboard/*.db-shm
 .switchboard/*.db-wal
+
+**patches**
+**CHANGELOG**
+**.sisyphus**
+
+**sqlite**
+**wal**
+**.js
+**.cjs
+**.map
+**output.txt
+**.svg
+**.jpeg
+**.jpg
+**.changeset**
+**.opencode**
+**patches**
+**dist**
+**node_modules**
+**ignore**
