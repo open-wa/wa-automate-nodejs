@@ -30,25 +30,38 @@ function PortalPage() {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const clientRef = useRef<ScreencastClient | null>(null)
   const fpsCountRef = useRef(0)
+  const lastSentSizeRef = useRef<{ w: number; h: number }>({ w: 0, h: 0 })
 
   // Create and configure the ScreencastClient
   const startPortal = useCallback(() => {
-    if (!connected) return
+    if (!connected) {
+      console.warn('[Portal] startPortal called but not connected, aborting')
+      return
+    }
 
+    console.log('[Portal] Starting portal...')
     setStatus("connecting")
     setErrorMsg(null)
 
     // Capture initial dimensions from wrapper
     let maxWidth = 1280
     let maxHeight = 720
-    // if (wrapperRef.current) {
-    //   const rect = wrapperRef.current.getBoundingClientRect()
-    //   // Reduce dimensions slightly to account for margins/padding if needed
-    //   maxWidth = Math.floor(rect.width) || maxWidth
-    //   maxHeight = Math.floor(rect.height) || maxHeight
-    // }
+    if (wrapperRef.current) {
+      const rect = wrapperRef.current.getBoundingClientRect()
+      console.log('[Portal] Wrapper dimensions at start:', { width: rect.width, height: rect.height })
+      // Use wrapper dimensions if they're reasonable
+      if (rect.width > 100 && rect.height > 100) {
+        maxWidth = Math.floor(rect.width)
+        maxHeight = Math.floor(rect.height)
+      }
+    } else {
+      console.warn('[Portal] wrapperRef.current is null at start time')
+    }
+    console.log('[Portal] Using dimensions:', { maxWidth, maxHeight })
+    lastSentSizeRef.current = { w: maxWidth, h: maxHeight }
 
     const wsUrl = getApiUrl().replace(/^http/, "ws") + "/screencast"
+    console.log('[Portal] Connecting to WebSocket:', wsUrl)
     const client = new ScreencastClient({ 
       url: wsUrl, 
       autoStart: true,
@@ -57,9 +70,17 @@ function PortalPage() {
     clientRef.current = client
 
     client.on("state-change", (state) => {
+      console.log('[Portal] State change:', state)
       setStatus(state)
-      if (state === "streaming") setPortalActive(true)
-      if (state === "idle") setPortalActive(false)
+      if (state === "streaming") {
+        console.log('[Portal] ✅ Now streaming')
+        setPortalActive(true)
+      }
+      if (state === "idle") {
+        console.warn('[Portal] ⚠️ State went to idle — portal will deactivate')
+        console.trace('[Portal] idle state trace')
+        setPortalActive(false)
+      }
     })
 
     client.on("frame", (data) => {
@@ -68,14 +89,17 @@ function PortalPage() {
     })
 
     client.on("nav-state", (state) => {
+      console.log('[Portal] Nav state:', state)
       setNavState(state)
     })
 
     client.on("ready", (bound) => {
+      console.log('[Portal] Ready event, page bound:', bound)
       setPageBound(bound)
     })
 
     client.on("error", (message) => {
+      console.error('[Portal] Error:', message)
       setErrorMsg(message)
     })
 
@@ -88,13 +112,20 @@ function PortalPage() {
     }, 1000)
 
     // Clean up FPS counter on disconnect
-    const cleanup = () => clearInterval(fpsInterval)
+    const cleanup = () => {
+      console.log('[Portal] Cleaning up FPS interval')
+      clearInterval(fpsInterval)
+    }
     client.on("state-change", (s) => {
-      if (s === "idle" || s === "error") cleanup()
+      if (s === "idle" || s === "error") {
+        console.warn('[Portal] State-change caused cleanup:', s)
+        cleanup()
+      }
     })
   }, [connected])
 
   const stopPortal = useCallback(() => {
+    console.log('[Portal] stopPortal called explicitly')
     clientRef.current?.stop()
     clientRef.current?.disconnect()
     clientRef.current?.destroy()
@@ -180,30 +211,59 @@ function PortalPage() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      console.log('[Portal] Component unmounting — destroying client')
       clientRef.current?.destroy()
     }
   }, [])
 
   // Handle ResizeObserver
   useEffect(() => {
-    if (!portalActive) return
+    if (!portalActive) {
+      console.log('[Portal] ResizeObserver effect: portalActive is false, skipping')
+      return
+    }
     const wrapper = wrapperRef.current
-    if (!wrapper) return
+    if (!wrapper) {
+      console.warn('[Portal] ResizeObserver effect: wrapper ref is null')
+      return
+    }
 
+    console.log('[Portal] ResizeObserver: attaching observer')
     let timeoutId: ReturnType<typeof setTimeout>
+    let resizeCount = 0
 
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect
+        const w = Math.floor(width)
+        const h = Math.floor(height)
+        resizeCount++
+        console.log(`[Portal] ResizeObserver fired (#${resizeCount}):`, { width: w, height: h })
+        
+        // GUARD: Skip resize if dimensions are too small (element may be collapsing)
+        if (w < 50 || h < 50) {
+          console.warn('[Portal] ⚠️ ResizeObserver got very small dimensions, skipping resize to prevent collapse')
+          return
+        }
+
+        // GUARD: Skip if dimensions haven't changed from what we last sent
+        if (w === lastSentSizeRef.current.w && h === lastSentSizeRef.current.h) {
+          console.log('[Portal] ResizeObserver: dimensions unchanged, skipping')
+          return
+        }
+        
         clearTimeout(timeoutId)
         timeoutId = setTimeout(() => {
-          clientRef.current?.resize(Math.floor(width), Math.floor(height))
+          console.log('[Portal] ResizeObserver: sending resize to server:', { width: w, height: h })
+          lastSentSizeRef.current = { w, h }
+          clientRef.current?.resize(w, h)
         }, 300)
       }
     })
 
     observer.observe(wrapper)
     return () => {
+      console.log('[Portal] ResizeObserver: disconnecting observer')
       observer.disconnect()
       clearTimeout(timeoutId)
     }

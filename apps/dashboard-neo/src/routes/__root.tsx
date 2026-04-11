@@ -7,6 +7,10 @@ import { Separator } from "@/components/ui/separator"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { DemoToggle } from "@/components/demo-toggle"
+import { PrivacyToggle } from "@/components/privacy-toggle"
+import { PrivacyProvider } from "@/lib/hooks/use-privacy"
+import { Toaster } from "@/components/ui/sonner"
+import { useMessageToasts } from "@/lib/hooks/use-message-toasts"
 
 export const Route = createRootRoute({
   validateSearch: (search: Record<string, unknown>) => {
@@ -18,10 +22,16 @@ export const Route = createRootRoute({
   component: RootComponent,
 })
 
+function MessageToastListener() {
+  useMessageToasts()
+  return null
+}
+
 function RootComponent() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="wa-dashboard-theme">
-      <TooltipProvider>
+      <PrivacyProvider>
+        <TooltipProvider>
           <SidebarProvider>
             <AppSidebar />
             <SidebarInset>
@@ -31,6 +41,7 @@ function RootComponent() {
                 <div className="flex flex-1 items-center justify-between">
                   <h1 className="text-sm font-medium">open-wa Dashboard</h1>
                   <div className="flex items-center gap-2">
+                    <PrivacyToggle />
                     <DemoToggle />
                     <ThemeToggle />
                     <ConnectionBadge />
@@ -43,6 +54,9 @@ function RootComponent() {
             </SidebarInset>
           </SidebarProvider>
         </TooltipProvider>
+        <MessageToastListener />
+        <Toaster position="bottom-right" />
+      </PrivacyProvider>
     </ThemeProvider>
   )
 }

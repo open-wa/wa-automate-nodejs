@@ -3,7 +3,9 @@ import { useState, useEffect, useMemo } from "react"
 import { Search, LayoutGrid, List, Building2, UserCheck, Globe } from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
 import { useDemo } from "@/lib/demo/use-demo"
+import { usePrivacy } from "@/lib/hooks/use-privacy"
 import { demoContacts } from "@/lib/demo/demo-data"
+import { toast } from "sonner"
 
 export const Route = createFileRoute("/contacts")({ component: ContactsPage })
 
@@ -22,6 +24,7 @@ type Contact = {
 function ContactsPage() {
   const { connected, ask } = useSocket()
   const { isDemo } = useDemo()
+  const { privacyMode, redactName, redact } = usePrivacy()
   const [contacts, setContacts] = useState<Contact[]>([])
   const [search, setSearch] = useState("")
   const [view, setView] = useState<"grid" | "list">("grid")
@@ -38,17 +41,24 @@ function ContactsPage() {
     setLoading(true)
     ask<Contact[]>("getAllContacts")
       .then((data) => {
-        const list = (data || []).map((c: any) => ({
-          id: c.id || c._serialized,
-          name: c.name || c.formattedName || c.pushname || c.id,
-          pushname: c.pushname || "",
-          shortName: c.shortName || "",
-          formattedName: c.formattedName || "",
-          isBusiness: c.isBusiness || false,
-          isMyContact: c.isMyContact || false,
-          isWAContact: c.isWAContact || false,
-          type: c.type || "",
-        }))
+        // Deduplicate by ID — API can return the same contact twice
+        const seen = new Map<string, Contact>()
+        for (const c of data || []) {
+          const idStr = (typeof c.id === "object" && c.id ? (c.id as any)._serialized : c.id) || (c as any)._serialized
+          if (!idStr || seen.has(idStr)) continue
+          seen.set(idStr, {
+            id: idStr,
+            name: c.name || c.formattedName || c.pushname || idStr,
+            pushname: c.pushname || "",
+            shortName: c.shortName || "",
+            formattedName: c.formattedName || "",
+            isBusiness: c.isBusiness || false,
+            isMyContact: c.isMyContact || false,
+            isWAContact: c.isWAContact || false,
+            type: c.type || "",
+          })
+        }
+        const list = Array.from(seen.values())
         setContacts(list.sort((a: Contact, b: Contact) => a.name.localeCompare(b.name)))
       })
       .catch(() => {})
@@ -70,6 +80,16 @@ function ContactsPage() {
     if (filterMyContacts) result = result.filter((c) => c.isMyContact)
     return result
   }, [contacts, search, filterBusiness, filterMyContacts])
+
+  const handleContactClick = (contact: Contact) => {
+    if (privacyMode) {
+      navigator.clipboard.writeText(contact.id).then(() => {
+        toast.success("Chat ID copied to clipboard")
+      }).catch(() => {
+        toast.error("Failed to copy")
+      })
+    }
+  }
 
   return (
     <div className="p-6 space-y-5">
@@ -156,13 +176,27 @@ function ContactsPage() {
       ) : view === "grid" ? (
         <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {filtered.map((contact) => (
-            <ContactCard key={contact.id} contact={contact} />
+            <ContactCard
+              key={contact.id}
+              contact={contact}
+              privacyMode={privacyMode}
+              redactName={redactName}
+              redact={redact}
+              onClick={handleContactClick}
+            />
           ))}
         </div>
       ) : (
         <div className="rounded-xl border bg-card divide-y">
           {filtered.map((contact) => (
-            <ContactRow key={contact.id} contact={contact} />
+            <ContactRow
+              key={contact.id}
+              contact={contact}
+              privacyMode={privacyMode}
+              redactName={redactName}
+              redact={redact}
+              onClick={handleContactClick}
+            />
           ))}
         </div>
       )}
@@ -171,22 +205,39 @@ function ContactsPage() {
 }
 
 // ─── Grid Card ───────────────────────────────────────────────────
-function ContactCard({ contact }: { contact: Contact }) {
-  const initials = getInitials(contact.name)
+function ContactCard({
+  contact,
+  privacyMode,
+  redactName,
+  redact: _redact,
+  onClick,
+}: {
+  contact: Contact
+  privacyMode: boolean
+  redactName: (name: string, id?: string) => string
+  redact: (value: string) => string
+  onClick: (contact: Contact) => void
+}) {
+  const displayName = redactName(contact.name, contact.id)
+  const displayPushname = redactName(contact.pushname, contact.id)
+  const initials = privacyMode ? "••" : getInitials(contact.name)
   const color = getAvatarColor(contact.name)
 
   return (
-    <div className="group rounded-xl border bg-card p-4 transition-all hover:shadow-md hover:border-primary/20">
+    <div
+      className={`group rounded-xl border bg-card p-4 transition-all hover:shadow-md hover:border-primary/20 ${privacyMode ? "cursor-pointer" : ""}`}
+      onClick={() => onClick(contact)}
+    >
       <div className="flex flex-col items-center text-center">
         <div
           className="mb-3 flex size-14 items-center justify-center rounded-full text-lg font-bold text-white shadow-sm transition-transform group-hover:scale-105"
-          style={{ backgroundColor: color }}
+          style={{ backgroundColor: privacyMode ? "hsl(0, 0%, 45%)" : color }}
         >
           {initials}
         </div>
-        <h3 className="text-sm font-semibold leading-tight truncate max-w-full">{contact.name}</h3>
+        <h3 className="text-sm font-semibold leading-tight truncate max-w-full">{displayName}</h3>
         {contact.pushname && contact.pushname !== contact.name && (
-          <p className="mt-0.5 text-xs text-muted-foreground truncate max-w-full">~{contact.pushname}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground truncate max-w-full">~{displayPushname}</p>
         )}
         <div className="mt-2 flex items-center gap-1.5">
           {contact.isBusiness && (
@@ -206,21 +257,39 @@ function ContactCard({ contact }: { contact: Contact }) {
 }
 
 // ─── List Row ────────────────────────────────────────────────────
-function ContactRow({ contact }: { contact: Contact }) {
-  const initials = getInitials(contact.name)
+function ContactRow({
+  contact,
+  privacyMode,
+  redactName,
+  redact,
+  onClick,
+}: {
+  contact: Contact
+  privacyMode: boolean
+  redactName: (name: string, id?: string) => string
+  redact: (value: string) => string
+  onClick: (contact: Contact) => void
+}) {
+  const displayName = redactName(contact.name, contact.id)
+  const displayPushname = redactName(contact.pushname, contact.id)
+  const displayId = redact(contact.id.replace("@c.us", ""))
+  const initials = privacyMode ? "••" : getInitials(contact.name)
   const color = getAvatarColor(contact.name)
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/30">
+    <div
+      className={`flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/30 ${privacyMode ? "cursor-pointer" : ""}`}
+      onClick={() => onClick(contact)}
+    >
       <div
         className="flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
-        style={{ backgroundColor: color }}
+        style={{ backgroundColor: privacyMode ? "hsl(0, 0%, 45%)" : color }}
       >
         {initials}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium truncate">{contact.name}</span>
+          <span className="text-sm font-medium truncate">{displayName}</span>
           {contact.isBusiness && (
             <span className="rounded bg-blue-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400">
               Business
@@ -228,11 +297,11 @@ function ContactRow({ contact }: { contact: Contact }) {
           )}
         </div>
         {contact.pushname && contact.pushname !== contact.name && (
-          <p className="text-xs text-muted-foreground">~{contact.pushname}</p>
+          <p className="text-xs text-muted-foreground">~{displayPushname}</p>
         )}
       </div>
       <span className="shrink-0 text-xs text-muted-foreground font-mono">
-        {contact.id.replace("@c.us", "")}
+        {displayId}
       </span>
     </div>
   )

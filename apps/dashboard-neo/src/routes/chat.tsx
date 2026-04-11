@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { MessageSquare } from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
+import { usePrivacy } from "@/lib/hooks/use-privacy"
 import { getClient } from "@/lib/api-client"
+import { toast } from "sonner"
 
 export const Route = createFileRoute("/chat")({ component: ChatPage })
 
@@ -25,6 +27,7 @@ type MessageItem = {
 
 function ChatPage() {
   const { connected, ask } = useSocket()
+  const { privacyMode, redactName, redact } = usePrivacy()
   const [chats, setChats] = useState<ChatItem[]>([])
   const [selectedChat, setSelectedChat] = useState<ChatItem | null>(null)
   const [messages, setMessages] = useState<MessageItem[]>([])
@@ -145,17 +148,24 @@ function ChatPage() {
             filteredChats.map((chat) => (
               <button
                 key={chat.id}
-                onClick={() => setSelectedChat(chat)}
+                onClick={() => {
+                  setSelectedChat(chat)
+                  if (privacyMode) {
+                    navigator.clipboard.writeText(chat.id).then(() => {
+                      toast.success("Chat ID copied to clipboard")
+                    }).catch(() => {})
+                  }
+                }}
                 className={`flex w-full items-center gap-3 border-b px-3 py-3 text-start transition-colors hover:bg-muted/50 ${
                   selectedChat?.id === chat.id ? "bg-primary/10" : ""
                 }`}
               >
                 <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium">
-                  {chat.name.charAt(0).toUpperCase()}
+                  {privacyMode ? "••" : chat.name.charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="truncate text-sm font-medium">{chat.name}</span>
+                    <span className="truncate text-sm font-medium">{redactName(chat.name, chat.id)}</span>
                     {(chat.unreadCount ?? 0) > 0 && (
                       <span className="ms-2 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
                         {chat.unreadCount}
@@ -179,11 +189,11 @@ function ChatPage() {
             {/* Chat Header */}
             <div className="flex items-center gap-3 border-b px-4 py-3">
               <div className="flex size-8 items-center justify-center rounded-full bg-muted text-sm font-medium">
-                {selectedChat.name.charAt(0).toUpperCase()}
+                {privacyMode ? "••" : selectedChat.name.charAt(0).toUpperCase()}
               </div>
               <div>
-                <div className="text-sm font-medium">{selectedChat.name}</div>
-                <div className="text-[10px] text-muted-foreground">{selectedChat.id}</div>
+                <div className="text-sm font-medium">{redactName(selectedChat.name, selectedChat.id)}</div>
+                <div className="text-[10px] text-muted-foreground">{redact(selectedChat.id)}</div>
               </div>
             </div>
 
@@ -203,7 +213,7 @@ function ChatPage() {
                       }`}
                     >
                       {msg.sender && !msg.fromMe && (
-                        <div className="mb-0.5 text-[10px] font-semibold text-primary">{msg.sender}</div>
+                        <div className="mb-0.5 text-[10px] font-semibold text-primary">{privacyMode ? "REDACTED" : msg.sender}</div>
                       )}
                       <div className="whitespace-pre-wrap break-words">{msg.body || `[${msg.type}]`}</div>
                       <div

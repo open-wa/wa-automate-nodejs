@@ -1,16 +1,20 @@
 /**
- * useHealth — fetches /health from the API server via REST.
+ * useHealth — real-time session health via socket events + /health REST fallback.
  *
- * Unlike socket-based hooks, this uses a simple HTTP fetch so the data
- * survives page navigation. A module-level cache ensures that returning
- * to the health page shows the last-known data immediately while a
- * background refresh updates it.
+ * Primary: subscribes to socket events for instant state transitions
+ *   - session.state.changed   → updates session.state
+ *   - launch.auth.qr.generated → updates qr
+ *   - patch.apply.after       → updates patches
+ *   - internal_launch_progress → updates launch timeline
+ *   - client.ready            → marks as ready
  *
- * Polls every 10s while mounted.
+ * Fallback: polls /health REST endpoint to reconcile full state
+ *   - Fast poll (5s) during pre-auth, slow poll (60s) once ready
+ *   - Module-level cache survives SPA navigations
  */
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { getApiUrl } from "@/lib/api-client"
+import { getApiUrl, getClient } from "@/lib/api-client"
 import { useDemo } from "@/lib/demo/use-demo"
 import {
   demoLaunchTimeline,
@@ -65,12 +69,140 @@ export interface HealthData {
 }
 
 // ── Module-level cache ──
-// This persists across page navigations within the same SPA session
+// Persists across page navigations within the same SPA session
 let _cachedHealth: HealthData | null = null
 let _lastFetch = 0
+let _socketListenerAttached = false
 
-const POLL_INTERVAL = 10_000 // 10 seconds
-const STALE_THRESHOLD = 30_000 // consider stale after 30s
+const STALE_THRESHOLD = 30_000
+
+// ── Real-time event listener (singleton) ──
+// Wires socket events to the module cache so state is instantly available
+type HealthListener = (h: HealthData) => void
+const _listeners = new Set<HealthListener>()
+
+function notifyListeners() {
+  if (!_cachedHealth) return
+  for (const fn of _listeners) fn(_cachedHealth)
+}
+
+function ensureSocketListener() {
+  if (_socketListenerAttached) return
+  _socketListenerAttached = true
+
+  getClient()
+    .then((client) => {
+      // ── Session state changes (instant phase transitions) ──
+      client.socket.on("session.state.changed", (data: unknown) => {
+        const d = data as Record<string, any> | undefined
+        if (!d) return
+        // Depending on the bridge, payload might be nested in ctx/details
+        const payload = d.ctx || d.details || d
+        const nextState = payload?.nextState || payload?.state || payload
+        if (typeof nextState === "string" && _cachedHealth) {
+          _cachedHealth = {
+            ..._cachedHealth,
+            connected: nextState !== "DISCONNECTED" && nextState !== "STOPPED",
+            session: {
+              ..._cachedHealth.session,
+              state: nextState,
+              ready: nextState === "READY" || nextState === "CONNECTED",
+            },
+          }
+          notifyListeners()
+        }
+      })
+
+      // ── QR code generated (instant QR display) ──
+      client.socket.on("launch.auth.qr.generated", (data: unknown) => {
+        const d = data as Record<string, any> | undefined
+        if (!_cachedHealth) return
+        const payload = d?.ctx || d?.details || d
+        _cachedHealth = {
+          ..._cachedHealth,
+          qr: payload?.qr || _cachedHealth.qr,
+          session: {
+            ..._cachedHealth.session,
+            state: "AUTHENTICATING",
+          },
+        }
+        notifyListeners()
+      })
+
+      // ── Patch results (real-time patch tracking) ──
+      client.socket.on("patch.apply.after", (data: unknown) => {
+        const d = data as Record<string, any> | undefined
+        if (!d || !_cachedHealth) return
+        const payload = d.ctx || d.details || d
+        const patch: PatchInfo = {
+          patchId: payload?.patchId || "unknown",
+          description: payload?.description || "",
+          required: payload?.required ?? false,
+          outcome: payload?.outcome || (payload?.applied ? "applied" : "failed"),
+        }
+        _cachedHealth = {
+          ..._cachedHealth,
+          patches: [..._cachedHealth.patches, patch],
+        }
+        notifyListeners()
+      })
+
+      // ── Client ready (instant transition to main dashboard) ──
+      client.socket.on("client.ready", () => {
+        if (!_cachedHealth) return
+        _cachedHealth = {
+          ..._cachedHealth,
+          connected: true,
+          qr: null,
+          session: {
+            ..._cachedHealth.session,
+            state: "READY",
+            ready: true,
+          },
+        }
+        notifyListeners()
+      })
+
+      // ── Launch progress events ──
+      client.socket.on("internal_launch_progress", (data: unknown) => {
+        const d = data as Record<string, any> | undefined
+        if (!d || !_cachedHealth) return
+        const payload = d.ctx || d.details || d
+        if (payload?.text) {
+          const step: TimelineStep = {
+            step: payload.text,
+            status: "done",
+            durationMs: 0,
+            timestamp: Date.now(),
+          }
+          _cachedHealth = {
+            ..._cachedHealth,
+            launchTimeline: [..._cachedHealth.launchTimeline, step],
+          }
+          notifyListeners()
+        }
+      })
+      
+      // Fallback: core.started
+      client.socket.on("core.started", () => {
+        if (!_cachedHealth) return
+        _cachedHealth = {
+          ..._cachedHealth,
+          connected: true,
+          qr: null,
+          session: {
+            ..._cachedHealth.session,
+            state: "READY",
+            ready: true,
+          },
+        }
+        notifyListeners()
+      })
+    })
+    .catch(() => {
+      _socketListenerAttached = false
+    })
+}
 
 export function useHealth() {
   const { isDemo } = useDemo()
@@ -123,8 +255,15 @@ export function useHealth() {
     mountedRef.current = true
     if (isDemo) return
 
-    // Dynamic polling based on state
-    // Fast polling (5s) initially, slows down significantly (60s) once session is ready
+    // ── Subscribe to real-time updates ──
+    const listener: HealthListener = (h) => {
+      if (mountedRef.current) setHealth({ ...h })
+    }
+    _listeners.add(listener)
+    ensureSocketListener()
+
+    // ── /health REST polling as fallback ──
+    // Fast (5s) until ready, then slow (60s)
     let intervalId: NodeJS.Timeout
 
     const startPolling = async (isFirst = false) => {
@@ -136,7 +275,7 @@ export function useHealth() {
 
       const isReady = _cachedHealth?.session?.ready === true
       const interval = isReady ? 60_000 : 5_000
-      
+
       if (mountedRef.current) {
         intervalId = setTimeout(() => startPolling(false), interval)
       }
@@ -146,6 +285,7 @@ export function useHealth() {
 
     return () => {
       mountedRef.current = false
+      _listeners.delete(listener)
       clearTimeout(intervalId)
     }
   }, [isDemo, fetchHealth])

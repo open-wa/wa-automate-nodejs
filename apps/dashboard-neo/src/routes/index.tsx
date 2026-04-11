@@ -3,7 +3,9 @@ import { useSession } from "@/lib/hooks/use-session"
 import { useSocket } from "@/lib/hooks/use-socket"
 import { useEvents, type EventLog } from "@/lib/hooks/use-events"
 import { useHealth } from "@/lib/hooks/use-health"
+import { getClient } from "@/lib/api-client"
 import { useDemo } from "@/lib/demo/use-demo"
+import { usePrivacy } from "@/lib/hooks/use-privacy"
 import { demoMessageVolume, demoMessageTypes, demoStats, demoLaunchLogs, demoPostScanLogs } from "@/lib/demo/demo-data"
 import { LaunchConsole, type LogLine } from "@/components/launch-console"
 import {
@@ -20,6 +22,7 @@ import {
   Rocket,
   ScanLine,
   Loader2,
+  Hash,
   type LucideIcon,
 } from "lucide-react"
 import { useMemo, useState, useEffect, useRef } from "react"
@@ -375,6 +378,7 @@ function SessionPage() {
   const { session, qr, loading } = useSession()
   const { connected } = useSocket()
   const { isDemo } = useDemo()
+  const { redact } = usePrivacy()
   const { events } = useEvents()
   const h = useHealth()
   const { connected: healthConnected, session: healthSession, qr: healthQr } = h
@@ -405,6 +409,7 @@ function SessionPage() {
     totalContacts: 0,
     totalChats: 0,
     unreadTotal: 0,
+    messagesToday: { inbound: 0, outbound: 0 },
   })
 
   // Fetch true stats from client when connected
@@ -419,10 +424,9 @@ function SessionPage() {
         
         // Fetch concurrently
         // Type cast to any because ask types might be strict, but backend handlers exist
-        const [chats, contacts, loadedMsgs] = await Promise.allSettled([
+        const [chats, contacts] = await Promise.allSettled([
           c.ask("getAllChats" as any, {}),
           c.ask("getAllContacts" as any, {}),
-          c.ask("getAmountOfLoadedMessages" as any, {})
         ])
         
         if (!mounted) return
@@ -434,7 +438,12 @@ function SessionPage() {
         
         if (chats.status === "fulfilled" && Array.isArray(chats.value)) {
           tChats = chats.value.length
-          aChats = chats.value.filter((ch: any) => ch.unreadCount > 0).length
+          // Active chats = chats with messages within the past hour
+          const oneHourAgo = Date.now() / 1000 - 3600
+          aChats = chats.value.filter((ch: any) => {
+            const lastMsgTs = ch.t || ch.timestamp || 0
+            return lastMsgTs > oneHourAgo
+          }).length
           unreadCount = chats.value.reduce((acc: number, ch: any) => acc + (ch.unreadCount || 0), 0)
         }
         
@@ -442,11 +451,26 @@ function SessionPage() {
           tContacts = contacts.value.length
         }
 
+        // Count messages today from the rolling event cache
+        let inbound = 0
+        let outbound = 0
+        for (const evt of events) {
+          if (!evt.name.includes("message")) continue
+          // Count inbound vs outbound
+          const payload = evt.args?.[0] as Record<string, unknown> | undefined
+          if (evt.name.includes("message.sent") || payload?.fromMe === true) {
+            outbound++
+          } else {
+            inbound++
+          }
+        }
+
         setLiveStats({
           activeChats: aChats,
           totalContacts: tContacts,
           totalChats: tChats,
           unreadTotal: unreadCount,
+          messagesToday: { inbound, outbound },
         })
       } catch (err) {
         console.error("Failed to load live stats:", err)
@@ -455,26 +479,29 @@ function SessionPage() {
     
     // Slight delay so socket connection finishes booting its plugins
     const delay = setTimeout(loadStats, 1000)
+    // Refresh stats periodically to keep "active chats" and "messages today" fresh
+    const refreshInterval = setInterval(loadStats, 30_000)
 
     return () => {
       mounted = false
       clearTimeout(delay)
+      clearInterval(refreshInterval)
     }
-  }, [isDemo, session.connected])
+  }, [isDemo, session.connected, events])
 
   const stats = useMemo(() => {
     if (isDemo) return demoStats
-    const messagesToday = events.filter(
-      (e) => e.name.includes("message") && new Date(`1970-01-01T${e.timestamp}`).getTime() > 0,
-    ).length
+    const totalMessages = liveStats.messagesToday.inbound + liveStats.messagesToday.outbound
     return {
-      messagesToday,
+      messagesToday: totalMessages,
+      messagesIn: liveStats.messagesToday.inbound,
+      messagesOut: liveStats.messagesToday.outbound,
       activeChats: liveStats.activeChats,
       totalContacts: liveStats.totalContacts,
       totalChats: liveStats.totalChats,
       unreadTotal: liveStats.unreadTotal,
     }
-  }, [events, isDemo, liveStats])
+  }, [isDemo, liveStats])
 
   if (loading && !isDemo) {
     return (
@@ -522,12 +549,13 @@ function SessionPage() {
           title="Messages Today"
           value={String(stats.messagesToday)}
           icon={MessageSquare}
-          subtitle={`${stats.unreadTotal} unread`}
+          subtitle={isDemo ? `${stats.unreadTotal} unread` : `↓${(stats as any).messagesIn || 0} ↑${(stats as any).messagesOut || 0}`}
         />
         <StatCard
           title="Active Chats"
           value={String(isDemo ? stats.activeChats : stats.activeChats || "—")}
           icon={Users}
+          subtitle={isDemo ? undefined : "messages in past hour"}
         />
         <StatCard
           title="Uptime"
@@ -573,9 +601,25 @@ function SessionPage() {
         <div className="rounded-xl border bg-card p-5">
           <h3 className="mb-4 text-sm font-semibold text-muted-foreground">Session Details</h3>
           <div className="space-y-4">
-            <DetailRow icon={Smartphone} label="Host Number" value={session.hostNumber || "—"} />
+            <DetailRow icon={Smartphone} label="Host Number" value={redact(session.hostNumber || "—")} />
             <DetailRow icon={Tag} label="WA Version" value={session.waVersion || "—"} />
-            <DetailRow icon={Globe} label="Connection" value={session.connectionState} />
+            <DetailRow
+              icon={Hash}
+              label="Patch Hash"
+              value={(() => {
+                // Derive a compact patch hash from the applied patches in health data
+                const appliedPatches = h.patches?.filter(p => p.outcome === 'applied').map(p => p.patchId) ?? []
+                if (appliedPatches.length === 0) return "—"
+                // Create a short hash from the sorted patch IDs
+                const patchStr = appliedPatches.sort().join(',')
+                let hash = 0
+                for (let i = 0; i < patchStr.length; i++) {
+                  hash = ((hash << 5) - hash) + patchStr.charCodeAt(i)
+                  hash |= 0 // Convert to 32bit integer
+                }
+                return Math.abs(hash).toString(36).toUpperCase().slice(0, 8)
+              })()}
+            />
             <DetailRow
               icon={Plug}
               label="Socket"

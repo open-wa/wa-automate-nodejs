@@ -12,9 +12,64 @@ export type EventLog = {
 
 const MAX_EVENTS = 500
 
+/**
+ * Module-level event cache.
+ * Persists across page navigations within the SPA so the Live Events
+ * page isn't empty when you navigate to it. Capped at MAX_EVENTS.
+ */
+let _cachedEvents: EventLog[] = []
+let _listenerAttached = false
+
+/**
+ * Push an event into the module-level cache.
+ * Called from the one-time listener setup below.
+ */
+function pushCachedEvent(event: EventLog) {
+  _cachedEvents = [event, ..._cachedEvents].slice(0, MAX_EVENTS)
+}
+
+/**
+ * Attach a one-time global listener that captures events into the cache
+ * even when the Events page isn't mounted. This runs once per app lifecycle.
+ */
+function ensureGlobalListener() {
+  if (_listenerAttached) return
+  _listenerAttached = true
+
+  getClient()
+    .then((client) => {
+      // Capture HyperEmitter events
+      client.ev.onAny((event: string | string[], ...args: unknown[]) => {
+        const eventName = Array.isArray(event) ? event.join('.') : event
+        pushCachedEvent({
+          id: Date.now() + Math.random(),
+          timestamp: new Date().toLocaleTimeString(),
+          name: eventName,
+          args,
+        })
+      })
+
+      // Capture raw socket events
+      client.socket.onAny((event: string, ...args: unknown[]) => {
+        if (event.startsWith("on") || event === "connect" || event === "disconnect") return
+        pushCachedEvent({
+          id: Date.now() + Math.random(),
+          timestamp: new Date().toLocaleTimeString(),
+          name: `socket:${event}`,
+          args,
+        })
+      })
+    })
+    .catch(() => {
+      // Not connected yet — will retry when useEvents mounts
+      _listenerAttached = false
+    })
+}
+
 export function useEvents() {
   const { isDemo } = useDemo()
-  const [events, setEvents] = useState<EventLog[]>(isDemo ? demoEvents : [])
+  // Initialize from module-level cache so events survive page navigation
+  const [events, setEvents] = useState<EventLog[]>(isDemo ? demoEvents : _cachedEvents)
   const [paused, setPaused] = useState(false)
   const [filter, setFilter] = useState("")
   const pausedRef = useRef(paused)
@@ -45,60 +100,25 @@ export function useEvents() {
       return () => clearInterval(interval)
     }
 
-    let mounted = true
+    // Ensure the global listener is running (idempotent)
+    ensureGlobalListener()
 
-    async function init() {
-      try {
-        const client = await getClient()
-        if (!mounted) return
-
-        // Use EventEmitter2 wildcard to capture ALL events
-        client.ev.onAny((event: string | string[], ...args: unknown[]) => {
-          if (!mounted || pausedRef.current) return
-          const eventName = Array.isArray(event) ? event.join('.') : event
-          setEvents((prev) =>
-            [
-              {
-                id: Date.now() + Math.random(),
-                timestamp: new Date().toLocaleTimeString(),
-                name: eventName,
-                args,
-              },
-              ...prev,
-            ].slice(0, MAX_EVENTS),
-          )
-        })
-
-        // Also capture raw socket events for completeness
-        client.socket.onAny((event: string, ...args: unknown[]) => {
-          if (!mounted || pausedRef.current) return
-          // Avoid duplicating events already captured via ev
-          if (event.startsWith("on") || event === "connect" || event === "disconnect") return
-          setEvents((prev) =>
-            [
-              {
-                id: Date.now() + Math.random(),
-                timestamp: new Date().toLocaleTimeString(),
-                name: `socket:${event}`,
-                args,
-              },
-              ...prev,
-            ].slice(0, MAX_EVENTS),
-          )
-        })
-      } catch {
-        // Not connected yet
-      }
-    }
-
-    init()
+    // Sync local state from the module cache periodically
+    // This picks up events that arrived via the global listener
+    const syncInterval = setInterval(() => {
+      if (pausedRef.current) return
+      setEvents([..._cachedEvents])
+    }, 1000)
 
     return () => {
-      mounted = false
+      clearInterval(syncInterval)
     }
   }, [isDemo])
 
-  const clear = useCallback(() => setEvents([]), [])
+  const clear = useCallback(() => {
+    _cachedEvents = []
+    setEvents([])
+  }, [])
 
   const filteredEvents = filter
     ? events.filter((e) => e.name.toLowerCase().includes(filter.toLowerCase()))

@@ -12,6 +12,29 @@ type DebugInfo = {
   logs: string[]
 }
 
+/**
+ * Module-level log cache — persists across page navigations within the SPA
+ * so the Logs tab isn't empty when you navigate to it.
+ */
+let _cachedLogs: string[] = []
+let _debugListenerAttached = false
+const MAX_DEBUG_LOGS = 200
+
+function ensureDebugLogListener() {
+  if (_debugListenerAttached) return
+  _debugListenerAttached = true
+
+  getClient().then((client) => {
+    client.ev.on("debug:log", (data: unknown) => {
+      const msg = typeof data === "string" ? data : JSON.stringify(data)
+      const entry = `[${new Date().toLocaleTimeString()}] ${msg}`
+      _cachedLogs = [..._cachedLogs, entry].slice(-MAX_DEBUG_LOGS)
+    })
+  }).catch(() => {
+    _debugListenerAttached = false
+  })
+}
+
 function formatBytes(bytes: number): string {
   const mb = bytes / 1024 / 1024
   return `${mb.toFixed(1)} MB`
@@ -19,7 +42,7 @@ function formatBytes(bytes: number): string {
 
 function DebugPage() {
   const { connected } = useSocket()
-  const [debug, setDebug] = useState<DebugInfo>({ memory: null, config: null, logs: [] })
+  const [debug, setDebug] = useState<DebugInfo>({ memory: null, config: null, logs: _cachedLogs })
   const [tab, setTab] = useState<"memory" | "config" | "logs">("memory")
 
   // Fetch debug info
@@ -56,18 +79,21 @@ function DebugPage() {
     fetchDebugInfo()
     const interval = setInterval(fetchDebugInfo, 5000)
 
-    // Subscribe to debug logs via ev
-    getClient().then((client) => {
-      client.ev.on("debug:log", (data: unknown) => {
-        const msg = typeof data === "string" ? data : JSON.stringify(data)
-        setDebug((prev) => ({
-          ...prev,
-          logs: [...prev.logs, `[${new Date().toLocaleTimeString()}] ${msg}`].slice(-200),
-        }))
-      })
-    })
+    // Ensure global debug log listener is running (idempotent)
+    ensureDebugLogListener()
 
-    return () => clearInterval(interval)
+    // Sync cached logs into local state periodically
+    const logSync = setInterval(() => {
+      setDebug((prev) => ({
+        ...prev,
+        logs: [..._cachedLogs],
+      }))
+    }, 1000)
+
+    return () => {
+      clearInterval(interval)
+      clearInterval(logSync)
+    }
   }, [connected])
 
   const tabs = [
