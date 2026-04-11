@@ -34,6 +34,9 @@ export const getChatsByLabel = defineMethodV2('getChatsByLabel', {
         license: 'none',
         functionality: 'business-only',
         httpMethod: 'GET',
+        aliases: {
+            namespacedName: 'getChats',
+        },
     },
     input: z.object({
         label: z.string().describe('Label name')

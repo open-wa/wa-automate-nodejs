@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
-import { groupIdParam } from '../parameters';
+import { communityIdParam } from '../parameters';
 
 // ============================================================================
 // Community Methods
@@ -36,7 +36,7 @@ export const getCommunityInfo = defineMethodV2('getCommunityInfo', {
         httpMethod: 'GET',
     },
     input: z.object({
-        communityId: groupIdParam
+        communityId: communityIdParam
     }),
     parameterOrder: ['communityId'],
     output: z.any()
@@ -55,7 +55,7 @@ export const getCommunityParticipantIds = defineMethodV2('getCommunityParticipan
         httpMethod: 'GET',
     },
     input: z.object({
-        communityId: groupIdParam
+        communityId: communityIdParam
     }),
     parameterOrder: ['communityId'],
     output: z.any()
@@ -74,7 +74,7 @@ export const getCommunityAdminIds = defineMethodV2('getCommunityAdminIds', {
         httpMethod: 'GET',
     },
     input: z.object({
-        communityId: groupIdParam
+        communityId: communityIdParam
     }),
     parameterOrder: ['communityId'],
     output: z.any()
@@ -93,7 +93,7 @@ export const getCommunityParticipants = defineMethodV2('getCommunityParticipants
         httpMethod: 'GET',
     },
     input: z.object({
-        communityId: groupIdParam
+        communityId: communityIdParam
     }),
     parameterOrder: ['communityId'],
     output: z.any()
@@ -112,7 +112,7 @@ export const getCommunityAdmins = defineMethodV2('getCommunityAdmins', {
         httpMethod: 'GET',
     },
     input: z.object({
-        communityId: groupIdParam
+        communityId: communityIdParam
     }),
     parameterOrder: ['communityId'],
     output: z.any()

@@ -26,8 +26,8 @@ export * from './labels';
 // Business Methods
 export * from './business';
 
-// Utility Methods
-export * from './utilities';
+// Session Methods
+export * from './session';
 
 // Media Methods
 export * from './media';

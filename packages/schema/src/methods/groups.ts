@@ -1,14 +1,7 @@
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
-import { groupIdParam, contactIdParam } from '../parameters';
+import { contactIdParam, groupIdParam, withNewMessagesOnlyParam } from '../parameters';
 
-// ============================================================================
-// Group Methods
-// ============================================================================
-
-/**
- * Retrieves members of a group
- */
 export const getGroupMembers = defineMethodV2('getGroupMembers', {
     meta: {
         description: 'Retrieves members of a group',
@@ -18,16 +11,11 @@ export const getGroupMembers = defineMethodV2('getGroupMembers', {
         functionality: 'both',
         httpMethod: 'GET',
     },
-    input: z.object({
-        groupId: groupIdParam
-    }),
+    input: z.object({ groupId: groupIdParam }),
     parameterOrder: ['groupId'],
-    output: z.array(z.any())
+    output: z.array(z.any()),
 });
 
-/**
- * Get all groups
- */
 export const getAllGroups = defineMethodV2('getAllGroups', {
     meta: {
         description: 'Get all groups',
@@ -37,16 +25,11 @@ export const getAllGroups = defineMethodV2('getAllGroups', {
         functionality: 'both',
         httpMethod: 'GET',
     },
-    input: z.object({
-        withNewMessagesOnly: z.boolean().optional().default(false)
-    }),
+    input: z.object({ withNewMessagesOnly: withNewMessagesOnlyParam }),
     parameterOrder: ['withNewMessagesOnly'],
-    output: z.array(z.any())
+    output: z.array(z.any()),
 });
 
-/**
- * Get group member IDs
- */
 export const getGroupMembersId = defineMethodV2('getGroupMembersId', {
     meta: {
         description: 'Get group member IDs',
@@ -55,17 +38,16 @@ export const getGroupMembersId = defineMethodV2('getGroupMembersId', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'GET',
+        aliases: {
+            explicit: ['getGroupMemberIds'],
+            namespacedName: 'getMemberIds',
+        },
     },
-    input: z.object({
-        groupId: groupIdParam
-    }),
+    input: z.object({ groupId: groupIdParam }),
     parameterOrder: ['groupId'],
-    output: z.array(z.string())
+    output: z.array(z.string()),
 });
 
-/**
- * Get group info
- */
 export const getGroupInfo = defineMethodV2('getGroupInfo', {
     meta: {
         description: 'Get group metadata',
@@ -75,16 +57,11 @@ export const getGroupInfo = defineMethodV2('getGroupInfo', {
         functionality: 'both',
         httpMethod: 'GET',
     },
-    input: z.object({
-        groupId: groupIdParam
-    }),
+    input: z.object({ groupId: groupIdParam }),
     parameterOrder: ['groupId'],
-    output: z.any()
+    output: z.any(),
 });
 
-/**
- * Get group admins
- */
 export const getGroupAdmins = defineMethodV2('getGroupAdmins', {
     meta: {
         description: 'Get group admins',
@@ -94,16 +71,11 @@ export const getGroupAdmins = defineMethodV2('getGroupAdmins', {
         functionality: 'both',
         httpMethod: 'GET',
     },
-    input: z.object({
-        groupId: groupIdParam
-    }),
+    input: z.object({ groupId: groupIdParam }),
     parameterOrder: ['groupId'],
-    output: z.array(z.any())
+    output: z.array(z.any()),
 });
 
-/**
- * Get kicked groups
- */
 export const getKickedGroups = defineMethodV2('getKickedGroups', {
     meta: {
         description: 'Get groups where kicked',
@@ -115,12 +87,9 @@ export const getKickedGroups = defineMethodV2('getKickedGroups', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.array(z.string())
+    output: z.array(z.string()),
 });
 
-/**
- * Get group invite link
- */
 export const getGroupInviteLink = defineMethodV2('getGroupInviteLink', {
     meta: {
         description: 'Get group invite link',
@@ -130,16 +99,11 @@ export const getGroupInviteLink = defineMethodV2('getGroupInviteLink', {
         functionality: 'both',
         httpMethod: 'GET',
     },
-    input: z.object({
-        chatId: groupIdParam
-    }),
-    parameterOrder: ['chatId'],
-    output: z.string()
+    input: z.object({ groupId: groupIdParam }),
+    parameterOrder: ['groupId'],
+    output: z.string(),
 });
 
-/**
- * Create group
- */
 export const createGroup = defineMethodV2('createGroup', {
     meta: {
         description: 'Create new group',
@@ -151,15 +115,12 @@ export const createGroup = defineMethodV2('createGroup', {
     },
     input: z.object({
         name: z.string().describe('Group name'),
-        contacts: z.array(contactIdParam).describe('Contact IDs to add')
+        contacts: z.array(contactIdParam).describe('Contact IDs to add'),
     }),
     parameterOrder: ['name', 'contacts'],
-    output: z.any()
+    output: z.any(),
 });
 
-/**
- * Leave group
- */
 export const leaveGroup = defineMethodV2('leaveGroup', {
     meta: {
         description: 'Leave a group',
@@ -169,16 +130,11 @@ export const leaveGroup = defineMethodV2('leaveGroup', {
         functionality: 'both',
         httpMethod: 'PUT',
     },
-    input: z.object({
-        groupId: groupIdParam
-    }),
+    input: z.object({ groupId: groupIdParam }),
     parameterOrder: ['groupId'],
-    output: z.any()
+    output: z.any(),
 });
 
-/**
- * Join group via link
- */
 export const joinGroupViaLink = defineMethodV2('joinGroupViaLink', {
     meta: {
         description: 'Join group via invite link',
@@ -187,18 +143,19 @@ export const joinGroupViaLink = defineMethodV2('joinGroupViaLink', {
         license: 'restricted',
         functionality: 'both',
         httpMethod: 'POST',
+        aliases: {
+            explicit: ['joinGroup'],
+            namespacedName: 'join',
+        },
     },
     input: z.object({
         link: z.string().url().describe('Group invite link'),
-        returnChatObj: z.boolean().optional().describe('Return chat object')
+        returnChatObj: z.boolean().optional().describe('Return chat object'),
     }),
     parameterOrder: ['link', 'returnChatObj'],
-    output: z.union([z.string(), z.boolean(), z.number(), z.any()])
+    output: z.union([z.string(), z.boolean(), z.number(), z.any()]),
 });
 
-/**
- * Revoke group invite link
- */
 export const revokeGroupInviteLink = defineMethodV2('revokeGroupInviteLink', {
     meta: {
         description: 'Revoke group invite link',
@@ -208,16 +165,11 @@ export const revokeGroupInviteLink = defineMethodV2('revokeGroupInviteLink', {
         functionality: 'both',
         httpMethod: 'PUT',
     },
-    input: z.object({
-        chatId: groupIdParam
-    }),
-    parameterOrder: ['chatId'],
-    output: z.union([z.string(), z.boolean()])
+    input: z.object({ groupId: groupIdParam }),
+    parameterOrder: ['groupId'],
+    output: z.union([z.string(), z.boolean()]),
 });
 
-/**
- * Set group title
- */
 export const setGroupTitle = defineMethodV2('setGroupTitle', {
     meta: {
         description: 'Set group title',
@@ -229,15 +181,12 @@ export const setGroupTitle = defineMethodV2('setGroupTitle', {
     },
     input: z.object({
         groupId: groupIdParam,
-        title: z.string().describe('New group title')
+        title: z.string().describe('New group title'),
     }),
     parameterOrder: ['groupId', 'title'],
-    output: z.boolean()
+    output: z.boolean(),
 });
 
-/**
- * Set group description
- */
 export const setGroupDescription = defineMethodV2('setGroupDescription', {
     meta: {
         description: 'Set group description',
@@ -249,15 +198,12 @@ export const setGroupDescription = defineMethodV2('setGroupDescription', {
     },
     input: z.object({
         groupId: groupIdParam,
-        description: z.string().describe('New group description')
+        description: z.string().describe('New group description'),
     }),
     parameterOrder: ['groupId', 'description'],
-    output: z.boolean()
+    output: z.boolean(),
 });
 
-/**
- * Set group icon
- */
 export const setGroupIcon = defineMethodV2('setGroupIcon', {
     meta: {
         description: 'Set group icon',
@@ -269,15 +215,12 @@ export const setGroupIcon = defineMethodV2('setGroupIcon', {
     },
     input: z.object({
         groupId: groupIdParam,
-        image: z.string().describe('Image data URL')
+        image: z.string().describe('Image data URL'),
     }),
     parameterOrder: ['groupId', 'image'],
-    output: z.boolean()
+    output: z.boolean(),
 });
 
-/**
- * Set group to admins only
- */
 export const setGroupToAdminsOnly = defineMethodV2('setGroupToAdminsOnly', {
     meta: {
         description: 'Restrict group to admins only',
@@ -286,18 +229,18 @@ export const setGroupToAdminsOnly = defineMethodV2('setGroupToAdminsOnly', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'PUT',
+        aliases: {
+            namespacedName: 'setAdminsOnly',
+        },
     },
     input: z.object({
         groupId: groupIdParam,
-        onlyAdmins: z.boolean().describe('Admins only setting')
+        onlyAdmins: z.boolean().describe('Admins only setting'),
     }),
     parameterOrder: ['groupId', 'onlyAdmins'],
-    output: z.boolean()
+    output: z.boolean(),
 });
 
-/**
- * Set group edit to admins only
- */
 export const setGroupEditToAdminsOnly = defineMethodV2('setGroupEditToAdminsOnly', {
     meta: {
         description: 'Restrict group editing to admins only',
@@ -306,18 +249,18 @@ export const setGroupEditToAdminsOnly = defineMethodV2('setGroupEditToAdminsOnly
         license: 'none',
         functionality: 'both',
         httpMethod: 'PUT',
+        aliases: {
+            namespacedName: 'setEditAdminsOnly',
+        },
     },
     input: z.object({
         groupId: groupIdParam,
-        onlyAdmins: z.boolean().describe('Admins only setting')
+        onlyAdmins: z.boolean().describe('Admins only setting'),
     }),
     parameterOrder: ['groupId', 'onlyAdmins'],
-    output: z.boolean()
+    output: z.boolean(),
 });
 
-/**
- * Add participant
- */
 export const addParticipant = defineMethodV2('addParticipant', {
     meta: {
         description: 'Add participant to group',
@@ -326,18 +269,18 @@ export const addParticipant = defineMethodV2('addParticipant', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'PUT',
+        aliases: {
+            explicit: ['addGroupParticipant'],
+        },
     },
     input: z.object({
         groupId: groupIdParam,
-        contactId: contactIdParam
+        contactId: contactIdParam,
     }),
     parameterOrder: ['groupId', 'contactId'],
-    output: z.boolean()
+    output: z.boolean(),
 });
 
-/**
- * Remove participant
- */
 export const removeParticipant = defineMethodV2('removeParticipant', {
     meta: {
         description: 'Remove participant from group',
@@ -346,18 +289,18 @@ export const removeParticipant = defineMethodV2('removeParticipant', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'PUT',
+        aliases: {
+            explicit: ['removeGroupParticipant'],
+        },
     },
     input: z.object({
         groupId: groupIdParam,
-        contactId: contactIdParam
+        contactId: contactIdParam,
     }),
     parameterOrder: ['groupId', 'contactId'],
-    output: z.boolean()
+    output: z.boolean(),
 });
 
-/**
- * Promote participant
- */
 export const promoteParticipant = defineMethodV2('promoteParticipant', {
     meta: {
         description: 'Promote participant to admin',
@@ -366,18 +309,18 @@ export const promoteParticipant = defineMethodV2('promoteParticipant', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'PUT',
+        aliases: {
+            explicit: ['promoteGroupParticipant'],
+        },
     },
     input: z.object({
         groupId: groupIdParam,
-        contactId: contactIdParam
+        contactId: contactIdParam,
     }),
     parameterOrder: ['groupId', 'contactId'],
-    output: z.union([z.boolean(), z.string()])
+    output: z.union([z.boolean(), z.string()]),
 });
 
-/**
- * Demote participant
- */
 export const demoteParticipant = defineMethodV2('demoteParticipant', {
     meta: {
         description: 'Demote participant from admin',
@@ -386,18 +329,18 @@ export const demoteParticipant = defineMethodV2('demoteParticipant', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'PUT',
+        aliases: {
+            explicit: ['demoteGroupParticipant'],
+        },
     },
     input: z.object({
         groupId: groupIdParam,
-        contactId: contactIdParam
+        contactId: contactIdParam,
     }),
     parameterOrder: ['groupId', 'contactId'],
-    output: z.union([z.boolean(), z.string()])
+    output: z.union([z.boolean(), z.string()]),
 });
 
-/**
- * Approve group join request
- */
 export const approveGroupJoinRequest = defineMethodV2('approveGroupJoinRequest', {
     meta: {
         description: 'Approve group join request',
@@ -408,16 +351,13 @@ export const approveGroupJoinRequest = defineMethodV2('approveGroupJoinRequest',
         httpMethod: 'PUT',
     },
     input: z.object({
-        groupChatId: groupIdParam,
-        contactId: contactIdParam
+        groupId: groupIdParam,
+        contactId: contactIdParam,
     }),
-    parameterOrder: ['groupChatId', 'contactId'],
-    output: z.union([z.string(), z.boolean()])
+    parameterOrder: ['groupId', 'contactId'],
+    output: z.union([z.string(), z.boolean()]),
 });
 
-/**
- * Reject group join request
- */
 export const rejectGroupJoinRequest = defineMethodV2('rejectGroupJoinRequest', {
     meta: {
         description: 'Reject group join request',
@@ -428,9 +368,9 @@ export const rejectGroupJoinRequest = defineMethodV2('rejectGroupJoinRequest', {
         httpMethod: 'PUT',
     },
     input: z.object({
-        groupChatId: groupIdParam,
-        contactId: contactIdParam
+        groupId: groupIdParam,
+        contactId: contactIdParam,
     }),
-    parameterOrder: ['groupChatId', 'contactId'],
-    output: z.union([z.string(), z.boolean()])
+    parameterOrder: ['groupId', 'contactId'],
+    output: z.union([z.string(), z.boolean()]),
 });

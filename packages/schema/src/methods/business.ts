@@ -2,13 +2,6 @@ import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
 import { contactIdParam, messageIdParam } from '../parameters';
 
-// ============================================================================
-// Business Methods
-// ============================================================================
-
-/**
- * Get business profile
- */
 export const getBusinessProfile = defineMethodV2('getBusinessProfile', {
     meta: {
         description: 'Get business profile',
@@ -18,17 +11,12 @@ export const getBusinessProfile = defineMethodV2('getBusinessProfile', {
         functionality: 'both',
         httpMethod: 'GET',
     },
-    input: z.object({
-        id: contactIdParam
-    }),
-    parameterOrder: ['id'],
-    output: z.any()
+    input: z.object({ contactId: contactIdParam }),
+    parameterOrder: ['contactId'],
+    output: z.any(),
 });
 
-/**
- * Get business products
- */
-export const getBusinessProfilesProducts = defineMethodV2('getBusinessProfilesProducts', {
+export const getBusinessProducts = defineMethodV2('getBusinessProducts', {
     meta: {
         description: 'Get business products',
         action: 'read',
@@ -36,17 +24,16 @@ export const getBusinessProfilesProducts = defineMethodV2('getBusinessProfilesPr
         license: 'none',
         functionality: 'both',
         httpMethod: 'GET',
+        aliases: {
+            deprecated: ['getBusinessProfilesProducts'],
+        },
+        wapiOverride: 'getBusinessProfilesProducts',
     },
-    input: z.object({
-        id: contactIdParam
-    }),
-    parameterOrder: ['id'],
-    output: z.any()
+    input: z.object({ contactId: contactIdParam }),
+    parameterOrder: ['contactId'],
+    output: z.any(),
 });
 
-/**
- * Get order
- */
 export const getOrder = defineMethodV2('getOrder', {
     meta: {
         description: 'Get order details',
@@ -57,8 +44,8 @@ export const getOrder = defineMethodV2('getOrder', {
         httpMethod: 'GET',
     },
     input: z.object({
-        id: z.union([messageIdParam, z.string()]).describe('Order or message ID')
+        id: z.union([messageIdParam, z.string()]).describe('Order or message ID'),
     }),
     parameterOrder: ['id'],
-    output: z.any()
+    output: z.any(),
 });

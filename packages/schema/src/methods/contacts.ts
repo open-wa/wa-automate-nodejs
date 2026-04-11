@@ -1,14 +1,7 @@
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
-import { contactIdParam, toParam } from '../parameters';
+import { chatIdParam, contactIdParam } from '../parameters';
 
-// ============================================================================
-// Contact Methods
-// ============================================================================
-
-/**
- * Retrieves all contacts
- */
 export const getAllContacts = defineMethodV2('getAllContacts', {
     meta: {
         description: 'Retrieves all contacts',
@@ -20,12 +13,9 @@ export const getAllContacts = defineMethodV2('getAllContacts', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.array(z.any())
+    output: z.array(z.any()),
 });
 
-/**
- * Get specific contact
- */
 export const getContact = defineMethodV2('getContact', {
     meta: {
         description: 'Get specific contact',
@@ -35,16 +25,11 @@ export const getContact = defineMethodV2('getContact', {
         functionality: 'both',
         httpMethod: 'GET',
     },
-    input: z.object({
-        contactId: contactIdParam
-    }),
+    input: z.object({ contactId: contactIdParam }),
     parameterOrder: ['contactId'],
-    output: z.any()
+    output: z.any(),
 });
 
-/**
- * Get common groups
- */
 export const getCommonGroups = defineMethodV2('getCommonGroups', {
     meta: {
         description: 'Get common groups with contact',
@@ -54,16 +39,11 @@ export const getCommonGroups = defineMethodV2('getCommonGroups', {
         functionality: 'both',
         httpMethod: 'GET',
     },
-    input: z.object({
-        contactId: contactIdParam
-    }),
+    input: z.object({ contactId: contactIdParam }),
     parameterOrder: ['contactId'],
-    output: z.any()
+    output: z.any(),
 });
 
-/**
- * Get number profile
- */
 export const getNumberProfile = defineMethodV2('getNumberProfile', {
     meta: {
         description: 'Get profile of number',
@@ -73,16 +53,11 @@ export const getNumberProfile = defineMethodV2('getNumberProfile', {
         functionality: 'both',
         httpMethod: 'GET',
     },
-    input: z.object({
-        contactId: contactIdParam
-    }),
+    input: z.object({ contactId: contactIdParam }),
     parameterOrder: ['contactId'],
-    output: z.any()
+    output: z.any(),
 });
 
-/**
- * Get blocked IDs
- */
 export const getBlockedIds = defineMethodV2('getBlockedIds', {
     meta: {
         description: 'Get blocked contact IDs',
@@ -94,13 +69,10 @@ export const getBlockedIds = defineMethodV2('getBlockedIds', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.array(z.string())
+    output: z.array(z.string()),
 });
 
-/**
- * Block contact
- */
-export const contactBlock = defineMethodV2('contactBlock', {
+export const blockContact = defineMethodV2('blockContact', {
     meta: {
         description: 'Block a contact',
         action: 'update',
@@ -108,18 +80,17 @@ export const contactBlock = defineMethodV2('contactBlock', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'PUT',
+        aliases: {
+            deprecated: ['contactBlock'],
+        },
+        wapiOverride: 'contactBlock',
     },
-    input: z.object({
-        id: contactIdParam
-    }),
-    parameterOrder: ['id'],
-    output: z.boolean()
+    input: z.object({ contactId: contactIdParam }),
+    parameterOrder: ['contactId'],
+    output: z.boolean(),
 });
 
-/**
- * Unblock contact
- */
-export const contactUnblock = defineMethodV2('contactUnblock', {
+export const unblockContact = defineMethodV2('unblockContact', {
     meta: {
         description: 'Unblock a contact',
         action: 'update',
@@ -127,17 +98,16 @@ export const contactUnblock = defineMethodV2('contactUnblock', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'PUT',
+        aliases: {
+            deprecated: ['contactUnblock'],
+        },
+        wapiOverride: 'contactUnblock',
     },
-    input: z.object({
-        id: contactIdParam
-    }),
-    parameterOrder: ['id'],
-    output: z.boolean()
+    input: z.object({ contactId: contactIdParam }),
+    parameterOrder: ['contactId'],
+    output: z.boolean(),
 });
 
-/**
- * Check read receipts
- */
 export const checkReadReceipts = defineMethodV2('checkReadReceipts', {
     meta: {
         description: 'Check read receipts setting',
@@ -146,17 +116,15 @@ export const checkReadReceipts = defineMethodV2('checkReadReceipts', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'GET',
+        aliases: {
+            explicit: ['getReadReceipts'],
+        },
     },
-    input: z.object({
-        contactId: contactIdParam
-    }),
+    input: z.object({ contactId: contactIdParam }),
     parameterOrder: ['contactId'],
-    output: z.union([z.boolean(), z.string()])
+    output: z.union([z.boolean(), z.string()]),
 });
 
-/**
- * Check number status
- */
 export const checkNumberStatus = defineMethodV2('checkNumberStatus', {
     meta: {
         description: 'Check if number is on WhatsApp',
@@ -166,17 +134,12 @@ export const checkNumberStatus = defineMethodV2('checkNumberStatus', {
         functionality: 'both',
         httpMethod: 'GET',
     },
-    input: z.object({
-        contactId: contactIdParam
-    }),
+    input: z.object({ contactId: contactIdParam }),
     parameterOrder: ['contactId'],
-    output: z.any()
+    output: z.any(),
 });
 
-/**
- * Get profile picture from server
- */
-export const getProfilePicFromServer = defineMethodV2('getProfilePicFromServer', {
+export const getProfilePicture = defineMethodV2('getProfilePicture', {
     meta: {
         description: 'Get profile picture from server',
         action: 'read',
@@ -184,10 +147,12 @@ export const getProfilePicFromServer = defineMethodV2('getProfilePicFromServer',
         license: 'none',
         functionality: 'both',
         httpMethod: 'GET',
+        aliases: {
+            deprecated: ['getProfilePicFromServer'],
+        },
+        wapiOverride: 'getProfilePicFromServer',
     },
-    input: z.object({
-        chatId: toParam
-    }),
+    input: z.object({ chatId: chatIdParam }),
     parameterOrder: ['chatId'],
-    output: z.string()
+    output: z.string(),
 });

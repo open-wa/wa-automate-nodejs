@@ -1,14 +1,7 @@
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
-import { toParam, withNewMessagesOnlyParam } from '../parameters';
+import { chatIdParam, withNewMessagesOnlyParam } from '../parameters';
 
-// ============================================================================
-// Chat Methods
-// ============================================================================
-
-/**
- * Retrieves all chats
- */
 export const getAllChats = defineMethodV2('getAllChats', {
     meta: {
         description: 'Retrieves all chats',
@@ -18,53 +11,45 @@ export const getAllChats = defineMethodV2('getAllChats', {
         functionality: 'both',
         httpMethod: 'GET',
     },
-    input: z.object({
-        withNewMessagesOnly: withNewMessagesOnlyParam
-    }),
+    input: z.object({ withNewMessagesOnly: withNewMessagesOnlyParam }),
     parameterOrder: ['withNewMessagesOnly'],
-    output: z.array(z.any())
+    output: z.array(z.any()),
 });
 
-/**
- * Get all chat IDs
- */
 export const getAllChatIds = defineMethodV2('getAllChatIds', {
     meta: {
         description: 'Get all chat IDs',
         action: 'read',
-        namespace: 'chats',
+        namespace: 'chatIds',
         license: 'none',
         functionality: 'both',
         httpMethod: 'GET',
+        aliases: {
+            explicit: ['chats.ids'],
+        },
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.array(z.string())
+    output: z.array(z.string()),
 });
 
-/**
- * Get all chats with messages
- */
-export const getAllChatsWithMessages = defineMethodV2('getAllChatsWithMessages', {
-    meta: {
-        description: 'Get chats with messages',
-        action: 'read',
-        namespace: 'chats',
-        license: 'none',
-        functionality: 'both',
-        httpMethod: 'GET',
-    },
-    input: z.object({
-        withNewMessageOnly: z.boolean().optional().default(false)
-    }),
-    parameterOrder: ['withNewMessageOnly'],
-    output: z.array(z.any())
-});
+// export const getAllChatsWithMessages = defineMethodV2('getAllChatsWithMessages', {
+//     meta: {
+//         description: 'Get chats with messages',
+//         action: 'read',
+//         namespace: 'chats',
+//         license: 'none',
+//         functionality: 'both',
+//         httpMethod: 'GET',
+//     },
+//     input: z.object({
+//         withNewMessagesOnly: withNewMessagesOnlyParam,
+//     }),
+//     parameterOrder: ['withNewMessagesOnly'],
+//     output: z.array(z.any()),
+// });
 
-/**
- * Get chat by ID
- */
-export const getChatById = defineMethodV2('getChatById', {
+export const getChat = defineMethodV2('getChat', {
     meta: {
         description: 'Get specific chat by ID',
         action: 'read',
@@ -72,36 +57,17 @@ export const getChatById = defineMethodV2('getChatById', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'GET',
+        aliases: {
+            explicit: ['getChatById'],
+        },
     },
     input: z.object({
-        contactId: toParam
+        chatId: chatIdParam,
     }),
-    parameterOrder: ['contactId'],
-    output: z.any()
+    parameterOrder: ['chatId'],
+    output: z.any(),
 });
 
-/**
- * Get chat
- */
-export const getChat = defineMethodV2('getChat', {
-    meta: {
-        description: 'Get chat by contact ID',
-        action: 'read',
-        namespace: 'chats',
-        license: 'none',
-        functionality: 'both',
-        httpMethod: 'GET',
-    },
-    input: z.object({
-        contactId: toParam
-    }),
-    parameterOrder: ['contactId'],
-    output: z.any()
-});
-
-/**
- * Get chats with non-contacts
- */
 export const getChatWithNonContacts = defineMethodV2('getChatWithNonContacts', {
     meta: {
         description: 'Get chats with non-contacts',
@@ -113,12 +79,9 @@ export const getChatWithNonContacts = defineMethodV2('getChatWithNonContacts', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.array(z.any())
+    output: z.array(z.any()),
 });
 
-/**
- * Archive chat
- */
 export const archiveChat = defineMethodV2('archiveChat', {
     meta: {
         description: 'Archive a chat',
@@ -128,16 +91,11 @@ export const archiveChat = defineMethodV2('archiveChat', {
         functionality: 'both',
         httpMethod: 'PUT',
     },
-    input: z.object({
-        chatId: toParam
-    }),
+    input: z.object({ chatId: chatIdParam }),
     parameterOrder: ['chatId'],
-    output: z.boolean()
+    output: z.boolean(),
 });
 
-/**
- * Unarchive chat
- */
 export const unarchiveChat = defineMethodV2('unarchiveChat', {
     meta: {
         description: 'Unarchive a chat',
@@ -147,16 +105,11 @@ export const unarchiveChat = defineMethodV2('unarchiveChat', {
         functionality: 'both',
         httpMethod: 'PUT',
     },
-    input: z.object({
-        chatId: toParam
-    }),
+    input: z.object({ chatId: chatIdParam }),
     parameterOrder: ['chatId'],
-    output: z.boolean()
+    output: z.boolean(),
 });
 
-/**
- * Clear chat
- */
 export const clearChat = defineMethodV2('clearChat', {
     meta: {
         description: 'Clear chat history',
@@ -166,16 +119,11 @@ export const clearChat = defineMethodV2('clearChat', {
         functionality: 'both',
         httpMethod: 'DELETE',
     },
-    input: z.object({
-        chatId: toParam
-    }),
+    input: z.object({ chatId: chatIdParam }),
     parameterOrder: ['chatId'],
-    output: z.boolean()
+    output: z.boolean(),
 });
 
-/**
- * Delete chat
- */
 export const deleteChat = defineMethodV2('deleteChat', {
     meta: {
         description: 'Delete a chat',
@@ -185,16 +133,11 @@ export const deleteChat = defineMethodV2('deleteChat', {
         functionality: 'both',
         httpMethod: 'DELETE',
     },
-    input: z.object({
-        chatId: toParam
-    }),
+    input: z.object({ chatId: chatIdParam }),
     parameterOrder: ['chatId'],
-    output: z.boolean()
+    output: z.boolean(),
 });
 
-/**
- * Pin chat
- */
 export const pinChat = defineMethodV2('pinChat', {
     meta: {
         description: 'Pin a chat',
@@ -204,16 +147,11 @@ export const pinChat = defineMethodV2('pinChat', {
         functionality: 'both',
         httpMethod: 'PUT',
     },
-    input: z.object({
-        chatId: toParam
-    }),
+    input: z.object({ chatId: chatIdParam }),
     parameterOrder: ['chatId'],
-    output: z.boolean()
+    output: z.boolean(),
 });
 
-/**
- * Unpin chat
- */
 export const unpinChat = defineMethodV2('unpinChat', {
     meta: {
         description: 'Unpin a chat',
@@ -223,16 +161,11 @@ export const unpinChat = defineMethodV2('unpinChat', {
         functionality: 'both',
         httpMethod: 'PUT',
     },
-    input: z.object({
-        chatId: toParam
-    }),
+    input: z.object({ chatId: chatIdParam }),
     parameterOrder: ['chatId'],
-    output: z.boolean()
+    output: z.boolean(),
 });
 
-/**
- * Mute chat
- */
 export const muteChat = defineMethodV2('muteChat', {
     meta: {
         description: 'Mute a chat',
@@ -243,16 +176,13 @@ export const muteChat = defineMethodV2('muteChat', {
         httpMethod: 'PUT',
     },
     input: z.object({
-        chatId: toParam,
-        muteDuration: z.union([z.number(), z.string()]).describe('Mute duration')
+        chatId: chatIdParam,
+        muteDuration: z.union([z.number(), z.string()]).describe('Mute duration'),
     }),
     parameterOrder: ['chatId', 'muteDuration'],
-    output: z.union([z.string(), z.boolean(), z.number()])
+    output: z.union([z.string(), z.boolean(), z.number()]),
 });
 
-/**
- * Unmute chat
- */
 export const unmuteChat = defineMethodV2('unmuteChat', {
     meta: {
         description: 'Unmute a chat',
@@ -262,16 +192,11 @@ export const unmuteChat = defineMethodV2('unmuteChat', {
         functionality: 'both',
         httpMethod: 'PUT',
     },
-    input: z.object({
-        chatId: toParam
-    }),
+    input: z.object({ chatId: chatIdParam }),
     parameterOrder: ['chatId'],
-    output: z.union([z.string(), z.boolean(), z.number()])
+    output: z.union([z.string(), z.boolean(), z.number()]),
 });
 
-/**
- * Mark as read
- */
 export const markAsRead = defineMethodV2('markAsRead', {
     meta: {
         description: 'Mark chat as read',
@@ -280,17 +205,15 @@ export const markAsRead = defineMethodV2('markAsRead', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'PUT',
+        aliases: {
+            namespacedName: 'markAsRead',
+        },
     },
-    input: z.object({
-        chatId: toParam
-    }),
+    input: z.object({ chatId: chatIdParam }),
     parameterOrder: ['chatId'],
-    output: z.boolean()
+    output: z.boolean(),
 });
 
-/**
- * Mark as unread
- */
 export const markAsUnread = defineMethodV2('markAsUnread', {
     meta: {
         description: 'Mark chat as unread',
@@ -299,17 +222,15 @@ export const markAsUnread = defineMethodV2('markAsUnread', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'PUT',
+        aliases: {
+            namespacedName: 'markAsUnread',
+        },
     },
-    input: z.object({
-        chatId: toParam
-    }),
+    input: z.object({ chatId: chatIdParam }),
     parameterOrder: ['chatId'],
-    output: z.boolean()
+    output: z.boolean(),
 });
 
-/**
- * Set chat ephemeral
- */
 export const setChatEphemeral = defineMethodV2('setChatEphemeral', {
     meta: {
         description: 'Set ephemeral messages for chat',
@@ -320,16 +241,13 @@ export const setChatEphemeral = defineMethodV2('setChatEphemeral', {
         httpMethod: 'PUT',
     },
     input: z.object({
-        chatId: toParam,
-        ephemeral: z.union([z.boolean(), z.number()]).describe('Ephemeral setting')
+        chatId: chatIdParam,
+        ephemeral: z.union([z.boolean(), z.number()]).describe('Ephemeral setting'),
     }),
     parameterOrder: ['chatId', 'ephemeral'],
-    output: z.boolean()
+    output: z.boolean(),
 });
 
-/**
- * Check if chat is online
- */
 export const isChatOnline = defineMethodV2('isChatOnline', {
     meta: {
         description: 'Check if chat is online',
@@ -339,9 +257,7 @@ export const isChatOnline = defineMethodV2('isChatOnline', {
         functionality: 'both',
         httpMethod: 'GET',
     },
-    input: z.object({
-        id: toParam
-    }),
-    parameterOrder: ['id'],
-    output: z.union([z.boolean(), z.string()])
+    input: z.object({ chatId: chatIdParam }),
+    parameterOrder: ['chatId'],
+    output: z.union([z.boolean(), z.string()]),
 });

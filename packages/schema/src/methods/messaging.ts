@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
 import { MessageIdReturnSchema } from '../common-types';
 import {
+    chatIdParam,
     toParam,
     contentParam,
     messageOptionsParam,
@@ -193,6 +194,9 @@ export const sendPtt = defineMethodV2('sendPtt', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'POST',
+        aliases: {
+            explicit: ['sendVoiceNote'],
+        },
     },
     input: z.object({
         to: toParam,
@@ -263,12 +267,12 @@ export const sendVCard = defineMethodV2('sendVCard', {
         httpMethod: 'POST',
     },
     input: z.object({
-        chatId: toParam,
+        to: toParam,
         vcard: z.string().describe('vCard string'),
         contactName: z.string().optional().describe('Contact display name'),
         contactNumber: z.string().optional().describe('Contact number with country code')
     }),
-    parameterOrder: ['chatId', 'vcard', 'contactName', 'contactNumber'],
+    parameterOrder: ['to', 'vcard', 'contactName', 'contactNumber'],
     output: z.boolean()
 });
 
@@ -303,6 +307,10 @@ export const sendMultipleContacts = defineMethodV2('sendMultipleContacts', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'POST',
+        aliases: {
+            explicit: ['sendContacts'],
+            namespacedName: 'sendContacts',
+        },
     },
     input: z.object({
         to: toParam,
@@ -370,6 +378,9 @@ export const sendListMessage = defineMethodV2('sendListMessage', {
         license: 'insiders',
         functionality: 'both',
         httpMethod: 'POST',
+        aliases: {
+            explicit: ['sendList'],
+        },
     },
     input: z.object({
         to: toParam,
@@ -427,7 +438,7 @@ export const sendBanner = defineMethodV2('sendBanner', {
 /**
  * Sends YouTube link with preview
  */
-export const sendYoutubeLink = defineMethodV2('sendYoutubeLink', {
+export const sendYouTubeLink = defineMethodV2('sendYouTubeLink', {
     meta: {
         description: 'Sends a YouTube link with auto-generated preview',
         action: 'send',
@@ -435,6 +446,10 @@ export const sendYoutubeLink = defineMethodV2('sendYoutubeLink', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'POST',
+        aliases: {
+            deprecated: ['sendYoutubeLink'],
+        },
+        wapiOverride: 'sendYoutubeLink',
     },
     input: z.object({
         to: toParam,
@@ -462,6 +477,9 @@ export const sendLinkWithAutoPreview = defineMethodV2('sendLinkWithAutoPreview',
         license: 'none',
         functionality: 'both',
         httpMethod: 'POST',
+        aliases: {
+            explicit: ['sendLink'],
+        },
     },
     input: z.object({
         to: toParam,
@@ -489,21 +507,25 @@ export const sendMessageWithThumb = defineMethodV2('sendMessageWithThumb', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'POST',
+        aliases: {
+            explicit: ['sendLinkWithThumbnail'],
+            namespacedName: 'sendLinkWithThumbnail',
+        },
     },
     input: z.object({
         thumb: z.string().describe('Base64 thumbnail (max 200x200px)'),
         url: z.string().url().describe('Link URL'),
         title: z.string().describe('Link title'),
         description: z.string().describe('Link description'),
-        text: contentParam,
-        chatId: toParam,
+        content: contentParam,
+        to: toParam,
         quotedMsgId: messageIdParam.optional(),
         customSize: z.object({
             height: z.number(),
             width: z.number()
         }).optional().describe('Custom thumbnail size')
     }),
-    parameterOrder: ['thumb', 'url', 'title', 'description', 'text', 'chatId', 'quotedMsgId', 'customSize'],
+    parameterOrder: ['thumb', 'url', 'title', 'description', 'content', 'to', 'quotedMsgId', 'customSize'],
     output: MessageIdReturnSchema.or(z.boolean())
 });
 
@@ -518,6 +540,9 @@ export const forwardMessages = defineMethodV2('forwardMessages', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'POST',
+        aliases: {
+            namespacedName: 'forward',
+        },
     },
     input: z.object({
         to: toParam,
@@ -539,9 +564,12 @@ export const deleteMessage = defineMethodV2('deleteMessage', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'DELETE',
+        aliases: {
+            namespacedName: 'delete',
+        },
     },
     input: z.object({
-        chatId: toParam,
+        chatId: chatIdParam,
         messageId: messageIdsParam,
         onlyLocal: z.boolean().optional().default(false).describe('Delete only locally')
     }),
@@ -560,6 +588,10 @@ export const getMessageById = defineMethodV2('getMessageById', {
         license: 'none',
         functionality: 'both',
         httpMethod: 'GET',
+        aliases: {
+            explicit: ['getMessage'],
+            namespacedName: 'get',
+        },
     },
     input: z.object({
         messageId: messageIdParam
@@ -581,10 +613,216 @@ export const getAllMessages = defineMethodV2('getAllMessages', {
         httpMethod: 'GET',
     },
     input: z.object({
-        chatId: toParam.optional(),
+        chatId: chatIdParam.optional(),
         includeMe: z.boolean().optional().default(true).describe('Include own messages'),
         includeNotifications: z.boolean().optional().default(false).describe('Include notification messages'),
     }),
     parameterOrder: ['chatId', 'includeMe', 'includeNotifications'],
     output: z.array(z.any()) // MessageSchema causes circular dependency
+});
+
+export const getMyLastMessage = defineMethodV2('getMyLastMessage', {
+    meta: {
+        description: 'Get last message sent by host',
+        action: 'read',
+        namespace: 'messages',
+        license: 'none',
+        functionality: 'both',
+        httpMethod: 'GET',
+    },
+    input: z.object({
+        chatId: chatIdParam.optional(),
+    }),
+    parameterOrder: ['chatId'],
+    output: z.any(),
+});
+
+export const getStarredMessages = defineMethodV2('getStarredMessages', {
+    meta: {
+        description: 'Get starred messages',
+        action: 'read',
+        namespace: 'messages',
+        license: 'insiders',
+        functionality: 'both',
+        httpMethod: 'GET',
+    },
+    input: z.object({
+        chatId: chatIdParam.optional(),
+    }),
+    parameterOrder: ['chatId'],
+    output: z.array(z.any()),
+});
+
+export const getUnsentMessages = defineMethodV2('getUnsentMessages', {
+    meta: {
+        description: 'Get unsent/pending messages',
+        action: 'read',
+        namespace: 'messages',
+        license: 'none',
+        functionality: 'both',
+        httpMethod: 'GET',
+    },
+    input: z.object({}),
+    parameterOrder: [],
+    output: z.array(z.any()),
+});
+
+export const getMessageInfo = defineMethodV2('getMessageInfo', {
+    meta: {
+        description: 'Get message delivery info',
+        action: 'read',
+        namespace: 'messages',
+        license: 'none',
+        functionality: 'both',
+        httpMethod: 'GET',
+    },
+    input: z.object({
+        messageId: messageIdParam,
+    }),
+    parameterOrder: ['messageId'],
+    output: z.any(),
+});
+
+export const getVCards = defineMethodV2('getVCards', {
+    meta: {
+        description: 'Extract vCards from message',
+        action: 'read',
+        namespace: 'messages',
+        license: 'none',
+        functionality: 'both',
+        httpMethod: 'GET',
+    },
+    input: z.object({
+        messageId: messageIdParam,
+    }),
+    parameterOrder: ['messageId'],
+    output: z.array(z.string()),
+});
+
+export const getMessagesForLLM = defineMethodV2('getMessagesForLLM', {
+    meta: {
+        description: 'Get messages formatted for LLMs',
+        action: 'read',
+        namespace: 'messages',
+        license: 'none',
+        functionality: 'both',
+        httpMethod: 'GET',
+        aliases: {
+            deprecated: ['getGptArray'],
+        },
+        wapiOverride: 'getGptArray',
+    },
+    input: z.object({
+        chatId: chatIdParam,
+        last: z.number().optional().default(10),
+    }),
+    parameterOrder: ['chatId', 'last'],
+    output: z.any(),
+});
+
+export const starMessage = defineMethodV2('starMessage', {
+    meta: {
+        description: 'Star a message',
+        action: 'update',
+        namespace: 'messages',
+        license: 'none',
+        functionality: 'both',
+        httpMethod: 'PUT',
+    },
+    input: z.object({
+        messageId: messageIdParam,
+    }),
+    parameterOrder: ['messageId'],
+    output: z.boolean(),
+});
+
+export const unstarMessage = defineMethodV2('unstarMessage', {
+    meta: {
+        description: 'Unstar a message',
+        action: 'update',
+        namespace: 'messages',
+        license: 'none',
+        functionality: 'both',
+        httpMethod: 'PUT',
+    },
+    input: z.object({
+        messageId: messageIdParam,
+    }),
+    parameterOrder: ['messageId'],
+    output: z.boolean(),
+});
+
+export const react = defineMethodV2('react', {
+    meta: {
+        description: 'React to message with emoji',
+        action: 'send',
+        namespace: 'messages',
+        license: 'none',
+        functionality: 'both',
+        httpMethod: 'POST',
+    },
+    input: z.object({
+        messageId: messageIdParam,
+        emoji: z.string().describe('Emoji reaction'),
+    }),
+    parameterOrder: ['messageId', 'emoji'],
+    output: z.boolean(),
+});
+
+export const sendSeen = defineMethodV2('sendSeen', {
+    meta: {
+        description: 'Mark message as seen',
+        action: 'update',
+        namespace: 'messages',
+        license: 'none',
+        functionality: 'both',
+        httpMethod: 'PUT',
+    },
+    input: z.object({
+        chatId: chatIdParam,
+    }),
+    parameterOrder: ['chatId'],
+    output: z.boolean(),
+});
+
+export const loadEarlierMessages = defineMethodV2('loadEarlierMessages', {
+    meta: {
+        description: 'Loads earlier messages from a chat',
+        action: 'read',
+        namespace: 'messages',
+        license: 'none',
+        functionality: 'both',
+        httpMethod: 'POST',
+        aliases: {
+            explicit: ['loadOlderMessages'],
+            namespacedName: 'loadEarlier',
+        },
+    },
+    input: z.object({
+        chatId: chatIdParam,
+        count: z.number().positive().optional().describe('Number of messages to load (default: 20)'),
+        includeMe: z.boolean().optional().describe('Whether to include messages from the host account (default: false)'),
+    }),
+    parameterOrder: ['chatId', 'count', 'includeMe'],
+    output: z.array(z.any()),
+});
+
+export const sendFileFromUrl = defineMethodV2('sendFileFromUrl', {
+    meta: {
+        description: 'Downloads a file from a URL and sends it to a chat',
+        action: 'send',
+        namespace: 'messages',
+        license: 'none',
+        functionality: 'both',
+        httpMethod: 'POST',
+    },
+    input: z.object({
+        to: toParam,
+        url: z.string().url().describe('URL of the file to download'),
+        filename: z.string().describe('Filename for the sent file'),
+        caption: z.string().optional().describe('Caption for the file'),
+        headers: z.record(z.string(), z.string()).optional().describe('HTTP headers for the download request'),
+    }),
+    parameterOrder: ['to', 'url', 'filename', 'caption', 'headers'],
+    output: z.string().or(z.boolean()).describe('Message ID or success status'),
 });
