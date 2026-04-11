@@ -121,8 +121,7 @@ const AUTHENTICATED_SHELL_CHECK_SCRIPT = `!!(
 const RIPE_SESSION_CHECK_SCRIPT = `(() => {
   try {
     return Boolean(
-      (window.isSessionLoaded && window.isSessionLoaded()) ||
-      window.WA_AUTHENTICATED
+      !!window.WA_AUTHENTICATED || (document.getElementsByClassName('app')[0] && document.getElementsByClassName('app')[0].attributes && !!document.getElementsByClassName('app')[0].attributes.tabindex) || (document.getElementsByClassName('two')[0] && document.getElementsByClassName('two')[0].attributes && !!document.getElementsByClassName('two')[0].attributes.tabindex)
     );
   } catch {
     return false;
