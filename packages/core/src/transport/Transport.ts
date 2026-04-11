@@ -85,7 +85,7 @@ const QR_SELECTOR_FALLBACK = 'canvas[aria-label]';
 const PRE_API_HELPER_READY_CHECK_SCRIPT = `Boolean(!['jsSHA','axios','QRCode','Base64','objectHash'].find(x=>!window[x]))`;
 
 const WAPI_RUNTIME_CHECK_SCRIPT = '!!window.WAPI';
-const STORE_MSG_CHECK_SCRIPT = '!!window.Store && window.Store.Msg';
+const STORE_MSG_CHECK_SCRIPT = '!!(window.Store && window.Store.Msg)';
 const ATTEMPTING_REAUTH_CHECK_SCRIPT = `!!(
   typeof localStorage !== 'undefined'
   && (localStorage['WAToken2'] || localStorage['last-wid-md'])
@@ -307,7 +307,7 @@ export interface PatchArtifact {
   source: PatchArtifactSource;
 }
 
-export interface PatchPreloadResult {
+export interface LivePatchPreloadResult {
   outcome: 'ready' | 'none' | 'failed';
   source: 'builtin' | 'remote' | 'cached' | 'none';
   tag: string | null;
@@ -331,13 +331,13 @@ export interface PatchApplyResult {
   results: PatchApplicationResult[];
 }
 
-interface RemotePatchFetchResult {
+interface LivePatchFetchResult {
   data: string[];
   tag: string;
   source: 'remote' | 'cached';
 }
 
-const BUILTIN_PATCH_ARTIFACTS: readonly PatchArtifact[] = [
+const BUILTIN_LIVE_PATCH_ARTIFACTS: readonly PatchArtifact[] = [
   {
     patchId: 'runtime-bootstrap-overlay',
     description: 'Records bootstrap patch attestation after runtime activation.',
@@ -374,16 +374,18 @@ const INIT_PATCH_ARTIFACT: PatchArtifact = {
   script: 'DEFERRED_INIT_PATCH',
 };
 
-/** Default patch endpoint (legacy: pkg.patches from package.json) */
-const DEFAULT_PATCHES_URL = 'https://cdn.openwa.dev/patches.json';
-/** Fallback GitHub raw patches URL */
-const GH_PATCHES_FALLBACK_URL = 'https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/patches.json';
+/** Default live-patch endpoint (legacy: pkg.patches from package.json) */
+const DEFAULT_LIVE_PATCHES_URL = 'https://cdn.openwa.dev/patches.json';
+/** Fallback GitHub raw live-patches URL */
+const GH_LIVE_PATCHES_FALLBACK_URL = 'https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/patches.json';
 /** Default license validation endpoint (legacy: pkg.licenseCheckUrl from package.json) */
 const DEFAULT_LICENSE_CHECK_URL = 'https://funcs.openwa.dev/license-check';
-/** Cache file path relative to cwd */
-const PATCH_CACHE_FILENAME = 'patches.cache.json';
-/** Cache staleness threshold (24 hours in ms) */
-const PATCH_CACHE_MAX_AGE_MS = 86_400_000;
+/** Live-patch cache file path relative to cwd */
+const LIVE_PATCH_CACHE_FILENAME = 'patches.cache.json';
+/** Live-patch cache staleness threshold (24 hours in ms) */
+const LIVE_PATCH_CACHE_MAX_AGE_MS = 86_400_000;
+/** Maximum consecutive recovery attempts before giving up */
+const MAX_CONSECUTIVE_RECOVERY_ATTEMPTS = 5;
 
 export class Transport {
   private static assetScriptCache = new Map<string, Promise<string>>();
@@ -421,6 +423,10 @@ export class Transport {
   private runtimeRecoveryQueue: Promise<void> = Promise.resolve();
   private latestRuntimeRecoveryRequestId = 0;
   private pendingRuntimeRecoveryCount = 0;
+  private consecutiveRecoveryAttempts = 0;
+  /** Cached live patch scripts for re-application during recovery */
+  private cachedLivePatchScripts: string[] = [];
+  private frameNavCounter = 0
 
   constructor(options: TransportOptions) {
     this.driver = options.driver;
@@ -549,7 +555,17 @@ export class Transport {
     }
   }
 
-  async configureRuntimeEventBridge(): Promise<void> {
+  /**
+   * Phase 1: Register Node-side persistent bindings for WAPI event bridge.
+   *
+   * This sets up the `exposeFunction` callbacks that the browser page will
+   * call into. It does NOT wire them to WAPI methods — that happens in
+   * `activateRuntimeEventBridge()`.
+   *
+   * Safe to call pre-patch: only registers Node-side callbacks and records
+   * bridge metadata. No WAPI code is called.
+   */
+  async registerRuntimeEventBridgeBindings(): Promise<void> {
     const messageReceivedSurface = getRuntimeListenerSurfaceEntry('message.received');
     const messageAnySurface = getRuntimeListenerSurfaceEntry('message.any');
     const ackChangedSurface = getRuntimeListenerSurfaceEntry('ack.changed');
@@ -638,7 +654,21 @@ export class Transport {
       ],
       requiredMethods: this.injectionController.getRequiredRuntimeMethods(),
     });
+  }
 
+  /**
+   * Phase 2: Wire the registered bridge bindings to WAPI methods in-page.
+   *
+   * This calls `ensureRuntimeBridge()` which executes in-page JavaScript
+   * like `WAPI.onAnyMessage(obj => window.OpenWA_RuntimeMessageReceived(obj))`.
+   *
+   * MUST only be called AFTER patches, license, and init-patch have been
+   * applied — otherwise the WAPI methods being wired may be broken/unpatched.
+   *
+   * Idempotent: if bridges are already wired (e.g. by a post_patch validation
+   * stage), this becomes a no-op via the `already_registered` check.
+   */
+  async activateRuntimeEventBridge(): Promise<void> {
     const bridgeReady = await this.injectionController.ensureRuntimeBridge();
     const capability = await this.probeRuntimeCapability();
     this.logger.info('runtime_event_bridge_ready', {
@@ -647,6 +677,18 @@ export class Transport {
       hasStoreMsg: capability.hasStoreMsg,
       sessionLoaded: capability.sessionLoaded,
     });
+  }
+
+  /**
+   * Convenience wrapper: registers bindings and then wires them to WAPI.
+   *
+   * Used by recovery flows (e.g. `recoverRuntimeForCurrentDocument`) where
+   * both phases should happen together because patches are already applied.
+   * The bootstrap sequence uses the split methods directly instead.
+   */
+  async configureRuntimeEventBridge(): Promise<void> {
+    await this.registerRuntimeEventBridgeBindings();
+    await this.activateRuntimeEventBridge();
   }
 
   async probeRuntimeCapability(): Promise<RuntimeCapabilityProbe> {
@@ -725,6 +767,35 @@ export class Transport {
     }
   }
 
+  /**
+   * Lightweight runtime validation that checks runtime/store/session presence
+   * WITHOUT checking bridge integrity.
+   *
+   * Used for early validation stages (post_injection) where the WAPI bridge
+   * has not yet been activated and calling `probeBrokenMethodIntegrity()` → 
+   * `ensureRuntimeBridge()` would prematurely wire listeners to unpatched WAPI.
+   */
+  async validateRuntimeCapabilityOnly(stage: RuntimeValidationStage): Promise<RuntimeValidationResult> {
+    const capability = await this.probeRuntimeCapability();
+
+    const failureReason = !capability.hasRuntime
+      ? 'runtime_missing'
+      : undefined;
+
+    const usable = failureReason === undefined;
+
+    return {
+      ...capability,
+      bridgeReady: false,
+      requiredMethods: this.injectionController.getRequiredRuntimeMethods(),
+      missingMethods: [],
+      stage,
+      usable,
+      repairable: !usable,
+      failureReason,
+    };
+  }
+
   async repairRuntimeIntegrity(reason: RuntimeValidationFailureReason): Promise<boolean> {
     this.logger.info('broken_method_integrity_gate_repair', { reason });
     const recovery = await this.recoverRuntimeForCurrentDocument({
@@ -735,7 +806,7 @@ export class Transport {
     return recovery.reinjected || recovery.capability.hasRuntime;
   }
 
-  async preloadPatchArtifacts(options?: { sessionInfo?: SessionDebugInfo }): Promise<PatchPreloadResult> {
+  async preloadLivePatchArtifacts(options?: { sessionInfo?: SessionDebugInfo }): Promise<LivePatchPreloadResult> {
     const correlationId = 'transport-patch-preload';
     const startTime = Date.now();
 
@@ -748,13 +819,13 @@ export class Transport {
 
     try {
       // Start with builtin attestation artifacts
-      const artifacts: PatchArtifact[] = BUILTIN_PATCH_ARTIFACTS.map((artifact) => ({ ...artifact }));
+      const artifacts: PatchArtifact[] = BUILTIN_LIVE_PATCH_ARTIFACTS.map((artifact) => ({ ...artifact }));
 
       // Attempt remote patch fetch
-      let remoteFetchResult: RemotePatchFetchResult | null = null;
+      let remoteFetchResult: LivePatchFetchResult | null = null;
 
       try {
-        remoteFetchResult = await this.fetchRemotePatchesWithCache(options?.sessionInfo);
+        remoteFetchResult = await this.fetchLivePatchesWithCache(options?.sessionInfo);
       } catch (fetchError) {
         const fetchMsg = fetchError instanceof Error ? fetchError.message : String(fetchError);
         this.logger.warn('remote_patch_fetch_failed', { error: fetchMsg });
@@ -780,7 +851,7 @@ export class Transport {
           ? createHash('sha1').update(JSON.stringify(artifacts)).digest('hex').slice(0, 8)
           : null);
 
-      const outcome: PatchPreloadResult = {
+      const outcome: LivePatchPreloadResult = {
         outcome: artifacts.length > 0 ? 'ready' : 'none',
         source: effectiveSource,
         tag,
@@ -807,7 +878,7 @@ export class Transport {
       return outcome;
     } catch (error) {
       const normalizedError = error instanceof Error ? error : new Error(String(error));
-      const outcome: PatchPreloadResult = {
+      const outcome: LivePatchPreloadResult = {
         outcome: 'failed',
         source: 'builtin',
         tag: null,
@@ -841,15 +912,32 @@ export class Transport {
     }
   }
 
-  async applyPatchArtifacts(preloaded: PatchPreloadResult): Promise<PatchApplyResult> {
+  async applyLivePatchArtifacts(preloaded: LivePatchPreloadResult): Promise<PatchApplyResult> {
     if (preloaded.outcome === 'failed') {
-      return this.buildFailedPatchApplyResult(preloaded);
+      return this.buildFailedLivePatchApplyResult(preloaded);
     }
 
-    return this.applyPatchArtifactSequence(preloaded.artifacts, {
-      correlationId: 'transport-patch-apply',
+    const result = await this.applyPatchArtifactSequence(preloaded.artifacts, {
+      correlationId: 'transport-live-patch-apply',
       preloadOutcome: preloaded.outcome,
     });
+
+    // Cache the remote live patch scripts for re-application during recovery.
+    // Only cache scripts that were successfully applied and are real evaluatable
+    // scripts (not builtin attestation or deferred init-patch markers).
+    if (result.outcome !== 'failed') {
+      this.cachedLivePatchScripts = preloaded.artifacts
+        .filter((a) => a.source === 'remote' && a.script !== 'DEFERRED_INIT_PATCH')
+        .map((a) => a.script);
+
+      if (this.cachedLivePatchScripts.length > 0) {
+        this.logger.debug('live_patch_scripts_cached_for_recovery', {
+          count: this.cachedLivePatchScripts.length,
+        });
+      }
+    }
+
+    return result;
   }
 
   async applyDeferredInitPatchArtifact(): Promise<PatchApplyResult> {
@@ -859,7 +947,7 @@ export class Transport {
     });
   }
 
-  private buildFailedPatchApplyResult(preloaded: PatchPreloadResult): PatchApplyResult {
+  private buildFailedLivePatchApplyResult(preloaded: LivePatchPreloadResult): PatchApplyResult {
     return {
       outcome: 'failed',
       applied: [],
@@ -880,7 +968,7 @@ export class Transport {
     artifacts: PatchArtifact[],
     options: {
       correlationId: string;
-      preloadOutcome: PatchPreloadResult['outcome'];
+      preloadOutcome: 'ready' | 'none' | 'failed';
     },
   ): Promise<PatchApplyResult> {
     if (!this.page) {
@@ -918,6 +1006,13 @@ export class Transport {
           required: artifact.required,
           source: artifact.source,
         },
+      });
+
+      this.logger.info('live_patch_installing', {
+        patchId: artifact.patchId,
+        description: artifact.description,
+        required: artifact.required,
+        source: artifact.source,
       });
 
       let result: PatchApplicationResult;
@@ -987,6 +1082,14 @@ export class Transport {
 
       results.push(result);
 
+      this.logger.info('live_patch_install_result', {
+        patchId: artifact.patchId,
+        outcome: result.outcome,
+        required: artifact.required,
+        durationMs: Date.now() - patchStartTime,
+        detail: result.detail,
+      });
+
       this.events.emit('patch.apply.after', {
         correlationId,
         ts: Date.now(),
@@ -1012,6 +1115,14 @@ export class Transport {
       blockingFailure,
       results,
     };
+
+    this.logger.info('live_patch_sequence_complete', {
+      outcome: outcome.outcome,
+      appliedCount: applied.length,
+      totalCount: artifacts.length,
+      appliedPatchIds: applied,
+      blockingFailure,
+    });
 
     this.events.emit('patch.init.after', {
       correlationId,
@@ -1937,8 +2048,12 @@ export class Transport {
     });
 
     this.injectionController.registerNavigationObserver('runtime.navigation_recovery', (_frame, generation) => {
-      this.logger.info(`FRAME NAV DETECTED, ${_frame.url()}, Reinjecting APIs...`);
-      this.queueRuntimeRecovery('main_frame_navigation', generation);
+      //skip the very first frame nav
+      if (this.frameNavCounter > 1) {
+        this.logger.info(`FRAME NAV DETECTED ${this.frameNavCounter}, ${_frame.url()}, Reinjecting APIs...`);
+        this.queueRuntimeRecovery('main_frame_navigation', generation);
+      }
+      this.frameNavCounter++;
     });
 
     await this.injectionController.registerPersistentInitScript('prog_observer', await getProgObserverScript());
@@ -2184,6 +2299,12 @@ export class Transport {
     const requestId = ++this.latestRuntimeRecoveryRequestId;
     this.pendingRuntimeRecoveryCount += 1;
 
+
+    this.logger.warn('runtime_recovery_queued', {
+      trigger,
+      requestId: String(requestId),
+    });
+
     this.runtimeRecoveryQueue = this.runtimeRecoveryQueue.then(
       () => this.runRuntimeRecovery({ requestId, trigger, generation }),
       () => this.runRuntimeRecovery({ requestId, trigger, generation }),
@@ -2207,6 +2328,18 @@ export class Transport {
   }): Promise<void> {
     try {
       if (!this.page) {
+        return;
+      }
+
+      // Guard: prevent infinite recovery loops
+      this.consecutiveRecoveryAttempts++;
+      if (this.consecutiveRecoveryAttempts > MAX_CONSECUTIVE_RECOVERY_ATTEMPTS) {
+        this.logger.warn('runtime_recovery_max_attempts_exceeded', {
+          trigger: request.trigger,
+          attempts: this.consecutiveRecoveryAttempts,
+          max: MAX_CONSECUTIVE_RECOVERY_ATTEMPTS,
+          requestId: String(request.requestId),
+        });
         return;
       }
 
@@ -2241,6 +2374,44 @@ export class Transport {
         return;
       }
 
+      // ── Early-exit: check if the session survived the frame nav ──
+      // Frame navigation does NOT always flush the global context. Before doing
+      // heavy recovery (reinject wapi + patches + bridge), probe whether:
+      //   1. The page is still injectable (WAWebCollections module available)
+      //   2. Live patches are still applied (window.moi exists — it's injected by
+      //      CDN live patches, NOT by wapi.js, so its presence proves patches survived)
+      // If both pass, the session is intact — skip recovery entirely.
+      if (request.trigger === 'main_frame_navigation') {
+        try {
+          const injectable = await this.waitForInjectableSession();
+          if (injectable) {
+            const livePatchIntact = await this.evaluateBooleanScript(
+              `!!(typeof window.moi === 'function' && window.moi())`
+            );
+            if (livePatchIntact) {
+              this.logger.info('runtime_recovery_skipped_session_intact', {
+                trigger: request.trigger,
+                requestId: String(request.requestId),
+                reason: 'live_patches_intact_after_frame_nav',
+              });
+              this.consecutiveRecoveryAttempts = 0;
+              return;
+            }
+            this.logger.debug('runtime_recovery_live_patches_missing', {
+              trigger: request.trigger,
+              requestId: String(request.requestId),
+            });
+          }
+        } catch (probeError) {
+          // Probe failed — session is likely flushed, proceed with full recovery
+          this.logger.debug('runtime_recovery_integrity_probe_failed', {
+            trigger: request.trigger,
+            requestId: String(request.requestId),
+            error: probeError instanceof Error ? probeError.message : String(probeError),
+          });
+        }
+      }
+
       const { reinjected } = await this.recoverRuntimeForCurrentDocument({
         trigger: request.trigger,
         shouldContinue: () => this.isLatestRuntimeRecoveryRequest(request.requestId),
@@ -2252,6 +2423,9 @@ export class Transport {
         reinjected,
         generation: settledGeneration,
       });
+
+      // Reset consecutive counter on successful recovery
+      this.consecutiveRecoveryAttempts = 0;
     } finally {
       this.pendingRuntimeRecoveryCount = Math.max(0, this.pendingRuntimeRecoveryCount - 1);
     }
@@ -2269,22 +2443,21 @@ export class Transport {
       return { capability, reinjected: false };
     }
 
+    // ── Short-circuit: runtime is intact AND bridge is NOT tested here ──
+    // We do NOT call ensureRuntimeBridge() as a pre-check because it would try
+    // to wire onStateChanged before live patches and init patch are re-applied,
+    // causing failures that trigger the WAPI setter trap → infinite recovery loop.
+    //
+    // Instead, we only short-circuit if the runtime exists AND we are NOT in a
+    // post_authentication or forceReinject scenario.
     if (!options.forceReinject && capability.hasRuntime) {
-      const bridgeReady = await this.injectionController.ensureRuntimeBridge();
-      if (!shouldContinue()) {
-        return { capability, reinjected: false };
-      }
-
-      // Phase 1.4: For post_authentication triggers, do NOT short-circuit
-      // when Store.Msg is missing. The runtime shell may exist but the
-      // authenticated store is not yet built — recovery/reinjection must
-      // still be attempted so the store has a chance to settle.
       const isPostAuth = options.trigger === 'post_authentication';
       const storeReady = capability.hasStoreMsg;
 
-      if (bridgeReady && (!isPostAuth || storeReady)) {
-        this.logger.info('FN: WAPI intact. Skipping reinjection...');
-        this.logger.debug('runtime_recovery_completed_without_reinject', {
+      // For non-auth triggers: if runtime is present, skip reinjection.
+      // The bridge will be wired after the full recovery sequence.
+      if (!isPostAuth || storeReady) {
+        this.logger.debug('runtime_recovery_runtime_present_skip_reinject', {
           trigger: options.trigger,
           hasStoreMsg: storeReady,
         });
@@ -2295,13 +2468,65 @@ export class Transport {
         this.logger.info('runtime_recovery_forcing_reinject_store_missing', {
           trigger: options.trigger,
           hasRuntime: capability.hasRuntime,
-          bridgeReady,
           hasStoreMsg: false,
         });
       }
     }
 
+    // ── Step 1: Reinject wapi.js + launch.js + cached live patches ──
+    // performRuntimeInjection already re-applies cached live patch scripts.
     const reinjected = await this.performRuntimeInjection(shouldContinue);
+    if (!shouldContinue()) {
+      capability = await this.probeRuntimeCapability();
+      return { capability, reinjected };
+    }
+
+    // ── Step 2: Re-apply init patch + wire bridge ──
+    // ONLY for actual context-flush recovery (frame nav / runtime_replaced) where
+    // the full patch stack was previously applied and needs restoration.
+    //
+    // For post_authentication and validation_failure, the bootstrap sequence in
+    // createClient.ts manages the correct layering order:
+    //   wapi → live patches (CDN) → license → init patch → bridge wiring
+    // Applying init_patch here would be premature (before live patches exist)
+    // and causes "Identifier already declared" when bootstrap tries again later.
+    const isContextFlushRecovery = options.trigger === 'main_frame_navigation'
+      || options.trigger === 'runtime_replaced';
+
+    if (reinjected && isContextFlushRecovery) {
+      try {
+        this.logger.info('recovery_reapplying_init_patch', {
+          trigger: options.trigger,
+        });
+        await injectInitPatch(this.page!);
+        this.logger.debug('recovery_init_patch_reapplied', {
+          trigger: options.trigger,
+        });
+      } catch (initPatchError) {
+        const msg = initPatchError instanceof Error ? initPatchError.message : String(initPatchError);
+        this.logger.warn('recovery_init_patch_reapply_failed', {
+          trigger: options.trigger,
+          error: msg,
+        });
+      }
+
+      // ── Step 3: Wire the bridge (AFTER all patches are applied) ──
+      // This matches the v4 order: patches → init → client.loaded() (bridge)
+      try {
+        const bridgeReady = await this.injectionController.ensureRuntimeBridge();
+        this.logger.info('recovery_bridge_wired', {
+          trigger: options.trigger,
+          bridgeReady,
+        });
+      } catch (bridgeError) {
+        const msg = bridgeError instanceof Error ? bridgeError.message : String(bridgeError);
+        this.logger.warn('recovery_bridge_wiring_failed', {
+          trigger: options.trigger,
+          error: msg,
+        });
+      }
+    }
+
     capability = await this.probeRuntimeCapability();
 
     return {
@@ -2358,6 +2583,26 @@ export class Transport {
     const success = capability.hasRuntime;
 
     this.logger.info('wapi_injection_probe', { ...capability });
+
+    // Re-apply cached live patch scripts after wapi.js/launch.js re-injection.
+    // Without this, the freshly injected WAPI overwrites the live-patched version,
+    // causing onStateChanged (and similar methods) to fail and triggering an
+    // infinite recovery loop.
+    if (success && this.cachedLivePatchScripts.length > 0) {
+      this.logger.info('recovery_reapplying_live_patches', {
+        count: this.cachedLivePatchScripts.length,
+      });
+
+      for (let i = 0; i < this.cachedLivePatchScripts.length; i++) {
+        try {
+          await this.page.evaluateScript(this.cachedLivePatchScripts[i]);
+          this.logger.debug('recovery_live_patch_reapplied', { index: i });
+        } catch (reapplyError) {
+          const msg = reapplyError instanceof Error ? reapplyError.message : String(reapplyError);
+          this.logger.warn('recovery_live_patch_reapply_failed', { index: i, error: msg });
+        }
+      }
+    }
 
     return success;
   }
@@ -2464,62 +2709,68 @@ export class Transport {
     })();`;
   }
 
-  // ─── Remote Patch Pipeline ────────────────────────────────────────────────
+  // ─── Live Patch Pipeline ────────────────────────────────────────────────
 
   /**
-   * Fetch remote patches with disk caching.
+   * Fetch live patches from CDN with disk caching.
    *
    * Strategy (mirrors legacy `getAndInjectLivePatch`):
-   * 1. Try cached patches first (if < 24h old)
+   * 1. Try cached live patches first (if < 24h old)
    * 2. If stale/missing, fetch from cdn.openwa.dev
    * 3. If CDN fails, fall back to GitHub raw
    * 4. Cache result to disk for next session
    */
-  private async fetchRemotePatchesWithCache(
+  private async fetchLivePatchesWithCache(
     sessionInfo?: SessionDebugInfo,
-  ): Promise<RemotePatchFetchResult> {
+  ): Promise<LivePatchFetchResult> {
     const cacheEnabled = this.patchConfig.cachedPatch === true;
 
     // Try disk cache first only when explicitly enabled.
     if (cacheEnabled) {
       try {
-        const cached = await this.loadCachedPatches();
+        const cached = await this.loadCachedLivePatches();
         if (cached) {
-          this.logger.info('patches_loaded_from_cache', { tag: cached.tag, count: cached.data.length });
-          void this.refreshCachedPatchInBackground(sessionInfo);
+          this.logger.info('live_patch_loaded_from_cache', { tag: cached.tag, patchCount: cached.data.length });
+          void this.refreshLivePatchCacheInBackground(sessionInfo);
           return { data: cached.data, tag: cached.tag, source: 'cached' };
         }
       } catch (cacheError) {
         const cacheMsg = cacheError instanceof Error ? cacheError.message : String(cacheError);
-        this.logger.debug('patch_cache_read_failed', { error: cacheMsg });
+        this.logger.debug('live_patch_cache_read_failed', { error: cacheMsg });
       }
     }
 
-    const result = await this.fetchFreshRemotePatches(sessionInfo);
-    this.logger.info('patches_fetched_from_remote', { tag: result.tag, count: result.data.length });
+    const result = await this.fetchFreshLivePatches(sessionInfo);
+    this.logger.info('live_patch_downloaded', {
+      source: 'remote',
+      url: this.patchConfig.patchesUrl ?? DEFAULT_LIVE_PATCHES_URL,
+      tag: result.tag,
+      patchCount: result.data.length,
+    });
     return { data: result.data, tag: result.tag, source: 'remote' };
   }
 
-  private async refreshCachedPatchInBackground(sessionInfo?: SessionDebugInfo): Promise<void> {
+  private async refreshLivePatchCacheInBackground(sessionInfo?: SessionDebugInfo): Promise<void> {
     try {
-      const result = await this.fetchFreshRemotePatches(sessionInfo);
-      this.logger.debug('patch_cache_refreshed_in_background', { tag: result.tag, count: result.data.length });
+      const result = await this.fetchFreshLivePatches(sessionInfo);
+      this.logger.debug('live_patch_cache_refreshed_in_background', { tag: result.tag, count: result.data.length });
     } catch (refreshError) {
       const refreshMsg = refreshError instanceof Error ? refreshError.message : String(refreshError);
-      this.logger.debug('patch_cache_background_refresh_failed', { error: refreshMsg });
+      this.logger.debug('live_patch_cache_background_refresh_failed', { error: refreshMsg });
     }
   }
 
-  private async fetchFreshRemotePatches(sessionInfo?: SessionDebugInfo): Promise<{ data: string[]; tag: string }> {
-    const patchesUrl = this.patchConfig.patchesUrl ?? DEFAULT_PATCHES_URL;
+  private async fetchFreshLivePatches(sessionInfo?: SessionDebugInfo): Promise<{ data: string[]; tag: string }> {
+    const patchesUrl = this.patchConfig.patchesUrl ?? DEFAULT_LIVE_PATCHES_URL;
     const useGithubPrimary = this.patchConfig.ghPatch === true;
-    const primaryUrl = useGithubPrimary ? GH_PATCHES_FALLBACK_URL : patchesUrl;
+    const primaryUrl = useGithubPrimary ? GH_LIVE_PATCHES_FALLBACK_URL : patchesUrl;
     const fallbackUrl = useGithubPrimary
       ? undefined
       : this.patchConfig.ghPatchFallback === false
         ? undefined
-        : GH_PATCHES_FALLBACK_URL;
+        : GH_LIVE_PATCHES_FALLBACK_URL;
 
+    const fetchStart = Date.now();
     const result = await fetchPatches(
       primaryUrl,
       {
@@ -2528,22 +2779,31 @@ export class Transport {
       },
       { fallbackUrl },
     );
+    const fetchDurationMs = Date.now() - fetchStart;
+
+    this.logger.info('live_patch_fetch_complete', {
+      url: primaryUrl,
+      durationMs: fetchDurationMs,
+      durationFormatted: `${(fetchDurationMs / 1000).toFixed(2)}s`,
+      tag: result.tag,
+      patchCount: result.data.length,
+    });
 
     if (this.patchConfig.cachedPatch === true) {
       try {
-        await this.saveCachedPatches(result);
-        this.logger.debug('patches_saved_to_cache', { tag: result.tag, count: result.data.length });
+        await this.saveCachedLivePatches(result);
+        this.logger.debug('live_patch_saved_to_cache', { tag: result.tag, count: result.data.length });
       } catch (saveError) {
         const saveMsg = saveError instanceof Error ? saveError.message : String(saveError);
-        this.logger.debug('patch_cache_write_failed', { error: saveMsg });
+        this.logger.debug('live_patch_cache_write_failed', { error: saveMsg });
       }
     }
 
     return result;
   }
 
-  private async loadCachedPatches(): Promise<{ data: string[]; tag: string } | null> {
-    const cachePath = join(process.cwd(), PATCH_CACHE_FILENAME);
+  private async loadCachedLivePatches(): Promise<{ data: string[]; tag: string } | null> {
+    const cachePath = join(process.cwd(), LIVE_PATCH_CACHE_FILENAME);
 
     if (!existsSync(cachePath)) {
       return null;
@@ -2551,8 +2811,8 @@ export class Transport {
 
     // Check staleness
     const fileStat = await stat(cachePath);
-    if (Date.now() - fileStat.mtime.getTime() > PATCH_CACHE_MAX_AGE_MS) {
-      this.logger.debug('patch_cache_stale', { ageMs: Date.now() - fileStat.mtime.getTime() });
+    if (Date.now() - fileStat.mtime.getTime() > LIVE_PATCH_CACHE_MAX_AGE_MS) {
+      this.logger.debug('live_patch_cache_stale', { ageMs: Date.now() - fileStat.mtime.getTime() });
       return null;
     }
 
@@ -2566,8 +2826,8 @@ export class Transport {
     return { data: parsed.data, tag: parsed.tag };
   }
 
-  private async saveCachedPatches(result: { data: string[]; tag: string }): Promise<void> {
-    const cachePath = join(process.cwd(), PATCH_CACHE_FILENAME);
+  private async saveCachedLivePatches(result: { data: string[]; tag: string }): Promise<void> {
+    const cachePath = join(process.cwd(), LIVE_PATCH_CACHE_FILENAME);
     await writeFile(cachePath, JSON.stringify({ data: result.data, tag: result.tag }), 'utf-8');
   }
 

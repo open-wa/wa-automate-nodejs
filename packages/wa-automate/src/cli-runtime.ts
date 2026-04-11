@@ -53,7 +53,7 @@ function attachLaunchNarration(
 
     on('launch.patch.init.before', (event: any) => {
         if (event?.details?.phase === 'preload') {
-            sink.status({ phase: 'launch.patch', sessionId, detail: `Preparing live patches (source=${event?.details?.source ?? 'builtin'})` });
+            sink.status({ phase: 'launch.patch', sessionId, detail: 'Downloading patches from CDN...' });
         }
     });
 
@@ -62,7 +62,16 @@ function attachLaunchNarration(
             const source = event?.details?.source ?? 'unknown';
             const tag = event?.details?.tag ? ` tag=${event.details.tag}` : '';
             const available = Array.isArray(event?.details?.available) ? event.details.available.length : 0;
-            sink.write({ level: 'info', message: `Patch preload ready (source=${source}, available=${available}${tag})` });
+            const durationMs = event?.durationMs;
+            const durationStr = durationMs ? ` in ${(durationMs / 1000).toFixed(2)}s` : '';
+            sink.write({ level: 'info', message: `Downloaded patches${durationStr} (source=${source}, available=${available}${tag})` });
+        }
+    });
+
+    on('patch.init.before', (event: any) => {
+        if (event?.details?.phase === 'apply') {
+            const count = Array.isArray(event?.details?.patchIds) ? event.details.patchIds.length : 0;
+            sink.status({ phase: 'launch.patch', sessionId, detail: `Installing patches (${count} queued)` });
         }
     });
 
@@ -75,6 +84,20 @@ function attachLaunchNarration(
             level: event?.details?.outcome === 'failed' ? 'warn' : 'info',
             message: `Patch ${event?.details?.patchId ?? 'unknown'}: ${event?.details?.outcome ?? (event?.details?.applied ? 'applied' : 'unknown')}${event?.details?.detail ? ` — ${event.details.detail}` : ''}`,
         });
+    });
+
+    on('patch.init.after', (event: any) => {
+        if (event?.details?.phase === 'apply') {
+            const applied = Array.isArray(event?.details?.applied) ? event.details.applied : [];
+            const outcome = event?.details?.outcome ?? 'unknown';
+            const tag = applied.length > 0 ? applied.join(', ') : outcome;
+            const durationMs = event?.durationMs;
+            const durationStr = durationMs ? ` in ${(durationMs / 1000).toFixed(2)}s` : '';
+            sink.write({
+                level: event?.details?.blockingFailure ? 'warn' : 'info',
+                message: `Patches Installed${durationStr}: ${tag}`,
+            });
+        }
     });
 
     on('launch.patch.integrity.before', () => {
@@ -517,7 +540,16 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         }
     });
 
-    await client.start();
+    try {
+      await client.start();
+    } catch (startError) {
+      const msg = startError instanceof Error ? startError.message : String(startError);
+      sink.write({ level: 'error', message: `Bootstrap failed: ${msg}` });
+      sink.write({ level: 'warn', message: 'Session kept alive for debugging. Browser page is still open.' });
+      sink.write({ level: 'warn', message: 'The server is running — use /health and /api-docs to inspect state.' });
+      detachLaunchNarration();
+      return { server, client, config, events: openwaClient.events };
+    }
 
     const readiness = openwaClient.getReadiness();
     sink.status({

@@ -596,21 +596,65 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         ripeSessionLoaded: postAuthRuntime.ripeSessionLoaded,
       });
 
-      /**
-       * CDN PATCHES SHOULD BE INJECTED BEFORE THE RUNTIME EVENTS ARE REGISTERED. WHY? OTHERWISE THEY WILL BE USING OLD BROKEN WAPI CODE. THE POINT OF PATCHES.JSON FROM THE CDN IS TO BASICALLY FIX EVERYTHING WRONG WITH THE WAPI.JS FILE
-       */
+      // Bridge bindings registration is deferred to AFTER live patches complete.
+      // The replacement observer (OpenWA_RuntimeReplacementDetected) must not fire
+      // before live patches are applied, and ensureRuntimeBridge() must not wire
+      // onStateChanged to an unpatched WAPI.
+      // See Phase 1 registration below, after live_patch_sequence_complete.
 
-      try {
-        await transport.configureRuntimeEventBridge();
-      } catch (error) {
-        return emitFatalBootstrapError('bootstrap.runtime_bridge', error);
-      }
+      // Capability-only validation: verify runtime/store/session are alive but
+      // do NOT check bridge integrity — the bridge is not yet wired to WAPI.
+      // Using validateRuntimeCapabilityOnly avoids probeBrokenMethodIntegrity()
+      // which would prematurely call ensureRuntimeBridge() and wire unpatched WAPI.
+      const postAuthRuntimeCapability = await transport.validateRuntimeCapabilityOnly('post_injection');
 
-      const postAuthRuntimeCapability = await runValidationStage('post_injection', {
-        correlationId: 'bootstrap-post-auth-runtime-validation',
-        allowRepair: true,
-        invalidScope: 'bootstrap.auth.runtime_validation',
+      session.recordValidation({
+        stage: 'post_injection',
+        attempt: 1,
+        usable: postAuthRuntimeCapability.usable,
+        repairable: postAuthRuntimeCapability.repairable,
+        repaired: false,
+        checkedAt: Date.now(),
+        failureReason: postAuthRuntimeCapability.failureReason,
+        capability: {
+          hasRuntime: postAuthRuntimeCapability.hasRuntime,
+          hasStoreMsg: postAuthRuntimeCapability.hasStoreMsg,
+          sessionLoaded: postAuthRuntimeCapability.sessionLoaded,
+        },
       });
+
+      if (!postAuthRuntimeCapability.usable) {
+        // Attempt repair: reinject the runtime
+        try {
+          await transport.repairRuntimeIntegrity(postAuthRuntimeCapability.failureReason ?? 'runtime_missing');
+        } catch (repairError) {
+          return emitFatalBootstrapError('bootstrap.auth.runtime_validation', repairError);
+        }
+
+        // Re-validate after repair (capability-only — bridge still not wired)
+        const revalidated = await transport.validateRuntimeCapabilityOnly('post_injection');
+        session.recordValidation({
+          stage: 'post_injection',
+          attempt: 2,
+          usable: revalidated.usable,
+          repairable: revalidated.repairable,
+          repaired: true,
+          checkedAt: Date.now(),
+          failureReason: revalidated.failureReason,
+          capability: {
+            hasRuntime: revalidated.hasRuntime,
+            hasStoreMsg: revalidated.hasStoreMsg,
+            sessionLoaded: revalidated.sessionLoaded,
+          },
+        });
+
+        if (!revalidated.usable) {
+          return emitFatalBootstrapError(
+            'bootstrap.auth.runtime_validation',
+            new Error(`Post-injection capability validation failed after repair: ${revalidated.failureReason ?? 'unknown_failure'}`)
+          );
+        }
+      }
 
       // ── Store Settle Gate (Option C) ──────────────
       // Wait for window.Store.Msg to settle before marking readiness satisfied.
@@ -668,50 +712,85 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         // Continue without debug info — preload methods will fall back gracefully
       }
 
-      const patchPreloadPromise = transport.preloadPatchArtifacts({ sessionInfo: sessionDebugInfo });
+      const livePatchPreloadPromise = transport.preloadLivePatchArtifacts({ sessionInfo: sessionDebugInfo });
       const licensePreloadPromise = transport.preloadLicenseArtifact({
         sessionId,
         licenseKey: options.licenseKey,
         sessionInfo: sessionDebugInfo,
       });
 
-      const patchPreload = await patchPreloadPromise.catch((error) =>
-        emitFatalBootstrapError('bootstrap.patch.preload', error)
+      const livePatchPreload = await livePatchPreloadPromise.catch((error) =>
+        emitFatalBootstrapError('bootstrap.live_patch.preload', error)
       );
-      logger.info('patch_artifacts_preloaded', {
-        outcome: patchPreload.outcome,
-        source: patchPreload.source,
-        tag: patchPreload.tag,
-        artifactCount: patchPreload.artifacts.length,
+      logger.info('live_patch_artifacts_preloaded', {
+        outcome: livePatchPreload.outcome,
+        source: livePatchPreload.source,
+        tag: livePatchPreload.tag,
+        artifactCount: livePatchPreload.artifacts.length,
       });
 
-      const patchApply = await transport.applyPatchArtifacts(patchPreload).catch((error) =>
-        emitFatalBootstrapError('bootstrap.patch.apply', error)
+      const livePatchApply = await transport.applyLivePatchArtifacts(livePatchPreload).catch((error) =>
+        emitFatalBootstrapError('bootstrap.live_patch.apply', error)
       );
 
-      if (patchApply.blockingFailure) {
-        const blockingPatch = patchApply.results.find((result) => result.required && result.outcome !== 'applied');
+      if (livePatchApply.blockingFailure) {
+        const blockingPatch = livePatchApply.results.find((result) => result.required && result.outcome !== 'applied');
         await emitFatalBootstrapError(
-          'bootstrap.patch.lifecycle',
-          new Error(blockingPatch?.detail ?? 'Required patch lifecycle did not complete successfully')
+          'bootstrap.live_patch.lifecycle',
+          new Error(blockingPatch?.detail ?? 'Required live patch lifecycle did not complete successfully')
         );
       }
 
-      events.emit('launch.patch.integrity.before', {
-        correlationId: 'bootstrap-post-patch-integrity',
-        ts: Date.now(),
-        step: 'patch_integrity',
-        details: { phase: 'post_patch' },
+      /**
+       * Phase 1 (post-live-patch): Register Node-side persistent bindings.
+       * This MUST happen after live patches are applied because the replacement
+       * observer (OpenWA_RuntimeReplacementDetected) would trigger recovery
+       * that overwrites the live-patched WAPI.
+       *
+       * NOTE: This only registers Node-side bindings (exposeFunction etc.).
+       * The actual bridge wiring (ensureRuntimeBridge → onStateChanged, etc.)
+       * is deferred to Phase 2 (activateRuntimeEventBridge) which runs AFTER
+       * init patch, matching the v4 order: patches → license → init → loaded.
+       */
+      try {
+        await transport.registerRuntimeEventBridgeBindings();
+      } catch (error) {
+        return emitFatalBootstrapError('bootstrap.runtime_bridge_registration', error);
+      }
+
+      // ── Post-patch capability validation ──────────────
+      // Check runtime/store/session capability ONLY — do NOT wire the bridge yet.
+      // In v4, event listeners (onStateChanged etc.) are wired in client.loaded()
+      // which runs AFTER init patch. The full bridge wiring happens at Phase 2
+      // (activateRuntimeEventBridge) below, after init patch has been applied.
+      // Using validateRuntimeCapabilityOnly prevents ensureRuntimeBridge() from
+      // prematurely calling onStateChanged before Store.State is ready.
+      const postPatchCapability = await transport.validateRuntimeCapabilityOnly('post_patch');
+
+      session.recordValidation({
+        stage: 'post_patch',
+        attempt: 1,
+        usable: postPatchCapability.usable,
+        repairable: postPatchCapability.repairable,
+        repaired: false,
+        checkedAt: Date.now(),
+        failureReason: postPatchCapability.failureReason,
+        capability: {
+          hasRuntime: postPatchCapability.hasRuntime,
+          hasStoreMsg: postPatchCapability.hasStoreMsg,
+          sessionLoaded: postPatchCapability.sessionLoaded,
+        },
       });
 
-      const postPatchIntegrity = await runValidationStage('post_patch', {
-        correlationId: 'bootstrap-post-patch-integrity',
-        allowRepair: false,
-        invalidScope: 'bootstrap.patch.integrity',
-      });
+      if (!postPatchCapability.usable) {
+        return emitFatalBootstrapError(
+          'bootstrap.patch.integrity',
+          new Error(`Post-patch capability validation failed: ${postPatchCapability.failureReason ?? 'unknown_failure'}`)
+        );
+      }
 
       logger.info('post_patch_runtime_validated', {
-        ...postPatchIntegrity,
+        ...postPatchCapability,
         validationPhase: 'post_patch_pre_license',
       });
 
@@ -721,9 +800,9 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         step: 'patch_integrity',
         details: {
           phase: 'post_patch',
-          valid: postPatchIntegrity.usable,
-          usable: postPatchIntegrity.usable,
-          failureReason: postPatchIntegrity.failureReason,
+          valid: postPatchCapability.usable,
+          usable: postPatchCapability.usable,
+          failureReason: postPatchCapability.failureReason,
         },
       });
 
@@ -793,9 +872,20 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         );
       }
 
-      const combinedPatchResults = [...patchApply.results, ...initPatchApply.results];
-      const combinedPatchApplied = [...patchApply.applied, ...initPatchApply.applied];
-      const combinedPatchOutcome = patchApply.outcome === 'failed' || initPatchApply.outcome === 'failed'
+      // ── Phase 2: Activate runtime event bridge (post-init-patch) ──────────────
+      // Wire listeners to WAPI methods (onStateChanged, onAnyMessage, etc.).
+      // This is the FIRST bridge wiring point — post_patch validation above only
+      // checks capability, not bridge integrity. This matches the v4 order where
+      // event listeners are wired in client.loaded() AFTER init patch.
+      try {
+        await transport.activateRuntimeEventBridge();
+      } catch (error) {
+        return emitFatalBootstrapError('bootstrap.runtime_bridge_activation', error);
+      }
+
+      const combinedPatchResults = [...livePatchApply.results, ...initPatchApply.results];
+      const combinedPatchApplied = [...livePatchApply.applied, ...initPatchApply.applied];
+      const combinedPatchOutcome = livePatchApply.outcome === 'failed' || initPatchApply.outcome === 'failed'
         ? 'failed'
         : combinedPatchApplied.length > 0
           ? 'applied'
