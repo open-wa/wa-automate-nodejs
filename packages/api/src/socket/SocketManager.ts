@@ -1,5 +1,5 @@
 import { Server as SocketIOServer } from 'socket.io';
-import { z, getHttpMethodDefinitions } from '@open-wa/schema';
+import { getHttpMethodDefinitions } from '@open-wa/schema';
 import '@open-wa/schema/methods';
 import { normalizeMethodPayload } from '../compat/args';
 import { invokeClientMethod } from '../invoke-client-method';
@@ -63,27 +63,28 @@ export class SocketManager {
     const methods = getHttpMethodDefinitions();
 
     methods.forEach((def) => {
-      socket.on(def.functionName, async (data: any, callback: Function) => {
-        try {
-          const normalized = normalizeMethodPayload(def, data);
-          const validated =
-            def.inputSchema instanceof z.ZodObject ? def.inputSchema.parse(normalized) : normalized;
+      for (const invocationName of def.invocationNames) {
+        socket.on(invocationName, async (data: any, callback: Function) => {
+          try {
+            const normalized = normalizeMethodPayload(def, data);
+            const validated = await def.inputSchema.parseAsync(normalized);
 
-          const result = await invokeClientMethod(this.client, def, validated);
+            const result = await invokeClientMethod(this.client, def, validated);
 
-          if (typeof callback === 'function') {
-            callback({ success: true, data: result });
+            if (typeof callback === 'function') {
+              callback({ success: true, data: result });
+            }
+          } catch (error: any) {
+            if (typeof callback === 'function') {
+              callback({
+                success: false,
+                error: error instanceof Error ? error.message : String(error),
+                details: error?.errors,
+              });
+            }
           }
-        } catch (error: any) {
-          if (typeof callback === 'function') {
-            callback({
-              success: false,
-              error: error instanceof Error ? error.message : String(error),
-              details: error?.errors,
-            });
-          }
-        }
-      });
+        });
+      }
     });
   }
 

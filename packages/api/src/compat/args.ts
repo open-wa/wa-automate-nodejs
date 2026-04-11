@@ -1,4 +1,4 @@
-import { z, type HttpMethodDefinition } from '@open-wa/schema';
+import { normalizeParameterKeys, z, type HttpMethodDefinition } from '@open-wa/schema';
 
 function mapArrayArgs(def: HttpMethodDefinition, args: unknown[]): Record<string, unknown> {
   return def.parameterOrder.reduce<Record<string, unknown>>((acc, key, index) => {
@@ -12,7 +12,7 @@ function mapArrayArgs(def: HttpMethodDefinition, args: unknown[]): Record<string
 
 export function normalizeMethodPayload(def: HttpMethodDefinition, payload: unknown): unknown {
   if (Array.isArray(payload)) {
-    return mapArrayArgs(def, payload);
+    return normalizeParameterKeys(mapArrayArgs(def, payload), def.keyAliasMap);
   }
 
   if (!payload || typeof payload !== 'object') {
@@ -25,16 +25,16 @@ export function normalizeMethodPayload(def: HttpMethodDefinition, payload: unkno
     const args = record.args;
 
     if (Array.isArray(args)) {
-      return mapArrayArgs(def, args);
+      return normalizeParameterKeys(mapArrayArgs(def, args), def.keyAliasMap);
     }
 
     if (args && typeof args === 'object') {
-      return args;
+      return normalizeParameterKeys(args, def.keyAliasMap);
     }
   }
 
   if (record.input && typeof record.input === 'object' && !Array.isArray(record.input)) {
-    return record.input;
+    return normalizeParameterKeys(record.input, def.keyAliasMap);
   }
 
   if (def.inputSchema instanceof z.ZodObject) {
@@ -44,9 +44,9 @@ export function normalizeMethodPayload(def: HttpMethodDefinition, payload: unkno
     );
 
     if (Object.keys(filtered).length > 0) {
-      return filtered;
+      return normalizeParameterKeys(filtered, def.keyAliasMap);
     }
   }
 
-  return record;
+  return normalizeParameterKeys(record, def.keyAliasMap);
 }

@@ -1,6 +1,7 @@
 export interface ClientMethodDefinitionLike {
   functionName: string;
   parameterOrder: string[];
+  wapiOverride?: string;
 }
 
 export async function invokeClientMethod(
@@ -12,7 +13,7 @@ export async function invokeClientMethod(
     throw new Error('Client not initialized');
   }
 
-  const method = client[def.functionName];
+  const method = client[def.functionName] ?? (def.wapiOverride ? client[def.wapiOverride] : undefined);
 
   if (typeof method !== 'function') {
     throw new Error(`Method ${def.functionName} not implemented on Client`);

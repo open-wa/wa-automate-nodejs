@@ -120,10 +120,14 @@ export function registerMetaRoutes(
     return c.json(
       options.methodDefinitions.map((def) => ({
         method: def.functionName,
+        namespacedName: def.namespacedName,
         namespace: def.namespace,
         description: def.description,
         path: def.path,
         parameterOrder: def.parameterOrder,
+        aliases: def.aliases,
+        aliasRoutes: def.aliasRoutes,
+        routeSignatures: def.routeSignatures,
       }))
     );
   });
