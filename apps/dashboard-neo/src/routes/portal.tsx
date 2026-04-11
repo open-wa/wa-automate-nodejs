@@ -41,12 +41,12 @@ function PortalPage() {
     // Capture initial dimensions from wrapper
     let maxWidth = 1280
     let maxHeight = 720
-    if (wrapperRef.current) {
-      const rect = wrapperRef.current.getBoundingClientRect()
-      // Reduce dimensions slightly to account for margins/padding if needed
-      maxWidth = Math.floor(rect.width) || maxWidth
-      maxHeight = Math.floor(rect.height) || maxHeight
-    }
+    // if (wrapperRef.current) {
+    //   const rect = wrapperRef.current.getBoundingClientRect()
+    //   // Reduce dimensions slightly to account for margins/padding if needed
+    //   maxWidth = Math.floor(rect.width) || maxWidth
+    //   maxHeight = Math.floor(rect.height) || maxHeight
+    // }
 
     const wsUrl = getApiUrl().replace(/^http/, "ws") + "/screencast"
     const client = new ScreencastClient({ 

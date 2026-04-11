@@ -83,4 +83,5 @@ apps/*/src/**/*.map
 .switchboard/kanban.db
 .switchboard/*.db-shm
 .switchboard/*.db-wal
+.switchboard/**/*
 **.docx
