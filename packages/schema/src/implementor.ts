@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { clientRegistry } from './registry';
+import { buildKeyAliasMap, clientRegistry, normalizeParameterKeys } from './registry';
 
 /**
  * Creates a runtime method from a Zod Function Schema.
@@ -31,8 +31,9 @@ export function implementMethod<
     }
 
     const meta = def.meta;
+    const keyAliasMap = buildKeyAliasMap(meta.inputSchema.shape);
 
-    return schema.implementAsync(async function (this: any, ...args: any[]) {
+    return (async function (this: any, ...args: any[]) {
         let resolvedParams: any = {};
 
         if (args.length === 1 && typeof args[0] === 'object' && !Array.isArray(args[0])) {
@@ -46,8 +47,15 @@ export function implementMethod<
             }, {} as any);
         }
 
+        const normalizedParams = normalizeParameterKeys(resolvedParams, keyAliasMap);
+        const validatedParams = await meta.inputSchema.parseAsync(normalizedParams);
+
         if (implementation) {
-            return await implementation.call(this, resolvedParams);
+            return await implementation.call(this, validatedParams);
+        }
+
+        if (this && typeof this.execute === 'function') {
+            return await this.execute(meta.wapiOverride || meta.functionName, validatedParams);
         }
 
         if (!this || typeof this.pup !== 'function') {
@@ -56,9 +64,9 @@ export function implementMethod<
 
         return await this.pup(
             (params: any) => (window as any).WAPI[meta.wapiOverride || meta.functionName](params),
-            resolvedParams
+            validatedParams
         );
-    });
+    }) as (...args: Parameters<z.infer<Schema>>) => Promise<ReturnType<z.infer<Schema>>>;
 }
 
 /**

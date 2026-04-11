@@ -57,7 +57,7 @@ export type {
   InferOutput,
 } from '@open-wa/schema';
 
-export type { BaseClient } from '@open-wa/schema/generated';
+export type { BaseClient, BaseNamespacedClient } from '@open-wa/schema/generated';
 
 // === Value re-exports (enums, constants needed at type-level) ===
 export {

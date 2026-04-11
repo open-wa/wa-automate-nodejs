@@ -1,8 +1,5 @@
 import { z } from 'zod';
-import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 import { ActionType, LicenseTier, FunctionalityScope, HttpMethod } from './enums';
-
-extendZodWithOpenApi(z as any);
 
 // ============================================================================
 // Legacy Registry (Kept for backward compatibility)
@@ -96,6 +93,10 @@ export interface ClientFunctionMetadata {
     functionality?: FunctionalityScope; // Default to 'both'
     httpMethod?: HttpMethod; // Defaults to 'AUTO'
     parameterOrder: string[]; // Critical for mapping positional args to object keys
+    aliases?: AliasMetadata;
+    namespacedName?: string;
+    allAliases?: string[];
+    deprecatedAliases?: string[];
     
     // Stored directly for generator access
     inputSchema: z.ZodObject<any>;
@@ -124,28 +125,256 @@ export type OpenWAMethodSchema<
  * Used for documentation and example generation
  */
 export interface ParameterMetadata {
-    example?: any; // Example value for the parameter
+    example: string | number | boolean | string[];
+    brandedType?: string;
+    formatDescription?: string;
+    pattern?: string;
+    additionalExamples?: Record<string, string>;
+    keyAliases?: string[];
+    deprecatedKeyAliases?: string[];
 }
 
-/**
- * Global registry for parameter metadata using WeakMap
- */
-const parameterMetadataMap = new WeakMap<z.ZodTypeAny, ParameterMetadata>();
+export interface AliasMetadata {
+    verb?: string;
+    noun?: string;
+    extra?: string;
+    explicit?: string[];
+    deprecated?: string[];
+    namespacedName?: string;
+}
 
-export const parameterRegistry = {
-    set<T extends z.ZodTypeAny>(schema: T, metadata: ParameterMetadata): T {
-        parameterMetadataMap.set(schema, metadata);
-        return schema;
-    },
-    get<T extends z.ZodTypeAny>(schema: T): ParameterMetadata | undefined {
-        return parameterMetadataMap.get(schema);
-    }
+export const parameterRegistry = z.registry<ParameterMetadata>();
+
+const STRIP_NAMESPACE_NOUN = true;
+
+const namespaceNounMap: Record<string, string[]> = {
+    chats: ['Chats', 'Chat'],
+    messages: ['Messages', 'Message'],
+    contacts: ['Contacts', 'Contact'],
+    groups: ['Groups', 'Group'],
+    communities: ['Communities', 'Community'],
+    status: ['Statuses', 'Status'],
+    labels: ['Labels', 'Label'],
+    business: ['Businesses', 'Business'],
+    media: ['Media'],
+    session: ['Session'],
 };
+
+function uniqueStrings(values: Array<string | undefined>): string[] {
+    const seen = new Set<string>();
+    const result: string[] = [];
+
+    for (const value of values) {
+        if (!value) {
+            continue;
+        }
+
+        const normalized = value.trim();
+        if (!normalized || seen.has(normalized)) {
+            continue;
+        }
+
+        seen.add(normalized);
+        result.push(normalized);
+    }
+
+    return result;
+}
+
+function getNamespaceNouns(namespace?: string): string[] {
+    if (!namespace) {
+        return [];
+    }
+
+    return namespaceNounMap[namespace] ?? [namespace.charAt(0).toUpperCase() + namespace.slice(1)];
+}
+
+export function deriveNamespacedMethodName(functionName: string, namespace?: string): string {
+    if (!namespace || !STRIP_NAMESPACE_NOUN) {
+        return functionName;
+    }
+
+    const nouns = getNamespaceNouns(namespace).sort((left, right) => right.length - left.length);
+
+    for (const noun of nouns) {
+        if (functionName.endsWith(noun)) {
+            const stripped = functionName.slice(0, -noun.length);
+            if (stripped) {
+                return stripped;
+            }
+        }
+    }
+
+    for (const noun of nouns) {
+        const index = functionName.indexOf(noun);
+        if (index > 0) {
+            const stripped = `${functionName.slice(0, index)}${functionName.slice(index + noun.length)}`;
+            if (stripped) {
+                return stripped;
+            }
+        }
+    }
+
+    return functionName;
+}
+
+function isFlatAlias(alias: string): boolean {
+    return !alias.includes('.');
+}
+
+function toNamespacedAlias(alias: string, namespace?: string): string | undefined {
+    if (!namespace) {
+        return undefined;
+    }
+
+    if (alias.includes('.')) {
+        return alias;
+    }
+
+    return `${namespace}.${deriveNamespacedMethodName(alias, namespace)}`;
+}
+
+function getResolvedNamespacedName(meta: ClientFunctionMetadata): string {
+    return meta.aliases?.namespacedName ?? deriveNamespacedMethodName(meta.functionName, meta.namespace);
+}
+
+function getFlatAliases(meta: ClientFunctionMetadata): { aliases: string[]; deprecated: string[] } {
+    const explicit = uniqueStrings(meta.aliases?.explicit ?? []);
+    const deprecated = uniqueStrings(meta.aliases?.deprecated ?? []);
+    const aliases: string[] = [...explicit, ...deprecated];
+
+    if (meta.functionName.startsWith('getAll')) {
+        const suffix = meta.functionName.slice('getAll'.length);
+        if (suffix) {
+            aliases.push(`list${suffix}`);
+        }
+    }
+
+    return {
+        aliases: uniqueStrings(aliases),
+        deprecated,
+    };
+}
+
+export function getMethodAliases(meta: ClientFunctionMetadata): string[] {
+    const namespace = meta.namespace;
+    const namespacedName = getResolvedNamespacedName(meta);
+    const defaultNamespacedName = deriveNamespacedMethodName(meta.functionName, namespace);
+    const namespacedAliases = namespace ? [`${namespace}.${namespacedName}`] : [];
+
+    if (namespace && defaultNamespacedName !== namespacedName) {
+        namespacedAliases.push(`${namespace}.${defaultNamespacedName}`);
+    }
+
+    const { aliases: flatAliases } = getFlatAliases(meta);
+    const derivedNamespacedAliases = flatAliases
+        .map((alias) => toNamespacedAlias(alias, namespace))
+        .filter((alias): alias is string => Boolean(alias));
+
+    if (namespace && meta.functionName.startsWith('getAll')) {
+        namespacedAliases.push(`${namespace}.all`);
+        namespacedAliases.push(`${namespace}.list`);
+    }
+
+    return uniqueStrings([
+        ...flatAliases,
+        ...namespacedAliases,
+        ...derivedNamespacedAliases,
+    ]).filter((alias) => alias !== meta.functionName);
+}
+
+function getDeprecatedAliases(meta: ClientFunctionMetadata): string[] {
+    const namespace = meta.namespace;
+    const deprecated = uniqueStrings(meta.aliases?.deprecated ?? []);
+
+    return uniqueStrings([
+        ...deprecated,
+        ...deprecated
+            .map((alias) => toNamespacedAlias(alias, namespace))
+            .filter((alias): alias is string => Boolean(alias)),
+    ]);
+}
+
+function unwrapSchema(schema: z.ZodTypeAny): z.ZodTypeAny {
+    let current = schema;
+
+    while (true) {
+        const candidate = current as {
+            unwrap?: () => z.ZodTypeAny;
+            removeDefault?: () => z.ZodTypeAny;
+            _def?: { innerType?: z.ZodTypeAny };
+        };
+
+        if (parameterRegistry.get(current)) {
+            return current;
+        }
+
+        if (typeof candidate.unwrap === 'function') {
+            current = candidate.unwrap();
+            continue;
+        }
+
+        if (typeof candidate.removeDefault === 'function') {
+            current = candidate.removeDefault();
+            continue;
+        }
+
+        if (candidate._def?.innerType) {
+            current = candidate._def.innerType;
+            continue;
+        }
+
+        return current;
+    }
+}
+
+export function getParameterMetadata(schema: z.ZodTypeAny): ParameterMetadata | undefined {
+    return parameterRegistry.get(schema) ?? parameterRegistry.get(unwrapSchema(schema));
+}
+
+export function buildKeyAliasMap(inputShape: Record<string, z.ZodTypeAny>): Record<string, string> {
+    const keyAliasMap: Record<string, string> = {};
+
+    for (const [canonicalKey, schema] of Object.entries(inputShape)) {
+        const metadata = getParameterMetadata(schema);
+
+        for (const alias of metadata?.keyAliases ?? []) {
+            keyAliasMap[alias] = canonicalKey;
+        }
+
+        for (const alias of metadata?.deprecatedKeyAliases ?? []) {
+            keyAliasMap[alias] = canonicalKey;
+        }
+    }
+
+    return keyAliasMap;
+}
+
+export function normalizeParameterKeys(
+    data: unknown,
+    keyAliasMap: Record<string, string>
+): unknown {
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+        return data;
+    }
+
+    const normalized: Record<string, unknown> = {};
+
+    for (const [key, value] of Object.entries(data)) {
+        const canonicalKey = keyAliasMap[key] ?? key;
+        if (!(canonicalKey in normalized)) {
+            normalized[canonicalKey] = value;
+        }
+    }
+
+    return normalized;
+}
 
 /**
  * Primary registry: keyed by function name
  */
 const methodsByName = new Map<string, MethodDefinition>();
+const methodsByAlias = new Map<string, string>();
 
 /**
  * Reverse lookup: for implementMethod() ergonomics
@@ -164,6 +393,21 @@ export const clientRegistry = {
         if (methodsByName.has(name)) {
             throw new Error(`Method "${name}" already registered`);
         }
+
+        def.meta.namespacedName = getResolvedNamespacedName(def.meta);
+        def.meta.allAliases = getMethodAliases(def.meta);
+        def.meta.deprecatedAliases = getDeprecatedAliases(def.meta);
+
+        for (const alias of def.meta.allAliases) {
+            const existing = methodsByAlias.get(alias);
+            if (existing && existing !== name) {
+                throw new Error(
+                    `Alias collision: "${alias}" is claimed by both "${existing}" and "${name}"`
+                );
+            }
+
+            methodsByAlias.set(alias, name);
+        }
         
         methodsByName.set(name, def);
         nameBySchema.set(def.schema, name);
@@ -176,6 +420,11 @@ export const clientRegistry = {
      */
     get(name: string): MethodDefinition | undefined {
         return methodsByName.get(name);
+    },
+
+    resolve(nameOrAlias: string): MethodDefinition | undefined {
+        const primary = methodsByAlias.get(nameOrAlias) ?? nameOrAlias;
+        return methodsByName.get(primary);
     },
     
     /**
@@ -206,6 +455,10 @@ export const clientRegistry = {
     getNames(): string[] {
         return Array.from(methodsByName.keys());
     },
+
+    getAliasMap(): Record<string, string> {
+        return Object.fromEntries(methodsByAlias.entries());
+    },
     
     /**
      * Get methods by namespace
@@ -219,6 +472,7 @@ export const clientRegistry = {
      */
     clear(): void {
         methodsByName.clear();
+        methodsByAlias.clear();
     }
 };
 
