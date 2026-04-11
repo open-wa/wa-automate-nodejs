@@ -182,24 +182,24 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     events,
     logger,
     waWebUrl: options.waWebUrl,
-      headless: options.headless,
-      qrTimeoutMs: options.qrTimeoutMs,
-      authTimeoutMs: options.authTimeoutMs,
-      oorTimeoutMs: options.oorTimeoutMs,
-      navigationTimeoutMs: options.navigationTimeoutMs,
-      executablePath: options.executablePath,
-      browserArgs: options.browserArgs,
-      userDataDir: options.userDataDir,
-      linkCode: options.linkCode,
-      qrMax: options.qrMax,
-      ignoreNuke: options.ignoreNuke,
-      logConsole: options.logConsole,
-      logConsoleErrors: options.logConsoleErrors,
-      blockCrashLogs: options.blockCrashLogs,
-      blockAssets: options.blockAssets,
-      safeMode: options.safeMode,
-      patchConfig: options.patchConfig,
-      licenseConfig: options.licenseConfig,
+    headless: options.headless,
+    qrTimeoutMs: options.qrTimeoutMs,
+    authTimeoutMs: options.authTimeoutMs,
+    oorTimeoutMs: options.oorTimeoutMs,
+    navigationTimeoutMs: options.navigationTimeoutMs,
+    executablePath: options.executablePath,
+    browserArgs: options.browserArgs,
+    userDataDir: options.userDataDir,
+    linkCode: options.linkCode,
+    qrMax: options.qrMax,
+    ignoreNuke: options.ignoreNuke,
+    logConsole: options.logConsole,
+    logConsoleErrors: options.logConsoleErrors,
+    blockCrashLogs: options.blockCrashLogs,
+    blockAssets: options.blockAssets,
+    safeMode: options.safeMode,
+    patchConfig: options.patchConfig,
+    licenseConfig: options.licenseConfig,
   });
 
   const pluginHost = new PluginHost(events, logger);
@@ -362,16 +362,16 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
               phase: stage,
               valid: result.usable,
               usable: result.usable,
-                hasRuntime: result.hasRuntime,
-                hasStore: result.hasStoreMsg,
-                hasMsg: result.hasStoreMsg,
-                sessionLoaded: result.sessionLoaded,
-                bridgeReady: result.bridgeReady,
-                requiredMethods: result.requiredMethods,
-                missingMethods: result.missingMethods,
-                repairable: result.repairable,
-                repaired,
-                failureReason: result.failureReason,
+              hasRuntime: result.hasRuntime,
+              hasStore: result.hasStoreMsg,
+              hasMsg: result.hasStoreMsg,
+              sessionLoaded: result.sessionLoaded,
+              bridgeReady: result.bridgeReady,
+              requiredMethods: result.requiredMethods,
+              missingMethods: result.missingMethods,
+              repairable: result.repairable,
+              repaired,
+              failureReason: result.failureReason,
             },
           });
 
@@ -529,6 +529,11 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         });
       }
 
+      logger.info('bootstrap_sequence_started', {
+        sessionId,
+        usePatch: !!options.patchConfig,
+      });
+
       const authResult = await transport.waitForAuthentication({ attemptingReauth });
       if (authResult.outcome === 'qr_timeout') {
         emitFailedFinalization('QR scan took too long. Increase qrTimeout or set qrTimeout=0 to wait forever.');
@@ -591,6 +596,10 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         ripeSessionLoaded: postAuthRuntime.ripeSessionLoaded,
       });
 
+      /**
+       * CDN PATCHES SHOULD BE INJECTED BEFORE THE RUNTIME EVENTS ARE REGISTERED. WHY? OTHERWISE THEY WILL BE USING OLD BROKEN WAPI CODE. THE POINT OF PATCHES.JSON FROM THE CDN IS TO BASICALLY FIX EVERYTHING WRONG WITH THE WAPI.JS FILE
+       */
+
       try {
         await transport.configureRuntimeEventBridge();
       } catch (error) {
@@ -603,12 +612,38 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         invalidScope: 'bootstrap.auth.runtime_validation',
       });
 
+      // ── Store Settle Gate (Option C) ──────────────
+      // Wait for window.Store.Msg to settle before marking readiness satisfied.
+      // This matches legacy v4 robustness and prevents store_missing failures at post_patch.
+      let storeMsgAvailable = postAuthRuntimeCapability.hasStoreMsg;
+      if (!storeMsgAvailable) {
+        logger.info('store_settle_gate_started', {
+          timeoutMs: 15000,
+          reason: 'Store.Msg missing after post-auth validation',
+        });
+        storeMsgAvailable = await transport.waitForStoreMsg(15000);
+      }
+
+      if (!storeMsgAvailable) {
+        const storeKeys = await transport.getStoreKeys().catch(() => []);
+        logger.error('store_settle_gate_timeout', {
+          availableKeys: storeKeys,
+          message: 'Timed out waiting for Store.Msg to settle.',
+        });
+        return emitFatalBootstrapError(
+          'bootstrap.store_settle',
+          new Error(`Store.Msg not available after 15s store-settle window. Available Store keys: ${storeKeys.join(', ')}`)
+        );
+      } else {
+        logger.info('store_settle_gate_satisfied');
+      }
+
       session.updateReadiness(
         'runtimeUsable',
         'satisfied',
         deferredPreAuthRuntimeIntegrity
-          ? 'Authenticated runtime validation proved usable capability after the deferred pre-auth integrity check'
-          : 'Authenticated runtime validation proved usable capability after runtime bridge registration'
+          ? 'Authenticated runtime validation proved usable capability after the deferred pre-auth integrity check and store-settle gate'
+          : 'Authenticated runtime validation proved usable capability after runtime bridge registration and store-settle gate'
       );
 
       logger.info('runtime_activation_ready', {
@@ -643,6 +678,13 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       const patchPreload = await patchPreloadPromise.catch((error) =>
         emitFatalBootstrapError('bootstrap.patch.preload', error)
       );
+      logger.info('patch_artifacts_preloaded', {
+        outcome: patchPreload.outcome,
+        source: patchPreload.source,
+        tag: patchPreload.tag,
+        artifactCount: patchPreload.artifacts.length,
+      });
+
       const patchApply = await transport.applyPatchArtifacts(patchPreload).catch((error) =>
         emitFatalBootstrapError('bootstrap.patch.apply', error)
       );
@@ -837,6 +879,9 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       events.emit('client.ready', { sessionId });
 
       logger.info('client_ready', { sessionId });
+      logger.info('bootstrap_finalized', {
+        sessionId,
+      });
     },
 
     async stop(reason?: string) {
@@ -851,19 +896,19 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       logger.info('client_stopped', { sessionId, reason });
     },
 
-      getState() {
-        return session.getState();
-      },
+    getState() {
+      return session.getState();
+    },
 
-      getReadiness() {
-        return getReadinessSnapshot();
-      },
+    getReadiness() {
+      return getReadinessSnapshot();
+    },
 
-      getTransport() {
-        return transport;
-      },
+    getTransport() {
+      return transport;
+    },
 
-      async screenshot() {
+    async screenshot() {
       const page = transport.getPage();
       if (!page || page.isClosed()) return null;
       return page.screenshot({ fullPage: true });

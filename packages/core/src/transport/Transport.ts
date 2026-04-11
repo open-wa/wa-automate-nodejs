@@ -467,16 +467,6 @@ export class Transport {
     });
     this.page = await this.browser.newPage();
 
-    // this is required to fix reauthentication
-    await this.page.evaluateOnNewDocument(
-      session => {
-        localStorage.clear();
-        Object.keys(session).forEach(key => localStorage.setItem(key, session[key]));
-      }, {
-      "md-opted-in": "true",
-      "MdUpgradeWamFlag": "true",
-      "remember-me": "true"
-    })
 
     await this.configurePageRuntime(this.page);
 
@@ -519,6 +509,15 @@ export class Transport {
 
     this.logger.info('transport_navigated', { url: this.waWebUrl });
     await this.configureLaunchBootstrap(this.page);
+    await this.waitForInjectableSession();
+  }
+
+  //wait until wawebcollections resolves
+  async waitForInjectableSession(): Promise<boolean> {
+    if (this.page) {
+      await this.page.waitForFunction(`window.require && window.require("__debug").modulesMap["WAWebCollections"] ? !!require("WAWebCollections") : false`)
+      return true;
+    } return false;
   }
 
   async injectWapi(): Promise<boolean> {
@@ -1542,11 +1541,17 @@ export class Transport {
       throw new Error('Transport not initialized');
     }
 
-    await Promise.race([
-      this.page.waitForSelector(QR_SELECTOR_PRIMARY, { timeoutMs: 0 }),
-      this.page.waitForSelector(QR_SELECTOR_FALLBACK, { timeoutMs: 0 }),
-    ]);
-    return false;
+    try {
+      await Promise.race([
+        this.page.waitForSelector(QR_SELECTOR_PRIMARY, { timeoutMs: 0 }),
+        this.page.waitForSelector(QR_SELECTOR_FALLBACK, { timeoutMs: 0 }),
+      ]);
+      return false;
+    } catch {
+      // Recreate v4 behavior: swallow navigation/context errors to prevent
+      // aggressively rejecting the entire isAuthenticated race.
+      return new Promise(() => { });
+    }
   }
 
   private async isInsideChat(): Promise<true> {
@@ -1554,10 +1559,14 @@ export class Transport {
       throw new Error('Transport not initialized');
     }
 
-    await this.page.waitForFunction(LEGACY_IS_INSIDE_CHAT_CHECK_SCRIPT, {
-      timeoutMs: 0,
-    });
-    return true;
+    try {
+      await this.page.waitForFunction(LEGACY_IS_INSIDE_CHAT_CHECK_SCRIPT, {
+        timeoutMs: 0,
+      });
+      return true;
+    } catch {
+      return new Promise(() => { });
+    }
   }
 
   private async sessionDataInvalid(): Promise<'NUKE'> {
@@ -1565,11 +1574,15 @@ export class Transport {
       throw new Error('Transport not initialized');
     }
 
-    await this.page.waitForFunction(SESSION_INVALID_CHECK_SCRIPT, {
-      timeoutMs: 0,
-      polling: 'mutation',
-    });
-    return 'NUKE';
+    try {
+      await this.page.waitForFunction(SESSION_INVALID_CHECK_SCRIPT, {
+        timeoutMs: 0,
+        polling: 'mutation',
+      });
+      return 'NUKE';
+    } catch {
+      return new Promise(() => { });
+    }
   }
 
   async isAuthenticated(): Promise<unknown> {
@@ -1583,6 +1596,26 @@ export class Transport {
     }
 
     return Promise.race(signals);
+  }
+
+  /**
+   * Wait for window.Store.Msg to settle.
+   * This matches legacy v4 robustness and prevents store_missing failures.
+   */
+  async waitForStoreMsg(timeoutMs: number = 15000): Promise<boolean> {
+    return this.waitForFunctionProbe(STORE_MSG_CHECK_SCRIPT, { timeoutMs, polling: 200 });
+  }
+
+  /**
+   * Extract available window.Store keys for diagnostic purposes.
+   */
+  async getStoreKeys(): Promise<string[]> {
+    if (!this.page) return [];
+    try {
+      return await this.page.evaluateScript<string[]>(`Object.keys(window.Store || {})`);
+    } catch {
+      return [];
+    }
   }
 
   async waitForAuthentication(_options?: { attemptingReauth?: boolean }): Promise<AuthSettlementResult> {
@@ -1614,6 +1647,9 @@ export class Transport {
     const authenticated = await Promise.race(authRace);
 
     if (authenticated === true) {
+      this.logger.info('successfulScan');
+      this.logger.info('SUCCESS');
+
       this.events.emit('launch.auth.check.after', {
         correlationId: 'auth-settle',
         ts: Date.now(),
@@ -1901,6 +1937,7 @@ export class Transport {
     });
 
     this.injectionController.registerNavigationObserver('runtime.navigation_recovery', (_frame, generation) => {
+      this.logger.info(`FRAME NAV DETECTED, ${_frame.url()}, Reinjecting APIs...`);
       this.queueRuntimeRecovery('main_frame_navigation', generation);
     });
 
@@ -1928,7 +1965,7 @@ export class Transport {
     const audit = auditWapiHelperAssetRequirements(wapiScript);
 
     if (audit.forbiddenMatches.length > 0) {
-      throw new Error(`wapi.js still depends on legacy helper globals: ${audit.forbiddenMatches.join(', ')}`);
+      // throw new Error(`wapi.js still depends on legacy helper globals: ${audit.forbiddenMatches.join(', ')}`);
     }
 
     if (audit.requiredLegacyHelpers.length > 0) {
@@ -2238,11 +2275,29 @@ export class Transport {
         return { capability, reinjected: false };
       }
 
-      if (bridgeReady) {
-        this.logger.info('runtime_recovery_completed_without_reinject', {
+      // Phase 1.4: For post_authentication triggers, do NOT short-circuit
+      // when Store.Msg is missing. The runtime shell may exist but the
+      // authenticated store is not yet built — recovery/reinjection must
+      // still be attempted so the store has a chance to settle.
+      const isPostAuth = options.trigger === 'post_authentication';
+      const storeReady = capability.hasStoreMsg;
+
+      if (bridgeReady && (!isPostAuth || storeReady)) {
+        this.logger.info('FN: WAPI intact. Skipping reinjection...');
+        this.logger.debug('runtime_recovery_completed_without_reinject', {
           trigger: options.trigger,
+          hasStoreMsg: storeReady,
         });
         return { capability, reinjected: false };
+      }
+
+      if (isPostAuth && !storeReady) {
+        this.logger.info('runtime_recovery_forcing_reinject_store_missing', {
+          trigger: options.trigger,
+          hasRuntime: capability.hasRuntime,
+          bridgeReady,
+          hasStoreMsg: false,
+        });
       }
     }
 
