@@ -21,11 +21,11 @@ import { injectInitPatch, injectInternalEventHandler } from './init_patch'
 import { earlyInjectionCheck, getLicense, getPatch, getAndInjectLivePatch, getAndInjectLicense } from './patch_manager';
 import { log, setupLogging } from '../logging/logging';
 
-export const pkg = readJsonSync(path.join(__dirname,'../../package.json')),
-configWithCases = readJsonSync(path.join(__dirname,'../../bin/config-schema.json')),
-timeout : (ms: number) => Promise<string> = (ms : number) => {
-  return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
-}
+export const pkg = readJsonSync(path.join(__dirname, '../../package.json')),
+  configWithCases = readJsonSync(path.join(__dirname, '../../bin/config-schema.json')),
+  timeout: (ms: number) => Promise<string> = (ms: number) => {
+    return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
+  }
 
 export let screenshot;
 
@@ -50,68 +50,68 @@ export let screenshot;
 //@ts-ignore
 export async function create(config: AdvancedConfig | ConfigObject = {}): Promise<Client> {
   const START_TIME = Date.now();
-  if(config.logging) {
-    if(Array.isArray(config?.logging))
-    config.logging = setupLogging(config?.logging, `owa-${config?.sessionId || 'session'}`)
+  if (config.logging) {
+    if (Array.isArray(config?.logging))
+      config.logging = setupLogging(config?.logging, `owa-${config?.sessionId || 'session'}`)
   }
   let waPage = undefined;
   let notifier;
   let sessionId = '';
   let customUserAgent;
 
-  if(!config || config?.eventMode!==false) {
+  if (!config || config?.eventMode !== false) {
     config.eventMode = true
   }
-  
-  if(config?.waitForRipeSession !== false) config.waitForRipeSession = true;
-  if(config?.multiDevice !== false) config.multiDevice = true;
-  if(config?.deleteSessionDataOnLogout !== false) config.deleteSessionDataOnLogout = true;
 
-  if(!config?.skipUpdateCheck || config?.keepUpdated) {
+  if (config?.waitForRipeSession !== false) config.waitForRipeSession = true;
+  if (config?.multiDevice !== false) config.multiDevice = true;
+  if (config?.deleteSessionDataOnLogout !== false) config.deleteSessionDataOnLogout = true;
+
+  if (!config?.skipUpdateCheck || config?.keepUpdated) {
     notifier = await updateNotifier({
       pkg,
       updateCheckInterval: 0
     });
     notifier.notify();
-    if(notifier?.update && config?.keepUpdated && notifier?.update.latest !== pkg.version) {
+    if (notifier?.update && config?.keepUpdated && notifier?.update.latest !== pkg.version) {
       console.log('UPDATING @OPEN-WA')
       log.info('UPDATING @OPEN-WA')
       const crossSpawn = await import('cross-spawn')
-      
+
       const result = crossSpawn.sync('npm', ['i', '@open-wa/wa-automate'], { stdio: 'inherit' });
-      if(!result.stderr) {
-          console.log('UPDATED SUCCESSFULLY')
-          log.info('UPDATED SUCCESSFULLY')
+      if (!result.stderr) {
+        console.log('UPDATED SUCCESSFULLY')
+        log.info('UPDATED SUCCESSFULLY')
       }
       console.log('RESTARTING PROCESS')
       log.info('RESTARTING PROCESS')
       process.on("exit", function () {
         crossSpawn.spawn(process.argv.shift(), process.argv, {
-            cwd: process.cwd(),
-            detached : true,
-            stdio: "inherit"
+          cwd: process.cwd(),
+          detached: true,
+          stdio: "inherit"
         });
-    });
-    process.exit();
+      });
+      process.exit();
     }
   }
 
-  if(config?.inDocker) {
+  if (config?.inDocker) {
     //try to infer config variables from process.env
     config = {
       ...config,
       ...getConfigFromProcessEnv(configWithCases)
+    }
+    config.chromiumArgs = config?.chromiumArgs || [];
+    customUserAgent = config.customUserAgent;
   }
-  config.chromiumArgs = config?.chromiumArgs || [];
-  customUserAgent = config.customUserAgent;
-  }
-  if(sessionId ===  '' || config?.sessionId) sessionId = config?.sessionId || 'session';
+  if (sessionId === '' || config?.sessionId) sessionId = config?.sessionId || 'session';
 
   const prettyFont = CFonts.render(('@OPEN-WA|WHATSAPP|AUTOMATOR'), {
     font: '3d',
     color: 'candy',
     align: 'center',
-    gradient: ["red","#f80"],
+    gradient: ["red", "#f80"],
     lineHeight: 3
   });
 
@@ -120,10 +120,10 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
     `${pkg.description}`, //.replace(' 💬 🤖 ','')
     `Version: ${pkg.version}   `,
     `Check out the latest changes: https://github.com/open-wa/wa-automate-nodejs#latest-changes   `,
-  ].join('\n'), {padding: 1, borderColor: 'yellow', borderStyle: 'bold'}) : prettyFont.string)
-  
-  if(config?.popup) {
-    const {popup} = await import('./popup')
+  ].join('\n'), { padding: 1, borderColor: 'yellow', borderStyle: 'bold' }) : prettyFont.string)
+
+  if (config?.popup) {
+    const { popup } = await import('./popup')
     const popupaddr = await popup(config);
     console.log(`You can also authenticate the session at: ${popupaddr}`)
     log.info(`You can also authenticate the session at: ${popupaddr}`)
@@ -133,24 +133,24 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
   const qrManager = new QRManager(config);
   const RAM_INFO = `Total: ${parseFloat(`${os.totalmem() / 1000000000}`).toFixed(2)} GB | Free: ${parseFloat(`${os.freemem() / 1000000000}`).toFixed(2)} GB`
   log.info("RAM INFO", RAM_INFO)
-  const PPTR_VERSION = readJsonSync(require.resolve("puppeteer/package.json"), {throws:false})?.version || "UNKNOWN";
+  const PPTR_VERSION = readJsonSync(require.resolve("puppeteer/package.json"), { throws: false })?.version || "UNKNOWN";
   log.info("PPTR VERSION INFO", PPTR_VERSION)
   try {
-    if(typeof config === 'string') console.error("AS OF VERSION 3+ YOU CAN NO LONGER SET THE SESSION ID AS THE FIRST PARAMETER OF CREATE. CREATE CAN ONLY TAKE A CONFIG OBJECT. IF YOU STILL HAVE CONFIGS AS A SECOND PARAMETER, THEY WILL HAVE NO EFFECT! PLEASE SEE DOCS.")
+    if (typeof config === 'string') console.error("AS OF VERSION 3+ YOU CAN NO LONGER SET THE SESSION ID AS THE FIRST PARAMETER OF CREATE. CREATE CAN ONLY TAKE A CONFIG OBJECT. IF YOU STILL HAVE CONFIGS AS A SECOND PARAMETER, THEY WILL HAVE NO EFFECT! PLEASE SEE DOCS.")
     spinner.start('Starting');
     spinner.succeed(`Version: ${pkg.version}`);
     spinner.info(`Initializing WA`);
     /**
      * Check if the IGNORE folder exists, therefore, assume that the session is MD.
      */
-    const mdDir = config["userDataDir"] ||  `${config?.sessionDataPath || (config?.inDocker ? '/sessions' : config?.sessionDataPath || '.') }/_IGNORE_${config?.sessionId || 'session'}`
-    if(process.env.AUTO_MD && fs.existsSync(mdDir) && !config?.multiDevice) {
+    const mdDir = config["userDataDir"] || `${config?.sessionDataPath || (config?.inDocker ? '/sessions' : config?.sessionDataPath || '.')}/_IGNORE_${config?.sessionId || 'session'}`
+    if (process.env.AUTO_MD && fs.existsSync(mdDir) && !config?.multiDevice) {
       spinner.info(`Multi-Device directory detected. multiDevice set to true.`);
       config.multiDevice = true;
     }
-    if(config?.multiDevice && config?.chromiumArgs) spinner.info(`Using custom chromium args with multi device will cause issues! Please remove them: ${config?.chromiumArgs}`);
-    if(config?.multiDevice && !config?.useChrome) spinner.info(`It is recommended to set useChrome: true or use the --use-chrome flag if you are experiencing issues with Multi device support`);
-    waPage = await initPage(sessionId, config, qrManager,  customUserAgent, spinner);
+    if (config?.multiDevice && config?.chromiumArgs) spinner.info(`Using custom chromium args with multi device will cause issues! Please remove them: ${config?.chromiumArgs}`);
+    if (config?.multiDevice && !config?.useChrome) spinner.info(`It is recommended to set useChrome: true or use the --use-chrome flag if you are experiencing issues with Multi device support`);
+    waPage = await initPage(sessionId, config, qrManager, customUserAgent, spinner);
     spinner.succeed('Page loaded');
     const browserLaunchedTs = now();
     const throwOnError = config && config.throwErrorOnTosBlock == true;
@@ -162,28 +162,28 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
     const screenshotPath = `./logs/${config.sessionId || 'session'}/${START_TS}`
     screenshot = async (page: Page) => {
       await page.screenshot({
-        path:`${screenshotPath}/${Date.now()}.jpg`
-    }).catch(()=>{
-      fs.mkdirSync(screenshotPath, {recursive: true});
-      return screenshot(page)
-    });
-    console.log('Screenshot taken. path:', `${screenshotPath}`)
+        path: `${screenshotPath}/${Date.now()}.jpg`
+      }).catch(() => {
+        fs.mkdirSync(screenshotPath, { recursive: true });
+        return screenshot(page)
+      });
+      console.log('Screenshot taken. path:', `${screenshotPath}`)
     }
-    
-    if(config?.screenshotOnInitializationBrowserError) waPage.on('console', async msg => {
+
+    if (config?.screenshotOnInitializationBrowserError) waPage.on('console', async msg => {
       for (let i = 0; i < msg.args().length; ++i)
         console.log(`${i}: ${msg.args()[i]}`);
-      if(msg.type() === 'error' && !msg.text().includes('apify') && !msg.text().includes('crashlogs')) await screenshot(waPage)
+      if (msg.type() === 'error' && !msg.text().includes('apify') && !msg.text().includes('crashlogs')) await screenshot(waPage)
     });
 
     const WA_AUTOMATE_VERSION = `${pkg.version}${notifier?.update && (notifier?.update.latest !== pkg.version) ? ` UPDATE AVAILABLE: ${notifier?.update.latest}` : ''}`;
-    
+
     await waPage.waitForFunction('window.Debug!=undefined && window.Debug.VERSION!=undefined && require');
     //@ts-ignore
     const WA_VERSION = await waPage.evaluate(() => window.Debug ? window.Debug.VERSION : 'I think you have been TOS_BLOCKed')
     const canInjectEarly = await earlyInjectionCheck(waPage as Page)
     const attemptingReauth = await waPage.evaluate(`!!(localStorage['WAToken2'] || localStorage['last-wid-md'])`)
-    let debugInfo : SessionInfo = {
+    let debugInfo: SessionInfo = {
       WA_VERSION,
       PAGE_UA,
       WA_AUTOMATE_VERSION,
@@ -193,28 +193,28 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
       RAM_INFO,
       PPTR_VERSION
     };
-    if(config?.logDebugInfoAsObject || config?.disableSpins) spinner.succeed(`Debug info: ${JSON.stringify(debugInfo, null, 2)}`);
-     else {
+    if (config?.logDebugInfoAsObject || config?.disableSpins) spinner.succeed(`Debug info: ${JSON.stringify(debugInfo, null, 2)}`);
+    else {
       console.table(debugInfo);
       log.info('Debug info:', debugInfo);
-     }
-     debugInfo.LATEST_VERSION = !(notifier?.update && (notifier?.update.latest !== pkg.version))
-     debugInfo.CLI = process.env.OWA_CLI && true || false
-     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-     spinner.succeed('Use this easy pre-filled link to report an issue: ' + generateGHIssueLink(config,debugInfo));
-     spinner.info(`Time to injection: ${(now() - browserLaunchedTs).toFixed(0)     }ms`);
-     /**
-      * Atempt to avoid invariant violations
-      */
-     const invariantAviodanceTs = now();
+    }
+    debugInfo.LATEST_VERSION = !(notifier?.update && (notifier?.update.latest !== pkg.version))
+    debugInfo.CLI = process.env.OWA_CLI && true || false
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    spinner.succeed('Use this easy pre-filled link to report an issue: ' + generateGHIssueLink(config, debugInfo));
+    spinner.info(`Time to injection: ${(now() - browserLaunchedTs).toFixed(0)}ms`);
+    /**
+     * Atempt to avoid invariant violations
+     */
+    const invariantAviodanceTs = now();
     await Promise.race([
-    (waPage as Page).waitForFunction(`(()=>{return require && require("__debug").modulesMap["WAWebCollections"] ? true : false})()`, {timeout: 10000}).catch(()=>{}), //modules are loaded
-    (waPage as Page).waitForFunction(`[...document.getElementsByTagName('div')].filter(x=>x.dataset && x.dataset.testid)[0]?.dataset?.testid === 'qrcode'`, {timeout: 10000}).catch(()=>{}), //qr code is loaded
-    (waPage as Page).waitForFunction(`document.getElementsByTagName('circle').length===1`, {timeout: 10000}).catch(()=>{}) //qr spinner is present
+      (waPage as Page).waitForFunction(`(()=>{return require && require("__debug").modulesMap["WAWebCollections"] ? true : false})()`, { timeout: 10000 }).catch(() => { }), //modules are loaded
+      (waPage as Page).waitForFunction(`[...document.getElementsByTagName('div')].filter(x=>x.dataset && x.dataset.testid)[0]?.dataset?.testid === 'qrcode'`, { timeout: 10000 }).catch(() => { }), //qr code is loaded
+      (waPage as Page).waitForFunction(`document.getElementsByTagName('circle').length===1`, { timeout: 10000 }).catch(() => { }) //qr spinner is present
     ])
-    spinner.info(`Invariant Violation Avoidance: ${(now() - invariantAviodanceTs).toFixed(0)     }ms`);
+    spinner.info(`Invariant Violation Avoidance: ${(now() - invariantAviodanceTs).toFixed(0)}ms`);
     if (canInjectEarly) {
-      if(attemptingReauth) await waPage.evaluate(`window.Store = {"Msg": true}`)
+      if (attemptingReauth) await waPage.evaluate(`window.Store = {"Msg": true}`)
       spinner.start('Injecting api');
       waPage = await injectApi(waPage, spinner);
       spinner.start('WAPI injected');
@@ -225,44 +225,44 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
 
     spinner.start('Authenticating');
     const authRace = [];
-    authRace.push(isAuthenticated(waPage).catch(()=>{}))
-    if (config?.authTimeout!==0) {
+    authRace.push(isAuthenticated(waPage).catch(() => { }))
+    if (config?.authTimeout !== 0) {
       authRace.push(timeout((config.authTimeout || config.multiDevice ? 120 : 60) * 1000))
     }
 
     const authenticated = await Promise.race(authRace);
-    if(authenticated==='NUKE' && !config?.ignoreNuke) {
+    if (authenticated === 'NUKE' && !config?.ignoreNuke) {
       //kill the browser
       spinner.fail("Session data most likely expired due to manual host account logout. Please re-authenticate this session.")
       await kill(waPage)
-      if(config?.deleteSessionDataOnLogout) await deleteSessionData(config)
-      if(config?.throwOnExpiredSessionData) {
+      if (config?.deleteSessionDataOnLogout) await deleteSessionData(config)
+      if (config?.throwOnExpiredSessionData) {
         throw new SessionExpiredError();
       } else
-      //restart the process with no session data
-      return create({
-        ...config,
-        sessionData: authenticated
-      })
+        //restart the process with no session data
+        return create({
+          ...config,
+          sessionData: authenticated
+        })
     }
 
 
     /**
      * Attempt to preload the license
      */
-     const earlyWid = await waPage.evaluate(`(localStorage["last-wid"] || '').replace(/"/g,"")`);
-     const licensePromise = getLicense(config,{
-       _serialized: earlyWid
-     },debugInfo,spinner)
+    const earlyWid = await waPage.evaluate(`(localStorage["last-wid"] || '').replace(/"/g,"")`);
+    const licensePromise = getLicense(config, {
+      _serialized: earlyWid
+    }, debugInfo, spinner)
 
     if (authenticated == 'timeout') {
-      const oorProms : Promise<boolean | string>[] = [phoneIsOutOfReach(waPage)];
-      if(config?.oorTimeout!== 0) oorProms.push(timeout((config?.oorTimeout || 60) * 1000))
-      const outOfReach : string | boolean = await Promise.race(oorProms) as any
+      const oorProms: Promise<boolean | string>[] = [phoneIsOutOfReach(waPage)];
+      if (config?.oorTimeout !== 0) oorProms.push(timeout((config?.oorTimeout || 60) * 1000))
+      const outOfReach: string | boolean = await Promise.race(oorProms) as any
       spinner.emit(outOfReach && outOfReach !== 'timeout' ? 'appOffline' : 'authTimeout');
       spinner.fail(outOfReach && outOfReach !== 'timeout' ? 'Authentication timed out. Please open the app on the phone. Shutting down' : 'Authentication timed out. Shutting down. Consider increasing authTimeout config variable: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#authtimeout');
       await kill(waPage);
-      if(config?.killProcessOnTimeout) process.exit()
+      if (config?.killProcessOnTimeout) process.exit()
       throw new Error(outOfReach ? 'App Offline' : 'Auth Timeout. Consider increasing authTimeout config variable: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#authtimeout');
     }
 
@@ -271,16 +271,16 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
     } else {
       spinner.info('Authenticate to continue');
       const race = [];
-      if(config?.linkCode) {
+      if (config?.linkCode) {
         race.push(qrManager.linkCode(waPage, config, spinner))
       } else race.push(qrManager.smartQr(waPage, config, spinner))
-      if (config?.qrTimeout!==0) {
+      if (config?.qrTimeout !== 0) {
         let to = (config?.qrTimeout || 60) * 1000
-        if(config?.multiDevice) to = to * 2
+        if (config?.multiDevice) to = to * 2
         race.push(timeout(to))
       }
       const result = await Promise.race(race);
-      if(result === "MULTI_DEVICE_DETECTED" && !config?.multiDevice) {
+      if (result === "MULTI_DEVICE_DETECTED" && !config?.multiDevice) {
         await kill(waPage)
         return create({
           ...config,
@@ -291,21 +291,21 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
         spinner.emit('qrTimeout');
         spinner.fail('QR scan took too long. Session Timed Out. Shutting down. Consider increasing qrTimeout config variable: https://open-wa.github.io/wa-automate-nodejs/interfaces/configobject.html#qrtimeout');
         await kill(waPage);
-        if(config?.killProcessOnTimeout) process.exit()
+        if (config?.killProcessOnTimeout) process.exit()
         throw new Error('QR Timeout');
       }
       spinner.emit('successfulScan');
       spinner.succeed();
     }
-    if(config.logInternalEvents) await waPage.evaluate("debugEvents=true")
+    if (config.logInternalEvents) await waPage.evaluate("debugEvents=true")
     await waPage.evaluate("window.critlis=true")
-    const tI = await timePromise(()=> injectInternalEventHandler(waPage))
+    const tI = await timePromise(() => injectInternalEventHandler(waPage))
     log.info(`Injected internal event handler: ${tI} ms`)
-    if(attemptingReauth) {
+    if (attemptingReauth) {
       await waPage.evaluate("window.Store = undefined")
-      if(config?.waitForRipeSession) {
+      if (config?.waitForRipeSession) {
         spinner.start("Waiting for ripe session....")
-        if(await waitForRipeSession(waPage, config?.waitForRipeSessionTimeout)) spinner.succeed("Session ready for injection");
+        if (await waitForRipeSession(waPage, config?.waitForRipeSessionTimeout)) spinner.succeed("Session ready for injection");
         else spinner.fail("You may experience issues in headless mode. Continuing...")
       }
     }
@@ -317,13 +317,13 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
     if (canInjectEarly) {
       //check if page is valid after 5 seconds
       spinner.start('Checking if session is valid');
-      if(config?.safeMode) {
+      if (config?.safeMode) {
         await timeout(5000);
         await injectApi(waPage, spinner, true)
       }
     }
     //@ts-ignore
-    const VALID_SESSION = await waPage.waitForFunction(`window.Store && window.Store.Msg ? true : false`,{ timeout: 9000, polling: 200 }).catch(async e=>{
+    const VALID_SESSION = await waPage.waitForFunction(`window.Store && window.Store.Msg ? true : false`, { timeout: 9000, polling: 200 }).catch(async e => {
       log.error("Valid session check failed", e)
       return false;
     })
@@ -336,9 +336,9 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
       const localStorage = JSON.parse(await waPage.evaluate(() => {
         return JSON.stringify(window.localStorage);
       }));
-      const stdSessionJsonPath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(process.cwd(),config?.sessionDataPath || '')) : path.join(path.resolve(process.cwd(),config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
+      const stdSessionJsonPath = (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(process.cwd(), config?.sessionDataPath || '')) : path.join(path.resolve(process.cwd(), config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
       const altMainModulePath = require?.main?.path || process?.mainModule?.path;
-      const altSessionJsonPath = !altMainModulePath ? null : (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(altMainModulePath,config?.sessionDataPath || '')) : path.join(path.resolve(altMainModulePath,config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
+      const altSessionJsonPath = !altMainModulePath ? null : (config?.sessionDataPath && config?.sessionDataPath.includes('.data.json')) ? path.join(path.resolve(altMainModulePath, config?.sessionDataPath || '')) : path.join(path.resolve(altMainModulePath, config?.sessionDataPath || ''), `${sessionId || 'session'}.data.json`);
       const sessionjsonpath = altSessionJsonPath && fs.existsSync(altSessionJsonPath) ? altSessionJsonPath : stdSessionJsonPath;
       const sessionData = {
         WABrowserId: localStorage.WABrowserId,
@@ -346,7 +346,7 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
         WAToken1: localStorage.WAToken1,
         WAToken2: localStorage.WAToken2
       };
-      if(config.multiDevice) {
+      if (config.multiDevice) {
         delete sessionData.WABrowserId;
         log.info("Multi-device detected. Removing Browser ID from session data to prevent session reauth corruption")
       }
@@ -355,10 +355,10 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
       spinner.emit(sessionData, "sessionData");
       spinner.emit(sdB64, "sessionDataBase64");
 
-      if(!config?.skipSessionSave) fs.writeFile(sessionjsonpath, sdB64, (err) => {
+      if (!config?.skipSessionSave) fs.writeFile(sessionjsonpath, sdB64, (err) => {
         if (err) { console.error(err); return; }
       });
-      if(config?.sessionDataBucketAuth) {
+      if (config?.sessionDataBucketAuth) {
         try {
           spinner?.info('Uploading new session data to cloud storage..')
           await upload({
@@ -375,30 +375,30 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
       /**
        * Set page-level logging
        */
-       waPage.on('console', msg => {
+      waPage.on('console', msg => {
         if (config?.logConsole) console.log(msg)
         log.info('Page Console:', msg.text())
-       });
-       waPage.on('error', error => {
+      });
+      waPage.on('error', error => {
         if (config?.logConsoleErrors) console.error(error)
         log.error('Page Console Error:', error.message || error?.text())
-       });
+      });
       if (config?.restartOnCrash) waPage.on('error', async error => {
         console.error('Page Crashed! Restarting...', error);
         await kill(waPage);
         await create(config).then(config.restartOnCrash);
       });
       const pureWAPI = await checkWAPIHash();
-      if(!pureWAPI) {
+      if (!pureWAPI) {
         config.skipBrokenMethodsCheck = true;
         // config.skipPatches = true;
       }
-      if(config?.hostNotificationLang){
+      if (config?.hostNotificationLang) {
         await waPage.evaluate(`window.hostlang="${config.hostNotificationLang}"`)
       }
       //patch issues with wapi.js
-      if (!config?.skipPatches){
-        await getAndInjectLivePatch(waPage,spinner, await patchPromise, config, debugInfo)
+      if (!config?.skipPatches) {
+        await getAndInjectLivePatch(waPage, spinner, await patchPromise, config, debugInfo)
         debugInfo.OW_KEY = await waPage.evaluate(`window.o()`);
       }
       const NUM = (await waPage.evaluate(`(window.moi() || "").replace('@c.us','').replace(/"/g,"")`) || "");
@@ -406,39 +406,39 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
       debugInfo.NUM_HASH = createHash('md5').update(NUM, 'utf8').digest('hex')
       if (config?.skipBrokenMethodsCheck !== true) await integrityCheck(waPage, notifier, spinner, debugInfo);
       const LAUNCH_TIME_MS = Date.now() - START_TIME;
-      debugInfo = {...debugInfo, LAUNCH_TIME_MS};
+      debugInfo = { ...debugInfo, LAUNCH_TIME_MS };
       spinner.emit(debugInfo, "DebugInfo");
       //@ts-ignore
-      const metrics = await waPage.evaluate(({config}) => WAPI.launchMetrics(config), {config});
-      const purgedMessage = metrics?.purged ? Object.entries(metrics.purged).filter(([,e])=>Number(e)>0).map(([k,e])=>`${e} ${k}`).join(" and ") : "";
-      if(metrics.isMd && !config?.multiDevice) spinner.info("!!!Please set multiDevice: true in the config or use the --mutli-Device flag!!!")
-      spinner.succeed(`Client loaded for ${metrics.isBiz ? "business" : "normal"} account ${metrics.isMd && "[MD] " || ''}with ${metrics.contacts} contacts, ${metrics.chats} chats & ${metrics.messages} messages ${purgedMessage ? `+ purged ${purgedMessage} ` : ``}in ${LAUNCH_TIME_MS/1000}s`);
+      const metrics = await waPage.evaluate(({ config }) => WAPI.launchMetrics(config), { config });
+      const purgedMessage = metrics?.purged ? Object.entries(metrics.purged).filter(([, e]) => Number(e) > 0).map(([k, e]) => `${e} ${k}`).join(" and ") : "";
+      if (metrics.isMd && !config?.multiDevice) spinner.info("!!!Please set multiDevice: true in the config or use the --mutli-Device flag!!!")
+      spinner.succeed(`Client loaded for ${metrics.isBiz ? "business" : "normal"} account ${metrics.isMd && "[MD] " || ''}with ${metrics.contacts} contacts, ${metrics.chats} chats & ${metrics.messages} messages ${purgedMessage ? `+ purged ${purgedMessage} ` : ``}in ${LAUNCH_TIME_MS / 1000}s`);
       debugInfo.ACC_TYPE = metrics.isBiz ? "BUSINESS" : "PERSONAL";
-      if(config?.deleteSessionDataOnLogout || config?.killClientOnLogout) config.eventMode = true;
+      if (config?.deleteSessionDataOnLogout || config?.killClientOnLogout) config.eventMode = true;
       const client = new Client(waPage, config, {
         ...debugInfo,
         ...metrics
       });
       const { me } = await client.getMe();
-      const licIndex = process.argv.findIndex(arg=>arg==="--license-key" || arg==="-l");
-      config.licenseKey = config.licenseKey || licIndex !== -1 && process.argv[licIndex+1];
-      if (config?.licenseKey || me._serialized!==earlyWid) {
-         await getAndInjectLicense(waPage, config, me, debugInfo, spinner, me._serialized!==earlyWid ? false : await licensePromise)
+      const licIndex = process.argv.findIndex(arg => arg === "--license-key" || arg === "-l");
+      config.licenseKey = config.licenseKey || licIndex !== -1 && process.argv[licIndex + 1];
+      if (config?.licenseKey || me._serialized !== earlyWid) {
+        await getAndInjectLicense(waPage, config, me, debugInfo, spinner, me._serialized !== earlyWid ? false : await licensePromise)
       }
       spinner.info("Finalizing web session...")
       await injectInitPatch(waPage)
       spinner.info("Finalizing client...")
       await client.loaded();
-      if(config.ensureHeadfulIntegrity && !attemptingReauth) {
+      if (config.ensureHeadfulIntegrity && !attemptingReauth) {
         spinner.info("QR scanned for the first time. Refreshing...")
         await client.refresh();
         spinner.info("Session refreshed.")
       }
       const issueLink = await client.getIssueLink();
-      console.log(boxen("Use the link below to easily report issues:👇👇👇", {padding: 1, borderColor: 'red'}))
+      console.log(boxen("Use the link below to easily report issues:👇👇👇", { padding: 1, borderColor: 'red' }))
       spinner.succeed(issueLink)
       spinner.succeed(`🚀 @OPEN-WA ready for account: ${me.user.slice(-4)}`);
-      if(!debugInfo.CLI && !config.licenseKey) spinner.succeed(`Use this link to get a license: ${await client.getLicenseLink()}`);
+      if (!debugInfo.CLI && !config.licenseKey) spinner.succeed(`Use this link to get a license: ${await client.getLicenseLink()}`);
       spinner.emit('SUCCESS');
       spinner.remove();
       return client;
@@ -453,19 +453,19 @@ export async function create(config: AdvancedConfig | ConfigObject = {}): Promis
   } catch (error) {
     spinner.emit(error.message);
     log.error(error.message);
-    if(error.stack) {
+    if (error.stack) {
       log.error(error.stack);
       console.error(error.stack)
     }
     await kill(waPage);
-    if(error.name === "ProtocolError" && error.message?.includes("Target closed")) {
+    if (error.name === "ProtocolError" && error.message?.includes("Target closed")) {
       spinner.fail(error.message);
       process.exit()
     }
-    if(error.name === "TimeoutError" && config?.multiDevice){
+    if (error.name === "TimeoutError" && config?.multiDevice) {
       spinner.fail(`Please delete the ${config?.userDataDir} folder and any related data.json files and try again. It is highly suggested to set useChrome: true also.`)
     }
-    if(error.name === "TimeoutError" && config?.killProcessOnTimeout) {
+    if (error.name === "TimeoutError" && config?.killProcessOnTimeout) {
       process.exit()
     } else {
       spinner.remove();
