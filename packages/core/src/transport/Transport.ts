@@ -19,6 +19,7 @@ import { InjectionController, type GenerationSnapshot } from './InjectionControl
 import { getProgObserverScript, injectInitPatch } from './initPatchScripts.js';
 import { getRuntimeListenerSurfaceEntry, runtimeListenerSurface } from './runtimeListenerSurface.js';
 import { auditWapiHelperAssetRequirements } from './ScriptLoader.js';
+import { chromiumConfig } from './browserConfig.js';
 
 export interface PatchFetchConfig {
   patchesUrl?: string;
@@ -460,11 +461,22 @@ export class Transport {
     this.browser = await this.driver.launch({
       headless: this.headless,
       executablePath: this.executablePath,
-      args: this.browserArgs,
+      args: [...chromiumConfig.chromiumArgs, ...(this.browserArgs || [])],
       userDataDir: this.userDataDir,
       defaultViewport: null,
     });
     this.page = await this.browser.newPage();
+
+    // this is required to fix reauthentication
+    await this.page.evaluateOnNewDocument(
+      session => {
+        localStorage.clear();
+        Object.keys(session).forEach(key => localStorage.setItem(key, session[key]));
+      }, {
+      "md-opted-in": "true",
+      "MdUpgradeWamFlag": "true",
+      "remember-me": "true"
+    })
 
     await this.configurePageRuntime(this.page);
 

@@ -72,62 +72,67 @@ export type PageEventHandler<K extends keyof IPageEventMap> = IPageEventMap[K] e
 export interface IDriver {
     readonly name: DriverName;
     readonly version?: string;
-    
+
     init(ctx?: IDriverContext): Promise<void>;
     launch(options?: LaunchOptions): Promise<IBrowser>;
     connect(options: ConnectOptions): Promise<IBrowser>;
-    
+
     unwrap(): unknown;
 }
 
 export interface IBrowser {
     readonly name: DriverName;
-    
-    newPage(): Promise<IPage>;
+
+    newPage(options?: {
+        //clears the first page
+        clearFirstPage?: boolean
+    }): Promise<IPage>;
     pages(): Promise<IPage[]>;
     close(): Promise<void>;
     isConnected(): boolean;
     versionString(): Promise<string>;
-    
+
     unwrap(): unknown;
 }
 
 export interface IPage {
     readonly name: DriverName;
-    
+
     goto(url: string, options?: { waitUntil?: NavigationWaitUntil; timeoutMs?: number }): Promise<void>;
     url(): string;
     reload(): Promise<void>;
     mainFrame(): IFrame | null;
-    
+
+    evaluateOnNewDocument<Arg, Ret>(fn: (arg: Arg) => Ret | Promise<Ret>, arg: Arg): Promise<void>;
+
     evaluate<Arg, Ret>(fn: (arg: Arg) => Ret | Promise<Ret>, arg: Arg): Promise<Ret>;
     evaluateScript<Ret = unknown>(script: string): Promise<Ret>;
     addInitScript(script: string): Promise<DisposableHandle>;
-    
+
     setViewport(viewport: { width: number; height: number }): Promise<void>;
     setUserAgent(ua: string): Promise<void>;
     setRequestInterception(enabled: boolean): Promise<void>;
-    
+
     waitForSelector(selector: string, options?: { timeoutMs?: number }): Promise<IElementHandle | null>;
     waitForFunction(script: string, options?: WaitForFunctionOptions): Promise<void>;
     waitForFunction<Arg>(fn: (arg: Arg) => boolean, arg: Arg, options?: WaitForFunctionOptions): Promise<void>;
     $(selector: string): Promise<IElementHandle | null>;
     $$(selector: string): Promise<IElementHandle[]>;
-    
+
     click(selector: string): Promise<void>;
     type(selector: string, text: string, options?: { delayMs?: number }): Promise<void>;
-    
+
     screenshot(options?: { type?: 'png' | 'jpeg'; fullPage?: boolean }): Promise<Uint8Array>;
-    
+
     exposeFunction(name: string, fn: (...args: any[]) => any): Promise<void>;
     on<K extends keyof IPageEventMap>(event: K, handler: PageEventHandler<K>): DisposableHandle;
     on(event: string, handler: (...args: any[]) => void | Promise<void>): DisposableHandle;
     off<K extends keyof IPageEventMap>(event: K, handler: PageEventHandler<K>): void;
     off(event: string, handler: (...args: any[]) => void | Promise<void>): void;
-    
+
     close(): Promise<void>;
     isClosed(): boolean;
-    
+
     unwrap(): unknown;
 }
 

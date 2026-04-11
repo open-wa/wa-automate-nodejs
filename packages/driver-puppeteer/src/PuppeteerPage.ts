@@ -18,7 +18,7 @@ import { PuppeteerElementHandle } from './PuppeteerElementHandle';
 type ListenerWrapper = (...args: any[]) => void | Promise<void>;
 
 class PuppeteerDisposableHandle implements DisposableHandle {
-    constructor(private readonly disposer: () => Promise<void> | void) {}
+    constructor(private readonly disposer: () => Promise<void> | void) { }
 
     dispose(): Promise<void> | void {
         return this.disposer();
@@ -26,7 +26,7 @@ class PuppeteerDisposableHandle implements DisposableHandle {
 }
 
 class PuppeteerFrame implements IFrame {
-    constructor(private readonly frame: Frame, private readonly isMain: boolean) {}
+    constructor(private readonly frame: Frame, private readonly isMain: boolean) { }
 
     url(): string {
         return this.frame.url();
@@ -84,7 +84,7 @@ function enrichWaitError(
 }
 
 class PuppeteerRequest implements IRequest {
-    constructor(private readonly request: HTTPRequest, private readonly page: Page) {}
+    constructor(private readonly request: HTTPRequest, private readonly page: Page) { }
 
     url(): string {
         return this.request.url();
@@ -132,7 +132,7 @@ class PuppeteerRequest implements IRequest {
 }
 
 class PuppeteerConsoleMessage implements IConsoleMessage {
-    constructor(private readonly message: ConsoleMessage) {}
+    constructor(private readonly message: ConsoleMessage) { }
 
     type(): string {
         return this.message.type();
@@ -163,23 +163,23 @@ class PuppeteerConsoleMessage implements IConsoleMessage {
 export class PuppeteerPage implements IPage {
     readonly name = 'puppeteer' as const;
     private readonly listenerWrappers = new Map<string, Map<Function, Set<ListenerWrapper>>>();
-    
+
     constructor(
         private page: Page,
         private capabilities: DriverCapabilities
-    ) {}
-    
+    ) { }
+
     async goto(url: string, options?: { waitUntil?: NavigationWaitUntil; timeoutMs?: number }): Promise<void> {
         await this.page.goto(url, {
             waitUntil: options?.waitUntil as any,
             timeout: options?.timeoutMs,
         });
     }
-    
+
     url(): string {
         return this.page.url();
     }
-    
+
     async reload(): Promise<void> {
         await this.page.reload();
     }
@@ -187,7 +187,14 @@ export class PuppeteerPage implements IPage {
     mainFrame(): IFrame {
         return new PuppeteerFrame(this.page.mainFrame(), true);
     }
-    
+
+    async evaluateOnNewDocument<Arg, Ret>(
+        fn: (arg: Arg) => Ret | Promise<Ret>,
+        arg: Arg
+    ): Promise<void> {
+        await this.page.evaluateOnNewDocument(fn as any, arg as any);
+    }
+
     async evaluate<Arg, Ret>(fn: (arg: Arg) => Ret | Promise<Ret>, arg: Arg): Promise<Ret> {
         try {
             return await this.page.evaluate(fn as any, arg as any) as Ret;
@@ -196,7 +203,7 @@ export class PuppeteerPage implements IPage {
             return enrichEvaluateError('evaluate', fnSource, error);
         }
     }
-    
+
     async evaluateScript<Ret = unknown>(script: string): Promise<Ret> {
         try {
             return await this.page.evaluate(script) as Ret;
@@ -221,11 +228,11 @@ export class PuppeteerPage implements IPage {
             }
         });
     }
-    
+
     async setViewport(viewport: { width: number; height: number }): Promise<void> {
         await this.page.setViewport(viewport);
     }
-    
+
     async setUserAgent(ua: string): Promise<void> {
         await this.page.setUserAgent(ua);
     }
@@ -234,7 +241,7 @@ export class PuppeteerPage implements IPage {
         this.require('requestInterception');
         await this.page.setRequestInterception(enabled);
     }
-    
+
     async waitForSelector(selector: string, options?: { timeoutMs?: number }): Promise<IElementHandle | null> {
         try {
             const element = await this.page.waitForSelector(selector, { timeout: options?.timeoutMs });
@@ -246,7 +253,7 @@ export class PuppeteerPage implements IPage {
             }, error);
         }
     }
-    
+
     async waitForFunction<Arg>(script: string, options?: WaitForFunctionOptions): Promise<void>;
     async waitForFunction<Arg>(fn: (arg: Arg) => boolean, arg: Arg, options?: WaitForFunctionOptions): Promise<void>;
     async waitForFunction<Arg>(fnOrScript: string | ((arg: Arg) => boolean), argOrOptions?: Arg | WaitForFunctionOptions, maybeOptions?: WaitForFunctionOptions): Promise<void> {
@@ -283,30 +290,30 @@ export class PuppeteerPage implements IPage {
             }, error);
         }
     }
-    
+
     async $(selector: string): Promise<IElementHandle | null> {
         const element = await this.page.$(selector);
         return element ? new PuppeteerElementHandle(element) : null;
     }
-    
+
     async $$(selector: string): Promise<IElementHandle[]> {
         const elements = await this.page.$$(selector);
         return elements.map(el => new PuppeteerElementHandle(el));
     }
-    
+
     async click(selector: string): Promise<void> {
         await this.page.click(selector);
     }
-    
+
     async type(selector: string, text: string, options?: { delayMs?: number }): Promise<void> {
         await this.page.type(selector, text, { delay: options?.delayMs });
     }
-    
+
     async screenshot(options?: { type?: 'png' | 'jpeg'; fullPage?: boolean }): Promise<Uint8Array> {
         const buffer = await this.page.screenshot(options);
         return new Uint8Array(buffer);
     }
-    
+
     async exposeFunction(name: string, fn: (...args: any[]) => any): Promise<void> {
         await this.page.exposeFunction(name, fn);
     }
@@ -341,57 +348,56 @@ export class PuppeteerPage implements IPage {
 
         this.listenerWrappers.get(event)?.delete(handler as Function);
     }
-    
+
     async close(): Promise<void> {
         await this.page.close();
     }
-    
+
     isClosed(): boolean {
         return this.page.isClosed();
     }
-    
+
     has<C extends string>(cap: C): boolean {
         return (this.capabilities as any)[cap]?.supported === true;
     }
-    
+
     require<C extends string>(cap: C): void {
         if (!this.has(cap)) {
             const capability = (this.capabilities as any)[cap];
             throw new Error(
-                `Page does not support capability '${cap}'${
-                    capability?.reason ? `: ${capability.reason}` : ''
+                `Page does not support capability '${cap}'${capability?.reason ? `: ${capability.reason}` : ''
                 }`
             );
         }
     }
-    
+
     async cdp(): Promise<CDPSession> {
         this.require('cdp');
         return await this.page.createCDPSession();
     }
-    
+
     async setBypassServiceWorker(bypass: boolean): Promise<void> {
         this.require('serviceWorkerBypass');
         await this.page.setBypassServiceWorker(bypass);
     }
-    
+
     async pdf(options?: { path?: string; format?: string }): Promise<Uint8Array> {
         this.require('pdf');
         const buffer = await this.page.pdf(options as any);
         return new Uint8Array(buffer);
     }
-    
+
     async startTracing(options?: { path?: string; screenshots?: boolean }): Promise<void> {
         this.require('tracing');
         await this.page.tracing.start(options);
     }
-    
+
     async stopTracing(): Promise<Uint8Array> {
         this.require('tracing');
         const buffer = await this.page.tracing.stop();
         return buffer ? new Uint8Array(buffer) : new Uint8Array();
     }
-    
+
     unwrap(): Page {
         return this.page;
     }
