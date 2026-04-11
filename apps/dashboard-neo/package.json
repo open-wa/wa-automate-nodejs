@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev --port 3000",
+    "dev": "VITE_EASY_API_URL=http://localhost:8002 vite dev --port 3000",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",

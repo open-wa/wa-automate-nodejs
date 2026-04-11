@@ -65,7 +65,7 @@ packages/*/generated/
 **/generated/*.map
 
 # Compiled JavaScript files in source directories
-packages/*/src/**/*.js
+# packages/*/src/**/*.js
 packages/*/src/**/*.d.ts
 packages/*/src/**/*.map
 apps/*/src/**/*.js
