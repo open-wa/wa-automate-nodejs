@@ -51,6 +51,11 @@ export class PuppeteerDriver implements IDriver {
             timeout: options?.timeoutMs,
         });
         
+        try {
+            const browserVersion = await browser.version();
+            this.ctx?.logger?.info('Browser executable version', { version: browserVersion });
+        } catch {}
+
         return new PuppeteerBrowser(browser, this.capabilities);
     }
     

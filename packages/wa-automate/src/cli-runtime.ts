@@ -101,12 +101,24 @@ function attachLaunchNarration(
         sink.write({ level: event?.details?.success ? 'info' : 'warn', message: `License inject: ${event?.details?.success ? 'success' : 'failed'}${event?.details?.status ? ` (${event.details.status})` : ''}${event?.details?.detail ? ` — ${event.details.detail}` : ''}` });
     });
 
+    on('launch.auth.qr.generated', (event: any) => {
+        const qrIndex = event?.details?.qrIndex ?? '?';
+        sink.status({ phase: 'launch.auth', sessionId, detail: `QR code generated (#${qrIndex})` });
+    });
+
     on('launch.client.finalize.before', (event: any) => {
         sink.status({ phase: 'launch.finalize', sessionId, detail: `Finalizing session (${event?.details?.validationStage ?? 'unknown'})` });
     });
 
     on('launch.client.finalize.after', (event: any) => {
         sink.write({ level: event?.details?.success ? 'info' : 'warn', message: `Finalize: ${event?.details?.outcome ?? 'unknown'}${event?.details?.detail ? ` — ${event.details.detail}` : ''}` });
+    });
+
+    on('error', (event: any) => {
+        const scope = event?.scope ?? 'unknown';
+        const msg = event?.error?.message ?? String(event?.error ?? 'unknown error');
+        const fatal = event?.fatal ? ' [FATAL]' : '';
+        sink.write({ level: 'error', message: `${fatal} ${scope}: ${msg}`.trim() });
     });
 
     return () => {
