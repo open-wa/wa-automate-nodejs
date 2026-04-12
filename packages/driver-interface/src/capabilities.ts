@@ -7,7 +7,9 @@ export type DriverCapabilityKey =
     | 'tracing'
     | 'persistentContext'
     | 'browserExtensions'
-    | 'exposeBinding';
+    | 'exposeBinding'
+    | 'screenshot'
+    | 'rendering';
 
 export type CapabilitySupport =
     | { supported: true; notes?: string }
@@ -25,6 +27,12 @@ export interface IHasCapabilities {
     require<C extends DriverCapabilityKey>(cap: C): void;
 }
 
+export interface ICapabilityErrorFactory {
+    createCapabilityError?<C extends DriverCapabilityKey>(capability: C, reason?: string): Error;
+}
+
+export type CapabilitySubject = Pick<IHasCapabilities, 'name' | 'capabilities'> & ICapabilityErrorFactory;
+
 export interface CapabilityExtensionMap {
     cdp: ICDPSupport;
     requestInterception: IRequestInterceptionSupport;
@@ -35,6 +43,8 @@ export interface CapabilityExtensionMap {
     persistentContext: IPersistentContextSupport;
     browserExtensions: IBrowserExtensionsSupport;
     exposeBinding: IExposeBindingSupport;
+    screenshot: IScreenshotSupport;
+    rendering: IRenderingSupport;
 }
 
 export interface ICDPSupport {
@@ -79,6 +89,14 @@ export interface IExposeBindingSupport {
     exposeBinding(name: string, fn: (...args: any[]) => any): Promise<void>;
 }
 
+export interface IScreenshotSupport {
+    screenshot(options?: { type?: 'png' | 'jpeg'; fullPage?: boolean }): Promise<Uint8Array>;
+}
+
+export interface IRenderingSupport {
+    readonly rendering?: true;
+}
+
 export class DriverCapabilityError extends Error {
     constructor(
         public readonly driverName: string,
@@ -92,4 +110,14 @@ export class DriverCapabilityError extends Error {
         );
         this.name = 'DriverCapabilityError';
     }
+}
+
+export function requireCapability<C extends DriverCapabilityKey>(subject: CapabilitySubject, capability: C): void {
+    const support = subject.capabilities[capability];
+    if (support.supported) {
+        return;
+    }
+
+    throw subject.createCapabilityError?.(capability, support.reason)
+        ?? new DriverCapabilityError(subject.name, capability, support.reason);
 }

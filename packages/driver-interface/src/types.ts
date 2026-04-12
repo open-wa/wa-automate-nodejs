@@ -1,4 +1,4 @@
-export type DriverName = 'puppeteer' | 'playwright' | 'remote' | string;
+export type DriverName = 'puppeteer' | 'playwright' | 'remote' | 'lightpanda' | string;
 
 export interface IDriverContext {
     logger?: {
