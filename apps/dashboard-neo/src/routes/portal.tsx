@@ -5,8 +5,16 @@ import { useSocket } from "@/lib/hooks/use-socket"
 import { ScreencastClient } from "@open-wa/screencaster/client"
 import type { NavStateMessage } from "@open-wa/screencaster/client"
 import { getApiUrl } from "@/lib/api-client"
+import { z } from "zod"
 
-export const Route = createFileRoute("/portal")({ component: PortalPage })
+const portalSearchSchema = z.object({
+  ws: z.string().optional(), // Override WS URL, e.g. ?ws=ws://localhost:3222
+})
+
+export const Route = createFileRoute("/portal")({
+  component: PortalPage,
+  validateSearch: portalSearchSchema,
+})
 
 /**
  * Magic Portal — Headless Head
@@ -20,26 +28,23 @@ export const Route = createFileRoute("/portal")({ component: PortalPage })
  */
 function PortalPage() {
   const { connected } = useSocket()
+  const { ws: wsOverride } = Route.useSearch()
   const [portalActive, setPortalActive] = useState(false)
   const [status, setStatus] = useState<"idle" | "connecting" | "streaming" | "error">("idle")
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [fps, setFps] = useState(0)
   const [navState, setNavState] = useState<NavStateMessage | null>(null)
   const [pageBound, setPageBound] = useState(false)
+  const [activeWsUrl, setActiveWsUrl] = useState<string | null>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const clientRef = useRef<ScreencastClient | null>(null)
   const fpsCountRef = useRef(0)
-  const lastSentSizeRef = useRef<{ w: number; h: number }>({ w: 0, h: 0 })
 
   // Create and configure the ScreencastClient
   const startPortal = useCallback(() => {
-    if (!connected) {
-      console.warn('[Portal] startPortal called but not connected, aborting')
-      return
-    }
+    if (!connected && !wsOverride) return
 
-    console.log('[Portal] Starting portal...')
     setStatus("connecting")
     setErrorMsg(null)
 
@@ -48,20 +53,14 @@ function PortalPage() {
     let maxHeight = 720
     if (wrapperRef.current) {
       const rect = wrapperRef.current.getBoundingClientRect()
-      console.log('[Portal] Wrapper dimensions at start:', { width: rect.width, height: rect.height })
-      // Use wrapper dimensions if they're reasonable
-      if (rect.width > 100 && rect.height > 100) {
-        maxWidth = Math.floor(rect.width)
-        maxHeight = Math.floor(rect.height)
-      }
-    } else {
-      console.warn('[Portal] wrapperRef.current is null at start time')
+      // Reduce dimensions slightly to account for margins/padding if needed
+      maxWidth = Math.floor(rect.width) || maxWidth
+      maxHeight = Math.floor(rect.height) || maxHeight
     }
-    console.log('[Portal] Using dimensions:', { maxWidth, maxHeight })
-    lastSentSizeRef.current = { w: maxWidth, h: maxHeight }
 
-    const wsUrl = getApiUrl().replace(/^http/, "ws") + "/screencast"
-    console.log('[Portal] Connecting to WebSocket:', wsUrl)
+    const wsUrl = wsOverride || (getApiUrl().replace(/^http/, "ws") + "/screencast")
+    setActiveWsUrl(wsUrl)
+    console.log(`[Portal] Connecting to WS: ${wsUrl}${wsOverride ? ' (OVERRIDE)' : ''}`)
     const client = new ScreencastClient({ 
       url: wsUrl, 
       autoStart: true,
@@ -70,17 +69,9 @@ function PortalPage() {
     clientRef.current = client
 
     client.on("state-change", (state) => {
-      console.log('[Portal] State change:', state)
       setStatus(state)
-      if (state === "streaming") {
-        console.log('[Portal] ✅ Now streaming')
-        setPortalActive(true)
-      }
-      if (state === "idle") {
-        console.warn('[Portal] ⚠️ State went to idle — portal will deactivate')
-        console.trace('[Portal] idle state trace')
-        setPortalActive(false)
-      }
+      if (state === "streaming") setPortalActive(true)
+      if (state === "idle") setPortalActive(false)
     })
 
     client.on("frame", (data) => {
@@ -89,17 +80,14 @@ function PortalPage() {
     })
 
     client.on("nav-state", (state) => {
-      console.log('[Portal] Nav state:', state)
       setNavState(state)
     })
 
     client.on("ready", (bound) => {
-      console.log('[Portal] Ready event, page bound:', bound)
       setPageBound(bound)
     })
 
     client.on("error", (message) => {
-      console.error('[Portal] Error:', message)
       setErrorMsg(message)
     })
 
@@ -112,20 +100,13 @@ function PortalPage() {
     }, 1000)
 
     // Clean up FPS counter on disconnect
-    const cleanup = () => {
-      console.log('[Portal] Cleaning up FPS interval')
-      clearInterval(fpsInterval)
-    }
+    const cleanup = () => clearInterval(fpsInterval)
     client.on("state-change", (s) => {
-      if (s === "idle" || s === "error") {
-        console.warn('[Portal] State-change caused cleanup:', s)
-        cleanup()
-      }
+      if (s === "idle" || s === "error") cleanup()
     })
-  }, [connected])
+  }, [connected, wsOverride])
 
   const stopPortal = useCallback(() => {
-    console.log('[Portal] stopPortal called explicitly')
     clientRef.current?.stop()
     clientRef.current?.disconnect()
     clientRef.current?.destroy()
@@ -208,62 +189,43 @@ function PortalPage() {
     client.sendScroll(e.deltaX, e.deltaY, x, y)
   }, [])
 
-  // Cleanup on unmount
+  // Cleanup on unmount — deferred to survive React StrictMode double-mount
+  const cleanupTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => {
+    // If we're remounting (StrictMode), cancel the pending destroy
+    if (cleanupTimeoutRef.current) {
+      clearTimeout(cleanupTimeoutRef.current)
+      cleanupTimeoutRef.current = null
+    }
     return () => {
-      console.log('[Portal] Component unmounting — destroying client')
-      clientRef.current?.destroy()
+      // Defer the destroy so StrictMode's immediate remount can cancel it
+      cleanupTimeoutRef.current = setTimeout(() => {
+        clientRef.current?.destroy()
+        clientRef.current = null
+      }, 100)
     }
   }, [])
 
   // Handle ResizeObserver
   useEffect(() => {
-    if (!portalActive) {
-      console.log('[Portal] ResizeObserver effect: portalActive is false, skipping')
-      return
-    }
+    if (!portalActive) return
     const wrapper = wrapperRef.current
-    if (!wrapper) {
-      console.warn('[Portal] ResizeObserver effect: wrapper ref is null')
-      return
-    }
+    if (!wrapper) return
 
-    console.log('[Portal] ResizeObserver: attaching observer')
     let timeoutId: ReturnType<typeof setTimeout>
-    let resizeCount = 0
 
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect
-        const w = Math.floor(width)
-        const h = Math.floor(height)
-        resizeCount++
-        console.log(`[Portal] ResizeObserver fired (#${resizeCount}):`, { width: w, height: h })
-        
-        // GUARD: Skip resize if dimensions are too small (element may be collapsing)
-        if (w < 50 || h < 50) {
-          console.warn('[Portal] ⚠️ ResizeObserver got very small dimensions, skipping resize to prevent collapse')
-          return
-        }
-
-        // GUARD: Skip if dimensions haven't changed from what we last sent
-        if (w === lastSentSizeRef.current.w && h === lastSentSizeRef.current.h) {
-          console.log('[Portal] ResizeObserver: dimensions unchanged, skipping')
-          return
-        }
-        
         clearTimeout(timeoutId)
         timeoutId = setTimeout(() => {
-          console.log('[Portal] ResizeObserver: sending resize to server:', { width: w, height: h })
-          lastSentSizeRef.current = { w, h }
-          clientRef.current?.resize(w, h)
+          clientRef.current?.resize(Math.floor(width), Math.floor(height))
         }, 300)
       }
     })
 
     observer.observe(wrapper)
     return () => {
-      console.log('[Portal] ResizeObserver: disconnecting observer')
       observer.disconnect()
       clearTimeout(timeoutId)
     }
@@ -275,6 +237,11 @@ function PortalPage() {
       <div className="flex items-center gap-3 border-b px-4 py-3">
         <h1 className="text-lg font-semibold flex items-center gap-2"><Tv size={20} /> Magic Portal</h1>
         <span className="text-xs text-muted-foreground">Headless Head — See your session live</span>
+        {wsOverride && (
+          <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-mono text-blue-800 dark:bg-blue-900/30 dark:text-blue-400" title={activeWsUrl || wsOverride}>
+            🔌 {wsOverride}
+          </span>
+        )}
         <div className="flex-1" />
 
         {portalActive && !pageBound && (
@@ -313,7 +280,7 @@ function PortalPage() {
         {status === "idle" || status === "error" ? (
           <button
             onClick={startPortal}
-            disabled={!connected}
+            disabled={!connected && !wsOverride}
             className="rounded-md bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
             Start Portal

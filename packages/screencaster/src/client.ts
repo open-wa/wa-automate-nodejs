@@ -21,6 +21,29 @@ import type {
 // Re-export types the consumer will need
 export type { ScreencastOptions, FrameMessage, NavStateMessage } from './types';
 
+// ────── Debug logger ──────
+
+const TAG = '[SC:client]';
+let _frameCount = 0;
+let _lastFrameLogTime = 0;
+let _lastFrameSize = 0;
+
+function ts(): string {
+    return Date.now().toString();
+}
+
+function dbg(...args: unknown[]): void {
+    console.log(ts(), TAG, ...args);
+}
+
+function dbgWarn(...args: unknown[]): void {
+    console.warn(ts(), TAG, ...args);
+}
+
+function dbgErr(...args: unknown[]): void {
+    console.error(ts(), TAG, ...args);
+}
+
 // ────── Event types ──────
 
 export type ScreencastClientState = 'idle' | 'connecting' | 'streaming' | 'error';
@@ -70,6 +93,10 @@ export class ScreencastClient {
         this.defaultOptions = options.defaultOptions;
         this.autoReconnect = options.autoReconnect ?? false;
         this.reconnectDelay = options.reconnectDelay ?? 2000;
+        dbg('constructor() — url:', this.url, '| autoStart:', this.autoStart, '| autoReconnect:', this.autoReconnect, '| reconnectDelay:', this.reconnectDelay);
+        if (this.defaultOptions) {
+            dbg('constructor() — defaultOptions:', JSON.stringify(this.defaultOptions));
+        }
     }
 
     // ────── State ──────
@@ -80,22 +107,43 @@ export class ScreencastClient {
 
     private setState(s: ScreencastClientState): void {
         if (this._state === s) return;
+        const prev = this._state;
         this._state = s;
+        dbg(`setState() — ${prev} → ${s}`);
         this.emit('state-change', s);
     }
 
     // ────── Connection ──────
 
     connect(): void {
-        if (this.ws || this.destroyed) return;
+        dbg('connect() — ws:', !!this.ws, '| destroyed:', this.destroyed);
+        if (this.ws || this.destroyed) {
+            dbg('connect() — SKIPPING (already connected or destroyed)');
+            return;
+        }
 
         this.setState('connecting');
-        this.ws = new WebSocket(this.url);
+        dbg('connect() — creating WebSocket to:', this.url);
+
+        try {
+            this.ws = new WebSocket(this.url);
+        } catch (err) {
+            dbgErr('connect() — WebSocket constructor threw:', err);
+            this.setState('error');
+            this.emit('error', `WebSocket constructor failed: ${err}`);
+            return;
+        }
+
+        dbg('connect() — WebSocket created, readyState:', this.ws.readyState);
 
         this.ws.onopen = () => {
+            dbg('WS:onopen — connection established! readyState:', this.ws?.readyState);
             this.setState('streaming');
             if (this.autoStart) {
+                dbg('WS:onopen — autoStart is true, sending start message');
                 this.start(this.defaultOptions);
+            } else {
+                dbg('WS:onopen — autoStart is false, waiting for manual start()');
             }
         };
 
@@ -103,12 +151,14 @@ export class ScreencastClient {
             this.handleMessage(event.data);
         };
 
-        this.ws.onerror = () => {
+        this.ws.onerror = (evt) => {
+            dbgErr('WS:onerror — connection error. Event type:', (evt as any)?.type, '| readyState:', this.ws?.readyState);
             this.setState('error');
             this.emit('error', 'WebSocket connection failed');
         };
 
-        this.ws.onclose = () => {
+        this.ws.onclose = (evt) => {
+            dbg('WS:onclose — code:', evt.code, '| reason:', evt.reason, '| wasClean:', evt.wasClean, '| currentState:', this._state);
             this.ws = null;
 
             if (this._state !== 'error') {
@@ -116,14 +166,19 @@ export class ScreencastClient {
             }
 
             if (this.autoReconnect && !this.destroyed) {
+                dbg('WS:onclose — scheduling reconnect in', this.reconnectDelay, 'ms');
                 this.scheduleReconnect();
+            } else {
+                dbg('WS:onclose — NOT reconnecting. autoReconnect:', this.autoReconnect, '| destroyed:', this.destroyed);
             }
         };
     }
 
     disconnect(): void {
+        dbg('disconnect() called');
         this.clearReconnectTimer();
         if (this.ws) {
+            dbg('disconnect() — closing WebSocket');
             this.ws.close(1000, 'Client disconnect');
             this.ws = null;
         }
@@ -133,10 +188,12 @@ export class ScreencastClient {
     // ────── Screencast control ──────
 
     start(options?: ScreencastOptions): void {
+        dbg('start() — sending start message. options:', options ? JSON.stringify(options) : 'none', '| ws.readyState:', this.ws?.readyState);
         this.send({ type: 'start', options });
     }
 
     stop(): void {
+        dbg('stop() — sending stop message');
         this.send({ type: 'stop' });
     }
 
@@ -154,6 +211,7 @@ export class ScreencastClient {
      * @param modifiers Bitmask: Alt=1, Ctrl=2, Meta=4, Shift=8
      */
     sendKey(action: 'down' | 'up', key: string, code: string, modifiers?: number): void {
+        dbg('sendKey():', action, key, code, 'modifiers:', modifiers);
         this.send({ type: 'key', action, key, code, modifiers });
     }
 
@@ -165,18 +223,22 @@ export class ScreencastClient {
     }
 
     navigate(url: string): void {
+        dbg('navigate():', url);
         this.send({ type: 'navigate', url });
     }
 
     goBack(): void {
+        dbg('goBack()');
         this.send({ type: 'go-back' });
     }
 
     goForward(): void {
+        dbg('goForward()');
         this.send({ type: 'go-forward' });
     }
 
     resize(width: number, height: number): void {
+        dbg('resize():', width, 'x', height);
         this.send({ type: 'resize', width, height });
     }
 
@@ -187,20 +249,24 @@ export class ScreencastClient {
             this.listeners.set(event, new Set());
         }
         this.listeners.get(event)!.add(cb as Listener<EventName>);
+        dbg(`on('${event}') — listener registered, total for event:`, this.listeners.get(event)!.size);
         return this;
     }
 
     off<E extends EventName>(event: E, cb: ScreencastClientEvents[E]): this {
         this.listeners.get(event)?.delete(cb as Listener<EventName>);
+        dbg(`off('${event}') — listener removed`);
         return this;
     }
 
     // ────── Cleanup ──────
 
     destroy(): void {
+        dbg('destroy() called');
         this.destroyed = true;
         this.disconnect();
         this.listeners.clear();
+        dbg('destroy() — ✅ complete');
     }
 
     // ────── Internals ──────
@@ -209,38 +275,79 @@ export class ScreencastClient {
         let msg: ServerMessage;
         try {
             msg = JSON.parse(typeof raw === 'string' ? raw : String(raw)) as ServerMessage;
-        } catch {
+        } catch (err) {
+            dbgWarn('handleMessage() — failed to parse JSON:', typeof raw === 'string' ? raw.slice(0, 100) : typeof raw);
             return; // Non-JSON data, ignore
         }
 
         switch (msg.type) {
-            case 'frame':
+            case 'frame': {
+                _frameCount++;
+                const now = Date.now();
+
+                // Log every frame for the first 5, then every 30th or every 5 seconds
+                if (_frameCount <= 5 || _frameCount % 30 === 0 || (now - _lastFrameLogTime) > 5000) {
+                    _lastFrameSize = msg.data?.length ?? 0;
+                    dbg(`📦 FRAME #${_frameCount} | sessionId: ${msg.sessionId} | dataLen: ${_lastFrameSize} | meta: ${msg.metadata?.deviceWidth}x${msg.metadata?.deviceHeight}`);
+                    _lastFrameLogTime = now;
+                }
+
+                const listenerCount = this.listeners.get('frame')?.size ?? 0;
+                if (_frameCount <= 3) {
+                    dbg(`   → emitting 'frame' to ${listenerCount} listener(s)`);
+                }
+                if (listenerCount === 0 && _frameCount <= 3) {
+                    dbgWarn('   ⚠️  NO frame listeners registered! Frames will be silently dropped.');
+                }
+
                 this.emit('frame', msg.data, msg.metadata);
-                // Auto-acknowledge the frame
-                this.send({ type: 'ack', sessionId: msg.sessionId });
+                // ACKs are handled server-side now — no client ack needed
                 break;
+            }
 
             case 'nav-state':
+                dbg('handleMessage(nav-state):', JSON.stringify({ url: msg.url?.slice(0, 60), canGoBack: msg.canGoBack, canGoForward: msg.canGoForward }));
                 this.emit('nav-state', msg);
                 break;
 
             case 'error':
+                dbgErr('handleMessage(error) — server error:', msg.message);
                 this.emit('error', msg.message);
                 break;
 
             case 'ready':
+                dbg('handleMessage(ready) — bound:', msg.bound);
                 this.emit('ready', msg.bound);
                 break;
 
             case 'stopped':
+                dbg('handleMessage(stopped) — screencast stopped by server');
                 // screencast was stopped server-side
                 break;
+
+            default:
+                dbgWarn('handleMessage() — unknown message type:', (msg as any).type);
         }
     }
 
     private send(msg: ClientMessage): void {
-        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-            this.ws.send(JSON.stringify(msg));
+        const isOpen = this.ws && this.ws.readyState === WebSocket.OPEN;
+
+        // Log all sends except high-frequency ones (mouse, ack)
+        if (msg.type !== 'mouse' && msg.type !== 'ack') {
+            dbg(`send(${msg.type}) — ws open: ${isOpen}`);
+        }
+
+        if (isOpen) {
+            try {
+                this.ws!.send(JSON.stringify(msg));
+            } catch (err) {
+                dbgErr(`send(${msg.type}) — failed:`, err);
+            }
+        } else {
+            if (msg.type !== 'mouse' && msg.type !== 'ack') {
+                dbgWarn(`send(${msg.type}) — DROPPED, ws not open. readyState: ${this.ws?.readyState ?? 'null'}`);
+            }
         }
     }
 
@@ -251,15 +358,17 @@ export class ScreencastClient {
             try {
                 (cb as (...a: unknown[]) => void)(...args);
             } catch (err) {
-                console.error(`[screencaster-client] Error in '${event}' listener:`, err);
+                dbgErr(`emit('${event}') — listener threw:`, err);
             }
         }
     }
 
     private scheduleReconnect(): void {
         this.clearReconnectTimer();
+        dbg('scheduleReconnect() — will reconnect in', this.reconnectDelay, 'ms');
         this.reconnectTimer = setTimeout(() => {
             if (!this.destroyed) {
+                dbg('scheduleReconnect() — timer fired, calling connect()');
                 this.connect();
             }
         }, this.reconnectDelay);
@@ -267,6 +376,7 @@ export class ScreencastClient {
 
     private clearReconnectTimer(): void {
         if (this.reconnectTimer !== null) {
+            dbg('clearReconnectTimer() — clearing pending reconnect');
             clearTimeout(this.reconnectTimer);
             this.reconnectTimer = null;
         }

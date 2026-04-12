@@ -31,6 +31,28 @@ import { DEFAULT_SCREENCAST_OPTIONS, Modifiers, SPECIAL_KEYS } from './types';
 // Re-export types for convenience
 export type { IScreencastPage, IScreencastCDPSession, ScreencastOptions } from './types';
 
+// ────── Debug logger ──────
+
+const TAG = '[SC:server]';
+let _frameCount = 0;
+let _lastFrameLogTime = 0;
+
+function ts(): string {
+    return Date.now().toString();
+}
+
+function dbg(...args: unknown[]): void {
+    console.log(ts(), TAG, ...args);
+}
+
+function dbgWarn(...args: unknown[]): void {
+    console.warn(ts(), TAG, ...args);
+}
+
+function dbgErr(...args: unknown[]): void {
+    console.error(ts(), TAG, ...args);
+}
+
 // ────── Types for Hono WebSocket ──────
 
 /**
@@ -73,6 +95,8 @@ export class ScreencastManager {
     private currentOptions: Required<ScreencastOptions> = { ...DEFAULT_SCREENCAST_OPTIONS };
     private viewport: ViewportSize = { width: 1280, height: 720 };
     private frameHandler: ((...args: unknown[]) => void) | null = null;
+    private navigationHandler: ((...args: unknown[]) => void) | null = null;
+    private pageNavigationHandler: ((frame: unknown) => void) | null = null;
     private destroyed = false;
 
     /**
@@ -80,21 +104,30 @@ export class ScreencastManager {
      * (e.g., when the session restarts).
      */
     async setPage(page: IScreencastPage): Promise<void> {
+        dbg('setPage() called, page.isClosed():', page.isClosed());
+
         // Clean up previous session
         await this.teardownCDP();
 
         this.page = page;
+        dbg('setPage() — calling page.cdp() to create CDP session...');
         this.cdpSession = await page.cdp();
+        dbg('setPage() — CDP session obtained:', !!this.cdpSession);
+        dbg('setPage() — CDP session type:', typeof this.cdpSession);
+        dbg('setPage() — CDP session keys:', this.cdpSession ? Object.keys(this.cdpSession as any).slice(0, 15) : 'null');
 
         // Set up frame listener
         this.setupFrameListener();
 
         // If we already have clients, start screencasting
+        dbg('setPage() — clients waiting:', this.clients.size);
         if (this.clients.size > 0) {
+            dbg('setPage() — auto-starting screencast for waiting clients');
             await this.startScreencast();
         }
 
         // Notify all clients that the page is bound
+        dbg('setPage() — broadcasting ready:true');
         this.broadcast({ type: 'ready', bound: true });
     }
 
@@ -102,6 +135,7 @@ export class ScreencastManager {
      * Unbind the current page (session ended, browser closed).
      */
     async clearPage(): Promise<void> {
+        dbg('clearPage() called');
         await this.teardownCDP();
         this.page = null;
         this.cdpSession = null;
@@ -112,7 +146,8 @@ export class ScreencastManager {
      * Whether a page is currently bound.
      */
     get isBound(): boolean {
-        return this.page !== null && !this.page.isClosed();
+        const bound = this.page !== null && !this.page.isClosed();
+        return bound;
     }
 
     /**
@@ -126,22 +161,49 @@ export class ScreencastManager {
 
     addClient(ws: HonoWSContext): void {
         this.clients.add(ws);
+        dbg('addClient() — total clients:', this.clients.size, '| isBound:', this.isBound, '| isScreencasting:', this.isScreencasting, '| ws.readyState:', ws.readyState);
+
+        // Listen to the raw underlying ws for transport-level diagnostics
+        const rawWs = (ws as any).raw;
+        if (rawWs && typeof rawWs.on === 'function') {
+            rawWs.on('close', (code: number, reason: Uint8Array) => {
+                dbg('RAW_WS:close — code:', code, '| reason:', reason?.toString(), '| rawWs.readyState:', rawWs.readyState);
+            });
+            rawWs.on('error', (err: Error) => {
+                dbgErr('RAW_WS:error —', err.message);
+            });
+            // Log socket-level events
+            const socket = rawWs._socket;
+            if (socket) {
+                socket.once('close', (hadError: boolean) => {
+                    dbg('TCP_SOCKET:close — hadError:', hadError);
+                });
+                socket.once('error', (err: Error) => {
+                    dbgErr('TCP_SOCKET:error —', err.message);
+                });
+            }
+        }
 
         // Send current state
         this.sendTo(ws, { type: 'ready', bound: this.isBound });
 
         // Auto-start if we have a page and this is the first client
         if (this.isBound && !this.isScreencasting) {
+            dbg('addClient() — auto-starting screencast (first client with bound page)');
             this.startScreencast().catch(this.logError);
             this.sendNavState().catch(this.logError);
+        } else {
+            dbg('addClient() — NOT auto-starting. isBound:', this.isBound, 'isScreencasting:', this.isScreencasting);
         }
     }
 
     removeClient(ws: HonoWSContext): void {
         this.clients.delete(ws);
+        dbg('removeClient() — total clients:', this.clients.size, '| isScreencasting:', this.isScreencasting);
 
         // Auto-stop when no clients remain
         if (this.clients.size === 0 && this.isScreencasting) {
+            dbg('removeClient() — no clients left, stopping screencast');
             this.stopScreencast().catch(this.logError);
         }
     }
@@ -153,8 +215,14 @@ export class ScreencastManager {
         try {
             msg = JSON.parse(typeof raw === 'string' ? raw : String(raw)) as ClientMessage;
         } catch {
+            dbgWarn('handleMessage() — invalid JSON from client:', typeof raw === 'string' ? raw.slice(0, 100) : typeof raw);
             this.sendTo(ws, { type: 'error', message: 'Invalid JSON' });
             return;
+        }
+
+        // Log all messages except high-frequency ones (mouse moves, acks)
+        if (msg.type !== 'mouse' && msg.type !== 'ack') {
+            dbg('handleMessage():', msg.type, JSON.stringify(msg).slice(0, 200));
         }
 
         try {
@@ -162,20 +230,27 @@ export class ScreencastManager {
                 case 'start':
                     if (msg.options) {
                         this.currentOptions = { ...DEFAULT_SCREENCAST_OPTIONS, ...msg.options };
+                        dbg('handleMessage(start) — options updated:', JSON.stringify(this.currentOptions));
                     }
+                    dbg('handleMessage(start) — isBound:', this.isBound, '| isScreencasting:', this.isScreencasting);
                     if (this.isBound) {
                         await this.startScreencast();
                         await this.sendNavState();
+                    } else {
+                        dbgWarn('handleMessage(start) — page not bound, cannot start');
                     }
                     break;
 
                 case 'stop':
+                    dbg('handleMessage(stop)');
                     await this.stopScreencast();
                     this.sendTo(ws, { type: 'stopped' });
                     break;
 
                 case 'ack':
-                    await this.ackFrame(msg.sessionId);
+                    // No-op: ACKs are now handled server-side immediately in the frame handler.
+                    // Kept for backward compatibility with older clients.
+                    dbg('handleMessage(ack) — no-op (server-side ACK), sessionId:', msg.sessionId);
                     break;
 
                 case 'mouse':
@@ -183,6 +258,7 @@ export class ScreencastManager {
                     break;
 
                 case 'key':
+                    dbg('handleMessage(key):', msg.action, msg.key, msg.code);
                     await this.handleKey(msg);
                     break;
 
@@ -191,22 +267,30 @@ export class ScreencastManager {
                     break;
 
                 case 'navigate':
+                    dbg('handleMessage(navigate):', msg.url);
                     await this.handleNavigate(msg.url);
                     break;
 
                 case 'go-back':
+                    dbg('handleMessage(go-back)');
                     await this.handleGoBack();
                     break;
 
                 case 'go-forward':
+                    dbg('handleMessage(go-forward)');
                     await this.handleGoForward();
                     break;
 
                 case 'resize':
+                    dbg('handleMessage(resize):', msg.width, 'x', msg.height);
                     await this.handleResize(msg.width, msg.height);
                     break;
+
+                default:
+                    dbgWarn('handleMessage() — unknown message type:', (msg as any).type);
             }
         } catch (err) {
+            dbgErr('handleMessage() — error processing', msg.type, ':', err instanceof Error ? err.message : err);
             this.sendTo(ws, {
                 type: 'error',
                 message: err instanceof Error ? err.message : 'Unknown error',
@@ -217,45 +301,56 @@ export class ScreencastManager {
     // ────── Screencast lifecycle ──────
 
     private async startScreencast(): Promise<void> {
-        if (!this.cdpSession || this.isScreencasting || this.destroyed) return;
+        dbg('startScreencast() — cdpSession:', !!this.cdpSession, '| isScreencasting:', this.isScreencasting, '| destroyed:', this.destroyed);
+        if (!this.cdpSession || this.isScreencasting || this.destroyed) {
+            dbg('startScreencast() — SKIPPING (guard failed)');
+            return;
+        }
+
+        // Set flag synchronously BEFORE the async CDP call to prevent
+        // concurrent callers from passing the guard (race between
+        // addClient fire-and-forget and handleMessage('start')).
+        this.isScreencasting = true;
 
         try {
-            await this.cdpSession.send('Page.startScreencast', {
+            const params = {
                 format: this.currentOptions.format,
                 quality: this.currentOptions.quality,
                 maxWidth: this.currentOptions.maxWidth,
                 maxHeight: this.currentOptions.maxHeight,
                 everyNthFrame: this.currentOptions.everyNthFrame,
-            });
-            this.isScreencasting = true;
+            };
+            dbg('startScreencast() — sending Page.startScreencast with params:', JSON.stringify(params));
+            await this.cdpSession.send('Page.startScreencast', params);
+            _frameCount = 0;
+            _lastFrameLogTime = Date.now();
+            dbg('startScreencast() — ✅ SUCCESS, screencast is now running');
         } catch (err) {
             this.isScreencasting = false;
+            dbgErr('startScreencast() — ❌ FAILED:', err instanceof Error ? err.message : err);
+            dbgErr('startScreencast() — full error:', err);
             this.logError(err);
         }
     }
 
     private async stopScreencast(): Promise<void> {
+        dbg('stopScreencast() — cdpSession:', !!this.cdpSession, '| isScreencasting:', this.isScreencasting);
         if (!this.cdpSession || !this.isScreencasting) return;
 
         try {
             await this.cdpSession.send('Page.stopScreencast');
-        } catch {
+            dbg('stopScreencast() — ✅ stopped');
+        } catch (err) {
+            dbgWarn('stopScreencast() — error (session may be closed):', err instanceof Error ? err.message : err);
             // Session may already be closed
         }
         this.isScreencasting = false;
     }
 
-    private async ackFrame(sessionId: number): Promise<void> {
-        if (!this.cdpSession) return;
-
-        try {
-            await this.cdpSession.send('Page.screencastFrameAck', { sessionId });
-        } catch {
-            // Session may be closed after navigation
-        }
-    }
+    // ackFrame() removed — ACKs are now handled server-side immediately in the frame handler.
 
     private setupFrameListener(): void {
+        dbg('setupFrameListener() — cdpSession:', !!this.cdpSession);
         if (!this.cdpSession) return;
 
         // The CDP session from driver-interface uses .send() only.
@@ -268,23 +363,44 @@ export class ScreencastManager {
             off?: (event: string, handler: (...args: unknown[]) => void) => void;
         };
 
+        dbg('setupFrameListener() — rawSession.on:', typeof rawSession.on, '| rawSession.off:', typeof rawSession.off);
+
         if (typeof rawSession.on !== 'function') {
+            dbgErr('setupFrameListener() — ❌ CDP session does NOT support .on() event subscriptions!');
+            dbgErr('setupFrameListener() — session prototype chain:', Object.getPrototypeOf(this.cdpSession)?.constructor?.name);
             console.warn('[screencaster] CDP session does not support event subscriptions');
             return;
         }
 
         // Clean up any previous handler
         if (this.frameHandler && typeof rawSession.off === 'function') {
+            dbg('setupFrameListener() — cleaning up previous frame handler');
             rawSession.off('Page.screencastFrame', this.frameHandler);
         }
 
+        dbg('setupFrameListener() — registering Page.screencastFrame handler');
+
+        // Keep a local ref to cdpSession for the closure — avoids stale this.cdpSession
+        const session = this.cdpSession;
+
         this.frameHandler = ((...args: unknown[]) => {
+            _frameCount++;
+            const now = Date.now();
             const params = args[0] as Record<string, unknown>;
             const { data, sessionId, metadata } = params as {
                 data: string;
                 sessionId: number;
                 metadata: FrameMessage['metadata'];
             };
+
+            // Log every frame for the first 5, then every 30th frame or every 5 seconds
+            if (_frameCount <= 5 || _frameCount % 30 === 0 || (now - _lastFrameLogTime) > 5000) {
+                dbg(`📦 FRAME #${_frameCount} | sessionId: ${sessionId} | dataLen: ${data?.length ?? 'null'} | hasMetadata: ${!!metadata} | clients: ${this.clients.size}`);
+                if (metadata) {
+                    dbg(`   metadata: ${metadata.deviceWidth}x${metadata.deviceHeight} | pageScale: ${metadata.pageScaleFactor} | offsetTop: ${metadata.offsetTop}`);
+                }
+                _lastFrameLogTime = now;
+            }
 
             // Update viewport from metadata
             if (metadata) {
@@ -309,16 +425,41 @@ export class ScreencastManager {
                 },
             };
 
+            // Broadcast frame to all connected clients
             this.broadcast(frame);
+
+            // CRITICAL: ACK the frame immediately server-side to keep
+            // frames flowing. The POC does this — delegating ACKs to
+            // the client round-trip caused frame starvation.
+            session.send('Page.screencastFrameAck', { sessionId }).catch(() => {
+                // Session might be closed after navigation, ignore
+            });
+
+            if (_frameCount <= 3) {
+                dbg(`   → ACK sent server-side for sessionId: ${sessionId}`);
+            }
         }) as (...args: unknown[]) => void;
 
         rawSession.on('Page.screencastFrame', this.frameHandler);
+        dbg('setupFrameListener() — ✅ Page.screencastFrame handler registered');
 
-        // Listen for frame navigation to restart screencast
-        rawSession.on('Page.frameNavigated', (async (...navArgs: unknown[]) => {
-            const frame = navArgs[0] as { frame?: { parentId?: string } };
+        // ── CDP-level navigation listener (Page.frameNavigated) ──
+        dbg('setupFrameListener() — registering Page.frameNavigated handler (CDP)');
+
+        // Clean up any previous navigation handler
+        if (this.navigationHandler && typeof rawSession.off === 'function') {
+            dbg('setupFrameListener() — cleaning up previous CDP navigation handler');
+            rawSession.off('Page.frameNavigated', this.navigationHandler);
+        }
+
+        this.navigationHandler = (async (...navArgs: unknown[]) => {
+            const frame = navArgs[0] as { frame?: { parentId?: string; url?: string } };
+            const isMainFrame = frame.frame && !frame.frame.parentId;
+            dbg('CDP:Page.frameNavigated fired | isMainFrame:', isMainFrame, '| url:', frame.frame?.url?.slice(0, 80));
+
             // Only care about main frame (no parentId)
-            if (frame.frame && !frame.frame.parentId) {
+            if (isMainFrame) {
+                dbg('CDP:Page.frameNavigated — main frame navigation detected, resetting screencast');
                 // Navigation stops screencast automatically
                 this.isScreencasting = false;
 
@@ -326,16 +467,53 @@ export class ScreencastManager {
 
                 // Restart if we have clients
                 if (this.clients.size > 0) {
+                    dbg('CDP:Page.frameNavigated — restarting screencast for', this.clients.size, 'clients');
                     await this.startScreencast();
                 }
             }
-        }) as (...args: unknown[]) => void);
+        }) as (...args: unknown[]) => void;
+
+        rawSession.on('Page.frameNavigated', this.navigationHandler);
+
+        // ── Page-level navigation listener (high-level, like the POC) ──
+        // This is a secondary/fallback signal that uses the IPage driver's
+        // high-level event, which is more reliable across CDP session resets.
+        if (this.page && typeof (this.page as any).on === 'function') {
+            // Clean up any previous page-level handler
+            if (this.pageNavigationHandler && typeof (this.page as any).off === 'function') {
+                dbg('setupFrameListener() — cleaning up previous page-level navigation handler');
+                (this.page as any).off('framenavigated', this.pageNavigationHandler);
+            }
+
+            this.pageNavigationHandler = async (_frame: unknown) => {
+                dbg('PAGE:framenavigated fired (high-level) — isScreencasting:', this.isScreencasting);
+                // Only act if screencast stopped (CDP event may have already handled it)
+                if (!this.isScreencasting && this.clients.size > 0) {
+                    dbg('PAGE:framenavigated — screencast not running, restarting for', this.clients.size, 'clients');
+                    await this.sendNavState();
+                    await this.startScreencast();
+                } else {
+                    dbg('PAGE:framenavigated — screencast already running or no clients, no action needed');
+                }
+            };
+
+            (this.page as any).on('framenavigated', this.pageNavigationHandler);
+            dbg('setupFrameListener() — ✅ page-level framenavigated listener registered');
+        } else {
+            dbgWarn('setupFrameListener() — page does not support .on() events, skipping page-level navigation listener');
+        }
 
         // Enable Page events so we receive frameNavigated
-        this.cdpSession.send('Page.enable').catch(this.logError);
+        dbg('setupFrameListener() — sending Page.enable');
+        this.cdpSession.send('Page.enable').catch((err) => {
+            dbgErr('setupFrameListener() — Page.enable failed:', err instanceof Error ? err.message : err);
+            this.logError(err);
+        });
+        dbg('setupFrameListener() — ✅ setup complete');
     }
 
     private async sendNavState(): Promise<void> {
+        dbg('sendNavState() — cdpSession:', !!this.cdpSession);
         if (!this.cdpSession) return;
 
         try {
@@ -344,18 +522,24 @@ export class ScreencastManager {
                 entries: unknown[];
             }>('Page.getNavigationHistory');
 
-            if (!history) return;
+            if (!history) {
+                dbgWarn('sendNavState() — getNavigationHistory returned null/undefined');
+                return;
+            }
 
             const { currentIndex, entries } = history;
+            const url = this.page?.isClosed() ? '' : (await this.getPageUrl());
             const nav: NavStateMessage = {
                 type: 'nav-state',
-                url: this.page?.isClosed() ? '' : (await this.getPageUrl()),
+                url,
                 canGoBack: currentIndex > 0,
                 canGoForward: currentIndex < entries.length - 1,
             };
 
+            dbg('sendNavState() — broadcasting:', JSON.stringify({ url: url.slice(0, 60), canGoBack: nav.canGoBack, canGoForward: nav.canGoForward, entries: entries.length }));
             this.broadcast(nav);
-        } catch {
+        } catch (err) {
+            dbgWarn('sendNavState() — error:', err instanceof Error ? err.message : err);
             // Page might not be ready yet
         }
     }
@@ -383,11 +567,11 @@ export class ScreencastManager {
 
         const cdpButton = msg.button === 'right' ? 'right'
             : msg.button === 'middle' ? 'middle'
-            : 'left';
+                : 'left';
 
         const cdpType = msg.action === 'move' ? 'mouseMoved'
             : msg.action === 'down' ? 'mousePressed'
-            : 'mouseReleased';
+                : 'mouseReleased';
 
         await this.cdpSession.send('Input.dispatchMouseEvent', {
             type: cdpType,
@@ -483,16 +667,19 @@ export class ScreencastManager {
 
     private async handleResize(width: number, height: number): Promise<void> {
         if (!this.cdpSession) return;
-        
+
         try {
             this.currentOptions.maxWidth = Math.floor(width);
             this.currentOptions.maxHeight = Math.floor(height);
+            dbg('handleResize() —', width, 'x', height, '| isScreencasting:', this.isScreencasting);
 
             if (this.isScreencasting) {
+                dbg('handleResize() — restarting screencast with new dimensions');
                 await this.stopScreencast();
                 await this.startScreencast();
             }
         } catch (err) {
+            dbgErr('handleResize() — error:', err instanceof Error ? err.message : err);
             this.logError(err);
         }
     }
@@ -501,41 +688,78 @@ export class ScreencastManager {
 
     private broadcast(msg: ServerMessage): void {
         const payload = JSON.stringify(msg);
+        let sent = 0;
+        let skipped = 0;
         for (const ws of this.clients) {
             if (ws.readyState === 1 /* OPEN */) {
-                ws.send(payload);
+                try {
+                    ws.send(payload);
+                    sent++;
+                } catch (err) {
+                    dbgErr('broadcast() — send failed for a client:', err instanceof Error ? err.message : err);
+                    skipped++;
+                }
+            } else {
+                skipped++;
             }
+        }
+        // Only log broadcast stats for non-frame messages (frames are too frequent)
+        if (msg.type !== 'frame') {
+            dbg(`broadcast(${msg.type}) — sent: ${sent}, skipped: ${skipped}, total: ${this.clients.size}`);
         }
     }
 
     private sendTo(ws: HonoWSContext, msg: ServerMessage): void {
+        dbg(`sendTo(${msg.type}) — ws.readyState: ${ws.readyState}`);
         if (ws.readyState === 1 /* OPEN */) {
             ws.send(JSON.stringify(msg));
+        } else {
+            dbgWarn(`sendTo(${msg.type}) — ws not OPEN (readyState: ${ws.readyState}), dropping`);
         }
     }
 
     private logError = (err: unknown): void => {
-        console.error('[screencaster]', err instanceof Error ? err.message : err);
+        dbgErr('logError:', err instanceof Error ? err.stack || err.message : err);
     };
 
     private async teardownCDP(): Promise<void> {
+        dbg('teardownCDP() — isScreencasting:', this.isScreencasting, '| hasFrameHandler:', !!this.frameHandler, '| hasNavHandler:', !!this.navigationHandler, '| hasPageNavHandler:', !!this.pageNavigationHandler, '| hasCdpSession:', !!this.cdpSession);
+
         if (this.isScreencasting) {
             await this.stopScreencast();
         }
 
-        // Clean up frame handler
-        if (this.frameHandler && this.cdpSession) {
+        // Clean up CDP-level handlers
+        if (this.cdpSession) {
             const rawSession = this.cdpSession as unknown as {
                 off?: (event: string, handler: (...args: unknown[]) => void) => void;
             };
             if (typeof rawSession.off === 'function') {
-                rawSession.off('Page.screencastFrame', this.frameHandler);
+                if (this.frameHandler) {
+                    dbg('teardownCDP() — removing Page.screencastFrame handler');
+                    rawSession.off('Page.screencastFrame', this.frameHandler);
+                }
+                if (this.navigationHandler) {
+                    dbg('teardownCDP() — removing Page.frameNavigated handler');
+                    rawSession.off('Page.frameNavigated', this.navigationHandler);
+                }
             }
-            this.frameHandler = null;
         }
+        this.frameHandler = null;
+        this.navigationHandler = null;
+
+        // Clean up page-level navigation handler
+        if (this.pageNavigationHandler && this.page && typeof (this.page as any).off === 'function') {
+            dbg('teardownCDP() — removing page-level framenavigated handler');
+            (this.page as any).off('framenavigated', this.pageNavigationHandler);
+        }
+        this.pageNavigationHandler = null;
+
+        dbg('teardownCDP() — ✅ complete');
     }
 
     async destroy(): Promise<void> {
+        dbg('destroy() called, clients:', this.clients.size);
         this.destroyed = true;
         await this.teardownCDP();
 
@@ -546,6 +770,7 @@ export class ScreencastManager {
         this.clients.clear();
         this.page = null;
         this.cdpSession = null;
+        dbg('destroy() — ✅ complete');
     }
 }
 
@@ -581,22 +806,29 @@ export function createScreencastRoute(
     upgradeWebSocket: UpgradeWebSocket,
     manager: ScreencastManager,
 ) {
+    dbg('createScreencastRoute() — route factory invoked');
+
     return upgradeWebSocket((_c) => ({
         onOpen(_evt, ws) {
+            dbg('WS:onOpen — new connection, ws.readyState:', ws.readyState);
             manager.addClient(ws);
         },
 
         onMessage(evt, ws) {
             manager.handleMessage(ws, evt.data).catch((err) => {
-                console.error('[screencaster] message handler error:', err);
+                dbgErr('WS:onMessage — unhandled error:', err);
             });
         },
 
-        onClose(_evt, ws) {
+        onClose(evt, ws) {
+            const closeEvt = evt as { code?: number; reason?: string; wasClean?: boolean };
+            dbg('WS:onClose — connection closed | code:', closeEvt.code, '| reason:', closeEvt.reason, '| wasClean:', closeEvt.wasClean, '| ws.readyState:', ws.readyState);
             manager.removeClient(ws);
         },
 
-        onError(_evt, ws) {
+        onError(evt, ws) {
+            const errEvt = evt as { error?: Error; message?: string };
+            dbgErr('WS:onError — connection error | message:', errEvt.message, '| error:', errEvt.error);
             manager.removeClient(ws);
         },
     }));
