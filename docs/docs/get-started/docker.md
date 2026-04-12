@@ -16,10 +16,10 @@ Make sure you have docker installed on your system and are not using a Apple sil
 
 ## Run the container (EASY API)
 
-You can use the following docker command as a drop-in replacement for the normal CLI command (`npx @open-wa/wa-automate`). This means you can use CLI flags normally right after `docker run openwa/wa-automate`. The below example runs the library in socket mode.
+You can use the following docker command as a drop-in replacement for the normal CLI command (`npx @open-wa/wa-automate`). This means you can use CLI flags normally right after `docker run openwa/wa-automate`.
 
 ```bash
-> docker run openwa/wa-automate --socket
+> docker run openwa/wa-automate
 ```
 
 The docker image already has some defaults that do not need to be set via additional CLI flags.

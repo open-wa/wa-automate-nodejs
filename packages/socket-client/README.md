@@ -5,10 +5,10 @@
 1. Run the EASY API
 
 ```bash
-> npx @open-wa/wa-automate --socket -p 8002 -k api_key
+> npx @open-wa/wa-automate -p 8002 -k api_key
 ```
 
-Note: `--socket` flag is required!!
+The compatibility client now talks to the EASY API over the active v5 transport: HTTP RPC for command execution and Server-Sent Events (SSE) for runtime events.
 
 2. Typescript code:
 
@@ -25,6 +25,8 @@ const start = async () => {
         "http://localhost:8002",
         "api_key"
     ) as SocketClient & Client;
+
+    // Commands are sent over HTTP and event subscriptions are delivered over SSE.
 
     client.onAnyMessage((message) => {
         console.log("onAnyMessage", message.id, message.body);

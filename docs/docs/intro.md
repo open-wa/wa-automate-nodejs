@@ -16,4 +16,3 @@ There are multiple ways to run this library:
 
 - Your own custom code
   - [Locally](/docs/get-started/installation)
-  - [Socketed](/docs/get-started/socketmode)
