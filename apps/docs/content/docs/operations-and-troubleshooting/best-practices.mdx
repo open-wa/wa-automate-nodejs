@@ -1,0 +1,32 @@
+---
+title: Best practices
+description: Practical guidance for running open-wa more reliably in production.
+---
+
+# Best practices
+
+- Keep session work small and predictable.
+- Offload heavy business logic to your own workers or services.
+- Await client methods consistently.
+- Use a process supervisor for restart policy.
+- Prefer explicit browser configuration when runtime behavior matters.
+- Keep good logging around session lifecycle and transport failures.
+- Plan for message replay or unread-message handling after downtime.
+
+## Example queue-based pattern
+
+```ts
+import PQueue from 'p-queue';
+
+const queue = new PQueue({ concurrency: 4, autoStart: false });
+
+async function start(client: any) {
+  const unreadMessages = await client.getAllUnreadMessages();
+  unreadMessages.forEach((message: any) => queue.add(() => processMessage(message)));
+
+  await client.onMessage((message: any) => queue.add(() => processMessage(message)));
+  queue.start();
+}
+```
+
+Use this pattern when throughput matters more than naive callback fan-out.

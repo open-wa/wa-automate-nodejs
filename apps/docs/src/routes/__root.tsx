@@ -8,6 +8,7 @@ import * as React from 'react';
 import appCss from '@/styles/app.css?url';
 import { RootProvider } from 'fumadocs-ui/provider/tanstack';
 import SearchDialog from '@/components/search';
+import { SITE_NAME } from '@/lib/site';
 
 export const Route = createRootRoute({
   head: () => ({
@@ -20,7 +21,7 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'Fumadocs on TanStack Start',
+        title: SITE_NAME,
       },
     ],
     links: [{ rel: 'stylesheet', href: appCss }],

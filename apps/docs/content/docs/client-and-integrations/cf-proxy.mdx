@@ -1,0 +1,78 @@
+---
+title: Cloudflare Session Proxy
+description: Deploy a reverse-tunnel proxy on Cloudflare Workers to access your sessions remotely — no port forwarding required.
+---
+
+# Cloudflare Session Proxy
+
+The **Cloudflare Session Proxy** (`@open-wa/cf-proxy`) lets you access your WhatsApp sessions from anywhere, without exposing them to the internet or opening any ports. Sessions connect *outward* to a Cloudflare Durable Object, which then relays requests from remote consumers.
+
+## How It Works
+
+```
+Consumer (HTTP / SocketClient)
+       │
+       ▼
+ CF Worker (auth gate)
+       │
+       ▼
+ Durable Object (per-session)
+       │
+       ▼
+ CLI TunnelClient ──► local session
+```
+
+1. You deploy the Worker to your own Cloudflare account.
+2. Your CLI session connects outward to the Worker as an **upstream**.
+3. Consumers make requests via the Worker URL — the Durable Object relays them through the tunnel.
+4. When no traffic is flowing, the WebSocket hibernates at **$0 idle cost**.
+
+## Setup
+
+### 1. Deploy the Worker
+
+```bash
+cd packages/cf-proxy
+wrangler secret put UPSTREAM_TOKEN
+wrangler secret put CONSUMER_TOKEN
+wrangler deploy
+```
+
+### 2. Start a Session with the Proxy
+
+```bash
+wa --session-id my-session \
+   --proxy-host https://open-wa-proxy.account.workers.dev \
+   --proxy-token <UPSTREAM_TOKEN>
+```
+
+Or in config:
+
+```json
+{
+  "sessionId": "my-session",
+  "proxyHost": "https://open-wa-proxy.account.workers.dev",
+  "proxyToken": "<UPSTREAM_TOKEN>"
+}
+```
+
+## Consume the session
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect(
+  'cf-proxy://open-wa-proxy.account.workers.dev?sessionId=my-session&token=CONSUMER_TOKEN'
+);
+```
+
+You can also target the proxy over plain HTTP if you need direct request forwarding.
+
+## Token model
+
+| Token | Purpose |
+|---|---|
+| `UPSTREAM_TOKEN` | authenticates the session attaching to the proxy |
+| `CONSUMER_TOKEN` | authenticates clients accessing the proxied session |
+
+Session-level auth such as your API key still applies on top of the proxy tokens.

@@ -1,12 +1,11 @@
 import { Link } from '@tanstack/react-router';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
+import { baseOptions } from '@/lib/layout.shared';
 
 export function NotFound() {
   return (
     <HomeLayout
-      nav={{
-        title: 'Tanstack Start',
-      }}
+      {...baseOptions()}
       className="text-center py-32 justify-center"
     >
       <div className="flex flex-col items-center gap-4">

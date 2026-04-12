@@ -1,0 +1,36 @@
+---
+title: Link-code login
+description: Authenticate a session with a link code instead of scanning a QR code.
+---
+
+# Link-code login
+
+If the host account supports link-code login, you can request a link code ahead of authentication instead of scanning a QR code.
+
+## Easy API
+
+```bash
+npx @open-wa/wa-automate --link-code "447123456789"
+```
+
+You can also place the same value in your config file:
+
+```json
+{
+  "linkCode": "447123456789"
+}
+```
+
+## In custom code
+
+```ts
+create({
+  linkCode: '447123456789',
+});
+```
+
+## Important behavior
+
+- The code is tied to the host account number you provide.
+- The host device still needs to confirm the login flow.
+- Use this only when you already know which account should own the session.

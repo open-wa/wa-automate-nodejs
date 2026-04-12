@@ -1,0 +1,28 @@
+---
+title: Detect logouts
+description: Detect session state changes and respond when a session becomes unpaired.
+---
+
+# Detect logouts
+
+Use `onStateChanged` to watch session state and react when the session becomes conflicted, unlaunched, or unpaired.
+
+```ts
+client.onStateChanged((state) => {
+  console.log('statechanged', state);
+
+  if (state === 'CONFLICT' || state === 'UNLAUNCHED') {
+    client.forceRefocus();
+  }
+
+  if (state === 'UNPAIRED') {
+    console.log('The session has logged out');
+  }
+});
+```
+
+## Operational guidance
+
+- Log the state transition, not just the terminal failure.
+- Treat `UNPAIRED` as a recovery workflow, not only a console message.
+- Pair this with alerting if the session is production-critical.

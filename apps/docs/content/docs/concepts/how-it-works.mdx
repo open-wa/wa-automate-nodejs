@@ -1,0 +1,52 @@
+---
+title: How it works
+description: The core runtime model behind open-wa automation.
+---
+
+# How it works
+
+At a high level, open-wa automates a browser session, injects a runtime bridge, and exposes a higher-level client surface you can control from your own code or from the Easy API.
+
+## Mental model
+
+Think of the stack like this:
+
+1. a browser runtime opens the WhatsApp Web experience
+2. open-wa attaches the automation/runtime bridge
+3. the client surface exposes actions, listeners, and session lifecycle control
+4. your code, Easy API consumers, or SocketClient consumers talk to that surface
+
+## Why sessions matter so much
+
+Most operational questions in open-wa are really session questions:
+
+- how is the session authenticated?
+- where is its state stored?
+- how is it restored after restart?
+- which process owns it?
+- how do remote consumers reach it?
+
+That is why the docs separate **session events**, **multiple sessions**, **SocketClient**, and **Cloudflare proxy** instead of burying everything under one generic how-to list.
+
+## The three main usage modes
+
+### 1. Library mode
+
+You call `create()` directly and own the client in your application process.
+
+### 2. Easy API mode
+
+You run the runtime as an API surface, then consume it remotely over HTTP and related transports.
+
+### 3. Remote-consumer mode
+
+You connect to an already running Easy API instance with `SocketClient` instead of embedding the browser automation runtime in your own app.
+
+## Why the docs are split the way they are
+
+- **Getting Started** tells you how to boot the runtime.
+- **Guides** tell you how to use it once it exists.
+- **Client & Integrations** cover remote access and ecosystem connections.
+- **Reference** is generated API detail, not onboarding material.
+
+The old legacy docs mixed all of those concerns together. The new structure is explicit so onboarding, operations, and generated API detail do not compete for the same place in the sidebar.

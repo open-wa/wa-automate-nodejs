@@ -1,0 +1,81 @@
+---
+title: Interface - Call
+---
+
+# Interface: Call
+
+## Properties
+
+### State
+
+> **State**: [`CallState`](/docs/reference/api/model/call/enumerations/CallState)
+
+State of the call
+
+***
+
+### canHandleLocally
+
+> **canHandleLocally**: `boolean`
+
+***
+
+### id
+
+> **id**: `string`
+
+The id of the call
+
+***
+
+### isGroup
+
+> **isGroup**: `boolean`
+
+Whether or not the call is a group call
+
+***
+
+### isVideo
+
+> **isVideo**: `boolean`
+
+Whether or not the call is a video call
+
+***
+
+### offerTime
+
+> **offerTime**: `number`
+
+The epoch timestamp of the call. You will have to multiply this by 1000 to get the actual epoch timestamp
+
+***
+
+### outgoing
+
+> **outgoing**: `boolean`
+
+The direction of the call.
+
+***
+
+### participants
+
+> **participants**: [`ContactId`](/docs/reference/api/model/aliases/type-aliases/ContactId)[]
+
+The other participants on a group call
+
+***
+
+### peerJid
+
+> **peerJid**: [`ContactId`](/docs/reference/api/model/aliases/type-aliases/ContactId)
+
+The id of the account calling
+
+***
+
+### webClientShouldHandle
+
+> **webClientShouldHandle**: `boolean`

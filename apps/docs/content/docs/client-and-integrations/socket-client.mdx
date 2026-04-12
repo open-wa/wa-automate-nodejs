@@ -1,0 +1,73 @@
+---
+title: Socket Client
+description: Connect to a remote Easy API instance from your own app using SocketClient.
+---
+
+# Socket Client
+
+`SocketClient` is the compatibility client for connecting to a remote Easy API instance. In the current runtime it uses **HTTP RPC for commands** and **Server-Sent Events for runtime events**, while keeping a client-style surface for consumers.
+
+## Connect to a local or remote Easy API
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'your-api-key');
+```
+
+The client surface exposes direct methods such as `sendText(...)`, and you can also use `ask(...)` / `listen(...)` when you want the explicit transport-level style.
+
+## Authentication
+
+If your Easy API instance is protected with an API key, pass it when connecting:
+
+```ts
+const client = await SocketClient.connect('https://api.example.com', 'your-api-key');
+```
+
+Keep the API key out of browser-exposed code unless that browser is a trusted internal client.
+
+## Send a command
+
+```ts
+await client.sendText('1234567890@c.us', 'Hello from SocketClient');
+
+// explicit RPC style also works
+await client.ask('sendText', {
+  to: '1234567890@c.us',
+  content: 'Hello from SocketClient',
+});
+```
+
+## Listen to events
+
+```ts
+client.onMessage((message) => {
+  console.log(message.body);
+});
+
+await client.listen('onMessage', (message) => {
+  console.log(message.body);
+});
+```
+
+Legacy-style listener helpers are mapped onto the active runtime event stream for you, so you can usually keep familiar event names.
+
+## Cloudflare proxy URLs
+
+`SocketClient.connect()` also understands `cf-proxy://...` URLs for the Cloudflare tunnel flow described in **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)**.
+
+## When to use it
+
+Use `SocketClient` when:
+
+- your automation runtime lives on another machine
+- you want a lightweight consumer app instead of embedding the full browser automation runtime
+- you want to connect dashboards, workers, or services to an Easy API instance
+
+## Troubleshooting
+
+- Verify the base URL first; include the protocol and the correct port.
+- If events do not appear, confirm the target Easy API session is actually healthy before debugging the consumer.
+- If auth is enabled, verify the same API key that works over HTTP is the one you are passing to `SocketClient.connect()`.
+- If you need remote access without opening ports, prefer the Cloudflare proxy route instead of inventing your own transport bridge.

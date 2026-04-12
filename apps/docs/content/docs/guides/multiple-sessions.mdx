@@ -1,0 +1,38 @@
+---
+title: Multiple sessions
+description: Run and coordinate multiple WhatsApp sessions safely.
+---
+
+# Multiple sessions
+
+You can run multiple sessions in the same process, but each session needs a unique `sessionId` and you should manage them deliberately.
+
+## Basic pattern
+
+```ts
+import { create } from '@open-wa/wa-automate';
+
+const registry: Record<string, any> = {};
+
+async function start(client: any) {
+  registry[client.getSessionId()] = client;
+}
+
+await create({ sessionId: 'sales' }).then(start);
+await create({ sessionId: 'support' }).then(start);
+```
+
+## QR handling per session
+
+```ts
+ev.on('qr.**', async (qrcode, sessionId) => {
+  // write or deliver a QR image for each session separately
+});
+```
+
+## Practical rules
+
+- Never reuse the same `sessionId` for two live sessions.
+- Keep a process-level registry if other parts of your app need to address specific sessions.
+- Keep cross-session orchestration outside the client itself whenever possible.
+- If you are running many sessions, think early about process isolation, restart policy, and state storage.

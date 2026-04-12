@@ -1,0 +1,30 @@
+---
+title: Proxying a session
+description: Route the automation runtime through an outbound proxy when your network requires it.
+---
+
+# Proxying a session
+
+If your environment requires outbound traffic to pass through a proxy, set `proxyServerCredentials` in your config.
+
+```ts
+await create({
+  proxyServerCredentials: {
+    address: 'http://proxy.example:1234',
+    username: 'open-wa',
+    password: 'secret',
+  },
+});
+```
+
+## When to use this page
+
+Use this when you need a traditional outbound proxy for the automation runtime itself.
+
+If what you actually want is **remote consumer access to a running session without opening inbound ports**, use **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)** instead.
+
+## Tips
+
+- Keep proxy credentials in environment variables or a secure secret store.
+- Validate proxy behavior during authentication flows, not only after the session is already healthy.
+- Test media upload/download paths explicitly, because those tend to surface proxy issues first.

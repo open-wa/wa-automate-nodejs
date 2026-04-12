@@ -1,0 +1,12 @@
+{
+  "pages": [
+    "index",
+    "getting-started",
+    "guides",
+    "client-and-integrations",
+    "concepts",
+    "reference",
+    "operations-and-troubleshooting",
+    "licensing"
+  ]
+}

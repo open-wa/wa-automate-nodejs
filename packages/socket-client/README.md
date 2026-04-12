@@ -16,7 +16,7 @@ The compatibility client now talks to the EASY API over the active v5 transport:
 import {
     Client,
     SocketClient,
-} from "@open-wa/wa-automate-socket-client";
+} from "@open-wa/socket-client";
 
 const NUMBER = 'TEST_PHONE_NUMBER@c.us'
 

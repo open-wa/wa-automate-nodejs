@@ -1,0 +1,40 @@
+---
+title: Media
+description: Send files and media, then decrypt incoming content when your flow needs access to the raw bytes.
+---
+
+# Media
+
+## Send files and media
+
+```ts
+await client.sendImage(chatId, dataUrl, 'photo.jpg', 'caption');
+await client.sendPtt(chatId, dataUrl);
+await client.sendFile(chatId, dataUrl, 'file.pdf', 'check this pdf');
+await client.sendFileFromUrl(chatId, url);
+await client.sendImageAsSticker(chatId, dataUrl);
+await client.sendStickerfromUrl(chatId, url);
+```
+
+For media helpers that expect content payloads, prefer a proper data URL or a remote URL that your runtime can actually fetch.
+
+## Video and GIF caveat
+
+Video-style delivery depends on the browser/runtime surface you launch with. If you rely on Chrome-specific behavior, configure the browser path explicitly and test against the environment you deploy.
+
+## Decrypt incoming media
+
+```ts
+import { decryptMedia } from '@open-wa/wa-automate';
+
+client.onMessage(async (message) => {
+  if (!message.mimetype) return;
+
+  const mediaData = await decryptMedia(message);
+  // persist, inspect, or re-send it from here
+});
+```
+
+## Recovery helpers
+
+Some older helpers such as stale-media recovery or sticker-specific decryption can depend on the runtime surface you are targeting. Validate those helpers in your deployment before baking them into a production flow.

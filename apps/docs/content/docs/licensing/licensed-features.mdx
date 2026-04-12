@@ -1,0 +1,65 @@
+---
+title: Licensed features
+description: What licensed features are for, how keys are used, and where to validate unlock behavior.
+---
+
+# Licensed features
+
+Some functionality in the historical open-wa surface has been license-gated. The old docs mixed feature marketing, purchasing instructions, and implementation details in one page; this version separates the intent from the operational guidance.
+
+<LicensedFeatureCallout tier="restricted" title="Need a key before you test a gated flow?">
+  Use the public license path first, then validate the specific restricted or
+  insiders behavior in the host-account session you actually plan to run.
+</LicensedFeatureCallout>
+
+## What licensing affects
+
+Historically, license-gated behavior has included features such as:
+
+- certain advanced or insiders-only capabilities
+- restricted flows like messaging non-contact numbers
+- premium/support-tier unlocks tied to a host account
+
+Historically, the biggest source of confusion was assuming a key unlocked behavior globally. In practice, key behavior is usually tied to the session or host-account context you are actually running.
+
+## How keys are supplied
+
+You can provide a license key in the runtime config:
+
+```ts
+await create({
+  licenseKey: 'YOUR-LICENSE-KEY',
+});
+```
+
+Or via the Easy API / CLI path:
+
+```bash
+npx @open-wa/wa-automate --license-key "YOUR-LICENSE-KEY"
+```
+
+## Common license workflow
+
+1. acquire the key for the host account or use case you actually intend to run
+2. supply it through config or CLI at launch
+3. verify the runtime recognizes the key in the session you care about
+4. test the specific gated feature instead of assuming success from configuration alone
+
+## Operational advice
+
+- Treat license configuration as deploy-time secret material.
+- Validate the license against the actual host account you intend to run.
+- If unlock behavior looks inconsistent, verify the host number, deployment clock, and current runtime mode before assuming the key itself is wrong.
+
+## If the key looks wrong
+
+Check these first:
+
+- the host account number associated with the running session
+- whether the feature is actually available in the runtime surface you are using
+- whether the machine clock and deployment environment are sane
+- whether you are testing the gated feature through the same session the key is meant for
+
+## Scope note
+
+Feature availability has changed over time. Use the current generated API reference and runtime behavior as the source of truth for what is available in the build you are actually deploying.

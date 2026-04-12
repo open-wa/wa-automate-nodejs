@@ -1,0 +1,57 @@
+---
+title: Session events
+description: Capture QR codes, session data, and launch lifecycle events with the shared event emitter.
+---
+
+# Session events
+
+When you need lifecycle visibility outside the client convenience methods, use the shared event emitter `ev`.
+
+```ts
+import { ev } from '@open-wa/wa-automate';
+```
+
+## Capture QR codes
+
+```ts
+import { ev } from '@open-wa/wa-automate';
+import fs from 'node:fs';
+
+ev.on('qr.**', async (qrcode) => {
+  const imageBuffer = Buffer.from(
+    qrcode.replace('data:image/png;base64,', ''),
+    'base64',
+  );
+
+  fs.writeFileSync('qr_code.png', imageBuffer);
+});
+```
+
+## Capture session data
+
+```ts
+ev.on('sessionData.**', async (sessionData, sessionId) => {
+  // store or encrypt the latest auth payload for your own workflow
+});
+```
+
+## Listen to launch namespaces
+
+Event names are typically shaped like:
+
+```text
+namespace.sessionId
+```
+
+Examples:
+
+```ts
+ev.on('qr.**', () => {});
+ev.on('sessionData.**', () => {});
+ev.on('**.session1', () => {});
+ev.on('**.**', (data, sessionId, namespace) => {
+  console.log(namespace, sessionId, data);
+});
+```
+
+Use wildcard subscriptions carefully in multi-session environments so you do not lose track of which session produced the event.

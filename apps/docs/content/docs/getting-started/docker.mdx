@@ -1,0 +1,45 @@
+---
+title: Docker
+description: Run open-wa in Docker for Easy API or as a base image for your own project.
+---
+
+# Docker
+
+Use Docker when you want a repeatable runtime with browser dependencies handled for you.
+
+## Run the Easy API container
+
+```bash
+docker run openwa/wa-automate
+```
+
+Pass the same CLI flags you would normally use with `npx @open-wa/wa-automate`.
+
+## Typical production shape
+
+- publish the API port explicitly
+- persist any required session data or browser state
+- add your API key and session id at container start
+
+```bash
+docker run -p 8080:8080 openwa/wa-automate --port 8080 --session-id sales --api-key "your-secure-key"
+```
+
+## Use the image as a base for your own code
+
+If you want the browser/runtime dependencies but not the default entrypoint, override it:
+
+```docker
+FROM openwa/wa-automate
+ENTRYPOINT []
+
+# copy your project and run your own command afterwards
+```
+
+That lets you build your own app on top of the tested runtime image.
+
+## Notes
+
+- Revalidate browser and architecture assumptions against the image you are actually deploying.
+- Keep secrets out of the image and inject them at runtime.
+- If your goal is remote access rather than containerization, look at **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)**.

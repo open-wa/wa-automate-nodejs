@@ -1,0 +1,68 @@
+---
+title: Configuration and CLI
+description: Core runtime settings for custom code and the most important Easy API CLI flags.
+---
+
+# Configuration and CLI
+
+The old legacy docs split configuration across several small pages. This page brings the essentials together.
+
+## Common config fields
+
+Use the config object passed to `create()` for library/runtime behavior such as:
+
+- `sessionId` — stable session naming
+- `headless` — visible vs background browser
+- `useChrome` / `executablePath` — browser selection
+- `qrTimeout` / `authTimeout` — authentication timing
+- `maxQr` — limit QR emission count
+- `cacheEnabled` — page/runtime memory trade-off
+- `licenseKey` — feature unlocks where applicable
+- `proxyServerCredentials` — outbound proxy support
+- `linkCode` — link-code login flow
+
+## Example
+
+```ts
+const client = await create({
+  sessionId: 'sales',
+  useChrome: true,
+  headless: true,
+  qrTimeout: 0,
+  authTimeout: 60,
+});
+```
+
+## High-value CLI flags
+
+```bash
+# networking
+--port 8080
+--api-key "your-secure-key"
+--webhook "https://your-app.example/webhooks/open-wa"
+--api-host "https://api.example.com"
+
+# session identity
+--session-id sales
+--link-code "447123456789"
+
+# runtime helpers
+--pm2
+--tunnel
+--multi-device
+
+# integrations
+--chatwoot-url "https://app.chatwoot.com/api/v1/accounts/123"
+--chatwoot-api-access-token "token"
+
+# licensing
+--license-key "YOUR-LICENSE-KEY"
+```
+
+## Session events worth knowing about
+
+If you need QR images, session-data capture, or low-level launch state, read **[Session events](/docs/guides/session-events)**.
+
+## One important caveat
+
+The old Docusaurus site generated a full CLI options table at build time. This new page intentionally documents the commonly used flags first, while the deeper config surface should ultimately stay aligned with the generated reference and runtime schema.

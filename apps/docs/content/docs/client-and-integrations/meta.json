@@ -1,0 +1,9 @@
+{
+  "title": "Client & Integrations",
+  "pages": [
+    "socket-client",
+    "proxying-a-session",
+    "chatwoot",
+    "cf-proxy"
+  ]
+}

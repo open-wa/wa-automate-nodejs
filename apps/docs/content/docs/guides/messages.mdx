@@ -1,0 +1,56 @@
+---
+title: Messages and message events
+description: Send, receive, reply to, and monitor WhatsApp messages.
+---
+
+# Messages and message events
+
+## Receive messages
+
+```ts
+client.onMessage((message) => {
+  console.log(message.body);
+});
+
+client.onAnyMessage((message) => {
+  console.log(message.body);
+});
+```
+
+Use `onMessage` for incoming traffic only and `onAnyMessage` when you need both directions.
+
+## Send messages
+
+```ts
+await client.sendText(chatId, 'Hello');
+await client.sendTextWithMentions(chatId, 'Hello @447700000000');
+await client.reply(chatId, 'Hello', messageId);
+await client.sendReplyWithMentions(chatId, 'Hello @447700000000', messageId);
+```
+
+Always `await` message operations so failures are visible.
+
+## Forward messages
+
+```ts
+await client.forwardMessages('1234567890@c.us', [messageId], true);
+```
+
+## Read receipts and typing state
+
+```ts
+client.onAck((ack) => {
+  console.log(ack);
+});
+
+await client.simulateTyping(chatId, true);
+await client.simulateTyping(chatId, false);
+```
+
+## Location messages
+
+```ts
+await client.sendLocation(chatId, latitude, longitude, 'London');
+```
+
+When receiving a location message, read fields such as `lat`, `lng`, and `loc` from the incoming message payload.

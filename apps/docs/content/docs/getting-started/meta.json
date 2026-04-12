@@ -1,0 +1,10 @@
+{
+  "title": "Getting Started",
+  "defaultOpen": true,
+  "pages": [
+    "easy-api",
+    "docker",
+    "custom-code",
+    "link-code"
+  ]
+}

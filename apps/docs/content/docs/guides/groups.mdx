@@ -1,0 +1,37 @@
+---
+title: Groups
+description: Create groups, manage participants, and react to group membership changes.
+---
+
+# Groups
+
+## Create a group
+
+```ts
+await client.createGroup('Cool new group', ['1234567890@c.us']);
+```
+
+## Manage participants
+
+```ts
+await client.addParticipant(groupId, participantId);
+await client.removeParticipant(groupId, participantId);
+await client.promoteParticipant(groupId, participantId);
+await client.demoteParticipant(groupId, participantId);
+```
+
+## Listen to membership changes for one group
+
+```ts
+client.onParticipantsChanged(groupId, async (event) => {
+  console.log(event.action, event.who, event.by);
+});
+```
+
+## Listen across all groups
+
+If your runtime supports it, `onGlobalParticipantsChanged` is the cleaner way to monitor participant changes across groups without managing a listener per room.
+
+## Operational note
+
+Participant-change events can still be noisy in the real world. If group state matters to your application, keep your own source of truth and reconcile from events rather than assuming every event is perfect.

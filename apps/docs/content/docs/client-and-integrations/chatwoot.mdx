@@ -1,0 +1,45 @@
+---
+title: Chatwoot
+description: Connect open-wa to Chatwoot for bidirectional message handling.
+---
+
+# Chatwoot
+
+The legacy docs described Chatwoot mostly as a CLI flag combination. The current repository also includes a dedicated Chatwoot integration package, so the modern mental model is: **Chatwoot is an integration layer, not just a one-off command example**.
+
+## Core inputs
+
+At minimum you need:
+
+- the Chatwoot base or account URL
+- a Chatwoot API access token
+- the public API host your open-wa runtime exposes back to Chatwoot
+- an API key if your webhook endpoint is protected
+
+## Current config shape
+
+The integration package defines fields such as:
+
+- `chatwootUrl`
+- `chatwootApiAccessToken`
+- `apiHost`
+- `apiKey`
+- `forceUpdateCwWebhook`
+
+## Legacy Easy API flags
+
+If you are still wiring Chatwoot through the Easy API surface directly, the legacy flags remain the conceptual bridge:
+
+```bash
+--chatwoot-url "https://app.chatwoot.com/api/v1/accounts/123"
+--chatwoot-api-access-token "token"
+```
+
+## Recommendation
+
+Treat Chatwoot as a proper integration deployment:
+
+1. secure the inbound webhook path
+2. confirm outgoing message sync in both directions
+3. verify media handling and webhook updates
+4. make the public API host explicit so Chatwoot always calls the right address

@@ -1,0 +1,43 @@
+---
+title: Error handling
+description: Handle runtime failures, create-time failures, and browser-side issues safely.
+---
+
+# Error handling
+
+Treat every client method as an async operation and handle failures explicitly.
+
+## Application-level pattern
+
+```ts
+client.onMessage(async (message) => {
+  try {
+    await client.sendText(message.from, 'Hi!');
+  } catch (error) {
+    console.error(error);
+  }
+});
+```
+
+## Handling `create()` failures
+
+```ts
+async function launch() {
+  try {
+    const client = await create();
+    await start(client);
+  } catch (error) {
+    console.error(error);
+  }
+}
+```
+
+## Operational helpers
+
+- `restartOnCrash` can help supervised runtimes restart predictably.
+- `logConsole` and `logConsoleErrors` help when the browser runtime is the real failure source.
+- `killProcessOnBrowserClose` is useful when an external supervisor is responsible for restart policy.
+
+## Browser/page errors
+
+Because the runtime is browser-backed, you can also inspect page-level errors through the underlying page surface when your flow needs deeper debugging.

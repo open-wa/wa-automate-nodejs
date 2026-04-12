@@ -1,0 +1,38 @@
+---
+title: Glossary
+description: Core terms used throughout the open-wa docs.
+---
+
+# Glossary
+
+## Session
+
+A session is a named automation instance. The `sessionId` is the stable identifier you use to distinguish one runtime from another.
+
+## Host account
+
+The WhatsApp account that authenticates and owns the session.
+
+## Headless / headful
+
+`headless` means the browser runs without a visible UI. `headful` means the browser window is visible for debugging or manual observation.
+
+## Re-auth
+
+Re-auth is the process of bringing an existing session back online without a fresh QR scan when the required auth state is still usable.
+
+## Re-scan
+
+A re-scan is the user action of scanning a fresh QR code after a session can no longer be restored automatically.
+
+## Session data
+
+Session data is the authentication material used to restore a session. How portable it is depends on the auth/runtime mode you are using.
+
+## Easy API
+
+The hosted runtime surface that exposes client functionality over HTTP and related runtime transports.
+
+## SocketClient
+
+The remote consumer client used to connect to an Easy API instance without embedding the full browser automation runtime in your own app.

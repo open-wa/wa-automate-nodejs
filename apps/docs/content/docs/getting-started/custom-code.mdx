@@ -1,0 +1,81 @@
+---
+title: Custom code
+description: Install the library, create a client, and start building your own automation flow.
+---
+
+# Custom code
+
+Use this path when you want to embed `@open-wa/wa-automate` in your own Node.js application instead of running only the Easy API.
+
+## Install
+
+```bash
+npm install @open-wa/wa-automate
+```
+
+If your environment has stricter native-install permissions, only fall back to `--unsafe-perm` when you have confirmed you actually need it.
+
+## Minimal example
+
+```ts
+import { create } from '@open-wa/wa-automate';
+
+async function start() {
+  const client = await create({
+    sessionId: 'my-session',
+  });
+
+  client.onMessage(async (message) => {
+    if (message.body === 'Hi') {
+      await client.sendText(message.from, '👋 Hello!');
+    }
+  });
+}
+
+start().catch(console.error);
+```
+
+## What `create()` does
+
+`create()` launches the automation runtime, restores or authenticates the session, and returns the client surface you use for listeners and actions.
+
+It is the boundary where configuration, browser launch, authentication state, and runtime listeners all meet.
+
+## Build a real launch config
+
+```ts
+const client = await create({
+  sessionId: 'sales',
+  headless: true,
+  useChrome: true,
+  qrTimeout: 0,
+  authTimeout: 60,
+});
+```
+
+Use `useChrome` or `executablePath` when browser-specific behavior matters for your flow.
+
+## Browser/runtime notes
+
+- If you are using your own Chrome install, make that explicit instead of depending on auto-discovery.
+- On Linux hosts, validate browser dependencies before debugging application logic.
+- Keep the browser/runtime assumptions the same between local development and production where possible.
+
+## Recommended next steps
+
+- Move session-specific settings into a real config object.
+- Read **[Configuration and CLI](/docs/guides/configuration-and-cli)** for the core options.
+- Read **[Session events](/docs/guides/session-events)** if you need QR or lifecycle hooks.
+- Read **[Best practices](/docs/operations-and-troubleshooting/best-practices)** before production rollout.
+
+## Runtime notes
+
+- Prefer explicit Chrome configuration when you rely on browser-specific behavior.
+- Keep one primary client per process unless you have a clear multi-session orchestration plan.
+- Treat all client methods as async operations and await them consistently.
+
+## Common next moves
+
+- Add `ev` listeners when you need raw lifecycle hooks.
+- Externalize heavy work to queues or workers instead of doing everything inside one `onMessage` callback.
+- Read **[Error handling](/docs/operations-and-troubleshooting/error-handling)** and **[Best practices](/docs/operations-and-troubleshooting/best-practices)** before shipping a long-running bot.

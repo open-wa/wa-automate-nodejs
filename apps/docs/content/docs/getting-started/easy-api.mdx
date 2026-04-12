@@ -1,0 +1,99 @@
+---
+title: Easy API quick start
+description: Start the open-wa Easy API, secure it, and expose it safely.
+---
+
+# Easy API quick start
+
+If you want a running WhatsApp API with the smallest amount of setup, start here.
+
+## Run it
+
+```bash
+npx @open-wa/wa-automate
+```
+
+That starts an Easy API instance and prints the local address for the API and the interactive docs.
+
+## What you get
+
+When the runtime is healthy you usually have three things:
+
+- the session bootstrap flow (QR or link-code authentication)
+- the HTTP API surface
+- the generated interactive docs for that running session
+
+That makes Easy API the fastest route from “I want an API” to “I can send and receive messages”.
+
+## Common flags
+
+```bash
+# choose a port
+npx @open-wa/wa-automate --port 8080
+
+# protect the API with a generated key
+npx @open-wa/wa-automate --port 8080 --api-key
+
+# or provide your own key
+npx @open-wa/wa-automate --port 8080 --api-key "your-secure-key"
+
+# run a named session
+npx @open-wa/wa-automate --session-id sales --port 8081
+```
+
+## Good defaults for a first session
+
+- Set a **session id** early if you plan to run more than one account.
+- Protect the API with an **API key** before exposing it anywhere outside your machine.
+- Treat the Easy API as a **runtime surface**, then move business logic into your own app or worker processes.
+
+## Authentication paths
+
+- If you are doing an ordinary first login, scan the QR code the runtime emits.
+- If you already know the host account number and want to avoid QR scanning, use **[Link-code login](/docs/getting-started/link-code)**.
+
+## Deployment notes
+
+- Use `--api-host` when the public address seen by consumers differs from the local bind address.
+- Use `--session-id` plus distinct ports when you run multiple sessions on one host.
+- Put restart policy around the process early; do not wait until you have a flaky production incident.
+
+## Tunneling and remote access
+
+For quick testing outside your LAN, use a tunnel-capable deployment mode.
+
+```bash
+npx @open-wa/wa-automate --port 8080 --api-key "your-secure-key" --tunnel
+```
+
+If you want a more controlled remote-access model, use **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)** instead.
+
+## Webhooks
+
+```bash
+npx @open-wa/wa-automate --webhook "https://your-app.example/webhooks/open-wa"
+```
+
+Use a test endpoint such as `webhook.site` while developing, then move to your real application endpoint once your payload handling is stable.
+
+## Process management
+
+If you want automatic restarts and supervised uptime, run under a process manager.
+
+```bash
+npx @open-wa/wa-automate --pm2 --session-id STICKER-BOT
+```
+
+PM2 is useful when you need process restarts, basic memory controls, and a named process per session.
+
+## When to graduate from this page
+
+- Move to **[Custom code](/docs/getting-started/custom-code)** if you want direct client control.
+- Move to **[Socket Client](/docs/client-and-integrations/socket-client)** if your app needs to consume a remote Easy API instance.
+- Move to **[Multiple sessions](/docs/guides/multiple-sessions)** if one runtime is no longer enough.
+
+## Related guides
+
+- **[CLI options](/docs/guides/configuration-and-cli)**
+- **[Multiple sessions](/docs/guides/multiple-sessions)**
+- **[Socket Client](/docs/client-and-integrations/socket-client)**
