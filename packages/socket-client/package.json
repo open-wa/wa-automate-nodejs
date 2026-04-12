@@ -41,6 +41,7 @@
   "dependencies": {
     "@open-wa/wa-automate-types-only": "workspace:*",
     "debug": "^4.3.4",
+    "eventsource": "^3.0.7",
     "eventemitter2": "^6.4.9",
     "isomorphic-ws": "^5.0.0",
     "ws": "^8.20.0"

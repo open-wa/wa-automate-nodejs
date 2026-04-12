@@ -99,12 +99,6 @@ catalogs:
     serve:
       specifier: ^14.2.5
       version: 14.2.5
-    socket.io:
-      specifier: ^4.5.4
-      version: 4.8.1
-    socket.io-client:
-      specifier: ^4.7.5
-      version: 4.8.1
     tailwind-merge:
       specifier: 2.6.0
       version: 2.6.0
@@ -191,73 +185,6 @@ importers:
         specifier: 'catalog:'
         version: 6.0.2
 
-  apps/dashboard:
-    dependencies:
-      '@open-wa/ui-components':
-        specifier: workspace:*
-        version: link:../../packages/ui-components
-      '@tanstack/react-query':
-        specifier: 'catalog:'
-        version: 5.95.2(react@19.2.4)
-      '@tanstack/react-router':
-        specifier: 'catalog:'
-        version: 1.168.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@tanstack/react-router-ssr-query':
-        specifier: 'catalog:'
-        version: 1.166.10(@tanstack/query-core@5.95.2)(@tanstack/react-query@5.95.2(react@19.2.4))(@tanstack/react-router@1.168.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@tanstack/router-core@1.168.7)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@tanstack/react-start':
-        specifier: 'catalog:'
-        version: 1.167.14(crossws@0.4.4(srvx@0.11.13))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(webpack@5.103.0(esbuild@0.27.4))
-      '@tanstack/router-plugin':
-        specifier: 'catalog:'
-        version: 1.167.10(@tanstack/react-router@1.168.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(webpack@5.103.0(esbuild@0.27.4))
-      clsx:
-        specifier: 'catalog:'
-        version: 2.1.1
-      react:
-        specifier: 'catalog:'
-        version: 19.2.4
-      react-dom:
-        specifier: 'catalog:'
-        version: 19.2.4(react@19.2.4)
-      socket.io-client:
-        specifier: 'catalog:'
-        version: 4.8.1
-      tailwind-merge:
-        specifier: 'catalog:'
-        version: 2.6.0
-      tailwindcss:
-        specifier: 'catalog:'
-        version: 4.2.2
-      zod:
-        specifier: 'catalog:'
-        version: 4.3.6
-    devDependencies:
-      '@tailwindcss/vite':
-        specifier: 'catalog:'
-        version: 4.2.2(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
-      '@tanstack/router-generator':
-        specifier: 'catalog:'
-        version: 1.166.22
-      '@types/react':
-        specifier: 'catalog:'
-        version: 19.2.14
-      '@types/react-dom':
-        specifier: 'catalog:'
-        version: 19.2.3(@types/react@19.2.14)
-      '@vitejs/plugin-react':
-        specifier: 'catalog:'
-        version: 6.0.1(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.2
-      vite:
-        specifier: 'catalog:'
-        version: 8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
-      vite-tsconfig-paths:
-        specifier: 'catalog:'
-        version: 6.1.1(typescript@6.0.2)(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
-
   apps/dashboard-neo:
     dependencies:
       '@base-ui/react':
@@ -320,9 +247,6 @@ importers:
       shadcn:
         specifier: ^4.1.2
         version: 4.1.2(@types/node@22.19.15)(typescript@5.9.3)
-      socket.io-client:
-        specifier: 'catalog:'
-        version: 4.8.1
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -721,9 +645,6 @@ importers:
       hono:
         specifier: 'catalog:'
         version: 4.12.9
-      socket.io:
-        specifier: 'catalog:'
-        version: 4.8.1
       tree-kill:
         specifier: ^1.2.2
         version: 1.2.2
@@ -937,6 +858,22 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.2
+
+  packages/driver-lightpanda:
+    dependencies:
+      '@open-wa/driver-interface':
+        specifier: workspace:*
+        version: link:../driver-interface
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.5.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.2
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.2(@opentelemetry/api@1.9.0)(@types/node@25.5.0)(jsdom@27.4.0(@noble/hashes@1.8.0))(msw@2.12.14(@types/node@25.5.0)(typescript@6.0.2))(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/driver-playwright:
     dependencies:
@@ -1926,12 +1863,12 @@ importers:
       eventemitter2:
         specifier: ^6.4.9
         version: 6.4.9
+      eventsource:
+        specifier: ^3.0.7
+        version: 3.0.7
       isomorphic-ws:
         specifier: ^5.0.0
         version: 5.0.0(ws@8.20.0)
-      socket.io-client:
-        specifier: 'catalog:'
-        version: 4.8.1
       ws:
         specifier: ^8.20.0
         version: 8.20.0
@@ -2077,9 +2014,6 @@ importers:
       qrcode-terminal:
         specifier: ^0.12.0
         version: 0.12.0
-      socket.io:
-        specifier: 'catalog:'
-        version: 4.8.1
     devDependencies:
       typescript:
         specifier: 'catalog:'

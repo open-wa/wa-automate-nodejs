@@ -21,6 +21,7 @@
     "@open-wa/client": "workspace:*",
     "@open-wa/config": "workspace:*",
     "@open-wa/core": "workspace:*",
+    "@open-wa/driver-lightpanda": "workspace:*",
     "@open-wa/driver-puppeteer": "workspace:*",
     "@open-wa/logger": "workspace:*",
     "@open-wa/schema": "workspace:*",

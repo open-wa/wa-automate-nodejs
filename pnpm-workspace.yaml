@@ -2,6 +2,7 @@ packages:
   - packages/*
   - apps/*
   - packages/driver-interface
+  - packages/driver-lightpanda
   - packages/driver-puppeteer
   - packages/driver-playwright
   - integrations/*
