@@ -9,8 +9,11 @@ const nodeInit: NodeInitializer = async (RED): Promise<void> => {
     config: OwaServerNodeDef
   ): void {
     /**
-     * Create global socket store
-     * var globalContext = this.context().global;
+     * Create global client store.
+     *
+     * Legacy note: the surrounding Node-RED API still uses "socket" naming for
+     * backward compatibility, but the v5 runtime is backed by the remote client
+     * transport wrapper instead of @open-wa/api SocketManager.
      */
     RED.nodes.createNode(this, config);
     this.name = config.name;

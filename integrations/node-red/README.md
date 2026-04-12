@@ -11,7 +11,12 @@
 
 ### Prerequisites
 
-Have Node-RED installed and working, if you need to install Node-RED see [here](https://nodered.org/docs/getting-started/installation). Also ensure you have an authenticated and up-to-date EASY API session running with the `--socket` flag.
+Have Node-RED installed and working, if you need to install Node-RED see [here](https://nodered.org/docs/getting-started/installation).
+
+Legacy compatibility note: this integration still uses the `@open-wa/socket-client`
+surface for backward compatibility, but the active v5 runtime is backed by HTTP
+RPC + SSE rather than direct Socket.IO. Do not depend on `SocketManager` from
+`@open-wa/api` when integrating with current releases.
 
 - [Node.js](https://nodejs.org) v14.15.0 or newer
 - [NPM](https://nodejs.org) v7.12.0 or newer
@@ -24,9 +29,9 @@ Have Node-RED installed and working, if you need to install Node-RED see [here](
 # Install open-wa
 > npm i @open-wa/wa-automate@latest
 
-# Use the CLI to launch an instance of the EASY API, make sure to add --socket flag
+# Use the CLI to launch an instance of the EASY API
 
-> npx @open-wa/wa-automate --socket -p 8080
+> npx @open-wa/wa-automate -p 8080
 
 # If this is the first time you are running the EASY API, you will need to scan the qr code.
 ```

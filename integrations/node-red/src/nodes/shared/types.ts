@@ -1,6 +1,10 @@
 /**
  * Runtime-only types that depend on @open-wa/socket-client.
- * Re-exports common types for backward compatibility.
+ *
+ * Legacy compatibility note:
+ * - Node-RED still uses the SocketClient naming surface for backward compat.
+ * - In v5 the active runtime transport is HTTP RPC + SSE, not direct Socket.IO.
+ * - Do not import SocketManager from @open-wa/api here.
  */
 import { SocketClient } from '@open-wa/socket-client';
 

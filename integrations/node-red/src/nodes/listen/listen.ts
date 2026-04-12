@@ -27,6 +27,9 @@ const nodeInit: NodeInitializer = (RED): void => {
           if (!this.server?.client.socket) {
             return "Please set a server first!"
           }
+          // Legacy compatibility path: keep the socket-style init hook for
+          // existing Node-RED flows, but do not depend on @open-wa/api
+          // SocketManager. The compat client is backed by the v5 transport.
           this.server?.client.socket.emit("node_red_init_listen", (data: unknown) => {
             res.json(data)
           })

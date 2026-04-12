@@ -1,4 +1,3 @@
-import { Client } from "@open-wa/socket-client";
 import { NodeInitializer } from "node-red";
 import { OwaServerNode } from "../owa-server/modules/types";
 import { CmdNode, CmdNodeDef } from "./modules/types";
@@ -39,13 +38,16 @@ const nodeInit: NodeInitializer = (RED): void => {
     }
 
 
-    RED.httpAdmin.get("/node_red_init_call", (req, res) => {
-      this.server = RED.nodes.getNode(config.server) as OwaServerNode;
-      if (!this.server?.client.socket) {
-        return "Please set a server first!"
-      }
-      this.server?.client.socket.emit("node_red_init_call", (data: unknown) => res.json(data))
-    })
+      RED.httpAdmin.get("/node_red_init_call", (req, res) => {
+        this.server = RED.nodes.getNode(config.server) as OwaServerNode;
+        if (!this.server?.client.socket) {
+          return "Please set a server first!"
+        }
+        // Legacy compatibility path: keep the socket-style init hook for
+        // existing Node-RED flows, but do not depend on @open-wa/api
+        // SocketManager. The compat client is backed by the v5 transport.
+        this.server?.client.socket.emit("node_red_init_call", (data: unknown) => res.json(data))
+      })
 
     this.on("input", (msg, send, done) => {
       const m = msg as {
