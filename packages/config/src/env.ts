@@ -21,25 +21,43 @@ const ENV_ALIASES: Record<string, string> = {
   DEBUG: 'devtools', // WA_DEBUG -> devtools (historical alias)
   BROWSER_WS_ENDPOINT: 'browserWSEndpoint', // Acronym casing: WS not Ws
   BYPASS_CSP: 'bypassCSP', // Acronym casing: CSP not Csp
+  USE_LIGHTPANDA: 'useLightpanda',
+  LIGHTPANDA_EXECUTABLE_PATH: 'lightpanda.executablePath',
+  LIGHTPANDA_PORT_START: 'lightpanda.portStart',
+  LIGHTPANDA_HOST: 'lightpanda.host',
+  LIGHTPANDA_STARTUP_TIMEOUT_MS: 'lightpanda.startupTimeoutMs',
+  LIGHTPANDA_DISABLE_TELEMETRY: 'lightpanda.disableTelemetry',
 };
 
 /**
  * Get all valid config keys from the Zod schema (single source of truth)
  */
 const VALID_CONFIG_KEYS = new Set(Object.keys(ConfigSchema.shape));
+const NESTED_ENV_PREFIXES = new Set(['lightpanda']);
 
 /**
  * Detect the expected type for a config key from the Zod schema.
  * Returns: 'number' | 'boolean' | 'array' | 'object' | 'string'
  */
 function getSchemaFieldType(key: string): 'number' | 'boolean' | 'array' | 'object' | 'string' {
-  const field = ConfigSchema.shape[key as keyof typeof ConfigSchema.shape];
+  const [topLevelKey, nestedKey] = key.split('.', 2);
+  const field = ConfigSchema.shape[topLevelKey as keyof typeof ConfigSchema.shape];
   if (!field) return 'string';
 
   // Unwrap optional/default wrappers
   let inner: z.ZodTypeAny = field;
   while (inner instanceof z.ZodOptional || inner instanceof z.ZodDefault) {
     inner = inner._def.innerType as z.ZodTypeAny;
+  }
+
+  if (nestedKey && inner instanceof z.ZodObject) {
+    const nestedField = inner.shape[nestedKey as keyof typeof inner.shape] as z.ZodTypeAny | undefined;
+    if (!nestedField) return 'string';
+
+    inner = nestedField;
+    while (inner instanceof z.ZodOptional || inner instanceof z.ZodDefault) {
+      inner = inner._def.innerType as z.ZodTypeAny;
+    }
   }
 
   // Check types
@@ -116,7 +134,7 @@ function envNameToConfigKey(envName: string, prefix: string): string | null {
 
   // Check aliases first
   const alias = ENV_ALIASES[withoutPrefix];
-  if (alias && VALID_CONFIG_KEYS.has(alias)) {
+  if (alias && (VALID_CONFIG_KEYS.has(alias) || isNestedConfigKey(alias))) {
     return alias;
   }
 
@@ -130,6 +148,41 @@ function envNameToConfigKey(envName: string, prefix: string): string | null {
 
   // Not a valid config key
   return null;
+}
+
+function isNestedConfigKey(key: string): boolean {
+  const [topLevelKey, nestedKey] = key.split('.', 2);
+  if (!nestedKey || !NESTED_ENV_PREFIXES.has(topLevelKey)) {
+    return false;
+  }
+
+  const field = ConfigSchema.shape[topLevelKey as keyof typeof ConfigSchema.shape];
+  if (!field) return false;
+
+  let inner: z.ZodTypeAny = field;
+  while (inner instanceof z.ZodOptional || inner instanceof z.ZodDefault) {
+    inner = inner._def.innerType as z.ZodTypeAny;
+  }
+
+  return inner instanceof z.ZodObject && nestedKey in inner.shape;
+}
+
+function setConfigValue(target: Record<string, unknown>, key: string, value: unknown): void {
+  const [topLevelKey, nestedKey] = key.split('.', 2);
+
+  if (!nestedKey) {
+    target[topLevelKey] = value;
+    return;
+  }
+
+  const existing = target[topLevelKey];
+  const nestedTarget =
+    existing && typeof existing === 'object' && !Array.isArray(existing)
+      ? (existing as Record<string, unknown>)
+      : {};
+
+  nestedTarget[nestedKey] = value;
+  target[topLevelKey] = nestedTarget;
 }
 
 /**
@@ -182,7 +235,7 @@ export function loadFromEnv(options: LoadEnvOptions = {}): PartialConfig {
 
     // Parse the value based on schema type
     const parsedValue = parseEnvValue(value, configKey);
-    config[configKey] = parsedValue;
+    setConfigValue(config, configKey, parsedValue);
     loadedVars.push(
       `${envName}=${typeof parsedValue === 'string' ? parsedValue : JSON.stringify(parsedValue)}`
     );
@@ -207,13 +260,9 @@ export function configKeyToEnvVar(key: string, prefix: string = 'WA_'): string {
   }
 
   // Standard camelCase to SNAKE_CASE conversion
-  return (
-    prefix +
-    key
-      .replace(/([A-Z])/g, '_$1')
-      .toUpperCase()
-      .replace(/^_/, '')
-  );
+  const normalizedKey = key.replace(/\./g, '_');
+
+  return prefix + normalizedKey.replace(/([A-Z])/g, '_$1').toUpperCase().replace(/^_/, '');
 }
 
 /**
@@ -223,7 +272,23 @@ export function configKeyToEnvVar(key: string, prefix: string = 'WA_'): string {
 export function getConfigEnvVars(
   prefix: string = 'WA_'
 ): Array<{ envVar: string; configKey: string }> {
-  return Array.from(VALID_CONFIG_KEYS).map((configKey) => ({
+  const nestedConfigKeys = Array.from(NESTED_ENV_PREFIXES).flatMap((topLevelKey) => {
+    const field = ConfigSchema.shape[topLevelKey as keyof typeof ConfigSchema.shape];
+    if (!field) return [];
+
+    let inner: z.ZodTypeAny = field;
+    while (inner instanceof z.ZodOptional || inner instanceof z.ZodDefault) {
+      inner = inner._def.innerType as z.ZodTypeAny;
+    }
+
+    if (!(inner instanceof z.ZodObject)) {
+      return [];
+    }
+
+    return Object.keys(inner.shape).map((nestedKey) => `${topLevelKey}.${nestedKey}`);
+  });
+
+  return [...Array.from(VALID_CONFIG_KEYS), ...nestedConfigKeys].map((configKey) => ({
     envVar: configKeyToEnvVar(configKey, prefix),
     configKey,
   }));

@@ -112,6 +112,28 @@ export const ViewportSchema = z.object({
   height: z.number().default(900).describe('Page height in pixels'),
 });
 
+export const LightpandaOptionsSchema = z.object({
+  executablePath: z.string().optional().describe('Override path to Lightpanda binary.'),
+  portStart: z
+    .number()
+    .int()
+    .min(1024)
+    .max(65535)
+    .default(9000)
+    .describe('First Lightpanda port to try.'),
+  host: z.string().default('127.0.0.1').describe('Lightpanda bind address.'),
+  startupTimeoutMs: z
+    .number()
+    .int()
+    .positive()
+    .default(30000)
+    .describe('How long to wait for Lightpanda readiness.'),
+  disableTelemetry: z
+    .boolean()
+    .default(false)
+    .describe('Disable Lightpanda telemetry for deterministic startup.'),
+});
+
 export const S3SyncSchema = z.object({
   bucket: z.string().describe('S3 bucket name'),
   region: z.string().describe('S3 region'),
@@ -199,6 +221,10 @@ export const ConfigSchema = z.object({
   executablePath: z.string().optional().describe('Path to chrome instance.'),
 
   useChrome: z.boolean().default(false).describe('Automatically detect chrome instance.'),
+
+  useLightpanda: z.boolean().default(false).describe('Enable Lightpanda local browser mode.'),
+
+  lightpanda: LightpandaOptionsSchema.optional().describe('Lightpanda local mode configuration.'),
 
   headless: z.boolean().default(true).describe('Run browser in headless mode.'),
 
@@ -472,6 +498,7 @@ export type DevTools = z.infer<typeof DevToolsSchema>;
 export type ProxyServerCredentials = z.infer<typeof ProxyServerCredentialsSchema>;
 export type CloudUploadOptions = z.infer<typeof CloudUploadOptionsSchema>;
 export type Viewport = z.infer<typeof ViewportSchema>;
+export type LightpandaOptions = z.infer<typeof LightpandaOptionsSchema>;
 export type S3Sync = z.infer<typeof S3SyncSchema>;
 export type LoggingTransport = z.infer<typeof LoggingTransportSchema>;
 

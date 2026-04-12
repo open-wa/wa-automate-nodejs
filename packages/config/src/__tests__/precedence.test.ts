@@ -318,6 +318,58 @@ describe('Configuration Precedence', () => {
   });
 
   describe('Real-world Scenarios', () => {
+    it('normalizes Lightpanda config through merged precedence into one runtime shape', () => {
+      const result = resolveConfigSync({
+        fileConfig: {
+          useLightpanda: true,
+          lightpanda: {
+            executablePath: '/file/lightpanda',
+            portStart: 9100,
+          },
+        },
+        envOptions: {
+          env: {
+            WA_LIGHTPANDA_HOST: '127.0.0.1',
+            WA_LIGHTPANDA_DISABLE_TELEMETRY: 'true',
+          },
+        },
+        cliOverrides: {
+          lightpanda: {
+            startupTimeoutMs: 45000,
+          },
+        },
+        programmaticOverrides: {
+          lightpanda: {
+            portStart: 9200,
+          },
+        },
+        includeRawConfigs: true,
+      });
+
+      expect(result.config.useLightpanda).toBe(true);
+      expect(result.config.lightpanda).toEqual({
+        executablePath: '/file/lightpanda',
+        portStart: 9200,
+        host: '127.0.0.1',
+        startupTimeoutMs: 45000,
+        disableTelemetry: true,
+      });
+      expect(result.rawConfigs?.file?.lightpanda).toEqual({
+        executablePath: '/file/lightpanda',
+        portStart: 9100,
+      });
+      expect(result.rawConfigs?.env?.lightpanda).toEqual({
+        host: '127.0.0.1',
+        disableTelemetry: true,
+      });
+      expect(result.rawConfigs?.cli?.lightpanda).toEqual({
+        startupTimeoutMs: 45000,
+      });
+      expect(result.rawConfigs?.programmatic?.lightpanda).toEqual({
+        portStart: 9200,
+      });
+    });
+
     it('scenario: developer overrides production config file with env for local dev', () => {
       // Production config file
       const fileConfig = {

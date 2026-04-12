@@ -132,6 +132,32 @@ describe('Environment Variable Loader', () => {
 
       expect(config.chromiumArgs).toEqual(['--no-sandbox', '--disable-gpu']);
     });
+
+    it('should load WA_USE_LIGHTPANDA as a top-level boolean alias', () => {
+      const env = { WA_USE_LIGHTPANDA: 'true' };
+      const config = loadFromEnv({ env });
+
+      expect(config.useLightpanda).toBe(true);
+    });
+
+    it('should build nested lightpanda config from WA_LIGHTPANDA_* env vars', () => {
+      const env = {
+        WA_LIGHTPANDA_EXECUTABLE_PATH: '/tmp/lightpanda',
+        WA_LIGHTPANDA_PORT_START: '9100',
+        WA_LIGHTPANDA_HOST: '0.0.0.0',
+        WA_LIGHTPANDA_STARTUP_TIMEOUT_MS: '45000',
+        WA_LIGHTPANDA_DISABLE_TELEMETRY: 'true',
+      };
+      const config = loadFromEnv({ env });
+
+      expect(config.lightpanda).toEqual({
+        executablePath: '/tmp/lightpanda',
+        portStart: 9100,
+        host: '0.0.0.0',
+        startupTimeoutMs: 45000,
+        disableTelemetry: true,
+      });
+    });
   });
 
   describe('getConfigEnvVars', () => {
@@ -154,6 +180,8 @@ describe('Environment Variable Loader', () => {
       expect(envVarNames).toContain('WA_PORT');
       expect(envVarNames).toContain('WA_HEADLESS');
       expect(envVarNames).toContain('WA_LICENSE_KEY');
+      expect(envVarNames).toContain('WA_USE_LIGHTPANDA');
+      expect(envVarNames).toContain('WA_LIGHTPANDA_PORT_START');
     });
   });
 });
