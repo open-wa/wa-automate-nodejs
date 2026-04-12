@@ -22,11 +22,6 @@ export function migrateV4Config(oldConfig: Record<string, unknown>): Record<stri
         config.authTimeout = parseInt(config.authTimeout, 10);
     }
 
-    // Ensure socketMode defaults to true for v5 if not specified
-    if (config.socketMode === undefined) {
-        config.socketMode = true;
-    }
-
     if (config.apiLifecycle === undefined) {
         config.apiLifecycle = 'hybrid';
     }

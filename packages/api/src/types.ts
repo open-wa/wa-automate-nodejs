@@ -1,7 +1,7 @@
 import type { Config, HttpMethodDefinition } from '@open-wa/schema';
 import type { Hono } from 'hono';
-import type { Server as SocketIOServer } from 'socket.io';
 import type { ElasticEmitter } from './monitoring/elastic';
+import type { EventBroadcaster } from './events/EventBroadcaster';
 
 export type ClientMethodMap = Record<string, (...args: any[]) => Promise<any> | any>;
 export type ClientSource = ClientMethodMap | undefined | (() => ClientMethodMap | undefined);
@@ -27,5 +27,5 @@ export interface ApiServerOptions {
 
 export interface ApiServerLike {
   getApp(): Hono;
-  getIO(): SocketIOServer | undefined;
+  getEventBroadcaster(): EventBroadcaster;
 }

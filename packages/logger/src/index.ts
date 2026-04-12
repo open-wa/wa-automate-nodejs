@@ -12,7 +12,6 @@ export * from './security/censors';
 
 // Middleware
 export { honoLogger } from './middleware/hono';
-export { socketLogger } from './middleware/socket';
 
 // Sub-export: Terminal UI
 export * as terminal from './terminal';

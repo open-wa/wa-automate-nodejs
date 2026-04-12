@@ -8,8 +8,7 @@ describe('Hono Middleware', () => {
             const config = ConfigSchema.parse({
                 sessionId: 'test',
                 apiLifecycle: 'immediate',
-                port: 8001,
-                socketMode: false
+                port: 8001
             });
 
             const server = new WAServer(config);
@@ -27,8 +26,7 @@ describe('Hono Middleware', () => {
             const config = ConfigSchema.parse({
                 sessionId: 'test',
                 apiLifecycle: 'post-connection',
-                port: 8002,
-                socketMode: false
+                port: 8002
             });
 
             const server = new WAServer(config);

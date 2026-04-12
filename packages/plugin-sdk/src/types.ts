@@ -42,25 +42,26 @@ export interface PluginInput<TConfig = unknown> {
   /**
    * Client proxy for calling WA methods.
    *
-   * This is the full SocketClient interface — you can call any method
+   * This is the full remote client interface — you can call any method
    * that's available on the regular Client (sendText, sendImage, etc).
    *
-   * Under the hood this is backed by a SocketClient-style proxy;
-   * plugins never get direct browser/CDP access.
+   * Under the hood this is backed by the host transport proxy.
+   * In v5 that proxy is transport-agnostic and may use HTTP RPC/SSE under
+   * the hood; plugins never get direct browser/CDP access.
    */
   client: PluginClient;
 }
 
 // ============================================================================
-// Plugin Client — SocketClient method surface
+// Plugin Client — Remote method surface
 // ============================================================================
 
 /**
  * The client interface exposed to plugins.
  *
- * This mirrors the SocketClient `ask()` pattern: you can call any method
- * that exists on the WA Client. The type is intentionally broad — it's
- * backed by a dynamic proxy that forwards calls to the host.
+ * This mirrors the host `ask()` pattern: you can call any method that exists
+ * on the WA Client. The type is intentionally broad — it's backed by a
+ * dynamic proxy that forwards calls to the host runtime.
  *
  * Common methods:
  * - sendText(to, content) → messageId

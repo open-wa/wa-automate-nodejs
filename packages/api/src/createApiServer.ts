@@ -4,15 +4,15 @@ import { logger } from 'hono/logger';
 import { getRequestListener } from '@hono/node-server';
 import { createServer } from 'http';
 import { createNodeWebSocket } from '@hono/node-ws';
-import { Server as SocketIOServer } from 'socket.io';
 import { getHttpMethodDefinitions, type Config } from '@open-wa/schema';
 import '@open-wa/schema';
 import { createScreencastRoute, ScreencastManager } from '@open-wa/screencaster/server';
 import { createApiMiddleware } from './createApiMiddleware';
 import { registerMetaRoutes } from './routes/meta';
 import { registerDebugRoutes } from './routes/debug';
-import { SocketManager } from './socket/SocketManager';
+import { type EventBridge } from './events/EventBridge';
 import { HealthStore } from './health/HealthStore';
+import { EventBroadcaster } from './events/EventBroadcaster';
 import { ElasticEmitter } from './monitoring/elastic';
 import { setupViteDevServer, mountDashboardProduction } from './dashboard/middleware';
 import type { ApiServerOptions, ClientMethodMap } from './types';
@@ -37,9 +37,7 @@ function parseCorsOrigin(corsConfig: string | string[]): string | string[] {
 
 export class ApiServer {
   private app: Hono;
-  private io?: SocketIOServer;
   private config: Config;
-  private socketManager?: SocketManager;
   private client: ClientMethodMap | undefined;
   private elasticEmitter?: ElasticEmitter;
   private latestQR: string | null = null;
@@ -48,6 +46,9 @@ export class ApiServer {
   private isDashboardActive: boolean = false;
   private pluginHost?: PluginHost;
   private healthStore: HealthStore = new HealthStore();
+  private eventBroadcaster: EventBroadcaster;
+  private eventBridge?: EventBridge;
+  private eventBridgeListener?: (event: string, payload: any) => void;
   private readinessProvider?: () => {
     state?: string;
     status?: string;
@@ -61,6 +62,7 @@ export class ApiServer {
     this.config = options.config;
     this.app = new Hono();
     this.screencastManager = new ScreencastManager();
+    this.eventBroadcaster = new EventBroadcaster(this.config.sessionId);
 
     // Set up WebSocket adapter for Node.js
     const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app: this.app });
@@ -86,16 +88,21 @@ export class ApiServer {
 
   public setClient(client: ClientMethodMap | undefined) {
     this.client = client;
-    this.socketManager?.setClient(client);
   }
 
-  public setEventBridge(bridge: import('./socket/SocketManager').EventBridge) {
-    this.socketManager?.setEventBridge(bridge);
+  public setEventBridge(bridge: EventBridge) {
+    if (this.eventBridge && this.eventBridgeListener) {
+      this.eventBridge.offAny(this.eventBridgeListener);
+    }
+
+    this.eventBridge = bridge;
+    this.eventBridgeListener = (event: string, payload: any) => {
+      this.healthStore.processEvent(event, payload);
+      this.eventBroadcaster.broadcast(event, payload);
+    };
 
     // Also wire events into the HealthStore so /health returns accumulated data
-    bridge.onAny((event: string, payload: any) => {
-      this.healthStore.processEvent(event, payload);
-    });
+    bridge.onAny(this.eventBridgeListener);
   }
 
   public setReadinessProvider(
@@ -134,8 +141,8 @@ export class ApiServer {
     return this.app;
   }
 
-  public getIO() {
-    return this.io;
+  public getEventBroadcaster() {
+    return this.eventBroadcaster;
   }
 
   /**
@@ -182,7 +189,6 @@ export class ApiServer {
       console.log(`Server running on http://${this.config.host}:${this.config.port}`);
     });
 
-    // Inject WebSocket support carefully to avoid hijacking socket.io's upgrade requests
     if (this.injectWebSocket) {
       let honoUpgradeListener: Function | null = null;
       this.injectWebSocket({
@@ -192,23 +198,9 @@ export class ApiServer {
       });
       if (honoUpgradeListener) {
         server.on('upgrade', (req, socket, head) => {
-          if (req.url?.startsWith('/socket.io/')) return;
           honoUpgradeListener!(req, socket, head);
         });
       }
-    }
-
-    if (this.config.socketMode) {
-      this.io = new SocketIOServer(server, {
-        cors: {
-          origin: parseCorsOrigin(this.config.cors),
-          methods: ['GET', 'POST'],
-          credentials: true,
-        },
-      });
-
-      this.socketManager = new SocketManager(this.io);
-      this.socketManager.setClient(this.client);
     }
 
     if (this.elasticEmitter) {
@@ -261,7 +253,6 @@ export class ApiServer {
       return c.json({
         status: 'ok',
         version: '5.0.0',
-        socketMode: this.config.socketMode,
         host: {
           available: true,
           api: true,
@@ -302,6 +293,39 @@ export class ApiServer {
       }
 
       return c.json({ qr: this.latestQR, note: 'Scan this QR code in WhatsApp' });
+    });
+
+    this.app.get('/api/events', (c) => {
+      if (this.config.apiKey) {
+        const apiKey = c.req.header('X-API-Key') || c.req.query('api_key');
+
+        if (!apiKey || apiKey !== this.config.apiKey) {
+          return c.json({ error: 'Unauthorized', details: 'Invalid or missing API key' }, 401);
+        }
+      }
+
+      const topicsParam = c.req.query('topics');
+      const topics = topicsParam
+        ? topicsParam
+            .split(',')
+            .map((topic) => topic.trim())
+            .filter(Boolean)
+        : ['*'];
+
+      return new Response(
+        this.eventBroadcaster.createStream({
+          signal: c.req.raw.signal,
+          topics,
+        }),
+        {
+          headers: {
+            'Cache-Control': 'no-cache, no-transform',
+            Connection: 'keep-alive',
+            'Content-Type': 'text/event-stream',
+            'X-Accel-Buffering': 'no',
+          },
+        }
+      );
     });
 
     registerMetaRoutes(this.app, {

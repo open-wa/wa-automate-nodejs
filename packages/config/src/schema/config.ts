@@ -378,8 +378,6 @@ export const ConfigSchema = z.object({
   sessionDataBucketAuth: z.string().optional().describe('Base64 encoded S3 Bucket & Authentication object.'),
 
   // v5 Specific Features
-  socketMode: z.boolean().default(true).describe('Enable socket.io server.'),
-
   apiLifecycle: z
     .enum(['immediate', 'post-connection', 'hybrid'])
     .default('hybrid')

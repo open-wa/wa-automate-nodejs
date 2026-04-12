@@ -15,6 +15,10 @@ export interface CliRuntimeResult {
     events: ClientFacade['events'];
 }
 
+interface RuntimeEventPublisher {
+    publish(eventName: string, payload: any): void;
+}
+
 function attachLaunchNarration(
     openwaClient: Awaited<ReturnType<typeof createClient>>,
     sink: CliOutputSink,
@@ -269,7 +273,6 @@ export function parseCliArgs(argv: string[] = process.argv.slice(2)): ParsedCliA
     if (logLevel) cliOverrides.logLevel = logLevel;
 
     if (argv.includes('--no-ezqr')) cliOverrides.ezqr = false;
-    if (argv.includes('--socket')) cliOverrides.socketMode = true;
     if (argv.includes('--headful')) cliOverrides.headless = false;
     if (argv.includes('--headless')) cliOverrides.headless = true;
     if (argv.includes('--use-chrome')) cliOverrides.useChrome = true;
@@ -403,7 +406,6 @@ function printStartupSummary(config: Config, resolution: ExecutablePathResolutio
     sink.write({ level: 'info', message: `API Explorer: ${host}:${config.port}/api-docs/` });
     sink.write({ level: 'info', message: `Swagger JSON: ${host}:${config.port}/meta/swagger.json` });
     sink.write({ level: 'info', message: `Postman JSON: ${host}:${config.port}/meta/postman.json` });
-    sink.write({ level: 'info', message: `Socket mode: ${config.socketMode ? 'enabled' : 'disabled'}` });
     sink.write({ level: 'info', message: `Browser mode: ${config.headless ? 'headless' : 'headful'}` });
     if (config.dashboard) {
         sink.write({ level: 'info', message: `Dashboard: ${host}:${config.port}/dashboard/` });
@@ -438,7 +440,6 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         cliOverrides: {
             disableSpins: true,
             apiLifecycle: 'hybrid',
-            socketMode: true,
             host: '0.0.0.0',
             port: 8002,
             ...cliOverrides,
@@ -524,14 +525,33 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
 
     server.setClient(client as any);
 
+    const runtimeBridgeListeners = new Set<(event: string, value: any) => void>();
+    const runtimeEventPublishers: RuntimeEventPublisher[] = [
+        {
+            publish: (eventName, payload) => {
+                runtimeBridgeListeners.forEach((listener) => {
+                    listener(eventName, payload);
+                });
+            },
+        },
+    ];
+
+    const publishRuntimeEvent = (eventName: string, payload: any) => {
+        runtimeEventPublishers.forEach((publisher) => {
+            publisher.publish(eventName, payload);
+        });
+    };
+
+    openwaClient.events.onAny(publishRuntimeEvent);
+
     // Bridge core events to the socket manager so dashboard clients
     // receive live events when they send register_ev.
     server.setEventBridge({
         onAny: (listener: (event: string, value: any) => void) => {
-            openwaClient.events.onAny(listener);
+            runtimeBridgeListeners.add(listener);
         },
         offAny: (listener: (event: string, value: any) => void) => {
-            openwaClient.events.offAny(listener);
+            runtimeBridgeListeners.delete(listener);
         },
     });
 
