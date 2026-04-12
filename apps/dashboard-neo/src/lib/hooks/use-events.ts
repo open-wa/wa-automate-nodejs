@@ -11,6 +11,24 @@ export type EventLog = {
 }
 
 const MAX_EVENTS = 500
+const SSE_EVENT_NAMES = [
+  "message.received",
+  "message.sent",
+  "message.any",
+  "message.ack",
+  "ack.changed",
+  "session.state.changed",
+  "group.addedToGroup",
+  "launch.auth.qr.generated",
+  "launch.auth.qr.scanned",
+  "patch.apply.after",
+  "client.ready",
+  "internal_launch_progress",
+  "core.started",
+  "debug:log",
+  "qr",
+  "session:state",
+] as const
 
 /**
  * Module-level event cache.
@@ -38,27 +56,16 @@ function ensureGlobalListener() {
 
   getClient()
     .then((client) => {
-      // Capture HyperEmitter events
-      client.ev.onAny((event: string | string[], ...args: unknown[]) => {
-        const eventName = Array.isArray(event) ? event.join('.') : event
-        pushCachedEvent({
-          id: Date.now() + Math.random(),
-          timestamp: new Date().toLocaleTimeString(),
-          name: eventName,
-          args,
+      for (const eventName of SSE_EVENT_NAMES) {
+        client.ev.on(eventName, (...args: unknown[]) => {
+          pushCachedEvent({
+            id: Date.now() + Math.random(),
+            timestamp: new Date().toLocaleTimeString(),
+            name: eventName,
+            args,
+          })
         })
-      })
-
-      // Capture raw socket events
-      client.socket.onAny((event: string, ...args: unknown[]) => {
-        if (event.startsWith("on") || event === "connect" || event === "disconnect") return
-        pushCachedEvent({
-          id: Date.now() + Math.random(),
-          timestamp: new Date().toLocaleTimeString(),
-          name: `socket:${event}`,
-          args,
-        })
-      })
+      }
     })
     .catch(() => {
       // Not connected yet — will retry when useEvents mounts
@@ -135,4 +142,3 @@ export function useEvents() {
     count: events.length,
   }
 }
-

@@ -5,7 +5,7 @@ import { useDemo } from "@/lib/demo/use-demo"
 import { usePrivacy } from "@/lib/hooks/use-privacy"
 
 /**
- * Listens for incoming messages via the raw socket's `message.received`
+ * Listens for incoming messages via the SSE-backed `message.received`
  * event and shows a toast notification for each new message.
  *
  * The event payload shape (from the events page) is:
@@ -18,18 +18,18 @@ export function useMessageToasts() {
   const { privacyMode } = usePrivacy()
   const privacyRef = useRef(privacyMode)
   privacyRef.current = privacyMode
-  const listenerRef = useRef(false)
 
   useEffect(() => {
     if (isDemo || typeof window === "undefined") return
-    if (listenerRef.current) return
-    listenerRef.current = true
+
+    let mounted = true
+    let cleanup: (() => void) | undefined
 
     getClient()
       .then((client) => {
-        // Listen on the raw socket — the event name is "message.received"
-        // (shows as "socket:message.received" in the events page)
-        client.socket.on("message.received", (data: unknown) => {
+        const handleMessage = (data: unknown) => {
+          if (!mounted) return
+
           const payload = data as Record<string, any> | undefined
           if (!payload) return
 
@@ -58,14 +58,20 @@ export function useMessageToasts() {
             description: displayBody,
             duration: 5000,
           })
-        })
+        }
+
+        client.ev.on("message.received", handleMessage)
+        cleanup = () => {
+          client.ev.off("message.received", handleMessage)
+        }
       })
       .catch(() => {
-        listenerRef.current = false
+        cleanup = undefined
       })
 
     return () => {
-      listenerRef.current = false
+      mounted = false
+      cleanup?.()
     }
   }, [isDemo])
 }

@@ -21,6 +21,19 @@ const INITIAL_STATE: SessionState = {
   uptime: 0,
 }
 
+function isConnectedState(state: string | null | undefined) {
+  if (!state) return false
+
+  return state !== "DISCONNECTED" && state !== "STOPPED"
+}
+
+function unwrapEventPayload(data: unknown) {
+  if (!data || typeof data !== "object") return data
+
+  const payload = data as Record<string, any>
+  return payload.ctx || payload.details || payload
+}
+
 export function useSession() {
   const { isDemo } = useDemo()
   const [session, setSession] = useState<SessionState>(
@@ -38,12 +51,12 @@ export function useSession() {
   const [qr, setQr] = useState<string | null>(null)
   const [loading, setLoading] = useState(!isDemo)
   const uptimeRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const refreshRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const startTimeRef = useRef<number>(Date.now() - (isDemo ? demoSession.uptime * 1000 : 0))
 
   useEffect(() => {
     if (typeof window === "undefined") return
 
-    // Demo mode — just tick uptime, no socket
     if (isDemo) {
       uptimeRef.current = setInterval(() => {
         setSession((prev) => ({
@@ -51,65 +64,131 @@ export function useSession() {
           uptime: Math.floor((Date.now() - startTimeRef.current) / 1000),
         }))
       }, 1000)
+
       return () => {
         if (uptimeRef.current) clearInterval(uptimeRef.current)
       }
     }
 
     let mounted = true
+    let cleanupListeners: (() => void) | undefined
+
+    const applyConnectionState = (nextState: string) => {
+      setSession((prev) => {
+        const nextConnected = isConnectedState(nextState)
+        if (nextConnected && !prev.connected) {
+          startTimeRef.current = Date.now()
+        }
+
+        return {
+          ...prev,
+          connected: nextConnected,
+          connectionState: nextState,
+        }
+      })
+
+      if (nextState === "READY" || nextState === "CONNECTED") {
+        setQr(null)
+      }
+    }
+
+    async function refreshSessionSnapshot(client: Awaited<ReturnType<typeof getClient>>) {
+      const [hostNumber, waVersion, battery, connectionState] = await Promise.allSettled([
+        client.ask("getHostNumber" as any, {}),
+        client.ask("getWAVersion" as any, {}),
+        client.ask("getBatteryLevel" as any, {}),
+        client.ask("getConnectionState" as any, {}),
+      ])
+
+      if (!mounted) return
+
+      const nextConnectionState =
+        connectionState.status === "fulfilled" ? (connectionState.value as string) : "UNKNOWN"
+      const nextConnected = isConnectedState(nextConnectionState)
+
+      setSession((prev) => {
+        if (nextConnected && !prev.connected) {
+          startTimeRef.current = Date.now()
+        }
+
+        return {
+          ...prev,
+          connected: nextConnected,
+          hostNumber: hostNumber.status === "fulfilled" ? (hostNumber.value as string) : prev.hostNumber,
+          waVersion: waVersion.status === "fulfilled" ? (waVersion.value as string) : prev.waVersion,
+          battery: battery.status === "fulfilled" ? (battery.value as number) : prev.battery,
+          connectionState: nextConnectionState,
+        }
+      })
+
+      if (nextConnectionState === "READY" || nextConnectionState === "CONNECTED") {
+        setQr(null)
+      }
+    }
 
     async function init() {
       try {
         const client = await getClient()
         if (!mounted) return
 
-        // Fetch initial session data using SocketClient's Proxy methods
-        const [hostNumber, waVersion, battery, connectionState] = await Promise.allSettled([
-          client.ask("getHostNumber" as any, {}),
-          client.ask("getWAVersion" as any, {}),
-          client.ask("getBatteryLevel" as any, {}),
-          client.ask("getConnectionState" as any, {}),
-        ])
+        await refreshSessionSnapshot(client)
 
-        if (!mounted) return
-
-        setSession((prev) => ({
-          ...prev,
-          connected: true,
-          hostNumber: hostNumber.status === "fulfilled" ? (hostNumber.value as string) : null,
-          waVersion: waVersion.status === "fulfilled" ? (waVersion.value as string) : null,
-          battery: battery.status === "fulfilled" ? (battery.value as number) : null,
-          connectionState:
-            connectionState.status === "fulfilled" ? (connectionState.value as string) : "UNKNOWN",
-        }))
-        startTimeRef.current = Date.now()
-
-        // Listen for session events via EventEmitter2
-        client.ev.on("qr", (data: unknown) => {
+        const handleQrGenerated = (data: unknown) => {
           if (!mounted) return
-          const qrData = data as { qr?: string } | string
-          setQr(typeof qrData === "string" ? qrData : qrData?.qr || null)
-        })
 
-        client.ev.on("session:state", (data: unknown) => {
-          if (!mounted) return
-          const state = data as Partial<SessionState>
-          setSession((prev) => ({ ...prev, ...state }))
-        })
+          const payload = unwrapEventPayload(data) as Record<string, any> | string | undefined
+          const nextQr = typeof payload === "string" ? payload : payload?.qr || null
 
-        client.socket.on("disconnect", () => {
-          if (!mounted) return
-          setSession((prev) => ({ ...prev, connected: false, connectionState: "DISCONNECTED" }))
-        })
+          setQr(nextQr)
+          applyConnectionState("AUTHENTICATING")
+        }
 
-        client.socket.on("connect", () => {
+        const handleQrScanned = () => {
           if (!mounted) return
-          setSession((prev) => ({ ...prev, connected: true }))
-          // Re-fetch on reconnect
-          init()
-        })
+          setQr(null)
+        }
+
+        const handleSessionStateChanged = (data: unknown) => {
+          if (!mounted) return
+
+          const payload = unwrapEventPayload(data) as Record<string, any> | string | undefined
+          const nextState =
+            typeof payload === "string"
+              ? payload
+              : payload?.nextState || payload?.state || payload?.currentState || "UNKNOWN"
+
+          applyConnectionState(nextState)
+        }
+
+        const handleReady = () => {
+          if (!mounted) return
+
+          setQr(null)
+          void refreshSessionSnapshot(client)
+        }
+
+        client.ev.on("launch.auth.qr.generated", handleQrGenerated)
+        client.ev.on("launch.auth.qr.scanned", handleQrScanned)
+        client.ev.on("session.state.changed", handleSessionStateChanged)
+        client.ev.on("client.ready", handleReady)
+        client.ev.on("core.started", handleReady)
+
+        refreshRef.current = setInterval(() => {
+          void refreshSessionSnapshot(client)
+        }, 30_000)
+
+        cleanupListeners = () => {
+          client.ev.off("launch.auth.qr.generated", handleQrGenerated)
+          client.ev.off("launch.auth.qr.scanned", handleQrScanned)
+          client.ev.off("session.state.changed", handleSessionStateChanged)
+          client.ev.off("client.ready", handleReady)
+          client.ev.off("core.started", handleReady)
+        }
       } catch {
-        if (mounted) setSession(INITIAL_STATE)
+        if (mounted) {
+          setSession(INITIAL_STATE)
+          setQr(null)
+        }
       } finally {
         if (mounted) setLoading(false)
       }
@@ -117,9 +196,9 @@ export function useSession() {
 
     init()
 
-    // Uptime counter
     uptimeRef.current = setInterval(() => {
       if (!mounted) return
+
       setSession((prev) => ({
         ...prev,
         uptime: prev.connected ? Math.floor((Date.now() - startTimeRef.current) / 1000) : 0,
@@ -128,10 +207,12 @@ export function useSession() {
 
     return () => {
       mounted = false
+
       if (uptimeRef.current) clearInterval(uptimeRef.current)
+      if (refreshRef.current) clearInterval(refreshRef.current)
+      cleanupListeners?.()
     }
   }, [isDemo])
 
   return { session, qr, loading }
 }
-

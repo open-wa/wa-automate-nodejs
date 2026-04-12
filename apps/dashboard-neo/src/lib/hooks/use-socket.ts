@@ -18,6 +18,7 @@ export function useSocket() {
     if (isDemo) return
 
     let mounted = true
+    let cleanupListeners: (() => void) | undefined
 
     async function connect() {
       try {
@@ -32,26 +33,33 @@ export function useSocket() {
         setConnected(client.socket.connected)
         setError(null)
 
-        client.socket.on("connect", () => {
+        const handleConnect = () => {
           console.info(`[Dashboard] Successfully connected to API server at ${targetUrl}`)
-          if (mounted) setConnected(true)
-        })
-        
-        client.socket.on("disconnect", (reason: string) => {
+          if (!mounted) return
+          setConnected(true)
+          setError(null)
+        }
+
+        const handleDisconnect = (reason: string) => {
           console.warn(`[Dashboard] Disconnected from API server: ${reason}`)
-          if (mounted) setConnected(false)
-        })
-        
-        client.socket.on("connect_error", (err: Error & { req?: any, code?: string }) => {
-          console.error(`[Dashboard] API Connection Error to ${targetUrl}:`, {
-            message: err.message,
-            name: err.name,
-            code: err.code,
-            req: err.req ? 'present' : 'none',
-            hint: `Ensure the Open-WA API server is running on ${targetUrl} and socketMode is enabled.`
-          })
-          if (mounted) setError(err.message)
-        })
+          if (!mounted) return
+          setConnected(false)
+        }
+
+        const handleConnectError = (err: unknown) => {
+          if (!mounted) return
+          setError(err instanceof Error ? err.message : "Connection failed")
+        }
+
+        client.socket.on("connect", handleConnect)
+        client.socket.on("disconnect", handleDisconnect)
+        client.socket.on("connect_error", handleConnectError)
+
+        cleanupListeners = () => {
+          client.socket.off("connect", handleConnect)
+          client.socket.off("disconnect", handleDisconnect)
+          client.socket.off("connect_error", handleConnectError)
+        }
       } catch (err) {
         console.error(`[Dashboard] Failed to initialize API client:`, err)
         if (mounted) {
@@ -65,6 +73,7 @@ export function useSocket() {
 
     return () => {
       mounted = false
+      cleanupListeners?.()
     }
   }, [isDemo])
 
@@ -92,4 +101,3 @@ export function useSocket() {
     client: clientRef.current,
   }
 }
-

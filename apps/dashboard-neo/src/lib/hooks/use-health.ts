@@ -1,12 +1,12 @@
 /**
- * useHealth — real-time session health via socket events + /health REST fallback.
+ * useHealth — real-time session health via SSE runtime events + /health REST fallback.
  *
- * Primary: subscribes to socket events for instant state transitions
- *   - session.state.changed   → updates session.state
+ * Primary: subscribes to runtime events emitted by the SSE-backed SocketClient
+ *   - session.state.changed    → updates session.state
  *   - launch.auth.qr.generated → updates qr
- *   - patch.apply.after       → updates patches
+ *   - patch.apply.after        → updates patches
  *   - internal_launch_progress → updates launch timeline
- *   - client.ready            → marks as ready
+ *   - client.ready             → marks as ready
  *
  * Fallback: polls /health REST endpoint to reconcile full state
  *   - Fast poll (5s) during pre-auth, slow poll (60s) once ready
@@ -86,88 +86,126 @@ function notifyListeners() {
   for (const fn of _listeners) fn(_cachedHealth)
 }
 
+function createEmptyHealth(): HealthData {
+  return {
+    status: "unknown",
+    version: "unknown",
+    connected: false,
+    session: { ready: false, state: "DISCONNECTED" },
+    qr: null,
+    launchTimeline: [],
+    patches: [],
+    license: null,
+    reconnections: [],
+    startedAt: null,
+    lastEventAt: Date.now(),
+  }
+}
+
+function ensureHealthCache() {
+  if (!_cachedHealth) {
+    _cachedHealth = createEmptyHealth()
+  }
+
+  return _cachedHealth
+}
+
+function unwrapEventPayload(data: unknown) {
+  if (!data || typeof data !== "object") return data
+
+  const payload = data as Record<string, any>
+  return payload.ctx || payload.details || payload
+}
+
+function setCachedHealth(updater: (current: HealthData) => HealthData) {
+  const current = ensureHealthCache()
+  _cachedHealth = updater(current)
+  notifyListeners()
+}
+
 function ensureSocketListener() {
   if (_socketListenerAttached) return
   _socketListenerAttached = true
 
   getClient()
     .then((client) => {
-      // ── Session state changes (instant phase transitions) ──
-      client.socket.on("session.state.changed", (data: unknown) => {
-        const d = data as Record<string, any> | undefined
-        if (!d) return
-        // Depending on the bridge, payload might be nested in ctx/details
-        const payload = d.ctx || d.details || d
-        const nextState = payload?.nextState || payload?.state || payload
-        if (typeof nextState === "string" && _cachedHealth) {
-          _cachedHealth = {
-            ..._cachedHealth,
-            connected: nextState !== "DISCONNECTED" && nextState !== "STOPPED",
-            session: {
-              ..._cachedHealth.session,
-              state: nextState,
-              ready: nextState === "READY" || nextState === "CONNECTED",
-            },
-          }
-          notifyListeners()
-        }
+      client.ev.on("session.state.changed", (data: unknown) => {
+        const payload = unwrapEventPayload(data) as Record<string, any> | string | undefined
+        const nextState =
+          typeof payload === "string"
+            ? payload
+            : payload?.nextState || payload?.state || payload?.currentState
+
+        if (typeof nextState !== "string") return
+
+        setCachedHealth((current) => ({
+          ...current,
+          connected: nextState !== "DISCONNECTED" && nextState !== "STOPPED",
+          session: {
+            ...current.session,
+            state: nextState,
+            ready: nextState === "READY" || nextState === "CONNECTED",
+          },
+          lastEventAt: Date.now(),
+        }))
       })
 
-      // ── QR code generated (instant QR display) ──
-      client.socket.on("launch.auth.qr.generated", (data: unknown) => {
-        const d = data as Record<string, any> | undefined
-        if (!_cachedHealth) return
-        const payload = d?.ctx || d?.details || d
-        _cachedHealth = {
-          ..._cachedHealth,
-          qr: payload?.qr || _cachedHealth.qr,
+      client.ev.on("launch.auth.qr.generated", (data: unknown) => {
+        const payload = unwrapEventPayload(data) as Record<string, any> | undefined
+
+        setCachedHealth((current) => ({
+          ...current,
+          qr: payload?.qr || current.qr,
           session: {
-            ..._cachedHealth.session,
+            ...current.session,
             state: "AUTHENTICATING",
           },
-        }
-        notifyListeners()
+          lastEventAt: Date.now(),
+        }))
       })
 
-      // ── Patch results (real-time patch tracking) ──
-      client.socket.on("patch.apply.after", (data: unknown) => {
-        const d = data as Record<string, any> | undefined
-        if (!d || !_cachedHealth) return
-        const payload = d.ctx || d.details || d
+      client.ev.on("launch.auth.qr.scanned", () => {
+        setCachedHealth((current) => ({
+          ...current,
+          qr: null,
+          lastEventAt: Date.now(),
+        }))
+      })
+
+      client.ev.on("patch.apply.after", (data: unknown) => {
+        const payload = unwrapEventPayload(data) as Record<string, any> | undefined
+        if (!payload) return
+
         const patch: PatchInfo = {
           patchId: payload?.patchId || "unknown",
           description: payload?.description || "",
           required: payload?.required ?? false,
           outcome: payload?.outcome || (payload?.applied ? "applied" : "failed"),
         }
-        _cachedHealth = {
-          ..._cachedHealth,
-          patches: [..._cachedHealth.patches, patch],
-        }
-        notifyListeners()
+
+        setCachedHealth((current) => ({
+          ...current,
+          patches: [...current.patches, patch],
+          lastEventAt: Date.now(),
+        }))
       })
 
-      // ── Client ready (instant transition to main dashboard) ──
-      client.socket.on("client.ready", () => {
-        if (!_cachedHealth) return
-        _cachedHealth = {
-          ..._cachedHealth,
+      client.ev.on("client.ready", () => {
+        setCachedHealth((current) => ({
+          ...current,
           connected: true,
           qr: null,
           session: {
-            ..._cachedHealth.session,
+            ...current.session,
             state: "READY",
             ready: true,
           },
-        }
-        notifyListeners()
+          lastEventAt: Date.now(),
+        }))
       })
 
-      // ── Launch progress events ──
-      client.socket.on("internal_launch_progress", (data: unknown) => {
-        const d = data as Record<string, any> | undefined
-        if (!d || !_cachedHealth) return
-        const payload = d.ctx || d.details || d
+      client.ev.on("internal_launch_progress", (data: unknown) => {
+        const payload = unwrapEventPayload(data) as Record<string, any> | undefined
         if (payload?.text) {
           const step: TimelineStep = {
             step: payload.text,
@@ -175,28 +213,27 @@ function ensureSocketListener() {
             durationMs: 0,
             timestamp: Date.now(),
           }
-          _cachedHealth = {
-            ..._cachedHealth,
-            launchTimeline: [..._cachedHealth.launchTimeline, step],
-          }
-          notifyListeners()
+
+          setCachedHealth((current) => ({
+            ...current,
+            launchTimeline: [...current.launchTimeline, step],
+            lastEventAt: Date.now(),
+          }))
         }
       })
-      
-      // Fallback: core.started
-      client.socket.on("core.started", () => {
-        if (!_cachedHealth) return
-        _cachedHealth = {
-          ..._cachedHealth,
+
+      client.ev.on("core.started", () => {
+        setCachedHealth((current) => ({
+          ...current,
           connected: true,
           qr: null,
           session: {
-            ..._cachedHealth.session,
+            ...current.session,
             state: "READY",
             ready: true,
           },
-        }
-        notifyListeners()
+          lastEventAt: Date.now(),
+        }))
       })
     })
     .catch(() => {

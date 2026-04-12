@@ -32,7 +32,6 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "shadcn": "^4.1.2",
-    "socket.io-client": "catalog:",
     "sonner": "^2.0.7",
     "tailwind-merge": "catalog:",
     "tailwindcss": "^4.2.1",
