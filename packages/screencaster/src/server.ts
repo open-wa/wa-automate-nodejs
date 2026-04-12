@@ -94,6 +94,7 @@ export class ScreencastManager {
     private isScreencasting = false;
     private currentOptions: Required<ScreencastOptions> = { ...DEFAULT_SCREENCAST_OPTIONS };
     private viewport: ViewportSize = { width: 1280, height: 720 };
+    private cdpLock: Promise<void> = Promise.resolve();
     private frameHandler: ((...args: unknown[]) => void) | null = null;
     private navigationHandler: ((...args: unknown[]) => void) | null = null;
     private pageNavigationHandler: ((frame: unknown) => void) | null = null;
@@ -107,7 +108,7 @@ export class ScreencastManager {
         dbg('setPage() called, page.isClosed():', page.isClosed());
 
         // Clean up previous session
-        await this.teardownCDP();
+        await this.executeInLock(() => this.teardownCDP());
 
         this.page = page;
         dbg('setPage() — calling page.cdp() to create CDP session...');
@@ -123,7 +124,7 @@ export class ScreencastManager {
         dbg('setPage() — clients waiting:', this.clients.size);
         if (this.clients.size > 0) {
             dbg('setPage() — auto-starting screencast for waiting clients');
-            await this.startScreencast();
+            await this.executeInLock(() => this.startScreencast());
         }
 
         // Notify all clients that the page is bound
@@ -136,7 +137,7 @@ export class ScreencastManager {
      */
     async clearPage(): Promise<void> {
         dbg('clearPage() called');
-        await this.teardownCDP();
+        await this.executeInLock(() => this.teardownCDP());
         this.page = null;
         this.cdpSession = null;
         this.broadcast({ type: 'ready', bound: false });
@@ -190,8 +191,8 @@ export class ScreencastManager {
         // Auto-start if we have a page and this is the first client
         if (this.isBound && !this.isScreencasting) {
             dbg('addClient() — auto-starting screencast (first client with bound page)');
-            this.startScreencast().catch(this.logError);
-            this.sendNavState().catch(this.logError);
+            this.executeInLock(() => this.startScreencast()).catch(this.logError);
+            this.executeInLock(() => this.sendNavState()).catch(this.logError);
         } else {
             dbg('addClient() — NOT auto-starting. isBound:', this.isBound, 'isScreencasting:', this.isScreencasting);
         }
@@ -234,8 +235,10 @@ export class ScreencastManager {
                     }
                     dbg('handleMessage(start) — isBound:', this.isBound, '| isScreencasting:', this.isScreencasting);
                     if (this.isBound) {
-                        await this.startScreencast();
-                        await this.sendNavState();
+                        await this.executeInLock(async () => {
+                            await this.startScreencast();
+                            await this.sendNavState();
+                        });
                     } else {
                         dbgWarn('handleMessage(start) — page not bound, cannot start');
                     }
@@ -243,7 +246,7 @@ export class ScreencastManager {
 
                 case 'stop':
                     dbg('handleMessage(stop)');
-                    await this.stopScreencast();
+                    await this.executeInLock(() => this.stopScreencast());
                     this.sendTo(ws, { type: 'stopped' });
                     break;
 
@@ -254,36 +257,36 @@ export class ScreencastManager {
                     break;
 
                 case 'mouse':
-                    await this.handleMouse(msg);
+                    await this.executeInLock(() => this.handleMouse(msg));
                     break;
 
                 case 'key':
                     dbg('handleMessage(key):', msg.action, msg.key, msg.code);
-                    await this.handleKey(msg);
+                    await this.executeInLock(() => this.handleKey(msg));
                     break;
 
                 case 'scroll':
-                    await this.handleScroll(msg);
+                    await this.executeInLock(() => this.handleScroll(msg));
                     break;
 
                 case 'navigate':
                     dbg('handleMessage(navigate):', msg.url);
-                    await this.handleNavigate(msg.url);
+                    await this.executeInLock(() => this.handleNavigate(msg.url));
                     break;
 
                 case 'go-back':
                     dbg('handleMessage(go-back)');
-                    await this.handleGoBack();
+                    await this.executeInLock(() => this.handleGoBack());
                     break;
 
                 case 'go-forward':
                     dbg('handleMessage(go-forward)');
-                    await this.handleGoForward();
+                    await this.executeInLock(() => this.handleGoForward());
                     break;
 
                 case 'resize':
                     dbg('handleMessage(resize):', msg.width, 'x', msg.height);
-                    await this.handleResize(msg.width, msg.height);
+                    await this.executeInLock(() => this.handleResize(msg.width, msg.height));
                     break;
 
                 default:
@@ -345,6 +348,12 @@ export class ScreencastManager {
             // Session may already be closed
         }
         this.isScreencasting = false;
+    }
+
+    private async executeInLock<T>(fn: () => Promise<T>): Promise<T> {
+        const next = this.cdpLock.then(fn);
+        this.cdpLock = next.then(() => {}).catch(() => {});
+        return next;
     }
 
     // ackFrame() removed — ACKs are now handled server-side immediately in the frame handler.
@@ -669,12 +678,29 @@ export class ScreencastManager {
         if (!this.cdpSession) return;
 
         try {
-            this.currentOptions.maxWidth = Math.floor(width);
-            this.currentOptions.maxHeight = Math.floor(height);
-            dbg('handleResize() —', width, 'x', height, '| isScreencasting:', this.isScreencasting);
+            const w = Math.floor(width);
+            const h = Math.floor(height);
+            
+            dbg('handleResize() — updating viewport and stopping screencast | new size:', w, 'x', h);
 
+            // 1. Update options and viewport immediately so mouse clicks are accurate
+            this.currentOptions.maxWidth = w;
+            this.currentOptions.maxHeight = h;
+            this.viewport = { width: w, height: h };
+
+            // 2. Tell the browser to actually resize the viewport
+            // This ensures responsive layouts (media queries) are triggered.
+            await this.cdpSession.send('Emulation.setDeviceMetricsOverride', {
+                width: w,
+                height: h,
+                deviceScaleFactor: 1,
+                mobile: false,
+                screenOrientation: { angle: 0, type: 'portraitPrimary' }
+            });
+
+            // 3. Restart screencast to apply new max dimensions to the stream
             if (this.isScreencasting) {
-                dbg('handleResize() — restarting screencast with new dimensions');
+                dbg('handleResize() — restarting screencast');
                 await this.stopScreencast();
                 await this.startScreencast();
             }
@@ -761,7 +787,7 @@ export class ScreencastManager {
     async destroy(): Promise<void> {
         dbg('destroy() called, clients:', this.clients.size);
         this.destroyed = true;
-        await this.teardownCDP();
+        await this.executeInLock(() => this.teardownCDP());
 
         // Close all client connections
         for (const ws of this.clients) {
