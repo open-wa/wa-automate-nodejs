@@ -43,7 +43,6 @@
     "debug": "^4.3.4",
     "eventemitter2": "^6.4.9",
     "isomorphic-ws": "^5.0.0",
-    "socket.io-client": "catalog:",
     "ws": "^8.20.0"
   },
   "devDependencies": {
