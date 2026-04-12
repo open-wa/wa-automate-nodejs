@@ -23,7 +23,6 @@
     "@open-wa/schema": "workspace:*",
     "@open-wa/screencaster": "workspace:*",
     "hono": "catalog:",
-    "socket.io": "catalog:",
     "tree-kill": "^1.2.2"
   },
   "peerDependencies": {
