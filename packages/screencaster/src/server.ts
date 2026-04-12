@@ -42,15 +42,15 @@ function ts(): string {
 }
 
 function dbg(...args: unknown[]): void {
-    console.log(ts(), TAG, ...args);
+    if (process.env.DEBUG_SCREENCAST) console.log(ts(), TAG, ...args);
 }
 
 function dbgWarn(...args: unknown[]): void {
-    console.warn(ts(), TAG, ...args);
+    if (process.env.DEBUG_SCREENCAST) console.warn(ts(), TAG, ...args);
 }
 
 function dbgErr(...args: unknown[]): void {
-    console.error(ts(), TAG, ...args);
+    if (process.env.DEBUG_SCREENCAST) console.error(ts(), TAG, ...args);
 }
 
 // ────── Types for Hono WebSocket ──────
@@ -352,7 +352,7 @@ export class ScreencastManager {
 
     private async executeInLock<T>(fn: () => Promise<T>): Promise<T> {
         const next = this.cdpLock.then(fn);
-        this.cdpLock = next.then(() => {}).catch(() => {});
+        this.cdpLock = next.then(() => { }).catch(() => { });
         return next;
     }
 
@@ -680,7 +680,7 @@ export class ScreencastManager {
         try {
             const w = Math.floor(width);
             const h = Math.floor(height);
-            
+
             dbg('handleResize() — updating viewport and stopping screencast | new size:', w, 'x', h);
 
             // 1. Update options and viewport immediately so mouse clicks are accurate

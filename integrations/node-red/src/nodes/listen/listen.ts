@@ -2,7 +2,18 @@ import { OwaServerNode } from './../owa-server/modules/types';
 import { NodeContextData, NodeInitializer } from "node-red";
 import { ListenNode, ListenNodeDef } from "./modules/types";
 import { ClientStore, CLIENT_STORE } from '../shared/types';
+import { getJson } from '../shared/http';
 type Message = Record<string, unknown>;
+
+async function fetchListenerOptions(server: OwaServerNode) {
+  const listeners = await getJson<Array<{
+    legacyName?: string | null;
+  }>>(new URL('/meta/basic/listeners', server.url), server.key ? { 'X-API-Key': server.key } : undefined);
+
+  return listeners
+    .map((listener) => listener.legacyName)
+    .filter((listenerName): listenerName is string => Boolean(listenerName));
+}
 
 const nodeInit: NodeInitializer = (RED): void => {
   function ListenNodeConstructor(
@@ -25,14 +36,18 @@ const nodeInit: NodeInitializer = (RED): void => {
       try {
         RED.httpAdmin.get("/node_red_init_listen", (req, res) => {
           if (!this.server?.client.socket) {
-            return "Please set a server first!"
+            res.status(400).json({ error: "Please set a server first!" })
+            return
           }
-          // Legacy compatibility path: keep the socket-style init hook for
-          // existing Node-RED flows, but do not depend on @open-wa/api
-          // SocketManager. The compat client is backed by the v5 transport.
-          this.server?.client.socket.emit("node_red_init_listen", (data: unknown) => {
-            res.json(data)
-          })
+
+          void fetchListenerOptions(this.server)
+            .then((data) => {
+              res.json(data)
+            })
+            .catch((error) => {
+              const message = error instanceof Error ? error.message : String(error)
+              res.status(502).json({ error: message })
+            })
         })
       } catch (error) {
         console.log(error);

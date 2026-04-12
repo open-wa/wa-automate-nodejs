@@ -33,15 +33,15 @@ function ts(): string {
 }
 
 function dbg(...args: unknown[]): void {
-    console.log(ts(), TAG, ...args);
+    if (process.env.DEBUG_SCREENCAST) console.log(ts(), TAG, ...args);
 }
 
 function dbgWarn(...args: unknown[]): void {
-    console.warn(ts(), TAG, ...args);
+    if (process.env.DEBUG_SCREENCAST) console.warn(ts(), TAG, ...args);
 }
 
 function dbgErr(...args: unknown[]): void {
-    console.error(ts(), TAG, ...args);
+    if (process.env.DEBUG_SCREENCAST) console.error(ts(), TAG, ...args);
 }
 
 // ────── Event types ──────

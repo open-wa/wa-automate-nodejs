@@ -1,6 +1,25 @@
 import { NodeInitializer } from "node-red";
 import { OwaServerNode } from "../owa-server/modules/types";
 import { CmdNode, CmdNodeDef } from "./modules/types";
+import { getJson } from "../shared/http";
+
+async function fetchCommandOptions(server: OwaServerNode) {
+  const commands = await getJson<Array<{
+    method?: string;
+    parameterOrder?: string[];
+  }>>(new URL('/meta/basic/commands', server.url), server.key ? { 'X-API-Key': server.key } : undefined);
+
+  return commands.reduce<Record<string, Record<string, undefined>>>((acc, command) => {
+    if (!command.method) return acc;
+
+    acc[command.method] = (command.parameterOrder || []).reduce<Record<string, undefined>>((shape, key) => {
+      shape[key] = undefined;
+      return shape;
+    }, {});
+
+    return acc;
+  }, {});
+}
 
 function tryParseJSONObject(jsonString: unknown) {
   if (typeof jsonString === "object") return jsonString;
@@ -41,12 +60,16 @@ const nodeInit: NodeInitializer = (RED): void => {
       RED.httpAdmin.get("/node_red_init_call", (req, res) => {
         this.server = RED.nodes.getNode(config.server) as OwaServerNode;
         if (!this.server?.client.socket) {
-          return "Please set a server first!"
+          res.status(400).json({ error: "Please set a server first!" })
+          return
         }
-        // Legacy compatibility path: keep the socket-style init hook for
-        // existing Node-RED flows, but do not depend on @open-wa/api
-        // SocketManager. The compat client is backed by the v5 transport.
-        this.server?.client.socket.emit("node_red_init_call", (data: unknown) => res.json(data))
+
+        void fetchCommandOptions(this.server)
+          .then((data) => res.json(data))
+          .catch((error) => {
+            const message = error instanceof Error ? error.message : String(error)
+            res.status(502).json({ error: message })
+          })
       })
 
     this.on("input", (msg, send, done) => {
