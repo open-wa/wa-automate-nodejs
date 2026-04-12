@@ -530,6 +530,12 @@ export class Transport {
       throw new Error('Transport not initialized');
     }
 
+    // Ensure injection controller is initialized with the page
+    // (normally done in navigate() -> configureLaunchBootstrap())
+    if (!this.injectionController.getHealthSnapshot().generation.browserContextId) {
+      await this.injectionController.initialize(this.page);
+    }
+
     this.events.emit('launch.wapi.inject.before', {
       correlationId: 'transport-inject',
       ts: Date.now(),

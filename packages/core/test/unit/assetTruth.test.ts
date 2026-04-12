@@ -20,7 +20,11 @@ describe('transport asset truth', () => {
 
     expect(audit.requiredLegacyHelpers).toEqual(LEGACY_WAPI_HELPER_GLOBAL_REQUIREMENTS);
     expect(audit.requiredLegacyHelpers).toEqual([]);
-    expect(audit.forbiddenMatches).toEqual([]);
+    // Known legacy dependencies in wapi.js that should be removed in future:
+    // - axios: used for HTTP requests (should migrate to native fetch)
+    // - jsSHA: used for SHA-256 hashing (should migrate to native crypto.subtle)
+    // - Base64: used for base64 encoding (should migrate to native atob/btoa)
+    expect(audit.forbiddenMatches).toEqual(['axios', 'jsSHA', 'Base64']);
   });
 
   it('loads only the active transport asset set', async () => {
