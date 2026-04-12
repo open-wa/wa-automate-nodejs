@@ -562,11 +562,6 @@ export class InjectionController {
       return;
     }
 
-    this.logger.warn('injection_controller_runtime_bridge_reset_skipped', {
-      reason,
-    });
-    return;
-
     const cleanupPromise = this.page.evaluate(({ reason: resetReason }) => {
       const root = globalThis as typeof globalThis & {
         __OPENWA_RUNTIME_BRIDGE__?: {

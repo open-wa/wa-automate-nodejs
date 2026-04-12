@@ -13,7 +13,7 @@ describe('Hono Middleware', () => {
 
             const server = new WAServer(config);
 
-            const res = await server.getApp().request('/api/sendText', {
+            const res = await server.getApp().request('/api/messages/sendText', {
                 method: 'POST',
                 body: JSON.stringify({ to: 'test@c.us', content: 'test' }),
                 headers: { 'Content-Type': 'application/json' }
@@ -31,7 +31,7 @@ describe('Hono Middleware', () => {
 
             const server = new WAServer(config);
 
-            const res = await server.getApp().request('/api/sendText', {
+            const res = await server.getApp().request('/api/messages/sendText', {
                 method: 'POST',
                 body: JSON.stringify({ to: 'test@c.us', content: 'test' }),
                 headers: { 'Content-Type': 'application/json' }
@@ -111,7 +111,7 @@ describe('Hono Middleware', () => {
                 sendText,
             });
 
-            const res = await server.getApp().request('/api/sendText', {
+            const res = await server.getApp().request('/api/messages/sendText', {
                 method: 'POST',
                 body: JSON.stringify({ to: '123@c.us', content: 'hello' }),
                 headers: { 'Content-Type': 'application/json' },

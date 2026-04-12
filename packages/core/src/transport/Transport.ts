@@ -543,6 +543,10 @@ export class Transport {
       await this.runPreApiHelperPhase();
       success = await this.performRuntimeInjection();
 
+      if (success) {
+        await this.configureRuntimeEventBridge();
+      }
+
       return success;
     } finally {
       this.events.emit('launch.wapi.inject.after', {

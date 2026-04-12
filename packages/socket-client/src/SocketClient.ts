@@ -1,4 +1,5 @@
 import { EventEmitter2 } from 'eventemitter2';
+import { EventSource as EventSourcePolyfill } from 'eventsource';
 import type { SimpleListener, Chat, ChatId, Message } from "@open-wa/wa-automate-types-only";
 import type { BaseClient as _Client } from "@open-wa/wa-automate-types-only";
 import { TunnelSocketClient } from './TunnelSocketClient';
@@ -365,6 +366,10 @@ export class SocketClient {
                 EventSourceCtor = (globalThis as any).EventSource;
             } catch {
                 EventSourceCtor = undefined;
+            }
+
+            if (!EventSourceCtor) {
+                EventSourceCtor = EventSourcePolyfill;
             }
 
             if (!EventSourceCtor) {

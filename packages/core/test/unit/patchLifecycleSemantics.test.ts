@@ -28,16 +28,16 @@ afterEach(() => {
 describe('transport patch lifecycle semantics', () => {
   it('keeps disk cache opt-in instead of reading or writing it by default', async () => {
     const transport = createTransport({ cachedPatch: false });
-    const loadCachedSpy = vi.spyOn(transport as never as { loadCachedPatches: () => Promise<unknown> }, 'loadCachedPatches');
-    const saveCachedSpy = vi.spyOn(transport as never as { saveCachedPatches: (value: unknown) => Promise<void> }, 'saveCachedPatches');
+    const loadCachedSpy = vi.spyOn(transport as never as { loadCachedLivePatches: () => Promise<unknown> }, 'loadCachedLivePatches');
+    const saveCachedSpy = vi.spyOn(transport as never as { saveCachedLivePatches: (value: unknown) => Promise<void> }, 'saveCachedLivePatches');
     const fetchSpy = vi.spyOn(httpClient, 'fetchPatches').mockResolvedValue({
       data: ['console.log("remote")'],
       tag: 'remote-tag',
     });
 
     const result = await (transport as never as {
-      fetchRemotePatchesWithCache: (sessionInfo?: { WA_VERSION?: string; WA_AUTOMATE_VERSION?: string }) => Promise<{ source: string; tag: string; data: string[] }>;
-    }).fetchRemotePatchesWithCache({
+      fetchLivePatchesWithCache: (sessionInfo?: { WA_VERSION?: string; WA_AUTOMATE_VERSION?: string }) => Promise<{ source: string; tag: string; data: string[] }>;
+    }).fetchLivePatchesWithCache({
       WA_VERSION: '2.2400.1',
       WA_AUTOMATE_VERSION: '5.0.0',
     });
@@ -54,20 +54,20 @@ describe('transport patch lifecycle semantics', () => {
 
   it('returns a fresh cache hit immediately and refreshes it in the background when cachedPatch is enabled', async () => {
     const transport = createTransport({ cachedPatch: true });
-    vi.spyOn(transport as never as { loadCachedPatches: () => Promise<{ data: string[]; tag: string } | null> }, 'loadCachedPatches').mockResolvedValue({
+    vi.spyOn(transport as never as { loadCachedLivePatches: () => Promise<{ data: string[]; tag: string } | null> }, 'loadCachedLivePatches').mockResolvedValue({
       data: ['console.log("cached")'],
       tag: 'cached-tag',
     });
     const refreshSpy = vi.spyOn(transport as never as {
-      fetchFreshRemotePatches: (sessionInfo?: { WA_VERSION?: string; WA_AUTOMATE_VERSION?: string }) => Promise<{ data: string[]; tag: string }>;
-    }, 'fetchFreshRemotePatches').mockResolvedValue({
+      fetchFreshLivePatches: (sessionInfo?: { WA_VERSION?: string; WA_AUTOMATE_VERSION?: string }) => Promise<{ data: string[]; tag: string }>;
+    }, 'fetchFreshLivePatches').mockResolvedValue({
       data: ['console.log("fresh")'],
       tag: 'fresh-tag',
     });
 
     const result = await (transport as never as {
-      fetchRemotePatchesWithCache: (sessionInfo?: { WA_VERSION?: string; WA_AUTOMATE_VERSION?: string }) => Promise<{ source: string; tag: string; data: string[] }>;
-    }).fetchRemotePatchesWithCache({
+      fetchLivePatchesWithCache: (sessionInfo?: { WA_VERSION?: string; WA_AUTOMATE_VERSION?: string }) => Promise<{ source: string; tag: string; data: string[] }>;
+    }).fetchLivePatchesWithCache({
       WA_VERSION: '2.2400.1',
       WA_AUTOMATE_VERSION: '5.0.0',
     });
@@ -91,8 +91,8 @@ describe('transport patch lifecycle semantics', () => {
     });
 
     const result = await (transport as never as {
-      fetchFreshRemotePatches: (sessionInfo?: { WA_VERSION?: string; WA_AUTOMATE_VERSION?: string }) => Promise<{ tag: string; data: string[] }>;
-    }).fetchFreshRemotePatches({
+      fetchFreshLivePatches: (sessionInfo?: { WA_VERSION?: string; WA_AUTOMATE_VERSION?: string }) => Promise<{ tag: string; data: string[] }>;
+    }).fetchFreshLivePatches({
       WA_VERSION: '2.2400.1',
       WA_AUTOMATE_VERSION: '5.0.0',
     });

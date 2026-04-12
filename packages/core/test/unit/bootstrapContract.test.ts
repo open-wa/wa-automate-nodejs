@@ -4,6 +4,7 @@ import { Transport, type PatchFetchConfig } from '../../src/transport/Transport.
 import type {
   DisposableHandle,
   IBrowser,
+  DriverCapabilities,
   IDriver,
   IElementHandle,
   IFrame,
@@ -25,6 +26,7 @@ type StartResult =
 type HarnessOptions = {
   qrCode?: string | null;
   qrCodes?: Array<string | null>;
+  screenshotError?: Error;
   runtimeAvailable?: boolean;
   runtimeMethods?: string[];
   storeMsgAvailable?: boolean;
@@ -43,6 +45,8 @@ type HarnessOptions = {
   licenseApplyFails?: boolean;
   initPatchFails?: boolean;
   patchConfig?: PatchFetchConfig;
+  driverCapabilities?: Partial<DriverCapabilities>;
+  driverName?: string;
 };
 
 class FakeElementHandle implements IElementHandle {
@@ -86,6 +90,8 @@ class FakePage implements IPage {
   private readonly configuredLinkCode?: string;
   private readonly generatedLinkCode: string | null;
   private readonly authenticateOnLinkCodeRequest: boolean;
+  private readonly screenshotError?: Error;
+  private screenshotCallCount = 0;
   private keyType: string | false = false;
   private launchError: string | null = null;
   private readonly licenseApplyFails: boolean;
@@ -109,6 +115,7 @@ class FakePage implements IPage {
     this.configuredLinkCode = options.linkCode;
     this.generatedLinkCode = options.generatedLinkCode ?? 'ABC-1234';
     this.authenticateOnLinkCodeRequest = options.authenticateOnLinkCodeRequest ?? false;
+    this.screenshotError = options.screenshotError;
     this.licenseApplyFails = options.licenseApplyFails ?? false;
     this.initPatchFails = options.initPatchFails ?? false;
     this.refreshBrowserGlobals();
@@ -148,6 +155,10 @@ class FakePage implements IPage {
 
   getLaunchInjectionCount(): number {
     return this.launchInjectionCount;
+  }
+
+  getScreenshotCallCount(): number {
+    return this.screenshotCallCount;
   }
 
   mainFrame(): IFrame | null {
@@ -333,6 +344,11 @@ class FakePage implements IPage {
   async type(_selector: string, _text: string): Promise<void> {}
 
   async screenshot(): Promise<Uint8Array> {
+    this.screenshotCallCount += 1;
+    if (this.screenshotError) {
+      throw this.screenshotError;
+    }
+
     return new Uint8Array();
   }
 
@@ -429,9 +445,26 @@ class FakeBrowser implements IBrowser {
 }
 
 class FakeDriver implements IDriver {
-  readonly name = 'fake-driver';
+  readonly name: 'fake-driver' | 'lightpanda';
+  readonly capabilities: DriverCapabilities;
 
-  constructor(private readonly browser: FakeBrowser) {}
+  constructor(private readonly browser: FakeBrowser, options: Pick<HarnessOptions, 'driverCapabilities' | 'driverName'> = {}) {
+    this.name = options.driverName ?? 'fake-driver';
+    this.capabilities = {
+      cdp: { supported: true },
+      requestInterception: { supported: true },
+      serviceWorkerBypass: { supported: true },
+      stealth: { supported: true },
+      pdf: { supported: true },
+      tracing: { supported: true },
+      persistentContext: { supported: true },
+      browserExtensions: { supported: true },
+      exposeBinding: { supported: true },
+      screenshot: { supported: true },
+      rendering: { supported: true },
+      ...options.driverCapabilities,
+    };
+  }
 
   async init(): Promise<void> {}
 
@@ -441,6 +474,18 @@ class FakeDriver implements IDriver {
 
   async connect(): Promise<IBrowser> {
     return this.browser;
+  }
+
+  createCapabilityError(capability: keyof DriverCapabilities, reason?: string): Error {
+    if (this.name === 'lightpanda' && (capability === 'rendering' || capability === 'screenshot' || capability === 'pdf' || capability === 'tracing')) {
+      return new Error(
+        `Driver 'Lightpanda' does not support capability '${capability}': ${reason ?? 'Lightpanda has no rendering engine'}`,
+      );
+    }
+
+    return new Error(
+      `Driver '${this.name}' does not support capability '${capability}'${reason ? `: ${reason}` : ''}`,
+    );
   }
 
   unwrap(): unknown {
@@ -466,7 +511,7 @@ async function createHarness(options: HarnessOptions = {}): Promise<{
   recordedEvents: RecordedEvent[];
 }> {
   const page = new FakePage(options);
-  const driver = new FakeDriver(new FakeBrowser(page));
+  const driver = new FakeDriver(new FakeBrowser(page), options);
   const client = await createClient({
     driver,
     sessionId: 'bootstrap-contract',
@@ -1493,6 +1538,56 @@ describe('bootstrap contract harness', () => {
     expect(qrGeneratedEvents).toHaveLength(1);
 
     await client.stop('qr_max_classification_cleanup');
+  });
+
+  it('fails fast in createClient.screenshot() before touching the Lightpanda page screenshot path', async () => {
+    const { client, page } = await createHarness({
+      runtimeAvailable: true,
+      storeMsgAvailable: true,
+      sessionLoaded: true,
+      driverName: 'lightpanda',
+      driverCapabilities: {
+        screenshot: { supported: false, reason: 'Lightpanda has no rendering engine' },
+        rendering: { supported: false, reason: 'Lightpanda has no rendering engine' },
+      },
+      screenshotError: new Error('page.screenshot() should not have been called'),
+    });
+
+    const startResult = await settleStart(client);
+
+    if (startResult.status !== 'resolved') {
+      throw new Error(`Expected screenshot delegation harness to start successfully, but it rejected with: ${String(startResult.error)}`);
+    }
+
+    await expect(client.screenshot()).rejects.toThrow(
+      "Driver 'Lightpanda' does not support capability 'screenshot': Lightpanda has no rendering engine",
+    );
+    expect(page.getScreenshotCallCount()).toBe(0);
+
+    await client.stop('lightpanda_screenshot_guard_cleanup');
+  });
+
+  it('keeps supported non-rendering client entrypoints working under Lightpanda', async () => {
+    const { client } = await createHarness({
+      runtimeAvailable: true,
+      storeMsgAvailable: true,
+      sessionLoaded: true,
+      driverName: 'lightpanda',
+      driverCapabilities: {
+        screenshot: { supported: false, reason: 'Lightpanda has no rendering engine' },
+        rendering: { supported: false, reason: 'Lightpanda has no rendering engine' },
+      },
+    });
+
+    const startResult = await settleStart(client);
+
+    if (startResult.status !== 'resolved') {
+      throw new Error(`Expected non-rendering Lightpanda harness to start successfully, but it rejected with: ${String(startResult.error)}`);
+    }
+
+    await expect(client.evaluateScript('window.Store != null')).resolves.toBeUndefined();
+
+    await client.stop('lightpanda_non_rendering_path_cleanup');
   });
 
   describe('payload depth: remote patch fetch', () => {

@@ -1,6 +1,7 @@
 import { HyperEmitter } from '@open-wa/hyperemitter';
 import { createLogger, Logger } from '@open-wa/logger';
 import type { IDriver } from '@open-wa/driver-interface';
+import { requireCapability, type CapabilitySubject } from '@open-wa/driver-interface';
 import { OpenWAEventMap, STATE } from './events/eventMap.js';
 import { PluginHost, loadPlugins } from './plugins/index.js';
 import type { Plugin, PluginClient } from '@open-wa/plugin-sdk';
@@ -104,6 +105,10 @@ export interface OpenWAClient {
   getTransport(): Transport;
   screenshot(): Promise<Uint8Array | null>;
   evaluateScript<T = unknown>(script: string): Promise<T | null>;
+}
+
+function hasCapabilitySubject(driver: IDriver): driver is IDriver & CapabilitySubject {
+  return 'capabilities' in driver;
 }
 
 /**
@@ -1039,6 +1044,9 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     },
 
     async screenshot() {
+      if (hasCapabilitySubject(options.driver)) {
+        requireCapability(options.driver, 'screenshot');
+      }
       const page = transport.getPage();
       if (!page || page.isClosed()) return null;
       return page.screenshot({ fullPage: true });

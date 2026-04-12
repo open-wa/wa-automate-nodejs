@@ -1,6 +1,8 @@
 import { createClient } from '@open-wa/core';
 import { Client as ClientFacade } from '@open-wa/client';
+import { LightpandaDriver } from '@open-wa/driver-lightpanda';
 import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+import { eventRegistry } from '@open-wa/schema';
 import { WAServer } from './server/hono-server';
 import { resolveConfig, type PartialConfig, type Config, type TrackedConfig } from '@open-wa/config';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -17,6 +19,29 @@ export interface CliRuntimeResult {
 
 interface RuntimeEventPublisher {
     publish(eventName: string, payload: any): void;
+}
+
+function bridgeRuntimeEvents(
+    openwaClient: Awaited<ReturnType<typeof createClient>>,
+    publishRuntimeEvent: (eventName: string, payload: any) => void,
+): () => void {
+    if (typeof openwaClient.events.onAny === 'function' && typeof openwaClient.events.offAny === 'function') {
+        openwaClient.events.onAny(publishRuntimeEvent);
+        return () => openwaClient.events.offAny(publishRuntimeEvent);
+    }
+
+    const unsubscribers: Array<() => void> = [];
+    const bridgedEvents = new Set(eventRegistry.getAll().map((def) => def.meta.eventName));
+
+    bridgedEvents.forEach((eventName) => {
+        const handler = (payload: any) => publishRuntimeEvent(eventName, payload);
+        openwaClient.events.on(eventName as never, handler);
+        unsubscribers.push(() => openwaClient.events.off(eventName as never, handler));
+    });
+
+    return () => {
+        unsubscribers.forEach((unsubscribe) => unsubscribe());
+    };
 }
 
 function attachLaunchNarration(
@@ -162,8 +187,21 @@ interface ChromePathCacheRecord {
 
 interface ExecutablePathResolution {
     executablePath?: string;
-    source: 'config' | 'cache' | 'chrome_installation' | 'driver_default';
+    source:
+        | 'config'
+        | 'cache'
+        | 'chrome_installation'
+        | 'driver_default'
+        | 'lightpanda_config'
+        | 'lightpanda_sdk_default';
     warning?: string;
+}
+
+interface DriverSelection {
+    driver: PuppeteerDriver | LightpandaDriver;
+    engineLabel: 'Puppeteer' | 'Lightpanda';
+    executableResolution: ExecutablePathResolution;
+    preferLocalChrome: boolean;
 }
 
 export interface ParsedCliArgs {
@@ -234,6 +272,10 @@ function getExplicitUseChromePreference(rawConfigs?: TrackedConfig['rawConfigs']
 }
 
 export function shouldPreferLocalChrome(config: Config, rawConfigs?: TrackedConfig['rawConfigs']): boolean {
+    if (config.useLightpanda) {
+        return false;
+    }
+
     if (config.executablePath) {
         return false;
     }
@@ -276,6 +318,7 @@ export function parseCliArgs(argv: string[] = process.argv.slice(2)): ParsedCliA
     if (argv.includes('--headful')) cliOverrides.headless = false;
     if (argv.includes('--headless')) cliOverrides.headless = true;
     if (argv.includes('--use-chrome')) cliOverrides.useChrome = true;
+    if (argv.includes('--use-lightpanda')) cliOverrides.useLightpanda = true;
     if (argv.includes('--log-console')) cliOverrides.logConsole = true;
     if (argv.includes('--aggressive-garbage-collection')) cliOverrides.aggressiveGarbageCollection = true;
     if (argv.includes('--no-dashboard')) cliOverrides.dashboard = false;
@@ -398,7 +441,47 @@ export async function resolveExecutablePath(
     };
 }
 
-function printStartupSummary(config: Config, resolution: ExecutablePathResolution, preferLocalChrome: boolean) {
+function resolveLightpandaExecutablePath(config: Config): ExecutablePathResolution {
+    const executablePath = config.lightpanda?.executablePath;
+    if (executablePath) {
+        return {
+            executablePath,
+            source: 'lightpanda_config',
+        };
+    }
+
+    return {
+        source: 'lightpanda_sdk_default',
+    };
+}
+
+async function selectRuntimeDriver(config: Config, rawConfigs?: TrackedConfig['rawConfigs']): Promise<DriverSelection> {
+    if (config.useLightpanda) {
+        return {
+            driver: new LightpandaDriver(),
+            engineLabel: 'Lightpanda',
+            executableResolution: resolveLightpandaExecutablePath(config),
+            preferLocalChrome: false,
+        };
+    }
+
+    const preferLocalChrome = shouldPreferLocalChrome(config, rawConfigs);
+    const executableResolution = await resolveExecutablePath(config, { preferLocalChrome });
+
+    return {
+        driver: new PuppeteerDriver(),
+        engineLabel: 'Puppeteer',
+        executableResolution,
+        preferLocalChrome,
+    };
+}
+
+function printStartupSummary(
+    config: Config,
+    resolution: ExecutablePathResolution,
+    preferLocalChrome: boolean,
+    engineLabel: DriverSelection['engineLabel'],
+) {
     const host = config.host.includes('http') ? config.host : `http://${config.host}`;
     const sink = getCliOutputSink();
     sink.write({ level: 'info', message: `Easy API session: ${config.sessionId}` });
@@ -407,12 +490,17 @@ function printStartupSummary(config: Config, resolution: ExecutablePathResolutio
     sink.write({ level: 'info', message: `Swagger JSON: ${host}:${config.port}/meta/swagger.json` });
     sink.write({ level: 'info', message: `Postman JSON: ${host}:${config.port}/meta/postman.json` });
     sink.write({ level: 'info', message: `Browser mode: ${config.headless ? 'headless' : 'headful'}` });
+    sink.write({ level: 'info', message: `Browser engine: ${engineLabel}` });
     if (config.dashboard) {
         sink.write({ level: 'info', message: `Dashboard: ${host}:${config.port}/dashboard/` });
     } else {
         sink.write({ level: 'info', message: 'Dashboard: disabled (--no-dashboard)' });
     }
-    if (resolution.source === 'config' && config.executablePath) {
+    if (resolution.source === 'lightpanda_config' && resolution.executablePath) {
+        sink.write({ level: 'info', message: `Browser executable: explicit Lightpanda override (${resolution.executablePath})` });
+    } else if (resolution.source === 'lightpanda_sdk_default') {
+        sink.write({ level: 'info', message: 'Browser executable: Lightpanda SDK managed executable (shared cache/default resolution)' });
+    } else if (resolution.source === 'config' && config.executablePath) {
         sink.write({ level: 'info', message: `Browser executable: explicit override (${config.executablePath})` });
     } else if (resolution.source === 'cache') {
         sink.write({ level: 'info', message: `Browser executable: local Chrome from cache (${resolution.executablePath})` });
@@ -459,8 +547,8 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
 
     unsupportedWarnings.forEach((warning) => sink.write({ level: 'warn', message: `Compatibility warning: ${warning}` }));
 
-    const preferLocalChrome = shouldPreferLocalChrome(config, rawConfigs);
-    const executableResolution = await resolveExecutablePath(config, { preferLocalChrome });
+    const driverSelection = await selectRuntimeDriver(config, rawConfigs);
+    const { driver, engineLabel, executableResolution, preferLocalChrome } = driverSelection;
     if (executableResolution.warning) {
         sink.write({ level: 'warn', message: executableResolution.warning });
     }
@@ -471,12 +559,11 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
     await server.start();
     sink.status({ phase: 'server.started', sessionId: config.sessionId });
 
-    printStartupSummary(config, executableResolution, preferLocalChrome);
+    printStartupSummary(config, executableResolution, preferLocalChrome, engineLabel);
 
     sink.status({ phase: 'client.starting', sessionId: config.sessionId });
     sink.write({ level: 'info', message: 'Starting WhatsApp Client...' });
 
-    const driver = new PuppeteerDriver();
     const openwaClient = await createClient({
         sessionId: config.sessionId,
         driver,
@@ -542,18 +629,20 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         });
     };
 
-    openwaClient.events.onAny(publishRuntimeEvent);
+    const detachRuntimeBridge = bridgeRuntimeEvents(openwaClient, publishRuntimeEvent);
 
     // Bridge core events to the socket manager so dashboard clients
     // receive live events when they send register_ev.
-    server.setEventBridge({
-        onAny: (listener: (event: string, value: any) => void) => {
-            runtimeBridgeListeners.add(listener);
-        },
-        offAny: (listener: (event: string, value: any) => void) => {
-            runtimeBridgeListeners.delete(listener);
-        },
-    });
+    if (typeof server.setEventBridge === 'function') {
+        server.setEventBridge({
+            onAny: (listener: (event: string, value: any) => void) => {
+                runtimeBridgeListeners.add(listener);
+            },
+            offAny: (listener: (event: string, value: any) => void) => {
+                runtimeBridgeListeners.delete(listener);
+            },
+        });
+    }
 
     openwaClient.events.on('launch.browser.init.after', async () => {
         const page = openwaClient.getTransport().getPage();
