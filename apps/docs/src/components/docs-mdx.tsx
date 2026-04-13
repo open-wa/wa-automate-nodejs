@@ -7,6 +7,14 @@ import {
   LicensedFeatureCallout,
   type LicenseTier,
 } from '@/components/licensing';
+import {
+  Callout,
+  ComparisonTable,
+  FAQ,
+  Step,
+  Steps,
+  PackageManagerTabs,
+} from '@/components/docs-primitives';
 
 function flattenText(node: React.ReactNode): string {
   if (node === null || node === undefined || typeof node === 'boolean') return '';
@@ -104,4 +112,10 @@ export const docsMdxComponents = {
   GetLicenseButton,
   LicenseBadge,
   LicensedFeatureCallout,
+  Callout,
+  ComparisonTable,
+  FAQ,
+  Step,
+  Steps,
+  PackageManagerTabs,
 };
