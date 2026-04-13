@@ -7,7 +7,18 @@ import mdx from 'fumadocs-mdx/vite';
 
 export default defineConfig({
     server: {
-        port: 3000,
+        port: 3022,
+    },
+    resolve: {
+        alias: {
+            'node:path': 'node:path',
+            'node:fs/promises': 'node:fs/promises',
+        },
+    },
+    build: {
+        rolldownOptions: {
+            external: ['node:path', 'node:fs/promises'],
+        },
     },
     plugins: [
         mdx(await import('./source.config')),
