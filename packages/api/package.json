@@ -14,12 +14,15 @@
   "scripts": {
     "build": "tsdown src/index.ts --format cjs",
     "dev": "tsdown src/index.ts --format cjs --watch",
-    "lint": "oxlint src"
+    "lint": "oxlint src",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@elastic/elasticsearch": "catalog:",
     "@hono/node-server": "catalog:",
     "@hono/node-ws": "^1.3.0",
+    "@open-wa/mcp": "workspace:*",
     "@open-wa/schema": "workspace:*",
     "@open-wa/screencaster": "workspace:*",
     "hono": "catalog:",
@@ -30,7 +33,8 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "publishConfig": {
     "access": "public"
