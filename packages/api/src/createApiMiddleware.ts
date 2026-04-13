@@ -6,6 +6,7 @@ import { rateLimitMiddleware } from './middleware/rate-limit';
 import { normalizeMethodPayload } from './compat/args';
 import { assertSessionPath } from './compat/session-path';
 import { invokeClientMethod } from './invoke-client-method';
+import { executeCapability } from './execution/kernel';
 import type { ApiMiddlewareOptions, ClientMethodMap, ClientSource } from './types';
 
 function resolveClient(clientSource: ClientSource): ClientMethodMap | undefined {
@@ -107,39 +108,25 @@ export function createApiMiddleware(clientSource: ClientSource, options: ApiMidd
       return c.json({ error: `Unknown method: ${methodName}` }, 404);
     }
 
-    try {
-      const normalizedPayload = normalizeMethodPayload(definition, payload);
-      const validated = await definition.inputSchema.parseAsync(normalizedPayload);
-      const result = await invokeClientMethod(resolveClient(clientSource), definition, validated);
+    const result = await executeCapability({
+      client: resolveClient(clientSource),
+      definition,
+      payload,
+      elasticEmitter: options.elasticEmitter,
+      sessionId: options.config.sessionId,
+    });
 
-      options.elasticEmitter?.log({
-        level: 'info',
-        component: 'api',
-        method: methodName,
-        sessionId: options.config.sessionId,
-        duration: Date.now() - startTime,
-        statusCode: 200,
-        message: `Successfully executed ${methodName}`,
-      });
-
-      return c.json({ success: true, data: result });
-    } catch (error: any) {
-      options.elasticEmitter?.log({
-        level: 'error',
-        component: 'api',
-        method: methodName,
-        sessionId: options.config.sessionId,
-        duration: Date.now() - startTime,
-        statusCode: error?.name === 'ZodError' ? 400 : 500,
-        message: error?.message || 'Internal Server Error',
-      });
-
-      if (error?.name === 'ZodError') {
-        return c.json({ error: 'Validation Error', details: error.errors }, 400);
-      }
-
-      return c.json({ error: error?.message || 'Internal Server Error' }, 500);
+    if (result.success) {
+      return c.json({ success: true, data: result.data });
     }
+
+    return c.json(
+      {
+        error: result.error,
+        details: result.details,
+      },
+      result.status as any,
+    );
   };
 
   const redirectToCanonical = (definition: HttpMethodDefinition, c: any) => {

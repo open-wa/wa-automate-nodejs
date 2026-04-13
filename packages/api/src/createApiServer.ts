@@ -8,6 +8,7 @@ import { getHttpMethodDefinitions, type Config } from '@open-wa/schema';
 import '@open-wa/schema';
 import { createScreencastRoute, ScreencastManager } from '@open-wa/screencaster/server';
 import { createApiMiddleware } from './createApiMiddleware';
+import { createHonoMcpAdapter } from '@open-wa/mcp';
 import { registerMetaRoutes } from './routes/meta';
 import { registerDebugRoutes } from './routes/debug';
 import { type EventBridge } from './events/EventBridge';
@@ -60,6 +61,14 @@ export class ApiServer {
 
   constructor(options: ApiServerOptions) {
     this.config = options.config;
+
+    // Validate MCP configuration
+    if (this.config.mcp?.enabled && !this.config.apiKey) {
+      throw new Error(
+        'MCP requires Easy API apiKey. Refusing to start with MCP enabled and no apiKey configured.'
+      );
+    }
+
     this.app = new Hono();
     this.screencastManager = new ScreencastManager();
     this.eventBroadcaster = new EventBroadcaster(this.config.sessionId);
@@ -261,6 +270,17 @@ export class ApiServer {
             running: this.isDashboardRunning(),
             port: this.config.dashboardPort,
           },
+          mcp: {
+            enabled: Boolean(this.config.mcp?.enabled),
+            available: Boolean(this.config.apiKey && this.config.mcp?.enabled),
+            path: this.config.mcp?.path || '/mcp',
+          },
+        },
+        capabilities: {
+          apiKeyConfigured: Boolean(this.config.apiKey),
+          mcpEnabled: Boolean(this.config.mcp?.enabled),
+          mcpAvailable: Boolean(this.config.apiKey && this.config.mcp?.enabled),
+          mcpPath: this.config.mcp?.path || '/mcp',
         },
         connected: this.isSessionConnected(),
         session: this.readinessProvider?.() ?? {
@@ -296,8 +316,11 @@ export class ApiServer {
     });
 
     this.app.get('/api/events', (c) => {
+      // TODO: Unify this inline auth check with the shared apiKeyMiddleware used across Easy API.
+      // Note: This intentionally supports query params to preserve legacy Easy API behavior,
+      // unlike the MCP adapter which strictly enforces header-only auth (X-API-Key) for security.
       if (this.config.apiKey) {
-        const apiKey = c.req.header('X-API-Key') || c.req.query('api_key');
+        const apiKey = c.req.header('X-API-Key') || c.req.query('api_key') || c.req.query('key');
 
         if (!apiKey || apiKey !== this.config.apiKey) {
           return c.json({ error: 'Unauthorized', details: 'Invalid or missing API key' }, 401);
@@ -343,17 +366,26 @@ export class ApiServer {
         this.config.integrations[id] = data;
       },
     });
-
     this.app.route(
       '/api',
       createApiMiddleware(() => this.client, {
         config: this.config,
         basePath: '/api',
-        methodDefinitions,
         elasticEmitter: this.elasticEmitter,
         isSessionConnected: () => this.isSessionConnected(),
       })
     );
+
+    if (this.config.mcp?.enabled) {
+      const mcpAdapter = createHonoMcpAdapter({
+        config: this.config,
+        clientSource: () => this.client,
+        elasticEmitter: this.elasticEmitter,
+        basePath: '/api',
+        isSessionConnected: () => this.isSessionConnected(),
+      });
+      mcpAdapter.mount(this.app, this.config.mcp.path || '/mcp');
+    }
   }
 }
 

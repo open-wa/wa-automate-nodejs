@@ -1,0 +1,44 @@
+{
+  "name": "@open-wa/mcp",
+  "version": "5.0.0-alpha.1",
+  "type": "module",
+  "description": "MCP server integration for open-wa",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "lint": "oxlint src",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.1",
+    "@open-wa/config": "workspace:*",
+    "@open-wa/schema": "workspace:*",
+    "@open-wa/utils": "workspace:*",
+    "hono": "catalog:",
+    "zod": "catalog:",
+    "zod-to-json-schema": "^3.23.2"
+  },
+  "devDependencies": {
+    "tsdown": "^0.21.7",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

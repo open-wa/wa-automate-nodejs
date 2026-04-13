@@ -1,5 +1,6 @@
 import type { Config, HttpMethodDefinition } from '@open-wa/schema';
 import { eventRegistry } from '@open-wa/schema';
+import { getMcpToolDefinitions } from '@open-wa/mcp';
 import { deprecatedJson, applyDeprecationHeaders } from '../compat/deprecation';
 import { createOpenApiDocument } from '../docs/openapi';
 import { createPostmanCollection } from '../docs/postman';
@@ -143,6 +144,16 @@ export function registerMetaRoutes(
       }))
     );
   });
+
+  if (options.config.mcp?.exposeToolsMeta) {
+    app.get('/meta/mcp-tools.json', (c: any) => {
+      return c.json({
+        endpoint: options.config.mcp?.path || '/mcp',
+        requiresApiKey: true,
+        tools: getMcpToolDefinitions(),
+      });
+    });
+  }
 
   app.get('/swagger-stats', (c: any) => {
     applyDeprecationHeaders(c, {

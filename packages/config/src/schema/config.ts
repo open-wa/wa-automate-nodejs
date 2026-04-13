@@ -153,6 +153,21 @@ export const LoggingTransportSchema = z.object({
   port: z.number().optional().describe('For syslog/elasticsearch'),
 });
 
+export const McpConfigSchema = z.object({
+  enabled: z
+    .boolean()
+    .default(false)
+    .describe('Enable the hosted MCP endpoint for Easy API. Requires apiKey.'),
+  path: z
+    .string()
+    .default('/mcp')
+    .describe('Hosted MCP endpoint path for Easy API.'),
+  exposeToolsMeta: z
+    .boolean()
+    .default(true)
+    .describe('Expose /meta/mcp-tools.json for dashboard and debugging.'),
+});
+
 // ============================================================================
 // Main Configuration Schema
 // ============================================================================
@@ -486,6 +501,11 @@ export const ConfigSchema = z.object({
    * ```
    */
   pluginConfig: z.record(z.string(), z.unknown()).default({}).describe('Plugin configuration keyed by plugin name.'),
+
+  /**
+   * Easy API MCP configuration. Hosted MCP requires apiKey.
+   */
+  mcp: McpConfigSchema.optional().describe('Easy API MCP configuration. Hosted MCP requires apiKey.'),
 });
 
 // ============================================================================
