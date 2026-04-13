@@ -32,16 +32,34 @@ function ts(): string {
     return Date.now().toString();
 }
 
+/**
+ * Check if debug logging is enabled.
+ * Support Node.js process.env and browser localStorage.
+ */
+function isDebugEnabled(): boolean {
+    try {
+        // Node.js or bundler-replaced process.env
+        if (typeof process !== 'undefined' && process.env?.DEBUG_SCREENCAST) return true;
+        // Browser localStorage
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('DEBUG_SCREENCAST')) return true;
+    } catch {
+        // Ignore errors in environments where these aren't accessible
+    }
+    return false;
+}
+
+const DEBUG = isDebugEnabled();
+
 function dbg(...args: unknown[]): void {
-    if (process.env.DEBUG_SCREENCAST) console.log(ts(), TAG, ...args);
+    if (DEBUG) console.log(ts(), TAG, ...args);
 }
 
 function dbgWarn(...args: unknown[]): void {
-    if (process.env.DEBUG_SCREENCAST) console.warn(ts(), TAG, ...args);
+    if (DEBUG) console.warn(ts(), TAG, ...args);
 }
 
 function dbgErr(...args: unknown[]): void {
-    if (process.env.DEBUG_SCREENCAST) console.error(ts(), TAG, ...args);
+    if (DEBUG) console.error(ts(), TAG, ...args);
 }
 
 // ────── Event types ──────
