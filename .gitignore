@@ -85,3 +85,5 @@ apps/*/src/**/*.map
 .switchboard/*.db-wal
 .switchboard/**/*
 **.docx
+
+**.switchboard**
