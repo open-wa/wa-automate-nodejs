@@ -1,0 +1,28 @@
+---
+title: Event Reference
+description: API reference for all events emitted by the Open-WA Client.
+---
+
+# Event Reference
+
+Open-WA uses a centralized event system based on `HyperEmitter`. You can listen to these events to react to WhatsApp messages, connection state changes, and internal runtime lifecycle steps.
+
+## OpenWAEventMap
+
+This interface defines all available events and their corresponding payload shapes.
+
+<AutoTypeTable path="../../../../packages/core/src/events/eventMap.ts" name="OpenWAEventMap" />
+
+## Common Payloads
+
+### StepEvent
+
+Most internal launch and lifecycle events use the `StepEvent` wrapper.
+
+<AutoTypeTable path="../../../../packages/core/src/events/eventMap.ts" name="StepEvent" />
+
+### EventContext
+
+Standard metadata included with almost every event.
+
+<AutoTypeTable path="../../../../packages/core/src/events/eventMap.ts" name="EventContext" />

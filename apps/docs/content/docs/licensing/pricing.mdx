@@ -1,0 +1,190 @@
+---
+title: Pricing and licensing
+description: Compare free, restricted, and insiders availability, then choose the right license path for your open-wa use case.
+---
+
+# Pricing and licensing
+
+This page is the decision surface for open-wa licensing. If you already know you
+need a key and only want the runtime details, jump to
+**[Licensed features](/docs/licensing/licensed-features)**.
+
+<Callout type="note" title="What this page is for">
+  Use this page when you are trying to decide whether the free/community surface
+  is enough, whether you need a restricted license for gated flows, or whether
+  you need insiders access for advanced or early-access capabilities.
+</Callout>
+
+## Compare the tiers
+
+<ComparisonTable
+  columns={[
+    { key: 'community', label: 'Community / free' },
+    { key: 'restricted', label: 'Restricted' },
+    { key: 'insiders', label: 'Insiders' },
+  ]}
+  rows={[
+    {
+      group: 'Core usage',
+      feature: 'Run the basic automation surface',
+      values: {
+        community: 'Yes',
+        restricted: 'Yes',
+        insiders: 'Yes',
+      },
+    },
+    {
+      feature: 'Easy API, custom code, and docs access',
+      values: {
+        community: 'Yes',
+        restricted: 'Yes',
+        insiders: 'Yes',
+      },
+    },
+    {
+      group: 'Licensed behavior',
+      feature: 'Restricted / gated flows',
+      values: {
+        community: 'No',
+        restricted: 'Yes',
+        insiders: 'Yes',
+      },
+    },
+    {
+      feature: 'Advanced or early-access capabilities',
+      values: {
+        community: 'No',
+        restricted: 'Sometimes no',
+        insiders: 'Yes',
+      },
+    },
+    {
+      group: 'Operational clarity',
+      feature: 'Visible licensed-feature guidance in docs',
+      values: {
+        community: 'Reference only',
+        restricted: 'Yes',
+        insiders: 'Yes',
+      },
+    },
+    {
+      feature: 'Priority for gated capability usage',
+      values: {
+        community: 'No',
+        restricted: 'Targeted',
+        insiders: 'Highest',
+      },
+    },
+  ]}
+/>
+
+## What changes when you upgrade
+
+<Steps>
+  <Step title="Restricted licensing unlocks gated production use cases">
+    This is the path when the community surface is not enough and you need a key
+    for host-account-specific or gated runtime behavior.
+  </Step>
+  <Step title="Insiders licensing is for advanced or early-access capability">
+    Choose this when the restricted tier is still too narrow and your workflows
+    depend on higher-end or earlier-surface features.
+  </Step>
+  <Step title="The session context still matters">
+    A license decision is not just about owning a key. The real runtime session,
+    host account, and deployment context still determine whether the behavior you
+    care about is available where you need it.
+  </Step>
+</Steps>
+
+## Trust and scope signals
+
+<Callout type="tip" title="Buy based on the runtime you actually operate">
+  The safest purchase decision is always tied to the real host-account session
+  and production flow you are trying to support, not just a local one-off test.
+</Callout>
+
+<ComparisonTable
+  columns={[
+    { key: 'detail', label: 'What to confirm before buying' },
+    { key: 'why', label: 'Why it matters' },
+  ]}
+  rows={[
+    {
+      feature: 'Host-account session',
+      values: {
+        detail: 'Which account and runtime session will use the gated feature?',
+        why: 'Licensing behavior often depends on the real session context.',
+      },
+    },
+    {
+      feature: 'Exact gated behavior',
+      values: {
+        detail: 'Which restricted or insiders flow are you counting on?',
+        why: 'Do not buy based on vague assumptions; validate the actual feature.',
+      },
+    },
+    {
+      feature: 'Operational environment',
+      values: {
+        detail: 'Where will the runtime live and how will you validate it?',
+        why: 'You want confidence in the same environment you plan to run.',
+      },
+    },
+  ]}
+/>
+
+## Buy or investigate further
+
+<div className="my-8 flex flex-wrap gap-3">
+  <GetLicenseButton />
+  <a
+    href="/docs/licensing/licensed-features"
+    className="inline-flex items-center justify-center rounded-full border border-fd-border bg-fd-card px-5 py-2.5 text-sm font-medium text-fd-foreground hover:bg-fd-accent hover:text-fd-accent-foreground"
+  >
+    Read licensed-feature operations
+  </a>
+</div>
+
+<div className="my-8 grid gap-4 md:grid-cols-2">
+  <LicensedFeatureCallout tier="restricted" title="Need the restricted path?">
+    Use the restricted tier when you need a gated capability in a real workflow
+    and want the clearest direct upgrade path from the free surface.
+  </LicensedFeatureCallout>
+  <LicensedFeatureCallout tier="insiders" title="Need the insiders path?">
+    Use insiders when your use case depends on advanced or earlier-access
+    features that go beyond the restricted tier.
+  </LicensedFeatureCallout>
+</div>
+
+## Frequently asked questions
+
+<FAQ
+  items={[
+    {
+      question: 'How do I know whether I need a license at all?',
+      answer:
+        'Start from the free/community surface. If the behavior you need is marked as restricted or insiders in the docs or reference, that is your first sign you need to upgrade.',
+    },
+    {
+      question: 'Can I decide only from the docs page names?',
+      answer:
+        'Not safely. The better decision method is to match the exact gated feature to the host-account session and production flow you plan to run.',
+    },
+    {
+      question: 'What should I read after this page?',
+      answer:
+        'Read [Licensed features](/docs/licensing/licensed-features) for the operational workflow, then validate the exact feature in the generated reference or the guide you are implementing from.',
+    },
+    {
+      question: 'What if I need team or organization licensing clarity?',
+      answer:
+        'Treat that as a separate buying conversation instead of guessing from the single-user decision flow. The docs should eventually expose a dedicated team-license path as well.',
+    },
+  ]}
+/>
+
+<Callout type="tip" title="Best next step">
+  If you are still unsure, identify the exact restricted or insiders behavior you
+  need first, then validate that behavior in the guide or reference page tied to
+  your real host-account session and deployment flow.
+</Callout>

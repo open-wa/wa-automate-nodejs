@@ -1,0 +1,31 @@
+---
+title: Config schema
+description: Generated config type tables for the open-wa runtime, based on the current config package source of truth.
+---
+
+# Config schema
+
+This page exposes the current configuration surface from the schema/config source
+of truth instead of relying only on prose summaries.
+
+<Callout type="tip" title="How to use this page">
+  Start with **[Configuration and CLI](/docs/guides/configuration-and-cli)** for
+  the practical guidance, then use this page when you need the concrete field
+  surface and type details.
+</Callout>
+
+## Main config object
+
+<AutoTypeTable path="../../../../packages/config/src/schema/config.ts" name="Config" />
+
+## Strict config
+
+<AutoTypeTable path="../../../../packages/config/src/schema/config.ts" name="StrictConfig" />
+
+## Partial config
+
+<AutoTypeTable path="../../../../packages/config/src/schema/config.ts" name="PartialConfig" />
+
+## Deep partial config
+
+<AutoTypeTable path="../../../../packages/config/src/schema/config.ts" name="DeepPartialConfig" />

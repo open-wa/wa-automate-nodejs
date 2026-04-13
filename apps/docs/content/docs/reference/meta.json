@@ -2,6 +2,8 @@
   "title": "API Reference",
   "pages": [
     "index",
-    "..."
+    "core",
+    "events",
+    "messaging"
   ]
 }

@@ -27,7 +27,7 @@ export const DOCS_PATHS = {
   errorHandling: '/docs/operations-and-troubleshooting/error-handling',
   logoutDetection: '/docs/operations-and-troubleshooting/detect-logouts',
   licensedFeatures: '/docs/licensing/licensed-features',
-  referenceClient: '/docs/reference/api/Client/classes/Client',
+  referenceClient: '/docs/reference/core',
 } as const;
 
 export function getLicenseTierLabel(tier: LicenseTier): string {

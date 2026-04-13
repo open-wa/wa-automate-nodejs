@@ -4,6 +4,7 @@
     "socket-client",
     "proxying-a-session",
     "chatwoot",
-    "cf-proxy"
+    "cf-proxy",
+    "webhook-payloads"
   ]
 }
