@@ -14,18 +14,18 @@ catalog:
   '@hono/node-server': ^1.19.12
   '@tailwindcss/vite': ^4.2.2
   '@tanstack/react-query': ^5.95.2
-  '@tanstack/react-router': ^1.168.8
-  '@tanstack/react-router-devtools': ^1.166.11
+  '@tanstack/react-router': ^1.168.19
+  '@tanstack/react-router-devtools': ^1.166.13
   '@tanstack/react-router-ssr-query': ^1.166.10
-  '@tanstack/react-start': ^1.167.14
+  '@tanstack/react-start': ^1.167.34
   '@tanstack/router-generator': ^1.166.22
   '@tanstack/router-plugin': ^1.167.10
-  '@tanstack/start-static-server-functions': ^1.166.23
+  '@tanstack/start-static-server-functions': ^1.166.32
   '@types/cors': ^2.8.12
   '@types/express': ^4.17.14
   '@types/jest': ^29.5.0
   '@types/morgan': ^1.9.3
-  '@types/node': ^25.5.0
+  '@types/node': ^25.6.0
   '@types/react': ^19.2.14
   '@types/react-dom': ^19.2.3
   '@types/tar-fs': ^2.0.0
@@ -55,16 +55,16 @@ catalog:
   react-dom: ^19.2.4
   request-received: ^0.0.3
   response-time: ^2.3.2
-  serve: ^14.2.5
+  serve: ^14.2.6
   socket.io: ^4.5.4
   socket.io-client: ^4.7.5
   tailwind-merge: 2.6.0
-  tailwindcss: ^4.1.17
+  tailwindcss: ^4.2.2
   ts-jest: ^29.1.0
   ts-node: ^10.9.1
   typescript: ^6.0.2
   uuid: ^9.0.0
-  vite: ^8.0.3
+  vite: ^8.0.8
   vite-tsconfig-paths: ^6.1.1
   vitest: ^4.1.2
   winston: ^3.8.2
