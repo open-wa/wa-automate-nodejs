@@ -13,6 +13,7 @@ import {
 import { Link, useMatches } from "@tanstack/react-router"
 import { SessionStatusBadge } from "@/components/session-status-badge"
 import { useEffect, useState } from "react"
+import { useHealth } from "@/lib/hooks/use-health"
 
 interface PluginPage {
   path: string
@@ -43,6 +44,7 @@ import {
   Tv,
   Puzzle,
   Plug,
+  Bot,
 } from "lucide-react"
 
 const navItems = [
@@ -101,11 +103,11 @@ function usePluginManifest() {
 
   return plugins
 }
-
 export function AppSidebar() {
   const matches = useMatches()
   const currentPath = matches[matches.length - 1]?.pathname || "/"
   const plugins = usePluginManifest()
+  const { mcpAvailable } = useHealth()
 
   // Build plugin nav items from manifest
   const pluginNavItems = plugins.flatMap((plugin) =>
@@ -128,6 +130,34 @@ export function AppSidebar() {
     })
   }
 
+  const dynamicNavItems = [
+    {
+      group: "Overview",
+      items: [
+        { title: "Session", href: "/", icon: <Zap size={18} /> },
+        { title: "Health", href: "/health", icon: <HeartPulse size={18} /> },
+        { title: "Events", href: "/events", icon: <Activity size={18} /> },
+      ],
+    },
+    {
+      group: "Developer",
+      items: [
+        { title: "API Docs", href: "/api-docs", icon: <BookOpen size={18} /> },
+        { title: "Playground", href: "/playground", icon: <FlaskConical size={18} /> },
+        ...(mcpAvailable ? [{ title: "MCP", href: "/mcp", icon: <Bot size={18} /> }] : []),
+        { title: "Debug", href: "/debug", icon: <Bug size={18} /> },
+      ],
+    },
+    {
+      group: "Communication",
+      items: [
+        { title: "Chat", href: "/chat", icon: <MessageSquare size={18} /> },
+        { title: "Contacts", href: "/contacts", icon: <Contact size={18} /> },
+        { title: "Portal", href: "/portal", icon: <Tv size={18} /> },
+      ],
+    },
+  ]
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -143,7 +173,7 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        {navItems.map((group) => (
+        {dynamicNavItems.map((group) => (
           <SidebarGroup key={group.group}>
             <SidebarGroupLabel>{group.group}</SidebarGroupLabel>
             <SidebarGroupContent>

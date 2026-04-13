@@ -36,6 +36,10 @@ const config = defineConfig({
   },
   ssr: {
     noExternal: ['@open-wa/utils', 'jiti']
+  },
+  test: {
+    environment: "jsdom",
+    globals: true,
   }
 })
 

@@ -66,6 +66,26 @@ export interface HealthData {
   reconnections: ReconnectionEntry[]
   startedAt: number | null
   lastEventAt: number | null
+  host?: {
+    available: boolean
+    api: boolean
+    dashboard: {
+      enabled: boolean
+      running: boolean
+      port: number
+    }
+    mcp: {
+      enabled: boolean
+      available: boolean
+      path: string
+    }
+  }
+  capabilities?: {
+    apiKeyConfigured: boolean
+    mcpEnabled: boolean
+    mcpAvailable: boolean
+    mcpPath: string
+  }
 }
 
 // ── Module-level cache ──
@@ -340,5 +360,8 @@ export function useHealth() {
     connected: health?.connected ?? false,
     session: health?.session ?? null,
     qr: health?.qr ?? null,
+    mcpAvailable: health?.capabilities?.mcpAvailable ?? health?.host?.mcp?.available ?? false,
+    mcpEnabled: health?.capabilities?.mcpEnabled ?? health?.host?.mcp?.enabled ?? false,
+    mcpPath: health?.capabilities?.mcpPath ?? health?.host?.mcp?.path ?? "/mcp",
   }
 }

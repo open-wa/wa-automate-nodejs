@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PlaygroundRouteImport } from './routes/playground'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as IntegrationsRouteImport } from './routes/integrations'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as EventsRouteImport } from './routes/events'
@@ -30,6 +31,11 @@ const PortalRoute = PortalRouteImport.update({
 const PlaygroundRoute = PlaygroundRouteImport.update({
   id: '/playground',
   path: '/playground',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IntegrationsRoute = IntegrationsRouteImport.update({
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/events': typeof EventsRoute
   '/health': typeof HealthRoute
   '/integrations': typeof IntegrationsRoute
+  '/mcp': typeof McpRoute
   '/playground': typeof PlaygroundRoute
   '/portal': typeof PortalRoute
   '/plugins/$name': typeof PluginsNameRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByTo {
   '/events': typeof EventsRoute
   '/health': typeof HealthRoute
   '/integrations': typeof IntegrationsRoute
+  '/mcp': typeof McpRoute
   '/playground': typeof PlaygroundRoute
   '/portal': typeof PortalRoute
   '/plugins/$name': typeof PluginsNameRoute
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/events': typeof EventsRoute
   '/health': typeof HealthRoute
   '/integrations': typeof IntegrationsRoute
+  '/mcp': typeof McpRoute
   '/playground': typeof PlaygroundRoute
   '/portal': typeof PortalRoute
   '/plugins/$name': typeof PluginsNameRoute
@@ -138,6 +147,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/health'
     | '/integrations'
+    | '/mcp'
     | '/playground'
     | '/portal'
     | '/plugins/$name'
@@ -152,6 +162,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/health'
     | '/integrations'
+    | '/mcp'
     | '/playground'
     | '/portal'
     | '/plugins/$name'
@@ -166,6 +177,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/health'
     | '/integrations'
+    | '/mcp'
     | '/playground'
     | '/portal'
     | '/plugins/$name'
@@ -181,6 +193,7 @@ export interface RootRouteChildren {
   EventsRoute: typeof EventsRoute
   HealthRoute: typeof HealthRoute
   IntegrationsRoute: typeof IntegrationsRoute
+  McpRoute: typeof McpRoute
   PlaygroundRoute: typeof PlaygroundRoute
   PortalRoute: typeof PortalRoute
   PluginsNameRoute: typeof PluginsNameRoute
@@ -200,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/playground'
       fullPath: '/playground'
       preLoaderRoute: typeof PlaygroundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/integrations': {
@@ -285,6 +305,7 @@ const rootRouteChildren: RootRouteChildren = {
   EventsRoute: EventsRoute,
   HealthRoute: HealthRoute,
   IntegrationsRoute: IntegrationsRoute,
+  McpRoute: McpRoute,
   PlaygroundRoute: PlaygroundRoute,
   PortalRoute: PortalRoute,
   PluginsNameRoute: PluginsNameRoute,
