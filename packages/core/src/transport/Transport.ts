@@ -9,6 +9,7 @@ import type {
   IBrowser,
   IPage,
   IRequest,
+  LightpandaOptions,
   WaitForFunctionOptions,
 } from '@open-wa/driver-interface';
 import type { HyperEmitter } from '@open-wa/hyperemitter';
@@ -67,6 +68,7 @@ export interface TransportOptions {
   blockCrashLogs?: boolean;
   blockAssets?: boolean;
   safeMode?: boolean;
+  lightpanda?: LightpandaOptions;
   patchConfig?: PatchFetchConfig;
   licenseConfig?: LicenseServerConfig;
 }
@@ -411,6 +413,7 @@ export class Transport {
   private blockCrashLogs: boolean;
   private blockAssets: boolean;
   private safeMode: boolean;
+  private lightpanda?: LightpandaOptions;
   private qrWatcherAbort: AbortController | null = null;
   private qrAttempt = 0;
   private lastQrData: string | null = null;
@@ -449,6 +452,7 @@ export class Transport {
     this.blockCrashLogs = options.blockCrashLogs ?? true;
     this.blockAssets = options.blockAssets ?? false;
     this.safeMode = options.safeMode ?? false;
+    this.lightpanda = options.lightpanda;
     this.patchConfig = options.patchConfig ?? {};
     this.licenseConfig = options.licenseConfig ?? {};
     this.injectionController = new InjectionController(this.logger);
@@ -462,13 +466,14 @@ export class Transport {
       details: { headless: this.headless }
     });
 
-    await this.driver.init();
+    await this.driver.init({ logger: this.logger });
     this.browser = await this.driver.launch({
       headless: this.headless,
       executablePath: this.executablePath,
       args: [...chromiumConfig.chromiumArgs, ...(this.browserArgs || [])],
       userDataDir: this.userDataDir,
       defaultViewport: null,
+      lightpanda: this.lightpanda,
     });
     this.page = await this.browser.newPage();
 

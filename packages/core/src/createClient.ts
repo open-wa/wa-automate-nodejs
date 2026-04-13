@@ -1,6 +1,6 @@
 import { HyperEmitter } from '@open-wa/hyperemitter';
 import { createLogger, Logger } from '@open-wa/logger';
-import type { IDriver } from '@open-wa/driver-interface';
+import type { IDriver, LightpandaOptions } from '@open-wa/driver-interface';
 import { requireCapability, type CapabilitySubject } from '@open-wa/driver-interface';
 import { OpenWAEventMap, STATE } from './events/eventMap.js';
 import { PluginHost, loadPlugins } from './plugins/index.js';
@@ -75,6 +75,7 @@ export interface CreateClientOptions {
   blockAssets?: boolean;
   licenseKey?: LicenseKeyResolver;
   safeMode?: boolean;
+  lightpanda?: LightpandaOptions;
 
   /**
    * Configuration for remote patch fetching from cdn.openwa.dev.
@@ -243,6 +244,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     blockCrashLogs: options.blockCrashLogs,
     blockAssets: options.blockAssets,
     safeMode: options.safeMode,
+    lightpanda: options.lightpanda,
     patchConfig: options.patchConfig,
     licenseConfig: options.licenseConfig,
   });

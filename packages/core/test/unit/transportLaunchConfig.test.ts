@@ -4,6 +4,7 @@ import type {
   IBrowser,
   IConsoleMessage,
   IDriver,
+  IDriverContext,
   IElementHandle,
   IFrame,
   IPage,
@@ -215,10 +216,13 @@ class TestBrowser implements IBrowser {
 class CaptureDriver implements IDriver {
   readonly name = 'test-driver';
   capturedLaunchOptions?: LaunchOptions;
+  capturedInitContext?: IDriverContext;
 
   constructor(private readonly browser: TestBrowser) {}
 
-  async init(): Promise<void> {}
+  async init(ctx?: IDriverContext): Promise<void> {
+    this.capturedInitContext = ctx;
+  }
 
   async launch(options?: LaunchOptions): Promise<IBrowser> {
     this.capturedLaunchOptions = options;
@@ -268,6 +272,31 @@ describe('Transport launch/config plumbing', () => {
     await transport.initialize();
 
     expect(driver.capturedLaunchOptions?.userDataDir).toBe('/tmp/openwa-profile');
+  });
+
+  it('passes logger context to driver.init and nested lightpanda options to driver.launch', async () => {
+    const logger = createLogger();
+    const page = new TestPage();
+    const driver = new CaptureDriver(new TestBrowser(page));
+    const lightpanda = {
+      executablePath: '/tmp/lightpanda-bin',
+      portStart: 9400,
+      host: '127.0.0.1',
+      startupTimeoutMs: 45_000,
+      disableTelemetry: true,
+    };
+    const transport = new Transport({
+      driver,
+      events: createEvents(),
+      logger,
+      lightpanda,
+      blockCrashLogs: false,
+    });
+
+    await transport.initialize();
+
+    expect(driver.capturedInitContext).toEqual({ logger });
+    expect(driver.capturedLaunchOptions?.lightpanda).toEqual(lightpanda);
   });
 
   it('logs browser console output and page errors when enabled', async () => {

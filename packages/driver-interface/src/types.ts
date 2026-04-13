@@ -9,6 +9,14 @@ export interface IDriverContext {
     };
 }
 
+export interface LightpandaOptions {
+    executablePath?: string;
+    portStart?: number;
+    host?: string;
+    startupTimeoutMs?: number;
+    disableTelemetry?: boolean;
+}
+
 export interface LaunchOptions {
     headless?: boolean;
     executablePath?: string;
@@ -17,6 +25,7 @@ export interface LaunchOptions {
     userDataDir?: string;
     timeoutMs?: number;
     defaultViewport?: { width: number; height: number } | null;
+    lightpanda?: LightpandaOptions;
 }
 
 export interface ConnectOptions {
