@@ -7,17 +7,21 @@ import {
 
 const generator = createGenerator({
     cache: createFileSystemGeneratorCache('.fumadocs-typescript'),
+    tsconfigPath: './tsconfig.json',
 });
 
 export const docs = defineDocs({
     dir: 'content/docs',
 });
 
-// export default defineConfig({
-//     mdxOptions: {
-//         remarkPlugins: (defaults) => [
-//             ...defaults,
-//             // [remarkAutoTypeTable, { generator }],
-//         ],
-//     },
-// });
+export default defineConfig({
+    mdxOptions: {
+        remarkPlugins: (defaults) => [
+            ...defaults,
+            [remarkAutoTypeTable, { 
+                name: 'AutoTypeTable',
+                generator,
+            }],
+        ],
+    },
+});

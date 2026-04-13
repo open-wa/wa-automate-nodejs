@@ -1,6 +1,6 @@
 import * as React from 'react';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
-import { AutoTypeTable } from 'fumadocs-typescript/ui';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
 import {
   GetLicenseButton,
   LicenseBadge,
@@ -100,8 +100,8 @@ export const docsMdxComponents = {
   blockquote: LicenseAwareBlockquote,
   h3: createLicensedHeading(BaseH3),
   h4: createLicensedHeading(BaseH4),
+  TypeTable,
   GetLicenseButton,
   LicenseBadge,
   LicensedFeatureCallout,
-  AutoTypeTable,
 };
