@@ -1898,40 +1898,192 @@ export class Transport {
       }
     }
 
-    const qrData = await this.waitForQr();
-    if (!qrData) {
+    // ── Concurrent QR wait + phone-out-of-reach + auth timeout ─────────────────────────
+    // Race OOR vs auth timeout. QR runs in parallel and is only awaited later.
+    // IMPORTANT: we use Promise.race to detect the first failure, but then Promise.all
+    // to ensure BOTH callbacks have run before we decide the outcome. This avoids
+    // a race where OOR returns false (phone reachable) first but auth fires right after
+    // and we incorrectly return phone_out_of_reach because authTimeoutResult was null.
+    let phoneOutOfReachResult: boolean | null = null;
+    let authTimeoutResult = false;
+
+    const oorPromise = (async () => {
+      try {
+        await this.waitForPhoneOutOfReach();
+        phoneOutOfReachResult = true;
+      } catch {
+        phoneOutOfReachResult = false;
+      }
+    })();
+
+    const authPromise = (async () => {
+      const loaded = await this.waitForSessionLoaded(this.authTimeoutMs);
+      authTimeoutResult = !loaded;
+    })();
+
+    // Detect which probe won the race, but wait for BOTH to complete so we have
+    // their final resolved values before branching.
+    await Promise.race([oorPromise, authPromise]);
+    await Promise.all([oorPromise, authPromise]);
+
+    // Pre-check qr_max BEFORE awaiting qrPromise. If the limit is already reached,
+    // return immediately — this is the only path where qr_max can fire before we even
+    // attempt to get QR data (i.e., on a subsequent auth attempt).
+    if (this.qrMax && this.qrAttempt >= this.qrMax) {
       return {
-        outcome: 'qr_timeout',
+        outcome: 'qr_max',
         qrSeen: false,
         qrAttempts: this.qrAttempt,
         authMethod: 'qr',
       };
     }
 
-    if (this.qrMax && this.qrAttempt > this.qrMax) {
-      return {
-        outcome: 'qr_max',
-        qrSeen: true,
-        qrAttempts: this.qrAttempt,
-        authMethod: 'qr',
-      };
+    // ① OOR fired → attempt QR before declaring phone-out-of-reach.
+    //    If QR data arrives, proceed with scan (OOR will race the scan timeout).
+    //    If QR times out, check qr_max again, then return phone_out_of_reach.
+    if (phoneOutOfReachResult === true) {
+      let qrData: string | null = null;
+      const qrPromise = (async () => {
+        qrData = await this.waitForQr();
+      })();
+
+      const qrTimeoutMs = this.qrTimeoutMs === 0 ? this.authTimeoutMs : this.qrTimeoutMs;
+      let qrTimedOut = false;
+      try {
+        await Promise.race([
+          qrPromise,
+          new Promise((_, reject) => setTimeout(() => reject(new Error('qr_wait_timeout')), qrTimeoutMs)),
+        ]);
+      } catch {
+        qrTimedOut = true;
+      }
+
+      if (!qrTimedOut && qrData !== null) {
+        // QR arrived before OOR timeout — check qr_max then scan
+        if (this.qrMax && this.qrAttempt >= this.qrMax) {
+          return {
+            outcome: 'qr_max',
+            qrSeen: true,
+            qrAttempts: this.qrAttempt,
+            authMethod: 'qr',
+          };
+        }
+        const qrScanTimeoutMs = this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
+        const sessionLoaded = await this.waitForSessionLoaded(qrScanTimeoutMs || this.authTimeoutMs);
+        return sessionLoaded
+          ? { outcome: 'authenticated', qrSeen: true, qrAttempts: this.qrAttempt, authMethod: 'qr' }
+          : { outcome: 'qr_timeout', qrSeen: true, qrAttempts: this.qrAttempt, authMethod: 'qr' };
+      }
+
+      // QR timed out → phone-out-of-reach is the cause.
+      // Do NOT increment qrAttempt or check qr_max here — qrAttempt only increments
+      // when QR data actually arrives (inside waitForQr). When QR is absent, we simply
+      // return phone_out_of_reach without touching qrAttempt or qr_max.
+      this.events.emit('launch.auth.timeout', {
+        correlationId: 'auth-settle',
+        ts: Date.now(),
+        step: 'phone_out_of_reach',
+        details: { timeoutMs: qrTimeoutMs, phoneOutOfReach: true },
+      });
+
+      this.events.emit('launch.auth.phoneOutOfReach', {
+        correlationId: 'auth-settle',
+        ts: Date.now(),
+        step: 'phone_out_of_reach',
+        details: { reason: 'trying_to_reach_phone' },
+      });
+
+      return { outcome: 'phone_out_of_reach', qrSeen: qrData !== null, qrAttempts: this.qrAttempt, authMethod: 'qr' };
+    }
+
+    // ② Auth timeout fired → attempt QR before declaring auth_timeout.
+    if (authTimeoutResult) {
+      let qrData: string | null = null;
+      const qrPromise = (async () => {
+        qrData = await this.waitForQr();
+      })();
+
+      const qrTimeoutMs = this.qrTimeoutMs === 0 ? this.authTimeoutMs : this.qrTimeoutMs;
+      let qrTimedOut = false;
+      try {
+        await Promise.race([
+          qrPromise,
+          new Promise((_, reject) => setTimeout(() => reject(new Error('qr_wait_timeout')), qrTimeoutMs)),
+        ]);
+      } catch {
+        qrTimedOut = true;
+      }
+
+      if (!qrTimedOut && qrData !== null) {
+        // QR arrived within auth timeout window — check qr_max then scan
+        if (this.qrMax && this.qrAttempt >= this.qrMax) {
+          return { outcome: 'qr_max', qrSeen: true, qrAttempts: this.qrAttempt, authMethod: 'qr' };
+        }
+        const qrScanTimeoutMs = this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
+        const sessionLoaded = await this.waitForSessionLoaded(qrScanTimeoutMs || this.authTimeoutMs);
+        return sessionLoaded
+          ? { outcome: 'authenticated', qrSeen: true, qrAttempts: this.qrAttempt, authMethod: 'qr' }
+          : { outcome: 'qr_timeout', qrSeen: true, qrAttempts: this.qrAttempt, authMethod: 'qr' };
+      }
+
+      // QR timed out → auth_timeout.
+      // Do NOT increment qrAttempt or check qr_max here — qrAttempt only increments
+      // when QR data actually arrives (inside waitForQr). When QR is absent, we simply
+      // return auth_timeout without touching qrAttempt or qr_max.
+      this.events.emit('launch.auth.timeout', {
+        correlationId: 'auth-settle',
+        ts: Date.now(),
+        step: 'auth_timeout',
+        details: { timeoutMs: this.authTimeoutMs, phoneOutOfReach: false },
+      });
+
+      return { outcome: 'auth_timeout', qrSeen: qrData !== null, qrAttempts: this.qrAttempt, authMethod: 'qr' };
+    }
+
+    // ③ Neither OOR nor auth timeout fired yet — normal QR flow.
+    let qrData: string | null = null;
+    const qrPromise = (async () => {
+      qrData = await this.waitForQr();
+    })();
+
+    const qrTimeoutMs = this.qrTimeoutMs === 0 ? this.authTimeoutMs : this.qrTimeoutMs;
+    let qrTimedOut = false;
+    try {
+      await Promise.race([
+        qrPromise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('qr_wait_timeout')), qrTimeoutMs)),
+      ]);
+    } catch {
+      qrTimedOut = true;
+    }
+
+    if (qrTimedOut || qrData === null) {
+      // QR timed out → increment attempt and check qr_max, then qr_timeout
+      this.qrAttempt++;
+      if (this.qrMax && this.qrAttempt >= this.qrMax) {
+        return { outcome: 'qr_max', qrSeen: true, qrAttempts: this.qrAttempt, authMethod: 'qr' };
+      }
+
+      this.events.emit('launch.auth.timeout', {
+        correlationId: 'auth-settle',
+        ts: Date.now(),
+        step: 'qr_timeout',
+        details: { timeoutMs: qrTimeoutMs, phoneOutOfReach: false },
+      });
+
+      return { outcome: 'qr_timeout', qrSeen: true, qrAttempts: this.qrAttempt, authMethod: 'qr' };
+    }
+
+    // QR data arrived
+    if (this.qrMax && this.qrAttempt >= this.qrMax) {
+      return { outcome: 'qr_max', qrSeen: true, qrAttempts: this.qrAttempt, authMethod: 'qr' };
     }
 
     const qrScanTimeoutMs = this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
     const sessionLoaded = await this.waitForSessionLoaded(qrScanTimeoutMs || this.authTimeoutMs);
     return sessionLoaded
-      ? {
-        outcome: 'authenticated',
-        qrSeen: true,
-        qrAttempts: this.qrAttempt,
-        authMethod: 'qr',
-      }
-      : {
-        outcome: 'qr_timeout',
-        qrSeen: true,
-        qrAttempts: this.qrAttempt,
-        authMethod: 'qr',
-      };
+      ? { outcome: 'authenticated', qrSeen: true, qrAttempts: this.qrAttempt, authMethod: 'qr' }
+      : { outcome: 'qr_timeout', qrSeen: true, qrAttempts: this.qrAttempt, authMethod: 'qr' };
   }
 
   private async waitForPhoneOutOfReach(): Promise<boolean> {

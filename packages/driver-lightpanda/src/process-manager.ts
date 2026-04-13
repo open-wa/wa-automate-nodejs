@@ -7,9 +7,18 @@ const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT_ATTEMPTS = 10;
 const INITIAL_BACKOFF_MS = 50;
 const MAX_BACKOFF_MS = 1_000;
+const CHILD_EXIT_TIMEOUT_MS = 5_000;
+
+type LightpandaServe = (options: Record<string, unknown>) => Promise<LightpandaChildProcess> | LightpandaChildProcess;
 
 type LightpandaSdkModule = {
-    serve(options: Record<string, unknown>): LightpandaChildProcess;
+    serve: LightpandaServe;
+};
+
+type LightpandaSdkNamespaceModule = {
+    lightpanda?: {
+        serve?: LightpandaServe;
+    };
 };
 
 type LightpandaChildProcess = Pick<ChildProcess, 'kill' | 'stderr' | 'once'>;
@@ -39,7 +48,18 @@ function isModuleMissing(error: unknown): boolean {
 
 async function loadLightpandaSdk(): Promise<LightpandaSdkModule> {
     try {
-        return await import('@lightpanda/browser') as LightpandaSdkModule;
+        const module = await import('@lightpanda/browser') as LightpandaSdkModule & LightpandaSdkNamespaceModule;
+        const serve = typeof module.serve === 'function'
+            ? module.serve.bind(module)
+            : typeof module.lightpanda?.serve === 'function'
+                ? module.lightpanda.serve.bind(module.lightpanda)
+                : undefined;
+
+        if (!serve) {
+            throw new Error('@lightpanda/browser does not expose a compatible serve() API');
+        }
+
+        return { serve };
     } catch (error) {
         if (isModuleMissing(error)) {
             throw new Error(
@@ -48,6 +68,25 @@ async function loadLightpandaSdk(): Promise<LightpandaSdkModule> {
         }
 
         throw error;
+    }
+}
+
+async function withExecutablePathOverride<T>(executablePath: string | undefined, fn: () => Promise<T>): Promise<T> {
+    if (!executablePath) {
+        return await fn();
+    }
+
+    const previous = process.env.LIGHTPANDA_EXECUTABLE_PATH;
+    process.env.LIGHTPANDA_EXECUTABLE_PATH = executablePath;
+
+    try {
+        return await fn();
+    } finally {
+        if (previous === undefined) {
+            delete process.env.LIGHTPANDA_EXECUTABLE_PATH;
+        } else {
+            process.env.LIGHTPANDA_EXECUTABLE_PATH = previous;
+        }
     }
 }
 
@@ -65,6 +104,48 @@ function createPortExhaustionError(startFrom: number, maxAttempts: number): Erro
     return new Error(
         `Unable to start Lightpanda on a free port starting at ${startFrom} after ${maxAttempts} attempts`,
     );
+}
+
+async function terminateChildProcess(child: LightpandaChildProcess, timeoutMs = CHILD_EXIT_TIMEOUT_MS): Promise<void> {
+    if (typeof child.once !== 'function') {
+        child.kill();
+        return;
+    }
+
+    await new Promise<void>((resolve) => {
+        let settled = false;
+        let escalationTimer: NodeJS.Timeout | undefined;
+
+        const finish = () => {
+            if (settled) {
+                return;
+            }
+
+            settled = true;
+            if (escalationTimer) {
+                clearTimeout(escalationTimer);
+            }
+            resolve();
+        };
+
+        child.once('exit', finish);
+        child.once('close', finish);
+
+        escalationTimer = setTimeout(() => {
+            try {
+                child.kill('SIGKILL');
+            } catch {
+                // Ignore kill escalation failures during teardown.
+            }
+            finish();
+        }, timeoutMs);
+
+        try {
+            child.kill();
+        } catch {
+            finish();
+        }
+    });
 }
 
 function isPortCollisionError(error: unknown): boolean {
@@ -155,13 +236,12 @@ export class LightpandaProcessManager {
             const wsEndpoint = `ws://${host}:${port}`;
 
             try {
-                const child = sdk.serve({
+                const child = await withExecutablePathOverride(config.executablePath, async () => await sdk.serve({
                     host,
                     port,
-                    executablePath: config.executablePath,
+                    timeout: 0,
                     disableTelemetry: config.disableTelemetry,
-                    args: ['--timeout', '0'],
-                });
+                }));
 
                 this.attachChild(child);
                 await this.waitForReadiness(wsEndpoint, startupTimeoutMs);
@@ -211,7 +291,7 @@ export class LightpandaProcessManager {
             }
 
             this.killIssued = true;
-            child.kill();
+            await terminateChildProcess(child);
         })();
 
         try {
@@ -257,5 +337,7 @@ export const __internal = {
     createReadinessTimeoutError,
     isPortCollisionError,
     loadLightpandaSdk,
+    terminateChildProcess,
+    withExecutablePathOverride,
     openWebSocket,
 };

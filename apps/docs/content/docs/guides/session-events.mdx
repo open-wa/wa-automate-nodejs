@@ -7,9 +7,17 @@ description: Capture QR codes, session data, and launch lifecycle events with th
 
 When you need lifecycle visibility outside the client convenience methods, use the shared event emitter `ev`.
 
+<Callout type="info" title="Think of ev as the runtime event bus">
+  Use it when you need authentication lifecycle, QR capture, session data, or
+  wildcard namespace visibility outside the higher-level convenience listeners.
+</Callout>
+
 ```ts
 import { ev } from '@open-wa/wa-automate';
 ```
+
+<Steps>
+  <Step title="Subscribe to QR generation when you need operator-facing auth">
 
 ## Capture QR codes
 
@@ -23,9 +31,12 @@ ev.on('qr.**', async (qrcode) => {
     'base64',
   );
 
-  fs.writeFileSync('qr_code.png', imageBuffer);
+fs.writeFileSync('qr_code.png', imageBuffer);
 });
 ```
+
+  </Step>
+  <Step title="Capture session data if you manage your own restore flow">
 
 ## Capture session data
 
@@ -34,6 +45,9 @@ ev.on('sessionData.**', async (sessionData, sessionId) => {
   // store or encrypt the latest auth payload for your own workflow
 });
 ```
+
+  </Step>
+  <Step title="Use wildcard namespaces carefully in multi-session environments">
 
 ## Listen to launch namespaces
 
@@ -55,3 +69,6 @@ ev.on('**.**', (data, sessionId, namespace) => {
 ```
 
 Use wildcard subscriptions carefully in multi-session environments so you do not lose track of which session produced the event.
+
+  </Step>
+</Steps>

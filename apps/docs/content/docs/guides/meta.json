@@ -2,6 +2,7 @@
   "title": "Guides",
   "pages": [
     "configuration-and-cli",
+    "config-schema",
     "session-events",
     "multiple-sessions",
     "messages",

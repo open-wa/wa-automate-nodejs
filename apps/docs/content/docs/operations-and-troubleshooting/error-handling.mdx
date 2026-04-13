@@ -7,6 +7,12 @@ description: Handle runtime failures, create-time failures, and browser-side iss
 
 Treat every client method as an async operation and handle failures explicitly.
 
+<Callout type="warning" title="Do not treat runtime failures as one category">
+  In practice you are usually dealing with one of three different failure
+  classes: application-level method failures, create/launch failures, or
+  browser/runtime failures. Handle them differently.
+</Callout>
+
 ## Application-level pattern
 
 ```ts
@@ -34,10 +40,51 @@ async function launch() {
 
 ## Operational helpers
 
-- `restartOnCrash` can help supervised runtimes restart predictably.
-- `logConsole` and `logConsoleErrors` help when the browser runtime is the real failure source.
-- `killProcessOnBrowserClose` is useful when an external supervisor is responsible for restart policy.
+<ComparisonTable
+  columns={[
+    { key: 'what', label: 'Helper' },
+    { key: 'why', label: 'When it matters' },
+  ]}
+  rows={[
+    {
+      feature: '`restartOnCrash`',
+      values: {
+        what: 'Runtime restart behavior',
+        why: 'Useful when a supervised runtime should recover predictably after a crash.',
+      },
+    },
+    {
+      feature: '`logConsole` / `logConsoleErrors`',
+      values: {
+        what: 'Browser/runtime visibility',
+        why: 'Helpful when the underlying browser context is the real failure source.',
+      },
+    },
+    {
+      feature: '`killProcessOnBrowserClose`',
+      values: {
+        what: 'Supervisor handoff',
+        why: 'Useful when an external process manager is responsible for restart policy.',
+      },
+    },
+  ]}
+/>
 
 ## Browser/page errors
 
 Because the runtime is browser-backed, you can also inspect page-level errors through the underlying page surface when your flow needs deeper debugging.
+
+<FAQ
+  items={[
+    {
+      question: 'What should I check first when create() fails?',
+      answer:
+        'Separate configuration mistakes from browser/runtime problems first. The recovery path is very different depending on whether create() failed before or after the browser context became healthy.',
+    },
+    {
+      question: 'When should I use restart-based recovery?',
+      answer:
+        'Use restart-based recovery when the surrounding supervisor owns availability and the safest response is to restart the session process cleanly instead of attempting ad-hoc in-process repair.',
+    },
+  ]}
+/>

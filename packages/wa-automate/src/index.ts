@@ -3,6 +3,7 @@ export { APILifecycleManager } from './server/lifecycle-manager';
 export { SessionManager } from './session/SessionManager';
 export { main as runCli, start as startCli, parseCliArgs } from './cli-runtime';
 export type { CliRuntimeResult } from './cli-runtime';
+export { create } from './runtime-client';
 export { createConsoleOutputSink, getCliOutputSink, resetCliOutputSink, setCliOutputSink } from './cli/output-sink';
 export type { CliOutputEntry, CliOutputLevel, CliOutputSink, CliQrPayload, CliStatusUpdate } from './cli/output-sink';
 export { Config, ConfigSchema } from '@open-wa/config';

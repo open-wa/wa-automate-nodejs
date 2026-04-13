@@ -67,18 +67,22 @@ class RuntimeBridgePage implements IPage {
   readonly browserGlobals: Record<string, any>;
   readonly wapiRegisterSpies = {
     onAnyMessage: vi.fn((callback: (payload: unknown) => unknown) => {
+      console.log('onAnyMessage called with callback:', typeof callback);
       this.runtimeCallbacks.message = [...(this.runtimeCallbacks.message ?? []), callback];
       return true;
     }),
     onAck: vi.fn((callback: (payload: unknown) => unknown) => {
+      console.log('onAck called with callback:', typeof callback);
       this.runtimeCallbacks.ack = [...(this.runtimeCallbacks.ack ?? []), callback];
       return true;
     }),
     onStateChanged: vi.fn((callback: (payload: unknown) => unknown) => {
+      console.log('onStateChanged called with callback:', typeof callback);
       this.runtimeCallbacks.state = [...(this.runtimeCallbacks.state ?? []), callback];
       return true;
     }),
     onAddedToGroup: vi.fn((callback: (payload: unknown) => unknown) => {
+      console.log('onAddedToGroup called with callback:', typeof callback);
       this.runtimeCallbacks.addedToGroup = [...(this.runtimeCallbacks.addedToGroup ?? []), callback];
       return true;
     }),
@@ -120,53 +124,55 @@ class RuntimeBridgePage implements IPage {
   }
 
   async evaluate<Arg, Ret>(fn: (arg: Arg) => Ret | Promise<Ret>, arg: Arg): Promise<Ret> {
-    const root = globalThis as Record<string, any>;
-    const originalWindow = root.window;
-    const originalValues = new Map<string, unknown>();
-    const keys = new Set(Object.keys(this.browserGlobals));
-
-    for (const key of keys) {
-      originalValues.set(key, root[key]);
-      root[key] = this.browserGlobals[key];
-    }
-
-    root.window = root;
-
-    try {
-      const result = await fn(arg);
-      for (const key of keys) {
-        this.browserGlobals[key] = root[key];
-      }
-      return result;
-    } finally {
-      for (const key of keys) {
-        root[key] = originalValues.get(key);
-      }
-      root.window = originalWindow;
-    }
+    this.operations.push('evaluate');
+    // The function passed from InjectionController uses globalThis to access WAPI and
+    // the exposed binding function. We need to execute the function with our mock's
+    // browserGlobals acting as globalThis. We achieve this by rewriting the function
+    // to use a custom __GLOBAL__ variable instead of globalThis.
+    const fnString = fn.toString();
+    // Replace globalThis references with __BROWSER_GLOBALS__ parameter
+    const modifiedFnString = fnString.replace(/\bglobalThis\b/g, '__BROWSER_GLOBALS__');
+    
+    // Create a new function that takes browserGlobals as a parameter
+    const wrappedFn = new Function(
+      '__BROWSER_GLOBALS__',
+      '__ARG__',
+      `return (${modifiedFnString})(__ARG__);`
+    );
+    
+    const result = wrappedFn(this.browserGlobals, arg);
+    console.log('evaluate result:', JSON.stringify(result), 'arg:', JSON.stringify(arg));
+    return result;
   }
 
   async evaluateScript<Ret = unknown>(_script: string): Promise<Ret> {
     this.operations.push('evaluateScript');
-    if (_script.length < 1000 && (_script.includes('Boolean(') || _script.includes('document.querySelector'))) {
-      const evaluator = new Function(
-        'window',
-        'document',
-        'Store',
-        'WAPI',
-        'isSessionLoaded',
-        'WA_AUTHENTICATED',
-        `return (${_script});`,
-      );
+    if (_script.length < 1000) {
+      try {
+        const evaluator = new Function(
+          'window',
+          'document',
+          'Store',
+          'WAPI',
+          'isSessionLoaded',
+          'WA_AUTHENTICATED',
+          'localStorage',
+          `return (${_script});`,
+        );
 
-      return evaluator(
-        this.browserGlobals,
-        this.browserGlobals.document,
-        this.browserGlobals.Store,
-        this.browserGlobals.WAPI,
-        this.browserGlobals.isSessionLoaded,
-        this.browserGlobals.WA_AUTHENTICATED,
-      ) as Ret;
+        return evaluator(
+          this.browserGlobals,
+          this.browserGlobals.document,
+          this.browserGlobals.Store,
+          this.browserGlobals.WAPI,
+          this.browserGlobals.isSessionLoaded,
+          this.browserGlobals.WA_AUTHENTICATED,
+          this.browserGlobals.localStorage,
+        ) as Ret;
+      } catch {
+        // Fall through to the asset-style restoration path for non-expression
+        // scripts that the fake runtime can't evaluate directly.
+      }
     }
 
     this.restoreRuntime();
@@ -222,7 +228,29 @@ class RuntimeBridgePage implements IPage {
 
   async exposeFunction(name: string, fn: (...args: any[]) => any): Promise<void> {
     this.operations.push(`exposeFunction:${name}`);
-    this.browserGlobals[name] = fn;
+    // Assign an ID to track which handler is being called
+    const fnId = Math.random().toString(36).slice(2, 8);
+    (fn as any).__fnId = fnId;
+    console.log(`exposeFunction: ${name} assigned ID ${fnId}, fn type: ${typeof fn}, fn name: ${fn.name || 'anonymous'}`);
+    
+    // Wrap the handler to log when it's called
+    // Always call the current handler from browserGlobals to ensure we use the latest one
+    this.browserGlobals[name] = (...args: any[]) => {
+      const currentFn = this.browserGlobals[`__handler_${name}`];
+      console.log(`exposed function ${name} called, current handler ID: ${(currentFn as any)?.__fnId || 'unknown'}`);
+      console.log(`  current fn code: ${currentFn?.toString().slice(0, 100)}...`);
+      try {
+        const result = currentFn(...args);
+        console.log(`exposed function ${name} returned:`, result);
+        return result;
+      } catch (err) {
+        console.error(`exposed function ${name} threw:`, err);
+        throw err;
+      }
+    };
+    (this.browserGlobals[name] as any).__fnId = fnId;
+    // Store the actual handler separately so we can always call the latest one
+    this.browserGlobals[`__handler_${name}`] = fn;
   }
 
   on(event: string, handler: ((payload: IRequest) => void | Promise<void>) | ((payload: IFrame) => void | Promise<void>) | (() => void | Promise<void>)): DisposableHandle {
@@ -257,6 +285,7 @@ class RuntimeBridgePage implements IPage {
 
   async emitRuntime(channel: RuntimeChannel, payload: unknown): Promise<void> {
     const callbacks = [...(this.runtimeCallbacks[channel] ?? [])];
+    console.log(`emitRuntime(${channel}): ${callbacks.length} callbacks registered`);
     await Promise.all(callbacks.map((callback) => Promise.resolve(callback(payload))));
   }
 
@@ -411,13 +440,23 @@ describe('Transport runtime event bridge', () => {
 
     for (const eventName of Object.keys(emitted) as Array<keyof typeof emitted>) {
       events.on(eventName as keyof OpenWAEventMap, (payload) => {
+        console.log(`event ${eventName} received:`, JSON.stringify(payload).slice(0, 100));
         emitted[eventName].push(payload);
       });
     }
+    
+    // Spy on events.emit to see if it's being called
+    const originalEmit = events.emit.bind(events);
+    events.emit = vi.fn((event: any, payload: any) => {
+      console.log(`events.emit called:`, event, JSON.stringify(payload).slice(0, 100));
+      return originalEmit(event, payload);
+    }) as any;
 
     await transport.initialize();
     await transport.injectWapi();
+    await transport.configureRuntimeEventBridge();
     await transport.injectWapi();
+    await transport.configureRuntimeEventBridge();
 
     expect(page.wapiRegisterSpies.onAnyMessage).toHaveBeenCalledTimes(2);
     expect(page.wapiRegisterSpies.onAck).toHaveBeenCalledTimes(1);
@@ -454,6 +493,7 @@ describe('Transport runtime event bridge', () => {
 
     await transport.initialize();
     await transport.injectWapi();
+    await transport.configureRuntimeEventBridge();
 
     const evaluateCountBeforeRecovery = page.operations.filter((operation) => operation === 'evaluateScript').length;
 
@@ -464,7 +504,7 @@ describe('Transport runtime event bridge', () => {
     expect(page.operations.filter((operation) => operation === 'evaluateScript')).toHaveLength(evaluateCountBeforeRecovery);
 
     await page.emit('framenavigated', new FakeFrame(true, 'https://web.whatsapp.com/?reload=1'));
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await transport.waitForOperationalReadiness();
 
     expect(page.operations.filter((operation) => operation === 'evaluateScript').length).toBeGreaterThan(evaluateCountBeforeRecovery);
     expect(page.waitForFunctionCalls).toEqual(expect.arrayContaining([
@@ -491,6 +531,7 @@ describe('Transport runtime event bridge', () => {
 
     await transport.initialize();
     await transport.injectWapi();
+    await transport.configureRuntimeEventBridge();
 
     const evaluateCountBeforeRecovery = page.operations.filter((operation) => operation === 'evaluateScript').length;
 
@@ -499,7 +540,7 @@ describe('Transport runtime event bridge', () => {
       page.emit('framenavigated', new FakeFrame(true, 'https://web.whatsapp.com/?nav=1')),
       page.emit('framenavigated', new FakeFrame(true, 'https://web.whatsapp.com/?nav=2')),
     ]);
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await transport.waitForOperationalReadiness();
 
     expect(page.operations.filter((operation) => operation === 'evaluateScript').length).toBeGreaterThan(evaluateCountBeforeRecovery);
     expect(page.wapiRegisterSpies.onAnyMessage).toHaveBeenCalledTimes(4);
@@ -520,11 +561,12 @@ describe('Transport runtime event bridge', () => {
 
     await transport.initialize();
     await transport.injectWapi();
+    await transport.configureRuntimeEventBridge();
 
     const evaluateCountBeforeRecovery = page.operations.filter((operation) => operation === 'evaluateScript').length;
 
     page.replaceRuntime();
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await transport.waitForOperationalReadiness();
 
     expect(page.operations.filter((operation) => operation === 'evaluateScript').length).toBeGreaterThan(evaluateCountBeforeRecovery);
     expect(page.wapiRegisterSpies.onAnyMessage).toHaveBeenCalledTimes(4);

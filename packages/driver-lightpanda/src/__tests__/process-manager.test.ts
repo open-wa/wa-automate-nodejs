@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 type MockProcess = {
     kill: ReturnType<typeof vi.fn>;
+    once?: ReturnType<typeof vi.fn>;
 };
 
 const serve = vi.fn();
@@ -28,10 +29,10 @@ describe('LightpandaProcessManager', () => {
             serve,
         }), { virtual: true });
 
-        const process: MockProcess = {
+        const mockProcess: MockProcess = {
             kill: vi.fn(() => true),
         };
-        serve.mockReturnValue(process);
+        serve.mockReturnValue(mockProcess);
 
         class SuccessfulWebSocket {
             onopen: (() => void) | null = null;
@@ -63,8 +64,70 @@ describe('LightpandaProcessManager', () => {
         expect(serve).toHaveBeenCalledWith(expect.objectContaining({
             host: '127.0.0.1',
             port: 9400,
-            args: ['--timeout', '0'],
+            timeout: 0,
         }));
+    });
+
+    it('accepts the current SDK namespace export shape and applies executable override via env for spawn', async () => {
+        vi.doMock('../port-utils', () => ({
+            findFreePort: vi.fn(async () => 9410),
+        }));
+        vi.doMock('@lightpanda/browser', () => ({
+            serve: undefined,
+            lightpanda: {
+                serve,
+            },
+        }), { virtual: true });
+
+        const mockProcess: MockProcess = {
+            kill: vi.fn(() => true),
+        };
+
+        const seenExecutablePaths: Array<string | undefined> = [];
+        serve.mockImplementation(async () => {
+            seenExecutablePaths.push(process.env.LIGHTPANDA_EXECUTABLE_PATH);
+            return mockProcess;
+        });
+
+        class SuccessfulWebSocket {
+            onopen: (() => void) | null = null;
+            onerror: ((event: unknown) => void) | null = null;
+
+            constructor(url: string) {
+                expect(url).toBe('ws://127.0.0.1:9410');
+                queueMicrotask(() => this.onopen?.());
+            }
+
+            close(): void {
+                return;
+            }
+        }
+
+        const previousExecutablePath = globalThis.process.env.LIGHTPANDA_EXECUTABLE_PATH;
+        globalThis.WebSocket = SuccessfulWebSocket as typeof WebSocket;
+
+        try {
+            const { LightpandaProcessManager } = await import('../process-manager');
+            const manager = new LightpandaProcessManager();
+
+            await manager.start({
+                executablePath: '/tmp/lightpanda-custom-bin',
+                startupTimeoutMs: 1000,
+            });
+
+            expect(serve).toHaveBeenCalledWith(expect.objectContaining({
+                host: '127.0.0.1',
+                port: 9410,
+                timeout: 0,
+            }));
+            expect(seenExecutablePaths).toEqual(['/tmp/lightpanda-custom-bin']);
+        } finally {
+            if (previousExecutablePath === undefined) {
+                delete globalThis.process.env.LIGHTPANDA_EXECUTABLE_PATH;
+            } else {
+                globalThis.process.env.LIGHTPANDA_EXECUTABLE_PATH = previousExecutablePath;
+            }
+        }
     });
 
     it('kills the child process exactly once when stop is called repeatedly', async () => {
@@ -214,6 +277,14 @@ describe('LightpandaProcessManager', () => {
     });
 
     it('returns a clear error when the optional Lightpanda SDK is unavailable', async () => {
+        vi.doMock('@lightpanda/browser', () => ({
+            get serve() {
+                const error = new Error('Cannot find module @lightpanda/browser') as Error & { code?: string };
+                error.code = 'ERR_MODULE_NOT_FOUND';
+                throw error;
+            },
+        }), { virtual: true });
+
         const { LightpandaProcessManager } = await import('../process-manager');
         const manager = new LightpandaProcessManager();
 

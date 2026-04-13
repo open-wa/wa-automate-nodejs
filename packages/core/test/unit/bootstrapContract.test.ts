@@ -311,6 +311,38 @@ class FakePage implements IPage {
     return undefined as Ret;
   }
 
+  private evaluateBooleanScript(script: string): boolean {
+    // Handle the LEGACY_IS_INSIDE_CHAT_CHECK_SCRIPT
+    // This script checks WA_AUTHENTICATED or DOM elements for chat state
+    if (script.includes('WA_AUTHENTICATED') && script.includes('document.getElementsByClassName')) {
+      return Boolean(this.browserGlobals.WA_AUTHENTICATED);
+    }
+
+    // Handle SESSION_INVALID_CHECK_SCRIPT - checks localStorage for old-logout-cred
+    if (script.includes('localStorage') && script.includes('old-logout-cred')) {
+      return Boolean(this.invalidSession);
+    }
+
+    // Handle PHONE_OUT_OF_REACH_CHECK_SCRIPT - checks body innerText for "Trying to reach phone"
+    if (script.includes('Trying to reach phone')) {
+      return Boolean(this.phoneOutOfReach);
+    }
+
+    // Handle AUTHENTICATED_SHELL_CHECK_SCRIPT - checks various session indicators
+    if (script.includes('pane-side') || script.includes('chat-list-search')) {
+      return Boolean(this.sessionLoaded);
+    }
+
+    // Handle QR_CHECK_SCRIPT (Boolean-wrapped) - checks for canvas with aria-label
+    if (script.includes('canvas[aria-label]')) {
+      return this.qrCode !== null;
+    }
+
+    // For all other scripts, return true (succeed) to maintain backward compatibility
+    // The original no-op stub would succeed for any script
+    return true;
+  }
+
   async addInitScript(_script: string): Promise<DisposableHandle> {
     return {
       dispose(): void {},
@@ -329,7 +361,23 @@ class FakePage implements IPage {
 
   async waitForFunction(_script: string, _options?: WaitForFunctionOptions): Promise<void>;
   async waitForFunction<Arg>(_fn: (arg: Arg) => boolean, _arg: Arg, _options?: WaitForFunctionOptions): Promise<void>;
-  async waitForFunction(): Promise<void> {}
+  async waitForFunction(fnOrScript?: string | ((arg: unknown) => boolean), argOrOptions?: unknown, maybeOptions?: WaitForFunctionOptions): Promise<void> {
+    const script = typeof fnOrScript === 'string' ? fnOrScript : null;
+    if (script) {
+      const passed = this.evaluateBooleanScript(script);
+      if (!passed) {
+        throw new Error(`waitForFunction condition not met: ${script.slice(0, 100)}`);
+      }
+      return;
+    }
+
+    const fn = fnOrScript as ((arg: unknown) => boolean) | undefined;
+    const _arg = maybeOptions ? argOrOptions : undefined;
+    const passed = fn ? fn(_arg) : true;
+    if (!passed) {
+      throw new Error('waitForFunction predicate failed');
+    }
+  }
 
   async $(_selector: string): Promise<IElementHandle | null> {
     return null;
@@ -1595,7 +1643,7 @@ describe('bootstrap contract harness', () => {
       // Spy on the private method via prototype to simulate successful remote fetch
       const fetchSpy = vi.spyOn(
         Transport.prototype as any,
-        'fetchRemotePatchesWithCache',
+        'fetchLivePatchesWithCache',
       ).mockResolvedValue({
         data: ['console.log("remote-patch-1")', 'console.log("remote-patch-2")'],
         tag: 'abc12',
@@ -1640,7 +1688,7 @@ describe('bootstrap contract harness', () => {
     it('runs the deferred init patch only after license injection succeeds', async () => {
       const fetchSpy = vi.spyOn(
         Transport.prototype as any,
-        'fetchRemotePatchesWithCache',
+        'fetchLivePatchesWithCache',
       ).mockResolvedValue({
         data: [],
         tag: 'empty',
@@ -1680,7 +1728,7 @@ describe('bootstrap contract harness', () => {
     it('blocks readiness when the required deferred init patch fails', async () => {
       const fetchSpy = vi.spyOn(
         Transport.prototype as any,
-        'fetchRemotePatchesWithCache',
+        'fetchLivePatchesWithCache',
       ).mockResolvedValue({
         data: [],
         tag: 'empty',
@@ -1737,7 +1785,7 @@ describe('bootstrap contract harness', () => {
       // by mocking fetchRemotePatchesWithCache and using a spy on the license side
       const fetchSpy = vi.spyOn(
         Transport.prototype as any,
-        'fetchRemotePatchesWithCache',
+        'fetchLivePatchesWithCache',
       ).mockResolvedValue({
         data: [],
         tag: 'empty',
@@ -1790,7 +1838,7 @@ describe('bootstrap contract harness', () => {
 
       const fetchSpy = vi.spyOn(
         Transport.prototype as any,
-        'fetchRemotePatchesWithCache',
+        'fetchLivePatchesWithCache',
       ).mockResolvedValue({
         data: [],
         tag: 'empty',

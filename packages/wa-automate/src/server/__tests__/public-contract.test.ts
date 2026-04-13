@@ -32,8 +32,55 @@ describe('wa-automate public contract', () => {
     expect(typeof waAutomate.WAServer).toBe('function');
     expect(typeof waAutomate.APILifecycleManager).toBe('function');
     expect(typeof waAutomate.SessionManager).toBe('function');
+    expect(typeof waAutomate.create).toBe('function');
     expect(typeof waAutomate.runCli).toBe('function');
     expect(typeof waAutomate.startCli).toBe('function');
     expect(typeof waAutomate.parseCliArgs).toBe('function');
+  });
+
+  it('supports programmatic Lightpanda selection through the package create entrypoint', async () => {
+    const createClientMock = vi.fn().mockResolvedValue({ client: 'ok' });
+    const PuppeteerDriverMock = vi.fn(function MockPuppeteerDriver() {
+      return { name: 'puppeteer' };
+    });
+    const LightpandaDriverMock = vi.fn(function MockLightpandaDriver() {
+      return { name: 'lightpanda' };
+    });
+
+    vi.resetModules();
+    vi.doMock('@open-wa/core', () => ({ createClient: createClientMock }));
+    vi.doMock('@open-wa/client', () => ({}));
+    vi.doMock('@open-wa/schema', () => ({ eventRegistry: { getAll: () => [] } }));
+    vi.doMock('@open-wa/driver-puppeteer', () => ({ PuppeteerDriver: PuppeteerDriverMock }));
+    vi.doMock('@open-wa/driver-lightpanda', () => ({ LightpandaDriver: LightpandaDriverMock }));
+
+    const waAutomate = await import('../../index');
+
+    await waAutomate.create({
+      sessionId: 'programmatic-lightpanda',
+      useLightpanda: true,
+      lightpanda: {
+        executablePath: '/tmp/lightpanda-bin',
+        portStart: 9310,
+        host: '127.0.0.1',
+        startupTimeoutMs: 41000,
+        disableTelemetry: true,
+      },
+    });
+
+    expect(LightpandaDriverMock).toHaveBeenCalledTimes(1);
+    expect(PuppeteerDriverMock).not.toHaveBeenCalled();
+    expect(createClientMock).toHaveBeenCalledWith(expect.objectContaining({
+      sessionId: 'programmatic-lightpanda',
+      driver: expect.objectContaining({ name: 'lightpanda' }),
+      executablePath: '/tmp/lightpanda-bin',
+      lightpanda: {
+        executablePath: '/tmp/lightpanda-bin',
+        portStart: 9310,
+        host: '127.0.0.1',
+        startupTimeoutMs: 41000,
+        disableTelemetry: true,
+      },
+    }));
   });
 });

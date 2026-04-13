@@ -26,6 +26,7 @@ export const DOCS_PATHS = {
   bestPractices: '/docs/operations-and-troubleshooting/best-practices',
   errorHandling: '/docs/operations-and-troubleshooting/error-handling',
   logoutDetection: '/docs/operations-and-troubleshooting/detect-logouts',
+  pricing: '/docs/licensing/pricing',
   licensedFeatures: '/docs/licensing/licensed-features',
   referenceClient: '/docs/reference/api/Client/classes/Client',
 } as const;

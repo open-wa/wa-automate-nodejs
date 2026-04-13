@@ -437,7 +437,7 @@ Wave 2: runtime selection wiring, render-fail-fast integration, minimal tests, g
 
   **Commit**: YES | Message: `test(lightpanda): cover config lifecycle and fail-fast paths` | Files: package test files across `packages/config`, `packages/wa-automate`, `packages/core`, `packages/driver-lightpanda`
 
-- [ ] 9. Add a gated Lightpanda smoke path for real process startup
+- [x] 9. Add a gated Lightpanda smoke path for real process startup
 
   **What to do**: Add one real-but-gated smoke verification path that only runs when Lightpanda is available or an explicit env toggle enables it. The smoke should validate the actual v1 contract: spawn local Lightpanda, allocate a unique free port, connect over CDP, create a page/session, and reach a minimal supported open-wa bootstrap milestone without using rendering-dependent assertions. Keep it opt-in and environment-aware.
   **Must NOT do**: Do not make the monorepo default test suite depend on Lightpanda being installed. Do not require screenshots or PDFs for smoke success.

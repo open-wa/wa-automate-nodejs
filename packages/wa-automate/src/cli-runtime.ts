@@ -1,14 +1,20 @@
 import { createClient } from '@open-wa/core';
 import { Client as ClientFacade } from '@open-wa/client';
-import { LightpandaDriver } from '@open-wa/driver-lightpanda';
-import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
 import { eventRegistry } from '@open-wa/schema';
 import { WAServer } from './server/hono-server';
-import { resolveConfig, type PartialConfig, type Config, type TrackedConfig } from '@open-wa/config';
+import { resolveConfig, type PartialConfig, type Config } from '@open-wa/config';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getCliOutputSink, type CliOutputSink } from './cli/output-sink';
+import {
+    resolveExecutablePath as sharedResolveExecutablePath,
+    selectRuntimeDriver,
+    shouldPreferLocalChrome as sharedShouldPreferLocalChrome,
+    toCreateClientOptions,
+    type DriverSelection,
+    type ExecutablePathResolution,
+} from './runtime-client';
 
 export interface CliRuntimeResult {
     server: WAServer;
@@ -185,25 +191,6 @@ interface ChromePathCacheRecord {
     updatedAt?: string;
 }
 
-interface ExecutablePathResolution {
-    executablePath?: string;
-    source:
-        | 'config'
-        | 'cache'
-        | 'chrome_installation'
-        | 'driver_default'
-        | 'lightpanda_config'
-        | 'lightpanda_sdk_default';
-    warning?: string;
-}
-
-interface DriverSelection {
-    driver: PuppeteerDriver | LightpandaDriver;
-    engineLabel: 'Puppeteer' | 'Lightpanda';
-    executableResolution: ExecutablePathResolution;
-    preferLocalChrome: boolean;
-}
-
 export interface ParsedCliArgs {
     procName: string;
     pm2: boolean;
@@ -253,40 +240,7 @@ export function isUsableExecutablePath(executablePath?: string): executablePath 
     return !!executablePath && existsSync(executablePath);
 }
 
-function getExplicitUseChromePreference(rawConfigs?: TrackedConfig['rawConfigs']): boolean | undefined {
-    const explicitConfigSources = [
-        rawConfigs?.file,
-        rawConfigs?.env,
-        rawConfigs?.cli,
-        rawConfigs?.programmatic,
-    ];
-
-    for (let index = explicitConfigSources.length - 1; index >= 0; index -= 1) {
-        const source = explicitConfigSources[index];
-        if (source?.useChrome !== undefined) {
-            return source.useChrome;
-        }
-    }
-
-    return undefined;
-}
-
-export function shouldPreferLocalChrome(config: Config, rawConfigs?: TrackedConfig['rawConfigs']): boolean {
-    if (config.useLightpanda) {
-        return false;
-    }
-
-    if (config.executablePath) {
-        return false;
-    }
-
-    const explicitUseChrome = getExplicitUseChromePreference(rawConfigs);
-    if (explicitUseChrome !== undefined) {
-        return explicitUseChrome;
-    }
-
-    return true;
-}
+export const shouldPreferLocalChrome = sharedShouldPreferLocalChrome;
 
 function getVal(argv: string[], flag: string): string | undefined {
     const index = argv.findIndex(arg => arg === flag);
@@ -395,85 +349,10 @@ export async function resolveExecutablePath(
         cacheFilePath?: string;
     } = {}
 ): Promise<ExecutablePathResolution> {
-    if (config.executablePath) {
-        return {
-            executablePath: config.executablePath,
-            source: 'config',
-        };
-    }
-
-    const preferLocalChrome = options.preferLocalChrome ?? config.useChrome;
-    if (!preferLocalChrome) {
-        return {
-            source: 'driver_default',
-        };
-    }
-
-    const cacheFilePath = options.cacheFilePath ?? getChromeCacheFilePath();
-    const cachedPath = readChromePathCache(cacheFilePath)?.executablePath;
-    if (isUsableExecutablePath(cachedPath)) {
-        return {
-            executablePath: cachedPath,
-            source: 'cache',
-        };
-    }
-
-    if (cachedPath) {
-        clearChromePathCache(cacheFilePath);
-    }
-
-    const { Launcher } = await import('chrome-launcher');
-    const detectedPath = Launcher.getInstallations().find((installationPath) => isUsableExecutablePath(installationPath));
-
-    if (detectedPath) {
-        writeChromePathCache(detectedPath, cacheFilePath);
-        return {
-            executablePath: detectedPath,
-            source: 'chrome_installation',
-        };
-    }
-
-    clearChromePathCache(cacheFilePath);
-
-    return {
-        source: 'driver_default',
-        warning: 'Chrome resolution warning: no valid local Chrome installation was found. Falling back to Puppeteer/default driver browser resolution.',
-    };
-}
-
-function resolveLightpandaExecutablePath(config: Config): ExecutablePathResolution {
-    const executablePath = config.lightpanda?.executablePath;
-    if (executablePath) {
-        return {
-            executablePath,
-            source: 'lightpanda_config',
-        };
-    }
-
-    return {
-        source: 'lightpanda_sdk_default',
-    };
-}
-
-async function selectRuntimeDriver(config: Config, rawConfigs?: TrackedConfig['rawConfigs']): Promise<DriverSelection> {
-    if (config.useLightpanda) {
-        return {
-            driver: new LightpandaDriver(),
-            engineLabel: 'Lightpanda',
-            executableResolution: resolveLightpandaExecutablePath(config),
-            preferLocalChrome: false,
-        };
-    }
-
-    const preferLocalChrome = shouldPreferLocalChrome(config, rawConfigs);
-    const executableResolution = await resolveExecutablePath(config, { preferLocalChrome });
-
-    return {
-        driver: new PuppeteerDriver(),
-        engineLabel: 'Puppeteer',
-        executableResolution,
-        preferLocalChrome,
-    };
+    return await sharedResolveExecutablePath(config, {
+        preferLocalChrome: options.preferLocalChrome,
+        cacheFilePath: options.cacheFilePath ?? getChromeCacheFilePath(),
+    });
 }
 
 function printStartupSummary(
@@ -547,7 +426,11 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
 
     unsupportedWarnings.forEach((warning) => sink.write({ level: 'warn', message: `Compatibility warning: ${warning}` }));
 
-    const driverSelection = await selectRuntimeDriver(config, rawConfigs);
+    const driverSelection = await selectRuntimeDriver(config, {
+        rawConfigs,
+        cacheFilePath: getChromeCacheFilePath(),
+        defaultPreferLocalChrome: true,
+    });
     const { driver, engineLabel, executableResolution, preferLocalChrome } = driverSelection;
     if (executableResolution.warning) {
         sink.write({ level: 'warn', message: executableResolution.warning });
@@ -564,27 +447,9 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
     sink.status({ phase: 'client.starting', sessionId: config.sessionId });
     sink.write({ level: 'info', message: 'Starting WhatsApp Client...' });
 
-    const openwaClient = await createClient({
-        sessionId: config.sessionId,
-        driver,
-        deleteSessionDataOnLogout: config.deleteSessionDataOnLogout,
-        killClientOnLogout: config.killClientOnLogout,
-        sessionDataPath: config.sessionDataPath,
+    const openwaClient = await createClient(toCreateClientOptions(config, driverSelection, {
         debug: config.logLevel === 'debug' || verbose || config.logConsole,
-        headless: config.headless,
-        qrTimeoutMs: typeof config.qrTimeout === 'number' ? config.qrTimeout * 1000 : undefined,
-        authTimeoutMs: typeof config.authTimeout === 'number' ? config.authTimeout * 1000 : undefined,
-        executablePath: executableResolution.executablePath,
-        browserArgs: config.chromiumArgs,
-        userDataDir: config.userDataDir,
-        ephemeral: config.ephemeral,
-        logConsole: config.logConsole,
-        logConsoleErrors: config.logConsoleErrors,
-        blockCrashLogs: config.blockCrashLogs,
-        blockAssets: config.blockAssets,
-        safeMode: config.safeMode,
-        licenseKey: config.licenseKey as any,
-    });
+    }));
 
     server.setReadinessProvider(() => ({ ...openwaClient.getReadiness(), state: openwaClient.getState() }));
     const detachLaunchNarration = attachLaunchNarration(openwaClient, sink, config.sessionId);

@@ -7,6 +7,15 @@ description: Connect to a remote Easy API instance from your own app using Socke
 
 `SocketClient` is the compatibility client for connecting to a remote Easy API instance. In the current runtime it uses **HTTP RPC for commands** and **Server-Sent Events for runtime events**, while keeping a client-style surface for consumers.
 
+<Callout type="tip" title="Best fit for SocketClient">
+  Use SocketClient when the session already lives elsewhere and your app only
+  needs to issue commands, receive events, and stay light on browser/runtime
+  responsibilities.
+</Callout>
+
+<Steps>
+  <Step title="Connect to a running Easy API session">
+
 ## Connect to a local or remote Easy API
 
 ```ts
@@ -17,6 +26,9 @@ const client = await SocketClient.connect('http://localhost:8080', 'your-api-key
 
 The client surface exposes direct methods such as `sendText(...)`, and you can also use `ask(...)` / `listen(...)` when you want the explicit transport-level style.
 
+  </Step>
+  <Step title="Authenticate the consumer">
+
 ## Authentication
 
 If your Easy API instance is protected with an API key, pass it when connecting:
@@ -26,6 +38,9 @@ const client = await SocketClient.connect('https://api.example.com', 'your-api-k
 ```
 
 Keep the API key out of browser-exposed code unless that browser is a trusted internal client.
+
+  </Step>
+  <Step title="Use commands and events like a client surface">
 
 ## Send a command
 
@@ -53,9 +68,18 @@ await client.listen('onMessage', (message) => {
 
 Legacy-style listener helpers are mapped onto the active runtime event stream for you, so you can usually keep familiar event names.
 
+  </Step>
+  <Step title="Choose the right transport edge">
+
 ## Cloudflare proxy URLs
 
 `SocketClient.connect()` also understands `cf-proxy://...` URLs for the Cloudflare tunnel flow described in **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)**.
+
+If you need the concrete delivery envelope shapes for downstream consumers, read
+**[Webhook payloads](/docs/client-and-integrations/webhook-payloads)**.
+
+  </Step>
+</Steps>
 
 ## When to use it
 
@@ -67,7 +91,22 @@ Use `SocketClient` when:
 
 ## Troubleshooting
 
-- Verify the base URL first; include the protocol and the correct port.
-- If events do not appear, confirm the target Easy API session is actually healthy before debugging the consumer.
-- If auth is enabled, verify the same API key that works over HTTP is the one you are passing to `SocketClient.connect()`.
-- If you need remote access without opening ports, prefer the Cloudflare proxy route instead of inventing your own transport bridge.
+<FAQ
+  items={[
+    {
+      question: 'Why do commands work but events do not appear?',
+      answer:
+        'Confirm the target Easy API session is actually healthy first. Then verify you are listening to the expected event names and not debugging the wrong session or port.',
+    },
+    {
+      question: 'What is the first thing to verify when connect() fails?',
+      answer:
+        'Check the full base URL, including protocol and port, then confirm the same API key works over ordinary HTTP before debugging the client wrapper itself.',
+    },
+    {
+      question: 'When should I use the Cloudflare proxy path instead?',
+      answer:
+        'Use the Cloudflare proxy route when you need remote access without directly opening ports to the Easy API host.',
+    },
+  ]}
+/>

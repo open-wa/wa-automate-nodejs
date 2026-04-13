@@ -7,13 +7,24 @@ description: Start the open-wa Easy API, secure it, and expose it safely.
 
 If you want a running WhatsApp API with the smallest amount of setup, start here.
 
+<Callout type="tip" title="Best fit for Easy API">
+  Choose this path when you want a running HTTP API quickly, want to add
+  webhooks without owning the browser runtime directly, or need a session you
+  can later consume remotely with SocketClient.
+</Callout>
+
+<Steps>
+<Step title="Run the runtime locally">
+
 ## Run it
 
-```bash
-npx @open-wa/wa-automate
-```
+<PackageManagerTabs command="@open-wa/wa-automate" mode="dlx" />
 
 That starts an Easy API instance and prints the local address for the API and the interactive docs.
+
+</Step>
+
+<Step title="Secure the session before exposing it anywhere useful">
 
 ## What you get
 
@@ -24,6 +35,12 @@ When the runtime is healthy you usually have three things:
 - the generated interactive docs for that running session
 
 That makes Easy API the fastest route from “I want an API” to “I can send and receive messages”.
+
+<Callout type="warning" title="Do not treat first-run defaults as production settings">
+  A local test session is fine without much ceremony. The moment you expose the
+  API beyond your machine, give it an API key, a stable session id, and a clear
+  restart/recovery story.
+</Callout>
 
 ## Common flags
 
@@ -41,6 +58,10 @@ npx @open-wa/wa-automate --port 8080 --api-key "your-secure-key"
 npx @open-wa/wa-automate --session-id sales --port 8081
 ```
 
+</Step>
+
+<Step title="Choose the right runtime shape for your use case">
+
 ## Good defaults for a first session
 
 - Set a **session id** early if you plan to run more than one account.
@@ -57,6 +78,10 @@ npx @open-wa/wa-automate --session-id sales --port 8081
 - Use `--api-host` when the public address seen by consumers differs from the local bind address.
 - Use `--session-id` plus distinct ports when you run multiple sessions on one host.
 - Put restart policy around the process early; do not wait until you have a flaky production incident.
+
+</Step>
+
+<Step title="Decide how consumers will reach the session">
 
 ## Tunneling and remote access
 
@@ -85,6 +110,9 @@ npx @open-wa/wa-automate --pm2 --session-id STICKER-BOT
 ```
 
 PM2 is useful when you need process restarts, basic memory controls, and a named process per session.
+
+</Step>
+</Steps>
 
 ## When to graduate from this page
 

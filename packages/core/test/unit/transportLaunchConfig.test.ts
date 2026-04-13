@@ -270,6 +270,36 @@ describe('Transport launch/config plumbing', () => {
     expect(driver.capturedLaunchOptions?.userDataDir).toBe('/tmp/openwa-profile');
   });
 
+  it('forwards Lightpanda runtime options to driver launch options', async () => {
+    const page = new TestPage();
+    const driver = new CaptureDriver(new TestBrowser(page));
+    const transport = new Transport({
+      driver,
+      events: createEvents(),
+      logger: createLogger(),
+      executablePath: '/tmp/lightpanda-bin',
+      lightpanda: {
+        portStart: 9321,
+        host: '127.0.0.1',
+        startupTimeoutMs: 45_000,
+        disableTelemetry: true,
+      },
+      blockCrashLogs: false,
+    });
+
+    await transport.initialize();
+
+    expect(driver.capturedLaunchOptions).toMatchObject({
+      executablePath: '/tmp/lightpanda-bin',
+      lightpanda: {
+        portStart: 9321,
+        host: '127.0.0.1',
+        startupTimeoutMs: 45_000,
+        disableTelemetry: true,
+      },
+    });
+  });
+
   it('logs browser console output and page errors when enabled', async () => {
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);

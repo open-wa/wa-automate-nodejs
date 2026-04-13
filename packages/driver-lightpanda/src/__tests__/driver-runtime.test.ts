@@ -104,13 +104,20 @@ describe('Lightpanda runtime', () => {
         const browser = await driver.launch({
             executablePath: '/tmp/lightpanda',
             timeoutMs: 4321,
+            lightpanda: {
+                portStart: 9450,
+                host: '127.0.0.1',
+                startupTimeoutMs: 8765,
+                disableTelemetry: true,
+            },
         });
 
-        expect(findFreePort).toHaveBeenCalledWith(9000, 1);
+        expect(findFreePort).toHaveBeenCalledWith(9450, 1);
         expect(serve).toHaveBeenCalledWith(expect.objectContaining({
             host: '127.0.0.1',
             port: 9500,
-            executablePath: '/tmp/lightpanda',
+            disableTelemetry: true,
+            timeout: 0,
         }));
         expect(connect).toHaveBeenCalledWith({
             browserWSEndpoint: 'ws://127.0.0.1:9500',

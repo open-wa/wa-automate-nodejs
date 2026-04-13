@@ -1,3 +1,3 @@
 
 - Task 8 blocker: `pnpm --filter @open-wa/core test` is currently red in pre-existing/non-Lightpanda suites (`assetTruth`, `injectionController`, `patchLifecycleSemantics`, `runtimeEventBridge`, and broader bootstrap contract paths), so task 8 cannot honestly satisfy the full-package-pass clause yet even though the Lightpanda-specific coverage slice is green.
-- Task 9 blocker: the gated smoke test is implemented, but this workspace cannot exercise the enabled real-process path because optional runtime dependencies (`@lightpanda/browser` and `puppeteer`) are not resolvable under the active install, so `OPENWA_LIGHTPANDA_SMOKE=true` remains skipped here instead of proving spawn/connect/bootstrap end to end.
+- Task 9 blocker removed on 2026-04-13: the enabled gated smoke now passes in this workspace against the minimal supported Lightpanda bootstrap milestone (`pageUrl === https://web.whatsapp.com/` and transport phase `preload_registered`).

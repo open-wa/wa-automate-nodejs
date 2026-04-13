@@ -1,17 +1,72 @@
 ---
 title: API Reference
-description: Generated API reference for the active open-wa surface.
+description: Start the generated reference from the part of the surface you actually need.
 ---
 
 # API Reference
 
-This section is sourced from the active generated reference set. It is intentionally kept separate from the hand-written guides so implementation details stay close to the code surface they document.
+The generated reference is broad. This page is the faster entrypoint so you do
+not have to start from a giant class page every time.
 
-## Use this section when you need
+<Callout type="note" title="Use guides for workflows, use reference for exact surface details">
+  If you are learning how to do something, start with the guides. If you need
+  exact method names, types, or model fields, use the generated reference.
+</Callout>
 
-- exact method signatures
-- event and enum names
-- config/interface shapes
-- generated class, type, and module pages
+<ComparisonTable
+  columns={[
+    { key: 'use', label: 'What to look here for' },
+    { key: 'start', label: 'Best entrypoint' },
+  ]}
+  rows={[
+    {
+      group: 'High-use entrypoints',
+      feature: 'Client methods',
+      values: {
+        use: 'Direct method names, signatures, and generated method docs.',
+        start: '[Client](/docs/reference/api/Client/classes/Client)',
+      },
+    },
+    {
+      feature: 'Config objects',
+      values: {
+        use: 'Current runtime config field surface and type detail.',
+        start: '[Config schema](/docs/guides/config-schema)',
+      },
+    },
+    {
+      feature: 'Core runtime models',
+      values: {
+        use: 'Message, Chat, Contact, and GroupMetadata object shapes.',
+        start: '[Data models](/docs/concepts/data-models)',
+      },
+    },
+    {
+      group: 'Reference subtrees',
+      feature: 'Controllers and launch internals',
+      values: {
+        use: 'Initializer, events, patching, and internal boot logic.',
+        start: '[Controllers](/docs/reference/controllers/initializer)',
+      },
+    },
+    {
+      feature: 'Logging surface',
+      values: {
+        use: 'Logging helpers, transports, and emitted log surfaces.',
+        start: '[Logging](/docs/reference/logging/logging)',
+      },
+    },
+    {
+      feature: 'Collectors, dialogs, preprocessors',
+      values: {
+        use: 'Supporting structures outside the main client class.',
+        start: '[Structures](/docs/reference/structures/Collector)',
+      },
+    },
+  ]}
+/>
 
-For onboarding and task-oriented examples, start with the hand-written guides instead.
+<Callout type="tip" title="Fastest practical workflow">
+  If you are debugging a real implementation, the fastest path is usually:
+  guide first, config or data model second, generated Client reference third.
+</Callout>

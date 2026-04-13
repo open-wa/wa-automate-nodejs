@@ -17,6 +17,15 @@ export interface LaunchOptions {
     userDataDir?: string;
     timeoutMs?: number;
     defaultViewport?: { width: number; height: number } | null;
+    lightpanda?: LightpandaLaunchOptions;
+}
+
+export interface LightpandaLaunchOptions {
+    executablePath?: string;
+    portStart?: number;
+    host?: string;
+    startupTimeoutMs?: number;
+    disableTelemetry?: boolean;
 }
 
 export interface ConnectOptions {

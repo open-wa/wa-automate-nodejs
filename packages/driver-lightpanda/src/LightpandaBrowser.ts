@@ -7,6 +7,8 @@ import {
 } from '@open-wa/driver-interface';
 import { LightpandaPage } from './LightpandaPage';
 
+const BROWSER_CLOSE_TIMEOUT_MS = 5_000;
+
 export class LightpandaBrowser implements IBrowser {
     readonly name = 'lightpanda' as const;
     private closePromise?: Promise<void>;
@@ -44,7 +46,14 @@ export class LightpandaBrowser implements IBrowser {
 
         this.closePromise = (async () => {
             try {
-                await this.browser?.close?.();
+                if (typeof this.browser?.close === 'function') {
+                    await Promise.race([
+                        this.browser.close(),
+                        new Promise<void>((resolve) => {
+                            setTimeout(resolve, BROWSER_CLOSE_TIMEOUT_MS);
+                        }),
+                    ]);
+                }
             } finally {
                 await this.processManager?.stop?.();
             }

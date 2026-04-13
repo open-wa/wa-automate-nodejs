@@ -376,6 +376,13 @@ describe('cli runtime chrome resolution', () => {
       expect.objectContaining({
         driver: expect.objectContaining({ name: 'lightpanda' }),
         executablePath: '/tmp/lightpanda-bin',
+        lightpanda: {
+          executablePath: '/tmp/lightpanda-bin',
+          portStart: 9000,
+          host: '127.0.0.1',
+          startupTimeoutMs: 30000,
+          disableTelemetry: false,
+        },
       })
     );
     expect(getInstallationsSpy).not.toHaveBeenCalled();

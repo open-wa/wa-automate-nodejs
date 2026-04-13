@@ -2,7 +2,7 @@
   "terminals": {},
   "chatAgents": {},
   "julesSessions": [],
-  "julesPollingDegraded": false,
-  "julesPollingLastCheckedAt": "2026-04-12T23:55:39.318Z",
-  "julesPollingDegradedAt": "2026-04-12T22:48:50.269Z"
+  "julesPollingDegraded": true,
+  "julesPollingLastCheckedAt": "2026-04-13T12:41:28.870Z",
+  "julesPollingDegradedAt": "2026-04-13T12:41:28.870Z"
 }

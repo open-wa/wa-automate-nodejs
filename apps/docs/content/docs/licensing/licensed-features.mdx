@@ -7,6 +7,12 @@ description: What licensed features are for, how keys are used, and where to val
 
 Some functionality in the historical open-wa surface has been license-gated. The old docs mixed feature marketing, purchasing instructions, and implementation details in one page; this version separates the intent from the operational guidance.
 
+<Callout type="info" title="Need the decision page instead of the technical explanation?">
+  If you are trying to decide which license tier you need, read the dedicated
+  **[Pricing and licensing](/docs/licensing/pricing)** page first, then come back
+  here for the operational details.
+</Callout>
+
 <LicensedFeatureCallout tier="restricted" title="Need a key before you test a gated flow?">
   Use the public license path first, then validate the specific restricted or
   insiders behavior in the host-account session you actually plan to run.
@@ -40,10 +46,24 @@ npx @open-wa/wa-automate --license-key "YOUR-LICENSE-KEY"
 
 ## Common license workflow
 
-1. acquire the key for the host account or use case you actually intend to run
-2. supply it through config or CLI at launch
-3. verify the runtime recognizes the key in the session you care about
-4. test the specific gated feature instead of assuming success from configuration alone
+<Steps>
+  <Step title="Acquire the right key for the real use case">
+    Match the key to the host account or operational use case you actually plan
+    to run, not just a temporary dev session.
+  </Step>
+  <Step title="Supply the key at launch">
+    Provide the key through config or CLI so the runtime evaluates availability
+    in the same session you care about.
+  </Step>
+  <Step title="Verify the session sees the license">
+    Confirm the runtime recognizes the key in the target session before you try
+    a gated flow.
+  </Step>
+  <Step title="Test the gated feature directly">
+    Do not assume success from configuration alone. Test the exact restricted or
+    insiders behavior you are relying on.
+  </Step>
+</Steps>
 
 ## Operational advice
 
@@ -59,6 +79,21 @@ Check these first:
 - whether the feature is actually available in the runtime surface you are using
 - whether the machine clock and deployment environment are sane
 - whether you are testing the gated feature through the same session the key is meant for
+
+<FAQ
+  items={[
+    {
+      question: 'Why does the key appear valid but the feature still looks locked?',
+      answer:
+        'The most common causes are testing the wrong host-account session, assuming the feature is available in the runtime surface you are using, or not validating the exact gated behavior directly.',
+    },
+    {
+      question: 'Should I configure the key only in production?',
+      answer:
+        'No. Put the key into the same environment where you are validating the feature so you can confirm availability before rollout.',
+    },
+  ]}
+/>
 
 ## Scope note
 

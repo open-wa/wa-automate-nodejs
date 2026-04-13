@@ -27,7 +27,7 @@ export function baseOptions(): BaseLayoutProps {
       },
       {
         text: 'Licensing',
-        url: DOCS_PATHS.licensedFeatures,
+        url: DOCS_PATHS.pricing,
         active: 'nested-url',
       },
     ],

@@ -45,8 +45,11 @@ export class LightpandaDriver implements IDriver {
         let processInfo;
         try {
             processInfo = await processManager.start({
-                executablePath: options?.executablePath,
-                startupTimeoutMs: options?.timeoutMs,
+                executablePath: options?.lightpanda?.executablePath ?? options?.executablePath,
+                portStart: options?.lightpanda?.portStart,
+                host: options?.lightpanda?.host,
+                startupTimeoutMs: options?.lightpanda?.startupTimeoutMs ?? options?.timeoutMs,
+                disableTelemetry: options?.lightpanda?.disableTelemetry,
             });
         } catch (error) {
             throw this.normalizeStartupError(error);

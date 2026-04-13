@@ -138,7 +138,7 @@ function Card({ card }: { card: LinkCard }) {
   return (
     <a
       href={card.href}
-      className="group flex h-full flex-col rounded-3xl border border-fd-border bg-fd-card p-6 shadow-sm transition-colors hover:bg-fd-accent/60"
+      className="group flex h-full flex-col rounded-3xl border border-fd-border bg-fd-card p-6 shadow-sm transition-[transform,background-color,border-color] duration-200 hover:-translate-y-0.5 hover:bg-fd-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-fd-background"
     >
       <div className="flex flex-wrap items-center gap-2">
         {card.eyebrow ? (
@@ -154,7 +154,7 @@ function Card({ card }: { card: LinkCard }) {
       <p className="mt-3 text-pretty text-sm leading-6 text-fd-muted-foreground sm:text-base">
         {card.description}
       </p>
-      <span className="mt-6 text-sm font-medium text-fd-primary">
+      <span className="mt-6 text-sm font-medium text-fd-primary transition-transform duration-200 group-hover:translate-x-0.5">
         Open page →
       </span>
     </a>
@@ -178,7 +178,7 @@ export function DocsHomepage() {
 
           <div className="space-y-5">
             <h1 className="text-balance text-4xl font-semibold tracking-tight text-fd-foreground sm:text-5xl lg:text-6xl">
-              The docs homepage open-wa needed for real first-time visitors.
+              WhatsApp automation docs for teams shipping with open-wa v5.
             </h1>
             <p className="max-w-3xl text-pretty text-lg leading-8 text-fd-muted-foreground sm:text-xl">
               open-wa v5 gives you a few clear ways to automate WhatsApp: run the
@@ -262,9 +262,42 @@ export function DocsHomepage() {
 
       <section className="space-y-8">
         <SectionHeading
+          eyebrow="Who this is for"
+          title="Choose the runtime shape that matches how your team actually ships"
+          description="The docs are structured around the three most common open-wa operating modes: API-first teams, in-process library users, and remote consumers connecting to already-running sessions."
+        />
+        <div className="grid gap-5 md:grid-cols-3">
+          <div className="rounded-3xl border border-fd-border bg-fd-card p-6 shadow-sm">
+            <h3 className="text-xl font-semibold text-fd-foreground">Easy API teams</h3>
+            <p className="mt-3 text-sm leading-6 text-fd-muted-foreground">
+              Best when you want a running HTTP surface quickly, plan to add
+              webhooks or dashboards, and want to separate the session runtime
+              from downstream consumers.
+            </p>
+          </div>
+          <div className="rounded-3xl border border-fd-border bg-fd-card p-6 shadow-sm">
+            <h3 className="text-xl font-semibold text-fd-foreground">Library-first builders</h3>
+            <p className="mt-3 text-sm leading-6 text-fd-muted-foreground">
+              Best when your Node.js app owns orchestration directly and you want
+              `create()`, listeners, and client methods inside your own process.
+            </p>
+          </div>
+          <div className="rounded-3xl border border-fd-border bg-fd-card p-6 shadow-sm">
+            <h3 className="text-xl font-semibold text-fd-foreground">Remote consumers</h3>
+            <p className="mt-3 text-sm leading-6 text-fd-muted-foreground">
+              Best when the session already lives somewhere else and your workers,
+              dashboards, or internal tools only need the remote command and
+              event surface.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="space-y-8">
+        <SectionHeading
           eyebrow="Start here"
           title="Pick the route that matches how you plan to use open-wa"
-          description="The new homepage should tell newcomers what open-wa is, what it improves, and where to go next. These are the three most important first decisions."
+          description="Choose the path that matches how your team wants to operate: API-first, in-process client control, or remote session consumption."
         />
         <div className="grid gap-5 lg:grid-cols-3">
           {startPaths.map((card) => (
@@ -277,7 +310,7 @@ export function DocsHomepage() {
         <SectionHeading
           eyebrow="Major workflows"
           title="From bootstrapping to operations, the docs are organized around real work"
-          description="The legacy site mixed onboarding, reference, and scattered how-to pages together. The v5 Fumadocs app now points you toward the actual workflows most teams need."
+          description="These sections cover the workflows most teams need after first setup: auth, sessions, messaging, integrations, operations, and exact API surface detail."
         />
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {workflowCards.map((card) => (
@@ -325,21 +358,21 @@ export function DocsHomepage() {
           <div className="flex flex-col gap-3">
             <a
               href={DOCS_PATHS.overview}
-              className="rounded-2xl border border-fd-border bg-fd-card px-4 py-3 text-sm font-medium text-fd-foreground hover:bg-fd-accent hover:text-fd-accent-foreground"
+              className="rounded-2xl border border-fd-border bg-fd-card px-4 py-3 text-sm font-medium text-fd-foreground transition-colors hover:bg-fd-accent hover:text-fd-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-fd-background"
             >
               Open the docs overview
             </a>
             <a
               href={DOCS_PATHS.configuration}
-              className="rounded-2xl border border-fd-border bg-fd-card px-4 py-3 text-sm font-medium text-fd-foreground hover:bg-fd-accent hover:text-fd-accent-foreground"
+              className="rounded-2xl border border-fd-border bg-fd-card px-4 py-3 text-sm font-medium text-fd-foreground transition-colors hover:bg-fd-accent hover:text-fd-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-fd-background"
             >
               Review CLI and config guidance
             </a>
             <a
-              href={DOCS_PATHS.licensedFeatures}
-              className="rounded-2xl border border-fd-border bg-fd-card px-4 py-3 text-sm font-medium text-fd-foreground hover:bg-fd-accent hover:text-fd-accent-foreground"
+              href={DOCS_PATHS.pricing}
+              className="rounded-2xl border border-fd-border bg-fd-card px-4 py-3 text-sm font-medium text-fd-foreground transition-colors hover:bg-fd-accent hover:text-fd-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-fd-background"
             >
-              Check licensed-feature availability
+              Compare license tiers
             </a>
           </div>
         </div>
@@ -362,10 +395,10 @@ export function DocsHomepage() {
         </div>
         <div className="flex flex-wrap gap-3 lg:justify-end">
           <a
-            href={DOCS_PATHS.licensedFeatures}
+            href={DOCS_PATHS.pricing}
             className="inline-flex items-center justify-center rounded-full border border-fd-border bg-fd-card px-5 py-2.5 text-sm font-medium text-fd-foreground hover:bg-fd-accent hover:text-fd-accent-foreground"
           >
-            Read licensing docs
+            Compare pricing and licensing
           </a>
           <GetLicenseButton className="px-5 py-2.5" />
         </div>

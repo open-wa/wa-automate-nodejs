@@ -7,6 +7,12 @@ description: Core runtime settings for custom code and the most important Easy A
 
 The old legacy docs split configuration across several small pages. This page brings the essentials together.
 
+<Callout type="note" title="Config is the source of truth, CLI is the delivery surface">
+  If you are embedding open-wa in custom code, think in terms of a config object.
+  If you are launching Easy API directly, think in terms of flags that map onto
+  the same runtime concerns.
+</Callout>
+
 ## Common config fields
 
 Use the config object passed to `create()` for library/runtime behavior such as:
@@ -20,6 +26,67 @@ Use the config object passed to `create()` for library/runtime behavior such as:
 - `licenseKey` — feature unlocks where applicable
 - `proxyServerCredentials` — outbound proxy support
 - `linkCode` — link-code login flow
+
+<ComparisonTable
+  columns={[
+    { key: 'config', label: 'Config object' },
+    { key: 'cli', label: 'CLI / Easy API' },
+  ]}
+  rows={[
+    {
+      group: 'Core identity',
+      feature: 'Session identity',
+      values: {
+        config: '`sessionId`',
+        cli: '`--session-id`',
+      },
+    },
+    {
+      feature: 'Link-code login',
+      values: {
+        config: '`linkCode`',
+        cli: '`--link-code`',
+      },
+    },
+    {
+      group: 'Exposure and transport',
+      feature: 'API key',
+      values: {
+        config: 'runtime config / env-driven',
+        cli: '`--api-key`',
+      },
+    },
+    {
+      feature: 'Webhook target',
+      values: {
+        config: 'runtime config / integration wiring',
+        cli: '`--webhook`',
+      },
+    },
+    {
+      feature: 'Public host',
+      values: {
+        config: 'host-related runtime config',
+        cli: '`--api-host`',
+      },
+    },
+    {
+      group: 'Runtime behavior',
+      feature: 'License key',
+      values: {
+        config: '`licenseKey`',
+        cli: '`--license-key`',
+      },
+    },
+    {
+      feature: 'Proxy credentials',
+      values: {
+        config: '`proxyServerCredentials`',
+        cli: 'proxy-oriented launch flags / env',
+      },
+    },
+  ]}
+/>
 
 ## Example
 
@@ -65,4 +132,11 @@ If you need QR images, session-data capture, or low-level launch state, read **[
 
 ## One important caveat
 
-The old Docusaurus site generated a full CLI options table at build time. This new page intentionally documents the commonly used flags first, while the deeper config surface should ultimately stay aligned with the generated reference and runtime schema.
+<Callout type="warning" title="This page is the human guide, not the entire schema surface">
+  The old Docusaurus site generated a full CLI options table at build time. This
+  page intentionally documents the commonly used flags first, while the deeper
+  config surface should ultimately stay aligned with the generated reference and
+  runtime schema.
+</Callout>
+
+If you need the current typed field surface, use **[Config schema](/docs/guides/config-schema)**.

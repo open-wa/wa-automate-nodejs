@@ -2,6 +2,7 @@
   "title": "Client & Integrations",
   "pages": [
     "socket-client",
+    "webhook-payloads",
     "proxying-a-session",
     "chatwoot",
     "cf-proxy"

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 import {
   GetLicenseButton,
@@ -6,6 +7,14 @@ import {
   LicensedFeatureCallout,
   type LicenseTier,
 } from '@/components/licensing';
+import {
+  Callout,
+  ComparisonTable,
+  FAQ,
+  PackageManagerTabs,
+  Step,
+  Steps,
+} from '@/components/docs-primitives';
 
 function flattenText(node: React.ReactNode): string {
   if (node === null || node === undefined || typeof node === 'boolean') return '';
@@ -102,4 +111,11 @@ export const docsMdxComponents = {
   GetLicenseButton,
   LicenseBadge,
   LicensedFeatureCallout,
+  Callout,
+  Steps,
+  Step,
+  PackageManagerTabs,
+  ComparisonTable,
+  FAQ,
+  TypeTable,
 };
