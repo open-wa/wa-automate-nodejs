@@ -233,6 +233,17 @@ export const ContactSchema = z.object({
 
 export type Contact = z.infer<typeof ContactSchema>;
 
+// Location
+export const LocationSchema = z.object({
+    lat: z.number().describe('Latitude coordinate'),
+    lng: z.number().describe('Longitude coordinate'),
+    name: z.string().optional().describe('Location name'),
+    address: z.string().optional().describe('Formatted address'),
+    url: z.string().optional().describe('WhatsApp location URL'),
+}).passthrough();
+
+export type Location = z.infer<typeof LocationSchema>;
+
 // Chat
 export const ChatSchema = z.object({
     id: ContactIdSchema.or(GroupChatIdSchema),
