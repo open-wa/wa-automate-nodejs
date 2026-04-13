@@ -530,10 +530,10 @@ export class Transport {
       throw new Error('Transport not initialized');
     }
 
-    // Ensure injection controller is initialized with the page
+    // Ensure launch bootstrap is configured
     // (normally done in navigate() -> configureLaunchBootstrap())
-    if (!this.injectionController.getHealthSnapshot().generation.browserContextId) {
-      await this.injectionController.initialize(this.page);
+    if (this.injectionController.getHealthSnapshot().phase === 'idle') {
+      await this.configureLaunchBootstrap(this.page);
     }
 
     this.events.emit('launch.wapi.inject.before', {
@@ -793,7 +793,7 @@ export class Transport {
 
     const usable = failureReason === undefined;
 
-    return {
+    const result: RuntimeValidationResult = {
       ...capability,
       bridgeReady: false,
       requiredMethods: this.injectionController.getRequiredRuntimeMethods(),
@@ -803,6 +803,28 @@ export class Transport {
       repairable: !usable,
       failureReason,
     };
+
+    this.events.emit('launch.session.validityCheck.after', {
+      correlationId: 'transport-capability-only',
+      ts: Date.now(),
+      step: 'session_validity_check',
+      details: {
+        phase: stage,
+        valid: usable,
+        usable,
+        hasRuntime: result.hasRuntime,
+        hasStore: result.hasStoreMsg,
+        hasMsg: result.hasStoreMsg,
+        sessionLoaded: result.sessionLoaded,
+        bridgeReady: result.bridgeReady,
+        requiredMethods: result.requiredMethods,
+        missingMethods: result.missingMethods,
+        repairable: result.repairable,
+        failureReason,
+      },
+    });
+
+    return result;
   }
 
   async repairRuntimeIntegrity(reason: RuntimeValidationFailureReason): Promise<boolean> {
@@ -1668,8 +1690,9 @@ export class Transport {
       ]);
       return false;
     } catch {
-      // Recreate v4 behavior: swallow navigation/context errors to prevent
-      // aggressively rejecting the entire isAuthenticated race.
+      // QR selectors not found = no QR code available right now.
+      // Hang here so that isInsideChat(), sessionDataInvalid(), or the
+      // outer auth-timeout signal in waitForAuthentication() can win.
       return new Promise(() => { });
     }
   }
@@ -1802,40 +1825,11 @@ export class Transport {
     }
 
     if (authenticated === 'timeout') {
-      const phoneOutOfReach = await this.waitForPhoneOutOfReach();
-
-      this.events.emit('launch.auth.timeout', {
+      return this.resolveAuthTimeoutOutcome({
         correlationId: 'auth-settle',
-        ts: Date.now(),
-        step: 'auth_timeout',
-        details: {
-          timeoutMs: this.authTimeoutMs,
-          phoneOutOfReach,
-        },
-      });
-
-      if (phoneOutOfReach) {
-        this.events.emit('launch.auth.phoneOutOfReach', {
-          correlationId: 'auth-settle',
-          ts: Date.now(),
-          step: 'phone_out_of_reach',
-          details: { reason: 'trying_to_reach_phone' },
-        });
-
-        return {
-          outcome: 'phone_out_of_reach',
-          qrSeen: false,
-          qrAttempts: this.qrAttempt,
-          authMethod: 'resumed_session',
-        };
-      }
-
-      return {
-        outcome: 'auth_timeout',
         qrSeen: false,
-        qrAttempts: this.qrAttempt,
         authMethod: 'resumed_session',
-      };
+      });
     }
 
     if (this.linkCode) {
@@ -1865,7 +1859,7 @@ export class Transport {
           });
           this.logger.info('link_code_generated', { attempt: this.qrAttempt });
 
-          if (this.qrMax && this.qrAttempt > this.qrMax) {
+          if (this.qrMax && this.qrAttempt >= this.qrMax) {
             return {
               outcome: 'qr_max',
               qrSeen: true,
@@ -1900,15 +1894,25 @@ export class Transport {
 
     const qrData = await this.waitForQr();
     if (!qrData) {
-      return {
-        outcome: 'qr_timeout',
+      return this.resolveAuthTimeoutOutcome({
+        correlationId: 'auth-settle',
         qrSeen: false,
+        authMethod: 'qr',
+      });
+    }
+
+    const qrScanTimeoutMs = this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
+    const sessionLoaded = await this.waitForSessionLoaded(qrScanTimeoutMs || this.authTimeoutMs);
+    if (sessionLoaded) {
+      return {
+        outcome: 'authenticated',
+        qrSeen: true,
         qrAttempts: this.qrAttempt,
         authMethod: 'qr',
       };
     }
 
-    if (this.qrMax && this.qrAttempt > this.qrMax) {
+    if (this.qrMax && this.qrAttempt >= this.qrMax) {
       return {
         outcome: 'qr_max',
         qrSeen: true,
@@ -1917,21 +1921,53 @@ export class Transport {
       };
     }
 
-    const qrScanTimeoutMs = this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
-    const sessionLoaded = await this.waitForSessionLoaded(qrScanTimeoutMs || this.authTimeoutMs);
-    return sessionLoaded
-      ? {
-        outcome: 'authenticated',
-        qrSeen: true,
+    return {
+      outcome: 'qr_timeout',
+      qrSeen: true,
+      qrAttempts: this.qrAttempt,
+      authMethod: 'qr',
+    };
+  }
+
+  private async resolveAuthTimeoutOutcome(options: {
+    correlationId: string;
+    qrSeen: boolean;
+    authMethod: AuthSettlementResult['authMethod'];
+  }): Promise<AuthSettlementResult> {
+    const phoneOutOfReach = await this.waitForPhoneOutOfReach();
+
+    this.events.emit('launch.auth.timeout', {
+      correlationId: options.correlationId,
+      ts: Date.now(),
+      step: 'auth_timeout',
+      details: {
+        timeoutMs: this.authTimeoutMs,
+        phoneOutOfReach,
+      },
+    });
+
+    if (phoneOutOfReach) {
+      this.events.emit('launch.auth.phoneOutOfReach', {
+        correlationId: options.correlationId,
+        ts: Date.now(),
+        step: 'phone_out_of_reach',
+        details: { reason: 'trying_to_reach_phone' },
+      });
+
+      return {
+        outcome: 'phone_out_of_reach',
+        qrSeen: options.qrSeen,
         qrAttempts: this.qrAttempt,
-        authMethod: 'qr',
-      }
-      : {
-        outcome: 'qr_timeout',
-        qrSeen: true,
-        qrAttempts: this.qrAttempt,
-        authMethod: 'qr',
+        authMethod: options.authMethod,
       };
+    }
+
+    return {
+      outcome: 'auth_timeout',
+      qrSeen: options.qrSeen,
+      qrAttempts: this.qrAttempt,
+      authMethod: options.authMethod,
+    };
   }
 
   private async waitForPhoneOutOfReach(): Promise<boolean> {
@@ -2057,11 +2093,8 @@ export class Transport {
     });
 
     this.injectionController.registerNavigationObserver('runtime.navigation_recovery', (_frame, generation) => {
-      //skip the very first frame nav
-      if (this.frameNavCounter > 1) {
-        this.logger.info(`FRAME NAV DETECTED ${this.frameNavCounter}, ${_frame.url()}, Reinjecting APIs...`);
-        this.queueRuntimeRecovery('main_frame_navigation', generation);
-      }
+      this.logger.info(`FRAME NAV DETECTED ${this.frameNavCounter}, ${_frame.url()}, Reinjecting APIs...`);
+      this.queueRuntimeRecovery('main_frame_navigation', generation);
       this.frameNavCounter++;
     });
 
@@ -2424,6 +2457,7 @@ export class Transport {
       const { reinjected } = await this.recoverRuntimeForCurrentDocument({
         trigger: request.trigger,
         shouldContinue: () => this.isLatestRuntimeRecoveryRequest(request.requestId),
+        forceReinject: request.trigger === 'runtime_replaced',
       });
 
       this.logger.info('runtime_recovery_completed', {

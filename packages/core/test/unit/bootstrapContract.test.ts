@@ -210,7 +210,7 @@ class FakePage implements IPage {
       return undefined as Ret;
     }
 
-    if (script.includes('function _0x7aa3')) {
+    if (script.includes('function _0x7aa3') || script.includes('window.isRipeSession=function')) {
       if (!this.wapiAssetInjected) {
         throw new ReferenceError('WAPI is not defined');
       }
@@ -311,6 +311,68 @@ class FakePage implements IPage {
     return undefined as Ret;
   }
 
+  /**
+   * Evaluates a boolean probe script against the harness state.
+   * Returns true if the condition is met, false otherwise.
+   * This is called by waitForFunction() to evaluate probe scripts.
+   */
+  private evaluateBooleanScript(script: string): boolean {
+    // LEGACY_IS_INSIDE_CHAT_CHECK_SCRIPT and RIPE_SESSION_CHECK_SCRIPT
+    // Check: WA_AUTHENTICATED or DOM elements (.app/.two with tabindex)
+    if (
+      script.includes('WA_AUTHENTICATED') &&
+      (script.includes('document.getElementsByClassName') || script.includes('tabindex'))
+    ) {
+      return Boolean(this.browserGlobals.WA_AUTHENTICATED);
+    }
+
+    // AUTHENTICATED_SHELL_CHECK_SCRIPT
+    // Checks: isSessionLoaded(), WA_AUTHENTICATED, #pane-side, chat-list-search, app/two tabindex
+    if (script.includes('pane-side') || script.includes('chat-list-search') || script.includes('isSessionLoaded')) {
+      return Boolean(this.browserGlobals.WA_AUTHENTICATED);
+    }
+
+    // SESSION_INVALID_CHECK_SCRIPT - checks localStorage['old-logout-cred']
+    if (script.includes('localStorage') && script.includes('old-logout-cred')) {
+      return Boolean(this.invalidSession);
+    }
+
+    // PHONE_OUT_OF_REACH_CHECK_SCRIPT - checks body.innerText.includes('Trying to reach phone')
+    if (script.includes('Trying to reach phone')) {
+      return Boolean(this.phoneOutOfReach);
+    }
+
+    // QR_CHECK_SCRIPT (used in Boolean context) - checks canvas[aria-label]
+    if (script.includes('canvas[aria-label]')) {
+      return this.qrCode !== null;
+    }
+
+    // WAPI_RUNTIME_CHECK_SCRIPT - checks !!window.WAPI
+    if (script === '!!window.WAPI' || (script.includes('window.WAPI') && script.includes('!!'))) {
+      return Boolean(this.runtimeAvailable);
+    }
+
+    // STORE_MSG_CHECK_SCRIPT - checks !!(window.Store && window.Store.Msg)
+    if (script.includes('Store.Msg') || (script.includes('window.Store') && script.includes('!!'))) {
+      return Boolean(this.storeMsgAvailable);
+    }
+
+    // LINK_CODE_AVAILABLE_CHECK_SCRIPT - checks typeof window.linkCode === 'function'
+    if (script.includes('window.linkCode') && script.includes('typeof')) {
+      return Boolean(this.configuredLinkCode && this.generatedLinkCode);
+    }
+
+    // ATTEMPTING_REAUTH_CHECK_SCRIPT - checks localStorage for WAToken2 or last-wid-md
+    if (script.includes('WAToken2') || script.includes('last-wid-md')) {
+      // Not directly modeled in harness - return false to not interfere
+      return false;
+    }
+
+    // For unrecognized scripts, return true to maintain backward compatibility
+    // The original no-op stub would succeed for any script
+    return true;
+  }
+
   async addInitScript(_script: string): Promise<DisposableHandle> {
     return {
       dispose(): void {},
@@ -324,12 +386,41 @@ class FakePage implements IPage {
   async setRequestInterception(_enabled: boolean): Promise<void> {}
 
   async waitForSelector(_selector: string): Promise<IElementHandle | null> {
+    // QR selectors - only succeed if qrCode is actually present
+    // QR_SELECTOR_PRIMARY = "canvas[aria-label='Scan this QR code to link a device!']"
+    // QR_SELECTOR_FALLBACK = 'canvas[aria-label]'
+    if (_selector.includes('canvas[aria-label]')) {
+      if (this.qrCode !== null) {
+        return new FakeElementHandle();
+      }
+      // No QR code available - throw to trigger timeout behavior
+      throw new Error(`waitForSelector timeout: ${_selector}`);
+    }
+
+    // For other selectors used by the page, return FakeElementHandle
+    // to not break other functionality
     return new FakeElementHandle();
   }
 
   async waitForFunction(_script: string, _options?: WaitForFunctionOptions): Promise<void>;
   async waitForFunction<Arg>(_fn: (arg: Arg) => boolean, _arg: Arg, _options?: WaitForFunctionOptions): Promise<void>;
-  async waitForFunction(): Promise<void> {}
+  async waitForFunction(fnOrScript?: string | ((arg: unknown) => boolean), argOrOptions?: unknown, maybeOptions?: WaitForFunctionOptions): Promise<void> {
+    const script = typeof fnOrScript === 'string' ? fnOrScript : null;
+    if (script) {
+      const passed = this.evaluateBooleanScript(script);
+      if (!passed) {
+        throw new Error(`waitForFunction condition not met: ${script.slice(0, 80)}`);
+      }
+      return;
+    }
+
+    const fn = fnOrScript as ((arg: unknown) => boolean) | undefined;
+    const _arg = maybeOptions ? argOrOptions : undefined;
+    const passed = fn ? fn(_arg) : true;
+    if (!passed) {
+      throw new Error('waitForFunction predicate failed');
+    }
+  }
 
   async $(_selector: string): Promise<IElementHandle | null> {
     return null;
@@ -1308,6 +1399,12 @@ describe('bootstrap contract harness', () => {
   });
 
   it('Phase G: awaited client finalization hooks complete before client.ready emits', async () => {
+    vi.spyOn(Transport.prototype as any, 'fetchLivePatchesWithCache').mockResolvedValue({
+      data: [],
+      tag: null,
+      source: 'none' as const,
+    });
+
     const { client, recordedEvents } = await createHarness({
       runtimeAvailable: true,
       storeMsgAvailable: true,
@@ -1595,7 +1692,7 @@ describe('bootstrap contract harness', () => {
       // Spy on the private method via prototype to simulate successful remote fetch
       const fetchSpy = vi.spyOn(
         Transport.prototype as any,
-        'fetchRemotePatchesWithCache',
+        'fetchLivePatchesWithCache',
       ).mockResolvedValue({
         data: ['console.log("remote-patch-1")', 'console.log("remote-patch-2")'],
         tag: 'abc12',
@@ -1640,7 +1737,7 @@ describe('bootstrap contract harness', () => {
     it('runs the deferred init patch only after license injection succeeds', async () => {
       const fetchSpy = vi.spyOn(
         Transport.prototype as any,
-        'fetchRemotePatchesWithCache',
+        'fetchLivePatchesWithCache',
       ).mockResolvedValue({
         data: [],
         tag: 'empty',
@@ -1680,7 +1777,7 @@ describe('bootstrap contract harness', () => {
     it('blocks readiness when the required deferred init patch fails', async () => {
       const fetchSpy = vi.spyOn(
         Transport.prototype as any,
-        'fetchRemotePatchesWithCache',
+        'fetchLivePatchesWithCache',
       ).mockResolvedValue({
         data: [],
         tag: 'empty',
@@ -1734,10 +1831,10 @@ describe('bootstrap contract harness', () => {
       });
 
       // Intercept the validateLicense call at the Transport level
-      // by mocking fetchRemotePatchesWithCache and using a spy on the license side
+      // by mocking fetchLivePatchesWithCache and using a spy on the license side
       const fetchSpy = vi.spyOn(
         Transport.prototype as any,
-        'fetchRemotePatchesWithCache',
+        'fetchLivePatchesWithCache',
       ).mockResolvedValue({
         data: [],
         tag: 'empty',
@@ -1790,7 +1887,7 @@ describe('bootstrap contract harness', () => {
 
       const fetchSpy = vi.spyOn(
         Transport.prototype as any,
-        'fetchRemotePatchesWithCache',
+        'fetchLivePatchesWithCache',
       ).mockResolvedValue({
         data: [],
         tag: 'empty',

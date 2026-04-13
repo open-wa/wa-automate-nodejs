@@ -148,7 +148,7 @@ class RuntimeBridgePage implements IPage {
 
   async evaluateScript<Ret = unknown>(_script: string): Promise<Ret> {
     this.operations.push('evaluateScript');
-    if (_script.length < 1000 && (_script.includes('Boolean(') || _script.includes('document.querySelector'))) {
+    if (_script.length < 1000 && (_script.includes('Boolean(') || _script.includes('document.querySelector') || _script.includes('window.') || _script.includes('window['))) {
       const evaluator = new Function(
         'window',
         'document',
