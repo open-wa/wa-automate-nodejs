@@ -67,6 +67,51 @@ describe('LightpandaProcessManager', () => {
         }));
     });
 
+    it('accepts the nested lightpanda.serve SDK export shape', async () => {
+        vi.doMock('../port-utils', () => ({
+            findFreePort: vi.fn(async () => 9405),
+        }));
+        vi.doMock('@lightpanda/browser', () => ({
+            serve: undefined,
+            lightpanda: {
+                serve,
+            },
+        }), { virtual: true });
+
+        const process: MockProcess = {
+            kill: vi.fn(() => true),
+        };
+        serve.mockResolvedValue(process);
+
+        class SuccessfulWebSocket {
+            onopen: (() => void) | null = null;
+            onerror: ((event: unknown) => void) | null = null;
+
+            constructor(url: string) {
+                expect(url).toBe('ws://127.0.0.1:9405');
+                queueMicrotask(() => this.onopen?.());
+            }
+
+            close(): void {
+                return;
+            }
+        }
+
+        globalThis.WebSocket = SuccessfulWebSocket as typeof WebSocket;
+
+        const { LightpandaProcessManager } = await import('../process-manager');
+        const manager = new LightpandaProcessManager();
+
+        const info = await manager.start({ startupTimeoutMs: 1000 });
+
+        expect(info).toEqual({
+            host: '127.0.0.1',
+            port: 9405,
+            wsEndpoint: 'ws://127.0.0.1:9405',
+        });
+        expect(serve).toHaveBeenCalledTimes(1);
+    });
+
     it('kills the child process exactly once when stop is called repeatedly', async () => {
         vi.doMock('../port-utils', () => ({
             findFreePort: vi.fn(async () => 9401),
@@ -214,6 +259,14 @@ describe('LightpandaProcessManager', () => {
     });
 
     it('returns a clear error when the optional Lightpanda SDK is unavailable', async () => {
+        vi.doMock('@lightpanda/browser', () => ({
+            get serve() {
+                const error = new Error('Cannot find module @lightpanda/browser') as Error & { code?: string };
+                error.code = 'ERR_MODULE_NOT_FOUND';
+                throw error;
+            },
+        }), { virtual: true });
+
         const { LightpandaProcessManager } = await import('../process-manager');
         const manager = new LightpandaProcessManager();
 

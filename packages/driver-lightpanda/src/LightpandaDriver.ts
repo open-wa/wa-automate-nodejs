@@ -41,12 +41,16 @@ export class LightpandaDriver implements IDriver {
 
     async launch(options?: LaunchOptions): Promise<IBrowser> {
         const processManager = new LightpandaProcessManager();
+        const lightpandaOptions = options?.lightpanda;
 
         let processInfo;
         try {
             processInfo = await processManager.start({
-                executablePath: options?.executablePath,
-                startupTimeoutMs: options?.timeoutMs,
+                executablePath: lightpandaOptions?.executablePath ?? options?.executablePath,
+                portStart: lightpandaOptions?.portStart,
+                host: lightpandaOptions?.host,
+                startupTimeoutMs: lightpandaOptions?.startupTimeoutMs ?? options?.timeoutMs,
+                disableTelemetry: lightpandaOptions?.disableTelemetry,
             });
         } catch (error) {
             throw this.normalizeStartupError(error);

@@ -8,8 +8,16 @@ const DEFAULT_PORT_ATTEMPTS = 10;
 const INITIAL_BACKOFF_MS = 50;
 const MAX_BACKOFF_MS = 1_000;
 
+type LightpandaServe = (options: Record<string, unknown>) => Promise<LightpandaChildProcess> | LightpandaChildProcess;
+
 type LightpandaSdkModule = {
-    serve(options: Record<string, unknown>): LightpandaChildProcess;
+    serve: LightpandaServe;
+};
+
+type LightpandaSdkNamespaceModule = {
+    lightpanda?: {
+        serve?: LightpandaServe;
+    };
 };
 
 type LightpandaChildProcess = Pick<ChildProcess, 'kill' | 'stderr' | 'once'>;
@@ -39,7 +47,20 @@ function isModuleMissing(error: unknown): boolean {
 
 async function loadLightpandaSdk(): Promise<LightpandaSdkModule> {
     try {
-        return await import('@lightpanda/browser') as LightpandaSdkModule;
+        const module = await import('@lightpanda/browser') as LightpandaSdkModule & LightpandaSdkNamespaceModule;
+        const serve = typeof module.serve === 'function'
+            ? module.serve.bind(module)
+            : typeof module.lightpanda?.serve === 'function'
+                ? module.lightpanda.serve.bind(module.lightpanda)
+                : undefined;
+
+        if (!serve) {
+            throw new Error(
+                '@lightpanda/browser is installed but does not expose a compatible serve() API.',
+            );
+        }
+
+        return { serve };
     } catch (error) {
         if (isModuleMissing(error)) {
             throw new Error(
@@ -155,7 +176,7 @@ export class LightpandaProcessManager {
             const wsEndpoint = `ws://${host}:${port}`;
 
             try {
-                const child = sdk.serve({
+                const child = await sdk.serve({
                     host,
                     port,
                     executablePath: config.executablePath,

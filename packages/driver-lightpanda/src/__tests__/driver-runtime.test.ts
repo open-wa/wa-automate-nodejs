@@ -119,6 +119,39 @@ describe('Lightpanda runtime', () => {
         expect(browser.unwrap()).toBe(puppeteerBrowser);
     });
 
+    it('prefers nested Lightpanda runtime options when starting the process', async () => {
+        const { browser: puppeteerBrowser } = createMockBrowser();
+        connect.mockResolvedValue(puppeteerBrowser);
+        findFreePort.mockResolvedValue(9500);
+
+        const { LightpandaDriver } = await import('../LightpandaDriver');
+        const driver = new LightpandaDriver();
+
+        await driver.launch({
+            executablePath: '/tmp/generic-lightpanda',
+            timeoutMs: 4321,
+            lightpanda: {
+                executablePath: '/tmp/nested-lightpanda',
+                portStart: 9400,
+                host: '127.0.0.1',
+                startupTimeoutMs: 9876,
+                disableTelemetry: true,
+            },
+        });
+
+        expect(findFreePort).toHaveBeenCalledWith(9400, 1);
+        expect(serve).toHaveBeenCalledWith(expect.objectContaining({
+            host: '127.0.0.1',
+            port: 9500,
+            executablePath: '/tmp/nested-lightpanda',
+            disableTelemetry: true,
+        }));
+        expect(connect).toHaveBeenCalledWith({
+            browserWSEndpoint: 'ws://127.0.0.1:9500',
+            timeout: 4321,
+        });
+    });
+
     it('connects to an existing Lightpanda-compatible websocket endpoint', async () => {
         const { browser: puppeteerBrowser } = createMockBrowser();
         connect.mockResolvedValue(puppeteerBrowser);
@@ -250,5 +283,30 @@ describe('Lightpanda runtime', () => {
             name: 'LightpandaConnectError',
         });
         expect(connect).not.toHaveBeenCalled();
+    });
+
+    it('emits startup diagnostics when logger context is provided via init', async () => {
+        const { browser: puppeteerBrowser } = createMockBrowser();
+        connect.mockResolvedValue(puppeteerBrowser);
+        const info = vi.fn();
+
+        const { LightpandaDriver } = await import('../LightpandaDriver');
+        const driver = new LightpandaDriver();
+        await driver.init({
+            logger: {
+                debug: vi.fn(),
+                info,
+                warn: vi.fn(),
+                error: vi.fn(),
+            },
+        });
+
+        await driver.launch();
+
+        expect(info).toHaveBeenCalledWith('Lightpanda browser executable version', {
+            host: '127.0.0.1',
+            port: 9500,
+            version: 'Lightpanda/1.0.0',
+        });
     });
 });
