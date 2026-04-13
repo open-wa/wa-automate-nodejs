@@ -26,7 +26,7 @@
     "clean:runtime": "rm -rf dist/*.js",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest --passWithNoTests",
-    "dev": "rm -rf dist && pnpm run copy && concurrently --kill-others --names 'COPY,EDITOR,RUNTIME,TEST' --prefix '({name})' --prefix-colors 'yellow.bold,cyan.bold,greenBright.bold,magenta.bold' 'onchange -v \"src/**/*.png\" \"src/**/*.svg\" -- pnpm run copy' 'pnpm run build:editor:watch' 'pnpm run build:runtime:watch' 'sleep 10; pnpm run test:watch'",
+    "dev": "rm -rf dist && pnpm run copy && concurrently --names 'COPY,EDITOR,RUNTIME,TEST' --prefix '({name})' --prefix-colors 'yellow.bold,cyan.bold,greenBright.bold,magenta.bold' 'onchange -v \"src/**/*.png\" \"src/**/*.svg\" -- pnpm run copy' 'pnpm run build:editor:watch' 'pnpm run build:runtime:watch' 'sleep 10; pnpm run test:watch'",
     "lint": "oxlint src utils rollup.config.editor.js",
     "lint:fix": "oxlint src utils rollup.config.editor.js --fix"
   },
