@@ -396,7 +396,7 @@ Wave 2: runtime selection wiring, render-fail-fast integration, minimal tests, g
 
   **Commit**: YES | Message: `feat(core): fail fast on lightpanda rendering calls` | Files: `packages/core/**`, `packages/driver-interface/**`, any affected runtime entrypoints
 
-- [ ] 8. Integrate minimal automated coverage for config, lifecycle, and fail-fast behavior
+- [x] 8. Integrate minimal automated coverage for config, lifecycle, and fail-fast behavior
 
   **What to do**: Add only the minimum automated tests needed to freeze the Lightpanda v1 contract: config normalization, CLI/runtime driver selection, bounded port retry behavior, child cleanup on failure/shutdown, and rendering fail-fast behavior. Reuse existing Vitest patterns and mocking style; prefer deterministic unit/integration tests over flaky browser-parity tests.
   **Must NOT do**: Do not add broad browser-parity suites. Do not require live internet navigation for the default test path. Do not write screenshot assertions that assume real rendering exists.
@@ -437,7 +437,7 @@ Wave 2: runtime selection wiring, render-fail-fast integration, minimal tests, g
 
   **Commit**: YES | Message: `test(lightpanda): cover config lifecycle and fail-fast paths` | Files: package test files across `packages/config`, `packages/wa-automate`, `packages/core`, `packages/driver-lightpanda`
 
-- [ ] 9. Add a gated Lightpanda smoke path for real process startup
+- [x] 9. Add a gated Lightpanda smoke path for real process startup
 
   **What to do**: Add one real-but-gated smoke verification path that only runs when Lightpanda is available or an explicit env toggle enables it. The smoke should validate the actual v1 contract: spawn local Lightpanda, allocate a unique free port, connect over CDP, create a page/session, and reach a minimal supported open-wa bootstrap milestone without using rendering-dependent assertions. Keep it opt-in and environment-aware.
   **Must NOT do**: Do not make the monorepo default test suite depend on Lightpanda being installed. Do not require screenshots or PDFs for smoke success.
@@ -521,10 +521,10 @@ Wave 2: runtime selection wiring, render-fail-fast integration, minimal tests, g
 > 4 review agents run in PARALLEL. ALL must APPROVE. Present consolidated results to user and get explicit "okay" before completing.
 > **Do NOT auto-proceed after verification. Wait for user's explicit approval before marking work complete.**
 > **Never mark F1-F4 as checked before getting user's okay.** Rejection or user feedback -> fix -> re-run -> present again -> wait for okay.
-- [ ] F1. Plan Compliance Audit — oracle
-- [ ] F2. Code Quality Review — unspecified-high
-- [ ] F3. Real Manual QA — unspecified-high (+ playwright if UI)
-- [ ] F4. Scope Fidelity Check — deep
+- [x] F1. Plan Compliance Audit — oracle
+- [x] F2. Code Quality Review — unspecified-high
+- [x] F3. Real Manual QA — unspecified-high (+ playwright if UI)
+- [x] F4. Scope Fidelity Check — deep
 
 ## Commit Strategy
 - Use small commits grouped by architectural boundary rather than one monolithic commit.

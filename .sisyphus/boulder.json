@@ -40,10 +40,19 @@
       "task_key": "todo:8",
       "task_label": "8",
       "task_title": "Integrate minimal automated coverage for config, lifecycle, and fail-fast behavior",
-      "session_id": "ses_27bf96a02ffeFQlrcgtCybRRJV",
+      "session_id": "ses_278d41250ffeOtzBEKA2A70amO",
       "agent": "Sisyphus-Junior",
       "category": "quick",
-      "updated_at": "2026-04-12T23:44:54.657Z"
+      "updated_at": "2026-04-13T14:38:16.179Z"
+    },
+    "final-wave:f1": {
+      "task_key": "final-wave:f1",
+      "task_label": "F1",
+      "task_title": "Plan Compliance Audit — oracle",
+      "session_id": "ses_2789374c4ffeEEO6UlXnWS2spi",
+      "agent": "Sisyphus-Junior",
+      "category": "unspecified-high",
+      "updated_at": "2026-04-13T15:24:02.345Z"
     }
   }
 }
