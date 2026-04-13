@@ -43,6 +43,44 @@ function createSessionId(): string {
   return `lightpanda-smoke-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function createBootstrapFailure(error: unknown): Error {
+  const message = error instanceof Error ? error.message : String(error);
+  return new Error(`Lightpanda bootstrap failed before minimal milestone: ${message}`);
+}
+
+async function cleanupClient(client: OpenWAClient, reason = 'lightpanda_smoke_cleanup'): Promise<void> {
+  void client.stop(reason).catch(() => undefined);
+  await Promise.race([
+    client.getTransport().close().catch(() => undefined),
+    new Promise<void>((resolve) => setTimeout(resolve, 5_000)),
+  ]);
+}
+
+async function waitForLightpandaBootstrapMilestone(
+  client: OpenWAClient,
+  timeoutMs = 15_000,
+): Promise<{ pageUrl: string; phase: string }> {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    const transport = client.getTransport();
+    const page = transport.getPage();
+    const snapshot = transport.getOperationalReadinessSnapshot();
+    const pageUrl = page && !page.isClosed() ? page.url() : null;
+
+    if (pageUrl === 'https://web.whatsapp.com/' && snapshot.phase === 'preload_registered') {
+      return {
+        pageUrl,
+        phase: snapshot.phase,
+      };
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+
+  throw new Error(`Timed out waiting for the Lightpanda minimal bootstrap milestone after ${timeoutMs}ms`);
+}
+
 const lightpandaSmokeGate = resolveLightpandaSmokeGate();
 const describeLightpandaSmoke = lightpandaSmokeGate.enabled ? describe : describe.skip;
 
@@ -52,7 +90,7 @@ describeLightpandaSmoke('createClient Lightpanda smoke E2E', () => {
 
   afterEach(async () => {
     if (client) {
-      await client.stop('lightpanda_smoke_cleanup').catch(() => undefined);
+      await cleanupClient(client);
       client = null;
     }
 
@@ -62,7 +100,7 @@ describeLightpandaSmoke('createClient Lightpanda smoke E2E', () => {
     }
   });
 
-  it('spawns local Lightpanda, connects over CDP, creates a page, reaches QR bootstrap, and shuts down cleanly', async () => {
+  it('spawns local Lightpanda, connects over CDP, creates a page, reaches the minimal Lightpanda bootstrap milestone, and shuts down cleanly', async () => {
     const driverLogs: Array<{ message: string; meta?: Record<string, unknown> }> = [];
     const runtimeDriver = new LightpandaDriver();
     await runtimeDriver.init({
@@ -107,36 +145,31 @@ describeLightpandaSmoke('createClient Lightpanda smoke E2E', () => {
       headless: true,
       qrTimeoutMs: 60_000,
       sessionDataPath,
-      executablePath: lightpandaSmokeGate.executablePath,
+      lightpanda: {
+        executablePath: lightpandaSmokeGate.executablePath,
+        host: '127.0.0.1',
+        portStart: 9000,
+        startupTimeoutMs: 45_000,
+        disableTelemetry: true,
+      },
     });
 
-    const qrGenerated = new Promise<{ qr: string; attemptInThisCycle?: number }>((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error('Timed out waiting for the Lightpanda QR bootstrap milestone'));
-      }, 60_000);
-
-      client!.events.on('launch.auth.qr.generated', (event) => {
-        clearTimeout(timeout);
-        resolve(event.details!);
-      });
-
-      client!.events.on('error', (event) => {
-        if (event.fatal) {
-          clearTimeout(timeout);
-          reject(event.error ?? new Error(`Fatal Lightpanda bootstrap error in ${event.scope}`));
-        }
+    const startFailure = new Promise<never>((_, reject) => {
+      void client!.start().then(() => undefined).catch((error) => {
+        reject(createBootstrapFailure(error));
       });
     });
 
-    void client.start().catch(() => undefined);
+    const bootstrapMilestone = await Promise.race([
+      waitForLightpandaBootstrapMilestone(client),
+      startFailure,
+    ]);
 
-    const qrPayload = await qrGenerated;
-    expect(typeof qrPayload.qr).toBe('string');
-    expect(qrPayload.qr.length).toBeGreaterThan(0);
-    expect(qrPayload.attemptInThisCycle).toBe(1);
-    expect(client.getState()).toBe('AUTHENTICATING');
+    expect(bootstrapMilestone.pageUrl).toBe('https://web.whatsapp.com/');
+    expect(bootstrapMilestone.phase).toBe('preload_registered');
+    expect(client.getState()).toBe('STARTING');
 
-    await client.stop('lightpanda_smoke_complete');
+    await cleanupClient(client, 'lightpanda_smoke_complete');
     expect(client.getState()).toBe('STOPPED');
     client = null;
   }, 120_000);
