@@ -1,179 +1,448 @@
-> [!WARNING]  
-> By visiting this page you [explicitly agree to the Terms of Service (read here)](https://github.com/open-wa/wa-automate-nodejs/blob/master/tos.md)
+> [!WARNING]
+> By using this project you explicitly agree to the [Terms of Service](./tos.md).
+>
+> This project is unofficial and is not affiliated with WhatsApp or Meta. Use it at your own risk.
 
 <div align="center">
 <img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/hotfix-logo.png" width="128" height="128"/>
 
-# wa-automate-nodejs
+# open-wa / wa-automate
 
-> wa-automate-nodejs is the most advanced NodeJS library which provides a high-level API to control WA.
->
->
-
-[![Ceasefire Now](https://badge.techforpalestine.org/ceasefire-now)](https://techforpalestine.org/learn-more)
+**Connect a WhatsApp account, turn it into an API, automate it, and extend it.**
 
 [![npm version](https://img.shields.io/npm/v/@open-wa/wa-automate.svg?color=green)](https://www.npmjs.com/package/@open-wa/wa-automate)
 ![node](https://img.shields.io/node/v/@open-wa/wa-automate)
 [![Downloads](https://img.shields.io/npm/dm/@open-wa/wa-automate.svg)](https://www.npmjs.com/package/@open-wa/wa-automate)
-[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/open-wa/wa-automate-nodejs.svg)](http://isitmaintained.com/project/open-wa/wa-automate-nodejs "Average time to resolve an issue")
-[![Percentage of issues still open](http://isitmaintained.com/badge/open/open-wa/wa-automate-nodejs.svg)](http://isitmaintained.com/project/open-wa/wa-automate-nodejs "Percentage of issues still open")
-
-<a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a> ![WhatsApp_Web 2.2147.16](https://img.shields.io/badge/WhatsApp_Web-2.2147.16-brightgreen.svg)<img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/openwadev?label=Follow%20%40openwadev%20for%20updates&logo=twitter&style=social"/>
-
-<a href="https://cloud.digitalocean.com/apps/new?repo=https%3A%2F%2Fgithub.com%2Fopen-wa%2Fwa-automate-docker%2Ftree%2Fmaster&refcode%3D4b093f6ecd3a&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge">
- <img style="max-height:200px" src="https://raw.githubusercontent.com/open-wa/wa-automate-deploy-heroku/main/assets/do_deploy.png" alt="Deploy to DO"/>
-</a>
-
-
-<p align="center">
-  <a href="#functions-list">Key Features</a> •
-  <a href="https://docs.openwa.dev/docs/get-started/installation">Getting Started</a> •
-  <a href="https://docs.openwa.dev/docs/get-started/quick-run">Easy API</a> •
-  <a href="https://docs.openwa.dev/docs/api/classes/api_Client.Client">Documentation</a> •
-  <a href="https://openwa.page.link/key">Get a License Key</a> •
-  <a href="#support">Support</a>
-</p>
+<a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a>
 
 </div>
 
-## Installation and Updating
+## What this is
 
-Use this command to install the library for the first time and to keep the library up to date.
+`@open-wa/wa-automate` gives you a few practical ways to automate WhatsApp:
+
+- run a ready-made API with the CLI
+- connect another app to that runtime
+- embed the runtime directly in your own Node.js code
+- add integrations and plugins
+
+This repository is currently a **v5 monorepo** and the package version in this repo is **`5.0.0-alpha.1`**. If you are migrating a mature v4 production system, test v5 in a separate environment first.
+
+If you only want the fastest, least-confusing first run, start with **Easy API** below.
+
+## Start with the path that matches you
+
+| If you want to... | Start here |
+| --- | --- |
+| get WhatsApp connected fast and use it from another service | [Quick start: Easy API](#quick-start-easy-api) |
+| build a simple Node automation quickly | [Simple automation: SocketClient](#simple-automation-socketclient) |
+| own the runtime inside your own app | [Deep integration: embedded runtime](#deep-integration-embedded-runtime) |
+| upgrade existing v4 code carefully | [Migrating from v4 to v5](#migrating-from-v4-to-v5) |
+| publish or share a reusable extension | [Plugins and integrations](#plugins-and-integrations) |
+
+## Quick start: Easy API
+
+If you just want to connect a WhatsApp account and get a working API, this is the fastest path:
 
 ```bash
-> npm i --save @open-wa/wa-automate@latest
+npx @open-wa/wa-automate --port 8080
 ```
 
-## Usage
+That starts an Easy API instance and gives you the first-run authentication flow plus interactive docs for the running session.
 
-## CLI
+**v5 is alpha right now**, so prefer explicit commands like the one above instead of relying on undocumented defaults.
 
-Want to convert your WA account to an API instantly? You can now with the CLI. For more details see [Easy API](https://docs.openwa.dev/pages/Getting%20Started/quick-run.html)
+For first login, either:
+
+- scan the QR code the runtime prints, or
+- use link-code login if that fits your setup better
+
+Then open:
+
+```text
+http://localhost:8080/api-docs/
+```
+
+That is the clearest first proof that your session is up and the API is live.
+
+Other useful generated artifacts:
+
+```text
+http://localhost:8080/meta/swagger.json
+http://localhost:8080/meta/postman.json
+```
+
+Useful first commands:
 
 ```bash
-> npx @open-wa/wa-automate --help
+# choose a port
+npx @open-wa/wa-automate --port 8080
+
+# provide your own API key
+npx @open-wa/wa-automate --port 8080 --api-key "your-secure-key"
+
+# run a named session
+npx @open-wa/wa-automate --session-id sales --port 8081
+
+# send events to your service
+npx @open-wa/wa-automate --webhook "https://your-app.example/webhooks/open-wa"
 ```
 
-## Custom Setup
+Good defaults for a first session:
 
-Learn more about all possible configuration options here: [ConfigObject](https://docs.openwa.dev/interfaces/api_model_config.ConfigObject.html)
+- set a `sessionId` early if you might run more than one account
+- protect the API with an `--api-key` before exposing it outside your machine
+- keep business logic in your own app and let open-wa own the WhatsApp runtime
 
-```javascript
-const wa = require('@open-wa/wa-automate');
+If your goal is simply “connect WhatsApp to another service”, add `--webhook` first and write no custom runtime code until you know you need it.
 
-wa.create({
-  sessionId: "COVID_HELPER",
-  multiDevice: true, //required to enable multiDevice support
-  authTimeout: 60, //wait only 60 seconds to get a connection with the host account device
-  blockCrashLogs: true,
-  disableSpins: true,
-  headless: true,
-  hostNotificationLang: 'PT_BR',
-  logConsole: false,
-  popup: true,
-  qrTimeout: 0, //0 means it will wait forever for you to scan the qr code
-}).then(client => start(client));
+If you prefer Docker:
 
-function start(client) {
-  client.onMessage(async message => {
+```bash
+docker run -p 8080:8080 --init openwa/wa-automate
+```
+
+Docker notes:
+
+- this is best for local testing or a disposable first run unless you also plan session persistence properly
+- `--init` is recommended so zombie processes are cleaned up properly
+- you can pin the library version with `W_A_V`, for example `-e W_A_V=4.42.1`
+
+## Simple automation: SocketClient
+
+If you want to build a bot or workflow quickly without embedding the full browser runtime in your app, run Easy API in one place and connect to it from your code.
+
+Start the runtime:
+
+```bash
+npx @open-wa/wa-automate --port 8080 --api-key "your-secure-key"
+```
+
+Install the remote consumer in your app:
+
+```bash
+npm install @open-wa/socket-client
+```
+
+Keep the Easy API process running. Your app is a remote consumer, not the runtime host.
+
+Then connect from your app:
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+async function start() {
+  const client = await SocketClient.connect('http://localhost:8080', 'your-secure-key');
+
+  client.onMessage(async (message) => {
     if (message.body === 'Hi') {
       await client.sendText(message.from, '👋 Hello!');
     }
   });
 }
 
+start().catch(console.error);
 ```
 
-###### After executing `create()` function, **@open-wa/wa-automate** will create an instance of WA web. If you are not logged in, it will print a QR code in the [terminal](https://i.imgur.com/g8QvERI.png). Scan it with your phone and you are ready to go!
+Why this path is good for most builders:
 
-###### @open-wa/wa-automate will remember the session so there is no need to authenticate every time
+- open-wa owns the browser automation runtime
+- your app stays small and focused on automation logic
+- the current v5 runtime uses **HTTP RPC for commands** and **Server-Sent Events for runtime events** behind the compatibility client
 
+This is usually the best choice if you are technical but just want to build a simple automation fast.
 
-## Multi Device Support
+## Deep integration: embedded runtime
 
-We're currently in a weird transitionary period where some people are being forced to adopt Multi Device (MD). Once the transition is complete, the library default will be to turn on MD support. For now, you have to set it yourself explicitly either by using the `--multi-device` flag (with the [CLI](#CLI)) or setting `multiDevice: true` in your config (with your custom code)
+If you want the most control and are comfortable owning browser/runtime setup directly, use the embedded runtime path.
 
-### Latest Changes
+The v5 public contract exposes `createClient` from `@open-wa/core` through `@open-wa/wa-automate`.
 
-With the constant updates from WA. It is advisable to always use the latest version of `@open-wa/wa-automate`.
-
-   <div align="center">
-   <img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/release.png"/>
-   </div>
-
-### Functions list
-
-| Function                          | Reference |
-| --------------------------------- | ----------- |
-| Receive message                   | [onMessage](https://docs.openwa.dev/classes/api_Client.Client.html#onMessage)
-| Automatic QR Refresh              | [autoRefresh](https://docs.openwa.dev/classes/api_Client.Client.html#autoRefresh)
-| Send text                         | [sendText](https://docs.openwa.dev/classes/api_Client.Client.html#sendText)
-| Get contacts                      | [getContact](https://docs.openwa.dev/classes/api_Client.Client.html#getContact)
-| Get chats                         | [getAllChats](https://docs.openwa.dev/classes/api_Client.Client.html#getAllChats)
-| Get groups                        | [getAllGroups](https://docs.openwa.dev/classes/api_Client.Client.html#getAllGroups)
-| Get group members                 | [getGroupMembersId](https://docs.openwa.dev/classes/api_Client.Client.html#getGroupMembersId)
-| Send contact                      | [sendContact](https://docs.openwa.dev/classes/api_Client.Client.html#sendContact)
-| Send Images (image)              | [sendImage](https://docs.openwa.dev/classes/api_Client.Client.html#sendImage)
-| Send media (audio, doc) | [sendFile](https://docs.openwa.dev/classes/api_Client.Client.html#sendFile)
-| Send media (video)  | [Send Videos](https://docs.openwa.dev/pages/How%20to/send-files/send-videos.html)
-| Send stickers                     | [sendStickerfromUrl](https://docs.openwa.dev/classes/api_Client.Client.html#sendStickerFromuUrl)
-| Decrypt media (image, audio, doc) | [Decrypt Media](https://docs.openwa.dev/pages/How%20to/decrypt-media.html)
-| Capturing QR Code                 | [Capturing QR Code](https://docs.openwa.dev/pages/The%20Client/launch-events/capture-qr.html)
-| Multiple Sessions                 | [Multiple Sessions](https://docs.openwa.dev/pages/The%20Client/the-client/multiple-sessions.html)
-| Last seen      | [getLastSeen](https://docs.openwa.dev/classes/api_Client.Client.html#getLastSeen)
-| isOnline      | [isChatOnline](https://docs.openwa.dev/classes/api_Client.Client.html#isChatOnline)
-| 📍 Send Location      | [sendLocation](https://docs.openwa.dev/classes/api_Client.Client.html#sendLocation)
-| Simulated '...typing'             | [simulateTyping](https://docs.openwa.dev/classes/api_Client.Client.html#simulateTyping)
-| Send GIFs!                       | [sendVideoAsGif](https://docs.openwa.dev/classes/api_Client.Client.html#sendVideoAsGif)
-| Send Giphy!                       | [sendGiphy](https://docs.openwa.dev/classes/api_Client.Client.html#sendGiphy)
-| Forward Messages                  | [forwardMessages](https://docs.openwa.dev/classes/api_Client.Client.html#forwardMessages)
-| Listen to Read Receipts           | [onAck](https://docs.openwa.dev/classes/api_Client.Client.html#onAck)
-| Listen to Live Locations           | [onLiveLocation](https://docs.openwa.dev/classes/api_Client.Client.html#onLiveLocation)
-| Group participant changes         | [onParticipantsChanged](https://docs.openwa.dev/classes/api_Client.Client.html#onParticipantsChanged)
-| Create Groups         | [Create Group](https://docs.openwa.dev/pages/How%20to/groups.html#create-a-group)
-| add, remove, promote, demote participants        | [Manage Participants](https://docs.openwa.dev/pages/How%20to/groups/manage-participants.html)
-
-[Checkout all the available functions here.](https://docs.openwa.dev/classes/api_Client.Client.html)
-
-## Running the demo
-
-You can clone this repo and run the demo, but you will need to use typescript/ts-node:
+This path is lower-level than Easy API + SocketClient. Use it when you want runtime ownership, not when you just want the quickest working bot.
 
 ```bash
-> git clone https://github.com/open-wa/wa-automate-nodejs.git
-> cd wa-automate-nodejs
-> npm i
-> npm i -g ts-node typescript
-> cd demo
-> ts-node index.ts
+npm install @open-wa/wa-automate @open-wa/driver-puppeteer
 ```
 
-## Contributing
+```ts
+import { createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+async function start() {
+  const client = await createClient({
+    sessionId: 'sales',
+    driver: new PuppeteerDriver(),
+    headless: true,
+  });
+
+  client.onMessage(async (message) => {
+    if (message.body === 'Hi') {
+      await client.sendText(message.from, '👋 Hello!');
+    }
+  });
+}
+
+start().catch(console.error);
+```
+
+Important v5 reality:
+
+- the repo’s current **public contract** centers on `createClient`
+- some docs are still being reorganized from the older v4-era shape
+- pluggable browser drivers are now part of the architecture
+
+Available runtime driver packages in this repo:
+
+- `@open-wa/driver-puppeteer`
+- `@open-wa/driver-playwright`
+- `@open-wa/driver-lightpanda`
+
+Use the embedded path when you need deeper control over browser selection, runtime lifecycle, or infrastructure behavior.
+
+## Configuration and CLI
+
+Common config fields documented in the repo’s current config schema and docs include:
+
+- `sessionId`
+- `headless`
+- `useChrome` / `executablePath`
+- `qrTimeout` / `authTimeout`
+- `licenseKey`
+- `linkCode`
+- `plugins`
+- `pluginConfig`
+
+Common high-value CLI flags include:
+
+```bash
+--port 8080
+--api-key "your-secure-key"
+--webhook "https://your-app.example/webhooks/open-wa"
+--session-id sales
+--pm2
+--license-key "YOUR-LICENSE-KEY"
+```
+
+Some older docs and examples still mention additional legacy or transitional flags. For v5 alpha onboarding, prefer the smaller set above unless you have verified the exact flag against the version you are running.
+
+For contributors to this monorepo, the repo currently declares:
+
+- **Node.js** `>=22.21.1`
+- **pnpm** `>=10.25.0`
+
+```bash
+pnpm install
+pnpm build
+```
+
+## Plugins and integrations
+
+This repo is no longer just a single package. It includes a plugin/integration surface for extending the runtime.
+
+Relevant packages in this repo:
+
+- `@open-wa/plugin-sdk`
+- `@open-wa/integration-webhook`
+- `@open-wa/integration-chatwoot`
+- `@open-wa/integration-s3`
+- `@open-wa/integration-cloudflare`
+- `@open-wa/node-red`
+
+### Loading plugins
+
+The current config schema supports plugin references as npm package names or file paths:
+
+```ts
+plugins: [
+  '@open-wa/integration-chatwoot',
+  '@open-wa/integration-webhook',
+  './my-local-plugin'
+],
+pluginConfig: {
+  webhook: {
+    // plugin-specific config
+  }
+}
+```
+
+### If you want to share a bot or plugin
+
+The safest documented path today is:
+
+1. build it as an npm package or local package
+2. expose it through the plugin SDK
+3. tell users which `plugins` and `pluginConfig` entries they need
+
+Good examples to copy from in this repo:
+
+- [`./integrations/webhook`](./integrations/webhook)
+- [`./integrations/chatwoot`](./integrations/chatwoot)
+- [`./integrations/cloudflare`](./integrations/cloudflare)
+
+What is **not** clearly documented yet as a stable public workflow:
+
+- a public plugin marketplace
+- a formal plugin discovery registry for community downloads
+
+So today, “share a plugin” realistically means “publish a package people can install and load”.
+
+### Built-in integration examples
+
+- **Webhook**: push events into your own service
+- **Chatwoot**: connect open-wa to Chatwoot for bidirectional message handling
+- **Cloudflare Session Proxy**: remote session access without opening public ports
+- **Node-RED**: low-code visual automation on top of Easy API
+
+## Cloudflare Session Proxy
+
+If you want remote access without exposing local ports, this repo ships `@open-wa/cf-proxy`.
+
+High-level flow:
+
+1. deploy the Worker to your Cloudflare account
+2. attach your session to that proxy as the upstream
+3. connect consumers through the proxy URL
+
+Example consumer connection:
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect(
+  'cf-proxy://open-wa-proxy.account.workers.dev?sessionId=my-session&token=CONSUMER_TOKEN'
+);
+```
+
+This is the cleanest path if you want remote access but do not want to invent your own transport bridge.
+
+## AI-agent integration (MCP)
+
+If your goal is to let an AI agent interact with WhatsApp, the cleanest surface is the built-in **Model Context Protocol** server.
+
+MCP exposes every Easy API method as a discoverable tool that AI agents (Claude, Cursor, Windsurf, custom agents) can call directly — no manual HTTP wiring needed.
+
+### Quick start
+
+```bash
+npx @open-wa/wa-automate --port 8080 --api-key "your-secure-key" --mcp
+```
+
+Then point your MCP client at:
+
+```text
+http://localhost:8080/mcp
+```
+
+### Claude Desktop
+
+Add to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "open-wa": {
+      "url": "http://localhost:8080/mcp",
+      "headers": {
+        "X-API-Key": "your-secure-key"
+      }
+    }
+  }
+}
+```
+
+### Cursor / Windsurf
+
+Add a new MCP server with the URL `http://localhost:8080/mcp` and include `X-API-Key` in headers.
+
+### How it works
+
+- Uses the **Streamable HTTP** transport (single endpoint, no separate SSE/messages paths)
+- Tools are generated from the schema registry — same methods as the HTTP API
+- **API key required** on every request (same key as Easy API)
+- Session readiness is enforced — tools block until the session is fully connected
+- Dashboard: shows connection status, configuration copy-paste snippets (Claude/Cursor), and live tool details at `http://localhost:8080/dashboard/mcp`
+
+### Configuration
+
+```json
+{
+  "apiKey": "your-secure-key",
+  "mcp": {
+    "enabled": true,
+    "path": "/mcp",
+    "exposeToolsMeta": true
+  }
+}
+```
+
+### Security boundary
+
+MCP is an **Easy API-only** feature. It is not available through `createClient()`. The API key is mandatory — MCP refuses to start without one. Discovery (tool listing) and execution both require authentication.
+
+### Without MCP
+
+If you prefer HTTP, give your agent the Easy API docs surface instead:
+
+- `http://localhost:8080/api-docs/`
+- `http://localhost:8080/meta/swagger.json`
+- `http://localhost:8080/meta/postman.json`
+
+## Documentation map
+
+The current docs in this repo are organized around real usage modes. Start with:
+
+- **Easy API quick start**: https://docs.openwa.dev/docs/getting-started/easy-api
+- **Custom code**: https://docs.openwa.dev/docs/getting-started/custom-code
+- **Socket Client**: https://docs.openwa.dev/docs/client-and-integrations/socket-client
+- **Cloudflare Session Proxy**: https://docs.openwa.dev/docs/client-and-integrations/cf-proxy
+- **Configuration and CLI**: https://docs.openwa.dev/docs/guides/configuration-and-cli
+- **Chatwoot**: https://docs.openwa.dev/docs/client-and-integrations/chatwoot
+- **Core reference**: https://docs.openwa.dev/docs/reference/core
+
+## Running this repo locally
+
+If you want to work on the monorepo itself:
+
+```bash
+git clone https://github.com/open-wa/wa-automate-nodejs.git
+cd wa-automate-nodejs
+pnpm install
+pnpm build
+```
+
+Useful root scripts:
+
+```bash
+pnpm dev
+pnpm test
+pnpm lint
+pnpm typecheck
+```
 
 ## Support
 
-If you need paid support, consulting, or just want support/sponsor the ongoing development of this project, you can in the following ways:
+If you need help, paid support, or consulting:
 
-|Description | Link |
-|-	|:-:|
-| Get a License key | <a class="gumroad-button" href="https://gum.co/BTMt?wanted=true" target="_blank" data-gumroad-single-product="true" style='background-color: white !important;background-image: url(https://gumroad.com/button/button_bar.jpg) !important;background-repeat: repeat-x !important;border-radius: 4px !important;box-shadow: rgba(0, 0, 0, 0.4) 0 0 2px !important;color: #999 !important;display: inline-block !important;font-family: -apple-system, ".SFNSDisplay-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif !important;font-size: 16px !important;font-style: normal !important;font-weight: 500 !important;line-height: 50px !important;padding: 0 15px !important;text-shadow: none !important;text-decoration: none !important;'><span class="gumroad-button-logo" style='background-image: url(https://gumroad.com/button/button_logo.png) !important;background-size: cover !important;height: 17px !important;width: 16px !important;display: inline-block !important;margin-bottom: -3px !important;margin-right: 15px !important;'></span>Get a License key</a>
-| Donate or Book 1 hour consult | [![Buy me a coffee][buymeacoffee-shield]][buymeacoffee]
-| Per-minute consulting |   <a href="http://otechie.com/smashah"><img src="https://api.otechie.com/consultancy/smashah/badge.svg" alt="Consulting"/></a>
-| Hire me! | [![Consulting Request][consult-shield]][consult]
+| Description | Link |
+| --- | --- |
+| Documentation | https://docs.openwa.dev |
+| Discord | https://discord.gg/dnpp72a |
+| Get a license key | https://openwa.page.link/key |
+| Donate or book 1 hour consult | [![Buy me a coffee][buymeacoffee-shield]][buymeacoffee] |
+| Per-minute consulting | <a href="http://otechie.com/smashah"><img src="https://api.otechie.com/consultancy/smashah/badge.svg" alt="Consulting"/></a> |
+| Hire me | [![Consulting Request][consult-shield]][consult] |
 
 ## License
 
-[Hippocratic + Do Not Harm Version 1.0](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md)
+[Hippocratic + Do Not Harm Version 1.0](./LICENSE.md)
 
 ## Legal
 
-This code is in no way affiliated with, authorized, maintained, sponsored or endorsed by WA or any of its affiliates or subsidiaries. This is an independent and unofficial software. Use at your own risk.
+This code is in no way affiliated with, authorized, maintained, sponsored, or endorsed by WhatsApp or any of its affiliates or subsidiaries. This is independent and unofficial software.
 
-## Cryptography Notice
+## Cryptography notice
 
-This distribution includes cryptographic software. The country in which you currently reside may have restrictions on the import, possession, use, and/or re-export to another country, of encryption software. BEFORE using any encryption software, please check your country's laws, regulations and policies concerning the import, possession, or use, and re-export of encryption software, to see if this is permitted. See [http://www.wassenaar.org/](http://www.wassenaar.org/) for more information.
+This distribution includes cryptographic software. Depending on where you live, there may be restrictions on the import, possession, use, or re-export of encryption software. Check your local laws before using it. See [http://www.wassenaar.org/](http://www.wassenaar.org/) for more information.
 
 The U.S. Government Department of Commerce, Bureau of Industry and Security (BIS), has classified this software as Export Commodity Control Number (ECCN) 5D002.C.1, which includes information security software using or performing cryptographic functions with asymmetric algorithms. The form and manner of this distribution makes it eligible for export under the License Exception ENC Technology Software Unrestricted (TSU) exception (see the BIS Export Administration Regulations, Section 740.13) for both object code and source code.
 

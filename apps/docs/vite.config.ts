@@ -32,7 +32,7 @@ export default defineConfig({
                 prerender: {
                     outputPath: 'index.html',
                     enabled: true,
-                    crawlLinks: true,
+                    crawlLinks: false,
                 },
             },
 
@@ -42,6 +42,12 @@ export default defineConfig({
                 },
                 {
                     path: '/api/search',
+                },
+                {
+                    path: '/llms.txt',
+                },
+                {
+                    path: '/llms-full.txt',
                 },
             ],
         }),

@@ -96,7 +96,7 @@ export function Step({
           {title ? (
             <h3 className="text-lg font-semibold text-fd-foreground">{title}</h3>
           ) : null}
-          <div className={cx(title && 'mt-3', 'text-sm leading-6 text-fd-muted-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_a]:text-fd-primary [&_code]:text-fd-foreground')}>
+          <div className={cx(title ? 'mt-3' : undefined, 'text-sm leading-6 text-fd-muted-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_a]:text-fd-primary [&_code]:text-fd-foreground')}>
             {children}
           </div>
         </div>

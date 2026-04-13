@@ -8,9 +8,17 @@ const server = createFromSource(source, {
 });
 
 export const Route = createFileRoute('/api/search')({
+    // @ts-expect-error TanStack types mismatch
     server: {
         handlers: {
-            GET: () => server.staticGET(),
+            GET: async () => {
+                try {
+                    return await server.staticGET();
+                } catch (e: any) {
+                    console.error("SEARCH ERROR:", e);
+                    return new Response(e.message || "Error", { status: 500 });
+                }
+            },
         },
     },
 });

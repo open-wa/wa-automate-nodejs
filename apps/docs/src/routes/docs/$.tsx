@@ -15,11 +15,17 @@ import { baseOptions } from '@/lib/layout.shared';
 import { staticFunctionMiddleware } from '@tanstack/start-static-server-functions';
 import { useFumadocsLoader } from 'fumadocs-core/source/client';
 import { docsMdxComponents } from '@/components/docs-mdx';
+import { AISearch, AISearchPanel, AISearchTrigger } from '@/components/ai/search';
+import { MessageCircleIcon } from 'lucide-react';
+import { MarkdownCopyButton, ViewOptionsPopover } from '@/components/ai/page-actions';
+import { buttonVariants } from 'fumadocs-ui/components/ui/button';
+import { cn } from '@/lib/cn';
 
 export const Route = createFileRoute('/docs/$')({
   component: Page,
   loader: async ({ params }) => {
-    const slugs = params._splat?.split('/') ?? [];
+    const _splat = params._splat;
+    const slugs = _splat ? _splat.split('/') : [];
     const data = await loader({ data: slugs });
     await clientLoader.preload(data.path);
     return data;
@@ -30,15 +36,21 @@ const loader = createServerFn({
   method: 'GET',
 })
   .inputValidator((slugs: string[]) => slugs)
+  // @ts-expect-error Types mismatch due to TanStack versions
   .middleware([staticFunctionMiddleware])
   .handler(async ({ data: slugs }) => {
-    const page = source.getPage(slugs);
-    if (!page) throw notFound();
+    try {
+      const page = source.getPage(slugs);
+      if (!page) throw notFound();
 
-    return {
-      path: page.path,
-      pageTree: await source.serializePageTree(source.pageTree),
-    };
+      return {
+        path: page.path,
+        pageTree: await source.serializePageTree(source.pageTree),
+      };
+    } catch (err: any) {
+      console.error("Docs serverFn Error for slugs", slugs, ":", err);
+      throw err;
+    }
   });
 
 const clientLoader = browserCollections.docs.createClientLoader({
@@ -69,6 +81,30 @@ function Page() {
 
   return (
     <DocsLayout {...baseOptions()} tree={pageTree}>
+      <AISearch>
+        <AISearchPanel />
+        <AISearchTrigger
+          position="float"
+          className={cn(
+            buttonVariants({
+              variant: 'secondary',
+              className: 'text-fd-muted-foreground rounded-2xl',
+            }),
+          )}
+        >
+          <MessageCircleIcon className="size-4.5" />
+          Ask AI
+        </AISearchTrigger>
+      </AISearch>
+      
+      <div className="flex gap-2 items-center border-b pb-6 mb-6">
+        <MarkdownCopyButton markdownUrl={`${data.path}.mdx`} />
+        <ViewOptionsPopover
+          markdownUrl={`${data.path}.mdx`}
+          githubUrl={`https://github.com/open-wa/v5-shh/blob/main/apps/docs/content/docs/${data.path}`}
+        />
+      </div>
+
       <Content />
     </DocsLayout>
   );
