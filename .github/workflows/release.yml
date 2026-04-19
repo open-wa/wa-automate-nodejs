@@ -6,13 +6,14 @@ on:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,6 +29,53 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # ── Determine version bump from merged PR labels ──────────────
+      - name: Determine version bump
+        id: bump
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Find the PR that was merged into this push
+          MERGE_SHA="${{ github.sha }}"
+
+          # Try to find the PR associated with this merge commit
+          PR_DATA=$(gh pr list \
+            --search "$MERGE_SHA" \
+            --state merged \
+            --json number,labels \
+            --limit 1 2>/dev/null || echo '[]')
+
+          if [ "$PR_DATA" = "[]" ]; then
+            # Fallback: check the commit message for PR number
+            PR_NUM=$(git log -1 --format="%s" | grep -oE '#[0-9]+' | head -1 | tr -d '#' || true)
+            if [ -n "$PR_NUM" ]; then
+              PR_DATA=$(gh pr view "$PR_NUM" --json labels 2>/dev/null || echo '{"labels":[]}')
+              LABELS=$(echo "$PR_DATA" | jq -r '.labels[].name // empty' 2>/dev/null || true)
+            else
+              LABELS=""
+            fi
+          else
+            LABELS=$(echo "$PR_DATA" | jq -r '.[0].labels[].name // empty' 2>/dev/null || true)
+          fi
+
+          echo "Labels found: $LABELS"
+
+          if echo "$LABELS" | grep -qi "bump:major"; then
+            echo "type=major" >> $GITHUB_OUTPUT
+            echo "Bump type: major"
+          elif echo "$LABELS" | grep -qi "bump:minor"; then
+            echo "type=minor" >> $GITHUB_OUTPUT
+            echo "Bump type: minor"
+          else
+            echo "type=patch" >> $GITHUB_OUTPUT
+            echo "Bump type: patch (default)"
+          fi
+
+      # ── Ensure changeset exists ──────────────────────────────────
+      - name: Ensure changeset
+        run: pnpm tsx tools/release/ensure-changeset.ts --bump ${{ steps.bump.outputs.type }}
+
+      # ── Changesets: version + publish ────────────────────────────
       - name: Create Release PR or Publish
         id: changesets
         uses: changesets/action@v1
@@ -40,14 +88,70 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Generate Release Image
+      # ── Post-publish: Get version ────────────────────────────────
+      - name: Get published version
         if: steps.changesets.outputs.published == 'true'
-        run: pnpm release-image
-
-      - name: Upload Release Image to GitHub Release
-        if: steps.changesets.outputs.published == 'true'
+        id: version
         run: |
-          VERSION=$(node -e "console.log(require('./packages/core/package.json').version)")
-          gh release upload "v${VERSION}" release.png --clobber || true
+          VERSION=$(jq -r .version packages/core/package.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Published version: $VERSION"
+
+      # ── Post-publish: Generate release notes ─────────────────────
+      - name: Generate release notes
+        if: steps.changesets.outputs.published == 'true'
+        run: pnpm tsx tools/release/generate-notes.ts --version ${{ steps.version.outputs.version }}
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+
+      # ── Post-publish: Generate release image ─────────────────────
+      - name: Generate release image
+        if: steps.changesets.outputs.published == 'true'
+        run: node tools/release-image.js --version ${{ steps.version.outputs.version }}
+
+      # ── Post-publish: Create GitHub Release ──────────────────────
+      - name: Create GitHub Release
+        if: steps.changesets.outputs.published == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG="v${VERSION}"
+
+          # Use release notes if available, otherwise a default
+          NOTES_FILE="RELEASE_BODY.md"
+          if [ ! -f "$NOTES_FILE" ]; then
+            echo "# @open-wa v${VERSION}" > "$NOTES_FILE"
+            echo "" >> "$NOTES_FILE"
+            echo "Release v${VERSION}" >> "$NOTES_FILE"
+          fi
+
+          # Determine if this is a pre-release
+          PRE_FLAG=""
+          if echo "$VERSION" | grep -qE "alpha|beta|rc|pre"; then
+            PRE_FLAG="--prerelease"
+          fi
+
+          # Create the release
+          RELEASE_ARGS=(
+            "$TAG"
+            --title "$TAG"
+            --notes-file "$NOTES_FILE"
+            $PRE_FLAG
+          )
+
+          # Attach release image if it exists
+          if [ -f "release.png" ]; then
+            gh release create "${RELEASE_ARGS[@]}" release.png
+          else
+            gh release create "${RELEASE_ARGS[@]}"
+          fi
+
+          echo "✅ GitHub Release created: $TAG"
+
+      # ── Post-publish: Discord notification ───────────────────────
+      - name: Notify Discord
+        if: steps.changesets.outputs.published == 'true'
+        run: pnpm tsx tools/release/discord-notify.ts --version ${{ steps.version.outputs.version }}
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

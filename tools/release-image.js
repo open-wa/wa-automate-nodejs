@@ -118,6 +118,22 @@ function simpleMarkdown(text) {
  * Build HTML for the grouped release image
  */
 function buildHTML(version, changes) {
+  let aiSummaryHtml = "";
+  const releaseBodyPath = path.join(ROOT, "RELEASE_BODY.md");
+  if (fs.existsSync(releaseBodyPath)) {
+    const content = fs.readFileSync(releaseBodyPath, "utf-8");
+    const highlightsMatch = content.match(/## 🌟 Highlights\n([\s\S]*?)(?=\n## |$)/);
+    if (highlightsMatch) {
+      const summaryText = highlightsMatch[1].trim();
+      aiSummaryHtml = `
+      <div class="ai-summary">
+        <h3>✨ AI Release Summary</h3>
+        <div class="summary-content">${simpleMarkdown(injectEmojis(summaryText))}</div>
+      </div>
+      `;
+    }
+  }
+
   const packageSections = changes
     .map(
       ({ name, body }) => `
@@ -156,6 +172,27 @@ function buildHTML(version, changes) {
         margin-bottom: 1.5em;
         border-bottom: 1px solid #44475a;
         padding-bottom: 1em;
+      }
+      .ai-summary {
+        background: rgba(80, 250, 123, 0.05);
+        border: 1px dashed #50fa7b;
+        border-radius: 6px;
+        padding: 1.2em;
+        margin-bottom: 1.5em;
+      }
+      .ai-summary h3 {
+        color: #50fa7b;
+        font-family: 'Roboto Slab', serif;
+        font-weight: 400;
+        font-size: 1.1em;
+        margin-bottom: 0.5em;
+      }
+      .summary-content {
+        line-height: 1.5;
+        font-size: 0.9em;
+      }
+      .summary-content strong {
+        color: #ff79c6;
       }
       .package {
         margin-bottom: 1.2em;
@@ -219,6 +256,7 @@ function buildHTML(version, changes) {
   <body>
     <h2>@open-wa v${version}</h2>
     <div class="subtitle">${changes.length} package${changes.length !== 1 ? "s" : ""} updated</div>
+    ${aiSummaryHtml}
     ${packageSections}
     <div class="footer">open-wa/wa-automate-nodejs</div>
   </body>

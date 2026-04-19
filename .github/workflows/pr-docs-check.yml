@@ -1,0 +1,142 @@
+name: PR Release Checklist
+
+on:
+  pull_request:
+    branches: [release]
+    types: [opened, synchronize, labeled, unlabeled]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  check:
+    name: Release Readiness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Check release readiness
+        id: checks
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e  # Don't exit on individual check failures
+
+          REPORT=""
+          WARNINGS=0
+          ERRORS=0
+
+          add_pass()  { REPORT+="✅ $1\n"; }
+          add_warn()  { REPORT+="⚠️ $1\n"; WARNINGS=$((WARNINGS + 1)); }
+          add_fail()  { REPORT+="❌ $1\n"; ERRORS=$((ERRORS + 1)); }
+          add_info()  { REPORT+="ℹ️ $1\n"; }
+
+          REPORT+="## 📋 Release Readiness Checklist\n\n"
+
+          # ── 1. Changeset check ──────────────────────────────────
+          REPORT+="### Changesets\n"
+          CHANGESET_FILES=$(find .changeset -name "*.md" ! -name "README.md" 2>/dev/null | wc -l | tr -d ' ')
+          if [ "$CHANGESET_FILES" -gt 0 ]; then
+            add_pass "Found $CHANGESET_FILES changeset file(s)"
+          else
+            add_warn "No changeset files found — one will be auto-created during release based on PR labels"
+          fi
+
+          # ── 2. Version bump label check ─────────────────────────
+          REPORT+="\n### Version Bump\n"
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          LABELS=$(gh pr view "$PR_NUMBER" --json labels -q '.labels[].name' 2>/dev/null || true)
+
+          HAS_MAJOR=$(echo "$LABELS" | grep -c "bump:major" || true)
+          HAS_MINOR=$(echo "$LABELS" | grep -c "bump:minor" || true)
+
+          if [ "$HAS_MAJOR" -gt 0 ]; then
+            add_info "**MAJOR** version bump — this is a breaking change release"
+          elif [ "$HAS_MINOR" -gt 0 ]; then
+            add_info "**MINOR** version bump — new features"
+          else
+            add_info "**PATCH** version bump (default) — add \`bump:minor\` or \`bump:major\` label to override"
+          fi
+
+          # ── 3. Changed packages detection ───────────────────────
+          REPORT+="\n### Changed Packages\n"
+          BASE_REF="${{ github.event.pull_request.base.sha }}"
+          HEAD_REF="${{ github.event.pull_request.head.sha }}"
+
+          CHANGED_PKGS=""
+          for pkg_dir in packages/*/; do
+            pkg_name=$(basename "$pkg_dir")
+            if git diff --name-only "$BASE_REF" "$HEAD_REF" -- "$pkg_dir" | grep -q .; then
+              CHANGED_PKGS+="$pkg_name "
+
+              # Check for README
+              if [ -f "$pkg_dir/README.md" ]; then
+                README_CHANGED=$(git diff --name-only "$BASE_REF" "$HEAD_REF" -- "$pkg_dir/README.md" | wc -l | tr -d ' ')
+                if [ "$README_CHANGED" -gt 0 ]; then
+                  add_pass "\`$pkg_name\` — README.md updated"
+                else
+                  add_info "\`$pkg_name\` — README.md exists (not changed in this PR)"
+                fi
+              else
+                add_warn "\`$pkg_name\` — missing README.md"
+              fi
+
+              # Check package.json has description
+              if [ -f "$pkg_dir/package.json" ]; then
+                DESC=$(jq -r '.description // ""' "$pkg_dir/package.json")
+                if [ -z "$DESC" ]; then
+                  add_warn "\`$pkg_name\` — package.json missing \`description\`"
+                fi
+
+                # Check exports field
+                EXPORTS=$(jq -r '.exports // empty' "$pkg_dir/package.json")
+                if [ -z "$EXPORTS" ]; then
+                  add_warn "\`$pkg_name\` — package.json missing \`exports\` field"
+                fi
+              fi
+            fi
+          done
+
+          if [ -z "$CHANGED_PKGS" ]; then
+            add_info "No package source changes detected (config/docs only?)"
+          else
+            PKG_COUNT=$(echo "$CHANGED_PKGS" | wc -w | tr -d ' ')
+            add_info "$PKG_COUNT package(s) changed: $CHANGED_PKGS"
+          fi
+
+          # ── 4. Build check ──────────────────────────────────────
+          REPORT+="\n### Build Status\n"
+          add_info "Build will be verified during the release workflow"
+
+          # ── 5. Summary ──────────────────────────────────────────
+          REPORT+="\n---\n"
+          if [ "$ERRORS" -gt 0 ]; then
+            REPORT+="**⛔ $ERRORS error(s) and $WARNINGS warning(s) found.** Please fix errors before merging.\n"
+          elif [ "$WARNINGS" -gt 0 ]; then
+            REPORT+="**⚠️ $WARNINGS warning(s) found.** Review before merging.\n"
+          else
+            REPORT+="**✅ All checks passed!** Ready to merge and release.\n"
+          fi
+
+          # Write report to file for the comment step
+          echo -e "$REPORT" > /tmp/pr-report.md
+
+          # Output for the comment step
+          echo "errors=$ERRORS" >> $GITHUB_OUTPUT
+          echo "warnings=$WARNINGS" >> $GITHUB_OUTPUT
+
+      - name: Post PR comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: release-checklist
+          path: /tmp/pr-report.md

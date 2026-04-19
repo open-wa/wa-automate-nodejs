@@ -1,0 +1,36 @@
+# Verdaccio config for local dry-run publishing
+# Used by tools/release/dry-run.sh — NOT for production use
+
+storage: /tmp/verdaccio-dry-run/storage
+
+auth:
+  htpasswd:
+    file: /tmp/verdaccio-dry-run/htpasswd
+    max_users: 100
+
+uplinks:
+  npmjs:
+    url: https://registry.npmjs.org/
+    cache: false
+
+packages:
+  '@open-wa/*':
+    access: $all
+    publish: $all
+    unpublish: $all
+
+  '**':
+    access: $all
+    proxy: npmjs
+
+server:
+  keepAliveTimeout: 60
+
+middlewares:
+  audit:
+    enabled: true
+
+log:
+  type: stdout
+  format: pretty
+  level: warn

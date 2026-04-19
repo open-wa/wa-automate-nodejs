@@ -8,6 +8,9 @@
   "bin": {
     "wa-automate": "./dist/cli.cjs"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
