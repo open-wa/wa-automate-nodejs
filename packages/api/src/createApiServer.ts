@@ -11,6 +11,7 @@ import { createApiMiddleware } from './createApiMiddleware';
 import { createHonoMcpAdapter } from '@open-wa/mcp';
 import { registerMetaRoutes } from './routes/meta';
 import { registerDebugRoutes } from './routes/debug';
+import { registerAgentDiscoveryRoutes } from './routes/agent-discovery';
 import { type EventBridge } from './events/EventBridge';
 import { HealthStore } from './health/HealthStore';
 import { EventBroadcaster } from './events/EventBroadcaster';
@@ -249,6 +250,24 @@ export class ApiServer {
       })
     );
 
+    this.app.use('/*', async (c, next) => {
+      const path = new URL(c.req.url).pathname;
+      if (path === '/' || path.startsWith('/dashboard')) {
+        c.header('Link', [
+          `</.well-known/api-catalog>; rel="api-catalog"`,
+          `</.well-known/mcp/server-card.json>; rel="mcp"`,
+          `</.well-known/agent-card.json>; rel="describedby"`
+        ].join(', '));
+      }
+      
+      if (path === '/' && (c.req.header('Accept') || '').includes('text/markdown')) {
+        const origin = new URL(c.req.url).origin;
+        c.header('Content-Type', 'text/markdown');
+        return c.text(`# Open-WA Easy API\n\nThis is an Agent-Native API endpoint.\n\n## API Catalog\nExplore endpoints at \`${origin}/.well-known/api-catalog\` and docs at \`${origin}/api-docs\`.\n\n## MCP Endpoint\nAn MCP server is running for agents at \`${origin}/mcp\`.\n`);
+      }
+      await next();
+    });
+
     if (this.config.logLevel !== 'silent') {
       this.app.use('*', logger());
     }
@@ -256,6 +275,7 @@ export class ApiServer {
 
   private registerRoutes() {
     const methodDefinitions = getHttpMethodDefinitions();
+    registerAgentDiscoveryRoutes(this.app, { config: this.config, methodDefinitions });
 
     this.app.get('/health', (c) => {
       const healthSnapshot = this.healthStore.getSnapshot();

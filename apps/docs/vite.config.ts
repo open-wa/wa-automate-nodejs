@@ -1,31 +1,28 @@
 import react from '@vitejs/plugin-react';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import { defineConfig } from 'vite';
-import tsConfigPaths from 'vite-tsconfig-paths';
 import tailwindcss from '@tailwindcss/vite';
 import mdx from 'fumadocs-mdx/vite';
+import { cloudflare } from '@cloudflare/vite-plugin';
 
 export default defineConfig({
     server: {
         port: 3022,
     },
-    resolve: {
-        alias: {
-            'node:path': 'node:path',
-            'node:fs/promises': 'node:fs/promises',
-        },
-    },
     build: {
-        rolldownOptions: {
-            external: ['node:path', 'node:fs/promises'],
-        },
+        chunkSizeWarningLimit: 1000,
+    },
+    resolve: {
+        tsconfigPaths: true,
     },
     plugins: [
+        cloudflare({
+            viteEnvironment: {
+                name: 'ssr',
+            },
+        }),
         mdx(await import('./source.config')),
         tailwindcss(),
-        tsConfigPaths({
-            projects: ['./tsconfig.json'],
-        }),
         tanstackStart({
             spa: {
                 enabled: true,
@@ -54,3 +51,4 @@ export default defineConfig({
         react(),
     ],
 });
+

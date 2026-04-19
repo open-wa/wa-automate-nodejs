@@ -1,6 +1,5 @@
 import { createFileRoute, notFound } from '@tanstack/react-router';
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
-import { createServerFn } from '@tanstack/react-start';
 import * as React from 'react';
 import { source } from '@/lib/source';
 import browserCollections from 'fumadocs-mdx:collections/browser';
@@ -12,7 +11,6 @@ import {
 } from 'fumadocs-ui/layouts/docs/page';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 import { baseOptions } from '@/lib/layout.shared';
-import { staticFunctionMiddleware } from '@tanstack/start-static-server-functions';
 import { useFumadocsLoader } from 'fumadocs-core/source/client';
 import { docsMdxComponents } from '@/components/docs-mdx';
 import { AISearch, AISearchPanel, AISearchTrigger } from '@/components/ai/search';
@@ -20,17 +18,8 @@ import { MessageCircleIcon } from 'lucide-react';
 import { MarkdownCopyButton, ViewOptionsPopover } from '@/components/ai/page-actions';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { cn } from '@/lib/cn';
-
-export const Route = createFileRoute('/docs/$')({
-  component: Page,
-  loader: async ({ params }) => {
-    const _splat = params._splat;
-    const slugs = _splat ? _splat.split('/') : [];
-    const data = await loader({ data: slugs });
-    await clientLoader.preload(data.path);
-    return data;
-  },
-});
+import { createServerFn } from '@tanstack/react-start';
+import { staticFunctionMiddleware } from '@tanstack/start-static-server-functions';
 
 const loader = createServerFn({
   method: 'GET',
@@ -52,6 +41,17 @@ const loader = createServerFn({
       throw err;
     }
   });
+
+export const Route = createFileRoute('/docs/$')({
+  component: Page,
+  loader: async ({ params }) => {
+    const _splat = params._splat;
+    const slugs = _splat ? _splat.split('/') : [];
+    const data = await loader({ data: slugs });
+    await clientLoader.preload(data.path);
+    return data;
+  },
+});
 
 const clientLoader = browserCollections.docs.createClientLoader({
   component({ toc, frontmatter, default: MDX }) {

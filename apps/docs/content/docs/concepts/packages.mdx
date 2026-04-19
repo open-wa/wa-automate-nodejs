@@ -1,0 +1,39 @@
+---
+title: Packages Overview
+---
+
+# Packages Overview
+
+
+The Open-WA v5 monorepo consists of multiple modular packages. While most users only need `@open-wa/wa-automate`, you can use these individual packages for more granular control.
+
+## Main Packages
+
+| Package | Description |
+|---------|-------------|
+| [`wa-automate`](../getting-started/custom-code) | The main entry point. Re-exports core functionality and includes the CLI/API server. |
+| [`client`](../getting-started/custom-code) | The type-safe API client for interacting with WhatsApp. |
+| [`cli`](../guides/configuration-and-cli) | Command-line interface for managing sessions and starting the Easy API. |
+| [`core`](../concepts/how-it-works) | The internal engine handling driver orchestration and event emitters. |
+
+## Drivers
+
+Open-WA supports multiple browser drivers through a unified interface.
+
+| Package | Driver |
+|---------|--------|
+| `driver-playwright` | High-performance automation using Playwright. |
+| `driver-puppeteer` | Industry standard automation using Puppeteer. |
+| `driver-lightpanda` | Experimental, lightweight driver. |
+
+## Utilities & SDKs
+
+| Package | Description |
+|---------|-------------|
+| `plugin-sdk` | Tools and types for building custom Open-WA plugins. |
+| `session-sync` | Sync your session data to remote S3 or Zstd storage. |
+| `screencaster` | Stream your headless browser screen to a client. |
+| `decrypt` | Zero-dependency WhatsApp media decryption. |
+| `hyperemitter` | Schema-driven event emitter powering the v5 architecture. |
+
+Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).

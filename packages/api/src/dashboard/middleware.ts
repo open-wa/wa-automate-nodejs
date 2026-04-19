@@ -63,6 +63,13 @@ export async function mountDashboardProduction(app: Hono): Promise<boolean> {
 
     // Fallback for SPA
     app.get('/dashboard/*', (c) => {
+      const accept = c.req.header('Accept') || '';
+      if (accept.includes('text/markdown')) {
+        const origin = new URL(c.req.url).origin;
+        c.header('Content-Type', 'text/markdown');
+        return c.text(`# Open-WA Dashboard\n\nThe dashboard UI is a Single Page Application.\n\n## Developer API\nThe Easy API is available at \`${origin}/api\`.\nRefer to \`${origin}/api-docs\` for more details.\n\n## MCP Server\nThe local MCP server is running and discoverable. Check \`${origin}/.well-known/mcp/server-card.json\` for constraints.`);
+      }
+
       const indexPath = resolve(distPath, 'index.html');
       if (existsSync(indexPath)) {
         return c.html(readFileSync(indexPath, 'utf-8'));

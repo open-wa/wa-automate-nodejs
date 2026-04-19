@@ -13,7 +13,7 @@ export const Route = createFileRoute('/llms.mdx/docs/$')({
 
         return new Response(await getLLMText(page), {
           headers: {
-            'Content-Type': 'text/plain',
+            'Content-Type': 'text/markdown',
           },
         });
       },

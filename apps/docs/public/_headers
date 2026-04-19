@@ -1,0 +1,4 @@
+/*
+  Link: </.well-known/api-catalog>; rel="api-catalog"
+  Link: </.well-known/mcp/server-card.json>; rel="mcp-server"
+  Link: </.well-known/agent-skills/index.json>; rel="agent-skills"

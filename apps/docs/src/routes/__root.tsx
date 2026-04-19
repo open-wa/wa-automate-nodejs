@@ -42,6 +42,34 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     <html suppressHydrationWarning>
       <head>
         <HeadContent />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof navigator !== 'undefined' && 'modelContext' in navigator) {
+                // @ts-ignore
+                navigator.modelContext.provideContext({
+                  tools: [
+                    {
+                      name: "search_docs",
+                      description: "Search openWA developer documentation",
+                      inputSchema: {
+                        type: "object",
+                        properties: {
+                          query: { type: "string", description: "Search query" }
+                        },
+                        required: ["query"]
+                      },
+                      execute: async (args) => {
+                        window.location.href = '/docs?search=' + encodeURIComponent(args.query);
+                        return { result: "Redirected to search results." };
+                      }
+                    }
+                  ]
+                }).catch(console.error);
+              }
+            `,
+          }}
+        />
       </head>
       <body className="flex flex-col min-h-screen">
         <RootProvider search={{ SearchDialog }}>{children}</RootProvider>
