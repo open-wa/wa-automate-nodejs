@@ -21,5 +21,6 @@
   "dependencies": {
     "@open-wa/wa-automate": "latest",
     "npm": "^7.12.1"
-  }
+  },
+  "private": true
 }

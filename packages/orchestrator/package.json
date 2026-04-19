@@ -43,5 +43,17 @@
     "typescript": "catalog:",
     "@types/node": "catalog:",
     "vitest": "catalog:"
-  }
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "H-DNH V1.0",
+  "author": "Mohammed Shah <@smashah>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/open-wa/wa-automate-nodejs.git",
+    "directory": "packages/orchestrator"
+  },
+  "homepage": "https://openwa.dev",
+  "private": true
 }
