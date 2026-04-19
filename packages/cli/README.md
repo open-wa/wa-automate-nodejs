@@ -1,0 +1,31 @@
+# @open-wa/cli
+
+> Command line tool for the Open-WA WhatsApp automation stack.
+
+Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
+
+## Features
+
+- **Easy API mode**: Start a WhatsApp server with a single command.
+- **Session Auth**: Interactive QR code scanning in the terminal.
+- **Diagnostics**: Built-in tools for testing connections and drivers.
+
+## Install
+
+```bash
+pnpm add -g @open-wa/cli
+```
+
+## Usage
+
+```bash
+wa-automate --help
+```
+
+## Documentation
+
+See the [CLI reference](https://docs.openwa.dev/reference/cli) on our docs site.
+
+## License
+
+[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/main/LICENSE.md) — Hippocratic + Do Not Harm

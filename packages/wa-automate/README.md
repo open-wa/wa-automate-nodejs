@@ -1,0 +1,32 @@
+# @open-wa/wa-automate
+
+> The most reliable WhatsApp automation CLI and API server.
+
+Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
+
+## Features
+
+- **Easy API**: Run a standalone server and interact via HTTP.
+- **Multi-session**: Manage multiple WhatsApp accounts simultaneously.
+- **Robustness**: Advanced retries and state management.
+- **Drivers**: Support for Playwright, Puppeteer, and Lightpanda.
+
+## Install
+
+```bash
+pnpm add @open-wa/wa-automate
+```
+
+## Usage
+
+```bash
+wa-automate --help
+```
+
+## Documentation
+
+For full guides and API reference, visit the [docs site](https://docs.openwa.dev).
+
+## License
+
+[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/main/LICENSE.md) — Hippocratic + Do Not Harm

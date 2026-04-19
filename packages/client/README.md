@@ -1,0 +1,37 @@
+# @open-wa/client
+
+> User-facing API client for Open-WA WhatsApp automation.
+
+Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
+
+## Features
+
+- **Type-Safe**: Full TypeScript support with Zod-based schemas.
+- **Async/Await**: Clean, modern API for sending messages, media, and more.
+- **Easy Integration**: Connects seamlessly to `@open-wa/wa-automate` servers.
+
+## Install
+
+```bash
+pnpm add @open-wa/client
+```
+
+## Example
+
+```typescript
+import { create } from '@open-wa/client';
+
+const client = await create({
+  sessionId: 'main-session'
+});
+
+await client.sendText('1234567890@c.us', 'Hello from v5!');
+```
+
+## Documentation
+
+See the [Developer Guide](https://docs.openwa.dev/guides/client) on our docs site.
+
+## License
+
+[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/main/LICENSE.md) — Hippocratic + Do Not Harm

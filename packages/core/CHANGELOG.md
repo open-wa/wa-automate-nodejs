@@ -1,0 +1,35 @@
+# @open-wa/core
+
+## 6.0.0-alpha.2
+
+### Minor Changes
+
+- Dry run minor bump
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/config@6.0.0-alpha.2
+  - @open-wa/driver-interface@6.0.0-alpha.2
+  - @open-wa/driver-playwright@6.0.0-alpha.2
+  - @open-wa/driver-puppeteer@6.0.0-alpha.2
+  - @open-wa/logger@6.0.0-alpha.2
+  - @open-wa/plugin-sdk@5.0.0-alpha.2
+  - @open-wa/schema@6.0.0-alpha.2
+  - @open-wa/hyperemitter@6.0.0-alpha.2
+
+## 5.0.1-alpha.2
+
+### Patch Changes
+
+- Dry run patch bump
+
+- Updated dependencies []:
+  - @open-wa/config@5.0.1-alpha.2
+  - @open-wa/driver-interface@5.0.1-alpha.2
+  - @open-wa/driver-playwright@5.0.1-alpha.2
+  - @open-wa/driver-puppeteer@5.0.1-alpha.2
+  - @open-wa/hyperemitter@5.0.1-alpha.2
+  - @open-wa/logger@5.0.1-alpha.2
+  - @open-wa/plugin-sdk@5.0.1-alpha.2
+  - @open-wa/schema@5.0.1-alpha.2
