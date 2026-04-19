@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Button } from '@open-wa/ui-components/src/components/ui/button';
+import { Button } from '@open-wa/ui-components';
 
 export const Route = createFileRoute('/')({
   component: Home,
