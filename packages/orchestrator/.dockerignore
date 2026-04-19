@@ -1,8 +1,0 @@
-node_modules
-npm-debug.log
-**.data.json
-**.postman_collection**
-**sw_col**
-**.md
-**.tfvars
-**postman_collection.json

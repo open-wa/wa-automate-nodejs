@@ -42,6 +42,12 @@ build/
 !.env.example
 
 # Package specific
+packages/legacy-documented/
+packages/legacy/
+packages/orchestrator/
+apps/orchestrator-cli/
+apps/orchestrator-dashboard/
+apps/registry/
 packages/*/dist
 packages/*/build
 apps/*/dist
