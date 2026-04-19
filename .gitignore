@@ -87,3 +87,12 @@ apps/*/src/**/*.map
 **.docx
 
 **.switchboard**
+
+# Local development and temporary release artifacts
+.changeset/dry-run-changeset.md
+RELEASE_BODY.md
+release-notes-detailed.md
+release.png
+apps/docs/.fumadocs-typescript/
+apps/docs/.wrangler/
+apps/docs/types_error.txt

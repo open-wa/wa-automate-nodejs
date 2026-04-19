@@ -31,6 +31,7 @@ catalog:
   '@types/tar-fs': ^2.0.0
   '@vitejs/plugin-react': ^6.0.1
   autoprefixer: ^10.4.14
+  axios: npm:redaxios@0.5.1
   axe: ^11.0.2
   cabin: ^11.0.3
   clsx: 2.1.1
@@ -69,6 +70,7 @@ catalog:
   vitest: 4.1.2
   winston: ^3.8.2
   zod: ^4.2.1
+  wrangler: ^4.83.0
 
 ignoredBuiltDependencies:
   - '@open-wa/wa-automate'
