@@ -102,3 +102,13 @@ release.png
 apps/docs/.fumadocs-typescript/
 apps/docs/.wrangler/
 apps/docs/types_error.txt
+.open-wa/
+
+# Removed folders
+.sisyphus/
+.sysiphys/
+.switchboard/
+.vscode/
+ai-notes/
+docs-legacy/
+notes/
