@@ -1,0 +1,17 @@
+reviews:
+  path_filters:
+    - "!**/pnpm-lock.yaml"
+    - "!**/package-lock.json"
+    - "!**/yarn.lock"
+    - "!**/*.lock"
+    - "!.agent/**"
+    - "!.switchboard/**"
+    - "!.sisyphus/**"
+    - "!notes/**"
+    - "!docs-legacy/**"
+    - "!packages/legacy/**"
+    - "!packages/orchestrator/**"
+    - "!**/*.txt"
+    - "!**/*_plan.md"
+    - "!v5-pseudo-audit.md"
+    - "!tests/fixtures/**"
