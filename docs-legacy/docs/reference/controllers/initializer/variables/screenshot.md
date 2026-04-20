@@ -1,3 +1,0 @@
-# Variable: screenshot
-
-> **screenshot**: `any`

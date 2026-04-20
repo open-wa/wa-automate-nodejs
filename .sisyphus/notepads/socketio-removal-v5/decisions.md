@@ -1,4 +1,0 @@
-- 2026-04-12: Removed Socket Mode docs instead of marking them deprecated because the task explicitly targeted residual Socket.IO cleanup and the intro page still linked to a now-obsolete workflow.
-- 2026-04-12: Preserved legacy package Socket.IO code and references unchanged, per task constraints, and did not modify lockfiles because the required outcome was limited to active manifests rather than regenerated installs.
-- 2026-04-12: Kept the Node-RED `socket`/`SocketClient` naming surface intact and marked it as legacy compatibility instead of renaming runtime fields, because downstream flows may still depend on those property names.
-- 2026-04-12: Did not edit `integrations/node-red` lockfiles even though they still mention `socket.io-client`; they are dependency artifacts, not active runtime import sites for the removed `SocketManager` export.
