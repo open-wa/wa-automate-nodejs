@@ -58,6 +58,7 @@ export interface TransportOptions {
   qrPollingMs?: number;
   navigationTimeoutMs?: number;
   executablePath?: string;
+  watermark?: boolean | { text?: string; color?: string; background?: string; };
   browserArgs?: string[];
   userDataDir?: string;
   linkCode?: string;
@@ -2056,6 +2057,64 @@ export class Transport {
 
   private async configurePageRuntime(page: IPage): Promise<void> {
     this.registerPageDiagnostics(page);
+    
+    // Inject self-healing watermark if configured
+    if (this.options.watermark) {
+      const wbg = typeof this.options.watermark === 'object' && this.options.watermark.background ? this.options.watermark.background : 'rgba(255, 0, 0, 0.1)';
+      const wcolor = typeof this.options.watermark === 'object' && this.options.watermark.color ? this.options.watermark.color : 'rgba(255, 0, 0, 0.5)';
+      const wtext = typeof this.options.watermark === 'object' && this.options.watermark.text ? this.options.watermark.text : 'RESTRICTED AUTOMATION';
+      
+      await page.addInitScript(`
+        (() => {
+          if (window !== window.top) return;
+          
+          let element = null;
+          const bg = ${JSON.stringify(wbg)};
+          const color = ${JSON.stringify(wcolor)};
+          const txt = ${JSON.stringify(wtext)};
+
+          const enforceWatermark = () => {
+            if (!element || !element.isConnected) {
+              const host = document.createElement('wa-watermark-host');
+              host.style.position = 'fixed';
+              host.style.top = '0';
+              host.style.left = '0';
+              host.style.width = '100vw';
+              host.style.height = '100vh';
+              host.style.pointerEvents = 'none';
+              host.style.zIndex = '2147483647';
+              
+              const shadow = host.attachShadow({ mode: 'closed' });
+              
+              const tint = document.createElement('div');
+              tint.style.cssText = \`position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: \${bg}; pointer-events: none; mix-blend-mode: multiply;\`;
+              
+              const text = document.createElement('div');
+              text.style.cssText = \`position: absolute; bottom: 20px; right: 20px; color: \${color}; font-family: sans-serif; font-size: 24px; font-weight: bold; text-shadow: 1px 1px 2px rgba(255,255,255,0.8); pointer-events: none;\`;
+              text.textContent = txt;
+
+              shadow.appendChild(tint);
+              shadow.appendChild(text);
+              
+              document.documentElement.appendChild(host);
+              element = host;
+            }
+            
+            if (element) {
+              element.style.display = 'block';
+              element.style.opacity = '1';
+              element.style.visibility = 'visible';
+              element.style.transform = 'none';
+            }
+
+            requestAnimationFrame(enforceWatermark);
+          };
+
+          requestAnimationFrame(enforceWatermark);
+        })();
+      `);
+    }
+
     await this.configureRequestInterception(page);
   }
 

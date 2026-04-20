@@ -57,6 +57,7 @@ export interface CreateClientOptions {
   oorTimeoutMs?: number;
   navigationTimeoutMs?: number;
   executablePath?: string;
+  watermark?: boolean | { text?: string; color?: string; background?: string; };
   browserArgs?: string[];
   userDataDir?: string;
   /**
@@ -244,6 +245,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     blockCrashLogs: options.blockCrashLogs,
     blockAssets: options.blockAssets,
     safeMode: options.safeMode,
+    watermark: options.watermark,
     lightpanda: options.lightpanda,
     patchConfig: options.patchConfig,
     licenseConfig: options.licenseConfig,
