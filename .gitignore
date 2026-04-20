@@ -112,3 +112,5 @@ apps/docs/types_error.txt
 ai-notes/
 docs-legacy/
 notes/
+.fumadocs-typescript/
+**/.fumadocs-typescript/
