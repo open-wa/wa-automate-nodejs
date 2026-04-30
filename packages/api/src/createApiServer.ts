@@ -8,7 +8,7 @@ import { getHttpMethodDefinitions, type Config } from '@open-wa/schema';
 import '@open-wa/schema';
 import { createScreencastRoute, ScreencastManager } from '@open-wa/screencaster/server';
 import { createApiMiddleware } from './createApiMiddleware';
-import { createHonoMcpAdapter } from '@open-wa/mcp';
+// import { createHonoMcpAdapter } from '@open-wa/mcp';
 import { registerMetaRoutes } from './routes/meta';
 import { registerDebugRoutes } from './routes/debug';
 import { registerAgentDiscoveryRoutes } from './routes/agent-discovery';
@@ -183,7 +183,7 @@ export class ApiServer {
     }
 
     const honoListener = getRequestListener(this.app.fetch);
-    
+
     const requestListener = (req: any, res: any) => {
       if (viteDevServer && req.url?.startsWith('/dashboard')) {
         viteDevServer.middlewares(req, res, () => {
@@ -259,7 +259,7 @@ export class ApiServer {
           `</.well-known/agent-card.json>; rel="describedby"`
         ].join(', '));
       }
-      
+
       if (path === '/' && (c.req.header('Accept') || '').includes('text/markdown')) {
         const origin = new URL(c.req.url).origin;
         c.header('Content-Type', 'text/markdown');
@@ -350,9 +350,9 @@ export class ApiServer {
       const topicsParam = c.req.query('topics');
       const topics = topicsParam
         ? topicsParam
-            .split(',')
-            .map((topic) => topic.trim())
-            .filter(Boolean)
+          .split(',')
+          .map((topic) => topic.trim())
+          .filter(Boolean)
         : ['*'];
 
       return new Response(
@@ -396,16 +396,16 @@ export class ApiServer {
       })
     );
 
-    if (this.config.mcp?.enabled) {
-      const mcpAdapter = createHonoMcpAdapter({
-        config: this.config,
-        clientSource: () => this.client,
-        elasticEmitter: this.elasticEmitter,
-        basePath: '/api',
-        isSessionConnected: () => this.isSessionConnected(),
-      });
-      mcpAdapter.mount(this.app, this.config.mcp.path || '/mcp');
-    }
+    // if (this.config.mcp?.enabled) {
+    //   const mcpAdapter = createHonoMcpAdapter({
+    //     config: this.config,
+    //     clientSource: () => this.client,
+    //     elasticEmitter: this.elasticEmitter,
+    //     basePath: '/api',
+    //     isSessionConnected: () => this.isSessionConnected(),
+    //   });
+    //   mcpAdapter.mount(this.app, this.config.mcp.path || '/mcp');
+    // }
   }
 }
 
