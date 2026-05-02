@@ -3,6 +3,13 @@
 >
 > This project is unofficial and is not affiliated with WhatsApp or Meta. Use it at your own risk.
 
+> [!CAUTION]
+> This repository is currently on version 5, which is still in alpha and may have issues.
+>
+> For now, use version 4 instead unless you are explicitly testing or contributing to v5.
+> The last stable version is 4.76.0
+> `npx @open-wa/wa-automate4.76.0`
+
 <div align="center">
 <img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/hotfix-logo.png" width="128" height="128"/>
 
