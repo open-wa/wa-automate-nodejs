@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/open-wa-wa-automate-nodejs-badge.png)](https://mseep.ai/app/open-wa-wa-automate-nodejs)
+
 > [!WARNING]
 > By using this project you explicitly agree to the [Terms of Service](./tos.md).
 >
