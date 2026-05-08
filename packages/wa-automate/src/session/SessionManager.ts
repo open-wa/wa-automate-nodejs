@@ -36,7 +36,9 @@ export class SessionManager {
       this.logger.info('Local session compression started');
     }
 
-    if (this.config.enableS3Backup && this.config.s3Config) {
+    // S3 backups upload the `.data.zst` artifact produced by LocalSessionCompression.
+    // If local compression is disabled, periodic S3 sync would target a non-existent file.
+    if (this.config.enableLocalCompression !== false && this.config.enableS3Backup && this.config.s3Config) {
       this.s3Sync = new S3SyncManager(this.config.s3Config);
       this.startPeriodicSync();
       this.logger.info('S3 session sync started');
@@ -45,7 +47,12 @@ export class SessionManager {
 
   async stop(): Promise<void> {
     if (this.localCompression) {
-      await this.localCompression.stop();
+      try {
+        await this.localCompression.stop();
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.warn('Local session compression stop failed', { error: message });
+      }
       this.localCompression = null;
     }
 
