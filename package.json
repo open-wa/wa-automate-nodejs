@@ -39,7 +39,7 @@
     "syncpack": "^11.0.0",
     "tsdown": "^0.21.7",
     "tsx": "^4.21.0",
-    "turbo": "^2.9.6",
+    "turbo": "^2.9.10",
     "typescript": "catalog:"
   },
   "engines": {

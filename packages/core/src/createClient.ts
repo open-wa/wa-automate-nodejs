@@ -10,7 +10,7 @@ import {
   SessionStore,
   type SessionReadinessSnapshot,
   type SessionValidationStage,
-} from './session/index.js';
+} from './sessionmanager/index.js';
 import { Transport } from './transport/index.js';
 import type {
   LicenseKeyResolver,
