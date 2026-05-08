@@ -1,0 +1,136 @@
+import { createLogger } from '@open-wa/logger';
+import { LocalSessionCompression, S3SyncManager } from '@open-wa/session-sync';
+import type { S3Config } from '@open-wa/session-sync';
+import type { Config } from '@open-wa/config';
+
+type SessionManagerConfig = {
+  sessionId: string;
+  dataDir: string;
+  s3Config?: S3Config;
+  syncInterval?: number;
+  compressionOptions?: string;
+  enableLocalCompression?: boolean;
+  enableS3Backup?: boolean;
+};
+
+export class SessionManager {
+  private config: SessionManagerConfig;
+  private logger = createLogger({ component: 'SessionManager' });
+  private localCompression: LocalSessionCompression | null = null;
+  private s3Sync: S3SyncManager | null = null;
+
+  constructor(config: SessionManagerConfig) {
+    this.config = config;
+    this.logger.info('SessionManager initialized', { sessionId: config.sessionId });
+  }
+
+  async start(): Promise<void> {
+    if (this.config.enableLocalCompression !== false) {
+      this.localCompression = new LocalSessionCompression({
+        sessionPath: this.config.dataDir,
+        sessionId: this.config.sessionId,
+        intervalMs: this.config.syncInterval || 600_000,
+      });
+      await this.localCompression.start();
+      this.logger.info('Local session compression started');
+    }
+
+    if (this.config.enableS3Backup && this.config.s3Config) {
+      this.s3Sync = new S3SyncManager(this.config.s3Config);
+      this.startPeriodicSync();
+      this.logger.info('S3 session sync started');
+    }
+  }
+
+  async stop(): Promise<void> {
+    if (this.localCompression) {
+      await this.localCompression.stop();
+      this.localCompression = null;
+    }
+
+    if (this.s3Sync) {
+      this.s3Sync = null;
+    }
+
+    this.logger.info('SessionManager stopped');
+  }
+
+  async backupSession(): Promise<string | null> {
+    if (!this.s3Sync) {
+      this.logger.warn('S3 sync not configured');
+      return null;
+    }
+
+    const sessionZstPath = `${this.config.dataDir}/${this.config.sessionId}.data.zst`;
+    try {
+      const filename = await this.s3Sync.backupSession(sessionZstPath);
+      this.logger.info('Session backed up to S3', { filename });
+      return filename;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error('Failed to backup session to S3', { error: message });
+      throw error;
+    }
+  }
+
+  async restoreSession(filename: string): Promise<void> {
+    if (!this.s3Sync) {
+      this.logger.warn('S3 sync not configured');
+      throw new Error('S3 sync not configured for session restore');
+    }
+
+    try {
+      await this.s3Sync.restoreSession(filename, this.config.dataDir);
+      this.logger.info('Session restored from S3', { filename });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error('Failed to restore session from S3', { error: message });
+      throw error;
+    }
+  }
+
+  async getSessionBackupUrl(filename: string, expiresIn = 3600): Promise<string | null> {
+    if (!this.s3Sync) {
+      this.logger.warn('S3 sync not configured');
+      return null;
+    }
+
+    try {
+      const url = await this.s3Sync.getDownloadUrl(filename, expiresIn);
+      this.logger.info('Generated session backup URL', { filename, expiresIn });
+      return url;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error('Failed to generate backup URL', { error: message });
+      throw error;
+    }
+  }
+
+  private startPeriodicSync(): void {
+    if (!this.s3Sync) return;
+
+    const syncInterval = this.config.syncInterval || 600_000;
+    setInterval(async () => {
+      try {
+        await this.backupSession();
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.error('Periodic sync failed', { error: message });
+      }
+    }, syncInterval);
+  }
+
+  static createFromConfig(clientConfig: Config): SessionManager {
+    const s3Config = clientConfig.s3Sync as unknown as S3Config | undefined;
+    return new SessionManager({
+      sessionId: clientConfig.sessionId || 'session',
+      dataDir: clientConfig.sessionDataPath || './.wwebjs',
+      s3Config,
+      syncInterval: clientConfig.s3Sync?.syncInterval,
+      compressionOptions: '-1 -T0',
+      enableLocalCompression: clientConfig.s3Sync?.enableLocalCompression !== false,
+      enableS3Backup: !!s3Config,
+    });
+  }
+}
+

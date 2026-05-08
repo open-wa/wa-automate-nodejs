@@ -1,7 +1,7 @@
 node_modules
 dist
-session
-newsession
+/session/
+/newsession/
 **buttons.js
 **req.ts
 **qr_code_session.png
@@ -69,6 +69,7 @@ packages/*/generated/
 **/generated/*.js
 **/generated/*.d.ts
 **/generated/*.map
+*.mdx
 
 # Compiled JavaScript files in source directories
 # packages/*/src/**/*.js
