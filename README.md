@@ -7,70 +7,110 @@
 > This repository is currently on version 5, which is still in alpha and may have issues.
 >
 > For now, use version 4 instead unless you are explicitly testing or contributing to v5.
-> The last stable version is 4.76.0
-> `npx @open-wa/wa-automate4.76.0`
+>
+> The last stable version is **4.76.0**:
+>
+> ```bash
+> npx @open-wa/wa-automate@4.76.0
+> ```
 
 <div align="center">
 <img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/hotfix-logo.png" width="128" height="128"/>
 
 # open-wa / wa-automate
 
-**Connect a WhatsApp account, turn it into an API, automate it, and extend it.**
+**Turn a WhatsApp account into an API, bot runtime, webhook bridge, and AI tool surface.**
 
 [![npm version](https://img.shields.io/npm/v/@open-wa/wa-automate.svg?color=green)](https://www.npmjs.com/package/@open-wa/wa-automate)
 ![node](https://img.shields.io/node/v/@open-wa/wa-automate)
 [![Downloads](https://img.shields.io/npm/dm/@open-wa/wa-automate.svg)](https://www.npmjs.com/package/@open-wa/wa-automate)
 <a href="https://discord.gg/dnpp72a"><img src="https://img.shields.io/discord/661438166758195211?color=blueviolet&label=discord&style=flat" /></a>
 
+<p align="center">
+  <a href="#quick-start-easy-api">Easy API</a> -
+  <a href="#simple-automation-socketclient">SocketClient</a> -
+  <a href="#deep-integration-embedded-runtime">Embedded runtime</a> -
+  <a href="#plugins-and-integrations">Plugins</a> -
+  <a href="#ai-agent-integration-mcp">MCP</a> -
+  <a href="#support">Support</a>
+</p>
+
 </div>
 
 ## What this is
 
-`@open-wa/wa-automate` gives you a few practical ways to automate WhatsApp:
+`@open-wa/wa-automate` is the Node.js toolkit for turning WhatsApp Web automation into something you can actually build on: a local API, a bot backend, a webhook source, a plugin host, or an MCP server for AI agents.
+
+This repo is now the **v5 monorepo**. That means the architecture is cleaner and more modular, but the package version here is still **`5.0.0-alpha.1`**. If you are running a mature v4 production system, stay on **4.76.0** for now and test v5 separately.
+
+Need a WhatsApp API running quickly? Start with **Easy API**. Want the browser/runtime inside your own app? Use the **embedded runtime**. Building integrations, proxying sessions, or exposing WhatsApp to an AI agent? Those surfaces are in this repo too.
+
+## What can you build?
+
+- customer support inboxes that sync WhatsApp into your own tools
+- order, booking, and delivery notifications from internal systems
+- bots that react to messages, group activity, and runtime events
+- webhook bridges for CRMs, helpdesks, automations, and low-code tools
+- multi-session automations with named accounts and isolated consumers
+- AI-agent workflows through the built-in Model Context Protocol server
+
+## Capabilities at a glance
+
+| Surface | What it gives you | Start here |
+| --- | --- | --- |
+| Easy API | Run WhatsApp as a local HTTP API with docs and generated schemas | [Quick start](#quick-start-easy-api) |
+| SocketClient | Connect another Node.js app to a running Easy API instance | [Simple automation](#simple-automation-socketclient) |
+| Embedded runtime | Own the runtime lifecycle directly through `createClient` | [Deep integration](#deep-integration-embedded-runtime) |
+| Browser drivers | Choose Puppeteer, Playwright, or Lightpanda-backed runtime packages | [Embedded runtime](#deep-integration-embedded-runtime) |
+| Plugins | Load reusable integrations with `plugins` and `pluginConfig` | [Plugins and integrations](#plugins-and-integrations) |
+| Webhooks | Push WhatsApp events into your own service | [Plugins and integrations](#plugins-and-integrations) |
+| Chatwoot | Bridge WhatsApp into Chatwoot conversations | [Plugins and integrations](#plugins-and-integrations) |
+| Cloudflare proxy | Reach a local session remotely without exposing local ports directly | [Cloudflare Session Proxy](#cloudflare-session-proxy) |
+| MCP | Let AI agents discover and call Easy API methods as tools | [AI-agent integration](#ai-agent-integration-mcp) |
+
+## Pick your path
+
+| If you want to... | Start here |
+| --- | --- |
+| get a WhatsApp-backed API running in minutes | [Quick start: Easy API](#quick-start-easy-api) |
+| build a bot without owning the browser runtime | [Simple automation: SocketClient](#simple-automation-socketclient) |
+| own the runtime inside your own Node.js app | [Deep integration: embedded runtime](#deep-integration-embedded-runtime) |
+| move from stable v4 into the v5 alpha carefully | [Migrating from v4 to v5](#migrating-from-v4-to-v5) |
+| publish or share reusable automation pieces | [Plugins and integrations](#plugins-and-integrations) |
+
+## The short version
+
+You can use this project in a few practical ways:
 
 - run a ready-made API with the CLI
 - connect another app to that runtime
 - embed the runtime directly in your own Node.js code
 - add integrations and plugins
 
-This repository is currently a **v5 monorepo** and the package version in this repo is **`5.0.0-alpha.1`**. If you are migrating a mature v4 production system, test v5 in a separate environment first.
-
-If you only want the fastest, least-confusing first run, start with **Easy API** below.
-
-## Start with the path that matches you
-
-| If you want to... | Start here |
-| --- | --- |
-| get WhatsApp connected fast and use it from another service | [Quick start: Easy API](#quick-start-easy-api) |
-| build a simple Node automation quickly | [Simple automation: SocketClient](#simple-automation-socketclient) |
-| own the runtime inside your own app | [Deep integration: embedded runtime](#deep-integration-embedded-runtime) |
-| upgrade existing v4 code carefully | [Migrating from v4 to v5](#migrating-from-v4-to-v5) |
-| publish or share a reusable extension | [Plugins and integrations](#plugins-and-integrations) |
-
 ## Quick start: Easy API
 
-If you just want to connect a WhatsApp account and get a working API, this is the fastest path:
+Want to convert a WhatsApp account into an API with the least ceremony? Run the CLI:
 
 ```bash
 npx @open-wa/wa-automate --port 8080
 ```
 
-That starts an Easy API instance and gives you the first-run authentication flow plus interactive docs for the running session.
+That starts an Easy API instance, launches the first-run authentication flow, and exposes interactive docs for the live session.
 
-**v5 is alpha right now**, so prefer explicit commands like the one above instead of relying on undocumented defaults.
+**v5 is alpha right now**, so keep commands explicit and test in a disposable environment before wiring it into anything important.
 
-For first login, either:
+For first login, the runtime will ask you to authenticate. Depending on your setup, either:
 
 - scan the QR code the runtime prints, or
 - use link-code login if that fits your setup better
 
-Then open:
+Once the session is connected, open:
 
 ```text
 http://localhost:8080/api-docs/
 ```
 
-That is the clearest first proof that your session is up and the API is live.
+That page is your first proof of life: the session is up, the API is reachable, and the method surface is discoverable.
 
 Other useful generated artifacts:
 
@@ -95,13 +135,13 @@ npx @open-wa/wa-automate --session-id sales --port 8081
 npx @open-wa/wa-automate --webhook "https://your-app.example/webhooks/open-wa"
 ```
 
-Good defaults for a first session:
+Good defaults for a first real session:
 
 - set a `sessionId` early if you might run more than one account
 - protect the API with an `--api-key` before exposing it outside your machine
 - keep business logic in your own app and let open-wa own the WhatsApp runtime
 
-If your goal is simply “connect WhatsApp to another service”, add `--webhook` first and write no custom runtime code until you know you need it.
+If your goal is simply "connect WhatsApp to another service", add `--webhook` first and write no custom runtime code until you know you need it.
 
 If you prefer Docker:
 
@@ -117,7 +157,7 @@ Docker notes:
 
 ## Simple automation: SocketClient
 
-If you want to build a bot or workflow quickly without embedding the full browser runtime in your app, run Easy API in one place and connect to it from your code.
+Building a bot, worker, or app integration? Keep the WhatsApp runtime in Easy API and let your Node.js app act as a clean remote consumer.
 
 Start the runtime:
 
@@ -157,15 +197,15 @@ Why this path is good for most builders:
 - your app stays small and focused on automation logic
 - the current v5 runtime uses **HTTP RPC for commands** and **Server-Sent Events for runtime events** behind the compatibility client
 
-This is usually the best choice if you are technical but just want to build a simple automation fast.
+This is usually the best choice if you want to ship automation fast without owning browser setup, session lifecycle, and API hosting in the same process.
 
 ## Deep integration: embedded runtime
 
-If you want the most control and are comfortable owning browser/runtime setup directly, use the embedded runtime path.
+If Easy API is the hosted engine, embedded runtime is the cockpit. Use it when your app needs to own browser selection, lifecycle, and runtime behavior directly.
 
 The v5 public contract exposes `createClient` from `@open-wa/core` through `@open-wa/wa-automate`.
 
-This path is lower-level than Easy API + SocketClient. Use it when you want runtime ownership, not when you just want the quickest working bot.
+This path is lower-level than Easy API + SocketClient. Use it when runtime ownership matters more than the quickest working bot.
 
 ```bash
 npm install @open-wa/wa-automate @open-wa/driver-puppeteer
@@ -393,6 +433,22 @@ If you prefer HTTP, give your agent the Easy API docs surface instead:
 - `http://localhost:8080/api-docs/`
 - `http://localhost:8080/meta/swagger.json`
 - `http://localhost:8080/meta/postman.json`
+
+## Migrating from v4 to v5
+
+The stable public line is still **v4.76.0**. Use it for production systems unless you are intentionally validating the v5 alpha.
+
+```bash
+npx @open-wa/wa-automate@4.76.0
+```
+
+If you are testing v5, treat it like a new runtime surface rather than a drop-in README copy-paste from v4:
+
+- start with Easy API and confirm `http://localhost:8080/api-docs/` works
+- test named sessions, auth, webhooks, and generated schemas in a separate environment
+- prefer SocketClient for remote consumers instead of embedding browser/runtime work everywhere
+- use `createClient` only when you need direct runtime ownership
+- expect some older v4 docs, examples, and flags to be reorganized or replaced during the alpha
 
 ## Documentation map
 

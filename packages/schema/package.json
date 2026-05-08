@@ -59,7 +59,7 @@
         }
     },
     "scripts": {
-        "generate": "tsx scripts/gen-openapi.ts && tsx scripts/gen-types.ts && tsx scripts/gen-client-implementation.ts",
+        "generate": "tsx scripts/gen-openapi.ts && tsx scripts/gen-types.ts && tsx scripts/gen-client-implementation.ts && tsx scripts/gen-client-reference-docs.ts",
         "build": "pnpm generate && tsdown",
         "dev": "tsdown --watch",
         "lint": "oxlint src scripts",

@@ -1,0 +1,18 @@
+{
+  "title": "Client API",
+  "pages": [
+    "index",
+    "business",
+    "chatids",
+    "chats",
+    "communities",
+    "contacts",
+    "groups",
+    "labels",
+    "media",
+    "messages",
+    "mystatus",
+    "session",
+    "status"
+  ]
+}

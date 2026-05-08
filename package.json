@@ -16,7 +16,7 @@
     "sdks/*"
   ],
   "scripts": {
-    "build": "turbo build --filter='!@open-wa/legacy' --filter='!@open-wa/legacy-documented'",
+    "build": "turbo build --filter='!@open-wa/legacy' --filter='!@open-wa/legacy-documented' --filter='!docs'",
     "dev": "turbo dev --concurrency 100 --filter='!@open-wa/legacy' --filter='!@open-wa/legacy-documented'",
     "test": "turbo test --filter='!@open-wa/legacy' --filter='!@open-wa/legacy-documented'",
     "lint": "oxlint .",

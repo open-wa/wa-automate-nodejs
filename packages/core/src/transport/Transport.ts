@@ -429,7 +429,8 @@ export class Transport {
   private consecutiveRecoveryAttempts = 0;
   /** Cached live patch scripts for re-application during recovery */
   private cachedLivePatchScripts: string[] = [];
-  private frameNavCounter = 0
+  private frameNavCounter = 0;
+  private options: TransportOptions = {} as TransportOptions;
 
   constructor(options: TransportOptions) {
     this.driver = options.driver;
@@ -2057,13 +2058,15 @@ export class Transport {
 
   private async configurePageRuntime(page: IPage): Promise<void> {
     this.registerPageDiagnostics(page);
-    
+
+    if (!this.options) this.options = {}
+
     // Inject self-healing watermark if configured
     if (this.options.watermark) {
       const wbg = typeof this.options.watermark === 'object' && this.options.watermark.background ? this.options.watermark.background : 'rgba(255, 0, 0, 0.1)';
       const wcolor = typeof this.options.watermark === 'object' && this.options.watermark.color ? this.options.watermark.color : 'rgba(255, 0, 0, 0.5)';
       const wtext = typeof this.options.watermark === 'object' && this.options.watermark.text ? this.options.watermark.text : 'RESTRICTED AUTOMATION';
-      
+
       await page.addInitScript(`
         (() => {
           if (window !== window.top) return;

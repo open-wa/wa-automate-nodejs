@@ -70,7 +70,7 @@ catalog:
   vitest: 4.1.2
   winston: ^3.8.2
   zod: ^4.2.1
-  wrangler: ^4.83.0
+  wrangler: ^4.90.0
 
 ignoredBuiltDependencies:
   - '@open-wa/wa-automate'

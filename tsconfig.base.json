@@ -3,7 +3,7 @@
     "display": "open-wa Base TypeScript Config",
     "compilerOptions": {
         "target": "ES2020",
-        "module": "commonjs",
+        "module": "esnext",
         "lib": [
             "ES2020"
         ],
@@ -22,7 +22,7 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "allowSyntheticDefaultImports": true
     },
     "exclude": [

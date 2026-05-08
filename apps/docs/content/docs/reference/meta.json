@@ -2,6 +2,7 @@
   "title": "API Reference",
   "pages": [
     "index",
+    "client",
     "core",
     "events",
     "messaging"

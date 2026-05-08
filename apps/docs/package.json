@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.161",
+    "@cloudflare/vite-plugin": "^1.36.3",
     "@openrouter/ai-sdk-provider": "^2.5.1",
     "@orama/orama": "^3.1.18",
     "@radix-ui/react-popover": "^1.1.15",
