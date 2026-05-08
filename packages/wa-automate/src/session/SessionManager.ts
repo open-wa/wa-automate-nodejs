@@ -8,7 +8,6 @@ type SessionManagerConfig = {
   dataDir: string;
   s3Config?: S3Config;
   syncInterval?: number;
-  compressionOptions?: string;
   enableLocalCompression?: boolean;
   enableS3Backup?: boolean;
 };
@@ -18,6 +17,8 @@ export class SessionManager {
   private logger = createLogger({ component: 'SessionManager' });
   private localCompression: LocalSessionCompression | null = null;
   private s3Sync: S3SyncManager | null = null;
+  private syncTimer: NodeJS.Timeout | null = null;
+  private syncInFlight = false;
 
   constructor(config: SessionManagerConfig) {
     this.config = config;
@@ -47,6 +48,12 @@ export class SessionManager {
       await this.localCompression.stop();
       this.localCompression = null;
     }
+
+    if (this.syncTimer) {
+      clearTimeout(this.syncTimer);
+      this.syncTimer = null;
+    }
+    this.syncInFlight = false;
 
     if (this.s3Sync) {
       this.s3Sync = null;
@@ -110,14 +117,33 @@ export class SessionManager {
     if (!this.s3Sync) return;
 
     const syncInterval = this.config.syncInterval || 600_000;
-    setInterval(async () => {
-      try {
-        await this.backupSession();
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        this.logger.error('Periodic sync failed', { error: message });
+
+    // Defensive: stop any previous schedule before starting a new one
+    if (this.syncTimer) {
+      clearTimeout(this.syncTimer);
+      this.syncTimer = null;
+    }
+
+    const tick = async () => {
+      if (!this.s3Sync) return;
+
+      if (!this.syncInFlight) {
+        this.syncInFlight = true;
+        try {
+          await this.backupSession();
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          this.logger.error('Periodic sync failed', { error: message });
+        } finally {
+          this.syncInFlight = false;
+        }
       }
-    }, syncInterval);
+
+      if (!this.s3Sync) return;
+      this.syncTimer = setTimeout(() => void tick(), syncInterval);
+    };
+
+    this.syncTimer = setTimeout(() => void tick(), syncInterval);
   }
 
   private static parseS3Config(input: unknown): S3Config | null {
@@ -155,7 +181,6 @@ export class SessionManager {
       dataDir: clientConfig.sessionDataPath || './.wwebjs',
       s3Config: validatedS3Config ?? undefined,
       syncInterval: clientConfig.s3Sync?.syncInterval,
-      compressionOptions: '-1 -T0',
       enableLocalCompression: clientConfig.s3Sync?.enableLocalCompression !== false,
       enableS3Backup: validatedS3Config !== null,
     });
