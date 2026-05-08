@@ -120,16 +120,44 @@ export class SessionManager {
     }, syncInterval);
   }
 
+  private static parseS3Config(input: unknown): S3Config | null {
+    if (!input || typeof input !== 'object') return null;
+
+    const obj = input as Record<string, unknown>;
+    const bucket = obj.bucket;
+    const region = obj.region;
+    const accessKeyId = obj.accessKeyId;
+    const secretAccessKey = obj.secretAccessKey;
+
+    const hasRequired =
+      typeof bucket === 'string' &&
+      bucket.length > 0 &&
+      typeof region === 'string' &&
+      region.length > 0 &&
+      typeof accessKeyId === 'string' &&
+      accessKeyId.length > 0 &&
+      typeof secretAccessKey === 'string' &&
+      secretAccessKey.length > 0;
+
+    if (!hasRequired) return null;
+
+    const endpoint = typeof obj.endpoint === 'string' ? obj.endpoint : undefined;
+    const host = typeof obj.host === 'string' ? obj.host : undefined;
+    const url = typeof obj.url === 'string' ? obj.url : undefined;
+
+    return { bucket, region, accessKeyId, secretAccessKey, endpoint, host, url };
+  }
+
   static createFromConfig(clientConfig: Config): SessionManager {
-    const s3Config = clientConfig.s3Sync as unknown as S3Config | undefined;
+    const validatedS3Config = SessionManager.parseS3Config(clientConfig.s3Sync);
     return new SessionManager({
       sessionId: clientConfig.sessionId || 'session',
       dataDir: clientConfig.sessionDataPath || './.wwebjs',
-      s3Config,
+      s3Config: validatedS3Config ?? undefined,
       syncInterval: clientConfig.s3Sync?.syncInterval,
       compressionOptions: '-1 -T0',
       enableLocalCompression: clientConfig.s3Sync?.enableLocalCompression !== false,
-      enableS3Backup: !!s3Config,
+      enableS3Backup: validatedS3Config !== null,
     });
   }
 }
