@@ -23,7 +23,7 @@
     "start": "node dist/bin.cjs",
     "test": "vitest run",
     "lint": "oxlint src",
-    "clean": "rm -rf dist"
+    "clean": "rimraf dist"
   },
   "dependencies": {
     "@open-wa/core": "workspace:*",

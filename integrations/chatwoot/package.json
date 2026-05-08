@@ -13,7 +13,7 @@
     "build": "tsdown src/index.ts --format esm --dts",
     "dev": "tsdown src/index.ts --format esm --dts --watch",
     "lint": "oxlint src",
-    "clean": "rm -rf dist"
+    "clean": "rimraf dist"
   },
   "dependencies": {
     "@open-wa/plugin-sdk": "workspace:*",

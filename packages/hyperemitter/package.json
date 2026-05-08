@@ -16,7 +16,7 @@
     "build": "tsdown src/index.ts --format cjs",
     "dev": "tsdown src/index.ts --format cjs --watch",
     "lint": "oxlint src",
-    "clean": "rm -rf dist",
+    "clean": "rimraf dist",
     "typecheck": "tsc --noEmit",
     "bench:baseline": "node benchmarks/baseline/run-baseline.js",
     "bench:baseline:ci": "node benchmarks/baseline/run-baseline.js --ci"

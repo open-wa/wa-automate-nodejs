@@ -17,7 +17,7 @@
     "dev": "tsdown src/index.ts --format esm --format cjs --watch",
     "test": "vitest run",
     "lint": "oxlint src",
-    "clean": "rm -rf dist"
+    "clean": "rimraf dist"
   },
   "dependencies": {
     "@open-wa/config": "workspace:*",
