@@ -47,37 +47,6 @@ import {
   Bot,
 } from "lucide-react"
 
-const navItems = [
-  {
-    group: "Overview",
-    items: [
-      { title: "Session", href: "/", icon: <Zap size={18} /> },
-      { title: "Health", href: "/health", icon: <HeartPulse size={18} /> },
-      { title: "Events", href: "/events", icon: <Activity size={18} /> },
-    ],
-  },
-  {
-    group: "Developer",
-    items: [
-      { title: "API Docs", href: "/api-docs", icon: <BookOpen size={18} /> },
-      { title: "Playground", href: "/playground", icon: <FlaskConical size={18} /> },
-      { title: "Debug", href: "/debug", icon: <Bug size={18} /> },
-    ],
-  },
-  {
-    group: "Communication",
-    items: [
-      { title: "Chat", href: "/chat", icon: <MessageSquare size={18} /> },
-      { title: "Contacts", href: "/contacts", icon: <Contact size={18} /> },
-      { title: "Portal", href: "/portal", icon: <Tv size={18} /> },
-    ],
-  },
-]
-
-/**
- * Fetches the plugin manifest from the API server.
- * Returns empty array if the API is unreachable.
- */
 function usePluginManifest() {
   const [plugins, setPlugins] = useState<PluginManifestEntry[]>([])
 

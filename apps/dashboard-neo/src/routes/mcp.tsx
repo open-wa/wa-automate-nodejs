@@ -21,7 +21,7 @@ import { getApiUrl } from "@/lib/api-client"
 export const Route = createFileRoute("/mcp")({ component: McpPage })
 
 export function McpPage() {
-  const { mcpAvailable, mcpEnabled, mcpPath, loading } = useHealth()
+  const { mcpAvailable, mcpEnabled, mcpPath } = useHealth()
   const [copied, setCopied] = useState<string | null>(null)
 
   const baseUrl = getApiUrl()
@@ -280,7 +280,6 @@ function ConfigSnippet({
   icon,
   snippet,
   copied,
-  setCopied,
   copyId,
   copyToClipboard,
   instructions,
