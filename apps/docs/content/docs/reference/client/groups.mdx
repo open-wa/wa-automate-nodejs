@@ -582,3 +582,88 @@ Restrict group to admins only
 ### Output
 
 Returns: `boolean`
+
+## Expanded usage notes
+
+### License notes and prerequisites
+
+Most group read and admin methods do not require a special license. `createGroup` and `joinGroupViaLink` are marked `restricted`, so they require the runtime and license state to allow restricted send actions.
+
+Admin actions require the host account to be a group admin. This includes adding, removing, promoting, demoting, approving join requests, rejecting join requests, changing title or description, changing the icon, changing admin-only settings, and revoking invite links.
+
+### Request examples
+
+Create a group:
+
+```ts
+const group = await client.groups.create('Support Escalations', [
+  '447123456789@c.us',
+  '441234567890@c.us'
+]);
+```
+
+Join a group through an invite link:
+
+```ts
+const joined = await client.groups.join('https://chat.whatsapp.com/InviteCodeHere', true);
+```
+
+Read group members and admins:
+
+```ts
+const groupId = '120363025555555555@g.us';
+const members = await client.groups.getMembers(groupId);
+const admins = await client.groups.getAdmins(groupId);
+```
+
+Manage participants as an admin:
+
+```ts
+await client.groups.addParticipant(groupId, '447123456789@c.us');
+await client.groups.promoteParticipant(groupId, '447123456789@c.us');
+await client.groups.demoteParticipant(groupId, '447123456789@c.us');
+await client.groups.removeParticipant(groupId, '447123456789@c.us');
+```
+
+### Response examples
+
+A group info response can include subject, owner, participants, and settings:
+
+```json
+{
+  "id": "120363025555555555@g.us",
+  "subject": "Support Escalations",
+  "owner": "447123456789@c.us",
+  "isGroup": true,
+  "participants": [
+    { "id": "447123456789@c.us", "isAdmin": true },
+    { "id": "441234567890@c.us", "isAdmin": false }
+  ]
+}
+```
+
+An invite link response is a string:
+
+```json
+"https://chat.whatsapp.com/InviteCodeHere"
+```
+
+Participant update methods usually return a boolean or WhatsApp status string:
+
+```json
+true
+```
+
+### Error cases
+
+- The group ID is malformed or does not end in `@g.us`.
+- The host account is not a participant in the group.
+- The host account is not an admin for admin-only operations.
+- The target contact cannot be added because of privacy settings or invite restrictions.
+- The invite link is expired, revoked, invalid, or already joined.
+- Restricted methods are called without the required license or configuration.
+
+### Caveats and limitations
+
+WhatsApp enforces group size limits, admin permissions, invite approval settings, and anti-abuse checks. A successful API call means WhatsApp Web accepted the request, not that every participant's device has already reflected the change. For high-risk actions like removing participants or revoking invite links, add your own confirmation and audit trail.
+

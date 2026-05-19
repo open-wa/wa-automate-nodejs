@@ -15,3 +15,82 @@ This section is sourced from the active generated reference set. It is intention
 - generated class, type, and module pages
 
 For onboarding and task-oriented examples, start with the hand-written guides instead.
+
+## Navigation explanation
+
+The reference docs are organized by the surface you are trying to inspect.
+
+- **Core** covers the main `createClient` options and the `OpenWAClient` interface returned by the embedded runtime.
+- **Messaging** covers shared message, chat, contact, and content shapes used across methods and events.
+- **Events** covers the event map and common event payloads emitted by the runtime.
+- **Client API Reference** contains generated Easy API client method pages grouped into smaller namespaces such as messages, chats, groups, contacts, media, session, status, labels, business, and communities.
+
+Use the top-level reference pages when you need shared types. Use the client sub-sections when you need a specific Easy API method, its route, parameters, aliases, and return shape.
+
+## HTTP route conventions
+
+Client method pages list the primary HTTP route for each method and any supported alias routes. Current Easy API command routes are mounted under `/api/`.
+
+Method routes follow the schema registry metadata. Namespaced routes use the namespace first, then a short action path, for example `POST /api/messages/sendText` or `GET /api/messages/get`. Alias routes keep compatibility with older or direct method names, for example `POST /api/sendText`.
+
+HTTP methods map to the action being performed:
+
+- `GET` is used for read and lookup methods.
+- `POST` is used for send, create, update, and command methods with a body.
+- `DELETE` is used for delete methods.
+
+Route segments may use generated names, compatibility aliases, or shorter action names. Treat the listed `HTTP route` as the preferred route for the current build, and treat `HTTP alias routes` as compatibility paths when they are shown.
+
+## Auth requirements
+
+Easy API endpoints require the configured API key when the runtime is started with `--api-key`. Send that key with each request using the `X-API-Key` header.
+
+```bash
+curl -X POST http://localhost:8080/api/sendText \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-secure-key" \
+  -d '{"to":"1234567890@c.us","text":"Hello from open-wa!"}'
+```
+
+Some local discovery or health pages may be reachable without the same request shape, but command routes should be treated as authenticated API calls. If a request returns `401`, check that the key is present and matches the Easy API process. If it returns `403`, the request was authenticated but is not allowed for that endpoint, session state, license boundary, or deployment boundary.
+
+## Request body conventions
+
+Request bodies use JSON objects whose keys match the parameter names listed in each generated method table. For `POST` and other body-based routes, include `Content-Type: application/json` and pass the required fields shown in the table.
+
+```json
+{
+  "to": "1234567890@c.us",
+  "text": "Hello from open-wa!"
+}
+```
+
+Parameter tables also list key aliases and deprecated key aliases when they exist. Prefer the main parameter name unless you are maintaining older code that already depends on an alias. The `Positional parameter order` line is mainly useful when comparing HTTP calls with client method calls such as `sendText(to, text)`.
+
+For `GET` routes with parameters, pass the listed values as query parameters unless the page or generated schema for that method says otherwise.
+
+## Generated-reference limitations
+
+Most client method pages are generated from the active schema registry. That keeps the reference close to the code, but it also means the generated text can have gaps, awkward wording, repeated aliases, or formatting issues.
+
+When a generated page is unclear, use it as the source for exact names, routes, parameter keys, and return shapes, then check the hand-written guides for workflow-level examples. If the generated reference and a guide disagree, prefer the reference for the current method surface and verify against the version of the runtime you are running.
+
+## Examples
+
+Here are a few practical ways to use this section.
+
+### Find the route for sending a message
+
+Open **Client API Reference** and then **Messages**. Look for `sendText`, confirm the listed HTTP route, check required parameters, and copy the JSON keys from the parameter table.
+
+### Check which object shape an event returns
+
+Open **Events** to find the event name and payload type. If the payload includes a message, open **Messaging** to inspect the shared `Message` shape.
+
+### Compare embedded runtime and Easy API usage
+
+Use **Core** when you are calling `createClient` directly in your Node.js process. Use **Client API Reference** when you are calling a running Easy API instance over HTTP or through `SocketClient`.
+
+### Confirm aliases before changing old code
+
+Open the generated client method page and check `HTTP alias routes`, `Aliases`, and `Deprecated aliases`. Move new code toward the preferred route and main parameter names, but keep aliases in mind when maintaining older integrations.

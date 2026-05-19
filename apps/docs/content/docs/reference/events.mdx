@@ -7,11 +7,224 @@ description: API reference for all events emitted by the Open-WA Client.
 
 Open-WA uses a centralized event system based on `HyperEmitter`. You can listen to these events to react to WhatsApp messages, connection state changes, and internal runtime lifecycle steps.
 
+## Listener examples
+
+Import the shared emitter when you need process-level lifecycle events:
+
+```ts
+import { ev } from '@open-wa/wa-automate';
+```
+
+Listen for common runtime and WhatsApp activity events by name:
+
+```ts
+ev.on('client.ready', ({ sessionId }) => {
+  console.log(`Session ${sessionId} is ready`);
+});
+
+ev.on('message.received', async ({ message, ctx }) => {
+  console.log('Message received', ctx.correlationId, message);
+});
+
+ev.on('session.connection.disconnected', ({ details }) => {
+  console.warn('Session disconnected', details?.reason);
+});
+
+ev.on('error', ({ scope, error, fatal }) => {
+  console.error(`Open-WA error in ${scope}`, { fatal, error });
+});
+```
+
+Use client-level helpers, such as `client.onMessage`, for normal bot behavior after the client is ready. Use `ev` when you need startup, auth, disconnect, webhook, persistence, or internal runtime events.
+
+## Wildcard example
+
+The shared emitter supports wildcard listeners. This is useful for debugging or for carefully redacted audit sinks. Some compatibility and session-level emitters also pass session data through wildcard segments:
+
+```ts
+ev.on('**.**', (payload, sessionId, namespace) => {
+  auditEvent({
+    namespace,
+    sessionId,
+    receivedAt: Date.now(),
+  });
+});
+```
+
+Keep wildcard listeners narrow in production. QR codes, link codes, session artifacts, and persistence events can contain sensitive data.
+
 ## OpenWAEventMap
 
 This interface defines all available events and their corresponding payload shapes.
 
 <AutoTypeTable path="../../../../../packages/core/src/events/eventMap.ts" name="OpenWAEventMap" />
+
+## Full event names
+
+The table below lists every event name in `OpenWAEventMap` with its namespace. Event names without a dot are process-level compatibility or utility events.
+
+| Namespace | Events |
+| --- | --- |
+| `launch.create` | `launch.create.start`, `launch.create.retry`, `launch.create.ready` |
+| `launch.config.setup` | `launch.config.setup.before`, `launch.config.setup.after` |
+| `launch.logging.setup` | `launch.logging.setup.before`, `launch.logging.setup.after` |
+| `launch.update.check` | `launch.update.check.before`, `launch.update.check.after` |
+| `launch.browser.init` | `launch.browser.init.before`, `launch.browser.init.after` |
+| `launch.page.init` | `launch.page.init.before`, `launch.page.init.after` |
+| `launch.page.interception` | `launch.page.interception.before`, `launch.page.interception.after` |
+| `launch.navigation.gotoWaWeb` | `launch.navigation.gotoWaWeb.before`, `launch.navigation.gotoWaWeb.after` |
+| `launch.modules.wait` | `launch.modules.wait.before`, `launch.modules.wait.after` |
+| `launch.injection.earlyCheck` | `launch.injection.earlyCheck.before`, `launch.injection.earlyCheck.after` |
+| `launch.auth` | `launch.auth.check.before`, `launch.auth.check.after`, `launch.auth.nuke.detected`, `launch.auth.timeout`, `launch.auth.phoneOutOfReach`, `launch.auth.qr.requested`, `launch.auth.qr.generated`, `launch.auth.qr.scanned`, `launch.auth.qr.expired`, `launch.auth.linkCode.requested`, `launch.auth.linkCode.generated`, `launch.auth.pairing`, `launch.auth.syncing` |
+| `launch.license.preload` | `launch.license.preload.before`, `launch.license.preload.after` |
+| `launch.wapi.inject` | `launch.wapi.inject.before`, `launch.wapi.inject.after` |
+| `launch.helper.pre_api` | `launch.helper.pre_api.before`, `launch.helper.pre_api.after` |
+| `launch.session` | `launch.session.validityCheck.before`, `launch.session.validityCheck.after`, `launch.session.invalid.retry` |
+| `launch.license.check` | `launch.license.check.before`, `launch.license.check.after` |
+| `launch.patch.init` | `launch.patch.init.before`, `launch.patch.init.after` |
+| `launch.patch.integrity` | `launch.patch.integrity.before`, `launch.patch.integrity.after` |
+| `launch.client.finalize` | `launch.client.finalize.before`, `launch.client.finalize.after` |
+| `session.state` | `session.state.changed` |
+| `session.connection` | `session.connection.disconnected`, `session.connection.reconnecting`, `session.connection.reconnected` |
+| `session.frame` | `session.frame.navigated` |
+| `session.reinject` | `session.reinject.detected`, `session.reinject.before`, `session.reinject.after`, `session.reinject.qr.waiting` |
+| `session.stale` | `session.stale.detected` |
+| `session` | `session.logout` |
+| `message` | `message.received`, `message.any`, `message.deleted` |
+| `ack` | `ack.changed` |
+| `group` | `group.addedToGroup`, `group.removedFromGroup`, `group.participants.changed.global`, `group.approval.request`, `group.changed` |
+| `chat` | `chat.deleted`, `chat.opened`, `chat.state` |
+| `device` | `device.battery`, `device.plugged` |
+| `call` | `call.incoming`, `call.state` |
+| `auth` | `auth.logout` |
+| `ui` | `ui.button`, `ui.poll.vote` |
+| `broadcast` | `broadcast.received` |
+| `label` | `label.changed` |
+| `story` | `story.received` |
+| `commerce` | `commerce.order`, `commerce.product.new` |
+| `reaction` | `reaction.added` |
+| `media.preprocess` | `media.preprocess.before`, `media.preprocess.after` |
+| `webhook` | `webhook.registered`, `webhook.unregistered`, `webhook.trigger.before`, `webhook.trigger.after`, `webhook.queue.enqueued`, `webhook.queue.dequeued`, `webhook.deliver.before`, `webhook.deliver.after` |
+| `persistence.session.save` | `persistence.session.save.before`, `persistence.session.save.after` |
+| `persistence.compress.zstd` | `persistence.compress.zstd.before`, `persistence.compress.zstd.after` |
+| `persistence.archive.zip` | `persistence.archive.zip.before`, `persistence.archive.zip.after` |
+| `persistence.upload.s3` | `persistence.upload.s3.before`, `persistence.upload.s3.after` |
+| `patch.apply` | `patch.apply.before`, `patch.apply.after` |
+| `patch.init` | `patch.init.before`, `patch.init.after` |
+| `license.check` | `license.check.before`, `license.check.after` |
+| `license.inject` | `license.inject.before`, `license.inject.after` |
+| `cli` | `cli.launched` |
+| `server.start` | `server.start.before`, `server.start.after` |
+| `server.port` | `server.port.live` |
+| `core` | `core.starting`, `core.started`, `core.stopping`, `core.stopped` |
+| `client` | `client.ready` |
+| Process-level | `internal_launch_progress`, `critical_internal_message`, `error` |
+
+## Payload samples
+
+The generated table above is the source of truth for payload shapes. These samples show the structure you will usually see in logs or listeners.
+
+### `client.ready`
+
+```json
+{
+  "sessionId": "sales"
+}
+```
+
+### `message.received`
+
+```json
+{
+  "ctx": {
+    "correlationId": "evt_01HX9Q8K7V3P",
+    "ts": 1715683200000
+  },
+  "message": {
+    "id": "true_447700900123@c.us_3EB0F",
+    "from": "447700900123@c.us",
+    "body": "Hi"
+  }
+}
+```
+
+### `launch.auth.qr.generated`
+
+```json
+{
+  "correlationId": "launch_01HX9Q8K7V3P",
+  "attempt": 1,
+  "ts": 1715683200000,
+  "step": "launch.auth.qr.generated",
+  "details": {
+    "qr": "2@abc...",
+    "ascii": "████ QR ████",
+    "attemptInThisCycle": 1
+  }
+}
+```
+
+### `session.connection.disconnected`
+
+```json
+{
+  "correlationId": "session_01HX9Q8K7V3P",
+  "ts": 1715683300000,
+  "step": "session.connection.disconnected",
+  "details": {
+    "reason": "browser_closed",
+    "wasLoggedIn": true
+  }
+}
+```
+
+### `webhook.trigger.after`
+
+```json
+{
+  "ctx": {
+    "correlationId": "webhook_01HX9Q8K7V3P",
+    "ts": 1715683400000
+  },
+  "webhookId": "primary-crm",
+  "event": "message.received",
+  "enqueued": true
+}
+```
+
+## Lifecycle ordering
+
+A normal first login usually follows this order:
+
+1. `core.starting`
+2. `launch.create.start`
+3. `launch.config.setup.before`
+4. `launch.config.setup.after`
+5. `launch.browser.init.before`
+6. `launch.browser.init.after`
+7. `launch.page.init.before`
+8. `launch.page.init.after`
+9. `launch.navigation.gotoWaWeb.before`
+10. `launch.navigation.gotoWaWeb.after`
+11. `launch.auth.check.before`
+12. `launch.auth.qr.generated`, when a new login needs a QR
+13. `launch.auth.qr.scanned`, after the QR is scanned
+14. `launch.auth.check.after`, when auth state is known
+15. `launch.wapi.inject.before`
+16. `launch.wapi.inject.after`
+17. `launch.session.validityCheck.before`
+18. `launch.session.validityCheck.after`
+19. `launch.client.finalize.before`
+20. `launch.client.finalize.after`
+21. `session.state.changed`, usually to `READY`
+22. `client.ready`
+23. `core.started`
+
+Warm starts can skip QR events. Failed starts may emit retry, timeout, invalid session, or error events before the lifecycle reaches `client.ready`.
+
+## Mapping to session-events guide
+
+This reference lists the typed event names and payloads from the core event map. For a task-oriented guide to QR capture, session data handling, lifecycle timing, and wildcard patterns, read **[Session events](/docs/guides/session-events)**.
 
 ## Common Payloads
 

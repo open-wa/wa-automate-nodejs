@@ -33,3 +33,59 @@ Get specific status
 ### Output
 
 Returns: `unknown`
+
+## Expanded usage notes
+
+### What this method means
+
+`mystatus.getStatus` reads the text profile status for a contact, the short profile line often shown as About in WhatsApp. It is not the same as WhatsApp Status or Stories. For story posts, use the `status` namespace.
+
+This method requires an Insiders license.
+
+### Request example
+
+```ts
+const about = await client.mystatus.getStatus('447123456789@c.us');
+```
+
+Easy API example:
+
+```bash
+curl "http://localhost:8080/api/mystatus/getStatus?contactId=447123456789@c.us" \
+  -H "X-API-Key: your-secure-key"
+```
+
+### Response example
+
+The output shape is controlled by WhatsApp Web. It may be a string or an object with status text and timing metadata:
+
+```json
+{
+  "id": "447123456789@c.us",
+  "status": "Available",
+  "setAt": 1716200000
+}
+```
+
+Some accounts may return only the status text:
+
+```json
+"Available"
+```
+
+### Error cases
+
+- The contact ID is malformed or not known to the session.
+- The contact privacy settings hide the profile status.
+- The status is empty or not synced to WhatsApp Web.
+- The method is called without an Insiders license.
+- The session is not ready or has disconnected.
+
+### Permission and license requirements
+
+This method requires an Insiders license. Easy API calls also require the configured API key when enabled.
+
+### Caveats and limitations
+
+Do not use this method to read story posts. It reads the profile About text for a contact. WhatsApp may return partial, stale, or empty data depending on privacy settings and sync state.
+

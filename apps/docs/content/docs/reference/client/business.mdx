@@ -86,3 +86,104 @@ Get order details
 ### Output
 
 Returns: `unknown`
+
+## Expanded usage notes
+
+### Prerequisites
+
+Business catalog and order methods depend on data that WhatsApp exposes only for eligible business accounts. The target contact must be a WhatsApp Business account with a visible catalog for product calls. Order lookups need an order or commerce message ID that came from a real order message in the current session.
+
+`getOrder` requires an Insiders license. `getBusinessProfile` and `getBusinessProducts` do not require a license.
+
+### Request examples
+
+Get a business profile:
+
+```ts
+const profile = await client.business.getProfile('447123456789@c.us');
+```
+
+Get catalog products for a business contact:
+
+```ts
+const products = await client.business.getProducts('447123456789@c.us');
+```
+
+Get order details from an order message ID:
+
+```ts
+const order = await client.business.getOrder('false_447123456789@c.us_ORDER123');
+```
+
+The same calls can be made through Easy API routes:
+
+```bash
+curl "http://localhost:8080/api/business/getProfile?contactId=447123456789@c.us" \
+  -H "X-API-Key: your-secure-key"
+
+curl "http://localhost:8080/api/business/getProducts?contactId=447123456789@c.us" \
+  -H "X-API-Key: your-secure-key"
+```
+
+### Response examples
+
+A profile response is shaped by WhatsApp Web and may include only the fields WhatsApp exposes for that account:
+
+```json
+{
+  "id": "447123456789@c.us",
+  "name": "Example Store",
+  "description": "Local delivery and support",
+  "email": "sales@example.com",
+  "website": ["https://example.com"],
+  "categories": [{ "id": "retail", "localized_display_name": "Shopping" }]
+}
+```
+
+A products response usually contains catalog entries:
+
+```json
+[
+  {
+    "id": "1234567890",
+    "name": "Starter Pack",
+    "description": "A sample catalog item",
+    "price": "1299",
+    "currency": "GBP",
+    "isHidden": false,
+    "availability": "in stock"
+  }
+]
+```
+
+An order response can contain product, quantity, currency, and subtotal data:
+
+```json
+{
+  "id": "ORDER123",
+  "subtotal": "2598",
+  "currency": "GBP",
+  "products": [
+    {
+      "id": "1234567890",
+      "name": "Starter Pack",
+      "quantity": 2,
+      "price": "1299"
+    }
+  ]
+}
+```
+
+### Error cases
+
+- The contact ID is not normalized as `number@c.us`.
+- The target account is not a WhatsApp Business account.
+- The business account has no visible catalog or products are hidden.
+- The order ID does not exist in the loaded session context.
+- `getOrder` is called without an Insiders license.
+- The session is not authenticated or WhatsApp Web is still loading.
+
+### Caveats and limitations
+
+Catalog and order data can be partial because WhatsApp controls which fields are available in the web runtime. Product IDs are catalog scoped, not global product identifiers. Prices often arrive as minor units or strings, so convert them in your own application rather than assuming a decimal format.
+

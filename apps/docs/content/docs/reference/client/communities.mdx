@@ -159,3 +159,82 @@ Get community participants
 ### Output
 
 Returns: `unknown`
+
+## Expanded usage notes
+
+### Prerequisites
+
+Community methods require the host account to have access to the community in WhatsApp Web. Use a community or linked announcement group ID ending in `@g.us`. The account may need to be a member of the community before participants, admins, or metadata can be read.
+
+### Request examples
+
+List communities known to the session:
+
+```ts
+const communityIds = await client.communities.getAll();
+```
+
+Read community metadata and participants:
+
+```ts
+const communityId = '120363025555555555@g.us';
+const info = await client.communities.getInfo(communityId);
+const admins = await client.communities.getAdmins(communityId);
+const participantIds = await client.communities.getParticipantIds(communityId);
+```
+
+Easy API example:
+
+```bash
+curl "http://localhost:8080/api/communities/getInfo?communityId=120363025555555555@g.us" \
+  -H "X-API-Key: your-secure-key"
+```
+
+### Response examples
+
+Community IDs:
+
+```json
+[
+  "120363025555555555@g.us",
+  "120363026666666666@g.us"
+]
+```
+
+Community info can include metadata and linked groups:
+
+```json
+{
+  "id": "120363025555555555@g.us",
+  "subject": "Example Community",
+  "desc": "Announcements and member groups",
+  "owner": "447123456789@c.us",
+  "participants": ["447123456789@c.us", "441234567890@c.us"]
+}
+```
+
+Admin IDs are usually returned as contact IDs:
+
+```json
+[
+  "447123456789@c.us",
+  "441234567890@c.us"
+]
+```
+
+### Error cases
+
+- The ID is not a community or group JID ending in `@g.us`.
+- The host account is not a member of the community.
+- The community is visible in mobile WhatsApp but not yet synced to WhatsApp Web.
+- Participant or admin data is hidden by WhatsApp or unavailable for that community.
+- The current WhatsApp Web build changes the community data shape.
+
+### Permission and license requirements
+
+These methods do not require a special license. They still depend on WhatsApp account membership and the API key configured for Easy API.
+
+### Caveats and limitations
+
+Community support follows WhatsApp Web runtime behavior and can change without a package release. Metadata may be partial, especially for large communities or linked announcement groups. Treat returned objects as runtime snapshots and avoid assuming every community has the same fields.
+

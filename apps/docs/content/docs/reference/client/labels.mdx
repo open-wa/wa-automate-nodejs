@@ -112,3 +112,91 @@ Remove label from chat
 ### Output
 
 Returns: `boolean`
+
+## Expanded usage notes
+
+### Business and personal account behavior
+
+Label methods are marked `business-only`. They are designed for WhatsApp Business label features and may not work on personal accounts. If a personal account exposes some label UI state in WhatsApp Web, treat that as unsupported and test before depending on it.
+
+### Request examples
+
+List labels:
+
+```ts
+const labels = await client.labels.getAll();
+```
+
+Add a label by name or ID:
+
+```ts
+await client.labels.add('Important', '447123456789@c.us');
+await client.labels.add('1', '447123456789@c.us');
+```
+
+Read chats by label, then remove it:
+
+```ts
+const chats = await client.labels.getChats('Important');
+await client.labels.remove('Important', '447123456789@c.us');
+```
+
+### Response examples
+
+Labels usually include an internal ID, display name, color, and count fields when WhatsApp exposes them:
+
+```json
+[
+  {
+    "id": "1",
+    "name": "Important",
+    "color": 1,
+    "count": 4
+  }
+]
+```
+
+`getChatsByLabel` returns chat objects associated with the label:
+
+```json
+[
+  {
+    "id": "447123456789@c.us",
+    "name": "Example Customer",
+    "labels": ["1"]
+  }
+]
+```
+
+Add and remove calls return a boolean:
+
+```json
+true
+```
+
+### UI and API mapping
+
+The WhatsApp Business UI shows label names and colors. The API may accept either the label name or the internal label ID depending on the method. Store both when you call `getAllLabels`:
+
+```ts
+const labelsByName = new Map(labels.map((label: any) => [label.name, label.id]));
+const importantId = labelsByName.get('Important');
+await client.labels.add(importantId, '447123456789@c.us');
+```
+
+### Error cases
+
+- The host account is not a WhatsApp Business account.
+- The label name or ID does not exist.
+- The chat ID is not loaded or is not eligible for labels.
+- WhatsApp Web has not synced the latest label state.
+- The same label is added twice and WhatsApp returns no visible change.
+
+### Permission and license requirements
+
+No special license is listed for these methods, but the functionality is business-only. Easy API calls still require the configured API key.
+
+### Caveats and limitations
+
+Label IDs are WhatsApp internal values and can differ between accounts. Names can be renamed in the UI, so ID-based storage is safer after discovery. Label changes may take a moment to appear in WhatsApp Web and connected devices.
+

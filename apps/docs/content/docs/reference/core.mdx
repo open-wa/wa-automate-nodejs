@@ -7,6 +7,103 @@ description: API reference for the main Open-WA Client and startup options.
 
 The core client is the primary interface for interacting with WhatsApp. Use these tables to explore the available methods, properties, and configuration options.
 
+## create vs createClient vs Easy API vs OpenWAClient relationship
+
+Open-WA exposes a few entry points because each one owns a different layer of the runtime.
+
+| Entry point | What it is | Use it when |
+| --- | --- | --- |
+| Easy API | The hosted HTTP API and dashboard started by the CLI or API server. | You want the fastest path to a running WhatsApp API, generated docs, webhooks, or MCP tools. |
+| `createClient` | The low-level core factory exported from `@open-wa/core` and re-exported by `@open-wa/wa-automate`. | You want to own the browser driver, startup lifecycle, events, plugins, and shutdown inside your own Node.js process. |
+| `create` | A convenience runtime helper that resolves Open-WA config, chooses a driver, and then calls core `createClient`. | You want programmatic startup with config-style defaults instead of building a full `CreateClientOptions` object yourself. |
+| `OpenWAClient` | The object returned by `createClient`. | You already created a core runtime and need to start it, stop it, inspect readiness, access events, or reach the transport. |
+
+Think of Easy API as the packaged service, `create` as a config-aware helper, `createClient` as the core constructor, and `OpenWAClient` as the running runtime handle. The higher-level client facade and socket clients build on top of those pieces to expose familiar message methods. The core client itself focuses on lifecycle, event flow, plugin hosting, session readiness, and browser transport access.
+
+For most applications, start with Easy API. Use `createClient` when runtime ownership matters more than convenience, for example when you need a specific driver, custom plugin registration, direct readiness checks, or controlled shutdown behavior.
+
+## Runnable example
+
+This example starts the core runtime directly with the Puppeteer driver, listens for lifecycle and message events, prints the readiness snapshot, and shuts down cleanly on process signals.
+
+```bash
+npm install @open-wa/wa-automate @open-wa/driver-puppeteer
+```
+
+```ts
+import { createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+
+async function main() {
+  const client = await createClient({
+    sessionId: 'core-example',
+    driver: new PuppeteerDriver(),
+    headless: true,
+    qrTimeoutMs: 0,
+  });
+
+  client.events.on('core.starting', () => {
+    client.logger.info('Core runtime is starting');
+  });
+
+  client.events.on('client.ready', ({ sessionId }) => {
+    client.logger.info('WhatsApp session is ready', { sessionId });
+  });
+
+  client.events.on('message.received', ({ message }) => {
+    client.logger.info('Received message', { message });
+  });
+
+  const stop = async (reason: string) => {
+    await client.stop(reason);
+    process.exit(0);
+  };
+
+  process.once('SIGINT', () => void stop('SIGINT'));
+  process.once('SIGTERM', () => void stop('SIGTERM'));
+
+  await client.start();
+
+  console.log('state:', client.getState());
+  console.log('readiness:', client.getReadiness());
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
+```
+
+The first run will need authentication. After the session reaches `READY`, `getReadiness()` should report `ready: true` and `exposureSafe: true`.
+
+## Lifecycle
+
+The core lifecycle is explicit. `createClient(options)` builds the runtime object, but it does not connect to WhatsApp until you call `client.start()`.
+
+| Method or state | Meaning |
+| --- | --- |
+| `createClient(options)` | Creates the event bus, session manager, transport, plugin host, and plugin client proxy. |
+| `client.start()` | Initializes the driver, opens WhatsApp Web, injects WAPI, waits for authentication, applies patches and license checks, activates runtime events, runs finalization hooks, then emits readiness events. |
+| `client.stop(reason?)` | Moves the session to `STOPPED`, disposes plugins, closes the transport, and emits shutdown events. |
+| `client.getState()` | Returns the current core state. |
+| `client.getReadiness()` | Returns the readiness snapshot used to decide whether the session is safe to expose. |
+| `client.registerFinalizationHook(hook)` | Registers work that must run during the loaded-equivalent finalization phase before the session is marked ready. |
+| `client.getTransport()` | Returns the underlying transport for lower-level runtime access. |
+| `client.screenshot()` | Captures a page screenshot when the active driver supports it. |
+| `client.evaluateScript(script)` | Runs JavaScript in the WhatsApp Web page context and returns the result. |
+
+Core session states are intentionally small:
+
+| State | Meaning |
+| --- | --- |
+| `DISCONNECTED` | Initial or failed state before the runtime is usable. |
+| `STARTING` | Startup has begun and runtime readiness is being reset. |
+| `AUTHENTICATING` | WhatsApp Web is loaded and authentication is in progress. |
+| `READY` | Runtime validation, patch lifecycle, license lifecycle, and finalization have completed safely. |
+| `STOPPED` | The runtime has been shut down by `client.stop()`. |
+
+Readiness is stricter than state. A client can be past authentication but still not safe to expose if runtime validation, patch handling, license handling, finalization, or lower-level transport truth is still pending. Check `getReadiness().ready` for the simple answer, and inspect `pending`, `blockers`, and `requirements` when you need to explain why a session is not ready yet.
+
 ## CreateClientOptions
 
 Options passed to the `createClient` function to initialize the runtime.
@@ -18,3 +115,104 @@ Options passed to the `createClient` function to initialize the runtime.
 The main client interface returned by `createClient`.
 
 <AutoTypeTable path="../../../../../packages/core/src/createClient.ts" name="OpenWAClient" />
+
+## Plugin type references
+
+Core re-exports the plugin SDK types for backward compatibility. New plugins should import these types from `@open-wa/plugin-sdk` directly, but the core package still exposes them through `@open-wa/core/plugins` for internal consumers and older integrations.
+
+### Plugin
+
+The top-level plugin function type. Use `createPlugin()` from the plugin SDK to create this shape with type inference.
+
+<AutoTypeTable path="../../../../../packages/plugin-sdk/src/types.ts" name="Plugin" />
+
+### PluginMeta
+
+Plugin identity and display metadata. The `name` is also used as the plugin config key and route prefix.
+
+<AutoTypeTable path="../../../../../packages/plugin-sdk/src/types.ts" name="PluginMeta" />
+
+### PluginInput
+
+The input bundle passed to a plugin during initialization. It includes the filtered event surface, scoped logger, parsed config, session ID, and plugin client proxy.
+
+<AutoTypeTable path="../../../../../packages/plugin-sdk/src/types.ts" name="PluginInput" />
+
+### Hooks
+
+The hooks returned by a plugin. Hooks can subscribe to lifecycle events, message events, API routes, dashboard pages, tools, and cleanup.
+
+<AutoTypeTable path="../../../../../packages/plugin-sdk/src/types.ts" name="Hooks" />
+
+### PluginClient
+
+The client proxy exposed to plugins. Common methods are typed, and other WhatsApp methods can be called through the dynamic `ask()` pattern.
+
+<AutoTypeTable path="../../../../../packages/plugin-sdk/src/types.ts" name="PluginClient" />
+
+### PluginEventEmitter
+
+The security-filtered event emitter exposed to plugins. Plugins can subscribe to public events, but they cannot emit events or subscribe to internal or sensitive events.
+
+<AutoTypeTable path="../../../../../packages/plugin-sdk/src/types.ts" name="PluginEventEmitter" />
+
+### PluginLogger
+
+The scoped logger exposed to plugins.
+
+<AutoTypeTable path="../../../../../packages/plugin-sdk/src/types.ts" name="PluginLogger" />
+
+### DashboardPage
+
+Dashboard page declarations contributed by plugins.
+
+<AutoTypeTable path="../../../../../packages/plugin-sdk/src/types.ts" name="DashboardPage" />
+
+### ToolDefinition
+
+Tool definitions exposed by plugins for automation and AI use cases.
+
+<AutoTypeTable path="../../../../../packages/plugin-sdk/src/types.ts" name="ToolDefinition" />
+
+### ToolContext
+
+Runtime context passed to plugin tool executions.
+
+<AutoTypeTable path="../../../../../packages/plugin-sdk/src/types.ts" name="ToolContext" />
+
+### PluginManifest
+
+The manifest shape consumed by dashboard surfaces that list installed plugins.
+
+<AutoTypeTable path="../../../../../packages/plugin-sdk/src/types.ts" name="PluginManifest" />
+
+### PluginManifestEntry
+
+One plugin entry inside the dashboard manifest.
+
+<AutoTypeTable path="../../../../../packages/plugin-sdk/src/types.ts" name="PluginManifestEntry" />
+
+## Plugin SDK exports
+
+`@open-wa/plugin-sdk` is the package plugin authors should import from. Core consumes the same contracts when it registers plugins and builds the filtered plugin runtime.
+
+| Export | Kind | Relationship to core |
+| --- | --- | --- |
+| `createPlugin` | Factory | Creates a typed `Plugin` object that core can register through `plugins` or `pluginRefs`. |
+| `CreatePluginOptions` | Type | Describes the object accepted by `createPlugin`, including `meta`, optional `configSchema`, and `init`. |
+| `defineConfig` | Helper | Builds a Zod config schema that core uses to validate `pluginConfig` before plugin initialization. |
+| `z` | Re-export | Lets plugin authors define config schemas without importing Zod separately. |
+| `Plugin` | Type | The callable plugin contract accepted by core. |
+| `PluginMeta` | Type | Metadata core uses for config lookup, route names, logs, and dashboard manifests. |
+| `PluginInput` | Type | The scoped input bundle core passes to a plugin at registration time. |
+| `Hooks` | Type | The event, route, page, tool, and cleanup hooks core wires into the runtime. |
+| `PluginClient` | Type | The safe client proxy core gives to plugins for WhatsApp method calls. |
+| `PluginEventEmitter` | Type | The public-only event subscription surface core gives to plugins. |
+| `PluginLogger` | Type | The scoped logger core gives to each plugin. |
+| `DashboardPage` | Type | Dashboard declarations collected by the core plugin host. |
+| `ToolDefinition` | Type | Plugin tool contract used by automation and AI surfaces. |
+| `ToolContext` | Type | Context core passes when plugin tools execute. |
+| `PluginManifest` | Type | Runtime manifest shape for listing installed plugin capabilities. |
+| `PluginManifestEntry` | Type | One plugin record inside a manifest. |
+
+Core also exports `PluginHost`, `createEventGateway`, `getPublicEvents`, `loadPlugins`, `validatePluginConfig`, and `LoadedPlugin` from its plugin module. Those are host-side infrastructure pieces. Plugin packages usually do not need them unless they are building runtime integrations rather than ordinary plugins.

@@ -9,6 +9,130 @@ description: "Generated reference for schema-registry client methods."
 
 These pages are generated from `packages/schema/src/registry.ts` and `packages/schema/src/methods/*.ts`.
 
+## Usage guide
+
+Use this section when you already know you want to call an Easy API client method and need the exact route, parameter keys, aliases, or return shape for the current build.
+
+Start with the namespace that matches the thing you are trying to do:
+
+- **Messages** for sending, reading, forwarding, reacting to, starring, and deleting messages.
+- **Chats** for listing chats, reading chat state, archiving, pinning, muting, and marking chats read or unread.
+- **Contacts** for contact lookups, number checks, profile pictures, and block actions.
+- **Groups** and **Communities** for participant, admin, invite, membership, and group setting methods.
+- **Session** for runtime status, identity, health, profile, and device-level methods.
+- **Media**, **Status**, **Labels**, and **Business** for narrower surfaces tied to those features.
+
+Each generated method page follows the same shape. Read the short method description first, then check `HTTP route` for the preferred Easy API route. Use `Parameters` for the JSON keys or query keys to send, and use `Output` for the expected return shape. If you are comparing HTTP calls with direct client calls, the `Positional parameter order` line shows how the named parameters map to a method-style call.
+
+For workflow-level examples and setup steps, start with the hand-written guides. Use this reference when you need exact names that match the schema registry.
+
+## HTTP auth/body conventions
+
+Client routes are Easy API command routes mounted under `/api/`. If the Easy API process was started with `--api-key`, send that key on every command request with the `X-API-Key` header.
+
+```bash
+curl -X POST http://localhost:8080/api/messages/sendText \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-secure-key" \
+  -d '{"to":"447123456789@c.us","content":"Hello from open-wa!"}'
+```
+
+Body-based routes use JSON objects. The object keys should match the `Name` column in the method parameter table. For example, `sendText` uses `to`, `content`, and optional `options`.
+
+```json
+{
+  "to": "447123456789@c.us",
+  "content": "Hello from open-wa!",
+  "options": {
+    "quotedMsg": "messageId"
+  }
+}
+```
+
+For `GET` routes with parameters, pass the listed values as query parameters unless a method page or generated schema says otherwise.
+
+```bash
+curl "http://localhost:8080/api/messages/getAll?chatId=447123456789@c.us" \
+  -H "X-API-Key: your-secure-key"
+```
+
+Some parameter tables list key aliases, such as `text`, `body`, or `message` for `content`. Prefer the main parameter name for new code. Use key aliases only when you are keeping older integrations working or matching an existing request shape.
+
+## Aliases explanation
+
+Aliases exist so the current namespaced client surface can keep working with older route names and method names. The preferred route is listed as `HTTP route`, usually in the form `/api/{namespace}/{action}`. Alias routes are listed under `HTTP alias routes`, often in the older direct method form such as `/api/sendText`.
+
+Method aliases work the same way. For example, a method may have a primary namespace method plus shorter or older names under `Aliases`. Deprecated aliases are still documented when the schema knows about them, but new code should avoid them.
+
+Use this rule of thumb:
+
+- New code should use the primary `HTTP route` and primary parameter names.
+- Existing code can keep using alias routes while you migrate.
+- Deprecated aliases should be treated as compatibility paths, not as examples to copy.
+- If an alias and primary route disagree in style, trust the primary route for the current generated reference.
+
+## Route examples
+
+These examples use the preferred routes from the generated method pages. Replace the host, API key, chat IDs, contact IDs, and message IDs with values from your session.
+
+### Send a text message
+
+```bash
+curl -X POST http://localhost:8080/api/messages/sendText \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-secure-key" \
+  -d '{"to":"447123456789@c.us","content":"Hello, world!"}'
+```
+
+Alias route: `POST /api/sendText`.
+
+### List chats
+
+```bash
+curl "http://localhost:8080/api/chats/getAll?withNewMessagesOnly=false" \
+  -H "X-API-Key: your-secure-key"
+```
+
+Alias routes include `GET /api/getAllChats` and `GET /api/listChats`.
+
+### Get messages for a chat
+
+```bash
+curl "http://localhost:8080/api/messages/getAll?chatId=447123456789@c.us&includeMe=true&includeNotifications=false" \
+  -H "X-API-Key: your-secure-key"
+```
+
+Alias routes include `GET /api/getAllMessages` and `GET /api/listMessages`.
+
+### Send an image
+
+```bash
+curl -X POST http://localhost:8080/api/messages/sendImage \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-secure-key" \
+  -d '{"to":"447123456789@c.us","imgData":"data:image/png;base64,iVBORw0KGgo...","filename":"image.png","caption":"Check out this image!","waitForId":true}'
+```
+
+Alias route: `POST /api/sendImage`.
+
+### Check a number
+
+```bash
+curl "http://localhost:8080/api/contacts/checkNumberStatus?contactId=447123456789@c.us" \
+  -H "X-API-Key: your-secure-key"
+```
+
+Alias route: `GET /api/checkNumberStatus`.
+
+### Check session health
+
+```bash
+curl http://localhost:8080/api/session/healthCheck \
+  -H "X-API-Key: your-secure-key"
+```
+
+Alias route: `GET /api/healthCheck`.
+
 ## Namespaces
 
 - [Business](./business) (3 methods)

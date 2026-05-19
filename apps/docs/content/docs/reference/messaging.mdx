@@ -25,10 +25,221 @@ Represents a WhatsApp contact, either a single user or a participant in a group.
 
 <AutoTypeTable path="../../../../../packages/schema/src/common-types.ts" name="Contact" />
 
+## Real examples of Message/Chat/Contact
+
+These examples show common runtime shapes. WhatsApp can add extra fields, so
+store the fields you need and treat the payload as extensible.
+
+### Message example
+
+A text message includes routing fields, sender details, chat details, direction,
+timestamps, and message state.
+
+```json
+{
+  "id": "false_447700900000@c.us_3EB0A1B2C3D4E5F67890",
+  "body": "Hi, is my order ready?",
+  "type": "chat",
+  "t": 1768848000,
+  "timestamp": 1768848000,
+  "from": "447700900000@c.us",
+  "to": "15551234567@c.us",
+  "chatId": "447700900000@c.us",
+  "fromMe": false,
+  "self": "in",
+  "ack": 1,
+  "isGroupMsg": false,
+  "isMedia": false,
+  "isNotification": false,
+  "isQuotedMsgAvailable": false,
+  "sender": {
+    "id": "447700900000@c.us",
+    "pushname": "Aisha",
+    "isMyContact": true,
+    "isWAContact": true
+  },
+  "chat": {
+    "id": "447700900000@c.us",
+    "name": "Aisha",
+    "isGroup": false,
+    "unreadCount": 1,
+    "contact": {
+      "id": "447700900000@c.us",
+      "pushname": "Aisha",
+      "isWAContact": true
+    }
+  }
+}
+```
+
+### Chat example
+
+A one-to-one chat usually points at the contact chat ID. A group chat uses an
+`@g.us` ID and may include `groupMetadata`.
+
+```json
+{
+  "id": "447700900000@c.us",
+  "name": "Aisha",
+  "formattedTitle": "Aisha",
+  "isGroup": false,
+  "unreadCount": 1,
+  "t": 1768848000,
+  "contact": {
+    "id": "447700900000@c.us",
+    "pushname": "Aisha",
+    "isMyContact": true,
+    "isWAContact": true
+  },
+  "msgs": []
+}
+```
+
+### Contact example
+
+Contact display fields are optional. Use `id` as the stable identity for
+lookups and message targets.
+
+```json
+{
+  "id": "447700900000@c.us",
+  "name": "Aisha Khan",
+  "shortName": "Aisha",
+  "pushname": "Aisha",
+  "formattedName": "Aisha Khan",
+  "isBusiness": false,
+  "isEnterprise": false,
+  "isMe": false,
+  "isMyContact": true,
+  "isUser": true,
+  "isWAContact": true,
+  "labels": [],
+  "profilePicThumbObj": {
+    "eurl": "https://mmg.whatsapp.net/...",
+    "img": "https://mmg.whatsapp.net/...",
+    "tag": "profile-thumb"
+  }
+}
+```
+
 ## Message Content Types
+
+### Media message
+
+Media messages are still `Message` objects. The `type` field identifies the
+media kind, and `isMedia` is the safest first check before downloading or
+decrypting content.
+
+```json
+{
+  "id": "false_447700900000@c.us_3EB09988776655443322",
+  "body": null,
+  "caption": "Receipt from today",
+  "type": "image",
+  "mimetype": "image/jpeg",
+  "t": 1768848240,
+  "timestamp": 1768848240,
+  "from": "447700900000@c.us",
+  "to": "15551234567@c.us",
+  "chatId": "447700900000@c.us",
+  "fromMe": false,
+  "self": "in",
+  "ack": 1,
+  "isGroupMsg": false,
+  "isMedia": true,
+  "isMMS": true,
+  "isNotification": false,
+  "isQuotedMsgAvailable": false,
+  "clientUrl": "https://mmg.whatsapp.net/...",
+  "deprecatedMms3Url": "https://mmg.whatsapp.net/...",
+  "mediaData": {
+    "type": "image",
+    "mediaStage": "RESOLVED",
+    "mimetype": "image/jpeg",
+    "filehash": "8f2b5f7b4c0a1d2e3f4a5b6c7d8e9f00",
+    "size": 248391
+  }
+}
+```
+
+Common media fields include:
+
+| Field | Meaning |
+| --- | --- |
+| `type` | Message type, such as `image`, `video`, `audio`, `ptt`, `document`, or `sticker`. |
+| `isMedia` / `isMMS` | Flags that mark messages with downloadable media metadata. |
+| `mimetype` | MIME type for the encrypted media, such as `image/jpeg` or `application/pdf`. |
+| `caption` | Optional text attached to image, video, or document messages. |
+| `mediaData` | Runtime metadata used to locate and decrypt encrypted media. |
+| `clientUrl` / `deprecatedMms3Url` | Media URLs that may appear on some payloads. Treat them as runtime details. |
+
+Do not read file bytes from `body`. Use `caption` for attached text and pass
+the message to media helpers when you need the content.
 
 ### Location
 
 Geographical data associated with location messages.
 
 <AutoTypeTable path="../../../../../packages/schema/src/common-types.ts" name="Location" />
+
+### Location message
+
+A location message is a `Message` object with `type: "location"`. Depending on
+the runtime version, coordinates may appear directly on the message or inside a
+location-shaped field.
+
+```json
+{
+  "id": "false_447700900000@c.us_3EB01234ABCD5678EF90",
+  "body": "Shared location",
+  "type": "location",
+  "t": 1768848360,
+  "timestamp": 1768848360,
+  "from": "447700900000@c.us",
+  "to": "15551234567@c.us",
+  "chatId": "447700900000@c.us",
+  "fromMe": false,
+  "self": "in",
+  "ack": 1,
+  "isGroupMsg": false,
+  "isMedia": false,
+  "isNotification": false,
+  "isQuotedMsgAvailable": false,
+  "lat": 51.5074,
+  "lng": -0.1278,
+  "loc": "London",
+  "clientUrl": "https://maps.google.com/?q=51.5074,-0.1278",
+  "sender": {
+    "id": "447700900000@c.us",
+    "pushname": "Aisha"
+  }
+}
+```
+
+The normalized `Location` shape uses these fields:
+
+```json
+{
+  "lat": 51.5074,
+  "lng": -0.1278,
+  "name": "London",
+  "address": "London, UK",
+  "url": "https://maps.google.com/?q=51.5074,-0.1278"
+}
+```
+
+## Field caveats
+
+The generated tables describe the common contract, but live WhatsApp payloads
+vary by message type, account state, and runtime version.
+
+| Field | Caveat |
+| --- | --- |
+| `body` | Usually text for `chat` messages. It can be empty or null for media, location, notification, revoked, or system messages. |
+| `caption` | Only appears when the sender included caption text on supported media types. |
+| `sender`, `chat`, `quotedMsg`, `quotedMsgObj` | Nested objects can be partial snapshots. Quote fields only appear when WhatsApp still exposes the quoted message. |
+| `author` / `senderId` | Most useful in groups. They can be absent in one-to-one messages or older payloads. |
+| `notifyName`, `name`, `pushname`, `formattedName` | Display names depend on what the session knows about the contact. Do not use them as stable IDs. |
+| `mimetype`, `mediaData`, `clientUrl`, `deprecatedMms3Url` | Media-only runtime fields. Some versions expose one URL field, both URL fields, or neither. |
+| `lat`, `lng`, `loc`, `name`, `address`, `url` | Location fields differ across raw message payloads and normalized location objects. Check both direct message fields and location-shaped data when handling older payloads. |
+| Extra fields | The schemas use passthrough objects, so additional WhatsApp or driver fields may be present. Preserve unknown fields if your workflow needs full fidelity. |

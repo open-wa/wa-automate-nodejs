@@ -162,3 +162,93 @@ Post video status
 ### Output
 
 Returns: `unknown`
+
+## Expanded usage notes
+
+### Status and Stories vs profile status
+
+The `status` namespace works with WhatsApp Status posts, also called Stories. These are temporary text, image, or video posts visible to contacts according to the host account privacy settings. This is different from the profile About text. For profile About text, see `mystatus.getStatus` or `session.setMyStatus`.
+
+All methods on this page require an Insiders license.
+
+### Request examples
+
+Read visible stories:
+
+```ts
+const stories = await client.status.getStories();
+```
+
+Post text, image, and video statuses:
+
+```ts
+await client.status.postText('Open today until 6pm', '#0b5cff', 1);
+
+await client.status.postImage(
+  'data:image/jpeg;base64,/9j/4AAQSkZJRg...',
+  'New product just landed'
+);
+
+await client.status.postVideo(
+  'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...',
+  'Behind the scenes'
+);
+```
+
+Delete one or more status posts:
+
+```ts
+await client.status.delete('false_status@broadcast_STATUS123');
+await client.status.delete(['false_status@broadcast_STATUS123', 'false_status@broadcast_STATUS456']);
+```
+
+Delete all statuses posted by the host account:
+
+```ts
+await client.status.deleteAll();
+```
+
+### Response examples
+
+Stories are returned as WhatsApp message-like objects:
+
+```json
+[
+  {
+    "id": "false_status@broadcast_STATUS123",
+    "from": "447123456789@c.us",
+    "chatId": "status@broadcast",
+    "type": "image",
+    "caption": "New product just landed",
+    "timestamp": 1716200000
+  }
+]
+```
+
+Post and delete calls return WhatsApp runtime output, often a message object, ID, boolean, or status object:
+
+```json
+{
+  "id": "true_status@broadcast_STATUS789",
+  "type": "chat",
+  "ack": 1
+}
+```
+
+### Error cases
+
+- The method is called without an Insiders license.
+- The media data URL is malformed, too large, or not supported by WhatsApp.
+- The current account is not allowed to post the requested status type.
+- A status ID does not belong to a deletable status from the host account.
+- The status was already expired, deleted, or not loaded in WhatsApp Web.
+- WhatsApp Web is offline or not ready.
+
+### Deletion semantics
+
+`deleteStatus` targets the status IDs you pass. `deleteAllStatus` attempts to delete all status posts available for the host account in the current session. Deletion applies to the host account's posted stories, not to other contacts' stories. Because status posts expire automatically, deletion can race with WhatsApp expiry and return partial results.
+
+### Caveats and limitations
+
+Status privacy is controlled in WhatsApp, not by these methods. Posting media statuses can be slower than sending chat media because WhatsApp processes them for story delivery. Story reads only include posts visible and loaded in the current WhatsApp Web session.
+
