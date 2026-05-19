@@ -96,16 +96,7 @@ Implement retention policies in your integration:
 
 ## Licensing for Integrations
 
-Some integrations require specific license tiers:
-
-- **Webhooks**: Available on all tiers
-- **SocketClient**: Available on all tiers
-- **Plugins**: Available on all tiers
-- **MCP**: Available on all tiers
-- **Chatwoot**: Check current licensing requirements
-- **Cloudflare Proxy**: Check current licensing requirements
-
-Check the [pricing page](/docs/licensing/pricing) for current tier details.
+Licensing follows the exact methods and runtime behavior an integration uses, not just the wrapper name. Webhooks, SocketClient, plugins, MCP, Chatwoot, and proxy workflows can call different parts of the API surface, so check the [pricing page](/docs/licensing/pricing) and the method-level reference before promising a workflow to a customer.
 
 ## Choosing Your Path
 
@@ -113,8 +104,8 @@ Check the [pricing page](/docs/licensing/pricing) for current tier details.
 
 Start with webhooks:
 
-1. Run open-wa with `--webhook` flag
-2. Point it at your service endpoint
+1. Add `@open-wa/integration-webhook` to `plugins` in `wa.config.*`
+2. Point `pluginConfig.webhook.url` at your service endpoint
 3. Handle incoming JSON payloads
 
 ### For Custom Logic
@@ -137,9 +128,10 @@ Use Chatwoot:
 
 Use MCP:
 
-1. Run open-wa with `--mcp` flag
-2. Point your AI client at the MCP endpoint
-3. Let the agent discover and call WhatsApp methods
+1. Enable MCP in config with `mcp: { enabled: true }` and keep `apiKey` configured
+2. Verify whether your installed build mounts the configured `/mcp` route
+3. If `/mcp` is mounted, point your AI client at that endpoint so it can discover and call WhatsApp methods
+4. If `/mcp` is not mounted in your build, give the agent the HTTP API docs, OpenAPI schema, or Postman collection instead
 
 ## Related
 
