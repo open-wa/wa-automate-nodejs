@@ -1,0 +1,63 @@
+---
+title: v5 Alpha Status
+description: Understand the current version, when to use v5 vs v4, and what has changed.
+---
+
+# v5 Alpha Status
+
+This repository is currently on **version 5**, which is still in alpha.
+
+## What "Alpha" Means
+
+- The architecture is being reorganized into a cleaner monorepo structure
+- APIs may change between minor releases
+- Some features are still being tested
+- Breaking changes are possible without major version bumps
+
+**For production systems, use v4.76.0:**
+
+```bash
+npx @open-wa/wa-automate@4.76.0
+```
+
+## When to Use v5 vs v4
+
+| Use v5 if... | Use v4 if... |
+|---|---|
+| You are testing new features | You have a mature production system |
+| You are contributing to the project | You need stability guarantees |
+| You are starting a new project | You depend on v4-specific flags or behavior |
+| You want the plugin system | You are not prepared for breaking changes |
+
+## What Changed in v5
+
+- **Monorepo architecture**: The project is now organized as a monorepo with separate packages
+- **Pluggable browser drivers**: Choose Puppeteer, Playwright, or Lightpanda via separate packages
+- **`createClient` replaces `create`**: The v5 public contract uses `createClient` from `@open-wa/core`
+- **Plugin system**: Load reusable integrations via `plugins` and `pluginConfig` in config
+- **MCP server**: Built-in Model Context Protocol server for AI agent integration
+- **HTTP RPC + SSE**: The runtime uses HTTP RPC for commands and Server-Sent Events for runtime events
+
+## Migration from v4
+
+If you are moving from v4 to v5:
+
+1. Start with Easy API and confirm `http://localhost:8080/api-docs/` works
+2. Test named sessions, auth, webhooks, and generated schemas in a separate environment
+3. Prefer SocketClient for remote consumers instead of embedding browser/runtime everywhere
+4. Use `createClient` only when you need direct runtime ownership
+5. Expect some older v4 docs, examples, and flags to be reorganized or replaced
+
+See **[Custom code](/docs/getting-started/custom-code)** for the v5 API details.
+
+## Legal and Risk Context
+
+<Callout type="warning">
+**This is unofficial software.** This project is not affiliated with, authorized by, maintained by, sponsored by, or endorsed by WhatsApp or any of its affiliates or subsidiaries.
+</Callout>
+
+- **Terms of Service**: By using this project you agree to the [Terms of Service](https://github.com/open-wa/wa-automate-nodejs/blob/master/tos.md)
+- **Ban risk**: Automating WhatsApp may violate their terms of service. Use at your own risk. Account bans are possible, especially with aggressive automation or high message volumes.
+- **Rate limits**: WhatsApp enforces rate limits on message sending. Exceeding these can trigger temporary blocks or permanent bans. See **[Rate limits](/docs/guides/rate-limits)** for details.
+- **Cryptography notice**: This distribution includes cryptographic software. Depending on your jurisdiction, there may be restrictions on import, possession, use, or re-export of encryption software. See [Wassenaar Arrangement](http://www.wassenaar.org/) for more information.
+- **Session data**: Session files contain sensitive authentication material. Protect them appropriately.

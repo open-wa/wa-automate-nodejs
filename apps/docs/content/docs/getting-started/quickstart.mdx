@@ -1,0 +1,111 @@
+---
+title: Quick Start
+description: Go from zero to your first sent message in under 5 minutes.
+---
+
+# Quick Start
+
+Go from zero to your first sent WhatsApp message in under 5 minutes.
+
+## Prerequisites
+
+- **Node.js >= 22.21.1**, this is required. The library will not work on older versions. Check with `node --version`.
+- **npm or pnpm**, any package manager works, but pnpm is used for repo development.
+- **A WhatsApp account** on a linked phone, this automates WhatsApp Web, not the mobile app.
+
+<Callout type="warning">
+**v5 is alpha.** Test in a disposable environment before using in production. For production systems, use v4: `npx @open-wa/wa-automate@4.76.0`
+</Callout>
+
+## Step 1: Start the Easy API
+
+Run the CLI to start a local WhatsApp API:
+
+```bash
+npx @open-wa/wa-automate --port 8080
+```
+
+You will see terminal output showing:
+
+- The browser launching
+- A QR code appearing in the terminal
+- The local API address (usually `http://localhost:8080`)
+
+## Step 2: Authenticate
+
+The runtime will display a QR code in your terminal. Open WhatsApp on your phone:
+
+1. Tap **Menu** or **Settings**
+2. Tap **Linked Devices**
+3. Tap **Link a Device**
+4. Scan the QR code in your terminal
+
+Alternatively, if you know the host account number, use **[Link-code login](/docs/getting-started/link-code)** to avoid QR scanning.
+
+Once authenticated, the terminal will show the session is connected and the API is ready.
+
+## Step 3: Verify the API is Running
+
+Open your browser to:
+
+```text
+http://localhost:8080/api-docs/
+```
+
+This is the interactive API documentation for your live session. If this page loads, your session is up, the API is reachable, and you can discover all available methods.
+
+Other useful endpoints:
+
+- `http://localhost:8080/meta/swagger.json`, OpenAPI schema
+- `http://localhost:8080/meta/postman.json`, Postman collection
+
+## Step 4: Send Your First Message
+
+### Using the API docs UI
+
+1. Open `http://localhost:8080/api-docs/`
+2. Find the `sendText` method
+3. Enter a chat ID (your own number in format `1234567890@c.us`)
+4. Enter a message body
+5. Execute the request
+
+### Using curl
+
+```bash
+curl -X POST http://localhost:8080/api/sendText \
+  -H "Content-Type: application/json" \
+  -d '{"to": "1234567890@c.us", "text": "Hello from open-wa!"}'
+```
+
+If you started the API with `--api-key`, include it in the header:
+
+```bash
+curl -X POST http://localhost:8080/api/sendText \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-secure-key" \
+  -d '{"to": "1234567890@c.us", "text": "Hello from open-wa!"}'
+```
+
+You should receive the message on your phone within seconds.
+
+## What's Next?
+
+- **I want to build a bot** → Read **[Messages and events](/docs/guides/messages)**
+- **I want to connect my CRM** → Read **[Chatwoot integration](/docs/client-and-integrations/chatwoot)**
+- **I want AI agents to access WhatsApp** → Read **[MCP integration](/docs/guides/mcp)**
+- **I want to build a plugin** → Read **[Plugin getting started](/docs/plugins/getting-started)**
+- **I want to deploy to production** → Read **[Security & deployment](/docs/operations/security-and-deployment)**
+- **I want to write custom code** → Read **[Custom code](/docs/getting-started/custom-code)**
+
+## Common Next Commands
+
+```bash
+# Protect with an API key
+npx @open-wa/wa-automate --port 8080 --api-key "your-secure-key"
+
+# Run a named session
+npx @open-wa/wa-automate --session-id sales --port 8081
+
+# Send events to your service
+npx @open-wa/wa-automate --webhook "https://your-app.example/webhooks/open-wa"
+```
