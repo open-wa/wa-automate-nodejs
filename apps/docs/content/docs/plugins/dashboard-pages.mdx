@@ -1,0 +1,81 @@
+---
+title: Dashboard Pages
+description: Add custom pages to the open-wa dashboard from your plugin.
+---
+
+# Dashboard Pages
+
+Plugins can add custom pages to the open-wa dashboard. This lets you expose plugin status, stats, and controls through the built-in UI.
+
+## What Are Dashboard Pages
+
+Dashboard pages are declared in your plugin definition and mounted automatically in the dashboard under your plugin section.
+
+## Declaring Pages
+
+Add a `pages` array to your plugin definition:
+
+```ts
+export default createPlugin({
+  meta: { name: 'my-plugin' },
+  pages: [
+    {
+      path: '/',
+      title: 'Status',
+      icon: '📊',
+    },
+    {
+      path: '/stats',
+      title: 'Statistics',
+      icon: '📈',
+    },
+  ],
+  init: async ({ events, logger, config, client }) => {
+    // Plugin initialization
+  },
+});
+```
+
+### Page Properties
+
+- **path**: The URL path within your plugin dashboard section. `/` is the root page.
+- **title**: The display name shown in the sidebar.
+- **icon**: An emoji shown next to the title in the sidebar.
+
+## What the Dashboard Renders
+
+Each page renders as a content area in the dashboard. The page at `/` becomes the default page when users navigate to your plugin section.
+
+## Real-Time Stats
+
+To show real-time data, track state in your plugin:
+
+```ts
+let messageCount = 0;
+
+export default createPlugin({
+  meta: { name: 'stats-plugin' },
+  pages: [
+    {
+      path: '/',
+      title: 'Stats',
+      icon: '📊',
+    },
+  ],
+  init: async ({ events, logger }) => {
+    events.on('message.received', () => {
+      messageCount++;
+    });
+  },
+});
+```
+
+## Custom React Components
+
+Custom React components for dashboard pages are planned for a future release. Currently, pages are rendered as simple content areas.
+
+## Related
+
+- **[Plugin getting started](/docs/plugins/getting-started)** - Build your first plugin
+- **[AI Tools](/docs/plugins/ai-tools)** - Register AI tools from plugins
+- **[Hono Routes](/docs/plugins/hono-routes)** - Add HTTP routes to plugins

@@ -1,0 +1,185 @@
+---
+title: Plugin Getting Started
+description: Learn what plugins are, how to install the SDK, and build your first plugin.
+---
+
+# Plugin Getting Started
+
+Plugins are reusable integrations that run inside the open-wa Easy API process. They let you extend the runtime with custom logic, event handlers, HTTP routes, dashboard pages, and AI tools.
+
+## What Are Plugins?
+
+A plugin is an npm package (or local file) that:
+
+- Listens to WhatsApp events (messages, auth, lifecycle)
+- Calls WhatsApp methods (send messages, decrypt media)
+- Mounts HTTP routes at `/plugins/<name>/`
+- Adds pages to the dashboard sidebar
+- Registers tools for AI agents to call
+
+Plugins run **inside the Easy API process**, not as separate services. They receive a security-filtered event emitter and a transport-agnostic client proxy.
+
+### When to Use a Plugin vs Other Approaches
+
+| Use a plugin when... | Use something else when... |
+|---|---|
+| Building reusable integrations | You need a separate process (use SocketClient) |
+| Sharing functionality across sessions | You need direct browser control (use createClient) |
+| Adding dashboard pages | You only need simple event forwarding (use --webhook flag) |
+| Exposing AI tools via MCP | You need low-level runtime ownership (use embedded runtime) |
+
+## Install the SDK
+
+```bash
+pnpm add @open-wa/plugin-sdk
+# or
+npm install @open-wa/plugin-sdk
+```
+
+The SDK provides:
+
+- `createPlugin()`: Type-safe plugin factory
+- `defineConfig()`: Zod wrapper for plugin configuration
+- `z`: Zod (re-exported for convenience)
+- TypeScript types for all plugin contracts
+
+## Your First Plugin
+
+### Step 1: Create the Plugin
+
+Use the `createPlugin()` factory:
+
+```ts
+import { createPlugin } from '@open-wa/plugin-sdk';
+
+export default createPlugin({
+  meta: {
+    name: 'greeting-bot',
+    version: '1.0.0',
+    description: 'Greets new contacts with a welcome message',
+  },
+
+  init: async ({ client, logger }) => ({
+    'message.received': async ({ message }) => {
+      const msg = message as { body?: string; from?: string };
+      if (msg.body === 'Hi') {
+        await client.sendText(msg.from!, '👋 Welcome! How can I help?');
+        logger.info('Sent greeting', { from: msg.from });
+      }
+    },
+  }),
+});
+```
+
+### Step 2: Define Configuration
+
+Use `defineConfig()` with Zod for typed configuration:
+
+```ts
+import { createPlugin, defineConfig, z } from '@open-wa/plugin-sdk';
+
+const config = defineConfig(z => z.object({
+  greeting: z.string().default('👋 Welcome!'),
+  triggerWord: z.string().default('Hi'),
+}));
+
+export default createPlugin({
+  meta: { name: 'greeting-bot' },
+  configSchema: config,
+
+  init: async ({ client, logger, config }) => ({
+    'message.received': async ({ message }) => {
+      const msg = message as { body?: string; from?: string };
+      if (msg.body === config.triggerWord) {
+        await client.sendText(msg.from!, config.greeting);
+      }
+    },
+  }),
+});
+```
+
+### Step 3: Add Event Handlers
+
+The `init` function returns a `Hooks` object. Available hooks include:
+
+- `'message.received'`: Incoming messages
+- `'message.sent'`: Outgoing messages
+- `'core.started'`: After the session is ready
+- `'auth.qr'`: When a QR code is emitted
+- `'dispose'`: On session shutdown
+
+See the **[Hooks reference](/docs/plugins/hooks-reference)** for the complete list.
+
+### Step 4: Load the Plugin
+
+In your `wa.config.js` (or `wa.config.json`):
+
+```js
+// wa.config.js
+export default {
+  sessionId: 'my-session',
+  plugins: [
+    './plugins/greeting-bot',  // Local file path
+  ],
+  pluginConfig: {
+    'greeting-bot': {
+      greeting: 'Hello! Welcome to our service.',
+      triggerWord: 'hello',
+    },
+  },
+};
+```
+
+The `plugins` array accepts:
+
+- **npm package names**: `'@myorg/my-plugin'`
+- **Local file paths**: `'./plugins/my-plugin'`
+
+The `pluginConfig` object uses the **plugin name** (from `meta.name`) as keys, not the package name or file path.
+
+### Step 5: Test It
+
+```bash
+npx @open-wa/wa-automate --port 8080
+```
+
+Watch the terminal output for plugin logs. All plugin log output is automatically prefixed with the plugin name:
+
+```
+[greeting-bot] Sent greeting { from: '1234567890@c.us' }
+```
+
+## Plugin Architecture
+
+### Security-Filtered Event Emitter
+
+Plugins receive a filtered event emitter that:
+
+- **Can** subscribe to public events (`on`, `once`, `off`)
+- **Cannot** emit events (only the host can emit)
+- **Cannot** listen to internal events (`launch.*`, `browser.*`, `transport.*`)
+- **Cannot** listen to sensitive events (`license.*`, session data)
+
+### Transport-Agnostic Client Proxy
+
+Plugins get a `client` proxy that forwards method calls to the WhatsApp runtime. This is not direct browser access. It works through the host's transport layer (HTTP RPC / SSE).
+
+### Config Validation
+
+If you provide a `configSchema`, the host validates the plugin's config **before** calling `init()`. If validation fails, the plugin will not load and an error is logged.
+
+## When to Use Plugins
+
+- Building reusable integrations (CRM bridges, webhook forwarders)
+- Adding custom message processing (moderation, translation, transcription)
+- Exposing HTTP endpoints alongside the API
+- Adding dashboard pages for monitoring
+- Registering tools for AI agents
+
+## Related
+
+- **[Hooks reference](/docs/plugins/hooks-reference)**: Complete hooks API
+- **[PluginClient reference](/docs/plugins/plugin-client)**: Available client methods
+- **[PluginInput breakdown](/docs/plugins/plugin-input)**: What your plugin receives
+- **[Plugin security model](/docs/plugins/security-model)**: Boundaries and restrictions
+- **[Publishing a plugin](/docs/plugins/publishing)**: How to share your plugin

@@ -1,0 +1,161 @@
+---
+title: HTTP Routes in Plugins
+description: Mount custom HTTP endpoints from your plugin using Hono.
+---
+
+# HTTP Routes in Plugins
+
+Plugins can mount HTTP routes that are served alongside the Easy API. This lets you expose custom endpoints for webhooks, health checks, or admin interfaces.
+
+## How Routes Work
+
+Define a `routes` function in your plugin that returns a Hono app. Routes are mounted at `/plugins/<name>/`:
+
+```ts
+import { Hono } from 'hono';
+
+export default createPlugin({
+  meta: { name: 'my-plugin' },
+  routes: () => {
+    const app = new Hono();
+
+    app.get('/health', (c) => c.json({ status: 'ok' }));
+
+    return app;
+  },
+  init: async ({ events, logger, config, client }) => {
+    // Plugin initialization
+  },
+});
+```
+
+The health endpoint is available at `/plugins/my-plugin/health`.
+
+## Basic Route Example
+
+### GET Route
+
+```ts
+routes: () => {
+  const app = new Hono();
+
+  app.get('/status', (c) => {
+    return c.json({
+      plugin: 'my-plugin',
+      version: '1.0.0',
+      enabled: true,
+    });
+  });
+
+  return app;
+},
+```
+
+### POST Route
+
+```ts
+routes: () => {
+  const app = new Hono();
+
+  app.post('/trigger', async (c) => {
+    const body = await c.req.json();
+    // Process the request
+    return c.json({ received: true, data: body });
+  });
+
+  return app;
+},
+```
+
+### Route with Parameters
+
+```ts
+routes: () => {
+  const app = new Hono();
+
+  app.get('/contact/:phone', async (c) => {
+    const phone = c.req.param('phone');
+    // Look up contact
+    return c.json({ phone, found: true });
+  });
+
+  return app;
+},
+```
+
+## Securing Routes
+
+### Using the API Key
+
+Routes mounted under the Easy API share its authentication. Requests must include the API key:
+
+```ts
+app.get('/admin', (c) => {
+  // The API key is already validated by the Easy API
+  return c.json({ admin: true });
+});
+```
+
+### Custom Route Auth
+
+For additional auth layers:
+
+```ts
+app.post('/webhook', async (c) => {
+  const signature = c.req.header('X-Signature');
+  if (signature !== config.webhookSecret) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  // Process the webhook
+  return c.json({ received: true });
+});
+```
+
+## Interacting with Easy API Auth
+
+Routes inherit the Easy API authentication. If the Easy API requires an API key, all plugin routes also require it.
+
+## Use Cases
+
+### Health Checks
+
+```ts
+app.get('/health', (c) => c.json({ status: 'ok' }));
+```
+
+### Webhook Receivers
+
+```ts
+app.post('/events', async (c) => {
+  const event = await c.req.json();
+  // Process the event
+  return c.json({ received: true });
+});
+```
+
+### Admin Interfaces
+
+```ts
+app.get('/stats', async (c) => {
+  return c.json({
+    messagesProcessed: messageCount,
+    errors: errorCount,
+  });
+});
+```
+
+### OAuth Callbacks
+
+```ts
+app.get('/oauth/callback', async (c) => {
+  const code = c.req.query('code');
+  // Exchange code for token
+  return c.redirect('/plugins/my-plugin/success');
+});
+```
+
+## Related
+
+- **[Plugin getting started](/docs/plugins/getting-started)** - Build your first plugin
+- **[Dashboard Pages](/docs/plugins/dashboard-pages)** - Add UI pages to plugins
+- **[External API patterns](/docs/plugins/external-api-patterns)** - Calling external services

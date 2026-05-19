@@ -1,0 +1,323 @@
+---
+title: Hooks Reference
+description: Complete reference for all plugin hooks — lifecycle, auth, messages, interceptors, routes, pages, tools, and cleanup.
+---
+
+# Hooks Reference
+
+Hooks are the interface between your plugin and the open-wa host. Your plugin's `init()` function returns a `Hooks` object containing the event handlers and features it wants to use.
+
+All hooks are optional — use only what your plugin needs.
+
+## Lifecycle Hooks
+
+### `core.starting`
+
+Fires when the session is starting up.
+
+```ts
+'core.starting': async ({ config }) => {
+  // config is the global wa.config.js contents
+  logger.info('Session starting');
+}
+```
+
+**Payload:** `{ config: unknown }` — the global configuration object.
+
+### `core.started`
+
+Fires after the session has fully started.
+
+```ts
+'core.started': async () => {
+  logger.info('Session ready');
+  // Good place to do one-time setup
+}
+```
+
+### `core.stopping`
+
+Fires when the session is shutting down.
+
+```ts
+'core.stopping': async ({ reason }) => {
+  logger.info('Session stopping', { reason });
+  // Flush queues, save state
+}
+```
+
+**Payload:** `{ reason?: string }` — why the session is stopping.
+
+### `client.ready`
+
+Fires when the WhatsApp client is connected and authenticated.
+
+```ts
+'client.ready': async ({ sessionId }) => {
+  logger.info('WhatsApp connected', { sessionId });
+}
+```
+
+**Payload:** `{ sessionId: string }` — the current session identifier.
+
+## Auth Hooks
+
+### `auth.qr`
+
+Fires when a QR code is emitted.
+
+```ts
+'auth.qr': async ({ sessionId, qr, attempt }) => {
+  logger.info('QR code emitted', { sessionId, attempt });
+  // You could display the QR in a custom way
+}
+```
+
+**Payload:**
+
+- `sessionId` — Current session ID
+- `qr` — The QR code string
+- `attempt` — Which QR emission this is (increments each time)
+
+### `auth.authenticated`
+
+Fires after successful authentication.
+
+```ts
+'auth.authenticated': async ({ sessionId }) => {
+  logger.info('Authenticated', { sessionId });
+}
+```
+
+**Payload:** `{ sessionId: string }`
+
+## Message Hooks
+
+### `message.received`
+
+Fires when a message is received.
+
+```ts
+'message.received': async ({ message }) => {
+  const msg = message as { body?: string; from?: string; type?: string };
+  logger.info('Message received', { from: msg.from, type: msg.type });
+
+  if (msg.type === 'chat' && msg.body) {
+    // Handle text message
+  }
+}
+```
+
+**Payload:** `{ message: unknown }` — the message object. Cast to the appropriate type based on your needs.
+
+To detect message type, check the `type` field:
+
+- `'chat'` — Text message
+- `'image'` — Image
+- `'video'` — Video
+- `'audio'` — Voice note or audio message
+- `'document'` — Document/file
+- `'sticker'` — Sticker
+- `'location'` — Location share
+
+To detect group messages, check `message.isGroupMsg` or whether the `from` field ends with `@g.us`.
+
+### `message.sent`
+
+Fires when a message is sent.
+
+```ts
+'message.sent': async ({ message }) => {
+  logger.info('Message sent', { message });
+}
+```
+
+**Payload:** `{ message: unknown }`
+
+### `message.ack`
+
+Fires when a message acknowledgment is received.
+
+```ts
+'message.ack': async ({ messageId, ack }) => {
+  logger.info('Message acknowledged', { messageId, ack });
+}
+```
+
+**Payload:**
+
+- `messageId` — The message ID
+- `ack` — The acknowledgment state (number indicating delivery/read status)
+
+## Message Interceptors
+
+### `message.send.before`
+
+Called **before** a message is sent. Can modify or cancel the content.
+
+```ts
+'message.send.before': async (
+  input: { to: string; content: unknown },
+  output: { content: unknown; metadata?: Record<string, unknown> }
+) => {
+  // Modify the content before it's sent
+  if (typeof output.content === 'string') {
+    output.content = output.content.replace(/badword/g, '****');
+  }
+}
+```
+
+**Input:** `{ to: string; content: unknown }` — the target and original content.
+**Output:** `{ content: unknown; metadata?: Record<string, unknown> }` — modify `content` to change what gets sent, or add `metadata`.
+
+To **cancel** the send, you can throw an error or set `output.content` to a sentinel value that your plugin handles downstream.
+
+**Performance note:** This interceptor runs for every message send. Keep it fast to avoid adding latency.
+
+### `message.send.after`
+
+Called **after** a message is sent. Can add metadata.
+
+```ts
+'message.send.after': async (
+  input: { messageId: string; to: string },
+  output: { metadata?: Record<string, unknown> }
+) => {
+  output.metadata = { sentAt: Date.now() };
+}
+```
+
+**Input:** `{ messageId: string; to: string }`
+**Output:** `{ metadata?: Record<string, unknown> }`
+
+## API Routes
+
+### `routes`
+
+Return a Hono sub-app that will be mounted at `/plugins/<plugin-name>/`.
+
+```ts
+import { Hono } from 'hono';
+
+routes: () => {
+  const app = new Hono();
+
+  app.get('/status', (c) => {
+    return c.json({ plugin: 'my-plugin', status: 'ok' });
+  });
+
+  app.post('/webhook', async (c) => {
+    const body = await c.req.json();
+    // handle incoming webhook
+    return c.json({ ok: true });
+  });
+
+  return app;
+}
+```
+
+Routes are automatically mounted and accessible at `/plugins/<plugin-name>/`.
+
+See **[HTTP routes in plugins](/docs/plugins/hono-routes)** for more details.
+
+## Dashboard Pages
+
+### `pages`
+
+Declare dashboard pages this plugin wants rendered in the dashboard sidebar.
+
+```ts
+pages: [{
+  path: '/',
+  title: 'Plugin Status',
+  icon: '📊',
+  order: 1,
+  description: 'Current plugin status and configuration',
+}]
+```
+
+**Fields:**
+
+- `path` — Route segment (becomes `/plugins/<pluginName>/<path>`)
+- `title` — Display title in sidebar
+- `icon` — Emoji or Lucide icon name
+- `order` — Sort order (lower = higher in sidebar)
+- `description` — Optional description for the default status view
+
+See **[Dashboard pages](/docs/plugins/dashboard-pages)** for more details.
+
+## AI Tools
+
+### `tool`
+
+Register tools that can be called by AI agents or automation scripts.
+
+```ts
+tool: {
+  sendWelcomeMessage: {
+    description: 'Send a welcome message to a contact',
+    args: {
+      chatId: z.string().describe('The chat ID to send to'),
+      name: z.string().describe('The contact name'),
+    },
+    execute: async (args, context) => {
+      await context.client.sendText(
+        args.chatId as string,
+        `Welcome, ${args.name}!`
+      );
+      return `Welcome message sent to ${args.chatId}`;
+    },
+  },
+}
+```
+
+**ToolDefinition:**
+
+- `description` — What the tool does (shown to AI agents)
+- `args` — Zod schema for arguments
+- `execute` — The implementation function
+
+**ToolContext:**
+
+- `sessionId` — Current session ID
+- `logger` — Scoped logger
+- `abort` — AbortSignal for cancellation
+
+See **[AI tools](/docs/plugins/ai-tools)** for more details.
+
+## Cleanup
+
+### `dispose`
+
+Called when the session is shutting down. Use this to clean up resources.
+
+```ts
+dispose: async () => {
+  // Close database connections
+  // Flush message queues
+  // Wait for in-flight requests
+  logger.info('Plugin disposed');
+}
+```
+
+## Catch-All
+
+### `event`
+
+Receives every public event. Use this when you need to react to events that do not have a specific hook.
+
+```ts
+event: async ({ event, payload }) => {
+  logger.debug('Event received', { event, payload });
+}
+```
+
+**Input:** `{ event: string; payload: unknown }`
+
+Use specific hooks when possible — they are more efficient and provide typed payloads.
+
+## Related
+
+- **[Plugin Getting Started](/docs/plugins/getting-started)** — Build your first plugin
+- **[PluginClient reference](/docs/plugins/plugin-client)** — Available client methods
+- **[PluginInput breakdown](/docs/plugins/plugin-input)** — What your plugin receives

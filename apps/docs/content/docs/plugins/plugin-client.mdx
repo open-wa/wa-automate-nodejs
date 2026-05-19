@@ -1,0 +1,203 @@
+---
+title: PluginClient Reference
+description: Reference for the PluginClient interface, the transport-agnostic proxy for calling WhatsApp methods from plugins.
+---
+
+# PluginClient Reference
+
+The `PluginClient` is the interface your plugin uses to call WhatsApp methods. It is a **transport-agnostic proxy**. Your plugin never gets direct browser or CDP access. All calls are forwarded through the host's transport layer.
+
+## What PluginClient Is
+
+- A proxy that forwards method calls to the WhatsApp runtime
+- Available through `client` in your plugin's `PluginInput`
+- Works regardless of the underlying transport (HTTP RPC, SSE, etc.)
+- Provides the full WhatsApp Client surface via the `ask()` method
+
+## What PluginClient Is Not
+
+- Direct browser access. You cannot execute CDP commands
+- Direct file system access. You cannot read/write arbitrary files
+- A raw WebSocket. It is a managed proxy with security filters
+
+## Generic Method Dispatcher
+
+### `ask(method, args?)`
+
+Call any WhatsApp method by name. This is the most flexible way to interact with the runtime.
+
+```ts
+// Send a text message
+const messageId = await client.ask<string>('sendText', ['1234567890@c.us', 'Hello']);
+
+// Get host number
+const number = await client.ask<string>('getHostNumber');
+
+// Get a contact
+const contact = await client.ask('getContact', ['1234567890@c.us']);
+```
+
+**Parameters:**
+
+- `method`, Method name (e.g., `'sendText'`, `'sendImage'`, `'getHostNumber'`)
+- `args`, Arguments to pass. Can be an array `['arg1', 'arg2']` or a record `{ key: 'value' }`
+
+**Returns:** `Promise<T>`, The method's return value, typed via the generic parameter.
+
+## Event Listener
+
+### `listen(listener, callback)`
+
+Listen for WhatsApp events directly from the client.
+
+```ts
+const subscriptionId = await client.listen('onMessage', (data) => {
+  console.log('Message received:', data);
+});
+```
+
+**Parameters:**
+
+- `listener`, Listener name (e.g., `'onMessage'`, `'onAnyMessage'`)
+- `callback`, Callback function receiving the event data
+
+**Returns:** `Promise<string>`, A subscription ID you can use to unsubscribe later.
+
+## Convenience Methods
+
+These typed methods are provided for common operations. They all delegate to `ask()` under the hood.
+
+### `sendText(to, content)`
+
+Send a text message.
+
+```ts
+const messageId = await client.sendText('1234567890@c.us', 'Hello!');
+```
+
+**Returns:** `Promise<string>`, The message ID.
+
+### `sendImage(to, url, filename, caption?)`
+
+Send an image from a URL.
+
+```ts
+const messageId = await client.sendImage(
+  '1234567890@c.us',
+  'https://example.com/image.jpg',
+  'image.jpg',
+  'Check this out!'
+);
+```
+
+### `sendFile(to, base64, filename, caption?)`
+
+Send a file from base64 data.
+
+```ts
+const messageId = await client.sendFile(
+  '1234567890@c.us',
+  'data:application/pdf;base64,JVBERi0...',
+  'document.pdf',
+  'Here is the document'
+);
+```
+
+### `sendLocation(to, lat, lng, text?)`
+
+Send a location.
+
+```ts
+await client.sendLocation('1234567890@c.us', '51.5074', '-0.1278', 'London');
+```
+
+### `sendLinkWithAutoPreview(to, url, text)`
+
+Send a link with an automatic preview.
+
+```ts
+await client.sendLinkWithAutoPreview(
+  '1234567890@c.us',
+  'https://example.com',
+  'Check out this site'
+);
+```
+
+### `reply(to, content, quotedMsgId)`
+
+Reply to a specific message.
+
+```ts
+await client.reply('1234567890@c.us', 'Got it!', originalMessageId);
+```
+
+### `decryptMedia(message)`
+
+Decrypt media from a message object.
+
+```ts
+const base64Data = await client.decryptMedia(message);
+// base64Data is a base64-encoded string of the media content
+```
+
+Use this for images, voice notes, videos, and documents received in messages.
+
+### `getHostNumber()`
+
+Get the phone number of the connected WhatsApp account.
+
+```ts
+const number = await client.getHostNumber();
+// Returns something like '447700900000'
+```
+
+### `getContact(contactId)`
+
+Get information about a contact.
+
+```ts
+const contact = await client.getContact('1234567890@c.us');
+```
+
+### `getAllContacts()`
+
+Get all contacts.
+
+```ts
+const contacts = await client.getAllContacts();
+```
+
+### `getAllChats()`
+
+Get all chats.
+
+```ts
+const chats = await client.getAllChats();
+```
+
+### `sendSeen(chatId)`
+
+Mark a chat as seen (blue ticks).
+
+```ts
+const success = await client.sendSeen('1234567890@c.us');
+```
+
+**Returns:** `Promise<boolean>`
+
+## Proxy Fallback
+
+Any method not listed above can be called directly on the client object. The proxy forwards it to the runtime.
+
+```ts
+// These all work via the proxy:
+await client.sendText('123@c.us', 'Hello');
+await client.getHostNumber();
+await client.someOtherMethod('args');
+```
+
+## Related
+
+- **[Hooks reference](/docs/plugins/hooks-reference)**, All available hooks
+- **[PluginInput breakdown](/docs/plugins/plugin-input)**, What your plugin receives
+- **[Plugin getting started](/docs/plugins/getting-started)**, Build your first plugin

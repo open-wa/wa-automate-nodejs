@@ -1,0 +1,149 @@
+---
+title: AI Tools
+description: Register custom AI tools from your plugin for use with MCP and AI agents.
+---
+
+# AI Tools
+
+Plugins can register custom tools that AI agents can discover and call through the MCP server. This lets your plugin expose WhatsApp functionality to AI agents like Claude, Cursor, and Windsurf.
+
+## What Are Plugin Tools
+
+Tools are functions that AI agents can call. Each tool has a name, description, argument schema, and execution function.
+
+## ToolDefinition Structure
+
+```ts
+tool: {
+  toolName: {
+    description: 'What this tool does',
+    args: {
+      argName: z.string().describe('Description of the argument'),
+    },
+    execute: async (args, ctx) => {
+      // Tool implementation
+      return result;
+    },
+  },
+}
+```
+
+### Fields
+
+- **description**: What the tool does. AI agents use this to decide when to call the tool.
+- **args**: Zod schema defining the arguments the tool accepts.
+- **execute**: The function that runs when the tool is called.
+
+## ToolContext
+
+The execute function receives a context object with access to client, logger, and sessionId:
+
+```ts
+execute: async (args, ctx) => {
+  // ctx.client: PluginClient for calling WhatsApp methods
+  // ctx.logger: PluginLogger for logging
+  // ctx.sessionId: Current session ID
+}
+```
+
+## Example: Lookup Contact Tool
+
+```ts
+export default createPlugin({
+  meta: { name: 'contact-tools' },
+  tool: {
+    lookupContact: {
+      description: 'Look up a contact by phone number',
+      args: {
+        phone: z.string().describe('Phone number to look up'),
+      },
+      execute: async ({ phone }, { client, logger }) => {
+        const chatId = `${phone}@c.us`;
+        const contact = await client.getContact(chatId);
+        logger.info('Contact looked up', { phone, contact });
+        return contact;
+      },
+    },
+  },
+  init: async ({ events, logger, config, client }) => {
+    // Plugin initialization
+  },
+});
+```
+
+## Example: Send Message Tool
+
+```ts
+tool: {
+  sendMessage: {
+    description: 'Send a WhatsApp message to a contact',
+    args: {
+      phone: z.string().describe('Phone number to send to'),
+      message: z.string().describe('Message text'),
+    },
+    execute: async ({ phone, message }, { client, logger }) => {
+      const chatId = `${phone}@c.us`;
+      const result = await client.sendText(chatId, message);
+      logger.info('Message sent', { phone, messageId: result.id });
+      return { success: true, messageId: result.id };
+    },
+  },
+}
+```
+
+## Best Practices
+
+### Descriptive Names
+
+Use clear, action-oriented names like `lookupContact` not `getContact`, and `sendMessage` not `send`.
+
+### Clear Descriptions
+
+Write descriptions that help AI agents decide when to use the tool:
+
+```ts
+description: 'Look up a contact by phone number. Returns the contact name and profile info.'
+```
+
+### Argument Descriptions
+
+Describe each argument so AI agents know what to pass:
+
+```ts
+args: {
+  phone: z.string().describe('Phone number with country code, e.g. 1234567890'),
+}
+```
+
+### Error Handling
+
+Catch errors and return meaningful results:
+
+```ts
+execute: async (args, { client, logger }) => {
+  try {
+    const result = await client.sendText(args.chatId, args.message);
+    return { success: true, messageId: result.id };
+  } catch (error) {
+    logger.error('Failed to send message', { error: error.message });
+    return { success: false, error: error.message };
+  }
+}
+```
+
+### Return Structured Data
+
+Return JSON-serializable objects:
+
+```ts
+return {
+  success: true,
+  data: { name: 'John', phone: '1234567890' },
+};
+```
+
+## Related
+
+- **[Plugin getting started](/docs/plugins/getting-started)** - Build your first plugin
+- **[MCP Integration](/docs/guides/mcp)** - AI agent integration
+- **[Hooks reference](/docs/plugins/hooks-reference)** - Available hooks

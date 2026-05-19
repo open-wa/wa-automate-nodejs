@@ -1,0 +1,246 @@
+---
+title: Publishing a Plugin
+description: How to package, version, and share your plugin with the community.
+---
+
+# Publishing a Plugin
+
+Once you have built a plugin, you may want to share it with others. This guide covers packaging, publishing, and documentation best practices.
+
+## How to Share a Plugin
+
+<Callout type="info">
+**There is no public plugin marketplace.** Sharing a plugin means publishing it as an npm package that users can install and load.
+</Callout>
+
+The workflow is:
+1. Build your plugin as an npm package
+2. Publish it to npm (or a private registry)
+3. Users install it with `npm install` or `pnpm add`
+4. Users load it via the `plugins` array in `wa.config.js`
+
+## Package Structure
+
+### package.json
+
+```json
+{
+  "name": "@myorg/my-plugin",
+  "version": "1.0.0",
+  "description": "A plugin that does X",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "peerDependencies": {
+    "@open-wa/plugin-sdk": ">=5.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  }
+}
+```
+
+### Key Fields
+
+- **`name`**, Use a scoped name (`@myorg/my-plugin`) to avoid collisions
+- **`main`**, The entry point for CommonJS consumers
+- **`exports`**, Modern module resolution with ESM support
+- **`types`**, TypeScript type declarations
+- **`files`**, Only ship the `dist` folder, not source files
+- **`peerDependencies`**, Declare compatibility with `@open-wa/plugin-sdk`
+
+### TypeScript Compilation
+
+Compile your plugin before publishing:
+
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "declaration": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "strict": true,
+    "esModuleInterop": true
+  },
+  "include": ["src"]
+}
+```
+
+## Versioning
+
+### Semantic Versioning
+
+Follow semver (`MAJOR.MINOR.PATCH`):
+
+- **MAJOR**, Breaking changes (e.g., removing hooks, changing config schema)
+- **MINOR**, New features (e.g., adding new hooks, new config options)
+- **PATCH**, Bug fixes
+
+### Compatibility with open-wa Versions
+
+Note which versions of open-wa your plugin is compatible with:
+
+```json
+{
+  "peerDependencies": {
+    "@open-wa/plugin-sdk": ">=5.0.0 <6.0.0"
+  },
+  "engines": {
+    "node": ">=22.21.1"
+  }
+}
+```
+
+### Communicating Breaking Changes
+
+When releasing a major version:
+- Update the README with migration instructions
+- Use GitHub releases with changelogs
+- Consider deprecation warnings in the plugin code before removing features
+
+## Telling Users How to Load It
+
+### Installation
+
+```bash
+npm install @myorg/my-plugin
+# or
+pnpm add @myorg/my-plugin
+```
+
+### Configuration
+
+Document the exact `wa.config.js` entries users need:
+
+```js
+// wa.config.js
+export default {
+  plugins: [
+    '@myorg/my-plugin',
+  ],
+  pluginConfig: {
+    'my-plugin': {
+      // Document each field here
+      apiUrl: 'https://api.example.com',
+      apiKey: process.env.MY_PLUGIN_API_KEY,
+      enabled: true,
+    },
+  },
+};
+```
+
+## Documenting Your Plugin
+
+### README Template
+
+Your plugin's README should include:
+
+````markdown
+# @myorg/my-plugin
+
+Brief description of what the plugin does.
+
+## Installation
+
+```bash
+npm install @myorg/my-plugin
+```
+
+## Configuration
+
+Add to your `wa.config.js`:
+
+```js
+export default {
+  plugins: ['@myorg/my-plugin'],
+  pluginConfig: {
+    'my-plugin': {
+      // required: Description
+      apiKey: process.env.MY_PLUGIN_API_KEY,
+      // optional: Description (default: value)
+      optionName: 'default',
+    },
+  },
+};
+```
+
+### Configuration Options
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| apiKey | string | Yes | - | Your API key |
+| optionName | string | No | "default" | Description |
+
+## Features
+
+- Feature 1
+- Feature 2
+
+## Troubleshooting
+
+### Common issue 1
+Solution...
+
+### Common issue 2
+Solution...
+````
+
+### Config Options Reference
+
+Document each config field with:
+- Type
+- Whether it is required
+- Default value
+- Description
+- Example
+
+## Testing Before Publishing
+
+### Local Testing with File Path
+
+Before publishing to npm, test locally:
+
+```js
+// wa.config.js
+export default {
+  plugins: [
+    './path/to/my-plugin',  // Local file path
+  ],
+  pluginConfig: {
+    'my-plugin': {
+      // test config
+    },
+  },
+};
+```
+
+### Named Session Testing
+
+Test with a named session to isolate test data:
+
+```bash
+npx @open-wa/wa-automate --session-id plugin-test --port 8080
+```
+
+### Multi-Session Compatibility
+
+If your plugin uses session-specific data, test it with multiple sessions running simultaneously to ensure there are no conflicts.
+
+## Related
+
+- **[Plugin getting started](/docs/plugins/getting-started)**, Build your first plugin
+- **[Hooks reference](/docs/plugins/hooks-reference)**, Available hooks
+- **[Plugin security model](/docs/plugins/security-model)**, Security boundaries

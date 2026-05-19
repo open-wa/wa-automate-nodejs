@@ -1,0 +1,278 @@
+---
+title: Plugin Security Model
+description: Understand what plugins can and cannot do, how config validation works, and how to handle secrets safely.
+---
+
+# Plugin Security Model
+
+Plugins run inside the open-wa host process with controlled access to the runtime. Understanding the security boundaries helps you build safe, reliable plugins.
+
+## What Plugins Cannot Do
+
+### Cannot Emit Events
+
+Plugins can only **subscribe** to events. They cannot emit events into the host's event system.
+
+```ts
+// This is NOT possible:
+events.emit('custom.event', data); // No emit method exists
+```
+
+### Cannot Listen to Internal Events
+
+The event emitter filters out internal and sensitive event namespaces:
+
+- `launch.*` — Browser launch events
+- `browser.*` — Browser lifecycle events
+- `transport.*` — Transport layer events
+- `license.*` — License validation events
+- Session data events — Raw authentication material
+
+If you try to listen to these events, the handler will never fire.
+
+### No Direct Browser Access
+
+Plugins receive a **client proxy**, not direct browser or CDP access. You cannot:
+
+- Execute CDP commands
+- Manipulate the browser DOM directly
+- Access browser cookies or storage directly
+- Inject scripts into the WhatsApp Web page
+
+### No File System Access Beyond Plugin Scope
+
+Plugins cannot read or write arbitrary files on the host system. Any file operations should be scoped to the plugin's own data directory.
+
+## What Plugins Can Do
+
+### Subscribe to Public Events
+
+```ts
+events.on('message.received', (payload) => { ... });
+events.once('client.ready', () => { ... });
+```
+
+### Call Any WhatsApp Method
+
+Through the `client` proxy:
+
+```ts
+await client.sendText('123@c.us', 'Hello');
+await client.getHostNumber();
+await client.ask('anyMethod', ['args']);
+```
+
+### Mount HTTP Routes
+
+```ts
+routes: () => {
+  const app = new Hono();
+  app.get('/health', (c) => c.json({ ok: true }));
+  return app;
+}
+```
+
+Routes are mounted at `/plugins/<name>/`.
+
+### Register AI Tools
+
+```ts
+tool: {
+  myTool: {
+    description: 'Does something useful',
+    args: { input: z.string() },
+    execute: async (args, ctx) => { ... },
+  },
+}
+```
+
+### Add Dashboard Pages
+
+```ts
+pages: [{ path: '/', title: 'Status', icon: '📊' }]
+```
+
+## Config Validation
+
+### How It Works
+
+If you provide a `configSchema` in your plugin definition, the host validates the configuration **before** calling `init()`.
+
+```ts
+export default createPlugin({
+  meta: { name: 'my-plugin' },
+  configSchema: z.object({
+    apiUrl: z.string().url(),
+    apiKey: z.string().min(1),
+  }),
+  init: async ({ config }) => {
+    // config is guaranteed to match the schema
+  },
+});
+```
+
+### If Validation Fails
+
+- The plugin will **not** load
+- An error is logged with details about what failed
+- The host continues running other plugins
+
+### Handling Missing Config Gracefully
+
+Use Zod defaults and optional fields:
+
+```ts
+const configSchema = z.object({
+  apiUrl: z.string().url().default('https://api.example.com'),
+  apiKey: z.string().optional(),
+  retries: z.number().int().positive().default(3),
+});
+```
+
+If `apiKey` is optional, your plugin should handle the case where it is `undefined`:
+
+```ts
+init: async ({ config }) => {
+  if (!config.apiKey) {
+    logger.warn('No API key configured, some features will be disabled');
+  }
+}
+```
+
+## Secret Management
+
+### Environment Variables
+
+Reference environment variables in your `wa.config.js`:
+
+```js
+// wa.config.js
+export default {
+  pluginConfig: {
+    'my-plugin': {
+      apiKey: process.env.MY_PLUGIN_API_KEY,
+    },
+  },
+};
+```
+
+### .env File Support
+
+Use a `.env` file in your project root:
+
+```
+MY_PLUGIN_API_KEY=sk-abc123...
+```
+
+The config file can read from `process.env` which picks up `.env` values if your setup loads them.
+
+### Are Config Values Logged?
+
+Plugin config values are **not** automatically logged. However, if your plugin logs the config object directly, secrets will appear in the logs. Always redact sensitive fields:
+
+```ts
+// BAD — logs the API key
+logger.info('Config loaded', { config });
+
+// GOOD — logs only non-sensitive fields
+logger.info('Config loaded', { apiUrl: config.apiUrl, hasKey: !!config.apiKey });
+```
+
+### Validating API Keys Are Present
+
+```ts
+const configSchema = z.object({
+  apiKey: z.string().min(1, 'API key is required'),
+});
+```
+
+This will fail validation with a clear error message if the key is missing or empty.
+
+### Rotating Keys Without Restart
+
+Currently, config is validated once at plugin initialization. To rotate keys:
+
+1. Update the environment variable or config file
+2. Restart the session
+3. The plugin will reload with the new key
+
+## Error Handling Patterns
+
+### API Failures (Rate Limits, Timeouts, 401)
+
+```ts
+'message.received': async ({ message }) => {
+  try {
+    const result = await fetchExternalAPI(message);
+  } catch (error) {
+    if (error.status === 429) {
+      logger.warn('Rate limited, will retry', { retryAfter: error.retryAfter });
+      // Queue for retry
+    } else if (error.status === 401) {
+      logger.error('Invalid API key');
+      // Notify admin or disable feature
+    } else {
+      logger.error('API call failed', { error: error.message });
+      // Continue processing other messages
+    }
+  }
+}
+```
+
+### Network Errors
+
+```ts
+try {
+  const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
+} catch (error) {
+  if (error.name === 'TimeoutError') {
+    logger.warn('Request timed out');
+  } else if (error.code === 'ECONNREFUSED') {
+    logger.error('Connection refused');
+  }
+}
+```
+
+### Malformed Messages
+
+Always validate message data before processing:
+
+```ts
+'message.received': async ({ message }) => {
+  const msg = message as { body?: string; from?: string };
+  if (!msg.body || !msg.from) {
+    logger.debug('Skipping malformed message');
+    return;
+  }
+  // Process the message
+}
+```
+
+### WhatsApp Connection Drops
+
+Use lifecycle hooks to detect connection state:
+
+```ts
+'core.stopping': async ({ reason }) => {
+  logger.info('Session stopping', { reason });
+  // Flush queues, save state
+},
+
+'client.ready': async ({ sessionId }) => {
+  logger.info('Reconnected', { sessionId });
+  // Resume processing
+},
+```
+
+### Should You Throw or Continue?
+
+- **`logger.error()` and continue** — For recoverable errors (network timeouts, rate limits). The plugin keeps processing other messages.
+- **Throw** — For unrecoverable errors (invalid config detected at runtime, critical dependency failure). This may crash the plugin.
+- **`dispose()` and unregister** — For errors that mean the plugin should stop entirely (license expired, API key revoked permanently).
+- **Queue for retry** — For transient failures (network errors, rate limits). Implement retry with exponential backoff.
+
+## Related
+
+- **[Plugin getting started](/docs/plugins/getting-started)** — Build your first plugin
+- **[PluginInput breakdown](/docs/plugins/plugin-input)** — What your plugin receives
+- **[External API patterns](/docs/plugins/external-api-patterns)** — Calling external services from plugins

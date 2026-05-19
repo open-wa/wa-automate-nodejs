@@ -1,0 +1,19 @@
+{
+  "title": "Plugins",
+  "defaultOpen": true,
+  "pages": [
+    "getting-started",
+    "hooks-reference",
+    "plugin-client",
+    "plugin-input",
+    "security-model",
+    "publishing",
+    "reference-plugin-walkthrough",
+    "example-dictation",
+    "example-moderation",
+    "external-api-patterns",
+    "dashboard-pages",
+    "ai-tools",
+    "hono-routes"
+  ]
+}

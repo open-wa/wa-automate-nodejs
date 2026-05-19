@@ -1,0 +1,153 @@
+---
+title: PluginInput Breakdown
+description: Understand what your plugin receives — events, logger, config, sessionId, and client.
+---
+
+# PluginInput Breakdown
+
+When your plugin's `init()` function is called, it receives a `PluginInput` object. This contains everything your plugin needs to operate.
+
+## What is PluginInput?
+
+```ts
+interface PluginInput<TConfig = unknown> {
+  events: PluginEventEmitter;
+  logger: PluginLogger;
+  config: TConfig;
+  sessionId: string;
+  client: PluginClient;
+}
+```
+
+Each field is described below.
+
+## `events` — Security-Filtered Event Emitter
+
+The `events` field is an event emitter that has been filtered for security.
+
+### What you can do
+
+- Subscribe to public events using `on()`, `once()`, and `off()`
+
+```ts
+events.on('message.received', (payload) => {
+  logger.info('Message received');
+});
+```
+
+### What you cannot do
+
+- **Emit events** — Only the host can emit. Plugins can only subscribe.
+- **Listen to internal events** — Events prefixed with `launch.*`, `browser.*`, and `transport.*` are blocked.
+- **Listen to sensitive events** — Events prefixed with `license.*` and session data events are blocked.
+
+This ensures plugins cannot interfere with the runtime lifecycle or access sensitive information.
+
+## `logger` — Scoped Logger
+
+The `logger` provides structured logging with automatic plugin name prefixing.
+
+### Methods
+
+```ts
+logger.info('Plugin initialized', { version: '1.0.0' });
+logger.warn('API key is missing, using defaults');
+logger.error('Failed to connect', { error: 'ECONNREFUSED' });
+logger.debug('Processing message', { messageId: 'abc123' });
+```
+
+- `info(message, meta?)` — Informational messages
+- `warn(message, meta?)` — Warnings
+- `error(message, meta?)` — Errors
+- `debug(message, meta?)` — Debug output (only visible when debug logging is enabled)
+
+### Auto-Prefixing
+
+All log output is automatically prefixed with your plugin name:
+
+```
+[greeting-bot] Plugin initialized { version: '1.0.0' }
+```
+
+### Log Persistence
+
+Plugin logs flow through the host's logging system. Whether they are persisted depends on the host's logging configuration. By default, logs are written to stdout/stderr.
+
+## `config` — Validated Configuration
+
+The `config` field contains your plugin's configuration from the global `wa.config.js` file, already validated against your `configSchema`.
+
+### Access Pattern
+
+Your plugin's config is accessed via the `pluginConfig` key in the global config file:
+
+```js
+// wa.config.js
+export default {
+  pluginConfig: {
+    'my-plugin': {
+      apiUrl: 'https://api.example.com',
+      apiKey: process.env.MY_PLUGIN_API_KEY,
+    },
+  },
+};
+```
+
+```ts
+// my-plugin.ts
+init: async ({ config }) => {
+  // config is { apiUrl: string; apiKey: string }
+  // Already validated against your configSchema
+  console.log(config.apiUrl);
+}
+```
+
+### Type Inference
+
+When you provide a `configSchema`, the `config` type is automatically inferred:
+
+```ts
+const configSchema = z.object({
+  apiUrl: z.string().url(),
+  apiKey: z.string().min(1),
+  retries: z.number().int().positive().default(3),
+});
+
+// config is typed as { apiUrl: string; apiKey: string; retries: number }
+init: async ({ config }) => { ... }
+```
+
+## `sessionId` — Current Session
+
+A string identifier for the current session.
+
+```ts
+init: async ({ sessionId }) => {
+  logger.info('Plugin loaded for session', { sessionId });
+}
+```
+
+Use this for:
+
+- Logging and debugging
+- Scoping data to a specific session
+- Differentiating behavior across multiple sessions
+
+## `client` — WA Method Proxy
+
+The `client` is a transport-agnostic proxy for calling WhatsApp methods.
+
+```ts
+init: async ({ client }) => {
+  await client.sendText('1234567890@c.us', 'Hello!');
+  const number = await client.getHostNumber();
+}
+```
+
+See the **[PluginClient reference](/docs/plugins/plugin-client)** for the complete list of available methods.
+
+## Related
+
+- **[Hooks reference](/docs/plugins/hooks-reference)** — What your plugin can return
+- **[PluginClient reference](/docs/plugins/plugin-client)** — Available client methods
+- **[Plugin security model](/docs/plugins/security-model)** — What plugins can and cannot do
