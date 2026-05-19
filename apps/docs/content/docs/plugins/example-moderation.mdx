@@ -1,28 +1,51 @@
 ---
-title: "Example: OpenAI Moderation"
-description: Build a plugin that scans messages using OpenAI's moderation API and blocks flagged content.
+title: "Example: OpenAI moderation"
+description: Build a plugin that scans incoming group messages, labels flagged content, and optionally deletes or reports it.
 ---
 
-# Example: OpenAI Moderation
+# Example: OpenAI moderation
 
-This example builds a plugin that scans incoming messages using OpenAI's Moderation API and takes action on flagged content. It covers group-only moderation, message deletion, logging, and configuration.
+This example builds a plugin that scans incoming group messages using OpenAI's Moderation API and takes follow-up action on flagged content. Incoming WhatsApp messages have already arrived, so the plugin can detect, label, delete when allowed, warn, report, or stop your own downstream handling.
 
-## The Goal
+## What the plugin does
 
 When a message arrives in a moderated group:
 1. The plugin extracts the text content
 2. Sends it to OpenAI's Moderation API
 3. If flagged, the plugin can delete the message, warn the sender, and log the action
-4. If clean, the message passes through normally
+4. If clean, your other handlers can continue processing it normally
 
-## Scanning Incoming Messages
+## Scan incoming messages
 
 ```ts
-events.on('message.received', async ({ message }) => {
-  const msg = message as { body?: string; from?: string; isGroupMsg?: boolean };
+function getModeratableMessage(message: unknown) {
+  if (!message || typeof message !== 'object') return null;
 
-  // Only moderate group messages
-  if (!msg.isGroupMsg || !msg.body) return;
+  const candidate = message as {
+    body?: unknown;
+    from?: unknown;
+    chatId?: unknown;
+    id?: unknown;
+    isGroupMsg?: unknown;
+    sender?: { id?: string };
+  };
+  if (candidate.isGroupMsg !== true) return null;
+  if (typeof candidate.body !== 'string' || typeof candidate.from !== 'string') return null;
+  if (typeof candidate.chatId !== 'string' || typeof candidate.id !== 'string') return null;
+
+  return {
+    body: candidate.body,
+    from: candidate.from,
+    chatId: candidate.chatId,
+    id: candidate.id,
+    sender: candidate.sender,
+  };
+}
+
+events.on('message.received', async ({ message }) => {
+  const msg = getModeratableMessage(message);
+
+  if (!msg) return;
 
   const result = await checkModeration(msg.body, config.apiKey);
 
@@ -32,9 +55,14 @@ events.on('message.received', async ({ message }) => {
 });
 ```
 
-## Calling OpenAI Moderation
+## Call OpenAI moderation
 
 ```ts
+type ModerationResult = {
+  flagged: boolean;
+  categories: Record<string, boolean>;
+};
+
 async function checkModeration(text: string, apiKey: string) {
   const response = await fetch('https://api.openai.com/v1/moderations', {
     method: 'POST',
@@ -49,12 +77,18 @@ async function checkModeration(text: string, apiKey: string) {
     throw new Error(`Moderation API error: ${response.status}`);
   }
 
-  const data = await response.json();
-  return data.results[0];
+  const data = await response.json() as { results?: ModerationResult[] };
+  const [result] = data.results ?? [];
+
+  if (!result) {
+    throw new Error('Moderation API response did not include a result');
+  }
+
+  return result;
 }
 ```
 
-## Blocking Flagged Messages
+## Prevent flagged outgoing messages
 
 Use the `message.send.before` interceptor to prevent flagged messages from being sent:
 
@@ -65,55 +99,58 @@ Use the `message.send.before` interceptor to prevent flagged messages from being
 }
 ```
 
-For incoming messages, you cannot prevent delivery, but you can delete the message after detection:
+## Handle flagged incoming messages
+
+For incoming messages, you cannot prevent delivery after receipt. You can delete the message when the connected account has permission, warn the sender, report to admins, and skip downstream business logic:
 
 ```ts
 if (result.flagged) {
-  // Delete the message (if the bot is an admin)
-  await client.deleteMessage(message.chatId, message.id);
+  // Delete the message if the connected account is a group admin
+  await client.deleteMessage(msg.chatId, msg.id);
 
   // Warn the sender
   await client.reply(
-    message.from,
+    msg.from,
     'Your message was flagged for inappropriate content.',
-    message.id
+    msg.id
   );
 
   // Log the action
   logger.warn('Message flagged and deleted', {
-    from: message.from,
+    from: msg.from,
     categories: result.categories,
   });
 }
 ```
 
-## Group-Only Moderation
+## Group-only moderation
 
 Detect group messages and skip direct messages:
 
 ```ts
 events.on('message.received', async ({ message }) => {
-  const msg = message as { from?: string; isGroupMsg?: boolean };
+  const msg = getModeratableMessage(message);
 
-  // Skip non-group messages
-  if (!msg.isGroupMsg) return;
+  if (!msg) return;
 
   // Check if this group is in the moderation list
   if (config.groups.length > 0 && !config.groups.includes(msg.from)) {
-    return; // Not a moderated group
+    return;
   }
 
   // Moderate the message
 });
 ```
 
-## Exempting Admins
+## Exempt admins
 
 ```ts
 const exemptAdmins = new Set(config.adminIds || []);
 
 events.on('message.received', async ({ message }) => {
-  const msg = message as { from?: string; sender?: { id?: string } };
+  const msg = getModeratableMessage(message);
+
+  if (!msg) return;
 
   if (exemptAdmins.has(msg.sender?.id)) {
     return; // Admin messages are exempt
@@ -121,11 +158,13 @@ events.on('message.received', async ({ message }) => {
 });
 ```
 
-## Deleting Flagged Messages
+## Delete flagged messages
 
 ```ts
 // Delete the message
-await client.deleteMessage(message.chatId, message.id);
+if (msg.chatId && msg.id) {
+  await client.deleteMessage(msg.chatId, msg.id);
+}
 ```
 
 Notes:
@@ -133,19 +172,19 @@ Notes:
 - There may be a time limit on how old a message can be deleted
 - Incoming messages may have different deletion behavior than sent messages
 
-## Logging Actions
+## Log actions
 
 ```ts
 logger.warn('Moderation action taken', {
-  from: message.from,
-  groupId: message.chatId,
+  from: msg.from,
+  groupId: msg.chatId,
   flagged: result.flagged,
   categories: result.categories,
   action: 'deleted',
 });
 ```
 
-## Configuration Schema
+## Configuration schema
 
 ```ts
 const configSchema = z.object({
@@ -161,12 +200,55 @@ const configSchema = z.object({
 });
 ```
 
-## Full Code Example
+## Full code example
 
 ```ts
 // moderation.ts
 import { createPlugin } from '@open-wa/plugin-sdk';
 import { z } from 'zod';
+
+type ModerationResult = {
+  flagged: boolean;
+  categories: Record<string, boolean>;
+};
+
+type ModeratableMessage = {
+  body: string;
+  from: string;
+  chatId: string;
+  id: string;
+  sender?: { id?: string };
+};
+
+function getModeratableMessage(message: unknown): ModeratableMessage | null {
+  if (!message || typeof message !== 'object') return null;
+
+  const candidate = message as {
+    body?: unknown;
+    from?: unknown;
+    chatId?: unknown;
+    isGroupMsg?: unknown;
+    id?: unknown;
+    sender?: { id?: string };
+  };
+
+  if (candidate.isGroupMsg !== true) return null;
+  if (typeof candidate.body !== 'string' || candidate.body.length === 0) return null;
+  if (typeof candidate.from !== 'string') return null;
+  if (typeof candidate.chatId !== 'string' || typeof candidate.id !== 'string') return null;
+
+  return {
+    body: candidate.body,
+    from: candidate.from,
+    chatId: candidate.chatId,
+    id: candidate.id,
+    sender: candidate.sender,
+  };
+}
+
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
+}
 
 const configSchema = z.object({
   apiKey: z.string().min(1, 'OpenAI API key is required'),
@@ -180,7 +262,7 @@ const configSchema = z.object({
   }).default({}),
 });
 
-async function checkModeration(text: string, apiKey: string) {
+async function checkModeration(text: string, apiKey: string): Promise<ModerationResult> {
   const response = await fetch('https://api.openai.com/v1/moderations', {
     method: 'POST',
     headers: {
@@ -194,8 +276,14 @@ async function checkModeration(text: string, apiKey: string) {
     throw new Error(`Moderation API error: ${response.status}`);
   }
 
-  const data = await response.json();
-  return data.results[0];
+  const data = await response.json() as { results?: ModerationResult[] };
+  const [result] = data.results ?? [];
+
+  if (!result) {
+    throw new Error('Moderation API response did not include a result');
+  }
+
+  return result;
 }
 
 export default createPlugin({
@@ -209,17 +297,9 @@ export default createPlugin({
     const exemptAdmins = new Set(config.adminIds);
 
     events.on('message.received', async ({ message }) => {
-      const msg = message as {
-        body?: string;
-        from?: string;
-        chatId?: string;
-        isGroupMsg?: boolean;
-        id?: string;
-        sender?: { id?: string };
-      };
+      const msg = getModeratableMessage(message);
 
-      // Only moderate group messages with text
-      if (!msg.isGroupMsg || !msg.body) return;
+      if (!msg) return;
 
       // Skip exempt admins
       if (exemptAdmins.has(msg.sender?.id)) return;
@@ -243,7 +323,7 @@ export default createPlugin({
               await client.deleteMessage(msg.chatId, msg.id);
               logger.info('Message deleted');
             } catch (error) {
-              logger.error('Failed to delete message', { error: error.message });
+              logger.error('Failed to delete message', { error: errorMessage(error) });
             }
           }
 
@@ -256,15 +336,15 @@ export default createPlugin({
           }
         }
       } catch (error) {
-        logger.error('Moderation check failed', { error: error.message });
-        // Continue processing - do not block on API errors
+        logger.error('Moderation check failed', { error: errorMessage(error) });
+        // Continue processing. Do not treat API errors as moderation decisions.
       }
     });
   },
 });
 ```
 
-## Loading and Testing
+## Load and test it
 
 ```js
 // wa.config.js
@@ -288,9 +368,9 @@ export default {
 };
 ```
 
-## Performance Considerations
+## Performance considerations
 
-### Concurrent Calls
+### Concurrent calls
 
 The moderation API is called for every message. If your group has high volume:
 
@@ -326,6 +406,6 @@ function getCached(text: string) {
 
 ## Related
 
-- **[Plugin getting started](/docs/plugins/getting-started)** - Build your first plugin
-- **[Plugin security model](/docs/plugins/security-model)** - Security boundaries
-- **[External API patterns](/docs/plugins/external-api-patterns)** - Calling external services
+- **[Plugin getting started](/docs/plugins/getting-started)**, build your first plugin
+- **[Plugin security model](/docs/plugins/security-model)**, security boundaries
+- **[External API patterns](/docs/plugins/external-api-patterns)**, calling external services
