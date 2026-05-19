@@ -1,13 +1,13 @@
 ---
-title: "Example: Voice Note Transcription"
-description: Build a plugin that transcribes voice notes and replies with the text.
+title: "Example: voice note transcription"
+description: Build a plugin that detects voice notes, sends audio to a speech-to-text provider, and replies with the text.
 ---
 
-# Example: Voice Note Transcription
+# Example: voice note transcription
 
-This example builds a plugin that listens for voice notes, transcribes them using a speech-to-text API, and replies to the sender with the transcription.
+This example builds a plugin that listens for WhatsApp voice notes, sends the decrypted audio to OpenAI's transcription API, and replies to the sender with the text.
 
-## The Goal
+## What the plugin does
 
 When someone sends a voice note to your WhatsApp session:
 
@@ -16,45 +16,76 @@ When someone sends a voice note to your WhatsApp session:
 3. Sends it to a speech-to-text API
 4. Replies to the sender with the transcription as a quoted message
 
-## Detecting Voice Notes
+## Detect voice notes
 
 Voice notes arrive as messages with specific properties:
 
 ```ts
-'message.received': async ({ message, logger }) => {
-  const msg = message as { type?: string; mimetype?: string };
+type VoiceNoteMessage = {
+  type: 'audio';
+  mimetype: string;
+  from: string;
+  id: string;
+};
 
-  // Voice notes are audio type with OGG mimetype
-  if (msg.type !== 'audio' || !msg.mimetype?.includes('ogg')) {
-    return; // Not a voice note
-  }
+function getVoiceNote(message: unknown): VoiceNoteMessage | null {
+  if (!message || typeof message !== 'object') return null;
+
+  const candidate = message as {
+    type?: unknown;
+    mimetype?: unknown;
+    from?: unknown;
+    id?: unknown;
+  };
+
+  if (candidate.type !== 'audio') return null;
+  if (typeof candidate.mimetype !== 'string' || !candidate.mimetype.includes('ogg')) return null;
+  if (typeof candidate.from !== 'string' || typeof candidate.id !== 'string') return null;
+
+  return {
+    type: 'audio',
+    mimetype: candidate.mimetype,
+    from: candidate.from,
+    id: candidate.id,
+  };
+}
+
+'message.received': async ({ message, logger }) => {
+  const voiceNote = getVoiceNote(message);
+
+  if (!voiceNote) return;
 
   logger.info('Voice note received');
 }
 ```
 
-## Decrypting Media
+## Decrypt media
 
 Use `client.decryptMedia` to get the raw audio bytes:
 
 ```ts
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
+}
+
 'message.received': async ({ message, client, logger }) => {
-  const msg = message as { type?: string; mimetype?: string };
-  if (msg.type !== 'audio') return;
+  const voiceNote = getVoiceNote(message);
+
+  if (!voiceNote) return;
 
   try {
     const mediaData = await client.decryptMedia(message);
     // mediaData is a Buffer containing the OGG audio
     logger.info('Media decrypted', { size: mediaData.length });
   } catch (error) {
-    logger.error('Failed to decrypt media', { error: error.message });
+    logger.error('Failed to decrypt media', { error: errorMessage(error) });
   }
 }
 ```
 
-## Calling the STT API
+## Call the transcription API
 
-Send the audio to a speech-to-text service. This example uses a generic fetch pattern:
+Send the audio to a speech-to-text service. This example uses OpenAI's audio transcription endpoint:
 
 ```ts
 async function transcribe(audioBuffer: Buffer, apiKey: string): Promise<string> {
@@ -74,31 +105,40 @@ async function transcribe(audioBuffer: Buffer, apiKey: string): Promise<string> 
     throw new Error(`STT API error: ${response.status}`);
   }
 
-  const result = await response.json();
+  const result = await response.json() as { text?: unknown };
+
+  if (typeof result.text !== 'string') {
+    throw new Error('STT API response did not include text');
+  }
+
   return result.text;
 }
 ```
 
-## Quote-Replying
+## Reply with the transcript
 
 Use `client.reply` to send the transcription as a quoted reply:
 
 ```ts
 'message.received': async ({ message, client, logger }) => {
   // ... after transcription ...
+  const voiceNote = getVoiceNote(message);
+
+  if (!voiceNote) return;
+
   const transcription = await transcribe(mediaData, config.apiKey);
 
-  await client.reply(message.from, transcription, message.id);
+  await client.reply(voiceNote.from, transcription, voiceNote.id);
   logger.info('Transcription sent');
 }
 ```
 
 ## Configuration
 
-Use `defineConfig` with Zod for clean configuration:
+Use Zod for configuration validation so the plugin fails at startup when the API key is missing:
 
 ```ts
-import { createPlugin, defineConfig } from '@open-wa/plugin-sdk';
+import { createPlugin } from '@open-wa/plugin-sdk';
 import { z } from 'zod';
 
 const configSchema = z.object({
@@ -119,28 +159,62 @@ export default createPlugin({
     logger.info('Voice transcriber loaded');
 
     events.on('message.received', async ({ message }) => {
-      const msg = message as { type?: string; mimetype?: string };
-      if (msg.type !== 'audio' || !msg.mimetype?.includes('ogg')) return;
+      const voiceNote = getVoiceNote(message);
+
+      if (!voiceNote) return;
 
       try {
         const mediaData = await client.decryptMedia(message);
         const transcription = await transcribe(mediaData, config.apiKey);
-        await client.reply(message.from, transcription, message.id);
+        await client.reply(voiceNote.from, transcription, voiceNote.id);
         logger.info('Transcription sent');
       } catch (error) {
-        logger.error('Transcription failed', { error: error.message });
+        logger.error('Transcription failed', { error: errorMessage(error) });
       }
     });
   },
 });
 ```
 
-## Full Code Example
+## Full code example
 
 ```ts
 // voice-transcriber.ts
-import { createPlugin, defineConfig } from '@open-wa/plugin-sdk';
+import { createPlugin } from '@open-wa/plugin-sdk';
 import { z } from 'zod';
+
+type VoiceNoteMessage = {
+  type: 'audio';
+  mimetype: string;
+  from: string;
+  id: string;
+};
+
+function getVoiceNote(message: unknown): VoiceNoteMessage | null {
+  if (!message || typeof message !== 'object') return null;
+
+  const candidate = message as {
+    type?: unknown;
+    mimetype?: unknown;
+    from?: unknown;
+    id?: unknown;
+  };
+
+  if (candidate.type !== 'audio') return null;
+  if (typeof candidate.mimetype !== 'string' || !candidate.mimetype.includes('ogg')) return null;
+  if (typeof candidate.from !== 'string' || typeof candidate.id !== 'string') return null;
+
+  return {
+    type: 'audio',
+    mimetype: candidate.mimetype,
+    from: candidate.from,
+    id: candidate.id,
+  };
+}
+
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
+}
 
 const configSchema = z.object({
   apiKey: z.string().min(1, 'STT API key is required'),
@@ -166,7 +240,12 @@ async function transcribe(audioBuffer: Buffer, apiKey: string, language: string)
     throw new Error(`STT API error: ${response.status} ${response.statusText}`);
   }
 
-  const result = await response.json();
+  const result = await response.json() as { text?: unknown };
+
+  if (typeof result.text !== 'string') {
+    throw new Error('STT API response did not include text');
+  }
+
   return result.text;
 }
 
@@ -182,8 +261,9 @@ export default createPlugin({
     logger.info('Voice transcriber loaded');
 
     events.on('message.received', async ({ message }) => {
-      const msg = message as { type?: string; mimetype?: string };
-      if (msg.type !== 'audio' || !msg.mimetype?.includes('ogg')) return;
+      const voiceNote = getVoiceNote(message);
+
+      if (!voiceNote) return;
 
       try {
         const mediaData = await client.decryptMedia(message);
@@ -192,16 +272,16 @@ export default createPlugin({
         const transcription = await transcribe(mediaData, config.apiKey, config.language);
         logger.info('Transcription complete', { length: transcription.length });
 
-        await client.reply(message.from, transcription, message.id);
+        await client.reply(voiceNote.from, transcription, voiceNote.id);
       } catch (error) {
-        logger.error('Transcription failed', { error: error.message });
+        logger.error('Transcription failed', { error: errorMessage(error) });
       }
     });
   },
 });
 ```
 
-## Loading and Testing
+## Load and test it
 
 Add to your `wa.config.js`:
 
@@ -227,9 +307,9 @@ Start a named session for testing:
 npx @open-wa/wa-automate --session-id dictation-test --port 8080
 ```
 
-Send a voice note to your session. The plugin should reply with the transcription.
+Send a voice note to your session. The plugin should reply with the transcription. If nothing happens, check that the message is an OGG audio voice note and that `STT_API_KEY` is set.
 
-## Error Handling
+## What can go wrong
 
 The example catches errors and logs them without crashing:
 
@@ -239,6 +319,6 @@ The example catches errors and logs them without crashing:
 
 ## Related
 
-- **[Plugin getting started](/docs/plugins/getting-started)** - Build your first plugin
-- **[PluginClient reference](/docs/plugins/plugin-client)** - Available client methods
-- **[External API patterns](/docs/plugins/external-api-patterns)** - Calling external services
+- **[Plugin getting started](/docs/plugins/getting-started)**, build your first plugin
+- **[PluginClient reference](/docs/plugins/plugin-client)**, available client methods
+- **[External API patterns](/docs/plugins/external-api-patterns)**, calling external services
