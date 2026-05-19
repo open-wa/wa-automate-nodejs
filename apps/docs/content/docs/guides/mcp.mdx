@@ -1,15 +1,27 @@
 ---
-title: MCP Integration
-description: Connect AI agents to WhatsApp using the built-in Model Context Protocol server.
+title: MCP integration
+description: Safely connect an authenticated AI agent to the Easy API through the built-in Model Context Protocol server.
 ---
 
-# MCP Integration
+# MCP integration
 
-The built-in **Model Context Protocol (MCP)** server lets AI agents like Claude, Cursor, and Windsurf interact with WhatsApp directly. Every Easy API method is exposed as a discoverable tool that AI agents can call.
+Use the built-in **Model Context Protocol (MCP)** server only when you want an authenticated AI agent to call Easy API tools. Treat the MCP endpoint like API access to your WhatsApp session.
 
-## What is MCP?
+<Callout type="warning">
+MCP can read and send WhatsApp data through the connected session. Keep it behind an API key, do not expose it publicly, and use a dedicated session for agent work when possible.
+</Callout>
 
-The Model Context Protocol is a standard for connecting AI assistants to external tools and data sources. With open-wa's MCP server, an AI agent can:
+## Security checklist before you enable MCP
+
+- Start Easy API with `--api-key`; MCP refuses to start without one.
+- Share the MCP URL only with clients you trust to read and send WhatsApp messages.
+- Put the endpoint behind HTTPS or a trusted reverse proxy before remote use.
+- Use a dedicated WhatsApp session for AI-agent experiments.
+- Watch logs and the MCP dashboard while testing new prompts or tools.
+
+## What MCP gives the agent
+
+The Model Context Protocol is a standard for connecting AI assistants to external tools and data sources. With open-wa's MCP server, an authenticated AI agent can call Easy API methods as tools, including methods that can:
 
 - Read incoming messages
 - Send messages to any contact or group
@@ -17,20 +29,20 @@ The Model Context Protocol is a standard for connecting AI assistants to externa
 - Manage groups
 - Send media (images, files, locations)
 
-All of this through natural language, no manual API calls needed.
+The agent still needs your MCP client, prompt, and permissions model to decide when those tools should be called.
 
-## Why Use MCP vs Direct HTTP API?
+## MCP vs direct HTTP API
 
 | MCP | Direct HTTP API |
 |---|---|
-| AI agents discover tools automatically | You must manually construct API calls |
+| AI agents can list available tools | You construct API calls yourself |
 | Tools are generated from the schema registry | You must read API docs and build requests |
 | Session readiness is enforced | You must check session state yourself |
 | Single endpoint (Streamable HTTP) | Multiple endpoints for different operations |
 
-## Quick Start
+## Quick start
 
-Start the Easy API with MCP enabled:
+Start the Easy API with an API key and MCP enabled:
 
 ```bash
 npx @open-wa/wa-automate --port 8080 --api-key "your-secure-key" --mcp
@@ -42,15 +54,15 @@ The MCP endpoint is available at:
 http://localhost:8080/mcp
 ```
 
-## Streamable HTTP Transport
+## Streamable HTTP transport
 
 open-wa uses the **Streamable HTTP** transport for MCP. This means:
 
 - **Single endpoint**, no separate SSE or messages paths. Everything goes through `/mcp`.
 - **Session readiness**, tools block until the WhatsApp session is fully connected. An AI agent cannot send messages before the session is ready.
-- **Stateful connections**, the server maintains session state across requests.
+- **Stateful connections**, the server maintains MCP session state across requests.
 
-## Configuring AI Clients
+## Configure AI clients
 
 ### Claude Desktop
 
@@ -69,7 +81,7 @@ Add to your `claude_desktop_config.json`:
 }
 ```
 
-After adding this configuration, restart Claude Desktop. The open-wa tools will appear in the available tools list.
+After adding this configuration, restart Claude Desktop. The open-wa tools should appear in the available tools list.
 
 ### Cursor
 
@@ -98,7 +110,7 @@ If you are building a custom MCP client:
 3. Use the `tools/list` method to discover available tools
 4. Use `tools/call` to execute tools
 
-## Security Model
+## Security model
 
 <Callout type="warning">
 **MCP is an Easy API-only feature.** It is not available through `createClient()`. The API key is mandatory, MCP refuses to start without one.
@@ -108,9 +120,9 @@ If you are building a custom MCP client:
 
 Every MCP request must include the same API key as the Easy API. Requests without a valid key are rejected.
 
-### What Data AI Agents Can Access
+### What data AI agents can access
 
-Currently, MCP exposes **all** Easy API methods as tools. An authenticated AI agent can:
+Currently, MCP exposes **all** Easy API methods as tools. An authenticated AI agent may be able to:
 
 - Read all messages in all chats
 - Send messages to any contact or group
@@ -118,15 +130,15 @@ Currently, MCP exposes **all** Easy API methods as tools. An authenticated AI ag
 - Manage groups (create, modify, delete)
 - Send media
 
-### Permission Scopes
+### Permission scopes
 
-There are **no permission scopes** currently. Any authenticated agent can call any tool. Plan your deployment accordingly:
+There are **no permission scopes** currently. Any authenticated agent can call any exposed tool. Plan your deployment accordingly:
 
 - Use a dedicated session for AI agent use
 - Do not share the MCP endpoint publicly
 - Monitor AI agent activity through logs
 
-### What Happens If the Endpoint Is Exposed Publicly
+### What happens if the endpoint is exposed publicly
 
 If your MCP endpoint is accessible without authentication:
 
@@ -134,9 +146,9 @@ If your MCP endpoint is accessible without authentication:
 - Messages can be read and sent by unauthorized parties
 - Session information can be accessed
 
-**Always use the API key and consider placing the endpoint behind a reverse proxy.**
+Always use the API key and consider placing the endpoint behind a reverse proxy.
 
-### Auditing AI Agent Actions
+### Audit AI-agent actions
 
 Monitor what the AI agent does through:
 
@@ -145,25 +157,25 @@ Monitor what the AI agent does through:
 - Your reverse proxy access logs
 - The session event log
 
-## Tool Discovery
+## Tool discovery
 
-### How Tools Are Generated
+### How tools are generated
 
-Tools are automatically generated from the schema registry. Each Easy API method becomes an MCP tool with:
+Tools are generated from the schema registry. Each Easy API method becomes an MCP tool with:
 
 - A name matching the API method
 - A description from the schema
 - Typed parameters
 
-### Listing Available Tools
+### List available tools
 
 Connect to the MCP endpoint and call `tools/list` to see all available tools. The response includes each tool's name, description, and parameter schema.
 
-### Same Methods as the HTTP API
+### Same methods as the HTTP API
 
 The MCP tools are the same methods available through the HTTP API. If a method works via HTTP, it works via MCP.
 
-## Dashboard MCP Page
+## Dashboard MCP page
 
 Open `http://localhost:8080/dashboard/mcp` to see:
 
@@ -171,7 +183,7 @@ Open `http://localhost:8080/dashboard/mcp` to see:
 - **Configuration snippets**, copy-paste configuration for Claude Desktop, Cursor, and Windsurf
 - **Live tool details**, list of available tools with descriptions
 
-## Configuration Reference
+## Configuration reference
 
 In your `wa.config.js`:
 
@@ -192,15 +204,15 @@ export default {
 - **`mcp.path`**, the URL path for the MCP endpoint (default: `"/mcp"`)
 - **`mcp.exposeToolsMeta`**, whether to expose tool metadata in the dashboard (default: `true`)
 
-## Without MCP: HTTP Alternative
+## Without MCP: HTTP alternative
 
-If you prefer not to use MCP, you can give AI agents access through the HTTP API directly:
+If you prefer not to use MCP, use the HTTP API docs and schemas directly:
 
 - **Interactive docs:** `http://localhost:8080/api-docs/`
 - **OpenAPI schema:** `http://localhost:8080/meta/swagger.json`
 - **Postman collection:** `http://localhost:8080/meta/postman.json`
 
-## LLM-Readable Docs
+## LLM-readable docs
 
 The docs site generates LLM-readable content at:
 
@@ -208,7 +220,7 @@ The docs site generates LLM-readable content at:
 - **`/llms-full.txt`**, full docs content for LLM consumption
 - **`/llms.mdx/docs/$`**, per-page MDX for LLMs
 
-AI agents can use these endpoints to understand open-wa's capabilities without browsing the docs site.
+AI agents can use these endpoints to read the docs without browsing the site.
 
 ## Related
 
