@@ -1,0 +1,265 @@
+---
+title: Security and Deployment
+description: Secure your API, manage keys, and deploy to production safely.
+---
+
+# Security and Deployment
+
+Running open-wa in production requires attention to API key management, network security, and session protection.
+
+## API Key Management
+
+### Why API Keys Are Required
+
+Every open-wa session should be protected by an API key. Without one, anyone who can reach your server can control your WhatsApp session.
+
+### Generating Secure Keys
+
+Use a cryptographically random string:
+
+```bash
+# Generate a random key
+openssl rand -hex 32
+# or
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+### Storing Keys Safely
+
+**Environment variables** are the recommended approach:
+
+```bash
+export OPENWA_API_KEY="your-generated-key"
+npx @open-wa/wa-automate --port 8080 --api-key "$OPENWA_API_KEY"
+```
+
+Or in a `.env` file:
+
+```
+OPENWA_API_KEY=your-generated-key
+```
+
+For production deployments, use a secrets manager (AWS Secrets Manager, HashiCorp Vault, Doppler, etc.).
+
+### Rotating Keys Without Downtime
+
+1. Start a new session with the new API key
+2. Update all consumers to use the new key
+3. Stop the old session
+4. The session data (auth tokens) is separate from the API key, so rotation does not require re-authentication
+
+### What Happens If a Key Is Leaked
+
+If your API key is exposed:
+1. Stop the running session immediately
+2. Generate a new API key
+3. Restart with the new key
+4. Audit what actions were taken with the leaked key
+5. Consider logging out from the phone and re-authenticating if you suspect unauthorized access
+
+## Port and Network Security
+
+### Exposing Ports to the Internet
+
+**Never expose the Easy API port directly to the internet without authentication.** At minimum:
+
+- Always use `--api-key`
+- Use a reverse proxy (nginx, Caddy) with HTTPS
+- Restrict access to known IP addresses when possible
+
+### Using Reverse Proxies
+
+**nginx example:**
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name whatsapp-api.example.com;
+
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+**Caddy example:**
+
+```
+whatsapp-api.example.com {
+    reverse_proxy localhost:8080
+}
+```
+
+### Cloudflare Tunnel Alternative
+
+Instead of opening ports, use Cloudflare Tunnel to expose your API securely:
+
+```bash
+cloudflared tunnel --url http://localhost:8080
+```
+
+This gives you HTTPS without managing certificates or opening firewall rules.
+
+### Firewall Rules
+
+If you must expose the API directly, restrict access:
+
+```bash
+# Only allow specific IPs
+ufw allow from 1.2.3.4 to any port 8080
+```
+
+## Webhook Security
+
+### Securing Webhook Endpoints
+
+When open-wa sends webhooks to your service:
+
+- Use HTTPS for the webhook URL
+- Add authentication headers via the webhook `headers` config
+- Verify the source IP if your endpoint is public
+
+### Signature Verification
+
+If your webhook endpoint is public, implement signature verification to ensure requests come from your open-wa instance.
+
+### Rate Limiting Webhook Receivers
+
+Your webhook receiver should handle the volume of incoming events. The webhook plugin supports:
+- `concurrency` (default: 10): max concurrent deliveries
+- `retries` (default: 3): retry attempts on failure
+- `retryDelay` (default: 1000ms): base delay with exponential backoff
+- `timeout` (default: 30000ms): request timeout
+
+## MCP Security
+
+### API Key Enforcement
+
+MCP requires an API key. It will not start without one. Every MCP request must include the same API key as the Easy API.
+
+### Endpoint Exposure Risks
+
+If your MCP endpoint is exposed publicly without authentication, AI agents could:
+- Read all messages in all chats
+- Send messages to any contact
+- Access session information
+
+Always protect the MCP endpoint with the API key and, ideally, a reverse proxy.
+
+### Restricting AI Agent Operations
+
+Currently, MCP exposes all Easy API methods as tools. There are no permission scopes, so any authenticated agent can call any method. Plan your deployment accordingly.
+
+### Audit Trails
+
+Monitor MCP usage through:
+- API access logs
+- The dashboard MCP page (`http://localhost:8080/dashboard/mcp`)
+- Your reverse proxy access logs
+
+## Proxy Security
+
+### Cloudflare Proxy Token Rotation
+
+The Cloudflare Session Proxy uses consumer tokens for authentication. Rotate these tokens periodically:
+
+1. Update the token in your Cloudflare Worker
+2. Update the token in your consumer connection string
+3. Test the new connection before removing the old token
+
+### Custom Domains
+
+You can attach a custom domain to your Cloudflare Worker for a cleaner connection URL.
+
+## Production Checklist
+
+Before deploying to production:
+
+- [ ] API key set and stored securely (not in code or config files committed to git)
+- [ ] HTTPS enabled (reverse proxy or Cloudflare Tunnel)
+- [ ] Session persistence configured (volumes for Docker, persistent disk for servers)
+- [ ] Webhook auth configured (headers or IP restriction)
+- [ ] Rate limits understood and safe defaults applied
+- [ ] Logging enabled and monitored
+- [ ] Backup strategy for session files in place
+- [ ] Monitoring configured (health checks, alerting on session disconnect)
+- [ ] Process manager configured (PM2, systemd, Docker restart policy)
+- [ ] Firewall rules applied (only necessary ports open)
+
+## Deployment Topologies
+
+### Single Server
+
+```
+[Your App] ←→ [open-wa Easy API] ←→ WhatsApp Web (browser)
+```
+
+- Simplest setup
+- Run with `npx @open-wa/wa-automate --port 8080 --api-key "key"`
+- Use PM2 or systemd for process management
+
+### Docker Container
+
+```bash
+docker run -p 8080:8080 \
+  -e OPENWA_API_KEY="your-key" \
+  -v ./sessions:/app/sessions \
+  --init \
+  openwa/wa-automate
+```
+
+- Isolated environment
+- Volume mount for session persistence
+- `--init` for proper process cleanup
+
+### Docker Compose (Multi-Session)
+
+```yaml
+version: '3'
+services:
+  sales-bot:
+    image: openwa/wa-automate
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./sessions/sales:/app/sessions
+    environment:
+      - OPENWA_API_KEY=sales-key
+    command: --session-id sales --port 8080
+
+  support-bot:
+    image: openwa/wa-automate
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./sessions/support:/app/sessions
+    environment:
+      - OPENWA_API_KEY=support-key
+    command: --session-id support --port 8081
+```
+
+### Cloudflare Proxy + Local Runtime
+
+```
+[Your App] ←→ [Cloudflare Proxy] ←→ [open-wa Easy API (local)] ←→ WhatsApp
+```
+
+- No open ports on your server
+- Remote access without public exposure
+- See **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)**
+
+### Kubernetes
+
+For large-scale deployments:
+- One pod per session (sessions do not share state)
+- Persistent volumes for session data
+- Horizontal Pod Autoscaler based on session count
+- Service mesh for internal routing
+
+## Related
+
+- **[Quick Start](/docs/getting-started/quickstart)**: First-time setup
+- **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)**: Secure remote access
+- **[Best Practices](/docs/operations-and-troubleshooting/best-practices)**: Production patterns
