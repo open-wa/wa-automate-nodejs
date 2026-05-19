@@ -1,3 +1,150 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
+
+@layer base {
+  :root {
+    --color-fd-background: #07100f;
+    --color-fd-foreground: #e7f7ef;
+    --color-fd-card: #0b1715;
+    --color-fd-card-foreground: #e7f7ef;
+    --color-fd-popover: #0d1a18;
+    --color-fd-popover-foreground: #e7f7ef;
+    --color-fd-primary: #25d366;
+    --color-fd-primary-foreground: #03110a;
+    --color-fd-secondary: #10201d;
+    --color-fd-secondary-foreground: #d3eee2;
+    --color-fd-muted: #112420;
+    --color-fd-muted-foreground: #8fb6a6;
+    --color-fd-accent: #12352c;
+    --color-fd-accent-foreground: #dff8ec;
+    --color-fd-border: #1d3b34;
+    --color-fd-ring: #31e681;
+    --color-fd-overlay: rgb(3 10 9 / 0.78);
+    --color-fd-error: #ff7a90;
+    color-scheme: dark;
+  }
+
+  .dark {
+    --color-fd-background: #050c0b;
+    --color-fd-card: #091311;
+    --color-fd-secondary: #0d1c19;
+    --color-fd-muted: #0d201b;
+    --color-fd-border: #1a332e;
+  }
+
+  html {
+    background: var(--color-fd-background);
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    min-width: 320px;
+    background: var(--color-fd-background);
+    color: var(--color-fd-foreground);
+    font-feature-settings:
+      'cv02' 1,
+      'cv03' 1,
+      'cv04' 1;
+  }
+
+  body::before {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    content: '';
+    background-color: var(--color-fd-background);
+    background-image:
+      linear-gradient(rgb(37 211 102 / 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(37 211 102 / 0.06) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: linear-gradient(to bottom, rgb(0 0 0 / 0.9), rgb(0 0 0 / 0.25));
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-fd-primary) 36%, transparent);
+    color: var(--color-fd-foreground);
+  }
+
+  a {
+    text-underline-offset: 0.18em;
+  }
+
+  code,
+  kbd,
+  pre {
+    font-variant-ligatures: none;
+  }
+}
+
+@layer components {
+  .prose {
+    color: var(--color-fd-muted-foreground);
+  }
+
+  .prose :where(h1, h2, h3, h4) {
+    color: var(--color-fd-foreground);
+    text-wrap: balance;
+  }
+
+  .prose :where(p, li) {
+    text-wrap: pretty;
+  }
+
+  .prose :where(a) {
+    color: var(--color-fd-primary);
+    font-weight: 600;
+    text-decoration-color: color-mix(in srgb, var(--color-fd-primary) 45%, transparent);
+  }
+
+  .prose :where(a:hover) {
+    text-decoration-color: var(--color-fd-primary);
+  }
+
+  .prose :where(blockquote) {
+    border-color: var(--color-fd-border);
+    background: color-mix(in srgb, var(--color-fd-secondary) 78%, transparent);
+    border-radius: 1rem;
+  }
+
+  .prose :where(code):not(:where(pre code)) {
+    border: 1px solid var(--color-fd-border);
+    border-radius: 0.5rem;
+    background: var(--color-fd-secondary);
+    color: var(--color-fd-foreground);
+    padding: 0.12rem 0.36rem;
+  }
+
+  .prose :where(pre),
+  .prose :where(table) {
+    border-color: var(--color-fd-border);
+    box-shadow: 0 18px 60px rgb(0 0 0 / 0.28);
+  }
+
+  .prose :where(table) {
+    overflow: hidden;
+    border-radius: 1rem;
+  }
+
+  .prose :where(th) {
+    background: var(--color-fd-secondary);
+    color: var(--color-fd-foreground);
+  }
+
+  .prose :where(td, th) {
+    border-color: var(--color-fd-border);
+  }
+}
+
+@layer utilities {
+  .safe-bottom-pad {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 640px) {
+  .prose :where(pre, table) {
+    max-width: calc(100vw - 2rem);
+  }
+}

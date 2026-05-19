@@ -32,13 +32,13 @@ export function AISearchPanelHeader({ className, ...props }: ComponentProps<'div
   return (
     <div
       className={cn(
-        'sticky top-0 flex items-start gap-2 border rounded-xl bg-fd-secondary text-fd-secondary-foreground shadow-sm',
+        'sticky top-0 flex items-start gap-2 rounded-2xl border border-fd-border bg-fd-secondary text-fd-secondary-foreground shadow-sm',
         className,
       )}
       {...props}
     >
-      <div className="px-3 py-2 flex-1">
-        <p className="text-sm font-medium mb-2">AI Chat</p>
+      <div className="flex-1 px-3 py-3">
+        <p className="mb-1 text-sm font-semibold text-fd-foreground">Ask open-wa docs</p>
         <p className="text-xs text-fd-muted-foreground">
           AI can be inaccurate, please verify the answers.
         </p>
@@ -51,7 +51,7 @@ export function AISearchPanelHeader({ className, ...props }: ComponentProps<'div
           buttonVariants({
             size: 'icon-sm',
             color: 'ghost',
-            className: 'text-fd-muted-foreground rounded-full',
+            className: 'min-h-10 min-w-10 rounded-full text-fd-muted-foreground',
           }),
         )}
         onClick={() => setOpen(false)}
@@ -77,7 +77,7 @@ export function AISearchInputActions() {
             buttonVariants({
               color: 'secondary',
               size: 'sm',
-              className: 'rounded-full gap-1.5',
+              className: 'min-h-9 rounded-full gap-1.5',
             }),
           )}
           onClick={() => regenerate()}
@@ -92,7 +92,7 @@ export function AISearchInputActions() {
           buttonVariants({
             color: 'secondary',
             size: 'sm',
-            className: 'rounded-full',
+            className: 'min-h-9 rounded-full',
           }),
         )}
         onClick={() => setMessages([])}
@@ -137,12 +137,16 @@ export function AISearchInput(props: ComponentProps<'form'>) {
   }, [isLoading]);
 
   return (
-    <form {...props} className={cn('flex items-start pe-2', props.className)} onSubmit={onStart}>
+    <form
+      {...props}
+      className={cn('flex items-start gap-2 pe-2 max-sm:flex-col max-sm:p-1', props.className)}
+      onSubmit={onStart}
+    >
       <Input
         value={input}
         placeholder={isLoading ? 'AI is answering...' : 'Ask a question'}
         autoFocus
-        className="p-3"
+        className="min-h-14 p-3"
         disabled={status === 'streaming' || status === 'submitted'}
         onChange={(e) => {
           setInput(e.target.value);
@@ -161,7 +165,7 @@ export function AISearchInput(props: ComponentProps<'form'>) {
           className={cn(
             buttonVariants({
               color: 'secondary',
-              className: 'transition-all rounded-full mt-2 gap-2',
+              className: 'min-h-11 transition-all rounded-full mt-2 gap-2 max-sm:w-full',
             }),
           )}
           onClick={stop}
@@ -176,7 +180,7 @@ export function AISearchInput(props: ComponentProps<'form'>) {
           className={cn(
             buttonVariants({
               color: 'primary',
-              className: 'transition-all rounded-full mt-2',
+              className: 'min-h-11 transition-all rounded-full mt-2 max-sm:w-full',
             }),
           )}
           disabled={input.length === 0}
@@ -233,7 +237,7 @@ function Input(props: ComponentProps<'textarea'>) {
   const shared = cn('col-start-1 row-start-1', props.className);
 
   return (
-    <div className="grid flex-1">
+    <div className="grid min-w-0 flex-1 max-sm:w-full">
       <textarea
         id="nd-ai-input"
         {...props}
@@ -251,7 +255,7 @@ function Input(props: ComponentProps<'textarea'>) {
 
 const roleName: Record<string, string> = {
   user: 'you',
-  assistant: 'fumadocs',
+  assistant: 'open-wa ai',
 };
 
 function Message({ message, ...props }: { message: ChatUIMessage } & ComponentProps<'div'>) {
@@ -291,13 +295,13 @@ function Message({ message, ...props }: { message: ChatUIMessage } & ComponentPr
         return (
           <div
             key={call.toolCallId}
-            className="flex flex-row gap-2 items-center mt-3 rounded-lg border bg-fd-secondary text-fd-muted-foreground text-xs p-2"
+            className="mt-3 flex flex-row items-center gap-2 rounded-xl border border-fd-border bg-fd-secondary p-2 text-xs text-fd-muted-foreground"
           >
             <SearchIcon className="size-4" />
             {call.state === 'output-error' || call.state === 'output-denied' ? (
               <p className="text-fd-error">{call.errorText ?? 'Failed to search'}</p>
             ) : (
-              <p>{!call.output ? 'Searching…' : `${call.output.length} search results`}</p>
+              <p>{!call.output ? 'Searching...' : `${call.output.length} search results`}</p>
             )}
           </div>
         );
@@ -332,7 +336,8 @@ export function AISearchTrigger({
       data-state={open ? 'open' : 'closed'}
       className={cn(
         position === 'float' && [
-          'fixed bottom-4 gap-3 w-24 inset-e-[calc(--spacing(4)+var(--removed-body-scroll-bar-size,0px))] shadow-lg z-20 transition-[translate,opacity]',
+          'fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] gap-3 w-28 inset-e-[calc(--spacing(4)+var(--removed-body-scroll-bar-size,0px))] shadow-lg z-20 transition-[translate,opacity]',
+          'max-sm:w-auto max-sm:min-w-28 max-sm:justify-center max-sm:px-4',
           open && 'translate-y-10 opacity-0',
         ],
         className,
@@ -381,19 +386,19 @@ export function AISearchPanel() {
         <div
           className={cn(
             'overflow-hidden z-30 bg-fd-card text-fd-card-foreground [--ai-chat-width:400px] 2xl:[--ai-chat-width:460px]',
-            'max-lg:fixed max-lg:inset-x-2 max-lg:inset-y-4 max-lg:border max-lg:rounded-2xl max-lg:shadow-xl',
+            'max-lg:fixed max-lg:inset-x-3 max-lg:bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] max-lg:top-[calc(env(safe-area-inset-top)+0.75rem)] max-lg:border max-lg:border-fd-border max-lg:rounded-3xl max-lg:shadow-xl',
             'lg:sticky lg:top-0 lg:h-dvh lg:border-s lg:ms-auto lg:in-[#nd-docs-layout]:[grid-area:toc] lg:in-[#nd-notebook-layout]:row-span-full lg:in-[#nd-notebook-layout]:col-start-5',
             open
               ? 'animate-fd-dialog-in lg:animate-[ask-ai-open_200ms]'
               : 'animate-fd-dialog-out lg:animate-[ask-ai-close_200ms]',
           )}
         >
-          <div className="flex flex-col size-full p-2 lg:p-3 lg:w-(--ai-chat-width)">
+          <div className="flex size-full flex-col p-2 safe-bottom-pad lg:p-3 lg:w-(--ai-chat-width)">
             <AISearchPanelHeader />
             <AISearchPanelList className="flex-1" />
-            <div className="rounded-xl border bg-fd-secondary text-fd-secondary-foreground shadow-sm has-focus-visible:shadow-md">
+            <div className="rounded-2xl border border-fd-border bg-fd-secondary text-fd-secondary-foreground shadow-sm has-focus-visible:shadow-md">
               <AISearchInput />
-              <div className="flex items-center gap-1.5 p-1 empty:hidden">
+              <div className="flex flex-wrap items-center gap-1.5 p-2 empty:hidden">
                 <AISearchInputActions />
               </div>
             </div>
@@ -419,14 +424,14 @@ export function AISearchPanelList({ className, style, ...props }: ComponentProps
       {...props}
     >
       {messages.length === 0 ? (
-        <div className="text-sm text-fd-muted-foreground/80 size-full flex flex-col items-center justify-center text-center gap-2">
+        <div className="flex size-full flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-fd-border p-6 text-center text-sm text-fd-muted-foreground/80">
           <MessageCircleIcon fill="currentColor" stroke="none" />
-          <p onClick={(e) => e.stopPropagation()}>Start a new chat below.</p>
+          <p onClick={(e) => e.stopPropagation()}>Ask about the current docs page or a runtime workflow.</p>
         </div>
       ) : (
-        <div className="flex flex-col px-3 gap-4">
+        <div className="flex flex-col gap-4 px-3">
           {chat.error && (
-            <div className="p-2 bg-fd-secondary text-fd-secondary-foreground border rounded-lg">
+            <div className="rounded-xl border border-fd-border bg-fd-secondary p-3 text-fd-secondary-foreground">
               <p className="text-xs text-fd-muted-foreground mb-1">
                 Request Failed: {chat.error.name}
               </p>

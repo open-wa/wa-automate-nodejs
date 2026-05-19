@@ -17,18 +17,18 @@ export function Callout({
 }) {
   const styles = {
     note: 'border-fd-border bg-fd-card text-fd-foreground',
-    tip: 'border-emerald-500/30 bg-emerald-500/10 text-fd-foreground',
-    warning: 'border-amber-500/30 bg-amber-500/10 text-fd-foreground',
-    danger: 'border-rose-500/30 bg-rose-500/10 text-fd-foreground',
-    info: 'border-sky-500/30 bg-sky-500/10 text-fd-foreground',
+    tip: 'border-fd-primary/40 bg-fd-primary/10 text-fd-foreground',
+    warning: 'border-amber-500/40 bg-amber-500/10 text-fd-foreground',
+    danger: 'border-rose-500/40 bg-rose-500/10 text-fd-foreground',
+    info: 'border-cyan-500/40 bg-cyan-500/10 text-fd-foreground',
   } as const;
 
-  const icons = {
-    note: '📝',
-    tip: '💡',
-    warning: '⚠️',
-    danger: '⛔',
-    info: 'ℹ️',
+  const labels = {
+    note: 'i',
+    tip: '+',
+    warning: '!',
+    danger: 'x',
+    info: '?',
   } as const;
 
   const defaultTitles = {
@@ -42,20 +42,23 @@ export function Callout({
   return (
     <aside
       className={cx(
-        'my-6 rounded-2xl border p-5 shadow-sm transition-colors',
+        'my-6 rounded-2xl border p-5 shadow-sm transition-colors sm:p-6',
         styles[type],
         className,
       )}
     >
-      <div className="flex items-start gap-3">
-        <span aria-hidden="true" className="text-lg leading-none">
-          {icons[type]}
+      <div className="flex items-start gap-4">
+        <span
+          aria-hidden="true"
+          className="flex size-8 shrink-0 items-center justify-center rounded-full border border-current/25 bg-fd-background/70 font-mono text-sm font-semibold text-fd-primary"
+        >
+          {labels[type]}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-fd-muted-foreground">
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-fd-primary">
             {title ?? defaultTitles[type]}
           </p>
-          <div className="mt-2 text-sm leading-6 text-fd-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_a]:text-fd-primary [&_code]:text-fd-foreground [&_p]:text-fd-muted-foreground [&_li]:text-fd-muted-foreground">
+          <div className="mt-2 text-pretty text-sm leading-6 text-fd-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_a]:font-semibold [&_a]:text-fd-primary [&_code]:text-fd-foreground [&_li]:text-fd-muted-foreground [&_p]:text-fd-muted-foreground">
             {children}
           </div>
         </div>
@@ -66,7 +69,7 @@ export function Callout({
 
 export function Steps({ children }: { children?: React.ReactNode }) {
   return (
-    <div className="my-10 space-y-6">
+    <div className="my-10 space-y-5">
       {React.Children.map(children, (child, index) => {
         if (!React.isValidElement(child)) return child;
         return React.cloneElement(child as React.ReactElement<{ number?: number }>, {
@@ -88,15 +91,22 @@ export function Step({
 }) {
   return (
     <section className="rounded-3xl border border-fd-border bg-fd-card p-5 shadow-sm transition-colors sm:p-6">
-      <div className="flex items-start gap-4">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-fd-border bg-fd-background text-sm font-semibold text-fd-foreground">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-fd-primary/40 bg-fd-primary/10 font-mono text-sm font-semibold text-fd-primary">
           {number}
         </div>
         <div className="min-w-0 flex-1">
           {title ? (
-            <h3 className="text-lg font-semibold text-fd-foreground">{title}</h3>
+            <h3 className="text-balance text-lg font-semibold text-fd-foreground">
+              {title}
+            </h3>
           ) : null}
-          <div className={cx(title ? 'mt-3' : undefined, 'text-sm leading-6 text-fd-muted-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_a]:text-fd-primary [&_code]:text-fd-foreground')}>
+          <div
+            className={cx(
+              title ? 'mt-3' : undefined,
+              'text-pretty text-sm leading-6 text-fd-muted-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_a]:font-semibold [&_a]:text-fd-primary [&_code]:text-fd-foreground',
+            )}
+          >
             {children}
           </div>
         </div>
@@ -131,7 +141,7 @@ export function PackageManagerTabs({
 
   return (
     <div className="my-6 overflow-hidden rounded-3xl border border-fd-border bg-fd-card shadow-sm">
-      <div className="flex flex-wrap gap-2 border-b border-fd-border p-3">
+      <div className="flex gap-2 overflow-x-auto border-b border-fd-border p-3">
         {Object.keys(commands).map((key) => {
           const manager = key as keyof typeof commands;
           return (
@@ -140,10 +150,10 @@ export function PackageManagerTabs({
               type="button"
               onClick={() => setActive(manager)}
               className={cx(
-                'rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-fd-card',
+                'min-h-10 shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring',
                 active === manager
                   ? 'bg-fd-primary text-fd-primary-foreground'
-                  : 'bg-fd-secondary text-fd-secondary-foreground hover:bg-fd-accent',
+                  : 'border border-fd-border bg-fd-secondary text-fd-secondary-foreground hover:bg-fd-accent',
               )}
               aria-pressed={active === manager}
             >
@@ -152,7 +162,7 @@ export function PackageManagerTabs({
           );
         })}
       </div>
-      <pre className="overflow-x-auto p-4 text-sm leading-6 text-fd-foreground">
+      <pre className="overflow-x-auto bg-fd-background p-4 text-sm leading-6 text-fd-foreground">
         <code>{commands[active]}</code>
       </pre>
     </div>
@@ -183,11 +193,11 @@ export function ComparisonTable({
     <div className="my-8 overflow-hidden rounded-3xl border border-fd-border bg-fd-card shadow-sm">
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse text-left text-sm">
-          <thead className="bg-fd-secondary/60">
+          <thead className="bg-fd-secondary">
             <tr>
-              <th className="px-4 py-3 font-semibold text-fd-foreground">Feature</th>
+              <th className="px-4 py-4 font-semibold text-fd-foreground">Feature</th>
               {columns.map((column) => (
-                <th key={column.key} className="px-4 py-3 font-semibold text-fd-foreground">
+                <th key={column.key} className="px-4 py-4 font-semibold text-fd-foreground">
                   {column.label}
                 </th>
               ))}
@@ -201,16 +211,21 @@ export function ComparisonTable({
               return (
                 <React.Fragment key={`${row.group ?? 'row'}-${row.feature}`}>
                   {showGroup ? (
-                    <tr className="border-t border-fd-border bg-fd-background/80">
-                      <td colSpan={columns.length + 1} className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-fd-muted-foreground">
+                    <tr className="border-t border-fd-border bg-fd-background">
+                      <td
+                        colSpan={columns.length + 1}
+                        className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-fd-primary"
+                      >
                         {row.group}
                       </td>
                     </tr>
                   ) : null}
-                  <tr className="border-t border-fd-border align-top">
-                    <td className="px-4 py-3 font-medium text-fd-foreground">{row.feature}</td>
+                  <tr className="border-t border-fd-border align-top transition-colors hover:bg-fd-secondary/60">
+                    <td className="min-w-44 px-4 py-4 font-medium text-fd-foreground">
+                      {row.feature}
+                    </td>
                     {columns.map((column) => (
-                      <td key={column.key} className="px-4 py-3 text-fd-muted-foreground">
+                      <td key={column.key} className="min-w-40 px-4 py-4 text-fd-muted-foreground">
                         {row.values[column.key]}
                       </td>
                     ))}
@@ -235,12 +250,18 @@ export function FAQ({
       {items.map((item) => (
         <details
           key={item.question}
-          className="group rounded-2xl border border-fd-border bg-fd-card p-5 shadow-sm"
+          className="group rounded-2xl border border-fd-border bg-fd-card p-5 shadow-sm transition-colors open:border-fd-primary/45"
         >
-          <summary className="cursor-pointer list-none pr-6 text-base font-semibold text-fd-foreground transition-colors hover:text-fd-primary focus-visible:outline-none [&::-webkit-details-marker]:hidden">
-            {item.question}
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 text-base font-semibold text-fd-foreground transition-colors hover:text-fd-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring [&::-webkit-details-marker]:hidden">
+            <span className="text-balance">{item.question}</span>
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-fd-border bg-fd-secondary font-mono text-sm text-fd-primary group-open:hidden">
+              +
+            </span>
+            <span className="hidden size-7 shrink-0 items-center justify-center rounded-full border border-fd-primary/40 bg-fd-primary/10 font-mono text-sm text-fd-primary group-open:flex">
+              -
+            </span>
           </summary>
-          <div className="mt-3 text-sm leading-6 text-fd-muted-foreground">
+          <div className="mt-3 text-pretty text-sm leading-6 text-fd-muted-foreground [&_a]:font-semibold [&_a]:text-fd-primary">
             {item.answer}
           </div>
         </details>

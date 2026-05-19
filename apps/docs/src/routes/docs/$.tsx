@@ -1,6 +1,5 @@
 import { createFileRoute, notFound } from '@tanstack/react-router';
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
-import * as React from 'react';
 import { source } from '@/lib/source';
 import browserCollections from 'fumadocs-mdx:collections/browser';
 import {
@@ -53,13 +52,16 @@ export const Route = createFileRoute('/docs/$')({
   },
 });
 
-const clientLoader = browserCollections.docs.createClientLoader({
-  component({ toc, frontmatter, default: MDX }) {
+const clientLoader = browserCollections.docs.createClientLoader<{
+  pagePath: string;
+}>({
+  component({ toc, frontmatter, default: MDX }, { pagePath }) {
     return (
       <DocsPage toc={toc}>
         <DocsTitle>{frontmatter.title}</DocsTitle>
         <DocsDescription>{frontmatter.description}</DocsDescription>
-        <DocsBody>
+        <PageActions pagePath={pagePath} />
+        <DocsBody className="pb-20 sm:pb-0">
           <MDX
             components={{
               ...defaultMdxComponents,
@@ -72,11 +74,31 @@ const clientLoader = browserCollections.docs.createClientLoader({
   },
 });
 
+function PageActions({ pagePath }: { pagePath: string }) {
+  return (
+    <div className="mb-8 flex flex-col gap-3 rounded-3xl border border-fd-border bg-fd-card p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-4">
+      <div className="min-w-0">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-fd-primary">
+          Page actions
+        </p>
+        <p className="mt-1 text-sm text-fd-muted-foreground">
+          Copy source or open this page in your preferred AI workspace.
+        </p>
+      </div>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+        <MarkdownCopyButton markdownUrl={`${pagePath}.mdx`} />
+        <ViewOptionsPopover
+          markdownUrl={`${pagePath}.mdx`}
+          githubUrl={`https://github.com/open-wa/v5-shh/blob/main/apps/docs/content/docs/${pagePath}`}
+        />
+      </div>
+    </div>
+  );
+}
+
 function Page() {
   const data = Route.useLoaderData();
-  const Content = clientLoader.getComponent(
-    data.path,
-  ) as unknown as React.ComponentType;
+  const Content = clientLoader.getComponent(data.path);
   const { pageTree } = useFumadocsLoader(data);
 
   return (
@@ -88,7 +110,8 @@ function Page() {
           className={cn(
             buttonVariants({
               variant: 'secondary',
-              className: 'text-fd-muted-foreground rounded-2xl',
+              className:
+                'min-h-11 rounded-2xl border-fd-border bg-fd-card text-fd-foreground shadow-lg hover:bg-fd-accent',
             }),
           )}
         >
@@ -96,16 +119,8 @@ function Page() {
           Ask AI
         </AISearchTrigger>
       </AISearch>
-      
-      <div className="flex gap-2 items-center border-b pb-6 mb-6">
-        <MarkdownCopyButton markdownUrl={`${data.path}.mdx`} />
-        <ViewOptionsPopover
-          markdownUrl={`${data.path}.mdx`}
-          githubUrl={`https://github.com/open-wa/v5-shh/blob/main/apps/docs/content/docs/${data.path}`}
-        />
-      </div>
 
-      <Content />
+      <Content pagePath={data.path} />
     </DocsLayout>
   );
 }

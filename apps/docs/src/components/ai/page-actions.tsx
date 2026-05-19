@@ -50,7 +50,8 @@ export function MarkdownCopyButton({
         buttonVariants({
           color: 'secondary',
           size: 'sm',
-          className: 'gap-2 [&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground',
+          className:
+            'min-h-10 w-full gap-2 rounded-xl border-fd-border bg-fd-secondary px-3 text-fd-foreground sm:w-auto [&_svg]:size-4 [&_svg]:text-fd-primary',
         }),
         props.className,
       )}
@@ -229,21 +230,21 @@ export function ViewOptionsPopover({
             color: 'secondary',
             size: 'sm',
           }),
-          'gap-2 data-[state=open]:bg-fd-accent data-[state=open]:text-fd-accent-foreground',
+          'min-h-10 w-full gap-2 rounded-xl border-fd-border bg-fd-secondary px-3 text-fd-foreground data-[state=open]:bg-fd-accent data-[state=open]:text-fd-accent-foreground sm:w-auto',
           props.className,
         )}
       >
         {props.children ?? 'Open'}
-        <ChevronDown className="size-3.5 text-fd-muted-foreground" />
+        <ChevronDown className="size-4 text-fd-primary" />
       </PopoverTrigger>
-      <PopoverContent className="flex flex-col">
+      <PopoverContent align="end" className="flex w-[min(22rem,calc(100vw-1.5rem))] flex-col gap-1 border-fd-border bg-fd-popover p-2">
         {items.map((item) => (
           <a
             key={item.href}
             href={item.href}
             rel="noreferrer noopener"
             target="_blank"
-            className="text-sm p-2 rounded-lg inline-flex items-center gap-2 hover:text-fd-accent-foreground hover:bg-fd-accent [&_svg]:size-4"
+            className="inline-flex min-h-11 items-center gap-3 rounded-xl p-3 text-sm font-medium text-fd-popover-foreground transition-colors hover:bg-fd-accent hover:text-fd-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring [&_svg]:size-4"
           >
             {item.icon}
             {item.title}
