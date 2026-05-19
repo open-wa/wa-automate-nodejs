@@ -2,6 +2,7 @@
   "title": "Getting Started",
   "defaultOpen": true,
   "pages": [
+    "quickstart",
     "easy-api",
     "docker",
     "custom-code",

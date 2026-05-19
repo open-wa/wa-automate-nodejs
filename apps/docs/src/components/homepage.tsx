@@ -19,8 +19,8 @@ type LinkCard = {
 const startPaths: LinkCard[] = [
   {
     title: 'Run the Easy API',
-    href: DOCS_PATHS.easyApi,
-    description: 'Start a local WhatsApp API, add an API key, and open the live docs.',
+    href: DOCS_PATHS.quickstart,
+    description: 'Start the API, authenticate WhatsApp, open the live docs, and send one test message.',
     eyebrow: 'Fastest path',
     detail: 'CLI runtime, API key, generated docs',
   },
@@ -45,13 +45,13 @@ const workflowCards: LinkCard[] = [
     title: 'Runtime model',
     href: DOCS_PATHS.runtimeModel,
     description: 'See which process owns the browser, API, events, and consumers.',
-    eyebrow: 'Architecture',
+    eyebrow: 'Pick ownership',
   },
   {
     title: 'Session events',
     href: DOCS_PATHS.sessionEvents,
     description: 'Handle QR auth, link-code login, readiness, logouts, and lifecycle signals.',
-    eyebrow: 'Control loop',
+    eyebrow: 'Stay ready',
   },
   {
     title: 'Multi-session ops',
@@ -72,10 +72,10 @@ const workflowCards: LinkCard[] = [
     eyebrow: 'Connectors',
   },
   {
-    title: 'Generated reference',
+    title: 'Find an exact method',
     href: DOCS_PATHS.referenceClient,
     description: 'Look up exact methods after you know the task you want to run.',
-    eyebrow: 'Reference',
+    eyebrow: 'API lookup',
   },
 ];
 
@@ -198,7 +198,7 @@ function OpsConsolePanel() {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-fd-primary">
               Session console
             </p>
-            <p className="mt-1 text-sm text-fd-muted-foreground">open-wa docs command center</p>
+            <p className="mt-1 text-sm text-fd-muted-foreground">quick checks for a working session</p>
           </div>
           <span className="rounded-full border border-fd-primary/40 bg-fd-primary/10 px-3 py-1 text-xs font-semibold text-fd-primary">
             online
@@ -251,10 +251,10 @@ export function DocsHomepage() {
 
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <a
-              href={DOCS_PATHS.easyApi}
+              href={DOCS_PATHS.quickstart}
               className="inline-flex min-h-11 items-center justify-center rounded-full border border-fd-primary bg-fd-primary px-6 py-3 text-sm font-semibold text-fd-primary-foreground transition-colors hover:bg-fd-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring"
             >
-              Start with Easy API
+              Start with Quick Start
             </a>
             <a
               href={DOCS_PATHS.overview}
@@ -285,8 +285,8 @@ export function DocsHomepage() {
       <section className="grid gap-8 rounded-3xl border border-fd-border bg-fd-card p-5 shadow-sm sm:p-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
         <SectionHeading
           eyebrow="Workflow grid"
-          title="Use task guides before the reference"
-          description="Setup, auth, multi-session operations, integrations, and recovery have their own guides. Use the generated reference only when you need an exact method name or parameter."
+          title="Use task guides before method lookup"
+          description="Setup, auth, multi-session operations, integrations, and recovery have their own guides. Use the API lookup only when you need an exact method name or parameter."
         />
         <div className="grid gap-4 sm:grid-cols-2">
           {workflowCards.map((card) => (
@@ -298,7 +298,7 @@ export function DocsHomepage() {
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.55fr)]">
         <div className="rounded-3xl border border-fd-border bg-fd-card p-6 shadow-sm sm:p-8">
           <SectionHeading
-            eyebrow="Operations baseline"
+            eyebrow="Production checklist"
             title="Check the parts that break first"
             description="Configuration, event readiness, proxying, AI access, generated schemas, and licensed features all affect whether a session works in production."
           />

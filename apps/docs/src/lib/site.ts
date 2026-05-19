@@ -8,6 +8,7 @@ export const CURRENT_VERSION = '5.0.0-alpha.1';
 
 export const DOCS_PATHS = {
   overview: '/docs',
+  quickstart: '/docs/getting-started/quickstart',
   easyApi: '/docs/getting-started/easy-api',
   customCode: '/docs/getting-started/custom-code',
   linkCode: '/docs/getting-started/link-code',
@@ -27,7 +28,7 @@ export const DOCS_PATHS = {
   errorHandling: '/docs/operations-and-troubleshooting/error-handling',
   logoutDetection: '/docs/operations-and-troubleshooting/detect-logouts',
   licensedFeatures: '/docs/licensing/licensed-features',
-  referenceClient: '/docs/reference/core',
+  referenceClient: '/docs/reference/client',
 } as const;
 
 export function getLicenseTierLabel(tier: LicenseTier): string {
