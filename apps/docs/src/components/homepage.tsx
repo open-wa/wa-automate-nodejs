@@ -20,21 +20,21 @@ const startPaths: LinkCard[] = [
   {
     title: 'Run the Easy API',
     href: DOCS_PATHS.easyApi,
-    description: 'Start a local WhatsApp API, secure it, and verify the live docs surface.',
+    description: 'Start a local WhatsApp API, add an API key, and open the live docs.',
     eyebrow: 'Fastest path',
     detail: 'CLI runtime, API key, generated docs',
   },
   {
     title: 'Embed the runtime',
     href: DOCS_PATHS.customCode,
-    description: 'Use open-wa in Node.js when you need direct lifecycle and listener control.',
+    description: 'Use createClient in Node.js when your app must own the session lifecycle.',
     eyebrow: 'Library mode',
     detail: 'createClient, drivers, events',
   },
   {
     title: 'Connect remotely',
     href: DOCS_PATHS.socketClient,
-    description: 'Consume an existing session from workers, dashboards, bots, or services.',
+    description: 'Connect a worker, dashboard, bot, or service to an Easy API session.',
     eyebrow: 'Remote consumer',
     detail: 'SocketClient, RPC, SSE events',
   },
@@ -44,7 +44,7 @@ const workflowCards: LinkCard[] = [
   {
     title: 'Runtime model',
     href: DOCS_PATHS.runtimeModel,
-    description: 'Map sessions, browser drivers, Easy API, embedded code, and remote consumers.',
+    description: 'See which process owns the browser, API, events, and consumers.',
     eyebrow: 'Architecture',
   },
   {
@@ -56,7 +56,7 @@ const workflowCards: LinkCard[] = [
   {
     title: 'Multi-session ops',
     href: DOCS_PATHS.multiSession,
-    description: 'Coordinate named accounts, process boundaries, and runtime recovery paths.',
+    description: 'Run named accounts with clear ports, process boundaries, and recovery paths.',
     eyebrow: 'Operations',
   },
   {
@@ -68,13 +68,13 @@ const workflowCards: LinkCard[] = [
   {
     title: 'Integrations',
     href: DOCS_PATHS.chatwoot,
-    description: 'Bridge WhatsApp into Chatwoot, webhooks, S3, Node-RED, and proxy workflows.',
+    description: 'Send WhatsApp events into Chatwoot, webhooks, S3, Node-RED, or a proxy.',
     eyebrow: 'Connectors',
   },
   {
     title: 'Generated reference',
     href: DOCS_PATHS.referenceClient,
-    description: 'Drop into the full method surface when you already know what you need.',
+    description: 'Look up exact methods after you know the task you want to run.',
     eyebrow: 'Reference',
   },
 ];
@@ -240,12 +240,12 @@ export function DocsHomepage() {
 
           <div className="space-y-5">
             <h1 className="text-balance text-4xl font-semibold tracking-tight text-fd-foreground sm:text-6xl lg:text-7xl">
-              WhatsApp automation docs for operators who ship.
+              Run WhatsApp automation without decoding the whole repo.
             </h1>
             <p className="max-w-3xl text-pretty text-lg leading-8 text-fd-muted-foreground sm:text-xl">
-              Run a WhatsApp API, embed the runtime, or connect remote consumers
-              with a docs surface built around sessions, transports, integrations,
-              and recovery paths.
+              Start the Easy API, embed the runtime with createClient, or connect a
+              remote worker. Each path shows what to run, what to paste, and what
+              to check when the session is not ready.
             </p>
           </div>
 
@@ -272,8 +272,8 @@ export function DocsHomepage() {
       <section className="space-y-8">
         <SectionHeading
           eyebrow="Choose your route"
-          title="One obvious first move, then deeper control when you need it"
-          description="The homepage now separates the three real entry paths so new users do not have to decode the full reference tree before running a session."
+          title="Pick the path that matches your task"
+          description="Start with the CLI when you need an API. Use custom code when your Node.js app owns the runtime. Use SocketClient when another process should consume an existing session."
         />
         <div className="grid gap-5 lg:grid-cols-3">
           {startPaths.map((card, index) => (
@@ -285,8 +285,8 @@ export function DocsHomepage() {
       <section className="grid gap-8 rounded-3xl border border-fd-border bg-fd-card p-5 shadow-sm sm:p-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
         <SectionHeading
           eyebrow="Workflow grid"
-          title="Docs organized around the work that keeps sessions alive"
-          description="Use the task guides for setup, auth, multi-session operations, integrations, and recovery. Keep the generated reference for exact method lookup."
+          title="Use task guides before the reference"
+          description="Setup, auth, multi-session operations, integrations, and recovery have their own guides. Use the generated reference only when you need an exact method name or parameter."
         />
         <div className="grid gap-4 sm:grid-cols-2">
           {workflowCards.map((card) => (
@@ -299,8 +299,8 @@ export function DocsHomepage() {
         <div className="rounded-3xl border border-fd-border bg-fd-card p-6 shadow-sm sm:p-8">
           <SectionHeading
             eyebrow="Operations baseline"
-            title="The important surfaces stay visible"
-            description="Configuration, event readiness, proxying, AI tool access, generated schemas, and licensed-feature availability are treated as operating concerns, not buried footnotes."
+            title="Check the parts that break first"
+            description="Configuration, event readiness, proxying, AI access, generated schemas, and licensed features all affect whether a session works in production."
           />
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             <a
@@ -335,12 +335,11 @@ export function DocsHomepage() {
             License-aware docs
           </p>
           <h2 className="text-balance text-2xl font-semibold text-fd-foreground">
-            Gated features are marked where decisions happen.
+            Gated features are marked before you depend on them.
           </h2>
           <p className="text-pretty text-sm leading-6 text-fd-muted-foreground">
-            Badges and callouts keep purchase paths and runtime context close to
-            the feature guide, so teams can validate unlock behavior before they
-            depend on it.
+            Badges and callouts show license needs next to the feature guide, so
+            teams can test unlock behavior before they build around it.
           </p>
           <LicensedFeatureCallout tier="restricted" className="bg-fd-background" />
         </div>
