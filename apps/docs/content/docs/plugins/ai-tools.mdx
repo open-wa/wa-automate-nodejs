@@ -14,18 +14,20 @@ Tools are functions that AI agents can call. Each tool has a name, description, 
 ## ToolDefinition Structure
 
 ```ts
-tool: {
-  toolName: {
-    description: 'What this tool does',
-    args: {
-      argName: z.string().describe('Description of the argument'),
-    },
-    execute: async (args, ctx) => {
-      // Tool implementation
-      return result;
+init: async ({ client }) => ({
+  tool: {
+    toolName: {
+      description: 'What this tool does',
+      args: {
+        argName: z.string().describe('Description of the argument'),
+      },
+      execute: async (args, context) => {
+        // Tool implementation
+        return 'result';
+      },
     },
   },
-}
+})
 ```
 
 ### Fields
@@ -36,59 +38,78 @@ tool: {
 
 ## ToolContext
 
-The execute function receives a context object with access to client, logger, and sessionId:
+The `execute` function receives a `ToolContext` with these guaranteed fields:
 
 ```ts
-execute: async (args, ctx) => {
-  // ctx.client: PluginClient for calling WhatsApp methods
-  // ctx.logger: PluginLogger for logging
-  // ctx.sessionId: Current session ID
+execute: async (args, context) => {
+  context.logger.info('Tool called', { sessionId: context.sessionId });
+
+  if (context.abort.aborted) {
+    return 'Tool cancelled before work started.';
+  }
+
+  return `Tool ran for session ${context.sessionId}`;
 }
 ```
+
+- `sessionId`: current session ID
+- `logger`: scoped plugin logger
+- `abort`: `AbortSignal` for cancellation
+
+The tool context does **not** include `client`. If a tool needs to call WhatsApp methods, capture `client` from the plugin `init()` input and use it inside the returned `tool` handlers.
 
 ## Example: Lookup Contact Tool
 
 ```ts
 export default createPlugin({
   meta: { name: 'contact-tools' },
-  tool: {
-    lookupContact: {
-      description: 'Look up a contact by phone number',
-      args: {
-        phone: z.string().describe('Phone number to look up'),
-      },
-      execute: async ({ phone }, { client, logger }) => {
-        const chatId = `${phone}@c.us`;
-        const contact = await client.getContact(chatId);
-        logger.info('Contact looked up', { phone, contact });
-        return contact;
+  init: async ({ client }) => ({
+    tool: {
+      lookupContact: {
+        description: 'Look up a contact by phone number',
+        args: {
+          phone: z.string().describe('Phone number to look up'),
+        },
+        execute: async ({ phone }, context) => {
+          if (typeof phone !== 'string') {
+            return JSON.stringify({ success: false, error: 'phone must be a string' });
+          }
+
+          const chatId = `${phone}@c.us`;
+          const contact = await client.getContact(chatId);
+          context.logger.info('Contact looked up', { phone });
+          return JSON.stringify({ success: true, contact });
+        },
       },
     },
-  },
-  init: async ({ events, logger, config, client }) => {
-    // Plugin initialization
-  },
+  }),
 });
 ```
 
 ## Example: Send Message Tool
 
 ```ts
-tool: {
-  sendMessage: {
-    description: 'Send a WhatsApp message to a contact',
-    args: {
-      phone: z.string().describe('Phone number to send to'),
-      message: z.string().describe('Message text'),
-    },
-    execute: async ({ phone, message }, { client, logger }) => {
-      const chatId = `${phone}@c.us`;
-      const result = await client.sendText(chatId, message);
-      logger.info('Message sent', { phone, messageId: result.id });
-      return { success: true, messageId: result.id };
+init: async ({ client }) => ({
+  tool: {
+    sendMessage: {
+      description: 'Send a WhatsApp message to a contact',
+      args: {
+        phone: z.string().describe('Phone number to send to'),
+        message: z.string().describe('Message text'),
+      },
+      execute: async ({ phone, message }, context) => {
+        if (typeof phone !== 'string' || typeof message !== 'string') {
+          return JSON.stringify({ success: false, error: 'phone and message must be strings' });
+        }
+
+        const chatId = `${phone}@c.us`;
+        const messageId = await client.sendText(chatId, message);
+        context.logger.info('Message sent', { phone, messageId });
+        return JSON.stringify({ success: true, messageId });
+      },
     },
   },
-}
+})
 ```
 
 ## Best Practices
@@ -120,26 +141,31 @@ args: {
 Catch errors and return meaningful results:
 
 ```ts
-execute: async (args, { client, logger }) => {
+execute: async (args, context) => {
   try {
-    const result = await client.sendText(args.chatId, args.message);
-    return { success: true, messageId: result.id };
+    if (typeof args.chatId !== 'string' || typeof args.message !== 'string') {
+      return JSON.stringify({ success: false, error: 'chatId and message must be strings' });
+    }
+
+    const messageId = await client.sendText(args.chatId, args.message);
+    return JSON.stringify({ success: true, messageId });
   } catch (error) {
-    logger.error('Failed to send message', { error: error.message });
-    return { success: false, error: error.message };
+    const message = error instanceof Error ? error.message : String(error);
+    context.logger.error('Failed to send message', { error: message });
+    return JSON.stringify({ success: false, error: message });
   }
 }
 ```
 
 ### Return Structured Data
 
-Return JSON-serializable objects:
+Tool handlers return strings. If you want to return structured data to an agent, serialize a JSON object:
 
 ```ts
-return {
+return JSON.stringify({
   success: true,
   data: { name: 'John', phone: '1234567890' },
-};
+});
 ```
 
 ## Related

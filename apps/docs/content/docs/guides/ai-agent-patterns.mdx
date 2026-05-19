@@ -5,15 +5,53 @@ description: Architecture patterns for building AI agents that interact with Wha
 
 # AI Agent Patterns
 
-This guide covers the most common architecture patterns for connecting LLMs to WhatsApp through open-wa. Each pattern includes the core loop, safety considerations, and production-ready examples.
+This guide covers common architecture patterns for connecting LLMs to WhatsApp through open-wa. Snippets marked as runnable include setup or local stubs. Snippets marked as patterns are meant to show structure, not a complete application.
+
+## Application-Provided AI Helpers
+
+The examples don't assume an official LLM, vision, or speech-to-text SDK. In your app, provide helpers with the same shape, then replace the stub bodies with your own provider calls.
+
+```ts
+type ChatTurn = {
+  role: 'user' | 'assistant';
+  content: string;
+};
+
+async function callLLM(input: string | ChatTurn[] | unknown): Promise<string> {
+  void input;
+  return 'Thanks, I received your message.';
+}
+
+async function callVisionLLM(base64Image: string, mimeType?: string): Promise<string> {
+  void base64Image;
+  return `Image received${mimeType ? ` as ${mimeType}` : ''}.`;
+}
+
+async function callSTT(audio: Buffer): Promise<string> {
+  void audio;
+  return 'Transcribed voice note text.';
+}
+```
+
+Expected behavior with the stubs: a message comes in, the bot sends a deterministic placeholder response, and no external AI service is called. Add your own logging around each helper before replacing the stubs so you can see input, response, and provider errors.
 
 ## The Conversation Loop Pattern
 
-The simplest AI agent receives messages, sends them to an LLM, and replies with the response.
+The simplest AI agent receives messages, sends them to an LLM helper, and replies with the response.
 
 ```ts
 import { createClient } from '@open-wa/wa-automate';
 import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+
+type ChatTurn = {
+  role: 'user' | 'assistant';
+  content: string;
+};
+
+async function callLLM(input: string | ChatTurn[]): Promise<string> {
+  void input;
+  return 'Thanks, I received your message.';
+}
 
 const client = await createClient({
   sessionId: 'ai-bot',
@@ -22,16 +60,14 @@ const client = await createClient({
 });
 
 client.onMessage(async (message) => {
-  // Skip non-text messages and messages from yourself
   if (message.type !== 'chat' || message.fromMe) return;
 
-  // Send to your LLM
   const response = await callLLM(message.body);
-
-  // Reply to the sender
   await client.sendText(message.from, response);
 });
 ```
+
+Expected behavior: when a user sends a text message, the bot replies with the helper response. Messages from the bot itself and non-text messages are ignored.
 
 ### Key Decisions
 
@@ -45,21 +81,24 @@ LLMs need conversation context to maintain coherent multi-turn conversations.
 
 ### Sliding Window
 
-Keep the last N messages as context:
+Pattern snippet: this assumes `client` and `callLLM` come from your application setup.
 
 ```ts
-const contextWindow = new Map<string, Array<{ role: string; content: string }>>();
+type ChatTurn = {
+  role: 'user' | 'assistant';
+  content: string;
+};
+
+const contextWindow = new Map<string, ChatTurn[]>();
 
 client.onMessage(async (message) => {
   const chatId = message.from;
-  const history = contextWindow.get(chatId) || [];
+  const history = contextWindow.get(chatId) ?? [];
 
-  // Add the new message
   history.push({ role: 'user', content: message.body });
 
-  // Keep only the last 10 messages
   if (history.length > 20) {
-    history.splice(0, history.length - 20); // 20 = 10 exchanges (user + assistant)
+    history.splice(0, history.length - 20);
   }
 
   const response = await callLLM(history);
@@ -70,9 +109,11 @@ client.onMessage(async (message) => {
 });
 ```
 
+Expected behavior: each chat keeps its own rolling context. After more than 10 user and assistant exchanges, older turns are dropped before the next LLM call.
+
 ### Using getMessagesForLLM
 
-If available in your version, use the built-in message fetching for WhatsApp-native context:
+Pattern snippet: if this method is available in your version, it can provide WhatsApp-native context. Provide your own `callLLM` helper for the returned message shape.
 
 ```ts
 client.onMessage(async (message) => {
@@ -84,6 +125,8 @@ client.onMessage(async (message) => {
   await client.sendText(message.from, response);
 });
 ```
+
+Expected behavior: the bot asks open-wa for recent chat context, sends that context to your helper, then replies to the same chat.
 
 ## Rate Limits and Safety
 
@@ -101,11 +144,19 @@ WhatsApp enforces limits on how many messages you can send. Safe defaults:
 
 ### Implementing Rate Limiting
 
+Install the limiter in your application. This documentation example doesn't add dependencies to the open-wa repo.
+
+```bash
+npm install bottleneck
+```
+
+Runnable snippet, assuming `client` and `callLLM` are defined as shown above:
+
 ```ts
-import { Bottleneck } from 'bottleneck';
+import Bottleneck from 'bottleneck';
 
 const limiter = new Bottleneck({
-  minTime: 15000, // Minimum 15 seconds between messages
+  minTime: 15000,
   maxConcurrent: 1,
 });
 
@@ -113,11 +164,14 @@ client.onMessage(async (message) => {
   if (message.type !== 'chat' || message.fromMe) return;
 
   await limiter.schedule(async () => {
+    console.log('ai-agent: sending rate-limited reply', { chatId: message.from });
     const response = await callLLM(message.body);
     await client.sendText(message.from, response);
   });
 });
 ```
+
+Expected behavior: text messages enter immediately, but outgoing replies leave at least 15 seconds apart. Logs show when a reply is sent through the limiter.
 
 ### Ban Risk Profile
 
@@ -131,7 +185,7 @@ Factors that increase ban risk:
 Safe defaults:
 
 - Only respond to incoming messages
-- Add random delays (1-5 seconds) between responses
+- Add random delays of 1-5 seconds between responses
 - Vary response length and timing
 - Use an aged WhatsApp account, not a new one
 
@@ -139,53 +193,60 @@ Safe defaults:
 
 ### Processing Incoming Images
 
+Pattern snippet: `callVisionLLM` is an application-provided helper. Keep it as a stub until you wire your chosen vision provider.
+
 ```ts
 client.onMessage(async (message) => {
-  if (message.type === 'image') {
-    // Decrypt the media
-    const mediaData = await client.decryptMedia(message);
-    const base64 = mediaData.toString('base64');
+  if (message.type !== 'image') return;
 
-    // Send to a vision-capable LLM
-    const description = await callVisionLLM(base64, message.mimetype);
+  const mediaData = await client.decryptMedia(message);
+  const base64 = mediaData.toString('base64');
+  const description = await callVisionLLM(base64, message.mimetype);
 
-    // Reply with the description
-    await client.reply(message.from, `Image: ${description}`, message.id);
-  }
+  await client.reply(message.from, `Image: ${description}`, message.id);
 });
 ```
+
+Expected behavior: an image message comes in, the bot decrypts it, the vision helper returns text, and the bot replies to the original message with the description.
 
 ### Processing Voice Notes
 
+Pattern snippet: `callSTT` and `callLLM` are application-provided helpers. Keep them as stubs until you wire your chosen speech and LLM providers.
+
 ```ts
 client.onMessage(async (message) => {
-  if (message.type === 'audio' || message.mimetype?.includes('ogg')) {
-    const mediaData = await client.decryptMedia(message);
+  if (message.type !== 'audio' && !message.mimetype?.includes('ogg')) return;
 
-    // Send to speech-to-text API
-    const transcription = await callSTT(mediaData);
+  const mediaData = await client.decryptMedia(message);
+  const transcription = await callSTT(mediaData);
+  const response = await callLLM(transcription);
 
-    // Process the transcription with your LLM
-    const response = await callLLM(transcription);
-
-    await client.sendText(message.from, response);
-  }
+  await client.sendText(message.from, response);
 });
 ```
 
+Expected behavior: a voice note comes in, the bot decrypts it, the speech helper returns text, the LLM helper creates a response, and the bot sends a text reply.
+
 ### Sending Generated Media
 
-```ts
-// Send an AI-generated image
-await client.sendImage(message.from, 'data:image/png;base64,...', 'caption');
+Pattern snippet: `sendImage` on the embedded client uses `sendImage(to, dataUrlOrBase64, filename, caption?)`. The filename is required before the optional caption.
 
-// Send a generated audio response
+```ts
+const imageDataUrl = 'data:image/png;base64,...';
+const imageFilename = 'ai-generated.png';
+const imageCaption = 'Generated image';
+
+await client.sendImage(message.from, imageDataUrl, imageFilename, imageCaption);
 await client.sendPtt(message.from, 'data:audio/mp3;base64,...');
 ```
+
+Expected behavior: the image is sent to the incoming chat with `ai-generated.png` as the attachment filename and `Generated image` as the caption. The PTT call sends a generated voice note after the image.
 
 ## Group Chats vs Direct Messages
 
 ### Detecting the Chat Type
+
+Pattern snippet: use this inside your message handler when group behavior should differ from direct-message behavior.
 
 ```ts
 client.onMessage(async (message) => {
@@ -193,20 +254,20 @@ client.onMessage(async (message) => {
   const isDirect = message.from.includes('@c.us');
 
   if (isGroup) {
-    // Group-specific behavior
-    // Check if the bot was mentioned
     if (!message.body.includes('@botname')) return;
   }
 
   if (isDirect) {
-    // Direct message behavior
+    console.log('ai-agent: direct message received', { chatId: message.from });
   }
 });
 ```
 
+Expected behavior: group messages only continue when the bot is mentioned. Direct messages continue through the direct-message branch and can be logged or handled separately.
+
 ### Group-Specific Considerations
 
-- Only respond when mentioned (use `@botname` detection)
+- Only respond when mentioned, using `@botname` detection
 - Respect group admin rules
 - Be aware of group size and message volume
 - Consider using group-specific context windows
@@ -215,74 +276,107 @@ client.onMessage(async (message) => {
 
 ### Buttons and Lists
 
+Pattern snippet: use these sends when your agent should offer constrained choices instead of free-form text.
+
 ```ts
-// Send a message with buttons
 await client.sendButtons(message.from, 'Choose an option:', [
   { id: 'opt1', body: 'Option 1' },
   { id: 'opt2', body: 'Option 2' },
   { id: 'opt3', body: 'Option 3' },
 ]);
 
-// Send a list message
 await client.sendList(message.from, 'Select from the list:', 'Choose', [
   { title: 'Section 1', rows: [{ id: 'r1', title: 'Row 1' }] },
 ]);
 ```
 
+Expected behavior: the chat receives either buttons or a list. Your handler must still process the response message type.
+
 ### Handling Button and List Responses
+
+Pattern snippet: branch on the response type and pass the selected ID into your own business logic.
 
 ```ts
 client.onMessage(async (message) => {
-  // Check for button response
   if (message.type === 'buttons_response') {
     const selectedId = message.selectedButtonId;
-    // Handle the selection
+    console.log('ai-agent: button selected', { selectedId });
   }
 
-  // Check for list response
   if (message.type === 'list_response') {
     const selectedId = message.listResponse?.selectedRowId;
-    // Handle the selection
+    console.log('ai-agent: list row selected', { selectedId });
   }
 });
 ```
 
+Expected behavior: button and list replies are logged with the selected ID. Replace the logs with your own handler once you know the menu shape.
+
 ## Concurrent Message Handling
 
-When multiple messages arrive simultaneously, you need to handle them without overwhelming your LLM API or WhatsApp.
+When multiple messages arrive simultaneously, handle them without overwhelming your LLM API or WhatsApp.
+
+Install the queue in your application:
+
+```bash
+npm install p-queue
+```
+
+Runnable snippet, assuming `client` and `callLLM` are defined as shown above:
 
 ```ts
-import pQueue from 'p-queue';
+import PQueue from 'p-queue';
 
-const queue = new pQueue({ concurrency: 3 });
+const queue = new PQueue({ concurrency: 3 });
 
 client.onMessage(async (message) => {
   if (message.type !== 'chat' || message.fromMe) return;
 
-  queue.add(async () => {
+  void queue.add(async () => {
+    console.log('ai-agent: processing queued message', { chatId: message.from });
     const response = await callLLM(message.body);
     await client.sendText(message.from, response);
   });
 });
 ```
 
+Expected behavior: incoming messages enter the queue immediately, but only three LLM jobs run at once. Logs show each queued message when processing starts.
+
 ### Queue Configuration
 
-- **concurrency**: Maximum parallel LLM calls (start with 2-3)
-- **timeout**: Maximum time per message (30 seconds)
-- **retry**: Retry failed calls with exponential backoff
+- **concurrency**: Maximum parallel LLM calls, start with 2-3
+- **timeout**: Maximum time per message, for example 30 seconds
+- **retry**: Retry failed calls with exponential backoff in your own queue wrapper
 
-## Complete Production Example
+## Complete Runnable Skeleton
+
+Install the external queueing packages in your application before using this skeleton:
+
+```bash
+npm install bottleneck p-queue
+```
+
+This skeleton is runnable once you install open-wa runtime packages and replace the `callLLM` stub with your provider. It keeps the placeholder helper local so there are no undefined calls.
 
 ```ts
 import { createClient } from '@open-wa/wa-automate';
 import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
 import Bottleneck from 'bottleneck';
-import pQueue from 'p-queue';
+import PQueue from 'p-queue';
+
+type ChatTurn = {
+  role: 'user' | 'assistant';
+  content: string;
+};
+
+async function callLLM(input: ChatTurn[]): Promise<string> {
+  void input;
+  return 'Thanks, I received your message.';
+}
 
 const limiter = new Bottleneck({ minTime: 15000, maxConcurrent: 1 });
-const queue = new pQueue({ concurrency: 2 });
-const contextWindow = new Map();
+const queue = new PQueue({ concurrency: 2 });
+const contextWindow = new Map<string, ChatTurn[]>();
 
 const client = await createClient({
   sessionId: 'ai-bot',
@@ -294,16 +388,18 @@ client.onMessage(async (message) => {
   if (message.type !== 'chat' || message.fromMe) return;
 
   const isGroup = message.from.includes('@g.us');
-
-  // In groups, only respond when mentioned
   if (isGroup && !message.body.includes('@bot')) return;
 
-  queue.add(async () => {
-    const history = contextWindow.get(message.from) || [];
+  void queue.add(async () => {
+    const history = contextWindow.get(message.from) ?? [];
     history.push({ role: 'user', content: message.body });
-    if (history.length > 20) history.splice(0, history.length - 20);
+
+    if (history.length > 20) {
+      history.splice(0, history.length - 20);
+    }
 
     await limiter.schedule(async () => {
+      console.log('ai-agent: sending response', { chatId: message.from });
       const response = await callLLM(history);
       history.push({ role: 'assistant', content: response });
       contextWindow.set(message.from, history);
@@ -313,6 +409,8 @@ client.onMessage(async (message) => {
   });
 });
 ```
+
+Expected behavior: text messages come in, group messages are ignored unless they mention `@bot`, LLM jobs are limited to two concurrent queue workers, and outgoing WhatsApp replies are spaced by the limiter. Logs show each outgoing response when it leaves the limiter.
 
 ## Related
 
