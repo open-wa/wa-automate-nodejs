@@ -11,6 +11,16 @@ description: Create groups, manage participants, and react to group membership c
 await client.createGroup('Cool new group', ['1234567890@c.us']);
 ```
 
+## Group ID format
+
+Group chat IDs end in `@g.us`. The usual format is `timestamp-integer@g.us`:
+
+```ts
+const groupId = '1234567890-123456789@g.us';
+```
+
+Keep the full value exactly as WhatsApp returns it. Do not try to rebuild it from the group name or participant numbers.
+
 ## Manage participants
 
 ```ts
@@ -19,6 +29,54 @@ await client.removeParticipant(groupId, participantId);
 await client.promoteParticipant(groupId, participantId);
 await client.demoteParticipant(groupId, participantId);
 ```
+
+## Admin permissions
+
+Most group write actions require the connected WhatsApp account to be an admin in that group. That includes adding or removing participants, promoting or demoting admins, changing the group description, changing the group image, revoking invite links, approving join requests, and changing announcement or edit settings.
+
+Read actions like `getGroupInfo`, `getGroupMembers`, `getGroupAdmins`, and `getGroupInviteLink` still depend on the account being a member of the group.
+
+## Invite links
+
+Admins can read the current invite link, revoke it, and let another session join from a valid link.
+
+```ts
+const inviteLink = await client.getGroupInviteLink(groupId);
+
+const newInviteLink = await client.revokeGroupInviteLink(groupId);
+
+const joinedGroupId = await client.joinGroupViaLink(inviteLink);
+```
+
+Revoking an invite link invalidates the old link. Store the returned link if your application needs to share the replacement.
+
+## Join requests
+
+When a group uses invite approval, admins can approve or reject pending contacts.
+
+```ts
+await client.approveGroupJoinRequest(groupId, contactId);
+await client.rejectGroupJoinRequest(groupId, contactId);
+```
+
+Treat join requests as short-lived. A request may already be handled by another admin, cancelled by the requester, or expired by the time your code acts on it.
+
+## Settings
+
+Group settings are regular async calls. Check the returned boolean before assuming the setting changed.
+
+```ts
+await client.setGroupDescription(groupId, 'Support updates and product news.');
+await client.setGroupIcon(groupId, imageDataUrl);
+
+// Only admins can send messages when this is true.
+await client.setGroupToAdminsOnly(groupId, true);
+
+// Only admins can edit group info when this is true.
+await client.setGroupEditToAdminsOnly(groupId, true);
+```
+
+`setGroupIcon` expects an image data URL, for example `data:image/png;base64,...`.
 
 ## Listen to membership changes for one group
 
@@ -31,6 +89,40 @@ client.onParticipantsChanged(groupId, async (event) => {
 ## Listen across all groups
 
 If your runtime supports it, `onGlobalParticipantsChanged` is the cleaner way to monitor participant changes across groups without managing a listener per room.
+
+## Event payloads
+
+Participant-change events report the group, the action, the affected participants, and the contact that made the change when WhatsApp provides it.
+
+```ts
+type ParticipantsChangedEvent = {
+  groupId: string;
+  action: 'add' | 'remove' | 'promote' | 'demote';
+  participantIds: string[];
+  by?: string;
+};
+```
+
+The same shape covers member added, removed, promoted, and demoted events. Older handlers may expose similar values as `who` for the affected contact and `by` for the actor, so log the first event in your runtime before wiring strict storage code.
+
+## Common errors
+
+Group methods usually fail for one of a few reasons:
+
+- `not-admin`: the connected account is not an admin. Promote the account in WhatsApp, then retry.
+- `not-a-member`: the connected account is not in the group anymore. Rejoin the group or stop acting on that group ID.
+- `invalid-group-id`: the ID is missing the `@g.us` suffix or was copied from the wrong field. Use the ID returned by `createGroup`, `getAllGroups`, or an event.
+- `invalid-participant`: the contact ID is not a valid WhatsApp contact ID, or the contact cannot be added to that group.
+- `invite-link-expired`: the invite link was revoked, expired, or requires approval. Fetch a new link or handle the join request flow.
+- `rate-limited`: too many group actions happened in a short window. Slow down and retry later.
+
+Return values may be `false` instead of throwing for some runtime-backed group calls. Check the result and log the group ID, participant ID, and action so retries can be handled safely.
+
+## Safety/rate-limit warnings
+
+Group actions are visible to real people and can trigger WhatsApp abuse checks. Avoid bulk adding, bulk removing, repeated invite revokes, or rapid setting changes.
+
+Queue group writes, add delays between actions, and stop retrying when WhatsApp returns a permission or rate-limit failure. If you need to reconcile many groups, read state first, then only send the smallest set of changes.
 
 ## Operational note
 

@@ -30,6 +30,279 @@ ev.on('qr.**', async (qrcode, sessionId) => {
 });
 ```
 
+## Real orchestration patterns
+
+There are three common ways to run more than one session. Pick the one that matches how much isolation you need.
+
+### Process-per-session
+
+Run one Easy API process for each WhatsApp account. Each process gets its own `sessionId`, port, API key, and restart policy.
+
+```bash
+npx @open-wa/wa-automate --session-id sales --port 8081 --api-key "sales-api-key"
+npx @open-wa/wa-automate --session-id support --port 8082 --api-key "support-api-key"
+npx @open-wa/wa-automate --session-id ops --port 8083 --api-key "ops-api-key"
+```
+
+This is the easiest model to reason about in production. If `support` crashes, `sales` and `ops` keep running.
+
+### Single process with multiple createClient calls
+
+Use one Node.js process when your app needs to coordinate sessions directly and you are comfortable owning the lifecycle yourself.
+
+```ts
+import { createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+
+const sessions = ['sales', 'support', 'ops'] as const;
+const clients = new Map<string, Awaited<ReturnType<typeof createClient>>>();
+
+for (const sessionId of sessions) {
+  const client = await createClient({
+    sessionId,
+    driver: new PuppeteerDriver(),
+    headless: true,
+  });
+
+  clients.set(sessionId, client);
+}
+```
+
+This keeps routing inside your app, but one process now owns every browser instance. If that process exits, every session exits with it.
+
+### PM2 ecosystem file for multiple sessions
+
+Use PM2 when you want process-per-session isolation with simple restarts and logs.
+
+```js
+// ecosystem.config.cjs
+module.exports = {
+  apps: [
+    {
+      name: 'open-wa-sales',
+      script: 'npx',
+      args: '@open-wa/wa-automate --session-id sales --port 8081 --api-key sales-api-key',
+      autorestart: true,
+      max_memory_restart: '1G',
+    },
+    {
+      name: 'open-wa-support',
+      script: 'npx',
+      args: '@open-wa/wa-automate --session-id support --port 8082 --api-key support-api-key',
+      autorestart: true,
+      max_memory_restart: '1G',
+    },
+  ],
+};
+```
+
+Start them together:
+
+```bash
+pm2 start ecosystem.config.cjs
+pm2 logs open-wa-support
+pm2 restart open-wa-sales
+```
+
+## Port/session mapping
+
+Keep a small source of truth for which session lives where. Ports and API keys should be unique per Easy API process.
+
+| Session   |   Port | API key           | Base URL                |
+| --------- | -----: | ----------------- | ----------------------- |
+| `sales`   | `8081` | `sales-api-key`   | `http://localhost:8081` |
+| `support` | `8082` | `support-api-key` | `http://localhost:8082` |
+| `ops`     | `8083` | `ops-api-key`     | `http://localhost:8083` |
+
+Example config for a routing service:
+
+```ts
+const sessionRoutes = {
+  sales: {
+    baseUrl: 'http://localhost:8081',
+    apiKey: process.env.OPEN_WA_SALES_KEY,
+  },
+  support: {
+    baseUrl: 'http://localhost:8082',
+    apiKey: process.env.OPEN_WA_SUPPORT_KEY,
+  },
+  ops: {
+    baseUrl: 'http://localhost:8083',
+    apiKey: process.env.OPEN_WA_OPS_KEY,
+  },
+} as const;
+```
+
+Do not share one API key across all sessions unless your network boundary already separates tenants. A separate key makes accidental cross-session calls easier to spot and rotate.
+
+## Persistence isolation
+
+Each session should have its own session data. The `sessionId` is the boundary that keeps auth state, browser profile data, and runtime files from being mixed with another account.
+
+Good isolation rules:
+
+- give every account a stable, unique `sessionId`
+- do not point two live sessions at the same profile or session directory
+- mount separate persistent volumes when running containers
+- back up and restore one session at a time
+
+For Docker-style deployments, think in terms of one data volume per session:
+
+```bash
+docker run --name open-wa-sales \
+  -p 8081:8080 \
+  -v open-wa-sales-data:/data \
+  openwa/wa-automate \
+  --session-id sales \
+  --api-key "sales-api-key"
+
+docker run --name open-wa-support \
+  -p 8082:8080 \
+  -v open-wa-support-data:/data \
+  openwa/wa-automate \
+  --session-id support \
+  --api-key "support-api-key"
+```
+
+The goal is no cross-contamination. A broken auth state for `support` should not touch `sales`, and deleting one session should not remove another session's login state.
+
+## Scaling limits
+
+The practical limit is usually the host, not the session registry. Each connected account can mean another browser context, active WebSocket connection, event stream, and message workload.
+
+Watch these limits first:
+
+- memory per browser instance
+- CPU during login, reconnects, media work, and high message volume
+- file descriptors and network sockets
+- disk growth from logs, profiles, and cached browser data
+- restart storms if many sessions reconnect at the same time
+
+There is no universal safe number because it depends on browser driver, host size, workload, media usage, and whether sessions are idle or busy. Start with a small number, measure memory and CPU under real traffic, then add sessions gradually.
+
+As a simple rule, use process isolation before you use one huge multi-session process. It gives you clearer logs, easier restarts, and safer failure boundaries.
+
+## Process-per-session
+
+In this model, each WhatsApp account is a separate operating system process. This is usually the most predictable production setup.
+
+Start each session with its own name and port:
+
+```bash
+npx @open-wa/wa-automate \
+  --session-id sales \
+  --port 8081 \
+  --api-key "sales-api-key" \
+  --webhook "https://your-app.example/webhooks/open-wa/sales"
+
+npx @open-wa/wa-automate \
+  --session-id support \
+  --port 8082 \
+  --api-key "support-api-key" \
+  --webhook "https://your-app.example/webhooks/open-wa/support"
+```
+
+Run them under a supervisor such as PM2, systemd, Docker, Kubernetes, or your platform's process manager. The important part is that each session can be restarted without restarting the others.
+
+Recommended per-session settings:
+
+- unique `sessionId`
+- unique port
+- unique API key
+- separate logs
+- separate persistent storage
+- independent health check and restart policy
+
+## API routing
+
+When multiple Easy API processes are running, your app needs to route each request to the right base URL and API key.
+
+One simple pattern is to put `sessionId` in the URL your app exposes:
+
+```text
+POST /sessions/sales/sendText
+POST /sessions/support/sendText
+```
+
+Then proxy the call to the matching Easy API process:
+
+```ts
+type SessionName = 'sales' | 'support';
+
+const routes: Record<SessionName, { baseUrl: string; apiKey: string }> = {
+  sales: {
+    baseUrl: 'http://localhost:8081',
+    apiKey: process.env.OPEN_WA_SALES_KEY!,
+  },
+  support: {
+    baseUrl: 'http://localhost:8082',
+    apiKey: process.env.OPEN_WA_SUPPORT_KEY!,
+  },
+};
+
+async function callSession(session: SessionName, path: string, body: unknown) {
+  const route = routes[session];
+
+  const response = await fetch(`${route.baseUrl}${path}`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': route.apiKey,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Session ${session} returned ${response.status}`);
+  }
+
+  return response.json();
+}
+```
+
+Keep authorization in your own app as well. A user who can send from `sales` should not automatically be able to send from `support` just because both sessions exist on the same host.
+
+For inbound events, include the session in the webhook path or inspect the event metadata if your integration includes the session identifier:
+
+```text
+https://your-app.example/webhooks/open-wa/sales
+https://your-app.example/webhooks/open-wa/support
+```
+
+## Failure recovery
+
+If one session crashes in a process-per-session setup, only that session should be affected. Other sessions keep their own browser process, port, API key, and event stream.
+
+Detect failures with a combination of process supervision and application health checks:
+
+- let PM2, systemd, Docker, or Kubernetes restart exited processes
+- poll each session's health or docs endpoint from your monitoring system
+- alert when a port stops responding, QR login is required again, or message processing stalls
+- keep per-session logs so you can see which account failed
+
+With PM2, basic recovery looks like this:
+
+```bash
+pm2 status
+pm2 logs open-wa-support
+pm2 restart open-wa-support
+```
+
+In application code, treat a failed call as session-specific. Mark that session unhealthy, stop routing new work to it, and retry after the supervisor has restarted it.
+
+```ts
+async function safeCall(session: SessionName, path: string, body: unknown) {
+  try {
+    return await callSession(session, path, body);
+  } catch (error) {
+    markSessionUnhealthy(session, error);
+    throw error;
+  }
+}
+```
+
+After restart, the session should reuse its own persisted data. If the stored auth state is still valid, it can reconnect without affecting other sessions. If the account needs a fresh QR scan, handle that session's QR flow separately and leave the rest running.
+
 ## Practical rules
 
 - Never reuse the same `sessionId` for two live sessions.

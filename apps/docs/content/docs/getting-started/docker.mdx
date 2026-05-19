@@ -15,6 +15,22 @@ docker run openwa/wa-automate
 
 Pass the same CLI flags you would normally use with `npx @open-wa/wa-automate`.
 
+## Image tags
+
+Docker tags follow the package version you want to run. Pin a version when you need repeatable deploys, especially for production or rollback testing.
+
+Use a v4 tag such as `4.76.0` for the current stable line. Use `latest` only when you are intentionally testing the v5 alpha image.
+
+## v4/v5 tags
+
+```bash
+# v4 stable
+docker run openwa/wa-automate:4.76.0
+
+# v5 alpha
+docker run openwa/wa-automate:latest
+```
+
 ## Typical production shape
 
 - publish the API port explicitly
@@ -24,6 +40,118 @@ Pass the same CLI flags you would normally use with `npx @open-wa/wa-automate`.
 ```bash
 docker run -p 8080:8080 openwa/wa-automate --port 8080 --session-id sales --api-key "your-secure-key"
 ```
+
+## Volume mounts
+
+Mount a local directory when you want session data to survive container restarts.
+
+```bash
+docker run -p 8080:8080 -v ./sessions:/app/sessions openwa/wa-automate
+```
+
+Keep the mounted directory private because it can contain authentication state for the WhatsApp session.
+
+## Env vars
+
+Pass runtime configuration with environment variables when that fits your deploy platform better than CLI flags.
+
+```bash
+docker run -p 8080:8080 \
+  -e PORT=8080 \
+  -e API_KEY="your-secure-key" \
+  -e SESSION_ID=sales \
+  openwa/wa-automate
+```
+
+You can also keep environment values in a file and load them at container start.
+
+```bash
+docker run -p 8080:8080 --env-file .env openwa/wa-automate
+```
+
+## --init
+
+Add `--init` when running the container directly with Docker. The browser can create child processes, and an init process helps clean up zombies when those child processes exit.
+
+```bash
+docker run -p 8080:8080 --init openwa/wa-automate
+```
+
+## Browser resources
+
+The container still runs a browser. Give it enough memory and CPU for WhatsApp Web, especially if you run multiple sessions or process heavy message volume.
+
+If the browser exits unexpectedly, check memory limits, shared memory settings, CPU throttling, and the host architecture before changing application code.
+
+## Health checks
+
+Add a health check that calls the Easy API over the published port.
+
+```bash
+docker run -p 8080:8080 --init \
+  --health-cmd="curl -f http://localhost:8080/api-docs/ || exit 1" \
+  --health-interval=30s \
+  --health-timeout=10s \
+  --health-retries=3 \
+  openwa/wa-automate --port 8080
+```
+
+Use the same path your deployment actually depends on. If you protect the API with a key, make sure the health check can still reach a suitable unauthenticated endpoint or send the required header.
+
+## Docker Compose
+
+Compose is useful when you want the port, volume, environment, and health check committed next to your app config.
+
+```yaml
+services:
+  openwa:
+    image: openwa/wa-automate:4.76.0
+    init: true
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./sessions:/app/sessions
+    environment:
+      PORT: "8080"
+      SESSION_ID: sales
+      API_KEY: ${OPENWA_API_KEY}
+    command: ["--port", "8080", "--session-id", "sales"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api-docs/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
+
+Start it with:
+
+```bash
+OPENWA_API_KEY="your-secure-key" docker compose up
+```
+
+## Secrets
+
+Do not bake API keys, license keys, or session material into your image. Inject secrets at runtime with environment variables, an `.env` file outside version control, or Docker secrets when your platform supports them.
+
+For Docker secrets, mount the secret file and have your startup script read it before launching the API.
+
+```yaml
+services:
+  openwa:
+    image: openwa/wa-automate:4.76.0
+    secrets:
+      - openwa_api_key
+
+secrets:
+  openwa_api_key:
+    file: ./secrets/openwa_api_key.txt
+```
+
+## Production shape
+
+A production Docker deployment usually pins the image tag, publishes only the API port you need, mounts session storage, injects secrets at runtime, runs with `--init`, allocates enough browser resources, and defines a health check.
+
+Keep the WhatsApp runtime small and focused. Put business logic in your own service, then call Easy API or consume events from it.
 
 ## Use the image as a base for your own code
 

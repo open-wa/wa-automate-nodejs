@@ -5,6 +5,10 @@ description: Send, receive, reply to, and monitor WhatsApp messages.
 
 # Messages and message events
 
+Use this guide for the common message flows: receiving messages, sending replies, attaching media, and reacting to message metadata.
+
+For chat ID formats such as `447700000000@c.us`, group IDs, and LID IDs, read **[ChatId primer](/docs/guides/chatid-primer)** first.
+
 ## Receive messages
 
 ```ts
@@ -19,6 +23,41 @@ client.onAnyMessage((message) => {
 
 Use `onMessage` for incoming traffic only and `onAnyMessage` when you need both directions.
 
+## Message object shape
+
+Incoming message objects include the message text, sender details, chat details, media flags, and quote metadata. WhatsApp may add extra fields, so treat the object as extensible.
+
+```ts
+client.onMessage((message) => {
+  console.log(message.id);
+  console.log(message.from);
+  console.log(message.body);
+  console.log(message.type);
+});
+```
+
+| Field | Description |
+| --- | --- |
+| `id` | The message ID. Pass this to `reply`, `forwardMessages`, or lookup methods. |
+| `body` | Text content for text messages. For media messages, this may be empty. |
+| `type` | WhatsApp message type, such as `chat`, `image`, `video`, `document`, `ptt`, `location`, `buttons_response`, or `list_response`. |
+| `from` | The chat that sent the message. In direct chats this is the contact ID. In groups this is the group chat ID. |
+| `to` | The chat or account that received the message. |
+| `chatId` | The chat ID for the conversation. |
+| `sender` | Contact details for the sender. |
+| `senderId` | Sender contact ID when available. Useful in groups. |
+| `author` | The group participant that sent the message. Present on many group messages. |
+| `fromMe` | `true` when the current session sent the message. |
+| `self` | Direction marker, usually `in` or `out`. |
+| `timestamp` / `t` | Unix timestamp values from WhatsApp. |
+| `isGroupMsg` | `true` when the message came from a group. |
+| `isMedia` / `isMMS` | Media flags. Use these before downloading or processing attachments. |
+| `caption` | Caption for image, video, or document messages. |
+| `mentionedJidList` | Contact IDs mentioned in the message. |
+| `ack` | Delivery state for outgoing messages. Read `onAck` for updates. |
+| `quotedMsg` / `quotedMsgObj` | Quoted message payload when WhatsApp makes it available. |
+| `isQuotedMsgAvailable` | Whether quote data can be read from the payload. |
+
 ## Send messages
 
 ```ts
@@ -29,6 +68,128 @@ await client.sendReplyWithMentions(chatId, 'Hello @447700000000', messageId);
 ```
 
 Always `await` message operations so failures are visible.
+
+## Formatting
+
+WhatsApp uses inline formatting markers in text messages. Send the markers as part of the message body.
+
+```ts
+await client.sendText(chatId, '*bold*');
+await client.sendText(chatId, '_italic_');
+await client.sendText(chatId, '~strikethrough~');
+await client.sendText(chatId, '```monospace```');
+```
+
+You can combine formatting with normal text.
+
+```ts
+await client.sendText(chatId, 'Order *confirmed* for _today_.');
+```
+
+## Attachments vs text
+
+Text messages only need a chat ID and a string body. Attachment messages include a file payload, a filename, and often a caption.
+
+```ts
+await client.sendText(chatId, 'Here is the receipt.');
+
+await client.sendImage(
+  chatId,
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...',
+  'receipt.png',
+  'Receipt attached'
+);
+
+await client.sendFile(
+  chatId,
+  'data:application/pdf;base64,JVBERi0xLjQK...',
+  'receipt.pdf',
+  'PDF receipt'
+);
+```
+
+Use `sendText` for plain conversation updates. Use `sendImage`, `sendFile`, `sendAudio`, `sendPtt`, or `sendVideoAsGif` when the payload is media. Captions belong to the attachment message, not a separate text message.
+
+## Quoted replies
+
+Use `reply` when your response should quote an existing message. Pass the destination chat, the reply body, and the original message ID.
+
+```ts
+client.onMessage(async (message) => {
+  if (message.body === '!status') {
+    await client.reply(message.from, 'Still working on it.', message.id);
+  }
+});
+```
+
+For replies that also mention users, use `sendReplyWithMentions`.
+
+```ts
+await client.sendReplyWithMentions(
+  groupId,
+  'Thanks @447700000000',
+  messageId,
+  false,
+  ['447700000000@c.us']
+);
+```
+
+## Mentions
+
+Mentions work in group messages when the body contains `@` text and the mentioned contact IDs are passed to the send method.
+
+```ts
+await client.sendTextWithMentions(
+  groupId,
+  'Hello @447700000000, can you check this?',
+  false,
+  ['447700000000@c.us']
+);
+```
+
+Set `hideTags` to `true` when you want WhatsApp to notify the users without showing the mention tags in the rendered text.
+
+## Buttons, lists, and polls
+
+Interactive messages let users choose from fixed options. Availability can depend on the WhatsApp account, client version, and message type.
+
+```ts
+await client.sendButtons(
+  chatId,
+  'Choose an option',
+  [
+    { id: 'yes', text: 'Yes' },
+    { id: 'no', text: 'No' },
+  ],
+  'Confirmation',
+  'Reply with one tap'
+);
+
+await client.sendListMessage(
+  chatId,
+  [
+    {
+      title: 'Main menu',
+      rows: [
+        { id: 'orders', title: 'Orders' },
+        { id: 'support', title: 'Support' },
+      ],
+    },
+  ],
+  'Menu',
+  'Pick a topic',
+  'Open menu'
+);
+
+await client.sendPoll(
+  chatId,
+  'Which day works best?',
+  ['Monday', 'Tuesday', 'Wednesday'],
+  1
+);
+```
+
+Button and list replies arrive as message events with types such as `buttons_response` or `list_response`. Poll updates arrive through WhatsApp message events when supported by the session.
 
 ## Forward messages
 
@@ -54,3 +215,101 @@ await client.sendLocation(chatId, latitude, longitude, 'London');
 ```
 
 When receiving a location message, read fields such as `lat`, `lng`, and `loc` from the incoming message payload.
+
+## Errors
+
+Message sends can fail because the session is not ready, the chat ID is invalid, the target user cannot be reached, the media payload is too large or malformed, or WhatsApp rejects the action.
+
+```ts
+try {
+  const result = await client.sendText(chatId, 'Hello');
+
+  if (!result) {
+    console.warn('Message send returned no message ID');
+  }
+} catch (error) {
+  console.error('Could not send message', error);
+}
+```
+
+Common checks:
+
+| Error case | What to check |
+| --- | --- |
+| Invalid chat ID | Confirm the value matches a contact, group, or LID format. See **[ChatId primer](/docs/guides/chatid-primer)**. |
+| Session not ready | Wait for authentication and connection before sending. |
+| Media rejected | Check the MIME type, base64 data URL, filename, and file size. |
+| Message not delivered | Watch `onAck` and retry only when it is safe for your workflow. |
+| Temporary WhatsApp block | Slow down sends and review automation volume. |
+
+## Rate limits
+
+WhatsApp can limit or block accounts that send too many messages, repeat the same content, or contact users without consent. Keep sends paced, avoid bulk blasts, and handle failures without tight retry loops.
+
+Read **[Rate limits](/docs/guides/rate-limits)** before running production automation.
+
+## Full bot example
+
+This example receives messages, sends formatted text, sends a quoted reply, mentions a group participant, sends an image, and sends a poll.
+
+```ts
+import { createClient } from '@open-wa/wa-automate';
+
+async function start() {
+  const client = await createClient({
+    sessionId: 'messages-guide',
+  });
+
+  client.onMessage(async (message) => {
+    try {
+      if (message.body === '!help') {
+        await client.reply(
+          message.from,
+          '*Commands*\n!image\n!poll\n!mention',
+          message.id
+        );
+
+        return;
+      }
+
+      if (message.body === '!image') {
+        await client.sendImage(
+          message.from,
+          'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...',
+          'example.png',
+          'Here is an example image.'
+        );
+
+        return;
+      }
+
+      if (message.body === '!poll') {
+        await client.sendPoll(
+          message.from,
+          'What should we do next?',
+          ['Send update', 'Wait', 'Ask support'],
+          1
+        );
+
+        return;
+      }
+
+      if (message.body === '!mention' && message.isGroupMsg && message.author) {
+        const contactId = message.author;
+        const phone = contactId.replace('@c.us', '');
+
+        await client.sendTextWithMentions(
+          message.from,
+          `Thanks @${phone}`,
+          false,
+          [contactId]
+        );
+      }
+    } catch (error) {
+      console.error('Message handler failed', error);
+    }
+  });
+}
+
+start().catch(console.error);
+```

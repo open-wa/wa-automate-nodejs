@@ -15,6 +15,17 @@ npx @open-wa/wa-automate
 
 That starts an Easy API instance and prints the local address for the API and the interactive docs.
 
+## Expected terminal output
+
+Exact log lines vary by version and browser driver, but you should see the runtime start, then print the local API address and docs URL.
+
+```text
+Easy API listening on http://localhost:8080
+Interactive docs: http://localhost:8080/api-docs/
+```
+
+Open the docs URL after the session is connected. If you changed the port, replace `8080` with your chosen port.
+
 ## What you get
 
 When the runtime is healthy you usually have three things:
@@ -41,22 +52,59 @@ npx @open-wa/wa-automate --port 8080 --api-key "your-secure-key"
 npx @open-wa/wa-automate --session-id sales --port 8081
 ```
 
+## API-key examples
+
+Use `--api-key` with no value when you want the runtime to generate a key for that launch.
+
+```bash
+npx @open-wa/wa-automate --port 8080 --api-key
+```
+
+Use `--api-key "your-secure-key"` when you want a stable key that your apps, scripts, or teammates can reuse.
+
+```bash
+npx @open-wa/wa-automate --port 8080 --api-key "your-secure-key"
+```
+
+When calling the API, send the same key with your request headers.
+
+```bash
+curl http://localhost:8080/api-docs/ \
+  -H "X-API-Key: your-secure-key"
+```
+
 ## Good defaults for a first session
 
 - Set a **session id** early if you plan to run more than one account.
 - Protect the API with an **API key** before exposing it anywhere outside your machine.
 - Treat the Easy API as a **runtime surface**, then move business logic into your own app or worker processes.
 
+## Session persistence
+
+Easy API stores the browser profile for a session on disk so a restart can reuse the same authenticated WhatsApp Web session.
+
+By default, the profile directory is derived from the session id. For `--session-id sales`, the local profile directory is `./_IGNORE_sales`. If you do not set a session id, the default session uses `./_IGNORE_session`.
+
+To keep the session across restarts, start the process from the same working directory and reuse the same `--session-id`. To back it up, stop the process first, then copy the matching `_IGNORE_*` directory to safe storage. Restore that directory before starting the runtime again.
+
 ## Authentication paths
 
 - If you are doing an ordinary first login, scan the QR code the runtime emits.
 - If you already know the host account number and want to avoid QR scanning, use **[Link-code login](/docs/getting-started/link-code)**.
+
+If you want the fastest path to first success, follow the **[Quick Start](/docs/getting-started/quickstart)** guide.
 
 ## Deployment notes
 
 - Use `--api-host` when the public address seen by consumers differs from the local bind address.
 - Use `--session-id` plus distinct ports when you run multiple sessions on one host.
 - Put restart policy around the process early; do not wait until you have a flaky production incident.
+
+## Production warning
+
+<Callout type="warning">
+Easy API is convenient, but do not expose it to the public internet without a clear security boundary. Use an API key, restrict network access, prefer HTTPS behind a trusted proxy, protect session profile data, and avoid sharing interactive docs with untrusted users.
+</Callout>
 
 ## Tunneling and remote access
 
@@ -75,6 +123,22 @@ npx @open-wa/wa-automate --webhook "https://your-app.example/webhooks/open-wa"
 ```
 
 Use a test endpoint such as `webhook.site` while developing, then move to your real application endpoint once your payload handling is stable.
+
+## Plugin loading mention
+
+Plugins can be loaded from the config file through the `plugins` array. Use `pluginConfig` beside it for plugin-specific settings.
+
+```ts
+plugins: [
+  '@open-wa/integration-webhook',
+  './my-local-plugin'
+],
+pluginConfig: {
+  webhook: {
+    // plugin-specific config
+  }
+}
+```
 
 ## Process management
 

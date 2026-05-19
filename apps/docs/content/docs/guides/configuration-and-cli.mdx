@@ -39,6 +39,104 @@ const client = await create({
 });
 ```
 
+## Config file discovery
+
+The CLI loads configuration through the shared config package before applying CLI overrides. By default, discovery starts from the current working directory.
+
+Discovery order is:
+
+1. `package.json` using the `wa` key
+2. `wa.config.js`
+3. `wa.config.cjs`
+4. `wa.config.mjs`
+5. `wa.config.ts`
+6. `wa.config.mts`
+7. `wa.config.cts`
+8. `wa.config.json`
+9. `.warc`
+10. `.warc.json`
+11. `cli.config.js` legacy compatibility
+12. `cli.config.json` legacy compatibility
+
+The first matching file wins. Use `--config ./path/to/config` when you want to load a specific file instead of relying on discovery.
+
+Config values are merged in this order:
+
+1. schema defaults
+2. config file
+3. `WA_*` environment variables
+4. CLI flags
+5. programmatic overrides, mainly for tests and embedding
+
+Arrays are replaced rather than concatenated, so a later `plugins` value replaces the earlier one.
+
+Config files can export a plain object or a function that returns an object. TypeScript config files are supported by the config loader.
+
+## JSON/TS examples
+
+Use JSON when your config is static:
+
+```json
+{
+  "sessionId": "sales",
+  "port": 8080,
+  "host": "0.0.0.0",
+  "apiKey": "replace-with-env-in-production",
+  "headless": true,
+  "qrTimeout": 0,
+  "authTimeout": 60,
+  "licenseKey": "YOUR-LICENSE-KEY"
+}
+```
+
+Use TypeScript or JavaScript when you need environment variables or computed values:
+
+```ts
+import { defineConfig } from '@open-wa/config';
+
+export default defineConfig({
+  sessionId: process.env.WA_SESSION_ID ?? 'sales',
+  port: Number(process.env.PORT ?? 8080),
+  host: '0.0.0.0',
+  apiKey: process.env.OPENWA_API_KEY,
+  headless: true,
+  qrTimeout: 0,
+  authTimeout: 60,
+  licenseKey: process.env.OPENWA_LICENSE_KEY,
+});
+```
+
+## Env vars
+
+Runtime config can be supplied with `WA_*` environment variables. Names are converted from snake case to config keys, so `WA_SESSION_ID` becomes `sessionId`, `WA_API_KEY` becomes `apiKey`, and `WA_QR_TIMEOUT` becomes `qrTimeout`.
+
+Values are coerced where possible:
+
+- `true`, `1`, `yes`, and `on` become `true`
+- `false`, `0`, `no`, and `off` become `false`
+- numeric strings become numbers for numeric schema fields
+- JSON-looking values such as `{...}` or `[...]` are parsed for object and array fields
+
+Common runtime environment variables:
+
+| Environment variable | Config field | Notes |
+| --- | --- | --- |
+| `WA_SESSION_ID` | `sessionId` | Stable session name |
+| `WA_PORT` | `port` | Easy API port |
+| `WA_HOST` | `host` | Easy API host |
+| `WA_API_KEY` | `apiKey` | API authentication key |
+| `WA_LICENSE_KEY` | `licenseKey` | License key where applicable |
+| `WA_LINK_CODE` | `linkCode` | Phone number for link-code login |
+| `WA_HEADLESS` | `headless` | Browser visibility |
+| `WA_USE_CHROME` | `useChrome` | Prefer local Chrome |
+| `WA_QR_TIMEOUT` | `qrTimeout` | QR wait time |
+| `WA_AUTH_TIMEOUT` | `authTimeout` | Auth wait time |
+| `WA_WEBHOOK` | `webhook` | Webhook target URL |
+| `WA_PLUGINS` | `plugins` | JSON array of plugin refs |
+| `WA_PLUGIN_CONFIG` | `pluginConfig` | JSON object keyed by plugin name |
+
+There are also compatibility aliases for a few browser-related settings, including `WA_DEBUG` for `devtools`, `WA_BROWSER_WS_ENDPOINT` for `browserWSEndpoint`, `WA_BYPASS_CSP` for `bypassCSP`, and `WA_USE_LIGHTPANDA` for `useLightpanda`.
+
 ## High-value CLI flags
 
 ```bash
@@ -64,6 +162,153 @@ const client = await create({
 # licensing
 --license-key "YOUR-LICENSE-KEY"
 ```
+
+## Full CLI reference
+
+These are the major flags most users need when starting the Easy API from the command line.
+
+| Flag | Maps to | Description |
+| --- | --- | --- |
+| `--port 8080`, `-p 8080` | `port` | Port for the Easy API server. |
+| `--api-key "key"`, `--key "key"`, `-k "key"` | `apiKey` | Protects API requests. Use this before exposing the API beyond localhost. |
+| `--session-id sales` | `sessionId` | Names the session and keeps auth state separate from other sessions. |
+| `--webhook "https://..."`, `-w "https://..."` | `webhook` | Webhook target URL for event delivery. |
+| `--pm2` | PM2 wrapper | Starts the CLI under PM2 instead of running directly. |
+| `--license-key "key"`, `-l "key"` | `licenseKey` | Supplies a license key for licensed features where applicable. |
+| `--link-code "447123456789"` | `linkCode` | Uses link-code login instead of relying only on QR scanning. |
+| `--tunnel` | transitional | Legacy tunnel flag. v5 currently warns that tunnel setup parity is not restored. |
+| `--mcp` | `mcp.enabled` equivalent | Enables the MCP server for AI-agent clients in docs-facing examples. If your v5 alpha build does not parse this flag, use `mcp: { enabled: true }` in config. Keep `apiKey` enabled with MCP. |
+| `--api-host "https://api.example.com"` | API host metadata | Public API host value used by docs-facing examples when the public address differs from the local bind address. It is not currently a core `ConfigSchema` field. |
+
+Other useful runtime flags include `--host`, `--headless`, `--headful`, `--use-chrome`, `--use-lightpanda`, `--qr-timeout`, `--dashboard-port`, `--no-dashboard`, `--no-ezqr`, `--ephemeral`, `--log-console`, `--log-level`, and `--verbose`.
+
+The standalone `@open-wa/cli` entrypoint also accepts output-mode flags such as `--interactive`, `--non-interactive`, and `--output-mode plain`. Those affect terminal output before the runtime config is parsed.
+
+## CLI-to-schema mapping
+
+Most CLI flags are thin aliases over config schema fields. For example:
+
+```bash
+npx @open-wa/wa-automate \
+  --session-id sales \
+  --port 8080 \
+  --api-key "$OPENWA_API_KEY" \
+  --license-key "$OPENWA_LICENSE_KEY" \
+  --link-code "447123456789"
+```
+
+is equivalent to these config fields:
+
+```ts
+export default {
+  sessionId: 'sales',
+  port: 8080,
+  apiKey: process.env.OPENWA_API_KEY,
+  licenseKey: process.env.OPENWA_LICENSE_KEY,
+  linkCode: '447123456789',
+};
+```
+
+CLI flags win over config-file and environment values. That makes config files good for stable defaults and CLI flags good for one-off local overrides.
+
+Not every flag is a schema field. `--config` selects which file to load, `--pm2` controls process management, `--name` controls the PM2 process name, and v5-alpha docs-facing flags such as `--api-host` may not map to a core schema field.
+
+## Deprecated flags
+
+v5 is still alpha, so a few v4-era flags are present only as transitional compatibility warnings.
+
+| Flag or field | Status in v5 |
+| --- | --- |
+| `--ready-webhook` | Warns that ready-webhook delivery is not yet wired in the v5 CLI. |
+| `--stats` | Warns that swagger-stats parity is not restored. |
+| `--generate-api-docs` | Warns that runtime docs are always served from the shared API layer. |
+| `--tunnel` | Warns that tunnel setup parity is not yet restored in the v5 CLI. |
+| `--mcp` | Used in MCP docs as the shorthand for `mcp.enabled`. If your installed v5 alpha does not parse it, configure `mcp: { enabled: true }` in `wa.config.*`. |
+| `--api-host` | Used in some docs as public-host metadata. It is not currently a core config schema field. |
+| `--chatwoot-url`, `--twilio-webhook`, `--bot-press-url` | Legacy integration flags that are not yet wired into the v5 CLI boot path. Prefer plugins and config files. |
+| `sessionData`, `sessionDataPath`, `skipSessionSave` | Deprecated MD-obsolete JSON session fields. Prefer `userDataDir` managed persistence. |
+| `popup`, `qrPopUpOnly`, `autoRefresh`, `qrRefreshS` | Legacy QR/popup behavior. Do not treat these as stable v5 runtime contracts. |
+
+When in doubt, prefer the config schema and the flags in this page over older v4 examples.
+
+## Plugins field docs
+
+Use `plugins` to load reusable integrations into the runtime process.
+
+```ts
+export default {
+  plugins: [
+    '@open-wa/integration-webhook',
+    '@open-wa/integration-chatwoot',
+    './plugins/my-local-plugin',
+    '/absolute/path/to/plugin.js',
+  ],
+};
+```
+
+Each item is a plugin reference. It can be an npm package name, a scoped package name, a relative path, or an absolute path. The module should export a plugin as its default export or as a named `plugin` export.
+
+Plugins loaded from `plugins` are imported during `createClient()` startup. If a plugin does not expose `meta.name`, it cannot be registered correctly.
+
+## PluginConfig docs
+
+Use `pluginConfig` for plugin-specific settings. The object is keyed by each plugin's `meta.name`, not necessarily by the package name.
+
+```ts
+export default {
+  plugins: ['@open-wa/integration-webhook', './plugins/moderation'],
+  pluginConfig: {
+    webhook: {
+      url: 'https://your-app.example/webhooks/open-wa',
+      headers: {
+        'X-Webhook-Secret': process.env.WEBHOOK_SECRET,
+      },
+    },
+    moderation: {
+      enabled: true,
+      apiKey: process.env.MODERATION_API_KEY,
+    },
+  },
+};
+```
+
+At startup, open-wa looks up `pluginConfig[plugin.meta.name]`. If the plugin defines a config schema, that value is validated before it is passed to the plugin's `init()` function.
+
+## Example with plugin
+
+```ts
+import { defineConfig } from '@open-wa/config';
+
+export default defineConfig({
+  sessionId: 'support',
+  port: 8080,
+  host: '0.0.0.0',
+  apiKey: process.env.OPENWA_API_KEY,
+  webhook: process.env.WEBHOOK_URL,
+  plugins: [
+    '@open-wa/integration-webhook',
+    './plugins/internal-audit-plugin',
+  ],
+  pluginConfig: {
+    webhook: {
+      url: process.env.WEBHOOK_URL,
+      headers: {
+        'X-Webhook-Secret': process.env.WEBHOOK_SECRET,
+      },
+    },
+    'internal-audit': {
+      enabled: true,
+      logLevel: 'info',
+    },
+  },
+});
+```
+
+## Secret management
+
+Keep secrets out of committed config files. Use environment variables for `apiKey`, `licenseKey`, webhook secrets, Chatwoot tokens, and plugin API keys.
+
+For local development, a `.env` file is convenient, but it should stay in `.gitignore`. In production, prefer your platform's secret store or a dedicated secret manager. Avoid logging full config objects because nested `pluginConfig` values often contain tokens.
 
 ## Session events worth knowing about
 

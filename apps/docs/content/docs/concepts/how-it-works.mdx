@@ -16,6 +16,105 @@ Think of the stack like this:
 3. the client surface exposes actions, listeners, and session lifecycle control
 4. your code, Easy API consumers, or SocketClient consumers talk to that surface
 
+## Architecture diagram
+
+The same runtime can be reached directly from your app, through the Easy API, or through remote consumers:
+
+```text
+Browser session
+  WhatsApp Web
+    |
+    v
+Runtime bridge injected by open-wa
+    |
+    v
+Client surface
+  actions, listeners, lifecycle, events
+    |
+    +--> Library mode
+    |      your Node.js process calls createClient()
+    |
+    +--> Easy API
+    |      HTTP commands, generated docs, webhooks, MCP
+    |
+    +--> Remote consumers
+           SocketClient, Cloudflare proxy, external services
+```
+
+The browser is still the source of truth. The other layers decide how your code reaches that browser-backed client.
+
+## Browser injection
+
+open-wa starts or connects to a browser page, loads WhatsApp Web, then registers the bridge code inside that page. The bridge gives the Node.js side a controlled way to call WhatsApp Web capabilities and listen for runtime events.
+
+Injection is treated as part of session readiness, not just a setup detail. The runtime checks that the bridge, store, and required methods are present before the client is considered ready. If a navigation or reload removes the bridge, the runtime can detect that and run a reinjection path before exposing the session again.
+
+## API/Socket/MCP flow
+
+The public surfaces sit on top of the same client surface:
+
+- **Easy API** receives HTTP requests, checks lifecycle readiness, and calls the matching client method.
+- **SocketClient** connects to a running Easy API instance, sends commands over the remote API path, and listens for runtime events from that process.
+- **MCP** exposes Easy API methods as tools for AI agents. Tool execution is blocked until the session is connected and ready.
+
+That means remote consumers do not own the browser. They talk to the process that owns the browser.
+
+## Lifecycle states
+
+A session usually moves through these operational states:
+
+1. **starting**: the runtime is resolving config, opening the browser, and preparing the page
+2. **QR**: the browser needs authentication and a QR code or link-code flow is available
+3. **authenticated**: WhatsApp Web has accepted the login, but the runtime may still be syncing, injecting, or validating
+4. **ready**: the bridge is usable and client methods can run safely
+5. **stopping**: shutdown has started and listeners, queues, plugins, and browser resources are being drained
+6. **stopped**: the process has released the browser/runtime resources for that session
+
+In code, some of these are emitted through lower-level names such as `STARTING`, `AUTHENTICATING`, `READY`, and `STOPPED`. The docs use the practical names above because they match what operators see during startup and shutdown.
+
+## Session-data storage
+
+Modern session persistence is browser-profile based. Unless you opt into `ephemeral`, open-wa resolves a `userDataDir` for the browser profile. If you do not provide one, it derives a directory from the session id, usually `./_IGNORE_<sessionId>` relative to the configured `sessionDataPath` or the current working directory.
+
+That profile contains the browser state needed for WhatsApp Web to restore the login after restart. If you provide `userDataDir`, the runtime uses your path instead.
+
+Legacy JSON session restore still exists for migration. In that path, open-wa looks for `<sessionId>.data.json` under `sessionDataPath`, or treats `sessionDataPath` as the full file path if it already ends in `.data.json`. On logout cleanup, that file can be marked `LOGGED OUT` or deleted, and the `userDataDir` can also be removed when configured.
+
+The CLI may also create `.open-wa/chrome-executable-path.json` to cache the resolved Chrome executable path. That file is runtime convenience data, not WhatsApp authentication state.
+
+## Plugin architecture position
+
+Plugins sit after the core event emitter and before external integrations:
+
+```text
+Runtime events
+  |
+  v
+HyperEmitter
+  |
+  v
+PluginHost
+  |
+  +--> plugin hooks
+  +--> plugin routes
+  +--> plugin dashboard pages
+  +--> plugin tools
+  |
+  v
+External services
+  webhooks, Chatwoot, S3, custom integrations
+```
+
+This keeps the browser and client lifecycle inside open-wa, while plugins extend what happens around events, routes, tools, and integration output.
+
+## Security-filtered event pipeline
+
+Plugins do not receive the raw internal event bus. `PluginHost` creates an event gateway for each plugin, and that gateway only allows subscriptions to public, non-sensitive events.
+
+Internal launch, patch, persistence, webhook delivery, server, and license events are blocked from plugin event subscriptions. Sensitive authentication events, such as QR and link-code payloads, are also blocked. Plugins can listen to public message, ack, session, group, chat, device, call, UI, label, story, commerce, reaction, core, and error events.
+
+The gateway also does not expose `emit()`. Plugins consume events and provide hooks, routes, pages, or tools, but they do not get a direct write handle to the core event bus.
+
 ## Why sessions matter so much
 
 Most operational questions in open-wa are really session questions:

@@ -16,6 +16,29 @@ The Open-WA v5 monorepo consists of multiple modular packages. While most users 
 | [`cli`](../guides/configuration-and-cli) | Command-line interface for managing sessions and starting the Easy API. |
 | [`core`](../concepts/how-it-works) | The internal engine handling driver orchestration and event emitters. |
 
+## Which package to install
+
+- Most users should install `@open-wa/wa-automate`.
+- Plugin developers should install `@open-wa/plugin-sdk`.
+- Remote consumers should install `@open-wa/socket-client`.
+- Media handling tools should install `@open-wa/decrypt`.
+
+## Stability notes
+
+Open-WA v5 is still in alpha overall. Treat the v5 package set as an active development surface unless a package documents a stable contract.
+
+The main user-facing paths, `@open-wa/wa-automate`, `@open-wa/socket-client`, and `@open-wa/decrypt`, are the safest places to start. Driver packages and lower-level internals are still settling as the v5 architecture matures.
+
+## Driver explanations
+
+- Use Puppeteer when you want the standard browser automation path.
+- Use Playwright when you want a higher-performance driver and are comfortable testing the fit for your setup.
+- Use Lightpanda only for experimental lightweight browser work.
+
+## Plugin SDK link
+
+If you want to build plugins, start with the [plugins getting started guide](/docs/plugins/getting-started).
+
 ## Drivers
 
 Open-WA supports multiple browser drivers through a unified interface.

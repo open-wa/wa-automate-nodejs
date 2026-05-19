@@ -14,18 +14,246 @@ listeners, webhooks, and generated reference pages.
   contacts, and group metadata.
 </Callout>
 
+## Chat ID narrative
+
+Every message operation starts with a chat ID. For a direct chat, take the
+phone number in international format, remove formatting, and add the `@c.us`
+suffix.
+
+```text
++44 7700 900000
+447700900000
+447700900000@c.us
+```
+
+Groups use the `@g.us` suffix. You do not build a group chat ID from a phone
+number. WhatsApp assigns it when the group is created, and you read it from an
+incoming group message, a group listing, or resolved invite metadata.
+
+```text
+120363025814912345@g.us
+```
+
+LIDs are internal linked device identifiers. They can appear in sender,
+participant, or lower-level payload fields when WhatsApp needs an internal
+identity rather than the plain contact chat ID. Treat them as identifiers to
+preserve and compare, not as phone numbers to format yourself.
+
+The usual conversion flow for a direct chat is:
+
+```text
+phone number with country code
+plain digits only
+digits plus @c.us
+chatId used by send, reply, contact, and webhook payloads
+```
+
+## Message direction
+
+Use `fromMe` to tell whether the current session sent the message. When
+`fromMe` is `false`, the message is incoming. When `fromMe` is `true`, the
+message is outgoing.
+
+The `from` and `to` fields still matter. On an incoming one-to-one message,
+`from` is the contact chat ID and `to` is your session. On an outgoing message,
+`from` is usually your session and `to` is the recipient chat ID. For group
+messages, `from` or `chatId` is the group chat ID, while `author` or `senderId`
+can identify the participant who wrote the message.
+
+The `self` field gives the same direction in string form: `in` for incoming and
+`out` for outgoing. Prefer `fromMe` when you need a boolean check, and use
+`self` when you are logging or storing direction labels.
+
 ## Message
+
+Messages carry the event data you usually handle in listeners and webhooks.
+The generated table below is the contract, and the notes here explain the
+fields that are easiest to mix up in production.
+
+### Media fields
+
+Media messages still arrive as messages. The `type` field tells you the broad
+message kind, such as `image`, `video`, `audio`, `ptt`, `document`, or
+`sticker`. The `isMedia` flag is the quick check before you try to decrypt or
+store binary content.
+
+Common media fields include:
+
+| Field | Meaning |
+| --- | --- |
+| `type` | WhatsApp message type, such as `image`, `video`, or `document`. |
+| `mimetype` | MIME type for the encrypted media, such as `image/jpeg` or `application/pdf`. |
+| `caption` | Optional text attached to image, video, or document messages. |
+| `mediaData` | Runtime metadata used to locate and decrypt the encrypted media. |
+| `clientUrl` / `deprecatedMms3Url` | Media URLs that may be present on some payloads. Treat them as runtime details. |
+
+To access the raw bytes, pass the whole message to `decryptMedia` after you
+have checked that the message has media metadata.
+
+```ts
+import { decryptMedia } from '@open-wa/wa-automate';
+
+client.onMessage(async (message) => {
+  if (!message.isMedia && !message.mimetype) return;
+
+  const media = await decryptMedia(message);
+  // Save, inspect, or forward the decrypted data from here.
+});
+```
+
+Do not assume `body` contains file bytes. For media, read `caption` for user
+text and decrypt the message when you need the content.
+
+### Nullability patterns
+
+Most IDs and timestamps are expected to be present because they are needed to
+route and order events. Optional content fields depend on the message type and
+on how much data WhatsApp exposed for that event.
+
+Common patterns:
+
+| Field | When it can be missing or null |
+| --- | --- |
+| `body` | Can be empty or null for media-only, notification, revoked, or system-style messages. |
+| `caption` | Only appears when the sender included media caption text. |
+| `quotedMsg` / `quotedMsgObj` | Only appears when the quoted message is still available to the runtime. |
+| `author` / `senderId` | Most useful in group messages. It can be absent in one-to-one messages. |
+| `notifyName` | Depends on whether WhatsApp has a display name for the sender. |
+| `mimetype` / `mediaData` | Only appears for media messages that have decryptable media metadata. |
+
+When storing messages, model optional fields as optional or nullable even when
+your current payload sample includes them. WhatsApp payloads vary by message
+type, session state, and runtime version.
+
+### Sample payloads
+
+A simple incoming text message has a contact chat ID in `from`, your session in
+`to`, and `fromMe: false`.
+
+```json
+{
+  "id": "false_447700900000@c.us_3EB0A1B2C3D4E5F67890",
+  "body": "Hi, is my order ready?",
+  "type": "chat",
+  "t": 1768848000,
+  "timestamp": 1768848000,
+  "from": "447700900000@c.us",
+  "to": "15551234567@c.us",
+  "chatId": "447700900000@c.us",
+  "fromMe": false,
+  "self": "in",
+  "isGroupMsg": false,
+  "isMedia": false,
+  "isNotification": false,
+  "ack": 1,
+  "sender": {
+    "id": "447700900000@c.us",
+    "pushname": "Aisha",
+    "isMyContact": true,
+    "isWAContact": true
+  }
+}
+```
+
+An outgoing group message uses the group chat ID as the conversation target and
+sets `fromMe: true`.
+
+```json
+{
+  "id": "true_120363025814912345@g.us_3EB0F00D112233445566",
+  "body": "I will post the notes here.",
+  "type": "chat",
+  "t": 1768848120,
+  "timestamp": 1768848120,
+  "from": "15551234567@c.us",
+  "to": "120363025814912345@g.us",
+  "chatId": "120363025814912345@g.us",
+  "fromMe": true,
+  "self": "out",
+  "isGroupMsg": true,
+  "isMedia": false,
+  "isNotification": false,
+  "ack": 2,
+  "author": "15551234567@c.us"
+}
+```
+
+A media message may have no useful `body`. Use `caption` for attached text and
+`mimetype` plus `mediaData` for decryption.
+
+```json
+{
+  "id": "false_447700900000@c.us_3EB09988776655443322",
+  "body": null,
+  "caption": "Receipt from today",
+  "type": "image",
+  "mimetype": "image/jpeg",
+  "t": 1768848240,
+  "timestamp": 1768848240,
+  "from": "447700900000@c.us",
+  "to": "15551234567@c.us",
+  "chatId": "447700900000@c.us",
+  "fromMe": false,
+  "self": "in",
+  "isGroupMsg": false,
+  "isMedia": true,
+  "isMMS": true,
+  "isNotification": false,
+  "mediaData": {
+    "type": "image",
+    "mediaStage": "RESOLVED",
+    "mimetype": "image/jpeg",
+    "filehash": "8f2b5f7b4c0a1d2e3f4a5b6c7d8e9f00"
+  }
+}
+```
 
 <AutoTypeTable path="../../../../../packages/schema/src/common-types.ts" name="Message" />
 
 ## Contact
 
+Contact objects describe a person or WhatsApp identity. The stable field is
+`id`, which is the contact chat ID. Display fields are optional because the
+runtime may know a saved name, a push name, both, or neither.
+
+Common contact fields include `name`, `shortName`, `pushname`,
+`formattedName`, `isBusiness`, `isEnterprise`, `isMe`, `isMyContact`,
+`isUser`, `isWAContact`, `labels`, `profilePicThumbObj`, `verifiedName`,
+`isOnline`, and `lastSeen`.
+
+Treat contact display data as helpful context, not as identity. Use `id` for
+lookups, message targets, and deduplication.
+
 <AutoTypeTable path="../../../../../packages/schema/src/common-types.ts" name="Contact" />
 
 ## Chat
 
+A chat object describes the conversation container. For a one-to-one chat,
+`id` points at a contact chat ID and `isGroup` is `false`. For a group chat,
+`id` uses `@g.us`, `isGroup` is `true`, and `groupMetadata` may be present.
+
+Common chat fields include `id`, `name`, `formattedTitle`, `isGroup`,
+`contact`, `groupMetadata`, `presence`, `unreadCount`, `lastReceivedKey`,
+`msgs`, `isReadOnly`, `muteExpiration`, `pin`, and `ack`.
+
+Some chat fields are snapshots. For example, `unreadCount`, `presence`, and
+`lastReceivedKey` can change between events. Read them as current runtime
+context, not permanent facts.
+
 <AutoTypeTable path="../../../../../packages/schema/src/common-types.ts" name="Chat" />
 
 ## Group metadata
+
+Group metadata describes the group itself rather than a single message. The
+required fields are `id`, `subject`, `creation`, and `participants`. Admin and
+configuration fields are optional because they depend on what the session can
+see and what WhatsApp has exposed for that group.
+
+Common group fields include `owner`, `desc`, `descTime`, `descOwner`,
+`restrict`, `announce`, and `participants`. Each participant has an `id`, an
+`isAdmin` flag, and may include `isSuperAdmin`.
+
+Use the group `id` as the chat ID for sending messages. Use participant IDs
+when mentioning, moderating, or showing who sent a group message.
 
 <AutoTypeTable path="../../../../../packages/schema/src/common-types.ts" name="GroupMetadata" />

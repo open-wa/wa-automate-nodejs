@@ -15,6 +15,12 @@ npm install @open-wa/wa-automate
 
 If your environment has stricter native-install permissions, only fall back to `--unsafe-perm` when you have confirmed you actually need it.
 
+## Clarify `create()` vs `createClient`
+
+`create()` is the legacy v4-era entry point. It still works for older examples and compatibility code.
+
+The v5 public contract centers on `createClient` from `@open-wa/core`, exposed through `@open-wa/wa-automate`. If you are starting new custom code on v5, prefer `createClient` because it matches the current runtime and driver architecture.
+
 ## Minimal example
 
 ```ts
@@ -35,6 +41,41 @@ async function start() {
 start().catch(console.error);
 ```
 
+## Driver install
+
+For embedded runtime code, install the driver package you want to run with:
+
+```bash
+npm install @open-wa/driver-puppeteer
+```
+
+Then pass the driver explicitly when you create the client:
+
+```ts
+import { createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+
+async function start() {
+  const client = await createClient({
+    sessionId: 'my-session',
+    driver: new PuppeteerDriver(),
+    headless: true,
+  });
+
+  client.onMessage(async (message) => {
+    if (message.body === 'Hi') {
+      await client.sendText(message.from, '👋 Hello!');
+    }
+  });
+}
+
+start().catch(console.error);
+```
+
+## TypeScript setup
+
+Custom code projects usually work best with a normal Node.js TypeScript setup. Use a recent Node target, keep module resolution compatible with your runtime, and make sure your app awaits async client methods instead of treating them like sync helpers.
+
 ## What `create()` does
 
 `create()` launches the automation runtime, restores or authenticates the session, and returns the client surface you use for listeners and actions.
@@ -54,6 +95,85 @@ const client = await create({
 ```
 
 Use `useChrome` or `executablePath` when browser-specific behavior matters for your flow.
+
+## Auth behavior
+
+On first run, the runtime needs to authenticate the WhatsApp session. Depending on your config and environment, that usually means scanning a QR code or using another supported login flow.
+
+After the first successful login, the session data is saved for the configured `sessionId`. Later runs with the same session can restore that state instead of asking you to log in again, as long as the saved auth data is still valid and available to the process.
+
+## First send/receive
+
+This example sends a startup message to a known chat and replies when that chat sends `Hi`:
+
+```ts
+import { createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+
+async function start() {
+  const client = await createClient({
+    sessionId: 'sales',
+    driver: new PuppeteerDriver(),
+    headless: true,
+  });
+
+  const chatId = '15551234567@c.us';
+
+  await client.sendText(chatId, 'Bot is online. Send Hi to test the reply flow.');
+
+  client.onMessage(async (message) => {
+    if (message.from === chatId && message.body === 'Hi') {
+      await client.sendText(message.from, '👋 Hello from custom code.');
+    }
+  });
+}
+
+start().catch(console.error);
+```
+
+Replace `15551234567@c.us` with the chat id you want to test against.
+
+## Cleanup/shutdown
+
+If your process handles shutdown signals, close the client before exiting so the browser and runtime resources are cleaned up:
+
+```ts
+import { createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+
+async function start() {
+  const client = await createClient({
+    sessionId: 'sales',
+    driver: new PuppeteerDriver(),
+  });
+
+  const shutdown = async () => {
+    await client.kill();
+    process.exit(0);
+  };
+
+  process.once('SIGINT', shutdown);
+  process.once('SIGTERM', shutdown);
+}
+
+start().catch(console.error);
+```
+
+## v5 caveat
+
+v5 is the forward path, but some docs are still being reorganized from the older v4-era shape. If an example uses `create()`, treat it as compatibility guidance unless the page specifically says it is the preferred v5 pattern.
+
+## Plugin vs custom code
+
+Use plugins when you are building reusable integrations that should be loaded through config, shared across projects, or published as separate packages.
+
+Use custom code when the logic belongs to one app, such as routing incoming messages into your own database, queue, CRM, or business workflow.
+
+## SocketClient vs embedded runtime
+
+`SocketClient` connects your Node.js app to a running Easy API instance. The Easy API process owns the browser, session lifecycle, and HTTP surface while your app consumes commands and events remotely.
+
+Embedded runtime code owns the browser directly inside your process through `createClient`. Use it when you need direct control over driver selection, launch config, shutdown, and session behavior.
 
 ## Browser/runtime notes
 

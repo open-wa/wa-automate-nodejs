@@ -21,6 +21,51 @@ You can also place the same value in your config file:
 }
 ```
 
+## Phone format
+
+Use the full phone number with the country code first. Do not include a plus sign, spaces, brackets, or dashes.
+
+For example, use `447123456789`, not `+44 7123 456789`.
+
+## Where code appears
+
+The link code appears in the host device's WhatsApp app during the Linked Devices flow.
+
+On the phone that owns the account, open WhatsApp and go to Linked Devices. Choose the option to link with a phone number instead of scanning a QR code, then enter the code shown by open-wa.
+
+## Expiry/failure
+
+Link codes expire after a short time. If the code expires, or if it is entered incorrectly, WhatsApp will reject the login attempt and the session will not connect with that code.
+
+Start the authentication flow again to request a fresh code, then enter the new code on the host device.
+
+## QR still appears?
+
+Yes. The QR code may still appear as a fallback during authentication.
+
+If link-code login fails or times out, you can usually continue by scanning the QR code instead, unless your runtime configuration stops waiting for authentication first.
+
+## Host device steps
+
+On the phone that owns the WhatsApp account:
+
+1. Open WhatsApp.
+2. Go to Settings.
+3. Open Linked Devices.
+4. Tap Link a Device.
+5. Choose the option to link with a phone number instead.
+6. Enter the link code shown by open-wa.
+7. Confirm the login when WhatsApp asks.
+
+## Troubleshooting
+
+- Check that the number uses country code plus phone number only, with no plus sign or spaces.
+- Make sure you are using the WhatsApp account that owns the number you passed as `linkCode`.
+- If the code expired, restart the login flow and use the new code.
+- If WhatsApp rejects the code, check for typing mistakes and request a fresh code.
+- If link-code login keeps failing, scan the QR code fallback instead.
+- If the session times out before you can enter the code, increase your auth timeout settings or try again when the host device is ready.
+
 ## In custom code
 
 ```ts
