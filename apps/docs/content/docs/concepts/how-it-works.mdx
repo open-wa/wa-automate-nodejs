@@ -1,11 +1,11 @@
 ---
 title: How it works
-description: The core runtime model behind open-wa automation.
+description: Understand which process owns WhatsApp, how sessions become ready, and which integration path to choose.
 ---
 
 # How it works
 
-At a high level, open-wa automates a browser session, injects a runtime bridge, and exposes a higher-level client surface you can control from your own code or from the Easy API.
+Use this page to understand what has to be running before your code can send messages, receive events, or expose WhatsApp through an API. By the end, you should know which process owns the browser session, where readiness comes from, and whether to start with Easy API, custom code, or a remote consumer.
 
 ## Mental model
 
@@ -16,7 +16,7 @@ Think of the stack like this:
 3. the client surface exposes actions, listeners, and session lifecycle control
 4. your code, Easy API consumers, or SocketClient consumers talk to that surface
 
-## Architecture diagram
+## Runtime flow
 
 The same runtime can be reached directly from your app, through the Easy API, or through remote consumers:
 
@@ -82,7 +82,7 @@ Legacy JSON session restore still exists for migration. In that path, open-wa lo
 
 The CLI may also create `.open-wa/chrome-executable-path.json` to cache the resolved Chrome executable path. That file is runtime convenience data, not WhatsApp authentication state.
 
-## Plugin architecture position
+## Where plugins fit
 
 Plugins sit after the core event emitter and before external integrations:
 
@@ -125,13 +125,13 @@ Most operational questions in open-wa are really session questions:
 - which process owns it?
 - how do remote consumers reach it?
 
-That is why the docs separate **session events**, **multiple sessions**, **SocketClient**, and **Cloudflare proxy** instead of burying everything under one generic how-to list.
+Answer those questions before choosing a guide. They decide whether you need a startup/auth flow, a multi-session plan, a remote consumer, or a proxy in front of the Easy API.
 
 ## The three main usage modes
 
 ### 1. Library mode
 
-You call `create()` directly and own the client in your application process.
+You call `createClient()` directly and own the client in your application process.
 
 ### 2. Easy API mode
 
@@ -141,11 +141,10 @@ You run the runtime as an API surface, then consume it remotely over HTTP and re
 
 You connect to an already running Easy API instance with `SocketClient` instead of embedding the browser automation runtime in your own app.
 
-## Why the docs are split the way they are
+## What to do next
 
-- **Getting Started** tells you how to boot the runtime.
-- **Guides** tell you how to use it once it exists.
-- **Client & Integrations** cover remote access and ecosystem connections.
-- **Reference** is generated API detail, not onboarding material.
+- Start with **Easy API mode** when you need a running WhatsApp-backed HTTP API quickly.
+- Use **Library mode** when your Node.js app must own browser startup, lifecycle, and event handling directly.
+- Use **Remote-consumer mode** when another service should talk to an Easy API process that already owns the browser session.
 
-The old legacy docs mixed all of those concerns together. The new structure is explicit so onboarding, operations, and generated API detail do not compete for the same place in the sidebar.
+Whichever path you choose, confirm the session reaches **ready** before sending commands, keep session data somewhere durable if you need restarts to survive, and put API keys or proxy tokens in front of any remote surface.
