@@ -1,16 +1,17 @@
 ---
 title: Webhook payloads
-description: Generated type tables for webhook configuration and delivery payloads.
+description: See the JSON your webhook receives, how to verify it, and which fields to store.
 ---
 
 # Webhook payloads
 
-Use this page when you need the exact configuration and payload shapes for the
-webhook integration.
+Use this page when you are building the service that receives open-wa webhook
+events. It shows how to enable delivery, verify requests, handle common event
+payloads, and read the generated type tables when you need exact fields.
 
 <Callout type="note" title="This complements webhook usage docs">
-  This page is the type reference for webhook setup and delivery structure. Pair
-  it with Easy API and integration guides when you are wiring handlers.
+  Pair this page with the Easy API guide when you need to run the sender and
+  this page when you need to write the receiving handler.
 </Callout>
 
 ## Enablement flow
@@ -27,6 +28,12 @@ timeout all live with the rest of your runtime configuration.
 
 ```ts
 // wa.config.ts
+const webhookSecret = process.env.OPEN_WA_WEBHOOK_SECRET;
+
+if (!webhookSecret) {
+  throw new Error('OPEN_WA_WEBHOOK_SECRET is required');
+}
+
 export default {
   port: 8080,
   plugins: ['@open-wa/integration-webhook'],
@@ -35,7 +42,7 @@ export default {
       url: 'https://your-app.example/webhooks/open-wa',
       events: ['message', 'participantsChanged', 'stateChanged'],
       headers: {
-        'X-Webhook-Secret': process.env.OPEN_WA_WEBHOOK_SECRET!,
+        'X-Webhook-Secret': webhookSecret,
       },
       retries: 3,
       retryDelay: 1000,
@@ -104,7 +111,10 @@ fastify.post('/webhooks/open-wa', async (request, reply) => {
   const body = request.body as {
     event: string;
     sessionId: string;
-    payload: any;
+    payload: {
+      groupId?: string;
+      [key: string]: unknown;
+    };
   };
 
   if (body.event === 'participantsChanged') {
@@ -161,12 +171,19 @@ delivery. Use that for a shared secret, bearer token, or gateway-specific auth
 header.
 
 ```ts
+const webhookToken = process.env.OPEN_WA_WEBHOOK_TOKEN;
+const webhookSecret = process.env.OPEN_WA_WEBHOOK_SECRET;
+
+if (!webhookToken || !webhookSecret) {
+  throw new Error('Webhook token and secret are required');
+}
+
 pluginConfig: {
   webhook: {
     url: 'https://your-app.example/webhooks/open-wa',
     headers: {
-      Authorization: `Bearer ${process.env.OPEN_WA_WEBHOOK_TOKEN}`,
-      'X-Webhook-Secret': process.env.OPEN_WA_WEBHOOK_SECRET!,
+      Authorization: `Bearer ${webhookToken}`,
+      'X-Webhook-Secret': webhookSecret,
     },
   },
 }

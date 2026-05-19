@@ -1,11 +1,19 @@
 ---
-title: Chatwoot
-description: Connect open-wa to Chatwoot for bidirectional message handling.
+title: Chatwoot integration
+description: Route WhatsApp conversations into a Chatwoot inbox and let agents reply from Chatwoot.
 ---
 
-# Chatwoot
+# Chatwoot integration
 
-The legacy docs described Chatwoot mostly as a CLI flag combination. The current repository also includes a dedicated Chatwoot integration package, so the modern mental model is: **Chatwoot is an integration layer, not just a one-off command example**.
+Use this integration when support agents should handle WhatsApp conversations from a Chatwoot inbox. Incoming WhatsApp messages create or reopen Chatwoot conversations, and Chatwoot replies are sent back through the connected open-wa session.
+
+## Setup order
+
+1. Create or choose the Chatwoot account and API inbox.
+2. Create a Chatwoot user access token with permission to manage contacts, conversations, messages, and inboxes.
+3. Decide the public open-wa origin Chatwoot can call, for example `https://wa.example.com`.
+4. Add `@open-wa/integration-chatwoot` to `plugins` and put the Chatwoot settings in `pluginConfig.chatwoot`.
+5. Start open-wa, send a WhatsApp test message, then reply from Chatwoot.
 
 ## Core inputs
 
@@ -18,7 +26,7 @@ At minimum you need:
 
 ## Chatwoot-side setup
 
-Start in Chatwoot before you start the open-wa runtime. The integration can create the API inbox for you, but it is still useful to know the Chatwoot pieces it expects.
+Start in Chatwoot before you start the open-wa runtime. The integration can create the API inbox for you, but you still need to know the Chatwoot pieces it expects.
 
 1. Open the Chatwoot account you want WhatsApp conversations to appear in.
 2. Create a user access token from your Chatwoot profile settings. The token must be able to create contacts, conversations, messages, and inboxes for the target account.
@@ -121,9 +129,9 @@ Created contacts use:
 
 The plugin keeps an in-memory contact registry and conversation registry while the process is running. For each contact, it reuses an open conversation in the configured inbox when possible, reopens an existing conversation when needed, or creates a new conversation.
 
-## Legacy Easy API flags
+## Older Easy API flags
 
-If you are still wiring Chatwoot through the Easy API surface directly, the legacy flags remain the conceptual bridge:
+If you are reading older Easy API examples, you may see these flags:
 
 ```bash
 --chatwoot-url "https://app.chatwoot.com/api/v1/accounts/123"
@@ -132,9 +140,9 @@ If you are still wiring Chatwoot through the Easy API surface directly, the lega
 
 ## Plugin vs CLI difference
 
-The plugin path is the modern integration path. It loads `@open-wa/integration-chatwoot`, validates `pluginConfig.chatwoot`, mounts the Chatwoot webhook route, and handles both WhatsApp to Chatwoot and Chatwoot to WhatsApp sync inside the plugin host.
+The plugin path is the recommended path for new deployments. It loads `@open-wa/integration-chatwoot`, validates `pluginConfig.chatwoot`, mounts the Chatwoot webhook route, and handles both WhatsApp to Chatwoot and Chatwoot to WhatsApp sync inside the plugin host.
 
-The legacy CLI flags are older Easy API shortcuts. They are useful when you are reading v4-era examples, but they do not describe the full plugin lifecycle. Prefer the plugin config for new deployments because it makes the package name, webhook route, public API host, API key, and webhook update behavior explicit.
+The older CLI flags are shortcuts. They are useful when you are reading v4-era examples, but they do not describe the full plugin lifecycle. Prefer the plugin config because it makes the package name, webhook route, public API host, API key, and webhook update behavior explicit.
 
 ## Verification
 
