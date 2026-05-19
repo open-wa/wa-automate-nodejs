@@ -1,0 +1,237 @@
+---
+title: Webhooks for Business
+description: Connect WhatsApp events to your backend using webhooks. Plain language guide with payload examples.
+---
+
+# Webhooks for Business
+
+Webhooks let WhatsApp events flow into your existing services without writing custom runtime code. When something happens in WhatsApp, open-wa sends an HTTP POST to your endpoint.
+
+## What Are Webhooks
+
+Think of webhooks as a notification system. When a message arrives, a contact connects, or a session changes state, open-wa sends that information to a URL you specify.
+
+Instead of your service asking "any new messages?" every second, open-wa tells you "here is a new message" the moment it happens.
+
+## Enabling Webhooks
+
+### Via CLI Flag
+
+```bash
+npx @open-wa/wa-automate --webhook "https://your-app.example/webhooks/open-wa"
+```
+
+### Via Config File
+
+```js
+// wa.config.js
+export default {
+  webhook: {
+    url: 'https://your-app.example/webhooks/open-wa',
+    headers: {
+      'X-Webhook-Secret': process.env.WEBHOOK_SECRET,
+    },
+  },
+};
+```
+
+## Sample Payloads
+
+### Text Message
+
+```json
+{
+  "event": "message.received",
+  "data": {
+    "id": "ABC123",
+    "from": "1234567890@c.us",
+    "to": "0987654321@c.us",
+    "body": "Hello!",
+    "type": "chat",
+    "timestamp": 1700000000,
+    "fromMe": false
+  }
+}
+```
+
+Field explanations:
+
+- **id**: Unique message identifier
+- **from**: Sender chat ID (phone number plus @c.us for direct messages)
+- **to**: Your session chat ID
+- **body**: The text content
+- **type**: Message type (chat, image, audio, document, etc.)
+- **timestamp**: When the message was sent
+- **fromMe**: Whether you sent this message
+
+### Media Message
+
+```json
+{
+  "event": "message.received",
+  "data": {
+    "id": "DEF456",
+    "from": "1234567890@c.us",
+    "body": "",
+    "type": "image",
+    "mimetype": "image/jpeg",
+    "caption": "Check this out",
+    "timestamp": 1700000000
+  }
+}
+```
+
+### Group Message
+
+```json
+{
+  "event": "message.received",
+  "data": {
+    "id": "GHI789",
+    "from": "1234567890-1111111@g.us",
+    "body": "Meeting at 3pm",
+    "type": "chat",
+    "isGroupMsg": true,
+    "timestamp": 1700000000
+  }
+}
+```
+
+Note the @g.us suffix for group chat IDs.
+
+## Connecting to Platforms
+
+### Zapier
+
+1. Create a Zap with "Webhooks by Zapier" as the trigger
+2. Choose "Catch Hook"
+3. Copy the Custom Webhook URL
+4. Paste it into open-wa webhook flag
+5. Test the connection by sending a WhatsApp message
+
+### Make.com
+
+1. Create a new scenario
+2. Add a Webhooks module with Custom webhook
+3. Copy the webhook URL
+4. Configure open-wa to send events to that URL
+5. Add subsequent modules to process the data
+
+### n8n
+
+1. Create a new workflow
+2. Add a Webhook node
+3. Set the method to POST
+4. Copy the webhook URL
+5. Configure open-wa to send events to that URL
+6. Connect subsequent nodes to process the payload
+
+### Generic HTTP Endpoint
+
+Any service that accepts HTTP POST can receive webhooks:
+
+```ts
+import express from 'express';
+
+const app = express();
+app.use(express.json());
+
+app.post('/webhooks/open-wa', (req, res) => {
+  const { event, data } = req.body;
+
+  if (event === 'message.received') {
+    console.log('Message from:', data.from);
+    console.log('Body:', data.body);
+  }
+
+  res.status(200).send('OK');
+});
+
+app.listen(3000);
+```
+
+## Reliability
+
+### Retries
+
+open-wa retries failed webhook deliveries with exponential backoff. After max retries, the event is logged and dropped.
+
+### Concurrency
+
+Multiple events can be delivered simultaneously. Your endpoint should handle concurrent requests. Use idempotent processing to avoid duplicate handling.
+
+### Delivery Guarantees
+
+Webhooks use at-least-once delivery. Events may be delivered more than once. Your endpoint should be idempotent. Use message IDs to deduplicate.
+
+## Filtering Events
+
+### By Event Type
+
+Only process the events you care about:
+
+```ts
+app.post('/webhooks/open-wa', (req, res) => {
+  const { event } = req.body;
+
+  if (event === 'message.received') {
+    // Handle messages
+  } else if (event === 'client.ready') {
+    // Handle session ready
+  }
+
+  res.status(200).send('OK');
+});
+```
+
+### By Sender
+
+Only process messages from specific contacts:
+
+```ts
+if (data.from.includes('@g.us')) {
+  // Only process group messages
+}
+```
+
+## Security
+
+### Auth Headers
+
+Send a secret header with each webhook:
+
+```js
+// wa.config.js
+export default {
+  webhook: {
+    url: 'https://your-app.example/webhooks/open-wa',
+    headers: {
+      'X-Webhook-Secret': process.env.WEBHOOK_SECRET,
+    },
+  },
+};
+```
+
+Verify the header in your endpoint:
+
+```ts
+app.post('/webhooks/open-wa', (req, res) => {
+  const secret = req.headers['x-webhook-secret'];
+
+  if (secret !== process.env.WEBHOOK_SECRET) {
+    return res.status(401).send('Unauthorized');
+  }
+
+  // Process the webhook
+});
+```
+
+### HTTPS
+
+Always use HTTPS for webhook URLs to prevent eavesdropping on message content and protect authentication headers.
+
+## Related
+
+- **[Integrations overview](/docs/guides/integrations-overview)** - Choose the right integration
+- **[Webhook payloads reference](/docs/client-and-integrations/webhook-payloads)** - Detailed payload shapes
+- **[Security and deployment](/docs/operations/security-and-deployment)** - Production security

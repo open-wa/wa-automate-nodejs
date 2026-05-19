@@ -1,0 +1,118 @@
+---
+title: Node-RED Integration
+description: Use Node-RED for visual WhatsApp automation with open-wa nodes.
+---
+
+# Node-RED Integration
+
+Node-RED is a low-code visual automation tool. The open-wa Node-RED contribution lets you build WhatsApp flows visually without writing code.
+
+## What Is Node-RED
+
+Node-RED is a flow-based programming tool where you connect nodes together to create automations. The open-wa contribution adds WhatsApp-specific nodes for sending, receiving, and managing sessions.
+
+## Installation
+
+Install the Node-RED contribution:
+
+```bash
+npm install @open-wa/node-red-contrib-wa-automate
+```
+
+Or install through the Node-RED palette manager by searching for `@open-wa/node-red-contrib-wa-automate`.
+
+## Available Nodes
+
+### Send Node
+
+Send WhatsApp messages through the flow:
+
+- Text messages
+- Images and media
+- Location
+- Contact cards
+- Buttons and lists
+
+Configure the target chatId and message content in the node properties.
+
+### Receive Node
+
+Receive WhatsApp messages as flow input:
+
+- Incoming messages trigger the flow
+- Message payload includes sender, body, type, and metadata
+- Filter by chat type (group vs direct)
+
+### Session Node
+
+Manage WhatsApp session lifecycle:
+
+- Start and stop sessions
+- Monitor session state
+- Handle authentication
+
+### Media Node
+
+Handle media operations:
+
+- Download media from messages
+- Process images and documents
+- Upload media for sending
+
+## Example Flows
+
+### Echo Bot
+
+1. Add a Receive node to capture incoming messages
+2. Connect it to a Send node
+3. Configure the Send node to reply to the same chatId with the message body
+
+This creates a simple echo bot that repeats any message it receives.
+
+### CRM Integration
+
+1. Receive node captures incoming messages
+2. Function node formats the data
+3. HTTP Request node sends the data to your CRM API
+4. Response node sends a confirmation back to WhatsApp
+
+### Conditional Routing
+
+1. Receive node captures messages
+2. Switch node routes based on message content or sender
+3. Different paths handle different message types
+4. Each path sends an appropriate response
+
+## Connecting to Easy API
+
+The Node-RED nodes connect to a running Easy API instance:
+
+1. Start the Easy API: `npx @open-wa/wa-automate --port 8080`
+2. Configure the Node-RED nodes with the API URL and key
+3. Deploy your flow
+
+## Troubleshooting
+
+### Connection Issues
+
+- Verify the Easy API is running on the configured port
+- Check the API key matches
+- Ensure the session is authenticated
+
+### Message Not Sending
+
+- Check the chatId format (phone number plus @c.us)
+- Verify the session is connected
+- Check Node-RED logs for error details
+
+### Session Disconnected
+
+- The Session node can detect disconnection
+- Configure auto-reconnect in the node settings
+- Monitor session state in the Easy API dashboard
+
+## Related
+
+- **[Easy API quick start](/docs/getting-started/easy-api)** - Start the API
+- **[Integrations overview](/docs/guides/integrations-overview)** - Choose the right integration
+- **[Webhooks for business](/docs/guides/webhooks-for-business)** - Alternative integration pattern

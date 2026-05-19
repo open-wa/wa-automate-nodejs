@@ -1,0 +1,168 @@
+---
+title: Group vs DM Handling
+description: Detect group messages, filter by group ID, and exempt admins in your automation.
+---
+
+# Group vs DM Handling
+
+When building automation, you often need different behavior for group messages versus direct messages. This guide covers detection, filtering, and admin exemptions.
+
+## Detecting Group Messages
+
+### By Chat ID Suffix
+
+Group chat IDs end with `@g.us`. Direct messages end with `@c.us`.
+
+```ts
+client.onMessage(async (message) => {
+  const isGroup = message.from.includes('@g.us');
+  const isDirect = message.from.includes('@c.us');
+
+  if (isGroup) {
+    // Handle group message
+  }
+
+  if (isDirect) {
+    // Handle direct message
+  }
+});
+```
+
+### Using isGroupMsg
+
+Some message objects include an `isGroupMsg` field:
+
+```ts
+client.onMessage(async (message) => {
+  if (message.isGroupMsg) {
+    // This is a group message
+  }
+});
+```
+
+## Getting the Group ID
+
+The group ID is the `from` field for group messages:
+
+```ts
+client.onMessage(async (message) => {
+  if (message.from.includes('@g.us')) {
+    const groupId = message.from; // e.g., "123456789-1111111@g.us"
+    console.log('Message from group:', groupId);
+  }
+});
+```
+
+## Configuring Which Groups to Process
+
+### Allowlist
+
+Only process messages from specific groups:
+
+```ts
+const allowedGroups = new Set([
+  '123456789-1111111@g.us',
+  '987654321-2222222@g.us',
+]);
+
+client.onMessage(async (message) => {
+  if (message.from.includes('@g.us') && !allowedGroups.has(message.from)) {
+    return; // Skip groups not in allowlist
+  }
+  // Process the message
+});
+```
+
+### Blocklist
+
+Skip specific groups:
+
+```ts
+const blockedGroups = new Set([
+  '123456789-1111111@g.us',
+]);
+
+client.onMessage(async (message) => {
+  if (blockedGroups.has(message.from)) {
+    return; // Skip blocked groups
+  }
+  // Process the message
+});
+```
+
+## Exempting Admins
+
+### Getting Group Admins
+
+```ts
+const groupAdmins = await client.getGroupAdmins(groupId);
+```
+
+### Checking if Sender is Admin
+
+```ts
+client.onMessage(async (message) => {
+  if (!message.from.includes('@g.us')) return;
+
+  const admins = await client.getGroupAdmins(message.from);
+  const senderNumber = message.author?.split('@')[0];
+
+  if (admins.includes(senderNumber)) {
+    // Sender is an admin, exempt from moderation
+    return;
+  }
+
+  // Process the message (e.g., moderate it)
+});
+```
+
+### Config-Based Admin Exemption
+
+```ts
+const exemptAdmins = new Set(config.adminIds || []);
+
+client.onMessage(async (message) => {
+  const senderId = message.author || message.from;
+  if (exemptAdmins.has(senderId)) {
+    return; // Admin messages are exempt
+  }
+  // Process the message
+});
+```
+
+## Group-Specific Behavior
+
+### Different Responses per Group
+
+```ts
+const groupConfig = {
+  'group1@g.us': { language: 'en', moderation: true },
+  'group2@g.us': { language: 'es', moderation: false },
+};
+
+client.onMessage(async (message) => {
+  const config = groupConfig[message.from];
+  if (!config) return; // Unknown group
+
+  if (config.moderation) {
+    // Apply moderation
+  }
+});
+```
+
+### Group Welcome Messages
+
+```ts
+client.onMessage(async (message) => {
+  if (message.type === 'gp2' && message.subtype === 'add') {
+    const newMember = message.recipients?.[0];
+    await client.sendText(message.from, `Welcome ${newMember}!`);
+  }
+});
+```
+
+## Related
+
+- **[Groups guide](/docs/guides/groups)** - Full group management
+- **[AI Agent Patterns](/docs/guides/ai-agent-patterns)** - Group chat handling in AI agents
+- **[Example: OpenAI Moderation](/docs/plugins/example-moderation)** - Group moderation plugin

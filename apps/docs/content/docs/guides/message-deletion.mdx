@@ -1,0 +1,114 @@
+---
+title: Deleting Messages
+description: How to delete WhatsApp messages, timing constraints, and limitations.
+---
+
+# Deleting Messages
+
+This guide covers how to delete messages in WhatsApp through open-wa, including the differences between deleting incoming and sent messages.
+
+## Which Method Deletes Messages
+
+Use the `deleteMessage` method to remove messages from a chat:
+
+```ts
+await client.deleteMessage(chatId, messageId);
+```
+
+Parameters:
+- **chatId**: The chat ID where the message exists (e.g., `1234567890@c.us` or `group@g.us`)
+- **messageId**: The unique message identifier to delete
+
+## Incoming vs Sent Messages
+
+### Deleting Your Own Messages
+
+You can delete messages you have sent:
+
+```ts
+// Send a message
+const result = await client.sendText('1234567890@c.us', 'Oops, wrong message!');
+
+// Delete it
+await client.deleteMessage('1234567890@c.us', result.id);
+```
+
+### Deleting Incoming Messages
+
+You can delete messages you have received, but only if:
+- The message is in a group where you are an admin
+- The message is recent enough
+
+```ts
+client.onMessage(async (message) => {
+  if (message.body.includes('inappropriate')) {
+    await client.deleteMessage(message.chatId, message.id);
+  }
+});
+```
+
+## Timing Constraints
+
+WhatsApp has time limits on message deletion:
+
+- **Your messages**: Can typically be deleted within a certain window after sending
+- **Others messages**: Can only be deleted in groups where you are an admin
+- **Old messages**: Deletion may fail for messages older than the allowed window
+
+The exact time windows are controlled by WhatsApp and may change without notice.
+
+## Use Cases
+
+### Moderation
+
+Delete inappropriate messages in groups:
+
+```ts
+client.onMessage(async (message) => {
+  if (!message.isGroupMsg) return;
+
+  const flagged = await checkModeration(message.body);
+  if (flagged) {
+    await client.deleteMessage(message.chatId, message.id);
+    await client.sendText(message.chatId, 'Message removed for violating rules.');
+  }
+});
+```
+
+### Cleanup
+
+Remove outdated automated messages:
+
+```ts
+// Send a temporary notification
+const result = await client.sendText(chatId, 'Processing your request...');
+
+// Later, delete it
+await client.deleteMessage(chatId, result.id);
+await client.sendText(chatId, 'Processing complete!');
+```
+
+## Limitations
+
+- Deletion is not guaranteed. WhatsApp may reject deletion requests.
+- Deleted messages may still be visible to recipients who saw them before deletion.
+- There is no way to delete messages for everyone in direct messages after the time window expires.
+- Group admins can delete any message in their group.
+
+## Error Handling
+
+Always wrap deletion in try-catch:
+
+```ts
+try {
+  await client.deleteMessage(chatId, messageId);
+} catch (error) {
+  console.error('Failed to delete message:', error.message);
+  // Message deletion failed, handle accordingly
+}
+```
+
+## Related
+
+- **[Group moderation](/docs/guides/groups)** - Group management
+- **[AI Agent Patterns](/docs/guides/ai-agent-patterns)** - Building automated responses

@@ -1,0 +1,321 @@
+---
+title: AI Agent Patterns
+description: Architecture patterns for building AI agents that interact with WhatsApp through open-wa.
+---
+
+# AI Agent Patterns
+
+This guide covers the most common architecture patterns for connecting LLMs to WhatsApp through open-wa. Each pattern includes the core loop, safety considerations, and production-ready examples.
+
+## The Conversation Loop Pattern
+
+The simplest AI agent receives messages, sends them to an LLM, and replies with the response.
+
+```ts
+import { createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+
+const client = await createClient({
+  sessionId: 'ai-bot',
+  driver: new PuppeteerDriver(),
+  headless: true,
+});
+
+client.onMessage(async (message) => {
+  // Skip non-text messages and messages from yourself
+  if (message.type !== 'chat' || message.fromMe) return;
+
+  // Send to your LLM
+  const response = await callLLM(message.body);
+
+  // Reply to the sender
+  await client.sendText(message.from, response);
+});
+```
+
+### Key Decisions
+
+- **When to respond**: Filter by message type, sender, group membership, or keywords
+- **What to skip**: System messages, media, status updates, your own messages
+- **How to reply**: `sendText` for text, `sendImage` for generated images, `reply` for quoted responses
+
+## Context Management
+
+LLMs need conversation context to maintain coherent multi-turn conversations.
+
+### Sliding Window
+
+Keep the last N messages as context:
+
+```ts
+const contextWindow = new Map<string, Array<{ role: string; content: string }>>();
+
+client.onMessage(async (message) => {
+  const chatId = message.from;
+  const history = contextWindow.get(chatId) || [];
+
+  // Add the new message
+  history.push({ role: 'user', content: message.body });
+
+  // Keep only the last 10 messages
+  if (history.length > 20) {
+    history.splice(0, history.length - 20); // 20 = 10 exchanges (user + assistant)
+  }
+
+  const response = await callLLM(history);
+  history.push({ role: 'assistant', content: response });
+  contextWindow.set(chatId, history);
+
+  await client.sendText(chatId, response);
+});
+```
+
+### Using getMessagesForLLM
+
+If available in your version, use the built-in message fetching for WhatsApp-native context:
+
+```ts
+client.onMessage(async (message) => {
+  const recentMessages = await client.getMessagesForLLM(message.chatId, {
+    count: 20,
+  });
+
+  const response = await callLLM(recentMessages);
+  await client.sendText(message.from, response);
+});
+```
+
+## Rate Limits and Safety
+
+<Callout type="warning">
+Sending too many messages too quickly can trigger WhatsApp rate limits and increase ban risk. Always implement rate limiting in your AI agent.
+</Callout>
+
+### Messages Per Minute
+
+WhatsApp enforces limits on how many messages you can send. Safe defaults:
+
+- **Direct messages**: 1 message per 10-30 seconds per chat
+- **Group messages**: 1 message per 30-60 seconds per group
+- **New conversations**: Start slower, increase gradually over days
+
+### Implementing Rate Limiting
+
+```ts
+import { Bottleneck } from 'bottleneck';
+
+const limiter = new Bottleneck({
+  minTime: 15000, // Minimum 15 seconds between messages
+  maxConcurrent: 1,
+});
+
+client.onMessage(async (message) => {
+  if (message.type !== 'chat' || message.fromMe) return;
+
+  await limiter.schedule(async () => {
+    const response = await callLLM(message.body);
+    await client.sendText(message.from, response);
+  });
+});
+```
+
+### Ban Risk Profile
+
+Factors that increase ban risk:
+
+- Sending messages to users who have not messaged you first
+- High message volume from a new account
+- Identical messages sent to many contacts
+- Automated behavior patterns that look non-human
+
+Safe defaults:
+
+- Only respond to incoming messages
+- Add random delays (1-5 seconds) between responses
+- Vary response length and timing
+- Use an aged WhatsApp account, not a new one
+
+## Media in LLM Pipelines
+
+### Processing Incoming Images
+
+```ts
+client.onMessage(async (message) => {
+  if (message.type === 'image') {
+    // Decrypt the media
+    const mediaData = await client.decryptMedia(message);
+    const base64 = mediaData.toString('base64');
+
+    // Send to a vision-capable LLM
+    const description = await callVisionLLM(base64, message.mimetype);
+
+    // Reply with the description
+    await client.reply(message.from, `Image: ${description}`, message.id);
+  }
+});
+```
+
+### Processing Voice Notes
+
+```ts
+client.onMessage(async (message) => {
+  if (message.type === 'audio' || message.mimetype?.includes('ogg')) {
+    const mediaData = await client.decryptMedia(message);
+
+    // Send to speech-to-text API
+    const transcription = await callSTT(mediaData);
+
+    // Process the transcription with your LLM
+    const response = await callLLM(transcription);
+
+    await client.sendText(message.from, response);
+  }
+});
+```
+
+### Sending Generated Media
+
+```ts
+// Send an AI-generated image
+await client.sendImage(message.from, 'data:image/png;base64,...', 'caption');
+
+// Send a generated audio response
+await client.sendPtt(message.from, 'data:audio/mp3;base64,...');
+```
+
+## Group Chats vs Direct Messages
+
+### Detecting the Chat Type
+
+```ts
+client.onMessage(async (message) => {
+  const isGroup = message.from.includes('@g.us');
+  const isDirect = message.from.includes('@c.us');
+
+  if (isGroup) {
+    // Group-specific behavior
+    // Check if the bot was mentioned
+    if (!message.body.includes('@botname')) return;
+  }
+
+  if (isDirect) {
+    // Direct message behavior
+  }
+});
+```
+
+### Group-Specific Considerations
+
+- Only respond when mentioned (use `@botname` detection)
+- Respect group admin rules
+- Be aware of group size and message volume
+- Consider using group-specific context windows
+
+## Interactive Messages
+
+### Buttons and Lists
+
+```ts
+// Send a message with buttons
+await client.sendButtons(message.from, 'Choose an option:', [
+  { id: 'opt1', body: 'Option 1' },
+  { id: 'opt2', body: 'Option 2' },
+  { id: 'opt3', body: 'Option 3' },
+]);
+
+// Send a list message
+await client.sendList(message.from, 'Select from the list:', 'Choose', [
+  { title: 'Section 1', rows: [{ id: 'r1', title: 'Row 1' }] },
+]);
+```
+
+### Handling Button and List Responses
+
+```ts
+client.onMessage(async (message) => {
+  // Check for button response
+  if (message.type === 'buttons_response') {
+    const selectedId = message.selectedButtonId;
+    // Handle the selection
+  }
+
+  // Check for list response
+  if (message.type === 'list_response') {
+    const selectedId = message.listResponse?.selectedRowId;
+    // Handle the selection
+  }
+});
+```
+
+## Concurrent Message Handling
+
+When multiple messages arrive simultaneously, you need to handle them without overwhelming your LLM API or WhatsApp.
+
+```ts
+import pQueue from 'p-queue';
+
+const queue = new pQueue({ concurrency: 3 });
+
+client.onMessage(async (message) => {
+  if (message.type !== 'chat' || message.fromMe) return;
+
+  queue.add(async () => {
+    const response = await callLLM(message.body);
+    await client.sendText(message.from, response);
+  });
+});
+```
+
+### Queue Configuration
+
+- **concurrency**: Maximum parallel LLM calls (start with 2-3)
+- **timeout**: Maximum time per message (30 seconds)
+- **retry**: Retry failed calls with exponential backoff
+
+## Complete Production Example
+
+```ts
+import { createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+import Bottleneck from 'bottleneck';
+import pQueue from 'p-queue';
+
+const limiter = new Bottleneck({ minTime: 15000, maxConcurrent: 1 });
+const queue = new pQueue({ concurrency: 2 });
+const contextWindow = new Map();
+
+const client = await createClient({
+  sessionId: 'ai-bot',
+  driver: new PuppeteerDriver(),
+  headless: true,
+});
+
+client.onMessage(async (message) => {
+  if (message.type !== 'chat' || message.fromMe) return;
+
+  const isGroup = message.from.includes('@g.us');
+
+  // In groups, only respond when mentioned
+  if (isGroup && !message.body.includes('@bot')) return;
+
+  queue.add(async () => {
+    const history = contextWindow.get(message.from) || [];
+    history.push({ role: 'user', content: message.body });
+    if (history.length > 20) history.splice(0, history.length - 20);
+
+    await limiter.schedule(async () => {
+      const response = await callLLM(history);
+      history.push({ role: 'assistant', content: response });
+      contextWindow.set(message.from, history);
+
+      await client.sendText(message.from, response);
+    });
+  });
+});
+```
+
+## Related
+
+- **[MCP Integration](/docs/guides/mcp)** - Let AI agents use WhatsApp via MCP
+- **[Rate limits](/docs/guides/rate-limits)** - WhatsApp rate limit details
+- **[Media handling](/docs/guides/media)** - Working with images, audio, and documents

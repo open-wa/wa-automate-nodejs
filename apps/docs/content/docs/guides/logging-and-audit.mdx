@@ -1,0 +1,161 @@
+---
+title: Logging and Audit Trails
+description: Configure logging, export logs, and write audit trails for compliance.
+---
+
+# Logging and Audit Trails
+
+Proper logging is essential for debugging, monitoring, and compliance. This guide covers logging configuration, export patterns, and audit trail implementation.
+
+## PluginLogger
+
+Plugins receive a scoped logger through `PluginLogger`:
+
+```ts
+init: async ({ logger }) => {
+  logger.info('Plugin initialized', { version: '1.0.0' });
+  logger.warn('API key is missing, using defaults');
+  logger.error('Failed to connect', { error: 'ECONNREFUSED' });
+  logger.debug('Processing message', { messageId: 'abc123' });
+}
+```
+
+### Methods
+
+- **info(message, meta?)**: Informational messages
+- **warn(message, meta?)**: Warnings
+- **error(message, meta?)**: Errors
+- **debug(message, meta?)**: Debug output (only visible when debug logging is enabled)
+
+### Auto-Prefixing
+
+All log output is prefixed with your plugin name:
+
+```
+[greeting-bot] Plugin initialized { version: '1.0.0' }
+```
+
+## Log Persistence
+
+Plugin logs flow through the host logging system. Whether they are persisted depends on the host configuration:
+
+- **Default**: Logs are written to stdout/stderr
+- **With file logging**: Configure the host to write logs to files
+- **With external logging**: Forward logs to a logging service
+
+## Exporting Logs
+
+### From stdout/stderr
+
+Redirect output to a file:
+
+```bash
+npx @open-wa/wa-automate --port 8080 > open-wa.log 2>&1
+```
+
+### Structured JSON Logs
+
+If the host supports structured logging, logs are output as JSON:
+
+```json
+{"level":"info","plugin":"webhook","message":"Event forwarded","timestamp":"2024-01-01T00:00:00Z"}
+```
+
+Parse these with tools like `jq`:
+
+```bash
+cat open-wa.log | jq 'select(.plugin == "webhook")'
+```
+
+## Writing to Files
+
+### Using a Log Library
+
+For production systems, use a dedicated log library:
+
+```ts
+import winston from 'winston';
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({ filename: 'open-wa.log' }),
+  ],
+});
+
+// Forward plugin logs
+events.on('message.received', async ({ message }) => {
+  logger.info('Message received', { from: message.from, chatId: message.chatId });
+});
+```
+
+### Rotating Log Files
+
+Rotate logs to prevent disk fill:
+
+```ts
+import winston from 'winston';
+
+const logger = winston.createLogger({
+  transports: [
+    new winston.transports.DailyRotateFile({
+      filename: 'open-wa-%DATE%.log',
+      datePattern: 'YYYY-MM-DD',
+      maxFiles: '14d', // Keep 14 days of logs
+    }),
+  ],
+});
+```
+
+## Writing to Databases
+
+For audit compliance, write logs to a database:
+
+```ts
+events.on('message.received', async ({ message }) => {
+  await db.logs.create({
+    event: 'message.received',
+    from: message.from,
+    chatId: message.chatId,
+    timestamp: new Date(),
+    metadata: JSON.stringify(message),
+  });
+});
+```
+
+## Audit Trail Best Practices
+
+### What to Log
+
+- **Message events**: Incoming and outgoing messages
+- **Authentication events**: Session start, QR scan, logout
+- **Error events**: Failed API calls, connection drops
+- **Admin actions**: Configuration changes, plugin enable/disable
+
+### What Not to Log
+
+- **Message content**: Avoid logging full message bodies unless required
+- **Authentication tokens**: Never log session tokens or API keys
+- **Personal data**: Be mindful of GDPR and privacy regulations
+
+### Log Retention
+
+Define a retention policy:
+
+```ts
+// Delete logs older than 90 days
+const retentionDays = 90;
+const cutoffDate = new Date();
+cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
+
+await db.logs.deleteMany({
+  timestamp: { lt: cutoffDate },
+});
+```
+
+## Related
+
+- **[Plugin getting started](/docs/plugins/getting-started)** - Build your first plugin
+- **[Security and deployment](/docs/operations/security-and-deployment)** - Production security
+- **[Best practices](/docs/operations-and-troubleshooting/best-practices)** - Production checklist

@@ -1,0 +1,149 @@
+---
+title: Integrations Overview
+description: Choose the right integration pattern for connecting WhatsApp to your existing tools.
+---
+
+# Integrations Overview
+
+open-wa provides several ways to connect WhatsApp to other services. This guide helps you choose the right pattern for your use case.
+
+## Decision Tree
+
+### Start Here
+
+Ask yourself:
+
+1. **Do you want to push events to an existing service?** Use webhooks
+2. **Do you want a full inbox experience?** Use Chatwoot or a CRM integration
+3. **Do you want to build custom logic?** Use plugins or SocketClient
+4. **Do you want AI agents to control WhatsApp?** Use MCP
+
+### Integration Patterns
+
+| Pattern | Best for | Complexity |
+|---|---|---|
+| Webhooks | Pushing events to your service | Low |
+| SocketClient | Building a bot in Node.js | Medium |
+| Plugins | Reusable integrations | Medium |
+| Chatwoot | Full inbox with agents | Medium |
+| MCP | AI agent control | Low |
+| Embedded runtime | Full control over browser | High |
+
+## Data Flow: WhatsApp to Your Service
+
+### Webhook Flow
+
+```
+WhatsApp → open-wa → HTTP POST → Your Service
+```
+
+Messages and events are pushed to your endpoint as JSON payloads.
+
+### Plugin Flow
+
+```
+WhatsApp → open-wa → Plugin → External API → Response
+```
+
+Plugins run inside the open-wa process and can call external services directly.
+
+### Chatwoot Flow
+
+```
+WhatsApp → open-wa → Chatwoot API → Agent Inbox
+Agent Reply → Chatwoot API → open-wa → WhatsApp
+```
+
+Bidirectional sync between WhatsApp and Chatwoot.
+
+## Contact and Message Sync
+
+### How Contacts Work
+
+When a message arrives, open-wa has access to:
+
+- The sender's phone number (in `message.from`)
+- The sender's display name (if available)
+- Group membership information
+
+### Message Synchronization
+
+- **Incoming messages**: Delivered to your integration in real-time
+- **Outgoing messages**: Sent through your integration's API
+- **Message status**: Delivery receipts, read receipts, and typing indicators
+
+## Security and Compliance
+
+### Data Storage
+
+- open-wa stores session data locally (authentication tokens, browser state)
+- Messages are not stored by open-wa unless your integration saves them
+- Media is decrypted on demand and not persisted
+
+### GDPR Considerations
+
+- You are responsible for handling personal data in messages
+- Consider implementing message retention policies
+- Document what data your integration stores and why
+
+### Data Retention
+
+Implement retention policies in your integration:
+
+- Delete old messages after a set period
+- Allow users to request data deletion
+- Log only what is necessary for operation
+
+## Licensing for Integrations
+
+Some integrations require specific license tiers:
+
+- **Webhooks**: Available on all tiers
+- **SocketClient**: Available on all tiers
+- **Plugins**: Available on all tiers
+- **MCP**: Available on all tiers
+- **Chatwoot**: Check current licensing requirements
+- **Cloudflare Proxy**: Check current licensing requirements
+
+Check the [pricing page](/docs/licensing/pricing) for current tier details.
+
+## Choosing Your Path
+
+### For Quick Integrations
+
+Start with webhooks:
+
+1. Run open-wa with `--webhook` flag
+2. Point it at your service endpoint
+3. Handle incoming JSON payloads
+
+### For Custom Logic
+
+Use plugins:
+
+1. Install the plugin SDK
+2. Build your integration as a plugin
+3. Load it via `wa.config.js`
+
+### For Full Inbox
+
+Use Chatwoot:
+
+1. Set up Chatwoot
+2. Configure the Chatwoot plugin
+3. Connect your WhatsApp session
+
+### For AI Agents
+
+Use MCP:
+
+1. Run open-wa with `--mcp` flag
+2. Point your AI client at the MCP endpoint
+3. Let the agent discover and call WhatsApp methods
+
+## Related
+
+- **[Webhooks for business](/docs/guides/webhooks-for-business)** - Webhook setup and payloads
+- **[MCP Integration](/docs/guides/mcp)** - AI agent integration
+- **[Chatwoot integration](/docs/client-and-integrations/chatwoot)** - Full inbox setup
+- **[Plugin getting started](/docs/plugins/getting-started)** - Build custom integrations

@@ -1,0 +1,131 @@
+---
+title: Rate Limits and Ban Risk
+description: Understand WhatsApp rate limits, safe automation defaults, and ban risk profiles.
+---
+
+# Rate Limits and Ban Risk
+
+WhatsApp enforces limits on message sending to prevent spam and abuse. Understanding these limits is critical for running automation safely.
+
+<Callout type="warning">
+This project is unofficial and is not affiliated with WhatsApp or Meta. Using automation tools carries a risk of account restriction or ban. Use at your own risk.
+</Callout>
+
+## WhatsApp Rate Limits
+
+### Messages Per Minute
+
+WhatsApp enforces limits on how many messages you can send:
+
+- **Direct messages**: Approximately 1 message per 10-30 seconds per chat
+- **Group messages**: Approximately 1 message per 30-60 seconds per group
+- **Broadcast lists**: Slower than direct messages
+
+These are approximate limits observed by the community. WhatsApp does not publish official limits and they may change without notice.
+
+### What Triggers Rate Limits
+
+- Sending many messages in a short time
+- Sending identical messages to many contacts
+- Sending messages to users who have not messaged you first
+- High-volume sending from a new account
+
+### What Happens When You Exceed Limits
+
+1. **Temporary block**: WhatsApp may temporarily prevent you from sending messages
+2. **Warning message**: You may receive a warning about automated behavior
+3. **Account restriction**: Repeated violations can lead to longer restrictions
+4. **Ban**: Severe or repeated violations can result in permanent account ban
+
+## Safe Defaults for Automation
+
+### Message Timing
+
+```ts
+// Wait between messages
+async function sendWithDelay(client, chatId, message, delay = 15000) {
+  await client.sendText(chatId, message);
+  await new Promise(r => setTimeout(r, delay));
+}
+```
+
+### Random Delays
+
+Add randomness to avoid detectable patterns:
+
+```ts
+function randomDelay(min = 5000, max = 15000) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Usage
+await new Promise(r => setTimeout(r, randomDelay()));
+```
+
+### Queue-Based Sending
+
+Use a queue to control sending rate:
+
+```ts
+import pQueue from 'p-queue';
+
+const queue = new pQueue({
+  concurrency: 1, // One message at a time
+  interval: 15000, // Minimum 15 seconds between messages
+});
+
+queue.add(() => client.sendText(chatId, 'Message 1'));
+queue.add(() => client.sendText(chatId, 'Message 2'));
+```
+
+## Ban Risk Profile
+
+### High Risk Behaviors
+
+- **New accounts**: Accounts less than 30 days old are more likely to be flagged
+- **Bulk messaging**: Sending the same message to many contacts
+- **Unsolicited messages**: Messaging users who have not opted in
+- **Rapid sending**: Sending messages faster than a human would
+- **Spam reports**: Users reporting your messages as spam
+
+### Low Risk Behaviors
+
+- **Responding to incoming messages**: Only replying when messaged first
+- **Aged accounts**: Accounts with long history of normal use
+- **Varied timing**: Random delays between messages
+- **Personalized content**: Different messages for different contacts
+- **Opt-in contacts**: Only messaging users who have consented
+
+### Risk Mitigation Checklist
+
+- Use an aged WhatsApp account
+- Only respond to incoming messages
+- Add random delays between responses
+- Vary message content and length
+- Monitor for warning messages from WhatsApp
+- Have a backup account ready
+- Do not send bulk messages
+- Respect user opt-out requests
+
+## Monitoring Your Account
+
+### Warning Signs
+
+- Messages failing to send repeatedly
+- Warning messages from WhatsApp
+- Contacts reporting they cannot see your messages
+- QR code requiring frequent re-scanning
+
+### What to Do If Restricted
+
+1. **Stop automation immediately**
+2. **Wait 24-48 hours** before trying again
+3. **Reduce sending rate** when you resume
+4. **Review your automation patterns** for aggressive behavior
+5. **Consider using a different account** for automation
+
+## Related
+
+- **[AI Agent Patterns](/docs/guides/ai-agent-patterns)** - Safe defaults for AI agents
+- **[Best practices](/docs/operations-and-troubleshooting/best-practices)** - Production checklist
+- **[Security and deployment](/docs/operations/security-and-deployment)** - Production security

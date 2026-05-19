@@ -1,0 +1,124 @@
+---
+title: Understanding Chat IDs
+description: Learn what chat IDs are, how they are formatted, and how to convert phone numbers.
+---
+
+# Understanding Chat IDs
+
+Every conversation in WhatsApp — whether with an individual, a group, or a broadcast list — is identified by a **chat ID**. You will use chat IDs in every message operation.
+
+## Format
+
+A chat ID follows this pattern:
+
+```
+identifier@suffix
+```
+
+The suffix determines the type of conversation.
+
+## Suffix Types
+
+| Suffix | Type | Example |
+|---|---|---|
+| `@c.us` | Individual contact | `1234567890@c.us` |
+| `@g.us` | Group chat | `1234567890-1234567890@g.us` |
+| `@lid` | LinkedIn-style ID (linked device) | `1234567890:1234567890@lid` |
+| `@broadcast` | Broadcast list | `status@broadcast` |
+
+### `@c.us` — Individual Contacts
+
+This is the most common suffix. It represents a direct conversation with a single contact. The identifier is the phone number in international format **without** the `+` sign.
+
+```
+1234567890@c.us    ← Phone number 1234567890
+447700900000@c.us  ← UK number +44 7700 900000
+```
+
+### `@g.us` — Group Chats
+
+Group IDs are assigned by WhatsApp when a group is created. They contain a numeric identifier followed by a timestamp-like suffix.
+
+```
+1234567890-1234567890@g.us
+```
+
+You cannot construct a group ID from a phone number. You must obtain it from:
+- An incoming group message (check `message.from` or `message.chatId`)
+- The API (listing groups)
+- An invite link (see below)
+
+### `@lid` — Linked Device IDs
+
+LIDs are used for linked devices and certain internal WhatsApp identifiers. They use a colon-separated format. Most ordinary automation tasks will not need LIDs.
+
+### `@broadcast` — Broadcast Lists
+
+The status broadcast list uses a fixed identifier:
+
+```
+status@broadcast
+```
+
+## Converting Phone Numbers to Chat IDs
+
+To convert a phone number to a chat ID:
+
+1. **Start with international format** — Include the country code (e.g., `+44` for UK, `+1` for US)
+2. **Remove the `+` sign** — `+447700900000` becomes `447700900000`
+3. **Remove spaces, dashes, and parentheses** — `+1 (555) 123-4567` becomes `15551234567`
+4. **Append `@c.us`** — `15551234567@c.us`
+
+```ts
+function phoneToChatId(phone: string): string {
+  // Remove +, spaces, dashes, parentheses
+  const cleaned = phone.replace(/[\+\-\s\(\)]/g, '');
+  return `${cleaned}@c.us`;
+}
+
+phoneToChatId('+44 7700 900000'); // '447700900000@c.us'
+phoneToChatId('+1 (555) 123-4567'); // '15551234567@c.us'
+```
+
+<Callout type="warning">
+Always include the country code. A number like `7700900000@c.us` without a country code will not resolve to a valid contact.
+</Callout>
+
+## Getting Group IDs
+
+### From Messages
+
+When you receive a message from a group, the `message.from` or `message.chatId` field contains the group ID:
+
+```ts
+client.onMessage((message) => {
+  if (message.isGroupMsg) {
+    console.log('Group ID:', message.from); // '1234567890-1234567890@g.us'
+  }
+});
+```
+
+### From Invite Links
+
+Group invite links contain the group ID in the URL:
+
+```
+https://chat.whatsapp.com/ABCdefGHIjklMNOpqrSTUv
+```
+
+You can use the API to resolve an invite link to a group ID.
+
+## Common Mistakes
+
+| Mistake | Wrong | Correct |
+|---|---|---|
+| Missing country code | `7700900000@c.us` | `447700900000@c.us` |
+| Wrong suffix | `1234567890@g.us` (for individual) | `1234567890@c.us` |
+| Using display names | `John Doe@c.us` | `447700900000@c.us` |
+| Keeping the + sign | `+447700900000@c.us` | `447700900000@c.us` |
+| Spaces in number | `44 7700 900000@c.us` | `447700900000@c.us` |
+
+## Related
+
+- **[Messages guide](/docs/guides/messages)** — Send and receive messages using chat IDs
+- **[Groups guide](/docs/guides/groups)** — Working with group chats

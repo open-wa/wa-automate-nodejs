@@ -1,0 +1,113 @@
+---
+title: S3 Media Storage
+description: Automatically upload WhatsApp media to S3 for compliance, CRM access, and backup.
+---
+
+# S3 Media Storage
+
+The S3 integration plugin automatically uploads WhatsApp media to an S3-compatible storage service. This is useful for compliance, CRM access, and backup.
+
+## What Is the S3 Integration
+
+The `@open-wa/integration-s3` plugin intercepts media messages and uploads the files to an S3 bucket before they are processed by your automation.
+
+## Configuration
+
+Add the S3 plugin to your config:
+
+```js
+// wa.config.js
+export default {
+  plugins: [
+    '@open-wa/integration-s3',
+  ],
+  pluginConfig: {
+    's3': {
+      bucket: 'your-bucket-name',
+      region: 'us-east-1',
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      // Optional: custom endpoint for S3-compatible services
+      endpoint: 'https://s3-compatible.example.com',
+    },
+  },
+};
+```
+
+## How It Works
+
+### Auto Upload
+
+When a media message arrives:
+1. The plugin intercepts the message
+2. Decrypts the media data
+3. Uploads to the configured S3 bucket
+4. Replaces the media reference with the S3 URL
+
+### URL Replacement
+
+After upload, the message object includes the S3 URL instead of the raw media data. Your automation can access the media via the URL without needing to decrypt it.
+
+### Retrieval
+
+Access uploaded media via the S3 URL:
+
+```ts
+client.onMessage(async (message) => {
+  if (message.type === 'image') {
+    // The mediaUrl field contains the S3 URL
+    console.log('Media URL:', message.mediaUrl);
+  }
+});
+```
+
+## Use Cases
+
+### Compliance
+
+Store all WhatsApp media for regulatory compliance:
+- Financial services record keeping
+- Healthcare communication archives
+- Legal discovery preparation
+
+### CRM Access
+
+Give your CRM system access to media without running open-wa:
+- Customer support agents view attachments directly from S3
+- Sales teams access shared documents
+- Analytics pipelines process media from S3
+
+### Backup
+
+Maintain a backup copy of all media:
+- Disaster recovery
+- Historical analysis
+- Audit trails
+
+## S3-Compatible Services
+
+The integration works with any S3-compatible service:
+
+- **Amazon S3**: The reference implementation
+- **Cloudflare R2**: No egress fees
+- **MinIO**: Self-hosted S3
+- **DigitalOcean Spaces**: Simple object storage
+- **Backblaze B2**: Low-cost storage
+
+Configure the endpoint field for non-Amazon services:
+
+```js
+pluginConfig: {
+  's3': {
+    bucket: 'your-bucket',
+    endpoint: 'https://your-account.r2.cloudflarestorage.com',
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  },
+},
+```
+
+## Related
+
+- [Plugin getting started](/docs/plugins/getting-started) - Build your first plugin
+- [Integrations overview](/docs/guides/integrations-overview) - Choose the right integration

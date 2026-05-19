@@ -1,0 +1,145 @@
+---
+title: Authentication Flow
+description: Understand how authentication works, where session data is stored, and how to recover from logouts.
+---
+
+# Authentication Flow
+
+Understanding how open-wa authenticates with WhatsApp helps you handle session lifecycle, recovery, and security properly.
+
+## How Authentication Works
+
+open-wa automates **WhatsApp Web**. When you start a session, the library:
+
+1. Launches a browser instance (Puppeteer, Playwright, or Lightpanda)
+2. Navigates to the WhatsApp Web URL
+3. Displays a QR code or generates a link code
+4. Waits for you to authenticate via your phone
+5. Stores the session token on disk for future use
+
+The session token allows the browser to reconnect without re-scanning, as long as the token remains valid and the session has not been logged out from the phone.
+
+## Session Storage
+
+### Where Session Data Lives
+
+Session data is stored on disk in a session directory. By default, this is created in the working directory where you run the CLI.
+
+The session files contain:
+
+- Authentication tokens
+- Browser state (cookies, local storage)
+- Session metadata
+
+<Callout type="warning">
+**Session files contain sensitive authentication material.** Anyone with access to these files can impersonate your WhatsApp session. Protect them with appropriate file permissions and do not commit them to version control.
+</Callout>
+
+### Session Persistence
+
+When you restart the process, open-wa loads the existing session files and attempts to reconnect. If the session is still valid, you will not need to re-scan the QR code.
+
+Sessions remain valid until:
+
+- You explicitly log out from the phone
+- WhatsApp invalidates the session (rare, but can happen after long periods of inactivity)
+- The session files are deleted or corrupted
+
+## QR Code Flow
+
+### When the QR Code Appears
+
+The QR code appears when:
+
+- Starting a session for the first time
+- The existing session has expired or been invalidated
+- The session files are missing or corrupted
+
+### How Many QR Codes Are Emitted
+
+The runtime emits a limited number of QR codes. This is controlled by the `maxQr` configuration option. Once the limit is reached, the session will stop emitting QR codes and you will need to restart.
+
+### After Scanning
+
+Once you scan the QR code:
+
+1. WhatsApp on your phone links the session
+2. The browser loads your WhatsApp data
+3. The session token is saved to disk
+4. The API becomes ready for use
+
+### Timeout Behavior
+
+If no one scans the QR code within the timeout period (controlled by `qrTimeout`), a new QR code is emitted. This counts toward the `maxQr` limit.
+
+## Link-Code Flow
+
+As an alternative to QR scanning, you can use the link-code method if you know the host account number.
+
+### Accepted Phone Number Format
+
+The phone number must be in international format without the `+` sign:
+
+- `447700900000` (UK)
+- `15551234567` (US)
+
+### Where the Code Appears
+
+When you initiate a link-code login, a short numeric code appears on your phone's Linked Devices screen. You enter this code in the terminal to complete authentication.
+
+### Expiry and Failure Cases
+
+- Link codes expire after a short period (typically a few minutes)
+- If the code expires, you will need to request a new one
+- If the host account number is incorrect, authentication will fail
+- If the account is already linked to too many devices, linking may be rejected
+
+### Does QR Still Appear?
+
+When using link-code mode, the QR code flow is bypassed. If link-code authentication fails, the runtime may fall back to QR code display.
+
+## Session Recovery
+
+### What Happens If the Browser Closes
+
+If the browser process crashes or is closed:
+
+- The session token on disk remains valid
+- Restarting the process will reload the session
+- You should not need to re-scan (unless the session was invalidated)
+
+### What Happens If the Process Crashes
+
+If the Node.js process crashes:
+
+- Session files on disk are usually intact
+- Restart the process to recover
+- If session files are corrupted, you may need to delete them and re-authenticate
+
+### Re-Scan vs Re-Auth
+
+- **Re-scan**: The QR code appears and you scan it again. This happens when the session token is invalid or missing.
+- **Re-auth**: The session token is still valid but the browser needs to reconnect. This happens automatically on restart.
+
+## Security
+
+### Protecting Session Data
+
+- Set restrictive file permissions on session directories (`chmod 700`)
+- Never commit session files to version control
+- Use separate session directories per session
+- Consider encrypting session storage for sensitive deployments
+
+### Rotating Sessions
+
+If you suspect a session has been compromised:
+
+1. Log out from the phone (WhatsApp > Linked Devices > select device > Log out)
+2. Delete the session files on disk
+3. Start a new session and re-authenticate
+
+## Related
+
+- **[Link-code login](/docs/getting-started/link-code)**: Alternative authentication method
+- **[Detect logouts](/docs/operations-and-troubleshooting/detect-logouts)**: Monitor session state
+- **[Security & deployment](/docs/operations/security-and-deployment)**: Production security checklist
