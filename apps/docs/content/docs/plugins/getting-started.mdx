@@ -25,7 +25,7 @@ Plugins run **inside the Easy API process**, not as separate services. They rece
 |---|---|
 | Building reusable integrations | You need a separate process (use SocketClient) |
 | Sharing functionality across sessions | You need direct browser control (use createClient) |
-| Adding dashboard pages | You only need simple event forwarding (use --webhook flag) |
+| Adding dashboard pages | You only need simple event forwarding (use the webhook integration plugin) |
 | Exposing AI tools via MCP | You need low-level runtime ownership (use embedded runtime) |
 
 ## Install the SDK
@@ -138,16 +138,29 @@ The `init` function returns a `Hooks` object. Available hooks include:
 
 See the **[Hooks reference](/docs/plugins/hooks-reference)** for the complete list.
 
-### Step 4: Load the plugin
+### Step 4: Put the files in one project
 
-In your `wa.config.js` (or `wa.config.json`):
+Use a layout where the config file and plugin file live next to each other:
+
+```text
+my-openwa-app/
+  wa.config.mjs
+  plugins/
+    greeting-bot.mjs
+```
+
+Put the plugin code from Step 2 in `plugins/greeting-bot.mjs`. The plugin loader uses dynamic `import(ref)`, so a local plugin should be loadable JavaScript at runtime. Do not point the runtime at `./plugins/greeting-bot.ts` unless your own Node.js startup environment already installs a TypeScript loader; the current plugin loader does not compile plugin TypeScript for you.
+
+### Step 5: Load the plugin
+
+In `wa.config.mjs`, build the plugin reference from the config file location:
 
 ```js
-// wa.config.js
+// wa.config.mjs
 export default {
   sessionId: 'my-session',
   plugins: [
-    './plugins/greeting-bot',  // Local file path
+    new URL('./plugins/greeting-bot.mjs', import.meta.url).href,
   ],
   pluginConfig: {
     'greeting-bot': {
@@ -158,24 +171,46 @@ export default {
 };
 ```
 
-The `plugins` array accepts:
+The `plugins` array accepts npm package names, scoped package names, absolute local references, and local references that Node can import. The module must export a plugin as its default export or as a named `plugin` export. The `pluginConfig` object uses the **plugin name** from `meta.name`, not the package name or file path.
 
-- **npm package names**: `'@myorg/my-plugin'`
-- **Local file paths**: `'./plugins/my-plugin'`
+### Step 6: Run from the project directory
 
-The `pluginConfig` object uses the **plugin name** (from `meta.name`) as keys, not the package name or file path.
-
-### Step 5: Test it
+Run the CLI from `my-openwa-app/` or pass the config path explicitly:
 
 ```bash
-npx @open-wa/wa-automate --port 8080
+npx @open-wa/wa-automate --config ./wa.config.mjs --port 8080
 ```
 
-Watch the terminal output for plugin logs. All plugin log output is automatically prefixed with the plugin name:
+Expected local startup logs are illustrative, not captured from this docs update. A successful load should include plugin loader and registration messages similar to:
 
+```text
+plugin_loaded { ref: 'file:///.../plugins/greeting-bot.mjs', name: 'greeting-bot', version: '1.0.0' }
+plugin_registered { plugin: 'greeting-bot', version: '1.0.0' }
 ```
-[greeting-bot] Sent greeting { from: '1234567890@c.us' }
+
+After the session is connected, send the trigger word from another WhatsApp account:
+
+```text
+hello
 ```
+
+Expected local behavior: the plugin sends `Hello! Welcome to our service.` back to the sender and logs the greeting action.
+
+Expected plugin failure logs are illustrative and abbreviated. A missing file or invalid config should fail before the plugin handles messages and show a signal similar to:
+
+```text
+plugin_load_error { ref: 'file:///.../plugins/greeting-bot.mjs', error: 'Cannot find module' }
+plugin_config_invalid { plugin: 'greeting-bot', issues: [...] }
+```
+
+### If the plugin does not load
+
+- Confirm the CLI loaded the intended config file. Run with `--config ./wa.config.mjs` when in doubt.
+- Confirm the plugin reference points to JavaScript that Node can import, such as `.mjs` or compiled `.js`.
+- Confirm the module exports `default createPlugin(...)` or a named `plugin` export.
+- Confirm `meta.name` is present. Missing names are skipped with a `plugin_load_skip` warning.
+- Confirm `pluginConfig` is keyed by `meta.name`, for example `'greeting-bot'`.
+- If the greeting never appears, send the exact configured `triggerWord`, then check for `plugin_loaded`, `plugin_registered`, `plugin_config_invalid`, or `plugin_load_error` in the Easy API logs. After the load succeeds, move reusable behavior into a package and read **[Publishing a plugin](/docs/plugins/publishing)**.
 
 ## Plugin architecture
 

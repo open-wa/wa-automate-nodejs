@@ -264,22 +264,29 @@ See **[Dashboard pages](/docs/plugins/dashboard-pages)** for more details.
 Register tools that can be called by AI agents or automation scripts. Keep tool descriptions narrow, validate arguments, and avoid exposing actions you do not want an agent to run.
 
 ```ts
-tool: {
-  sendWelcomeMessage: {
-    description: 'Send a welcome message to a contact',
-    args: {
-      chatId: z.string().describe('The chat ID to send to'),
-      name: z.string().describe('The contact name'),
-    },
-    execute: async (args, context) => {
-      await context.client.sendText(
-        args.chatId,
-        `Welcome, ${args.name}!`
-      );
-      return `Welcome message sent to ${args.chatId}`;
+init: async ({ client }) => ({
+  tool: {
+    sendWelcomeMessage: {
+      description: 'Send a welcome message to a contact',
+      args: {
+        chatId: z.string().describe('The chat ID to send to'),
+        name: z.string().describe('The contact name'),
+      },
+      execute: async (args, context) => {
+        if (typeof args.chatId !== 'string' || typeof args.name !== 'string') {
+          return 'chatId and name must be strings';
+        }
+
+        await client.sendText(
+          args.chatId,
+          `Welcome, ${args.name}!`
+        );
+        context.logger.info('Welcome message sent', { sessionId: context.sessionId });
+        return `Welcome message sent to ${args.chatId}`;
+      },
     },
   },
-}
+})
 ```
 
 **Tool definition:**
@@ -293,6 +300,8 @@ tool: {
 - `sessionId`, current session ID
 - `logger`, scoped logger
 - `abort`, AbortSignal for cancellation
+
+The tool context does not include `client`. Tools that need WhatsApp methods should close over `client` from `init()` as shown above.
 
 See **[AI tools](/docs/plugins/ai-tools)** for more details.
 
