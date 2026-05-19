@@ -1,27 +1,52 @@
 ---
 title: Custom code
-description: Install the library, create a client, and start building your own automation flow.
+description: Use createClient in your Node.js app, choose a driver, and handle startup and shutdown safely.
 ---
 
 # Custom code
 
-Use this path when you want to embed `@open-wa/wa-automate` in your own Node.js application instead of running only the Easy API.
+Use this path when your Node.js app needs to own the open-wa runtime instead of calling a separate Easy API process.
 
-## Install
+## Install the package and a driver
 
 ```bash
-npm install @open-wa/wa-automate
+npm install @open-wa/wa-automate @open-wa/driver-puppeteer
 ```
 
 If your environment has stricter native-install permissions, only fall back to `--unsafe-perm` when you have confirmed you actually need it.
 
-## Clarify `create()` vs `createClient`
+## Start with `createClient`
 
-`create()` is the legacy v4-era entry point. It still works for older examples and compatibility code.
+The v5 public contract centers on `createClient` from `@open-wa/core`, exposed through `@open-wa/wa-automate`. Start new v5 custom code with `createClient` because it matches the current runtime and driver architecture.
 
-The v5 public contract centers on `createClient` from `@open-wa/core`, exposed through `@open-wa/wa-automate`. If you are starting new custom code on v5, prefer `createClient` because it matches the current runtime and driver architecture.
+```ts
+import { createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
 
-## Minimal example
+async function start() {
+  const client = await createClient({
+    sessionId: 'my-session',
+    driver: new PuppeteerDriver(),
+    headless: true,
+  });
+
+  client.onMessage(async (message) => {
+    if (message.body === 'Hi') {
+      await client.sendText(message.from, '👋 Hello!');
+    }
+  });
+}
+
+start().catch(console.error);
+```
+
+On first run, authenticate the session by scanning the QR code or using another supported login flow. When the session is ready, send `Hi` to the connected account and expect the reply above.
+
+## When you see `create()`
+
+`create()` is the older compatibility entry point. It still appears in some v4-era examples, but it is not the first pattern to copy for new v5 code.
+
+## Older compatibility example
 
 ```ts
 import { create } from '@open-wa/wa-automate';
@@ -41,15 +66,15 @@ async function start() {
 start().catch(console.error);
 ```
 
-## Driver install
+## Choose the driver explicitly
 
-For embedded runtime code, install the driver package you want to run with:
+For embedded runtime code, install the driver package you want to run with. The examples above use Puppeteer:
 
 ```bash
 npm install @open-wa/driver-puppeteer
 ```
 
-Then pass the driver explicitly when you create the client:
+Then pass the driver when you create the client:
 
 ```ts
 import { createClient } from '@open-wa/wa-automate';
@@ -74,27 +99,27 @@ start().catch(console.error);
 
 ## TypeScript setup
 
-Custom code projects usually work best with a normal Node.js TypeScript setup. Use a recent Node target, keep module resolution compatible with your runtime, and make sure your app awaits async client methods instead of treating them like sync helpers.
+Custom code projects work best with a normal Node.js TypeScript setup. Use a recent Node target, keep module resolution compatible with your runtime, and await async client methods instead of treating them like sync helpers.
 
-## What `create()` does
+## What runtime creation does
 
-`create()` launches the automation runtime, restores or authenticates the session, and returns the client surface you use for listeners and actions.
+`createClient()` launches the automation runtime, restores or authenticates the session, and returns the client surface you use for listeners and actions.
 
 It is the boundary where configuration, browser launch, authentication state, and runtime listeners all meet.
 
 ## Build a real launch config
 
 ```ts
-const client = await create({
+const client = await createClient({
   sessionId: 'sales',
+  driver: new PuppeteerDriver(),
   headless: true,
-  useChrome: true,
   qrTimeout: 0,
   authTimeout: 60,
 });
 ```
 
-Use `useChrome` or `executablePath` when browser-specific behavior matters for your flow.
+Use an explicit driver and browser configuration when browser-specific behavior matters for your flow.
 
 ## Auth behavior
 
@@ -161,7 +186,7 @@ start().catch(console.error);
 
 ## v5 caveat
 
-v5 is the forward path, but some docs are still being reorganized from the older v4-era shape. If an example uses `create()`, treat it as compatibility guidance unless the page specifically says it is the preferred v5 pattern.
+v5 is the forward path, but some examples still show the older `create()` shape for compatibility. Treat `createClient` as the default for new v5 custom code unless a page says otherwise.
 
 ## Plugin vs custom code
 

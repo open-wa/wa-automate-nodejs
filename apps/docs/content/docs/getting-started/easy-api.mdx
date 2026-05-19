@@ -1,11 +1,11 @@
 ---
 title: Easy API quick start
-description: Start the open-wa Easy API, secure it, and expose it safely.
+description: Start the open-wa Easy API, add an API key, verify the docs URL, and know the next command to run.
 ---
 
 # Easy API quick start
 
-If you want a running WhatsApp API with the smallest amount of setup, start here.
+Use this page when you want a local WhatsApp API running before you write custom Node.js code.
 
 ## Run it
 
@@ -34,7 +34,7 @@ When the runtime is healthy you usually have three things:
 - the HTTP API surface
 - the generated interactive docs for that running session
 
-That makes Easy API the fastest route from “I want an API” to “I can send and receive messages”.
+That makes Easy API the shortest route from “I want an API” to “I can send and receive messages”.
 
 ## Common flags
 
@@ -124,9 +124,9 @@ npx @open-wa/wa-automate --webhook "https://your-app.example/webhooks/open-wa"
 
 Use a test endpoint such as `webhook.site` while developing, then move to your real application endpoint once your payload handling is stable.
 
-## Plugin loading mention
+## Load a plugin from config
 
-Plugins can be loaded from the config file through the `plugins` array. Use `pluginConfig` beside it for plugin-specific settings.
+Load plugins from the config file through the `plugins` array. Put plugin-specific settings in `pluginConfig`.
 
 ```ts
 plugins: [
