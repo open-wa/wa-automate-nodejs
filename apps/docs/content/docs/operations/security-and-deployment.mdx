@@ -29,14 +29,14 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 **Environment variables** are the recommended approach:
 
 ```bash
-export OPENWA_API_KEY="your-generated-key"
-npx @open-wa/wa-automate --port 8080 --api-key "$OPENWA_API_KEY"
+export WA_API_KEY="your-generated-key"
+npx @open-wa/wa-automate --port 8080 --api-key "$WA_API_KEY"
 ```
 
 Or in a `.env` file:
 
 ```
-OPENWA_API_KEY=your-generated-key
+WA_API_KEY=your-generated-key
 ```
 
 For production deployments, use a secrets manager (AWS Secrets Manager, HashiCorp Vault, Doppler, etc.).
@@ -204,15 +204,20 @@ Before deploying to production:
 
 ```bash
 docker run -p 8080:8080 \
-  -e OPENWA_API_KEY="your-key" \
-  -v ./sessions:/app/sessions \
+  -e WA_PORT=8080 \
+  -e WA_API_KEY="your-key" \
+  -e WA_SESSION_ID=sales \
+  -e WA_USER_DATA_DIR=/sessions/sales \
+  -v ./sessions:/sessions \
   --init \
   openwa/wa-automate
 ```
 
 - Isolated environment
-- Volume mount for session persistence
+- Volume mount plus `WA_USER_DATA_DIR` for session persistence
 - `--init` for proper process cleanup
+
+The v5 Docker image runs from `/usr/src/app`. If `WA_USER_DATA_DIR` is not set and the session is not ephemeral, the runtime derives profile storage as `/usr/src/app/_IGNORE_<sessionId>`. For Docker, prefer mounting `/sessions` and setting `WA_USER_DATA_DIR=/sessions/<sessionId>` so the browser profile is on the mounted volume.
 
 ### Docker Compose (Multi-Session)
 
@@ -224,21 +229,27 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./sessions/sales:/app/sessions
+      - ./sessions:/sessions
     environment:
-      - OPENWA_API_KEY=sales-key
-    command: --session-id sales --port 8080
+      - WA_API_KEY=sales-key
+      - WA_SESSION_ID=sales
+      - WA_PORT=8080
+      - WA_USER_DATA_DIR=/sessions/sales
 
   support-bot:
     image: openwa/wa-automate
     ports:
       - "8081:8081"
     volumes:
-      - ./sessions/support:/app/sessions
+      - ./sessions:/sessions
     environment:
-      - OPENWA_API_KEY=support-key
-    command: --session-id support --port 8081
+      - WA_API_KEY=support-key
+      - WA_SESSION_ID=support
+      - WA_PORT=8081
+      - WA_USER_DATA_DIR=/sessions/support
 ```
+
+After first authentication, restart each container with the same `WA_SESSION_ID` and `WA_USER_DATA_DIR`. Expected local verification: the session reconnects without a new QR prompt because the profile directory under `./sessions/<sessionId>` is reused. This is a checklist expectation for local deployment validation, not captured terminal output from this docs update.
 
 ### Cloudflare Proxy + Local Runtime
 

@@ -38,16 +38,28 @@ docker run openwa/wa-automate:latest
 - add your API key and session id at container start
 
 ```bash
-docker run -p 8080:8080 openwa/wa-automate --port 8080 --session-id sales --api-key "your-secure-key"
+docker run -p 8080:8080 --init \
+  -v ./sessions:/sessions \
+  -e WA_PORT=8080 \
+  -e WA_SESSION_ID=sales \
+  -e WA_USER_DATA_DIR=/sessions/sales \
+  -e WA_API_KEY="your-secure-key" \
+  openwa/wa-automate
 ```
 
 ## Volume mounts
 
-Mount a local directory when you want session data to survive container restarts.
+Mount a local directory when you want session data to survive container restarts, and point `WA_USER_DATA_DIR` at the mounted path for the session.
 
 ```bash
-docker run -p 8080:8080 -v ./sessions:/app/sessions openwa/wa-automate
+docker run -p 8080:8080 --init \
+  -v ./sessions:/sessions \
+  -e WA_SESSION_ID=sales \
+  -e WA_USER_DATA_DIR=/sessions/sales \
+  openwa/wa-automate
 ```
+
+The v5 image runs from `/usr/src/app`. If `WA_USER_DATA_DIR` is not set and the session is not ephemeral, the runtime derives the browser profile path as `/usr/src/app/_IGNORE_<sessionId>` by default. Mounting `/sessions` alone does not move the profile there; set `WA_USER_DATA_DIR=/sessions/<sessionId>` or mount the derived `/usr/src/app/_IGNORE_<sessionId>` path directly.
 
 Keep the mounted directory private because it can contain authentication state for the WhatsApp session.
 
@@ -57,11 +69,15 @@ Pass runtime configuration with environment variables when that fits your deploy
 
 ```bash
 docker run -p 8080:8080 \
-  -e PORT=8080 \
-  -e API_KEY="your-secure-key" \
-  -e SESSION_ID=sales \
+  -e WA_PORT=8080 \
+  -e WA_API_KEY="your-secure-key" \
+  -e WA_SESSION_ID=sales \
+  -e WA_USER_DATA_DIR=/sessions/sales \
+  -v ./sessions:/sessions \
   openwa/wa-automate
 ```
+
+For v5 runtime config, use `WA_*` names such as `WA_PORT`, `WA_API_KEY`, `WA_SESSION_ID`, and `WA_USER_DATA_DIR`. Bare `PORT`, `API_KEY`, and `SESSION_ID` are not documented as v5 config env vars here.
 
 You can also keep environment values in a file and load them at container start.
 
@@ -89,11 +105,12 @@ Add a health check that calls the Easy API over the published port.
 
 ```bash
 docker run -p 8080:8080 --init \
+  -e WA_PORT=8080 \
   --health-cmd="curl -f http://localhost:8080/api-docs/ || exit 1" \
   --health-interval=30s \
   --health-timeout=10s \
   --health-retries=3 \
-  openwa/wa-automate --port 8080
+  openwa/wa-automate
 ```
 
 Use the same path your deployment actually depends on. If you protect the API with a key, make sure the health check can still reach a suitable unauthenticated endpoint or send the required header.
@@ -105,17 +122,17 @@ Compose is useful when you want the port, volume, environment, and health check 
 ```yaml
 services:
   openwa:
-    image: openwa/wa-automate:4.76.0
+    image: openwa/wa-automate:latest
     init: true
     ports:
       - "8080:8080"
     volumes:
-      - ./sessions:/app/sessions
+      - ./sessions:/sessions
     environment:
-      PORT: "8080"
-      SESSION_ID: sales
-      API_KEY: ${OPENWA_API_KEY}
-    command: ["--port", "8080", "--session-id", "sales"]
+      WA_PORT: "8080"
+      WA_SESSION_ID: sales
+      WA_USER_DATA_DIR: /sessions/sales
+      WA_API_KEY: ${WA_API_KEY}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api-docs/"]
       interval: 30s
@@ -126,8 +143,45 @@ services:
 Start it with:
 
 ```bash
-OPENWA_API_KEY="your-secure-key" docker compose up
+WA_API_KEY="your-secure-key" docker compose up
 ```
+
+## Restart verification checklist
+
+Use this local checklist after the first successful authentication. The expected output is illustrative local verification guidance, not captured output from this docs update.
+
+1. Start the container with a named session and explicit profile directory:
+
+```bash
+docker run --name openwa-sales -p 8080:8080 --init \
+  -v ./sessions:/sessions \
+  -e WA_PORT=8080 \
+  -e WA_SESSION_ID=sales \
+  -e WA_USER_DATA_DIR=/sessions/sales \
+  -e WA_API_KEY="your-secure-key" \
+  openwa/wa-automate
+```
+
+2. Complete the first authentication flow by scanning the QR code or using link-code login.
+3. Stop and remove only the container, not `./sessions`:
+
+```bash
+docker stop openwa-sales
+docker rm openwa-sales
+```
+
+4. Start the same command again with the same `WA_SESSION_ID` and `WA_USER_DATA_DIR`.
+5. Expected local result: the runtime reuses the profile under `./sessions/sales` and reaches the connected session without asking for a new QR code.
+
+Restart proof output, illustrative and abbreviated:
+
+```text
+session sales restoring profile from /sessions/sales
+session sales connected
+api listening on http://localhost:8080
+```
+
+The proof is the absence of a fresh QR prompt after restart, plus a connected session using the same mounted profile path. If a QR code appears again, treat persistence as broken. Confirm the volume is mounted at `/sessions`, `WA_USER_DATA_DIR` still points to `/sessions/sales`, and the `./sessions` directory was not deleted between runs. Next, add the same mount and env vars to Compose or your deploy platform before moving this session to production.
 
 ## Secrets
 

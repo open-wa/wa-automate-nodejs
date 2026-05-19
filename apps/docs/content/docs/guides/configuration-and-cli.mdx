@@ -9,9 +9,10 @@ The old legacy docs split configuration across several small pages. This page br
 
 ## Common config fields
 
-Use the config object passed to `create()` for library/runtime behavior such as:
+Use the config object passed to `createClient()` or exported from `wa.config.*` for library/runtime behavior such as:
 
 - `sessionId` — stable session naming
+- `userDataDir` — persistent browser profile directory
 - `headless` — visible vs background browser
 - `useChrome` / `executablePath` — browser selection
 - `qrTimeout` / `authTimeout` — authentication timing
@@ -30,7 +31,9 @@ Use the `<AutoTypeTable />` to explore all available configuration options direc
 ## Example
 
 ```ts
-const client = await create({
+import { createClient } from '@open-wa/wa-automate';
+
+const client = await createClient({
   sessionId: 'sales',
   useChrome: true,
   headless: true,
@@ -96,15 +99,18 @@ import { defineConfig } from '@open-wa/config';
 
 export default defineConfig({
   sessionId: process.env.WA_SESSION_ID ?? 'sales',
-  port: Number(process.env.PORT ?? 8080),
+  port: Number(process.env.WA_PORT ?? 8080),
   host: '0.0.0.0',
-  apiKey: process.env.OPENWA_API_KEY,
+  apiKey: process.env.WA_API_KEY,
+  userDataDir: process.env.WA_USER_DATA_DIR,
   headless: true,
   qrTimeout: 0,
   authTimeout: 60,
-  licenseKey: process.env.OPENWA_LICENSE_KEY,
+  licenseKey: process.env.WA_LICENSE_KEY,
 });
 ```
+
+In v5 config examples, prefer the same `WA_*` environment names that the config loader reads. If your deployment platform stores secrets under another name, map them into config explicitly instead of assuming bare names such as `PORT` or `API_KEY` are runtime config env vars.
 
 ## Env vars
 
@@ -125,6 +131,7 @@ Common runtime environment variables:
 | `WA_PORT` | `port` | Easy API port |
 | `WA_HOST` | `host` | Easy API host |
 | `WA_API_KEY` | `apiKey` | API authentication key |
+| `WA_USER_DATA_DIR` | `userDataDir` | Persistent browser profile directory |
 | `WA_LICENSE_KEY` | `licenseKey` | License key where applicable |
 | `WA_LINK_CODE` | `linkCode` | Phone number for link-code login |
 | `WA_HEADLESS` | `headless` | Browser visibility |
@@ -143,7 +150,6 @@ There are also compatibility aliases for a few browser-related settings, includi
 # networking
 --port 8080
 --api-key "your-secure-key"
---webhook "https://your-app.example/webhooks/open-wa"
 --api-host "https://api.example.com"
 
 # session identity
@@ -172,12 +178,12 @@ These are the major flags most users need when starting the Easy API from the co
 | `--port 8080`, `-p 8080` | `port` | Port for the Easy API server. |
 | `--api-key "key"`, `--key "key"`, `-k "key"` | `apiKey` | Protects API requests. Use this before exposing the API beyond localhost. |
 | `--session-id sales` | `sessionId` | Names the session and keeps auth state separate from other sessions. |
-| `--webhook "https://..."`, `-w "https://..."` | `webhook` | Webhook target URL for event delivery. |
+| `--webhook "https://..."`, `-w "https://..."` | `webhook` | Parsed as a webhook target URL, but current v5 source warns that CLI webhook registration parity is not restored. Use `@open-wa/integration-webhook` in `plugins` plus `pluginConfig.webhook` for source-backed delivery. |
 | `--pm2` | PM2 wrapper | Starts the CLI under PM2 instead of running directly. |
 | `--license-key "key"`, `-l "key"` | `licenseKey` | Supplies a license key for licensed features where applicable. |
 | `--link-code "447123456789"` | `linkCode` | Uses link-code login instead of relying only on QR scanning. |
 | `--tunnel` | transitional | Legacy tunnel flag. v5 currently warns that tunnel setup parity is not restored. |
-| `--mcp` | `mcp.enabled` equivalent | Enables the MCP server for AI-agent clients in docs-facing examples. If your v5 alpha build does not parse this flag, use `mcp: { enabled: true }` in config. Keep `apiKey` enabled with MCP. |
+| `--mcp` | future or other-alpha shorthand only | The current source does not parse `--mcp`. Configure `mcp: { enabled: true }` in `wa.config.*` instead, keep `apiKey` enabled, and use `--mcp` only if your installed build documents it. |
 | `--api-host "https://api.example.com"` | API host metadata | Public API host value used by docs-facing examples when the public address differs from the local bind address. It is not currently a core `ConfigSchema` field. |
 
 Other useful runtime flags include `--host`, `--headless`, `--headful`, `--use-chrome`, `--use-lightpanda`, `--qr-timeout`, `--dashboard-port`, `--no-dashboard`, `--no-ezqr`, `--ephemeral`, `--log-console`, `--log-level`, and `--verbose`.
@@ -192,8 +198,8 @@ Most CLI flags are thin aliases over config schema fields. For example:
 npx @open-wa/wa-automate \
   --session-id sales \
   --port 8080 \
-  --api-key "$OPENWA_API_KEY" \
-  --license-key "$OPENWA_LICENSE_KEY" \
+  --api-key "$WA_API_KEY" \
+  --license-key "$WA_LICENSE_KEY" \
   --link-code "447123456789"
 ```
 
@@ -203,8 +209,8 @@ is equivalent to these config fields:
 export default {
   sessionId: 'sales',
   port: 8080,
-  apiKey: process.env.OPENWA_API_KEY,
-  licenseKey: process.env.OPENWA_LICENSE_KEY,
+  apiKey: process.env.WA_API_KEY,
+  licenseKey: process.env.WA_LICENSE_KEY,
   linkCode: '447123456789',
 };
 ```
@@ -223,7 +229,7 @@ v5 is still alpha, so a few v4-era flags are present only as transitional compat
 | `--stats` | Warns that swagger-stats parity is not restored. |
 | `--generate-api-docs` | Warns that runtime docs are always served from the shared API layer. |
 | `--tunnel` | Warns that tunnel setup parity is not yet restored in the v5 CLI. |
-| `--mcp` | Used in MCP docs as the shorthand for `mcp.enabled`. If your installed v5 alpha does not parse it, configure `mcp: { enabled: true }` in `wa.config.*`. |
+| `--mcp` | The current source does not parse this flag. Configure `mcp: { enabled: true }` in `wa.config.*`; treat `--mcp` only as future or other-alpha shorthand if your installed build documents it. |
 | `--api-host` | Used in some docs as public-host metadata. It is not currently a core config schema field. |
 | `--chatwoot-url`, `--twilio-webhook`, `--bot-press-url` | Legacy integration flags that are not yet wired into the v5 CLI boot path. Prefer plugins and config files. |
 | `sessionData`, `sessionDataPath`, `skipSessionSave` | Deprecated MD-obsolete JSON session fields. Prefer `userDataDir` managed persistence. |
@@ -283,15 +289,15 @@ export default defineConfig({
   sessionId: 'support',
   port: 8080,
   host: '0.0.0.0',
-  apiKey: process.env.OPENWA_API_KEY,
-  webhook: process.env.WEBHOOK_URL,
+  apiKey: process.env.WA_API_KEY,
+  webhook: process.env.WA_WEBHOOK,
   plugins: [
     '@open-wa/integration-webhook',
     './plugins/internal-audit-plugin',
   ],
   pluginConfig: {
     webhook: {
-      url: process.env.WEBHOOK_URL,
+      url: process.env.WA_WEBHOOK,
       headers: {
         'X-Webhook-Secret': process.env.WEBHOOK_SECRET,
       },

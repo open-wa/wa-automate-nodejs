@@ -88,6 +88,31 @@ curl -X POST http://localhost:8080/api/sendText \
 
 You should receive the message on your phone within seconds.
 
+Expected API result, illustrative and abbreviated. The Easy API wraps method results in `data`; for `sendText`, that value is the sent message id string:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "success": true,
+  "data": "true_1234567890@c.us_EXAMPLE"
+}
+```
+
+Auth failure result, illustrative and abbreviated:
+
+```http
+HTTP/1.1 401 Unauthorized
+Content-Type: application/json
+
+{
+  "error": "Unauthorized"
+}
+```
+
+If the API is protected and the key is missing or wrong, expect an authentication error instead of a message send. Add the same `X-API-Key` value that you used when starting the runtime, then retry the request. Once the send succeeds, keep the API key on every client request and move to the guide that matches your next use case below.
+
 ## Where next?
 
 - **I want to build a bot** → Read **[Messages and events](/docs/guides/messages)**
@@ -106,6 +131,6 @@ npx @open-wa/wa-automate --port 8080 --api-key "your-secure-key"
 # Run a named session
 npx @open-wa/wa-automate --session-id sales --port 8081
 
-# Send events to your service
-npx @open-wa/wa-automate --webhook "https://your-app.example/webhooks/open-wa"
+# For source-backed webhook delivery in the current v5 alpha,
+# load @open-wa/integration-webhook from wa.config.* instead of relying on --webhook.
 ```
