@@ -1,23 +1,20 @@
 ---
 title: Pricing and licensing
-description: Compare free, restricted, and insiders availability, then choose the right license path for your open-wa use case.
+description: Decide whether your open-wa workflow needs a license key, then use the purchase or support path for current terms.
 ---
 
 # Pricing and licensing
 
-This page is the decision surface for open-wa licensing. If you already know you
-need a key and only want the runtime details, jump to
-**[Licensed features](/docs/licensing/licensed-features)**.
+Use this page to decide whether you need a license key.
 
-<Callout type="note" title="What this page is for">
-  Use this page when you are trying to decide whether the free/community surface
-  is enough, whether you need a restricted license for gated flows, or whether
-  you need insiders access for advanced or early-access capabilities.
+If you already know the gated method or runtime behavior you need, read
+**[Licensed features](/docs/licensing/licensed-features)** for the operational
+details before you buy.
+
+<Callout type="note" title="Prices live in the purchase flow">
+  Prices are shown in the purchase flow and may change. Use the license key page
+  for the current purchase options shown there.
 </Callout>
-
-## Actual prices or purchase paths
-
-The public purchase path starts from the license key page:
 
 <div className="my-6 flex flex-wrap gap-3">
   <GetLicenseButton />
@@ -29,281 +26,217 @@ The public purchase path starts from the license key page:
   </a>
 </div>
 
-Use that flow for current pricing, payment options, and the key issued for your
-account or use case. The docs do not hard-code a price because the public
-purchase flow is the source of truth for the current amount, available tiers,
-and any support or insiders options shown at checkout.
+## First decision: do you need a key?
 
-If you are buying for a production workflow, confirm the exact restricted or
-insiders feature first, then buy against the host-account session that will run
-that workflow.
-
-## Tier definitions
+Start from the method or integration your workflow calls. The current docs mark
+licensed methods as `restricted`, `insiders`, or `none` in the generated method
+metadata. Methods marked `none` are not license-gated in the schema.
 
 <ComparisonTable
   columns={[
-    { key: 'tier', label: 'Tier' },
-    { key: 'includes', label: 'What it includes' },
-    { key: 'bestFor', label: 'Best fit' },
+    { key: 'answer', label: 'Decision' },
+    { key: 'nextStep', label: 'Next step' },
   ]}
   rows={[
     {
-      feature: 'Community / free',
+      feature: 'Your workflow only uses methods marked `none`',
       values: {
-        tier: 'No license key required',
-        includes:
-          'The basic automation surface, Easy API, custom code paths, generated docs, and normal community usage.',
-        bestFor:
-          'Local builds, prototypes, standard automation, and workflows that do not depend on gated behavior.',
+        answer: 'You do not need a license key for that method based on the current schema.',
+        nextStep:
+          'Run the workflow normally, then keep the generated API reference for your deployed version as the source of truth.',
       },
     },
     {
+      feature: 'Your workflow calls a `restricted` method',
+      values: {
+        answer: 'You need a restricted license key before you rely on that gated behavior.',
+        nextStep:
+          'Buy or request the key through the license key page, then validate it against the host account and session you will run.',
+      },
+    },
+    {
+      feature: 'Your workflow calls an `insiders` method',
+      values: {
+        answer: 'You need insiders access before you rely on that gated behavior.',
+        nextStep:
+          'Use the purchase flow for the current insiders option, then test the exact method in the real runtime session.',
+      },
+    },
+    {
+      feature: 'You are unsure which method an integration calls',
+      values: {
+        answer: 'Do not buy based on the integration name alone.',
+        nextStep:
+          'Map the integration to the exact method or runtime behavior first, then decide from the licensed-feature metadata.',
+      },
+    },
+  ]}
+/>
+
+## Current gated methods
+
+The current licensed-feature page lists these gated methods. Treat this as a
+buying checklist, not a promise that every past or future build uses the same
+mapping.
+
+<ComparisonTable
+  columns={[
+    { key: 'tier', label: 'License tier' },
+    { key: 'methods', label: 'Methods listed in the current docs' },
+  ]}
+  rows={[
+    {
       feature: 'Restricted',
       values: {
-        tier: 'License key required',
-        includes:
-          'Community features plus restricted or host-account-specific flows that need an unlock key.',
-        bestFor:
-          'Production workflows that rely on a known gated capability but do not need insiders-only access.',
+        tier: '`restricted`',
+        methods: '`createGroup`, `joinGroupViaLink`, and `joinGroup`',
       },
     },
     {
       feature: 'Insiders',
       values: {
-        tier: 'Insiders access required',
-        includes:
-          'Restricted coverage plus advanced, early-access, or higher-priority capability where available.',
-        bestFor:
-          'Builders whose workflow depends on advanced or earlier-surface behavior beyond the restricted tier.',
+        tier: '`insiders`',
+        methods:
+          '`getNumberProfile`, `checkNumberStatus`, `getOrder`, status and story methods, button and list message methods, starred message access, and profile picture methods listed on the licensed-feature page.',
       },
     },
   ]}
 />
 
-## Compare the tiers
+<Callout type="tip" title="Buy for the runtime you will operate">
+  A key is part of the runtime launch path. Validate it with the host account,
+  session, deployment clock, and exact gated method you plan to use in production.
+</Callout>
 
-<ComparisonTable
-  columns={[
-    { key: 'community', label: 'Community / free' },
-    { key: 'restricted', label: 'Restricted' },
-    { key: 'insiders', label: 'Insiders' },
-  ]}
-  rows={[
-    {
-      group: 'Core usage',
-      feature: 'Run the basic automation surface',
-      values: {
-        community: 'Yes',
-        restricted: 'Yes',
-        insiders: 'Yes',
-      },
-    },
-    {
-      feature: 'Easy API, custom code, and docs access',
-      values: {
-        community: 'Yes',
-        restricted: 'Yes',
-        insiders: 'Yes',
-      },
-    },
-    {
-      group: 'Licensed behavior',
-      feature: 'Restricted / gated flows',
-      values: {
-        community: 'No',
-        restricted: 'Yes',
-        insiders: 'Yes',
-      },
-    },
-    {
-      feature: 'Advanced or early-access capabilities',
-      values: {
-        community: 'No',
-        restricted: 'Sometimes no',
-        insiders: 'Yes',
-      },
-    },
-    {
-      group: 'Operational clarity',
-      feature: 'Visible licensed-feature guidance in docs',
-      values: {
-        community: 'Reference only',
-        restricted: 'Yes',
-        insiders: 'Yes',
-      },
-    },
-    {
-      feature: 'Priority for gated capability usage',
-      values: {
-        community: 'No',
-        restricted: 'Targeted',
-        insiders: 'Highest',
-      },
-    },
-  ]}
-/>
-
-## What changes when you upgrade
+## What a license key changes at runtime
 
 <Steps>
-  <Step title="Restricted licensing unlocks gated production use cases">
-    This is the path when the community surface is not enough and you need a key
-    for host-account-specific or gated runtime behavior.
+  <Step title="You provide the key at launch">
+    Supply the key through runtime config or the Easy API / CLI `--license-key`
+    option.
   </Step>
-  <Step title="Insiders licensing is for advanced or early-access capability">
-    Choose this when the restricted tier is still too narrow and your workflows
-    depend on higher-end or earlier-surface features.
+  <Step title="The runtime checks the key">
+    When the host account context is available, the runtime sends the key to the
+    validation service and classifies the result before the client is marked
+    ready.
   </Step>
-  <Step title="The session context still matters">
-    A license decision is not just about owning a key. The real runtime session,
-    host account, and deployment context still determine whether the behavior you
-    care about is available where you need it.
+  <Step title="The gated method still needs testing">
+    A valid key is not a substitute for testing. Confirm the exact restricted or
+    insiders method works in the same session and deployment you plan to run.
   </Step>
 </Steps>
 
-## Trust and scope signals
+## Integration buyers
 
-<Callout type="tip" title="Buy based on the runtime you actually operate">
-  The safest purchase decision is always tied to the real host-account session
-  and production flow you are trying to support, not just a local one-off test.
-</Callout>
+Integrations do not need a separate license just because they are integrations.
+The license decision follows the behavior the integration calls.
 
 <ComparisonTable
   columns={[
-    { key: 'detail', label: 'What to confirm before buying' },
+    { key: 'licenseQuestion', label: 'License question' },
+    { key: 'buyerAction', label: 'Buyer action' },
+  ]}
+  rows={[
+    {
+      feature: 'Webhooks',
+      values: {
+        licenseQuestion:
+          'Does the webhook only receive normal runtime events, or does the workflow also call a gated method?',
+        buyerAction:
+          'If it only receives ungated events, decide from the underlying method list. If it calls restricted or insiders behavior, buy for that gated behavior.',
+      },
+    },
+    {
+      feature: 'Chatwoot',
+      values: {
+        licenseQuestion:
+          'Which open-wa methods does the Chatwoot bridge need for your support workflow?',
+        buyerAction:
+          'Buy only if the bridge depends on restricted or insiders methods in your real workflow.',
+      },
+    },
+    {
+      feature: 'Node-RED',
+      values: {
+        licenseQuestion:
+          'Which Easy API methods do your Node-RED nodes call?',
+        buyerAction:
+          'Match those methods to the licensed-feature metadata before buying.',
+      },
+    },
+    {
+      feature: 'MCP',
+      values: {
+        licenseQuestion:
+          'Which Easy API tools will the MCP client execute?',
+        buyerAction:
+          'MCP exposes Easy API methods as tools, so the same method-level license decision applies.',
+      },
+    },
+    {
+      feature: 'Plugin SDK',
+      values: {
+        licenseQuestion:
+          'Which methods or runtime behavior does the plugin call after it loads?',
+        buyerAction:
+          'A plugin wrapper does not decide the tier. The called behavior does.',
+      },
+    },
+  ]}
+/>
+
+## Team and organization buying
+
+The current source-backed path for team or organization questions is the public
+license key page plus the project support paths. The docs do not define
+multi-seat terms, per-developer scope, customer deployment scope, transfer rules,
+or support service levels.
+
+If more than one person, account, environment, or customer deployment is involved,
+do not assume the scope. Use the license key page first, then use Discord or the
+paid consult/support links from the project README if the purchase flow does not
+answer your buying question.
+
+## Before you buy
+
+<ComparisonTable
+  columns={[
+    { key: 'check', label: 'Check' },
     { key: 'why', label: 'Why it matters' },
   ]}
   rows={[
     {
-      feature: 'Host-account session',
+      feature: 'Exact method or behavior',
       values: {
-        detail: 'Which account and runtime session will use the gated feature?',
-        why: 'Licensing behavior often depends on the real session context.',
+        check: 'Name the restricted or insiders method your workflow depends on.',
+        why: 'The current licensing guidance is method-level, not page-name-level.',
       },
     },
     {
-      feature: 'Exact gated behavior',
+      feature: 'Runtime session',
       values: {
-        detail: 'Which restricted or insiders flow are you counting on?',
-        why: 'Do not buy based on vague assumptions; validate the actual feature.',
+        check: 'Know which host account and session will run the workflow.',
+        why: 'The licensed-feature docs tell readers to validate against the real host-account context.',
       },
     },
     {
-      feature: 'Operational environment',
+      feature: 'Deployment path',
       values: {
-        detail: 'Where will the runtime live and how will you validate it?',
-        why: 'You want confidence in the same environment you plan to run.',
+        check: 'Know whether the workflow runs through Easy API, custom code, MCP, Chatwoot, Node-RED, webhooks, or a plugin.',
+        why: 'The wrapper can change the setup steps, but the license decision still follows the gated behavior.',
+      },
+    },
+    {
+      feature: 'Buying scope',
+      values: {
+        check: 'For team or organization use, confirm unanswered scope questions through purchase or support.',
+        why: 'The local sources do not publish team-seat or organization-license terms.',
       },
     },
   ]}
 />
 
-## Feature mapping
-
-<ComparisonTable
-  columns={[
-    { key: 'community', label: 'Community / free' },
-    { key: 'restricted', label: 'Restricted' },
-    { key: 'insiders', label: 'Insiders' },
-  ]}
-  rows={[
-    {
-      group: 'Runtime paths',
-      feature: 'Easy API and generated docs',
-      values: {
-        community: 'Included',
-        restricted: 'Included',
-        insiders: 'Included',
-      },
-    },
-    {
-      feature: 'Custom code / embedded runtime',
-      values: {
-        community: 'Included',
-        restricted: 'Included',
-        insiders: 'Included',
-      },
-    },
-    {
-      feature: 'SocketClient remote consumer',
-      values: {
-        community: 'Included',
-        restricted: 'Included',
-        insiders: 'Included',
-      },
-    },
-    {
-      group: 'Licensed behavior',
-      feature: 'Restricted flows',
-      values: {
-        community: 'Not included',
-        restricted: 'Included where supported by the runtime session',
-        insiders: 'Included where supported by the runtime session',
-      },
-    },
-    {
-      feature: 'Insiders-only capabilities',
-      values: {
-        community: 'Not included',
-        restricted: 'Not included unless explicitly shown for that feature',
-        insiders: 'Included where available',
-      },
-    },
-    {
-      group: 'Integrations',
-      feature: 'Webhook, Chatwoot, Cloudflare proxy, Node-RED, and MCP surfaces',
-      values: {
-        community: 'Included when the underlying runtime feature is free',
-        restricted: 'Included when the integration uses restricted behavior',
-        insiders: 'Included when the integration uses insiders behavior',
-      },
-    },
-  ]}
-/>
-
-## Integration licensing
-
-Integrations do not usually need a separate license just because they are
-integrations. The license requirement follows the behavior they call.
-
-For example, a webhook that only receives normal message events can stay on the
-community surface. A Chatwoot, MCP, Node-RED, or custom plugin workflow that
-calls a restricted method needs the tier that unlocks that restricted behavior.
-If an integration depends on an insiders-only capability, treat the whole
-workflow as insiders-scoped even if the integration package itself is available
-to install.
-
-<Callout type="tip" title="License the behavior, not the wrapper">
-  Before buying for an integration, identify the exact API method, runtime flow,
-  or host-account behavior the integration depends on. That is what determines
-  the license tier.
-</Callout>
-
-## Team licensing
-
-Team licensing should be tied to the shared production workflow, not only to the
-developer who buys the key. If several people operate the same host-account
-session or production deployment, decide who owns the billing path, where the key
-is stored, and which runtime session the team is validating.
-
-For organization or multi-seat needs, use the public license path first and treat
-anything unclear as a buying conversation. Do not assume one key covers every
-developer, account, environment, or customer deployment unless the purchase path
-or support conversation confirms that scope.
-
-## Renewal/cancellation
-
-Renewal and cancellation are handled through the purchase or billing path used
-to acquire the key. If the license is subscription-backed, manage renewal,
-payment changes, or cancellation from that provider flow. If the purchase flow
-does not expose the billing action you need, use the support or contact path tied
-to the license purchase.
-
-Operationally, plan renewals before a production dependency expires. Keep the
-license key in deploy-time secret storage, rotate it when ownership changes, and
-re-test the gated feature after any renewal, cancellation, or key replacement.
-
-## Buy or investigate further
+## Buy or verify first
 
 <div className="my-8 flex flex-wrap gap-3">
   <GetLicenseButton />
@@ -313,16 +246,22 @@ re-test the gated feature after any renewal, cancellation, or key replacement.
   >
     Read licensed-feature operations
   </a>
+  <a
+    href="https://discord.gg/dnpp72a"
+    className="inline-flex items-center justify-center rounded-full border border-fd-border bg-fd-card px-5 py-2.5 text-sm font-medium text-fd-foreground hover:bg-fd-accent hover:text-fd-accent-foreground"
+  >
+    Ask in Discord
+  </a>
 </div>
 
 <div className="my-8 grid gap-4 md:grid-cols-2">
-  <LicensedFeatureCallout tier="restricted" title="Need the restricted path?">
-    Use the restricted tier when you need a gated capability in a real workflow
-    and want the clearest direct upgrade path from the free surface.
+  <LicensedFeatureCallout tier="restricted" title="Need a restricted method?">
+    Use the restricted path when your workflow depends on a method currently
+    marked `restricted`, then validate the key in the session you will run.
   </LicensedFeatureCallout>
-  <LicensedFeatureCallout tier="insiders" title="Need the insiders path?">
-    Use insiders when your use case depends on advanced or earlier-access
-    features that go beyond the restricted tier.
+  <LicensedFeatureCallout tier="insiders" title="Need an insiders method?">
+    Use the insiders path when your workflow depends on a method currently marked
+    `insiders`, then test that exact method before relying on it.
   </LicensedFeatureCallout>
 </div>
 
@@ -331,30 +270,30 @@ re-test the gated feature after any renewal, cancellation, or key replacement.
 <FAQ
   items={[
     {
-      question: 'How do I know whether I need a license at all?',
+      question: 'Where are the prices?',
       answer:
-        'Start from the free/community surface. If the behavior you need is marked as restricted or insiders in the docs or reference, that is your first sign you need to upgrade.',
+        'Prices are shown in the purchase flow and may change. Open the license key page for the current purchase options.',
     },
     {
-      question: 'Can I decide only from the docs page names?',
+      question: 'Can I decide from an integration name like webhooks, Chatwoot, Node-RED, MCP, or plugin SDK?',
       answer:
-        'Not safely. The better decision method is to match the exact gated feature to the host-account session and production flow you plan to run.',
+        'No. Decide from the exact method or runtime behavior the integration calls. Webhooks, Chatwoot, Node-RED, MCP, and plugin SDK workflows only need a key when the behavior they rely on is marked restricted or insiders.',
     },
     {
-      question: 'What should I read after this page?',
+      question: 'What if I need team or organization licensing?',
       answer:
-        'Read [Licensed features](/docs/licensing/licensed-features) for the operational workflow, then validate the exact feature in the generated reference or the guide you are implementing from.',
+        'Use the license key page first. If the purchase flow does not answer your team or organization scope question, use Discord or the paid consult/support links from the README. The docs do not publish multi-seat terms.',
     },
     {
-      question: 'What if I need team or organization licensing clarity?',
+      question: 'What should I read before buying?',
       answer:
-        'Treat that as a separate buying conversation instead of guessing from the single-user decision flow. The docs should eventually expose a dedicated team-license path as well.',
+        'Read [Licensed features](/docs/licensing/licensed-features), identify the exact gated method, then validate the key in the real host-account session after purchase.',
     },
   ]}
 />
 
 <Callout type="tip" title="Best next step">
-  If you are still unsure, identify the exact restricted or insiders behavior you
-  need first, then validate that behavior in the guide or reference page tied to
-  your real host-account session and deployment flow.
+  If you are unsure, identify the exact method your workflow needs. If that still
+  leaves a buying-scope question, use the purchase or support path instead of
+  guessing.
 </Callout>
