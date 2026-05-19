@@ -26,3 +26,109 @@ client.onStateChanged((state) => {
 - Log the state transition, not just the terminal failure.
 - Treat `UNPAIRED` as a recovery workflow, not only a console message.
 - Pair this with alerting if the session is production-critical.
+
+## Full state enum
+
+Use a small session state enum in your own monitoring code so every runtime event lands in one clear bucket.
+
+| State | Description |
+| --- | --- |
+| `starting` | The runtime is launching the browser, loading session data, and preparing WhatsApp Web. |
+| `qr` | The session needs a QR scan before it can continue. This usually means no valid saved session was restored. |
+| `authenticated` | WhatsApp accepted the saved session or QR scan, but the client is not fully ready yet. |
+| `ready` | The client is connected and safe for normal API calls. |
+| `disconnected` | The connection dropped after startup. This may be temporary, or it may mean the account was logged out. |
+| `stopping` | The process is shutting the client down on purpose. Do not treat this as a logout. |
+| `stopped` | The client has finished shutting down. A new process start is required before it can connect again. |
+
+The older `onStateChanged` values such as `CONFLICT`, `UNLAUNCHED`, and `UNPAIRED` are still useful signals. Map them into your own state enum so alerts and recovery code do not depend on every raw value.
+
+## State transitions
+
+These are the normal transitions to expect in production monitoring:
+
+| From | To | Trigger |
+| --- | --- | --- |
+| `stopped` | `starting` | The process starts, or your supervisor restarts it. |
+| `starting` | `authenticated` | A saved session is restored, or a QR scan completes. |
+| `starting` | `qr` | No usable saved session is available, or the saved session was rejected. |
+| `qr` | `authenticated` | The operator scans the QR code and WhatsApp accepts the login. |
+| `authenticated` | `ready` | Client finalization completes and `client.ready` fires. |
+| `ready` | `disconnected` | The browser, network, phone, or WhatsApp Web connection drops. |
+| `disconnected` | `ready` | The runtime reconnects without needing a new QR scan. |
+| `disconnected` | `qr` | The session can no longer be restored and must be paired again. |
+| `starting` | `stopping` | Startup is cancelled or the process receives a shutdown signal. |
+| `ready` | `stopping` | The app intentionally calls shutdown, exits, or receives a signal. |
+| `disconnected` | `stopping` | The app gives up recovery and shuts down cleanly. |
+| `stopping` | `stopped` | Cleanup finishes. |
+
+Treat any other transition as worth logging. It may still be valid, but it should include the raw state, previous state, reason, and session id so you can inspect it later.
+
+## Recovery recipe
+
+When a session logs out or disconnects, recover in this order:
+
+1. Record the transition with `sessionId`, previous state, next state, reason, and timestamp.
+2. Pause outbound sends for that session so your queue does not keep retrying against a dead client.
+3. Check whether the process is intentionally `stopping` or `stopped`. If it is, let your supervisor restart it if that is your normal deployment model.
+4. If the state is `disconnected`, wait for a short backoff window and allow one reconnect attempt from the same saved session.
+5. If the session returns to `ready`, drain the paused queue carefully and mark the incident as recovered.
+6. If the state moves to `qr` or `UNPAIRED`, stop automatic sends, alert an operator, and start the QR re-auth workflow.
+7. If reconnect attempts repeat, keep the session offline and require a manual check before sending more messages.
+
+Keep the recovery loop small. A good default is one immediate reconnect window, one delayed restart, then a human alert if the session still cannot reach `ready`.
+
+## QR re-auth
+
+Session restoration works when the saved browser profile and WhatsApp Web session are still accepted by WhatsApp. In that case, the runtime can move from `starting` to `authenticated` and then `ready` without a new scan.
+
+QR re-authentication is needed when the saved session is missing, expired, rejected, or explicitly logged out from the phone or another WhatsApp Web device. You will usually see `qr`, `UNPAIRED`, or a repeated failure to leave `starting`.
+
+Do not delete session data as the first response to every disconnect. A normal network drop can often recover from the existing session. Delete or replace session data only after you have confirmed the saved session is no longer accepted.
+
+## Alerting example
+
+Alert on state changes, not only on process exits. This catches a session that is alive as a Node.js process but no longer paired with WhatsApp.
+
+```ts
+const lastStateBySession = new Map<string, string>();
+
+function reportSessionState(sessionId: string, nextState: string, reason?: string) {
+  const previousState = lastStateBySession.get(sessionId) ?? 'unknown';
+  lastStateBySession.set(sessionId, nextState);
+
+  console.log('session_state_changed', {
+    sessionId,
+    previousState,
+    nextState,
+    reason,
+    timestamp: new Date().toISOString(),
+  });
+
+  if (nextState === 'qr' || nextState === 'disconnected') {
+    notifyOps({
+      title: `WhatsApp session ${nextState}`,
+      message: `${sessionId} moved from ${previousState} to ${nextState}`,
+      reason,
+    });
+  }
+}
+
+client.onStateChanged((state) => {
+  const nextState = state === 'UNPAIRED' ? 'qr' : state.toLowerCase();
+  reportSessionState('sales', nextState, state);
+});
+```
+
+Send the same state event to your metrics system if you have one. Useful counters are `session_state_change_total`, `session_disconnect_total`, and `session_reauth_required_total`.
+
+## What not to auto-retry
+
+Automatic retry is useful for short network drops. It is harmful when the account or session needs a human decision.
+
+- Do not keep sending messages while the session is `qr`, `UNPAIRED`, or repeatedly failing authentication.
+- Do not loop QR generation forever. Alert someone who can scan it.
+- Do not delete and recreate session data on every `disconnected` event. That can turn a recoverable network issue into a forced login.
+- Do not retry high-volume outbound queues after repeated disconnects. This can increase ban risk and make the account look abusive.
+- Do not keep restarting the browser if WhatsApp rejects the saved session multiple times. Require manual review.
+- Do not hide repeated auth failures behind a supervisor restart loop. Surface them as an incident.

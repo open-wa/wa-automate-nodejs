@@ -15,6 +15,71 @@ need a key and only want the runtime details, jump to
   you need insiders access for advanced or early-access capabilities.
 </Callout>
 
+## Actual prices or purchase paths
+
+The public purchase path starts from the license key page:
+
+<div className="my-6 flex flex-wrap gap-3">
+  <GetLicenseButton />
+  <a
+    href="https://openwa.page.link/key"
+    className="inline-flex items-center justify-center rounded-full border border-fd-border bg-fd-card px-5 py-2.5 text-sm font-medium text-fd-foreground hover:bg-fd-accent hover:text-fd-accent-foreground"
+  >
+    Open license key page
+  </a>
+</div>
+
+Use that flow for current pricing, payment options, and the key issued for your
+account or use case. The docs do not hard-code a price because the public
+purchase flow is the source of truth for the current amount, available tiers,
+and any support or insiders options shown at checkout.
+
+If you are buying for a production workflow, confirm the exact restricted or
+insiders feature first, then buy against the host-account session that will run
+that workflow.
+
+## Tier definitions
+
+<ComparisonTable
+  columns={[
+    { key: 'tier', label: 'Tier' },
+    { key: 'includes', label: 'What it includes' },
+    { key: 'bestFor', label: 'Best fit' },
+  ]}
+  rows={[
+    {
+      feature: 'Community / free',
+      values: {
+        tier: 'No license key required',
+        includes:
+          'The basic automation surface, Easy API, custom code paths, generated docs, and normal community usage.',
+        bestFor:
+          'Local builds, prototypes, standard automation, and workflows that do not depend on gated behavior.',
+      },
+    },
+    {
+      feature: 'Restricted',
+      values: {
+        tier: 'License key required',
+        includes:
+          'Community features plus restricted or host-account-specific flows that need an unlock key.',
+        bestFor:
+          'Production workflows that rely on a known gated capability but do not need insiders-only access.',
+      },
+    },
+    {
+      feature: 'Insiders',
+      values: {
+        tier: 'Insiders access required',
+        includes:
+          'Restricted coverage plus advanced, early-access, or higher-priority capability where available.',
+        bestFor:
+          'Builders whose workflow depends on advanced or earlier-surface behavior beyond the restricted tier.',
+      },
+    },
+  ]}
+/>
+
 ## Compare the tiers
 
 <ComparisonTable
@@ -132,6 +197,111 @@ need a key and only want the runtime details, jump to
     },
   ]}
 />
+
+## Feature mapping
+
+<ComparisonTable
+  columns={[
+    { key: 'community', label: 'Community / free' },
+    { key: 'restricted', label: 'Restricted' },
+    { key: 'insiders', label: 'Insiders' },
+  ]}
+  rows={[
+    {
+      group: 'Runtime paths',
+      feature: 'Easy API and generated docs',
+      values: {
+        community: 'Included',
+        restricted: 'Included',
+        insiders: 'Included',
+      },
+    },
+    {
+      feature: 'Custom code / embedded runtime',
+      values: {
+        community: 'Included',
+        restricted: 'Included',
+        insiders: 'Included',
+      },
+    },
+    {
+      feature: 'SocketClient remote consumer',
+      values: {
+        community: 'Included',
+        restricted: 'Included',
+        insiders: 'Included',
+      },
+    },
+    {
+      group: 'Licensed behavior',
+      feature: 'Restricted flows',
+      values: {
+        community: 'Not included',
+        restricted: 'Included where supported by the runtime session',
+        insiders: 'Included where supported by the runtime session',
+      },
+    },
+    {
+      feature: 'Insiders-only capabilities',
+      values: {
+        community: 'Not included',
+        restricted: 'Not included unless explicitly shown for that feature',
+        insiders: 'Included where available',
+      },
+    },
+    {
+      group: 'Integrations',
+      feature: 'Webhook, Chatwoot, Cloudflare proxy, Node-RED, and MCP surfaces',
+      values: {
+        community: 'Included when the underlying runtime feature is free',
+        restricted: 'Included when the integration uses restricted behavior',
+        insiders: 'Included when the integration uses insiders behavior',
+      },
+    },
+  ]}
+/>
+
+## Integration licensing
+
+Integrations do not usually need a separate license just because they are
+integrations. The license requirement follows the behavior they call.
+
+For example, a webhook that only receives normal message events can stay on the
+community surface. A Chatwoot, MCP, Node-RED, or custom plugin workflow that
+calls a restricted method needs the tier that unlocks that restricted behavior.
+If an integration depends on an insiders-only capability, treat the whole
+workflow as insiders-scoped even if the integration package itself is available
+to install.
+
+<Callout type="tip" title="License the behavior, not the wrapper">
+  Before buying for an integration, identify the exact API method, runtime flow,
+  or host-account behavior the integration depends on. That is what determines
+  the license tier.
+</Callout>
+
+## Team licensing
+
+Team licensing should be tied to the shared production workflow, not only to the
+developer who buys the key. If several people operate the same host-account
+session or production deployment, decide who owns the billing path, where the key
+is stored, and which runtime session the team is validating.
+
+For organization or multi-seat needs, use the public license path first and treat
+anything unclear as a buying conversation. Do not assume one key covers every
+developer, account, environment, or customer deployment unless the purchase path
+or support conversation confirms that scope.
+
+## Renewal/cancellation
+
+Renewal and cancellation are handled through the purchase or billing path used
+to acquire the key. If the license is subscription-backed, manage renewal,
+payment changes, or cancellation from that provider flow. If the purchase flow
+does not expose the billing action you need, use the support or contact path tied
+to the license purchase.
+
+Operationally, plan renewals before a production dependency expires. Keep the
+license key in deploy-time secret storage, rotate it when ownership changes, and
+re-test the gated feature after any renewal, cancellation, or key replacement.
 
 ## Buy or investigate further
 

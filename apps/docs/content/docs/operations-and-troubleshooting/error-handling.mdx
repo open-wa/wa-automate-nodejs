@@ -41,3 +41,232 @@ async function launch() {
 ## Browser/page errors
 
 Because the runtime is browser-backed, you can also inspect page-level errors through the underlying page surface when your flow needs deeper debugging.
+
+## Common error catalogue
+
+Use the catalogue below to separate startup problems, API problems, and WhatsApp-side risk signals before you retry or restart.
+
+| Error                        | Common code or signal                                                                 | Likely cause                                                                                                                                                | What to do                                                                                                                                                              |
+| ---------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Auth timeout                 | `AUTH_TIMEOUT`, `qrTimeout`, `authTimeout`, repeated QR expiry                        | The QR was not scanned in time, the link code expired, the phone was offline, or the session token is no longer valid.                                      | Restart the session, keep the phone online, increase the timeout if humans need more time, and delete the session files only when the saved session is clearly invalid. |
+| Browser launch failure       | `BROWSER_LAUNCH_FAILED`, `ENOENT`, `EACCES`, sandbox errors, missing shared libraries | Chrome or Chromium cannot start, the configured `executablePath` is wrong, the container is missing browser dependencies, or the runtime lacks permissions. | Confirm the browser path, test with `headless: false`, install missing system packages, and use container flags that match your hosting environment.                    |
+| Blocked account risk warning | Login loops, forced logout, unusual activity prompts, send failures after high volume | WhatsApp may be limiting or reviewing the account because of automation pattern, message volume, recipient quality, or device changes.                      | Stop automation, review recent traffic, reduce sending rate, reconnect from the phone, and avoid deleting sessions repeatedly while the account is restricted.          |
+| API authentication error     | HTTP `401`                                                                            | Missing or wrong Easy API key.                                                                                                                              | Send the configured key with `X-API-Key` or the SocketClient connection key. Rotate the key if it was exposed.                                                          |
+| API forbidden error          | HTTP `403`                                                                            | The request is authenticated but not allowed for the current API surface, session state, or deployment boundary.                                            | Check the endpoint, method, API key scope if applicable, and whether the session is ready.                                                                              |
+| API rate limit error         | HTTP `429`                                                                            | Too many HTTP calls or too much message activity in a short period.                                                                                         | Back off, add jitter, queue work, and lower concurrency. Do not retry immediately in a tight loop.                                                                      |
+| API server error             | HTTP `500`                                                                            | The runtime failed while handling the request, often because the browser, session, or WhatsApp Web state changed underneath it.                             | Capture logs, check session readiness, retry once after a short delay, then restart the runtime if the session is stuck.                                                |
+
+## Auth timeout
+
+Auth timeouts happen before the session becomes ready. The runtime is waiting for a QR scan, link-code confirmation, or saved session reconnect, and the expected state does not arrive before the configured timeout.
+
+Common causes:
+
+- The QR code was not scanned before `qrTimeout` expired.
+- The link code expired before it was entered on the phone.
+- The phone running WhatsApp is offline or has a weak connection.
+- The saved session files are missing, stale, or corrupted.
+- The account was logged out from WhatsApp > Linked Devices.
+
+Recovery steps:
+
+1. Restart the process and watch for a new QR code or link code.
+2. Keep the phone online and open WhatsApp while the runtime authenticates.
+3. Increase `qrTimeout` or `authTimeout` when a human operator needs more time.
+4. If the same saved session fails repeatedly, log out that linked device from the phone, delete only that session's files, and authenticate again.
+
+```ts
+const client = await create({
+  sessionId: 'sales',
+  qrTimeout: 0,
+  authTimeout: 120,
+});
+```
+
+Use `qrTimeout: 0` only when you want the QR flow to wait without expiring in unattended or slow manual setup. For production, pair long auth windows with process supervision so a stuck startup can still be restarted intentionally.
+
+## Browser failures
+
+Browser failures usually happen during `create()` or shortly after session startup. The Node.js process is running, but the browser driver cannot launch, attach, navigate, or keep the WhatsApp Web page alive.
+
+Check these first:
+
+- Confirm Chrome or Chromium is installed if you set `useChrome` or `executablePath`.
+- Remove a custom `executablePath` temporarily and let the selected driver use its default browser.
+- Run once with `headless: false` in a safe desktop environment so you can see the browser state.
+- In Linux containers, install the browser's required shared libraries and check sandbox permissions.
+- Make sure only one process owns the same session directory at a time.
+- Enable browser console logging when the page loads but WhatsApp Web fails inside the browser.
+
+```ts
+const client = await create({
+  sessionId: 'sales',
+  useChrome: true,
+  headless: false,
+  logConsole: true,
+  logConsoleErrors: true,
+});
+```
+
+If the browser closes after startup, treat it as a runtime failure rather than an auth failure. Restart the process with the same `sessionId` first. The saved session can usually reconnect without another QR scan unless WhatsApp invalidated it.
+
+## Blocked account risk
+
+Some failures come from WhatsApp behavior rather than the open-wa process. Treat these as account risk signals, not bugs to retry through.
+
+Signs include:
+
+- WhatsApp Web repeatedly logs out a valid session.
+- The phone shows unusual activity, spam, or verification prompts.
+- Sends begin failing after a burst of outbound messages.
+- New chats or unknown recipients fail more often than existing conversations.
+- The same account works on the phone but becomes unstable as soon as automation resumes.
+
+What to do:
+
+1. Stop outbound automation for that account.
+2. Check the phone for warnings or required action.
+3. Reduce send volume, concurrency, and repeated identical message patterns.
+4. Prefer replies and expected conversations over cold outbound sends.
+5. Keep the same device, session, and network stable where possible.
+6. Resume slowly only after the account behaves normally in the official app.
+
+Do not try to solve account restriction by deleting session files in a loop. That can create more linked-device churn and make the account look less stable.
+
+## API HTTP errors
+
+Easy API errors are HTTP responses from the local or remote API surface. They tell you whether the request reached the API and how the API classified the failure.
+
+| Status                      | Meaning                                                                                               | Common fix                                                                                                          |
+| --------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `401 Unauthorized`          | The request did not include a valid API key.                                                          | Pass the key as `X-API-Key` or through `SocketClient.connect(baseUrl, apiKey)`.                                     |
+| `403 Forbidden`             | The API understood the request, but the current caller or runtime state is not allowed to perform it. | Check the endpoint, deployment boundary, session readiness, and whether the method is exposed through that surface. |
+| `429 Too Many Requests`     | The caller is sending too many requests or hitting a configured limit.                                | Back off with jitter, lower concurrency, and queue work per session.                                                |
+| `500 Internal Server Error` | The API hit an unexpected runtime failure while handling the request.                                 | Check logs, session state, browser health, and retry only after a short delay.                                      |
+
+For SocketClient consumers, handle command failures like normal async errors:
+
+```ts
+try {
+  await client.sendText(chatId, 'Hello');
+} catch (error) {
+  console.error('Easy API command failed', error);
+}
+```
+
+## Retries
+
+Retry based on the error type. A retry strategy that helps one class of failure can make another class worse.
+
+| Error type                | Retry strategy                                                                                                        |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Auth timeout              | Restart the auth flow after checking phone availability. Do not run many parallel auth attempts for the same account. |
+| Browser launch failure    | Do not retry blindly. Fix the browser path, dependencies, permissions, or container flags first.                      |
+| Browser crash after ready | Restart the runtime with the same `sessionId`. Let the saved session reconnect before deleting anything.              |
+| HTTP `401` or `403`       | Do not retry until configuration is fixed. These are usually key, endpoint, or permission problems.                   |
+| HTTP `429`                | Retry with exponential backoff and jitter. Lower concurrency before resuming normal traffic.                          |
+| HTTP `500`                | Retry once or twice with a short delay. If it repeats, inspect logs and restart the session.                          |
+| Blocked account risk      | Do not retry automatically. Stop automation and check the account from the phone.                                     |
+
+Example retry wrapper for transient API failures:
+
+```ts
+async function retryTransient(task: () => Promise<void>) {
+  const delays = [1000, 3000, 8000];
+
+  for (const delay of delays) {
+    try {
+      await task();
+      return;
+    } catch (error) {
+      console.error('Transient command failure', error);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+
+  throw new Error('Command failed after retries');
+}
+```
+
+Keep retries idempotent where possible. For message sends, record your own message intent before sending so your worker can avoid duplicate sends after a timeout.
+
+## Logging config
+
+Turn on enough logging to see which layer failed: your app, Easy API, the browser driver, or WhatsApp Web inside the browser.
+
+For Easy API, start by capturing stdout and stderr:
+
+```bash
+npx @open-wa/wa-automate --port 8080 --log-console --verbose > open-wa.log 2>&1
+```
+
+For custom code, enable browser console logging during diagnosis:
+
+```ts
+const client = await create({
+  sessionId: 'sales',
+  logConsole: true,
+  logConsoleErrors: true,
+});
+```
+
+Log these fields around failed commands:
+
+- session id
+- method name
+- request id or job id from your app
+- chat id or recipient id when safe to store
+- HTTP status code for Easy API calls
+- whether the session was ready before the call
+
+Avoid logging session tokens, API keys, full message bodies, or personal data unless your compliance rules explicitly require it.
+
+## Recovery playbooks
+
+### Session will not authenticate
+
+1. Start the runtime with visible logging.
+2. Confirm a QR code or link code is actually emitted.
+3. Keep the phone online and complete the login flow.
+4. If the saved session is reused and still fails, log out the linked device from the phone.
+5. Delete only that session's files and authenticate again.
+
+### Browser will not launch
+
+1. Remove custom browser config and try the default driver behavior.
+2. Check `executablePath` if you require a specific Chrome install.
+3. Run with `headless: false` on a desktop host to see launch errors.
+4. Install missing Linux browser dependencies in containers.
+5. Restart under your supervisor only after the browser can launch manually.
+
+### Easy API returns `401`
+
+1. Confirm the Easy API was started with the expected `--api-key`.
+2. Send the same key in the `X-API-Key` header.
+3. If using SocketClient, pass the key as the second argument to `SocketClient.connect()`.
+4. Rotate the key if it was copied into logs, browser code, or shared chat.
+
+### Easy API returns `429`
+
+1. Stop immediate retries.
+2. Queue new work for the affected session.
+3. Resume with lower concurrency and jitter between jobs.
+4. Watch for WhatsApp-level warnings before returning to normal send volume.
+
+### Account looks restricted
+
+1. Stop sends from automation.
+2. Open WhatsApp on the phone and resolve any prompts.
+3. Review recent recipients, send rate, and repeated message patterns.
+4. Let the account cool down before reconnecting automation.
+5. Resume with safer pacing and monitor failures closely.
+
+## Error type distinction
+
+Not every failure should be handled the same way.
+
+- **Runtime errors** happen inside your Node.js process or the browser runtime. Examples include thrown client method errors, browser crashes, missing dependencies, and page errors.
+- **API errors** are HTTP responses from Easy API. They have status codes such as `401`, `403`, `429`, and `500`, and should be handled by the HTTP caller.
+- **WhatsApp-level errors** come from the connected account or WhatsApp Web behavior. Examples include logout, blocked sends, verification prompts, and account restriction warnings.
+
+Handle runtime errors with process supervision and clear logs. Handle API errors with caller-side status handling. Handle WhatsApp-level errors conservatively, because aggressive retries can make account risk worse.

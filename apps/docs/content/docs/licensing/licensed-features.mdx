@@ -22,6 +22,40 @@ Historically, license-gated behavior has included features such as:
 
 Historically, the biggest source of confusion was assuming a key unlocked behavior globally. In practice, key behavior is usually tied to the session or host-account context you are actually running.
 
+## Current behavior
+
+At launch, the runtime resolves the configured `licenseKey`, sends it to the license validation service when the host account context is available, and classifies the result before the client is marked ready. A server-confirmed response is treated as a valid unlock and the returned license payload is injected into the browser runtime.
+
+If the runtime cannot confirm the key with the server, it may fall back to local license metadata. That fallback records the key type and lets the session continue, but it is not the same as a server-confirmed capability unlock. Invalid or expired classifications are blocking failures and stop readiness before finalization.
+
+Feature gating comes from the generated method metadata. Each method declares a license tier of `none`, `insiders`, or `restricted`; callers should treat that metadata as the current feature list for the build they are running.
+
+## Exact gated features
+
+The current generated method schema marks these methods as licensed:
+
+| Feature | License tier |
+| --- | --- |
+| `getNumberProfile` | `insiders` |
+| `checkNumberStatus` | `insiders` |
+| `getOrder` | `insiders` |
+| `postTextStatus` | `insiders` |
+| `postImageStatus` | `insiders` |
+| `postVideoStatus` | `insiders` |
+| `getStories` / `getStatuses` | `insiders` |
+| `getStatus` | `insiders` |
+| `deleteStatus` | `insiders` |
+| `deleteAllStatus` / `deleteAllStatuses` | `insiders` |
+| `sendButtons` | `insiders` |
+| `sendAdvancedButtons` | `insiders` |
+| `sendListMessage` / `sendList` | `insiders` |
+| `getStarredMessages` | `insiders` |
+| `setProfilePicture` / `setProfilePic` | `insiders` |
+| `createGroup` | `restricted` |
+| `joinGroupViaLink` / `joinGroup` | `restricted` |
+
+Methods marked `none` are not license-gated in the schema. Older docs and changelog entries may mention features that moved tier, changed names, or became part of a different runtime surface, so use the generated API reference for the package version you deploy.
+
 ## How keys are supplied
 
 You can provide a license key in the runtime config:
@@ -38,12 +72,52 @@ Or via the Easy API / CLI path:
 npx @open-wa/wa-automate --license-key "YOUR-LICENSE-KEY"
 ```
 
+## License behavior
+
+When the license is valid, the runtime applies the server-confirmed license payload, records the license lifecycle as satisfied, and continues launch. The relevant runtime status is `valid`.
+
+When the key is present but only local metadata can be used, the runtime records `metadata_only`. The session may continue, but the docs should not describe that as a confirmed unlock because the license server did not confirm the capability.
+
+When no key is supplied, the runtime records `missing` and treats the license lifecycle as non-blocking. Ungated methods still work, and gated methods should not be assumed to work.
+
+When the key is expired or invalid, the runtime records `expired` or `invalid`, marks the license lifecycle as failed, emits a fatal bootstrap error, and stops readiness before finalization.
+
 ## Common license workflow
 
 1. acquire the key for the host account or use case you actually intend to run
 2. supply it through config or CLI at launch
 3. verify the runtime recognizes the key in the session you care about
 4. test the specific gated feature instead of assuming success from configuration alone
+
+## Status inspection
+
+For Easy API sessions, inspect the `/health` endpoint and read the `license` object:
+
+```bash
+curl http://localhost:8080/health
+```
+
+The response includes fields like:
+
+```json
+{
+  "license": {
+    "status": "valid",
+    "source": "local",
+    "keyType": "server",
+    "detail": "License capability remained server-confirmed at check time."
+  }
+}
+```
+
+From a client method surface, you can also call `getLicenseType` to inspect the runtime license type exposed by the session:
+
+```ts
+const licenseType = await client.getLicenseType();
+console.log(licenseType);
+```
+
+For launch-level diagnostics, listen for `license.check.after` or inspect the launch timeline in `/health`. The same status values are used there: `valid`, `metadata_only`, `missing`, `invalid`, and `expired`.
 
 ## Operational advice
 
@@ -59,6 +133,36 @@ Check these first:
 - whether the feature is actually available in the runtime surface you are using
 - whether the machine clock and deployment environment are sane
 - whether you are testing the gated feature through the same session the key is meant for
+
+## Failure messages
+
+The current runtime uses these license failure details:
+
+| Situation | Message |
+| --- | --- |
+| Validation server rejects the key | `License key was rejected by the validation server.` |
+| Preload fails before validation | `License preload failed before validation.` |
+| No key is available | `No license material was available for this session.` |
+| Key is marked expired | `Resolved license key is marked as expired.` |
+| Key is marked invalid | `Resolved license key is marked as invalid.` |
+| Server-confirmed payload cannot be applied | `License payload did not confirm successful application.` |
+| Apply phase fails without a more specific detail | `License lifecycle did not complete successfully` |
+| Blocking status reaches launch finalization | `License lifecycle blocked readiness with status: ${status}` |
+| License validation request fails | `License validation request failed: ${error}` |
+
+You may also see the `license_server_validation_failed` warning in logs when the validation request fails and the runtime tries the metadata fallback path.
+
+## Purchase link
+
+Buy or request a license key here: https://openwa.page.link/key
+
+Use the same host account and use case you plan to run in production when you validate the key.
+
+## Support escalation
+
+If a license still fails after checking the host account, runtime version, deployment clock, and exact gated method, collect the `/health` license object, the masked key shown in logs, the host account number, and the method you are trying to call.
+
+For support, use the project Discord or the paid support links from the main support page. Include the status value and failure message above so the issue can be routed quickly.
 
 ## Scope note
 

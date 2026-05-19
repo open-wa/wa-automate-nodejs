@@ -17,6 +17,118 @@ await create({
 });
 ```
 
+## Proxy URL formats
+
+The proxy address must include the protocol. Supported formats are:
+
+```text
+http://proxy.example:1234
+https://proxy.example:1234
+socks://proxy.example:1080
+socks5://proxy.example:1080
+```
+
+Use the exact scheme your proxy provider gives you. If the proxy needs a username and password, keep those in `username` and `password` instead of embedding them in the URL.
+
+## SOCKS/HTTP
+
+Use an **HTTP** or **HTTPS** proxy when your provider is forwarding normal web traffic and gives you an HTTP endpoint. This is the most common setup for data center, residential, and corporate outbound proxies.
+
+Use a **SOCKS** or **SOCKS5** proxy when your provider gives you a lower-level tunnel endpoint, or when HTTP proxying breaks WebSocket or browser network behavior in your environment.
+
+If both are available, start with `http://` or `https://`. Switch to `socks5://` when your provider recommends it or when browser authentication, media, or WebSocket paths fail through the HTTP proxy.
+
+## Env-secret
+
+Keep proxy credentials out of checked-in config files. Read them from environment variables and pass them into `proxyServerCredentials` at startup:
+
+```ts
+await create({
+  proxyServerCredentials: {
+    address: process.env.OPENWA_PROXY_ADDRESS,
+    username: process.env.OPENWA_PROXY_USERNAME,
+    password: process.env.OPENWA_PROXY_PASSWORD,
+  },
+});
+```
+
+Example local shell setup:
+
+```bash
+export OPENWA_PROXY_ADDRESS="http://proxy.example:1234"
+export OPENWA_PROXY_USERNAME="open-wa"
+export OPENWA_PROXY_PASSWORD="secret"
+```
+
+If your deployment platform has a secret manager, store these values there and inject them as environment variables at runtime.
+
+## Docker/prod
+
+For Docker, pass the proxy settings as environment variables and keep the same runtime config shape in your app:
+
+```bash
+docker run --init \
+  -e OPENWA_PROXY_ADDRESS="http://proxy.example:1234" \
+  -e OPENWA_PROXY_USERNAME="open-wa" \
+  -e OPENWA_PROXY_PASSWORD="secret" \
+  openwa/wa-automate
+```
+
+In production, make the proxy part of your session configuration rather than a manual shell-only step. Confirm the runtime host can reach the proxy before starting a long-lived session, and use separate proxy credentials per environment when possible.
+
+For orchestrated deployments, set the same variables in your platform config:
+
+```yaml
+env:
+  OPENWA_PROXY_ADDRESS: http://proxy.example:1234
+  OPENWA_PROXY_USERNAME: open-wa
+  OPENWA_PROXY_PASSWORD: secret
+```
+
+Use your orchestrator's secret support for the username and password instead of storing real values in plain YAML.
+
+## Auth caveats
+
+Proxy authentication is separate from open-wa API authentication. `proxyServerCredentials.username` and `proxyServerCredentials.password` are only for the outbound proxy.
+
+Some proxy providers require IP allowlisting instead of username/password auth. In that case, leave `username` and `password` unset and make sure the host running open-wa is allowlisted by the provider.
+
+Avoid putting proxy credentials directly in the proxy URL. Keeping the address, username, and password separate makes logs safer and avoids URL parsing issues with special characters in passwords.
+
+Test the proxy during the first WhatsApp authentication flow. A proxy can appear healthy after login but still fail during QR, link-code, media upload, or WebSocket reconnect paths.
+
+## Verification commands
+
+Check that the proxy itself works from the same host that runs open-wa:
+
+```bash
+curl -x "http://proxy.example:1234" \
+  --proxy-user "$OPENWA_PROXY_USERNAME:$OPENWA_PROXY_PASSWORD" \
+  https://api.ipify.org
+```
+
+For a SOCKS5 proxy:
+
+```bash
+curl --socks5-hostname "proxy.example:1080" https://api.ipify.org
+```
+
+If your proxy uses IP allowlisting and no username/password:
+
+```bash
+curl -x "http://proxy.example:1234" https://api.ipify.org
+```
+
+The returned IP should match the proxy exit IP, not the server's normal public IP.
+
+Then start a session and verify the parts most likely to expose proxy issues:
+
+- complete the first authentication flow
+- reconnect after restarting the process
+- send and receive a text message
+- upload and download media
+- watch for WebSocket or navigation errors in the runtime logs
+
 ## When to use this page
 
 Use this when you need a traditional outbound proxy for the automation runtime itself.

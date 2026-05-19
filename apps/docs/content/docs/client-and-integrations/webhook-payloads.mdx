@@ -13,6 +13,364 @@ webhook integration.
   it with Easy API and integration guides when you are wiring handlers.
 </Callout>
 
+## Enablement flow
+
+The quickest way to turn on webhooks is the Easy API CLI flag:
+
+```bash
+npx @open-wa/wa-automate --port 8080 --webhook "https://your-app.example/webhooks/open-wa"
+```
+
+That is enough for a first test. For a repeatable deployment, keep the webhook
+settings in config so the target URL, event filter, headers, retry settings, and
+timeout all live with the rest of your runtime configuration.
+
+```ts
+// wa.config.ts
+export default {
+  port: 8080,
+  plugins: ['@open-wa/integration-webhook'],
+  pluginConfig: {
+    webhook: {
+      url: 'https://your-app.example/webhooks/open-wa',
+      events: ['message', 'participantsChanged', 'stateChanged'],
+      headers: {
+        'X-Webhook-Secret': process.env.OPEN_WA_WEBHOOK_SECRET!,
+      },
+      retries: 3,
+      retryDelay: 1000,
+      timeout: 30000,
+    },
+  },
+};
+```
+
+Verify it in this order:
+
+1. Start your receiving service and make sure it can accept `POST` requests.
+2. Start open-wa with either the CLI flag or the config file.
+3. Check the logs for the webhook target URL and selected events.
+4. Send a WhatsApp message to the connected session.
+5. Confirm your endpoint receives a JSON body with `webhookId`, `sessionId`,
+   `event`, `payload`, and `timestamp`.
+6. Return a `2xx` response quickly. Slow or failed responses trigger retries.
+
+## Endpoint handler examples
+
+Every webhook delivery is a JSON `POST`. Your endpoint should authenticate the
+request, read the `event`, process only the events it cares about, then return a
+`2xx` response.
+
+### Express
+
+```ts
+import express from 'express';
+
+const app = express();
+
+app.use(express.json({ limit: '2mb' }));
+
+app.post('/webhooks/open-wa', (req, res) => {
+  if (req.header('X-Webhook-Secret') !== process.env.OPEN_WA_WEBHOOK_SECRET) {
+    return res.status(401).send('Unauthorized');
+  }
+
+  const { event, payload, sessionId } = req.body;
+
+  if (event === 'message') {
+    console.log(`[${sessionId}] message from ${payload.from}: ${payload.body}`);
+  }
+
+  res.sendStatus(204);
+});
+
+app.listen(3000, () => {
+  console.log('Webhook receiver listening on http://localhost:3000');
+});
+```
+
+### Fastify
+
+```ts
+import Fastify from 'fastify';
+
+const fastify = Fastify({ logger: true });
+
+fastify.post('/webhooks/open-wa', async (request, reply) => {
+  if (request.headers['x-webhook-secret'] !== process.env.OPEN_WA_WEBHOOK_SECRET) {
+    return reply.code(401).send({ error: 'Unauthorized' });
+  }
+
+  const body = request.body as {
+    event: string;
+    sessionId: string;
+    payload: any;
+  };
+
+  if (body.event === 'participantsChanged') {
+    request.log.info(
+      { sessionId: body.sessionId, groupId: body.payload.groupId },
+      'group participants changed'
+    );
+  }
+
+  return reply.code(204).send();
+});
+
+await fastify.listen({ port: 3000 });
+```
+
+### Plain Node.js
+
+```ts
+import { createServer } from 'node:http';
+
+const server = createServer(async (req, res) => {
+  if (req.method !== 'POST' || req.url !== '/webhooks/open-wa') {
+    res.writeHead(404).end();
+    return;
+  }
+
+  if (req.headers['x-webhook-secret'] !== process.env.OPEN_WA_WEBHOOK_SECRET) {
+    res.writeHead(401).end('Unauthorized');
+    return;
+  }
+
+  let rawBody = '';
+
+  for await (const chunk of req) {
+    rawBody += chunk;
+  }
+
+  const body = JSON.parse(rawBody);
+
+  if (body.event === 'stateChanged') {
+    console.log('Session state:', body.payload.state);
+  }
+
+  res.writeHead(204).end();
+});
+
+server.listen(3000);
+```
+
+## Auth/signature
+
+The webhook integration sends any headers you place in `headers` on every
+delivery. Use that for a shared secret, bearer token, or gateway-specific auth
+header.
+
+```ts
+pluginConfig: {
+  webhook: {
+    url: 'https://your-app.example/webhooks/open-wa',
+    headers: {
+      Authorization: `Bearer ${process.env.OPEN_WA_WEBHOOK_TOKEN}`,
+      'X-Webhook-Secret': process.env.OPEN_WA_WEBHOOK_SECRET!,
+    },
+  },
+}
+```
+
+The current webhook plugin does not generate a request signature by itself. If
+you need HMAC-style verification, add a small signing proxy in front of your
+receiver or sign the request in your own infrastructure, then verify the raw
+body before parsing it.
+
+```ts
+import { createHmac, timingSafeEqual } from 'node:crypto';
+
+function verifySignature(rawBody: string, signature: string, secret: string) {
+  const expected = createHmac('sha256', secret).update(rawBody).digest('hex');
+  const received = signature.replace(/^sha256=/, '');
+
+  return timingSafeEqual(Buffer.from(expected), Buffer.from(received));
+}
+```
+
+Keep webhook URLs on HTTPS. Message payloads can include names, phone-number
+based chat IDs, message text, and media metadata.
+
+## Retries
+
+Webhook delivery uses native `fetch`. A delivery is treated as successful when
+your endpoint returns a `2xx` response. Network errors, timeouts, and non-`2xx`
+responses are treated as failures.
+
+By default, open-wa tries the first delivery plus 3 retries. The retry delay uses
+exponential backoff from `retryDelay`, which defaults to `1000` milliseconds:
+
+| Attempt | Delay before attempt |
+| --- | --- |
+| First delivery | none |
+| Retry 1 | `1000ms` |
+| Retry 2 | `2000ms` |
+| Retry 3 | `4000ms` |
+
+After the final failed attempt, the failure is logged and the event is dropped
+from the in-memory delivery queue. If your receiver needs more protection, store
+the incoming webhook first, acknowledge it, then process it asynchronously.
+
+## Delivery guarantees
+
+Webhook delivery is **at least once**. That means your endpoint may receive the
+same event more than once, especially when a previous response timed out or a
+retry happened after partial processing.
+
+Ordering is best effort. Message events are emitted by the runtime in order, but
+the webhook deliverer can send multiple requests concurrently. If strict order
+matters, set `concurrency: 1` and still design for duplicates.
+
+Use idempotent processing. A practical dedupe key is:
+
+```text
+${sessionId}:${event}:${payload.id ?? payload.groupId ?? timestamp}
+```
+
+For message events, prefer `payload.id`. For group events, combine `groupId`,
+`action`, and `timestamp` if you need a stable application-level key.
+
+## Event filtering
+
+Set `events` to `all` to forward every public runtime event. Set it to an array
+to forward only the events your endpoint needs.
+
+```ts
+pluginConfig: {
+  webhook: {
+    url: 'https://your-app.example/webhooks/open-wa',
+    events: ['message', 'ack', 'participantsChanged', 'stateChanged'],
+  },
+}
+```
+
+Filtering happens before delivery. Events that do not match the list are ignored
+and never enter the webhook queue.
+
+## Sample JSON payloads per type
+
+The outer envelope is the same for every event. The `payload` field changes
+based on the event type.
+
+### Message
+
+```json
+{
+  "webhookId": "0f5d6a52-2ff2-43d5-9d0d-9c0c8dd5f9d1",
+  "sessionId": "sales",
+  "event": "message",
+  "payload": {
+    "id": "false_1234567890@c.us_ABC123",
+    "from": "1234567890@c.us",
+    "to": "0987654321@c.us",
+    "body": "Hello, I need help with my order",
+    "type": "chat",
+    "timestamp": 1700000000,
+    "fromMe": false,
+    "isGroupMsg": false
+  },
+  "timestamp": 1700000000123
+}
+```
+
+### Media
+
+```json
+{
+  "webhookId": "0f5d6a52-2ff2-43d5-9d0d-9c0c8dd5f9d1",
+  "sessionId": "sales",
+  "event": "message",
+  "payload": {
+    "id": "false_1234567890@c.us_DEF456",
+    "from": "1234567890@c.us",
+    "body": "",
+    "type": "image",
+    "mimetype": "image/jpeg",
+    "caption": "Photo of the receipt",
+    "timestamp": 1700000001,
+    "fromMe": false,
+    "isMedia": true
+  },
+  "timestamp": 1700000001123
+}
+```
+
+### Group
+
+```json
+{
+  "webhookId": "0f5d6a52-2ff2-43d5-9d0d-9c0c8dd5f9d1",
+  "sessionId": "sales",
+  "event": "participantsChanged",
+  "payload": {
+    "groupId": "1234567890-1111111111@g.us",
+    "action": "add",
+    "participantIds": ["447700900123@c.us"],
+    "by": "447700900456@c.us"
+  },
+  "timestamp": 1700000002123
+}
+```
+
+### Status
+
+```json
+{
+  "webhookId": "0f5d6a52-2ff2-43d5-9d0d-9c0c8dd5f9d1",
+  "sessionId": "sales",
+  "event": "stateChanged",
+  "payload": {
+    "state": "CONNECTED",
+    "previousState": "AUTHENTICATING"
+  },
+  "timestamp": 1700000003123
+}
+```
+
+## Plain-language field explanations
+
+### Envelope fields
+
+| Field | Meaning |
+| --- | --- |
+| `webhookId` | A generated ID for this configured webhook target. It stays useful for tracing logs from one runtime process. |
+| `sessionId` | The open-wa session that produced the event, such as `sales` or `support`. |
+| `event` | The event name. Use this to route the payload to the right handler. |
+| `payload` | The actual event data. Its shape depends on `event`. |
+| `timestamp` | When open-wa queued the webhook delivery, in Unix milliseconds. |
+
+### Common message payload fields
+
+| Field | Meaning |
+| --- | --- |
+| `id` | The WhatsApp message ID. Store it if you need deduplication. |
+| `from` | The chat that sent the message. Direct chats usually end in `@c.us`. |
+| `to` | The receiving chat or session chat ID when it is present. |
+| `body` | The text body. Media messages may have an empty body and use `caption` instead. |
+| `type` | The WhatsApp message kind, such as `chat`, `image`, `audio`, `video`, or `document`. |
+| `timestamp` | When WhatsApp says the message was sent, usually in Unix seconds. |
+| `fromMe` | `true` when the connected session sent the message. |
+| `isGroupMsg` | `true` when the message belongs to a group chat. |
+| `mimetype` | The media content type, such as `image/jpeg` or `application/pdf`. |
+| `caption` | The text caption attached to a media message. |
+| `isMedia` | `true` when the payload represents a media message. |
+
+### Group payload fields
+
+| Field | Meaning |
+| --- | --- |
+| `groupId` | The WhatsApp group chat ID. Group IDs usually end in `@g.us`. |
+| `action` | What changed, such as `add`, `remove`, `promote`, or `demote`. |
+| `participantIds` | The WhatsApp IDs of the people affected by the change. |
+| `by` | The WhatsApp ID that made the change, when WhatsApp provides it. |
+
+### Status payload fields
+
+| Field | Meaning |
+| --- | --- |
+| `state` | The current session state, such as `CONNECTED`, `READY`, `DISCONNECTED`, or `TIMEOUT`. |
+| `previousState` | The state the session was in before this change, when known. |
+
 ## Webhook config
 
 <AutoTypeTable path="../../../../../integrations/webhook/src/config.ts" name="WebhookConfig" />

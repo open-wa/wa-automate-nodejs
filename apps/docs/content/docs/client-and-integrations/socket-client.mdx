@@ -7,6 +7,18 @@ description: Connect to a remote Easy API instance from your own app using Socke
 
 `SocketClient` is the compatibility client for connecting to a remote Easy API instance. In the current runtime it uses **HTTP RPC for commands** and **Server-Sent Events for runtime events**, while keeping a client-style surface for consumers.
 
+## Install command
+
+Install the remote consumer package in the app that will connect to Easy API:
+
+```bash
+npm install @open-wa/socket-client
+```
+
+```bash
+pnpm add @open-wa/socket-client
+```
+
 ## Connect to a local or remote Easy API
 
 ```ts
@@ -26,6 +38,88 @@ const client = await SocketClient.connect('https://api.example.com', 'your-api-k
 ```
 
 Keep the API key out of browser-exposed code unless that browser is a trusted internal client.
+
+### API key headers
+
+Pass the API key as the second argument to `SocketClient.connect()`:
+
+```ts
+const client = await SocketClient.connect('https://api.example.com', 'your-api-key');
+```
+
+For command calls, `SocketClient` sends that key to Easy API as the `X-API-Key` header:
+
+```http
+X-API-Key: your-api-key
+```
+
+For the SSE event stream, the same key is attached to the events URL as `api_key` because the standard `EventSource` API does not support custom headers.
+
+## Full runnable consumer
+
+Create a consumer file in your own app, for example `consumer.ts`:
+
+```ts
+import { SocketClient, type Client } from '@open-wa/socket-client';
+
+const EASY_API_URL = process.env.OPENWA_API_URL ?? 'http://localhost:8080';
+const API_KEY = process.env.OPENWA_API_KEY ?? 'your-api-key';
+const TEST_CHAT_ID = process.env.OPENWA_TEST_CHAT_ID ?? '1234567890@c.us';
+
+async function main() {
+  const client = await SocketClient.connect(EASY_API_URL, API_KEY) as SocketClient & Client;
+
+  client.socket.on('connect', () => {
+    console.log('Connected to Easy API event stream');
+  });
+
+  client.socket.on('disconnect', (reason) => {
+    console.warn('Easy API event stream disconnected:', reason);
+  });
+
+  client.socket.on('connect_error', (error) => {
+    console.error('Could not connect to Easy API events:', error);
+  });
+
+  await client.listen('onMessage', async (message) => {
+    try {
+      console.log('Incoming message:', message.from, message.body);
+
+      if (message.body?.toLowerCase() === 'ping') {
+        await client.sendText(message.from, 'pong');
+      }
+    } catch (error) {
+      console.error('Failed to handle incoming message:', error);
+    }
+  });
+
+  try {
+    const sent = await client.sendText(TEST_CHAT_ID, 'SocketClient consumer is online');
+    console.log('Startup message sent:', sent);
+  } catch (error) {
+    console.error('Failed to send startup message:', error);
+  }
+
+  process.once('SIGINT', () => {
+    client.close();
+    process.exit(0);
+  });
+}
+
+main().catch((error) => {
+  console.error('SocketClient consumer failed to start:', error);
+  process.exit(1);
+});
+```
+
+Run it with your own Easy API URL, API key, and test chat ID:
+
+```bash
+OPENWA_API_URL="http://localhost:8080" \
+OPENWA_API_KEY="your-api-key" \
+OPENWA_TEST_CHAT_ID="1234567890@c.us" \
+npx tsx consumer.ts
+```
 
 ## Send a command
 
@@ -53,6 +147,58 @@ await client.listen('onMessage', (message) => {
 
 Legacy-style listener helpers are mapped onto the active runtime event stream for you, so you can usually keep familiar event names.
 
+## Lifecycle/reconnect
+
+`SocketClient.connect()` waits until the SSE event stream is open before it resolves. After that, commands are sent over HTTP RPC and events arrive over the same SSE stream.
+
+Useful lifecycle hooks are available through `client.socket`:
+
+```ts
+client.socket.on('connect', () => {
+  console.log('event stream connected');
+});
+
+client.socket.on('disconnect', (reason) => {
+  console.log('event stream disconnected:', reason);
+});
+
+client.socket.on('connect_error', (error) => {
+  console.error('event stream connection failed:', error);
+});
+```
+
+The underlying `EventSource` implementation handles normal SSE reconnects automatically. Listener registrations are kept locally and are bound again when the stream opens. You can also force a reconnect yourself:
+
+```ts
+await client.reconnect();
+```
+
+Call `client.close()` or `client.disconnect()` when your process is shutting down.
+
+## SSE failure
+
+If the SSE connection drops after it was connected, `SocketClient` marks `client.socket.connected` as `false` and emits `disconnect` with the reason `eventsource error`. Commands can still fail or succeed independently because they use HTTP RPC, so wrap command calls in `try` / `catch`.
+
+If the first SSE connection cannot be established, `SocketClient.connect()` rejects with an `Unable to establish SSE connection` error and emits `connect_error`.
+
+```ts
+try {
+  const client = await SocketClient.connect('http://localhost:8080', 'your-api-key');
+
+  client.socket.on('disconnect', async () => {
+    try {
+      await client.reconnect();
+    } catch (error) {
+      console.error('Manual reconnect failed:', error);
+    }
+  });
+} catch (error) {
+  console.error('Could not connect to Easy API:', error);
+}
+```
+
+In most cases you only need to listen for `disconnect` and keep your consumer idempotent. Avoid assuming every dropped event stream means the WhatsApp session itself is dead. Check the Easy API session health before restarting the runtime.
+
 ## Cloudflare proxy URLs
 
 `SocketClient.connect()` also understands `cf-proxy://...` URLs for the Cloudflare tunnel flow described in **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)**.
@@ -64,6 +210,42 @@ Use `SocketClient` when:
 - your automation runtime lives on another machine
 - you want a lightweight consumer app instead of embedding the full browser automation runtime
 - you want to connect dashboards, workers, or services to an Easy API instance
+
+## Compatibility
+
+This `@open-wa/socket-client` page describes the current Easy API transport used by the v5 runtime: HTTP RPC for commands and SSE for events. It is intended for Easy API instances that expose `/api/{method}` command routes and `/api/events` for the event stream.
+
+Older v4 deployments and older socket.io-based examples may not match this transport. If you are running the stable v4 line, use the SocketClient version and docs that match that deployment. If you are testing v5 alpha, keep Easy API and `@open-wa/socket-client` on matching current packages from this repo.
+
+## Browser security
+
+`SocketClient` does not give your app browser access. It only gives your app API access to a running Easy API instance.
+
+That means your consumer can call exposed Easy API methods and receive events, but it cannot inspect the browser page, run browser-side code, or bypass the Easy API security boundary. Treat the API key like a server secret.
+
+## Plugin SocketClient guidance
+
+Plugins that run outside the Easy API process can use `SocketClient` to connect back to a local Easy API instance. This is useful when the plugin is packaged as a separate worker, sidecar, or integration service and should not own the WhatsApp browser runtime.
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+export async function startPluginConsumer() {
+  const client = await SocketClient.connect(
+    process.env.OPENWA_API_URL ?? 'http://localhost:8080',
+    process.env.OPENWA_API_KEY
+  );
+
+  await client.listen('onMessage', async (message) => {
+    // plugin-specific integration logic
+    console.log('plugin saw message:', message.id);
+  });
+
+  return client;
+}
+```
+
+Keep the Easy API URL and API key in plugin configuration or environment variables. Do not hard-code local secrets into a published plugin package.
 
 ## Troubleshooting
 

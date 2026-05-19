@@ -13,6 +13,45 @@ description: Practical guidance for running open-wa more reliably in production.
 - Keep good logging around session lifecycle and transport failures.
 - Plan for message replay or unread-message handling after downtime.
 
+## Production checklist
+
+Before deploying a session that users depend on:
+
+- [ ] API key set and stored outside committed files.
+- [ ] Session persistence configured on durable disk or a mounted Docker volume.
+- [ ] Error handling in place for startup, logout, browser, transport, and send failures.
+- [ ] Monitoring and alerting configured for disconnects, repeated send failures, and process crashes.
+- [ ] Restart policy configured with PM2, systemd, Docker, Kubernetes, or another supervisor.
+- [ ] Rate limits respected with queues, delays, and backoff.
+- [ ] Backups in place for session data and deployment config.
+
+## Security checklist
+
+For production systems, treat the open-wa runtime like any other system that can send messages on behalf of your business:
+
+- [ ] HTTPS enabled for all public endpoints.
+- [ ] API key rotated regularly and changed immediately after suspected exposure.
+- [ ] Webhook secrets or authentication headers verified by your receiver.
+- [ ] No secrets stored in config files that are committed to git.
+- [ ] Firewall rules restrict access to only the ports and clients you need.
+
+## Rate limits
+
+WhatsApp does not publish fixed automation limits, so production systems should assume limits can change without notice. Send slowly, avoid identical bulk messages, add backoff after failures, and prefer reply-first automation where the user has already messaged you.
+
+See **[Rate Limits and Ban Risk](/docs/guides/rate-limits)** for safe timing defaults, high-risk patterns, and mitigation steps.
+
+## Queues
+
+Queues keep high message volume from turning into uncontrolled callback fan-out. They let you cap concurrency, add delays, retry failed work, and drain unread messages after downtime without sending everything at once.
+
+Use queues when:
+
+- incoming messages can arrive faster than your app can process them
+- sending needs strict spacing to reduce rate-limit and ban risk
+- work depends on slow services such as CRMs, databases, or LLM APIs
+- failed jobs need retry or dead-letter handling
+
 ## Example queue-based pattern
 
 ```ts
@@ -30,3 +69,61 @@ async function start(client: any) {
 ```
 
 Use this pattern when throughput matters more than naive callback fan-out.
+
+## Observability
+
+Good observability makes session problems visible before users report them.
+
+- **Logging**: Log startup, QR or link-code auth, session readiness, disconnects, reconnects, webhook delivery failures, and send failures. Include `sessionId`, chat id, message id, and error type where safe.
+- **Metrics**: Track connected sessions, inbound message count, outbound message count, queue depth, queue latency, send failures, webhook failures, and process restarts.
+- **Tracing**: Add request or job ids across webhooks, queues, business logic, and send calls so one incoming message can be followed through the whole system.
+
+Keep message bodies, media, phone numbers, and credentials out of logs unless you have a clear privacy and retention policy.
+
+## Backups
+
+Back up the data needed to recover a session without rebuilding the deployment from memory.
+
+Back up:
+
+- session data and auth state
+- runtime config, without plain-text secrets
+- deployment manifests such as Docker Compose, systemd units, or Kubernetes YAML
+- webhook and integration config
+
+For a single server, schedule filesystem snapshots or a daily archive of the session directory. For Docker, mount session data to a named volume or host path, then back up that volume. For distributed deployments, use persistent volumes and test restore into a staging environment before trusting the backup plan.
+
+Do not commit raw session data or API keys to git.
+
+## Deployment topology
+
+Common production shapes:
+
+- **Single server**: open-wa, your app, and the process supervisor run on one machine. This is simplest and works well for one or a few sessions.
+- **Docker**: open-wa runs in a container with a mounted session volume and a restart policy. This gives predictable runtime packaging and easier rollbacks.
+- **Distributed**: open-wa runs as a dedicated runtime service, while web apps, workers, queues, and databases run separately. This is better for larger systems and multi-session deployments.
+
+Keep one session's persistent data isolated from another session. If you run multiple sessions, give each one a stable `sessionId`, port or route, API key, and storage path.
+
+## Scaling
+
+Scale the system around the session boundary.
+
+- **Vertical scaling**: Increase CPU, memory, and browser resources for a busy session. This helps when one account receives many events or uses heavy browser operations.
+- **Horizontal scaling**: Add more open-wa sessions or workers. This helps when you have many accounts, many tenants, or business logic that can be processed outside the WhatsApp runtime.
+
+Do not run the same WhatsApp session from multiple runtimes against the same session data. Instead, keep one runtime active per session, then scale consumers, queues, and downstream workers around it.
+
+## AI agent patterns
+
+AI agents need stricter guardrails than simple bots because they can generate variable output and call tools repeatedly.
+
+Use safe defaults:
+
+- only respond to messages that should trigger the agent
+- skip your own messages, status updates, system messages, and unsupported media
+- rate-limit all outbound replies
+- keep a bounded conversation context window
+- log tool calls and agent decisions without storing sensitive message content unnecessarily
+
+See **[AI Agent Patterns](/docs/guides/ai-agent-patterns)** for conversation loops, context management, rate limiting, and production safety patterns.

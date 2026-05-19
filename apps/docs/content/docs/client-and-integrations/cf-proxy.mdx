@@ -1,6 +1,6 @@
 ---
 title: Cloudflare Session Proxy
-description: Deploy a reverse-tunnel proxy on Cloudflare Workers to access your sessions remotely — no port forwarding required.
+description: Deploy a reverse-tunnel proxy on Cloudflare Workers to access your sessions remotely, no port forwarding required.
 ---
 
 # Cloudflare Session Proxy
@@ -19,15 +19,48 @@ Consumer (HTTP / SocketClient)
  Durable Object (per-session)
        │
        ▼
- CLI TunnelClient ──► local session
+ CLI TunnelClient -> local session
 ```
 
 1. You deploy the Worker to your own Cloudflare account.
 2. Your CLI session connects outward to the Worker as an **upstream**.
-3. Consumers make requests via the Worker URL — the Durable Object relays them through the tunnel.
+3. Consumers make requests via the Worker URL, and the Durable Object relays them through the tunnel.
 4. When no traffic is flowing, the WebSocket hibernates at **$0 idle cost**.
 
 ## Setup
+
+### Package install
+
+Install the proxy package if you are deploying it from your own app or workspace:
+
+```bash
+npm install @open-wa/cf-proxy
+```
+
+```bash
+pnpm add @open-wa/cf-proxy
+```
+
+If you are working inside this monorepo, the package already lives at `packages/cf-proxy`, so you can deploy from there directly.
+
+### Wrangler prerequisites
+
+Cloudflare Workers deployment uses the Wrangler CLI. Install it, sign in, and confirm it can see your Cloudflare account before deploying the proxy:
+
+```bash
+npm install -g wrangler
+wrangler login
+wrangler whoami
+```
+
+If you do not want a global install, run Wrangler through your package manager instead:
+
+```bash
+pnpm dlx wrangler login
+pnpm dlx wrangler whoami
+```
+
+You also need Workers and Durable Objects enabled on the Cloudflare account that owns the deployment. Keep the Worker in the same account where you plan to configure routes or custom domains.
 
 ### 1. Deploy the Worker
 
@@ -37,6 +70,28 @@ wrangler secret put UPSTREAM_TOKEN
 wrangler secret put CONSUMER_TOKEN
 wrangler deploy
 ```
+
+`UPSTREAM_TOKEN` is used by the local open-wa session when it attaches to the Worker. `CONSUMER_TOKEN` is used by remote callers that connect through the Worker.
+
+### Durable Object bindings
+
+The Worker stores each live tunnel in a Durable Object named from the session ID. Your `wrangler.toml` needs a binding called `SESSION_TUNNEL` that points at the exported `SessionTunnel` class:
+
+```toml
+name = "open-wa-proxy"
+main = "src/index.ts"
+compatibility_date = "2026-05-19"
+
+[[durable_objects.bindings]]
+name = "SESSION_TUNNEL"
+class_name = "SessionTunnel"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["SessionTunnel"]
+```
+
+The binding name must stay as `SESSION_TUNNEL`, because the Worker reads `env.SESSION_TUNNEL`. The class name must stay as `SessionTunnel`, because `packages/cf-proxy/src/index.ts` exports that class for the Durable Object binding.
 
 ### 2. Start a Session with the Proxy
 
@@ -56,6 +111,19 @@ Or in config:
 }
 ```
 
+### Local CLI accuracy
+
+The proxy does not run WhatsApp inside Cloudflare. Your local CLI still owns the browser runtime, login state, generated docs, and Easy API surface. The Worker only relays traffic to that local session through the upstream WebSocket.
+
+That means local behavior stays the source of truth. If `http://localhost:<port>/api-docs/` or a local `sendText` call fails, the deployed proxy will fail too. Confirm the local session is healthy first, then test the Worker URL.
+
+There are a few practical differences when you go through the deployed Worker:
+
+- requests add Cloudflare network latency
+- the upstream connection must stay open from the CLI process
+- HTTP requests time out if the local session does not answer in time
+- Worker and Durable Object logs live in Cloudflare, while browser/runtime logs stay on the machine running open-wa
+
 ## Consume the session
 
 ```ts
@@ -68,6 +136,33 @@ const client = await SocketClient.connect(
 
 You can also target the proxy over plain HTTP if you need direct request forwarding.
 
+## HTTP examples
+
+Plain HTTP requests use the same session path and the consumer token. This is useful for tools, plugins, webhooks, or scripts that do not need the `SocketClient` compatibility layer.
+
+```bash
+curl "https://open-wa-proxy.account.workers.dev/sessions/my-session/api/getHostNumber?token=CONSUMER_TOKEN"
+```
+
+For commands that need a body, send JSON to the proxied Easy API path:
+
+```bash
+curl -X POST "https://open-wa-proxy.account.workers.dev/sessions/my-session/api/sendText" \
+  -H "Authorization: Bearer CONSUMER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"args":["1234567890@c.us","Hello through Cloudflare"]}'
+```
+
+The Worker forwards the request to the local Easy API instance for that session. Keep any normal session-level auth, such as your Easy API key, in place if your local API requires it.
+
+```bash
+curl -X POST "https://open-wa-proxy.account.workers.dev/sessions/my-session/api/sendText" \
+  -H "Authorization: Bearer CONSUMER_TOKEN" \
+  -H "X-API-Key: your-easy-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{"args":["1234567890@c.us","Hello with API auth"]}'
+```
+
 ## Token model
 
 | Token | Purpose |
@@ -76,3 +171,122 @@ You can also target the proxy over plain HTTP if you need direct request forward
 | `CONSUMER_TOKEN` | authenticates clients accessing the proxied session |
 
 Session-level auth such as your API key still applies on top of the proxy tokens.
+
+## Token rotation
+
+Rotate tokens any time a token is shared too widely, appears in logs, or a consumer no longer needs access.
+
+For consumer access, update the secret in Cloudflare and redeploy if Wrangler prompts for it:
+
+```bash
+cd packages/cf-proxy
+wrangler secret put CONSUMER_TOKEN
+wrangler deploy
+```
+
+Then update remote clients to use the new token. Existing consumer WebSocket connections should be closed and reconnected so they authenticate with the new value.
+
+For upstream access, update `UPSTREAM_TOKEN` in Cloudflare, then restart the local open-wa CLI with the matching `--proxy-token` value:
+
+```bash
+cd packages/cf-proxy
+wrangler secret put UPSTREAM_TOKEN
+wrangler deploy
+
+wa --session-id my-session \
+   --proxy-host https://open-wa-proxy.account.workers.dev \
+   --proxy-token <NEW_UPSTREAM_TOKEN>
+```
+
+Use different upstream and consumer tokens. If you run separate environments, keep separate tokens for development, staging, and production.
+
+## Custom domains
+
+You can keep the default `workers.dev` hostname or attach a domain you control in Cloudflare.
+
+For a Worker route on a proxied zone, add a route to `wrangler.toml`:
+
+```toml
+routes = [
+  { pattern = "wa-proxy.example.com/*", custom_domain = true }
+]
+```
+
+Then deploy again:
+
+```bash
+wrangler deploy
+```
+
+After the route is active, use the custom domain everywhere you previously used the `workers.dev` host:
+
+```bash
+wa --session-id my-session \
+   --proxy-host https://wa-proxy.example.com \
+   --proxy-token <UPSTREAM_TOKEN>
+```
+
+```ts
+const client = await SocketClient.connect(
+  'cf-proxy://wa-proxy.example.com?sessionId=my-session&token=CONSUMER_TOKEN'
+);
+```
+
+Make sure the domain is on Cloudflare and that the route points at this Worker, not another Worker in the same zone.
+
+## Plugin proxy guidance
+
+Plugins can use the Cloudflare proxy when they need remote access to a session that is running somewhere else. Treat the proxy URL like a remote Easy API endpoint with an extra proxy auth layer.
+
+For command-style access, call the proxied HTTP API from the plugin:
+
+```ts
+const proxyHost = process.env.OPENWA_PROXY_HOST;
+const sessionId = process.env.OPENWA_SESSION_ID;
+const token = process.env.OPENWA_CONSUMER_TOKEN;
+
+await fetch(`${proxyHost}/sessions/${sessionId}/api/sendText`, {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    args: ['1234567890@c.us', 'Hello from a plugin'],
+  }),
+});
+```
+
+For client-style access, plugins running in Node.js can use `SocketClient` with the `cf-proxy://` URL. Keep tokens in plugin config or environment variables, not in published plugin source.
+
+Use the proxy for remote session access. Do not use it as a general secret store, plugin registry, or replacement for the local runtime.
+
+## Troubleshooting
+
+### `Unauthorized Upstream`
+
+The local session token does not match `UPSTREAM_TOKEN`. Set the Cloudflare secret again, then restart the CLI with the same value in `--proxy-token`.
+
+### `Unauthorized Consumer`
+
+The remote client is missing `CONSUMER_TOKEN` or is sending the wrong value. Pass it as `token=...` in the `cf-proxy://` URL, as `token=...` in an HTTP query string, or as `Authorization: Bearer ...`.
+
+### `Session offline`
+
+The Worker is reachable, but no local upstream is connected for that `sessionId`. Check that the CLI is still running, that `--session-id` matches the consumer URL, and that the CLI log says the tunnel connected.
+
+### WebSocket connection fails
+
+Confirm the Worker is deployed and the URL uses `https://` for `--proxy-host`. The CLI converts `https://` to `wss://` internally when it connects upstream.
+
+### HTTP requests return `504`
+
+The Durable Object sent the request to the local session, but no response came back before the timeout. Test the same path locally against Easy API, then check the CLI logs for browser, API key, or runtime errors.
+
+### Custom domain does not work
+
+Check that the domain is active on Cloudflare, the route points to this Worker, and you deployed after changing `wrangler.toml`. Test the original `workers.dev` URL too, because that separates domain routing issues from Worker issues.
+
+### SocketClient connects but commands fail
+
+Verify the consumer token, session ID, and local Easy API health. If your local API requires `X-API-Key`, include that auth where your HTTP client or integration sends commands.
