@@ -5,25 +5,59 @@ import { DOCS_PATHS, REPO_URL } from '@/lib/site';
 export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
-      title: 'open-wa v5 docs',
+      title: (
+        <span className="flex items-center gap-2 font-semibold">
+          <img src="/logo.png" alt="Open-wa" className="w-5 h-5 object-contain" />
+          <span>open-wa/wa-automate</span>
+        </span>
+      ),
       url: '/',
-      children: <GetLicenseButton className="hidden sm:inline-flex" subtle />,
+      children: <GetLicenseButton className="hidden sm:inline-flex navbar-lic-button" subtle />,
     },
     links: [
       {
-        text: 'Docs',
-        url: DOCS_PATHS.overview,
+        text: 'Get Started',
+        type: 'menu',
+        items: [
+          {
+            text: 'CLI/EASY API',
+            url: DOCS_PATHS.quickstart,
+          },
+          {
+            text: 'NodeJS',
+            url: DOCS_PATHS.easyApi,
+          },
+          {
+            text: 'Docker',
+            url: DOCS_PATHS.easyApi,
+          },
+        ],
+      },
+      {
+        text: 'The Client API',
+        url: '/docs/reference/client/client',
         active: 'nested-url',
       },
       {
-        text: 'Getting Started',
-        url: DOCS_PATHS.easyApi,
-        active: 'nested-url',
-      },
-      {
-        text: 'Integrations',
-        url: DOCS_PATHS.chatwoot,
-        active: 'nested-url',
+        text: 'Community',
+        type: 'menu',
+        items: [
+          {
+            text: 'GitHub',
+            url: REPO_URL,
+            external: true,
+          },
+          {
+            text: 'Discord',
+            url: 'https://discord.gg/dpan7EYE3t',
+            external: true,
+          },
+          {
+            text: 'Twitter',
+            url: 'https://twitter.com/openwadev',
+            external: true,
+          },
+        ],
       },
       {
         text: 'Licensing',
