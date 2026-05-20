@@ -1,0 +1,33 @@
+{
+  "title": "Packages",
+  "pages": [
+    "index",
+    "api",
+    "cf-proxy",
+    "cli",
+    "client",
+    "config",
+    "core",
+    "decrypt",
+    "domain",
+    "driver-interface",
+    "driver-lightpanda",
+    "driver-playwright",
+    "driver-puppeteer",
+    "hyperemitter",
+    "legacy",
+    "legacy-documented",
+    "logger",
+    "mcp",
+    "orchestrator",
+    "plugin-sdk",
+    "schema",
+    "screencaster",
+    "session-sync",
+    "socket-client",
+    "types-only",
+    "ui-components",
+    "utils",
+    "wa-automate"
+  ]
+}

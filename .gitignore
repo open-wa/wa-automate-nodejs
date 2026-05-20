@@ -46,8 +46,17 @@ packages/legacy-documented/
 packages/legacy/
 packages/orchestrator/
 apps/orchestrator-cli/
+!apps/orchestrator-cli/
+apps/orchestrator-cli/*
+!apps/orchestrator-cli/README.md
 apps/orchestrator-dashboard/
+!apps/orchestrator-dashboard/
+apps/orchestrator-dashboard/*
+!apps/orchestrator-dashboard/README.md
 apps/registry/
+!apps/registry/
+apps/registry/*
+!apps/registry/README.md
 packages/*/dist
 packages/*/build
 apps/*/dist

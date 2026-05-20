@@ -1,0 +1,11 @@
+{
+  "title": "Integrations",
+  "pages": [
+    "index",
+    "chatwoot",
+    "cloudflare",
+    "node-red",
+    "s3",
+    "webhook"
+  ]
+}

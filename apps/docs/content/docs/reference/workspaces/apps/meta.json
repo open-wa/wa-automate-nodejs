@@ -1,0 +1,13 @@
+{
+  "title": "Apps",
+  "pages": [
+    "index",
+    "cli",
+    "dashboard-neo",
+    "docker",
+    "docs",
+    "orchestrator-cli",
+    "orchestrator-dashboard",
+    "registry"
+  ]
+}

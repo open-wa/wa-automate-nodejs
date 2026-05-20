@@ -1,0 +1,218 @@
+---
+title: "@open-wa/orchestrator"
+description: "Multi-session orchestration core logic"
+---
+
+> Generated from `packages/orchestrator/README.md` by `apps/docs/scripts/gen-workspace-readme-docs.js`. Do not edit this page directly.
+
+# @open-wa/wa-orchestrate
+
+## Prerequisites
+
+- NodeJS - v12.18.3
+- npm
+- npx
+
+## Installation
+
+```bash
+> npm i
+```
+
+## Test run
+
+Make sure you have the cli installed by running:
+
+```bash
+> npx @open-wa/wa-automate --help
+```
+
+## Start the management API
+
+```bash
+> npm run start
+```
+
+## PM2
+
+### Monitor the processes
+
+```bash
+> pm2 monit
+```
+
+### Delete all processes
+
+```bash
+> pm2 delete all
+```
+
+### Check logs
+
+```bash
+> pm2 logs
+```
+
+## The API
+
+The API allows you to create, stop, delete, restart and proxy into sessions.
+
+### `/create`
+
+`/create` is used to `create` a new @open-wa session.
+
+```http
+POST /create
+```
+
+Body:
+
+```javascript
+{
+    //ID/Name of the session
+    "sessionId": "marketing",
+    //port on which to run the session. MUST BE UNIQUE!!
+    "port": 3002,
+    //Bas64 encoded sessionData [.data.json] string
+    "sessionData": "eyJXQU......==",
+    //URL of webhook where all SimpleListener [https://open-wa.github.io/wa-automate-nodejs/enums/simplelistener.html] events will be sent
+    "webhook": "https://webhook.site/0b4ac127-f84c-499c-a610-d809416c021c"
+}
+```
+
+### `/api/...`
+
+You can access the specific session APIs through this 'reverse proxy'. For the session above:
+
+```http
+POST /api/marketing
+```
+
+## The API explorer
+
+You can explore all possible API requests for the relevant sessions using `/api-docs/`. Open this in a web browser:
+
+```http
+GET /api/marketing/api-docs/
+```
+
+## Management API Postman collection
+
+For your convience, you can import this postman collection
+
+ [![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/4a637a20f16f7869512d)
+
+## Troubleshooting
+
+### Puppeteer issues
+
+If you get an error "while loading shared libraries" when trying out the npx command. Run the following
+
+```bash
+sudo apt-get install gconf-service libasound2 libatk1.0-0 libatk-bridge2.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget libnss3-dev
+```
+
+or:
+
+```bash
+sudo yum install gconf-service libasound2 libatk1.0-0 libatk-bridge2.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget libnss3-dev
+```
+
+If you get this error:
+
+```bash
+internal/modules/cjs/loader.js:969  throw err;
+  ^
+
+Error: Cannot find module '/root/.npm/_npx/2862/lib/node_modules/@open-wa/wa-automate/node_modules/puppeteer/install.js'
+    at Function.Module._resolveFilename (internal/modules/cjs/loader.js:966:15)
+    at Function.Module._load (internal/modules/cjs/loader.js:842:27)
+    at Function.executeUserEntryPoint [as runMain] (internal/modules/run_main.js:71:12)
+    at internal/main/run_main_module.js:17:47 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+```
+
+then you are most probably running as root. Puppeteer does not run as root so you will have to make a new user that will run the program. As root:
+
+```bash
+> adduser openwa
+```
+
+then skip all of the details. Set a password then give them access to sudo
+
+```bash
+> usermod -aG sudo openwa
+```
+
+Then change from root to that user
+
+```bash
+> su openwa
+```
+
+Then go to the home directory (as root user you were most probably in /root which will cause further issues)
+
+```bash
+> cd ~
+```
+
+Then try to run the CLI again to make sure everything is working properly
+
+```bash
+> npx @open-wa/wa-automate
+```
+
+It should now be able to start the session. If puppeteer is still causing issues try:
+
+```bash
+> npm i -g  @open-wa/wa-automate
+```
+
+If this command results in a permissions error, you will have to change the npm cache folder permissions.
+
+```bash
+> sudo chown openwa -R /usr/lib/node_modules
+```
+
+then try again:
+
+```bash
+> npm i -g  @open-wa/wa-automate
+```
+
+If it was installed correctly, now try to run the CLI again:
+
+```bash
+> npx @open-wa/wa-automate
+```
+
+If the puppeteer issue is still happening on launch then try to install chrome on your machine:
+
+```bash
+> wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+> echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' | sudo tee /etc/apt/sources.list.d/google-chrome.list
+> sudo apt-get update
+> sudo apt-get install google-chrome-stable -y
+```
+
+Now try to run the CLI again:
+
+```bash
+> npx @open-wa/wa-automate
+```
+
+## Google Compute Engine deployment
+
+When deploying the docker image for this project in GCE (i.e 1 docker container on 1 VM running ContainerOS) you will need to use the following code to update the image
+
+```bash
+> gcloud beta compute instances update-container instance-1  --zone us-central1-a --container-image=us-central1-docker.pkg.dev/open-wa-31bb1/open-wa/wa-orch:latest
+```
+
+For example, on VM `wa-orch-muhaimin` in region `us-central1-a` then the command would be:
+
+```bash
+> gcloud beta compute instances update-container wa-orch-muhaimin --zone us-central1-a --container-image=us-central1-docker.pkg.dev/open-wa-31bb1/open-wa/wa-orch:latest
+```

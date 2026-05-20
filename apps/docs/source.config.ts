@@ -50,7 +50,7 @@ function resolveLink(entity: string): string | null {
     return null;
 }
 
-export function remarkBracketLinks() {
+function remarkBracketLinks() {
     return (tree: any) => {
         // 1. Traverse parent nodes to handle the 3-node sequence of backticked double-brackets: [[`Entity`]]
         visit(tree, (node: any) => {

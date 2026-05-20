@@ -1,0 +1,20 @@
+# @open-wa/orchestrator-cli
+
+Multi-session orchestration CLI
+
+Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
+
+## Development
+
+- `pnpm --filter @open-wa/orchestrator-cli build`
+- `pnpm --filter @open-wa/orchestrator-cli dev`
+- `pnpm --filter @open-wa/orchestrator-cli lint`
+- `pnpm --filter @open-wa/orchestrator-cli start`
+
+## Documentation
+
+See the [docs site](https://docs.openwa.dev).
+
+## License
+
+[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/main/LICENSE.md) - Hippocratic + Do Not Harm

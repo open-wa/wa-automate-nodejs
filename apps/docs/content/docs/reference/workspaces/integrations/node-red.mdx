@@ -1,0 +1,80 @@
+---
+title: "@open-wa/node-red"
+description: "Official @open-wa node-red integration."
+---
+
+> Generated from `integrations/node-red/README.md` by `apps/docs/scripts/gen-workspace-readme-docs.js`. Do not edit this page directly.
+
+# @open-wa/node-red
+
+Official @open-wa node-red integration.
+
+Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
+
+## What it does
+
+`@open-wa/node-red` provides Node-RED nodes for connecting flows to a remote open-wa Easy API session. The package registers three Node-RED node types from `package.json`: `owa-server`, `cmd`, and `listen`.
+
+Use this integration when Node-RED should call open-wa commands or react to open-wa listener events through a configured Easy API server connection.
+
+Legacy compatibility note: this integration still uses the `@open-wa/socket-client` surface for backward compatibility, but the active v5 runtime is backed by HTTP RPC + SSE rather than direct Socket.IO. Do not depend on `SocketManager` from `@open-wa/api` when integrating with current releases.
+
+## Node types
+
+| Node type | Source-visible behavior |
+| --- | --- |
+| `owa-server` | Configuration node that stores `name`, `url`, and `key`, creates a `SocketClient`, exposes its socket-like connection object, and stores the client in Node-RED global context. It emits and reports connected, disconnected, and connect error status changes. |
+| `cmd` | Executes a selected open-wa command against the configured server. It loads command metadata from `/meta/basic/commands`, accepts `method` and `args` from the incoming message or node config, calls `server.client.ask(method, args)`, and supports a timeout in seconds. |
+| `listen` | Registers an event listener against the configured server. It loads listener names from `/meta/basic/listeners`, calls `client.listen(listener, listenerFn)`, sends received event data as `msg.payload`, and stops the listener on node close. |
+
+## Configuration fields
+
+The visible editor templates and runtime source define these fields.
+
+### `owa-server`
+
+- `name`: Node-RED display name and status payload socket ID.
+- `url`: Base URL for the remote open-wa Easy API server.
+- `key`: Optional API key sent as `X-API-Key` when loading command and listener metadata and passed to `SocketClient`.
+
+### `cmd`
+
+- `server`: Reference to an `owa-server` config node.
+- `method`: Command method to call when the incoming message does not provide `msg.method`.
+- `args`: JSON-like command arguments merged with object-like `msg.payload` values when present.
+- `name`: Node-RED display name.
+- `timeout`: Timeout in seconds. The runtime treats `-1` as no timeout and falls back to 30 seconds when parsing fails.
+
+### `listen`
+
+- `server`: Reference to an `owa-server` config node.
+- `listener`: Listener name to register.
+- `name`: Node-RED display name.
+
+## Runtime behavior
+
+- `owa-server` constructs `new SocketClient(url, key)`, stores it under the node ID in the global `CLIENT_STORE`, and removes it on disconnect or node removal.
+- `cmd` uses `/meta/basic/commands` to populate command options in the editor. At runtime it prefers `msg.method` and `msg.args`, otherwise it parses configured args and `msg.payload`, then sends the result with `client.ask`.
+- `cmd` reports `Executing..`, `Done`, timeout, waiting, and missing server states through Node-RED node status.
+- `listen` uses `/meta/basic/listeners` to populate listener options in the editor. It registers once per node instance, forwards listener messages as `payload`, reports connection status, and calls `stopListener` on close.
+
+## Development
+
+- `pnpm --filter @open-wa/node-red add-node`
+- `pnpm --filter @open-wa/node-red copy`
+- `pnpm --filter @open-wa/node-red build:editor`
+- `pnpm --filter @open-wa/node-red build:runtime`
+- `pnpm --filter @open-wa/node-red build`
+- `pnpm --filter @open-wa/node-red dev`
+- `pnpm --filter @open-wa/node-red lint`
+- `pnpm --filter @open-wa/node-red lint:fix`
+- `pnpm --filter @open-wa/node-red test`
+- `pnpm --filter @open-wa/node-red test:watch`
+
+## Documentation
+
+See the [docs site](https://docs.openwa.dev).
+
+## License
+
+[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/main/LICENSE.md) - Hippocratic + Do Not Harm

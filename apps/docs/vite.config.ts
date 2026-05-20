@@ -21,7 +21,7 @@ export default defineConfig({
                 name: 'ssr',
             },
         }),
-        mdx(await import('./source.config')),
+        mdx(await import('./source.config.ts')),
         tailwindcss(),
         tanstackStart({
             spa: {
