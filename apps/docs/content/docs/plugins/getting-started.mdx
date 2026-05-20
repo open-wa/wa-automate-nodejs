@@ -45,7 +45,8 @@ The SDK provides:
 
 ## Build your first plugin
 
-### Step 1: Create the plugin
+<Steps>
+<Step title="Create the plugin">
 
 Use the `createPlugin()` factory:
 
@@ -85,7 +86,8 @@ export default createPlugin({
 });
 ```
 
-### Step 2: Define configuration
+</Step>
+<Step title="Define configuration">
 
 Use `defineConfig()` with Zod for typed configuration:
 
@@ -126,7 +128,8 @@ export default createPlugin({
 });
 ```
 
-### Step 3: Add event handlers
+</Step>
+<Step title="Add event handlers">
 
 The `init` function returns a `Hooks` object. Available hooks include:
 
@@ -138,7 +141,8 @@ The `init` function returns a `Hooks` object. Available hooks include:
 
 See the **[Hooks reference](/docs/plugins/hooks-reference)** for the complete list.
 
-### Step 4: Put the files in one project
+</Step>
+<Step title="Put the files in one project">
 
 Use a layout where the config file and plugin file live next to each other:
 
@@ -151,7 +155,8 @@ my-openwa-app/
 
 Put the plugin code from Step 2 in `plugins/greeting-bot.mjs`. The plugin loader uses dynamic `import(ref)`, so a local plugin should be loadable JavaScript at runtime. Do not point the runtime at `./plugins/greeting-bot.ts` unless your own Node.js startup environment already installs a TypeScript loader; the current plugin loader does not compile plugin TypeScript for you.
 
-### Step 5: Load the plugin
+</Step>
+<Step title="Load the plugin">
 
 In `wa.config.mjs`, build the plugin reference from the config file location:
 
@@ -173,13 +178,16 @@ export default {
 
 The `plugins` array accepts npm package names, scoped package names, absolute local references, and local references that Node can import. The module must export a plugin as its default export or as a named `plugin` export. The `pluginConfig` object uses the **plugin name** from `meta.name`, not the package name or file path.
 
-### Step 6: Run from the project directory
+</Step>
+<Step title="Run from the project directory">
 
 Run the CLI from `my-openwa-app/` or pass the config path explicitly:
 
 ```bash
 npx @open-wa/wa-automate --config ./wa.config.mjs --port 8080
 ```
+
+If this Easy API instance is reachable outside your machine, add `--api-key "your-secure-key"` so plugin-mounted routes and the main API share the same authentication boundary.
 
 Expected local startup logs are illustrative, not captured from this docs update. A successful load should include plugin loader and registration messages similar to:
 
@@ -202,6 +210,9 @@ Expected plugin failure logs are illustrative and abbreviated. A missing file or
 plugin_load_error { ref: 'file:///.../plugins/greeting-bot.mjs', error: 'Cannot find module' }
 plugin_config_invalid { plugin: 'greeting-bot', issues: [...] }
 ```
+
+</Step>
+</Steps>
 
 ### If the plugin does not load
 

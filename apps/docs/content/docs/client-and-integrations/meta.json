@@ -1,10 +1,11 @@
 {
-  "title": "Client & Integrations",
+  "title": "Clients & Payloads",
+  "icon": "Plug",
   "pages": [
     "socket-client",
+    "webhook-payloads",
     "proxying-a-session",
-    "chatwoot",
     "cf-proxy",
-    "webhook-payloads"
+    "chatwoot"
   ]
 }

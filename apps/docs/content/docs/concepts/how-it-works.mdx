@@ -11,10 +11,20 @@ Use this page to understand what has to be running before your code can send mes
 
 Think of the stack like this:
 
-1. a browser runtime opens the WhatsApp Web experience
-2. open-wa attaches the automation/runtime bridge
-3. the client surface exposes actions, listeners, and session lifecycle control
-4. your code, Easy API consumers, or SocketClient consumers talk to that surface
+<Steps>
+<Step title="Open WhatsApp Web">
+    A browser runtime opens the WhatsApp Web experience.
+</Step>
+<Step title="Attach the runtime bridge">
+    open-wa attaches the automation/runtime bridge.
+</Step>
+<Step title="Expose the client surface">
+    The client surface exposes actions, listeners, and session lifecycle control.
+</Step>
+<Step title="Choose an integration surface">
+    Your code, Easy API consumers, or SocketClient consumers talk to that surface.
+</Step>
+</Steps>
 
 ## Runtime flow
 
@@ -129,17 +139,17 @@ Answer those questions before choosing a guide. They decide whether you need a s
 
 ## The three main usage modes
 
-### 1. Library mode
-
-You call `createClient()` directly and own the client in your application process.
-
-### 2. Easy API mode
-
-You run the runtime as an API surface, then consume it remotely over HTTP and related transports.
-
-### 3. Remote-consumer mode
-
-You connect to an already running Easy API instance with `SocketClient` instead of embedding the browser automation runtime in your own app.
+<Tabs items={['Library mode', 'Easy API mode', 'Remote-consumer mode']}>
+<Tab value="Library mode">
+    You call `createClient()` directly and own the client in your application process.
+</Tab>
+<Tab value="Easy API mode">
+    You run the runtime as an API surface, then consume it remotely over HTTP and related transports.
+</Tab>
+<Tab value="Remote-consumer mode">
+    You connect to an already running Easy API instance with `SocketClient` instead of embedding the browser automation runtime in your own app.
+</Tab>
+</Tabs>
 
 ## What to do next
 

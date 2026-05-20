@@ -1,10 +1,12 @@
 {
   "title": "API Reference",
+  "icon": "FileCode",
   "pages": [
     "index",
+    "workspaces",
     "client",
-    "core",
+    "messaging",
     "events",
-    "messaging"
+    "core"
   ]
 }

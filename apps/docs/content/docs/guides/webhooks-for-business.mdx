@@ -193,7 +193,8 @@ The local `curl` request should return `HTTP/1.1 204 No Content`. If your receiv
 
 ## Platform mappings
 
-### Zapier
+<Tabs items={['Zapier', 'Make.com', 'n8n']}>
+<Tab value="Zapier">
 
 1. Create a Zap with **Webhooks by Zapier** as the trigger.
 2. Choose **Catch Hook**.
@@ -210,7 +211,8 @@ Useful mappings:
 | Media caption fallback | `payload.message.caption` |
 | Deduplication key | `payload.message.id` |
 
-### Make.com
+</Tab>
+<Tab value="Make.com">
 
 1. Create a scenario.
 2. Add **Webhooks > Custom webhook**.
@@ -220,7 +222,8 @@ Useful mappings:
 
 For message automations, map `payload.message.from`, `payload.message.body`, and `payload.message.id` first.
 
-### n8n
+</Tab>
+<Tab value="n8n">
 
 1. Create a workflow.
 2. Add a **Webhook** node with method `POST`.
@@ -241,6 +244,9 @@ return [{
   },
 }];
 ```
+
+</Tab>
+</Tabs>
 
 ## Common event names
 

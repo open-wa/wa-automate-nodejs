@@ -10,10 +10,12 @@ Use this page when you want a local WhatsApp API running before you write custom
 ## Run it
 
 ```bash
-npx @open-wa/wa-automate
+npx @open-wa/wa-automate --port 8080
 ```
 
-That starts an Easy API instance and prints the local address for the API and the interactive docs.
+That starts an Easy API instance on port `8080` and prints the local address for the API and the interactive docs.
+
+These examples pin port `8080` for consistency. If you omit `--port`, the current v5 CLI uses port `8002`.
 
 ## Expected terminal output
 
@@ -42,10 +44,7 @@ That makes Easy API the shortest route from “I want an API” to “I can send
 # choose a port
 npx @open-wa/wa-automate --port 8080
 
-# protect the API with a generated key
-npx @open-wa/wa-automate --port 8080 --api-key
-
-# or provide your own key
+# protect the API with your own key
 npx @open-wa/wa-automate --port 8080 --api-key "your-secure-key"
 
 # run a named session
@@ -54,13 +53,7 @@ npx @open-wa/wa-automate --session-id sales --port 8081
 
 ## API-key examples
 
-Use `--api-key` with no value when you want the runtime to generate a key for that launch.
-
-```bash
-npx @open-wa/wa-automate --port 8080 --api-key
-```
-
-Use `--api-key "your-secure-key"` when you want a stable key that your apps, scripts, or teammates can reuse.
+Use `--api-key "your-secure-key"` when you want a stable key that your apps, scripts, or teammates can reuse. The current CLI reads the value after `--api-key`, `--key`, or `-k`; a bare `--api-key` does not generate a key.
 
 ```bash
 npx @open-wa/wa-automate --port 8080 --api-key "your-secure-key"
@@ -96,7 +89,7 @@ If you want the fastest path to first success, follow the **[Quick Start](/docs/
 
 ## Deployment notes
 
-- Use `--api-host` when the public address seen by consumers differs from the local bind address.
+- Use `--host` or `-h` to choose the local bind host.
 - Use `--session-id` plus distinct ports when you run multiple sessions on one host.
 - Put restart policy around the process early; do not wait until you have a flaky production incident.
 
@@ -108,21 +101,11 @@ Easy API is convenient, but do not expose it to the public internet without a cl
 
 ## Tunneling and remote access
 
-For quick testing outside your LAN, use a tunnel-capable deployment mode.
-
-```bash
-npx @open-wa/wa-automate --port 8080 --api-key "your-secure-key" --tunnel
-```
-
-If you want a more controlled remote-access model, use **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)** instead.
+The current v5 CLI only warns when `--tunnel` is provided; it does not restore tunnel setup parity. For controlled remote access, use **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)** instead.
 
 ## Webhooks
 
-```bash
-npx @open-wa/wa-automate --webhook "https://your-app.example/webhooks/open-wa"
-```
-
-Use a test endpoint such as `webhook.site` while developing, then move to your real application endpoint once your payload handling is stable.
+The current CLI parses `--webhook` into config, but startup warns that v5 CLI webhook registration parity is not restored. For source-backed webhook delivery in the current v5 alpha, load `@open-wa/integration-webhook` from `wa.config.*` through the plugin config section below.
 
 ## Load a plugin from config
 
@@ -145,7 +128,7 @@ pluginConfig: {
 If you want automatic restarts and supervised uptime, run under a process manager.
 
 ```bash
-npx @open-wa/wa-automate --pm2 --session-id STICKER-BOT
+npx @open-wa/wa-automate --pm2 --session-id STICKER-BOT --port 8080
 ```
 
 PM2 is useful when you need process restarts, basic memory controls, and a named process per session.

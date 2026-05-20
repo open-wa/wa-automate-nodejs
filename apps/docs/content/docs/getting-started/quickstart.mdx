@@ -17,7 +17,8 @@ Follow these steps to start a local API, connect a WhatsApp account, and send on
 **v5 is alpha.** Test in a disposable environment before using in production. For production systems, use v4: `npx @open-wa/wa-automate@4.76.0`
 </Callout>
 
-## Step 1: Start the Easy API
+<Steps>
+<Step title="Start the Easy API">
 
 Run the CLI to start a local WhatsApp API:
 
@@ -25,13 +26,16 @@ Run the CLI to start a local WhatsApp API:
 npx @open-wa/wa-automate --port 8080
 ```
 
+These examples pin port `8080` for consistency. If you omit `--port`, the current v5 CLI uses port `8002`.
+
 You should see terminal output showing:
 
 - The browser launching
 - A QR code appearing in the terminal
 - The local API address (usually `http://localhost:8080`)
 
-## Step 2: Authenticate
+</Step>
+<Step title="Authenticate">
 
 The runtime will display a QR code in your terminal. Open WhatsApp on your phone:
 
@@ -44,7 +48,8 @@ Alternatively, if you know the host account number, use **[Link-code login](/doc
 
 Once authenticated, the terminal will show the session is connected and the API is ready.
 
-## Step 3: Verify the API is running
+</Step>
+<Step title="Verify the API is running">
 
 Open your browser to:
 
@@ -59,9 +64,11 @@ Other useful endpoints:
 - `http://localhost:8080/meta/swagger.json`, OpenAPI schema
 - `http://localhost:8080/meta/postman.json`, Postman collection
 
-## Step 4: Send your first message
+</Step>
+<Step title="Send your first message">
 
-### Using the API docs UI
+<Tabs items={['API docs UI', 'curl']}>
+<Tab value="API docs UI">
 
 1. Open `http://localhost:8080/api-docs/`
 2. Find the `sendText` method
@@ -69,7 +76,8 @@ Other useful endpoints:
 4. Enter a message body
 5. Execute the request
 
-### Using curl
+</Tab>
+<Tab value="curl">
 
 ```bash
 curl -X POST http://localhost:8080/api/sendText \
@@ -77,7 +85,7 @@ curl -X POST http://localhost:8080/api/sendText \
   -d '{"to": "1234567890@c.us", "text": "Hello from open-wa!"}'
 ```
 
-If you started the API with `--api-key`, include it in the header:
+If you started the API with `--api-key "your-secure-key"`, include it in the header:
 
 ```bash
 curl -X POST http://localhost:8080/api/sendText \
@@ -112,6 +120,12 @@ Content-Type: application/json
 ```
 
 If the API is protected and the key is missing or wrong, expect an authentication error instead of a message send. Add the same `X-API-Key` value that you used when starting the runtime, then retry the request. Once the send succeeds, keep the API key on every client request and move to the guide that matches your next use case below.
+
+</Tab>
+</Tabs>
+
+</Step>
+</Steps>
 
 ## Where next?
 

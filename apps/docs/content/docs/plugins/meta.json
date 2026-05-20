@@ -1,19 +1,25 @@
 {
   "title": "Plugins",
+  "icon": "Puzzle",
   "defaultOpen": true,
   "pages": [
+    "---Start here---",
     "getting-started",
-    "hooks-reference",
-    "plugin-client",
-    "plugin-input",
     "security-model",
-    "publishing",
     "reference-plugin-walkthrough",
+    "---Examples---",
     "example-dictation",
     "example-moderation",
-    "external-api-patterns",
+    "---Reference---",
+    "plugin-input",
+    "hooks-reference",
+    "plugin-client",
+    "---Advanced surfaces---",
     "dashboard-pages",
+    "hono-routes",
     "ai-tools",
-    "hono-routes"
+    "external-api-patterns",
+    "---Publishing---",
+    "publishing"
   ]
 }

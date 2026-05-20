@@ -12,9 +12,13 @@ You can run multiple sessions in the same process, but each session needs a uniq
 ```ts
 import { create } from '@open-wa/wa-automate';
 
-const registry: Record<string, any> = {};
+type ManagedSession = {
+  getSessionId(): string;
+};
 
-async function start(client: any) {
+const registry: Record<string, ManagedSession> = {};
+
+async function start(client: ManagedSession) {
   registry[client.getSessionId()] = client;
 }
 
@@ -186,21 +190,21 @@ As a simple rule, use process isolation before you use one huge multi-session pr
 
 In this model, each WhatsApp account is a separate operating system process. This is usually the most predictable production setup.
 
-Start each session with its own name and port:
+Start each session with its own name, port, and API key:
 
 ```bash
 npx @open-wa/wa-automate \
   --session-id sales \
   --port 8081 \
-  --api-key "sales-api-key" \
-  --webhook "https://your-app.example/webhooks/open-wa/sales"
+  --api-key "sales-api-key"
 
 npx @open-wa/wa-automate \
   --session-id support \
   --port 8082 \
-  --api-key "support-api-key" \
-  --webhook "https://your-app.example/webhooks/open-wa/support"
+  --api-key "support-api-key"
 ```
+
+For webhook delivery in the current v5 alpha, configure `@open-wa/integration-webhook` per session in that session's `wa.config.*` file. The CLI still parses `--webhook`, but current source warns that CLI webhook registration parity is not restored, so do not rely on that flag for delivery.
 
 Run them under a supervisor such as PM2, systemd, Docker, Kubernetes, or your platform's process manager. The important part is that each session can be restarted without restarting the others.
 
@@ -229,14 +233,20 @@ Then proxy the call to the matching Easy API process:
 ```ts
 type SessionName = 'sales' | 'support';
 
+function requiredEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`Missing required environment variable: ${name}`);
+  return value;
+}
+
 const routes: Record<SessionName, { baseUrl: string; apiKey: string }> = {
   sales: {
     baseUrl: 'http://localhost:8081',
-    apiKey: process.env.OPEN_WA_SALES_KEY!,
+    apiKey: requiredEnv('OPEN_WA_SALES_KEY'),
   },
   support: {
     baseUrl: 'http://localhost:8082',
-    apiKey: process.env.OPEN_WA_SUPPORT_KEY!,
+    apiKey: requiredEnv('OPEN_WA_SUPPORT_KEY'),
   },
 };
 

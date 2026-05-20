@@ -223,7 +223,8 @@ Avoid logging session tokens, API keys, full message bodies, or personal data un
 
 ## Recovery playbooks
 
-### Session will not authenticate
+<Accordions type="single">
+<Accordion title="Session will not authenticate" id="session-will-not-authenticate">
 
 1. Start the runtime with visible logging.
 2. Confirm a QR code or link code is actually emitted.
@@ -231,7 +232,8 @@ Avoid logging session tokens, API keys, full message bodies, or personal data un
 4. If the saved session is reused and still fails, log out the linked device from the phone.
 5. Delete only that session's files and authenticate again.
 
-### Browser will not launch
+</Accordion>
+<Accordion title="Browser will not launch" id="browser-will-not-launch">
 
 1. Remove custom browser config and try the default driver behavior.
 2. Check `executablePath` if you require a specific Chrome install.
@@ -239,27 +241,33 @@ Avoid logging session tokens, API keys, full message bodies, or personal data un
 4. Install missing Linux browser dependencies in containers.
 5. Restart under your supervisor only after the browser can launch manually.
 
-### Easy API returns `401`
+</Accordion>
+<Accordion title="Easy API returns 401" id="easy-api-returns-401">
 
 1. Confirm the Easy API was started with the expected `--api-key`.
 2. Send the same key in the `X-API-Key` header.
 3. If using SocketClient, pass the key as the second argument to `SocketClient.connect()`.
 4. Rotate the key if it was copied into logs, browser code, or shared chat.
 
-### Easy API returns `429`
+</Accordion>
+<Accordion title="Easy API returns 429" id="easy-api-returns-429">
 
 1. Stop immediate retries.
 2. Queue new work for the affected session.
 3. Resume with lower concurrency and jitter between jobs.
 4. Watch for WhatsApp-level warnings before returning to normal send volume.
 
-### Account looks restricted
+</Accordion>
+<Accordion title="Account looks restricted" id="account-looks-restricted">
 
 1. Stop sends from automation.
 2. Open WhatsApp on the phone and resolve any prompts.
 3. Review recent recipients, send rate, and repeated message patterns.
 4. Let the account cool down before reconnecting automation.
 5. Resume with safer pacing and monitor failures closely.
+
+</Accordion>
+</Accordions>
 
 ## Error type distinction
 

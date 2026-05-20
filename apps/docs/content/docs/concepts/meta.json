@@ -1,9 +1,10 @@
 {
   "title": "Concepts",
+  "icon": "BookOpen",
   "pages": [
     "how-it-works",
-    "packages",
     "data-models",
+    "packages",
     "glossary"
   ]
 }

@@ -1,6 +1,10 @@
 {
-  "title": "Security & Deployment",
+  "title": "Operations",
+  "icon": "ShieldCheck",
   "pages": [
-    "security-and-deployment"
+    "security-and-deployment",
+    "[Best practices](/docs/operations-and-troubleshooting/best-practices)",
+    "[Error handling](/docs/operations-and-troubleshooting/error-handling)",
+    "[Detect logouts](/docs/operations-and-troubleshooting/detect-logouts)"
   ]
 }

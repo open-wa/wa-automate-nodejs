@@ -1,11 +1,13 @@
 {
   "title": "Getting Started",
+  "icon": "Rocket",
   "defaultOpen": true,
   "pages": [
     "quickstart",
+    "link-code",
     "easy-api",
-    "docker",
     "custom-code",
-    "link-code"
+    "docker",
+    "v5-alpha"
   ]
 }

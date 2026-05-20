@@ -7,6 +7,10 @@ description: Secure your API, manage keys, and deploy to production safely.
 
 Running open-wa in production requires attention to API key management, network security, and session protection.
 
+## Runtime prerequisites
+
+For monorepo development and source builds, the repo declares **Node.js >= 22.21.1** and **pnpm >= 10.25.0**, with `packageManager` pinned to **pnpm@10.26.1**. Match those versions before debugging runtime or build issues.
+
 ## API Key Management
 
 ### Why API Keys Are Required
@@ -63,7 +67,7 @@ If your API key is exposed:
 
 **Never expose the Easy API port directly to the internet without authentication.** At minimum:
 
-- Always use `--api-key`
+- Always use `--api-key "your-secure-key"`
 - Use a reverse proxy (nginx, Caddy) with HTTPS
 - Restrict access to known IP addresses when possible
 
@@ -137,16 +141,16 @@ Your webhook receiver should handle the volume of incoming events. The webhook p
 
 ### API Key Enforcement
 
-MCP requires an API key. It will not start without one. Every MCP request must include the same API key as the Easy API.
+MCP requires an Easy API API key. It will not start without one. Every MCP request must include the same key as the Easy API through an accepted API-key header: `X-API-Key`, `api_key`, or `key`.
 
 ### Endpoint Exposure Risks
 
-If your MCP endpoint is exposed publicly without authentication, AI agents could:
+If the MCP endpoint is exposed publicly, the API key is leaked, or untrusted agents are allowed to use the key, those agents could:
 - Read all messages in all chats
 - Send messages to any contact
 - Access session information
 
-Always protect the MCP endpoint with the API key and, ideally, a reverse proxy.
+Always protect the MCP endpoint with the API key, keep the key secret, and, ideally, place the endpoint behind a reverse proxy.
 
 ### Restricting AI Agent Operations
 

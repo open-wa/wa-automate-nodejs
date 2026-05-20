@@ -1,8 +1,9 @@
 {
-  "title": "Operations & Troubleshooting",
+  "title": "Troubleshooting",
+  "icon": "CircleAlert",
   "pages": [
+    "best-practices",
     "error-handling",
-    "detect-logouts",
-    "best-practices"
+    "detect-logouts"
   ]
 }

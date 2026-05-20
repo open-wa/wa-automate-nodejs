@@ -1,0 +1,26 @@
+# docs
+
+Fumadocs and TanStack Start documentation site for the open-wa v5 monorepo.
+
+Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
+
+## Development
+
+- `pnpm --filter docs dev`
+- `pnpm --filter docs build`
+- `pnpm --filter docs start`
+- `pnpm --filter docs types`
+- `pnpm --filter docs check`
+- `pnpm --filter docs lint`
+- `pnpm --filter docs workspace-docs`
+- `pnpm --filter docs format`
+- `pnpm --filter docs copy`
+- `pnpm --filter docs openapi`
+
+## Documentation
+
+See the [docs site](https://docs.openwa.dev).
+
+## License
+
+[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/main/LICENSE.md) - Hippocratic + Do Not Harm

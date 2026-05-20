@@ -26,6 +26,12 @@ User requested: create a Prometheus plan out of **everything from GitHub issue #
 - Latest issue comment, “Full top-to-bottom docs audit after current rewrite,” is authoritative for current actionable gaps.
 - Older issue rounds stay in scope as persona regression checks, not as stale missing-page claims.
 
+
+### Workspace Reference Reconciliation
+- GitHub issue `#3337` is not resolvable from this checkout via `gh issue view 3337`, so this local plan plus source verification are the executable source of truth.
+- Historical `/home/mhm/.../tool-output/...` citations from the original planning session are not available in this workspace and have been normalized to local plan/checklist references.
+- Repo README references are relative to this workspace's `README.md`.
+
 ### Metis Review (gaps addressed)
 - Webhook docs must standardize one envelope or explicitly document legacy/current variants.
 - Docker/env docs must verify authoritative env names before prose changes.
@@ -138,7 +144,7 @@ Wave 4: Final verification wave F1-F4.
 > Implementation + Test = ONE task. Never separate.
 > EVERY task MUST have: Agent Profile + Parallelization + QA Scenarios.
 
-- [ ] 1. Make `quickstart.mdx` the actual first-success path
+- [x] 1. Make `quickstart.mdx` the actual first-success path
 
   **What to do**:
   - Add `quickstart` to `apps/docs/content/docs/getting-started/meta.json`, before `easy-api`.
@@ -161,7 +167,7 @@ Wave 4: Final verification wave F1-F4.
   **Parallelization**: Can Parallel: YES | Wave 1 | Blocks: [10, 11] | Blocked By: []
 
   **References**:
-  - Issue: `/home/mhm/.local/share/opencode/tool-output/tool_e40b5dbe2001gIsoH4VS2Ub2Vx:917-935` - audit evidence and TODOs.
+  - Issue: `local plan context and apps/docs/DOCS-QUALITY-CHECKLIST.md` - audit evidence and TODOs.
   - Pattern: `apps/docs/content/docs/getting-started/quickstart.mdx` - existing first-success guide.
   - Pattern: `apps/docs/content/docs/getting-started/meta.json` - sidebar ordering.
   - Pattern: `apps/docs/src/components/homepage.tsx` - homepage CTA/card links.
@@ -169,12 +175,12 @@ Wave 4: Final verification wave F1-F4.
   - Pattern: `apps/docs/content/docs/index.mdx` - docs root start-here links.
 
   **Acceptance Criteria**:
-  - [ ] `quickstart` appears before `easy-api` in `apps/docs/content/docs/getting-started/meta.json`.
-  - [ ] Homepage primary first-success CTA points to quickstart.
-  - [ ] Docs root first-success link points to quickstart.
-  - [ ] Quickstart includes expected `curl` response status/body or clearly labeled illustrative output.
-  - [ ] `easy-api.mdx` remains available as deeper operations content.
-  - [ ] Evidence file records before/after link targets.
+  - [x] `quickstart` appears before `easy-api` in `apps/docs/content/docs/getting-started/meta.json`.
+  - [x] Homepage primary first-success CTA points to quickstart.
+  - [x] Docs root first-success link points to quickstart.
+  - [x] Quickstart includes expected `curl` response status/body or clearly labeled illustrative output.
+  - [x] `easy-api.mdx` remains available as deeper operations content.
+  - [x] Evidence file records before/after link targets.
 
   **QA Scenarios**:
   ```
@@ -193,7 +199,7 @@ Wave 4: Final verification wave F1-F4.
 
   **Commit**: YES | Message: `docs(getting-started): route first-success users to quickstart` | Files: [`apps/docs/content/docs/getting-started/meta.json`, `apps/docs/src/lib/site.ts`, `apps/docs/src/components/homepage.tsx`, `apps/docs/content/docs/index.mdx`, `apps/docs/content/docs/getting-started/quickstart.mdx`]
 
-- [ ] 2. Verify and unify webhook payload contracts
+- [x] 2. Verify and unify webhook payload contracts
 
   **What to do**:
   - First, read runtime/source docs/types for webhook integration to determine the actual emitted envelope and event naming.
@@ -217,17 +223,17 @@ Wave 4: Final verification wave F1-F4.
   **Parallelization**: Can Parallel: YES | Wave 1 | Blocks: [10, 11] | Blocked By: []
 
   **References**:
-  - Issue: `/home/mhm/.local/share/opencode/tool-output/tool_e40b5dbe2001gIsoH4VS2Ub2Vx:936-970` - conflicting envelope evidence.
+  - Issue: `local plan context and apps/docs/DOCS-QUALITY-CHECKLIST.md` - conflicting envelope evidence.
   - Docs: `apps/docs/content/docs/guides/webhooks-for-business.mdx` - currently reported as using `{ event, data }`.
   - Docs: `apps/docs/content/docs/client-and-integrations/webhook-payloads.mdx` - currently reported as using `{ webhookId, sessionId, event, payload, timestamp }`.
   - Likely source references to locate: webhook integration package/types, config schema, generated reference.
 
   **Acceptance Criteria**:
-  - [ ] Source verification evidence names the authoritative envelope fields and event names.
-  - [ ] Webhook business guide and payload reference use the same canonical shape or clearly labeled legacy/current variants.
-  - [ ] Receiver examples parse sender, text/caption, and message id from documented fields.
-  - [ ] A raw-body logging receiver example exists before transformed examples.
-  - [ ] Evidence includes a grep/file-inspection pass proving no stale `data`/`payload` contradiction remains in changed webhook docs.
+  - [x] Source verification evidence names the authoritative envelope fields and event names.
+  - [x] Webhook business guide and payload reference use the same canonical shape or clearly labeled legacy/current variants.
+  - [x] Receiver examples parse sender, text/caption, and message id from documented fields.
+  - [x] A raw-body logging receiver example exists before transformed examples.
+  - [x] Evidence includes a grep/file-inspection pass proving no stale `data`/`payload` contradiction remains in changed webhook docs.
 
   **QA Scenarios**:
   ```
@@ -246,7 +252,7 @@ Wave 4: Final verification wave F1-F4.
 
   **Commit**: YES | Message: `docs(webhooks): standardize payload envelope examples` | Files: [`apps/docs/content/docs/guides/webhooks-for-business.mdx`, `apps/docs/content/docs/client-and-integrations/webhook-payloads.mdx`]
 
-- [ ] 3. Verify and resolve Docker/env-var/session persistence drift
+- [x] 3. Verify and resolve Docker/env-var/session persistence drift
 
   **What to do**:
   - First, verify which env var names the runtime/container entrypoint actually consumes.
@@ -268,18 +274,18 @@ Wave 4: Final verification wave F1-F4.
   **Parallelization**: Can Parallel: YES | Wave 1 | Blocks: [10, 11] | Blocked By: []
 
   **References**:
-  - Issue: `/home/mhm/.local/share/opencode/tool-output/tool_e40b5dbe2001gIsoH4VS2Ub2Vx:971-989` - env-var and persistence drift evidence.
+  - Issue: `local plan context and apps/docs/DOCS-QUALITY-CHECKLIST.md` - env-var and persistence drift evidence.
   - Docs: `apps/docs/content/docs/getting-started/docker.mdx` - Docker examples.
   - Docs: `apps/docs/content/docs/guides/configuration-and-cli.mdx` - runtime env var reference.
   - Docs: `apps/docs/content/docs/operations/security-and-deployment.mdx` - deployment/API key examples.
   - Docs: `apps/docs/content/docs/getting-started/easy-api.mdx` - default browser profile notes.
 
   **Acceptance Criteria**:
-  - [ ] Source evidence identifies actual env vars and session persistence path behavior.
-  - [ ] Docker, config, and deployment docs use consistent names or documented alias matrix.
-  - [ ] Docker volume example includes exact flag/config needed for persistence.
-  - [ ] Restart/no-QR proof is included as executable verification or clearly labeled local checklist.
-  - [ ] No stale contradictory env-var names remain in changed docs without explanation.
+  - [x] Source evidence identifies actual env vars and session persistence path behavior.
+  - [x] Docker, config, and deployment docs use consistent names or documented alias matrix.
+  - [x] Docker volume example includes exact flag/config needed for persistence.
+  - [x] Restart/no-QR proof is included as executable verification or clearly labeled local checklist.
+  - [x] No stale contradictory env-var names remain in changed docs without explanation.
 
   **QA Scenarios**:
   ```
@@ -298,7 +304,7 @@ Wave 4: Final verification wave F1-F4.
 
   **Commit**: YES | Message: `docs(docker): align env vars and persistence guidance` | Files: [`apps/docs/content/docs/getting-started/docker.mdx`, `apps/docs/content/docs/guides/configuration-and-cli.mdx`, `apps/docs/content/docs/operations/security-and-deployment.mdx`, `apps/docs/content/docs/getting-started/easy-api.mdx`]
 
-- [ ] 4. Make MCP quick start match v5 alpha reality
+- [x] 4. Make MCP quick start match v5 alpha reality
 
   **What to do**:
   - Verify current MCP flag/config behavior in source/docs before editing prose.
@@ -321,17 +327,17 @@ Wave 4: Final verification wave F1-F4.
   **Parallelization**: Can Parallel: YES | Wave 1 | Blocks: [10, 11] | Blocked By: []
 
   **References**:
-  - Issue: `/home/mhm/.local/share/opencode/tool-output/tool_e40b5dbe2001gIsoH4VS2Ub2Vx:990-1007` - MCP mismatch evidence and TODOs.
+  - Issue: `local plan context and apps/docs/DOCS-QUALITY-CHECKLIST.md` - MCP mismatch evidence and TODOs.
   - Docs: `apps/docs/content/docs/guides/mcp.mdx` - MCP guide.
   - Docs: `apps/docs/content/docs/guides/configuration-and-cli.mdx` - alpha caveat and config fallback.
-  - README: `/home/mhm/projects/open-wa/wa-automate-nodejs/README.md` - MCP overview and security boundary.
+  - README: `README.md` - MCP overview and security boundary.
 
   **Acceptance Criteria**:
-  - [ ] MCP page shows CLI and config fallback paths near the quick start.
-  - [ ] Security checklist appears before broad capability claims.
-  - [ ] Expected enabled state and tool-list verification are documented.
-  - [ ] Troubleshooting covers five listed failure modes.
-  - [ ] Source-verification evidence records whether `--mcp` is supported and where config fallback comes from.
+  - [x] MCP page shows CLI and config fallback paths near the quick start.
+  - [x] Security checklist appears before broad capability claims.
+  - [x] Expected enabled state and tool-list verification are documented.
+  - [x] Troubleshooting covers five listed failure modes.
+  - [x] Source-verification evidence records whether `--mcp` is supported and where config fallback comes from.
 
   **QA Scenarios**:
   ```
@@ -350,7 +356,7 @@ Wave 4: Final verification wave F1-F4.
 
   **Commit**: YES | Message: `docs(mcp): add config fallback and verification steps` | Files: [`apps/docs/content/docs/guides/mcp.mdx`, `apps/docs/content/docs/guides/configuration-and-cli.mdx`]
 
-- [ ] 5. Make AI-agent examples runnable or explicitly pseudocode
+- [x] 5. Make AI-agent examples runnable or explicitly pseudocode
 
   **What to do**:
   - Review `apps/docs/content/docs/guides/ai-agent-patterns.mdx` for claims of “production-ready examples.”
@@ -373,16 +379,16 @@ Wave 4: Final verification wave F1-F4.
   **Parallelization**: Can Parallel: YES | Wave 2 | Blocks: [10, 11] | Blocked By: []
 
   **References**:
-  - Issue: `/home/mhm/.local/share/opencode/tool-output/tool_e40b5dbe2001gIsoH4VS2Ub2Vx:1012-1030` - AI example evidence and TODOs.
+  - Issue: `local plan context and apps/docs/DOCS-QUALITY-CHECKLIST.md` - AI example evidence and TODOs.
   - Docs: `apps/docs/content/docs/guides/ai-agent-patterns.mdx` - target page.
   - Related docs/reference: message send guide/reference for `sendImage` signature.
 
   **Acceptance Criteria**:
-  - [ ] No example labeled runnable uses undefined helpers without stubs or placeholder labels.
-  - [ ] Install/setup instructions exist for any external libraries named in runnable snippets.
-  - [ ] `sendImage` example matches verified signature.
-  - [ ] The page no longer overclaims “production-ready” unless snippets are complete.
-  - [ ] Expected behavior/log/rate-limit notes exist.
+  - [x] No example labeled runnable uses undefined helpers without stubs or placeholder labels.
+  - [x] Install/setup instructions exist for any external libraries named in runnable snippets.
+  - [x] `sendImage` example matches verified signature.
+  - [x] The page no longer overclaims “production-ready” unless snippets are complete.
+  - [x] Expected behavior/log/rate-limit notes exist.
 
   **QA Scenarios**:
   ```
@@ -401,7 +407,7 @@ Wave 4: Final verification wave F1-F4.
 
   **Commit**: YES | Message: `docs(ai): clarify runnable examples and placeholders` | Files: [`apps/docs/content/docs/guides/ai-agent-patterns.mdx`]
 
-- [ ] 6. Verify and fix plugin AI tool context docs
+- [x] 6. Verify and fix plugin AI tool context docs
 
   **What to do**:
   - Verify actual `ToolContext` type in plugin SDK source.
@@ -423,16 +429,16 @@ Wave 4: Final verification wave F1-F4.
   **Parallelization**: Can Parallel: YES | Wave 2 | Blocks: [10, 11] | Blocked By: []
 
   **References**:
-  - Issue: `/home/mhm/.local/share/opencode/tool-output/tool_e40b5dbe2001gIsoH4VS2Ub2Vx:1031-1046` - ToolContext inconsistency evidence.
+  - Issue: `local plan context and apps/docs/DOCS-QUALITY-CHECKLIST.md` - ToolContext inconsistency evidence.
   - Docs: `apps/docs/content/docs/plugins/ai-tools.mdx` - AI tool docs.
   - Docs: `apps/docs/content/docs/plugins/hooks-reference.mdx` - hook/tool context docs.
   - Local source: plugin SDK ToolContext type.
 
   **Acceptance Criteria**:
-  - [ ] Evidence identifies actual `ToolContext` fields and optionality.
-  - [ ] AI tools and hooks reference agree on context fields.
-  - [ ] Docs distinguish guaranteed versus optional fields.
-  - [ ] Any generated-reference mismatch is documented as follow-up, not hand-waved.
+  - [x] Evidence identifies actual `ToolContext` fields and optionality.
+  - [x] AI tools and hooks reference agree on context fields.
+  - [x] Docs distinguish guaranteed versus optional fields.
+  - [x] Any generated-reference mismatch is documented as follow-up, not hand-waved.
 
   **QA Scenarios**:
   ```
@@ -451,7 +457,7 @@ Wave 4: Final verification wave F1-F4.
 
   **Commit**: YES | Message: `docs(plugins): align AI tool context fields` | Files: [`apps/docs/content/docs/plugins/ai-tools.mdx`, `apps/docs/content/docs/plugins/hooks-reference.mdx`]
 
-- [ ] 7. Strengthen plugin getting-started file layout and load verification
+- [x] 7. Strengthen plugin getting-started file layout and load verification
 
   **What to do**:
   - Verify local plugin loading behavior: relative paths, cwd/config location, TypeScript versus compiled JavaScript support, and `--config` needs.
@@ -474,17 +480,17 @@ Wave 4: Final verification wave F1-F4.
   **Parallelization**: Can Parallel: YES | Wave 2 | Blocks: [10, 11] | Blocked By: []
 
   **References**:
-  - Issue: `/home/mhm/.local/share/opencode/tool-output/tool_e40b5dbe2001gIsoH4VS2Ub2Vx:1047-1063` - plugin file layout/load evidence.
+  - Issue: `local plan context and apps/docs/DOCS-QUALITY-CHECKLIST.md` - plugin file layout/load evidence.
   - Docs: `apps/docs/content/docs/plugins/getting-started.mdx` - target page.
   - Related docs: plugin input/client/hooks/security pages for cross-links.
   - Local source: plugin loading/config resolution implementation.
 
   **Acceptance Criteria**:
-  - [ ] File tree exists and paths are relative to `wa.config.*` or explicitly stated cwd.
-  - [ ] Command includes required `--config`/cwd details if applicable.
-  - [ ] TypeScript vs JavaScript plugin loading support is source-backed.
-  - [ ] Expected startup log and missing-plugin troubleshooting exist.
-  - [ ] Evidence records source findings.
+  - [x] File tree exists and paths are relative to `wa.config.*` or explicitly stated cwd.
+  - [x] Command includes required `--config`/cwd details if applicable.
+  - [x] TypeScript vs JavaScript plugin loading support is source-backed.
+  - [x] Expected startup log and missing-plugin troubleshooting exist.
+  - [x] Evidence records source findings.
 
   **QA Scenarios**:
   ```
@@ -503,7 +509,7 @@ Wave 4: Final verification wave F1-F4.
 
   **Commit**: YES | Message: `docs(plugins): add local plugin load verification` | Files: [`apps/docs/content/docs/plugins/getting-started.mdx`]
 
-- [ ] 8. Rewrite pricing around buyer decisions
+- [x] 8. Rewrite pricing around buyer decisions
 
   **What to do**:
   - Locate authoritative commercial/licensing source in repo/docs/official links; record evidence in `.sisyphus/evidence/task-8-pricing-source.md`.
@@ -526,16 +532,16 @@ Wave 4: Final verification wave F1-F4.
   **Parallelization**: Can Parallel: YES | Wave 2 | Blocks: [11] | Blocked By: []
 
   **References**:
-  - Issue: `/home/mhm/.local/share/opencode/tool-output/tool_e40b5dbe2001gIsoH4VS2Ub2Vx:1064-1082` - pricing evidence and TODOs.
+  - Issue: `local plan context and apps/docs/DOCS-QUALITY-CHECKLIST.md` - pricing evidence and TODOs.
   - Docs: `apps/docs/content/docs/licensing/pricing.mdx` - target page.
-  - README support/licensing links: `/home/mhm/projects/open-wa/wa-automate-nodejs/README.md` - support and license key links.
+  - README support/licensing links: `README.md` - support and license key links.
 
   **Acceptance Criteria**:
-  - [ ] Pricing page opens with buyer decision language.
-  - [ ] Any no-price explanation is plain and directs to purchase/support flow.
-  - [ ] Integration buyer FAQ covers webhooks, Chatwoot, Node-RED, MCP, and plugin SDK.
-  - [ ] Team/org path is explicit or marked as current support path.
-  - [ ] All commercial claims cite/link authoritative source or are omitted.
+  - [x] Pricing page opens with buyer decision language.
+  - [x] Any no-price explanation is plain and directs to purchase/support flow.
+  - [x] Integration buyer FAQ covers webhooks, Chatwoot, Node-RED, MCP, and plugin SDK.
+  - [x] Team/org path is explicit or marked as current support path.
+  - [x] All commercial claims cite/link authoritative source or are omitted.
 
   **QA Scenarios**:
   ```
@@ -554,7 +560,7 @@ Wave 4: Final verification wave F1-F4.
 
   **Commit**: YES | Message: `docs(licensing): clarify pricing buyer decisions` | Files: [`apps/docs/content/docs/licensing/pricing.mdx`]
 
-- [ ] 9. Demote architecture and meta commentary after task success
+- [x] 9. Demote architecture and meta commentary after task success
 
   **What to do**:
   - Update `apps/docs/src/components/homepage.tsx` labels such as `Control loop`, `Generated reference`, `Operations baseline`, and `open-wa docs command center` to user-job language.
@@ -575,18 +581,18 @@ Wave 4: Final verification wave F1-F4.
   **Parallelization**: Can Parallel: YES | Wave 2 | Blocks: [11] | Blocked By: []
 
   **References**:
-  - Issue: `/home/mhm/.local/share/opencode/tool-output/tool_e40b5dbe2001gIsoH4VS2Ub2Vx:1104-1119` - architecture/meta commentary evidence and TODOs.
-  - Copy rules: `/home/mhm/.local/share/opencode/tool-output/tool_e40b5dbe2001gIsoH4VS2Ub2Vx:842-849` - start with jobs, avoid internal nouns, safety before capability.
+  - Issue: `local plan context and apps/docs/DOCS-QUALITY-CHECKLIST.md` - architecture/meta commentary evidence and TODOs.
+  - Copy rules: `local plan context and apps/docs/DOCS-QUALITY-CHECKLIST.md` - start with jobs, avoid internal nouns, safety before capability.
   - Docs: `apps/docs/src/components/homepage.tsx` - homepage labels and cards.
   - Docs: `apps/docs/content/docs/concepts/how-it-works.mdx` - concepts page meta commentary.
   - Search targets: docs pages containing `legacy`, `old`, `why docs`, `control loop`, `command center`, `generated reference`, `operations baseline`, `why we`, `this page exists`, or `rewrite`.
 
   **Acceptance Criteria**:
-  - [ ] Homepage labels use user jobs/outcomes rather than internal architecture nouns.
-  - [ ] Task 1's homepage quickstart link targets remain intact after label/copy demotion.
-  - [ ] `how-it-works.mdx` does not lead with “why docs are split” meta commentary.
-  - [ ] Legacy/history content appears only after the current path or where it prevents a real copy-paste mistake.
-  - [ ] Evidence lists searched terms and every changed page.
+  - [x] Homepage labels use user jobs/outcomes rather than internal architecture nouns.
+  - [x] Task 1's homepage quickstart link targets remain intact after label/copy demotion.
+  - [x] `how-it-works.mdx` does not lead with “why docs are split” meta commentary.
+  - [x] Legacy/history content appears only after the current path or where it prevents a real copy-paste mistake.
+  - [x] Evidence lists searched terms and every changed page.
 
   **QA Scenarios**:
   ```
@@ -605,7 +611,7 @@ Wave 4: Final verification wave F1-F4.
 
   **Commit**: YES | Message: `docs: demote architecture-first copy` | Files: [`apps/docs/src/components/homepage.tsx`, `apps/docs/content/docs/concepts/how-it-works.mdx`]
 
-- [ ] 10. Add explicit response expectations to first-run and high-risk flows
+- [x] 10. Add explicit response expectations to first-run and high-risk flows
 
   **What to do**:
   - After Tasks 1-7, run a targeted expected-output pass over quickstart, MCP, plugin, webhook, and Docker docs.
@@ -629,7 +635,7 @@ Wave 4: Final verification wave F1-F4.
   **Parallelization**: Can Parallel: NO | Wave 3 | Blocks: [11, Final] | Blocked By: [1,2,3,4,5,6,7]
 
   **References**:
-  - Issue: `/home/mhm/.local/share/opencode/tool-output/tool_e40b5dbe2001gIsoH4VS2Ub2Vx:1083-1101` - expected output gaps.
+  - Issue: `local plan context and apps/docs/DOCS-QUALITY-CHECKLIST.md` - expected output gaps.
   - Docs: `apps/docs/content/docs/getting-started/quickstart.mdx` - first-run output.
   - Docs: `apps/docs/content/docs/guides/mcp.mdx` - MCP output.
   - Docs: `apps/docs/content/docs/plugins/getting-started.mdx` - plugin output.
@@ -637,9 +643,9 @@ Wave 4: Final verification wave F1-F4.
   - Docs: `apps/docs/content/docs/getting-started/docker.mdx` - Docker persistence output.
 
   **Acceptance Criteria**:
-  - [ ] Each named flow includes prerequisites, command/code, expected output, failure mode, and next step.
-  - [ ] Captured versus illustrative outputs are clearly distinguished.
-  - [ ] Evidence includes a table of changed pages and whether each five-part flow requirement is satisfied.
+  - [x] Each named flow includes prerequisites, command/code, expected output, failure mode, and next step.
+  - [x] Captured versus illustrative outputs are clearly distinguished.
+  - [x] Evidence includes a table of changed pages and whether each five-part flow requirement is satisfied.
 
   **QA Scenarios**:
   ```
@@ -658,7 +664,7 @@ Wave 4: Final verification wave F1-F4.
 
   **Commit**: YES | Message: `docs: add expected outputs to high-risk flows` | Files: [`apps/docs/content/docs/getting-started/quickstart.mdx`, `apps/docs/content/docs/guides/mcp.mdx`, `apps/docs/content/docs/plugins/getting-started.mdx`, `apps/docs/content/docs/guides/webhooks-for-business.mdx`, `apps/docs/content/docs/client-and-integrations/webhook-payloads.mdx`, `apps/docs/content/docs/getting-started/docker.mdx`]
 
-- [ ] 11. Add docs quality gate and persona regression checklist
+- [x] 11. Add docs quality gate and persona regression checklist
 
   **What to do**:
   - Add a reusable docs quality checklist at exactly `apps/docs/DOCS-QUALITY-CHECKLIST.md`.
@@ -690,18 +696,18 @@ Wave 4: Final verification wave F1-F4.
   **Parallelization**: Can Parallel: NO | Wave 3 | Blocks: [Final] | Blocked By: [1,2,3,4,5,6,7,8,9,10]
 
   **References**:
-  - Issue: `/home/mhm/.local/share/opencode/tool-output/tool_e40b5dbe2001gIsoH4VS2Ub2Vx:1104-1173` - quality gate, fixed-vs-current gaps, acceptance criteria.
-  - Issue older persona rounds: `/home/mhm/.local/share/opencode/tool-output/tool_e40b5dbe2001gIsoH4VS2Ub2Vx:6-849` - persona regression source.
-  - Draft: `.sisyphus/drafts/docs-audit-issue-3337.md` - scope and stale/current decisions.
+  - Issue: `local plan context and apps/docs/DOCS-QUALITY-CHECKLIST.md` - quality gate, fixed-vs-current gaps, acceptance criteria.
+  - Issue older persona rounds: `local plan context and apps/docs/DOCS-QUALITY-CHECKLIST.md` - persona regression source.
+  - Draft: `apps/docs/DOCS-QUALITY-CHECKLIST.md` - scope and stale/current decisions.
   - Scripts: `apps/docs/package.json` - `check`, `build`, `lint`.
 
   **Acceptance Criteria**:
-  - [ ] `apps/docs/DOCS-QUALITY-CHECKLIST.md` exists and includes all five issue #3337 gate rules.
-  - [ ] Persona regression checklist exists in the quality gate or evidence and covers all six persona/copy groups.
-  - [ ] `pnpm --filter docs check` result is recorded.
-  - [ ] `pnpm --filter docs build` result is recorded.
-  - [ ] `pnpm --filter docs lint` result is recorded; lint failure is acceptable only if it exactly matches the documented pre-existing `apps/docs/source.config` import signature.
-  - [ ] Evidence states that `TODO.md`, runtime source, dependencies, route loaders, and Vite/Fumadocs architecture were not changed.
+  - [x] `apps/docs/DOCS-QUALITY-CHECKLIST.md` exists and includes all five issue #3337 gate rules.
+  - [x] Persona regression checklist exists in the quality gate or evidence and covers all six persona/copy groups.
+  - [x] `pnpm --filter docs check` result is recorded.
+  - [x] `pnpm --filter docs build` result is recorded.
+  - [x] `pnpm --filter docs lint` result is recorded; lint failure is acceptable only if it exactly matches the documented pre-existing `apps/docs/source.config` import signature.
+  - [x] Evidence states that `TODO.md`, runtime source, dependencies, route loaders, and Vite/Fumadocs architecture were not changed.
 
   **QA Scenarios**:
   ```

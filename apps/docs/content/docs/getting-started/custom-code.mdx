@@ -9,13 +9,14 @@ Use this path when your Node.js app needs to own the open-wa runtime instead of 
 
 ## Install the package and a driver
 
-```bash
-npm install @open-wa/wa-automate @open-wa/driver-puppeteer
-```
+<PackageManagerTabs command="@open-wa/wa-automate @open-wa/driver-puppeteer" />
 
 If your environment has stricter native-install permissions, only fall back to `--unsafe-perm` when you have confirmed you actually need it.
 
-## Start with `createClient`
+## Runtime entrypoint
+
+<Tabs items={['v5 createClient', 'Legacy create']}>
+<Tab value="v5 createClient">
 
 The v5 public contract centers on `createClient` from `@open-wa/core`, exposed through `@open-wa/wa-automate`. Start new v5 custom code with `createClient` because it matches the current runtime and driver architecture.
 
@@ -42,11 +43,10 @@ start().catch(console.error);
 
 On first run, authenticate the session by scanning the QR code or using another supported login flow. When the session is ready, send `Hi` to the connected account and expect the reply above.
 
-## When you see `create()`
+</Tab>
+<Tab value="Legacy create">
 
 `create()` is the older compatibility entry point. It still appears in some v4-era examples, but it is not the first pattern to copy for new v5 code.
-
-## Older compatibility example
 
 ```ts
 import { create } from '@open-wa/wa-automate';
@@ -66,13 +66,14 @@ async function start() {
 start().catch(console.error);
 ```
 
+</Tab>
+</Tabs>
+
 ## Choose the driver explicitly
 
 For embedded runtime code, install the driver package you want to run with. The examples above use Puppeteer:
 
-```bash
-npm install @open-wa/driver-puppeteer
-```
+<PackageManagerTabs command="@open-wa/driver-puppeteer" />
 
 Then pass the driver when you create the client:
 
@@ -173,7 +174,7 @@ async function start() {
   });
 
   const shutdown = async () => {
-    await client.kill();
+    await client.stop();
     process.exit(0);
   };
 
@@ -186,7 +187,9 @@ start().catch(console.error);
 
 ## v5 caveat
 
-v5 is the forward path, but some examples still show the older `create()` shape for compatibility. Treat `createClient` as the default for new v5 custom code unless a page says otherwise.
+<Callout type="tip" title="Default to createClient">
+  v5 is the forward path, but some examples still show the older `create()` shape for compatibility. Treat `createClient` as the default for new v5 custom code unless a page says otherwise.
+</Callout>
 
 ## Plugin vs custom code
 

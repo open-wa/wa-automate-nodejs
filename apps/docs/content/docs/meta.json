@@ -1,14 +1,14 @@
 {
+  "title": "Docs",
   "pages": [
     "index",
     "getting-started",
+    "concepts",
     "guides",
     "client-and-integrations",
-    "concepts",
     "plugins",
     "reference",
     "operations",
-    "operations-and-troubleshooting",
     "licensing"
   ]
 }

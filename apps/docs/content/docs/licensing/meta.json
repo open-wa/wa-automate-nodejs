@@ -1,7 +1,8 @@
 {
   "title": "Licensing",
+  "icon": "BadgeDollarSign",
   "pages": [
-    "pricing",
-    "licensed-features"
+    "licensed-features",
+    "pricing"
   ]
 }

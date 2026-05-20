@@ -1,51 +1,73 @@
-<div align="center">
-<img src="https://raw.githubusercontent.com/open-wa/node-red-contrib-wa-automate/master/assets/hero.png?token=ABNBLTOYLTDRFNR4R5DBB2TAX5XXS"/>
+# @open-wa/node-red
 
-# @open-wa/node-red-contrib-wa-automate
+Official @open-wa node-red integration.
 
-> Various nodes to assist in setting up automation using [Node-RED](https://nodered.org/) communicating with [the open-wa EASY API](https://docs.openwa.dev/pages/Getting%20Started/quick-run.html).
+Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
 
-</div>
+## What it does
 
-## Getting Started
+`@open-wa/node-red` provides Node-RED nodes for connecting flows to a remote open-wa Easy API session. The package registers three Node-RED node types from `package.json`: `owa-server`, `cmd`, and `listen`.
 
-### Prerequisites
+Use this integration when Node-RED should call open-wa commands or react to open-wa listener events through a configured Easy API server connection.
 
-Have Node-RED installed and working, if you need to install Node-RED see [here](https://nodered.org/docs/getting-started/installation).
+Legacy compatibility note: this integration still uses the `@open-wa/socket-client` surface for backward compatibility, but the active v5 runtime is backed by HTTP RPC + SSE rather than direct Socket.IO. Do not depend on `SocketManager` from `@open-wa/api` when integrating with current releases.
 
-Legacy compatibility note: this integration still uses the `@open-wa/socket-client`
-surface for backward compatibility, but the active v5 runtime is backed by HTTP
-RPC + SSE rather than direct Socket.IO. Do not depend on `SocketManager` from
-`@open-wa/api` when integrating with current releases.
+## Node types
 
-- [Node.js](https://nodejs.org) v14.15.0 or newer
-- [NPM](https://nodejs.org) v7.12.0 or newer
-- [Node-RED](https://nodered.org/) v1.0 or newer
-- [wa-automate](https://openwa.dev/) v4.1.0 or newer
+| Node type | Source-visible behavior |
+| --- | --- |
+| `owa-server` | Configuration node that stores `name`, `url`, and `key`, creates a `SocketClient`, exposes its socket-like connection object, and stores the client in Node-RED global context. It emits and reports connected, disconnected, and connect error status changes. |
+| `cmd` | Executes a selected open-wa command against the configured server. It loads command metadata from `/meta/basic/commands`, accepts `method` and `args` from the incoming message or node config, calls `server.client.ask(method, args)`, and supports a timeout in seconds. |
+| `listen` | Registers an event listener against the configured server. It loads listener names from `/meta/basic/listeners`, calls `client.listen(listener, listenerFn)`, sends received event data as `msg.payload`, and stops the listener on node close. |
 
-## Remote Session Setup
+## Configuration fields
 
-```bash
-# Install open-wa
-> npm i @open-wa/wa-automate@latest
+The visible editor templates and runtime source define these fields.
 
-# Use the CLI to launch an instance of the EASY API
+### `owa-server`
 
-> npx @open-wa/wa-automate -p 8080
+- `name`: Node-RED display name and status payload socket ID.
+- `url`: Base URL for the remote open-wa Easy API server.
+- `key`: Optional API key sent as `X-API-Key` when loading command and listener metadata and passed to `SocketClient`.
 
-# If this is the first time you are running the EASY API, you will need to scan the qr code.
-```
+### `cmd`
 
-### Installation
+- `server`: Reference to an `owa-server` config node.
+- `method`: Command method to call when the incoming message does not provide `msg.method`.
+- `args`: JSON-like command arguments merged with object-like `msg.payload` values when present.
+- `name`: Node-RED display name.
+- `timeout`: Timeout in seconds. The runtime treats `-1` as no timeout and falls back to 30 seconds when parsing fails.
 
-```bash
-PUPPETEER_SKIP_DOWNLOAD=true npm install @open-wa/node-red-contrib-wa-automate
+### `listen`
 
-or 
+- `server`: Reference to an `owa-server` config node.
+- `listener`: Listener name to register.
+- `name`: Node-RED display name.
 
-PUPPETEER_SKIP_DOWNLOAD=true yarn add @open-wa/node-red-contrib-wa-automate
-```
+## Runtime behavior
 
-## Acknowledgements
+- `owa-server` constructs `new SocketClient(url, key)`, stores it under the node ID in the global `CLIENT_STORE`, and removes it on disconnect or node removal.
+- `cmd` uses `/meta/basic/commands` to populate command options in the editor. At runtime it prefers `msg.method` and `msg.args`, otherwise it parses configured args and `msg.payload`, then sends the result with `client.ask`.
+- `cmd` reports `Executing..`, `Done`, timeout, waiting, and missing server states through Node-RED node status.
+- `listen` uses `/meta/basic/listeners` to populate listener options in the editor. It registers once per node instance, forwards listener messages as `payload`, reports connection status, and calls `stopListener` on close.
 
-This project is build upon the [alexk111/node-red-node-typescript-starter](https://github.com/alexk111/node-red-node-typescript-starter) template by [@alexk111](https://github.com/alexk111)
+## Development
+
+- `pnpm --filter @open-wa/node-red add-node`
+- `pnpm --filter @open-wa/node-red copy`
+- `pnpm --filter @open-wa/node-red build:editor`
+- `pnpm --filter @open-wa/node-red build:runtime`
+- `pnpm --filter @open-wa/node-red build`
+- `pnpm --filter @open-wa/node-red dev`
+- `pnpm --filter @open-wa/node-red lint`
+- `pnpm --filter @open-wa/node-red lint:fix`
+- `pnpm --filter @open-wa/node-red test`
+- `pnpm --filter @open-wa/node-red test:watch`
+
+## Documentation
+
+See the [docs site](https://docs.openwa.dev).
+
+## License
+
+[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/main/LICENSE.md) - Hippocratic + Do Not Harm

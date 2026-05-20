@@ -5,7 +5,7 @@ description: Core runtime settings for custom code and the most important Easy A
 
 # Configuration and CLI
 
-The old legacy docs split configuration across several small pages. This page brings the essentials together.
+Use this page to choose runtime settings, CLI flags, environment variables, and plugin configuration that match the way you start open-wa.
 
 ## Common config fields
 
@@ -77,6 +77,9 @@ Config files can export a plain object or a function that returns an object. Typ
 
 ## JSON/TS examples
 
+<Tabs items={['JSON', 'TypeScript']}>
+<Tab value="JSON">
+
 Use JSON when your config is static:
 
 ```json
@@ -91,6 +94,9 @@ Use JSON when your config is static:
   "licenseKey": "YOUR-LICENSE-KEY"
 }
 ```
+
+</Tab>
+<Tab value="TypeScript">
 
 Use TypeScript or JavaScript when you need environment variables or computed values:
 
@@ -111,6 +117,9 @@ export default defineConfig({
 ```
 
 In v5 config examples, prefer the same `WA_*` environment names that the config loader reads. If your deployment platform stores secrets under another name, map them into config explicitly instead of assuming bare names such as `PORT` or `API_KEY` are runtime config env vars.
+
+</Tab>
+</Tabs>
 
 ## Env vars
 
@@ -150,7 +159,7 @@ There are also compatibility aliases for a few browser-related settings, includi
 # networking
 --port 8080
 --api-key "your-secure-key"
---api-host "https://api.example.com"
+--host "0.0.0.0"
 
 # session identity
 --session-id sales
@@ -160,10 +169,6 @@ There are also compatibility aliases for a few browser-related settings, includi
 --pm2
 --tunnel
 --multi-device
-
-# integrations
---chatwoot-url "https://app.chatwoot.com/api/v1/accounts/123"
---chatwoot-api-access-token "token"
 
 # licensing
 --license-key "YOUR-LICENSE-KEY"
@@ -184,7 +189,7 @@ These are the major flags most users need when starting the Easy API from the co
 | `--link-code "447123456789"` | `linkCode` | Uses link-code login instead of relying only on QR scanning. |
 | `--tunnel` | transitional | Legacy tunnel flag. v5 currently warns that tunnel setup parity is not restored. |
 | `--mcp` | future or other-alpha shorthand only | The current source does not parse `--mcp`. Configure `mcp: { enabled: true }` in `wa.config.*` instead, keep `apiKey` enabled, and use `--mcp` only if your installed build documents it. |
-| `--api-host "https://api.example.com"` | API host metadata | Public API host value used by docs-facing examples when the public address differs from the local bind address. It is not currently a core `ConfigSchema` field. |
+| `--host "0.0.0.0"`, `-h "0.0.0.0"` | `host` | Local bind host for the Easy API server. |
 
 Other useful runtime flags include `--host`, `--headless`, `--headful`, `--use-chrome`, `--use-lightpanda`, `--qr-timeout`, `--dashboard-port`, `--no-dashboard`, `--no-ezqr`, `--ephemeral`, `--log-console`, `--log-level`, and `--verbose`.
 
@@ -217,11 +222,14 @@ export default {
 
 CLI flags win over config-file and environment values. That makes config files good for stable defaults and CLI flags good for one-off local overrides.
 
-Not every flag is a schema field. `--config` selects which file to load, `--pm2` controls process management, `--name` controls the PM2 process name, and v5-alpha docs-facing flags such as `--api-host` may not map to a core schema field.
+Not every flag is a schema field. `--config` selects which file to load, `--pm2` controls process management, and `--name` controls the PM2 process name.
 
 ## Deprecated flags
 
 v5 is still alpha, so a few v4-era flags are present only as transitional compatibility warnings.
+
+<Accordions type="single">
+<Accordion title="Deprecated and transitional flags" id="deprecated-and-transitional-flags">
 
 | Flag or field | Status in v5 |
 | --- | --- |
@@ -230,10 +238,13 @@ v5 is still alpha, so a few v4-era flags are present only as transitional compat
 | `--generate-api-docs` | Warns that runtime docs are always served from the shared API layer. |
 | `--tunnel` | Warns that tunnel setup parity is not yet restored in the v5 CLI. |
 | `--mcp` | The current source does not parse this flag. Configure `mcp: { enabled: true }` in `wa.config.*`; treat `--mcp` only as future or other-alpha shorthand if your installed build documents it. |
-| `--api-host` | Used in some docs as public-host metadata. It is not currently a core config schema field. |
+| `--api-host` | Not parsed by the current v5 CLI. Use `--host`/`-h` for the local bind host and configure any public origin in the integration that needs it. |
 | `--chatwoot-url`, `--twilio-webhook`, `--bot-press-url` | Legacy integration flags that are not yet wired into the v5 CLI boot path. Prefer plugins and config files. |
 | `sessionData`, `sessionDataPath`, `skipSessionSave` | Deprecated MD-obsolete JSON session fields. Prefer `userDataDir` managed persistence. |
 | `popup`, `qrPopUpOnly`, `autoRefresh`, `qrRefreshS` | Legacy QR/popup behavior. Do not treat these as stable v5 runtime contracts. |
+
+</Accordion>
+</Accordions>
 
 When in doubt, prefer the config schema and the flags in this page over older v4 examples.
 
