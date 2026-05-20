@@ -6,6 +6,8 @@ set -euo pipefail
 #
 # Tests the full release pipeline locally using a Verdaccio registry.
 # Builds, publishes, generates notes + image, and verifies installs.
+# NOTE: This script requires a Bash-compatible environment. On Windows, use WSL
+# or Git Bash; native cmd.exe and PowerShell are not supported.
 #
 # Usage:
 #   ./tools/release/dry-run.sh [OPTIONS]

@@ -683,8 +683,10 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<CliR
     if (parsedArgs.pm2) {
         const { spawn } = require('child_process');
         const sink = getCliOutputSink();
+        const pm2Command = getPm2Command();
+        const pm2SpawnOptions = getPm2SpawnOptions();
         try {
-            const pm2 = spawn('pm2', ['--version']);
+            const pm2 = spawn(pm2Command, ['--version'], pm2SpawnOptions);
 
             await new Promise<void>((resolve, reject) => {
                 pm2.on('error', reject);
@@ -702,7 +704,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<CliR
             const pm2Flags = parsedArgs.forwardedArgs.filter((flag: string) => flag !== '--pm2');
             const cliPath = fileURLToPath(new URL('../dist/cli.cjs', import.meta.url));
 
-            spawn('pm2', [
+            spawn(pm2Command, [
                 'start',
                 cliPath,
                 '--name', parsedArgs.procName,
@@ -710,12 +712,13 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<CliR
                 '--',
                 ...pm2Flags,
             ], {
+                ...pm2SpawnOptions,
                 stdio: 'inherit',
                 detached: true
             });
             return;
-        } catch (error: any) {
-            if (error?.code === 'ENOENT' || error?.errno === -2) {
+        } catch (error: unknown) {
+            if (isCommandNotFoundError(error)) {
                 sink.write({ level: 'error', message: 'pm2 not found. Please install with: npm install -g pm2' });
                 return;
             }
@@ -724,4 +727,21 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<CliR
     }
 
     return await start(parsedArgs);
+}
+
+function getPm2Command(): string {
+    return process.platform === 'win32' ? 'pm2.cmd' : 'pm2';
+}
+
+function getPm2SpawnOptions(): { shell: boolean } {
+    return { shell: process.platform === 'win32' };
+}
+
+function isCommandNotFoundError(error: unknown): boolean {
+    if (typeof error !== 'object' || error === null) {
+        return false;
+    }
+
+    const systemError = error as { code?: unknown; errno?: unknown };
+    return systemError.code === 'ENOENT' || systemError.errno === -2;
 }

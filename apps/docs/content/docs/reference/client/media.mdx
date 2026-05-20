@@ -28,7 +28,7 @@ Decrypts media from a message
 
 | Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
 | --- | --- | --- | --- | --- | --- | --- |
-| `message` | object &#123; ack, author, body, broadcast, caption, chat, chatId, clientUrl, content, deprecatedMms3Url, from, fromMe, id, invis, isForwarded, isGroupMsg, isMedia, isMMS, isNewMsg, isNotification, isPSA, isQuotedMsgAvailable, labels, mentionedJidList, notifyName, quotedMsg, quotedMsgObj, recvFresh, self, sender, senderId, star, t, timestamp, to, type &#125; | Yes | Message object containing media | - | - | - |
+| `message` | object { ack, author, body, broadcast, caption, chat, chatId, clientUrl, content, deprecatedMms3Url, from, fromMe, id, invis, isForwarded, isGroupMsg, isMedia, isMMS, isNewMsg, isNotification, isPSA, isQuotedMsgAvailable, labels, mentionedJidList, notifyName, quotedMsg, quotedMsgObj, recvFresh, self, sender, senderId, star, t, timestamp, to, type } | Yes | Message object containing media | - | - | - |
 
 ### Output
 
@@ -53,89 +53,9 @@ Downloads and decrypts media from a message to a file
 
 | Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
 | --- | --- | --- | --- | --- | --- | --- |
-| `message` | object &#123; ack, author, body, broadcast, caption, chat, chatId, clientUrl, content, deprecatedMms3Url, from, fromMe, id, invis, isForwarded, isGroupMsg, isMedia, isMMS, isNewMsg, isNotification, isPSA, isQuotedMsgAvailable, labels, mentionedJidList, notifyName, quotedMsg, quotedMsgObj, recvFresh, self, sender, senderId, star, t, timestamp, to, type &#125; | Yes | Message object containing media | - | - | - |
+| `message` | object { ack, author, body, broadcast, caption, chat, chatId, clientUrl, content, deprecatedMms3Url, from, fromMe, id, invis, isForwarded, isGroupMsg, isMedia, isMMS, isNewMsg, isNotification, isPSA, isQuotedMsgAvailable, labels, mentionedJidList, notifyName, quotedMsg, quotedMsgObj, recvFresh, self, sender, senderId, star, t, timestamp, to, type } | Yes | Message object containing media | - | - | - |
 | `path` | string | Yes | File path to save the media | - | - | - |
 
 ### Output
 
 Returns: `string`
-
-## Expanded usage notes
-
-### `decryptMedia` vs `downloadMedia`
-
-Use `decryptMedia` when you want the media content returned to your application, usually as a data URL or base64-like string. Use `downloadMedia` when you want the runtime to write the decrypted media to a file path and return that path.
-
-### Request examples
-
-Decrypt a media message already received by the session:
-
-```ts
-client.onMessage(async (message) => {
-  if (message.isMedia || message.isMMS) {
-    const dataUrl = await client.media.decrypt(message);
-    console.log(dataUrl.slice(0, 80));
-  }
-});
-```
-
-Download media to a local file path:
-
-```ts
-client.onMessage(async (message) => {
-  if (message.isMedia || message.isMMS) {
-    const savedPath = await client.media.download(message, './downloads/latest-media');
-    console.log(savedPath);
-  }
-});
-```
-
-Easy API example:
-
-```bash
-curl "http://localhost:8080/api/media/decrypt" \
-  -H "X-API-Key: your-secure-key" \
-  -H "Content-Type: application/json" \
-  -d '{"message":{"id":"false_447123456789@c.us_ABC123","clientUrl":"...","mediaKey":"..."}}'
-```
-
-### Response examples
-
-`decryptMedia` returns media content as a string:
-
-```json
-"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD..."
-```
-
-`downloadMedia` returns the saved file path:
-
-```json
-"/home/app/downloads/latest-media.jpeg"
-```
-
-### Binary and base64 handling
-
-A returned data URL can be split into metadata and content:
-
-```ts
-const dataUrl = await client.media.decrypt(message);
-const [, mime, base64] = dataUrl.match(/^data:(.+);base64,(.*)$/) || [];
-const buffer = Buffer.from(base64, 'base64');
-```
-
-### Error cases
-
-- The message does not contain media fields or is not loaded fully.
-- The media URL expired before decryption.
-- The media key is missing or no longer valid.
-- The target download path is not writable by the runtime process.
-- Large files exceed memory, proxy, or request body limits.
-
-### Permission and license requirements
-
-These methods do not require a special license. Easy API requests still require the configured API key.
-
-### Caveats and limitations
-
-Media URLs are temporary. Decrypt or download soon after receiving the message. `decryptMedia` keeps the decoded content in memory, so prefer `downloadMedia` for large videos, documents, and audio files. If the runtime runs in Docker, the download path is inside the container unless you mount a volume.
-

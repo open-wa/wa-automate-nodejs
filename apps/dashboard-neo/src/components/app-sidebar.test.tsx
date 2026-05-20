@@ -8,9 +8,30 @@ vi.mock('@/lib/hooks/use-health', () => ({
   useHealth: vi.fn(),
 }));
 
+vi.mock('@/components/session-status-badge', () => ({
+  SessionStatusBadge: () => <div>Session Status Badge Mock</div>,
+}));
+
+// Mock window.matchMedia for JSDOM
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation((query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
+
 // We must mock Router components since Sidebar uses Router
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children }: any) => <a>{children}</a>,
+  useMatches: () => [{ pathname: '/' }],
+  useSearch: () => ({}),
   useRouter: () => ({
     state: { location: { pathname: '/' } },
     subscribe: vi.fn(),

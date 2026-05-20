@@ -579,7 +579,7 @@ Sends a link with auto-generated preview
 | `text` | string | No | Message content Branded type: Content | `body`, `message`, `text` | - | `"Hello, world!"` |
 | `thumbnail` | string | No | Base64 thumbnail override | - | - | - |
 | `quotedMsgId` | string | No | Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true\|false)_.+_.+$ | `id`, `msgId` | `msgId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
-| `customSize` | object &#123; height, width &#125; | No | Custom thumbnail size | - | - | - |
+| `customSize` | object { height, width } | No | Custom thumbnail size | - | - | - |
 
 ### Output
 
@@ -673,7 +673,7 @@ Sends a link preview message with custom thumbnail
 | `content` | string | Yes | Message content Branded type: Content | `body`, `message`, `text` | - | `"Hello, world!"` |
 | `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
 | `quotedMsgId` | string | No | Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true\|false)_.+_.+$ | `id`, `msgId` | `msgId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
-| `customSize` | object &#123; height, width &#125; | No | Custom thumbnail size | - | - | - |
+| `customSize` | object { height, width } | No | Custom thumbnail size | - | - | - |
 
 ### Output
 
@@ -985,7 +985,7 @@ Sends a YouTube link with auto-generated preview
 | `text` | string | Yes | Message content Branded type: Content | `body`, `message`, `text` | - | `"Hello, world!"` |
 | `thumbnail` | string | No | Base64 thumbnail override | - | - | - |
 | `quotedMsgId` | string | No | Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true\|false)_.+_.+$ | `id`, `msgId` | `msgId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
-| `customSize` | object &#123; height, width &#125; | No | Custom thumbnail size | - | - | - |
+| `customSize` | object { height, width } | No | Custom thumbnail size | - | - | - |
 
 ### Output
 
@@ -1040,149 +1040,3 @@ Unstar a message
 ### Output
 
 Returns: `boolean`
-
-## Expanded usage notes
-
-### Request examples
-
-Send basic text:
-
-```ts
-const sent = await client.messages.sendText('447123456789@c.us', 'Hello from open-wa');
-```
-
-Send buttons. Button and list methods are marked deprecated in the generated method descriptions and may depend on WhatsApp Web support:
-
-```ts
-await client.messages.sendButtons(
-  '447123456789@c.us',
-  'Choose an option',
-  [
-    { id: 'sales', text: 'Sales' },
-    { id: 'support', text: 'Support' }
-  ],
-  'Main menu',
-  'Reply using a button'
-);
-```
-
-Send a list message:
-
-```ts
-await client.messages.sendList(
-  '447123456789@c.us',
-  [
-    {
-      title: 'Departments',
-      rows: [
-        { id: 'sales', title: 'Sales' },
-        { id: 'support', title: 'Support' }
-      ]
-    }
-  ],
-  'Pick a department',
-  'We will route your message',
-  'Open menu'
-);
-```
-
-Send a poll:
-
-```ts
-await client.messages.sendPoll(
-  '447123456789@c.us',
-  'Best delivery day?',
-  ['Monday', 'Tuesday', 'Wednesday'],
-  1
-);
-```
-
-Send contacts:
-
-```ts
-await client.messages.sendContact('447123456789@c.us', '441234567890@c.us');
-await client.messages.sendContacts('447123456789@c.us', [
-  '441234567890@c.us',
-  '449876543210@c.us'
-]);
-```
-
-Send a custom thumbnail link and a YouTube link:
-
-```ts
-await client.messages.sendLinkWithThumbnail(
-  'data:image/jpeg;base64,/9j/4AAQSkZJRg...',
-  'https://example.com/product',
-  'Product guide',
-  'Read the latest guide',
-  'Here is the guide',
-  '447123456789@c.us'
-);
-
-await client.messages.sendYouTubeLink(
-  '447123456789@c.us',
-  'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-  'Watch this video'
-);
-```
-
-Send a payment request where supported by the account and region:
-
-```ts
-await client.messages.sendPaymentRequest(
-  '447123456789@c.us',
-  10000,
-  'GBP',
-  'Deposit payment'
-);
-```
-
-### Response examples
-
-Send methods commonly return a message ID object, boolean, or serialized message ID string depending on the method and runtime path:
-
-```json
-{
-  "_serialized": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
-}
-```
-
-A loaded message response can include sender, chat, body, timestamp, and media flags:
-
-```json
-{
-  "id": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-  "from": "447123456789@c.us",
-  "to": "441234567890@c.us",
-  "body": "Hello",
-  "type": "chat",
-  "timestamp": 1716200000,
-  "isMedia": false
-}
-```
-
-A poll send response uses the same message ID shape as other send calls:
-
-```json
-{
-  "_serialized": "true_447123456789@c.us_POLL123"
-}
-```
-
-### Error cases
-
-- The recipient chat ID is malformed, not loaded, or not allowed for the message type.
-- The message ID is malformed or no longer available in the loaded chat store.
-- Media payloads are too large, not readable, or not a supported data URL, URL, file path, or base64 string.
-- Buttons, lists, polls, payments, and previews are not supported by the current WhatsApp Web build, account type, or region.
-- The session is not ready, offline, or rate limited by WhatsApp.
-- A method marked Insiders or restricted is called without the needed license state.
-
-### Permission and license requirements
-
-Most basic send and read methods do not require a special license. The generated metadata marks `sendButtons`, `sendAdvancedButtons`, `sendListMessage`, and `getStarredMessages` as Insiders. Payment support depends on WhatsApp account eligibility and region even though the method itself is listed without a special license.
-
-### Caveats and limitations
-
-Interactive message support changes frequently in WhatsApp Web. The generated page marks button and list methods as deprecated, so prefer plain text fallbacks for production flows. Link previews and YouTube previews depend on WhatsApp fetching metadata, and custom thumbnails may be resized or ignored. Payment requests are region and account dependent. For destructive message deletion, `onlyLocal` changes whether the deletion targets only the host account view or attempts broader deletion when WhatsApp allows it.
-

@@ -1,15 +1,106 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { createClient, OpenWAClient } from '../../src/createClient.js';
 import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
-import { execSync } from 'child_process';
+import { execFileSync } from 'node:child_process';
+import { existsSync, readdirSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 
 const runCreateClientE2E = process.env.OPENWA_CORE_E2E === 'true';
 const describeCreateClientE2E = runCreateClientE2E ? describe : describe.skip;
 
 function findChromePath(): string | undefined {
+  const commandPath = findChromeFromCommand();
+  if (commandPath) {
+    return commandPath;
+  }
+
+  return getKnownChromePaths().find((candidate) => existsSync(candidate)) ?? findPuppeteerChromePath();
+}
+
+function findChromeFromCommand(): string | undefined {
+  const executableNames = process.platform === 'win32'
+    ? ['chrome.exe', 'chromium.exe', 'msedge.exe']
+    : ['google-chrome', 'chromium', 'chromium-browser'];
+  const locator = process.platform === 'win32' ? 'where' : 'which';
+
+  for (const executableName of executableNames) {
+    try {
+      const output = execFileSync(locator, [executableName], {
+        encoding: 'utf-8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      });
+      const firstMatch = output.split(/\r?\n/).find(Boolean)?.trim();
+      if (firstMatch) {
+        return firstMatch;
+      }
+    } catch (error) {
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function getKnownChromePaths(): string[] {
+  if (process.platform === 'win32') {
+    return [
+      process.env.PROGRAMFILES,
+      process.env['PROGRAMFILES(X86)'],
+      process.env.LOCALAPPDATA,
+    ].flatMap((basePath) => {
+      if (!basePath) {
+        return [];
+      }
+
+      return [
+        `${basePath}\\Google\\Chrome\\Application\\chrome.exe`,
+        `${basePath}\\Chromium\\Application\\chromium.exe`,
+        `${basePath}\\Microsoft\\Edge\\Application\\msedge.exe`,
+      ];
+    });
+  }
+
+  if (process.platform === 'darwin') {
+    return [
+      '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      '/Applications/Chromium.app/Contents/MacOS/Chromium',
+      '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+    ];
+  }
+
+  return [
+    '/usr/bin/google-chrome',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+    '/snap/bin/chromium',
+  ];
+}
+
+function findPuppeteerChromePath(): string | undefined {
+  const platformDirectory = process.platform === 'win32'
+    ? 'chrome-win64'
+    : process.platform === 'darwin'
+      ? process.arch === 'arm64' ? 'chrome-mac-arm64' : 'chrome-mac-x64'
+      : 'chrome-linux64';
+  const executableName = process.platform === 'win32'
+    ? 'chrome.exe'
+    : process.platform === 'darwin'
+      ? 'Google Chrome for Testing'
+      : 'chrome';
+  const chromeCacheDir = join(homedir(), '.cache', 'puppeteer', 'chrome');
+
   try {
-    return execSync('which google-chrome || which chromium || which chromium-browser || ls ~/.cache/puppeteer/chrome/*/chrome-linux64/chrome 2>/dev/null | head -1', { encoding: 'utf-8' }).trim() || undefined;
-  } catch {
+    return readdirSync(chromeCacheDir)
+      .map((revision) => join(chromeCacheDir, revision, platformDirectory, executableName))
+      .find((candidate) => existsSync(candidate));
+  } catch (error) {
+    if (!(error instanceof Error)) {
+      throw error;
+    }
+
     return undefined;
   }
 }

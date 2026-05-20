@@ -14,13 +14,13 @@ export const Route = createFileRoute('/.well-known/api-catalog')({
             {
               "anchor": `${origin}/`,
               "service-desc": [
-                { "href": `${origin}/openapi.yaml`, "type": "application/vnd.oai.openapi" }
+                { "href": `${origin}/openapi.json`, "type": "application/vnd.oai.openapi+json" }
               ],
               "service-doc": [
-                { "href": `${origin}/docs/api`, "type": "text/html" }
+                { "href": `${origin}/docs/reference`, "type": "text/html" }
               ],
               "status": [
-                { "href": `${origin}/api/health`, "type": "application/json" }
+                { "href": `${origin}/api/healthCheck`, "type": "application/json" }
               ]
             }
           ]

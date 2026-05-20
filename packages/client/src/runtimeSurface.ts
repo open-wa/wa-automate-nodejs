@@ -122,6 +122,29 @@ export const clientRuntimeMethodSurface = {
   },
   getLastSeen: { support: 'runtime', runtimeMethod: 'getLastSeen' },
   isChatOnline: { support: 'runtime', runtimeMethod: 'isChatOnline' },
+  getHostNumber: { support: 'runtime', runtimeMethod: 'getHostNumber' },
+  getWAVersion: { support: 'runtime', runtimeMethod: 'getWAVersion' },
+  getConnectionState: {
+    support: 'unsupported',
+    runtimeMethod: 'getConnectionState',
+    reason: 'shipped wapi.js does not define window.WAPI.getConnectionState',
+  },
+  getBatteryLevel: { support: 'runtime', runtimeMethod: 'getBatteryLevel' },
+  getIsPlugged: { support: 'runtime', runtimeMethod: 'getIsPlugged' },
+  getAmountOfLoadedMessages: { support: 'runtime', runtimeMethod: 'getAmountOfLoadedMessages' },
+  getMe: { support: 'runtime', runtimeMethod: 'getMe' },
+  getFeatures: {
+    support: 'unsupported',
+    runtimeMethod: 'getFeatures',
+    reason: 'shipped wapi.js does not define window.WAPI.getFeatures',
+  },
+  getProcessStats: {
+    support: 'unsupported',
+    runtimeMethod: 'getProcessStats',
+    reason: 'shipped wapi.js does not define window.WAPI.getProcessStats',
+  },
+  setMyName: { support: 'runtime', runtimeMethod: 'setMyName' },
+  setMyStatus: { support: 'runtime', runtimeMethod: 'setMyStatus' },
 } as const satisfies Record<string, ClientRuntimeMethodSurfaceEntry>;
 
 export const clientRuntimeListenerSurface = {

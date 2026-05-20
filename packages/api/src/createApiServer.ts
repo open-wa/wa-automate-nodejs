@@ -8,7 +8,7 @@ import { getHttpMethodDefinitions, type Config } from '@open-wa/schema';
 import '@open-wa/schema';
 import { createScreencastRoute, ScreencastManager } from '@open-wa/screencaster/server';
 import { createApiMiddleware } from './createApiMiddleware';
-// import { createHonoMcpAdapter } from '@open-wa/mcp';
+import { createHonoMcpAdapter } from '@open-wa/mcp';
 import { registerMetaRoutes } from './routes/meta';
 import { registerDebugRoutes } from './routes/debug';
 import { registerAgentDiscoveryRoutes } from './routes/agent-discovery';
@@ -396,16 +396,16 @@ export class ApiServer {
       })
     );
 
-    // if (this.config.mcp?.enabled) {
-    //   const mcpAdapter = createHonoMcpAdapter({
-    //     config: this.config,
-    //     clientSource: () => this.client,
-    //     elasticEmitter: this.elasticEmitter,
-    //     basePath: '/api',
-    //     isSessionConnected: () => this.isSessionConnected(),
-    //   });
-    //   mcpAdapter.mount(this.app, this.config.mcp.path || '/mcp');
-    // }
+    if (this.config.mcp?.enabled) {
+      const mcpAdapter = createHonoMcpAdapter({
+        config: this.config,
+        clientSource: () => this.client,
+        elasticEmitter: this.elasticEmitter,
+        basePath: '/api',
+        isSessionConnected: () => this.isSessionConnected(),
+      });
+      mcpAdapter.mount(this.app, this.config.mcp.path || '/mcp');
+    }
   }
 }
 
