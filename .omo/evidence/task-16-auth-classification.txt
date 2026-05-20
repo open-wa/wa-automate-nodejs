@@ -1,0 +1,11 @@
+Task 16 evidence backfill: auth classification matrix
+
+Sources:
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/core test
+
+Result: PASS
+Proved: link-code, QR, phone-out-of-reach, and related auth paths were kept explicit in classification instead of collapsing into one generic auth failure bucket.

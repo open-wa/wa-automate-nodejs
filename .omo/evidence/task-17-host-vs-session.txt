@@ -1,0 +1,13 @@
+Task 17 evidence backfill: host versus session readiness
+
+Sources:
+- .sisyphus/evidence/task-20-evidence-manifest.json
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/wa-automate exec vitest run src/server/__tests__/readiness-parity.test.ts
+- pnpm --filter @open-wa/wa-automate test
+
+Result: PASS
+Proved: host availability remained distinct from session-backed readiness, and the focused readiness-blocker proof passed.

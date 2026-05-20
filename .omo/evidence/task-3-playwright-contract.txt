@@ -1,0 +1,12 @@
+Task 3 evidence backfill: Playwright parity-critical contract behavior
+
+Sources:
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+- .sisyphus/notepads/unfuckupgaps/issues.md
+
+Commands run:
+- targeted tsc --noEmit verification for packages/driver-playwright
+- active-package build and test verification captured in task 20
+
+Result: PASS for explicit no-support contract
+Proved: Playwright did not silently pretend to support parity-critical request mutation primitives, and the limitation was kept explicit rather than hidden behind false success.

@@ -1,0 +1,13 @@
+Task 17 evidence backfill: ready ordering truth
+
+Sources:
+- .sisyphus/evidence/task-20-evidence-manifest.json
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/wa-automate exec vitest run src/server/__tests__/readiness-parity.test.ts
+- pnpm --filter @open-wa/core exec vitest run test/unit/releaseBlockerParity.test.ts
+
+Result: PASS
+Proved: READY and client.ready were gated on finalized lower-level truth and active-generation health, not on host startup or stale state.

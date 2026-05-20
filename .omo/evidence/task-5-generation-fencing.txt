@@ -1,0 +1,11 @@
+Task 5 evidence backfill: generation fencing
+
+Sources:
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/core test
+
+Result: PASS
+Proved: generation-scoped controller state stayed authoritative, and stale async completions were recorded as ignored instead of mutating current readiness state.

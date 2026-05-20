@@ -1,0 +1,11 @@
+Task 13 evidence backfill: internal handler contract truth
+
+Sources:
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/core test
+
+Result: PASS
+Proved: the old fake internal-event-handler success path was removed from readiness-critical flow, with the real runtime bridge contract living in InjectionController instead.

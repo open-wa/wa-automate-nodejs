@@ -1,0 +1,13 @@
+Task 8 evidence backfill: main-frame reinjection recovery
+
+Sources:
+- .sisyphus/evidence/task-20-evidence-manifest.json
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/core exec vitest run test/unit/releaseBlockerParity.test.ts
+- pnpm --filter @open-wa/core test
+
+Result: PASS
+Proved: main-frame navigation and runtime loss recovery were covered by the frame-navigation reinjection release-blocker proof and stayed green in the full core suite.

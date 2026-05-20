@@ -1,0 +1,11 @@
+Task 9 evidence backfill: resumed-session ripeness
+
+Sources:
+- .sisyphus/evidence/task-20-evidence-manifest.json
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/core exec vitest run test/unit/releaseBlockerParity.test.ts
+
+Result: PASS
+Proved: resumed-session runtime recovery stayed behind the same ripeness gate as fresh auth, and readiness remained truthful during authenticated runtime churn.

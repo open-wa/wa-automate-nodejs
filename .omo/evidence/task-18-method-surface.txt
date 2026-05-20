@@ -1,0 +1,13 @@
+Task 18 evidence backfill: method surface smoke audit
+
+Sources:
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/issues.md
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/client test
+- pnpm --filter @open-wa/client build
+
+Result: PASS
+Proved: the client facade method surface was checked against the terminal shipped runtime support, including license-placeholder overrides in wapi.js.

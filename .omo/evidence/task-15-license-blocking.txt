@@ -1,0 +1,11 @@
+Task 15 evidence backfill: invalid and expired license blocking
+
+Sources:
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/core test
+
+Result: PASS
+Proved: invalid and expired license states stayed separate from generic patch state and followed the documented blocking policy without false-ready behavior.

@@ -1,0 +1,12 @@
+Task 4 evidence backfill: browser diagnostics and interception flags
+
+Sources:
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/core test
+- pnpm --filter @open-wa/core build
+
+Result: PASS
+Proved: the active core transport still passed after wiring console and interception settings, and the recorded implementation limited interception to the parity-critical subset with explicit downgrade logging when unavailable.

@@ -1,0 +1,11 @@
+Task 7 evidence backfill: runtime replacement disposal
+
+Sources:
+- .sisyphus/evidence/task-20-release-suite.txt
+- .sisyphus/notepads/unfuckupgaps/learnings.md
+
+Commands run:
+- pnpm --filter @open-wa/core test
+
+Result: PASS
+Proved: page-side bridge state owned active listeners and disposer handles so runtime rollover could dispose stale listeners before new ones attached.
