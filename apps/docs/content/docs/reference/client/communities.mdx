@@ -1,6 +1,7 @@
 ---
 title: "Communities Client API"
 description: "Generated client method reference for the communities namespace."
+icon: "BookOpen"
 ---
 
 # Communities Client API
@@ -13,19 +14,58 @@ This page documents 6 schema-registry client methods in the `communities` namesp
 
 Get all communities
 
-- Namespace: `communities`
-- HTTP route: `GET /api/communities/getAll`
-- HTTP alias routes:
-  - `GET /api/communities/all`
-  - `GET /api/communities/list`
-  - `GET /api/getAllCommunities`
-  - `GET /api/listCommunities`
-- Aliases: `communities.all`, `communities.getAll`, `communities.list`, `listCommunities`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `communities` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `communities.all`, `communities.getAll`, `communities.list`, `listCommunities` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/communities/getAll` | `getAllCommunities` | Active |
+| Alias | `GET` | `/api/communities/all` | `communities.all` | Active |
+| Alias | `GET` | `/api/communities/list` | `communities.list` | Active |
+| Alias | `GET` | `/api/getAllCommunities` | `getAllCommunities` | Active |
+| Alias | `GET` | `/api/listCommunities` | `listCommunities` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getAllCommunities({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.communities.getAll({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/communities/getAll" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -33,129 +73,341 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `string[]`
+| Prop | Value |
+| --- | --- |
+| Return type | `string[]` |
 
 ## `getCommunityAdminIds`
 
 Get community admin IDs
 
-- Namespace: `communities`
-- HTTP route: `GET /api/communities/getAdminIds`
-- HTTP alias routes:
-  - `GET /api/getCommunityAdminIds`
-- Aliases: `communities.getAdminIds`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `communityId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `communities` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `communityId` |
+| Aliases | `communities.getAdminIds` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/communities/getAdminIds` | `getCommunityAdminIds` | Active |
+| Alias | `GET` | `/api/getCommunityAdminIds` | `getCommunityAdminIds` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getCommunityAdminIds({
+  communityId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.communities.getAdminIds({
+  communityId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/communities/getAdminIds" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "communityId=447123456789-1445627445@g.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `communityId` | string | Yes | Community ID A WhatsApp community JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | - | - | `"447123456789-1445627445@g.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetCommunityAdminIdsParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `getCommunityAdmins`
 
 Get community admins
 
-- Namespace: `communities`
-- HTTP route: `GET /api/communities/getAdmins`
-- HTTP alias routes:
-  - `GET /api/getCommunityAdmins`
-- Aliases: `communities.getAdmins`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `communityId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `communities` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `communityId` |
+| Aliases | `communities.getAdmins` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/communities/getAdmins` | `getCommunityAdmins` | Active |
+| Alias | `GET` | `/api/getCommunityAdmins` | `getCommunityAdmins` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getCommunityAdmins({
+  communityId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.communities.getAdmins({
+  communityId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/communities/getAdmins" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "communityId=447123456789-1445627445@g.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `communityId` | string | Yes | Community ID A WhatsApp community JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | - | - | `"447123456789-1445627445@g.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetCommunityAdminsParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `getCommunityInfo`
 
 Get community metadata
 
-- Namespace: `communities`
-- HTTP route: `GET /api/communities/getInfo`
-- HTTP alias routes:
-  - `GET /api/getCommunityInfo`
-- Aliases: `communities.getInfo`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `communityId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `communities` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `communityId` |
+| Aliases | `communities.getInfo` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/communities/getInfo` | `getCommunityInfo` | Active |
+| Alias | `GET` | `/api/getCommunityInfo` | `getCommunityInfo` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getCommunityInfo({
+  communityId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.communities.getInfo({
+  communityId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/communities/getInfo" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "communityId=447123456789-1445627445@g.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `communityId` | string | Yes | Community ID A WhatsApp community JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | - | - | `"447123456789-1445627445@g.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetCommunityInfoParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `getCommunityParticipantIds`
 
 Get community participant IDs
 
-- Namespace: `communities`
-- HTTP route: `GET /api/communities/getParticipantIds`
-- HTTP alias routes:
-  - `GET /api/getCommunityParticipantIds`
-- Aliases: `communities.getParticipantIds`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `communityId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `communities` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `communityId` |
+| Aliases | `communities.getParticipantIds` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/communities/getParticipantIds` | `getCommunityParticipantIds` | Active |
+| Alias | `GET` | `/api/getCommunityParticipantIds` | `getCommunityParticipantIds` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getCommunityParticipantIds({
+  communityId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.communities.getParticipantIds({
+  communityId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/communities/getParticipantIds" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "communityId=447123456789-1445627445@g.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `communityId` | string | Yes | Community ID A WhatsApp community JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | - | - | `"447123456789-1445627445@g.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetCommunityParticipantIdsParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `getCommunityParticipants`
 
 Get community participants
 
-- Namespace: `communities`
-- HTTP route: `GET /api/communities/getParticipants`
-- HTTP alias routes:
-  - `GET /api/getCommunityParticipants`
-- Aliases: `communities.getParticipants`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `communityId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `communities` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `communityId` |
+| Aliases | `communities.getParticipants` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/communities/getParticipants` | `getCommunityParticipants` | Active |
+| Alias | `GET` | `/api/getCommunityParticipants` | `getCommunityParticipants` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getCommunityParticipants({
+  communityId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.communities.getParticipants({
+  communityId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/communities/getParticipants" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "communityId=447123456789-1445627445@g.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `communityId` | string | Yes | Community ID A WhatsApp community JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | - | - | `"447123456789-1445627445@g.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetCommunityParticipantsParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |

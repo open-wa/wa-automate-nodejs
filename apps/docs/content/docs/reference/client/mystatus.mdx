@@ -1,6 +1,7 @@
 ---
 title: "Mystatus Client API"
 description: "Generated client method reference for the mystatus namespace."
+icon: "BookOpen"
 ---
 
 # Mystatus Client API
@@ -9,27 +10,71 @@ description: "Generated client method reference for the mystatus namespace."
 
 This page documents 1 schema-registry client methods in the `mystatus` namespace.
 
-## `getStatus`
+## `getStatus` - insiders
 
 Get specific status
 
-- Namespace: `mystatus`
-- HTTP route: `GET /api/mystatus/getStatus`
-- HTTP alias routes:
-  - `GET /api/getStatus`
-- Aliases: `mystatus.getStatus`
-- Deprecated aliases: -
-- License: `insiders`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `contactId`
+<LicensedFeatureCallout tier="insiders" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `mystatus` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `contactId` |
+| Aliases | `mystatus.getStatus` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/mystatus/getStatus` | `getStatus` | Active |
+| Alias | `GET` | `/api/getStatus` | `getStatus` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getStatus({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.mystatus.getStatus({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/mystatus/getStatus" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "contactId=447123456789@c.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `contactId` | string | Yes | Contact ID A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetStatusParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |

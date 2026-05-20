@@ -1,7 +1,9 @@
 {
   "title": "Client API",
+  "icon": "BookOpen",
   "pages": [
     "index",
+    "client",
     "business",
     "chatids",
     "chats",

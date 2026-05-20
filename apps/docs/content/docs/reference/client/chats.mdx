@@ -1,6 +1,7 @@
 ---
 title: "Chats Client API"
 description: "Generated client method reference for the chats namespace."
+icon: "BookOpen"
 ---
 
 # Chats Client API
@@ -13,146 +14,404 @@ This page documents 15 schema-registry client methods in the `chats` namespace.
 
 Archive a chat
 
-- Namespace: `chats`
-- HTTP route: `PUT /api/chats/archive`
-- HTTP alias routes:
-  - `PUT /api/archiveChat`
-- Aliases: `chats.archive`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `chatId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chats` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `chats.archive` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/chats/archive` | `archiveChat` | Active |
+| Alias | `PUT` | `/api/archiveChat` | `archiveChat` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.archiveChat({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.chats.archive({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/chats/archive" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="ArchiveChatParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `clearChat`
 
 Clear chat history
 
-- Namespace: `chats`
-- HTTP route: `DELETE /api/chats/clear`
-- HTTP alias routes:
-  - `DELETE /api/clearChat`
-- Aliases: `chats.clear`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `delete`
-- Positional parameter order: `chatId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chats` |
+| Action | `delete` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `chats.clear` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `DELETE` | `/api/chats/clear` | `clearChat` | Active |
+| Alias | `DELETE` | `/api/clearChat` | `clearChat` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.clearChat({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.chats.clear({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X DELETE "http://localhost:8080/api/chats/clear" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="ClearChatParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `deleteChat`
 
 Delete a chat
 
-- Namespace: `chats`
-- HTTP route: `DELETE /api/chats/delete`
-- HTTP alias routes:
-  - `DELETE /api/deleteChat`
-- Aliases: `chats.delete`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `delete`
-- Positional parameter order: `chatId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chats` |
+| Action | `delete` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `chats.delete` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `DELETE` | `/api/chats/delete` | `deleteChat` | Active |
+| Alias | `DELETE` | `/api/deleteChat` | `deleteChat` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.deleteChat({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.chats.delete({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X DELETE "http://localhost:8080/api/chats/delete" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="DeleteChatParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `getAllChats`
 
 Retrieves all chats
 
-- Namespace: `chats`
-- HTTP route: `GET /api/chats/getAll`
-- HTTP alias routes:
-  - `GET /api/chats/all`
-  - `GET /api/chats/list`
-  - `GET /api/getAllChats`
-  - `GET /api/listChats`
-- Aliases: `chats.all`, `chats.getAll`, `chats.list`, `listChats`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `withNewMessagesOnly`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chats` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `withNewMessagesOnly` |
+| Aliases | `chats.all`, `chats.getAll`, `chats.list`, `listChats` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/chats/getAll` | `getAllChats` | Active |
+| Alias | `GET` | `/api/chats/all` | `chats.all` | Active |
+| Alias | `GET` | `/api/chats/list` | `chats.list` | Active |
+| Alias | `GET` | `/api/getAllChats` | `getAllChats` | Active |
+| Alias | `GET` | `/api/listChats` | `listChats` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getAllChats({
+  withNewMessagesOnly: false,
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.chats.getAll({
+  withNewMessagesOnly: false,
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/chats/getAll" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "withNewMessagesOnly=false"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `withNewMessagesOnly` | boolean | Yes | Only chats with unread messages | - | - | `false` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetAllChatsParams" />
 
 ### Output
 
-Returns: `unknown[]`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown[]` |
 
 ## `getChat`
 
 Get specific chat by ID
 
-- Namespace: `chats`
-- HTTP route: `GET /api/chats/get`
-- HTTP alias routes:
-  - `GET /api/chats/getById`
-  - `GET /api/getChat`
-  - `GET /api/getChatById`
-- Aliases: `chats.get`, `chats.getById`, `getChatById`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `chatId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chats` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `chats.get`, `chats.getById`, `getChatById` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/chats/get` | `getChat` | Active |
+| Alias | `GET` | `/api/chats/getById` | `chats.getById` | Active |
+| Alias | `GET` | `/api/getChat` | `getChat` | Active |
+| Alias | `GET` | `/api/getChatById` | `getChatById` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getChat({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.chats.get({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/chats/get" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "chatId=447123456789@c.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetChatParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `getChatWithNonContacts`
 
 Get chats with non-contacts
 
-- Namespace: `chats`
-- HTTP route: `GET /api/chats/getWithNonContacts`
-- HTTP alias routes:
-  - `GET /api/getChatWithNonContacts`
-- Aliases: `chats.getWithNonContacts`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chats` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `chats.getWithNonContacts` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/chats/getWithNonContacts` | `getChatWithNonContacts` | Active |
+| Alias | `GET` | `/api/getChatWithNonContacts` | `getChatWithNonContacts` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getChatWithNonContacts({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.chats.getWithNonContacts({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/chats/getWithNonContacts" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -160,231 +419,639 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `unknown[]`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown[]` |
 
 ## `isChatOnline`
 
 Check if chat is online
 
-- Namespace: `chats`
-- HTTP route: `GET /api/chats/isOnline`
-- HTTP alias routes:
-  - `GET /api/isChatOnline`
-- Aliases: `chats.isOnline`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `chatId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chats` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `chats.isOnline` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/chats/isOnline` | `isChatOnline` | Active |
+| Alias | `GET` | `/api/isChatOnline` | `isChatOnline` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.isChatOnline({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.chats.isOnline({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/chats/isOnline" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "chatId=447123456789@c.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="IsChatOnlineParams" />
 
 ### Output
 
-Returns: `boolean \| string`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean \| string` |
 
 ## `markAsRead`
 
 Mark chat as read
 
-- Namespace: `chats`
-- HTTP route: `PUT /api/chats/markAsRead`
-- HTTP alias routes:
-  - `PUT /api/markAsRead`
-- Aliases: `chats.markAsRead`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `chatId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chats` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `chats.markAsRead` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/chats/markAsRead` | `markAsRead` | Active |
+| Alias | `PUT` | `/api/markAsRead` | `markAsRead` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.markAsRead({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.chats.markAsRead({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/chats/markAsRead" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="MarkAsReadParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `markAsUnread`
 
 Mark chat as unread
 
-- Namespace: `chats`
-- HTTP route: `PUT /api/chats/markAsUnread`
-- HTTP alias routes:
-  - `PUT /api/markAsUnread`
-- Aliases: `chats.markAsUnread`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `chatId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chats` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `chats.markAsUnread` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/chats/markAsUnread` | `markAsUnread` | Active |
+| Alias | `PUT` | `/api/markAsUnread` | `markAsUnread` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.markAsUnread({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.chats.markAsUnread({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/chats/markAsUnread" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="MarkAsUnreadParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `muteChat`
 
 Mute a chat
 
-- Namespace: `chats`
-- HTTP route: `PUT /api/chats/mute`
-- HTTP alias routes:
-  - `PUT /api/muteChat`
-- Aliases: `chats.mute`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `chatId`, `muteDuration`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chats` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `chatId`, `muteDuration` |
+| Aliases | `chats.mute` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/chats/mute` | `muteChat` | Active |
+| Alias | `PUT` | `/api/muteChat` | `muteChat` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.muteChat({
+  chatId: "447123456789@c.us",
+  muteDuration: 1,
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.chats.mute({
+  chatId: "447123456789@c.us",
+  muteDuration: 1,
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/chats/mute" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us",
+    "muteDuration": 1
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
-| `muteDuration` | number \| string | Yes | Mute duration | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="MuteChatParams" />
 
 ### Output
 
-Returns: `string \| boolean \| number`
+| Prop | Value |
+| --- | --- |
+| Return type | `string \| boolean \| number` |
 
 ## `pinChat`
 
 Pin a chat
 
-- Namespace: `chats`
-- HTTP route: `PUT /api/chats/pin`
-- HTTP alias routes:
-  - `PUT /api/pinChat`
-- Aliases: `chats.pin`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `chatId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chats` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `chats.pin` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/chats/pin` | `pinChat` | Active |
+| Alias | `PUT` | `/api/pinChat` | `pinChat` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.pinChat({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.chats.pin({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/chats/pin" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="PinChatParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `setChatEphemeral`
 
 Set ephemeral messages for chat
 
-- Namespace: `chats`
-- HTTP route: `PUT /api/chats/setEphemeral`
-- HTTP alias routes:
-  - `PUT /api/setChatEphemeral`
-- Aliases: `chats.setEphemeral`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `chatId`, `ephemeral`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chats` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `chatId`, `ephemeral` |
+| Aliases | `chats.setEphemeral` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/chats/setEphemeral` | `setChatEphemeral` | Active |
+| Alias | `PUT` | `/api/setChatEphemeral` | `setChatEphemeral` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.setChatEphemeral({
+  chatId: "447123456789@c.us",
+  ephemeral: 1,
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.chats.setEphemeral({
+  chatId: "447123456789@c.us",
+  ephemeral: 1,
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/chats/setEphemeral" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us",
+    "ephemeral": 1
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
-| `ephemeral` | boolean \| number | Yes | Ephemeral setting | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SetChatEphemeralParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `unarchiveChat`
 
 Unarchive a chat
 
-- Namespace: `chats`
-- HTTP route: `PUT /api/chats/unarchive`
-- HTTP alias routes:
-  - `PUT /api/unarchiveChat`
-- Aliases: `chats.unarchive`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `chatId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chats` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `chats.unarchive` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/chats/unarchive` | `unarchiveChat` | Active |
+| Alias | `PUT` | `/api/unarchiveChat` | `unarchiveChat` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.unarchiveChat({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.chats.unarchive({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/chats/unarchive" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="UnarchiveChatParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `unmuteChat`
 
 Unmute a chat
 
-- Namespace: `chats`
-- HTTP route: `PUT /api/chats/unmute`
-- HTTP alias routes:
-  - `PUT /api/unmuteChat`
-- Aliases: `chats.unmute`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `chatId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chats` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `chats.unmute` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/chats/unmute` | `unmuteChat` | Active |
+| Alias | `PUT` | `/api/unmuteChat` | `unmuteChat` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.unmuteChat({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.chats.unmute({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/chats/unmute" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="UnmuteChatParams" />
 
 ### Output
 
-Returns: `string \| boolean \| number`
+| Prop | Value |
+| --- | --- |
+| Return type | `string \| boolean \| number` |
 
 ## `unpinChat`
 
 Unpin a chat
 
-- Namespace: `chats`
-- HTTP route: `PUT /api/chats/unpin`
-- HTTP alias routes:
-  - `PUT /api/unpinChat`
-- Aliases: `chats.unpin`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `chatId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chats` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `chats.unpin` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/chats/unpin` | `unpinChat` | Active |
+| Alias | `PUT` | `/api/unpinChat` | `unpinChat` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.unpinChat({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.chats.unpin({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/chats/unpin" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="UnpinChatParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |

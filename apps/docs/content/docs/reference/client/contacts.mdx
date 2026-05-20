@@ -1,6 +1,7 @@
 ---
 title: "Contacts Client API"
 description: "Generated client method reference for the contacts namespace."
+icon: "BookOpen"
 ---
 
 # Contacts Client API
@@ -13,99 +14,268 @@ This page documents 10 schema-registry client methods in the `contacts` namespac
 
 Block a contact
 
-- Namespace: `contacts`
-- HTTP route: `PUT /api/contacts/block`
-- HTTP alias routes:
-  - `PUT /api/blockContact`
-  - `PUT /api/contactBlock` (deprecated)
-  - `PUT /api/contacts/contactBlock` (deprecated)
-- Aliases: `contactBlock`, `contacts.block`, `contacts.contactBlock`
-- Deprecated aliases: `contactBlock`, `contacts.contactBlock`
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- WAPI override: `contactBlock`
-- Positional parameter order: `contactId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `contacts` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `contactId` |
+| Aliases | `contactBlock`, `contacts.block`, `contacts.contactBlock` |
+| Deprecated aliases | `contactBlock`, `contacts.contactBlock` |
+| License | `none` |
+| WAPI override | `contactBlock` |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/contacts/block` | `blockContact` | Active |
+| Alias | `PUT` | `/api/blockContact` | `blockContact` | Active |
+| Deprecated alias | `PUT` | `/api/contactBlock` | `contactBlock` | **Deprecated** |
+| Deprecated alias | `PUT` | `/api/contacts/contactBlock` | `contacts.contactBlock` | **Deprecated** |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.blockContact({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.contacts.block({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/contacts/block" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "contactId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `contactId` | string | Yes | Contact ID A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="BlockContactParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
-## `checkNumberStatus`
+## `checkNumberStatus` - insiders
 
 Check if number is on WhatsApp
 
-- Namespace: `contacts`
-- HTTP route: `GET /api/contacts/checkNumberStatus`
-- HTTP alias routes:
-  - `GET /api/checkNumberStatus`
-- Aliases: `contacts.checkNumberStatus`
-- Deprecated aliases: -
-- License: `insiders`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `contactId`
+<LicensedFeatureCallout tier="insiders" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `contacts` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `contactId` |
+| Aliases | `contacts.checkNumberStatus` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/contacts/checkNumberStatus` | `checkNumberStatus` | Active |
+| Alias | `GET` | `/api/checkNumberStatus` | `checkNumberStatus` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.checkNumberStatus({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.contacts.checkNumberStatus({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/contacts/checkNumberStatus" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "contactId=447123456789@c.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `contactId` | string | Yes | Contact ID A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="CheckNumberStatusParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `checkReadReceipts`
 
 Check read receipts setting
 
-- Namespace: `contacts`
-- HTTP route: `GET /api/contacts/checkReadReceipts`
-- HTTP alias routes:
-  - `GET /api/checkReadReceipts`
-  - `GET /api/contacts/getReadReceipts`
-  - `GET /api/getReadReceipts`
-- Aliases: `contacts.checkReadReceipts`, `contacts.getReadReceipts`, `getReadReceipts`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `contactId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `contacts` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `contactId` |
+| Aliases | `contacts.checkReadReceipts`, `contacts.getReadReceipts`, `getReadReceipts` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/contacts/checkReadReceipts` | `checkReadReceipts` | Active |
+| Alias | `GET` | `/api/checkReadReceipts` | `checkReadReceipts` | Active |
+| Alias | `GET` | `/api/contacts/getReadReceipts` | `contacts.getReadReceipts` | Active |
+| Alias | `GET` | `/api/getReadReceipts` | `getReadReceipts` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.checkReadReceipts({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.contacts.checkReadReceipts({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/contacts/checkReadReceipts" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "contactId=447123456789@c.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `contactId` | string | Yes | Contact ID A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="CheckReadReceiptsParams" />
 
 ### Output
 
-Returns: `boolean \| string`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean \| string` |
 
 ## `getAllContacts`
 
 Retrieves all contacts
 
-- Namespace: `contacts`
-- HTTP route: `GET /api/contacts/getAll`
-- HTTP alias routes:
-  - `GET /api/contacts/all`
-  - `GET /api/contacts/list`
-  - `GET /api/getAllContacts`
-  - `GET /api/listContacts`
-- Aliases: `contacts.all`, `contacts.getAll`, `contacts.list`, `listContacts`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `contacts` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `contacts.all`, `contacts.getAll`, `contacts.list`, `listContacts` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/contacts/getAll` | `getAllContacts` | Active |
+| Alias | `GET` | `/api/contacts/all` | `contacts.all` | Active |
+| Alias | `GET` | `/api/contacts/list` | `contacts.list` | Active |
+| Alias | `GET` | `/api/getAllContacts` | `getAllContacts` | Active |
+| Alias | `GET` | `/api/listContacts` | `listContacts` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getAllContacts({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.contacts.getAll({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/contacts/getAll" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -113,22 +283,63 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `unknown[]`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown[]` |
 
 ## `getBlockedIds`
 
 Get blocked contact IDs
 
-- Namespace: `contacts`
-- HTTP route: `GET /api/contacts/getBlockedIds`
-- HTTP alias routes:
-  - `GET /api/getBlockedIds`
-- Aliases: `contacts.getBlockedIds`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `contacts` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `contacts.getBlockedIds` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/contacts/getBlockedIds` | `getBlockedIds` | Active |
+| Alias | `GET` | `/api/getBlockedIds` | `getBlockedIds` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getBlockedIds({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.contacts.getBlockedIds({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/contacts/getBlockedIds" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -136,135 +347,350 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `string[]`
+| Prop | Value |
+| --- | --- |
+| Return type | `string[]` |
 
 ## `getCommonGroups`
 
 Get common groups with contact
 
-- Namespace: `contacts`
-- HTTP route: `GET /api/contacts/getCommonGroups`
-- HTTP alias routes:
-  - `GET /api/getCommonGroups`
-- Aliases: `contacts.getCommonGroups`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `contactId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `contacts` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `contactId` |
+| Aliases | `contacts.getCommonGroups` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/contacts/getCommonGroups` | `getCommonGroups` | Active |
+| Alias | `GET` | `/api/getCommonGroups` | `getCommonGroups` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getCommonGroups({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.contacts.getCommonGroups({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/contacts/getCommonGroups" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "contactId=447123456789@c.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `contactId` | string | Yes | Contact ID A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetCommonGroupsParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `getContact`
 
 Get specific contact
 
-- Namespace: `contacts`
-- HTTP route: `GET /api/contacts/get`
-- HTTP alias routes:
-  - `GET /api/getContact`
-- Aliases: `contacts.get`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `contactId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `contacts` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `contactId` |
+| Aliases | `contacts.get` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/contacts/get` | `getContact` | Active |
+| Alias | `GET` | `/api/getContact` | `getContact` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getContact({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.contacts.get({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/contacts/get" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "contactId=447123456789@c.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `contactId` | string | Yes | Contact ID A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetContactParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
-## `getNumberProfile`
+## `getNumberProfile` - insiders
 
 Get profile of number
 
-- Namespace: `contacts`
-- HTTP route: `GET /api/contacts/getNumberProfile`
-- HTTP alias routes:
-  - `GET /api/getNumberProfile`
-- Aliases: `contacts.getNumberProfile`
-- Deprecated aliases: -
-- License: `insiders`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `contactId`
+<LicensedFeatureCallout tier="insiders" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `contacts` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `contactId` |
+| Aliases | `contacts.getNumberProfile` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/contacts/getNumberProfile` | `getNumberProfile` | Active |
+| Alias | `GET` | `/api/getNumberProfile` | `getNumberProfile` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getNumberProfile({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.contacts.getNumberProfile({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/contacts/getNumberProfile" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "contactId=447123456789@c.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `contactId` | string | Yes | Contact ID A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetNumberProfileParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `getProfilePicture`
 
 Get profile picture from server
 
-- Namespace: `contacts`
-- HTTP route: `GET /api/contacts/getProfilePicture`
-- HTTP alias routes:
-  - `GET /api/contacts/getProfilePicFromServer` (deprecated)
-  - `GET /api/getProfilePicFromServer` (deprecated)
-  - `GET /api/getProfilePicture`
-- Aliases: `contacts.getProfilePicFromServer`, `contacts.getProfilePicture`, `getProfilePicFromServer`
-- Deprecated aliases: `contacts.getProfilePicFromServer`, `getProfilePicFromServer`
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- WAPI override: `getProfilePicFromServer`
-- Positional parameter order: `chatId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `contacts` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `contacts.getProfilePicFromServer`, `contacts.getProfilePicture`, `getProfilePicFromServer` |
+| Deprecated aliases | `contacts.getProfilePicFromServer`, `getProfilePicFromServer` |
+| License | `none` |
+| WAPI override | `getProfilePicFromServer` |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/contacts/getProfilePicture` | `getProfilePicture` | Active |
+| Deprecated alias | `GET` | `/api/contacts/getProfilePicFromServer` | `contacts.getProfilePicFromServer` | **Deprecated** |
+| Deprecated alias | `GET` | `/api/getProfilePicFromServer` | `getProfilePicFromServer` | **Deprecated** |
+| Alias | `GET` | `/api/getProfilePicture` | `getProfilePicture` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getProfilePicture({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.contacts.getProfilePicture({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/contacts/getProfilePicture" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "chatId=447123456789@c.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetProfilePictureParams" />
 
 ### Output
 
-Returns: `string`
+| Prop | Value |
+| --- | --- |
+| Return type | `string` |
 
 ## `unblockContact`
 
 Unblock a contact
 
-- Namespace: `contacts`
-- HTTP route: `PUT /api/contacts/unblock`
-- HTTP alias routes:
-  - `PUT /api/contacts/contactUnblock` (deprecated)
-  - `PUT /api/contactUnblock` (deprecated)
-  - `PUT /api/unblockContact`
-- Aliases: `contacts.contactUnblock`, `contacts.unblock`, `contactUnblock`
-- Deprecated aliases: `contacts.contactUnblock`, `contactUnblock`
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- WAPI override: `contactUnblock`
-- Positional parameter order: `contactId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `contacts` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `contactId` |
+| Aliases | `contacts.contactUnblock`, `contacts.unblock`, `contactUnblock` |
+| Deprecated aliases | `contacts.contactUnblock`, `contactUnblock` |
+| License | `none` |
+| WAPI override | `contactUnblock` |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/contacts/unblock` | `unblockContact` | Active |
+| Deprecated alias | `PUT` | `/api/contacts/contactUnblock` | `contacts.contactUnblock` | **Deprecated** |
+| Deprecated alias | `PUT` | `/api/contactUnblock` | `contactUnblock` | **Deprecated** |
+| Alias | `PUT` | `/api/unblockContact` | `unblockContact` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.unblockContact({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.contacts.unblock({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/contacts/unblock" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "contactId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `contactId` | string | Yes | Contact ID A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="UnblockContactParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |

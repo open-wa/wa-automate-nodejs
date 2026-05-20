@@ -1,6 +1,7 @@
 ---
 title: "Session Client API"
 description: "Generated client method reference for the session namespace."
+icon: "BookOpen"
 ---
 
 # Session Client API
@@ -13,16 +14,55 @@ This page documents 16 schema-registry client methods in the `session` namespace
 
 Get phone battery level
 
-- Namespace: `session`
-- HTTP route: `GET /api/session/getBatteryLevel`
-- HTTP alias routes:
-  - `GET /api/getBatteryLevel`
-- Aliases: `session.getBatteryLevel`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `session` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `session.getBatteryLevel` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getBatteryLevel` | `getBatteryLevel` | Active |
+| Alias | `GET` | `/api/getBatteryLevel` | `getBatteryLevel` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getBatteryLevel({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.session.getBatteryLevel({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getBatteryLevel" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -30,22 +70,63 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `number`
+| Prop | Value |
+| --- | --- |
+| Return type | `number` |
 
 ## `getConnectionState`
 
 Get connection state
 
-- Namespace: `session`
-- HTTP route: `GET /api/session/getConnectionState`
-- HTTP alias routes:
-  - `GET /api/getConnectionState`
-- Aliases: `session.getConnectionState`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `session` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `session.getConnectionState` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getConnectionState` | `getConnectionState` | Active |
+| Alias | `GET` | `/api/getConnectionState` | `getConnectionState` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getConnectionState({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.session.getConnectionState({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getConnectionState" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -53,22 +134,63 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `getFeatures`
 
 Get enabled features
 
-- Namespace: `session`
-- HTTP route: `GET /api/session/getFeatures`
-- HTTP alias routes:
-  - `GET /api/getFeatures`
-- Aliases: `session.getFeatures`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `session` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `session.getFeatures` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getFeatures` | `getFeatures` | Active |
+| Alias | `GET` | `/api/getFeatures` | `getFeatures` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getFeatures({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.session.getFeatures({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getFeatures" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -76,22 +198,63 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `getHostNumber`
 
 Get host phone number
 
-- Namespace: `session`
-- HTTP route: `GET /api/session/getHostNumber`
-- HTTP alias routes:
-  - `GET /api/getHostNumber`
-- Aliases: `session.getHostNumber`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `session` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `session.getHostNumber` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getHostNumber` | `getHostNumber` | Active |
+| Alias | `GET` | `/api/getHostNumber` | `getHostNumber` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getHostNumber({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.session.getHostNumber({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getHostNumber" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -99,22 +262,63 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `string`
+| Prop | Value |
+| --- | --- |
+| Return type | `string` |
 
 ## `getLicenseType`
 
 Get license type
 
-- Namespace: `session`
-- HTTP route: `GET /api/session/getLicenseType`
-- HTTP alias routes:
-  - `GET /api/getLicenseType`
-- Aliases: `session.getLicenseType`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `session` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `session.getLicenseType` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getLicenseType` | `getLicenseType` | Active |
+| Alias | `GET` | `/api/getLicenseType` | `getLicenseType` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getLicenseType({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.session.getLicenseType({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getLicenseType" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -122,25 +326,65 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `unknown \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown \| boolean` |
 
 ## `getLoadedMessageCount`
 
 Get loaded message count
 
-- Namespace: `session`
-- HTTP route: `GET /api/session/getLoadedMessageCount`
-- HTTP alias routes:
-  - `GET /api/getAmountOfLoadedMessages` (deprecated)
-  - `GET /api/getLoadedMessageCount`
-  - `GET /api/session/getAmountOfLoadedMessages` (deprecated)
-- Aliases: `getAmountOfLoadedMessages`, `session.getAmountOfLoadedMessages`, `session.getLoadedMessageCount`
-- Deprecated aliases: `getAmountOfLoadedMessages`, `session.getAmountOfLoadedMessages`
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- WAPI override: `getAmountOfLoadedMessages`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `session` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `getAmountOfLoadedMessages`, `session.getAmountOfLoadedMessages`, `session.getLoadedMessageCount` |
+| Deprecated aliases | `getAmountOfLoadedMessages`, `session.getAmountOfLoadedMessages` |
+| License | `none` |
+| WAPI override | `getAmountOfLoadedMessages` |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getLoadedMessageCount` | `getLoadedMessageCount` | Active |
+| Deprecated alias | `GET` | `/api/getAmountOfLoadedMessages` | `getAmountOfLoadedMessages` | **Deprecated** |
+| Alias | `GET` | `/api/getLoadedMessageCount` | `getLoadedMessageCount` | Active |
+| Deprecated alias | `GET` | `/api/session/getAmountOfLoadedMessages` | `session.getAmountOfLoadedMessages` | **Deprecated** |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getLoadedMessageCount({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.session.getLoadedMessageCount({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getLoadedMessageCount" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -148,22 +392,63 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `number`
+| Prop | Value |
+| --- | --- |
+| Return type | `number` |
 
 ## `getMe`
 
 Get host account info
 
-- Namespace: `session`
-- HTTP route: `GET /api/session/getMe`
-- HTTP alias routes:
-  - `GET /api/getMe`
-- Aliases: `session.getMe`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `session` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `session.getMe` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getMe` | `getMe` | Active |
+| Alias | `GET` | `/api/getMe` | `getMe` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getMe({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.session.getMe({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getMe" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -171,22 +456,63 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `getProcessStats`
 
 Get process statistics
 
-- Namespace: `session`
-- HTTP route: `GET /api/session/getProcessStats`
-- HTTP alias routes:
-  - `GET /api/getProcessStats`
-- Aliases: `session.getProcessStats`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `session` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `session.getProcessStats` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getProcessStats` | `getProcessStats` | Active |
+| Alias | `GET` | `/api/getProcessStats` | `getProcessStats` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getProcessStats({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.session.getProcessStats({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getProcessStats" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -194,81 +520,209 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `getSnapshot`
 
 Take screenshot
 
-- Namespace: `session`
-- HTTP route: `GET /api/session/getSnapshot`
-- HTTP alias routes:
-  - `GET /api/getSnapshot`
-  - `GET /api/session/takeScreenshot`
-  - `GET /api/takeScreenshot`
-- Aliases: `session.getSnapshot`, `session.takeScreenshot`, `takeScreenshot`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `chatId`, `width`, `height`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `session` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `chatId`, `width`, `height` |
+| Aliases | `session.getSnapshot`, `session.takeScreenshot`, `takeScreenshot` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getSnapshot` | `getSnapshot` | Active |
+| Alias | `GET` | `/api/getSnapshot` | `getSnapshot` | Active |
+| Alias | `GET` | `/api/session/takeScreenshot` | `session.takeScreenshot` | Active |
+| Alias | `GET` | `/api/takeScreenshot` | `takeScreenshot` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getSnapshot({
+  chatId: "447123456789@c.us",
+  width: 1,
+  height: 1,
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.session.getSnapshot({
+  chatId: "447123456789@c.us",
+  width: 1,
+  height: 1,
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/session/getSnapshot" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "chatId=447123456789@c.us" \
+  --data-urlencode "width=1" \
+  --data-urlencode "height=1"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | No | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
-| `width` | number | No | - | - | - | - |
-| `height` | number | No | - | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="GetSnapshotParams" />
 
 ### Output
 
-Returns: `string`
+| Prop | Value |
+| --- | --- |
+| Return type | `string` |
 
 ## `getUserAgent`
 
 Get user agent
 
-- Namespace: `session`
-- HTTP route: `GET /api/session/getUserAgent`
-- HTTP alias routes:
-  - `GET /api/getGeneratedUserAgent` (deprecated)
-  - `GET /api/getUserAgent`
-  - `GET /api/session/getGeneratedUserAgent` (deprecated)
-- Aliases: `getGeneratedUserAgent`, `session.getGeneratedUserAgent`, `session.getUserAgent`
-- Deprecated aliases: `getGeneratedUserAgent`, `session.getGeneratedUserAgent`
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- WAPI override: `getGeneratedUserAgent`
-- Positional parameter order: `userAgent`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `session` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `userAgent` |
+| Aliases | `getGeneratedUserAgent`, `session.getGeneratedUserAgent`, `session.getUserAgent` |
+| Deprecated aliases | `getGeneratedUserAgent`, `session.getGeneratedUserAgent` |
+| License | `none` |
+| WAPI override | `getGeneratedUserAgent` |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getUserAgent` | `getUserAgent` | Active |
+| Deprecated alias | `GET` | `/api/getGeneratedUserAgent` | `getGeneratedUserAgent` | **Deprecated** |
+| Alias | `GET` | `/api/getUserAgent` | `getUserAgent` | Active |
+| Deprecated alias | `GET` | `/api/session/getGeneratedUserAgent` | `session.getGeneratedUserAgent` | **Deprecated** |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getUserAgent({
+  userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.session.getUserAgent({
+  userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/session/getUserAgent" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "userAgent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `userAgent` | string | No | User agent string | `userA` | `userA` | `"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetUserAgentParams" />
 
 ### Output
 
-Returns: `string`
+| Prop | Value |
+| --- | --- |
+| Return type | `string` |
 
 ## `getWAVersion`
 
 Get WhatsApp Web version
 
-- Namespace: `session`
-- HTTP route: `GET /api/session/getWAVersion`
-- HTTP alias routes:
-  - `GET /api/getWAVersion`
-  - `GET /api/getWhatsAppVersion`
-  - `GET /api/session/getWhatsAppVersion`
-- Aliases: `getWhatsAppVersion`, `session.getWAVersion`, `session.getWhatsAppVersion`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `session` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `getWhatsAppVersion`, `session.getWAVersion`, `session.getWhatsAppVersion` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getWAVersion` | `getWAVersion` | Active |
+| Alias | `GET` | `/api/getWAVersion` | `getWAVersion` | Active |
+| Alias | `GET` | `/api/getWhatsAppVersion` | `getWhatsAppVersion` | Active |
+| Alias | `GET` | `/api/session/getWhatsAppVersion` | `session.getWhatsAppVersion` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getWAVersion({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.session.getWAVersion({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getWAVersion" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -276,22 +730,63 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `string`
+| Prop | Value |
+| --- | --- |
+| Return type | `string` |
 
 ## `healthCheck`
 
 Health check
 
-- Namespace: `session`
-- HTTP route: `GET /api/session/healthCheck`
-- HTTP alias routes:
-  - `GET /api/healthCheck`
-- Aliases: `session.healthCheck`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `session` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `session.healthCheck` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/healthCheck` | `healthCheck` | Active |
+| Alias | `GET` | `/api/healthCheck` | `healthCheck` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.healthCheck({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.session.healthCheck({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/healthCheck" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -299,25 +794,65 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `isPlugged`
 
 Check if phone is charging
 
-- Namespace: `session`
-- HTTP route: `GET /api/session/isPlugged`
-- HTTP alias routes:
-  - `GET /api/getIsPlugged` (deprecated)
-  - `GET /api/isPlugged`
-  - `GET /api/session/getIsPlugged` (deprecated)
-- Aliases: `getIsPlugged`, `session.getIsPlugged`, `session.isPlugged`
-- Deprecated aliases: `getIsPlugged`, `session.getIsPlugged`
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- WAPI override: `getIsPlugged`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `session` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `getIsPlugged`, `session.getIsPlugged`, `session.isPlugged` |
+| Deprecated aliases | `getIsPlugged`, `session.getIsPlugged` |
+| License | `none` |
+| WAPI override | `getIsPlugged` |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/isPlugged` | `isPlugged` | Active |
+| Deprecated alias | `GET` | `/api/getIsPlugged` | `getIsPlugged` | **Deprecated** |
+| Alias | `GET` | `/api/isPlugged` | `isPlugged` | Active |
+| Deprecated alias | `GET` | `/api/session/getIsPlugged` | `session.getIsPlugged` | **Deprecated** |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.isPlugged({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.session.isPlugged({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/isPlugged" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -325,88 +860,226 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `setMyName`
 
 Set host name
 
-- Namespace: `session`
-- HTTP route: `PUT /api/session/setName`
-- HTTP alias routes:
-  - `PUT /api/session/setDisplayName`
-  - `PUT /api/session/setMyName`
-  - `PUT /api/setDisplayName`
-  - `PUT /api/setMyName`
-- Aliases: `session.setDisplayName`, `session.setMyName`, `session.setName`, `setDisplayName`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `personal-only`
-- Action: `update`
-- Positional parameter order: `name`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `session` |
+| Action | `update` |
+| Functionality | `personal-only` |
+| Positional parameter order | `name` |
+| Aliases | `session.setDisplayName`, `session.setMyName`, `session.setName`, `setDisplayName` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/session/setName` | `setMyName` | Active |
+| Alias | `PUT` | `/api/session/setDisplayName` | `session.setDisplayName` | Active |
+| Alias | `PUT` | `/api/session/setMyName` | `session.setMyName` | Active |
+| Alias | `PUT` | `/api/setDisplayName` | `setDisplayName` | Active |
+| Alias | `PUT` | `/api/setMyName` | `setMyName` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.setMyName({
+  name: "OpenWA Bot",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.session.setName({
+  name: "OpenWA Bot",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/session/setName" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "name": "OpenWA Bot"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `name` | string | Yes | Display name | `newName` | `newName` | `"OpenWA Bot"` |
+<AutoTypeTable path="./generated-method-params.ts" name="SetMyNameParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `setMyStatus`
 
 Set host status
 
-- Namespace: `session`
-- HTTP route: `PUT /api/session/setStatus`
-- HTTP alias routes:
-  - `PUT /api/session/setMyStatus`
-  - `PUT /api/session/setStatusText`
-  - `PUT /api/setMyStatus`
-  - `PUT /api/setStatusText`
-- Aliases: `session.setMyStatus`, `session.setStatus`, `session.setStatusText`, `setStatusText`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `statusText`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `session` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `statusText` |
+| Aliases | `session.setMyStatus`, `session.setStatus`, `session.setStatusText`, `setStatusText` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/session/setStatus` | `setMyStatus` | Active |
+| Alias | `PUT` | `/api/session/setMyStatus` | `session.setMyStatus` | Active |
+| Alias | `PUT` | `/api/session/setStatusText` | `session.setStatusText` | Active |
+| Alias | `PUT` | `/api/setMyStatus` | `setMyStatus` | Active |
+| Alias | `PUT` | `/api/setStatusText` | `setStatusText` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.setMyStatus({
+  statusText: "Available",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.session.setStatus({
+  statusText: "Available",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/session/setStatus" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "statusText": "Available"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `statusText` | string | Yes | Status text | `newStatus` | `newStatus` | `"Available"` |
+<AutoTypeTable path="./generated-method-params.ts" name="SetMyStatusParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
-## `setProfilePicture`
+## `setProfilePicture` - insiders
 
 Set profile picture
 
-- Namespace: `session`
-- HTTP route: `PUT /api/session/setProfilePicture`
-- HTTP alias routes:
-  - `PUT /api/session/setProfilePic` (deprecated)
-  - `PUT /api/setProfilePic` (deprecated)
-  - `PUT /api/setProfilePicture`
-- Aliases: `session.setProfilePic`, `session.setProfilePicture`, `setProfilePic`
-- Deprecated aliases: `session.setProfilePic`, `setProfilePic`
-- License: `insiders`
-- Functionality: `both`
-- Action: `update`
-- WAPI override: `setProfilePic`
-- Positional parameter order: `image`
+<LicensedFeatureCallout tier="insiders" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `session` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `image` |
+| Aliases | `session.setProfilePic`, `session.setProfilePicture`, `setProfilePic` |
+| Deprecated aliases | `session.setProfilePic`, `setProfilePic` |
+| License | `insiders` |
+| WAPI override | `setProfilePic` |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/session/setProfilePicture` | `setProfilePicture` | Active |
+| Deprecated alias | `PUT` | `/api/session/setProfilePic` | `session.setProfilePic` | **Deprecated** |
+| Deprecated alias | `PUT` | `/api/setProfilePic` | `setProfilePic` | **Deprecated** |
+| Alias | `PUT` | `/api/setProfilePicture` | `setProfilePicture` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.setProfilePicture({
+  image: "data:image/png;base64,iVBORw0KGgo...",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.session.setProfilePicture({
+  image: "data:image/png;base64,iVBORw0KGgo...",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/session/setProfilePicture" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "image": "data:image/png;base64,iVBORw0KGgo..."
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `image` | string | Yes | Image file (path, URL, DataURL, or Base64) Branded type: DataURL Pattern: ^data:.+;base64,.+$ | - | - | `"data:image/png;base64,iVBORw0KGgo..."` |
+<AutoTypeTable path="./generated-method-params.ts" name="SetProfilePictureParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |

@@ -1,6 +1,7 @@
 ---
 title: "Messages Client API"
 description: "Generated client method reference for the messages namespace."
+icon: "BookOpen"
 ---
 
 # Messages Client API
@@ -13,231 +14,633 @@ This page documents 37 schema-registry client methods in the `messages` namespac
 
 Deletes a message
 
-- Namespace: `messages`
-- HTTP route: `DELETE /api/messages/delete`
-- HTTP alias routes:
-  - `DELETE /api/deleteMessage`
-- Aliases: `messages.delete`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `delete`
-- Positional parameter order: `chatId`, `messageId`, `onlyLocal`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `delete` |
+| Functionality | `both` |
+| Positional parameter order | `chatId`, `messageId`, `onlyLocal` |
+| Aliases | `messages.delete` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `DELETE` | `/api/messages/delete` | `deleteMessage` | Active |
+| Alias | `DELETE` | `/api/deleteMessage` | `deleteMessage` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.deleteMessage({
+  chatId: "447123456789@c.us",
+  messageId: ["false_447123456789@c.us_ABC123","false_447123456789@c.us_DEF456"],
+  onlyLocal: true,
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.delete({
+  chatId: "447123456789@c.us",
+  messageId: ["false_447123456789@c.us_ABC123","false_447123456789@c.us_DEF456"],
+  onlyLocal: true,
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X DELETE "http://localhost:8080/api/messages/delete" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us",
+    "messageId": [
+      "false_447123456789@c.us_ABC123",
+      "false_447123456789@c.us_DEF456"
+    ],
+    "onlyLocal": true
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
-| `messageId` | string[] \| string | Yes | Message ID(s) to process Branded type: MessageId[] | `messages` | - | `["false_447123456789@c.us_ABC123","false_447123456789@c.us_DEF456"]` |
-| `onlyLocal` | boolean | Yes | Delete only locally | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="DeleteMessageParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `forwardMessages`
 
 Forwards messages to a chat
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/forward`
-- HTTP alias routes:
-  - `POST /api/forwardMessages`
-- Aliases: `messages.forward`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `messages`, `skipMyMessages`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `messages`, `skipMyMessages` |
+| Aliases | `messages.forward` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/forward` | `forwardMessages` | Active |
+| Alias | `POST` | `/api/forwardMessages` | `forwardMessages` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.forwardMessages({
+  to: "447123456789@c.us",
+  messages: ["false_447123456789@c.us_ABC123","false_447123456789@c.us_DEF456"],
+  skipMyMessages: false,
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.forward({
+  to: "447123456789@c.us",
+  messages: ["false_447123456789@c.us_ABC123","false_447123456789@c.us_DEF456"],
+  skipMyMessages: false,
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/forward" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "messages": [
+      "false_447123456789@c.us_ABC123",
+      "false_447123456789@c.us_DEF456"
+    ],
+    "skipMyMessages": false
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `messages` | string[] \| string | Yes | Message ID(s) to process Branded type: MessageId[] | `messages` | - | `["false_447123456789@c.us_ABC123","false_447123456789@c.us_DEF456"]` |
-| `skipMyMessages` | boolean | Yes | Skip own messages | - | - | `false` |
+<AutoTypeTable path="./generated-method-params.ts" name="ForwardMessagesParams" />
 
 ### Output
 
-Returns: `object { _serialized }[] \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125;[] \| boolean` |
 
 ## `getAllMessages`
 
 Retrieves all messages in the session
 
-- Namespace: `messages`
-- HTTP route: `GET /api/messages/getAll`
-- HTTP alias routes:
-  - `GET /api/getAllMessages`
-  - `GET /api/listMessages`
-  - `GET /api/messages/all`
-  - `GET /api/messages/list`
-- Aliases: `listMessages`, `messages.all`, `messages.getAll`, `messages.list`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `chatId`, `includeMe`, `includeNotifications`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `chatId`, `includeMe`, `includeNotifications` |
+| Aliases | `listMessages`, `messages.all`, `messages.getAll`, `messages.list` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/messages/getAll` | `getAllMessages` | Active |
+| Alias | `GET` | `/api/getAllMessages` | `getAllMessages` | Active |
+| Alias | `GET` | `/api/listMessages` | `listMessages` | Active |
+| Alias | `GET` | `/api/messages/all` | `messages.all` | Active |
+| Alias | `GET` | `/api/messages/list` | `messages.list` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getAllMessages({
+  chatId: "447123456789@c.us",
+  includeMe: true,
+  includeNotifications: true,
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.getAll({
+  chatId: "447123456789@c.us",
+  includeMe: true,
+  includeNotifications: true,
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/messages/getAll" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "chatId=447123456789@c.us" \
+  --data-urlencode "includeMe=true" \
+  --data-urlencode "includeNotifications=true"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | No | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
-| `includeMe` | boolean | Yes | Include own messages | - | - | - |
-| `includeNotifications` | boolean | Yes | Include notification messages | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="GetAllMessagesParams" />
 
 ### Output
 
-Returns: `unknown[]`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown[]` |
 
 ## `getMessageById`
 
 Retrieves a specific message by ID
 
-- Namespace: `messages`
-- HTTP route: `GET /api/messages/get`
-- HTTP alias routes:
-  - `GET /api/getMessage`
-  - `GET /api/getMessageById`
-  - `GET /api/messages/getById`
-- Aliases: `getMessage`, `messages.get`, `messages.getById`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `messageId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `messageId` |
+| Aliases | `getMessage`, `messages.get`, `messages.getById` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/messages/get` | `getMessageById` | Active |
+| Alias | `GET` | `/api/getMessage` | `getMessage` | Active |
+| Alias | `GET` | `/api/getMessageById` | `getMessageById` | Active |
+| Alias | `GET` | `/api/messages/getById` | `messages.getById` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getMessageById({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.get({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/messages/get" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "messageId=false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `messageId` | string | Yes | Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true\|false)_.+_.+$ | `id`, `msgId` | `msgId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetMessageByIdParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `getMessageInfo`
 
 Get message delivery info
 
-- Namespace: `messages`
-- HTTP route: `GET /api/messages/getInfo`
-- HTTP alias routes:
-  - `GET /api/getMessageInfo`
-- Aliases: `messages.getInfo`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `messageId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `messageId` |
+| Aliases | `messages.getInfo` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/messages/getInfo` | `getMessageInfo` | Active |
+| Alias | `GET` | `/api/getMessageInfo` | `getMessageInfo` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getMessageInfo({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.getInfo({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/messages/getInfo" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "messageId=false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `messageId` | string | Yes | Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true\|false)_.+_.+$ | `id`, `msgId` | `msgId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetMessageInfoParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `getMessagesForLLM`
 
 Get messages formatted for LLMs
 
-- Namespace: `messages`
-- HTTP route: `GET /api/messages/getForLLM`
-- HTTP alias routes:
-  - `GET /api/getGptArray` (deprecated)
-  - `GET /api/getMessagesForLLM`
-  - `GET /api/messages/getGptArray` (deprecated)
-- Aliases: `getGptArray`, `messages.getForLLM`, `messages.getGptArray`
-- Deprecated aliases: `getGptArray`, `messages.getGptArray`
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- WAPI override: `getGptArray`
-- Positional parameter order: `chatId`, `last`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `chatId`, `last` |
+| Aliases | `getGptArray`, `messages.getForLLM`, `messages.getGptArray` |
+| Deprecated aliases | `getGptArray`, `messages.getGptArray` |
+| License | `none` |
+| WAPI override | `getGptArray` |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/messages/getForLLM` | `getMessagesForLLM` | Active |
+| Deprecated alias | `GET` | `/api/getGptArray` | `getGptArray` | **Deprecated** |
+| Alias | `GET` | `/api/getMessagesForLLM` | `getMessagesForLLM` | Active |
+| Deprecated alias | `GET` | `/api/messages/getGptArray` | `messages.getGptArray` | **Deprecated** |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getMessagesForLLM({
+  chatId: "447123456789@c.us",
+  last: 1,
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.getForLLM({
+  chatId: "447123456789@c.us",
+  last: 1,
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/messages/getForLLM" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "chatId=447123456789@c.us" \
+  --data-urlencode "last=1"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
-| `last` | number | Yes | - | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="GetMessagesForLLMParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `getMyLastMessage`
 
 Get last message sent by host
 
-- Namespace: `messages`
-- HTTP route: `GET /api/messages/getMyLast`
-- HTTP alias routes:
-  - `GET /api/getMyLastMessage`
-- Aliases: `messages.getMyLast`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `chatId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `messages.getMyLast` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/messages/getMyLast` | `getMyLastMessage` | Active |
+| Alias | `GET` | `/api/getMyLastMessage` | `getMyLastMessage` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getMyLastMessage({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.getMyLast({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/messages/getMyLast" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "chatId=447123456789@c.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | No | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetMyLastMessageParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
-## `getStarredMessages`
+## `getStarredMessages` - insiders
 
 Get starred messages
 
-- Namespace: `messages`
-- HTTP route: `GET /api/messages/getStarred`
-- HTTP alias routes:
-  - `GET /api/getStarredMessages`
-- Aliases: `messages.getStarred`
-- Deprecated aliases: -
-- License: `insiders`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `chatId`
+<LicensedFeatureCallout tier="insiders" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `messages.getStarred` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/messages/getStarred` | `getStarredMessages` | Active |
+| Alias | `GET` | `/api/getStarredMessages` | `getStarredMessages` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getStarredMessages({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.getStarred({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/messages/getStarred" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "chatId=447123456789@c.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | No | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetStarredMessagesParams" />
 
 ### Output
 
-Returns: `unknown[]`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown[]` |
 
 ## `getUnsentMessages`
 
 Get unsent/pending messages
 
-- Namespace: `messages`
-- HTTP route: `GET /api/messages/getUnsent`
-- HTTP alias routes:
-  - `GET /api/getUnsentMessages`
-- Aliases: `messages.getUnsent`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `messages.getUnsent` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/messages/getUnsent` | `getUnsentMessages` | Active |
+| Alias | `GET` | `/api/getUnsentMessages` | `getUnsentMessages` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getUnsentMessages({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.getUnsent({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/messages/getUnsent" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -245,798 +648,2233 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `unknown[]`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown[]` |
 
 ## `getVCards`
 
 Extract vCards from message
 
-- Namespace: `messages`
-- HTTP route: `GET /api/messages/getVCards`
-- HTTP alias routes:
-  - `GET /api/getVCards`
-- Aliases: `messages.getVCards`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `messageId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `messageId` |
+| Aliases | `messages.getVCards` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/messages/getVCards` | `getVCards` | Active |
+| Alias | `GET` | `/api/getVCards` | `getVCards` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getVCards({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.getVCards({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/messages/getVCards" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "messageId=false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `messageId` | string | Yes | Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true\|false)_.+_.+$ | `id`, `msgId` | `msgId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetVCardsParams" />
 
 ### Output
 
-Returns: `string[]`
+| Prop | Value |
+| --- | --- |
+| Return type | `string[]` |
 
 ## `loadEarlierMessages`
 
 Loads earlier messages from a chat
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/loadEarlier`
-- HTTP alias routes:
-  - `POST /api/loadEarlierMessages`
-  - `POST /api/loadOlderMessages`
-  - `POST /api/messages/loadOlder`
-- Aliases: `loadOlderMessages`, `messages.loadEarlier`, `messages.loadOlder`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `chatId`, `count`, `includeMe`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `chatId`, `count`, `includeMe` |
+| Aliases | `loadOlderMessages`, `messages.loadEarlier`, `messages.loadOlder` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/loadEarlier` | `loadEarlierMessages` | Active |
+| Alias | `POST` | `/api/loadEarlierMessages` | `loadEarlierMessages` | Active |
+| Alias | `POST` | `/api/loadOlderMessages` | `loadOlderMessages` | Active |
+| Alias | `POST` | `/api/messages/loadOlder` | `messages.loadOlder` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.loadEarlierMessages({
+  chatId: "447123456789@c.us",
+  count: 1,
+  includeMe: true,
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.loadEarlier({
+  chatId: "447123456789@c.us",
+  count: 1,
+  includeMe: true,
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/loadEarlier" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us",
+    "count": 1,
+    "includeMe": true
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
-| `count` | number | No | Number of messages to load (default: 20) | - | - | - |
-| `includeMe` | boolean | No | Whether to include messages from the host account (default: false) | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="LoadEarlierMessagesParams" />
 
 ### Output
 
-Returns: `unknown[]`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown[]` |
 
 ## `react`
 
 React to message with emoji
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/react`
-- HTTP alias routes:
-  - `POST /api/react`
-- Aliases: `messages.react`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `messageId`, `emoji`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `messageId`, `emoji` |
+| Aliases | `messages.react` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/react` | `react` | Active |
+| Alias | `POST` | `/api/react` | `react` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.react({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+  emoji: "emoji",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.react({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+  emoji: "emoji",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/react" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "messageId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+    "emoji": "emoji"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `messageId` | string | Yes | Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true\|false)_.+_.+$ | `id`, `msgId` | `msgId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
-| `emoji` | string | Yes | Emoji reaction | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="ReactParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
-## `sendAdvancedButtons`
+## `sendAdvancedButtons` - insiders
 
 Sends an advanced button message with media (deprecated)
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendAdvancedButtons`
-- HTTP alias routes:
-  - `POST /api/sendAdvancedButtons`
-- Aliases: `messages.sendAdvancedButtons`
-- Deprecated aliases: -
-- License: `insiders`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `body`, `buttons`, `text`, `footer`, `filename`
+<LicensedFeatureCallout tier="insiders" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `body`, `buttons`, `text`, `footer`, `filename` |
+| Aliases | `messages.sendAdvancedButtons` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendAdvancedButtons` | `sendAdvancedButtons` | Active |
+| Alias | `POST` | `/api/sendAdvancedButtons` | `sendAdvancedButtons` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendAdvancedButtons({
+  to: "447123456789@c.us",
+  body: "body",
+  buttons: [],
+  text: "text",
+  footer: "footer",
+  filename: "filename",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendAdvancedButtons({
+  to: "447123456789@c.us",
+  body: "body",
+  buttons: [],
+  text: "text",
+  footer: "footer",
+  filename: "filename",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendAdvancedButtons" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "body": "body",
+    "buttons": [],
+    "text": "text",
+    "footer": "footer",
+    "filename": "filename"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `body` | string \| unknown | Yes | Message body, location, or media | - | - | - |
-| `buttons` | unknown[] | Yes | Array of advanced buttons (max 3) | - | - | - |
-| `text` | string | Yes | Message text | - | - | - |
-| `footer` | string | Yes | Message footer | - | - | - |
-| `filename` | string | Yes | Filename if body is a file | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SendAdvancedButtonsParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean` |
 
 ## `sendAudio`
 
 Sends an audio file to a chat
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendAudio`
-- HTTP alias routes:
-  - `POST /api/sendAudio`
-- Aliases: `messages.sendAudio`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `file`, `filename`, `quotedMsgId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `file`, `filename`, `quotedMsgId` |
+| Aliases | `messages.sendAudio` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendAudio` | `sendAudio` | Active |
+| Alias | `POST` | `/api/sendAudio` | `sendAudio` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendAudio({
+  to: "447123456789@c.us",
+  file: "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...",
+  filename: "document.pdf",
+  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendAudio({
+  to: "447123456789@c.us",
+  file: "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...",
+  filename: "document.pdf",
+  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendAudio" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "file": "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...",
+    "filename": "document.pdf",
+    "quotedMsgId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `file` | string | Yes | Audio file (path, URL, DataURL, or Base64) Branded type: DataURL Pattern: ^data:.+;base64,.+$ | - | - | `"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA..."` |
-| `filename` | string | No | Filename with extension | - | - | `"document.pdf"` |
-| `quotedMsgId` | string | No | Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true\|false)_.+_.+$ | `id`, `msgId` | `msgId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
+<AutoTypeTable path="./generated-method-params.ts" name="SendAudioParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean` |
 
 ## `sendBanner`
 
 Sends a banner image
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendBanner`
-- HTTP alias routes:
-  - `POST /api/sendBanner`
-- Aliases: `messages.sendBanner`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `base64`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `base64` |
+| Aliases | `messages.sendBanner` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendBanner` | `sendBanner` | Active |
+| Alias | `POST` | `/api/sendBanner` | `sendBanner` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendBanner({
+  to: "447123456789@c.us",
+  base64: "base64",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendBanner({
+  to: "447123456789@c.us",
+  base64: "base64",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendBanner" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "base64": "base64"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `base64` | string | Yes | Base64 encoded JPEG | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SendBannerParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean` |
 
-## `sendButtons`
+## `sendButtons` - insiders
 
 Sends a button message (deprecated)
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendButtons`
-- HTTP alias routes:
-  - `POST /api/sendButtons`
-- Aliases: `messages.sendButtons`
-- Deprecated aliases: -
-- License: `insiders`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `body`, `buttons`, `title`, `footer`
+<LicensedFeatureCallout tier="insiders" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `body`, `buttons`, `title`, `footer` |
+| Aliases | `messages.sendButtons` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendButtons` | `sendButtons` | Active |
+| Alias | `POST` | `/api/sendButtons` | `sendButtons` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendButtons({
+  to: "447123456789@c.us",
+  body: "body",
+  buttons: [],
+  title: "title",
+  footer: "footer",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendButtons({
+  to: "447123456789@c.us",
+  body: "body",
+  buttons: [],
+  title: "title",
+  footer: "footer",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendButtons" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "body": "body",
+    "buttons": [],
+    "title": "title",
+    "footer": "footer"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `body` | string \| unknown | Yes | Message body or location | - | - | - |
-| `buttons` | unknown[] | Yes | Array of buttons (max 3) | - | - | - |
-| `title` | string | No | Message title | - | - | - |
-| `footer` | string | No | Message footer | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SendButtonsParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean` |
 
 ## `sendContact`
 
 Sends a single contact
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendContact`
-- HTTP alias routes:
-  - `POST /api/sendContact`
-- Aliases: `messages.sendContact`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `contactId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `contactId` |
+| Aliases | `messages.sendContact` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendContact` | `sendContact` | Active |
+| Alias | `POST` | `/api/sendContact` | `sendContact` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendContact({
+  to: "447123456789@c.us",
+  contactId: [],
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendContact({
+  to: "447123456789@c.us",
+  contactId: [],
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendContact" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "contactId": []
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `contactId` | string \| string[] | Yes | - | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SendContactParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean` |
 
 ## `sendFile`
 
 Sends a file or document to a chat
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendFile`
-- HTTP alias routes:
-  - `POST /api/sendFile`
-- Aliases: `messages.sendFile`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `file`, `filename`, `caption`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `file`, `filename`, `caption` |
+| Aliases | `messages.sendFile` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendFile` | `sendFile` | Active |
+| Alias | `POST` | `/api/sendFile` | `sendFile` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendFile({
+  to: "447123456789@c.us",
+  file: "data:application/pdf;base64,JVBERi0xLjQK...",
+  filename: "document.pdf",
+  caption: "Check out this image!",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendFile({
+  to: "447123456789@c.us",
+  file: "data:application/pdf;base64,JVBERi0xLjQK...",
+  filename: "document.pdf",
+  caption: "Check out this image!",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendFile" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "file": "data:application/pdf;base64,JVBERi0xLjQK...",
+    "filename": "document.pdf",
+    "caption": "Check out this image!"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `file` | string | Yes | File (path, URL, DataURL, Base64, or Buffer) Branded type: DataURL Pattern: ^data:.+;base64,.+$ | - | - | `"data:application/pdf;base64,JVBERi0xLjQK..."` |
-| `filename` | string | No | Filename with extension | - | - | `"document.pdf"` |
-| `caption` | string | No | Media caption | - | - | `"Check out this image!"` |
+<AutoTypeTable path="./generated-method-params.ts" name="SendFileParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| string`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| string` |
 
 ## `sendFileFromUrl`
 
 Downloads a file from a URL and sends it to a chat
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendFileFromUrl`
-- HTTP alias routes:
-  - `POST /api/sendFileFromUrl`
-- Aliases: `messages.sendFileFromUrl`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `url`, `filename`, `caption`, `headers`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `url`, `filename`, `caption`, `headers` |
+| Aliases | `messages.sendFileFromUrl` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendFileFromUrl` | `sendFileFromUrl` | Active |
+| Alias | `POST` | `/api/sendFileFromUrl` | `sendFileFromUrl` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendFileFromUrl({
+  to: "447123456789@c.us",
+  url: "url",
+  filename: "filename",
+  caption: "caption",
+  headers: {},
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendFileFromUrl({
+  to: "447123456789@c.us",
+  url: "url",
+  filename: "filename",
+  caption: "caption",
+  headers: {},
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendFileFromUrl" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "url": "url",
+    "filename": "filename",
+    "caption": "caption",
+    "headers": {}
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `url` | string | Yes | URL of the file to download | - | - | - |
-| `filename` | string | Yes | Filename for the sent file | - | - | - |
-| `caption` | string | No | Caption for the file | - | - | - |
-| `headers` | object | No | HTTP headers for the download request | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SendFileFromUrlParams" />
 
 ### Output
 
-Returns: `string \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `string \| boolean` |
 
 ## `sendImage`
 
 Sends an image to a chat
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendImage`
-- HTTP alias routes:
-  - `POST /api/sendImage`
-- Aliases: `messages.sendImage`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `imgData`, `filename`, `caption`, `id`, `waitForId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `imgData`, `filename`, `caption`, `id`, `waitForId` |
+| Aliases | `messages.sendImage` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendImage` | `sendImage` | Active |
+| Alias | `POST` | `/api/sendImage` | `sendImage` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendImage({
+  to: "447123456789@c.us",
+  imgData: "data:image/png;base64,iVBORw0KGgo...",
+  filename: "document.pdf",
+  caption: "Check out this image!",
+  id: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+  waitForId: true,
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendImage({
+  to: "447123456789@c.us",
+  imgData: "data:image/png;base64,iVBORw0KGgo...",
+  filename: "document.pdf",
+  caption: "Check out this image!",
+  id: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+  waitForId: true,
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendImage" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "imgData": "data:image/png;base64,iVBORw0KGgo...",
+    "filename": "document.pdf",
+    "caption": "Check out this image!",
+    "id": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+    "waitForId": true
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `imgData` | string | Yes | Image file (path, URL, DataURL, or Base64) Branded type: DataURL Pattern: ^data:.+;base64,.+$ | - | - | `"data:image/png;base64,iVBORw0KGgo..."` |
-| `filename` | string | No | Filename with extension | - | - | `"document.pdf"` |
-| `caption` | string | No | Media caption | - | - | `"Check out this image!"` |
-| `id` | string | No | Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true\|false)_.+_.+$ | `id`, `msgId` | `msgId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
-| `waitForId` | boolean | Yes | Wait for message ID | - | - | `true` |
+<AutoTypeTable path="./generated-method-params.ts" name="SendImageParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean \| string`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean \| string` |
 
 ## `sendLinkWithAutoPreview`
 
 Sends a link with auto-generated preview
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendLinkWithAutoPreview`
-- HTTP alias routes:
-  - `POST /api/messages/sendLink`
-  - `POST /api/sendLink`
-  - `POST /api/sendLinkWithAutoPreview`
-- Aliases: `messages.sendLink`, `messages.sendLinkWithAutoPreview`, `sendLink`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `url`, `text`, `thumbnail`, `quotedMsgId`, `customSize`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `url`, `text`, `thumbnail`, `quotedMsgId`, `customSize` |
+| Aliases | `messages.sendLink`, `messages.sendLinkWithAutoPreview`, `sendLink` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendLinkWithAutoPreview` | `sendLinkWithAutoPreview` | Active |
+| Alias | `POST` | `/api/messages/sendLink` | `messages.sendLink` | Active |
+| Alias | `POST` | `/api/sendLink` | `sendLink` | Active |
+| Alias | `POST` | `/api/sendLinkWithAutoPreview` | `sendLinkWithAutoPreview` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendLinkWithAutoPreview({
+  to: "447123456789@c.us",
+  url: "url",
+  text: "Hello, world!",
+  thumbnail: "thumbnail",
+  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+  customSize: {},
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendLinkWithAutoPreview({
+  to: "447123456789@c.us",
+  url: "url",
+  text: "Hello, world!",
+  thumbnail: "thumbnail",
+  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+  customSize: {},
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendLinkWithAutoPreview" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "url": "url",
+    "text": "Hello, world!",
+    "thumbnail": "thumbnail",
+    "quotedMsgId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+    "customSize": {}
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `url` | string | Yes | Link URL | - | - | - |
-| `text` | string | No | Message content Branded type: Content | `body`, `message`, `text` | - | `"Hello, world!"` |
-| `thumbnail` | string | No | Base64 thumbnail override | - | - | - |
-| `quotedMsgId` | string | No | Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true\|false)_.+_.+$ | `id`, `msgId` | `msgId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
-| `customSize` | object { height, width } | No | Custom thumbnail size | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SendLinkWithAutoPreviewParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean` |
 
-## `sendListMessage`
+## `sendListMessage` - insiders
 
 Sends a list/menu message (deprecated)
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendList`
-- HTTP alias routes:
-  - `POST /api/sendList`
-  - `POST /api/sendListMessage`
-- Aliases: `messages.sendList`, `sendList`
-- Deprecated aliases: -
-- License: `insiders`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `sections`, `title`, `description`, `actionText`
+<LicensedFeatureCallout tier="insiders" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `sections`, `title`, `description`, `actionText` |
+| Aliases | `messages.sendList`, `sendList` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendList` | `sendListMessage` | Active |
+| Alias | `POST` | `/api/sendList` | `sendList` | Active |
+| Alias | `POST` | `/api/sendListMessage` | `sendListMessage` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendListMessage({
+  to: "447123456789@c.us",
+  sections: [],
+  title: "title",
+  description: "description",
+  actionText: "actionText",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendList({
+  to: "447123456789@c.us",
+  sections: [],
+  title: "title",
+  description: "description",
+  actionText: "actionText",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendList" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "sections": [],
+    "title": "title",
+    "description": "description",
+    "actionText": "actionText"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `sections` | unknown[] | Yes | List sections | - | - | - |
-| `title` | string | Yes | List title | - | - | - |
-| `description` | string | Yes | List description | - | - | - |
-| `actionText` | string | Yes | Action button text | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SendListMessageParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean` |
 
 ## `sendLocation`
 
 Sends a location to a chat
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendLocation`
-- HTTP alias routes:
-  - `POST /api/sendLocation`
-- Aliases: `messages.sendLocation`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `lat`, `lng`, `loc`, `address`, `url`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `lat`, `lng`, `loc`, `address`, `url` |
+| Aliases | `messages.sendLocation` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendLocation` | `sendLocation` | Active |
+| Alias | `POST` | `/api/sendLocation` | `sendLocation` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendLocation({
+  to: "447123456789@c.us",
+  lat: 51.5074,
+  lng: -0.1278,
+  loc: "London, UK",
+  address: "address",
+  url: "url",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendLocation({
+  to: "447123456789@c.us",
+  lat: 51.5074,
+  lng: -0.1278,
+  loc: "London, UK",
+  address: "address",
+  url: "url",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendLocation" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "lat": 51.5074,
+    "lng": -0.1278,
+    "loc": "London, UK",
+    "address": "address",
+    "url": "url"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `lat` | number \| string | Yes | Latitude coordinate | - | - | `51.5074` |
-| `lng` | number \| string | Yes | Longitude coordinate | - | - | `-0.1278` |
-| `loc` | string | No | Location name or description | - | - | `"London, UK"` |
-| `address` | string | No | Address text | - | - | - |
-| `url` | string | No | Address link | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SendLocationParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean` |
 
 ## `sendMessageWithThumb`
 
 Sends a link preview message with custom thumbnail
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendLinkWithThumbnail`
-- HTTP alias routes:
-  - `POST /api/messages/sendWithThumb`
-  - `POST /api/sendLinkWithThumbnail`
-  - `POST /api/sendMessageWithThumb`
-- Aliases: `messages.sendLinkWithThumbnail`, `messages.sendWithThumb`, `sendLinkWithThumbnail`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `thumb`, `url`, `title`, `description`, `content`, `to`, `quotedMsgId`, `customSize`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `thumb`, `url`, `title`, `description`, `content`, `to`, `quotedMsgId`, `customSize` |
+| Aliases | `messages.sendLinkWithThumbnail`, `messages.sendWithThumb`, `sendLinkWithThumbnail` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendLinkWithThumbnail` | `sendMessageWithThumb` | Active |
+| Alias | `POST` | `/api/messages/sendWithThumb` | `messages.sendWithThumb` | Active |
+| Alias | `POST` | `/api/sendLinkWithThumbnail` | `sendLinkWithThumbnail` | Active |
+| Alias | `POST` | `/api/sendMessageWithThumb` | `sendMessageWithThumb` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendMessageWithThumb({
+  thumb: "thumb",
+  url: "url",
+  title: "title",
+  description: "description",
+  content: "Hello, world!",
+  to: "447123456789@c.us",
+  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+  customSize: {},
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendLinkWithThumbnail({
+  thumb: "thumb",
+  url: "url",
+  title: "title",
+  description: "description",
+  content: "Hello, world!",
+  to: "447123456789@c.us",
+  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+  customSize: {},
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendLinkWithThumbnail" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "thumb": "thumb",
+    "url": "url",
+    "title": "title",
+    "description": "description",
+    "content": "Hello, world!",
+    "to": "447123456789@c.us",
+    "quotedMsgId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+    "customSize": {}
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `thumb` | string | Yes | Base64 thumbnail (max 200x200px) | - | - | - |
-| `url` | string | Yes | Link URL | - | - | - |
-| `title` | string | Yes | Link title | - | - | - |
-| `description` | string | Yes | Link description | - | - | - |
-| `content` | string | Yes | Message content Branded type: Content | `body`, `message`, `text` | - | `"Hello, world!"` |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `quotedMsgId` | string | No | Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true\|false)_.+_.+$ | `id`, `msgId` | `msgId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
-| `customSize` | object { height, width } | No | Custom thumbnail size | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SendMessageWithThumbParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean` |
 
 ## `sendMultipleContacts`
 
 Sends multiple contacts
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendContacts`
-- HTTP alias routes:
-  - `POST /api/messages/sendMultipleContacts`
-  - `POST /api/sendContacts`
-  - `POST /api/sendMultipleContacts`
-- Aliases: `messages.sendContacts`, `messages.sendMultipleContacts`, `sendContacts`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `contactIds`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `contactIds` |
+| Aliases | `messages.sendContacts`, `messages.sendMultipleContacts`, `sendContacts` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendContacts` | `sendMultipleContacts` | Active |
+| Alias | `POST` | `/api/messages/sendMultipleContacts` | `messages.sendMultipleContacts` | Active |
+| Alias | `POST` | `/api/sendContacts` | `sendContacts` | Active |
+| Alias | `POST` | `/api/sendMultipleContacts` | `sendMultipleContacts` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendMultipleContacts({
+  to: "447123456789@c.us",
+  contactIds: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendContacts({
+  to: "447123456789@c.us",
+  contactIds: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendContacts" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "contactIds": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `contactIds` | string[] | Yes | A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="SendMultipleContactsParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean` |
 
 ## `sendPaymentRequest`
 
 Sends a payment request message
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendPaymentRequest`
-- HTTP alias routes:
-  - `POST /api/sendPaymentRequest`
-- Aliases: `messages.sendPaymentRequest`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `amount`, `currency`, `message`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `amount`, `currency`, `message` |
+| Aliases | `messages.sendPaymentRequest` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendPaymentRequest` | `sendPaymentRequest` | Active |
+| Alias | `POST` | `/api/sendPaymentRequest` | `sendPaymentRequest` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendPaymentRequest({
+  to: "447123456789@c.us",
+  amount: 1,
+  currency: "currency",
+  message: "message",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendPaymentRequest({
+  to: "447123456789@c.us",
+  amount: 1,
+  currency: "currency",
+  message: "message",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendPaymentRequest" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "amount": 1,
+    "currency": "currency",
+    "message": "message"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `amount` | number | Yes | Amount in 1000 format (e.g £10 => 10000) | - | - | - |
-| `currency` | string | Yes | 3 letter currency code | - | - | - |
-| `message` | string | No | Optional message | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SendPaymentRequestParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean` |
 
 ## `sendPoll`
 
 Sends a poll message
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendPoll`
-- HTTP alias routes:
-  - `POST /api/sendPoll`
-- Aliases: `messages.sendPoll`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `name`, `options`, `selectableCount`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `name`, `options`, `selectableCount` |
+| Aliases | `messages.sendPoll` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendPoll` | `sendPoll` | Active |
+| Alias | `POST` | `/api/sendPoll` | `sendPoll` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendPoll({
+  to: "447123456789@c.us",
+  name: "name",
+  options: [],
+  selectableCount: 1,
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendPoll({
+  to: "447123456789@c.us",
+  name: "name",
+  options: [],
+  selectableCount: 1,
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendPoll" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "name": "name",
+    "options": [],
+    "selectableCount": 1
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `name` | string | Yes | Poll question | - | - | - |
-| `options` | string[] | Yes | Poll options (2-12) | - | - | - |
-| `selectableCount` | number | Yes | Number of selectable options | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SendPollParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean` |
 
 ## `sendPtt`
 
 Sends a voice note (push-to-talk) to a chat
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendPtt`
-- HTTP alias routes:
-  - `POST /api/messages/sendVoiceNote`
-  - `POST /api/sendPtt`
-  - `POST /api/sendVoiceNote`
-- Aliases: `messages.sendPtt`, `messages.sendVoiceNote`, `sendVoiceNote`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `file`, `quotedMsgId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `file`, `quotedMsgId` |
+| Aliases | `messages.sendPtt`, `messages.sendVoiceNote`, `sendVoiceNote` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendPtt` | `sendPtt` | Active |
+| Alias | `POST` | `/api/messages/sendVoiceNote` | `messages.sendVoiceNote` | Active |
+| Alias | `POST` | `/api/sendPtt` | `sendPtt` | Active |
+| Alias | `POST` | `/api/sendVoiceNote` | `sendVoiceNote` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendPtt({
+  to: "447123456789@c.us",
+  file: "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...",
+  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendPtt({
+  to: "447123456789@c.us",
+  file: "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...",
+  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendPtt" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "file": "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...",
+    "quotedMsgId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `file` | string | Yes | Audio file (path, URL, DataURL, or Base64) Branded type: DataURL Pattern: ^data:.+;base64,.+$ | - | - | `"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA..."` |
-| `quotedMsgId` | string | No | Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true\|false)_.+_.+$ | `id`, `msgId` | `msgId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
+<AutoTypeTable path="./generated-method-params.ts" name="SendPttParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean` |
 
 ## `sendReplyWithMentions`
 
 Sends a reply to a message that includes @mentions
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendReplyWithMentions`
-- HTTP alias routes:
-  - `POST /api/sendReplyWithMentions`
-- Aliases: `messages.sendReplyWithMentions`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `content`, `replyMessageId`, `hideTags`, `mentions`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `content`, `replyMessageId`, `hideTags`, `mentions` |
+| Aliases | `messages.sendReplyWithMentions` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendReplyWithMentions` | `sendReplyWithMentions` | Active |
+| Alias | `POST` | `/api/sendReplyWithMentions` | `sendReplyWithMentions` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendReplyWithMentions({
+  to: "447123456789@c.us",
+  content: "Hello, world!",
+  replyMessageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+  hideTags: true,
+  mentions: ["447123456789@c.us","441234567890@c.us"],
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendReplyWithMentions({
+  to: "447123456789@c.us",
+  content: "Hello, world!",
+  replyMessageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+  hideTags: true,
+  mentions: ["447123456789@c.us","441234567890@c.us"],
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendReplyWithMentions" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "content": "Hello, world!",
+    "replyMessageId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+    "hideTags": true,
+    "mentions": [
+      "447123456789@c.us",
+      "441234567890@c.us"
+    ]
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `content` | string | Yes | Message content Branded type: Content | `body`, `message`, `text` | - | `"Hello, world!"` |
-| `replyMessageId` | string | Yes | Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true\|false)_.+_.+$ | `id`, `msgId` | `msgId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
-| `hideTags` | boolean | No | Removes all tags within the message | - | - | - |
-| `mentions` | string[] | No | List of mentioned contact IDs | - | - | `["447123456789@c.us","441234567890@c.us"]` |
+<AutoTypeTable path="./generated-method-params.ts" name="SendReplyWithMentionsParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean` |
 
 ## `sendSeen`
 
 Mark message as seen
 
-- Namespace: `messages`
-- HTTP route: `PUT /api/messages/sendSeen`
-- HTTP alias routes:
-  - `PUT /api/sendSeen`
-- Aliases: `messages.sendSeen`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `chatId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `messages.sendSeen` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/messages/sendSeen` | `sendSeen` | Active |
+| Alias | `PUT` | `/api/sendSeen` | `sendSeen` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendSeen({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendSeen({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/messages/sendSeen" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `chatId` | string | Yes | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `contactId`, `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="SendSeenParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `sendText`
 
 Sends a text message to a chat
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendText`
-- HTTP alias routes:
-  - `POST /api/sendText`
-- Aliases: `messages.sendText`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `content`, `options`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `content`, `options` |
+| Aliases | `messages.sendText` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendText` | `sendText` | Active |
+| Alias | `POST` | `/api/sendText` | `sendText` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendText({
+  to: "447123456789@c.us",
+  content: "Hello, world!",
+  options: {"quotedMsg":"messageId","mentionedJidList":["447123456789@c.us"]},
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendText({
+  to: "447123456789@c.us",
+  content: "Hello, world!",
+  options: {"quotedMsg":"messageId","mentionedJidList":["447123456789@c.us"]},
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendText" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "content": "Hello, world!",
+    "options": {
+      "quotedMsg": "messageId",
+      "mentionedJidList": [
+        "447123456789@c.us"
+      ]
+    }
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `content` | string | Yes | Message content Branded type: Content | `body`, `message`, `text` | - | `"Hello, world!"` |
-| `options` | unknown | No | Additional message options | - | - | `{"quotedMsg":"messageId","mentionedJidList":["447123456789@c.us"]}` |
+<AutoTypeTable path="./generated-method-params.ts" name="SendTextParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean \| string`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean \| string` |
 
 ## `sendTextWithMentions`
 
 Sends a text message that includes @mentions
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendTextWithMentions`
-- HTTP alias routes:
-  - `POST /api/sendTextWithMentions`
-- Aliases: `messages.sendTextWithMentions`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `content`, `hideTags`, `mentions`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `content`, `hideTags`, `mentions` |
+| Aliases | `messages.sendTextWithMentions` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendTextWithMentions` | `sendTextWithMentions` | Active |
+| Alias | `POST` | `/api/sendTextWithMentions` | `sendTextWithMentions` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendTextWithMentions({
+  to: "447123456789@c.us",
+  content: "Hello, world!",
+  hideTags: true,
+  mentions: ["447123456789@c.us","441234567890@c.us"],
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendTextWithMentions({
+  to: "447123456789@c.us",
+  content: "Hello, world!",
+  hideTags: true,
+  mentions: ["447123456789@c.us","441234567890@c.us"],
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendTextWithMentions" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "content": "Hello, world!",
+    "hideTags": true,
+    "mentions": [
+      "447123456789@c.us",
+      "441234567890@c.us"
+    ]
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `content` | string | Yes | Message content Branded type: Content | `body`, `message`, `text` | - | `"Hello, world!"` |
-| `hideTags` | boolean | No | Removes all tags within the message | - | - | - |
-| `mentions` | string[] | No | List of mentioned contact IDs | - | - | `["447123456789@c.us","441234567890@c.us"]` |
+<AutoTypeTable path="./generated-method-params.ts" name="SendTextWithMentionsParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean` |
 
 ## `sendVCard`
 
 Sends a contact card (vCard)
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendVCard`
-- HTTP alias routes:
-  - `POST /api/sendVCard`
-- Aliases: `messages.sendVCard`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `vcard`, `contactName`, `contactNumber`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `vcard`, `contactName`, `contactNumber` |
+| Aliases | `messages.sendVCard` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendVCard` | `sendVCard` | Active |
+| Alias | `POST` | `/api/sendVCard` | `sendVCard` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendVCard({
+  to: "447123456789@c.us",
+  vcard: "vcard",
+  contactName: "contactName",
+  contactNumber: "contactNumber",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendVCard({
+  to: "447123456789@c.us",
+  vcard: "vcard",
+  contactName: "contactName",
+  contactNumber: "contactNumber",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendVCard" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "vcard": "vcard",
+    "contactName": "contactName",
+    "contactNumber": "contactNumber"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `vcard` | string | Yes | vCard string | - | - | - |
-| `contactName` | string | No | Contact display name | - | - | - |
-| `contactNumber` | string | No | Contact number with country code | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SendVCardParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `sendVideoAsGif`
 
 Sends a video as an animated GIF
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendVideoAsGif`
-- HTTP alias routes:
-  - `POST /api/sendVideoAsGif`
-- Aliases: `messages.sendVideoAsGif`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `to`, `file`, `filename`, `caption`, `quotedMsgId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `file`, `filename`, `caption`, `quotedMsgId` |
+| Aliases | `messages.sendVideoAsGif` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendVideoAsGif` | `sendVideoAsGif` | Active |
+| Alias | `POST` | `/api/sendVideoAsGif` | `sendVideoAsGif` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendVideoAsGif({
+  to: "447123456789@c.us",
+  file: "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...",
+  filename: "document.pdf",
+  caption: "Check out this image!",
+  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendVideoAsGif({
+  to: "447123456789@c.us",
+  file: "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...",
+  filename: "document.pdf",
+  caption: "Check out this image!",
+  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendVideoAsGif" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "file": "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...",
+    "filename": "document.pdf",
+    "caption": "Check out this image!",
+    "quotedMsgId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `file` | string | Yes | Video file (path, URL, DataURL, or Base64) Branded type: DataURL Pattern: ^data:.+;base64,.+$ | - | - | `"data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21..."` |
-| `filename` | string | No | Filename with extension | - | - | `"document.pdf"` |
-| `caption` | string | No | Media caption | - | - | `"Check out this image!"` |
-| `quotedMsgId` | string | No | Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true\|false)_.+_.+$ | `id`, `msgId` | `msgId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
+<AutoTypeTable path="./generated-method-params.ts" name="SendVideoAsGifParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean` |
 
 ## `sendYouTubeLink`
 
 Sends a YouTube link with auto-generated preview
 
-- Namespace: `messages`
-- HTTP route: `POST /api/messages/sendYouTubeLink`
-- HTTP alias routes:
-  - `POST /api/messages/sendYoutubeLink` (deprecated)
-  - `POST /api/sendYoutubeLink` (deprecated)
-  - `POST /api/sendYouTubeLink`
-- Aliases: `messages.sendYoutubeLink`, `messages.sendYouTubeLink`, `sendYoutubeLink`
-- Deprecated aliases: `messages.sendYoutubeLink`, `sendYoutubeLink`
-- License: `none`
-- Functionality: `both`
-- Action: `send`
-- WAPI override: `sendYoutubeLink`
-- Positional parameter order: `to`, `url`, `text`, `thumbnail`, `quotedMsgId`, `customSize`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `url`, `text`, `thumbnail`, `quotedMsgId`, `customSize` |
+| Aliases | `messages.sendYoutubeLink`, `messages.sendYouTubeLink`, `sendYoutubeLink` |
+| Deprecated aliases | `messages.sendYoutubeLink`, `sendYoutubeLink` |
+| License | `none` |
+| WAPI override | `sendYoutubeLink` |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendYouTubeLink` | `sendYouTubeLink` | Active |
+| Deprecated alias | `POST` | `/api/messages/sendYoutubeLink` | `messages.sendYoutubeLink` | **Deprecated** |
+| Deprecated alias | `POST` | `/api/sendYoutubeLink` | `sendYoutubeLink` | **Deprecated** |
+| Alias | `POST` | `/api/sendYouTubeLink` | `sendYouTubeLink` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.sendYouTubeLink({
+  to: "447123456789@c.us",
+  url: "url",
+  text: "Hello, world!",
+  thumbnail: "thumbnail",
+  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+  customSize: {},
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.sendYouTubeLink({
+  to: "447123456789@c.us",
+  url: "url",
+  text: "Hello, world!",
+  thumbnail: "thumbnail",
+  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+  customSize: {},
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendYouTubeLink" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "url": "url",
+    "text": "Hello, world!",
+    "thumbnail": "thumbnail",
+    "quotedMsgId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+    "customSize": {}
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `to` | string | Yes | Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c\|g)\.us$\|^\d+@lid$ | `chatId` | - | `"447123456789@c.us"` |
-| `url` | string | Yes | YouTube URL | - | - | - |
-| `text` | string | Yes | Message content Branded type: Content | `body`, `message`, `text` | - | `"Hello, world!"` |
-| `thumbnail` | string | No | Base64 thumbnail override | - | - | - |
-| `quotedMsgId` | string | No | Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true\|false)_.+_.+$ | `id`, `msgId` | `msgId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
-| `customSize` | object { height, width } | No | Custom thumbnail size | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SendYouTubeLinkParams" />
 
 ### Output
 
-Returns: `object { _serialized } \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `object &#123; _serialized &#125; \| boolean` |
 
 ## `starMessage`
 
 Star a message
 
-- Namespace: `messages`
-- HTTP route: `PUT /api/messages/star`
-- HTTP alias routes:
-  - `PUT /api/starMessage`
-- Aliases: `messages.star`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `messageId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `messageId` |
+| Aliases | `messages.star` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/messages/star` | `starMessage` | Active |
+| Alias | `PUT` | `/api/starMessage` | `starMessage` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.starMessage({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.star({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/messages/star" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "messageId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `messageId` | string | Yes | Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true\|false)_.+_.+$ | `id`, `msgId` | `msgId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
+<AutoTypeTable path="./generated-method-params.ts" name="StarMessageParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `unstarMessage`
 
 Unstar a message
 
-- Namespace: `messages`
-- HTTP route: `PUT /api/messages/unstar`
-- HTTP alias routes:
-  - `PUT /api/unstarMessage`
-- Aliases: `messages.unstar`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `messageId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `messageId` |
+| Aliases | `messages.unstar` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/messages/unstar` | `unstarMessage` | Active |
+| Alias | `PUT` | `/api/unstarMessage` | `unstarMessage` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.unstarMessage({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.messages.unstar({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/messages/unstar" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "messageId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `messageId` | string | Yes | Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true\|false)_.+_.+$ | `id`, `msgId` | `msgId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
+<AutoTypeTable path="./generated-method-params.ts" name="UnstarMessageParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |

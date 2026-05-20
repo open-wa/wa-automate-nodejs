@@ -1,6 +1,7 @@
 ---
 title: "Business Client API"
 description: "Generated client method reference for the business namespace."
+icon: "BookOpen"
 ---
 
 # Business Client API
@@ -13,76 +14,203 @@ This page documents 3 schema-registry client methods in the `business` namespace
 
 Get business products
 
-- Namespace: `business`
-- HTTP route: `GET /api/business/getProducts`
-- HTTP alias routes:
-  - `GET /api/business/getProfilesProducts` (deprecated)
-  - `GET /api/getBusinessProducts`
-  - `GET /api/getBusinessProfilesProducts` (deprecated)
-- Aliases: `business.getProducts`, `business.getProfilesProducts`, `getBusinessProfilesProducts`
-- Deprecated aliases: `business.getProfilesProducts`, `getBusinessProfilesProducts`
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- WAPI override: `getBusinessProfilesProducts`
-- Positional parameter order: `contactId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `business` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `contactId` |
+| Aliases | `business.getProducts`, `business.getProfilesProducts`, `getBusinessProfilesProducts` |
+| Deprecated aliases | `business.getProfilesProducts`, `getBusinessProfilesProducts` |
+| License | `none` |
+| WAPI override | `getBusinessProfilesProducts` |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/business/getProducts` | `getBusinessProducts` | Active |
+| Deprecated alias | `GET` | `/api/business/getProfilesProducts` | `business.getProfilesProducts` | **Deprecated** |
+| Alias | `GET` | `/api/getBusinessProducts` | `getBusinessProducts` | Active |
+| Deprecated alias | `GET` | `/api/getBusinessProfilesProducts` | `getBusinessProfilesProducts` | **Deprecated** |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getBusinessProducts({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.business.getProducts({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/business/getProducts" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "contactId=447123456789@c.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `contactId` | string | Yes | Contact ID A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetBusinessProductsParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `getBusinessProfile`
 
 Get business profile
 
-- Namespace: `business`
-- HTTP route: `GET /api/business/getProfile`
-- HTTP alias routes:
-  - `GET /api/getBusinessProfile`
-- Aliases: `business.getProfile`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `contactId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `business` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `contactId` |
+| Aliases | `business.getProfile` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/business/getProfile` | `getBusinessProfile` | Active |
+| Alias | `GET` | `/api/getBusinessProfile` | `getBusinessProfile` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getBusinessProfile({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.business.getProfile({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/business/getProfile" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "contactId=447123456789@c.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `contactId` | string | Yes | Contact ID A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetBusinessProfileParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
-## `getOrder`
+## `getOrder` - insiders
 
 Get order details
 
-- Namespace: `business`
-- HTTP route: `GET /api/business/getOrder`
-- HTTP alias routes:
-  - `GET /api/getOrder`
-- Aliases: `business.getOrder`
-- Deprecated aliases: -
-- License: `insiders`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `id`
+<LicensedFeatureCallout tier="insiders" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `business` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `id` |
+| Aliases | `business.getOrder` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/business/getOrder` | `getOrder` | Active |
+| Alias | `GET` | `/api/getOrder` | `getOrder` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getOrder({
+  id: "id",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.business.getOrder({
+  id: "id",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/business/getOrder" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "id=id"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `id` | string | Yes | Order or message ID | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="GetOrderParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |

@@ -1,6 +1,7 @@
 ---
 title: "ChatIds Client API"
 description: "Generated client method reference for the chatIds namespace."
+icon: "BookOpen"
 ---
 
 # ChatIds Client API
@@ -13,20 +14,59 @@ This page documents 1 schema-registry client methods in the `chatIds` namespace.
 
 Get all chat IDs
 
-- Namespace: `chatIds`
-- HTTP route: `GET /api/chatIds/getAll`
-- HTTP alias routes:
-  - `GET /api/chatIds/all`
-  - `GET /api/chatIds/list`
-  - `GET /api/chats/ids`
-  - `GET /api/getAllChatIds`
-  - `GET /api/listChatIds`
-- Aliases: `chatIds.all`, `chatIds.getAll`, `chatIds.list`, `chats.ids`, `listChatIds`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chatIds` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `chatIds.all`, `chatIds.getAll`, `chatIds.list`, `chats.ids`, `listChatIds` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/chatIds/getAll` | `getAllChatIds` | Active |
+| Alias | `GET` | `/api/chatIds/all` | `chatIds.all` | Active |
+| Alias | `GET` | `/api/chatIds/list` | `chatIds.list` | Active |
+| Alias | `GET` | `/api/chats/ids` | `chats.ids` | Active |
+| Alias | `GET` | `/api/getAllChatIds` | `getAllChatIds` | Active |
+| Alias | `GET` | `/api/listChatIds` | `listChatIds` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getAllChatIds({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.chatIds.getAll({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/chatIds/getAll" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -34,4 +74,6 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `string[]`
+| Prop | Value |
+| --- | --- |
+| Return type | `string[]` |

@@ -1,6 +1,7 @@
 ---
 title: "Groups Client API"
 description: "Generated client method reference for the groups namespace."
+icon: "BookOpen"
 ---
 
 # Groups Client API
@@ -13,277 +14,758 @@ This page documents 22 schema-registry client methods in the `groups` namespace.
 
 Add participant to group
 
-- Namespace: `groups`
-- HTTP route: `PUT /api/groups/addParticipant`
-- HTTP alias routes:
-  - `PUT /api/addGroupParticipant`
-  - `PUT /api/addParticipant`
-- Aliases: `addGroupParticipant`, `groups.addParticipant`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `groupId`, `contactId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `groupId`, `contactId` |
+| Aliases | `addGroupParticipant`, `groups.addParticipant` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/groups/addParticipant` | `addParticipant` | Active |
+| Alias | `PUT` | `/api/addGroupParticipant` | `addGroupParticipant` | Active |
+| Alias | `PUT` | `/api/addParticipant` | `addParticipant` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.addParticipant({
+  groupId: "447123456789-1445627445@g.us",
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.addParticipant({
+  groupId: "447123456789-1445627445@g.us",
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/groups/addParticipant" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "groupId": "447123456789-1445627445@g.us",
+    "contactId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
-| `contactId` | string | Yes | Contact ID A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="AddParticipantParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `approveGroupJoinRequest`
 
 Approve group join request
 
-- Namespace: `groups`
-- HTTP route: `PUT /api/groups/approveJoinRequest`
-- HTTP alias routes:
-  - `PUT /api/approveGroupJoinRequest`
-- Aliases: `groups.approveJoinRequest`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `groupId`, `contactId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `groupId`, `contactId` |
+| Aliases | `groups.approveJoinRequest` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/groups/approveJoinRequest` | `approveGroupJoinRequest` | Active |
+| Alias | `PUT` | `/api/approveGroupJoinRequest` | `approveGroupJoinRequest` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.approveGroupJoinRequest({
+  groupId: "447123456789-1445627445@g.us",
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.approveJoinRequest({
+  groupId: "447123456789-1445627445@g.us",
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/groups/approveJoinRequest" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "groupId": "447123456789-1445627445@g.us",
+    "contactId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
-| `contactId` | string | Yes | Contact ID A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="ApproveGroupJoinRequestParams" />
 
 ### Output
 
-Returns: `string \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `string \| boolean` |
 
-## `createGroup`
+## `createGroup` - restricted
 
 Create new group
 
-- Namespace: `groups`
-- HTTP route: `POST /api/groups/create`
-- HTTP alias routes:
-  - `POST /api/createGroup`
-- Aliases: `groups.create`
-- Deprecated aliases: -
-- License: `restricted`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `name`, `contacts`
+<LicensedFeatureCallout tier="restricted" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `name`, `contacts` |
+| Aliases | `groups.create` |
+| Deprecated aliases | - |
+| License | `restricted` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/groups/create` | `createGroup` | Active |
+| Alias | `POST` | `/api/createGroup` | `createGroup` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.createGroup({
+  name: "name",
+  contacts: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.create({
+  name: "name",
+  contacts: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/groups/create" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "name": "name",
+    "contacts": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `name` | string | Yes | Group name | - | - | - |
-| `contacts` | string[] | Yes | Contact IDs to add A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="CreateGroupParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `demoteParticipant`
 
 Demote participant from admin
 
-- Namespace: `groups`
-- HTTP route: `PUT /api/groups/demoteParticipant`
-- HTTP alias routes:
-  - `PUT /api/demoteGroupParticipant`
-  - `PUT /api/demoteParticipant`
-- Aliases: `demoteGroupParticipant`, `groups.demoteParticipant`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `groupId`, `contactId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `groupId`, `contactId` |
+| Aliases | `demoteGroupParticipant`, `groups.demoteParticipant` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/groups/demoteParticipant` | `demoteParticipant` | Active |
+| Alias | `PUT` | `/api/demoteGroupParticipant` | `demoteGroupParticipant` | Active |
+| Alias | `PUT` | `/api/demoteParticipant` | `demoteParticipant` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.demoteParticipant({
+  groupId: "447123456789-1445627445@g.us",
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.demoteParticipant({
+  groupId: "447123456789-1445627445@g.us",
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/groups/demoteParticipant" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "groupId": "447123456789-1445627445@g.us",
+    "contactId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
-| `contactId` | string | Yes | Contact ID A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="DemoteParticipantParams" />
 
 ### Output
 
-Returns: `boolean \| string`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean \| string` |
 
 ## `getAllGroups`
 
 Get all groups
 
-- Namespace: `groups`
-- HTTP route: `GET /api/groups/getAll`
-- HTTP alias routes:
-  - `GET /api/getAllGroups`
-  - `GET /api/groups/all`
-  - `GET /api/groups/list`
-  - `GET /api/listGroups`
-- Aliases: `groups.all`, `groups.getAll`, `groups.list`, `listGroups`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `withNewMessagesOnly`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `withNewMessagesOnly` |
+| Aliases | `groups.all`, `groups.getAll`, `groups.list`, `listGroups` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/groups/getAll` | `getAllGroups` | Active |
+| Alias | `GET` | `/api/getAllGroups` | `getAllGroups` | Active |
+| Alias | `GET` | `/api/groups/all` | `groups.all` | Active |
+| Alias | `GET` | `/api/groups/list` | `groups.list` | Active |
+| Alias | `GET` | `/api/listGroups` | `listGroups` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getAllGroups({
+  withNewMessagesOnly: false,
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.getAll({
+  withNewMessagesOnly: false,
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/groups/getAll" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "withNewMessagesOnly=false"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `withNewMessagesOnly` | boolean | Yes | Only chats with unread messages | - | - | `false` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetAllGroupsParams" />
 
 ### Output
 
-Returns: `unknown[]`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown[]` |
 
 ## `getGroupAdmins`
 
 Get group admins
 
-- Namespace: `groups`
-- HTTP route: `GET /api/groups/getAdmins`
-- HTTP alias routes:
-  - `GET /api/getGroupAdmins`
-- Aliases: `groups.getAdmins`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `groupId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `groupId` |
+| Aliases | `groups.getAdmins` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/groups/getAdmins` | `getGroupAdmins` | Active |
+| Alias | `GET` | `/api/getGroupAdmins` | `getGroupAdmins` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getGroupAdmins({
+  groupId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.getAdmins({
+  groupId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/groups/getAdmins" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "groupId=447123456789-1445627445@g.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetGroupAdminsParams" />
 
 ### Output
 
-Returns: `unknown[]`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown[]` |
 
 ## `getGroupInfo`
 
 Get group metadata
 
-- Namespace: `groups`
-- HTTP route: `GET /api/groups/getInfo`
-- HTTP alias routes:
-  - `GET /api/getGroupInfo`
-- Aliases: `groups.getInfo`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `groupId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `groupId` |
+| Aliases | `groups.getInfo` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/groups/getInfo` | `getGroupInfo` | Active |
+| Alias | `GET` | `/api/getGroupInfo` | `getGroupInfo` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getGroupInfo({
+  groupId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.getInfo({
+  groupId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/groups/getInfo" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "groupId=447123456789-1445627445@g.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetGroupInfoParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `getGroupInviteLink`
 
 Get group invite link
 
-- Namespace: `groups`
-- HTTP route: `GET /api/groups/getInviteLink`
-- HTTP alias routes:
-  - `GET /api/getGroupInviteLink`
-- Aliases: `groups.getInviteLink`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `groupId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `groupId` |
+| Aliases | `groups.getInviteLink` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/groups/getInviteLink` | `getGroupInviteLink` | Active |
+| Alias | `GET` | `/api/getGroupInviteLink` | `getGroupInviteLink` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getGroupInviteLink({
+  groupId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.getInviteLink({
+  groupId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/groups/getInviteLink" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "groupId=447123456789-1445627445@g.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetGroupInviteLinkParams" />
 
 ### Output
 
-Returns: `string`
+| Prop | Value |
+| --- | --- |
+| Return type | `string` |
 
 ## `getGroupMembers`
 
 Retrieves members of a group
 
-- Namespace: `groups`
-- HTTP route: `GET /api/groups/getMembers`
-- HTTP alias routes:
-  - `GET /api/getGroupMembers`
-- Aliases: `groups.getMembers`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `groupId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `groupId` |
+| Aliases | `groups.getMembers` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/groups/getMembers` | `getGroupMembers` | Active |
+| Alias | `GET` | `/api/getGroupMembers` | `getGroupMembers` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getGroupMembers({
+  groupId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.getMembers({
+  groupId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/groups/getMembers" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "groupId=447123456789-1445627445@g.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetGroupMembersParams" />
 
 ### Output
 
-Returns: `unknown[]`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown[]` |
 
 ## `getGroupMembersId`
 
 Get group member IDs
 
-- Namespace: `groups`
-- HTTP route: `GET /api/groups/getMemberIds`
-- HTTP alias routes:
-  - `GET /api/getGroupMemberIds`
-  - `GET /api/getGroupMembersId`
-  - `GET /api/groups/getMembersId`
-- Aliases: `getGroupMemberIds`, `groups.getMemberIds`, `groups.getMembersId`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: `groupId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `groupId` |
+| Aliases | `getGroupMemberIds`, `groups.getMemberIds`, `groups.getMembersId` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/groups/getMemberIds` | `getGroupMembersId` | Active |
+| Alias | `GET` | `/api/getGroupMemberIds` | `getGroupMemberIds` | Active |
+| Alias | `GET` | `/api/getGroupMembersId` | `getGroupMembersId` | Active |
+| Alias | `GET` | `/api/groups/getMembersId` | `groups.getMembersId` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getGroupMembersId({
+  groupId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.getMemberIds({
+  groupId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -G "http://localhost:8080/api/groups/getMemberIds" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "groupId=447123456789-1445627445@g.us"
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="GetGroupMembersIdParams" />
 
 ### Output
 
-Returns: `string[]`
+| Prop | Value |
+| --- | --- |
+| Return type | `string[]` |
 
 ## `getKickedGroups`
 
 Get groups where kicked
 
-- Namespace: `groups`
-- HTTP route: `GET /api/groups/getKicked`
-- HTTP alias routes:
-  - `GET /api/getKickedGroups`
-- Aliases: `groups.getKicked`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: -
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `groups.getKicked` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/groups/getKicked` | `getKickedGroups` | Active |
+| Alias | `GET` | `/api/getKickedGroups` | `getKickedGroups` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getKickedGroups({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.getKicked({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/groups/getKicked" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -291,294 +773,811 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `string[]`
+| Prop | Value |
+| --- | --- |
+| Return type | `string[]` |
 
-## `joinGroupViaLink`
+## `joinGroupViaLink` - restricted
 
 Join group via invite link
 
-- Namespace: `groups`
-- HTTP route: `POST /api/groups/join`
-- HTTP alias routes:
-  - `POST /api/groups/joinViaLink`
-  - `POST /api/joinGroup`
-  - `POST /api/joinGroupViaLink`
-- Aliases: `groups.join`, `groups.joinViaLink`, `joinGroup`
-- Deprecated aliases: -
-- License: `restricted`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `link`, `returnChatObj`
+<LicensedFeatureCallout tier="restricted" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `link`, `returnChatObj` |
+| Aliases | `groups.join`, `groups.joinViaLink`, `joinGroup` |
+| Deprecated aliases | - |
+| License | `restricted` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/groups/join` | `joinGroupViaLink` | Active |
+| Alias | `POST` | `/api/groups/joinViaLink` | `groups.joinViaLink` | Active |
+| Alias | `POST` | `/api/joinGroup` | `joinGroup` | Active |
+| Alias | `POST` | `/api/joinGroupViaLink` | `joinGroupViaLink` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.joinGroupViaLink({
+  link: "link",
+  returnChatObj: true,
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.join({
+  link: "link",
+  returnChatObj: true,
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/groups/join" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "link": "link",
+    "returnChatObj": true
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `link` | string | Yes | Group invite link | - | - | - |
-| `returnChatObj` | boolean | No | Return chat object | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="JoinGroupViaLinkParams" />
 
 ### Output
 
-Returns: `string \| boolean \| number \| unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `string \| boolean \| number \| unknown` |
 
 ## `leaveGroup`
 
 Leave a group
 
-- Namespace: `groups`
-- HTTP route: `PUT /api/groups/leave`
-- HTTP alias routes:
-  - `PUT /api/leaveGroup`
-- Aliases: `groups.leave`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `groupId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `groupId` |
+| Aliases | `groups.leave` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/groups/leave` | `leaveGroup` | Active |
+| Alias | `PUT` | `/api/leaveGroup` | `leaveGroup` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.leaveGroup({
+  groupId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.leave({
+  groupId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/groups/leave" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "groupId": "447123456789-1445627445@g.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="LeaveGroupParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
 ## `promoteParticipant`
 
 Promote participant to admin
 
-- Namespace: `groups`
-- HTTP route: `PUT /api/groups/promoteParticipant`
-- HTTP alias routes:
-  - `PUT /api/promoteGroupParticipant`
-  - `PUT /api/promoteParticipant`
-- Aliases: `groups.promoteParticipant`, `promoteGroupParticipant`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `groupId`, `contactId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `groupId`, `contactId` |
+| Aliases | `groups.promoteParticipant`, `promoteGroupParticipant` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/groups/promoteParticipant` | `promoteParticipant` | Active |
+| Alias | `PUT` | `/api/promoteGroupParticipant` | `promoteGroupParticipant` | Active |
+| Alias | `PUT` | `/api/promoteParticipant` | `promoteParticipant` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.promoteParticipant({
+  groupId: "447123456789-1445627445@g.us",
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.promoteParticipant({
+  groupId: "447123456789-1445627445@g.us",
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/groups/promoteParticipant" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "groupId": "447123456789-1445627445@g.us",
+    "contactId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
-| `contactId` | string | Yes | Contact ID A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="PromoteParticipantParams" />
 
 ### Output
 
-Returns: `boolean \| string`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean \| string` |
 
 ## `rejectGroupJoinRequest`
 
 Reject group join request
 
-- Namespace: `groups`
-- HTTP route: `PUT /api/groups/rejectJoinRequest`
-- HTTP alias routes:
-  - `PUT /api/rejectGroupJoinRequest`
-- Aliases: `groups.rejectJoinRequest`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `groupId`, `contactId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `groupId`, `contactId` |
+| Aliases | `groups.rejectJoinRequest` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/groups/rejectJoinRequest` | `rejectGroupJoinRequest` | Active |
+| Alias | `PUT` | `/api/rejectGroupJoinRequest` | `rejectGroupJoinRequest` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.rejectGroupJoinRequest({
+  groupId: "447123456789-1445627445@g.us",
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.rejectJoinRequest({
+  groupId: "447123456789-1445627445@g.us",
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/groups/rejectJoinRequest" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "groupId": "447123456789-1445627445@g.us",
+    "contactId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
-| `contactId` | string | Yes | Contact ID A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="RejectGroupJoinRequestParams" />
 
 ### Output
 
-Returns: `string \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `string \| boolean` |
 
 ## `removeParticipant`
 
 Remove participant from group
 
-- Namespace: `groups`
-- HTTP route: `PUT /api/groups/removeParticipant`
-- HTTP alias routes:
-  - `PUT /api/removeGroupParticipant`
-  - `PUT /api/removeParticipant`
-- Aliases: `groups.removeParticipant`, `removeGroupParticipant`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `groupId`, `contactId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `groupId`, `contactId` |
+| Aliases | `groups.removeParticipant`, `removeGroupParticipant` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/groups/removeParticipant` | `removeParticipant` | Active |
+| Alias | `PUT` | `/api/removeGroupParticipant` | `removeGroupParticipant` | Active |
+| Alias | `PUT` | `/api/removeParticipant` | `removeParticipant` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.removeParticipant({
+  groupId: "447123456789-1445627445@g.us",
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.removeParticipant({
+  groupId: "447123456789-1445627445@g.us",
+  contactId: "447123456789@c.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/groups/removeParticipant" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "groupId": "447123456789-1445627445@g.us",
+    "contactId": "447123456789@c.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
-| `contactId` | string | Yes | Contact ID A WhatsApp contact JID Branded type: ContactId Pattern: ^\d+@c\.us$ | `id` | - | `"447123456789@c.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="RemoveParticipantParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `revokeGroupInviteLink`
 
 Revoke group invite link
 
-- Namespace: `groups`
-- HTTP route: `PUT /api/groups/revokeInviteLink`
-- HTTP alias routes:
-  - `PUT /api/revokeGroupInviteLink`
-- Aliases: `groups.revokeInviteLink`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `groupId`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `groupId` |
+| Aliases | `groups.revokeInviteLink` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/groups/revokeInviteLink` | `revokeGroupInviteLink` | Active |
+| Alias | `PUT` | `/api/revokeGroupInviteLink` | `revokeGroupInviteLink` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.revokeGroupInviteLink({
+  groupId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.revokeInviteLink({
+  groupId: "447123456789-1445627445@g.us",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/groups/revokeInviteLink" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "groupId": "447123456789-1445627445@g.us"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
+<AutoTypeTable path="./generated-method-params.ts" name="RevokeGroupInviteLinkParams" />
 
 ### Output
 
-Returns: `string \| boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `string \| boolean` |
 
 ## `setGroupDescription`
 
 Set group description
 
-- Namespace: `groups`
-- HTTP route: `PUT /api/groups/setDescription`
-- HTTP alias routes:
-  - `PUT /api/setGroupDescription`
-- Aliases: `groups.setDescription`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `groupId`, `description`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `groupId`, `description` |
+| Aliases | `groups.setDescription` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/groups/setDescription` | `setGroupDescription` | Active |
+| Alias | `PUT` | `/api/setGroupDescription` | `setGroupDescription` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.setGroupDescription({
+  groupId: "447123456789-1445627445@g.us",
+  description: "description",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.setDescription({
+  groupId: "447123456789-1445627445@g.us",
+  description: "description",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/groups/setDescription" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "groupId": "447123456789-1445627445@g.us",
+    "description": "description"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
-| `description` | string | Yes | New group description | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SetGroupDescriptionParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `setGroupEditToAdminsOnly`
 
 Restrict group editing to admins only
 
-- Namespace: `groups`
-- HTTP route: `PUT /api/groups/setEditAdminsOnly`
-- HTTP alias routes:
-  - `PUT /api/groups/setEditToAdminsOnly`
-  - `PUT /api/setGroupEditToAdminsOnly`
-- Aliases: `groups.setEditAdminsOnly`, `groups.setEditToAdminsOnly`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `groupId`, `onlyAdmins`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `groupId`, `onlyAdmins` |
+| Aliases | `groups.setEditAdminsOnly`, `groups.setEditToAdminsOnly` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/groups/setEditAdminsOnly` | `setGroupEditToAdminsOnly` | Active |
+| Alias | `PUT` | `/api/groups/setEditToAdminsOnly` | `groups.setEditToAdminsOnly` | Active |
+| Alias | `PUT` | `/api/setGroupEditToAdminsOnly` | `setGroupEditToAdminsOnly` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.setGroupEditToAdminsOnly({
+  groupId: "447123456789-1445627445@g.us",
+  onlyAdmins: true,
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.setEditAdminsOnly({
+  groupId: "447123456789-1445627445@g.us",
+  onlyAdmins: true,
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/groups/setEditAdminsOnly" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "groupId": "447123456789-1445627445@g.us",
+    "onlyAdmins": true
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
-| `onlyAdmins` | boolean | Yes | Admins only setting | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SetGroupEditToAdminsOnlyParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `setGroupIcon`
 
 Set group icon
 
-- Namespace: `groups`
-- HTTP route: `PUT /api/groups/setIcon`
-- HTTP alias routes:
-  - `PUT /api/setGroupIcon`
-- Aliases: `groups.setIcon`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `groupId`, `image`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `groupId`, `image` |
+| Aliases | `groups.setIcon` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/groups/setIcon` | `setGroupIcon` | Active |
+| Alias | `PUT` | `/api/setGroupIcon` | `setGroupIcon` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.setGroupIcon({
+  groupId: "447123456789-1445627445@g.us",
+  image: "image",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.setIcon({
+  groupId: "447123456789-1445627445@g.us",
+  image: "image",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/groups/setIcon" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "groupId": "447123456789-1445627445@g.us",
+    "image": "image"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
-| `image` | string | Yes | Image data URL | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SetGroupIconParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `setGroupTitle`
 
 Set group title
 
-- Namespace: `groups`
-- HTTP route: `PUT /api/groups/setTitle`
-- HTTP alias routes:
-  - `PUT /api/setGroupTitle`
-- Aliases: `groups.setTitle`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `groupId`, `title`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `groupId`, `title` |
+| Aliases | `groups.setTitle` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/groups/setTitle` | `setGroupTitle` | Active |
+| Alias | `PUT` | `/api/setGroupTitle` | `setGroupTitle` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.setGroupTitle({
+  groupId: "447123456789-1445627445@g.us",
+  title: "title",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.setTitle({
+  groupId: "447123456789-1445627445@g.us",
+  title: "title",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/groups/setTitle" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "groupId": "447123456789-1445627445@g.us",
+    "title": "title"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
-| `title` | string | Yes | New group title | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SetGroupTitleParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |
 
 ## `setGroupToAdminsOnly`
 
 Restrict group to admins only
 
-- Namespace: `groups`
-- HTTP route: `PUT /api/groups/setAdminsOnly`
-- HTTP alias routes:
-  - `PUT /api/groups/setToAdminsOnly`
-  - `PUT /api/setGroupToAdminsOnly`
-- Aliases: `groups.setAdminsOnly`, `groups.setToAdminsOnly`
-- Deprecated aliases: -
-- License: `none`
-- Functionality: `both`
-- Action: `update`
-- Positional parameter order: `groupId`, `onlyAdmins`
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `groupId`, `onlyAdmins` |
+| Aliases | `groups.setAdminsOnly`, `groups.setToAdminsOnly` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/groups/setAdminsOnly` | `setGroupToAdminsOnly` | Active |
+| Alias | `PUT` | `/api/groups/setToAdminsOnly` | `groups.setToAdminsOnly` | Active |
+| Alias | `PUT` | `/api/setGroupToAdminsOnly` | `setGroupToAdminsOnly` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.setGroupToAdminsOnly({
+  groupId: "447123456789-1445627445@g.us",
+  onlyAdmins: true,
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.groups.setAdminsOnly({
+  groupId: "447123456789-1445627445@g.us",
+  onlyAdmins: true,
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/groups/setAdminsOnly" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "groupId": "447123456789-1445627445@g.us",
+    "onlyAdmins": true
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `groupId` | string | Yes | Group chat ID A WhatsApp group JID Branded type: GroupChatId Pattern: ^\d+(-\d+)?@g\.us$ | `chatId`, `groupChatId` | `groupChatId` | `"447123456789-1445627445@g.us"` |
-| `onlyAdmins` | boolean | Yes | Admins only setting | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="SetGroupToAdminsOnlyParams" />
 
 ### Output
 
-Returns: `boolean`
+| Prop | Value |
+| --- | --- |
+| Return type | `boolean` |

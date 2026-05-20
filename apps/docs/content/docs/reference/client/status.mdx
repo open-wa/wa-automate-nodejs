@@ -1,6 +1,7 @@
 ---
 title: "Status Client API"
 description: "Generated client method reference for the status namespace."
+icon: "BookOpen"
 ---
 
 # Status Client API
@@ -9,21 +10,62 @@ description: "Generated client method reference for the status namespace."
 
 This page documents 6 schema-registry client methods in the `status` namespace.
 
-## `deleteAllStatus`
+## `deleteAllStatus` - insiders
 
 Delete all statuses
 
-- Namespace: `status`
-- HTTP route: `DELETE /api/status/deleteAll`
-- HTTP alias routes:
-  - `DELETE /api/deleteAllStatus`
-  - `DELETE /api/deleteAllStatuses`
-- Aliases: `deleteAllStatuses`, `status.deleteAll`
-- Deprecated aliases: -
-- License: `insiders`
-- Functionality: `both`
-- Action: `delete`
-- Positional parameter order: -
+<LicensedFeatureCallout tier="insiders" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `status` |
+| Action | `delete` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `deleteAllStatuses`, `status.deleteAll` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `DELETE` | `/api/status/deleteAll` | `deleteAllStatus` | Active |
+| Alias | `DELETE` | `/api/deleteAllStatus` | `deleteAllStatus` | Active |
+| Alias | `DELETE` | `/api/deleteAllStatuses` | `deleteAllStatuses` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.deleteAllStatus({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.status.deleteAll({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X DELETE "http://localhost:8080/api/status/deleteAll" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -31,50 +73,140 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
-## `deleteStatus`
+## `deleteStatus` - insiders
 
 Delete status
 
-- Namespace: `status`
-- HTTP route: `DELETE /api/status/delete`
-- HTTP alias routes:
-  - `DELETE /api/deleteStatus`
-- Aliases: `status.delete`
-- Deprecated aliases: -
-- License: `insiders`
-- Functionality: `both`
-- Action: `delete`
-- Positional parameter order: `statusesToDelete`
+<LicensedFeatureCallout tier="insiders" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `status` |
+| Action | `delete` |
+| Functionality | `both` |
+| Positional parameter order | `statusesToDelete` |
+| Aliases | `status.delete` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `DELETE` | `/api/status/delete` | `deleteStatus` | Active |
+| Alias | `DELETE` | `/api/deleteStatus` | `deleteStatus` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.deleteStatus({
+  statusesToDelete: [],
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.status.delete({
+  statusesToDelete: [],
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X DELETE "http://localhost:8080/api/status/delete" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "statusesToDelete": []
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `statusesToDelete` | string \| string[] | Yes | Status ID(s) | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="DeleteStatusParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
-## `getStories`
+## `getStories` - insiders
 
 Get all stories
 
-- Namespace: `status`
-- HTTP route: `GET /api/status/getAll`
-- HTTP alias routes:
-  - `GET /api/getStatuses`
-  - `GET /api/getStories`
-  - `GET /api/status/get`
-  - `GET /api/status/getStories`
-- Aliases: `getStatuses`, `status.get`, `status.getAll`, `status.getStories`
-- Deprecated aliases: -
-- License: `insiders`
-- Functionality: `both`
-- Action: `read`
-- Positional parameter order: -
+<LicensedFeatureCallout tier="insiders" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `status` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `getStatuses`, `status.get`, `status.getAll`, `status.getStories` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/status/getAll` | `getStories` | Active |
+| Alias | `GET` | `/api/getStatuses` | `getStatuses` | Active |
+| Alias | `GET` | `/api/getStories` | `getStories` | Active |
+| Alias | `GET` | `/api/status/get` | `status.get` | Active |
+| Alias | `GET` | `/api/status/getStories` | `status.getStories` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.getStories({});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.status.getAll({});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X GET "http://localhost:8080/api/status/getAll" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
@@ -82,83 +214,234 @@ This method does not define input parameters.
 
 ### Output
 
-Returns: `unknown[]`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown[]` |
 
-## `postImageStatus`
+## `postImageStatus` - insiders
 
 Post image status
 
-- Namespace: `status`
-- HTTP route: `POST /api/status/postImage`
-- HTTP alias routes:
-  - `POST /api/postImageStatus`
-- Aliases: `status.postImage`
-- Deprecated aliases: -
-- License: `insiders`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `image`, `caption`
+<LicensedFeatureCallout tier="insiders" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `status` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `image`, `caption` |
+| Aliases | `status.postImage` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/status/postImage` | `postImageStatus` | Active |
+| Alias | `POST` | `/api/postImageStatus` | `postImageStatus` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.postImageStatus({
+  image: "image",
+  caption: "caption",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.status.postImage({
+  image: "image",
+  caption: "caption",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/status/postImage" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "image": "image",
+    "caption": "caption"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `image` | string | Yes | Image data URL | - | - | - |
-| `caption` | string | No | Status caption | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="PostImageStatusParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
-## `postTextStatus`
+## `postTextStatus` - insiders
 
 Post text status
 
-- Namespace: `status`
-- HTTP route: `POST /api/status/postText`
-- HTTP alias routes:
-  - `POST /api/postTextStatus`
-- Aliases: `status.postText`
-- Deprecated aliases: -
-- License: `insiders`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `text`, `backgroundColor`, `font`
+<LicensedFeatureCallout tier="insiders" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `status` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `text`, `backgroundColor`, `font` |
+| Aliases | `status.postText` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/status/postText` | `postTextStatus` | Active |
+| Alias | `POST` | `/api/postTextStatus` | `postTextStatus` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.postTextStatus({
+  text: "text",
+  backgroundColor: "backgroundColor",
+  font: 1,
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.status.postText({
+  text: "text",
+  backgroundColor: "backgroundColor",
+  font: 1,
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/status/postText" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "text": "text",
+    "backgroundColor": "backgroundColor",
+    "font": 1
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `text` | string | Yes | Status text | - | - | - |
-| `backgroundColor` | string | No | Background color | - | - | - |
-| `font` | number | No | Font style | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="PostTextStatusParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
 
-## `postVideoStatus`
+## `postVideoStatus` - insiders
 
 Post video status
 
-- Namespace: `status`
-- HTTP route: `POST /api/status/postVideo`
-- HTTP alias routes:
-  - `POST /api/postVideoStatus`
-- Aliases: `status.postVideo`
-- Deprecated aliases: -
-- License: `insiders`
-- Functionality: `both`
-- Action: `send`
-- Positional parameter order: `video`, `caption`
+<LicensedFeatureCallout tier="insiders" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `status` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `video`, `caption` |
+| Aliases | `status.postVideo` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/status/postVideo` | `postVideoStatus` | Active |
+| Alias | `POST` | `/api/postVideoStatus` | `postVideoStatus` | Active |
+
+### Usage
+
+<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+  <Tab value="Client">
+
+```ts
+const result = await client.postVideoStatus({
+  video: "video",
+  caption: "caption",
+});
+```
+
+  </Tab>
+  <Tab value="Namespaced client">
+
+```ts
+const result = await client.status.postVideo({
+  video: "video",
+  caption: "caption",
+});
+```
+
+  </Tab>
+  <Tab value="HTTP API">
+
+```bash
+curl -X POST "http://localhost:8080/api/status/postVideo" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "video": "video",
+    "caption": "caption"
+  }'
+```
+
+  </Tab>
+</Tabs>
 
 ### Parameters
 
-| Name | Type | Required | Description | Key aliases | Deprecated key aliases | Example |
-| --- | --- | --- | --- | --- | --- | --- |
-| `video` | string | Yes | Video data URL | - | - | - |
-| `caption` | string | No | Status caption | - | - | - |
+<AutoTypeTable path="./generated-method-params.ts" name="PostVideoStatusParams" />
 
 ### Output
 
-Returns: `unknown`
+| Prop | Value |
+| --- | --- |
+| Return type | `unknown` |
