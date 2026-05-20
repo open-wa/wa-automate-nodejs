@@ -1,10 +1,18 @@
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
-import { baseOptions } from '@/lib/layout.shared';
 import {
-  GetLicenseButton,
-  LicenseBadge,
-  LicensedFeatureCallout,
-} from '@/components/licensing';
+  NavbarMenu,
+  NavbarMenuContent,
+  NavbarMenuLink,
+  NavbarMenuTrigger,
+} from 'fumadocs-ui/layouts/home/navbar';
+import {
+  FullSearchTrigger,
+  SearchTrigger,
+  type FullSearchTriggerProps,
+} from 'fumadocs-ui/layouts/shared/slots/search-trigger';
+import type { LinkItemType } from 'fumadocs-ui/layouts/shared';
+import { baseOptions } from '@/lib/layout.shared';
+import { LicenseBadge, LicensedFeatureCallout } from '@/components/licensing';
 import { CURRENT_VERSION, DOCS_PATHS } from '@/lib/site';
 
 type LinkCard = {
@@ -16,25 +24,97 @@ type LinkCard = {
   badge?: 'insiders' | 'restricted';
 };
 
+type MenuLinkItem = Extract<LinkItemType, { type: 'menu' }>['items'][number];
+type CustomLinkItem = Extract<LinkItemType, { type: 'custom' }>;
+
+function isHomepageLicenseLink(item: LinkItemType): item is CustomLinkItem {
+  return item.type === 'custom' && item.secondary === true;
+}
+
+function renderHomeNavbarMenuLink(item: MenuLinkItem, index: number) {
+  if (item.type === 'custom') {
+    return <div key={index}>{item.children}</div>;
+  }
+
+  return (
+    <NavbarMenuLink
+      key={`${index}-${item.url}`}
+      href={item.url}
+      external={item.external}
+    >
+      <span className="text-base font-medium">{item.text}</span>
+      {item.description ? (
+        <span className="text-sm text-fd-muted-foreground">
+          {item.description}
+        </span>
+      ) : null}
+    </NavbarMenuLink>
+  );
+}
+
+function createHomeNavbarMenu(
+  item: Extract<LinkItemType, { type: 'menu' }>,
+): LinkItemType {
+  return {
+    type: 'custom',
+    on: 'nav',
+    secondary: item.secondary,
+    children: (
+      <NavbarMenu>
+        <NavbarMenuTrigger>{item.text}</NavbarMenuTrigger>
+        <NavbarMenuContent>
+          {item.items.map(renderHomeNavbarMenuLink)}
+        </NavbarMenuContent>
+      </NavbarMenu>
+    ),
+  };
+}
+
+function createHomeLayoutLinks(links: LinkItemType[] = []): LinkItemType[] {
+  return links.flatMap((item) => {
+    if (isHomepageLicenseLink(item)) return [{ ...item, on: 'menu' }];
+    if (item.type !== 'menu') return [item];
+
+    return [createHomeNavbarMenu(item), { ...item, on: 'menu' }];
+  });
+}
+
+function createHomeSearchTrigger(licenseAction?: CustomLinkItem['children']) {
+  return {
+    sm: SearchTrigger,
+    full: function HomeSearchTrigger(props: FullSearchTriggerProps) {
+      return (
+        <>
+          {licenseAction}
+          <FullSearchTrigger {...props} />
+        </>
+      );
+    },
+  };
+}
+
 const startPaths: LinkCard[] = [
   {
     title: 'Run the Easy API',
     href: DOCS_PATHS.quickstart,
-    description: 'Start the API, authenticate WhatsApp, open the live docs, and send one test message.',
+    description:
+      'Start the API, authenticate WhatsApp, open the live docs, and send one test message.',
     eyebrow: 'Fastest path',
     detail: 'CLI runtime, API key, generated docs',
   },
   {
     title: 'Embed the runtime',
     href: DOCS_PATHS.customCode,
-    description: 'Use createClient in Node.js when your app must own the session lifecycle.',
+    description:
+      'Use createClient in Node.js when your app must own the session lifecycle.',
     eyebrow: 'Library mode',
     detail: 'createClient, drivers, events',
   },
   {
     title: 'Connect remotely',
     href: DOCS_PATHS.socketClient,
-    description: 'Connect a worker, dashboard, bot, or service to an Easy API session.',
+    description:
+      'Connect a worker, dashboard, bot, or service to an Easy API session.',
     eyebrow: 'Remote consumer',
     detail: 'SocketClient, RPC, SSE events',
   },
@@ -44,37 +124,43 @@ const workflowCards: LinkCard[] = [
   {
     title: 'Runtime model',
     href: DOCS_PATHS.runtimeModel,
-    description: 'See which process owns the browser, API, events, and consumers.',
+    description:
+      'See which process owns the browser, API, events, and consumers.',
     eyebrow: 'Pick ownership',
   },
   {
     title: 'Session events',
     href: DOCS_PATHS.sessionEvents,
-    description: 'Handle QR auth, link-code login, readiness, logouts, and lifecycle signals.',
+    description:
+      'Handle QR auth, link-code login, readiness, logouts, and lifecycle signals.',
     eyebrow: 'Stay ready',
   },
   {
     title: 'Multi-session ops',
     href: DOCS_PATHS.multiSession,
-    description: 'Run named accounts with clear ports, process boundaries, and recovery paths.',
+    description:
+      'Run named accounts with clear ports, process boundaries, and recovery paths.',
     eyebrow: 'Operations',
   },
   {
     title: 'Messages and media',
     href: DOCS_PATHS.messages,
-    description: 'Build message, media, group, and file flows from the task-based guides.',
+    description:
+      'Build message, media, group, and file flows from the task-based guides.',
     eyebrow: 'Core work',
   },
   {
     title: 'Integrations',
     href: DOCS_PATHS.chatwoot,
-    description: 'Send WhatsApp events into Chatwoot, webhooks, S3, Node-RED, or a proxy.',
+    description:
+      'Send WhatsApp events into Chatwoot, webhooks, S3, Node-RED, or a proxy.',
     eyebrow: 'Connectors',
   },
   {
     title: 'Find an exact method',
     href: DOCS_PATHS.referenceClient,
-    description: 'Look up exact methods after you know the task you want to run.',
+    description:
+      'Look up exact methods after you know the task you want to run.',
     eyebrow: 'API lookup',
   },
 ];
@@ -97,51 +183,57 @@ function SectionHeading({
 }) {
   return (
     <div className="max-w-3xl space-y-3">
-      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-fd-primary">
+      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
         {eyebrow}
       </p>
-      <h2 className="text-balance text-3xl font-semibold tracking-tight text-fd-foreground sm:text-4xl">
+      <h2 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl font-display">
         {title}
       </h2>
-      <p className="text-pretty text-base leading-7 text-fd-muted-foreground sm:text-lg">
+      <p className="text-pretty text-base leading-7 text-muted-foreground sm:text-lg font-medium">
         {description}
       </p>
     </div>
   );
 }
 
-function RouteCard({ card, featured = false }: { card: LinkCard; featured?: boolean }) {
+function RouteCard({
+  card,
+  featured = false,
+}: {
+  card: LinkCard;
+  featured?: boolean;
+}) {
   return (
     <a
       href={card.href}
       className={[
-        'group flex h-full min-h-52 flex-col rounded-3xl border p-6 shadow-sm transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring',
+        'group flex h-full min-h-52 flex-col rounded-3xl border-backstitch p-6 shadow-stipple hover-stipple transition-all',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         featured
-          ? 'border-fd-primary/50 bg-fd-primary text-fd-primary-foreground hover:bg-fd-primary/90'
-          : 'border-fd-border bg-fd-card text-fd-card-foreground hover:border-fd-primary/60 hover:bg-fd-accent/70',
+          ? 'bg-primary text-primary-foreground'
+          : 'bg-card text-card-foreground',
       ].join(' ')}
     >
       <div className="flex flex-wrap items-center gap-2">
         <span
           className={[
-            'rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em]',
+            'rounded-xl border px-3 py-1 text-xs font-bold uppercase tracking-[0.14em]',
             featured
-              ? 'border-fd-primary-foreground/25 bg-fd-primary-foreground/10 text-fd-primary-foreground'
-              : 'border-fd-border bg-fd-secondary text-fd-muted-foreground',
+              ? 'border-primary-foreground/25 bg-primary-foreground/10 text-primary-foreground'
+              : 'border-foreground bg-secondary text-secondary-foreground shadow-sm',
           ].join(' ')}
         >
           {card.eyebrow}
         </span>
         {card.badge ? <LicenseBadge tier={card.badge} /> : null}
       </div>
-      <h3 className="mt-5 text-balance text-2xl font-semibold tracking-tight">
+      <h3 className="mt-5 text-balance text-2xl font-bold tracking-tight font-display">
         {card.title}
       </h3>
       <p
         className={[
-          'mt-3 text-pretty text-sm leading-6 sm:text-base',
-          featured ? 'text-fd-primary-foreground/80' : 'text-fd-muted-foreground',
+          'mt-3 text-pretty text-sm leading-6 sm:text-base font-medium',
+          featured ? 'text-primary-foreground/80' : 'text-muted-foreground',
         ].join(' ')}
       >
         {card.description}
@@ -149,10 +241,10 @@ function RouteCard({ card, featured = false }: { card: LinkCard; featured?: bool
       {card.detail ? (
         <p
           className={[
-            'mt-5 border-t pt-4 text-xs font-semibold uppercase tracking-[0.14em]',
+            'mt-5 border-t border-dashed pt-4 text-xs font-bold uppercase tracking-[0.14em]',
             featured
-              ? 'border-fd-primary-foreground/20 text-fd-primary-foreground/75'
-              : 'border-fd-border text-fd-primary',
+              ? 'border-primary-foreground/20 text-primary-foreground/75'
+              : 'border-foreground text-primary',
           ].join(' ')}
         >
           {card.detail}
@@ -160,8 +252,8 @@ function RouteCard({ card, featured = false }: { card: LinkCard; featured?: bool
       ) : null}
       <span
         className={[
-          'mt-auto pt-6 text-sm font-semibold',
-          featured ? 'text-fd-primary-foreground' : 'text-fd-primary',
+          'mt-auto pt-6 text-sm font-bold',
+          featured ? 'text-primary-foreground' : 'text-primary',
         ].join(' ')}
       >
         Open guide -&gt;
@@ -174,49 +266,85 @@ function WorkflowCard({ card }: { card: LinkCard }) {
   return (
     <a
       href={card.href}
-      className="group flex min-h-44 flex-col rounded-2xl border border-fd-border bg-fd-card p-5 shadow-sm transition-colors hover:border-fd-primary/50 hover:bg-fd-accent/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring"
+      className="group flex min-h-44 flex-col rounded-2xl border-backstitch bg-card p-5 shadow-sm hover-stipple transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-fd-primary">
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">
         {card.eyebrow}
       </p>
-      <h3 className="mt-4 text-balance text-xl font-semibold text-fd-foreground group-hover:text-fd-primary">
+      <h3 className="mt-4 text-balance text-xl font-bold text-foreground group-hover:text-primary font-display">
         {card.title}
       </h3>
-      <p className="mt-3 text-pretty text-sm leading-6 text-fd-muted-foreground">
+      <p className="mt-3 text-pretty text-sm leading-6 text-muted-foreground font-medium">
         {card.description}
       </p>
     </a>
   );
 }
 
+function WallyHeroIllustration() {
+  return (
+    <div
+      aria-hidden="true"
+      className="relative overflow-hidden rounded-[1.75rem] border-backstitch bg-background p-4 shadow-sm"
+    >
+      <div className="pointer-events-none absolute inset-0 bg-dither opacity-[0.18]" />
+      <div className="pointer-events-none absolute -right-5 top-4 size-16 rounded-full border-2 border-foreground bg-stitch-yellow/70" />
+      <div className="pointer-events-none absolute -left-4 bottom-5 size-12 rounded-full border-2 border-foreground bg-stitch-lavender/25" />
+      <img
+        src="/mascots/wally-homepage-session-console.png"
+        alt=""
+        className="relative z-10 mx-auto h-auto w-full max-w-[300px]"
+        loading="eager"
+      />
+    </div>
+  );
+}
+
 function OpsConsolePanel() {
   return (
-    <div className="rounded-3xl border border-fd-border bg-fd-card p-4 shadow-sm sm:p-5">
-      <div className="rounded-2xl border border-fd-border bg-fd-background p-4">
-        <div className="flex items-center justify-between gap-3 border-b border-fd-border pb-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-fd-primary">
-              Session console
-            </p>
-            <p className="mt-1 text-sm text-fd-muted-foreground">quick checks for a working session</p>
-          </div>
-          <span className="rounded-full border border-fd-primary/40 bg-fd-primary/10 px-3 py-1 text-xs font-semibold text-fd-primary">
-            online
-          </span>
-        </div>
-        <dl className="mt-4 grid gap-3 sm:grid-cols-2">
-          {opsSignals.map(([label, value]) => (
-            <div key={label} className="rounded-2xl border border-fd-border bg-fd-secondary p-4">
-              <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-fd-muted-foreground">
-                {label}
-              </dt>
-              <dd className="mt-2 text-sm font-medium text-fd-foreground">{value}</dd>
+    <div className="relative overflow-hidden rounded-[2rem] border-backstitch bg-card p-4 shadow-stipple sm:p-5">
+      <div className="pointer-events-none absolute inset-0 bg-dither opacity-[0.14]" />
+      <div className="relative z-10 grid gap-4">
+        <WallyHeroIllustration />
+        <div className="rounded-2xl border-backstitch bg-[#1e1614] p-4">
+          <div className="flex items-center justify-between gap-3 border-b-2 border-foreground/30 pb-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                Session console
+              </p>
+              <p className="mt-1 text-xs text-[#f5ebe6]/70">
+                quick checks for a working session
+              </p>
             </div>
-          ))}
-        </dl>
-        <div className="mt-4 rounded-2xl border border-fd-border bg-fd-card p-4 font-mono text-xs leading-6 text-fd-muted-foreground">
-          <p><span className="text-fd-primary">$</span> npx @open-wa/wa-automate --port 8080 --api-key ***</p>
-          <p><span className="text-fd-primary">ok</span> session ready, api docs mounted, events streaming</p>
+            <span className="rounded-xl border border-foreground bg-primary/20 px-3 py-1 text-xs font-bold text-primary-foreground shadow-sm">
+              online
+            </span>
+          </div>
+          <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+            {opsSignals.map(([label, value]) => (
+              <div
+                key={label}
+                className="rounded-2xl border border-dashed border-foreground/30 bg-[#2d221e] p-4"
+              >
+                <dt className="text-xs font-bold uppercase tracking-[0.14em] text-primary">
+                  {label}
+                </dt>
+                <dd className="mt-2 text-sm font-semibold text-[#f5ebe6]">
+                  {value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <div className="mt-4 rounded-2xl border-backstitch bg-card/10 p-4 font-mono text-xs leading-6 text-[#f5ebe6]/80">
+            <p>
+              <span className="text-primary">$</span> npx @open-wa/wa-automate
+              --port 8080 --api-key ***
+            </p>
+            <p>
+              <span className="text-emerald-400">ok</span> session ready, api
+              docs mounted, events streaming
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -224,49 +352,78 @@ function OpsConsolePanel() {
 }
 
 export function DocsHomepage() {
+  const layoutOptions = baseOptions();
+  const licenseLink = layoutOptions.links?.find(isHomepageLicenseLink);
+  const homeLayoutOptions = {
+    ...layoutOptions,
+    links: createHomeLayoutLinks(layoutOptions.links),
+    slots: {
+      ...layoutOptions.slots,
+      searchTrigger: createHomeSearchTrigger(licenseLink?.children),
+    },
+  };
+
   return (
     <HomeLayout
-      {...baseOptions()}
-      className="mx-auto flex w-full max-w-7xl flex-col gap-16 px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16"
+      {...homeLayoutOptions}
+      className="relative isolate mx-auto flex w-full max-w-7xl flex-col gap-14 overflow-hidden bg-background px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16"
     >
-      <section className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] lg:items-center">
-        <div className="space-y-8">
-          <div className="flex flex-wrap items-center gap-3 text-sm text-fd-muted-foreground">
-            <span className="rounded-full border border-fd-primary/40 bg-fd-primary/10 px-3 py-1 font-semibold text-fd-primary">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 bg-dither opacity-[0.16]"
+      />
+      <section className="relative grid gap-8 overflow-hidden rounded-[2.25rem] border-4 border-foreground bg-background p-5 shadow-stipple ring-4 ring-primary/15 sm:p-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)] lg:items-center">
+        <div className="pointer-events-none absolute inset-0 bg-dither opacity-[0.12]" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-3 rounded-[1.75rem] border-2 border-foreground/20"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-10 top-10 size-28 rounded-full border-4 border-foreground bg-stitch-yellow/60"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-12 bottom-8 size-32 rounded-full border-4 border-foreground bg-stitch-lavender/20"
+        />
+        <div className="relative z-10 space-y-7">
+          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground font-semibold">
+            <span className="rounded-xl border-backstitch bg-stitch-yellow/70 px-3 py-1 font-bold text-foreground shadow-sm">
               open-wa v5 alpha
             </span>
             <span>Current package: {CURRENT_VERSION}</span>
           </div>
 
-          <div className="space-y-5">
-            <h1 className="text-balance text-4xl font-semibold tracking-tight text-fd-foreground sm:text-6xl lg:text-7xl">
+          <div className="space-y-4">
+            <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl font-display">
               Run WhatsApp automation without decoding the whole repo.
             </h1>
-            <p className="max-w-3xl text-pretty text-lg leading-8 text-fd-muted-foreground sm:text-xl">
-              Start the Easy API, embed the runtime with createClient, or connect a
-              remote worker. Each path shows what to run, what to paste, and what
-              to check when the session is not ready.
+            <p className="max-w-3xl text-pretty text-lg leading-8 text-muted-foreground sm:text-xl font-medium">
+              Start the Easy API, embed the runtime with createClient, or
+              connect a remote worker. Each path shows what to run, what to
+              paste, and what to check when the session is not ready.
             </p>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <a
               href={DOCS_PATHS.quickstart}
-              className="inline-flex min-h-11 items-center justify-center rounded-full border border-fd-primary bg-fd-primary px-6 py-3 text-sm font-semibold text-fd-primary-foreground transition-colors hover:bg-fd-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border-backstitch bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-all hover-stipple cursor-pointer shadow-sm"
             >
               Start with Quick Start
             </a>
             <a
               href={DOCS_PATHS.overview}
-              className="inline-flex min-h-11 items-center justify-center rounded-full border border-fd-border bg-fd-card px-6 py-3 text-sm font-semibold text-fd-foreground transition-colors hover:bg-fd-accent hover:text-fd-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border-backstitch bg-card px-6 py-3 text-sm font-bold text-foreground transition-all hover-stipple cursor-pointer shadow-sm"
             >
               Browse docs map
             </a>
-            <GetLicenseButton className="min-h-11 px-6 py-3" />
           </div>
         </div>
 
-        <OpsConsolePanel />
+        <div className="relative z-10">
+          <OpsConsolePanel />
+        </div>
       </section>
 
       <section className="space-y-8">
@@ -282,13 +439,20 @@ export function DocsHomepage() {
         </div>
       </section>
 
-      <section className="grid gap-8 rounded-3xl border border-fd-border bg-fd-card p-5 shadow-sm sm:p-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
-        <SectionHeading
-          eyebrow="Workflow grid"
-          title="Use task guides before method lookup"
-          description="Setup, auth, multi-session operations, integrations, and recovery have their own guides. Use the API lookup only when you need an exact method name or parameter."
+      <section className="relative grid gap-8 overflow-hidden rounded-[2rem] border-backstitch bg-card p-5 shadow-stipple sm:p-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+        <div className="absolute inset-0 bg-dither opacity-[0.12] pointer-events-none" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute right-6 top-6 size-12 rounded-full border-2 border-foreground bg-stitch-lavender/20"
         />
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="relative z-10">
+          <SectionHeading
+            eyebrow="Workflow grid"
+            title="Use task guides before method lookup"
+            description="Setup, auth, multi-session operations, integrations, and recovery have their own guides. Use the API lookup only when you need an exact method name or parameter."
+          />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 relative z-10">
           {workflowCards.map((card) => (
             <WorkflowCard key={card.href} card={card} />
           ))}
@@ -296,52 +460,63 @@ export function DocsHomepage() {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.55fr)]">
-        <div className="rounded-3xl border border-fd-border bg-fd-card p-6 shadow-sm sm:p-8">
-          <SectionHeading
-            eyebrow="Production checklist"
-            title="Check the parts that break first"
-            description="Configuration, event readiness, proxying, AI access, generated schemas, and licensed features all affect whether a session works in production."
-          />
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            <a
-              href={DOCS_PATHS.configuration}
-              className="rounded-2xl border border-fd-border bg-fd-background p-5 text-sm font-semibold text-fd-foreground transition-colors hover:border-fd-primary/50 hover:bg-fd-accent"
-            >
-              Configuration and CLI
-            </a>
-            <a
-              href={DOCS_PATHS.cloudflareProxy}
-              className="rounded-2xl border border-fd-border bg-fd-background p-5 text-sm font-semibold text-fd-foreground transition-colors hover:border-fd-primary/50 hover:bg-fd-accent"
-            >
-              Cloudflare session proxy
-            </a>
-            <a
-              href={DOCS_PATHS.bestPractices}
-              className="rounded-2xl border border-fd-border bg-fd-background p-5 text-sm font-semibold text-fd-foreground transition-colors hover:border-fd-primary/50 hover:bg-fd-accent"
-            >
-              Best practices
-            </a>
-            <a
-              href={DOCS_PATHS.licensedFeatures}
-              className="rounded-2xl border border-fd-border bg-fd-background p-5 text-sm font-semibold text-fd-foreground transition-colors hover:border-fd-primary/50 hover:bg-fd-accent"
-            >
-              Licensed features
-            </a>
+        <div className="rounded-3xl border-backstitch bg-card p-6 shadow-stipple sm:p-8 relative overflow-hidden">
+          <div className="absolute inset-0 bg-dither opacity-[0.12] pointer-events-none" />
+          <div className="relative z-10">
+            <SectionHeading
+              eyebrow="Production checklist"
+              title="Check the parts that break first"
+              description="Configuration, event readiness, proxying, AI access, generated schemas, and licensed features all affect whether a session works in production."
+            />
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              <a
+                href={DOCS_PATHS.configuration}
+                className="rounded-2xl border-backstitch bg-background p-5 text-sm font-bold text-foreground transition-all hover-stipple shadow-sm"
+              >
+                Configuration and CLI
+              </a>
+              <a
+                href={DOCS_PATHS.cloudflareProxy}
+                className="rounded-2xl border-backstitch bg-background p-5 text-sm font-bold text-foreground transition-all hover-stipple shadow-sm"
+              >
+                Cloudflare session proxy
+              </a>
+              <a
+                href={DOCS_PATHS.bestPractices}
+                className="rounded-2xl border-backstitch bg-background p-5 text-sm font-bold text-foreground transition-all hover-stipple shadow-sm"
+              >
+                Best practices
+              </a>
+              <a
+                href={DOCS_PATHS.licensedFeatures}
+                className="rounded-2xl border-backstitch bg-background p-5 text-sm font-bold text-foreground transition-all hover-stipple shadow-sm"
+              >
+                Licensed features
+              </a>
+            </div>
           </div>
         </div>
 
-        <div className="space-y-4 rounded-3xl border border-fd-border bg-fd-card p-6 shadow-sm">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-fd-primary">
-            License-aware docs
-          </p>
-          <h2 className="text-balance text-2xl font-semibold text-fd-foreground">
-            Gated features are marked before you depend on them.
-          </h2>
-          <p className="text-pretty text-sm leading-6 text-fd-muted-foreground">
-            Badges and callouts show license needs next to the feature guide, so
-            teams can test unlock behavior before they build around it.
-          </p>
-          <LicensedFeatureCallout tier="restricted" className="bg-fd-background" />
+        <div className="space-y-4 rounded-3xl border-backstitch bg-card p-6 shadow-stipple relative overflow-hidden flex flex-col justify-between">
+          <div className="absolute inset-0 bg-dither opacity-[0.12] pointer-events-none" />
+          <div className="relative z-10 space-y-4">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+              License-aware docs
+            </p>
+            <h2 className="text-balance text-2xl font-bold text-foreground font-display">
+              Gated features are marked before you depend on them.
+            </h2>
+            <p className="text-pretty text-sm leading-6 text-muted-foreground font-medium">
+              Badges and callouts show license needs next to the feature guide,
+              so teams can test unlock behavior before they build around it.
+            </p>
+          </div>
+          <div className="relative z-10 mt-auto">
+            <LicensedFeatureCallout
+              tier="restricted"
+              className="bg-background border-backstitch rounded-2xl p-4 shadow-sm"
+            />
+          </div>
         </div>
       </section>
     </HomeLayout>

@@ -16,11 +16,19 @@ export function Callout({
   className?: string;
 }) {
   const styles = {
-    note: 'border-fd-border bg-fd-card text-fd-foreground',
-    tip: 'border-fd-primary/40 bg-fd-primary/10 text-fd-foreground',
-    warning: 'border-amber-500/40 bg-amber-500/10 text-fd-foreground',
-    danger: 'border-rose-500/40 bg-rose-500/10 text-fd-foreground',
-    info: 'border-cyan-500/40 bg-cyan-500/10 text-fd-foreground',
+    note: 'border-backstitch bg-card text-foreground',
+    tip: 'border-backstitch bg-primary/10 text-foreground',
+    warning: 'border-backstitch bg-amber-100/50 dark:bg-amber-950/20 text-foreground',
+    danger: 'border-backstitch bg-destructive/10 text-foreground',
+    info: 'border-backstitch bg-sky-100/50 dark:bg-sky-950/20 text-foreground',
+  } as const;
+
+  const bgDitherOpacities = {
+    note: 'opacity-[0.06]',
+    tip: 'opacity-[0.08]',
+    warning: 'opacity-[0.06]',
+    danger: 'opacity-[0.08]',
+    info: 'opacity-[0.06]',
   } as const;
 
   const labels = {
@@ -42,23 +50,24 @@ export function Callout({
   return (
     <aside
       className={cx(
-        'my-6 rounded-2xl border p-5 shadow-sm transition-colors sm:p-6',
+        'my-6 rounded-2xl border-backstitch p-5 shadow-stipple relative overflow-hidden transition-all sm:p-6',
         styles[type],
         className,
       )}
     >
-      <div className="flex items-start gap-4">
+      <div className={cx("absolute inset-0 bg-dither pointer-events-none", bgDitherOpacities[type])} />
+      <div className="flex items-start gap-4 relative z-10">
         <span
           aria-hidden="true"
-          className="flex size-8 shrink-0 items-center justify-center rounded-full border border-current/25 bg-fd-background/70 font-mono text-sm font-semibold text-fd-primary"
+          className="flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-foreground bg-background font-mono text-sm font-bold text-foreground"
         >
           {labels[type]}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-fd-primary">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-foreground">
             {title ?? defaultTitles[type]}
           </p>
-          <div className="mt-2 text-pretty text-sm leading-6 text-fd-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_a]:font-semibold [&_a]:text-fd-primary [&_code]:text-fd-foreground [&_li]:text-fd-muted-foreground [&_p]:text-fd-muted-foreground">
+          <div className="mt-2 text-pretty text-sm leading-6 text-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_a]:font-bold [&_a]:text-primary [&_code]:text-foreground [&_li]:text-muted-foreground [&_p]:text-muted-foreground">
             {children}
           </div>
         </div>
@@ -90,21 +99,22 @@ export function Step({
   children?: React.ReactNode;
 }) {
   return (
-    <section className="rounded-3xl border border-fd-border bg-fd-card p-5 shadow-sm transition-colors sm:p-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-fd-primary/40 bg-fd-primary/10 font-mono text-sm font-semibold text-fd-primary">
+    <section className="my-6 rounded-2xl border-backstitch bg-card p-5 shadow-stipple relative overflow-hidden transition-colors sm:p-6">
+      <div className="absolute inset-0 bg-dither opacity-[0.05] pointer-events-none" />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start relative z-10">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-foreground bg-primary text-primary-foreground font-mono text-sm font-bold shadow-sm">
           {number}
         </div>
         <div className="min-w-0 flex-1">
           {title ? (
-            <h3 className="text-balance text-lg font-semibold text-fd-foreground">
+            <h3 className="text-balance text-lg font-display font-bold text-foreground">
               {title}
             </h3>
           ) : null}
           <div
             className={cx(
               title ? 'mt-3' : undefined,
-              'text-pretty text-sm leading-6 text-fd-muted-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_a]:font-semibold [&_a]:text-fd-primary [&_code]:text-fd-foreground',
+              'text-pretty text-sm leading-6 text-muted-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_a]:font-bold [&_a]:text-primary [&_code]:text-foreground',
             )}
           >
             {children}
@@ -140,8 +150,9 @@ export function PackageManagerTabs({
   const [active, setActive] = React.useState<keyof typeof commands>('pnpm');
 
   return (
-    <div className="my-6 overflow-hidden rounded-3xl border border-fd-border bg-fd-card shadow-sm">
-      <div className="flex gap-2 overflow-x-auto border-b border-fd-border p-3">
+    <div className="my-6 overflow-hidden rounded-2xl border-backstitch bg-card shadow-stipple relative">
+      <div className="absolute inset-0 bg-dither opacity-[0.03] pointer-events-none" />
+      <div className="flex gap-2 overflow-x-auto border-b-2 border-foreground p-3 bg-muted relative z-10">
         {Object.keys(commands).map((key) => {
           const manager = key as keyof typeof commands;
           return (
@@ -150,10 +161,10 @@ export function PackageManagerTabs({
               type="button"
               onClick={() => setActive(manager)}
               className={cx(
-                'min-h-10 shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring',
+                'min-h-10 shrink-0 rounded-xl px-4 py-2 text-sm font-bold transition-all focus-visible:outline-none border-2 cursor-pointer shadow-sm',
                 active === manager
-                  ? 'bg-fd-primary text-fd-primary-foreground'
-                  : 'border border-fd-border bg-fd-secondary text-fd-secondary-foreground hover:bg-fd-accent',
+                  ? 'bg-foreground text-background border-foreground'
+                  : 'border-transparent bg-background text-foreground hover:bg-accent',
               )}
               aria-pressed={active === manager}
             >
@@ -162,7 +173,7 @@ export function PackageManagerTabs({
           );
         })}
       </div>
-      <pre className="overflow-x-auto bg-fd-background p-4 text-sm leading-6 text-fd-foreground">
+      <pre className="overflow-x-auto bg-[#1e1614] p-4 text-sm leading-6 text-[#f5ebe6] font-mono border-t-2 border-foreground relative z-10">
         <code>{commands[active]}</code>
       </pre>
     </div>
@@ -190,14 +201,15 @@ export function ComparisonTable({
   let lastGroup: string | undefined;
 
   return (
-    <div className="my-8 overflow-hidden rounded-3xl border border-fd-border bg-fd-card shadow-sm">
-      <div className="overflow-x-auto">
+    <div className="my-8 overflow-hidden rounded-2xl border-backstitch bg-card shadow-stipple relative">
+      <div className="absolute inset-0 bg-dither opacity-[0.03] pointer-events-none" />
+      <div className="overflow-x-auto relative z-10">
         <table className="min-w-full border-collapse text-left text-sm">
-          <thead className="bg-fd-secondary">
+          <thead className="bg-muted border-b-2 border-foreground">
             <tr>
-              <th className="px-4 py-4 font-semibold text-fd-foreground">Feature</th>
+              <th className="px-4 py-4 font-bold text-foreground font-display">Feature</th>
               {columns.map((column) => (
-                <th key={column.key} className="px-4 py-4 font-semibold text-fd-foreground">
+                <th key={column.key} className="px-4 py-4 font-bold text-foreground font-display">
                   {column.label}
                 </th>
               ))}
@@ -211,21 +223,21 @@ export function ComparisonTable({
               return (
                 <React.Fragment key={`${row.group ?? 'row'}-${row.feature}`}>
                   {showGroup ? (
-                    <tr className="border-t border-fd-border bg-fd-background">
+                    <tr className="border-b border-foreground bg-muted/50">
                       <td
                         colSpan={columns.length + 1}
-                        className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-fd-primary"
+                        className="px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-foreground"
                       >
                         {row.group}
                       </td>
                     </tr>
                   ) : null}
-                  <tr className="border-t border-fd-border align-top transition-colors hover:bg-fd-secondary/60">
-                    <td className="min-w-44 px-4 py-4 font-medium text-fd-foreground">
+                  <tr className="border-b border-foreground/30 align-top transition-colors hover:bg-muted/30 last:border-b-0">
+                    <td className="min-w-44 px-4 py-4 font-bold text-foreground font-display">
                       {row.feature}
                     </td>
                     {columns.map((column) => (
-                      <td key={column.key} className="min-w-40 px-4 py-4 text-fd-muted-foreground">
+                      <td key={column.key} className="min-w-40 px-4 py-4 text-muted-foreground font-medium">
                         {row.values[column.key]}
                       </td>
                     ))}
@@ -250,18 +262,19 @@ export function FAQ({
       {items.map((item) => (
         <details
           key={item.question}
-          className="group rounded-2xl border border-fd-border bg-fd-card p-5 shadow-sm transition-colors open:border-fd-primary/45"
+          className="group rounded-2xl border-backstitch bg-card p-5 shadow-stipple relative overflow-hidden transition-all open:bg-card"
         >
-          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 text-base font-semibold text-fd-foreground transition-colors hover:text-fd-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring [&::-webkit-details-marker]:hidden">
-            <span className="text-balance">{item.question}</span>
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-fd-border bg-fd-secondary font-mono text-sm text-fd-primary group-open:hidden">
+          <div className="absolute inset-0 bg-dither opacity-[0.05] pointer-events-none" />
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 text-base font-bold text-foreground transition-colors hover:text-primary focus-visible:outline-none [&::-webkit-details-marker]:hidden relative z-10 select-none">
+            <span className="text-balance font-display">{item.question}</span>
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-foreground bg-background font-mono text-sm font-bold text-foreground group-open:hidden shadow-sm">
               +
             </span>
-            <span className="hidden size-7 shrink-0 items-center justify-center rounded-full border border-fd-primary/40 bg-fd-primary/10 font-mono text-sm text-fd-primary group-open:flex">
+            <span className="hidden size-7 shrink-0 items-center justify-center rounded-full border-2 border-foreground bg-primary text-primary-foreground font-mono text-sm font-bold group-open:flex shadow-sm">
               -
             </span>
           </summary>
-          <div className="mt-3 text-pretty text-sm leading-6 text-fd-muted-foreground [&_a]:font-semibold [&_a]:text-fd-primary">
+          <div className="mt-3 text-pretty text-sm leading-6 text-muted-foreground font-medium [&_a]:font-bold [&_a]:text-primary relative z-10">
             {item.answer}
           </div>
         </details>

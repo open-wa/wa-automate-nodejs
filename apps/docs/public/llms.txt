@@ -1,0 +1,70 @@
+# open-wa Documentation
+
+Welcome to the `open-wa` / `wa-automate-nodejs` documentation. This is a high-density, machine-readable index of all user-facing features, architecture details, and plugin schemas designed for LLMs, AI agents, and developers.
+
+## Core Package Ecosystem
+
+The project uses a monorepo structure in `v5` containing the following packages:
+- **`@open-wa/core`**: Core runtime package providing `createClient()`.
+- **`@open-wa/plugin-sdk`**: SDK for building pluggable runtime extensions.
+- **`@open-wa/integration-webhook`**: Webhook dispatcher integration.
+- **`@open-wa/integration-s3`**: Amazon S3 storage integration for decrypted media.
+- **`@open-wa/node-red-contrib-wa-automate`**: Node-RED visual integration.
+
+---
+
+## Core Sections
+
+### 1. Getting Started
+
+- **[Quick start](/docs/getting-started/quickstart)**: Fastest path to spin up the local Easy API, scan the authentication QR code, verify Swagger docs at `http://localhost:8080/api-docs/`, and send a first test message using `curl` or the Swagger UI.
+- **[v5 Alpha Status](/docs/getting-started/v5-alpha)**: Understand the v5 monorepo architecture, how pluggable browser drivers (Puppeteer, Playwright, Lightpanda) work, legal/ToS context, Wassenaar encryption guidelines, and when to use v5 vs the stable v4 (`4.76.0`).
+- **[Easy API Server](/docs/getting-started/easy-api)**: Detailed guide on running the standalone Hono HTTP server. Explains port allocation, starting with `--api-key`, dynamic `/health` capabilities, and generating OpenAPI schemas `/meta/swagger.json` or Postman collections `/meta/postman.json`.
+- **[Custom Code embedding](/docs/getting-started/custom-code)**: Learn how to embed the library in direct Node.js processes using `createClient()` from `@open-wa/core` instead of CLI execution. Covers type safety, lifecycle callbacks, and correct client shutdown workflows.
+- **[Docker Deployment](/docs/getting-started/docker)**: Comprehensive deployment parameters for running within Docker. Documents image tags, volume mounts for session persistence, mandatory environment variables prefixed with `WA_*`, init systems, and custom browser drivers.
+- **[Link-code login](/docs/getting-started/link-code)**: Authenticate host devices directly via an 8-character phone pairing code instead of scanning QR codes. Useful for headless servers or remote terminal environments.
+
+### 2. Guides and Operations
+
+- **[Configuration and CLI](/docs/guides/configuration-and-cli)**: Complete mapping of CLI flags (`--port`, `--api-key`, `--session-id`) to properties in `wa.config.mjs` and their corresponding system environment variables.
+- **[Understanding Chat IDs](/docs/guides/chatid-primer)**: Explains WhatsApp's addressing formats: individual contacts (`[number]@c.us`), group chats (`[id]@g.us`), broadcast lists (`[id]@broadcast`), and phone aliases.
+- **[Webhooks for Business](/docs/guides/webhooks-for-business)**: Plain language guide for streaming WhatsApp events to external platforms (Zapier, Make, n8n) via POST hooks. Covers event filters, signature verification, and delivery retry limits.
+- **[Model Context Protocol (MCP)](/docs/guides/mcp)**: Guide to connecting AI agent assistants (Claude Desktop, Cursor, Windsurf) to WhatsApp tools. Explains streamable HTTP transport at `/mcp`, API key security enforcement, and auditing tools exposed in Swagger.
+- **[AI Agent Architectures](/docs/guides/ai-agent-patterns)**: Best practices for building chat loops, maintaining session window contexts, caching messages, processing media streams, and concurrency limiting using `p-queue`.
+- **[Rate Limits and Safety](/docs/guides/rate-limits)**: Safety boundaries for automated messaging to prevent account bans. Explains temporary block structures, message intervals, and cool-down queues.
+
+### 3. Plugin SDK System
+
+Plugins run **inside the Easy API process** for maximum performance and low latency.
+- **[Plugin Getting Started](/docs/plugins/getting-started)**: Scaffold plugins using `@open-wa/plugin-sdk` with `createPlugin()`. Covers dynamic loading `.mjs` files from `wa.config.mjs` and validating plugin parameters using Zod-driven `defineConfig()`.
+- **[Hooks Reference](/docs/plugins/hooks-reference)**: Lifecyle hooks (`core.starting`, `core.started`, `client.ready`), message events (`message.received`, `message.sent`), interceptors (`message.send.before` to scan or drop outbound data), custom HTTP routes, and AI tool registries.
+- **[PluginClient Reference](/docs/plugins/plugin-client)**: Details the proxy methods available inside a plugin via `client` (`sendText`, `reply`, `decryptMedia`, `sendImage`).
+- **[PluginInput Reference](/docs/plugins/plugin-input)**: Details the inputs provided to the plugin (`events`, `logger`, `config`, `sessionId`, `client`).
+- **[Plugin Security Model](/docs/plugins/security-model)**: Access controls, sandbox limits, separating config secrets from plain logs, and error recovery patterns.
+- **[Moderation Bot Example](/docs/plugins/example-moderation)**: Complete, production-grade example of an OpenAI-based message scan plugin. Demonstrates non-blocking `message.send.before` hooks, Zod validation, deleting flagged group messages, and prefixing logs.
+
+### 4. Client and Integrations
+
+- **[Socket Client](/docs/client-and-integrations/socket-client)**: Run a lightweight remote node that communicates with a centralized Easy API instance over SSE. Ideal for microservices that do not need to spawn their own browser windows.
+- **[Chatwoot Bridge](/docs/client-and-integrations/chatwoot)**: Sync WhatsApp sessions directly into Chatwoot inboxes for support operators.
+- **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)**: Leverage Durable Objects to route session controls securely without exposing a public local port.
+
+---
+
+## Technical Architecture & Lifecycle
+
+```mermaid
+graph TD
+  A[WhatsApp Web / Browser Engine] <-->|driver| B[@open-wa/core Client]
+  B <-->|RPC / SSE| C[Easy API Server Hono]
+  C <-->|HTTP JSON-RPC| D[SocketClient / External Apps]
+  C <-->|Webhook POST| E[CRM / Make.com / Low-Code]
+  C <-->|Streamable HTTP| F[AI Agent / MCP Client]
+  B <-->|Dynamic Injection| G[Plugins SDK]
+```
+
+### Authentication Lifecycle
+
+1. **Emit QR**: Emits the text representation of the QR code or launches link-code phone pairing.
+2. **Authenticate**: Verifies session credentials and writes persistent local JSON state.
+3. **Client Ready**: Spawns internal message queue, loads dynamic plugins, and enables the HTTP RPC ports.

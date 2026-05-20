@@ -12,7 +12,6 @@ export function baseOptions(): BaseLayoutProps {
         </span>
       ),
       url: '/',
-      children: <GetLicenseButton className="hidden sm:inline-flex navbar-lic-button" subtle />,
     },
     links: [
       {
@@ -63,6 +62,12 @@ export function baseOptions(): BaseLayoutProps {
         text: 'Licensing',
         url: DOCS_PATHS.licensedFeatures,
         active: 'nested-url',
+      },
+      {
+        type: 'custom',
+        on: 'nav',
+        secondary: true,
+        children: <GetLicenseButton className="navbar-lic-button" subtle />,
       },
     ],
     githubUrl: REPO_URL,

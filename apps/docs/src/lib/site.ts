@@ -2,8 +2,8 @@ export type LicenseTier = 'insiders' | 'restricted';
 
 export const SITE_NAME = 'open-wa v5 docs';
 export const REPO_URL = 'https://github.com/open-wa/wa-automate-nodejs';
-export const GENERIC_LICENSE_URL = 'https://openwa.page.link/key';
-export const GENERIC_GUMROAD_URL = 'https://gum.co/open-wa?wanted=true';
+export const GENERIC_LICENSE_URL = 'https://smashah.gumroad.com/l/open-wa?wanted=true';
+export const GENERIC_GUMROAD_URL = 'https://smashah.gumroad.com/l/open-wa?wanted=true';
 export const CURRENT_VERSION = '5.0.0-alpha.1';
 
 export const DOCS_PATHS = {
@@ -37,8 +37,8 @@ export function getLicenseTierLabel(tier: LicenseTier): string {
 
 export function getLicenseTierHref(tier: LicenseTier): string {
   return tier === 'insiders'
-    ? 'https://gum.co/open-wa?wanted=true&tier=Insiders%20Program'
-    : 'https://gum.co/open-wa?wanted=true&tier=1%20Restricted%20License';
+    ? 'https://smashah.gumroad.com/l/open-wa?wanted=true&tier=Insiders%20Program'
+    : 'https://smashah.gumroad.com/l/open-wa?wanted=true&tier=1%20Restricted%20License%20Key';
 }
 
 export function getLicenseTierSummary(tier: LicenseTier): string {

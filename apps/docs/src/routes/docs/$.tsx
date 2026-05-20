@@ -1,5 +1,7 @@
 import { createFileRoute, notFound } from '@tanstack/react-router';
+import { Banner } from 'fumadocs-ui/components/banner';
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
+import type { LayoutTab } from 'fumadocs-ui/layouts/shared';
 import { source } from '@/lib/source';
 import browserCollections from 'fumadocs-mdx:collections/browser';
 import {
@@ -19,6 +21,10 @@ import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { cn } from '@/lib/cn';
 import { createServerFn } from '@tanstack/react-start';
 import { staticFunctionMiddleware } from '@tanstack/start-static-server-functions';
+import { DocsHomepage } from '@/components/docs-homepage';
+import { FeedbackCard } from '@/components/feedback-card';
+import { MascotCallout } from '@/components/mascot-callout';
+import { DOCS_PATHS, GENERIC_LICENSE_URL, REPO_URL } from '@/lib/site';
 
 const loader = createServerFn({
   method: 'GET',
@@ -61,6 +67,7 @@ const clientLoader = browserCollections.docs.createClientLoader<{
         <DocsTitle>{frontmatter.title}</DocsTitle>
         <DocsDescription>{frontmatter.description}</DocsDescription>
         <PageActions pagePath={pagePath} />
+        <MascotCallout onlyMapped className="mb-8" />
         <DocsBody className="pb-20 sm:pb-0">
           <MDX
             components={{
@@ -68,24 +75,90 @@ const clientLoader = browserCollections.docs.createClientLoader<{
               ...docsMdxComponents,
             }}
           />
+          <FeedbackCard />
         </DocsBody>
       </DocsPage>
     );
   },
 });
 
+const docsTabs: LayoutTab[] = [
+  {
+    title: 'Quick Start',
+    description: 'Run the Easy API and send the first message.',
+    url: DOCS_PATHS.quickstart,
+  },
+  {
+    title: 'Node.js',
+    description: 'Embed the runtime with createClient.',
+    url: DOCS_PATHS.customCode,
+  },
+  {
+    title: 'Docker',
+    description: 'Run the API in a container.',
+    url: '/docs/getting-started/docker',
+  },
+  {
+    title: 'Client API',
+    description: 'Look up generated client methods.',
+    url: DOCS_PATHS.referenceClient,
+  },
+  {
+    title: 'Licensing',
+    description: 'Check gated features and purchase paths.',
+    url: DOCS_PATHS.licensedFeatures,
+  },
+  {
+    title: 'Get a License',
+    description: 'Open the license purchase flow.',
+    url: GENERIC_LICENSE_URL,
+    props: {
+      target: '_blank',
+      rel: 'noreferrer',
+    },
+  },
+  {
+    title: 'GitHub',
+    description: 'View the source repository.',
+    url: REPO_URL,
+    props: {
+      target: '_blank',
+      rel: 'noreferrer',
+    },
+  },
+  {
+    title: 'Discord',
+    description: 'Join the community server.',
+    url: 'https://discord.gg/dpan7EYE3t',
+    props: {
+      target: '_blank',
+      rel: 'noreferrer',
+    },
+  },
+  {
+    title: 'Twitter',
+    description: 'Follow open-wa updates.',
+    url: 'https://twitter.com/openwadev',
+    props: {
+      target: '_blank',
+      rel: 'noreferrer',
+    },
+  },
+];
+
 function PageActions({ pagePath }: { pagePath: string }) {
   return (
-    <div className="mb-8 flex flex-col gap-3 rounded-3xl border border-fd-border bg-fd-card p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-4">
-      <div className="min-w-0">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-fd-primary">
+    <div className="mb-8 flex flex-col gap-3 rounded-2xl border-backstitch bg-card p-4 shadow-stipple sm:flex-row sm:items-center sm:justify-between relative overflow-hidden">
+      <div className="absolute inset-0 bg-dither opacity-[0.08] pointer-events-none" />
+      <div className="min-w-0 z-10">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">
           Page actions
         </p>
-        <p className="mt-1 text-sm text-fd-muted-foreground">
+        <p className="mt-1 text-sm text-muted-foreground font-medium">
           Copy source or open this page in your preferred AI workspace.
         </p>
       </div>
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end z-10">
         <MarkdownCopyButton markdownUrl={`${pagePath}.mdx`} />
         <ViewOptionsPopover
           markdownUrl={`${pagePath}.mdx`}
@@ -100,9 +173,19 @@ function Page() {
   const data = Route.useLoaderData();
   const Content = clientLoader.getComponent(data.path);
   const { pageTree } = useFumadocsLoader(data);
+  const layoutOptions = baseOptions();
 
   return (
-    <DocsLayout {...baseOptions()} tree={pageTree}>
+    <>
+      <Banner id="open-wa-v5-alpha">
+        open-wa v5 is alpha. Use v4.76.0 for mature production systems unless you are validating v5.
+      </Banner>
+      <DocsLayout
+        {...layoutOptions}
+        tree={pageTree}
+        tabs={docsTabs}
+        tabMode="top"
+      >
       <AISearch>
         <AISearchPanel />
         <AISearchTrigger
@@ -120,7 +203,12 @@ function Page() {
         </AISearchTrigger>
       </AISearch>
 
-      <Content pagePath={data.path} />
-    </DocsLayout>
+      {data.path === 'index' ? (
+        <DocsHomepage />
+      ) : (
+        <Content pagePath={data.path} />
+      )}
+      </DocsLayout>
+    </>
   );
 }

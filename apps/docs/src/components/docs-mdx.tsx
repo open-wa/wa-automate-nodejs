@@ -1,5 +1,7 @@
 import * as React from 'react';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
+import * as AccordionComponents from 'fumadocs-ui/components/accordion';
+import * as TabsComponents from 'fumadocs-ui/components/tabs';
 import { TypeTable } from 'fumadocs-ui/components/type-table';
 import {
   GetLicenseButton,
@@ -70,8 +72,11 @@ function LicenseAwareBlockquote(
   return (
     <blockquote
       {...props}
-      className="my-6 rounded-2xl border border-fd-border bg-fd-secondary/40 px-5 py-4 text-fd-muted-foreground"
-    />
+      className="my-6 rounded-2xl border-backstitch bg-card px-5 py-4 text-muted-foreground relative overflow-hidden shadow-stipple"
+    >
+      <div className="absolute inset-0 bg-dither opacity-[0.05] pointer-events-none" />
+      <div className="relative z-10">{props.children}</div>
+    </blockquote>
   );
 }
 
@@ -96,6 +101,9 @@ function createLicensedHeading(
   };
 }
 
+const BaseH2 =
+  (defaultMdxComponents.h2 as React.ElementType | undefined) ??
+  ((props: React.ComponentPropsWithoutRef<'h2'>) => <h2 {...props} />);
 const BaseH3 =
   (defaultMdxComponents.h3 as React.ElementType | undefined) ??
   ((props: React.ComponentPropsWithoutRef<'h3'>) => <h3 {...props} />);
@@ -105,7 +113,10 @@ const BaseH4 =
 
 export const docsMdxComponents = {
   ...defaultMdxComponents,
+  ...AccordionComponents,
+  ...TabsComponents,
   blockquote: LicenseAwareBlockquote,
+  h2: createLicensedHeading(BaseH2),
   h3: createLicensedHeading(BaseH3),
   h4: createLicensedHeading(BaseH4),
   TypeTable,
