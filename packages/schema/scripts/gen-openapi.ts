@@ -45,7 +45,7 @@ const document = {
   },
   servers: [
     {
-      url: 'http://localhost:3000',
+      url: 'http://localhost:8080',
     },
   ],
   paths: methods.reduce<Record<string, any>>((paths, def) => {
