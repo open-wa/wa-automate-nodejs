@@ -2,6 +2,25 @@
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
 
+.api-explorer-shell {
+  --scalar-background-1: var(--background);
+  --scalar-background-2: var(--muted);
+  --scalar-background-3: var(--card);
+  --scalar-background-accent: var(--accent);
+  --scalar-color-1: var(--foreground);
+  --scalar-color-2: var(--muted-foreground);
+  --scalar-color-3: var(--muted-foreground);
+  --scalar-color-accent: var(--primary);
+  --scalar-border-color: var(--border);
+  --scalar-radius: var(--radius);
+  --scalar-radius-lg: var(--radius);
+  --scalar-font: var(--font-sans);
+  --scalar-font-code: var(--font-mono);
+  --scalar-button-1: var(--primary);
+  --scalar-button-1-hover: var(--primary);
+  --scalar-button-1-color: var(--primary-foreground);
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -128,13 +147,11 @@
 }
 
 @utility bg-blueprint-hatch {
-  background-image: repeating-linear-gradient(
-    45deg,
-    transparent,
-    transparent 10px,
-    color-mix(in srgb, var(--color-border) 30%, transparent) 10px,
-    color-mix(in srgb, var(--color-border) 30%, transparent) 12px
-  );
+  background-image: repeating-linear-gradient(45deg,
+      transparent,
+      transparent 10px,
+      color-mix(in srgb, var(--color-border) 30%, transparent) 10px,
+      color-mix(in srgb, var(--color-border) 30%, transparent) 12px);
 }
 
 @utility bg-dither {
@@ -157,10 +174,12 @@
 
 @utility hover-stipple {
   transition: all 0.2s ease-in-out;
+
   &:hover {
     transform: translate(-2px, -2px);
     box-shadow: 6px 6px 0px 0px var(--color-foreground);
   }
+
   &:active {
     transform: translate(2px, 2px);
     box-shadow: 2px 2px 0px 0px var(--color-foreground);
@@ -173,6 +192,7 @@
 
 @utility corner-brackets {
   position: relative;
+
   &::before,
   &::after {
     content: '';
@@ -182,12 +202,14 @@
     border: 1px solid var(--color-foreground);
     opacity: 0.3;
   }
+
   &::before {
     top: 4px;
     left: 4px;
     border-right: 0;
     border-bottom: 0;
   }
+
   &::after {
     bottom: 4px;
     right: 4px;
@@ -207,7 +229,9 @@
 
   :root {
     --wally-cursor-default: url('/cursors/css/pointer.png') 5 1, default;
+    --wally-cursor-default-pressed: url('/cursors/css/pointer-pressed.png') 5 1, default;
     --wally-cursor-link: url('/cursors/css/link.png') 51 1, pointer;
+    --wally-cursor-link-pressed: url('/cursors/css/link-pressed.png') 52 25, pointer;
     --wally-cursor-text: url('/cursors/css/text.png') 15 32, text;
     --wally-cursor-no: url('/cursors/css/no.png') 32 29, not-allowed;
     --wally-cursor-busy: url('/cursors/css/busy.png') 31 32, wait;
@@ -246,6 +270,25 @@
   [data-cursor='pointer'],
   .cursor-pointer {
     cursor: var(--wally-cursor-link);
+  }
+
+  a:active,
+  button:active,
+  summary:active,
+  label[for]:active,
+  select:active,
+  [role='button']:active,
+  input[type='button']:active,
+  input[type='checkbox']:active,
+  input[type='color']:active,
+  input[type='file']:active,
+  input[type='radio']:active,
+  input[type='range']:active,
+  input[type='reset']:active,
+  input[type='submit']:active,
+  [data-cursor='pointer']:active,
+  .cursor-pointer:active {
+    cursor: var(--wally-cursor-link-pressed);
   }
 
   input:not([type]),
@@ -353,6 +396,10 @@
     cursor: var(--wally-cursor-link) !important;
   }
 
+  .cursor-pointer:active:not(:disabled):not([disabled]):not([aria-disabled='true']):not([data-disabled]):not([data-cursor='not-allowed']):not(.cursor-not-allowed) {
+    cursor: var(--wally-cursor-link-pressed) !important;
+  }
+
   .cursor-text {
     cursor: var(--wally-cursor-text) !important;
   }
@@ -392,6 +439,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
