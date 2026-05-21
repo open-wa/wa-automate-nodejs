@@ -32,13 +32,15 @@ export default defineConfig({
                     crawlLinks: false,
                 },
             },
-
             pages: [
                 {
                     path: '/docs',
                 },
                 {
                     path: '/api/search',
+                },
+                {
+                    path: '/api-explorer',
                 },
                 {
                     path: '/llms.txt',
@@ -51,4 +53,3 @@ export default defineConfig({
         react(),
     ],
 });
-

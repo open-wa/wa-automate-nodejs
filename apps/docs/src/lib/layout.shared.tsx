@@ -38,6 +38,10 @@ export function baseOptions(): BaseLayoutProps {
         active: 'nested-url',
       },
       {
+        text: 'API Explorer',
+        url: DOCS_PATHS.apiExplorer,
+      },
+      {
         text: 'Community',
         type: 'menu',
         items: [
