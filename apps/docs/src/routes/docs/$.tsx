@@ -3,7 +3,6 @@ import browserCollections from 'fumadocs-mdx:collections/browser';
 import { DocsBody, DocsPage } from 'fumadocs-ui/layouts/notebook/page';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 import { createServerFn } from '@tanstack/react-start';
-import { staticFunctionMiddleware } from '@tanstack/start-static-server-functions';
 import { docsMdxComponents } from '@/components/docs-mdx';
 import { DocsHomepage } from '@/components/docs-homepage';
 import { FeedbackCard } from '@/components/feedback-card';
@@ -15,8 +14,6 @@ const loader = createServerFn({
   method: 'GET',
 })
   .inputValidator((slugs: string[]) => slugs)
-  // @ts-expect-error Types mismatch due to TanStack versions
-  .middleware([staticFunctionMiddleware])
   .handler(async ({ data: slugs }) => {
     try {
       const page = source.getPage(slugs);
