@@ -8,6 +8,7 @@ export const CURRENT_VERSION = '5.0.0-alpha.1';
 
 export const DOCS_PATHS = {
   overview: '/docs',
+  apiExplorer: '/api-explorer',
   quickstart: '/docs/getting-started/quickstart',
   easyApi: '/docs/getting-started/easy-api',
   customCode: '/docs/getting-started/custom-code',

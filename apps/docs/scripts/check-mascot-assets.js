@@ -44,6 +44,7 @@ const mascotDir = path.join(docsRoot, 'public/mascots');
 const homepage = fs.readFileSync(path.join(docsRoot, 'src/components/homepage.tsx'), 'utf8');
 const callout = fs.readFileSync(path.join(docsRoot, 'src/components/mascot-callout.tsx'), 'utf8');
 const route = fs.readFileSync(path.join(docsRoot, 'src/routes/docs/$.tsx'), 'utf8');
+const docsPageHeader = fs.readFileSync(path.join(docsRoot, 'src/components/docs-page-header.tsx'), 'utf8');
 const failures = [];
 
 for (const [, filename] of requiredMascots) {
@@ -83,8 +84,16 @@ for (const [pagePath, filename] of requiredMascots.slice(1)) {
   }
 }
 
-if (!route.includes('<MascotCallout onlyMapped className="mb-8" />')) {
-  failures.push('Docs content route does not render mapped page mascots');
+if (!route.includes('<DocsPageHeader')) {
+  failures.push('Docs content route does not render the consolidated docs page header');
+}
+
+if (!docsPageHeader.includes('getMascotForPath')) {
+  failures.push('DocsPageHeader does not resolve mapped page mascots');
+}
+
+if (!docsPageHeader.includes('https://github.com/open-wa/v5-shh/blob/main/apps/docs/content/docs/')) {
+  failures.push('DocsPageHeader does not preserve the GitHub source URL base');
 }
 
 if (failures.length > 0) {
