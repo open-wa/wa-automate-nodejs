@@ -12,7 +12,7 @@ catalog:
   '@discordjs/collection': ^2.1.1
   '@elastic/elasticsearch': ^9.2.0
   '@hono/node-server': ^1.19.12
-  '@tailwindcss/vite': ^4.2.2
+  '@tailwindcss/vite': ^4.3.0
   '@tanstack/react-query': ^5.95.2
   '@tanstack/react-router': 1.168.13
   '@tanstack/react-router-devtools': 1.166.13
@@ -20,19 +20,19 @@ catalog:
   '@tanstack/react-start': 1.167.10
   '@tanstack/router-generator': 1.166.22
   '@tanstack/router-plugin': 1.167.10
-  '@tanstack/start-static-server-functions': ^1.166.32
+  '@tanstack/start-static-server-functions': ^1.167.6
   '@types/cors': ^2.8.12
   '@types/express': ^4.17.14
   '@types/jest': ^29.5.0
   '@types/morgan': ^1.9.3
-  '@types/node': ^25.6.0
-  '@types/react': ^19.2.14
+  '@types/node': ^25.9.1
+  '@types/react': ^19.2.15
   '@types/react-dom': ^19.2.3
   '@types/tar-fs': ^2.0.0
-  '@vitejs/plugin-react': ^6.0.1
+  '@vitejs/plugin-react': ^6.0.2
   autoprefixer: ^10.4.14
-  axios: npm:redaxios@0.5.1
   axe: ^11.0.2
+  axios: npm:redaxios@0.5.1
   cabin: ^11.0.3
   clsx: 2.1.1
   cors: ^2.8.5
@@ -52,25 +52,25 @@ catalog:
   public-ip: 4.0.4
   puppeteer: ^24.40.0
   puppeteer-extra: ^3.3.6
-  react: ^19.2.4
-  react-dom: ^19.2.4
+  react: ^19.2.6
+  react-dom: ^19.2.6
   request-received: ^0.0.3
   response-time: ^2.3.2
   serve: ^14.2.6
   socket.io: ^4.5.4
   socket.io-client: ^4.7.5
   tailwind-merge: 2.6.0
-  tailwindcss: ^4.2.2
+  tailwindcss: ^4.3.0
   ts-jest: ^29.1.0
   ts-node: ^10.9.1
-  typescript: ^6.0.2
+  typescript: ^6.0.3
   uuid: ^9.0.0
-  vite: ^8.0.8
+  vite: ^8.0.13
   vite-tsconfig-paths: ^6.1.1
   vitest: 4.1.2
   winston: ^3.8.2
-  zod: ^4.2.1
   wrangler: ^4.93.0
+  zod: ^4.2.1
 
 ignoredBuiltDependencies:
   - '@open-wa/wa-automate'
