@@ -16,18 +16,18 @@
     "sdks/*"
   ],
   "scripts": {
-    "build": "turbo build --filter='!@open-wa/legacy' --filter='!@open-wa/legacy-documented' --filter='!docs'",
-    "dev": "turbo dev --concurrency 100 --filter='!@open-wa/legacy' --filter='!@open-wa/legacy-documented'",
-    "test": "turbo test --filter='!@open-wa/legacy' --filter='!@open-wa/legacy-documented'",
+    "build": "turbo build --filter=\"!docs\"",
+    "dev": "turbo dev --concurrency 100 --filter=\"!docs\"",
+    "test": "turbo test --filter=\"!docs\"",
     "lint": "oxlint .",
     "lint:fix": "oxlint . --fix",
     "clean": "turbo clean && rimraf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "typecheck": "turbo typecheck --filter='!@open-wa/legacy' --filter='!@open-wa/legacy-documented'",
+    "typecheck": "turbo typecheck --filter=\"!docs\"",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "repomix": "npx repomix@latest",
-    "publish-packages": "turbo run build --filter='!@open-wa/legacy' --filter='!@open-wa/legacy-documented' && changeset publish",
+    "publish-packages": "turbo run build --filter=\"!docs\" && changeset publish",
     "release-image": "node tools/release-image.js"
   },
   "devDependencies": {
