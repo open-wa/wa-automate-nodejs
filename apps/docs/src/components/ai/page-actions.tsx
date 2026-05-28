@@ -1,6 +1,12 @@
 'use client';
 import { type ComponentProps, useMemo, useState } from 'react';
-import { Check, ChevronDown, Copy, ExternalLinkIcon, TextIcon } from 'lucide-react';
+import {
+  Check,
+  ChevronDown,
+  Copy,
+  ExternalLinkIcon,
+  TextIcon,
+} from 'lucide-react';
 import { cn } from '../../lib/cn';
 import { useCopyButton } from 'fumadocs-ui/utils/use-copy-button';
 import { Popover, PopoverTrigger, PopoverContent } from '../ui/popover';
@@ -29,7 +35,13 @@ export function MarkdownCopyButton({
     setLoading(true);
 
     try {
-      const promise = fetch(markdownUrl).then((res) => res.text());
+      const promise = fetch(markdownUrl).then(async (res) => {
+        if (!res.ok) {
+          throw new Error(`Failed to fetch markdown: ${res.status}`);
+        }
+
+        return res.text();
+      });
       cache.set(markdownUrl, promise);
       await navigator.clipboard.write([
         new ClipboardItem({
@@ -83,7 +95,9 @@ export function ViewOptionsPopover({
   const pathname = usePathname();
   const items = useMemo(() => {
     const pageUrl =
-      typeof window === 'undefined' ? pathname : new URL(pathname, window.location.origin);
+      typeof window === 'undefined'
+        ? pathname
+        : new URL(pathname, window.location.origin);
     const q = `Read ${pageUrl}, I want to ask questions about it.`;
 
     return [
@@ -237,7 +251,10 @@ export function ViewOptionsPopover({
         {props.children ?? 'Open'}
         <ChevronDown className="size-4 text-secondary-foreground" />
       </PopoverTrigger>
-      <PopoverContent align="end" className="flex w-[min(22rem,calc(100vw-1.5rem))] flex-col gap-1 bg-popover p-2">
+      <PopoverContent
+        align="end"
+        className="flex w-[min(22rem,calc(100vw-1.5rem))] flex-col gap-1 bg-popover p-2"
+      >
         {items.map((item) => (
           <a
             key={item.href}

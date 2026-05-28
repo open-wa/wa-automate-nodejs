@@ -1,8 +1,8 @@
+import { DocsDescription, DocsTitle } from 'fumadocs-ui/layouts/notebook/page';
 import {
-  DocsDescription,
-  DocsTitle,
-} from 'fumadocs-ui/layouts/notebook/page';
-import { MarkdownCopyButton, ViewOptionsPopover } from '@/components/ai/page-actions';
+  MarkdownCopyButton,
+  ViewOptionsPopover,
+} from '@/components/ai/page-actions';
 import { getMascotForPath } from '@/components/mascot-callout';
 import { cn } from '@/lib/cn';
 
@@ -17,7 +17,10 @@ export function DocsPageHeader({
   description,
   pagePath,
 }: DocsPageHeaderProps) {
-  const docsUrlPath = `/docs/${pagePath.replace(/\/$/, '')}`.replace(/\.mdx$/, '');
+  const docsUrlPath = `/docs/${pagePath.replace(/\/$/, '')}`.replace(
+    /\.mdx$/,
+    '',
+  );
   const mascot = getMascotForPath(docsUrlPath);
 
   return (
@@ -26,7 +29,9 @@ export function DocsPageHeader({
       <div
         className={cn(
           'relative z-10 grid gap-8',
-          mascot ? 'lg:grid-cols-[minmax(0,1fr)_minmax(14rem,18rem)] lg:items-center' : undefined,
+          mascot
+            ? 'lg:grid-cols-[minmax(0,1fr)_minmax(14rem,18rem)] lg:items-center'
+            : undefined,
         )}
       >
         <div className="min-w-0 space-y-7">
@@ -61,11 +66,13 @@ export function DocsPageHeader({
 }
 
 function PageActions({ pagePath }: Readonly<{ pagePath: string }>) {
+  const markdownUrl = `/llms.mdx/docs/${pagePath}`;
+
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-      <MarkdownCopyButton markdownUrl={`${pagePath}.mdx`} />
+      <MarkdownCopyButton markdownUrl={markdownUrl} />
       <ViewOptionsPopover
-        markdownUrl={`${pagePath}.mdx`}
+        markdownUrl={markdownUrl}
         githubUrl={`https://github.com/open-wa/v5-shh/blob/main/apps/docs/content/docs/${pagePath}`}
       />
     </div>

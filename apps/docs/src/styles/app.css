@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 
 .api-explorer-shell {
   --scalar-background-1: var(--background);
@@ -23,12 +24,20 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: 'AnalogMonoPlus';
+  src: url('/fonts/AnalogMonoPlus.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: 'Inter', 'Geist', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Geist Mono', monospace;
-  --font-display: 'Space Grotesk', sans-serif;
+  --font-sans: 'Space Grotesk', sans-serif;
+  --font-mono: 'AnalogMonoPlus', 'Geist Mono', monospace;
+  --font-display: 'AnalogMonoPlus', 'Space Grotesk', monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -68,7 +77,7 @@
 
 :root {
   --radius: 12px;
-  --background: #faf6f0;
+  --background: #F4EFE3;
   --foreground: #3e2723;
   --card: #ffffff;
   --card-foreground: #3e2723;

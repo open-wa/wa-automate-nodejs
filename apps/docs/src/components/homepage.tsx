@@ -331,13 +331,6 @@ export function DocsHomepage() {
           className="pointer-events-none absolute -right-12 bottom-8 size-32 rounded-full border-4 border-foreground bg-stitch-lavender/20"
         />
         <div className="relative z-10 max-w-4xl space-y-7 text-center lg:text-left">
-          <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground font-semibold lg:justify-start">
-            <span className="rounded-xl border-backstitch bg-stitch-yellow/70 px-3 py-1 font-bold text-foreground shadow-sm">
-              open-wa v5 alpha
-            </span>
-            <span>Current package: {CURRENT_VERSION}</span>
-          </div>
-
           <div className="space-y-4">
             <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl font-display">
               Turn a WhatsApp account into an API you can build on.

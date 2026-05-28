@@ -24,7 +24,10 @@ export const Route = createRootRoute({
         title: SITE_NAME,
       },
     ],
-    links: [{ rel: 'stylesheet', href: appCss }],
+    links: [
+      { rel: 'stylesheet', href: appCss },
+      { rel: 'preload', href: '/fonts/AnalogMonoPlus.ttf', as: 'font', type: 'font/ttf', crossOrigin: 'anonymous' },
+    ],
   }),
   component: RootComponent,
 });
