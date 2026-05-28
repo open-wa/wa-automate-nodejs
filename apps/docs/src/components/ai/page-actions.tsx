@@ -51,7 +51,7 @@ export function MarkdownCopyButton({
           color: 'secondary',
           size: 'sm',
           className:
-            'min-h-10 w-full gap-2 rounded-xl border-fd-border bg-fd-secondary px-3 text-fd-foreground sm:w-auto [&_svg]:size-4 [&_svg]:text-fd-primary',
+            'min-h-10 w-full gap-2 rounded-xl border-backstitch bg-secondary px-3 text-secondary-foreground sm:w-auto [&_svg]:size-4 [&_svg]:text-secondary-foreground',
         }),
         props.className,
       )}
@@ -230,25 +230,25 @@ export function ViewOptionsPopover({
             color: 'secondary',
             size: 'sm',
           }),
-          'min-h-10 w-full gap-2 rounded-xl border-fd-border bg-fd-secondary px-3 text-fd-foreground data-[state=open]:bg-fd-accent data-[state=open]:text-fd-accent-foreground sm:w-auto',
+          'min-h-10 w-full gap-2 rounded-xl border-backstitch bg-secondary px-3 text-secondary-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground sm:w-auto',
           props.className,
         )}
       >
         {props.children ?? 'Open'}
-        <ChevronDown className="size-4 text-fd-primary" />
+        <ChevronDown className="size-4 text-secondary-foreground" />
       </PopoverTrigger>
-      <PopoverContent align="end" className="flex w-[min(22rem,calc(100vw-1.5rem))] flex-col gap-1 border-fd-border bg-fd-popover p-2">
+      <PopoverContent align="end" className="flex w-[min(22rem,calc(100vw-1.5rem))] flex-col gap-1 bg-popover p-2">
         {items.map((item) => (
           <a
             key={item.href}
             href={item.href}
             rel="noreferrer noopener"
             target="_blank"
-            className="inline-flex min-h-11 items-center gap-3 rounded-xl p-3 text-sm font-medium text-fd-popover-foreground transition-colors hover:bg-fd-accent hover:text-fd-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring [&_svg]:size-4"
+            className="inline-flex min-h-11 items-center gap-3 rounded-xl p-3 text-sm font-bold text-popover-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-4"
           >
             {item.icon}
             {item.title}
-            <ExternalLinkIcon className="text-fd-muted-foreground size-3.5 ms-auto" />
+            <ExternalLinkIcon className="text-muted-foreground size-3.5 ms-auto" />
           </a>
         ))}
       </PopoverContent>

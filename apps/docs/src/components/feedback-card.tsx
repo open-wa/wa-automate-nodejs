@@ -7,9 +7,9 @@ export function FeedbackCard({ className }: { className?: string }) {
 
   return (
     <div className={cn("mt-12 flex flex-col sm:flex-row items-center gap-6 p-6 border-backstitch rounded-2xl bg-card shadow-stipple relative overflow-hidden", className)}>
-      <div className="absolute inset-0 bg-dither opacity-[0.15] pointer-events-none" />
+      <div className="absolute inset-0 bg-dither opacity-[0.15] pointer-events-none m-auto" />
 
-      <div className="relative w-48 h-48 shrink-0 rounded-2xl overflow-hidden border-2 border-foreground bg-background p-1">
+      <div className="relative w-48 h-48 shrink-0 rounded-2xl overflow-hidden border-2 border-foreground bg-background p-1 m-auto">
         <img
           src="/wally-typing.png"
           alt="Wally the Walrus typing"

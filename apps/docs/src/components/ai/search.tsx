@@ -32,14 +32,14 @@ export function AISearchPanelHeader({ className, ...props }: ComponentProps<'div
   return (
     <div
       className={cn(
-        'sticky top-0 flex items-start gap-2 rounded-2xl border border-fd-border bg-fd-secondary text-fd-secondary-foreground shadow-sm',
+        'sticky top-0 flex items-start gap-2 rounded-2xl border-backstitch bg-secondary text-secondary-foreground shadow-sm',
         className,
       )}
       {...props}
     >
       <div className="flex-1 px-3 py-3">
-        <p className="mb-1 text-sm font-semibold text-fd-foreground">Ask open-wa docs</p>
-        <p className="text-xs text-fd-muted-foreground">
+        <p className="mb-1 text-sm font-bold text-foreground">Ask open-wa docs</p>
+        <p className="text-xs text-secondary-foreground/80">
           AI can be inaccurate, please verify the answers.
         </p>
       </div>
@@ -51,7 +51,7 @@ export function AISearchPanelHeader({ className, ...props }: ComponentProps<'div
           buttonVariants({
             size: 'icon-sm',
             color: 'ghost',
-            className: 'min-h-10 min-w-10 rounded-full text-fd-muted-foreground',
+            className: 'min-h-10 min-w-10 rounded-full text-secondary-foreground',
           }),
         )}
         onClick={() => setOpen(false)}
@@ -170,7 +170,7 @@ export function AISearchInput(props: ComponentProps<'form'>) {
           )}
           onClick={stop}
         >
-          <Loader2 className="size-4 animate-spin text-fd-muted-foreground" />
+          <Loader2 className="size-4 animate-spin text-secondary-foreground" />
           Abort Answer
         </button>
       ) : (
@@ -242,7 +242,7 @@ function Input(props: ComponentProps<'textarea'>) {
         id="nd-ai-input"
         {...props}
         className={cn(
-          'resize-none bg-transparent placeholder:text-fd-muted-foreground focus-visible:outline-none',
+          'resize-none bg-transparent placeholder:text-muted-foreground focus-visible:outline-none',
           shared,
         )}
       />
@@ -281,8 +281,8 @@ function Message({ message, ...props }: { message: ChatUIMessage } & ComponentPr
     <div onClick={(e) => e.stopPropagation()} {...props}>
       <p
         className={cn(
-          'mb-1 text-sm font-medium text-fd-muted-foreground',
-          message.role === 'assistant' && 'text-fd-primary',
+          'mb-1 text-sm font-bold text-muted-foreground',
+          message.role === 'assistant' && 'text-primary',
         )}
       >
         {roleName[message.role] ?? 'unknown'}
@@ -295,11 +295,11 @@ function Message({ message, ...props }: { message: ChatUIMessage } & ComponentPr
         return (
           <div
             key={call.toolCallId}
-            className="mt-3 flex flex-row items-center gap-2 rounded-xl border border-fd-border bg-fd-secondary p-2 text-xs text-fd-muted-foreground"
+            className="mt-3 flex flex-row items-center gap-2 rounded-xl border border-border bg-muted p-2 text-xs text-muted-foreground"
           >
             <SearchIcon className="size-4" />
             {call.state === 'output-error' || call.state === 'output-denied' ? (
-              <p className="text-fd-error">{call.errorText ?? 'Failed to search'}</p>
+              <p className="text-destructive">{call.errorText ?? 'Failed to search'}</p>
             ) : (
               <p>{!call.output ? 'Searching...' : `${call.output.length} search results`}</p>
             )}
@@ -336,7 +336,7 @@ export function AISearchTrigger({
       data-state={open ? 'open' : 'closed'}
       className={cn(
         position === 'float' && [
-          'fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] gap-3 w-28 inset-e-[calc(--spacing(4)+var(--removed-body-scroll-bar-size,0px))] shadow-lg z-20 transition-[translate,opacity]',
+          'fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] gap-3 w-28 inset-e-[calc(--spacing(4)+var(--removed-body-scroll-bar-size,0px))] shadow-stipple z-20 transition-[translate,opacity]',
           'max-sm:w-auto max-sm:min-w-28 max-sm:justify-center max-sm:px-4',
           open && 'translate-y-10 opacity-0',
         ],
@@ -378,15 +378,15 @@ export function AISearchPanel() {
       <Presence present={open}>
         <div
           data-state={open ? 'open' : 'closed'}
-          className="fixed inset-0 z-30 backdrop-blur-xs bg-fd-overlay data-[state=open]:animate-fd-fade-in data-[state=closed]:animate-fd-fade-out lg:hidden"
+          className="fixed inset-0 z-30 bg-foreground/35 data-[state=open]:animate-fd-fade-in data-[state=closed]:animate-fd-fade-out lg:hidden"
           onClick={() => setOpen(false)}
         />
       </Presence>
       <Presence present={open}>
         <div
           className={cn(
-            'overflow-hidden z-30 bg-fd-card text-fd-card-foreground [--ai-chat-width:400px] 2xl:[--ai-chat-width:460px]',
-            'max-lg:fixed max-lg:inset-x-3 max-lg:bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] max-lg:top-[calc(env(safe-area-inset-top)+0.75rem)] max-lg:border max-lg:border-fd-border max-lg:rounded-3xl max-lg:shadow-xl',
+            'overflow-hidden z-30 bg-card text-card-foreground [--ai-chat-width:400px] 2xl:[--ai-chat-width:460px]',
+            'max-lg:fixed max-lg:inset-x-3 max-lg:bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] max-lg:top-[calc(env(safe-area-inset-top)+0.75rem)] max-lg:border-backstitch max-lg:rounded-3xl max-lg:shadow-stipple',
             'lg:sticky lg:top-0 lg:h-dvh lg:border-s lg:ms-auto lg:in-[#nd-docs-layout]:[grid-area:toc] lg:in-[#nd-notebook-layout]:row-span-full lg:in-[#nd-notebook-layout]:col-start-5',
             open
               ? 'animate-fd-dialog-in lg:animate-[ask-ai-open_200ms]'
@@ -396,7 +396,7 @@ export function AISearchPanel() {
           <div className="flex size-full flex-col p-2 safe-bottom-pad lg:p-3 lg:w-(--ai-chat-width)">
             <AISearchPanelHeader />
             <AISearchPanelList className="flex-1" />
-            <div className="rounded-2xl border border-fd-border bg-fd-secondary text-fd-secondary-foreground shadow-sm has-focus-visible:shadow-md">
+            <div className="rounded-2xl border-backstitch bg-card text-card-foreground shadow-sm">
               <AISearchInput />
               <div className="flex flex-wrap items-center gap-1.5 p-2 empty:hidden">
                 <AISearchInputActions />
@@ -424,15 +424,15 @@ export function AISearchPanelList({ className, style, ...props }: ComponentProps
       {...props}
     >
       {messages.length === 0 ? (
-        <div className="flex size-full flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-fd-border p-6 text-center text-sm text-fd-muted-foreground/80">
+        <div className="flex size-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border bg-dither p-6 text-center text-sm text-muted-foreground">
           <MessageCircleIcon fill="currentColor" stroke="none" />
           <p onClick={(e) => e.stopPropagation()}>Ask about the current docs page or a runtime workflow.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-4 px-3">
           {chat.error && (
-            <div className="rounded-xl border border-fd-border bg-fd-secondary p-3 text-fd-secondary-foreground">
-              <p className="text-xs text-fd-muted-foreground mb-1">
+            <div className="rounded-xl border border-border bg-muted p-3 text-foreground">
+              <p className="text-xs text-muted-foreground mb-1">
                 Request Failed: {chat.error.name}
               </p>
               <p className="text-sm">{chat.error.message}</p>

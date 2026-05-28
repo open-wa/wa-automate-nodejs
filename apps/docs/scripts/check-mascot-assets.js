@@ -4,60 +4,131 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const docsRoot = path.resolve(__dirname, '..');
-
-const requiredMascots = [
-  ['/', 'wally-homepage-session-console.png'],
-  ['/docs', 'wally-docs-map.png'],
-  ['/docs/getting-started/quickstart', 'wally-quickstart-rocket.png'],
-  ['/docs/getting-started/link-code', 'wally-link-code-phone.png'],
-  ['/docs/getting-started/easy-api', 'wally-easy-api-counter.png'],
-  ['/docs/getting-started/custom-code', 'wally-custom-code-workbench.png'],
-  ['/docs/getting-started/docker', 'wally-docker-container.png'],
-  ['/docs/getting-started/v5-alpha', 'wally-alpha-lab.png'],
-  ['/docs/concepts/how-it-works', 'wally-runtime-diagram.png'],
-  ['/docs/concepts/data-models', 'wally-data-models.png'],
-  ['/docs/concepts/packages', 'wally-package-shelves.png'],
-  ['/docs/concepts/glossary', 'wally-glossary-book.png'],
-  ['/docs/guides/integrations-overview', 'wally-integration-hub.png'],
-  ['/docs/guides/chatid-primer', 'wally-chatid-name-tags.png'],
-  ['/docs/guides/authentication-flow', 'wally-auth-checkpoint.png'],
-  ['/docs/guides/messages', 'wally-message-bubbles.png'],
-  ['/docs/guides/media', 'wally-media-camera.png'],
-  ['/docs/guides/groups', 'wally-group-circle.png'],
-  ['/docs/guides/group-filtering', 'wally-filter-sieve.png'],
-  ['/docs/guides/message-deletion', 'wally-message-eraser.png'],
-  ['/docs/guides/session-events', 'wally-event-bell.png'],
-  ['/docs/guides/multiple-sessions', 'wally-session-switchboard.png'],
-  ['/docs/guides/webhooks-for-business', 'wally-webhook-fishing.png'],
-  ['/docs/guides/node-red', 'wally-node-flow.png'],
-  ['/docs/guides/s3-media', 'wally-cloud-storage.png'],
-  ['/docs/guides/mcp', 'wally-mcp-tools.png'],
-  ['/docs/guides/ai-agent-patterns', 'wally-agent-orchestrator.png'],
-  ['/docs/guides/configuration-and-cli', 'wally-cli-control-panel.png'],
-  ['/docs/guides/config-schema', 'wally-schema-blueprint.png'],
-  ['/docs/guides/config-secrets', 'wally-secrets-vault.png'],
-  ['/docs/guides/rate-limits', 'wally-rate-limit-traffic.png'],
-];
-
-const pngSignature = '89504e470d0a1a0a';
+const contentRoot = path.join(docsRoot, 'content/docs');
 const mascotDir = path.join(docsRoot, 'public/mascots');
-const homepage = fs.readFileSync(path.join(docsRoot, 'src/components/homepage.tsx'), 'utf8');
-const callout = fs.readFileSync(path.join(docsRoot, 'src/components/mascot-callout.tsx'), 'utf8');
-const route = fs.readFileSync(path.join(docsRoot, 'src/routes/docs/$.tsx'), 'utf8');
-const docsPageHeader = fs.readFileSync(path.join(docsRoot, 'src/components/docs-page-header.tsx'), 'utf8');
-const failures = [];
+const pngSignature = '89504e470d0a1a0a';
 
-for (const [, filename] of requiredMascots) {
+function readJson(filePath) {
+  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+
+function isDivider(item) {
+  return /^---.*---$/.test(item);
+}
+
+function sourceFileForMetaItem(dirPath, item) {
+  if (typeof item !== 'string' || isDivider(item)) return null;
+
+  const link = item.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+  if (link) {
+    const href = link[2];
+    if (!href.startsWith('/docs/')) return null;
+    const filePath = path.join(contentRoot, href.replace(/^\/docs\//, '') + '.mdx');
+    return fs.existsSync(filePath) ? filePath : null;
+  }
+
+  const candidate = path.join(dirPath, item);
+  const directPage = candidate + '.mdx';
+  const indexPage = path.join(candidate, 'index.mdx');
+
+  if (fs.existsSync(directPage)) return directPage;
+  if (fs.existsSync(indexPage)) return indexPage;
+  return null;
+}
+
+function routeForFile(filePath) {
+  let relativePath = path
+    .relative(contentRoot, filePath)
+    .replace(/\.mdx$/, '')
+    .split(path.sep)
+    .join('/');
+
+  if (relativePath === 'index') return '/docs';
+  if (relativePath.endsWith('/index')) relativePath = relativePath.slice(0, -6);
+  return '/docs/' + relativePath;
+}
+
+function collectRoutesFromMeta(dirPath, seen, routes) {
+  const metaPath = path.join(dirPath, 'meta.json');
+  if (!fs.existsSync(metaPath)) return;
+
+  const pages = readJson(metaPath).pages ?? [];
+  for (const item of pages) {
+    const sourceFile = sourceFileForMetaItem(dirPath, item);
+    if (sourceFile) {
+      const route = routeForFile(sourceFile);
+      if (!seen.has(route)) {
+        seen.add(route);
+        routes.push(route);
+      }
+    }
+
+    if (typeof item === 'string' && !item.startsWith('[') && !isDivider(item)) {
+      const childDir = path.join(dirPath, item);
+      if (fs.existsSync(path.join(childDir, 'meta.json'))) {
+        collectRoutesFromMeta(childDir, seen, routes);
+      }
+    }
+  }
+}
+
+function collectAllMetaRoutes() {
+  const seen = new Set();
+  const routes = [];
+  collectRoutesFromMeta(contentRoot, seen, routes);
+
+  const pending = [contentRoot];
+  while (pending.length > 0) {
+    const current = pending.pop();
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const child = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        pending.push(child);
+        continue;
+      }
+      if (entry.name !== 'meta.json') continue;
+
+      const pages = readJson(child).pages ?? [];
+      for (const item of pages) {
+        const sourceFile = sourceFileForMetaItem(current, item);
+        if (!sourceFile) continue;
+
+        const route = routeForFile(sourceFile);
+        if (!seen.has(route)) {
+          seen.add(route);
+          routes.push(route);
+        }
+      }
+    }
+  }
+
+  return routes;
+}
+
+function parseMascotMap() {
+  const source = fs.readFileSync(path.join(docsRoot, 'src/components/mascot-callout.tsx'), 'utf8');
+  const entries = new Map();
+  const pattern = /'([^']+)':\s*\{\s*\n\s*src:\s*'\/mascots\/([^']+)'/g;
+  let match;
+
+  while ((match = pattern.exec(source)) !== null) {
+    entries.set(match[1], match[2]);
+  }
+
+  return entries;
+}
+
+function assertPng(filename, failures) {
   const filePath = path.join(mascotDir, filename);
   if (!fs.existsSync(filePath)) {
     failures.push('Missing mascot file: ' + filename);
-    continue;
+    return;
   }
 
   const file = fs.readFileSync(filePath);
   if (file.subarray(0, 8).toString('hex') !== pngSignature) {
     failures.push('Not a PNG: ' + filename);
-    continue;
+    return;
   }
 
   const width = file.readUInt32BE(16);
@@ -67,6 +138,17 @@ for (const [, filename] of requiredMascots) {
   }
 }
 
+const homepage = fs.readFileSync(path.join(docsRoot, 'src/components/homepage.tsx'), 'utf8');
+const route = fs.readFileSync(path.join(docsRoot, 'src/routes/docs/$.tsx'), 'utf8');
+const docsPageHeader = fs.readFileSync(path.join(docsRoot, 'src/components/docs-page-header.tsx'), 'utf8');
+const callout = fs.readFileSync(path.join(docsRoot, 'src/components/mascot-callout.tsx'), 'utf8');
+const failures = [];
+
+const mascotMap = parseMascotMap();
+const requiredRoutes = collectAllMetaRoutes();
+
+assertPng('wally-homepage-session-console.png', failures);
+
 if (!homepage.includes('/mascots/wally-homepage-session-console.png')) {
   failures.push('Homepage hero does not reference /mascots/wally-homepage-session-console.png');
 }
@@ -75,13 +157,14 @@ if (homepage.includes('src="/wally-typing.png"')) {
   failures.push('Homepage hero still references /wally-typing.png');
 }
 
-for (const [pagePath, filename] of requiredMascots.slice(1)) {
-  if (!callout.includes("'" + pagePath + "'")) {
-    failures.push('Mascot callout missing route mapping: ' + pagePath);
+for (const routePath of requiredRoutes) {
+  const filename = mascotMap.get(routePath);
+  if (!filename) {
+    failures.push('Mascot callout missing route mapping: ' + routePath);
+    continue;
   }
-  if (!callout.includes('/mascots/' + filename)) {
-    failures.push('Mascot callout missing asset mapping: ' + filename);
-  }
+
+  assertPng(filename, failures);
 }
 
 if (!route.includes('<DocsPageHeader')) {
@@ -90,6 +173,10 @@ if (!route.includes('<DocsPageHeader')) {
 
 if (!docsPageHeader.includes('getMascotForPath')) {
   failures.push('DocsPageHeader does not resolve mapped page mascots');
+}
+
+if (!callout.includes('normalizeMascotPath')) {
+  failures.push('Mascot path resolver does not normalize folder index routes');
 }
 
 if (!docsPageHeader.includes('https://github.com/open-wa/v5-shh/blob/main/apps/docs/content/docs/')) {
@@ -101,4 +188,8 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log('Validated ' + requiredMascots.length + ' Wally mascot PNGs and docs references.');
+console.log(
+  'Validated homepage mascot plus ' +
+    requiredRoutes.length +
+    ' docs route mascots from meta.json coverage.',
+);

@@ -2,15 +2,15 @@ import { cva, type VariantProps } from 'class-variance-authority';
 
 const variants = {
   primary:
-    'bg-fd-primary text-fd-primary-foreground hover:bg-fd-primary/80 disabled:bg-fd-secondary disabled:text-fd-secondary-foreground',
-  outline: 'border hover:bg-fd-accent hover:text-fd-accent-foreground',
-  ghost: 'hover:bg-fd-accent hover:text-fd-accent-foreground',
+    'border-backstitch bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground',
+  outline: 'border-backstitch bg-card text-foreground shadow-sm hover:bg-accent hover:text-accent-foreground',
+  ghost: 'text-foreground hover:bg-accent hover:text-accent-foreground',
   secondary:
-    'border bg-fd-secondary text-fd-secondary-foreground hover:bg-fd-accent hover:text-fd-accent-foreground',
+    'border-backstitch bg-secondary text-secondary-foreground shadow-sm hover:bg-accent hover:text-accent-foreground',
 } as const;
 
 export const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-md p-2 text-sm font-medium transition-colors duration-100 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring',
+  'inline-flex items-center justify-center rounded-xl p-2 text-sm font-bold transition-colors duration-100 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
   {
     variants: {
       variant: variants,

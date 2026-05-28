@@ -13,7 +13,9 @@ function isSecondary(item: LinkItemType): boolean {
   return item.type === 'icon';
 }
 
-function firstMenuUrl(item: Extract<LinkItemType, { type: 'menu' }>): string | undefined {
+function firstMenuUrl(
+  item: Extract<LinkItemType, { type: 'menu' }>,
+): string | undefined {
   if (item.url) return item.url;
 
   const firstLink = item.items.find(
@@ -32,14 +34,22 @@ function HeaderLink({ item }: { item: LinkItemType }) {
 
     return (
       <details className="group relative">
-        <summary className="flex cursor-pointer list-none items-center gap-1 rounded-lg px-2 py-1.5 text-sm font-medium text-fd-muted-foreground transition-colors hover:text-fd-accent-foreground [&::-webkit-details-marker]:hidden">
-          {href ? <Link href={href}>{item.text}</Link> : <span>{item.text}</span>}
-          <span className="text-xs text-fd-muted-foreground group-open:rotate-180">v</span>
+        <summary className="flex cursor-pointer list-none items-center gap-1 rounded-xl px-2 py-1.5 text-sm font-bold text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground [&::-webkit-details-marker]:hidden">
+          {href ? (
+            <Link href={href}>{item.text}</Link>
+          ) : (
+            <span>{item.text}</span>
+          )}
+          <span className="text-xs text-muted-foreground group-open:rotate-180">
+            v
+          </span>
         </summary>
-        <div className="absolute left-0 top-full z-40 mt-2 grid min-w-56 gap-1 rounded-xl border bg-fd-popover p-2 text-sm text-fd-popover-foreground shadow-lg">
+        <div className="absolute left-0 top-full z-40 mt-2 grid min-w-56 gap-1 rounded-2xl border-backstitch bg-popover p-2 text-sm text-popover-foreground shadow-stipple">
           {item.items.map((child, index) => {
             if (child.type === 'custom') {
-              return <React.Fragment key={index}>{child.children}</React.Fragment>;
+              return (
+                <React.Fragment key={index}>{child.children}</React.Fragment>
+              );
             }
 
             return (
@@ -47,7 +57,7 @@ function HeaderLink({ item }: { item: LinkItemType }) {
                 key={`${index}-${child.url}`}
                 href={child.url}
                 external={child.external}
-                className="rounded-lg px-3 py-2 font-medium text-fd-muted-foreground transition-colors hover:bg-fd-accent hover:text-fd-accent-foreground"
+                className="rounded-xl px-3 py-2 font-bold text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
               >
                 {child.text}
               </Link>
@@ -66,7 +76,7 @@ function HeaderLink({ item }: { item: LinkItemType }) {
       className={cn(
         item.type === 'icon'
           ? buttonVariants({ color: 'ghost', size: 'icon' })
-          : 'inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-sm font-medium text-fd-muted-foreground transition-colors hover:text-fd-accent-foreground data-[active=true]:text-fd-primary',
+          : 'inline-flex items-center gap-1 rounded-xl px-2 py-1.5 text-sm font-bold text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground data-[active=true]:text-primary',
       )}
     >
       {item.type === 'icon' ? item.icon : item.text}
@@ -86,11 +96,7 @@ function splitNavItems(items: LinkItemType[]) {
 }
 
 export function DocsTopBar(props: React.ComponentPropsWithoutRef<'header'>) {
-  const {
-    isNavTransparent,
-    navItems,
-    slots,
-  } = useDocsLayout();
+  const { isNavTransparent, navItems, slots } = useDocsLayout();
 
   const { primaryItems, customActions, utilityItems } = splitNavItems(navItems);
 
@@ -101,7 +107,7 @@ export function DocsTopBar(props: React.ComponentPropsWithoutRef<'header'>) {
         data-transparent={isNavTransparent}
         {...props}
         className={cn(
-          '[grid-area:header] sticky top-(--fd-docs-row-1) z-30 flex h-(--fd-header-height) items-center border-b ps-4 pe-2.5 backdrop-blur-sm transition-colors md:hidden max-md:layout:[--fd-header-height:--spacing(14)] data-[transparent=false]:bg-fd-background/80',
+          '[grid-area:header] sticky top-(--fd-docs-row-1) z-30 flex h-(--fd-header-height) items-center border-b-2 border-foreground bg-background ps-4 pe-2.5 transition-colors md:hidden max-md:layout:[--fd-header-height:--spacing(14)]',
           props.className,
         )}
       >
@@ -110,7 +116,12 @@ export function DocsTopBar(props: React.ComponentPropsWithoutRef<'header'>) {
         ) : null}
         <div className="flex-1" />
         {slots.searchTrigger ? (
-          <slots.searchTrigger.sm hideIfDisabled className="p-2" />
+          <slots.searchTrigger.sm
+            hideIfDisabled
+            className={cn(
+              'rounded-full border-backstitch bg-secondary p-2 text-secondary-foreground hover:bg-accent hover:text-accent-foreground',
+            )}
+          />
         ) : null}
         {slots.sidebar ? (
           <slots.sidebar.trigger
@@ -127,11 +138,14 @@ export function DocsTopBar(props: React.ComponentPropsWithoutRef<'header'>) {
         ) : null}
       </header>
 
-      <header className="sticky top-(--fd-docs-row-1) z-30 hidden h-14 items-center border-b bg-fd-background/80 px-4 backdrop-blur-sm md:flex">
+      <header className="sticky top-(--fd-docs-row-1) z-30 hidden h-14 items-center border-b-2 border-foreground bg-background px-4 md:flex">
         {slots.navTitle ? (
           <slots.navTitle className="inline-flex shrink-0 items-center gap-2.5 font-semibold" />
         ) : null}
-        <nav className="ml-6 flex min-w-0 flex-1 items-center gap-2 overflow-x-auto" aria-label="Docs navigation">
+        <nav
+          className="ml-6 flex min-w-0 flex-1 items-center gap-2 overflow-x-auto"
+          aria-label="Docs navigation"
+        >
           {primaryItems.map((item, index) => (
             <HeaderLink key={index} item={item} />
           ))}
@@ -143,7 +157,9 @@ export function DocsTopBar(props: React.ComponentPropsWithoutRef<'header'>) {
           {slots.searchTrigger ? (
             <slots.searchTrigger.full
               hideIfDisabled
-              className="w-full max-w-60 rounded-full ps-2.5"
+              className={cn(
+                'w-full max-w-60 rounded-full border-backstitch bg-secondary ps-2.5 text-secondary-foreground hover:bg-accent hover:text-accent-foreground',
+              )}
             />
           ) : null}
           {slots.themeSwitch ? <slots.themeSwitch /> : null}

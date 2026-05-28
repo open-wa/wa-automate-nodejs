@@ -112,7 +112,7 @@ export function DocsShell({
               buttonVariants({
                 variant: 'secondary',
                 className:
-                  'min-h-11 rounded-2xl border-fd-border bg-fd-card text-fd-foreground shadow-lg hover:bg-fd-accent',
+                  'min-h-11 rounded-2xl border-backstitch bg-card text-foreground shadow-stipple hover:bg-accent',
               }),
             )}
           >

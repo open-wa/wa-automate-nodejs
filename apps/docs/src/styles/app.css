@@ -468,40 +468,40 @@
 
   /* Shiki Transformers - Diff highlighting */
   .shiki .line.diff.add {
-    background-color: oklch(0.8 0.1 145 / 0.15);
-    border-left: 3px solid oklch(0.7 0.15 145);
+    background-color: color-mix(in srgb, var(--stitch-lavender) 14%, transparent);
+    border-left: 3px solid var(--stitch-lavender);
     padding-left: 0.5rem;
     width: 100%;
   }
 
   .shiki .line.diff.remove {
-    background-color: oklch(0.7 0.15 27 / 0.15);
-    border-left: 3px solid oklch(0.6 0.2 27);
+    background-color: color-mix(in srgb, var(--destructive) 14%, transparent);
+    border-left: 3px solid var(--destructive);
     padding-left: 0.5rem;
     width: 100%;
   }
 
   .dark .shiki .line.diff.add {
-    background-color: oklch(0.4 0.08 145 / 0.2);
-    border-left: 3px solid oklch(0.6 0.12 145);
+    background-color: color-mix(in srgb, var(--stitch-lavender) 18%, transparent);
+    border-left: 3px solid var(--stitch-lavender);
   }
 
   .dark .shiki .line.diff.remove {
-    background-color: oklch(0.4 0.08 27 / 0.2);
-    border-left: 3px solid oklch(0.65 0.15 27);
+    background-color: color-mix(in srgb, var(--destructive) 18%, transparent);
+    border-left: 3px solid var(--destructive);
   }
 
   /* Shiki Transformers - Highlighted lines */
   .shiki .line.highlighted {
-    background-color: rgb(136 192 208 / 0.2);
-    border-left: 3px solid #88c0d0;
+    background-color: color-mix(in srgb, var(--stitch-lavender) 16%, transparent);
+    border-left: 3px solid var(--stitch-lavender);
     padding-left: 0.5rem;
     width: 100%;
   }
 
   .dark .shiki .line.highlighted {
-    background-color: rgb(136 192 208 / 0.25);
-    border-left: 3px solid #88c0d0;
+    background-color: color-mix(in srgb, var(--stitch-lavender) 22%, transparent);
+    border-left: 3px solid var(--stitch-lavender);
   }
 
   /* Shiki Transformers - Focused lines */
@@ -520,60 +520,60 @@
   .shiki .line.focused {
     opacity: 1;
     filter: none;
-    background-color: rgb(129 161 193 / 0.15);
-    border-left: 3px solid #81a1c1;
+    background-color: color-mix(in srgb, var(--stitch-yellow) 28%, transparent);
+    border-left: 3px solid var(--stitch-yellow);
     padding-left: 0.5rem;
     width: 100%;
   }
 
   .dark .shiki .line.focused {
-    background-color: rgb(129 161 193 / 0.25);
-    border-left: 3px solid #81a1c1;
+    background-color: color-mix(in srgb, var(--stitch-yellow) 22%, transparent);
+    border-left: 3px solid var(--stitch-yellow);
   }
 
   /* When a line is both focused and highlighted, focus takes precedence */
   .shiki.has-focused .line.focused.highlighted {
-    background-color: rgb(129 161 193 / 0.2);
+    background-color: color-mix(in srgb, var(--stitch-yellow) 30%, transparent);
   }
 
   .dark .shiki.has-focused .line.focused.highlighted {
-    background-color: rgb(129 161 193 / 0.3);
+    background-color: color-mix(in srgb, var(--stitch-yellow) 24%, transparent);
   }
 
   /* Shiki Transformers - Error and Warning levels */
   .shiki .line.highlighted.error {
-    background-color: oklch(0.7 0.15 27 / 0.15);
-    border-left: 3px solid oklch(0.6 0.2 27);
+    background-color: color-mix(in srgb, var(--destructive) 14%, transparent);
+    border-left: 3px solid var(--destructive);
     padding-left: 0.5rem;
   }
 
   .shiki .line.highlighted.warning {
-    background-color: oklch(0.8 0.15 85 / 0.15);
-    border-left: 3px solid oklch(0.7 0.18 85);
+    background-color: color-mix(in srgb, var(--stitch-yellow) 30%, transparent);
+    border-left: 3px solid var(--stitch-yellow);
     padding-left: 0.5rem;
   }
 
   .dark .shiki .line.highlighted.error {
-    background-color: oklch(0.4 0.08 27 / 0.2);
-    border-left: 3px solid oklch(0.65 0.15 27);
+    background-color: color-mix(in srgb, var(--destructive) 18%, transparent);
+    border-left: 3px solid var(--destructive);
   }
 
   .dark .shiki .line.highlighted.warning {
-    background-color: oklch(0.5 0.1 85 / 0.2);
-    border-left: 3px solid oklch(0.7 0.15 85);
+    background-color: color-mix(in srgb, var(--stitch-yellow) 20%, transparent);
+    border-left: 3px solid var(--stitch-yellow);
   }
 
   /* Shiki Transformers - Word highlighting */
   .shiki .highlighted-word {
-    background-color: oklch(0.85 0.08 240 / 0.3);
-    border-radius: 0.25rem;
+    background-color: color-mix(in srgb, var(--stitch-lavender) 24%, transparent);
+    border-radius: 0.375rem;
     padding: 0.125rem 0.25rem;
-    border: 1px solid oklch(0.6 0.15 240 / 0.3);
+    border: 1px solid color-mix(in srgb, var(--stitch-lavender) 55%, transparent);
   }
 
   .dark .shiki .highlighted-word {
-    background-color: oklch(0.35 0.08 240 / 0.4);
-    border: 1px solid oklch(0.55 0.15 240 / 0.4);
+    background-color: color-mix(in srgb, var(--stitch-lavender) 28%, transparent);
+    border: 1px solid color-mix(in srgb, var(--stitch-lavender) 65%, transparent);
   }
 }
 

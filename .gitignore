@@ -150,3 +150,7 @@ notes/
 .switchboard/*.db-shm
 .switchboard/*.db-wal
 # <<< Switchboard managed exclusions <<<
+# Image-gen MCP temporary outputs
+output/Users*projectstoolswaappsdocspublicmascots*.png
+.omo/run-continuation
+.omo/boulder.json

@@ -18,9 +18,9 @@ export function Callout({
   const styles = {
     note: 'border-backstitch bg-card text-foreground',
     tip: 'border-backstitch bg-primary/10 text-foreground',
-    warning: 'border-backstitch bg-amber-100/50 dark:bg-amber-950/20 text-foreground',
+    warning: 'border-backstitch bg-stitch-yellow/30 text-foreground',
     danger: 'border-backstitch bg-destructive/10 text-foreground',
-    info: 'border-backstitch bg-sky-100/50 dark:bg-sky-950/20 text-foreground',
+    info: 'border-backstitch bg-stitch-lavender/20 text-foreground',
   } as const;
 
   const bgDitherOpacities = {
@@ -173,7 +173,7 @@ export function PackageManagerTabs({
           );
         })}
       </div>
-      <pre className="overflow-x-auto bg-[#1e1614] p-4 text-sm leading-6 text-[#f5ebe6] font-mono border-t-2 border-foreground relative z-10">
+      <pre className="overflow-x-auto bg-foreground p-4 text-sm leading-6 text-background font-mono border-t-2 border-foreground relative z-10">
         <code>{commands[active]}</code>
       </pre>
     </div>

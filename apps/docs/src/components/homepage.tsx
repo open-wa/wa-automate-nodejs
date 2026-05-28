@@ -165,13 +165,6 @@ const workflowCards: LinkCard[] = [
   },
 ];
 
-const opsSignals = [
-  ['Mode', 'API, library, remote'],
-  ['Auth', 'QR, link code, session data'],
-  ['Transport', 'HTTP RPC plus SSE'],
-  ['Status', `v${CURRENT_VERSION}`],
-];
-
 function SectionHeading({
   eyebrow,
   title,
@@ -283,69 +276,20 @@ function WorkflowCard({ card }: { card: LinkCard }) {
 
 function WallyHeroIllustration() {
   return (
-    <div
-      aria-hidden="true"
-      className="relative overflow-hidden rounded-[1.75rem] border-backstitch bg-background p-4 shadow-sm"
-    >
-      <div className="pointer-events-none absolute inset-0 bg-dither opacity-[0.18]" />
-      <div className="pointer-events-none absolute -right-5 top-4 size-16 rounded-full border-2 border-foreground bg-stitch-yellow/70" />
-      <div className="pointer-events-none absolute -left-4 bottom-5 size-12 rounded-full border-2 border-foreground bg-stitch-lavender/25" />
+    <div className="relative mx-auto max-w-sm overflow-hidden rounded-3xl border-backstitch bg-card p-4 shadow-stipple lg:max-w-none">
+      <div className="pointer-events-none absolute inset-0 bg-dither opacity-[0.14]" />
+      <div className="pointer-events-none absolute right-5 top-5 size-14 rounded-full border-2 border-foreground bg-stitch-yellow/70" />
+      <div className="pointer-events-none absolute bottom-5 left-5 size-12 rounded-full border-2 border-foreground bg-stitch-lavender/25" />
       <img
         src="/mascots/wally-homepage-session-console.png"
-        alt=""
-        className="relative z-10 mx-auto h-auto w-full max-w-[300px]"
+        alt="Wally the walrus typing at a retro developer desk"
+        className="relative z-10 mx-auto h-auto w-full max-w-xs"
         loading="eager"
       />
-    </div>
-  );
-}
-
-function OpsConsolePanel() {
-  return (
-    <div className="relative overflow-hidden rounded-[2rem] border-backstitch bg-card p-4 shadow-stipple sm:p-5">
-      <div className="pointer-events-none absolute inset-0 bg-dither opacity-[0.14]" />
-      <div className="relative z-10 grid gap-4">
-        <WallyHeroIllustration />
-        <div className="rounded-2xl border-backstitch bg-[#1e1614] p-4">
-          <div className="flex items-center justify-between gap-3 border-b-2 border-foreground/30 pb-3">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                Session console
-              </p>
-              <p className="mt-1 text-xs text-[#f5ebe6]/70">
-                quick checks for a working session
-              </p>
-            </div>
-            <span className="rounded-xl border border-foreground bg-primary/20 px-3 py-1 text-xs font-bold text-primary-foreground shadow-sm">
-              online
-            </span>
-          </div>
-          <dl className="mt-4 grid gap-3 sm:grid-cols-2">
-            {opsSignals.map(([label, value]) => (
-              <div
-                key={label}
-                className="rounded-2xl border border-dashed border-foreground/30 bg-[#2d221e] p-4"
-              >
-                <dt className="text-xs font-bold uppercase tracking-[0.14em] text-primary">
-                  {label}
-                </dt>
-                <dd className="mt-2 text-sm font-semibold text-[#f5ebe6]">
-                  {value}
-                </dd>
-              </div>
-            ))}
-          </dl>
-          <div className="mt-4 rounded-2xl border-backstitch bg-card/10 p-4 font-mono text-xs leading-6 text-[#f5ebe6]/80">
-            <p>
-              <span className="text-primary">$</span> npx @open-wa/wa-automate
-              --port 8080 --api-key ***
-            </p>
-            <p>
-              <span className="text-emerald-400">ok</span> session ready, api
-              docs mounted, events streaming
-            </p>
-          </div>
-        </div>
+      <div className="relative z-10 mt-4 rounded-2xl border-backstitch bg-background p-3 shadow-sm">
+        <code className="block select-all overflow-x-auto whitespace-nowrap font-mono text-xs font-semibold leading-6 text-foreground sm:text-sm">
+          npx @open-wa/wa-automate --port 8080 --api-key ***
+        </code>
       </div>
     </div>
   );
@@ -372,7 +316,7 @@ export function DocsHomepage() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 bg-dither opacity-[0.16]"
       />
-      <section className="relative grid gap-8 overflow-hidden rounded-[2.25rem] border-4 border-foreground bg-background p-5 shadow-stipple ring-4 ring-primary/15 sm:p-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)] lg:items-center">
+      <section className="relative grid gap-8 overflow-hidden rounded-[2.25rem] border-4 border-foreground bg-background p-5 shadow-stipple ring-4 ring-primary/15 sm:p-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] lg:items-center lg:p-10">
         <div className="pointer-events-none absolute inset-0 bg-dither opacity-[0.12]" />
         <div
           aria-hidden="true"
@@ -386,8 +330,8 @@ export function DocsHomepage() {
           aria-hidden="true"
           className="pointer-events-none absolute -right-12 bottom-8 size-32 rounded-full border-4 border-foreground bg-stitch-lavender/20"
         />
-        <div className="relative z-10 space-y-7">
-          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground font-semibold">
+        <div className="relative z-10 max-w-4xl space-y-7 text-center lg:text-left">
+          <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground font-semibold lg:justify-start">
             <span className="rounded-xl border-backstitch bg-stitch-yellow/70 px-3 py-1 font-bold text-foreground shadow-sm">
               open-wa v5 alpha
             </span>
@@ -396,33 +340,33 @@ export function DocsHomepage() {
 
           <div className="space-y-4">
             <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl font-display">
-              Run WhatsApp automation without decoding the whole repo.
+              Turn a WhatsApp account into an API you can build on.
             </h1>
-            <p className="max-w-3xl text-pretty text-lg leading-8 text-muted-foreground sm:text-xl font-medium">
-              Start the Easy API, embed the runtime with createClient, or
-              connect a remote worker. Each path shows what to run, what to
-              paste, and what to check when the session is not ready.
+            <p className="mx-auto max-w-3xl text-pretty text-lg leading-8 text-muted-foreground sm:text-xl font-medium lg:mx-0">
+              Run the Easy API, link your phone, and send a first message in
+              minutes. Then connect CRMs, AI agents, plugins, or your own
+              Node.js app without rebuilding the WhatsApp Web runtime yourself.
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap lg:justify-start">
             <a
               href={DOCS_PATHS.quickstart}
               className="inline-flex min-h-11 items-center justify-center rounded-xl border-backstitch bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-all hover-stipple cursor-pointer shadow-sm"
             >
-              Start with Quick Start
+              Send your first message
             </a>
             <a
               href={DOCS_PATHS.overview}
               className="inline-flex min-h-11 items-center justify-center rounded-xl border-backstitch bg-card px-6 py-3 text-sm font-bold text-foreground transition-all hover-stipple cursor-pointer shadow-sm"
             >
-              Browse docs map
+              Choose your path
             </a>
           </div>
         </div>
 
         <div className="relative z-10">
-          <OpsConsolePanel />
+          <WallyHeroIllustration />
         </div>
       </section>
 
