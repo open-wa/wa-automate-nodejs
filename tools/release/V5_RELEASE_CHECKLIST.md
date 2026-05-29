@@ -21,25 +21,22 @@ Every public package needs these fields in `package.json` for a good npmjs and G
 
 ### 1a. `description` — what shows on npmjs.com search results
 
-| Status | Package                      |
-| ------ | ---------------------------- |
-| ❌     | @open-wa/session-sync        |
-| ❌     | @open-wa/ui-components       |
-| ✅     | All other 24 public packages |
+| Status | Package             |
+| ------ | ------------------- |
+| ✅     | All public packages |
 
-**Fix**: Add `"description"` to `session-sync/package.json` and `ui-components/package.json`.
+`@open-wa/session-sync` now has a description. `@open-wa/ui-components` is private and excluded from releases.
 
 ---
 
 ### 1b. `exports` — proper ESM/CJS entry points
 
-| Status | Package                |
-| ------ | ---------------------- |
-| ❌     | @open-wa/logger        |
-| ❌     | @open-wa/orchestrator  |
-| ❌     | @open-wa/session-sync  |
-| ❌     | @open-wa/ui-components |
-| ❌     | @open-wa/wa-automate   |
+| Status | Package               |
+| ------ | --------------------- |
+| ❌     | @open-wa/logger       |
+| ❌     | @open-wa/orchestrator |
+| ❌     | @open-wa/session-sync |
+| ❌     | @open-wa/wa-automate  |
 
 **Why it matters**: Without `exports`, bundlers and TypeScript `moduleResolution: "bundler"` can't resolve the package correctly. Users get red squiggles in their IDE.
 
@@ -187,14 +184,11 @@ curl -s http://localhost:3000/sitemap.xml | grep -i "package\|api\|guide"
 
 ## 4. 🔨 Build Output
 
-| Status | Package                          | Notes                                  |
-| ------ | -------------------------------- | -------------------------------------- |
-| ⚠️     | ui-components                    | No `dist/` — must build before publish |
-| ✅     | **All other 25 public packages** | Have `dist/`                           |
+| Status | Package                 | Notes        |
+| ------ | ----------------------- | ------------ |
+| ✅     | **All public packages** | Have `dist/` |
 
-**Note**: `cf-proxy` is now private and excluded from releases.
-
-**Action**: Ensure `ui-components` builds. If it has no build script, add one. If it can't produce a `dist/`, it may need to stay private temporarily.
+**Note**: `cf-proxy` and `ui-components` are private and excluded from releases.
 
 ---
 
@@ -236,7 +230,7 @@ pnpm turbo typecheck --filter='!@open-wa/legacy' --filter='!@open-wa/legacy-docu
 cat .changeset/config.json
 ```
 
-- [ ] All public packages are in the `fixed` group (currently 27 packages, cf-proxy excluded)
+- [ ] All public packages are in the `fixed` group (currently 26 packages, cf-proxy and ui-components excluded)
 - [ ] `baseBranch` is set to `"main"`
 - [ ] `access` is `"public"`
 - [ ] No stale test changesets in `.changeset/` (delete `lively-waves-calm.md` if present)
