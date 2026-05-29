@@ -1,6 +1,6 @@
 # @open-wa v5.0.0 — Pre-Release Checklist
 
-> **Purpose**: Walk through every item before publishing v5 to npm. Each section has a ✅/❌ status. Fix all ❌ (blockers) and decide on ⚠️ (warnings) before releasing.
+> **Purpose**: Walk through every item before publishing v5 to npmjs and GitHub Packages. Each section has a ✅/❌ status. Fix all ❌ (blockers) and decide on ⚠️ (warnings) before releasing.
 >
 > **How to use**: A reviewer (human or AI) should go through each section, run the listed commands, and check off items as they pass.
 
@@ -8,7 +8,7 @@
 
 ## 1. 📦 Package Metadata (npm DX)
 
-Every public package needs these fields in `package.json` for a good npm listing.
+Every public package needs these fields in `package.json` for a good npmjs and GitHub Packages listing.
 
 > [!IMPORTANT]
 > The project license is **Hippocratic + Do Not Harm (H-DNH) Version 1.1** as defined in `/LICENSE.md`. All packages MUST use `"license": "H-DNH V1.0"` in their `package.json`.
@@ -21,11 +21,11 @@ Every public package needs these fields in `package.json` for a good npm listing
 
 ### 1a. `description` — what shows on npmjs.com search results
 
-| Status | Package |
-|--------|---------|
-| ❌ | @open-wa/session-sync |
-| ❌ | @open-wa/ui-components |
-| ✅ | All other 24 public packages |
+| Status | Package                      |
+| ------ | ---------------------------- |
+| ❌     | @open-wa/session-sync        |
+| ❌     | @open-wa/ui-components       |
+| ✅     | All other 24 public packages |
 
 **Fix**: Add `"description"` to `session-sync/package.json` and `ui-components/package.json`.
 
@@ -33,17 +33,18 @@ Every public package needs these fields in `package.json` for a good npm listing
 
 ### 1b. `exports` — proper ESM/CJS entry points
 
-| Status | Package |
-|--------|---------|
-| ❌ | @open-wa/logger |
-| ❌ | @open-wa/orchestrator |
-| ❌ | @open-wa/session-sync |
-| ❌ | @open-wa/ui-components |
-| ❌ | @open-wa/wa-automate |
+| Status | Package                |
+| ------ | ---------------------- |
+| ❌     | @open-wa/logger        |
+| ❌     | @open-wa/orchestrator  |
+| ❌     | @open-wa/session-sync  |
+| ❌     | @open-wa/ui-components |
+| ❌     | @open-wa/wa-automate   |
 
 **Why it matters**: Without `exports`, bundlers and TypeScript `moduleResolution: "bundler"` can't resolve the package correctly. Users get red squiggles in their IDE.
 
 **Fix**: Add an `"exports"` field pointing to the built entry file(s). Example:
+
 ```json
 "exports": {
   ".": { "import": "./dist/index.js", "types": "./dist/index.d.ts" }
@@ -54,10 +55,10 @@ Every public package needs these fields in `package.json` for a good npm listing
 
 ### 1c. `types` — TypeScript type declarations
 
-| Status | Package |
-|--------|---------|
-| ❌ | @open-wa/plugin-sdk |
-| ❌ | @open-wa/screencaster |
+| Status | Package               |
+| ------ | --------------------- |
+| ❌     | @open-wa/plugin-sdk   |
+| ❌     | @open-wa/screencaster |
 
 **Fix**: Add `"types"` field or include `"types"` in the `"exports"` map.
 
@@ -68,17 +69,18 @@ Every public package needs these fields in `package.json` for a good npm listing
 > [!IMPORTANT]
 > Every package MUST have `"license": "H-DNH V1.0"` matching the root `LICENSE.md` (Hippocratic + Do Not Harm Version 1.1).
 
-| Status | Package | Current |
-|--------|---------|---------|
-| ✅ | @open-wa/hyperemitter | Apache-2.0 (own license — OK) |
-| ✅ | @open-wa/plugin-sdk | H-DNH V1.0 |
-| ✅ | @open-wa/socket-client | H-DNH V1.0 |
-| ✅ | @open-wa/wa-automate-types-only | H-DNH V1.0 |
-| ❌ | **All other 22 public packages** | MISSING |
+| Status | Package                          | Current                       |
+| ------ | -------------------------------- | ----------------------------- |
+| ✅     | @open-wa/hyperemitter            | Apache-2.0 (own license — OK) |
+| ✅     | @open-wa/plugin-sdk              | H-DNH V1.0                    |
+| ✅     | @open-wa/socket-client           | H-DNH V1.0                    |
+| ✅     | @open-wa/wa-automate-types-only  | H-DNH V1.0                    |
+| ❌     | **All other 22 public packages** | MISSING                       |
 
-**Why it matters**: npm shows "UNLICENSED" on the package page. Corporate users may be blocked from installing. GitHub shows a warning.
+**Why it matters**: npmjs shows "UNLICENSED" on the package page. Corporate users may be blocked from installing. GitHub shows a warning.
 
 **Fix** — batch script:
+
 ```bash
 for pkg in packages/*/package.json; do
   node -e "
@@ -95,44 +97,26 @@ done
 
 ---
 
-### 1e. `repository` — links npm page back to GitHub
+### 1e. `repository` — links package pages back to GitHub
 
-| Status | Package |
-|--------|---------|
-| ✅ | @open-wa/socket-client |
-| ✅ | @open-wa/wa-automate-types-only |
-| ❌ | **All other 24 public packages** |
+| Status | Package                |
+| ------ | ---------------------- |
+| ✅     | All 28 public packages |
 
-**Fix** — batch script:
-```bash
-for dir in packages/*/; do
-  pkg="$dir/package.json"
-  [ -f "$pkg" ] || continue
-  dirname=$(basename "$dir")
-  node -e "
-    const fs=require('fs');
-    const p=JSON.parse(fs.readFileSync('$pkg','utf8'));
-    if(!p.repository && !p.private){
-      p.repository={type:'git',url:'https://github.com/open-wa/wa-automate-nodejs',directory:'packages/$dirname'};
-      fs.writeFileSync('$pkg',JSON.stringify(p,null,2)+'\n');
-      console.log('✅ Added repository to '+p.name);
-    }
-  "
-done
-```
+All public packages under `packages/*` and `integrations/*` now have a `repository` field. Most point to `https://github.com/open-wa/wa-automate-nodejs.git`; package-specific repositories such as `@open-wa/socket-client`, `@open-wa/node-red`, and `@open-wa/wa-automate-types-only` keep their existing values.
 
 ---
 
 ## 2. 📝 README Files
 
-Only **3 out of 26** public packages have a README. npm renders the README as the package homepage — a missing README means users see a blank page.
+Only **3 out of 26** public packages have a README. npmjs and GitHub Packages render the README as the package homepage — a missing README means users see a blank page.
 
-| Status | Package |
-|--------|---------|
-| ✅ | hyperemitter |
-| ✅ | orchestrator |
-| ✅ | socket-client |
-| ❌ | **All other 23 public packages** |
+| Status | Package                          |
+| ------ | -------------------------------- |
+| ✅     | hyperemitter                     |
+| ✅     | orchestrator                     |
+| ✅     | socket-client                    |
+| ❌     | **All other 23 public packages** |
 
 ### Priority READMEs (MUST have before release)
 
@@ -203,10 +187,10 @@ curl -s http://localhost:3000/sitemap.xml | grep -i "package\|api\|guide"
 
 ## 4. 🔨 Build Output
 
-| Status | Package | Notes |
-|--------|---------|-------|
-| ⚠️ | ui-components | No `dist/` — must build before publish |
-| ✅ | **All other 25 public packages** | Have `dist/` |
+| Status | Package                          | Notes                                  |
+| ------ | -------------------------------- | -------------------------------------- |
+| ⚠️     | ui-components                    | No `dist/` — must build before publish |
+| ✅     | **All other 25 public packages** | Have `dist/`                           |
 
 **Note**: `cf-proxy` is now private and excluded from releases.
 
@@ -261,11 +245,15 @@ cat .changeset/config.json
 
 ## 8. 🔐 Secrets & CI
 
-Verify these exist in **GitHub repo Settings → Secrets**:
+Verify these exist in **GitHub repo Settings → Secrets** and workflow permissions:
 
-- [ ] `NPM_TOKEN` — npm publish token with write access to `@open-wa/*`
+- [ ] `NPM_TOKEN` — npmjs publish token with write access to `@open-wa/*`
+- [ ] `GITHUB_TOKEN` — built in to GitHub Actions; no repo secret is needed
+- [ ] `packages: write` — set in `.github/workflows/release.yml` for GitHub Packages publishing
 - [ ] `GOOGLE_API_KEY` — Gemini API key for release notes
 - [ ] `DISCORD_WEBHOOK_URL` — Discord channel webhook
+
+Release publishing should use `pnpm publish-packages`, not manual registry switching. The script builds once, publishes changed packages to npmjs when `NPM_TOKEN` exists, then publishes the same changed `@open-wa/*` packages to GitHub Packages when `GITHUB_TOKEN` exists. It uses temporary npmrc files only, so the root `.npmrc` stays pnpm-only. `.changeset/pre.json` supplies the `alpha` prerelease tag while Changesets pre mode is active.
 
 ---
 
@@ -299,7 +287,7 @@ Verify the following from their perspective:
 - [ ] Package installs without peer dependency warnings
 - [ ] Main export works: `import { create } from '@open-wa/wa-automate'` (or the actual entry)
 - [ ] TypeScript autocomplete works in VS Code (hover over imports, check types)
-- [ ] npmjs.com/package/@open-wa/wa-automate shows: description, README, license badge, repository link, correct version
+- [ ] npmjs.com/package/@open-wa/wa-automate and the GitHub Packages page show: description, README, license badge, repository link, correct version
 
 ---
 
@@ -317,23 +305,22 @@ rm -f .changeset/lively-waves-calm.md     # test changeset
 
 ## Severity Guide
 
-| Icon | Meaning | Action |
-|------|---------|--------|
-| ❌ | **Blocker** — must fix before release | Fix immediately |
-| ⚠️ | **Warning** — acceptable for alpha, fix before stable | Track in issue |
-| ✅ | **Pass** | No action needed |
+| Icon | Meaning                                               | Action           |
+| ---- | ----------------------------------------------------- | ---------------- |
+| ❌   | **Blocker** — must fix before release                 | Fix immediately  |
+| ⚠️   | **Warning** — acceptable for alpha, fix before stable | Track in issue   |
+| ✅   | **Pass**                                              | No action needed |
 
 ---
 
 ## Summary of Blockers
 
-| # | Issue | Impact | Fix Effort |
-|---|-------|--------|------------|
-| 1 | **License field missing** on 22 packages | npm shows "UNLICENSED" | 🟢 Batch script (1 min) |
-| 2 | **Repository field missing** on 24 packages | npm can't link to GitHub | 🟢 Batch script (1 min) |
-| 3 | **README missing** on 23 packages | Blank npm homepage | 🟡 Template + customise top 4 |
-| 4 | **`exports` field missing** on 5 packages | Bundler/TS resolution broken | 🟡 Manual per-package |
-| 5 | **`description` missing** on 2 packages | Blank on npm search | 🟢 Quick edit |
-| 6 | **`types` missing** on 2 packages | No autocomplete | 🟡 Check build output |
-| 7 | **`ui-components` no dist/** | Publish will fail | 🟡 Add build or mark private |
-| 8 | **Docs coverage** unclear | Users can't find documentation | 🟡 Audit docs site |
+| #   | Issue                                     | Impact                         | Fix Effort                    |
+| --- | ----------------------------------------- | ------------------------------ | ----------------------------- |
+| 1   | **License field missing** on 22 packages  | npm shows "UNLICENSED"         | 🟢 Batch script (1 min)       |
+| 3   | **README missing** on 23 packages         | Blank npm homepage             | 🟡 Template + customise top 4 |
+| 4   | **`exports` field missing** on 5 packages | Bundler/TS resolution broken   | 🟡 Manual per-package         |
+| 5   | **`description` missing** on 2 packages   | Blank on npm search            | 🟢 Quick edit                 |
+| 6   | **`types` missing** on 2 packages         | No autocomplete                | 🟡 Check build output         |
+| 7   | **`ui-components` no dist/**              | Publish will fail              | 🟡 Add build or mark private  |
+| 8   | **Docs coverage** unclear                 | Users can't find documentation | 🟡 Audit docs site            |

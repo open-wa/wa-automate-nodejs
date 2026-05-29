@@ -1,25 +1,29 @@
 {
-    "name": "@open-wa/session-sync",
-    "version": "1.0.0",
-    "main": "dist/index.cjs",
-    "types": "dist/index.d.cts",
-    "scripts": {
-        "build": "tsdown src/index.ts --format cjs",
-        "dev": "tsdown src/index.ts --format cjs --watch",
-        "lint": "oxlint src",
-        "test": "vitest run --passWithNoTests"
-    },
-    "dependencies": {
-        "pico-s3": "^2.11.0",
-        "tar-fs": "^3.0.0",
-        "simple-zstd": "^1.4.1",
-        "chokidar": "^4.0.0",
-        "@open-wa/schema": "workspace:*"
-    },
-    "devDependencies": {
-        "typescript": "catalog:",
-        "vitest": "catalog:",
-        "@types/node": "catalog:",
-        "@types/tar-fs": "catalog:"
-    }
+  "name": "@open-wa/session-sync",
+  "version": "1.0.0",
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.cts",
+  "scripts": {
+    "build": "tsdown src/index.ts --format cjs",
+    "dev": "tsdown src/index.ts --format cjs --watch",
+    "lint": "oxlint src",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "pico-s3": "^2.11.0",
+    "tar-fs": "^3.0.0",
+    "simple-zstd": "^1.4.1",
+    "chokidar": "^4.0.0",
+    "@open-wa/schema": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "@types/node": "catalog:",
+    "@types/tar-fs": "catalog:"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/open-wa/wa-automate-nodejs.git"
+  }
 }

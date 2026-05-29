@@ -1,43 +1,47 @@
 {
-    "name": "@open-wa/driver-lightpanda",
-    "version": "5.0.0-alpha.1",
-    "description": "Lightpanda browser driver for open-wa",
-    "main": "./dist/index.cjs",
-    "types": "./dist/index.d.cts",
-    "exports": {
-        ".": {
-            "require": "./dist/index.cjs",
-            "import": "./dist/index.cjs",
-            "types": "./dist/index.d.cts"
-        }
-    },
-    "scripts": {
-        "build": "tsdown src/index.ts --format cjs",
-        "dev": "tsdown src/index.ts --format cjs --watch",
-        "lint": "oxlint src",
-        "test": "vitest run"
-    },
-    "dependencies": {
-        "@open-wa/driver-interface": "workspace:*"
-    },
-    "peerDependencies": {
-        "@lightpanda/browser": ">=0.1.0",
-        "puppeteer": ">=22.0.0"
-    },
-    "peerDependenciesMeta": {
-        "@lightpanda/browser": {
-            "optional": true
-        },
-        "puppeteer": {
-            "optional": true
-        }
-    },
-    "devDependencies": {
-        "@types/node": "catalog:",
-        "typescript": "catalog:",
-        "vitest": "catalog:"
-    },
-    "publishConfig": {
-        "access": "public"
+  "name": "@open-wa/driver-lightpanda",
+  "version": "5.0.0-alpha.1",
+  "description": "Lightpanda browser driver for open-wa",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.cjs",
+      "types": "./dist/index.d.cts"
     }
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts --format cjs",
+    "dev": "tsdown src/index.ts --format cjs --watch",
+    "lint": "oxlint src",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@open-wa/driver-interface": "workspace:*"
+  },
+  "peerDependencies": {
+    "@lightpanda/browser": ">=0.1.0",
+    "puppeteer": ">=22.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@lightpanda/browser": {
+      "optional": true
+    },
+    "puppeteer": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/open-wa/wa-automate-nodejs.git"
+  }
 }

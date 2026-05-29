@@ -53,5 +53,9 @@
     "configuration",
     "zod",
     "cosmiconfig"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/open-wa/wa-automate-nodejs.git"
+  }
 }
