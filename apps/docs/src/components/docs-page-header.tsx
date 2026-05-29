@@ -28,7 +28,7 @@ export function DocsPageHeader({
       <div className="absolute inset-0 bg-dither opacity-[0.12] pointer-events-none" />
       <div
         className={cn(
-          'relative z-10 grid gap-8',
+          'relative grid gap-8',
           mascot
             ? 'lg:grid-cols-[minmax(0,1fr)_minmax(14rem,18rem)] lg:items-center'
             : undefined,
@@ -55,7 +55,7 @@ export function DocsPageHeader({
               <img
                 src={mascot.src}
                 alt={mascot.title}
-                className="relative z-10 size-full rounded-full object-cover"
+                className="relative size-full rounded-full object-cover"
               />
             </figure>
           </div>

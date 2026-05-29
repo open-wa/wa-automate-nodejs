@@ -22,6 +22,12 @@ type LinkCard = {
   eyebrow: string;
   detail?: string;
   badge?: 'insiders' | 'restricted';
+  bestFor?: string;
+  timeToResult?: string;
+  needs?: string;
+  avoidWhen?: string;
+  wrongPathSymptom?: string;
+  blockedNextStep?: string;
 };
 
 type MenuLinkItem = Extract<LinkItemType, { type: 'menu' }>['items'][number];
@@ -33,18 +39,19 @@ function isHomepageLicenseLink(item: LinkItemType): item is CustomLinkItem {
 
 function renderHomeNavbarMenuLink(item: MenuLinkItem, index: number) {
   if (item.type === 'custom') {
-    return <div key={index}>{item.children}</div>;
+    return <div className='font-mono' key={index}>{item.children}</div>;
   }
 
   return (
     <NavbarMenuLink
+      className='font-mono'
       key={`${index}-${item.url}`}
       href={item.url}
       external={item.external}
     >
-      <span className="text-base font-medium">{item.text}</span>
+      <span className="text-base font-medium font-mono">{item.text}</span>
       {item.description ? (
-        <span className="text-sm text-fd-muted-foreground">
+        <span className="text-sm text-fd-muted-foreground font-mono">
           {item.description}
         </span>
       ) : null}
@@ -60,8 +67,8 @@ function createHomeNavbarMenu(
     on: 'nav',
     secondary: item.secondary,
     children: (
-      <NavbarMenu>
-        <NavbarMenuTrigger>{item.text}</NavbarMenuTrigger>
+      <NavbarMenu className='font-mono bg-background'>
+        <NavbarMenuTrigger className='font-mono'>{item.text}</NavbarMenuTrigger>
         <NavbarMenuContent>
           {item.items.map(renderHomeNavbarMenuLink)}
         </NavbarMenuContent>
@@ -71,7 +78,7 @@ function createHomeNavbarMenu(
 }
 
 function createHomeLayoutLinks(links: LinkItemType[] = []): LinkItemType[] {
-  return links.flatMap((item) => {
+  return links.filter(item => !(item as any).hideOnHomepage).flatMap((item) => {
     if (isHomepageLicenseLink(item)) return [{ ...item, on: 'menu' }];
     if (item.type !== 'menu') return [item];
 
@@ -85,8 +92,14 @@ function createHomeSearchTrigger(licenseAction?: CustomLinkItem['children']) {
     full: function HomeSearchTrigger(props: FullSearchTriggerProps) {
       return (
         <>
+          <FullSearchTrigger className='font-mono' {...props} />
           {licenseAction}
-          <FullSearchTrigger {...props} />
+          <a href="https://discord.gg/dpan7EYE3t" target="_blank" rel="noopener noreferrer" className="w-5 h-5 m-2" title="Discord">
+            <svg role="img" viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <title>Discord</title>
+              <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
+            </svg>
+          </a>
         </>
       );
     },
@@ -101,6 +114,12 @@ const startPaths: LinkCard[] = [
       'Start the API, authenticate WhatsApp, open the live docs, and send one test message.',
     eyebrow: 'Fastest path',
     detail: 'CLI runtime, API key, generated docs',
+    bestFor: 'I need an API today',
+    timeToResult: '5-10 minutes',
+    needs: 'Phone login, API key, local port',
+    avoidWhen: 'Your Node app must own browser lifecycle and driver choice.',
+    wrongPathSymptom: 'Your app fights the API process for runtime ownership.',
+    blockedNextStep: 'Check configuration, auth readiness, or the API Explorer.',
   },
   {
     title: 'Embed the runtime',
@@ -109,6 +128,12 @@ const startPaths: LinkCard[] = [
       'Use createClient in Node.js when your app must own the session lifecycle.',
     eyebrow: 'Library mode',
     detail: 'createClient, drivers, events',
+    bestFor: 'I already have a Node.js app',
+    timeToResult: 'Deep integration path',
+    needs: 'createClient, browser driver, lifecycle handlers',
+    avoidWhen: 'You only need a hosted API another service can call.',
+    wrongPathSymptom: 'Setup stalls while you wire browser details you do not need.',
+    blockedNextStep: 'Start with the runtime model before adding handlers.',
   },
   {
     title: 'Connect remotely',
@@ -117,7 +142,21 @@ const startPaths: LinkCard[] = [
       'Connect a worker, dashboard, bot, or service to an Easy API session.',
     eyebrow: 'Remote consumer',
     detail: 'SocketClient, RPC, SSE events',
+    bestFor: 'I already have a bot, worker, or CRM',
+    timeToResult: 'After Easy API is running',
+    needs: 'Running Easy API, API key, reachable URL',
+    avoidWhen: 'No Easy API process owns the WhatsApp session yet.',
+    wrongPathSymptom: 'The consumer connects but no session is ready.',
+    blockedNextStep: 'Verify session events and API key configuration.',
   },
+];
+
+const setupStates = [
+  'CLI running',
+  'Node app',
+  'Remote worker',
+  'Multi-session fleet',
+  'AI agent',
 ];
 
 const workflowCards: LinkCard[] = [
@@ -231,6 +270,63 @@ function RouteCard({
       >
         {card.description}
       </p>
+      <dl
+        className={[
+          'mt-5 grid gap-3 rounded-2xl border border-dashed p-4 text-left text-xs font-semibold leading-5',
+          featured
+            ? 'border-primary-foreground/25 bg-primary-foreground/10 text-primary-foreground/85'
+            : 'border-foreground/35 bg-background text-muted-foreground',
+        ].join(' ')}
+      >
+        {card.bestFor ? (
+          <div>
+            <dt className={featured ? 'text-primary-foreground' : 'text-foreground'}>
+              Best for
+            </dt>
+            <dd>{card.bestFor}</dd>
+          </div>
+        ) : null}
+        {card.timeToResult ? (
+          <div>
+            <dt className={featured ? 'text-primary-foreground' : 'text-foreground'}>
+              Time
+            </dt>
+            <dd>{card.timeToResult}</dd>
+          </div>
+        ) : null}
+        {card.needs ? (
+          <div>
+            <dt className={featured ? 'text-primary-foreground' : 'text-foreground'}>
+              You need
+            </dt>
+            <dd>{card.needs}</dd>
+          </div>
+        ) : null}
+        {card.avoidWhen ? (
+          <div>
+            <dt className={featured ? 'text-primary-foreground' : 'text-foreground'}>
+              Avoid if
+            </dt>
+            <dd>{card.avoidWhen}</dd>
+          </div>
+        ) : null}
+        {card.wrongPathSymptom ? (
+          <div>
+            <dt className={featured ? 'text-primary-foreground' : 'text-foreground'}>
+              Wrong path symptom
+            </dt>
+            <dd>{card.wrongPathSymptom}</dd>
+          </div>
+        ) : null}
+        {card.blockedNextStep ? (
+          <div>
+            <dt className={featured ? 'text-primary-foreground' : 'text-foreground'}>
+              Blocked?
+            </dt>
+            <dd>{card.blockedNextStep}</dd>
+          </div>
+        ) : null}
+      </dl>
       {card.detail ? (
         <p
           className={[
@@ -276,7 +372,7 @@ function WorkflowCard({ card }: { card: LinkCard }) {
 
 function WallyHeroIllustration() {
   return (
-    <div className="relative mx-auto max-w-sm overflow-hidden rounded-3xl border-backstitch bg-card p-4 shadow-stipple lg:max-w-none">
+    <div className="relative mx-auto max-w-sm overflow-hidden rounded-3xl border-backstitch p-4 shadow-stipple lg:max-w-none">
       <div className="pointer-events-none absolute inset-0 bg-dither opacity-[0.14]" />
       <div className="pointer-events-none absolute right-5 top-5 size-14 rounded-full border-2 border-foreground bg-stitch-yellow/70" />
       <div className="pointer-events-none absolute bottom-5 left-5 size-12 rounded-full border-2 border-foreground bg-stitch-lavender/25" />
@@ -301,18 +397,20 @@ export function DocsHomepage() {
   const homeLayoutOptions = {
     ...layoutOptions,
     links: createHomeLayoutLinks(layoutOptions.links),
+    transparentMode: 'top',
     slots: {
-      ...layoutOptions.slots,
       searchTrigger: createHomeSearchTrigger(licenseLink?.children),
+      ...layoutOptions.slots,
     },
   };
 
   return (
     <HomeLayout
       {...homeLayoutOptions}
-      className="relative isolate mx-auto flex w-full max-w-7xl flex-col gap-14 overflow-hidden bg-background px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16"
+      className="font-mono relative isolate mx-auto flex w-full flex-col gap-14 overflow-hidden bg-background px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16"
     >
-      <div
+      <div className="font-mono relative isolate mx-auto flex w-full flex-col gap-14 overflow-hidden bg-background max-w-7xl">
+        <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 bg-dither opacity-[0.16]"
       />
@@ -332,6 +430,9 @@ export function DocsHomepage() {
         />
         <div className="relative z-10 max-w-4xl space-y-7 text-center lg:text-left">
           <div className="space-y-4">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+              What are you trying to run?
+            </p>
             <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl font-display">
               Turn a WhatsApp account into an API you can build on.
             </h1>
@@ -355,6 +456,21 @@ export function DocsHomepage() {
             >
               Choose your path
             </a>
+          </div>
+          <div className="rounded-2xl border-backstitch bg-card/85 p-4 text-left shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
+              I already have
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {setupStates.map((state) => (
+                <span
+                  key={state}
+                  className="rounded-xl border border-foreground/35 bg-background px-3 py-1 text-xs font-bold text-foreground"
+                >
+                  {state}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -384,9 +500,9 @@ export function DocsHomepage() {
         />
         <div className="relative z-10">
           <SectionHeading
-            eyebrow="Workflow grid"
+            eyebrow="After your first success"
             title="Use task guides before method lookup"
-            description="Setup, auth, multi-session operations, integrations, and recovery have their own guides. Use the API lookup only when you need an exact method name or parameter."
+            description="Once the route works, move through session health, messages, integrations, multi-session operations, and recovery before using API lookup for exact method names."
           />
         </div>
         <div className="grid gap-4 sm:grid-cols-2 relative z-10">
@@ -410,25 +526,37 @@ export function DocsHomepage() {
                 href={DOCS_PATHS.configuration}
                 className="rounded-2xl border-backstitch bg-background p-5 text-sm font-bold text-foreground transition-all hover-stipple shadow-sm"
               >
-                Configuration and CLI
+                1. Configure runtime and API key
+              </a>
+              <a
+                href={DOCS_PATHS.sessionEvents}
+                className="rounded-2xl border-backstitch bg-background p-5 text-sm font-bold text-foreground transition-all hover-stipple shadow-sm"
+              >
+                2. Handle auth and session readiness
+              </a>
+              <a
+                href={DOCS_PATHS.messages}
+                className="rounded-2xl border-backstitch bg-background p-5 text-sm font-bold text-foreground transition-all hover-stipple shadow-sm"
+              >
+                3. Add event handling and message flows
               </a>
               <a
                 href={DOCS_PATHS.cloudflareProxy}
                 className="rounded-2xl border-backstitch bg-background p-5 text-sm font-bold text-foreground transition-all hover-stipple shadow-sm"
               >
-                Cloudflare session proxy
-              </a>
-              <a
-                href={DOCS_PATHS.bestPractices}
-                className="rounded-2xl border-backstitch bg-background p-5 text-sm font-bold text-foreground transition-all hover-stipple shadow-sm"
-              >
-                Best practices
+                4. Check proxy and deployment setup
               </a>
               <a
                 href={DOCS_PATHS.licensedFeatures}
                 className="rounded-2xl border-backstitch bg-background p-5 text-sm font-bold text-foreground transition-all hover-stipple shadow-sm"
               >
-                Licensed features
+                5. Confirm license-gated features
+              </a>
+              <a
+                href={DOCS_PATHS.bestPractices}
+                className="rounded-2xl border-backstitch bg-background p-5 text-sm font-bold text-foreground transition-all hover-stipple shadow-sm"
+              >
+                6. Add monitoring and recovery notes
               </a>
             </div>
           </div>
@@ -456,6 +584,7 @@ export function DocsHomepage() {
           </div>
         </div>
       </section>
+      </div>
     </HomeLayout>
   );
 }

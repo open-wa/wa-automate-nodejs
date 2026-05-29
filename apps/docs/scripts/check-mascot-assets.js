@@ -157,6 +157,25 @@ if (homepage.includes('src="/wally-typing.png"')) {
   failures.push('Homepage hero still references /wally-typing.png');
 }
 
+const requiredHomepageCopy = [
+  'What are you trying to run?',
+  'I need an API today',
+  'I already have',
+  'Best for',
+  'Avoid if',
+  'Wrong path symptom',
+  'Blocked?',
+  'After your first success',
+  '1. Configure runtime and API key',
+  'Confirm license-gated features',
+];
+
+for (const copy of requiredHomepageCopy) {
+  if (!homepage.includes(copy)) {
+    failures.push('Homepage routing copy missing: ' + copy);
+  }
+}
+
 for (const routePath of requiredRoutes) {
   const filename = mascotMap.get(routePath);
   if (!filename) {

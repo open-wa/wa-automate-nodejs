@@ -5,10 +5,11 @@ import { DOCS_PATHS, REPO_URL } from '@/lib/site';
 export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
+      transparentMode: 'top',
       title: (
         <span className="flex items-center gap-2 font-semibold">
           <img src="/logo.png" alt="Open-wa" className="w-5 h-5 object-contain" />
-          <span>open-wa/wa-automate</span>
+          <span>open-wa</span>
         </span>
       ),
       url: '/',
@@ -40,6 +41,8 @@ export function baseOptions(): BaseLayoutProps {
       {
         text: 'API Explorer',
         url: DOCS_PATHS.apiExplorer,
+        //@ts-ignore
+        hideOnHomepage: true
       },
       {
         text: 'Community',
@@ -66,6 +69,8 @@ export function baseOptions(): BaseLayoutProps {
         text: 'Licensing',
         url: DOCS_PATHS.licensedFeatures,
         active: 'nested-url',
+        //@ts-ignore
+        hideOnHomepage: true
       },
       {
         type: 'custom',

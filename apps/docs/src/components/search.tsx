@@ -38,7 +38,7 @@ export default function DefaultSearchDialog(props: SharedProps) {
       {...props}
     >
       <SearchDialogOverlay />
-      <SearchDialogContent>
+      <SearchDialogContent className='font-mono'>
         <SearchDialogHeader>
           <SearchDialogIcon />
           <SearchDialogInput />

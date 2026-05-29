@@ -69,6 +69,23 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* Fumadocs UI tokens */
+  --color-fd-background: var(--fd-background);
+  --color-fd-foreground: var(--fd-foreground);
+  --color-fd-muted: var(--fd-muted);
+  --color-fd-muted-foreground: var(--fd-muted-foreground);
+  --color-fd-popover: var(--fd-popover);
+  --color-fd-popover-foreground: var(--fd-popover-foreground);
+  --color-fd-card: var(--fd-card);
+  --color-fd-card-foreground: var(--fd-card-foreground);
+  --color-fd-border: var(--fd-border);
+  --color-fd-primary: var(--fd-primary);
+  --color-fd-primary-foreground: var(--fd-primary-foreground);
+  --color-fd-secondary: var(--fd-secondary);
+  --color-fd-secondary-foreground: var(--fd-secondary-foreground);
+  --color-fd-accent: var(--fd-accent);
+  --color-fd-accent-foreground: var(--fd-accent-foreground);
+  --color-fd-ring: var(--fd-ring);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -110,6 +127,23 @@
   --sidebar-accent-foreground: #3e2723;
   --sidebar-border: #d7ccc8;
   --sidebar-ring: #8d6e63;
+  /* Fumadocs UI tokens – warm parchment light */
+  --fd-background: #F4EFE3;
+  --fd-foreground: #3e2723;
+  --fd-muted: #efebe9;
+  --fd-muted-foreground: #5d4037;
+  --fd-popover: #faf6f0;
+  --fd-popover-foreground: #3e2723;
+  --fd-card: #ede7db;
+  --fd-card-foreground: #3e2723;
+  --fd-border: hsla(20, 18%, 80%, 50%);
+  --fd-primary: #3e2723;
+  --fd-primary-foreground: #F4EFE3;
+  --fd-secondary: #efebe9;
+  --fd-secondary-foreground: #3e2723;
+  --fd-accent: hsla(20, 18%, 78%, 50%);
+  --fd-accent-foreground: #3e2723;
+  --fd-ring: #8d6e63;
 }
 
 .dark {
@@ -146,6 +180,23 @@
   --sidebar-accent-foreground: #f5ebe6;
   --sidebar-border: #4e3b33;
   --sidebar-ring: #bcaaa4;
+  /* Fumadocs UI tokens – warm cocoa dark */
+  --fd-background: #2d221e;
+  --fd-foreground: #f5ebe6;
+  --fd-muted: #4e3b33;
+  --fd-muted-foreground: hsla(20, 20%, 75%, 0.8);
+  --fd-popover: #3e2f2a;
+  --fd-popover-foreground: #f5ebe6;
+  --fd-card: #362a25;
+  --fd-card-foreground: #f5ebe6;
+  --fd-border: hsla(20, 18%, 35%, 20%);
+  --fd-primary: #f5ebe6;
+  --fd-primary-foreground: #2d221e;
+  --fd-secondary: #4e3b33;
+  --fd-secondary-foreground: #f5ebe6;
+  --fd-accent: hsla(20, 18%, 38%, 30%);
+  --fd-accent-foreground: #f5ebe6;
+  --fd-ring: #bcaaa4;
 }
 
 @utility bg-grid-pattern {
@@ -634,4 +685,8 @@ a[href='/docs/reference/client/client']:hover {
   background-color: var(--primary) !important;
   border-color: var(--foreground) !important;
   box-shadow: 5px 5px 0px 0px var(--foreground) !important;
+}
+
+#nd-sidebar {
+  font-family: var(--font-mono);
 }

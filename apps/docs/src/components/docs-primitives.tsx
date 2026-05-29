@@ -56,7 +56,7 @@ export function Callout({
       )}
     >
       <div className={cx("absolute inset-0 bg-dither pointer-events-none", bgDitherOpacities[type])} />
-      <div className="flex items-start gap-4 relative z-10">
+      <div className="flex items-start gap-4 relative">
         <span
           aria-hidden="true"
           className="flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-foreground bg-background font-mono text-sm font-bold text-foreground"
@@ -101,7 +101,7 @@ export function Step({
   return (
     <section className="my-6 rounded-2xl border-backstitch bg-card p-5 shadow-stipple relative overflow-hidden transition-colors sm:p-6">
       <div className="absolute inset-0 bg-dither opacity-[0.05] pointer-events-none" />
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start relative z-10">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start relative ">
         <div className="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-foreground bg-primary text-primary-foreground font-mono text-sm font-bold shadow-sm">
           {number}
         </div>
@@ -152,7 +152,7 @@ export function PackageManagerTabs({
   return (
     <div className="my-6 overflow-hidden rounded-2xl border-backstitch bg-card shadow-stipple relative">
       <div className="absolute inset-0 bg-dither opacity-[0.03] pointer-events-none" />
-      <div className="flex gap-2 overflow-x-auto border-b-2 border-foreground p-3 bg-muted relative z-10">
+      <div className="flex gap-2 overflow-x-auto border-b-2 border-foreground p-3 bg-muted relative ">
         {Object.keys(commands).map((key) => {
           const manager = key as keyof typeof commands;
           return (
@@ -173,7 +173,7 @@ export function PackageManagerTabs({
           );
         })}
       </div>
-      <pre className="overflow-x-auto bg-foreground p-4 text-sm leading-6 text-background font-mono border-t-2 border-foreground relative z-10">
+      <pre className="overflow-x-auto bg-foreground p-4 text-sm leading-6 text-background font-mono border-t-2 border-foreground relative ">
         <code>{commands[active]}</code>
       </pre>
     </div>
@@ -203,7 +203,7 @@ export function ComparisonTable({
   return (
     <div className="my-8 overflow-hidden rounded-2xl border-backstitch bg-card shadow-stipple relative">
       <div className="absolute inset-0 bg-dither opacity-[0.03] pointer-events-none" />
-      <div className="overflow-x-auto relative z-10">
+      <div className="overflow-x-auto relative ">
         <table className="min-w-full border-collapse text-left text-sm">
           <thead className="bg-muted border-b-2 border-foreground">
             <tr>
@@ -265,7 +265,7 @@ export function FAQ({
           className="group rounded-2xl border-backstitch bg-card p-5 shadow-stipple relative overflow-hidden transition-all open:bg-card"
         >
           <div className="absolute inset-0 bg-dither opacity-[0.05] pointer-events-none" />
-          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 text-base font-bold text-foreground transition-colors hover:text-primary focus-visible:outline-none [&::-webkit-details-marker]:hidden relative z-10 select-none">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 text-base font-bold text-foreground transition-colors hover:text-primary focus-visible:outline-none [&::-webkit-details-marker]:hidden relative  select-none">
             <span className="text-balance font-display">{item.question}</span>
             <span className="flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-foreground bg-background font-mono text-sm font-bold text-foreground group-open:hidden shadow-sm">
               +
@@ -274,7 +274,7 @@ export function FAQ({
               -
             </span>
           </summary>
-          <div className="mt-3 text-pretty text-sm leading-6 text-muted-foreground font-medium [&_a]:font-bold [&_a]:text-primary relative z-10">
+          <div className="mt-3 text-pretty text-sm leading-6 text-muted-foreground font-medium [&_a]:font-bold [&_a]:text-primary relative ">
             {item.answer}
           </div>
         </details>
