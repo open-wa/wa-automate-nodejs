@@ -13,7 +13,7 @@
 
 import { readFileSync, writeFileSync, existsSync, readdirSync } from 'fs';
 import { join, resolve, dirname } from 'path';
-import { execSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -83,10 +83,14 @@ function getCommitSummary(): string {
       encoding: 'utf-8',
       cwd: ROOT,
     }).trim();
-    const log = execSync(`git log ${lastTag}..HEAD --oneline --no-merges`, {
-      encoding: 'utf-8',
-      cwd: ROOT,
-    }).trim();
+    const log = execFileSync(
+      'git',
+      ['log', `${lastTag}..HEAD`, '--oneline', '--no-merges'],
+      {
+        encoding: 'utf-8',
+        cwd: ROOT,
+      },
+    ).trim();
     return log || 'Internal improvements';
   } catch {
     try {

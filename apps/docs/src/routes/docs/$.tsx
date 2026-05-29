@@ -3,12 +3,15 @@ import browserCollections from 'fumadocs-mdx:collections/browser';
 import { DocsBody, DocsPage } from 'fumadocs-ui/layouts/notebook/page';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 import { createServerFn } from '@tanstack/react-start';
+import type { SerializedPageTree } from 'fumadocs-core/source/client';
 import { docsMdxComponents } from '@/components/docs-mdx';
 import { DocsHomepage } from '@/components/docs-homepage';
 import { FeedbackCard } from '@/components/feedback-card';
 import { DocsPageHeader } from '@/components/docs-page-header';
-import { DocsShell } from './-shell';
+import { getAbsoluteDocsUrl, getDocsSocialMeta, getOgDescription, getPageImage } from '@/lib/og';
+import { SITE_NAME } from '@/lib/site';
 import { source } from '@/lib/source';
+import { DocsShell } from './-shell';
 
 const loader = createServerFn({
   method: 'GET',
@@ -30,6 +33,27 @@ const loader = createServerFn({
   });
 
 export const Route = createFileRoute('/docs/$')({
+  head: ({ params }) => {
+    const slugs = params._splat ? params._splat.split('/').filter(Boolean) : [];
+    const page = source.getPage(slugs);
+
+    if (!page) {
+      return {
+        meta: [{ title: SITE_NAME }],
+      };
+    }
+
+    const image = getPageImage(slugs);
+    const description = getOgDescription(page.data);
+
+    return {
+      meta: getDocsSocialMeta({
+        title: page.data.title,
+        description,
+        imageUrl: getAbsoluteDocsUrl(image.url),
+      }),
+    };
+  },
   component: Page,
   loader: async ({ params }) => {
     const _splat = params._splat;
@@ -61,8 +85,13 @@ const clientLoader = browserCollections.docs.createClientLoader<{
   },
 });
 
+type DocsLoaderData = {
+  path: string;
+  pageTree: SerializedPageTree;
+};
+
 function Page() {
-  const data = Route.useLoaderData();
+  const data = Route.useLoaderData() as DocsLoaderData;
   const Content = clientLoader.getComponent(data.path);
 
   return (
