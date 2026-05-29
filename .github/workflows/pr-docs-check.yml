@@ -81,7 +81,7 @@ jobs:
               if [ -f "$pkg_dir/package.json" ]; then
                 IS_PRIVATE=$(jq -r '.private // false' "$pkg_dir/package.json")
                 if [ "$IS_PRIVATE" = "true" ]; then
-                  add_info "`$pkg_name` — private package changed, skipped release metadata checks"
+                  add_info "\`$pkg_name\` — private package changed, skipped release metadata checks"
                   continue
                 fi
               fi
