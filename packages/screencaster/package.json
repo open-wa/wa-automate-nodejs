@@ -1,58 +1,62 @@
 {
-    "name": "@open-wa/screencaster",
-    "version": "5.0.0-alpha.1",
-    "description": "Headless browser screencasting for open-wa — treeshakable server + client",
-    "type": "module",
-    "exports": {
-        "./server": {
-            "types": "./dist/server.d.mts",
-            "import": "./dist/server.mjs",
-            "require": "./dist/server.cjs"
-        },
-        "./client": {
-            "types": "./dist/client.d.mts",
-            "import": "./dist/client.mjs",
-            "require": "./dist/client.cjs"
-        },
-        "./types": {
-            "types": "./dist/types.d.mts",
-            "import": "./dist/types.mjs",
-            "require": "./dist/types.cjs"
-        }
+  "name": "@open-wa/screencaster",
+  "version": "5.0.0-alpha.1",
+  "description": "Headless browser screencasting for open-wa — treeshakable server + client",
+  "type": "module",
+  "exports": {
+    "./server": {
+      "types": "./dist/server.d.mts",
+      "import": "./dist/server.mjs",
+      "require": "./dist/server.cjs"
     },
-    "files": [
-        "dist"
-    ],
-    "scripts": {
-        "build": "tsdown --format cjs,esm",
-        "dev": "tsdown --format cjs,esm --watch",
-        "lint": "oxlint src",
-        "typecheck": "tsc --noEmit"
+    "./client": {
+      "types": "./dist/client.d.mts",
+      "import": "./dist/client.mjs",
+      "require": "./dist/client.cjs"
     },
-    "dependencies": {
-        "hono": "catalog:"
-    },
-    "peerDependencies": {
-        "@open-wa/driver-interface": "workspace:*"
-    },
-    "peerDependenciesMeta": {
-        "@open-wa/driver-interface": {
-            "optional": true
-        }
-    },
-    "devDependencies": {
-        "@open-wa/driver-interface": "workspace:*",
-        "@types/node": "catalog:",
-        "typescript": "catalog:"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "keywords": [
-        "open-wa",
-        "whatsapp",
-        "screencaster",
-        "cdp",
-        "headless"
-    ]
+    "./types": {
+      "types": "./dist/types.d.mts",
+      "import": "./dist/types.mjs",
+      "require": "./dist/types.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown --format cjs,esm",
+    "dev": "tsdown --format cjs,esm --watch",
+    "lint": "oxlint src",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hono": "catalog:"
+  },
+  "peerDependencies": {
+    "@open-wa/driver-interface": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@open-wa/driver-interface": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@open-wa/driver-interface": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "open-wa",
+    "whatsapp",
+    "screencaster",
+    "cdp",
+    "headless"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/open-wa/wa-automate-nodejs.git"
+  }
 }

@@ -1,32 +1,36 @@
 {
-    "name": "@open-wa/driver-playwright",
-    "version": "5.0.0-alpha.1",
-    "description": "Playwright driver implementation for open-wa",
-    "main": "./dist/index.cjs",
-    "types": "./dist/index.d.cts",
-    "exports": {
-        ".": {
-            "require": "./dist/index.cjs",
-            "import": "./dist/index.cjs",
-            "types": "./dist/index.d.cts"
-        }
-    },
-    "scripts": {
-        "build": "tsdown src/index.ts --format cjs",
-        "dev": "tsdown src/index.ts --format cjs --watch",
-        "lint": "oxlint src",
-        "test": "vitest run"
-    },
-    "dependencies": {
-        "@open-wa/driver-interface": "workspace:*",
-        "playwright": "^1.41.0"
-    },
-    "devDependencies": {
-        "@types/node": "catalog:",
-        "typescript": "catalog:",
-        "vitest": "catalog:"
-    },
-    "publishConfig": {
-        "access": "public"
+  "name": "@open-wa/driver-playwright",
+  "version": "5.0.0-alpha.1",
+  "description": "Playwright driver implementation for open-wa",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.cjs",
+      "types": "./dist/index.d.cts"
     }
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts --format cjs",
+    "dev": "tsdown src/index.ts --format cjs --watch",
+    "lint": "oxlint src",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@open-wa/driver-interface": "workspace:*",
+    "playwright": "^1.41.0"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/open-wa/wa-automate-nodejs.git"
+  }
 }

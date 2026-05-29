@@ -1,43 +1,47 @@
 {
-    "name": "@open-wa/utils",
-    "version": "5.0.0-alpha.1",
-    "description": "Shared utility functions for open-wa",
-    "main": "./dist/index.cjs",
-    "module": "./dist/index.mjs",
-    "types": "./dist/index.d.mts",
-    "type": "module",
-    "exports": {
-        ".": {
-            "types": "./dist/index.d.mts",
-            "import": "./dist/index.mjs",
-            "require": "./dist/index.cjs"
-        }
-    },
-    "files": [
-        "dist"
-    ],
-    "scripts": {
-        "build": "tsdown",
-        "dev": "tsdown --watch",
-        "lint": "oxlint src",
-        "typecheck": "tsc --noEmit"
-    },
-    "dependencies": {
-        "json5": "^2.2.3",
-        "pidtree": "^0.6.0",
-        "pidusage": "^3.0.2"
-    },
-    "devDependencies": {
-        "@types/node": "catalog:",
-        "@types/pidusage": "^2.0.5",
-        "typescript": "catalog:"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "keywords": [
-        "open-wa",
-        "whatsapp",
-        "utils"
-    ]
+  "name": "@open-wa/utils",
+  "version": "5.0.0-alpha.1",
+  "description": "Shared utility functions for open-wa",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "lint": "oxlint src",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "json5": "^2.2.3",
+    "pidtree": "^0.6.0",
+    "pidusage": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/pidusage": "^2.0.5",
+    "typescript": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "open-wa",
+    "whatsapp",
+    "utils"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/open-wa/wa-automate-nodejs.git"
+  }
 }

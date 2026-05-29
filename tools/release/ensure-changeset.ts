@@ -104,11 +104,11 @@ function getCommitSummary(): string {
 function generateChangesetId(): string {
   const adjectives = [
     "brave", "calm", "eager", "fair", "gentle", "happy", "keen",
-    "lively", "neat", "polite", "quick", "sharp", "swift", "wise",
+    "lively", "neat", "polite", "quick", "sharp", "swift", "wise", "silly"
   ];
   const nouns = [
     "foxes", "hawks", "lions", "pandas", "ravens", "tides",
-    "waves", "winds", "wolves", "zebras",
+    "waves", "winds", "wolves", "zebras", "camels"
   ];
   const pick = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
   return `${pick(adjectives)}-${pick(nouns)}-${pick(adjectives)}`;

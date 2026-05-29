@@ -1,33 +1,37 @@
 {
-    "name": "@open-wa/driver-puppeteer",
-    "version": "5.0.0-alpha.1",
-    "description": "Puppeteer driver implementation for open-wa",
-    "main": "./dist/index.cjs",
-    "types": "./dist/index.d.cts",
-    "exports": {
-        ".": {
-            "require": "./dist/index.cjs",
-            "import": "./dist/index.cjs",
-            "types": "./dist/index.d.cts"
-        }
-    },
-    "scripts": {
-        "build": "tsdown src/index.ts --format cjs",
-        "dev": "tsdown src/index.ts --format cjs --watch",
-        "lint": "oxlint src",
-        "test": "vitest run"
-    },
-    "dependencies": {
-        "@open-wa/driver-interface": "workspace:*",
-        "puppeteer": "catalog:",
-        "puppeteer-extra": "catalog:"
-    },
-    "devDependencies": {
-        "@types/node": "catalog:",
-        "typescript": "catalog:",
-        "vitest": "catalog:"
-    },
-    "publishConfig": {
-        "access": "public"
+  "name": "@open-wa/driver-puppeteer",
+  "version": "5.0.0-alpha.1",
+  "description": "Puppeteer driver implementation for open-wa",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.cjs",
+      "types": "./dist/index.d.cts"
     }
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts --format cjs",
+    "dev": "tsdown src/index.ts --format cjs --watch",
+    "lint": "oxlint src",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@open-wa/driver-interface": "workspace:*",
+    "puppeteer": "catalog:",
+    "puppeteer-extra": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/open-wa/wa-automate-nodejs.git"
+  }
 }

@@ -1,28 +1,32 @@
 {
-    "name": "@open-wa/logger",
-    "version": "5.0.0",
-    "description": "Centralized logging and terminal UI for open-wa v5",
-    "main": "dist/index.cjs",
-    "types": "dist/index.d.cts",
-    "scripts": {
-        "build": "tsdown src/index.ts --format cjs",
-        "dev": "tsdown src/index.ts --format cjs --watch",
-        "lint": "oxlint src",
-        "test": "vitest run --passWithNoTests"
-    },
-    "dependencies": {
-        "chalk": "^4.1.2",
-        "figlet": "^1.5.2",
-        "log-update": "^4.0.0",
-        "ora": "^5.4.1",
-        "winston": "^3.11.0",
-        "winston-transport": "^4.6.0",
-        "zod": "catalog:"
-    },
-    "devDependencies": {
-        "@types/figlet": "^1.5.8",
-        "@types/node": "catalog:",
-        "typescript": "catalog:",
-        "vitest": "catalog:"
-    }
+  "name": "@open-wa/logger",
+  "version": "5.0.0",
+  "description": "Centralized logging and terminal UI for open-wa v5",
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.cts",
+  "scripts": {
+    "build": "tsdown src/index.ts --format cjs",
+    "dev": "tsdown src/index.ts --format cjs --watch",
+    "lint": "oxlint src",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "figlet": "^1.5.2",
+    "log-update": "^4.0.0",
+    "ora": "^5.4.1",
+    "winston": "^3.11.0",
+    "winston-transport": "^4.6.0",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/figlet": "^1.5.8",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/open-wa/wa-automate-nodejs.git"
+  }
 }
