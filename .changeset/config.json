@@ -9,7 +9,32 @@
   "commit": false,
   "fixed": [
     [
-      "@open-wa/*"
+      "@open-wa/api",
+      "@open-wa/cli",
+      "@open-wa/client",
+      "@open-wa/config",
+      "@open-wa/core",
+      "@open-wa/decrypt",
+      "@open-wa/domain",
+      "@open-wa/driver-interface",
+      "@open-wa/driver-lightpanda",
+      "@open-wa/driver-playwright",
+      "@open-wa/driver-puppeteer",
+      "@open-wa/integration-chatwoot",
+      "@open-wa/integration-cloudflare",
+      "@open-wa/integration-s3",
+      "@open-wa/integration-webhook",
+      "@open-wa/logger",
+      "@open-wa/mcp",
+      "@open-wa/node-red",
+      "@open-wa/plugin-sdk",
+      "@open-wa/schema",
+      "@open-wa/screencaster",
+      "@open-wa/session-sync",
+      "@open-wa/socket-client",
+      "@open-wa/utils",
+      "@open-wa/wa-automate",
+      "@open-wa/wa-automate-types-only"
     ]
   ],
   "linked": [],

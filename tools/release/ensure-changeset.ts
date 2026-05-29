@@ -11,27 +11,27 @@
  *   tsx tools/release/ensure-changeset.ts --bump patch|minor|major
  */
 
-import { readFileSync, writeFileSync, existsSync, readdirSync } from "fs";
-import { join, resolve, dirname } from "path";
-import { execSync } from "child_process";
-import { fileURLToPath } from "url";
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'fs';
+import { join, resolve, dirname } from 'path';
+import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const ROOT = resolve(__dirname, "../..");
-const CHANGESET_DIR = join(ROOT, ".changeset");
-const PACKAGES_DIR = join(ROOT, "packages");
+const ROOT = resolve(__dirname, '../..');
+const CHANGESET_DIR = join(ROOT, '.changeset');
+const WORKSPACE_DIRS = ['packages', 'integrations', 'apps', 'sdks'];
 
 // ─── CLI Args ────────────────────────────────────────────────────────────────
 
 function parseArgs() {
   const args = process.argv.slice(2);
-  let bump: "patch" | "minor" | "major" = "patch";
+  let bump: 'patch' | 'minor' | 'major' = 'patch';
 
   for (let i = 0; i < args.length; i++) {
-    if (args[i] === "--bump" && args[i + 1]) {
+    if (args[i] === '--bump' && args[i + 1]) {
       const val = args[++i];
-      if (val === "patch" || val === "minor" || val === "major") {
+      if (val === 'patch' || val === 'minor' || val === 'major') {
         bump = val;
       }
     }
@@ -47,26 +47,28 @@ function hasExistingChangesets(): boolean {
 
   const files = readdirSync(CHANGESET_DIR);
   return files.some(
-    (f) =>
-      f.endsWith(".md") &&
-      f !== "README.md" &&
-      !f.startsWith(".")
+    (f) => f.endsWith('.md') && f !== 'README.md' && !f.startsWith('.'),
   );
 }
 
 // ─── Package Discovery ──────────────────────────────────────────────────────
 
 function getPublicPackageNames(): string[] {
-  const dirs = readdirSync(PACKAGES_DIR);
   const names: string[] = [];
 
-  for (const dir of dirs) {
-    const pkgPath = join(PACKAGES_DIR, dir, "package.json");
-    if (!existsSync(pkgPath)) continue;
+  for (const workspaceDir of WORKSPACE_DIRS) {
+    const workspacePath = join(ROOT, workspaceDir);
+    if (!existsSync(workspacePath)) continue;
 
-    const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
-    if (!pkg.private && pkg.name) {
-      names.push(pkg.name);
+    const dirs = readdirSync(workspacePath);
+    for (const dir of dirs) {
+      const pkgPath = join(workspacePath, dir, 'package.json');
+      if (!existsSync(pkgPath)) continue;
+
+      const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+      if (!pkg.private && pkg.name) {
+        names.push(pkg.name);
+      }
     }
   }
 
@@ -77,24 +79,24 @@ function getPublicPackageNames(): string[] {
 
 function getCommitSummary(): string {
   try {
-    const lastTag = execSync("git describe --tags --abbrev=0 2>/dev/null", {
-      encoding: "utf-8",
+    const lastTag = execSync('git describe --tags --abbrev=0 2>/dev/null', {
+      encoding: 'utf-8',
       cwd: ROOT,
     }).trim();
-    const log = execSync(
-      `git log ${lastTag}..HEAD --oneline --no-merges`,
-      { encoding: "utf-8", cwd: ROOT }
-    ).trim();
-    return log || "Internal improvements";
+    const log = execSync(`git log ${lastTag}..HEAD --oneline --no-merges`, {
+      encoding: 'utf-8',
+      cwd: ROOT,
+    }).trim();
+    return log || 'Internal improvements';
   } catch {
     try {
-      const log = execSync("git log -10 --oneline --no-merges", {
-        encoding: "utf-8",
+      const log = execSync('git log -10 --oneline --no-merges', {
+        encoding: 'utf-8',
         cwd: ROOT,
       }).trim();
-      return log || "Internal improvements";
+      return log || 'Internal improvements';
     } catch {
-      return "Internal improvements";
+      return 'Internal improvements';
     }
   }
 }
@@ -103,32 +105,53 @@ function getCommitSummary(): string {
 
 function generateChangesetId(): string {
   const adjectives = [
-    "brave", "calm", "eager", "fair", "gentle", "happy", "keen",
-    "lively", "neat", "polite", "quick", "sharp", "swift", "wise", "silly"
+    'brave',
+    'calm',
+    'eager',
+    'fair',
+    'gentle',
+    'happy',
+    'keen',
+    'lively',
+    'neat',
+    'polite',
+    'quick',
+    'sharp',
+    'swift',
+    'wise',
+    'silly',
   ];
   const nouns = [
-    "foxes", "hawks", "lions", "pandas", "ravens", "tides",
-    "waves", "winds", "wolves", "zebras", "camels"
+    'foxes',
+    'hawks',
+    'lions',
+    'pandas',
+    'ravens',
+    'tides',
+    'waves',
+    'winds',
+    'wolves',
+    'zebras',
+    'camels',
   ];
   const pick = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
   return `${pick(adjectives)}-${pick(nouns)}-${pick(adjectives)}`;
 }
 
 function createChangeset(
-  bump: "patch" | "minor" | "major",
+  bump: 'patch' | 'minor' | 'major',
   packages: string[],
-  summary: string
+  summary: string,
 ) {
   const id = generateChangesetId();
-  const frontmatter = packages
-    .map((name) => `"${name}": ${bump}`)
-    .join("\n");
+  const frontmatter = packages.map((name) => `"${name}": ${bump}`).join('\n');
 
   // Truncate summary for changeset (keep it concise)
-  const lines = summary.split("\n").slice(0, 10);
-  const changesetSummary = lines.length < summary.split("\n").length
-    ? lines.join("\n") + "\n..."
-    : summary;
+  const lines = summary.split('\n').slice(0, 10);
+  const changesetSummary =
+    lines.length < summary.split('\n').length
+      ? lines.join('\n') + '\n...'
+      : summary;
 
   const content = `---
 ${frontmatter}
@@ -140,7 +163,7 @@ ${changesetSummary}
 `;
 
   const filePath = join(CHANGESET_DIR, `${id}.md`);
-  writeFileSync(filePath, content, "utf-8");
+  writeFileSync(filePath, content, 'utf-8');
   return { id, filePath };
 }
 
@@ -152,14 +175,16 @@ function main() {
   console.log(`🔍 Checking for existing changesets...`);
 
   if (hasExistingChangesets()) {
-    console.log("✅ Changeset files already exist — skipping auto-creation");
+    console.log('✅ Changeset files already exist — skipping auto-creation');
     console.log(
-      `   Tip: Remove existing changeset files to auto-generate with --bump ${bump}`
+      `   Tip: Remove existing changeset files to auto-generate with --bump ${bump}`,
     );
     return;
   }
 
-  console.log(`⚠️  No changeset files found — creating one with bump type: ${bump}`);
+  console.log(
+    `⚠️  No changeset files found — creating one with bump type: ${bump}`,
+  );
 
   const packages = getPublicPackageNames();
   console.log(`   Found ${packages.length} public packages`);
