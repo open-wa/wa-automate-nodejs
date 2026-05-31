@@ -26,7 +26,15 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: 'stylesheet', href: appCss },
-      { rel: 'preload', href: '/fonts/AnalogMonoPlus.ttf', as: 'font', type: 'font/ttf', crossOrigin: 'anonymous' },
+      {
+        rel: 'preload',
+        href: '/fonts/AnalogMonoPlus.ttf',
+        as: 'font',
+        type: 'font/ttf',
+        crossOrigin: 'anonymous',
+      },
+      { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
+      { rel: 'apple-touch-icon', href: '/wally.png' },
     ],
   }),
   component: RootComponent,
