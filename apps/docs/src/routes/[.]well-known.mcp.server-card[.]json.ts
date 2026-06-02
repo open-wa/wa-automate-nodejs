@@ -5,28 +5,23 @@ export const Route = createFileRoute('/.well-known/mcp/server-card.json')({
   server: {
     handlers: {
       GET() {
-        // Return an MCP Server Card (SEP-1649)
-        const mcpCard = {
-          "serverInfo": {
-            "name": "openwa-docs",
-            "version": "1.0.0"
+        return new Response(
+          JSON.stringify(
+            {
+              error: 'MCP is not hosted on the docs site.',
+              docs: 'https://docs.openwa.dev/docs/guides/mcp',
+              runtimeEndpoint: '/mcp',
+            },
+            null,
+            2,
+          ),
+          {
+            status: 404,
+            headers: {
+              'Content-Type': 'application/json',
+            },
           },
-          "transport": {
-            "type": "sse",
-            "endpoint": "https://openwa.dev/mcp/sse"
-          },
-          "capabilities": {
-            "prompts": {},
-            "resources": {},
-            "tools": {}
-          }
-        };
-        
-        return new Response(JSON.stringify(mcpCard, null, 2), {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        );
       },
     },
   },

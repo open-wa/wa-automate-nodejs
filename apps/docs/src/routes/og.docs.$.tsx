@@ -1,25 +1,45 @@
-import ImageResponse from '@takumi-rs/image-response';
+import { extractResourceUrls, fetchResources } from '@takumi-rs/helpers';
+import { fromJsx } from '@takumi-rs/helpers/jsx';
+import initWasm, { Renderer } from '@takumi-rs/wasm';
+import wasmModule from '@takumi-rs/wasm/auto';
 import { createFileRoute } from '@tanstack/react-router';
 import { getMascotForPath } from '@/components/mascot-callout';
 import { getOgDescription, getSlugsFromImagePath } from '@/lib/og';
 import { SITE_NAME } from '@/lib/site';
-import { source } from '@/lib/source';
+
+let rendererPromise: Promise<Renderer> | undefined;
+
+async function getRenderer() {
+  rendererPromise ??= initWasm({ module_or_path: wasmModule }).then(
+    () => new Renderer(),
+  );
+  return rendererPromise;
+}
 
 export const Route = createFileRoute('/og/docs/$')({
   // @ts-expect-error TanStack types mismatch
   server: {
     handlers: {
-      GET({ params, request }: { params: { _splat?: string }; request: Request }) {
+      async GET({
+        params,
+        request,
+      }: {
+        params: { _splat?: string };
+        request: Request;
+      }) {
+        const { source } = await import('@/lib/source');
         const slugs = getSlugsFromImagePath(params._splat ?? '');
         const page = source.getPage(slugs);
 
         if (!page) return new Response(undefined, { status: 404 });
 
         const mascot = getMascotForPath(page.url) ?? getMascotForPath('/docs');
-        const mascotUrl = mascot ? new URL(mascot.src, request.url).toString() : undefined;
+        const mascotUrl = mascot
+          ? new URL(mascot.src, request.url).toString()
+          : undefined;
         const description = getOgDescription(page.data);
 
-        return new ImageResponse(
+        const { node, stylesheets } = await fromJsx(
           <div
             style={{
               width: '100%',
@@ -59,7 +79,7 @@ export const Route = createFileRoute('/og/docs/$')({
                 <div
                   style={{
                     display: 'flex',
-                    width: 'fit-content',
+                    alignSelf: 'flex-start',
                     border: '3px solid #211a14',
                     borderRadius: 999,
                     background: '#f2d06b',
@@ -126,15 +146,24 @@ export const Route = createFileRoute('/og/docs/$')({
               ) : null}
             </div>
           </div>,
-          {
-            width: 1200,
-            height: 630,
-            format: 'webp',
-            headers: {
-              'Cache-Control': 'public, max-age=86400',
-            },
-          },
         );
+        const renderer = await getRenderer();
+        const fetchedResources = await fetchResources(extractResourceUrls(node));
+        const image = await renderer.render(node, {
+          width: 1200,
+          height: 630,
+          format: 'webp',
+          fetchedResources,
+          stylesheets,
+        });
+        const imageBody = new Uint8Array(image).buffer;
+
+        return new Response(imageBody, {
+          headers: {
+            'Cache-Control': 'public, max-age=86400',
+            'Content-Type': 'image/webp',
+          },
+        });
       },
     },
   },

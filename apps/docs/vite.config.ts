@@ -25,6 +25,7 @@ const config: UserConfig & NitroConfig = {
         externals: {
             external: ['@takumi-rs/core'],
             traceInclude: [
+                '@takumi-rs/wasm',
                 '@takumi-rs/core-darwin-arm64',
                 '@takumi-rs/core-darwin-x64',
                 '@takumi-rs/core-linux-arm64-gnu',
