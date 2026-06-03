@@ -1,4 +1,3 @@
-import { extractResourceUrls, fetchResources } from '@takumi-rs/helpers';
 import { fromJsx } from '@takumi-rs/helpers/jsx';
 import initWasm, { Renderer } from '@takumi-rs/wasm';
 import wasmModule from '@takumi-rs/wasm/auto';
@@ -34,9 +33,6 @@ export const Route = createFileRoute('/og/docs/$')({
         if (!page) return new Response(undefined, { status: 404 });
 
         const mascot = getMascotForPath(page.url) ?? getMascotForPath('/docs');
-        const mascotUrl = mascot
-          ? new URL(mascot.src, request.url).toString()
-          : undefined;
         const description = getOgDescription(page.data);
 
         const { node, stylesheets } = await fromJsx(
@@ -117,8 +113,9 @@ export const Route = createFileRoute('/og/docs/$')({
                   </div>
                 ) : null}
               </div>
-              {mascotUrl && mascot ? (
+              {mascot ? (
                 <div
+                  aria-label={mascot.title}
                   style={{
                     width: 270,
                     height: 270,
@@ -128,32 +125,24 @@ export const Route = createFileRoute('/og/docs/$')({
                     border: '4px solid #211a14',
                     borderRadius: 999,
                     background: '#f7f1df',
-                    padding: 14,
+                    color: '#211a14',
+                    fontSize: 96,
+                    fontWeight: 950,
+                    letterSpacing: -4,
                     flexShrink: 0,
                   }}
                 >
-                  <img
-                    src={mascotUrl}
-                    alt={mascot.title}
-                    width={242}
-                    height={242}
-                    style={{
-                      borderRadius: 999,
-                      objectFit: 'cover',
-                    }}
-                  />
+                  WA
                 </div>
               ) : null}
             </div>
           </div>,
         );
         const renderer = await getRenderer();
-        const fetchedResources = await fetchResources(extractResourceUrls(node));
         const image = await renderer.render(node, {
           width: 1200,
           height: 630,
           format: 'webp',
-          fetchedResources,
           stylesheets,
         });
         const imageBody = new Uint8Array(image).buffer;
