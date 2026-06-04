@@ -383,7 +383,7 @@ window.WAPI.getGeneratedUserAgent = function (useragent) {
 }
 
 window.WAPI.getWAVersion = function () {
-    return "2.3000.1014";
+    return (window.Debug && window.Debug.VERSION) ? window.Debug.VERSION : "2.3000.1014";
 };
 
 window.WAPI.getUserAgent = function () {
