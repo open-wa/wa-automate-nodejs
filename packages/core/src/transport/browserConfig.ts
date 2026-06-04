@@ -55,8 +55,8 @@ export const chromiumConfig = {
     ]
 };
 
-export const createUserAgent = (waVersion: string): string => `WhatsApp/${waVersion} Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36`;
-export const useragent = createUserAgent('2.2147.16')
+export const createUserAgent = (_waVersion: string): string => `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36`;
+export const useragent = createUserAgent('2.3000.1014')
 
 export const width = chromiumConfig.width;
 export const height = chromiumConfig.height;

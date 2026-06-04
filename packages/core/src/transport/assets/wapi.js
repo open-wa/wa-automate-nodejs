@@ -383,8 +383,12 @@ window.WAPI.getGeneratedUserAgent = function (useragent) {
 }
 
 window.WAPI.getWAVersion = function () {
-    return window.Debug.VERSION;
-}
+    return "2.3000.1014";
+};
+
+window.WAPI.getUserAgent = function () {
+    return window.navigator.userAgent;
+};
 
 /**
  * Automatically sends a link with the auto generated link preview. You can also add a custom message to be added.
