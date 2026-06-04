@@ -22,7 +22,7 @@ if (!window.Store || !window.Store.Msg) {
                 { id: "WapDelete", module: "WAWebChatDeleteBridge", conditions: (module) => (module.sendConversationDelete && module.sendConversationDelete.length == 2) ? module : null },
                 { id: "WapQuery", module: "WAWebQueryExistsJob", conditions: (module) => (module.queryExist) ? module : ((module.default && module.default.queryExist) ? module.default : null) },
                 { id: "UserConstructor", module: "WAWebWid", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.isServer && module.default.prototype.isUser) ? module.default : null },
-                { id: "SendTextMsgToChat", module: "WAWebSendTextMsgChatAction", resolver: (module) => module.sendTextMsgToChat},
+                { id: "SendTextMsgToChat", module: "WAWebSendTextMsgChatAction", resolver: (module) => module.sendTextMsgToChat },
                 { id: "ReadSeen", module: "WAWebUpdateUnreadChatAction", conditions: (module) => (module.sendSeen) ? module : null },
                 { id: "sendDelete", module: "WAWebDeleteChatAction", conditions: (module) => (module.sendDelete) ? module.sendDelete : null },
                 { id: "addAndSendMsgToChat", module: "WAWebSendMsgChatAction", conditions: (module) => (module.addAndSendMsgToChat) ? module.addAndSendMsgToChat : null },
@@ -36,25 +36,25 @@ if (!window.Store || !window.Store.Msg) {
                 { id: "GroupActions", module: "WAWebExitGroupAction", conditions: (module) => (module.sendExitGroup && module.localExitGroup) ? module : null },
                 { id: "Participants", module: "WAWebGroupsParticipantsApi", conditions: (module) => (module.addParticipants && module.removeParticipants && module.promoteParticipants && module.demoteParticipants) ? module : null },
                 { id: "WidFactory", module: "WAWebWidFactory", conditions: (module) => (module.isWidlike && module.createWid && module.createWidFromWidLike) ? module : null },
-                { id: "Sticker", module: "WAWebStickerPackCollection", resolver: m=> m.StickerPackCollection, conditions: (module) => (module.default && module.default.Sticker) ? module.default.Sticker : null },
+                { id: "Sticker", module: "WAWebStickerPackCollection", resolver: m => m.StickerPackCollection, conditions: (module) => (module.default && module.default.Sticker) ? module.default.Sticker : null },
                 { id: "UploadUtils", module: "WAWebUploadManager", conditions: (module) => (module.default && module.default.encryptAndUpload) ? module.default : null }
             ];
             const e = (m) => require("__debug").modulesMap[m] || false
             const shouldRequire = m => {
                 const a = e(m);
-                if(!a) return false;
+                if (!a) return false;
                 return a.dependencies != null && a.depPosition >= a.dependencies.length
             }
             neededObjects.map((needObj) => {
                 const m = needObj.module;
                 if (!m) return;
-                if(!e(m)) return;
-                if(shouldRequire(m)) {
+                if (!e(m)) return;
+                if (shouldRequire(m)) {
                     let neededModule = require(m)
                     needObj.foundedModule = neededModule;
                 }
             });
-            window.Store = {...{...require("WAWebCollections")},...(window.Store || {})}
+            window.Store = { ...{ ...require("WAWebCollections") }, ...(window.Store || {}) }
             neededObjects.forEach((needObj) => {
                 if (needObj.foundedModule) {
                     window.Store[needObj.id] = needObj.resolver ? needObj.resolver(needObj.foundedModule) : needObj.foundedModule;
@@ -64,9 +64,9 @@ if (!window.Store || !window.Store.Msg) {
                 window.Store.SendTextMsgToChat(this, ...arguments);
             }
             return window.Store;
-    }
-    getStore()
-}) ();
+        }
+        getStore()
+    })();
 }
 
 window.WAPI = {};
@@ -383,12 +383,8 @@ window.WAPI.getGeneratedUserAgent = function (useragent) {
 }
 
 window.WAPI.getWAVersion = function () {
-    return (window.Debug && window.Debug.VERSION) ? window.Debug.VERSION : "2.3000.1014";
-};
-
-window.WAPI.getUserAgent = function () {
-    return window.navigator.userAgent;
-};
+    return window.Debug.VERSION;
+}
 
 /**
  * Automatically sends a link with the auto generated link preview. You can also add a custom message to be added.
