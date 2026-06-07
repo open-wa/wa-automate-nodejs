@@ -28,6 +28,7 @@
     "version-packages": "changeset version",
     "repomix": "npx repomix@latest",
     "publish-packages": "./tools/release/publish-packages.sh",
+    "publish-packages-local": "./tools/release/publish-packages-local.sh",
     "release-image": "node tools/release-image.js"
   },
   "devDependencies": {
