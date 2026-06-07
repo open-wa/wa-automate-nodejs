@@ -1,0 +1,57 @@
+---
+title: v5 Alpha Prerelease
+description: What changed in @open-wa v5.0.0-alpha.0, who should test it, and how to try it safely.
+---
+
+# @open-wa v5.0.0-alpha.0
+
+@open-wa v5.0.0-alpha.0 is the first v5 alpha prerelease for testers and contributors. It opens the new monorepo package line and gives early adopters a clear path to test the rebuilt runtime, transport, integrations, and docs.
+
+<Callout type="warning">
+This is an alpha release. Keep production systems on v4.76.0 unless you are deliberately testing v5 in a disposable environment.
+</Callout>
+
+## What changed
+
+- The project is now a v5 monorepo with separate packages for the runtime, API, schema, browser drivers, plugins, and integrations.
+- The public v5 runtime centers on `createClient` and schema-driven method metadata.
+- Easy API commands use HTTP, while runtime events stream over Server-Sent Events.
+- Browser automation can be tested through Puppeteer, Playwright, or Lightpanda-backed driver packages.
+- MCP support lets AI agents discover and call Easy API methods as tools.
+- Early integration packages cover Chatwoot, webhooks, S3 media handling, Cloudflare session proxying, and Node-RED.
+
+## Try it
+
+Pin the alpha version while testing:
+
+```bash
+npx @open-wa/wa-automate@5.0.0-alpha.0 --port 8080
+```
+
+Then open the local docs and generated metadata from the running Easy API:
+
+```text
+http://localhost:8080/api-docs/
+http://localhost:8080/meta/swagger.json
+http://localhost:8080/meta/postman.json
+```
+
+For production workloads, stay on v4 for now:
+
+```bash
+npx @open-wa/wa-automate@4.76.0
+```
+
+## How to test safely
+
+- Use a separate WhatsApp account and a disposable session directory.
+- Start with Easy API before embedding the runtime into your own app.
+- Verify login, session recovery, webhooks, event streams, and generated schemas before moving any workflow across.
+- Prefer SocketClient for remote consumers unless you need direct browser/runtime control.
+- Report regressions with the exact package version, Node version, driver package, and startup command.
+
+## Links
+
+- GitHub prerelease: https://github.com/open-wa/wa-automate-nodejs/releases/tag/v5.0.0-alpha.0
+- Full changelog: https://github.com/open-wa/wa-automate-nodejs/compare/4.76.0...v5.0.0-alpha.0
+- Stable v4 command: `npx @open-wa/wa-automate@4.76.0`

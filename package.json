@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/monorepo",
-  "version": "5.0.0-alpha.1",
+  "version": "5.0.0-alpha.0",
   "private": true,
   "description": "The most reliable WhatsApp automation library - v5 Monorepo",
   "license": "Apache-2.0",
