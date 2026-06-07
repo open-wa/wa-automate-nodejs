@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/logger",
-  "version": "5.0.0-alpha.0",
+  "version": "5.0.0-alpha.2",
   "description": "Centralized logging and terminal UI for open-wa v5",
   "main": "dist/index.cjs",
   "types": "dist/index.d.cts",

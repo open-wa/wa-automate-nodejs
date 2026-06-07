@@ -1,6 +1,6 @@
 {
     "name": "@open-wa/cli-app",
-    "version": "5.0.0-alpha.0",
+    "version": "5.0.0-alpha.1",
     "private": true,
     "description": "WhatsApp CLI - Easy API mode for @open-wa/wa-automate",
     "bin": {

@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/schema",
-  "version": "5.0.0-alpha.0",
+  "version": "5.0.0-alpha.2",
   "type": "module",
   "description": "Zod-based schema definitions for open-wa",
   "main": "./dist/index.cjs",

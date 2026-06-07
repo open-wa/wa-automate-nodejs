@@ -31,7 +31,17 @@
     "@open-wa/ui-components": "1.0.0",
     "@open-wa/utils": "5.0.0-alpha.1",
     "@open-wa/wa-automate": "5.0.0-alpha.1",
-    "@open-wa/wa-decrypt": "4.4.0"
+    "@open-wa/wa-decrypt": "4.4.0",
+    "@open-wa/api": "5.0.0-alpha.0",
+    "@open-wa/cf-proxy": "5.0.0",
+    "@open-wa/decrypt": "5.0.0-alpha.0",
+    "@open-wa/driver-lightpanda": "5.0.0-alpha.0",
+    "@open-wa/mcp": "5.0.0-alpha.0",
+    "@open-wa/plugin-sdk": "5.0.0-alpha.0",
+    "@open-wa/screencaster": "5.0.0-alpha.0",
+    "@open-wa/wa-automate-types-only": "5.0.0-alpha.0"
   },
-  "changesets": []
+  "changesets": [
+    "silly-tides-lively"
+  ]
 }
