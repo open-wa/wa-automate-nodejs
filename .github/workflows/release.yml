@@ -29,6 +29,15 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Validate release secrets
+        env:
+          NPM_TOKEN: ${{ secrets['NPM_TOKEN'] }}
+        run: |
+          if [ -z "$NPM_TOKEN" ]; then
+            echo "::error::NPM_TOKEN is not available to this workflow. Add it as a repository Actions secret, or grant this repository access if it is an organization secret."
+            exit 1
+          fi
+
       # ── Determine version bump from merged PR labels ──────────────
       - name: Determine version bump
         id: bump
@@ -86,8 +95,8 @@ jobs:
           title: 'chore: version packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets['NPM_TOKEN'] }}
+          NODE_AUTH_TOKEN: ${{ secrets['NPM_TOKEN'] }}
 
       # ── Post-publish: Get version ────────────────────────────────
       - name: Get published version
