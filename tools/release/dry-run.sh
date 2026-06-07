@@ -223,7 +223,7 @@ if ! $SKIP_BUILD; then
   CURRENT_STEP=$((CURRENT_STEP + 1))
   step $CURRENT_STEP "Building all packages..."
 
-  if pnpm turbo build --filter='!@open-wa/legacy' --filter='!@open-wa/legacy-documented' --filter='!@open-wa/orchestrator' 2>&1 | tail -5; then
+  if pnpm build 2>&1 | tail -5; then
     BUILT_COUNT=$(find packages -name "dist" -type d | wc -l | tr -d ' ')
     ok "Build complete ($BUILT_COUNT packages with dist/)"
   else

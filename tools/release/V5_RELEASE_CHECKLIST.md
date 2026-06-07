@@ -198,10 +198,10 @@ Run these commands and confirm they pass:
 
 ```bash
 # Full build
-pnpm turbo build --filter='!@open-wa/legacy' --filter='!@open-wa/legacy-documented'
+pnpm build
 
 # Type check (if tsc is configured)
-pnpm turbo typecheck --filter='!@open-wa/legacy' --filter='!@open-wa/legacy-documented'
+pnpm typecheck
 ```
 
 - [ ] Build completes without errors
