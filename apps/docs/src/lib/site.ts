@@ -4,7 +4,7 @@ export const SITE_NAME = 'open-wa v5 docs';
 export const REPO_URL = 'https://github.com/open-wa/wa-automate-nodejs';
 export const GENERIC_LICENSE_URL = 'https://smashah.gumroad.com/l/open-wa?wanted=true';
 export const GENERIC_GUMROAD_URL = 'https://smashah.gumroad.com/l/open-wa?wanted=true';
-export const CURRENT_VERSION = '5.0.0-alpha.1';
+export const CURRENT_VERSION = '5.0.0-alpha.0';
 
 export const DOCS_PATHS = {
   overview: '/docs',

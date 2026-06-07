@@ -9,7 +9,6 @@ import * as React from 'react';
 import { DocsShell } from './docs/-shell';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/cn';
-import { source } from '@/lib/source';
 import { DocsPage } from 'fumadocs-ui/layouts/notebook/page';
 
 const DEFAULT_HOST = 'http://localhost:8080';
@@ -22,9 +21,13 @@ type OpenApiDocument = Record<string, unknown> & {
 
 const pageTreeLoader = createServerFn({
   method: 'GET',
-}).handler(async () => ({
-  pageTree: await source.serializePageTree(source.pageTree),
-}));
+}).handler(async () => {
+  const { source } = await import('@/lib/source');
+
+  return {
+    pageTree: await source.serializePageTree(source.pageTree),
+  };
+});
 
 export const Route = createFileRoute('/api-explorer')({
   component: ApiExplorerPage,
@@ -69,7 +72,8 @@ function ApiExplorerPage() {
 
     fetch('/openapi.json')
       .then((response) => {
-        if (!response.ok) throw new Error(`OpenAPI spec returned ${response.status}`);
+        if (!response.ok)
+          throw new Error(`OpenAPI spec returned ${response.status}`);
         return response.json() as Promise<OpenApiDocument>;
       })
       .then((document) => {
@@ -77,7 +81,9 @@ function ApiExplorerPage() {
       })
       .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to load OpenAPI spec');
+          setError(
+            err instanceof Error ? err.message : 'Failed to load OpenAPI spec',
+          );
         }
       });
 
@@ -87,39 +93,40 @@ function ApiExplorerPage() {
   }, []);
 
   const host = normalizeHost(hostInput);
-  const configuration = React.useMemo<AnyApiReferenceConfiguration | null>(() => {
-    if (!spec) return null;
+  const configuration =
+    React.useMemo<AnyApiReferenceConfiguration | null>(() => {
+      if (!spec) return null;
 
-    return {
-      content: withServer(spec, host),
-      theme: 'none',
-      layout: 'classic',
-      hideDarkModeToggle: true,
-      withDefaultFonts: false,
-      defaultHttpClient: {
-        targetKey: 'shell',
-        clientKey: 'curl',
-      },
-      authentication: apiKey
-        ? {
-          preferredSecurityScheme: 'openWaApiKey',
-          securitySchemes: {
-            openWaApiKey: {
-              type: 'apiKey',
-              in: 'header',
-              name: 'X-API-Key',
-              value: apiKey,
-            },
-          },
-        }
-        : undefined,
-      customCss: `
+      return {
+        content: withServer(spec, host),
+        theme: 'none',
+        layout: 'classic',
+        hideDarkModeToggle: true,
+        withDefaultFonts: false,
+        defaultHttpClient: {
+          targetKey: 'shell',
+          clientKey: 'curl',
+        },
+        authentication: apiKey
+          ? {
+              preferredSecurityScheme: 'openWaApiKey',
+              securitySchemes: {
+                openWaApiKey: {
+                  type: 'apiKey',
+                  in: 'header',
+                  name: 'X-API-Key',
+                  value: apiKey,
+                },
+              },
+            }
+          : undefined,
+        customCss: `
         .scalar-api-reference, .scalar-app {
           font-family: var(--font-sans) !important;
         }
       `,
-    };
-  }, [apiKey, host, spec]);
+      };
+    }, [apiKey, host, spec]);
 
   function saveSettings() {
     const normalized = normalizeHost(hostInput);
@@ -148,13 +155,13 @@ function ApiExplorerPage() {
                     Explore your open-wa instance.
                   </h1>
                   <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                    Enter the host for the Easy API instance you want to test. Requests run from your browser, so the instance must allow this docs origin through CORS.
+                    Enter the host for the Easy API instance you want to test.
+                    Requests run from your browser, so the instance must allow
+                    this docs origin through CORS.
                   </p>
                 </div>
 
-                <form
-                  className="grid w-full gap-3 lg:max-w-2xl lg:grid-cols-[minmax(0,1fr)_minmax(0,0.75fr)_auto]"
-                >
+                <form className="grid w-full gap-3 lg:max-w-2xl lg:grid-cols-[minmax(0,1fr)_minmax(0,0.75fr)_auto]">
                   <label className="grid gap-1.5 text-sm font-semibold text-foreground">
                     Instance host
                     <input
@@ -190,7 +197,9 @@ function ApiExplorerPage() {
 
             <div className="api-explorer-shell min-h-[720px] overflow-hidden rounded-3xl border-backstitch bg-card shadow-stipple">
               {error ? (
-                <div className="p-6 text-sm font-medium text-destructive">{error}</div>
+                <div className="p-6 text-sm font-medium text-destructive">
+                  {error}
+                </div>
               ) : configuration ? (
                 <ApiReferenceReact configuration={configuration} />
               ) : (

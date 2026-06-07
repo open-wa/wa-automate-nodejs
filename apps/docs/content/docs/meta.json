@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "getting-started",
+    "releases",
     "concepts",
     "guides",
     "client-and-integrations",

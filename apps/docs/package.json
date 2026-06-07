@@ -19,7 +19,8 @@
     "check:mascots": "node scripts/check-mascot-assets.js",
     "preview": "vite preview",
     "deploy": "pnpm run build && wrangler deploy",
-    "cf-typegen": "wrangler types"
+    "cf-typegen": "wrangler types",
+    "test:og": "tsx scripts/test-og.ts"
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.189",
@@ -30,6 +31,9 @@
     "@radix-ui/react-presence": "^1.1.5",
     "@scalar/api-reference-react": "^0.9.18",
     "@tailwindcss/vite": "catalog:",
+    "@takumi-rs/helpers": "^1.6.0",
+    "@takumi-rs/image-response": "^1.6.0",
+    "@takumi-rs/wasm": "^1.6.0",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-router-devtools": "catalog:",
     "@tanstack/react-start": "catalog:",

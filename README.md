@@ -41,7 +41,7 @@
 
 `@open-wa/wa-automate` is the Node.js toolkit for turning WhatsApp Web automation into something you can actually build on: a local API, a bot backend, a webhook source, a plugin host, or an MCP server for AI agents.
 
-This repo is now the **v5 monorepo**. That means the architecture is cleaner and more modular, but the package version here is still **`5.0.0-alpha.1`**. If you are running a mature v4 production system, stay on **4.76.0** for now and test v5 separately.
+This repo is now the **v5 monorepo**. That means the architecture is cleaner and more modular, but the package version here is still **`5.0.0-alpha.0`**. If you are running a mature v4 production system, stay on **4.76.0** for now and test v5 separately.
 
 Need a WhatsApp API running quickly? Start with **Easy API**. Want the browser/runtime inside your own app? Use the **embedded runtime**. Building integrations, proxying sessions, or exposing WhatsApp to an AI agent? Those surfaces are in this repo too.
 

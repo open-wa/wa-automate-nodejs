@@ -154,3 +154,5 @@ notes/
 output/Users*projectstoolswaappsdocspublicmascots*.png
 .omo/run-continuation
 .omo/boulder.json
+.codegraph
+.omo
