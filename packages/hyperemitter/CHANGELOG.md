@@ -1,5 +1,12 @@
 # @open-wa/hyperemitter
 
+## 0.0.0-alpha.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/logger@5.0.0-alpha.2
+
 ## 6.0.0-alpha.2
 
 ### Patch Changes

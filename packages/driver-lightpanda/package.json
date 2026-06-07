@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/driver-lightpanda",
-  "version": "5.0.0-alpha.0",
+  "version": "5.0.0-alpha.2",
   "description": "Lightpanda browser driver for open-wa",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
