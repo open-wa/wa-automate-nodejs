@@ -40,7 +40,7 @@ catalog:
   express: ^4.17.3
   express-request-id: 1.4.1
   helmet: ^6.0.0
-  hono: ^4.12.9
+  hono: ^4.12.25
   jest: ^29.5.0
   lucide-react: ^0.378.0
   morgan: ^1.10.0
