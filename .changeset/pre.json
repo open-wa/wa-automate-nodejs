@@ -44,6 +44,7 @@
     "@open-wa/dashboard-neo": "5.0.0-alpha.3"
   },
   "changesets": [
-    "dashboard-assets"
+    "dashboard-assets",
+    "embed-dashboard-assets"
   ]
 }

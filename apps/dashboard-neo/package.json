@@ -1,11 +1,9 @@
 {
   "name": "@open-wa/dashboard-neo",
   "version": "5.0.0-alpha.4",
+  "private": true,
   "description": "Static dashboard UI for the open-wa v5 Easy API.",
   "type": "module",
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "dev": "VITE_EASY_API_URL=http://localhost:8002 vite dev --port 3000",
     "build": "vite build",
@@ -14,9 +12,6 @@
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx}\"",
     "typecheck": "tsc --noEmit"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "repository": {
     "type": "git",

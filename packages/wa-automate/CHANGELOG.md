@@ -1,5 +1,20 @@
 # @open-wa/wa-automate
 
+## 5.0.0-alpha.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/api@5.0.0-alpha.5
+  - @open-wa/client@5.0.0-alpha.5
+  - @open-wa/config@5.0.0-alpha.5
+  - @open-wa/core@5.0.0-alpha.5
+  - @open-wa/driver-lightpanda@5.0.0-alpha.5
+  - @open-wa/driver-puppeteer@5.0.0-alpha.5
+  - @open-wa/logger@5.0.0-alpha.5
+  - @open-wa/schema@5.0.0-alpha.5
+  - @open-wa/session-sync@5.0.0-alpha.5
+
 ## 5.0.0-alpha.4
 
 ### Patch Changes

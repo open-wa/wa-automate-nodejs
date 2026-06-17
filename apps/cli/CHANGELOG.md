@@ -1,5 +1,12 @@
 # @open-wa/cli-app
 
+## 5.0.0-alpha.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/cli@5.0.0-alpha.5
+
 ## 5.0.0-alpha.3
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @open-wa/api
 
+## 5.0.0-alpha.5
+
+### Patch Changes
+
+- Embed the built dashboard SPA in the API package so clean CLI installs can serve `/dashboard/` without resolving a separate dashboard package.
+
+- Updated dependencies []:
+  - @open-wa/mcp@5.0.0-alpha.5
+  - @open-wa/schema@5.0.0-alpha.5
+  - @open-wa/screencaster@5.0.0-alpha.5
+
 ## 5.0.0-alpha.4
 
 ### Patch Changes

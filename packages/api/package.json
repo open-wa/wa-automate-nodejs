@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/api",
-  "version": "5.0.0-alpha.4",
+  "version": "5.0.0-alpha.5",
   "description": "Reusable Easy API transport and runtime explorer layer for open-wa",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
@@ -11,8 +11,12 @@
       "types": "./dist/index.d.cts"
     }
   },
+  "files": [
+    "dist",
+    "dashboard-neo/dist"
+  ],
   "scripts": {
-    "build": "tsdown src/index.ts --format cjs",
+    "build": "tsdown src/index.ts --format cjs && node scripts/copy-dashboard.cjs",
     "dev": "tsdown src/index.ts --format cjs --watch",
     "lint": "oxlint src",
     "test": "vitest run",
@@ -22,7 +26,6 @@
     "@elastic/elasticsearch": "catalog:",
     "@hono/node-server": "catalog:",
     "@hono/node-ws": "^1.3.0",
-    "@open-wa/dashboard-neo": "workspace:*",
     "@open-wa/mcp": "workspace:*",
     "@open-wa/schema": "workspace:*",
     "@open-wa/screencaster": "workspace:*",
@@ -33,6 +36,7 @@
     "vite": "*"
   },
   "devDependencies": {
+    "@open-wa/dashboard-neo": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

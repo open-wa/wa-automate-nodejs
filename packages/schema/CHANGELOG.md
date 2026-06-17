@@ -1,5 +1,13 @@
 # @open-wa/schema
 
+## 5.0.0-alpha.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/config@5.0.0-alpha.5
+  - @open-wa/utils@5.0.0-alpha.5
+
 ## 5.0.0-alpha.4
 
 ### Patch Changes

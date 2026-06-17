@@ -1,5 +1,12 @@
 # @open-wa/decrypt
 
+## 5.0.0-alpha.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/schema@5.0.0-alpha.5
+
 ## 5.0.0-alpha.4
 
 ### Patch Changes

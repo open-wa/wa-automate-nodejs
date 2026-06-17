@@ -13,6 +13,15 @@ export function findDashboardDir(): string | null {
     return monorepoPath;
   }
 
+  const embeddedCandidates = [
+    resolve(__dirname, '../dashboard-neo'),
+    resolve(__dirname, 'dashboard-neo'),
+  ];
+  const embeddedPath = embeddedCandidates.find((candidate) => existsSync(resolve(candidate, 'dist/index.html')));
+  if (embeddedPath) {
+    return embeddedPath;
+  }
+
   try {
     const pkgPath = require.resolve('@open-wa/dashboard-neo/package.json');
     return dirname(pkgPath);

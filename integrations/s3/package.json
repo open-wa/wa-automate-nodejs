@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/integration-s3",
-  "version": "5.0.0-alpha.4",
+  "version": "5.0.0-alpha.5",
   "description": "S3/Cloud storage integration plugin for open-wa",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

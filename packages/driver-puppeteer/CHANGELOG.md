@@ -1,5 +1,12 @@
 # @open-wa/driver-puppeteer
 
+## 5.0.0-alpha.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/driver-interface@5.0.0-alpha.5
+
 ## 5.0.0-alpha.4
 
 ### Patch Changes
