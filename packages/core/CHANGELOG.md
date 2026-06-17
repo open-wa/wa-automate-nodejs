@@ -1,5 +1,19 @@
 # @open-wa/core
 
+## 5.0.0-alpha.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/config@5.0.0-alpha.4
+  - @open-wa/driver-interface@5.0.0-alpha.4
+  - @open-wa/driver-playwright@5.0.0-alpha.4
+  - @open-wa/driver-puppeteer@5.0.0-alpha.4
+  - @open-wa/hyperemitter@5.0.0-alpha.4
+  - @open-wa/logger@5.0.0-alpha.4
+  - @open-wa/plugin-sdk@5.0.0-alpha.4
+  - @open-wa/schema@5.0.0-alpha.4
+
 ## 5.0.0-alpha.3
 
 ### Patch Changes

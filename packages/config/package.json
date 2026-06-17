@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/config",
-  "version": "5.0.0-alpha.3",
+  "version": "5.0.0-alpha.4",
   "description": "Configuration management for open-wa - schemas, loading, merging, and validation",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

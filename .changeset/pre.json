@@ -40,9 +40,10 @@
     "@open-wa/mcp": "5.0.0-alpha.0",
     "@open-wa/plugin-sdk": "5.0.0-alpha.0",
     "@open-wa/screencaster": "5.0.0-alpha.0",
-    "@open-wa/wa-automate-types-only": "5.0.0-alpha.0"
+    "@open-wa/wa-automate-types-only": "5.0.0-alpha.0",
+    "@open-wa/dashboard-neo": "5.0.0-alpha.3"
   },
   "changesets": [
-    "schema-dist-files"
+    "dashboard-assets"
   ]
 }

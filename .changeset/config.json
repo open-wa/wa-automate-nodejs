@@ -14,6 +14,7 @@
       "@open-wa/client",
       "@open-wa/config",
       "@open-wa/core",
+      "@open-wa/dashboard-neo",
       "@open-wa/decrypt",
       "@open-wa/domain",
       "@open-wa/driver-interface",

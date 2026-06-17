@@ -1,7 +1,11 @@
 {
   "name": "@open-wa/dashboard-neo",
-  "private": true,
+  "version": "5.0.0-alpha.4",
+  "description": "Static dashboard UI for the open-wa v5 Easy API.",
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "VITE_EASY_API_URL=http://localhost:8002 vite dev --port 3000",
     "build": "vite build",
@@ -11,7 +15,16 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx}\"",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/open-wa/wa-automate-nodejs.git"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {},
+  "devDependencies": {
     "@base-ui/react": "^1.3.0",
     "@fontsource-variable/geist": "^5.2.8",
     "@hugeicons/core-free-icons": "^4.1.1",
@@ -35,9 +48,7 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "catalog:",
     "tailwindcss": "^4.2.1",
-    "tailwindcss-animate": "^1.0.7"
-  },
-  "devDependencies": {
+    "tailwindcss-animate": "^1.0.7",
     "@tanstack/devtools-vite": "^0.6.0",
     "@tanstack/eslint-config": "^0.4.0",
     "@testing-library/dom": "^10.4.1",
