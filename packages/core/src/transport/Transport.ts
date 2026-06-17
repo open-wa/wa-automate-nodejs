@@ -83,6 +83,22 @@ const BLOCKED_ASSET_RESOURCE_TYPES = new Set(['image', 'stylesheet', 'font']);
 
 /** JavaScript snippet to extract QR data from the WA Web page */
 const QR_CHECK_SCRIPT = `document.querySelector("canvas[aria-label]")?.parentElement?.getAttribute("data-ref") || null`;
+const INJECTABLE_SESSION_CHECK_SCRIPT = `(() => {
+  try {
+    const debug = window.require && window.require("__debug");
+    return Boolean(debug?.modulesMap?.["WAWebCollections"]);
+  } catch {
+    return false;
+  }
+})()`;
+const PRE_AUTH_SURFACE_READY_CHECK_SCRIPT = `(() => {
+  try {
+    return Boolean(${INJECTABLE_SESSION_CHECK_SCRIPT})
+      || Boolean(${QR_CHECK_SCRIPT});
+  } catch {
+    return false;
+  }
+})()`;
 const QR_SELECTOR_PRIMARY = "canvas[aria-label='Scan this QR code to link a device!']";
 const QR_SELECTOR_FALLBACK = 'canvas[aria-label]';
 const PRE_API_HELPER_READY_CHECK_SCRIPT = `Boolean(!['jsSHA','axios','QRCode','Base64','objectHash'].find(x=>!window[x]))`;
@@ -526,10 +542,13 @@ export class Transport {
 
   //wait until wawebcollections resolves
   async waitForInjectableSession(): Promise<boolean> {
-    if (this.page) {
-      await this.page.waitForFunction(`window.require && window.require("__debug").modulesMap["WAWebCollections"] ? !!require("WAWebCollections") : false`)
-      return true;
-    } return false;
+    if (!this.page) return false;
+
+    await this.page.waitForFunction(PRE_AUTH_SURFACE_READY_CHECK_SCRIPT, {
+      timeoutMs: this.navigationTimeoutMs,
+      polling: 'mutation',
+    });
+    return true;
   }
 
   async injectWapi(): Promise<boolean> {
@@ -2677,7 +2696,19 @@ export class Transport {
       assetPath: launchAssetPath,
       bytes: launchScript.length,
     });
-    await this.page.evaluateScript(launchScript);
+    try {
+      await this.page.evaluateScript(launchScript);
+    } catch (error) {
+      const qrData = await this.page.evaluateScript<string | null>(QR_CHECK_SCRIPT).catch(() => null);
+      if (!qrData) {
+        throw error;
+      }
+
+      this.logger.warn('launch_asset_deferred_for_pre_auth_qr', {
+        reason: 'qr_surface_available',
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
 
     await this.waitForFunctionProbe(WAPI_RUNTIME_CHECK_SCRIPT, { timeoutMs: 3000, polling: 50 });
     if (!shouldContinue()) {

@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/api",
-  "version": "5.0.0-alpha.6",
+  "version": "5.0.0-alpha.7",
   "description": "Reusable Easy API transport and runtime explorer layer for open-wa",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",

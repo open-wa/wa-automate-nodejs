@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { getClient } from "@/lib/api-client"
 import { useDemo } from "@/lib/demo/use-demo"
 import { demoSession } from "@/lib/demo/demo-data"
+import { useHealth } from "@/lib/hooks/use-health"
 
 export type SessionState = {
   connected: boolean
@@ -36,6 +37,7 @@ function unwrapEventPayload(data: unknown) {
 
 export function useSession() {
   const { isDemo } = useDemo()
+  const { canInvokeRuntime } = useHealth()
   const [session, setSession] = useState<SessionState>(
     isDemo
       ? {
@@ -46,13 +48,15 @@ export function useSession() {
           connectionState: demoSession.connectionState,
           uptime: demoSession.uptime,
         }
-      : INITIAL_STATE,
+      : INITIAL_STATE
   )
   const [qr, setQr] = useState<string | null>(null)
   const [loading, setLoading] = useState(!isDemo)
   const uptimeRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const refreshRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const startTimeRef = useRef<number>(Date.now() - (isDemo ? demoSession.uptime * 1000 : 0))
+  const startTimeRef = useRef<number>(
+    Date.now() - (isDemo ? demoSession.uptime * 1000 : 0)
+  )
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -92,18 +96,23 @@ export function useSession() {
       }
     }
 
-    async function refreshSessionSnapshot(client: Awaited<ReturnType<typeof getClient>>) {
-      const [hostNumber, waVersion, battery, connectionState] = await Promise.allSettled([
-        client.ask("getHostNumber" as any, {}),
-        client.ask("getWAVersion" as any, {}),
-        client.ask("getBatteryLevel" as any, {}),
-        client.ask("getConnectionState" as any, {}),
-      ])
+    async function refreshSessionSnapshot(
+      client: Awaited<ReturnType<typeof getClient>>
+    ) {
+      const [hostNumber, waVersion, battery, connectionState] =
+        await Promise.allSettled([
+          client.ask("getHostNumber" as any, {}),
+          client.ask("getWAVersion" as any, {}),
+          client.ask("getBatteryLevel" as any, {}),
+          client.ask("getConnectionState" as any, {}),
+        ])
 
       if (!mounted) return
 
       const nextConnectionState =
-        connectionState.status === "fulfilled" ? (connectionState.value as string) : "UNKNOWN"
+        connectionState.status === "fulfilled"
+          ? (connectionState.value as string)
+          : "UNKNOWN"
       const nextConnected = isConnectedState(nextConnectionState)
 
       setSession((prev) => {
@@ -114,14 +123,26 @@ export function useSession() {
         return {
           ...prev,
           connected: nextConnected,
-          hostNumber: hostNumber.status === "fulfilled" ? (hostNumber.value as string) : prev.hostNumber,
-          waVersion: waVersion.status === "fulfilled" ? (waVersion.value as string) : prev.waVersion,
-          battery: battery.status === "fulfilled" ? (battery.value as number) : prev.battery,
+          hostNumber:
+            hostNumber.status === "fulfilled"
+              ? (hostNumber.value as string)
+              : prev.hostNumber,
+          waVersion:
+            waVersion.status === "fulfilled"
+              ? (waVersion.value as string)
+              : prev.waVersion,
+          battery:
+            battery.status === "fulfilled"
+              ? (battery.value as number)
+              : prev.battery,
           connectionState: nextConnectionState,
         }
       })
 
-      if (nextConnectionState === "READY" || nextConnectionState === "CONNECTED") {
+      if (
+        nextConnectionState === "READY" ||
+        nextConnectionState === "CONNECTED"
+      ) {
         setQr(null)
       }
     }
@@ -131,13 +152,19 @@ export function useSession() {
         const client = await getClient()
         if (!mounted) return
 
-        await refreshSessionSnapshot(client)
+        if (canInvokeRuntime) {
+          await refreshSessionSnapshot(client)
+        }
 
         const handleQrGenerated = (data: unknown) => {
           if (!mounted) return
 
-          const payload = unwrapEventPayload(data) as Record<string, any> | string | undefined
-          const nextQr = typeof payload === "string" ? payload : payload?.qr || null
+          const payload = unwrapEventPayload(data) as
+            | Record<string, any>
+            | string
+            | undefined
+          const nextQr =
+            typeof payload === "string" ? payload : payload?.qr || null
 
           setQr(nextQr)
           applyConnectionState("AUTHENTICATING")
@@ -151,11 +178,17 @@ export function useSession() {
         const handleSessionStateChanged = (data: unknown) => {
           if (!mounted) return
 
-          const payload = unwrapEventPayload(data) as Record<string, any> | string | undefined
+          const payload = unwrapEventPayload(data) as
+            | Record<string, any>
+            | string
+            | undefined
           const nextState =
             typeof payload === "string"
               ? payload
-              : payload?.nextState || payload?.state || payload?.currentState || "UNKNOWN"
+              : payload?.nextState ||
+                payload?.state ||
+                payload?.currentState ||
+                "UNKNOWN"
 
           applyConnectionState(nextState)
         }
@@ -173,9 +206,11 @@ export function useSession() {
         client.ev.on("client.ready", handleReady)
         client.ev.on("core.started", handleReady)
 
-        refreshRef.current = setInterval(() => {
-          void refreshSessionSnapshot(client)
-        }, 30_000)
+        if (canInvokeRuntime) {
+          refreshRef.current = setInterval(() => {
+            void refreshSessionSnapshot(client)
+          }, 30_000)
+        }
 
         cleanupListeners = () => {
           client.ev.off("launch.auth.qr.generated", handleQrGenerated)
@@ -201,7 +236,9 @@ export function useSession() {
 
       setSession((prev) => ({
         ...prev,
-        uptime: prev.connected ? Math.floor((Date.now() - startTimeRef.current) / 1000) : 0,
+        uptime: prev.connected
+          ? Math.floor((Date.now() - startTimeRef.current) / 1000)
+          : 0,
       }))
     }, 1000)
 
@@ -212,7 +249,7 @@ export function useSession() {
       if (refreshRef.current) clearInterval(refreshRef.current)
       cleanupListeners?.()
     }
-  }, [isDemo])
+  }, [isDemo, canInvokeRuntime])
 
   return { session, qr, loading }
 }

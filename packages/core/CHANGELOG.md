@@ -1,5 +1,21 @@
 # @open-wa/core
 
+## 5.0.0-alpha.7
+
+### Patch Changes
+
+- Allow pre-auth QR bootstrap to continue when WhatsApp Web exposes the QR surface before `WAWebCollections` is injectable, gate dashboard runtime API calls until the session is ready, and return an empty plugin manifest when no plugins are mounted.
+
+- Updated dependencies []:
+  - @open-wa/config@5.0.0-alpha.7
+  - @open-wa/driver-interface@5.0.0-alpha.7
+  - @open-wa/driver-playwright@5.0.0-alpha.7
+  - @open-wa/driver-puppeteer@5.0.0-alpha.7
+  - @open-wa/hyperemitter@5.0.0-alpha.7
+  - @open-wa/logger@5.0.0-alpha.7
+  - @open-wa/plugin-sdk@5.0.0-alpha.7
+  - @open-wa/schema@5.0.0-alpha.7
+
 ## 5.0.0-alpha.6
 
 ### Patch Changes

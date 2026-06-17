@@ -46,6 +46,7 @@
   "changesets": [
     "dashboard-assets",
     "embed-dashboard-assets",
-    "fix-dashboard-react-runtime"
+    "fix-dashboard-react-runtime",
+    "gate-dashboard-runtime-and-qr"
   ]
 }

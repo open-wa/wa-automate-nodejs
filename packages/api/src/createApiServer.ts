@@ -6,7 +6,10 @@ import { createServer } from 'http';
 import { createNodeWebSocket } from '@hono/node-ws';
 import { getHttpMethodDefinitions, type Config } from '@open-wa/schema';
 import '@open-wa/schema';
-import { createScreencastRoute, ScreencastManager } from '@open-wa/screencaster/server';
+import {
+  createScreencastRoute,
+  ScreencastManager,
+} from '@open-wa/screencaster/server';
 import { createApiMiddleware } from './createApiMiddleware';
 import { createHonoMcpAdapter } from '@open-wa/mcp';
 import { registerMetaRoutes } from './routes/meta';
@@ -16,7 +19,10 @@ import { type EventBridge } from './events/EventBridge';
 import { HealthStore } from './health/HealthStore';
 import { EventBroadcaster } from './events/EventBroadcaster';
 import { ElasticEmitter } from './monitoring/elastic';
-import { setupViteDevServer, mountDashboardProduction } from './dashboard/middleware';
+import {
+  setupViteDevServer,
+  mountDashboardProduction,
+} from './dashboard/middleware';
 import type { ApiServerOptions, ClientMethodMap } from './types';
 import type { IScreencastPage } from '@open-wa/screencaster/server';
 import type { PluginHost } from '@open-wa/core';
@@ -51,14 +57,16 @@ export class ApiServer {
   private eventBroadcaster: EventBroadcaster;
   private eventBridge?: EventBridge;
   private eventBridgeListener?: (event: string, payload: any) => void;
-  private readinessProvider?: () => {
-    state?: string;
-    status?: string;
-    ready: boolean;
-    exposureSafe?: boolean;
-    pending?: string[];
-    blockers?: string[];
-  } | undefined;
+  private readinessProvider?: () =>
+    | {
+        state?: string;
+        status?: string;
+        ready: boolean;
+        exposureSafe?: boolean;
+        pending?: string[];
+        blockers?: string[];
+      }
+    | undefined;
 
   constructor(options: ApiServerOptions) {
     this.config = options.config;
@@ -66,7 +74,7 @@ export class ApiServer {
     // Validate MCP configuration
     if (this.config.mcp?.enabled && !this.config.apiKey) {
       throw new Error(
-        'MCP requires Easy API apiKey. Refusing to start with MCP enabled and no apiKey configured.'
+        'MCP requires Easy API apiKey. Refusing to start with MCP enabled and no apiKey configured.',
       );
     }
 
@@ -75,7 +83,9 @@ export class ApiServer {
     this.eventBroadcaster = new EventBroadcaster(this.config.sessionId);
 
     // Set up WebSocket adapter for Node.js
-    const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app: this.app });
+    const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({
+      app: this.app,
+    });
     this.injectWebSocket = injectWebSocket as (server: unknown) => void;
 
     if (this.config.elasticUrl) {
@@ -93,7 +103,10 @@ export class ApiServer {
     this.registerRoutes();
 
     // Register screencast WebSocket route
-    this.app.get('/screencast', createScreencastRoute(upgradeWebSocket, this.screencastManager));
+    this.app.get(
+      '/screencast',
+      createScreencastRoute(upgradeWebSocket, this.screencastManager),
+    );
   }
 
   public setClient(client: ClientMethodMap | undefined) {
@@ -116,14 +129,18 @@ export class ApiServer {
   }
 
   public setReadinessProvider(
-    provider: (() => {
-      state?: string;
-      status?: string;
-      ready: boolean;
-      exposureSafe?: boolean;
-      pending?: string[];
-      blockers?: string[];
-    } | undefined) | undefined
+    provider:
+      | (() =>
+          | {
+              state?: string;
+              status?: string;
+              ready: boolean;
+              exposureSafe?: boolean;
+              pending?: string[];
+              blockers?: string[];
+            }
+          | undefined)
+      | undefined,
   ) {
     this.readinessProvider = provider;
   }
@@ -166,9 +183,6 @@ export class ApiServer {
     for (const { name, router } of pluginHost.getRoutes()) {
       this.app.route(`/plugins/${name}`, router);
     }
-
-    // Serve the manifest for the dashboard to discover plugin pages
-    this.app.get('/plugins/manifest', (c) => c.json(pluginHost.getManifest()));
   }
 
   public async start() {
@@ -196,7 +210,9 @@ export class ApiServer {
 
     const server = createServer(requestListener);
     server.listen(this.config.port, this.config.host, () => {
-      console.log(`Server running on http://${this.config.host}:${this.config.port}`);
+      console.log(
+        `Server running on http://${this.config.host}:${this.config.port}`,
+      );
     });
 
     if (this.injectWebSocket) {
@@ -204,7 +220,7 @@ export class ApiServer {
       this.injectWebSocket({
         on: (event: string, listener: Function) => {
           if (event === 'upgrade') honoUpgradeListener = listener;
-        }
+        },
       });
       if (honoUpgradeListener) {
         server.on('upgrade', (req, socket, head) => {
@@ -239,31 +255,42 @@ export class ApiServer {
       return false;
     }
 
-    return typeof this.client.isConnected === 'function' ? this.client.isConnected() : false;
+    return typeof this.client.isConnected === 'function'
+      ? this.client.isConnected()
+      : false;
   }
 
   private setupMiddleware() {
-    this.app.use('/*',
+    this.app.use(
+      '/*',
       cors({
         origin: parseCorsOrigin(this.config.cors),
         credentials: true,
-      })
+      }),
     );
 
     this.app.use('/*', async (c, next) => {
       const path = new URL(c.req.url).pathname;
       if (path === '/' || path.startsWith('/dashboard')) {
-        c.header('Link', [
-          `</.well-known/api-catalog>; rel="api-catalog"`,
-          `</.well-known/mcp/server-card.json>; rel="mcp"`,
-          `</.well-known/agent-card.json>; rel="describedby"`
-        ].join(', '));
+        c.header(
+          'Link',
+          [
+            `</.well-known/api-catalog>; rel="api-catalog"`,
+            `</.well-known/mcp/server-card.json>; rel="mcp"`,
+            `</.well-known/agent-card.json>; rel="describedby"`,
+          ].join(', '),
+        );
       }
 
-      if (path === '/' && (c.req.header('Accept') || '').includes('text/markdown')) {
+      if (
+        path === '/' &&
+        (c.req.header('Accept') || '').includes('text/markdown')
+      ) {
         const origin = new URL(c.req.url).origin;
         c.header('Content-Type', 'text/markdown');
-        return c.text(`# Open-WA Easy API\n\nThis is an Agent-Native API endpoint.\n\n## API Catalog\nExplore endpoints at \`${origin}/.well-known/api-catalog\` and docs at \`${origin}/api-docs\`.\n\n## MCP Endpoint\nAn MCP server is running for agents at \`${origin}/mcp\`.\n`);
+        return c.text(
+          `# Open-WA Easy API\n\nThis is an Agent-Native API endpoint.\n\n## API Catalog\nExplore endpoints at \`${origin}/.well-known/api-catalog\` and docs at \`${origin}/api-docs\`.\n\n## MCP Endpoint\nAn MCP server is running for agents at \`${origin}/mcp\`.\n`,
+        );
       }
       await next();
     });
@@ -275,7 +302,14 @@ export class ApiServer {
 
   private registerRoutes() {
     const methodDefinitions = getHttpMethodDefinitions();
-    registerAgentDiscoveryRoutes(this.app, { config: this.config, methodDefinitions });
+    registerAgentDiscoveryRoutes(this.app, {
+      config: this.config,
+      methodDefinitions,
+    });
+
+    this.app.get('/plugins/manifest', (c) =>
+      c.json(this.pluginHost?.getManifest() ?? { plugins: [] }),
+    );
 
     this.app.get('/health', (c) => {
       const healthSnapshot = this.healthStore.getSnapshot();
@@ -307,7 +341,9 @@ export class ApiServer {
           ready: false,
           status: this.client ? 'legacy' : 'unavailable',
           state: this.client ? 'UNKNOWN' : 'DISCONNECTED',
-          pending: this.client ? ['session_readiness_unavailable'] : ['client_not_bound'],
+          pending: this.client
+            ? ['session_readiness_unavailable']
+            : ['client_not_bound'],
           blockers: [],
           exposureSafe: false,
         },
@@ -329,10 +365,19 @@ export class ApiServer {
       }
 
       if (!this.latestQR) {
-        return c.json({ error: 'QR code not available', note: 'Session might be connected or generating QR' }, 404);
+        return c.json(
+          {
+            error: 'QR code not available',
+            note: 'Session might be connected or generating QR',
+          },
+          404,
+        );
       }
 
-      return c.json({ qr: this.latestQR, note: 'Scan this QR code in WhatsApp' });
+      return c.json({
+        qr: this.latestQR,
+        note: 'Scan this QR code in WhatsApp',
+      });
     });
 
     this.app.get('/api/events', (c) => {
@@ -340,19 +385,25 @@ export class ApiServer {
       // Note: This intentionally supports query params to preserve legacy Easy API behavior,
       // unlike the MCP adapter which strictly enforces header-only auth (X-API-Key) for security.
       if (this.config.apiKey) {
-        const apiKey = c.req.header('X-API-Key') || c.req.query('api_key') || c.req.query('key');
+        const apiKey =
+          c.req.header('X-API-Key') ||
+          c.req.query('api_key') ||
+          c.req.query('key');
 
         if (!apiKey || apiKey !== this.config.apiKey) {
-          return c.json({ error: 'Unauthorized', details: 'Invalid or missing API key' }, 401);
+          return c.json(
+            { error: 'Unauthorized', details: 'Invalid or missing API key' },
+            401,
+          );
         }
       }
 
       const topicsParam = c.req.query('topics');
       const topics = topicsParam
         ? topicsParam
-          .split(',')
-          .map((topic) => topic.trim())
-          .filter(Boolean)
+            .split(',')
+            .map((topic) => topic.trim())
+            .filter(Boolean)
         : ['*'];
 
       return new Response(
@@ -367,7 +418,7 @@ export class ApiServer {
             'Content-Type': 'text/event-stream',
             'X-Accel-Buffering': 'no',
           },
-        }
+        },
       );
     });
 
@@ -393,7 +444,7 @@ export class ApiServer {
         basePath: '/api',
         elasticEmitter: this.elasticEmitter,
         isSessionConnected: () => this.isSessionConnected(),
-      })
+      }),
     );
 
     if (this.config.mcp?.enabled) {

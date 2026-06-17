@@ -95,6 +95,7 @@ let _lastFetch = 0
 let _socketListenerAttached = false
 
 const STALE_THRESHOLD = 30_000
+const READY_STATES = new Set(["READY", "CONNECTED"])
 
 // ── Real-time event listener (singleton) ──
 // Wires socket events to the module cache so state is instantly available
@@ -143,6 +144,17 @@ function setCachedHealth(updater: (current: HealthData) => HealthData) {
   notifyListeners()
 }
 
+export function isRuntimeReadySession(
+  session: Record<string, unknown> | null | undefined
+) {
+  const state = typeof session?.state === "string" ? session.state : undefined
+  return session?.ready === true || (state ? READY_STATES.has(state) : false)
+}
+
+export function canInvokeRuntime(health: HealthData | null | undefined) {
+  return isRuntimeReadySession(health?.session)
+}
+
 function ensureSocketListener() {
   if (_socketListenerAttached) return
   _socketListenerAttached = true
@@ -150,7 +162,10 @@ function ensureSocketListener() {
   getClient()
     .then((client) => {
       client.ev.on("session.state.changed", (data: unknown) => {
-        const payload = unwrapEventPayload(data) as Record<string, any> | string | undefined
+        const payload = unwrapEventPayload(data) as
+          | Record<string, any>
+          | string
+          | undefined
         const nextState =
           typeof payload === "string"
             ? payload
@@ -171,7 +186,9 @@ function ensureSocketListener() {
       })
 
       client.ev.on("launch.auth.qr.generated", (data: unknown) => {
-        const payload = unwrapEventPayload(data) as Record<string, any> | undefined
+        const payload = unwrapEventPayload(data) as
+          | Record<string, any>
+          | undefined
 
         setCachedHealth((current) => ({
           ...current,
@@ -193,14 +210,17 @@ function ensureSocketListener() {
       })
 
       client.ev.on("patch.apply.after", (data: unknown) => {
-        const payload = unwrapEventPayload(data) as Record<string, any> | undefined
+        const payload = unwrapEventPayload(data) as
+          | Record<string, any>
+          | undefined
         if (!payload) return
 
         const patch: PatchInfo = {
           patchId: payload?.patchId || "unknown",
           description: payload?.description || "",
           required: payload?.required ?? false,
-          outcome: payload?.outcome || (payload?.applied ? "applied" : "failed"),
+          outcome:
+            payload?.outcome || (payload?.applied ? "applied" : "failed"),
         }
 
         setCachedHealth((current) => ({
@@ -225,7 +245,9 @@ function ensureSocketListener() {
       })
 
       client.ev.on("internal_launch_progress", (data: unknown) => {
-        const payload = unwrapEventPayload(data) as Record<string, any> | undefined
+        const payload = unwrapEventPayload(data) as
+          | Record<string, any>
+          | undefined
         if (payload?.text) {
           const step: TimelineStep = {
             step: payload.text,
@@ -279,7 +301,7 @@ export function useHealth() {
           startedAt: Date.now() - 14523_000,
           lastEventAt: Date.now(),
         }
-      : _cachedHealth,
+      : _cachedHealth
   )
   const [loading, setLoading] = useState(!isDemo && !_cachedHealth)
   const [error, setError] = useState<string | null>(null)
@@ -330,7 +352,7 @@ export function useHealth() {
         await fetchHealth()
       }
 
-      const isReady = _cachedHealth?.session?.ready === true
+      const isReady = canInvokeRuntime(_cachedHealth)
       const interval = isReady ? 60_000 : 5_000
 
       if (mountedRef.current) {
@@ -359,9 +381,15 @@ export function useHealth() {
     reconnections: health?.reconnections ?? [],
     connected: health?.connected ?? false,
     session: health?.session ?? null,
+    sessionReady: isRuntimeReadySession(health?.session),
+    canInvokeRuntime: canInvokeRuntime(health),
     qr: health?.qr ?? null,
-    mcpAvailable: health?.capabilities?.mcpAvailable ?? health?.host?.mcp?.available ?? false,
-    mcpEnabled: health?.capabilities?.mcpEnabled ?? health?.host?.mcp?.enabled ?? false,
+    mcpAvailable:
+      health?.capabilities?.mcpAvailable ??
+      health?.host?.mcp?.available ??
+      false,
+    mcpEnabled:
+      health?.capabilities?.mcpEnabled ?? health?.host?.mcp?.enabled ?? false,
     mcpPath: health?.capabilities?.mcpPath ?? health?.host?.mcp?.path ?? "/mcp",
   }
 }

@@ -45,6 +45,13 @@ if (!window.Store || !window.Store.Msg) {
                 if(!a) return false;
                 return a.dependencies != null && a.depPosition >= a.dependencies.length
             }
+            const safeRequire = m => {
+                try {
+                    return shouldRequire(m) ? require(m) : null;
+                } catch (error) {
+                    return null;
+                }
+            }
             neededObjects.map((needObj) => {
                 const m = needObj.module;
                 if (!m) return;
@@ -54,7 +61,7 @@ if (!window.Store || !window.Store.Msg) {
                     needObj.foundedModule = neededModule;
                 }
             });
-            window.Store = {...{...require("WAWebCollections")},...(window.Store || {})}
+            window.Store = {...{...(safeRequire("WAWebCollections") || {})},...(window.Store || {})}
             neededObjects.forEach((needObj) => {
                 if (needObj.foundedModule) {
                     window.Store[needObj.id] = needObj.resolver ? needObj.resolver(needObj.foundedModule) : needObj.foundedModule;

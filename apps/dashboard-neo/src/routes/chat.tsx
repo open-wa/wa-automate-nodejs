@@ -4,6 +4,7 @@ import { MessageSquare } from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
 import { usePrivacy } from "@/lib/hooks/use-privacy"
 import { getClient } from "@/lib/api-client"
+import { useHealth } from "@/lib/hooks/use-health"
 import { toast } from "sonner"
 
 export const Route = createFileRoute("/chat")({ component: ChatPage })
@@ -27,6 +28,7 @@ type MessageItem = {
 
 function ChatPage() {
   const { connected, ask } = useSocket()
+  const { canInvokeRuntime } = useHealth()
   const { privacyMode, redactName, redact } = usePrivacy()
   const [chats, setChats] = useState<ChatItem[]>([])
   const [selectedChat, setSelectedChat] = useState<ChatItem | null>(null)
@@ -38,7 +40,7 @@ function ChatPage() {
 
   // Fetch chats
   useEffect(() => {
-    if (!connected) return
+    if (!connected || !canInvokeRuntime) return
     setLoading(true)
     ask<ChatItem[]>("getAllChats")
       .then((data) => {
@@ -49,53 +51,106 @@ function ChatPage() {
           timestamp: c.lastMessage?.timestamp,
           unreadCount: c.unreadCount || 0,
         }))
-        setChats(chatList.sort((a: ChatItem, b: ChatItem) => (b.timestamp || 0) - (a.timestamp || 0)))
+        setChats(
+          chatList.sort(
+            (a: ChatItem, b: ChatItem) =>
+              (b.timestamp || 0) - (a.timestamp || 0)
+          )
+        )
       })
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [connected, ask])
+  }, [connected, canInvokeRuntime, ask])
 
   // Fetch messages for selected chat
   useEffect(() => {
-    if (!selectedChat || !connected) return
-    ask<MessageItem[]>("getAllMessages", { chatId: selectedChat.id, includeMe: true, includeNotifications: false })
+    if (!selectedChat || !connected || !canInvokeRuntime) return
+    let mounted = true
+    let scrollTimer: ReturnType<typeof setTimeout> | undefined
+
+    ask<MessageItem[]>("getAllMessages", {
+      chatId: selectedChat.id,
+      includeMe: true,
+      includeNotifications: false,
+    })
       .then((data) => {
-        const msgs = (data || []).map((m: any) => ({
-          id: m.id || m._serialized || String(Math.random()),
-          body: m.body || "",
-          fromMe: m.fromMe || false,
-          timestamp: m.timestamp || 0,
-          sender: m.sender?.pushname || m.sender?.formattedName,
-          type: m.type || "chat",
-        })).slice(-50)
+        if (!mounted) return
+
+        const msgs = (data || [])
+          .map((m: any) => ({
+            id: m.id || m._serialized || String(Math.random()),
+            body: m.body || "",
+            fromMe: m.fromMe || false,
+            timestamp: m.timestamp || 0,
+            sender: m.sender?.pushname || m.sender?.formattedName,
+            type: m.type || "chat",
+          }))
+          .slice(-50)
         setMessages(msgs)
-        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100)
+        scrollTimer = setTimeout(
+          () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }),
+          100
+        )
       })
       .catch(() => {})
-  }, [selectedChat, connected, ask])
+
+    return () => {
+      mounted = false
+      if (scrollTimer) clearTimeout(scrollTimer)
+    }
+  }, [selectedChat, connected, canInvokeRuntime, ask])
 
   // Listen for new messages
   useEffect(() => {
-    if (!connected) return
-    getClient().then((client) => {
-      client.listen("onMessage" as any, (msg: any) => {
-        if (msg.chatId === selectedChat?.id || msg.chat?.id === selectedChat?.id) {
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: msg.id || String(Date.now()),
-              body: msg.body || "",
-              fromMe: msg.fromMe || false,
-              timestamp: msg.timestamp || Date.now() / 1000,
-              sender: msg.sender?.pushname,
-              type: msg.type || "chat",
-            },
-          ])
-          setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100)
+    if (!connected || !canInvokeRuntime) return
+    let mounted = true
+    let scrollTimer: ReturnType<typeof setTimeout> | undefined
+    let listenerId: string | undefined
+    let listenerClient: Awaited<ReturnType<typeof getClient>> | undefined
+
+    void getClient()
+      .then(async (client) => {
+        listenerClient = client
+        const id = await client.listen("onMessage" as any, (msg: any) => {
+          if (!mounted) return
+
+          if (
+            msg.chatId === selectedChat?.id ||
+            msg.chat?.id === selectedChat?.id
+          ) {
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: msg.id || String(Date.now()),
+                body: msg.body || "",
+                fromMe: msg.fromMe || false,
+                timestamp: msg.timestamp || Date.now() / 1000,
+                sender: msg.sender?.pushname,
+                type: msg.type || "chat",
+              },
+            ])
+            scrollTimer = setTimeout(
+              () =>
+                messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }),
+              100
+            )
+          }
+        })
+        if (mounted) {
+          listenerId = id
+        } else {
+          client.stopListener("onMessage" as any, id)
         }
       })
-    })
-  }, [connected, selectedChat])
+      .catch(() => {})
+
+    return () => {
+      mounted = false
+      if (scrollTimer) clearTimeout(scrollTimer)
+      if (listenerId)
+        listenerClient?.stopListener("onMessage" as any, listenerId)
+    }
+  }, [connected, canInvokeRuntime, selectedChat])
 
   const sendMessage = useCallback(async () => {
     if (!input.trim() || !selectedChat) return
@@ -112,14 +167,19 @@ function ChatPage() {
         },
       ])
       setInput("")
-      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100)
+      setTimeout(
+        () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }),
+        100
+      )
     } catch {
       // Error sending
     }
   }, [input, selectedChat, ask])
 
   const filteredChats = chatSearch
-    ? chats.filter((c) => c.name.toLowerCase().includes(chatSearch.toLowerCase()))
+    ? chats.filter((c) =>
+        c.name.toLowerCase().includes(chatSearch.toLowerCase())
+      )
     : chats
 
   return (
@@ -132,7 +192,7 @@ function ChatPage() {
             placeholder="Search chats..."
             value={chatSearch}
             onChange={(e) => setChatSearch(e.target.value)}
-            className="h-8 w-full rounded-md border bg-background px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+            className="h-8 w-full rounded-md border bg-background px-3 text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-ring focus:outline-none"
           />
         </div>
         <div className="flex-1 overflow-auto">
@@ -142,7 +202,9 @@ function ChatPage() {
             </div>
           ) : filteredChats.length === 0 ? (
             <div className="p-4 text-center text-sm text-muted-foreground">
-              {connected ? "No chats found" : "Connect to see chats"}
+              {connected && canInvokeRuntime
+                ? "No chats found"
+                : "Connect to see chats"}
             </div>
           ) : (
             filteredChats.map((chat) => (
@@ -151,9 +213,12 @@ function ChatPage() {
                 onClick={() => {
                   setSelectedChat(chat)
                   if (privacyMode) {
-                    navigator.clipboard.writeText(chat.id).then(() => {
-                      toast.success("Chat ID copied to clipboard")
-                    }).catch(() => {})
+                    navigator.clipboard
+                      .writeText(chat.id)
+                      .then(() => {
+                        toast.success("Chat ID copied to clipboard")
+                      })
+                      .catch(() => {})
                   }
                 }}
                 className={`flex w-full items-center gap-3 border-b px-3 py-3 text-start transition-colors hover:bg-muted/50 ${
@@ -165,7 +230,9 @@ function ChatPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="truncate text-sm font-medium">{redactName(chat.name, chat.id)}</span>
+                    <span className="truncate text-sm font-medium">
+                      {redactName(chat.name, chat.id)}
+                    </span>
                     {(chat.unreadCount ?? 0) > 0 && (
                       <span className="ms-2 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
                         {chat.unreadCount}
@@ -173,7 +240,9 @@ function ChatPage() {
                     )}
                   </div>
                   {chat.lastMessage && (
-                    <p className="mt-0.5 truncate text-xs text-muted-foreground">{chat.lastMessage}</p>
+                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                      {chat.lastMessage}
+                    </p>
                   )}
                 </div>
               </button>
@@ -192,8 +261,12 @@ function ChatPage() {
                 {privacyMode ? "••" : selectedChat.name.charAt(0).toUpperCase()}
               </div>
               <div>
-                <div className="text-sm font-medium">{redactName(selectedChat.name, selectedChat.id)}</div>
-                <div className="text-[10px] text-muted-foreground">{redact(selectedChat.id)}</div>
+                <div className="text-sm font-medium">
+                  {redactName(selectedChat.name, selectedChat.id)}
+                </div>
+                <div className="text-[10px] text-muted-foreground">
+                  {redact(selectedChat.id)}
+                </div>
               </div>
             </div>
 
@@ -213,15 +286,24 @@ function ChatPage() {
                       }`}
                     >
                       {msg.sender && !msg.fromMe && (
-                        <div className="mb-0.5 text-[10px] font-semibold text-primary">{privacyMode ? "REDACTED" : msg.sender}</div>
+                        <div className="mb-0.5 text-[10px] font-semibold text-primary">
+                          {privacyMode ? "REDACTED" : msg.sender}
+                        </div>
                       )}
-                      <div className="whitespace-pre-wrap break-words">{msg.body || `[${msg.type}]`}</div>
+                      <div className="break-words whitespace-pre-wrap">
+                        {msg.body || `[${msg.type}]`}
+                      </div>
                       <div
                         className={`mt-1 text-end text-[10px] ${
-                          msg.fromMe ? "text-primary-foreground/60" : "text-muted-foreground"
+                          msg.fromMe
+                            ? "text-primary-foreground/60"
+                            : "text-muted-foreground"
                         }`}
                       >
-                        {new Date(msg.timestamp * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        {new Date(msg.timestamp * 1000).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </div>
                     </div>
                   </div>
@@ -237,9 +319,11 @@ function ChatPage() {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && !e.shiftKey && sendMessage()
+                  }
                   placeholder="Type a message..."
-                  className="h-10 flex-1 rounded-lg border bg-background px-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                  className="h-10 flex-1 rounded-lg border bg-background px-4 text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-ring focus:outline-none"
                 />
                 <button
                   onClick={sendMessage}
@@ -254,7 +338,7 @@ function ChatPage() {
         ) : (
           <div className="flex flex-1 items-center justify-center text-muted-foreground">
             <div className="text-center">
-              <div className="flex justify-center mb-2 opacity-50">
+              <div className="mb-2 flex justify-center opacity-50">
                 <MessageSquare size={48} />
               </div>
               <p className="mt-2 text-sm">Select a chat to start messaging</p>

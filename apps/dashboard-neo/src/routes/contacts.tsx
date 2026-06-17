@@ -1,9 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useState, useEffect, useMemo } from "react"
-import { Search, LayoutGrid, List, Building2, UserCheck, Globe } from "lucide-react"
+import {
+  Search,
+  LayoutGrid,
+  List,
+  Building2,
+  UserCheck,
+  Globe,
+} from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
 import { useDemo } from "@/lib/demo/use-demo"
 import { usePrivacy } from "@/lib/hooks/use-privacy"
+import { useHealth } from "@/lib/hooks/use-health"
 import { demoContacts } from "@/lib/demo/demo-data"
 import { toast } from "sonner"
 
@@ -24,6 +32,7 @@ type Contact = {
 function ContactsPage() {
   const { connected, ask } = useSocket()
   const { isDemo } = useDemo()
+  const { canInvokeRuntime } = useHealth()
   const { privacyMode, redactName, redact } = usePrivacy()
   const [contacts, setContacts] = useState<Contact[]>([])
   const [search, setSearch] = useState("")
@@ -37,14 +46,17 @@ function ContactsPage() {
       setContacts(demoContacts as Contact[])
       return
     }
-    if (!connected) return
+    if (!connected || !canInvokeRuntime) return
     setLoading(true)
     ask<Contact[]>("getAllContacts")
       .then((data) => {
         // Deduplicate by ID — API can return the same contact twice
         const seen = new Map<string, Contact>()
         for (const c of data || []) {
-          const idStr = (typeof c.id === "object" && c.id ? (c.id as any)._serialized : c.id) || (c as any)._serialized
+          const idStr =
+            (typeof c.id === "object" && c.id
+              ? (c.id as any)._serialized
+              : c.id) || (c as any)._serialized
           if (!idStr || seen.has(idStr)) continue
           seen.set(idStr, {
             id: idStr,
@@ -59,11 +71,13 @@ function ContactsPage() {
           })
         }
         const list = Array.from(seen.values())
-        setContacts(list.sort((a: Contact, b: Contact) => a.name.localeCompare(b.name)))
+        setContacts(
+          list.sort((a: Contact, b: Contact) => a.name.localeCompare(b.name))
+        )
       })
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [connected, ask, isDemo])
+  }, [connected, canInvokeRuntime, ask, isDemo])
 
   const filtered = useMemo(() => {
     let result = contacts
@@ -73,7 +87,7 @@ function ContactsPage() {
         (c) =>
           c.name.toLowerCase().includes(q) ||
           c.pushname.toLowerCase().includes(q) ||
-          c.id.includes(q),
+          c.id.includes(q)
       )
     }
     if (filterBusiness) result = result.filter((c) => c.isBusiness)
@@ -83,16 +97,19 @@ function ContactsPage() {
 
   const handleContactClick = (contact: Contact) => {
     if (privacyMode) {
-      navigator.clipboard.writeText(contact.id).then(() => {
-        toast.success("Chat ID copied to clipboard")
-      }).catch(() => {
-        toast.error("Failed to copy")
-      })
+      navigator.clipboard
+        .writeText(contact.id)
+        .then(() => {
+          toast.success("Chat ID copied to clipboard")
+        })
+        .catch(() => {
+          toast.error("Failed to copy")
+        })
     }
   }
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="space-y-5 p-6">
       {/* Header */}
       <div>
         <div className="flex items-center gap-2">
@@ -106,19 +123,24 @@ function ContactsPage() {
             </span>
           )}
         </div>
-        <p className="text-sm text-muted-foreground">Browse and search your WhatsApp contacts</p>
+        <p className="text-sm text-muted-foreground">
+          Browse and search your WhatsApp contacts
+        </p>
       </div>
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative min-w-[200px] flex-1">
+          <Search
+            size={16}
+            className="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
+          />
           <input
             type="text"
             placeholder="Search contacts..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="h-9 w-full rounded-lg border bg-background pl-9 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+            className="h-9 w-full rounded-lg border bg-background pr-3 pl-9 text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-ring focus:outline-none"
           />
         </div>
 
@@ -147,7 +169,7 @@ function ContactsPage() {
         </button>
 
         {/* View Toggle */}
-        <div className="flex rounded-lg border overflow-hidden">
+        <div className="flex overflow-hidden rounded-lg border">
           <button
             onClick={() => setView("grid")}
             className={`p-1.5 transition-colors ${view === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}
@@ -171,7 +193,11 @@ function ContactsPage() {
       ) : filtered.length === 0 ? (
         <div className="flex h-48 flex-col items-center justify-center gap-2 text-muted-foreground">
           <Globe size={40} className="opacity-30" />
-          <p className="text-sm">{connected || isDemo ? "No contacts match your filters" : "Connect to see contacts"}</p>
+          <p className="text-sm">
+            {(connected && canInvokeRuntime) || isDemo
+              ? "No contacts match your filters"
+              : "Connect to see contacts"}
+          </p>
         </div>
       ) : view === "grid" ? (
         <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
@@ -187,7 +213,7 @@ function ContactsPage() {
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border bg-card divide-y">
+        <div className="divide-y rounded-xl border bg-card">
           {filtered.map((contact) => (
             <ContactRow
               key={contact.id}
@@ -225,7 +251,7 @@ function ContactCard({
 
   return (
     <div
-      className={`group rounded-xl border bg-card p-4 transition-all hover:shadow-md hover:border-primary/20 ${privacyMode ? "cursor-pointer" : ""}`}
+      className={`group rounded-xl border bg-card p-4 transition-all hover:border-primary/20 hover:shadow-md ${privacyMode ? "cursor-pointer" : ""}`}
       onClick={() => onClick(contact)}
     >
       <div className="flex flex-col items-center text-center">
@@ -235,9 +261,13 @@ function ContactCard({
         >
           {initials}
         </div>
-        <h3 className="text-sm font-semibold leading-tight truncate max-w-full">{displayName}</h3>
+        <h3 className="max-w-full truncate text-sm leading-tight font-semibold">
+          {displayName}
+        </h3>
         {contact.pushname && contact.pushname !== contact.name && (
-          <p className="mt-0.5 text-xs text-muted-foreground truncate max-w-full">~{displayPushname}</p>
+          <p className="mt-0.5 max-w-full truncate text-xs text-muted-foreground">
+            ~{displayPushname}
+          </p>
         )}
         <div className="mt-2 flex items-center gap-1.5">
           {contact.isBusiness && (
@@ -289,7 +319,7 @@ function ContactRow({
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium truncate">{displayName}</span>
+          <span className="truncate text-sm font-medium">{displayName}</span>
           {contact.isBusiness && (
             <span className="rounded bg-blue-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400">
               Business
@@ -300,7 +330,7 @@ function ContactRow({
           <p className="text-xs text-muted-foreground">~{displayPushname}</p>
         )}
       </div>
-      <span className="shrink-0 text-xs text-muted-foreground font-mono">
+      <span className="shrink-0 font-mono text-xs text-muted-foreground">
         {displayId}
       </span>
     </div>

@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/driver-puppeteer",
-  "version": "5.0.0-alpha.6",
+  "version": "5.0.0-alpha.7",
   "description": "Puppeteer driver implementation for open-wa",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",

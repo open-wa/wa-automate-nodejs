@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/client",
-  "version": "5.0.0-alpha.6",
+  "version": "5.0.0-alpha.7",
   "description": "User-facing API client for open-wa WhatsApp automation",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

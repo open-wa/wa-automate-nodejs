@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/screencaster",
-  "version": "5.0.0-alpha.6",
+  "version": "5.0.0-alpha.7",
   "description": "Headless browser screencasting for open-wa — treeshakable server + client",
   "type": "module",
   "exports": {

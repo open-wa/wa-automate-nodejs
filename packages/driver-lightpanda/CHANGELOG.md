@@ -1,5 +1,12 @@
 # @open-wa/driver-lightpanda
 
+## 5.0.0-alpha.7
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/driver-interface@5.0.0-alpha.7
+
 ## 5.0.0-alpha.6
 
 ### Patch Changes

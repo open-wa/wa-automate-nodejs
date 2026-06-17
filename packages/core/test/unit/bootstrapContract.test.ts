@@ -47,6 +47,8 @@ type HarnessOptions = {
   patchConfig?: PatchFetchConfig;
   driverCapabilities?: Partial<DriverCapabilities>;
   driverName?: string;
+  injectableSession?: boolean;
+  launchAssetFails?: boolean;
 };
 
 class FakeElementHandle implements IElementHandle {
@@ -96,6 +98,8 @@ class FakePage implements IPage {
   private launchError: string | null = null;
   private readonly licenseApplyFails: boolean;
   private readonly initPatchFails: boolean;
+  private readonly injectableSession: boolean;
+  private readonly launchAssetFails: boolean;
   private wapiAssetInjected = false;
   private recoverRuntimeOnNextLaunchInjection = false;
   private recoverRuntimeMethodsOnNextLaunchInjection: string[] | null = null;
@@ -118,6 +122,8 @@ class FakePage implements IPage {
     this.screenshotError = options.screenshotError;
     this.licenseApplyFails = options.licenseApplyFails ?? false;
     this.initPatchFails = options.initPatchFails ?? false;
+    this.injectableSession = options.injectableSession ?? true;
+    this.launchAssetFails = options.launchAssetFails ?? false;
     this.refreshBrowserGlobals();
   }
 
@@ -216,6 +222,10 @@ class FakePage implements IPage {
       }
 
       this.launchInjectionCount += 1;
+
+      if (this.launchAssetFails) {
+        throw new Error('simulated launch asset failure');
+      }
 
       if (this.recoverRuntimeOnNextLaunchInjection) {
         this.runtimeAvailable = true;
@@ -317,6 +327,18 @@ class FakePage implements IPage {
    * This is called by waitForFunction() to evaluate probe scripts.
    */
   private evaluateBooleanScript(script: string): boolean {
+    if (script.includes('WAWebCollections')) {
+      if (this.injectableSession) {
+        return true;
+      }
+
+      if (script.includes('canvas[aria-label]')) {
+        return this.qrCode !== null;
+      }
+
+      return false;
+    }
+
     // LEGACY_IS_INSIDE_CHAT_CHECK_SCRIPT and RIPE_SESSION_CHECK_SCRIPT
     // Check: WA_AUTHENTICATED or DOM elements (.app/.two with tabindex)
     if (
@@ -654,6 +676,42 @@ afterEach(() => {
 });
 
 describe('bootstrap contract harness', () => {
+  it('allows pre-auth navigation to continue when QR is visible before WAWebCollections is injectable', async () => {
+    const { client } = await createHarness({
+      injectableSession: false,
+      qrCode: 'contract-qr',
+    });
+
+    try {
+      const transport = client.getTransport();
+      await transport.initialize();
+      await expect(transport.navigate()).resolves.toBeUndefined();
+    } finally {
+      await client.stop('pre_auth_qr_navigation_cleanup');
+    }
+  });
+
+  it('defers launch helper failures when the pre-auth QR surface is already available', async () => {
+    const { client, page } = await createHarness({
+      injectableSession: false,
+      launchAssetFails: true,
+      qrCode: 'contract-qr',
+      runtimeAvailable: true,
+      storeMsgAvailable: false,
+      sessionLoaded: false,
+    });
+
+    try {
+      const transport = client.getTransport();
+      await transport.initialize();
+      await transport.navigate();
+      await expect(transport.injectWapi()).resolves.toBe(true);
+      expect(page.getLaunchInjectionCount()).toBe(1);
+    } finally {
+      await client.stop('pre_auth_qr_launch_defer_cleanup');
+    }
+  });
+
   it('Phase D: blocks readiness until runtime injection proves usable capability', async () => {
     const { client, recordedEvents } = await createHarness({
       runtimeAvailable: false,

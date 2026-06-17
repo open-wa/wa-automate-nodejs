@@ -1,5 +1,13 @@
 # @open-wa/integration-cloudflare
 
+## 5.0.0-alpha.7
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/core@5.0.0-alpha.7
+  - @open-wa/logger@5.0.0-alpha.7
+
 ## 5.0.0-alpha.6
 
 ### Patch Changes

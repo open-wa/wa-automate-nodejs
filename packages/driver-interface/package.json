@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/driver-interface",
-  "version": "5.0.0-alpha.6",
+  "version": "5.0.0-alpha.7",
   "description": "Browser driver abstraction interfaces for open-wa",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",

@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/integration-chatwoot",
-  "version": "5.0.0-alpha.6",
+  "version": "5.0.0-alpha.7",
   "description": "Chatwoot integration plugin for open-wa",
   "type": "module",
   "exports": {

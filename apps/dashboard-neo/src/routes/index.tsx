@@ -6,7 +6,13 @@ import { useHealth } from "@/lib/hooks/use-health"
 import { getClient } from "@/lib/api-client"
 import { useDemo } from "@/lib/demo/use-demo"
 import { usePrivacy } from "@/lib/hooks/use-privacy"
-import { demoMessageVolume, demoMessageTypes, demoStats, demoLaunchLogs, demoPostScanLogs } from "@/lib/demo/demo-data"
+import {
+  demoMessageVolume,
+  demoMessageTypes,
+  demoStats,
+  demoLaunchLogs,
+  demoPostScanLogs,
+} from "@/lib/demo/demo-data"
 import { LaunchConsole, type LogLine } from "@/components/launch-console"
 import {
   Zap,
@@ -38,16 +44,25 @@ function formatUptime(seconds: number): string {
 }
 
 function getEventIcon(name: string): { color: string; letter: string } {
-  if (name.startsWith("message")) return { color: "hsl(210, 80%, 60%)", letter: "M" }
-  if (name.startsWith("ack")) return { color: "hsl(150, 70%, 50%)", letter: "✓" }
-  if (name.startsWith("device")) return { color: "hsl(40, 85%, 55%)", letter: "D" }
-  if (name.startsWith("session")) return { color: "hsl(280, 70%, 60%)", letter: "S" }
-  if (name.startsWith("group")) return { color: "hsl(330, 70%, 60%)", letter: "G" }
+  if (name.startsWith("message"))
+    return { color: "hsl(210, 80%, 60%)", letter: "M" }
+  if (name.startsWith("ack"))
+    return { color: "hsl(150, 70%, 50%)", letter: "✓" }
+  if (name.startsWith("device"))
+    return { color: "hsl(40, 85%, 55%)", letter: "D" }
+  if (name.startsWith("session"))
+    return { color: "hsl(280, 70%, 60%)", letter: "S" }
+  if (name.startsWith("group"))
+    return { color: "hsl(330, 70%, 60%)", letter: "G" }
   if (name.startsWith("call")) return { color: "hsl(0, 70%, 60%)", letter: "C" }
-  if (name.startsWith("reaction")) return { color: "hsl(50, 90%, 55%)", letter: "R" }
-  if (name.startsWith("commerce")) return { color: "hsl(120, 60%, 45%)", letter: "$" }
-  if (name.startsWith("label")) return { color: "hsl(190, 70%, 50%)", letter: "L" }
-  if (name.startsWith("chat")) return { color: "hsl(230, 60%, 55%)", letter: "C" }
+  if (name.startsWith("reaction"))
+    return { color: "hsl(50, 90%, 55%)", letter: "R" }
+  if (name.startsWith("commerce"))
+    return { color: "hsl(120, 60%, 45%)", letter: "$" }
+  if (name.startsWith("label"))
+    return { color: "hsl(190, 70%, 50%)", letter: "L" }
+  if (name.startsWith("chat"))
+    return { color: "hsl(230, 60%, 55%)", letter: "C" }
   return { color: "hsl(0, 0%, 60%)", letter: "·" }
 }
 
@@ -56,12 +71,12 @@ type LaunchPhase = "connecting" | "launching" | "qr" | "ready"
 
 function getLaunchPhase(
   healthConnected: boolean,
-  healthSession: Record<string, unknown> | null,
+  healthSession: Record<string, unknown> | null
 ): LaunchPhase {
   if (!healthConnected || !healthSession) return "connecting"
 
   if (healthSession.ready) return "ready"
-  
+
   const state = healthSession.state as string | undefined
   if (state === "READY" || state === "CONNECTED") return "ready"
   if (state === "AUTHENTICATING" || state === "WAITING_FOR_SCAN") return "qr"
@@ -78,16 +93,18 @@ function PreLaunchView({
   qr: string | null
   isDemo: boolean
 }) {
-  const [logLines, setLogLines] = useState<LogLine[]>([])
-  const [demoPhase, setDemoPhase] = useState<LaunchPhase | "post-scan">("launching")
+  const [demoLogLines, setDemoLogLines] = useState<LogLine[]>([])
+  const [demoPhase, setDemoPhase] = useState<LaunchPhase | "post-scan">(
+    "launching"
+  )
   const demoTimeoutIds = useRef<ReturnType<typeof setTimeout>[]>([])
 
   console.log({
-  phase,
-  qr,
-  isDemo,
-})
-if(qr) phase = "qr"
+    phase,
+    qr,
+    isDemo,
+  })
+  if (qr) phase = "qr"
   // In demo mode, drip-feed log lines to simulate a real launch
   useEffect(() => {
     if (!isDemo) return
@@ -100,9 +117,13 @@ if(qr) phase = "qr"
       cumulativeDelay += line.delay
       const thisDelay = cumulativeDelay
       const id = setTimeout(() => {
-        setLogLines((prev) => [
+        setDemoLogLines((prev) => [
           ...prev,
-          { text: line.text, type: line.type, timestamp: new Date().toLocaleTimeString() },
+          {
+            text: line.text,
+            type: line.type,
+            timestamp: new Date().toLocaleTimeString(),
+          },
         ])
       }, thisDelay)
       ids.push(id)
@@ -113,7 +134,7 @@ if(qr) phase = "qr"
     ids.push(
       setTimeout(() => {
         setDemoPhase("qr")
-      }, qrDelay),
+      }, qrDelay)
     )
 
     // Phase 3: After some time, auto-scan QR and play post-scan logs
@@ -126,9 +147,13 @@ if(qr) phase = "qr"
           postDelay += line.delay
           const thisDelay = scanDelay + postDelay
           const id = setTimeout(() => {
-            setLogLines((prev) => [
+            setDemoLogLines((prev) => [
               ...prev,
-              { text: line.text, type: line.type, timestamp: new Date().toLocaleTimeString() },
+              {
+                text: line.text,
+                type: line.type,
+                timestamp: new Date().toLocaleTimeString(),
+              },
             ])
           }, thisDelay - scanDelay) // Relative to this timeout
           ids.push(id)
@@ -139,9 +164,9 @@ if(qr) phase = "qr"
         ids.push(
           setTimeout(() => {
             setDemoPhase("ready")
-          }, readyDelay),
+          }, readyDelay)
         )
-      }, scanDelay),
+      }, scanDelay)
     )
 
     demoTimeoutIds.current = ids
@@ -150,20 +175,23 @@ if(qr) phase = "qr"
 
   // In live mode, convert launch timeline events to log lines
   const { timeline } = useHealth()
-  useEffect(() => {
-    if (isDemo) return
-    const lines: LogLine[] = timeline.map((step) => ({
+  const liveLogLines = useMemo<LogLine[]>(() => {
+    if (isDemo) return []
+    return timeline.map((step) => ({
       text: `${step.step}${step.durationMs > 0 ? ` (${step.durationMs}ms)` : ""}`,
-      type: step.status === "done" ? "success" as const : "error" as const,
-      timestamp: step.timestamp ? new Date(step.timestamp).toLocaleTimeString() : undefined,
+      type: step.status === "done" ? ("success" as const) : ("error" as const),
+      timestamp: step.timestamp
+        ? new Date(step.timestamp).toLocaleTimeString()
+        : undefined,
     }))
-    if (lines.length > 0) setLogLines(lines)
   }, [timeline, isDemo])
+  const logLines = isDemo ? demoLogLines : liveLogLines
 
   const effectivePhase = isDemo ? demoPhase : phase
-  const showQr = (effectivePhase === "qr" || phase === "qr") && !isDemo
-    ? !!qr
-    : isDemo && demoPhase === "qr"
+  const showQr =
+    (effectivePhase === "qr" || phase === "qr") && !isDemo
+      ? !!qr
+      : isDemo && demoPhase === "qr"
   const isWaitingForQr = effectivePhase === "qr"
 
   // Progress computation for launch
@@ -171,7 +199,10 @@ if(qr) phase = "qr"
     ? logLines.filter((l) => l.type === "success").length
     : timeline.filter((s) => s.status === "done").length
   const totalSteps = isDemo ? demoLaunchLogs.length : 14 // approximate total
-  const progressPct = Math.min((completedSteps / Math.max(totalSteps, 1)) * 100, 100)
+  const progressPct = Math.min(
+    (completedSteps / Math.max(totalSteps, 1)) * 100,
+    100
+  )
 
   return (
     <div className="space-y-6 p-6">
@@ -213,9 +244,7 @@ if(qr) phase = "qr"
           <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
             <div
               className={`h-full rounded-full transition-all duration-700 ${
-                isWaitingForQr
-                  ? "bg-amber-500 animate-pulse"
-                  : "bg-primary"
+                isWaitingForQr ? "animate-pulse bg-amber-500" : "bg-primary"
               }`}
               style={{ width: `${progressPct}%` }}
             />
@@ -234,7 +263,7 @@ if(qr) phase = "qr"
             </div>
             <div className="relative">
               {/* Scanning animation border */}
-              <div className="absolute inset-0 rounded-2xl border-2 border-primary/30 animate-pulse" />
+              <div className="absolute inset-0 animate-pulse rounded-2xl border-2 border-primary/30" />
               <div className="rounded-xl border-2 border-white bg-white p-3 shadow-lg dark:border-zinc-200">
                 {isDemo ? (
                   // In demo mode, show a placeholder QR
@@ -243,7 +272,9 @@ if(qr) phase = "qr"
                       {/* Simple QR-like pattern */}
                       {Array.from({ length: 10 }).map((_, row) =>
                         Array.from({ length: 10 }).map((_, col) => {
-                          const filled = (row + col) % 3 !== 0 && Math.sin(row * col + 1) > -0.3
+                          const filled =
+                            (row + col) % 3 !== 0 &&
+                            Math.sin(row * col + 1) > -0.3
                           if (!filled) return null
                           return (
                             <rect
@@ -256,18 +287,66 @@ if(qr) phase = "qr"
                               rx={1}
                             />
                           )
-                        }),
+                        })
                       )}
                       {/* Corner markers */}
-                      <rect x={0} y={0} width={30} height={30} fill="none" stroke="black" strokeWidth={4} rx={4} />
-                      <rect x={5} y={5} width={20} height={20} fill="black" rx={3} />
-                      <rect x={70} y={0} width={30} height={30} fill="none" stroke="black" strokeWidth={4} rx={4} />
-                      <rect x={75} y={5} width={20} height={20} fill="black" rx={3} />
-                      <rect x={0} y={70} width={30} height={30} fill="none" stroke="black" strokeWidth={4} rx={4} />
-                      <rect x={5} y={75} width={20} height={20} fill="black" rx={3} />
+                      <rect
+                        x={0}
+                        y={0}
+                        width={30}
+                        height={30}
+                        fill="none"
+                        stroke="black"
+                        strokeWidth={4}
+                        rx={4}
+                      />
+                      <rect
+                        x={5}
+                        y={5}
+                        width={20}
+                        height={20}
+                        fill="black"
+                        rx={3}
+                      />
+                      <rect
+                        x={70}
+                        y={0}
+                        width={30}
+                        height={30}
+                        fill="none"
+                        stroke="black"
+                        strokeWidth={4}
+                        rx={4}
+                      />
+                      <rect
+                        x={75}
+                        y={5}
+                        width={20}
+                        height={20}
+                        fill="black"
+                        rx={3}
+                      />
+                      <rect
+                        x={0}
+                        y={70}
+                        width={30}
+                        height={30}
+                        fill="none"
+                        stroke="black"
+                        strokeWidth={4}
+                        rx={4}
+                      />
+                      <rect
+                        x={5}
+                        y={75}
+                        width={20}
+                        height={20}
+                        fill="black"
+                        rx={3}
+                      />
                     </svg>
                     {/* Scanning line */}
-                    <div className="absolute inset-x-3 h-0.5 bg-primary/60 animate-scan" />
+                    <div className="animate-scan absolute inset-x-3 h-0.5 bg-primary/60" />
                   </div>
                 ) : (
                   <img
@@ -350,24 +429,34 @@ function StatusStep({
     pending: "border-border bg-card text-muted-foreground",
     running: "border-primary/30 bg-primary/5 text-primary",
     done: "border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400",
-    waiting: "border-amber-500/30 bg-amber-500/5 text-amber-600 dark:text-amber-400",
+    waiting:
+      "border-amber-500/30 bg-amber-500/5 text-amber-600 dark:text-amber-400",
   }
-  const statusLabels = { pending: "Pending", running: "In Progress", done: "Complete", waiting: "Waiting" }
+  const statusLabels = {
+    pending: "Pending",
+    running: "In Progress",
+    done: "Complete",
+    waiting: "Waiting",
+  }
 
   return (
-    <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-all duration-500 ${styles[status]}`}>
+    <div
+      className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-all duration-500 ${styles[status]}`}
+    >
       <div className="relative">
         <Icon size={18} />
         {status === "running" && (
-          <div className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full bg-primary animate-pulse" />
+          <div className="absolute -top-0.5 -right-0.5 size-2.5 animate-pulse rounded-full bg-primary" />
         )}
         {status === "waiting" && (
-          <div className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full bg-amber-500 animate-pulse" />
+          <div className="absolute -top-0.5 -right-0.5 size-2.5 animate-pulse rounded-full bg-amber-500" />
         )}
       </div>
       <div className="min-w-0">
         <div className="text-sm font-semibold">{label}</div>
-        <div className="text-[10px] uppercase tracking-wider opacity-60">{statusLabels[status]}</div>
+        <div className="text-[10px] tracking-wider uppercase opacity-60">
+          {statusLabels[status]}
+        </div>
       </div>
     </div>
   )
@@ -381,7 +470,12 @@ function SessionPage() {
   const { redact } = usePrivacy()
   const { events } = useEvents()
   const h = useHealth()
-  const { connected: healthConnected, session: healthSession, qr: healthQr } = h
+  const {
+    connected: healthConnected,
+    session: healthSession,
+    qr: healthQr,
+    canInvokeRuntime,
+  } = h
   // Compute launch phase
   const phase = getLaunchPhase(healthConnected, healthSession)
 
@@ -394,8 +488,12 @@ function SessionPage() {
   useEffect(() => {
     if (!isDemo) return
     // After the full demo animation (~25s), transition to the main dashboard
-    const total = demoLaunchLogs.reduce((acc, l) => acc + l.delay, 0) + 1500 + 8000 +
-      demoPostScanLogs.reduce((acc, l) => acc + l.delay, 0) + 2000
+    const total =
+      demoLaunchLogs.reduce((acc, l) => acc + l.delay, 0) +
+      1500 +
+      8000 +
+      demoPostScanLogs.reduce((acc, l) => acc + l.delay, 0) +
+      2000
     const id = setTimeout(() => {
       setDemoReady(true)
       setShowPreLaunch(false)
@@ -414,28 +512,28 @@ function SessionPage() {
 
   // Fetch true stats from client when connected
   useEffect(() => {
-    if (isDemo || !session.connected) return
+    if (isDemo || !canInvokeRuntime) return
 
     let mounted = true
     async function loadStats() {
       try {
         const c = await getClient()
         if (!mounted) return
-        
+
         // Fetch concurrently
         // Type cast to any because ask types might be strict, but backend handlers exist
         const [chats, contacts] = await Promise.allSettled([
           c.ask("getAllChats" as any, {}),
           c.ask("getAllContacts" as any, {}),
         ])
-        
+
         if (!mounted) return
-        
+
         let tChats = 0
         let aChats = 0
         let tContacts = 0
         let unreadCount = 0
-        
+
         if (chats.status === "fulfilled" && Array.isArray(chats.value)) {
           tChats = chats.value.length
           // Active chats = chats with messages within the past hour
@@ -444,9 +542,12 @@ function SessionPage() {
             const lastMsgTs = ch.t || ch.timestamp || 0
             return lastMsgTs > oneHourAgo
           }).length
-          unreadCount = chats.value.reduce((acc: number, ch: any) => acc + (ch.unreadCount || 0), 0)
+          unreadCount = chats.value.reduce(
+            (acc: number, ch: any) => acc + (ch.unreadCount || 0),
+            0
+          )
         }
-        
+
         if (contacts.status === "fulfilled" && Array.isArray(contacts.value)) {
           tContacts = contacts.value.length
         }
@@ -476,7 +577,7 @@ function SessionPage() {
         console.error("Failed to load live stats:", err)
       }
     }
-    
+
     // Slight delay so socket connection finishes booting its plugins
     const delay = setTimeout(loadStats, 1000)
     // Refresh stats periodically to keep "active chats" and "messages today" fresh
@@ -487,11 +588,12 @@ function SessionPage() {
       clearTimeout(delay)
       clearInterval(refreshInterval)
     }
-  }, [isDemo, session.connected, events])
+  }, [isDemo, canInvokeRuntime, events])
 
   const stats = useMemo(() => {
     if (isDemo) return demoStats
-    const totalMessages = liveStats.messagesToday.inbound + liveStats.messagesToday.outbound
+    const totalMessages =
+      liveStats.messagesToday.inbound + liveStats.messagesToday.outbound
     return {
       messagesToday: totalMessages,
       messagesIn: liveStats.messagesToday.inbound,
@@ -508,15 +610,16 @@ function SessionPage() {
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="size-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">Connecting to session…</p>
+          <p className="text-sm text-muted-foreground">
+            Connecting to session…
+          </p>
         </div>
       </div>
     )
   }
 
   // Show pre-launch experience when session isn't ready
-  const sessionReady = isDemo ? demoReady : (healthSession?.ready === true || healthSession?.state === "READY" || healthSession?.state === "CONNECTED")
-  // console.log(sessionReady, )
+  const sessionReady = isDemo ? demoReady : canInvokeRuntime
   if (!sessionReady || (isDemo && showPreLaunch)) {
     return <PreLaunchView phase={phase} qr={healthQr || qr} isDemo={isDemo} />
   }
@@ -527,14 +630,18 @@ function SessionPage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold tracking-tight">Session Overview</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Session Overview
+          </h1>
           {isDemo && (
             <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
               Demo Mode
             </span>
           )}
         </div>
-        <p className="text-sm text-muted-foreground">Monitor your WhatsApp session in real-time</p>
+        <p className="text-sm text-muted-foreground">
+          Monitor your WhatsApp session in real-time
+        </p>
       </div>
 
       {/* Row 1 — Key Metrics */}
@@ -549,7 +656,11 @@ function SessionPage() {
           title="Messages Today"
           value={String(stats.messagesToday)}
           icon={MessageSquare}
-          subtitle={isDemo ? `${stats.unreadTotal} unread` : `↓${(stats as any).messagesIn || 0} ↑${(stats as any).messagesOut || 0}`}
+          subtitle={
+            isDemo
+              ? `${stats.unreadTotal} unread`
+              : `↓${(stats as any).messagesIn || 0} ↑${(stats as any).messagesOut || 0}`
+          }
         />
         <StatCard
           title="Active Chats"
@@ -568,11 +679,15 @@ function SessionPage() {
       {/* Row 2 — Charts */}
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-xl border bg-card p-5">
-          <h3 className="mb-4 text-sm font-semibold text-muted-foreground">Message Volume — Last 7 Days</h3>
+          <h3 className="mb-4 text-sm font-semibold text-muted-foreground">
+            Message Volume — Last 7 Days
+          </h3>
           <MessageVolumeChart data={isDemo ? demoMessageVolume : []} />
         </div>
         <div className="rounded-xl border bg-card p-5">
-          <h3 className="mb-4 text-sm font-semibold text-muted-foreground">Message Types Breakdown</h3>
+          <h3 className="mb-4 text-sm font-semibold text-muted-foreground">
+            Message Types Breakdown
+          </h3>
           <MessageTypesDonut data={isDemo ? demoMessageTypes : []} />
         </div>
       </div>
@@ -582,8 +697,12 @@ function SessionPage() {
         <div className="lg:col-span-2">
           <div className="rounded-xl border bg-card">
             <div className="flex items-center justify-between border-b px-5 py-3">
-              <h3 className="text-sm font-semibold text-muted-foreground">Recent Activity</h3>
-              <span className="text-xs text-muted-foreground">{events.length} events</span>
+              <h3 className="text-sm font-semibold text-muted-foreground">
+                Recent Activity
+              </h3>
+              <span className="text-xs text-muted-foreground">
+                {events.length} events
+              </span>
             </div>
             <div className="max-h-[360px] overflow-auto">
               {events.slice(0, 15).map((evt) => (
@@ -599,22 +718,35 @@ function SessionPage() {
         </div>
 
         <div className="rounded-xl border bg-card p-5">
-          <h3 className="mb-4 text-sm font-semibold text-muted-foreground">Session Details</h3>
+          <h3 className="mb-4 text-sm font-semibold text-muted-foreground">
+            Session Details
+          </h3>
           <div className="space-y-4">
-            <DetailRow icon={Smartphone} label="Host Number" value={redact(session.hostNumber || "—")} />
-            <DetailRow icon={Tag} label="WA Version" value={session.waVersion || "—"} />
+            <DetailRow
+              icon={Smartphone}
+              label="Host Number"
+              value={redact(session.hostNumber || "—")}
+            />
+            <DetailRow
+              icon={Tag}
+              label="WA Version"
+              value={session.waVersion || "—"}
+            />
             <DetailRow
               icon={Hash}
               label="Patch Hash"
               value={(() => {
                 // Derive a compact patch hash from the applied patches in health data
-                const appliedPatches = h.patches?.filter(p => p.outcome === 'applied').map(p => p.patchId) ?? []
+                const appliedPatches =
+                  h.patches
+                    ?.filter((p) => p.outcome === "applied")
+                    .map((p) => p.patchId) ?? []
                 if (appliedPatches.length === 0) return "—"
                 // Create a short hash from the sorted patch IDs
-                const patchStr = appliedPatches.sort().join(',')
+                const patchStr = appliedPatches.sort().join(",")
                 let hash = 0
                 for (let i = 0; i < patchStr.length; i++) {
-                  hash = ((hash << 5) - hash) + patchStr.charCodeAt(i)
+                  hash = (hash << 5) - hash + patchStr.charCodeAt(i)
                   hash |= 0 // Convert to 32bit integer
                 }
                 return Math.abs(hash).toString(36).toUpperCase().slice(0, 8)
@@ -624,7 +756,11 @@ function SessionPage() {
               icon={Plug}
               label="Socket"
               value={connected ? "Connected" : "Disconnected"}
-              valueColor={connected ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}
+              valueColor={
+                connected
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-red-600 dark:text-red-400"
+              }
             />
           </div>
         </div>
@@ -648,11 +784,16 @@ function StatCard({
   subtitle?: string
 }) {
   return (
-    <div className="group rounded-xl border bg-card p-4 shadow-sm transition-all hover:shadow-md hover:border-primary/20">
+    <div className="group rounded-xl border bg-card p-4 shadow-sm transition-all hover:border-primary/20 hover:shadow-md">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-muted-foreground">{title}</span>
+        <span className="text-sm font-medium text-muted-foreground">
+          {title}
+        </span>
         <div className="flex size-9 items-center justify-center rounded-lg bg-muted/60 transition-colors group-hover:bg-primary/10">
-          <Icon size={18} className="text-muted-foreground transition-colors group-hover:text-primary" />
+          <Icon
+            size={18}
+            className="text-muted-foreground transition-colors group-hover:text-primary"
+          />
         </div>
       </div>
       <div className="mt-2">
@@ -667,7 +808,9 @@ function StatCard({
         >
           {value}
         </span>
-        {subtitle && <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>}
+        {subtitle && (
+          <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
+        )}
       </div>
     </div>
   )
@@ -677,15 +820,16 @@ function StatCard({
 function ActivityRow({ event }: { event: EventLog }) {
   const { color, letter } = getEventIcon(event.name)
   const payload = event.args?.[0]
-  const summary = typeof payload === "object" && payload !== null
-    ? (payload as { body?: string; reason?: string; action?: string }).body
-      || (payload as { reason?: string }).reason
-      || (payload as { action?: string }).action
-      || ""
-    : ""
+  const summary =
+    typeof payload === "object" && payload !== null
+      ? (payload as { body?: string; reason?: string; action?: string }).body ||
+        (payload as { reason?: string }).reason ||
+        (payload as { action?: string }).action ||
+        ""
+      : ""
 
   return (
-    <div className="group flex items-center gap-3 border-b border-border/50 px-5 py-2.5 last:border-0 hover:bg-muted/30 transition-colors">
+    <div className="group flex items-center gap-3 border-b border-border/50 px-5 py-2.5 transition-colors last:border-0 hover:bg-muted/30">
       <div
         className="flex size-7 shrink-0 items-center justify-center rounded-md text-[11px] font-bold text-white"
         style={{ backgroundColor: color }}
@@ -696,12 +840,19 @@ function ActivityRow({ event }: { event: EventLog }) {
         <div className="flex items-center gap-2">
           <code className="text-xs font-semibold">{event.name}</code>
           {summary && (
-            <span className="truncate text-xs text-muted-foreground">— {summary}</span>
+            <span className="truncate text-xs text-muted-foreground">
+              — {summary}
+            </span>
           )}
         </div>
       </div>
-      <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">{event.timestamp}</span>
-      <ChevronRight size={14} className="shrink-0 text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100" />
+      <span className="shrink-0 text-[11px] text-muted-foreground tabular-nums">
+        {event.timestamp}
+      </span>
+      <ChevronRight
+        size={14}
+        className="shrink-0 text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100"
+      />
     </div>
   )
 }
@@ -730,7 +881,11 @@ function DetailRow({
 }
 
 // ─── Message Volume Chart (SVG Bar Chart) ────────────────────────
-function MessageVolumeChart({ data }: { data: Array<{ day: string; count: number }> }) {
+function MessageVolumeChart({
+  data,
+}: {
+  data: Array<{ day: string; count: number }>
+}) {
   if (data.length === 0) {
     return (
       <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
@@ -774,8 +929,20 @@ function MessageVolumeChart({ data }: { data: Array<{ day: string; count: number
               className="transition-all duration-500"
               opacity={0.85}
             >
-              <animate attributeName="height" from="0" to={barH} dur="0.6s" fill="freeze" />
-              <animate attributeName="y" from={chartHeight + 5} to={y} dur="0.6s" fill="freeze" />
+              <animate
+                attributeName="height"
+                from="0"
+                to={barH}
+                dur="0.6s"
+                fill="freeze"
+              />
+              <animate
+                attributeName="y"
+                from={chartHeight + 5}
+                to={y}
+                dur="0.6s"
+                fill="freeze"
+              />
             </rect>
             <text
               x={x + barWidth / 2}
@@ -801,7 +968,11 @@ function MessageVolumeChart({ data }: { data: Array<{ day: string; count: number
 }
 
 // ─── Message Types Donut (SVG) ───────────────────────────────────
-function MessageTypesDonut({ data }: { data: Array<{ type: string; count: number; color: string }> }) {
+function MessageTypesDonut({
+  data,
+}: {
+  data: Array<{ type: string; count: number; color: string }>
+}) {
   if (data.length === 0) {
     return (
       <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
@@ -854,19 +1025,32 @@ function MessageTypesDonut({ data }: { data: Array<{ type: string; count: number
             className="transition-all duration-500"
           />
         ))}
-        <text x={cx} y={cy - 6} textAnchor="middle" className="fill-foreground text-2xl font-bold">
+        <text
+          x={cx}
+          y={cy - 6}
+          textAnchor="middle"
+          className="fill-foreground text-2xl font-bold"
+        >
           {total}
         </text>
-        <text x={cx} y={cy + 14} textAnchor="middle" className="fill-muted-foreground text-[11px]">
+        <text
+          x={cx}
+          y={cy + 14}
+          textAnchor="middle"
+          className="fill-muted-foreground text-[11px]"
+        >
           total
         </text>
       </svg>
       <div className="flex flex-col gap-2">
         {data.map((d) => (
           <div key={d.type} className="flex items-center gap-2 text-sm">
-            <div className="size-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+            <div
+              className="size-2.5 rounded-full"
+              style={{ backgroundColor: d.color }}
+            />
             <span className="text-muted-foreground">{d.type}</span>
-            <span className="ml-auto tabular-nums font-medium">{d.count}</span>
+            <span className="ml-auto font-medium tabular-nums">{d.count}</span>
           </div>
         ))}
       </div>
