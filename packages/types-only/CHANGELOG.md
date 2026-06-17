@@ -1,5 +1,19 @@
 # @open-wa/wa-automate-types-only
 
+## 5.0.0-alpha.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/schema@5.0.0-alpha.3
+
+## 5.0.0-alpha.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/schema@5.0.0-alpha.2
+
 ## 5.0.0-alpha.2
 
 ### Minor Changes

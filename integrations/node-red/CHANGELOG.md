@@ -1,5 +1,23 @@
 # @open-wa/node-red
 
+## 5.0.0-alpha.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/schema@5.0.0-alpha.3
+  - @open-wa/wa-automate-types-only@5.0.0-alpha.3
+  - @open-wa/socket-client@5.0.0-alpha.3
+
+## 5.0.0-alpha.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/schema@5.0.0-alpha.2
+  - @open-wa/socket-client@5.0.0-alpha.2
+  - @open-wa/wa-automate-types-only@5.0.0-alpha.2
+
 ## 2.8.0-alpha.1
 
 ### Minor Changes

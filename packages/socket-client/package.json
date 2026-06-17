@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/socket-client",
-  "version": "5.0.0-alpha.0",
+  "version": "5.0.0-alpha.3",
   "description": "Easily connect to remote instances of the EASY API",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",

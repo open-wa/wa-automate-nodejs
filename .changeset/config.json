@@ -20,6 +20,7 @@
       "@open-wa/driver-lightpanda",
       "@open-wa/driver-playwright",
       "@open-wa/driver-puppeteer",
+      "@open-wa/hyperemitter",
       "@open-wa/integration-chatwoot",
       "@open-wa/integration-cloudflare",
       "@open-wa/integration-s3",

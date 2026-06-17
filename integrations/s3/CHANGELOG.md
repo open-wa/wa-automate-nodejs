@@ -2,6 +2,22 @@
 
 ## 5.0.0-alpha.3
 
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/core@5.0.0-alpha.3
+  - @open-wa/logger@5.0.0-alpha.3
+
+## 5.0.0-alpha.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/core@5.0.0-alpha.2
+  - @open-wa/logger@5.0.0-alpha.2
+
+## 5.0.0-alpha.3
+
 ### Minor Changes
 
 - Dry run minor bump

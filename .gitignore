@@ -104,6 +104,7 @@ apps/*/src/**/*.map
 
 # Local development and temporary release artifacts
 .changeset/dry-run-changeset.md
+tools/release/publish-packages-local.sh
 RELEASE_BODY.md
 release-notes-detailed.md
 release.png

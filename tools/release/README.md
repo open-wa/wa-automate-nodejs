@@ -54,22 +54,6 @@ GitHub Packages uses the `@open-wa` scope registry (`https://npm.pkg.github.com`
 pnpm publish-packages
 ```
 
-### `publish-packages-local.sh`
-
-Local npmjs-only publish wrapper used by `pnpm publish-packages-local`. It builds once with `pnpm build`, asks for confirmation, then publishes changed packages to npmjs through a temporary npm config.
-
-Use this when you want to publish from your machine with your npm account instead of the CI `NPM_TOKEN` secret. The script never edits the project `.npmrc`, deletes its temporary npm config on exit, and does not publish to GitHub Packages even if `GITHUB_TOKEN` is set in your shell.
-
-Authentication options:
-
-1. Set `NPM_TOKEN` in your shell before running the command.
-2. Leave `NPM_TOKEN` unset and paste a token when prompted.
-3. Leave the token prompt blank to run `npm login` against npmjs.
-
-```bash
-pnpm publish-packages-local
-```
-
 ### `generate-notes.ts`
 
 AI-powered release notes generator. Reads git history and per-package changelogs, then produces a polished Markdown summary.

@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/utils",
-  "version": "5.0.0-alpha.0",
+  "version": "5.0.0-alpha.3",
   "description": "Shared utility functions for open-wa",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

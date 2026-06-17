@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/driver-playwright",
-  "version": "5.0.0-alpha.0",
+  "version": "5.0.0-alpha.3",
   "description": "Playwright driver implementation for open-wa",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",

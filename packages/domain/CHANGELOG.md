@@ -1,5 +1,21 @@
 # @open-wa/domain
 
+## 5.0.0-alpha.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/schema@5.0.0-alpha.3
+  - @open-wa/hyperemitter@5.0.0-alpha.3
+
+## 5.0.0-alpha.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/hyperemitter@5.0.0-alpha.2
+  - @open-wa/schema@5.0.0-alpha.2
+
 ## 6.0.0-alpha.2
 
 ### Minor Changes

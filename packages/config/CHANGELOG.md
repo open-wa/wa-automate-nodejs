@@ -1,5 +1,9 @@
 # @open-wa/config
 
+## 5.0.0-alpha.3
+
+## 5.0.0-alpha.2
+
 ## 6.0.0-alpha.2
 
 ### Minor Changes
