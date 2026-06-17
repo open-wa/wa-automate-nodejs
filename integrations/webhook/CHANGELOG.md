@@ -1,5 +1,12 @@
 # @open-wa/integration-webhook
 
+## 5.0.0-alpha.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/plugin-sdk@5.0.0-alpha.6
+
 ## 5.0.0-alpha.5
 
 ### Patch Changes

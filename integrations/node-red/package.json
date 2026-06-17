@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/node-red",
-  "version": "5.0.0-alpha.5",
+  "version": "5.0.0-alpha.6",
   "description": "Official @open-wa node-red integration.",
   "publishConfig": {
     "access": "public"

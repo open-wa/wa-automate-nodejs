@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/hyperemitter",
-  "version": "5.0.0-alpha.5",
+  "version": "5.0.0-alpha.6",
   "description": "HyperEmitter: high-performance, schema-driven event emitter for the open-wa v5 stack.",
   "main": "dist/index.cjs",
   "types": "dist/index.d.cts",

@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/integration-webhook",
-  "version": "5.0.0-alpha.5",
+  "version": "5.0.0-alpha.6",
   "description": "Webhook delivery integration plugin for open-wa",
   "type": "module",
   "exports": {

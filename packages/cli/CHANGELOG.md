@@ -1,5 +1,13 @@
 # @open-wa/cli
 
+## 5.0.0-alpha.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/wa-automate@5.0.0-alpha.6
+  - @open-wa/core@5.0.0-alpha.6
+
 ## 5.0.0-alpha.5
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @open-wa/client
 
+## 5.0.0-alpha.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/core@5.0.0-alpha.6
+  - @open-wa/decrypt@5.0.0-alpha.6
+  - @open-wa/domain@5.0.0-alpha.6
+  - @open-wa/hyperemitter@5.0.0-alpha.6
+  - @open-wa/logger@5.0.0-alpha.6
+  - @open-wa/schema@5.0.0-alpha.6
+
 ## 5.0.0-alpha.5
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @open-wa/driver-playwright
 
+## 5.0.0-alpha.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/driver-interface@5.0.0-alpha.6
+
 ## 5.0.0-alpha.5
 
 ### Patch Changes

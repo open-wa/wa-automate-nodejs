@@ -1,5 +1,16 @@
 # @open-wa/api
 
+## 5.0.0-alpha.6
+
+### Patch Changes
+
+- Deduplicate React in the embedded dashboard build so the production dashboard does not crash on startup.
+
+- Updated dependencies []:
+  - @open-wa/mcp@5.0.0-alpha.6
+  - @open-wa/schema@5.0.0-alpha.6
+  - @open-wa/screencaster@5.0.0-alpha.6
+
 ## 5.0.0-alpha.5
 
 ### Patch Changes

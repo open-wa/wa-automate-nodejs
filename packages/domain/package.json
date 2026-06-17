@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/domain",
-  "version": "5.0.0-alpha.5",
+  "version": "5.0.0-alpha.6",
   "description": "Domain data structures for open-wa WhatsApp automation (Collectors, etc.)",
   "main": "./dist/index.cjs",
   "module": "./dist/index.cjs",

@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/core",
-  "version": "5.0.0-alpha.5",
+  "version": "5.0.0-alpha.6",
   "description": "Core orchestration backbone for open-wa WhatsApp automation",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
