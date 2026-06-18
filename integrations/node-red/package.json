@@ -44,7 +44,7 @@
     }
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^8.2.3",
+    "@rollup/plugin-typescript": "^12.3.0",
     "@types/express": "catalog:",
     "@types/node": "catalog:",
     "@types/node-red": "^1.1.1",
