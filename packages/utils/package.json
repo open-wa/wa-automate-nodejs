@@ -25,7 +25,7 @@
   "dependencies": {
     "json5": "^2.2.3",
     "pidtree": "^0.6.0",
-    "pidusage": "^3.0.2"
+    "pidusage": "^4.0.1"
   },
   "devDependencies": {
     "@types/node": "catalog:",
