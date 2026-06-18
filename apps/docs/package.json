@@ -49,7 +49,7 @@
     "fumadocs-core": "16.7.7",
     "fumadocs-mdx": "14.2.11",
     "fumadocs-typescript": "^5.2.6",
-    "fumadocs-ui": "16.7.7",
+    "fumadocs-ui": "16.10.4",
     "hast-util-to-jsx-runtime": "^2.3.6",
     "lucide-react": "^1.16.0",
     "lucide-static": "^0.556.0",
