@@ -31,7 +31,7 @@
     "@radix-ui/react-presence": "^1.1.5",
     "@scalar/api-reference-react": "^0.9.18",
     "@tailwindcss/vite": "catalog:",
-    "@takumi-rs/helpers": "^1.6.0",
+    "@takumi-rs/helpers": "^1.8.6",
     "@takumi-rs/image-response": "^1.6.0",
     "@takumi-rs/wasm": "^1.6.0",
     "@tanstack/react-router": "catalog:",
