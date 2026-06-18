@@ -41,7 +41,7 @@ catalog:
   express-request-id: 1.4.1
   helmet: ^6.0.0
   hono: ^4.12.9
-  jest: ^29.5.0
+  jest: ^30.4.2
   lucide-react: ^0.378.0
   morgan: ^1.10.0
   nitro: ^2.2.28
