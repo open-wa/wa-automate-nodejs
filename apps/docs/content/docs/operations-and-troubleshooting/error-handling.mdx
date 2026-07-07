@@ -110,6 +110,25 @@ const client = await create({
 
 If the browser closes after startup, treat it as a runtime failure rather than an auth failure. Restart the process with the same `sessionId` first. The saved session can usually reconnect without another QR scan unless WhatsApp invalidated it.
 
+### `Navigating frame was detached` / `Attempted to use detached Frame`
+
+These specific errors, especially as a crash loop shortly after the page
+loads, almost always mean one of:
+
+1. **`--single-process` or `--no-zygote` in `chromiumArgs`.** These crash
+   modern Chrome on WhatsApp Web. The runtime strips them by default and logs
+   `Removed browser args known to crash WhatsApp Web`; if you forced them with
+   `allowDangerousBrowserArgs: true`, remove that. This is the most common
+   cause in low-RAM Docker/Railway deployments.
+2. **The renderer was OOM-killed.** Check container memory limits and host
+   `dmesg` / container OOM events. See the low-memory guidance on the Docker
+   page.
+3. **Too-small `/dev/shm`.** Give the container real shared memory
+   (`--shm-size=1gb`) or keep `--disable-dev-shm-usage`.
+
+Do not respond to detached-frame errors by adding more Chromium flags — the fix
+is almost always removing flags and giving the browser enough memory.
+
 ## Blocked account risk
 
 Some failures come from WhatsApp behavior rather than the open-wa process. Treat these as account risk signals, not bugs to retry through.

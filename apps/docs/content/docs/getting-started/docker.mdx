@@ -99,6 +99,31 @@ The container still runs a browser. Give it enough memory and CPU for WhatsApp W
 
 If the browser exits unexpectedly, check memory limits, shared memory settings, CPU throttling, and the host architecture before changing application code.
 
+## Running on low-memory hosts
+
+WhatsApp Web is a heavy page. A single session realistically needs about
+**700 MB–1 GB of RAM**; below that, no browser flag will keep it stable.
+
+<Callout type="error" title="Never pass --single-process or --no-zygote">
+These args are copied from old low-RAM Puppeteer guides, but they break
+Chrome's multi-process/frame model and crash WhatsApp Web with
+`Navigating frame was detached` / `Attempted to use detached Frame`. The
+runtime **strips them from `chromiumArgs` by default** and logs a warning; set
+`allowDangerousBrowserArgs: true` only if you understand you are opting into an
+unsupported, crash-prone configuration.
+</Callout>
+
+Do this instead on constrained hosts:
+
+- Keep `--disable-dev-shm-usage` (already in the runtime defaults) **or** give
+  the container real shared memory: `docker run --shm-size=1gb ...` (Compose:
+  `shm_size: "1gb"`). Chrome writes to `/dev/shm`; the default 64 MB is too
+  small and causes renderer crashes that look like OOM.
+- Run with `--init` (or `dumb-init`, as the image already does) so orphaned
+  Chrome processes are reaped instead of accumulating.
+- Set a realistic memory limit rather than an artificially low one; OOM-killed
+  renderers also surface as detached-frame errors.
+
 ## Health checks
 
 Add a health check that calls the Easy API over the published port.
