@@ -71,21 +71,25 @@ catalog:
   winston: ^3.8.2
   wrangler: ^4.93.0
   zod: ^4.2.1
-
-ignoredBuiltDependencies:
-  - '@open-wa/wa-automate'
-
-onlyBuiltDependencies:
-  - bcrypt
-  - cloudflared
-  - core-js
-  - deasync
-  - esbuild
-  - fast-folder-size
-  - gifsicle
-  - highlight.js
-  - jpegtran-bin
-  - optipng-bin
-  - protobufjs
-  - puppeteer
-  - unix-dgram
+shamefullyHoist: true
+nodeLinker: hoisted
+strictPeerDependencies: false
+lockfile: true
+packageConfigs:
+  '@open-wa/node-red':
+    PUPPETEER_SKIP_DOWNLOAD: true
+allowBuilds:
+  bcrypt: true
+  cloudflared: true
+  core-js: true
+  deasync: true
+  esbuild: true
+  fast-folder-size: true
+  gifsicle: true
+  highlight.js: true
+  jpegtran-bin: true
+  optipng-bin: true
+  protobufjs: true
+  puppeteer: true
+  unix-dgram: true
+  '@open-wa/wa-automate': false

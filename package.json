@@ -44,16 +44,10 @@
     "typescript": "catalog:"
   },
   "engines": {
-    "node": ">=22.21.1",
-    "pnpm": ">=10.25.0"
+    "node": ">=22.21.1"
   },
-  "packageManager": "pnpm@10.26.1",
+  "packageManager": "pnpm@11.9.0",
   "dependencies": {
     "@elastic/elasticsearch": "catalog:"
-  },
-  "pnpm": {
-    "overrides": {
-      "axios": "npm:redaxios@0.5.1"
-    }
   }
 }
