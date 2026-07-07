@@ -40,6 +40,11 @@ export function MarkdownCopyButton({
           throw new Error(`Failed to fetch markdown: ${res.status}`);
         }
 
+        const contentType = res.headers.get('content-type') ?? '';
+        if (!contentType.includes('text/markdown')) {
+          throw new Error(`Expected markdown, received ${contentType}`);
+        }
+
         return res.text();
       });
       cache.set(markdownUrl, promise);
@@ -48,6 +53,9 @@ export function MarkdownCopyButton({
           'text/plain': promise,
         }),
       ]);
+    } catch (err) {
+      cache.delete(markdownUrl);
+      throw err;
     } finally {
       setLoading(false);
     }
