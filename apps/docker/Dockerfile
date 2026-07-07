@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.4
 
 # Stage 1: Dependencies
-FROM node:18 AS deps
+FROM node:22 AS deps
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install build tools
@@ -26,7 +26,7 @@ COPY apps/*/package.json ./apps/
 RUN pnpm fetch
 
 # Stage 2: Builder
-FROM node:18 AS builder
+FROM node:22 AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install pnpm
@@ -39,7 +39,7 @@ COPY --from=deps /app ./
 RUN pnpm build
 
 # Stage 3: Runtime
-FROM node:18-slim
+FROM node:22-slim
 
 ENV APP_DIR=/usr/src/app
 ENV NODE_ENV=production
