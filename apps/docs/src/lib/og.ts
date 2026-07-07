@@ -1,3 +1,5 @@
+import { SITE_ORIGIN } from './site';
+
 export type DocsOgInput = Readonly<{
   title: string;
   description?: string;
@@ -10,7 +12,7 @@ export type PageImage = Readonly<{
   url: string;
 }>;
 
-const DEFAULT_DOCS_ORIGIN = 'https://docs.openwa.dev';
+const DEFAULT_DOCS_ORIGIN = SITE_ORIGIN;
 
 export function getPageImage(slugs: readonly string[]): PageImage {
   const segments = [...slugs.filter(Boolean), 'image.webp'];

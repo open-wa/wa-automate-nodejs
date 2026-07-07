@@ -6,7 +6,7 @@ name: Docs Quality Gate
 on:
   pull_request:
     paths:
-      - 'apps/docs/content/docs/**'
+      - 'apps/docs/**'
       - 'packages/schema/**'
       - '.github/workflows/docs-quality-gate.yml'
   workflow_dispatch:
@@ -32,6 +32,9 @@ jobs:
         run: pnpm install --frozen-lockfile
         env:
           PUPPETEER_SKIP_DOWNLOAD: '1'
+
+      - name: OG helper tests
+        run: pnpm --filter docs test:og
 
       - name: Generated client docs are idempotent
         run: |
