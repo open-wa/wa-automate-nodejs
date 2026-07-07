@@ -290,6 +290,8 @@ pnpm build
 
 This repo is no longer just a single package. It includes a plugin/integration surface for extending the runtime.
 
+Want to build one? Start with the **[plugin authoring guide](https://docs.openwa.dev/docs/plugins/getting-started)** (`@open-wa/plugin-sdk`).
+
 Relevant packages in this repo:
 
 - `@open-wa/plugin-sdk`

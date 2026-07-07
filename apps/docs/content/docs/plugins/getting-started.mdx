@@ -223,6 +223,24 @@ plugin_config_invalid { plugin: 'greeting-bot', issues: [...] }
 - Confirm `pluginConfig` is keyed by `meta.name`, for example `'greeting-bot'`.
 - If the greeting never appears, send the exact configured `triggerWord`, then check for `plugin_loaded`, `plugin_registered`, `plugin_config_invalid`, or `plugin_load_error` in the Easy API logs. After the load succeeds, move reusable behavior into a package and read **[Publishing a plugin](/docs/plugins/publishing)**.
 
+### If a hook never fires
+
+- **The event is filtered.** Plugins only receive public events. Subscribing to
+  internal or sensitive events (`launch.*`, `browser.*`, `transport.*`,
+  `license.*`) via the catch-all `event` hook will silently receive nothing —
+  this is enforced by the plugin event gateway, see **[Security model](/docs/plugins/security-model)**.
+- **Wrong hook name.** Hook keys are exact strings (for example
+  `message.received`, `client.ready`). A typo registers a hook that never
+  matches. Cross-check against the **[Hooks reference](/docs/plugins/hooks-reference)**.
+- **The plugin did not actually register.** Confirm `plugin_registered` appears
+  in the logs before assuming the hook is the problem.
+
+### Duplicate plugin name
+
+If two loaded plugins share the same `meta.name`, registration **throws**
+`Plugin "<name>" is already registered` and startup fails — it is not silently
+skipped. Give every plugin a globally unique kebab-case `meta.name`.
+
 ## Plugin architecture
 
 ### Security-filtered event emitter

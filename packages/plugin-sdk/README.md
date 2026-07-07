@@ -1,8 +1,13 @@
 # @open-wa/plugin-sdk
 
-SDK for building open-wa plugins — types, helpers, and the createPlugin() factory
+SDK for building open-wa plugins — types, helpers, and the `createPlugin()` factory.
 
 Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
+
+A plugin runs inside the open-wa runtime and can listen to WhatsApp events, call
+WhatsApp methods through a transport-agnostic client, expose HTTP routes and
+dashboard pages, and register AI tools — all without owning the browser or
+session lifecycle yourself.
 
 ## Install
 
@@ -10,10 +15,115 @@ Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs
 pnpm add @open-wa/plugin-sdk
 ```
 
+## Minimal plugin
+
+```ts
+import { createPlugin } from '@open-wa/plugin-sdk';
+
+function getTextMessage(message: unknown) {
+  if (!message || typeof message !== 'object') return null;
+  const candidate = message as { body?: unknown; from?: unknown };
+  if (typeof candidate.body !== 'string' || typeof candidate.from !== 'string') {
+    return null;
+  }
+  return { body: candidate.body, from: candidate.from };
+}
+
+export default createPlugin({
+  meta: {
+    name: 'greeting-bot',
+    version: '1.0.0',
+    description: 'Greets contacts with a welcome message',
+  },
+  init: async ({ client, logger }) => ({
+    'message.received': async ({ message }) => {
+      const msg = getTextMessage(message);
+      if (!msg) return;
+      if (msg.body === 'Hi') {
+        await client.sendText(msg.from, '👋 Welcome! How can I help?');
+        logger.info('Sent greeting', { from: msg.from });
+      }
+    },
+  }),
+});
+```
+
+## Typed config
+
+Pass a Zod schema as `configSchema`; it is validated before `init()` runs and
+the parsed value is passed as `config`. `z` is re-exported so you don't need to
+install Zod separately.
+
+```ts
+import { createPlugin, z } from '@open-wa/plugin-sdk';
+
+const configSchema = z.object({
+  greeting: z.string().default('👋 Welcome!'),
+});
+
+export default createPlugin<z.infer<typeof configSchema>>({
+  meta: { name: 'greeting-bot', version: '1.0.0' },
+  configSchema,
+  init: async ({ config, client }) => ({
+    'message.received': async ({ message }) => {
+      // config.greeting is typed and validated
+    },
+  }),
+});
+```
+
+`defineConfig()` is also available as a factory helper when you prefer it:
+
+```ts
+import { defineConfig } from '@open-wa/plugin-sdk';
+
+export const config = defineConfig((z) =>
+  z.object({ greeting: z.string().default('👋 Welcome!') }),
+);
+```
+
+## Export requirements
+
+The runtime loads a plugin from a module's **default export** or a named
+`plugin` export. Both work:
+
+```ts
+export default createPlugin({ /* ... */ });
+// or
+export const plugin = createPlugin({ /* ... */ });
+```
+
+## Loading a plugin
+
+Plugins are referenced by npm package name, scoped name, or file path, and
+configured under `pluginConfig` keyed by the plugin's `meta.name` (not the
+package name):
+
+```ts
+export default {
+  plugins: ['greeting-bot', './my-local-plugin'],
+  pluginConfig: {
+    'greeting-bot': { greeting: 'Hello!' },
+  },
+};
+```
+
 ## Documentation
 
-See the [docs site](https://docs.openwa.dev).
+Full authoring guide, hooks reference, security model, publishing, and worked
+examples are on the docs site:
+
+- [Getting started with plugins](https://docs.openwa.dev/docs/plugins/getting-started)
+- [Hooks reference](https://docs.openwa.dev/docs/plugins/hooks-reference)
+- [Plugin client](https://docs.openwa.dev/docs/plugins/plugin-client)
+- [Security model](https://docs.openwa.dev/docs/plugins/security-model)
+- [Publishing a plugin](https://docs.openwa.dev/docs/plugins/publishing)
+
+Real reference plugins in this repo:
+
+- [`integrations/webhook/src/plugin.ts`](https://github.com/open-wa/wa-automate-nodejs/blob/master/integrations/webhook/src/plugin.ts)
+- [`integrations/chatwoot/src/plugin.ts`](https://github.com/open-wa/wa-automate-nodejs/blob/master/integrations/chatwoot/src/plugin.ts)
 
 ## License
 
-[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/main/LICENSE.md) — Hippocratic + Do Not Harm
+[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md) — Hippocratic + Do Not Harm
