@@ -1,0 +1,67 @@
+name: Docs Quality Gate
+
+# Hard-fails a PR when generated docs are stale or when known-wrong canonical
+# shapes reappear in the docs. Complements the advisory PR Release Checklist.
+
+on:
+  pull_request:
+    paths:
+      - 'apps/docs/content/docs/**'
+      - 'packages/schema/**'
+      - '.github/workflows/docs-quality-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: Docs quality gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: '1'
+
+      - name: Generated client docs are idempotent
+        run: |
+          pnpm --filter @open-wa/schema generate
+          if ! git diff --exit-code -- apps/docs/content/docs/reference/client; then
+            echo "::error::Generated client reference docs are stale. Run 'pnpm --filter @open-wa/schema generate' and commit the result."
+            exit 1
+          fi
+
+      - name: Canonical shapes (no known-wrong contracts in docs)
+        run: |
+          fail=0
+
+          # 1. Webhook envelope must be {event, payload}, never a legacy "data"
+          #    wrapper, in the two canonical webhook pages.
+          if grep -rEn '"data"[[:space:]]*:' \
+               apps/docs/content/docs/guides/webhooks-for-business.mdx \
+               apps/docs/content/docs/client-and-integrations/webhook-payloads.mdx; then
+            echo "::error::Webhook docs must use the {event, payload} envelope, not a 'data' wrapper."
+            fail=1
+          fi
+
+          # 2. --mcp must not be presented as a working quickstart flag. The CLI
+          #    does not parse it; mcp.enabled in config is the supported path.
+          #    Allowed only where the docs explicitly say it is not parsed.
+          if grep -rn -- '--mcp' apps/docs/content/docs \
+             | grep -viE 'does not parse|Can I use the'; then
+            echo "::error::Do not present --mcp as a quickstart flag; the CLI does not parse it. Use mcp.enabled in config."
+            fail=1
+          fi
+
+          if [ "$fail" -eq 0 ]; then echo "Canonical-shape checks passed."; fi
+          exit $fail
