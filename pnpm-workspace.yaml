@@ -75,11 +75,16 @@ shamefullyHoist: true
 nodeLinker: hoisted
 strictPeerDependencies: false
 lockfile: true
-packageConfigs:
-  '@open-wa/node-red':
-    PUPPETEER_SKIP_DOWNLOAD: true
+# NOTE: node-red previously skipped puppeteer's browser download via a
+# per-project .npmrc (PUPPETEER_SKIP_DOWNLOAD). pnpm 11 packageConfigs only
+# accepts pnpm settings, not env vars, and with the hoisted node_modules
+# layout there is a single shared puppeteer install anyway. Set
+# PUPPETEER_SKIP_DOWNLOAD=1 in the environment for installs that must skip it.
 allowBuilds:
-  bcrypt: true
+  # bcrypt is only pulled in (nested) by node-red-admin, whose ancient
+  # node-pre-gyp build fails on modern Node; node-red tooling falls back to
+  # bcryptjs when the native module is unavailable.
+  bcrypt: false
   cloudflared: true
   core-js: true
   deasync: true
@@ -93,3 +98,9 @@ allowBuilds:
   puppeteer: true
   unix-dgram: true
   '@open-wa/wa-automate': false
+  '@lightpanda/browser': true
+  msw: false
+  sharp: true
+  unrs-resolver: false
+  vue-demi: false
+  workerd: true
