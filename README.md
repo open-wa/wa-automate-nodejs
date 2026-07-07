@@ -275,7 +275,11 @@ Some older docs and examples still mention additional legacy or transitional fla
 For contributors to this monorepo, the repo currently declares:
 
 - **Node.js** `>=22.21.1`
-- **pnpm** `>=10.25.0`
+- **pnpm** `11.9.x`
+
+The exact toolchain is pinned in [`mise.toml`](./mise.toml) (`mise install`),
+and the full contributor setup — including browser-automation dependencies —
+is documented in [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ```bash
 pnpm install
