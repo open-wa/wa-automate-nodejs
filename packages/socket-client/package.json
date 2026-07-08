@@ -44,7 +44,7 @@
     "eventsource": "^3.0.7",
     "eventemitter2": "^6.4.9",
     "isomorphic-ws": "^5.0.0",
-    "ws": "^8.20.0"
+    "ws": "^8.21.0"
   },
   "devDependencies": {
     "typescript": "catalog:",
