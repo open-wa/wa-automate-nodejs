@@ -1,5 +1,7 @@
 # @open-wa/utils
 
+## 5.0.0-alpha.8
+
 ## 5.0.0-alpha.7
 
 ## 5.0.0-alpha.6

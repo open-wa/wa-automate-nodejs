@@ -46,6 +46,7 @@
     "dashboard-assets",
     "embed-dashboard-assets",
     "fix-dashboard-react-runtime",
-    "gate-dashboard-runtime-and-qr"
+    "gate-dashboard-runtime-and-qr",
+    "v5-rc-plan-phase0"
   ]
 }

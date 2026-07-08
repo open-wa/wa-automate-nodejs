@@ -1,5 +1,13 @@
 # @open-wa/cli
 
+## 5.0.0-alpha.8
+
+### Patch Changes
+
+- Updated dependencies [[`6a55aef`](https://github.com/open-wa/wa-automate-nodejs/commit/6a55aef602b347bfffc8550e448585e7776baf18)]:
+  - @open-wa/core@5.0.0-alpha.8
+  - @open-wa/wa-automate@5.0.0-alpha.8
+
 ## 5.0.0-alpha.7
 
 ### Patch Changes
