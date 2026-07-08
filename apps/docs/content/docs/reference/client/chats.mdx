@@ -37,7 +37,7 @@ Archive a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -65,6 +65,18 @@ curl -X PUT "http://localhost:8080/api/chats/archive" \
   --data '{
     "chatId": "447123456789@c.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -107,7 +119,7 @@ Clear chat history
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -135,6 +147,18 @@ curl -X DELETE "http://localhost:8080/api/chats/clear" \
   --data '{
     "chatId": "447123456789@c.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -177,7 +201,7 @@ Delete a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -205,6 +229,18 @@ curl -X DELETE "http://localhost:8080/api/chats/delete" \
   --data '{
     "chatId": "447123456789@c.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -250,7 +286,7 @@ Retrieves all chats
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -278,6 +314,18 @@ curl -G "http://localhost:8080/api/chats/getAll" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -288,7 +336,9 @@ curl -G "http://localhost:8080/api/chats/getAll" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown[]` |
+| Return type | `any[]` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getChat`
 
@@ -319,7 +369,7 @@ Get specific chat by ID
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -347,6 +397,18 @@ curl -G "http://localhost:8080/api/chats/get" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -357,7 +419,9 @@ curl -G "http://localhost:8080/api/chats/get" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getChatWithNonContacts`
 
@@ -386,7 +450,7 @@ Get chats with non-contacts
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -411,6 +475,18 @@ curl -X GET "http://localhost:8080/api/chats/getWithNonContacts" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -421,7 +497,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown[]` |
+| Return type | `any[]` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `isChatOnline`
 
@@ -450,7 +528,7 @@ Check if chat is online
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -475,6 +553,18 @@ const result = await client.chats.isOnline({
 curl -G "http://localhost:8080/api/chats/isOnline" \
   -H "x-api-key: YOUR_API_KEY" \
   --data-urlencode "chatId=447123456789@c.us"
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -517,7 +607,7 @@ Mark chat as read
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -545,6 +635,18 @@ curl -X PUT "http://localhost:8080/api/chats/markAsRead" \
   --data '{
     "chatId": "447123456789@c.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -587,7 +689,7 @@ Mark chat as unread
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -615,6 +717,18 @@ curl -X PUT "http://localhost:8080/api/chats/markAsUnread" \
   --data '{
     "chatId": "447123456789@c.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -657,7 +771,7 @@ Mute a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -688,6 +802,18 @@ curl -X PUT "http://localhost:8080/api/chats/mute" \
     "chatId": "447123456789@c.us",
     "muteDuration": 1
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -730,7 +856,7 @@ Pin a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -758,6 +884,18 @@ curl -X PUT "http://localhost:8080/api/chats/pin" \
   --data '{
     "chatId": "447123456789@c.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -800,7 +938,7 @@ Set ephemeral messages for chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -831,6 +969,18 @@ curl -X PUT "http://localhost:8080/api/chats/setEphemeral" \
     "chatId": "447123456789@c.us",
     "ephemeral": 1
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -873,7 +1023,7 @@ Unarchive a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -901,6 +1051,18 @@ curl -X PUT "http://localhost:8080/api/chats/unarchive" \
   --data '{
     "chatId": "447123456789@c.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -943,7 +1105,7 @@ Unmute a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -971,6 +1133,18 @@ curl -X PUT "http://localhost:8080/api/chats/unmute" \
   --data '{
     "chatId": "447123456789@c.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -1013,7 +1187,7 @@ Unpin a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1041,6 +1215,18 @@ curl -X PUT "http://localhost:8080/api/chats/unpin" \
   --data '{
     "chatId": "447123456789@c.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>

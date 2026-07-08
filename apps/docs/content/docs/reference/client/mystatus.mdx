@@ -39,7 +39,7 @@ Get specific status
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -67,6 +67,18 @@ curl -G "http://localhost:8080/api/mystatus/getStatus" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -77,4 +89,6 @@ curl -G "http://localhost:8080/api/mystatus/getStatus" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.

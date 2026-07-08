@@ -40,7 +40,7 @@ Get all communities
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -62,6 +62,18 @@ curl -X GET "http://localhost:8080/api/communities/getAll" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{}'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
 ```
 
   </Tab>
@@ -104,7 +116,7 @@ Get community admin IDs
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -132,6 +144,18 @@ curl -G "http://localhost:8080/api/communities/getAdminIds" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -142,7 +166,9 @@ curl -G "http://localhost:8080/api/communities/getAdminIds" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getCommunityAdmins`
 
@@ -171,7 +197,7 @@ Get community admins
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -199,6 +225,18 @@ curl -G "http://localhost:8080/api/communities/getAdmins" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -209,7 +247,9 @@ curl -G "http://localhost:8080/api/communities/getAdmins" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getCommunityInfo`
 
@@ -238,7 +278,7 @@ Get community metadata
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -266,6 +306,18 @@ curl -G "http://localhost:8080/api/communities/getInfo" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -276,7 +328,9 @@ curl -G "http://localhost:8080/api/communities/getInfo" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getCommunityParticipantIds`
 
@@ -305,7 +359,7 @@ Get community participant IDs
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -333,6 +387,18 @@ curl -G "http://localhost:8080/api/communities/getParticipantIds" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -343,7 +409,9 @@ curl -G "http://localhost:8080/api/communities/getParticipantIds" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getCommunityParticipants`
 
@@ -372,7 +440,7 @@ Get community participants
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -400,6 +468,18 @@ curl -G "http://localhost:8080/api/communities/getParticipants" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -410,4 +490,6 @@ curl -G "http://localhost:8080/api/communities/getParticipants" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.

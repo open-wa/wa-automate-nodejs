@@ -39,7 +39,7 @@ Get business products
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -67,6 +67,18 @@ curl -G "http://localhost:8080/api/business/getProducts" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -77,7 +89,9 @@ curl -G "http://localhost:8080/api/business/getProducts" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getBusinessProfile`
 
@@ -106,7 +120,7 @@ Get business profile
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -134,6 +148,18 @@ curl -G "http://localhost:8080/api/business/getProfile" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -144,7 +170,9 @@ curl -G "http://localhost:8080/api/business/getProfile" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getOrder` - insiders
 
@@ -175,7 +203,7 @@ Get order details
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -203,6 +231,18 @@ curl -G "http://localhost:8080/api/business/getOrder" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -213,4 +253,6 @@ curl -G "http://localhost:8080/api/business/getOrder" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.

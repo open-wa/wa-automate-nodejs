@@ -40,7 +40,7 @@ Delete all statuses
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -65,6 +65,18 @@ curl -X DELETE "http://localhost:8080/api/status/deleteAll" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -75,7 +87,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `deleteStatus` - insiders
 
@@ -106,7 +120,7 @@ Delete status
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -137,6 +151,18 @@ curl -X DELETE "http://localhost:8080/api/status/delete" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -147,7 +173,9 @@ curl -X DELETE "http://localhost:8080/api/status/delete" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getStories` - insiders
 
@@ -181,7 +209,7 @@ Get all stories
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -206,6 +234,18 @@ curl -X GET "http://localhost:8080/api/status/getAll" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -216,7 +256,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown[]` |
+| Return type | `any[]` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `postImageStatus` - insiders
 
@@ -247,7 +289,7 @@ Post image status
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -281,6 +323,18 @@ curl -X POST "http://localhost:8080/api/status/postImage" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -291,7 +345,9 @@ curl -X POST "http://localhost:8080/api/status/postImage" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `postTextStatus` - insiders
 
@@ -322,7 +378,7 @@ Post text status
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -359,6 +415,18 @@ curl -X POST "http://localhost:8080/api/status/postText" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -369,7 +437,9 @@ curl -X POST "http://localhost:8080/api/status/postText" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `postVideoStatus` - insiders
 
@@ -400,7 +470,7 @@ Post video status
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -434,6 +504,18 @@ curl -X POST "http://localhost:8080/api/status/postVideo" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -444,4 +526,6 @@ curl -X POST "http://localhost:8080/api/status/postVideo" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.

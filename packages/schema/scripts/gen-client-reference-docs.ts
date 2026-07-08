@@ -4,8 +4,10 @@ import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import { getHttpMethodDefinitions, type HttpMethodDefinition } from '../src/http-manifest';
 import { clientRegistry, getParameterMetadata, type MethodDefinition, type ParameterMetadata } from '../src/registry';
+import { eventRegistry, type EventDefinition } from '../src/events/registry';
 
 import '../src/methods';
+import '../src/events';
 
 type JsonSchema = {
   type?: string | string[];
@@ -162,7 +164,10 @@ function summarizeSchema(schema: JsonSchema): string {
 
   const compound = schema.anyOf ?? schema.oneOf;
   if (compound && compound.length > 0) {
-    return uniqueStrings(compound.map(summarizeSchema)).join(' | ');
+    const parts = uniqueStrings(compound.map(summarizeSchema));
+    // `any` absorbs the union — an unstructured branch makes the whole thing any.
+    if (parts.includes('any')) return 'any';
+    return parts.join(' | ');
   }
 
   if (schema.allOf && schema.allOf.length > 0) {
@@ -174,7 +179,7 @@ function summarizeSchema(schema: JsonSchema): string {
   }
 
   if (schema.type === 'array') {
-    return `${schema.items ? summarizeSchema(schema.items) : 'unknown'}[]`;
+    return `${schema.items ? summarizeSchema(schema.items) : 'any'}[]`;
   }
 
   if (schema.type === 'object') {
@@ -186,7 +191,66 @@ function summarizeSchema(schema: JsonSchema): string {
     return `object { ${sortStrings(propertyNames).join(', ')} }`;
   }
 
-  return schema.type ?? 'unknown';
+  return (schema.type as string) ?? 'any';
+}
+
+/**
+ * Introspect a Zod schema directly as a fallback when JSON-schema summarization
+ * yields `unknown` (e.g. `z.any()`, branded/piped types some targets don't
+ * serialize). Returns `any` for genuinely-unstructured schemas.
+ */
+function summarizeZodType(schema: z.ZodTypeAny, depth = 0): string {
+  if (depth > 6 || !schema) return 'any';
+  const def = ((schema as { def?: unknown; _def?: unknown }).def ??
+    (schema as { _def?: unknown })._def) as
+    | { type?: string; options?: z.ZodTypeAny[]; element?: z.ZodTypeAny; innerType?: z.ZodTypeAny; shape?: Record<string, z.ZodTypeAny>; values?: unknown[] }
+    | undefined;
+  const type = def?.type;
+
+  switch (type) {
+    case 'any':
+    case 'unknown':
+      return 'any';
+    case 'string':
+    case 'number':
+    case 'boolean':
+    case 'null':
+    case 'undefined':
+      return type;
+    case 'union':
+      return uniqueStrings((def?.options ?? []).map((o) => summarizeZodType(o, depth + 1))).join(' | ') || 'any';
+    case 'array':
+      return `${def?.element ? summarizeZodType(def.element, depth + 1) : 'any'}[]`;
+    case 'object': {
+      const keys = def?.shape ? sortStrings(Object.keys(def.shape)) : [];
+      return keys.length ? `object { ${keys.join(', ')} }` : 'object';
+    }
+    case 'optional':
+    case 'nullable':
+    case 'default':
+    case 'brand':
+    case 'pipe':
+    case 'readonly':
+      return def?.innerType ? summarizeZodType(def.innerType, depth + 1) : 'any';
+    case 'enum':
+      return (def?.values ?? []).map((v) => JSON.stringify(v)).join(' | ') || 'string';
+    default:
+      return 'any';
+  }
+}
+
+/** Best-effort output type summary: JSON-schema first, Zod introspection fallback. */
+function summarizeOutput(schema: z.ZodTypeAny): string {
+  const fromJson = summarizeSchema(schemaToJsonSchema(schema));
+  if (fromJson !== 'unknown' && fromJson !== 'unknown[]') return fromJson;
+  const fromZod = summarizeZodType(schema);
+  // Preserve array-ness if JSON schema knew it was an array.
+  if (fromJson === 'unknown[]' && !fromZod.endsWith('[]')) return `${fromZod}[]`;
+  return fromZod;
+}
+
+function isUnstructuredOutput(summary: string): boolean {
+  return summary === 'any' || summary === 'any[]';
 }
 
 function buildParameterRows(def: MethodDefinition): ParameterRow[] {
@@ -336,11 +400,31 @@ function buildLicenseCallout(def: MethodDefinition): string {
 }
 
 function buildOutputBlock(outputSummary: string): string {
-  return [
+  const lines = [
     '| Prop | Value |',
     '| --- | --- |',
     `| Return type | \`${escapeTableCell(outputSummary)}\` |`,
-  ].join('\n');
+  ];
+  if (isUnstructuredOutput(outputSummary)) {
+    lines.push('');
+    lines.push('> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.');
+  }
+  return lines.join('\n');
+}
+
+/** A sample response value for the given output summary, as a JSON literal. */
+function sampleResponseForOutput(summary: string): string {
+  if (summary.endsWith('[]')) return '[]';
+  if (summary.includes('boolean')) return 'true';
+  if (summary.includes('number')) return '0';
+  if (summary === 'any' || summary.startsWith('object')) return '{}';
+  // MessageId / string-ish
+  return JSON.stringify('true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB');
+}
+
+/** The Easy API response envelope wrapping a sample result: `{ success, data }`. */
+function buildResponseExample(summary: string): string {
+  return JSON.stringify({ success: true, data: JSON.parse(sampleResponseForOutput(summary)) }, null, 2);
 }
 
 function decodeMarkdownInline(value: string): string {
@@ -425,7 +509,7 @@ function buildCurlExample(route: HttpMethodDefinition | undefined, rows: Paramet
   ].join('\n');
 }
 
-function buildUsageTabs(def: MethodDefinition, route: HttpMethodDefinition | undefined, rows: ParameterRow[]): string {
+function buildUsageTabs(def: MethodDefinition, route: HttpMethodDefinition | undefined, rows: ParameterRow[], outputSummary: string): string {
   const namespace = def.meta.namespace ?? 'core';
   const namespacedName = def.meta.namespacedName ?? def.meta.functionName;
   const parameterObject = buildParameterObject(rows, '  ');
@@ -433,7 +517,7 @@ function buildUsageTabs(def: MethodDefinition, route: HttpMethodDefinition | und
   return [
     '### Usage',
     '',
-    '<Tabs items={["Client", "Namespaced client", "HTTP API"]}>',
+    '<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>',
     '  <Tab value="Client">',
     '',
     '```ts',
@@ -455,12 +539,21 @@ function buildUsageTabs(def: MethodDefinition, route: HttpMethodDefinition | und
     '```',
     '',
     '  </Tab>',
+    '  <Tab value="Response">',
+    '',
+    'Example Easy API response envelope:',
+    '',
+    '```json',
+    buildResponseExample(outputSummary),
+    '```',
+    '',
+    '  </Tab>',
     '</Tabs>',
   ].join('\n');
 }
 
 function buildMethodSection(def: MethodDefinition, route: HttpMethodDefinition | undefined): string {
-  const outputSummary = summarizeSchema(schemaToJsonSchema(def.meta.outputSchema));
+  const outputSummary = summarizeOutput(def.meta.outputSchema);
   const parameters = buildParameterRows(def);
   const licenseSuffix = (def.meta.license && def.meta.license !== 'none') ? ` - ${def.meta.license}` : '';
   const licenseCallout = buildLicenseCallout(def);
@@ -476,7 +569,7 @@ function buildMethodSection(def: MethodDefinition, route: HttpMethodDefinition |
     '',
     buildRouteBlock(route),
     '',
-    buildUsageTabs(def, route, parameters),
+    buildUsageTabs(def, route, parameters, outputSummary),
     '',
     '### Parameters',
     '',
@@ -493,6 +586,272 @@ function buildMethodSection(def: MethodDefinition, route: HttpMethodDefinition |
 function slugForNamespace(namespace: string): string {
   return namespace.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
 }
+
+function buildGeneratedPage(title: string, description: string, body: string): string {
+  return [
+    buildFrontmatter(title, description, 'BookOpen'),
+    '',
+    `# ${title}`,
+    '',
+    buildGeneratedWarning(),
+    '',
+    body.trim(),
+    '',
+  ].join('\n');
+}
+
+// ── #5: lightweight flat client index (was a 177KB full dump) ────────────────
+function buildClientIndexPage(methods: MethodDefinition[]): string {
+  const rows = methods.map((def) => {
+    const nsSlug = slugForNamespace(def.meta.namespace ?? 'core');
+    const anchor = def.meta.functionName.toLowerCase();
+    const license = def.meta.license && def.meta.license !== 'none' ? `\`${def.meta.license}\`` : '-';
+    return `| [\`${def.meta.functionName}\`](./${nsSlug}#${anchor}) | \`${escapeTableCell(def.meta.namespace ?? 'core')}\` | ${escapeTableCell(def.meta.description ?? '')} | ${license} |`;
+  });
+  return buildGeneratedPage(
+    'All client methods',
+    'Alphabetical index of every client method, linking to its namespace reference.',
+    [
+      `This is an alphabetical index of all ${methods.length} client methods. Each method links to its full reference on the namespace page (parameters, usage, HTTP route, and response).`,
+      '',
+      '| Method | Namespace | Description | License |',
+      '| --- | --- | --- | --- |',
+      ...rows,
+    ].join('\n'),
+  );
+}
+
+// ── #6: methods grouped by license tier ─────────────────────────────────────
+function buildLicensedMethodsPage(methods: MethodDefinition[]): string {
+  const byTier = new Map<string, MethodDefinition[]>();
+  for (const def of methods) {
+    const tier = def.meta.license && def.meta.license !== 'none' ? def.meta.license : 'none';
+    (byTier.get(tier) ?? byTier.set(tier, []).get(tier)!).push(def);
+  }
+  const tierOrder = sortStrings([...byTier.keys()].filter((t) => t !== 'none'));
+
+  const sections = tierOrder.map((tier) => {
+    const list = (byTier.get(tier) ?? []).sort((a, b) => a.meta.functionName.localeCompare(b.meta.functionName));
+    const rows = list.map((def) => {
+      const nsSlug = slugForNamespace(def.meta.namespace ?? 'core');
+      return `| [\`${def.meta.functionName}\`](./${nsSlug}#${def.meta.functionName.toLowerCase()}) | \`${escapeTableCell(def.meta.namespace ?? 'core')}\` | ${escapeTableCell(def.meta.description ?? '')} |`;
+    });
+    return [
+      `## \`${tier}\` (${list.length})`,
+      '',
+      `<LicensedFeatureCallout tier="${tier}" />`,
+      '',
+      '| Method | Namespace | Description |',
+      '| --- | --- | --- |',
+      ...rows,
+    ].join('\n');
+  });
+
+  const freeCount = (byTier.get('none') ?? []).length;
+  return buildGeneratedPage(
+    'Licensed methods',
+    'Client methods that require a license key, grouped by tier.',
+    [
+      `Most methods are free. **${freeCount}** methods require no license. The methods below require a license key for the listed tier — calling them without one returns a licensing error.`,
+      '',
+      sections.join('\n\n'),
+    ].join('\n'),
+  );
+}
+
+// ── #3 (#3338): internals pages, registry-derived ───────────────────────────
+function buildBaseClientDispatchTable(methods: MethodDefinition[]): string {
+  const rows = methods.map((def) => {
+    const meta = def.meta;
+    const dispatch = meta.wapiOverride ?? meta.functionName;
+    return `| \`${meta.functionName}\` | \`${escapeTableCell(meta.namespace ?? 'core')}\` | \`${escapeTableCell(dispatch)}\` | ${formatList(meta.parameterOrder)} | \`${escapeTableCell(summarizeOutput(meta.outputSchema))}\` |`;
+  });
+  return ['| Method | Namespace | Dispatch target | Parameter order | Output |', '| --- | --- | --- | --- | --- |', ...rows].join('\n');
+}
+
+function buildFunctionAliasTable(methods: MethodDefinition[]): string {
+  const rows: string[] = [];
+  for (const def of methods) {
+    const deprecated = new Set(def.meta.deprecatedAliases ?? []);
+    for (const alias of sortStrings(def.meta.allAliases ?? [])) {
+      if (alias === def.meta.functionName) continue;
+      rows.push(`| \`${def.meta.functionName}\` | \`${escapeTableCell(alias)}\` | ${deprecated.has(alias) ? 'Yes' : 'No'} | ${alias.includes('.') ? 'Namespaced' : 'Flat'} |`);
+    }
+  }
+  return ['| Canonical method | Alias | Deprecated | Kind |', '| --- | --- | --- | --- |', ...rows].join('\n');
+}
+
+function buildKeyAliasTable(methods: MethodDefinition[]): string {
+  const seen = new Set<string>();
+  const rows: string[] = [];
+  for (const def of methods) {
+    for (const [name, schema] of Object.entries(getInputShape(def))) {
+      const meta = getParameterMetadata(schema);
+      for (const alias of sortStrings(meta?.keyAliases ?? [])) {
+        const key = `${name}:${alias}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        rows.push(`| \`${escapeTableCell(name)}\` | \`${escapeTableCell(alias)}\` | ${meta?.brandedType ? `\`${escapeTableCell(meta.brandedType)}\`` : '-'} | ${meta?.example !== undefined ? `\`${escapeMarkdownInline(JSON.stringify(meta.example))}\`` : '-'} |`);
+      }
+    }
+  }
+  return ['| Canonical key | Alias | Branded type | Example |', '| --- | --- | --- | --- |', ...sortStrings(rows)].join('\n');
+}
+
+function buildInternalsPages(
+  methods: MethodDefinition[],
+  namespaceCount: number,
+  routes: Map<string, HttpMethodDefinition>,
+): Record<string, string> {
+  const methodCount = methods.length;
+  const sendText = methods.find((d) => d.meta.functionName === 'sendText');
+
+  return {
+    'schema-pipeline': buildGeneratedPage('Schema pipeline', 'How method schemas become the client, types, OpenAPI, and these docs.', [
+      'Every client method is defined once with `defineMethodV2()` and registered in `clientRegistry`. All downstream artifacts are projections of that single source of truth:',
+      '',
+      '```text',
+      'packages/schema/src/methods/*.ts',
+      '        |  defineMethodV2(...)',
+      '        v',
+      '  clientRegistry.getAll()',
+      '        |',
+      '        +-> gen-client-implementation.ts --> BaseClient / BaseNamespacedClient / AliasMap',
+      '        +-> gen-types.ts                 --> generated Input/Output type aliases',
+      '        +-> gen-openapi.ts               --> openapi.json',
+      '        +-> gen-client-reference-docs.ts --> these reference pages',
+      '```',
+      '',
+      `The registry currently holds **${methodCount} methods** across **${namespaceCount} namespaces**.`,
+    ].join('\n')),
+
+    'base-client': buildGeneratedPage('BaseClient', 'The generated flat client, its dispatch contract, and the full method table.', [
+      '`BaseClient` is generated from the registry. Each method is a one-line binding, for example:',
+      '',
+      '```ts',
+      '/** Sends a text message to a chat */',
+      'public sendText = implementMethod(Methods.sendText);',
+      '```',
+      '',
+      'At runtime each call normalizes arguments, validates them with the method\'s Zod input schema, then dispatches to `execute(meta.wapiOverride ?? meta.functionName, validatedParams)` (falling back to `pup()` page evaluation). See [Argument normalization](./argument-normalization).',
+      '',
+      '## Method dispatch table',
+      '',
+      buildBaseClientDispatchTable(methods),
+    ].join('\n')),
+
+    'namespaced-client': buildGeneratedPage('Namespaced client', 'How BaseNamespacedClient builds namespace objects from aliases.', [
+      '`BaseNamespacedClient extends BaseClient` and exposes namespace objects (for example `client.messages.send`) built from each method\'s registered aliases. A namespaced alias like `messages.send` maps back to the canonical method `sendText`.',
+      '',
+      'See the full alias map on [Aliases](./aliases).',
+    ].join('\n')),
+
+    'argument-normalization': buildGeneratedPage('Argument normalization', 'Positional vs object arguments, alias resolution, validation, and dispatch.', [
+      'Every generated method accepts either positional arguments (mapped by `parameterOrder`) or a single options object (with key aliases resolved).',
+      '',
+      '```ts',
+      "await client.sendText('447123456789@c.us', 'Hello, world!');",
+      '// positional args map by parameterOrder -> { to, content, options }',
+      '',
+      "await client.sendText({ chatId: '447123456789@c.us', text: 'Hello, world!' });",
+      '// key aliases normalize -> { to, content }',
+      '```',
+      '',
+      'Steps: 1) resolve positional/object args, 2) normalize key aliases, 3) `inputSchema.parseAsync()` validates, 4) dispatch to `execute(...)`. Invalid input rejects before any WhatsApp call.',
+    ].join('\n')),
+
+    aliases: buildGeneratedPage('Aliases', 'Function aliases and parameter key aliases across all methods.', [
+      '## Function aliases',
+      '',
+      'Alternative names (including namespaced forms) that resolve to a canonical method.',
+      '',
+      buildFunctionAliasTable(methods),
+      '',
+      '## Parameter key aliases',
+      '',
+      'Alternative object keys accepted for a canonical parameter.',
+      '',
+      buildKeyAliasTable(methods),
+    ].join('\n')),
+
+    schemas: buildGeneratedPage('Data models', 'Core data models returned by client methods.', [
+      'These are the main data models. Fields are derived from the exported types in `packages/schema/src/common-types.ts`.',
+      '',
+      '### Message',
+      '<AutoTypeTable path="../../../../../../packages/schema/src/common-types.ts" name="Message" />',
+      '',
+      '### Contact',
+      '<AutoTypeTable path="../../../../../../packages/schema/src/common-types.ts" name="Contact" />',
+      '',
+      '### Chat',
+      '<AutoTypeTable path="../../../../../../packages/schema/src/common-types.ts" name="Chat" />',
+      '',
+      '### GroupMetadata',
+      '<AutoTypeTable path="../../../../../../packages/schema/src/common-types.ts" name="GroupMetadata" />',
+    ].join('\n')),
+
+    'generated-types': buildGeneratedPage('Generated types', 'Where the generated input/output type aliases come from.', [
+      '`gen-types.ts` emits input and output type aliases for every method from its `inputSchema` and `outputSchema` into `packages/schema/src/generated/types.ts`. `@open-wa/wa-automate-types-only` re-exposes this generated surface so consumers can import method types without the runtime.',
+    ].join('\n')),
+
+    'send-text-worked-example': buildGeneratedPage('Worked example: sendText', 'Following one method from schema definition to dispatch.', [
+      sendText
+        ? [
+            '`sendText` is defined in `packages/schema/src/methods/messaging.ts`:',
+            '',
+            '```ts',
+            "export const sendText = defineMethodV2('sendText', {",
+            `  meta: { description: ${JSON.stringify(sendText.meta.description ?? '')}, namespace: ${JSON.stringify(sendText.meta.namespace ?? 'core')}, httpMethod: ${JSON.stringify((routes.get('sendText')?.httpMethod) ?? 'POST')} },`,
+            `  parameterOrder: ${JSON.stringify(sendText.meta.parameterOrder)},`,
+            '  // input: z.object({ to, content, options }), output: MessageId | boolean | string',
+            '});',
+            '```',
+            '',
+            '1. A positional call maps by `parameterOrder`.',
+            '2. An object call resolves key aliases (`chatId` → `to`, `text` → `content`).',
+            '3. `inputSchema.parseAsync()` validates before dispatch.',
+            `4. Dispatch target is \`execute('${sendText.meta.wapiOverride ?? 'sendText'}', validatedParams)\`.`,
+            '5. See the full reference on the [messages namespace page](./messages#sendtext).',
+          ].join('\n')
+        : 'The `sendText` method is not currently registered.',
+    ].join('\n')),
+  };
+}
+
+// ── #4: generated events reference from the event registry ──────────────────
+function buildEventsPage(events: EventDefinition[]): string {
+  const sorted = [...events].sort((a, b) => a.meta.eventName.localeCompare(b.meta.eventName));
+  const rows = sorted.map((def) => {
+    const m = def.meta;
+    const payload = summarizeOutput(m.payloadSchema);
+    const status = m.status ?? 'stable';
+    const license = m.license && m.license !== 'none' ? `\`${m.license}\`` : '-';
+    return `| \`${escapeTableCell(m.eventName)}\` | \`${escapeTableCell(m.legacyName)}\` | ${escapeTableCell(m.description ?? '')} | \`${escapeTableCell(payload)}\` | ${status} | ${license} |`;
+  });
+
+  return buildGeneratedPage(
+    'Events',
+    'Generated reference for registered client events and their payloads.',
+    [
+      `open-wa emits **${sorted.length}** events. Subscribe with the client helper (\`client.onMessage\`), the legacy listener name, or the event bus wildcard. Payload types are derived from each event\'s registered schema.`,
+      '',
+      '| Event | Legacy listener | Description | Payload | Status | License |',
+      '| --- | --- | --- | --- | --- | --- |',
+      ...rows,
+    ].join('\n'),
+  );
+}
+
+const INTERNALS_PAGE_ORDER = [
+  'schema-pipeline',
+  'base-client',
+  'namespaced-client',
+  'argument-normalization',
+  'aliases',
+  'schemas',
+  'generated-types',
+  'send-text-worked-example',
+];
 
 function writeFileIfChanged(filePath: string, content: string): void {
   if (fs.existsSync(filePath) && fs.readFileSync(filePath, 'utf-8') === content) {
@@ -540,7 +899,7 @@ const namespaces = sortStrings(Array.from(methodsByNamespace.keys()));
 const meta = {
   title: 'Client API',
   icon: 'BookOpen',
-  pages: ['index', 'client', ...namespaces.map(slugForNamespace)],
+  pages: ['index', 'client', ...INTERNALS_PAGE_ORDER, 'events', 'licensed-methods', ...namespaces.map(slugForNamespace)],
 };
 
 const indexContent = [
@@ -567,24 +926,40 @@ const indexContent = [
     ].join('\n');
   }),
   '</Cards>',
+  '',
+  '## How the client works',
+  '',
+  '- [Schema pipeline](./schema-pipeline) — one definition, many projections',
+  '- [BaseClient](./base-client) — the generated flat client and dispatch table',
+  '- [Namespaced client](./namespaced-client) — namespace member mapping',
+  '- [Argument normalization](./argument-normalization) — positional vs object args, aliases',
+  '- [Aliases](./aliases) — function and parameter key aliases',
+  '- [Data models](./schemas) — Message, Contact, Chat, GroupMetadata',
+  '- [Generated types](./generated-types) — where input/output type aliases come from',
+  '- [Worked example: sendText](./send-text-worked-example)',
+  '- [Events](./events) — registered events and payloads',
+  '- [Licensed methods](./licensed-methods) — what needs a license key',
+  '- [All client methods](./client) — alphabetical index',
 ].join('\n');
 
 writeFileIfChanged(path.join(docsDir, 'index.mdx'), `${indexContent}\n`);
 writeFileIfChanged(path.join(docsDir, 'meta.json'), `${JSON.stringify(meta, null, 2)}\n`);
 
-const clientContent = [
-  buildFrontmatter('Client Reference', 'Comprehensive flat client method reference.', 'BookOpen'),
-  '',
-  '# Client Reference',
-  '',
-  buildGeneratedWarning(),
-  '',
-  'This page documents all client methods alphabetically in a single flat namespace for easy reference.',
-  '',
-  methods.map((def) => buildMethodSection(def, routesByFunctionName.get(def.meta.functionName))).join('\n\n'),
-].join('\n');
+// #5: the flat page is now a lightweight alphabetical index (was ~177KB); the
+// full per-method detail lives on the namespace pages.
+writeFileIfChanged(path.join(docsDir, 'client.mdx'), buildClientIndexPage(methods));
 
-writeFileIfChanged(path.join(docsDir, 'client.mdx'), `${clientContent}\n`);
+// #3 (#3338): registry-derived internals pages.
+const internalsPages = buildInternalsPages(methods, namespaces.length, routesByFunctionName);
+for (const [slug, content] of Object.entries(internalsPages)) {
+  writeFileIfChanged(path.join(docsDir, `${slug}.mdx`), content);
+}
+
+// #4: generated events reference.
+writeFileIfChanged(path.join(docsDir, 'events.mdx'), buildEventsPage(eventRegistry.getAll()));
+
+// #6: methods grouped by license tier.
+writeFileIfChanged(path.join(docsDir, 'licensed-methods.mdx'), buildLicensedMethodsPage(methods));
 
 for (const namespace of namespaces) {
   const namespaceMethods = methodsByNamespace.get(namespace) ?? [];
@@ -618,4 +993,4 @@ writeFileIfChanged(path.join(docsDir, 'methods-map.json'), `${JSON.stringify(met
 const interfacesContent = buildAllParamsInterfaces(methods);
 writeFileIfChanged(path.join(docsDir, 'generated-method-params.ts'), interfacesContent);
 
-console.log(`Successfully generated Client API reference docs with ${methods.length} methods across ${namespaces.length} namespaces plus flat client page, methods map, and parameter interfaces`);
+console.log(`Successfully generated Client API reference docs: ${methods.length} methods across ${namespaces.length} namespaces, internals pages, licensed-methods page, flat index, methods map, and parameter interfaces`);

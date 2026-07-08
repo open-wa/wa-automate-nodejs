@@ -37,7 +37,7 @@ Decrypts media from a message
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -65,6 +65,18 @@ curl -X POST "http://localhost:8080/api/media/decrypt" \
   --data '{
     "message": {}
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
 ```
 
   </Tab>
@@ -107,7 +119,7 @@ Downloads and decrypts media from a message to a file
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -138,6 +150,18 @@ curl -X POST "http://localhost:8080/api/media/download" \
     "message": {},
     "path": "path"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
 ```
 
   </Tab>

@@ -38,7 +38,7 @@ Add participant to group
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -69,6 +69,18 @@ curl -X PUT "http://localhost:8080/api/groups/addParticipant" \
     "groupId": "447123456789-1445627445@g.us",
     "contactId": "447123456789@c.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -111,7 +123,7 @@ Approve group join request
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -142,6 +154,18 @@ curl -X PUT "http://localhost:8080/api/groups/approveJoinRequest" \
     "groupId": "447123456789-1445627445@g.us",
     "contactId": "447123456789@c.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -186,7 +210,7 @@ Create new group
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -220,6 +244,18 @@ curl -X POST "http://localhost:8080/api/groups/create" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -230,7 +266,9 @@ curl -X POST "http://localhost:8080/api/groups/create" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `demoteParticipant`
 
@@ -260,7 +298,7 @@ Demote participant from admin
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -291,6 +329,18 @@ curl -X PUT "http://localhost:8080/api/groups/demoteParticipant" \
     "groupId": "447123456789-1445627445@g.us",
     "contactId": "447123456789@c.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -336,7 +386,7 @@ Get all groups
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -364,6 +414,18 @@ curl -G "http://localhost:8080/api/groups/getAll" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -374,7 +436,9 @@ curl -G "http://localhost:8080/api/groups/getAll" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown[]` |
+| Return type | `any[]` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getGroupAdmins`
 
@@ -403,7 +467,7 @@ Get group admins
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -431,6 +495,18 @@ curl -G "http://localhost:8080/api/groups/getAdmins" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -441,7 +517,9 @@ curl -G "http://localhost:8080/api/groups/getAdmins" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown[]` |
+| Return type | `any[]` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getGroupInfo`
 
@@ -470,7 +548,7 @@ Get group metadata
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -498,6 +576,18 @@ curl -G "http://localhost:8080/api/groups/getInfo" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -508,7 +598,9 @@ curl -G "http://localhost:8080/api/groups/getInfo" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getGroupInviteLink`
 
@@ -537,7 +629,7 @@ Get group invite link
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -562,6 +654,18 @@ const result = await client.groups.getInviteLink({
 curl -G "http://localhost:8080/api/groups/getInviteLink" \
   -H "x-api-key: YOUR_API_KEY" \
   --data-urlencode "groupId=447123456789-1445627445@g.us"
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
 ```
 
   </Tab>
@@ -604,7 +708,7 @@ Retrieves members of a group
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -632,6 +736,18 @@ curl -G "http://localhost:8080/api/groups/getMembers" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -642,7 +758,9 @@ curl -G "http://localhost:8080/api/groups/getMembers" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown[]` |
+| Return type | `any[]` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getGroupMembersId`
 
@@ -673,7 +791,7 @@ Get group member IDs
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -698,6 +816,18 @@ const result = await client.groups.getMemberIds({
 curl -G "http://localhost:8080/api/groups/getMemberIds" \
   -H "x-api-key: YOUR_API_KEY" \
   --data-urlencode "groupId=447123456789-1445627445@g.us"
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
 ```
 
   </Tab>
@@ -740,7 +870,7 @@ Get groups where kicked
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -762,6 +892,18 @@ curl -X GET "http://localhost:8080/api/groups/getKicked" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{}'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
 ```
 
   </Tab>
@@ -808,7 +950,7 @@ Join group via invite link
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -842,6 +984,18 @@ curl -X POST "http://localhost:8080/api/groups/join" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -852,7 +1006,9 @@ curl -X POST "http://localhost:8080/api/groups/join" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `string \| boolean \| number \| unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `leaveGroup`
 
@@ -881,7 +1037,7 @@ Leave a group
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -912,6 +1068,18 @@ curl -X PUT "http://localhost:8080/api/groups/leave" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -922,7 +1090,9 @@ curl -X PUT "http://localhost:8080/api/groups/leave" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `promoteParticipant`
 
@@ -952,7 +1122,7 @@ Promote participant to admin
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -983,6 +1153,18 @@ curl -X PUT "http://localhost:8080/api/groups/promoteParticipant" \
     "groupId": "447123456789-1445627445@g.us",
     "contactId": "447123456789@c.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -1025,7 +1207,7 @@ Reject group join request
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1056,6 +1238,18 @@ curl -X PUT "http://localhost:8080/api/groups/rejectJoinRequest" \
     "groupId": "447123456789-1445627445@g.us",
     "contactId": "447123456789@c.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -1099,7 +1293,7 @@ Remove participant from group
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1130,6 +1324,18 @@ curl -X PUT "http://localhost:8080/api/groups/removeParticipant" \
     "groupId": "447123456789-1445627445@g.us",
     "contactId": "447123456789@c.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -1172,7 +1378,7 @@ Revoke group invite link
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1200,6 +1406,18 @@ curl -X PUT "http://localhost:8080/api/groups/revokeInviteLink" \
   --data '{
     "groupId": "447123456789-1445627445@g.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -1242,7 +1460,7 @@ Set group description
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1273,6 +1491,18 @@ curl -X PUT "http://localhost:8080/api/groups/setDescription" \
     "groupId": "447123456789-1445627445@g.us",
     "description": "description"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -1316,7 +1546,7 @@ Restrict group editing to admins only
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1347,6 +1577,18 @@ curl -X PUT "http://localhost:8080/api/groups/setEditAdminsOnly" \
     "groupId": "447123456789-1445627445@g.us",
     "onlyAdmins": true
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -1389,7 +1631,7 @@ Set group icon
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1420,6 +1662,18 @@ curl -X PUT "http://localhost:8080/api/groups/setIcon" \
     "groupId": "447123456789-1445627445@g.us",
     "image": "image"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -1462,7 +1716,7 @@ Set group title
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1493,6 +1747,18 @@ curl -X PUT "http://localhost:8080/api/groups/setTitle" \
     "groupId": "447123456789-1445627445@g.us",
     "title": "title"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -1536,7 +1802,7 @@ Restrict group to admins only
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1567,6 +1833,18 @@ curl -X PUT "http://localhost:8080/api/groups/setAdminsOnly" \
     "groupId": "447123456789-1445627445@g.us",
     "onlyAdmins": true
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>

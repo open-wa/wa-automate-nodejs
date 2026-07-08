@@ -37,7 +37,7 @@ Deletes a message
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -74,6 +74,18 @@ curl -X DELETE "http://localhost:8080/api/messages/delete" \
     ],
     "onlyLocal": true
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -116,7 +128,7 @@ Forwards messages to a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -153,6 +165,18 @@ curl -X POST "http://localhost:8080/api/messages/forward" \
     ],
     "skipMyMessages": false
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -198,7 +222,7 @@ Retrieves all messages in the session
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -232,6 +256,18 @@ curl -G "http://localhost:8080/api/messages/getAll" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -242,7 +278,9 @@ curl -G "http://localhost:8080/api/messages/getAll" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown[]` |
+| Return type | `any[]` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getMessageById`
 
@@ -273,7 +311,7 @@ Retrieves a specific message by ID
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -301,6 +339,18 @@ curl -G "http://localhost:8080/api/messages/get" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -311,7 +361,9 @@ curl -G "http://localhost:8080/api/messages/get" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getMessageInfo`
 
@@ -340,7 +392,7 @@ Get message delivery info
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -368,6 +420,18 @@ curl -G "http://localhost:8080/api/messages/getInfo" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -378,7 +442,9 @@ curl -G "http://localhost:8080/api/messages/getInfo" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getMessagesForLLM`
 
@@ -409,7 +475,7 @@ Get messages formatted for LLMs
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -440,6 +506,18 @@ curl -G "http://localhost:8080/api/messages/getForLLM" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -450,7 +528,9 @@ curl -G "http://localhost:8080/api/messages/getForLLM" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getMyLastMessage`
 
@@ -479,7 +559,7 @@ Get last message sent by host
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -507,6 +587,18 @@ curl -G "http://localhost:8080/api/messages/getMyLast" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -517,7 +609,9 @@ curl -G "http://localhost:8080/api/messages/getMyLast" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getStarredMessages` - insiders
 
@@ -548,7 +642,7 @@ Get starred messages
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -576,6 +670,18 @@ curl -G "http://localhost:8080/api/messages/getStarred" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -586,7 +692,9 @@ curl -G "http://localhost:8080/api/messages/getStarred" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown[]` |
+| Return type | `any[]` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getUnsentMessages`
 
@@ -615,7 +723,7 @@ Get unsent/pending messages
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -640,6 +748,18 @@ curl -X GET "http://localhost:8080/api/messages/getUnsent" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -650,7 +770,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown[]` |
+| Return type | `any[]` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getVCards`
 
@@ -679,7 +801,7 @@ Extract vCards from message
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -704,6 +826,18 @@ const result = await client.messages.getVCards({
 curl -G "http://localhost:8080/api/messages/getVCards" \
   -H "x-api-key: YOUR_API_KEY" \
   --data-urlencode "messageId=false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
 ```
 
   </Tab>
@@ -748,7 +882,7 @@ Loads earlier messages from a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -785,6 +919,18 @@ curl -X POST "http://localhost:8080/api/messages/loadEarlier" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -795,7 +941,9 @@ curl -X POST "http://localhost:8080/api/messages/loadEarlier" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown[]` |
+| Return type | `any[]` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `react`
 
@@ -824,7 +972,7 @@ React to message with emoji
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -855,6 +1003,18 @@ curl -X POST "http://localhost:8080/api/messages/react" \
     "messageId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
     "emoji": "emoji"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -899,7 +1059,7 @@ Sends an advanced button message with media (deprecated)
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -945,6 +1105,18 @@ curl -X POST "http://localhost:8080/api/messages/sendAdvancedButtons" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -984,7 +1156,7 @@ Sends an audio file to a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1021,6 +1193,18 @@ curl -X POST "http://localhost:8080/api/messages/sendAudio" \
     "filename": "document.pdf",
     "quotedMsgId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -1063,7 +1247,7 @@ Sends a banner image
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1094,6 +1278,18 @@ curl -X POST "http://localhost:8080/api/messages/sendBanner" \
     "to": "447123456789@c.us",
     "base64": "base64"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -1138,7 +1334,7 @@ Sends a button message (deprecated)
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1181,6 +1377,18 @@ curl -X POST "http://localhost:8080/api/messages/sendButtons" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -1220,7 +1428,7 @@ Sends a single contact
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1251,6 +1459,18 @@ curl -X POST "http://localhost:8080/api/messages/sendContact" \
     "to": "447123456789@c.us",
     "contactId": []
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -1293,7 +1513,7 @@ Sends a file or document to a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1330,6 +1550,18 @@ curl -X POST "http://localhost:8080/api/messages/sendFile" \
     "filename": "document.pdf",
     "caption": "Check out this image!"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
 ```
 
   </Tab>
@@ -1372,7 +1604,7 @@ Downloads a file from a URL and sends it to a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1415,6 +1647,18 @@ curl -X POST "http://localhost:8080/api/messages/sendFileFromUrl" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -1454,7 +1698,7 @@ Sends an image to a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1500,6 +1744,18 @@ curl -X POST "http://localhost:8080/api/messages/sendImage" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -1541,7 +1797,7 @@ Sends a link with auto-generated preview
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1587,6 +1843,18 @@ curl -X POST "http://localhost:8080/api/messages/sendLinkWithAutoPreview" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -1629,7 +1897,7 @@ Sends a list/menu message (deprecated)
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1672,6 +1940,18 @@ curl -X POST "http://localhost:8080/api/messages/sendList" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -1711,7 +1991,7 @@ Sends a location to a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1757,6 +2037,18 @@ curl -X POST "http://localhost:8080/api/messages/sendLocation" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -1798,7 +2090,7 @@ Sends a link preview message with custom thumbnail
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1850,6 +2142,18 @@ curl -X POST "http://localhost:8080/api/messages/sendLinkWithThumbnail" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -1891,7 +2195,7 @@ Sends multiple contacts
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1922,6 +2226,18 @@ curl -X POST "http://localhost:8080/api/messages/sendContacts" \
     "to": "447123456789@c.us",
     "contactIds": "447123456789@c.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -1964,7 +2280,7 @@ Sends a payment request message
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -2001,6 +2317,18 @@ curl -X POST "http://localhost:8080/api/messages/sendPaymentRequest" \
     "currency": "currency",
     "message": "message"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -2043,7 +2371,7 @@ Sends a poll message
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -2080,6 +2408,18 @@ curl -X POST "http://localhost:8080/api/messages/sendPoll" \
     "options": [],
     "selectableCount": 1
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -2124,7 +2464,7 @@ Sends a voice note (push-to-talk) to a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -2158,6 +2498,18 @@ curl -X POST "http://localhost:8080/api/messages/sendPtt" \
     "file": "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...",
     "quotedMsgId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -2200,7 +2552,7 @@ Sends a reply to a message that includes @mentions
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -2246,6 +2598,18 @@ curl -X POST "http://localhost:8080/api/messages/sendReplyWithMentions" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -2285,7 +2649,7 @@ Mark message as seen
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -2313,6 +2677,18 @@ curl -X PUT "http://localhost:8080/api/messages/sendSeen" \
   --data '{
     "chatId": "447123456789@c.us"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -2355,7 +2731,7 @@ Sends a text message to a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -2394,6 +2770,18 @@ curl -X POST "http://localhost:8080/api/messages/sendText" \
       ]
     }
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -2436,7 +2824,7 @@ Sends a text message that includes @mentions
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -2479,6 +2867,18 @@ curl -X POST "http://localhost:8080/api/messages/sendTextWithMentions" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -2518,7 +2918,7 @@ Sends a contact card (vCard)
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -2555,6 +2955,18 @@ curl -X POST "http://localhost:8080/api/messages/sendVCard" \
     "contactName": "contactName",
     "contactNumber": "contactNumber"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -2597,7 +3009,7 @@ Sends a video as an animated GIF
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -2637,6 +3049,18 @@ curl -X POST "http://localhost:8080/api/messages/sendVideoAsGif" \
     "caption": "Check out this image!",
     "quotedMsgId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -2681,7 +3105,7 @@ Sends a YouTube link with auto-generated preview
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -2727,6 +3151,18 @@ curl -X POST "http://localhost:8080/api/messages/sendYouTubeLink" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -2766,7 +3202,7 @@ Star a message
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -2794,6 +3230,18 @@ curl -X PUT "http://localhost:8080/api/messages/star" \
   --data '{
     "messageId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -2836,7 +3284,7 @@ Unstar a message
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -2864,6 +3312,18 @@ curl -X PUT "http://localhost:8080/api/messages/unstar" \
   --data '{
     "messageId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>

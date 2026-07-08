@@ -37,7 +37,7 @@ Get phone battery level
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -59,6 +59,18 @@ curl -X GET "http://localhost:8080/api/session/getBatteryLevel" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{}'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": 0
+}
 ```
 
   </Tab>
@@ -101,7 +113,7 @@ Get connection state
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -126,6 +138,18 @@ curl -X GET "http://localhost:8080/api/session/getConnectionState" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -136,7 +160,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getFeatures`
 
@@ -165,7 +191,7 @@ Get enabled features
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -190,6 +216,18 @@ curl -X GET "http://localhost:8080/api/session/getFeatures" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -200,7 +238,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getHostNumber`
 
@@ -229,7 +269,7 @@ Get host phone number
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -251,6 +291,18 @@ curl -X GET "http://localhost:8080/api/session/getHostNumber" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{}'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
 ```
 
   </Tab>
@@ -293,7 +345,7 @@ Get license type
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -318,6 +370,18 @@ curl -X GET "http://localhost:8080/api/session/getLicenseType" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -328,7 +392,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown \| boolean` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getLoadedMessageCount`
 
@@ -359,7 +425,7 @@ Get loaded message count
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -381,6 +447,18 @@ curl -X GET "http://localhost:8080/api/session/getLoadedMessageCount" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{}'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": 0
+}
 ```
 
   </Tab>
@@ -423,7 +501,7 @@ Get host account info
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -448,6 +526,18 @@ curl -X GET "http://localhost:8080/api/session/getMe" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -458,7 +548,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getProcessStats`
 
@@ -487,7 +579,7 @@ Get process statistics
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -512,6 +604,18 @@ curl -X GET "http://localhost:8080/api/session/getProcessStats" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -522,7 +626,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getSnapshot`
 
@@ -553,7 +659,7 @@ Take screenshot
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -584,6 +690,18 @@ curl -G "http://localhost:8080/api/session/getSnapshot" \
   --data-urlencode "chatId=447123456789@c.us" \
   --data-urlencode "width=1" \
   --data-urlencode "height=1"
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
 ```
 
   </Tab>
@@ -628,7 +746,7 @@ Get user agent
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -653,6 +771,18 @@ const result = await client.session.getUserAgent({
 curl -G "http://localhost:8080/api/session/getUserAgent" \
   -H "x-api-key: YOUR_API_KEY" \
   --data-urlencode "userAgent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
 ```
 
   </Tab>
@@ -697,7 +827,7 @@ Get WhatsApp Web version
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -719,6 +849,18 @@ curl -X GET "http://localhost:8080/api/session/getWAVersion" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{}'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
 ```
 
   </Tab>
@@ -761,7 +903,7 @@ Health check
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -786,6 +928,18 @@ curl -X GET "http://localhost:8080/api/session/healthCheck" \
 ```
 
   </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </Tab>
 </Tabs>
 
 ### Parameters
@@ -796,7 +950,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `isPlugged`
 
@@ -827,7 +983,7 @@ Check if phone is charging
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -849,6 +1005,18 @@ curl -X GET "http://localhost:8080/api/session/isPlugged" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{}'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -894,7 +1062,7 @@ Set host name
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -922,6 +1090,18 @@ curl -X PUT "http://localhost:8080/api/session/setName" \
   --data '{
     "name": "OpenWA Bot"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -967,7 +1147,7 @@ Set host status
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -995,6 +1175,18 @@ curl -X PUT "http://localhost:8080/api/session/setStatus" \
   --data '{
     "statusText": "Available"
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
@@ -1041,7 +1233,7 @@ Set profile picture
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
+<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
   <Tab value="Client">
 
 ```ts
@@ -1069,6 +1261,18 @@ curl -X PUT "http://localhost:8080/api/session/setProfilePicture" \
   --data '{
     "image": "data:image/png;base64,iVBORw0KGgo..."
   }'
+```
+
+  </Tab>
+  <Tab value="Response">
+
+Example Easy API response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
 ```
 
   </Tab>
