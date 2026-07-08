@@ -128,3 +128,38 @@ git push -u origin <branch-name>
 
 If the push fails because the remote has diverged or conflicts are required,
 stop and report the issue instead of forcing a push.
+
+## Release Process
+
+Publishing is driven by Changesets and the `release` branch — **not** `master`.
+
+- Development and changesets land on `master`. Merging PRs to `master` never
+  publishes.
+- The **`release`** branch is a publish-trigger mirror of `master`. A push to
+  `release` runs `.github/workflows/release.yml`.
+- To cut a release:
+  1. Reconcile `release` to `master`: `git push origin origin/master:release --force`
+     (release is a mirror; its only unique history is auto-generated version/
+     changelog commits, which are safe to discard — npm versions are immutable).
+  2. That push makes the Changesets action open a **"chore: version packages"**
+     PR that bumps the fixed `@open-wa/*` group and consumes the changesets.
+  3. Merging that version PR publishes to npm + GitHub Packages, tags, creates
+     the GitHub Release (which also deploys the docs), and notifies Discord.
+- The alpha train uses Changesets pre-mode (`.changeset/pre.json`, tag `alpha`).
+  Do not edit `pre.json` casually.
+- `tools/release/publish-packages-local.sh` is intentionally gitignored — it is
+  a local-only helper. Do not commit it.
+
+## Repository Gotchas
+
+- **Over-broad `.gitignore` patterns can hide real source files.** A bare
+  pattern like `session` matches every `session` path in the repo, silently
+  untracking source such as `packages/wa-automate/src/session/`. The code builds
+  locally (the file is on disk) but fails in CI's fresh checkout with
+  `UNRESOLVED_IMPORT`. Anchor runtime-data ignores to the repo root
+  (`/session/`, not `session`). When adding a `.gitignore` rule, run
+  `git status --ignored` / `git check-ignore -v <path>` to confirm it does not
+  catch tracked source.
+- After adding a new source file that other tracked code imports, verify it is
+  tracked (`git ls-files <path>`). A build that passes locally but fails only in
+  CI is very often an untracked/gitignored file.
