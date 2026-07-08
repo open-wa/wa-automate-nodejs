@@ -1,5 +1,12 @@
 # @open-wa/socket-client
 
+## 5.0.0-alpha.8
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @open-wa/wa-automate-types-only@5.0.0-alpha.8
+
 ## 5.0.0-alpha.7
 
 ### Patch Changes
