@@ -53,7 +53,7 @@ function buildMissingReadme(workspace) {
     '',
     '## Documentation',
     '',
-    'See the [docs site](https://docs.openwa.dev).',
+    'See the [docs site](https://openwa.dev).',
     '',
     '## License',
     '',

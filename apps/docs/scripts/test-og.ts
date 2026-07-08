@@ -27,17 +27,17 @@ assert.equal(
 
 assert.equal(
   getAbsoluteDocsUrl('/og/docs/getting-started/quickstart/image.webp'),
-  'https://docs.openwa.dev/og/docs/getting-started/quickstart/image.webp',
+  'https://openwa.dev/og/docs/getting-started/quickstart/image.webp',
 );
 
 const meta = getDocsSocialMeta({
   title: 'Quickstart',
   description: 'Start here',
-  imageUrl: 'https://docs.openwa.dev/og/docs/getting-started/quickstart/image.webp',
+  imageUrl: 'https://openwa.dev/og/docs/getting-started/quickstart/image.webp',
 });
 assert.deepEqual(meta.find((item) => 'property' in item && item.property === 'og:image'), {
   property: 'og:image',
-  content: 'https://docs.openwa.dev/og/docs/getting-started/quickstart/image.webp',
+  content: 'https://openwa.dev/og/docs/getting-started/quickstart/image.webp',
 });
 assert.deepEqual(meta.find((item) => 'name' in item && item.name === 'twitter:card'), {
   name: 'twitter:card',

@@ -24,7 +24,7 @@ wa-automate --help
 
 ## Documentation
 
-See the [CLI reference](https://docs.openwa.dev/reference/cli) on our docs site.
+See the [CLI reference](https://openwa.dev/reference/cli) on our docs site.
 
 ## License
 

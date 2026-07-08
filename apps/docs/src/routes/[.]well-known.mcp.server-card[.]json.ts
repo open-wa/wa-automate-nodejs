@@ -9,7 +9,7 @@ export const Route = createFileRoute('/.well-known/mcp/server-card.json')({
           JSON.stringify(
             {
               error: 'MCP is not hosted on the docs site.',
-              docs: 'https://docs.openwa.dev/docs/guides/mcp',
+              docs: 'https://openwa.dev/docs/guides/mcp',
               runtimeEndpoint: '/mcp',
             },
             null,
