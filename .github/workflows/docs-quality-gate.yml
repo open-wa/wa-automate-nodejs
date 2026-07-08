@@ -36,7 +36,9 @@ jobs:
           PUPPETEER_SKIP_DOWNLOAD: '1'
 
       - name: Build schema dependencies
-        run: pnpm --filter @open-wa/utils build
+        run: |
+          pnpm --filter @open-wa/config build
+          pnpm --filter @open-wa/utils build
 
       - name: OG helper tests
         run: pnpm --filter docs test:og

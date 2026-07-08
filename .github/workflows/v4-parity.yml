@@ -38,7 +38,9 @@ jobs:
           PUPPETEER_SKIP_DOWNLOAD: '1'
 
       - name: Build schema dependencies
-        run: pnpm --filter @open-wa/utils build
+        run: |
+          pnpm --filter @open-wa/config build
+          pnpm --filter @open-wa/utils build
 
       - name: Build schema (the parity tool reads its built dist)
         run: pnpm --filter @open-wa/schema build
