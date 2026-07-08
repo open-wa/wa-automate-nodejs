@@ -15,9 +15,13 @@ Three layers (only the first is built so far):
 
 ## Static parity matrix (task C1)
 
-`static/parity.ts` extracts the v4 public method surface from
-`packages/legacy/src/api/Client.ts` (which *is* the v4 implementation) with
-ts-morph, and diffs it against `@open-wa/schema`'s `clientRegistry.getAll()`.
+`static/parity.ts` diffs the **committed v4 surface snapshot**
+(`static/v4-surface.json`) against `@open-wa/schema`'s `clientRegistry.getAll()`.
+The snapshot is self-contained, so the check runs in CI without any v4 source in
+the tree (the legacy v4 packages are gitignored and absent on a clean checkout).
+
+v4 is frozen. If its surface ever needs re-capturing, run `--snapshot` (below)
+against the documented legacy client; otherwise the snapshot never changes.
 
 It classifies every v4 method as:
 
@@ -34,12 +38,16 @@ It classifies every v4 method as:
 ### Commands
 
 ```bash
-# regenerate the committed report
+# regenerate the committed report from the snapshot + current schema
 pnpm --filter @open-wa/schema build   # the tool reads the built schema dist
 pnpm tsx tools/v4-compat-bench/static/parity.ts
 
 # CI gate: fail if `missing` or `arityMismatch` grew vs the committed report
 pnpm tsx tools/v4-compat-bench/static/parity.ts --check
+
+# (rare) re-capture the frozen v4 surface snapshot from the documented legacy
+# client — only if the v4 method surface itself changes
+pnpm tsx tools/v4-compat-bench/static/parity.ts --snapshot
 ```
 
 `static/v4-parity-report.json` is the committed baseline and doubles as the

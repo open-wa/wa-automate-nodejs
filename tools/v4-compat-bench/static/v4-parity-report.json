@@ -1,6 +1,6 @@
 {
   "generatedFrom": {
-    "v4": "packages/legacy/src/api/Client.ts",
+    "v4": "tools/v4-compat-bench/static/v4-surface.json (snapshot of the v4 Client)",
     "v5": "@open-wa/schema clientRegistry.getAll()"
   },
   "totals": {

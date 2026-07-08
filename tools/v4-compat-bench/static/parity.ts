@@ -29,7 +29,15 @@ type SchemaModule = {
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '../../..');
-const LEGACY_CLIENT = path.join(REPO_ROOT, 'packages/legacy/src/api/Client.ts');
+// v4 is frozen. Its public method surface is captured once into a committed
+// snapshot so this harness does not need any v4 source in the tree. The
+// snapshot is regenerated with `--snapshot` from the documented legacy client
+// (kept in `@open-wa/legacy-documented`) only if the v4 surface ever changes.
+const LEGACY_DOCUMENTED_CLIENT = path.join(
+  REPO_ROOT,
+  'packages/legacy-documented/src/api/Client.ts',
+);
+const V4_SURFACE_PATH = path.join(HERE, 'v4-surface.json');
 const SCHEMA_DIST = path.join(REPO_ROOT, 'packages/schema/dist/index.mjs');
 const REPORT_PATH = path.join(HERE, 'v4-parity-report.json');
 
@@ -44,8 +52,13 @@ function pathToFileUrl(p: string): string {
 
 export type V4Method = { name: string; requiredParams: number };
 
-/** Extract the v4 public Client method surface via ts-morph. */
-export function extractV4Methods(clientPath = LEGACY_CLIENT): V4Method[] {
+/** Load the committed v4 surface snapshot. */
+export function loadV4Surface(): V4Method[] {
+  return JSON.parse(readFileSync(V4_SURFACE_PATH, 'utf8')) as V4Method[];
+}
+
+/** Extract the v4 public Client method surface via ts-morph (snapshot source). */
+export function extractV4Methods(clientPath = LEGACY_DOCUMENTED_CLIENT): V4Method[] {
   const project = new Project({
     skipAddingFilesFromTsConfig: true,
     compilerOptions: { allowJs: false },
@@ -109,7 +122,7 @@ export type ParityReport = {
 };
 
 export async function buildReport(): Promise<ParityReport> {
-  const v4 = extractV4Methods();
+  const v4 = loadV4Surface();
   const v5 = await extractV5Methods();
 
   const functionNames = new Set(v5.map((m) => m.functionName));
@@ -149,7 +162,7 @@ export async function buildReport(): Promise<ParityReport> {
 
   return {
     generatedFrom: {
-      v4: 'packages/legacy/src/api/Client.ts',
+      v4: 'tools/v4-compat-bench/static/v4-surface.json (snapshot of the v4 Client)',
       v5: '@open-wa/schema clientRegistry.getAll()',
     },
     totals: {
@@ -172,6 +185,15 @@ function serialize(report: ParityReport): string {
 }
 
 async function main() {
+  // --snapshot: regenerate the committed v4 surface from the documented legacy
+  // client. Only needed if the (frozen) v4 method surface ever changes.
+  if (process.argv.includes('--snapshot')) {
+    const surface = extractV4Methods();
+    writeFileSync(V4_SURFACE_PATH, `${JSON.stringify(surface, null, 2)}\n`);
+    console.log(`Wrote ${path.relative(REPO_ROOT, V4_SURFACE_PATH)} (${surface.length} methods)`);
+    return;
+  }
+
   const report = await buildReport();
   const serialized = serialize(report);
   const check = process.argv.includes('--check');
