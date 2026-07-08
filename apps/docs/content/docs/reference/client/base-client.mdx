@@ -15,7 +15,7 @@ icon: "BookOpen"
 public sendText = implementMethod(Methods.sendText);
 ```
 
-At runtime each call normalizes arguments, validates them with the method's Zod input schema, then dispatches to `execute(meta.wapiOverride ?? meta.functionName, validatedParams)` (falling back to `pup()` page evaluation). See [Argument normalization](./argument-normalization).
+At runtime each call normalizes arguments, validates them with the method's Zod input schema, then dispatches to `execute(meta.wapiOverride ?? meta.functionName, validatedParams)` (falling back to `pup()` page evaluation). See [Argument normalization](/docs/reference/client/argument-normalization).
 
 ## Method dispatch table
 

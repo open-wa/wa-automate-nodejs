@@ -37,26 +37,30 @@ Archive a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.archiveChat({
   chatId: "447123456789@c.us",
 });
+// namespaced form: client.chats.archive(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.chats.archive({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.archiveChat({
   chatId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/chats/archive" \
@@ -67,10 +71,7 @@ curl -X PUT "http://localhost:8080/api/chats/archive" \
   }'
 ```
 
-  </Tab>
-  <Tab value="Response">
-
-Example Easy API response envelope:
+Example response envelope:
 
 ```json
 {
@@ -79,8 +80,8 @@ Example Easy API response envelope:
 }
 ```
 
-  </Tab>
-</Tabs>
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -119,26 +120,30 @@ Clear chat history
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.clearChat({
   chatId: "447123456789@c.us",
 });
+// namespaced form: client.chats.clear(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.chats.clear({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.clearChat({
   chatId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X DELETE "http://localhost:8080/api/chats/clear" \
@@ -149,10 +154,7 @@ curl -X DELETE "http://localhost:8080/api/chats/clear" \
   }'
 ```
 
-  </Tab>
-  <Tab value="Response">
-
-Example Easy API response envelope:
+Example response envelope:
 
 ```json
 {
@@ -161,8 +163,8 @@ Example Easy API response envelope:
 }
 ```
 
-  </Tab>
-</Tabs>
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -201,26 +203,30 @@ Delete a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.deleteChat({
   chatId: "447123456789@c.us",
 });
+// namespaced form: client.chats.delete(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.chats.delete({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.deleteChat({
   chatId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X DELETE "http://localhost:8080/api/chats/delete" \
@@ -231,10 +237,7 @@ curl -X DELETE "http://localhost:8080/api/chats/delete" \
   }'
 ```
 
-  </Tab>
-  <Tab value="Response">
-
-Example Easy API response envelope:
+Example response envelope:
 
 ```json
 {
@@ -243,8 +246,8 @@ Example Easy API response envelope:
 }
 ```
 
-  </Tab>
-</Tabs>
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -286,26 +289,30 @@ Retrieves all chats
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getAllChats({
   withNewMessagesOnly: false,
 });
+// namespaced form: client.chats.getAll(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.chats.getAll({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getAllChats({
   withNewMessagesOnly: false,
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/chats/getAll" \
@@ -313,10 +320,7 @@ curl -G "http://localhost:8080/api/chats/getAll" \
   --data-urlencode "withNewMessagesOnly=false"
 ```
 
-  </Tab>
-  <Tab value="Response">
-
-Example Easy API response envelope:
+Example response envelope:
 
 ```json
 {
@@ -325,8 +329,8 @@ Example Easy API response envelope:
 }
 ```
 
-  </Tab>
-</Tabs>
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -369,26 +373,30 @@ Get specific chat by ID
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getChat({
   chatId: "447123456789@c.us",
 });
+// namespaced form: client.chats.get(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.chats.get({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getChat({
   chatId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/chats/get" \
@@ -396,10 +404,7 @@ curl -G "http://localhost:8080/api/chats/get" \
   --data-urlencode "chatId=447123456789@c.us"
 ```
 
-  </Tab>
-  <Tab value="Response">
-
-Example Easy API response envelope:
+Example response envelope:
 
 ```json
 {
@@ -408,8 +413,8 @@ Example Easy API response envelope:
 }
 ```
 
-  </Tab>
-</Tabs>
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -450,22 +455,26 @@ Get chats with non-contacts
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getChatWithNonContacts({});
+// namespaced form: client.chats.getWithNonContacts(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.chats.getWithNonContacts({});
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getChatWithNonContacts({});
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X GET "http://localhost:8080/api/chats/getWithNonContacts" \
@@ -474,10 +483,7 @@ curl -X GET "http://localhost:8080/api/chats/getWithNonContacts" \
   --data '{}'
 ```
 
-  </Tab>
-  <Tab value="Response">
-
-Example Easy API response envelope:
+Example response envelope:
 
 ```json
 {
@@ -486,8 +492,8 @@ Example Easy API response envelope:
 }
 ```
 
-  </Tab>
-</Tabs>
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -528,26 +534,30 @@ Check if chat is online
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.isChatOnline({
   chatId: "447123456789@c.us",
 });
+// namespaced form: client.chats.isOnline(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.chats.isOnline({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.isChatOnline({
   chatId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/chats/isOnline" \
@@ -555,10 +565,7 @@ curl -G "http://localhost:8080/api/chats/isOnline" \
   --data-urlencode "chatId=447123456789@c.us"
 ```
 
-  </Tab>
-  <Tab value="Response">
-
-Example Easy API response envelope:
+Example response envelope:
 
 ```json
 {
@@ -567,8 +574,8 @@ Example Easy API response envelope:
 }
 ```
 
-  </Tab>
-</Tabs>
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -607,26 +614,30 @@ Mark chat as read
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.markAsRead({
   chatId: "447123456789@c.us",
 });
+// namespaced form: client.chats.markAsRead(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.chats.markAsRead({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.markAsRead({
   chatId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/chats/markAsRead" \
@@ -637,10 +648,7 @@ curl -X PUT "http://localhost:8080/api/chats/markAsRead" \
   }'
 ```
 
-  </Tab>
-  <Tab value="Response">
-
-Example Easy API response envelope:
+Example response envelope:
 
 ```json
 {
@@ -649,8 +657,8 @@ Example Easy API response envelope:
 }
 ```
 
-  </Tab>
-</Tabs>
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -689,26 +697,30 @@ Mark chat as unread
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.markAsUnread({
   chatId: "447123456789@c.us",
 });
+// namespaced form: client.chats.markAsUnread(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.chats.markAsUnread({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.markAsUnread({
   chatId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/chats/markAsUnread" \
@@ -719,10 +731,7 @@ curl -X PUT "http://localhost:8080/api/chats/markAsUnread" \
   }'
 ```
 
-  </Tab>
-  <Tab value="Response">
-
-Example Easy API response envelope:
+Example response envelope:
 
 ```json
 {
@@ -731,8 +740,8 @@ Example Easy API response envelope:
 }
 ```
 
-  </Tab>
-</Tabs>
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -771,28 +780,32 @@ Mute a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.muteChat({
   chatId: "447123456789@c.us",
   muteDuration: 1,
 });
+// namespaced form: client.chats.mute(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.chats.mute({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.muteChat({
   chatId: "447123456789@c.us",
   muteDuration: 1,
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/chats/mute" \
@@ -804,10 +817,7 @@ curl -X PUT "http://localhost:8080/api/chats/mute" \
   }'
 ```
 
-  </Tab>
-  <Tab value="Response">
-
-Example Easy API response envelope:
+Example response envelope:
 
 ```json
 {
@@ -816,8 +826,8 @@ Example Easy API response envelope:
 }
 ```
 
-  </Tab>
-</Tabs>
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -856,26 +866,30 @@ Pin a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.pinChat({
   chatId: "447123456789@c.us",
 });
+// namespaced form: client.chats.pin(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.chats.pin({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.pinChat({
   chatId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/chats/pin" \
@@ -886,10 +900,7 @@ curl -X PUT "http://localhost:8080/api/chats/pin" \
   }'
 ```
 
-  </Tab>
-  <Tab value="Response">
-
-Example Easy API response envelope:
+Example response envelope:
 
 ```json
 {
@@ -898,8 +909,8 @@ Example Easy API response envelope:
 }
 ```
 
-  </Tab>
-</Tabs>
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -938,28 +949,32 @@ Set ephemeral messages for chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.setChatEphemeral({
   chatId: "447123456789@c.us",
   ephemeral: 1,
 });
+// namespaced form: client.chats.setEphemeral(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.chats.setEphemeral({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.setChatEphemeral({
   chatId: "447123456789@c.us",
   ephemeral: 1,
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/chats/setEphemeral" \
@@ -971,10 +986,7 @@ curl -X PUT "http://localhost:8080/api/chats/setEphemeral" \
   }'
 ```
 
-  </Tab>
-  <Tab value="Response">
-
-Example Easy API response envelope:
+Example response envelope:
 
 ```json
 {
@@ -983,8 +995,8 @@ Example Easy API response envelope:
 }
 ```
 
-  </Tab>
-</Tabs>
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -1023,26 +1035,30 @@ Unarchive a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.unarchiveChat({
   chatId: "447123456789@c.us",
 });
+// namespaced form: client.chats.unarchive(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.chats.unarchive({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.unarchiveChat({
   chatId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/chats/unarchive" \
@@ -1053,10 +1069,7 @@ curl -X PUT "http://localhost:8080/api/chats/unarchive" \
   }'
 ```
 
-  </Tab>
-  <Tab value="Response">
-
-Example Easy API response envelope:
+Example response envelope:
 
 ```json
 {
@@ -1065,8 +1078,8 @@ Example Easy API response envelope:
 }
 ```
 
-  </Tab>
-</Tabs>
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -1105,26 +1118,30 @@ Unmute a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.unmuteChat({
   chatId: "447123456789@c.us",
 });
+// namespaced form: client.chats.unmute(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.chats.unmute({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.unmuteChat({
   chatId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/chats/unmute" \
@@ -1135,10 +1152,7 @@ curl -X PUT "http://localhost:8080/api/chats/unmute" \
   }'
 ```
 
-  </Tab>
-  <Tab value="Response">
-
-Example Easy API response envelope:
+Example response envelope:
 
 ```json
 {
@@ -1147,8 +1161,8 @@ Example Easy API response envelope:
 }
 ```
 
-  </Tab>
-</Tabs>
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -1187,26 +1201,30 @@ Unpin a chat
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.unpinChat({
   chatId: "447123456789@c.us",
 });
+// namespaced form: client.chats.unpin(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.chats.unpin({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.unpinChat({
   chatId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/chats/unpin" \
@@ -1217,10 +1235,7 @@ curl -X PUT "http://localhost:8080/api/chats/unpin" \
   }'
 ```
 
-  </Tab>
-  <Tab value="Response">
-
-Example Easy API response envelope:
+Example response envelope:
 
 ```json
 {
@@ -1229,8 +1244,8 @@ Example Easy API response envelope:
 }
 ```
 
-  </Tab>
-</Tabs>
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 

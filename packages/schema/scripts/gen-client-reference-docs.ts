@@ -514,41 +514,45 @@ function buildUsageTabs(def: MethodDefinition, route: HttpMethodDefinition | und
   const namespacedName = def.meta.namespacedName ?? def.meta.functionName;
   const parameterObject = buildParameterObject(rows, '  ');
 
+  // Interface-aware usage: the tab shown follows the reader's site-wide
+  // "preferred interface" choice. SocketClient is the same call surface over a
+  // socket and is the basis for other-language clients.
   return [
     '### Usage',
     '',
-    '<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>',
-    '  <Tab value="Client">',
+    '<InterfaceTabs>',
+    '  <InterfaceTab value="Embedded">',
     '',
     '```ts',
     `const result = await client.${def.meta.functionName}(${parameterObject});`,
+    `// namespaced form: client.${namespace}.${namespacedName}(...)`,
     '```',
     '',
-    '  </Tab>',
-    '  <Tab value="Namespaced client">',
+    '  </InterfaceTab>',
+    '  <InterfaceTab value="SocketClient">',
     '',
     '```ts',
-    `const result = await client.${namespace}.${namespacedName}(${parameterObject});`,
+    "import { SocketClient } from '@open-wa/socket-client';",
+    '',
+    "const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');",
+    `const result = await client.${def.meta.functionName}(${parameterObject});`,
     '```',
     '',
-    '  </Tab>',
-    '  <Tab value="HTTP API">',
+    '  </InterfaceTab>',
+    '  <InterfaceTab value="Easy API">',
     '',
     '```bash',
     buildCurlExample(route, rows),
     '```',
     '',
-    '  </Tab>',
-    '  <Tab value="Response">',
-    '',
-    'Example Easy API response envelope:',
+    'Example response envelope:',
     '',
     '```json',
     buildResponseExample(outputSummary),
     '```',
     '',
-    '  </Tab>',
-    '</Tabs>',
+    '  </InterfaceTab>',
+    '</InterfaceTabs>',
   ].join('\n');
 }
 
@@ -606,7 +610,7 @@ function buildClientIndexPage(methods: MethodDefinition[]): string {
     const nsSlug = slugForNamespace(def.meta.namespace ?? 'core');
     const anchor = def.meta.functionName.toLowerCase();
     const license = def.meta.license && def.meta.license !== 'none' ? `\`${def.meta.license}\`` : '-';
-    return `| [\`${def.meta.functionName}\`](./${nsSlug}#${anchor}) | \`${escapeTableCell(def.meta.namespace ?? 'core')}\` | ${escapeTableCell(def.meta.description ?? '')} | ${license} |`;
+    return `| [\`${def.meta.functionName}\`](/docs/reference/client/${nsSlug}#${anchor}) | \`${escapeTableCell(def.meta.namespace ?? 'core')}\` | ${escapeTableCell(def.meta.description ?? '')} | ${license} |`;
   });
   return buildGeneratedPage(
     'All client methods',
@@ -634,7 +638,7 @@ function buildLicensedMethodsPage(methods: MethodDefinition[]): string {
     const list = (byTier.get(tier) ?? []).sort((a, b) => a.meta.functionName.localeCompare(b.meta.functionName));
     const rows = list.map((def) => {
       const nsSlug = slugForNamespace(def.meta.namespace ?? 'core');
-      return `| [\`${def.meta.functionName}\`](./${nsSlug}#${def.meta.functionName.toLowerCase()}) | \`${escapeTableCell(def.meta.namespace ?? 'core')}\` | ${escapeTableCell(def.meta.description ?? '')} |`;
+      return `| [\`${def.meta.functionName}\`](/docs/reference/client/${nsSlug}#${def.meta.functionName.toLowerCase()}) | \`${escapeTableCell(def.meta.namespace ?? 'core')}\` | ${escapeTableCell(def.meta.description ?? '')} |`;
     });
     return [
       `## \`${tier}\` (${list.length})`,
@@ -733,7 +737,7 @@ function buildInternalsPages(
       'public sendText = implementMethod(Methods.sendText);',
       '```',
       '',
-      'At runtime each call normalizes arguments, validates them with the method\'s Zod input schema, then dispatches to `execute(meta.wapiOverride ?? meta.functionName, validatedParams)` (falling back to `pup()` page evaluation). See [Argument normalization](./argument-normalization).',
+      'At runtime each call normalizes arguments, validates them with the method\'s Zod input schema, then dispatches to `execute(meta.wapiOverride ?? meta.functionName, validatedParams)` (falling back to `pup()` page evaluation). See [Argument normalization](/docs/reference/client/argument-normalization).',
       '',
       '## Method dispatch table',
       '',
@@ -743,7 +747,7 @@ function buildInternalsPages(
     'namespaced-client': buildGeneratedPage('Namespaced client', 'How BaseNamespacedClient builds namespace objects from aliases.', [
       '`BaseNamespacedClient extends BaseClient` and exposes namespace objects (for example `client.messages.send`) built from each method\'s registered aliases. A namespaced alias like `messages.send` maps back to the canonical method `sendText`.',
       '',
-      'See the full alias map on [Aliases](./aliases).',
+      'See the full alias map on [Aliases](/docs/reference/client/aliases).',
     ].join('\n')),
 
     'argument-normalization': buildGeneratedPage('Argument normalization', 'Positional vs object arguments, alias resolution, validation, and dispatch.', [
@@ -811,7 +815,7 @@ function buildInternalsPages(
             '2. An object call resolves key aliases (`chatId` → `to`, `text` → `content`).',
             '3. `inputSchema.parseAsync()` validates before dispatch.',
             `4. Dispatch target is \`execute('${sendText.meta.wapiOverride ?? 'sendText'}', validatedParams)\`.`,
-            '5. See the full reference on the [messages namespace page](./messages#sendtext).',
+            '5. See the full reference on the [messages namespace page](/docs/reference/client/messages#sendtext).',
           ].join('\n')
         : 'The `sendText` method is not currently registered.',
     ].join('\n')),
@@ -911,6 +915,8 @@ const indexContent = [
   '',
   'These pages are generated from `packages/schema/src/registry.ts` and `packages/schema/src/methods/*.ts`.',
   '',
+  '<InterfacePreference />',
+  '',
   '## Namespaces',
   '',
   '<Cards>',
@@ -929,17 +935,17 @@ const indexContent = [
   '',
   '## How the client works',
   '',
-  '- [Schema pipeline](./schema-pipeline) — one definition, many projections',
-  '- [BaseClient](./base-client) — the generated flat client and dispatch table',
-  '- [Namespaced client](./namespaced-client) — namespace member mapping',
-  '- [Argument normalization](./argument-normalization) — positional vs object args, aliases',
-  '- [Aliases](./aliases) — function and parameter key aliases',
-  '- [Data models](./schemas) — Message, Contact, Chat, GroupMetadata',
-  '- [Generated types](./generated-types) — where input/output type aliases come from',
-  '- [Worked example: sendText](./send-text-worked-example)',
-  '- [Events](./events) — registered events and payloads',
-  '- [Licensed methods](./licensed-methods) — what needs a license key',
-  '- [All client methods](./client) — alphabetical index',
+  '- [Schema pipeline](/docs/reference/client/schema-pipeline) — one definition, many projections',
+  '- [BaseClient](/docs/reference/client/base-client) — the generated flat client and dispatch table',
+  '- [Namespaced client](/docs/reference/client/namespaced-client) — namespace member mapping',
+  '- [Argument normalization](/docs/reference/client/argument-normalization) — positional vs object args, aliases',
+  '- [Aliases](/docs/reference/client/aliases) — function and parameter key aliases',
+  '- [Data models](/docs/reference/client/schemas) — Message, Contact, Chat, GroupMetadata',
+  '- [Generated types](/docs/reference/client/generated-types) — where input/output type aliases come from',
+  '- [Worked example: sendText](/docs/reference/client/send-text-worked-example)',
+  '- [Events](/docs/reference/client/events) — registered events and payloads',
+  '- [Licensed methods](/docs/reference/client/licensed-methods) — what needs a license key',
+  '- [All client methods](/docs/reference/client/client) — alphabetical index',
 ].join('\n');
 
 writeFileIfChanged(path.join(docsDir, 'index.mdx'), `${indexContent}\n`);

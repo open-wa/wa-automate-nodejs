@@ -17,6 +17,12 @@ import {
   Steps,
   PackageManagerTabs,
 } from '@/components/docs-primitives';
+import { ConfigExplorer } from '@/components/config-explorer';
+import {
+  InterfacePreference,
+  InterfaceTabs,
+  InterfaceTab,
+} from '@/components/interface-tabs';
 
 function flattenText(node: React.ReactNode): string {
   if (node === null || node === undefined || typeof node === 'boolean') return '';
@@ -129,4 +135,8 @@ export const docsMdxComponents = {
   Step,
   Steps,
   PackageManagerTabs,
+  ConfigExplorer,
+  InterfacePreference,
+  InterfaceTabs,
+  InterfaceTab,
 };

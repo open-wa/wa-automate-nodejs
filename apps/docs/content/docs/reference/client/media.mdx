@@ -37,26 +37,30 @@ Decrypts media from a message
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.decryptMedia({
   message: {},
 });
+// namespaced form: client.media.decrypt(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.media.decrypt({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.decryptMedia({
   message: {},
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X POST "http://localhost:8080/api/media/decrypt" \
@@ -67,10 +71,7 @@ curl -X POST "http://localhost:8080/api/media/decrypt" \
   }'
 ```
 
-  </Tab>
-  <Tab value="Response">
-
-Example Easy API response envelope:
+Example response envelope:
 
 ```json
 {
@@ -79,8 +80,8 @@ Example Easy API response envelope:
 }
 ```
 
-  </Tab>
-</Tabs>
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -119,28 +120,32 @@ Downloads and decrypts media from a message to a file
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API", "Response"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.downloadMedia({
   message: {},
   path: "path",
 });
+// namespaced form: client.media.download(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.media.download({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.downloadMedia({
   message: {},
   path: "path",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X POST "http://localhost:8080/api/media/download" \
@@ -152,10 +157,7 @@ curl -X POST "http://localhost:8080/api/media/download" \
   }'
 ```
 
-  </Tab>
-  <Tab value="Response">
-
-Example Easy API response envelope:
+Example response envelope:
 
 ```json
 {
@@ -164,8 +166,8 @@ Example Easy API response envelope:
 }
 ```
 
-  </Tab>
-</Tabs>
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
