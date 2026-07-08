@@ -15,6 +15,10 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    env:
+      # The release only builds and publishes packages — it never needs a
+      # browser. Skip the Puppeteer Chromium download during install/build.
+      PUPPETEER_SKIP_DOWNLOAD: '1'
     steps:
       - uses: actions/checkout@v4
         with:
