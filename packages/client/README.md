@@ -30,7 +30,7 @@ await client.sendText('1234567890@c.us', 'Hello from v5!');
 
 ## Documentation
 
-See the [Developer Guide](https://docs.openwa.dev/guides/client) on our docs site.
+See the [Developer Guide](https://openwa.dev/guides/client) on our docs site.
 
 ## License
 

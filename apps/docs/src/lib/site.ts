@@ -2,8 +2,9 @@ export type LicenseTier = 'insiders' | 'restricted';
 
 export const SITE_NAME = 'open-wa v5 docs';
 // Canonical origin for the docs site. Used for sitemap, robots, OG image URLs,
-// and og:url so they never disagree. If the docs deploy moves, change it here.
-export const SITE_ORIGIN = 'https://docs.openwa.dev';
+// and og:url so they never disagree. The docs are served at openwa.dev (there
+// is no docs.openwa.dev subdomain). If the deploy moves, change it here.
+export const SITE_ORIGIN = 'https://openwa.dev';
 export const REPO_URL = 'https://github.com/open-wa/wa-automate-nodejs';
 export const GENERIC_LICENSE_URL = 'https://smashah.gumroad.com/l/open-wa?wanted=true';
 export const GENERIC_GUMROAD_URL = 'https://smashah.gumroad.com/l/open-wa?wanted=true';

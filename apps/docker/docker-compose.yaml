@@ -11,7 +11,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      WA_DISABLE_SPINS: 'true' # Example cli config as ENV VAR. Use any flag from https://docs.openwa.dev/docs/configuration/command-line-options and convert to capital snake case with `WA_` prefix
+      WA_DISABLE_SPINS: 'true' # Example cli config as ENV VAR. Use any flag from https://openwa.dev/docs/configuration/command-line-options and convert to capital snake case with `WA_` prefix
       WA_SESSION_ID: "MY_SESSION" # Change this
 
 volumes:

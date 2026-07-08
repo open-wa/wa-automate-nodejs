@@ -290,7 +290,7 @@ pnpm build
 
 This repo is no longer just a single package. It includes a plugin/integration surface for extending the runtime.
 
-Want to build one? Start with the **[plugin authoring guide](https://docs.openwa.dev/docs/plugins/getting-started)** (`@open-wa/plugin-sdk`).
+Want to build one? Start with the **[plugin authoring guide](https://openwa.dev/docs/plugins/getting-started)** (`@open-wa/plugin-sdk`).
 
 Relevant packages in this repo:
 
@@ -460,13 +460,13 @@ If you are testing v5, treat it like a new runtime surface rather than a drop-in
 
 The current docs in this repo are organized around real usage modes. Start with:
 
-- **Easy API quick start**: https://docs.openwa.dev/docs/getting-started/easy-api
-- **Custom code**: https://docs.openwa.dev/docs/getting-started/custom-code
-- **Socket Client**: https://docs.openwa.dev/docs/client-and-integrations/socket-client
-- **Cloudflare Session Proxy**: https://docs.openwa.dev/docs/client-and-integrations/cf-proxy
-- **Configuration and CLI**: https://docs.openwa.dev/docs/guides/configuration-and-cli
-- **Chatwoot**: https://docs.openwa.dev/docs/client-and-integrations/chatwoot
-- **Core reference**: https://docs.openwa.dev/docs/reference/core
+- **Easy API quick start**: https://openwa.dev/docs/getting-started/easy-api
+- **Custom code**: https://openwa.dev/docs/getting-started/custom-code
+- **Socket Client**: https://openwa.dev/docs/client-and-integrations/socket-client
+- **Cloudflare Session Proxy**: https://openwa.dev/docs/client-and-integrations/cf-proxy
+- **Configuration and CLI**: https://openwa.dev/docs/guides/configuration-and-cli
+- **Chatwoot**: https://openwa.dev/docs/client-and-integrations/chatwoot
+- **Core reference**: https://openwa.dev/docs/reference/core
 
 ## Running this repo locally
 
@@ -494,7 +494,7 @@ If you need help, paid support, or consulting:
 
 | Description | Link |
 | --- | --- |
-| Documentation | https://docs.openwa.dev |
+| Documentation | https://openwa.dev |
 | Discord | https://discord.gg/dnpp72a |
 | Get a license key | https://openwa.page.link/key |
 | Donate or book 1 hour consult | [![Buy me a coffee][buymeacoffee-shield]][buymeacoffee] |

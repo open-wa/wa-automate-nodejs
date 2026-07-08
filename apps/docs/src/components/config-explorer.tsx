@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { useMemo, useState } from 'react';
 import {
   configManifest,
@@ -143,66 +142,52 @@ export function ConfigExplorer() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-fd-border">
-        <table className="w-full text-sm">
-          <thead className="bg-fd-muted/50">
-            <tr>
-              <th className="text-left px-3 py-2 font-medium">
-                {FORMATS.find((f) => f.id === format)?.label}
-              </th>
-              <th className="text-left px-3 py-2 font-medium">Type</th>
-              <th className="text-left px-3 py-2 font-medium">Default</th>
-              <th className="text-left px-3 py-2 font-medium">Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {grouped.map(({ group: g, entries }) => (
-              <React.Fragment key={g}>
-                <tr className="border-t border-fd-border bg-fd-muted/30">
-                  <th
-                    colSpan={4}
-                    className="px-3 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-fd-muted-foreground"
-                  >
-                    {g}{' '}
-                    <span className="font-normal normal-case">
-                      ({entries.length})
-                    </span>
-                  </th>
-                </tr>
+      {filtered.length === 0 ? (
+        <div className="rounded-lg border border-fd-border px-3 py-6 text-center text-sm text-fd-muted-foreground">
+          {emptyMessage}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-6">
+          {grouped.map(({ group: g, entries }) => (
+            <section key={g} className="flex flex-col gap-2">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-fd-muted-foreground">
+                {g}{' '}
+                <span className="font-normal normal-case">
+                  ({entries.length})
+                </span>
+              </h3>
+              <div className="divide-y divide-fd-border/60 rounded-lg border border-fd-border">
                 {entries.map((entry) => (
-                  <tr
-                    key={entry.key}
-                    className="border-t border-fd-border/60 align-top"
-                  >
-                    <td className="px-3 py-2 font-mono text-xs whitespace-nowrap">
-                      {representation(entry, format)}
-                    </td>
-                    <td className="px-3 py-2 font-mono text-xs text-fd-muted-foreground whitespace-nowrap">
-                      {entry.type}
-                    </td>
-                    <td className="px-3 py-2 font-mono text-xs text-fd-muted-foreground whitespace-nowrap">
-                      {entry.default ?? '—'}
-                    </td>
-                    <td className="px-3 py-2 text-fd-muted-foreground">
-                      {entry.description ?? ''}
-                    </td>
-                  </tr>
+                  <div key={entry.key} className="flex flex-col gap-1.5 p-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <code className="rounded bg-fd-muted px-1.5 py-0.5 font-mono text-xs break-all">
+                        {representation(entry, format)}
+                      </code>
+                      <span className="rounded border border-fd-border px-1.5 py-0.5 font-mono text-[11px] text-fd-muted-foreground">
+                        {entry.type}
+                      </span>
+                      {entry.default && entry.default !== 'null' ? (
+                        <span className="rounded border border-fd-border px-1.5 py-0.5 font-mono text-[11px] text-fd-muted-foreground">
+                          default: {entry.default}
+                        </span>
+                      ) : (
+                        <span className="rounded border border-fd-border px-1.5 py-0.5 text-[11px] text-fd-muted-foreground">
+                          optional
+                        </span>
+                      )}
+                    </div>
+                    {entry.description && (
+                      <p className="text-sm text-fd-muted-foreground">
+                        {entry.description}
+                      </p>
+                    )}
+                  </div>
                 ))}
-              </React.Fragment>
-            ))}
-            {filtered.length === 0 && (
-              <tr>
-                <td
-                  colSpan={4}
-                  className="px-3 py-6 text-center text-fd-muted-foreground"
-                >
-                  {emptyMessage}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              </div>
+            </section>
+          ))}
+        </div>
+      )}
 
       <details className="rounded-lg border border-fd-border">
         <summary className="cursor-pointer px-3 py-2 text-sm font-medium">

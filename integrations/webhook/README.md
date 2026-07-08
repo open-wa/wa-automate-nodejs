@@ -63,7 +63,7 @@ The payload shape is defined by `WebhookPayload` in `src/config.ts` and produced
 
 ## Documentation
 
-See the [docs site](https://docs.openwa.dev).
+See the [docs site](https://openwa.dev).
 
 ## License
 
