@@ -39,6 +39,7 @@
     "rimraf": "^6.0.1",
     "syncpack": "^11.0.0",
     "tsdown": "^0.21.7",
+    "ts-morph": "^12.2.0",
     "tsx": "^4.21.0",
     "turbo": "^2.9.10",
     "typescript": "catalog:"

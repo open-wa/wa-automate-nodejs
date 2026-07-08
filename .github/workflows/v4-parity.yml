@@ -7,7 +7,7 @@ name: v4 Compat Parity
 on:
   pull_request:
     paths:
-      - 'packages/legacy/src/api/Client.ts'
+      - 'packages/legacy-documented/src/api/Client.ts'
       - 'packages/schema/**'
       - 'tools/v4-compat-bench/**'
       - '.github/workflows/v4-parity.yml'
@@ -22,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: pnpm/action-setup@v4
 

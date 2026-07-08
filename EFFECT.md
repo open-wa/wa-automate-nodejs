@@ -50,6 +50,10 @@ Downstream users and their tools must be able to read our errors as ordinary
   structural (used for browser/page/session lifetime).
 - **Timeouts:** `Effect.timeoutFail` / `Effect.race` instead of `setTimeout`
   races.
+- **HTTP fetch timeouts:** `fetchOnce` in `src/transport/httpClient.ts`
+  intentionally uses `AbortController` with `setTimeout`/`clearTimeout` instead
+  of `Effect.timeoutFail`, so the underlying fetch is actually aborted and
+  mapped to `HttpTimeoutError`.
 - **Running:** `runToPromise` at boundaries; `Effect.runPromiseExit` when you
   need to inspect the `Cause` internally (extract the error with `Cause.squash`).
 

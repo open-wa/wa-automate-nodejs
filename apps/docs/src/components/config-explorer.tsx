@@ -1,6 +1,10 @@
 import * as React from 'react';
 import { useMemo, useState } from 'react';
-import { configManifest, configGroups, type ConfigManifestEntry } from '@/generated/config-manifest';
+import {
+  configManifest,
+  configGroups,
+  type ConfigManifestEntry,
+} from '@/generated/config-manifest';
 
 type Format = 'config' | 'cli' | 'env';
 
@@ -11,7 +15,18 @@ const FORMATS: { id: Format; label: string }[] = [
 ];
 
 function sampleValue(entry: ConfigManifestEntry): string {
-  if (entry.default && entry.default !== 'null') return entry.default.replace(/^"|"$/g, '');
+  if (entry.default && entry.default !== 'null') {
+    try {
+      const parsed = JSON.parse(entry.default) as unknown;
+      if (typeof parsed === 'string') return parsed;
+      if (parsed === null || parsed === undefined) return `<${entry.key}>`;
+      return typeof parsed === 'object'
+        ? JSON.stringify(parsed)
+        : String(parsed);
+    } catch {
+      return entry.default.replace(/^"|"$/g, '');
+    }
+  }
   if (entry.type === 'boolean') return 'true';
   if (entry.type === 'number') return '0';
   if (entry.type.endsWith('[]')) return '';
@@ -39,7 +54,11 @@ function buildSnippet(entries: ConfigManifestEntry[], format: Format): string {
   if (format === 'cli') {
     return `npx @open-wa/wa-automate \\\n${entries
       .filter((e) => e.cliFlag)
-      .map((e) => (e.type === 'boolean' ? `  ${e.cliFlag}` : `  ${e.cliFlag} ${JSON.stringify(sampleValue(e))}`))
+      .map((e) =>
+        e.type === 'boolean'
+          ? `  ${e.cliFlag}`
+          : `  ${e.cliFlag} ${JSON.stringify(sampleValue(e))}`,
+      )
       .join(' \\\n')}`;
   }
   return entries.map((e) => `${e.envVar}=${sampleValue(e)}`).join('\n');
@@ -67,9 +86,21 @@ export function ConfigExplorer() {
 
   const grouped = useMemo(() => {
     return configGroups
-      .map((g) => ({ group: g, entries: filtered.filter((e) => e.group === g) }))
+      .map((g) => ({
+        group: g,
+        entries: filtered.filter((e) => e.group === g),
+      }))
       .filter((g) => g.entries.length > 0);
   }, [filtered]);
+
+  const emptyMessage =
+    group !== 'all'
+      ? query
+        ? `No config options in "${group}" match "${query}".`
+        : `No config options in "${group}".`
+      : query
+        ? `No config options match "${query}".`
+        : 'No config options match the current filters.';
 
   return (
     <div className="not-prose flex flex-col gap-4 my-4">
@@ -103,6 +134,7 @@ export function ConfigExplorer() {
               key={f.id}
               type="button"
               onClick={() => setFormat(f.id)}
+              aria-pressed={format === f.id}
               className={`px-3 py-1.5 ${format === f.id ? 'bg-fd-primary text-fd-primary-foreground' : 'bg-fd-background hover:bg-fd-accent'}`}
             >
               {f.label}
@@ -115,7 +147,9 @@ export function ConfigExplorer() {
         <table className="w-full text-sm">
           <thead className="bg-fd-muted/50">
             <tr>
-              <th className="text-left px-3 py-2 font-medium">{FORMATS.find((f) => f.id === format)?.label}</th>
+              <th className="text-left px-3 py-2 font-medium">
+                {FORMATS.find((f) => f.id === format)?.label}
+              </th>
               <th className="text-left px-3 py-2 font-medium">Type</th>
               <th className="text-left px-3 py-2 font-medium">Default</th>
               <th className="text-left px-3 py-2 font-medium">Description</th>
@@ -129,25 +163,40 @@ export function ConfigExplorer() {
                     colSpan={4}
                     className="px-3 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-fd-muted-foreground"
                   >
-                    {g} <span className="font-normal normal-case">({entries.length})</span>
+                    {g}{' '}
+                    <span className="font-normal normal-case">
+                      ({entries.length})
+                    </span>
                   </th>
                 </tr>
                 {entries.map((entry) => (
-                  <tr key={entry.key} className="border-t border-fd-border/60 align-top">
-                    <td className="px-3 py-2 font-mono text-xs whitespace-nowrap">{representation(entry, format)}</td>
-                    <td className="px-3 py-2 font-mono text-xs text-fd-muted-foreground whitespace-nowrap">{entry.type}</td>
+                  <tr
+                    key={entry.key}
+                    className="border-t border-fd-border/60 align-top"
+                  >
+                    <td className="px-3 py-2 font-mono text-xs whitespace-nowrap">
+                      {representation(entry, format)}
+                    </td>
+                    <td className="px-3 py-2 font-mono text-xs text-fd-muted-foreground whitespace-nowrap">
+                      {entry.type}
+                    </td>
                     <td className="px-3 py-2 font-mono text-xs text-fd-muted-foreground whitespace-nowrap">
                       {entry.default ?? '—'}
                     </td>
-                    <td className="px-3 py-2 text-fd-muted-foreground">{entry.description ?? ''}</td>
+                    <td className="px-3 py-2 text-fd-muted-foreground">
+                      {entry.description ?? ''}
+                    </td>
                   </tr>
                 ))}
               </React.Fragment>
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-3 py-6 text-center text-fd-muted-foreground">
-                  No config options match “{query}”.
+                <td
+                  colSpan={4}
+                  className="px-3 py-6 text-center text-fd-muted-foreground"
+                >
+                  {emptyMessage}
                 </td>
               </tr>
             )}
@@ -157,7 +206,9 @@ export function ConfigExplorer() {
 
       <details className="rounded-lg border border-fd-border">
         <summary className="cursor-pointer px-3 py-2 text-sm font-medium">
-          Show the {filtered.length} shown option{filtered.length === 1 ? '' : 's'} as {FORMATS.find((f) => f.id === format)?.label}
+          Show the {filtered.length} shown option
+          {filtered.length === 1 ? '' : 's'} as{' '}
+          {FORMATS.find((f) => f.id === format)?.label}
         </summary>
         <pre className="overflow-x-auto px-3 py-2 text-xs">
           <code>{buildSnippet(filtered, format)}</code>

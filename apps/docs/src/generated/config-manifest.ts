@@ -78,7 +78,7 @@ export const configManifest: ConfigManifestEntry[] = [
   {
     "key": "autoEmoji",
     "group": "Stickers & Messaging",
-    "type": "union",
+    "type": "string | false",
     "default": "\":\"",
     "description": "Automatic emoji detection character.",
     "cliFlag": "--auto-emoji",
@@ -186,7 +186,7 @@ export const configManifest: ConfigManifestEntry[] = [
   {
     "key": "cors",
     "group": "Server Configuration",
-    "type": "union",
+    "type": "string | string[]",
     "default": "\"*\"",
     "description": "CORS allowed origins.",
     "cliFlag": "--cors",
@@ -240,7 +240,7 @@ export const configManifest: ConfigManifestEntry[] = [
   {
     "key": "devtools",
     "group": "Logging & Debugging",
-    "type": "union",
+    "type": "boolean | object",
     "default": null,
     "description": "Enable remote devtools.",
     "cliFlag": "--devtools",
@@ -429,7 +429,7 @@ export const configManifest: ConfigManifestEntry[] = [
   {
     "key": "integrations",
     "group": "v5 Specific Features",
-    "type": "record",
+    "type": "object",
     "default": null,
     "description": "Integration configurations (chatwoot, webhook, n8n, etc.). Changes require restart.",
     "cliFlag": "--integrations",
@@ -492,7 +492,7 @@ export const configManifest: ConfigManifestEntry[] = [
   {
     "key": "licenseKey",
     "group": "Session & Authentication",
-    "type": "union",
+    "type": "string | object | function",
     "default": null,
     "description": "License key for unknown number messaging.",
     "cliFlag": "--license-key",
@@ -699,7 +699,7 @@ export const configManifest: ConfigManifestEntry[] = [
   {
     "key": "pluginConfig",
     "group": "ElasticSearch Monitoring",
-    "type": "record",
+    "type": "object",
     "default": "{}",
     "description": "Plugin configuration keyed by plugin name.",
     "cliFlag": "--plugin-config",
@@ -717,7 +717,7 @@ export const configManifest: ConfigManifestEntry[] = [
   {
     "key": "popup",
     "group": "Popup & UI",
-    "type": "union",
+    "type": "boolean | number",
     "default": "false",
     "description": "Downgraded legacy compatibility option. Opens a local browser window for status or manual inspection, but v5 does not guarantee legacy popup QR parity.",
     "cliFlag": "--popup",
@@ -897,7 +897,7 @@ export const configManifest: ConfigManifestEntry[] = [
   {
     "key": "sessionData",
     "group": "Session & Authentication",
-    "type": "union",
+    "type": "object | string",
     "default": null,
     "description": "Deprecated compatibility input for JSON or base64 session restore. This MD-obsolete flow remains only for legacy migration. Prefer userDataDir for persistent auth state.",
     "cliFlag": "--session-data",
@@ -960,7 +960,7 @@ export const configManifest: ConfigManifestEntry[] = [
   {
     "key": "stickerServerEndpoint",
     "group": "Stickers & Messaging",
-    "type": "union",
+    "type": "string | boolean",
     "default": "\"https://sticker-api.openwa.dev\"",
     "description": "Sticker server endpoint.",
     "cliFlag": "--sticker-server-endpoint",

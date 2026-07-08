@@ -322,8 +322,8 @@ AI agents can use these endpoints to read the docs without browsing the site.
 The docs site also exposes machine-readable discovery documents so agents and
 tools can find the API and skill surface programmatically:
 
-- **`/.well-known/mcp/server-card.json`**, MCP server card describing the MCP
-  endpoint and its capabilities.
+- **`/.well-known/mcp/server-card.json`** is reserved for deployments that host
+  MCP. The docs site does not host MCP and returns 404 for this path.
 - **`/.well-known/agent-skills.index.json`**, index of published Agent Skills
   for the open-wa packages.
 - **`/.well-known/api-catalog`**, catalog pointing at the OpenAPI/HTTP API

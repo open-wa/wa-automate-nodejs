@@ -20,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: pnpm/action-setup@v4
 
@@ -63,6 +65,14 @@ jobs:
           if grep -rn -- '--mcp' apps/docs/content/docs \
              | grep -viE 'does not parse|Can I use the'; then
             echo "::error::Do not present --mcp as a quickstart flag; the CLI does not parse it. Use mcp.enabled in config."
+            fail=1
+          fi
+
+          # 3. OPENWA_API_KEY is allowed only as an app-local example variable in
+          #    config-secrets/socket-client docs. Runtime config should use WA_API_KEY.
+          if grep -rn 'OPENWA_API_KEY' apps/docs/content/docs \
+             | grep -vE 'apps/docs/content/docs/(guides/config-secrets|client-and-integrations/socket-client)\.mdx:'; then
+            echo "::error::Use WA_API_KEY for runtime config. OPENWA_API_KEY is only allowed in app-local example docs."
             fail=1
           fi
 

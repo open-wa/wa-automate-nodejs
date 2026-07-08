@@ -1,11 +1,11 @@
 /**
  * v4 → v5 static method parity matrix (issue #3339, task C1).
  *
- * Compares the v4 public Client surface (extracted from @open-wa/legacy's
- * Client.ts, which *is* the v4 implementation) against the v5 schema registry
- * (clientRegistry.getAll()). Produces a deterministic report of which v4
- * methods are covered directly, covered via an alias, missing, or have a
- * different documented arity.
+ * Compares the committed v4 Client surface snapshot against the v5 schema
+ * registry (clientRegistry.getAll()). The snapshot can be regenerated from the
+ * documented legacy client only if the frozen v4 surface changes. Produces a
+ * deterministic report of which v4 methods are covered directly, covered via an
+ * alias, missing, or have a different documented arity.
  *
  * Run:
  *   pnpm tsx tools/v4-compat-bench/static/parity.ts          # write report
@@ -13,8 +13,7 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { Project, Scope } from 'ts-morph';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // The v5 method surface is read from the BUILT @open-wa/schema dist by relative
 // path, so this dev tool does not need to be a workspace member. CI must build
@@ -22,7 +21,11 @@ import { Project, Scope } from 'ts-morph';
 type SchemaModule = {
   clientRegistry: {
     getAll(): Array<{
-      meta: { functionName: string; allAliases?: string[]; parameterOrder?: string[] };
+      meta: {
+        functionName: string;
+        allAliases?: string[];
+        parameterOrder?: string[];
+      };
     }>;
   };
 };
@@ -42,12 +45,8 @@ const SCHEMA_DIST = path.join(REPO_ROOT, 'packages/schema/dist/index.mjs');
 const REPORT_PATH = path.join(HERE, 'v4-parity-report.json');
 
 async function loadClientRegistry(): Promise<SchemaModule['clientRegistry']> {
-  const mod = (await import(pathToFileUrl(SCHEMA_DIST))) as SchemaModule;
+  const mod = (await import(pathToFileURL(SCHEMA_DIST).href)) as SchemaModule;
   return mod.clientRegistry;
-}
-
-function pathToFileUrl(p: string): string {
-  return new URL(`file://${p}`).href;
 }
 
 export type V4Method = { name: string; requiredParams: number };
@@ -58,7 +57,10 @@ export function loadV4Surface(): V4Method[] {
 }
 
 /** Extract the v4 public Client method surface via ts-morph (snapshot source). */
-export function extractV4Methods(clientPath = LEGACY_DOCUMENTED_CLIENT): V4Method[] {
+export async function extractV4Methods(
+  clientPath = LEGACY_DOCUMENTED_CLIENT,
+): Promise<V4Method[]> {
+  const { Project, Scope } = await import('ts-morph');
   const project = new Project({
     skipAddingFilesFromTsConfig: true,
     compilerOptions: { allowJs: false },
@@ -76,7 +78,9 @@ export function extractV4Methods(clientPath = LEGACY_DOCUMENTED_CLIENT): V4Metho
 
     const requiredParams = method
       .getParameters()
-      .filter((p) => !p.isOptional() && !p.hasInitializer() && !p.isRestParameter()).length;
+      .filter(
+        (p) => !p.isOptional() && !p.hasInitializer() && !p.isRestParameter(),
+      ).length;
 
     methods.push({ name, requiredParams });
   }
@@ -91,7 +95,11 @@ export function extractV4Methods(clientPath = LEGACY_DOCUMENTED_CLIENT): V4Metho
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-type V5Method = { functionName: string; aliases: string[]; parameterOrder: string[] };
+type V5Method = {
+  functionName: string;
+  aliases: string[];
+  parameterOrder: string[];
+};
 
 async function extractV5Methods(): Promise<V5Method[]> {
   const clientRegistry = await loadClientRegistry();
@@ -99,7 +107,9 @@ async function extractV5Methods(): Promise<V5Method[]> {
     .getAll()
     .map((def) => ({
       functionName: def.meta.functionName,
-      aliases: [...(def.meta.allAliases ?? [])].sort((a, b) => a.localeCompare(b)),
+      aliases: [...(def.meta.allAliases ?? [])].sort((a, b) =>
+        a.localeCompare(b),
+      ),
       parameterOrder: def.meta.parameterOrder ?? [],
     }))
     .sort((a, b) => a.functionName.localeCompare(b.functionName));
@@ -118,7 +128,11 @@ export type ParityReport = {
   covered: string[];
   aliased: { v4: string; v5: string }[];
   missing: string[];
-  arityMismatch: { method: string; v4RequiredParams: number; v5ParameterOrder: number }[];
+  arityMismatch: {
+    method: string;
+    v4RequiredParams: number;
+    v5ParameterOrder: number;
+  }[];
 };
 
 export async function buildReport(): Promise<ParityReport> {
@@ -127,8 +141,11 @@ export async function buildReport(): Promise<ParityReport> {
 
   const functionNames = new Set(v5.map((m) => m.functionName));
   const aliasToFn = new Map<string, string>();
-  for (const m of v5) for (const alias of m.aliases) aliasToFn.set(alias, m.functionName);
-  const paramCountByFn = new Map(v5.map((m) => [m.functionName, m.parameterOrder.length]));
+  for (const m of v5)
+    for (const alias of m.aliases) aliasToFn.set(alias, m.functionName);
+  const paramCountByFn = new Map(
+    v5.map((m) => [m.functionName, m.parameterOrder.length]),
+  );
 
   const covered: string[] = [];
   const aliased: { v4: string; v5: string }[] = [];
@@ -188,9 +205,11 @@ async function main() {
   // --snapshot: regenerate the committed v4 surface from the documented legacy
   // client. Only needed if the (frozen) v4 method surface ever changes.
   if (process.argv.includes('--snapshot')) {
-    const surface = extractV4Methods();
+    const surface = await extractV4Methods();
     writeFileSync(V4_SURFACE_PATH, `${JSON.stringify(surface, null, 2)}\n`);
-    console.log(`Wrote ${path.relative(REPO_ROOT, V4_SURFACE_PATH)} (${surface.length} methods)`);
+    console.log(
+      `Wrote ${path.relative(REPO_ROOT, V4_SURFACE_PATH)} (${surface.length} methods)`,
+    );
     return;
   }
 
@@ -203,7 +222,9 @@ async function main() {
     try {
       committed = JSON.parse(readFileSync(REPORT_PATH, 'utf8')) as ParityReport;
     } catch {
-      throw new Error('No committed v4-parity-report.json. Run without --check first.');
+      throw new Error(
+        'No committed v4-parity-report.json. Run without --check first.',
+      );
     }
 
     // Gate: missing and arityMismatch must not GROW vs the committed baseline.
@@ -236,7 +257,16 @@ async function main() {
   );
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+function isMainModule(): boolean {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  return (
+    path.normalize(fileURLToPath(import.meta.url)) ===
+    path.normalize(path.resolve(entry))
+  );
+}
+
+if (isMainModule()) {
   main().catch((err) => {
     console.error(err);
     process.exit(1);

@@ -239,7 +239,7 @@ plugin_config_invalid { plugin: 'greeting-bot', issues: [...] }
 
 If two loaded plugins share the same `meta.name`, registration **throws**
 `Plugin "<name>" is already registered` and startup fails — it is not silently
-skipped. Give every plugin a globally unique kebab-case `meta.name`.
+skipped. Give every plugin a globally unique `meta.name`.
 
 ## Plugin architecture
 

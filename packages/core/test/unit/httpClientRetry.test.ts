@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fetchPatches, validateLicense } from '../../src/transport/httpClient.js';
+import {
+  fetchPatches,
+  validateLicense,
+} from '../../src/transport/httpClient.js';
 
 /** Build a Response-like object good enough for httpClient. */
 function res(
@@ -12,7 +15,8 @@ function res(
     status,
     statusText: `S${status}`,
     headers: {
-      get: (name: string) => (name.toLowerCase() === 'content-type' ? contentType : null),
+      get: (name: string) =>
+        name.toLowerCase() === 'content-type' ? contentType : null,
     },
     json: async () => JSON.parse(body),
     text: async () => body,
@@ -31,7 +35,44 @@ describe('httpClient retry semantics', () => {
       .mockResolvedValueOnce(res(200, JSON.stringify(['patch();'])));
     vi.stubGlobal('fetch', fetchMock);
 
-    const result = await fetchPatches('https://cdn.example/patches', {}, { retries: 2 });
+    const result = await fetchPatches(
+      'https://cdn.example/patches',
+      {},
+      { retries: 2 },
+    );
+    expect(result.data).toEqual(['patch();']);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('retries a timeout then succeeds', async () => {
+    const abortErr = new DOMException('aborted', 'AbortError');
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockRejectedValueOnce(abortErr)
+      .mockResolvedValueOnce(res(200, JSON.stringify(['patch();'])));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await fetchPatches(
+      'https://cdn.example/patches',
+      {},
+      { retries: 2, timeoutMs: 50 },
+    );
+    expect(result.data).toEqual(['patch();']);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('retries a network error then succeeds', async () => {
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockRejectedValueOnce(new TypeError('fetch failed'))
+      .mockResolvedValueOnce(res(200, JSON.stringify(['patch();'])));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await fetchPatches(
+      'https://cdn.example/patches',
+      {},
+      { retries: 2 },
+    );
     expect(result.data).toEqual(['patch();']);
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
@@ -40,9 +81,9 @@ describe('httpClient retry semantics', () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(res(404, 'nope'));
     vi.stubGlobal('fetch', fetchMock);
 
-    await expect(fetchPatches('https://cdn.example/patches', {}, { retries: 3 })).rejects.toThrow(
-      /404/,
-    );
+    await expect(
+      fetchPatches('https://cdn.example/patches', {}, { retries: 3 }),
+    ).rejects.toThrow(/404/);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
@@ -63,7 +104,12 @@ describe('httpClient retry semantics', () => {
   });
 
   it('validateLicense returns false for empty/false payloads', async () => {
-    vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockResolvedValue(res(200, JSON.stringify('false'))));
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn<typeof fetch>()
+        .mockResolvedValue(res(200, JSON.stringify('false'))),
+    );
     await expect(
       validateLicense('https://lic.example', { key: 'k', number: 'n' }),
     ).resolves.toBe(false);
@@ -72,7 +118,9 @@ describe('httpClient retry semantics', () => {
   it('validateLicense returns the payload string on success', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn<typeof fetch>().mockResolvedValue(res(200, JSON.stringify('unlock();'))),
+      vi
+        .fn<typeof fetch>()
+        .mockResolvedValue(res(200, JSON.stringify('unlock();'))),
     );
     await expect(
       validateLicense('https://lic.example', { key: 'k', number: 'n' }),

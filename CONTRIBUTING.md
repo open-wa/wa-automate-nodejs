@@ -62,7 +62,7 @@ Commits follow the gitmoji Conventional Commit policy in [`AGENTS.md`](./AGENTS.
 
 Example:
 
-```
+```text
 🐛 fix(core): strip --single-process from chromiumArgs
 ```
 
