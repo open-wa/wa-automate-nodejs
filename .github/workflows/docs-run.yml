@@ -39,6 +39,16 @@ jobs:
         env:
           PUPPETEER_SKIP_DOWNLOAD: '1'
 
+      # The docs app copies packages/schema/src/generated/openapi.json into
+      # public/ during prebuild, but that file (and the rest of schema's
+      # generated/ dir) is gitignored, so a fresh checkout doesn't have it.
+      # Build schema and its workspace deps first — schema's build runs its
+      # code generation, which (re)produces openapi.json before the docs build.
+      - name: Build schema (generates OpenAPI spec)
+        run: pnpm --filter @open-wa/schema... build
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: '1'
+
       - name: Build docs
         run: pnpm --filter docs build
         env:
