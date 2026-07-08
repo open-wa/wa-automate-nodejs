@@ -1,5 +1,14 @@
 # @open-wa/mcp
 
+## 5.0.0-alpha.8
+
+### Patch Changes
+
+- Updated dependencies [[`6a55aef`](https://github.com/open-wa/wa-automate-nodejs/commit/6a55aef602b347bfffc8550e448585e7776baf18)]:
+  - @open-wa/config@5.0.0-alpha.8
+  - @open-wa/schema@5.0.0-alpha.8
+  - @open-wa/utils@5.0.0-alpha.8
+
 ## 5.0.0-alpha.7
 
 ### Patch Changes
