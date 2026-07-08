@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { source } from '@/lib/source';
+import { SITE_ORIGIN } from '@/lib/site';
 
 export const Route = createFileRoute('/sitemap.xml')({
   // @ts-expect-error TanStack types mismatch
@@ -7,7 +8,7 @@ export const Route = createFileRoute('/sitemap.xml')({
     handlers: {
       GET() {
         const pages = source.getPages();
-        const baseUrl = 'https://openwa.dev';
+        const baseUrl = SITE_ORIGIN;
         
         const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

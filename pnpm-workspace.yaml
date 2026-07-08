@@ -11,6 +11,8 @@ packages:
 catalog:
   '@discordjs/collection': ^2.1.1
   '@elastic/elasticsearch': ^9.2.0
+  # Effect v4 is in beta; pin an exact version and upgrade deliberately (see EFFECT.md).
+  effect: 4.0.0-beta.94
   '@hono/node-server': ^1.19.12
   '@tailwindcss/vite': ^4.3.0
   '@tanstack/react-query': ^5.95.2
@@ -71,21 +73,40 @@ catalog:
   winston: ^3.8.2
   wrangler: ^4.93.0
   zod: ^4.2.1
-
-ignoredBuiltDependencies:
-  - '@open-wa/wa-automate'
-
-onlyBuiltDependencies:
-  - bcrypt
-  - cloudflared
-  - core-js
-  - deasync
-  - esbuild
-  - fast-folder-size
-  - gifsicle
-  - highlight.js
-  - jpegtran-bin
-  - optipng-bin
-  - protobufjs
-  - puppeteer
-  - unix-dgram
+shamefullyHoist: true
+nodeLinker: hoisted
+strictPeerDependencies: false
+lockfile: true
+# NOTE: node-red previously skipped puppeteer's browser download via a
+# per-project .npmrc (PUPPETEER_SKIP_DOWNLOAD). pnpm 11 packageConfigs only
+# accepts pnpm settings, not env vars, and with the hoisted node_modules
+# layout there is a single shared puppeteer install anyway. Set
+# PUPPETEER_SKIP_DOWNLOAD=1 in the environment for installs that must skip it.
+allowBuilds:
+  # bcrypt is only pulled in (nested) by node-red-admin, whose ancient
+  # node-pre-gyp build fails on modern Node; node-red tooling falls back to
+  # bcryptjs when the native module is unavailable.
+  bcrypt: false
+  cloudflared: true
+  core-js: true
+  deasync: true
+  esbuild: true
+  fast-folder-size: true
+  gifsicle: true
+  highlight.js: true
+  jpegtran-bin: true
+  optipng-bin: true
+  protobufjs: true
+  puppeteer: true
+  unix-dgram: true
+  '@open-wa/wa-automate': false
+  '@lightpanda/browser': true
+  msw: false
+  sharp: true
+  unrs-resolver: false
+  vue-demi: false
+  workerd: true
+  # optional native accelerator for msgpackr; JS fallback is fine
+  msgpackr-extract: false
+minimumReleaseAgeExclude:
+  - effect@4.0.0-beta.94

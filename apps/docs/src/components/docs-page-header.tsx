@@ -17,10 +17,7 @@ export function DocsPageHeader({
   description,
   pagePath,
 }: DocsPageHeaderProps) {
-  const docsUrlPath = `/docs/${pagePath.replace(/\/$/, '')}`.replace(
-    /\.mdx$/,
-    '',
-  );
+  const docsUrlPath = getDocsUrlPath(pagePath);
   const mascot = getMascotForPath(docsUrlPath);
 
   return (
@@ -66,7 +63,9 @@ export function DocsPageHeader({
 }
 
 function PageActions({ pagePath }: Readonly<{ pagePath: string }>) {
-  const markdownUrl = `/llms.mdx/docs/${pagePath}`;
+  const docsUrlPath = getDocsUrlPath(pagePath);
+  const markdownUrl =
+    docsUrlPath === '/docs' ? '/llms.mdx/docs/' : `/llms.mdx${docsUrlPath}`;
 
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
@@ -77,4 +76,15 @@ function PageActions({ pagePath }: Readonly<{ pagePath: string }>) {
       />
     </div>
   );
+}
+
+function getDocsUrlPath(pagePath: string) {
+  const routePath = pagePath
+    .replace(/\/$/, '')
+    .replace(/\.mdx$/, '')
+    .replace(/\/index$/, '');
+
+  return routePath === 'index' || routePath.length === 0
+    ? '/docs'
+    : `/docs/${routePath}`;
 }

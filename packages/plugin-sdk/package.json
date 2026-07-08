@@ -9,6 +9,10 @@
       "types": "./dist/index.d.mts"
     }
   },
+  "files": [
+    "dist",
+    "skills"
+  ],
   "scripts": {
     "build": "tsdown src/index.ts --format esm --dts",
     "dev": "tsdown src/index.ts --format esm --dts --watch",

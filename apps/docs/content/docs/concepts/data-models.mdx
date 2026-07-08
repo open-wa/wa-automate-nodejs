@@ -116,7 +116,7 @@ Common patterns:
 | --- | --- |
 | `body` | Can be empty or null for media-only, notification, revoked, or system-style messages. |
 | `caption` | Only appears when the sender included media caption text. |
-| `quotedMsg` / `quotedMsgObj` | Only appears when the quoted message is still available to the runtime. |
+| `quotedMsg` / `quotedMsgObj` | Only appears when the quoted message is still available to the runtime. These are currently **untyped** in the schema (`z.any()`) — the runtime returns a nested message-shaped object, but the generated types do not describe its fields, so treat them as `unknown` and narrow before use. |
 | `author` / `senderId` | Most useful in group messages. It can be absent in one-to-one messages. |
 | `notifyName` | Depends on whether WhatsApp has a display name for the sender. |
 | `mimetype` / `mediaData` | Only appears for media messages that have decryptable media metadata. |

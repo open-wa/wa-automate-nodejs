@@ -22,7 +22,6 @@
     "@open-wa/driver-playwright": "5.0.0-alpha.1",
     "@open-wa/driver-puppeteer": "5.0.0-alpha.1",
     "@open-wa/hyperemitter": "5.0.0-alpha.0",
-    "@open-wa/legacy": "5.0.0-alpha.1",
     "@open-wa/logger": "5.0.0",
     "@open-wa/orchestrator": "5.0.0-alpha.1",
     "@open-wa/schema": "5.0.0-alpha.1",

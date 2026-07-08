@@ -39,21 +39,16 @@
     "rimraf": "^6.0.1",
     "syncpack": "^11.0.0",
     "tsdown": "^0.21.7",
+    "ts-morph": "^12.2.0",
     "tsx": "^4.21.0",
     "turbo": "^2.9.10",
     "typescript": "catalog:"
   },
   "engines": {
-    "node": ">=22.21.1",
-    "pnpm": ">=10.25.0"
+    "node": ">=22.21.1"
   },
-  "packageManager": "pnpm@10.26.1",
+  "packageManager": "pnpm@11.9.0",
   "dependencies": {
     "@elastic/elasticsearch": "catalog:"
-  },
-  "pnpm": {
-    "overrides": {
-      "axios": "npm:redaxios@0.5.1"
-    }
   }
 }

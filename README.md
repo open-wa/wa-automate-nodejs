@@ -275,7 +275,11 @@ Some older docs and examples still mention additional legacy or transitional fla
 For contributors to this monorepo, the repo currently declares:
 
 - **Node.js** `>=22.21.1`
-- **pnpm** `>=10.25.0`
+- **pnpm** `11.9.x`
+
+The exact toolchain is pinned in [`mise.toml`](./mise.toml) (`mise install`),
+and the full contributor setup — including browser-automation dependencies —
+is documented in [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ```bash
 pnpm install
@@ -285,6 +289,8 @@ pnpm build
 ## Plugins and integrations
 
 This repo is no longer just a single package. It includes a plugin/integration surface for extending the runtime.
+
+Want to build one? Start with the **[plugin authoring guide](https://docs.openwa.dev/docs/plugins/getting-started)** (`@open-wa/plugin-sdk`).
 
 Relevant packages in this repo:
 

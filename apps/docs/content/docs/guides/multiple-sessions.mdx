@@ -221,14 +221,16 @@ Recommended per-session settings:
 
 When multiple Easy API processes are running, your app needs to route each request to the right base URL and API key.
 
-One simple pattern is to put `sessionId` in the URL your app exposes:
+One simple pattern is to put `sessionId` in the URL your app exposes, then map
+it to the Easy API method route, which is always prefixed with `/api/`:
 
 ```text
-POST /sessions/sales/sendText
-POST /sessions/support/sendText
+POST /sessions/sales/api/sendText   ->  http://localhost:8081/api/sendText
+POST /sessions/support/api/sendText ->  http://localhost:8082/api/sendText
 ```
 
-Then proxy the call to the matching Easy API process:
+Then proxy the call to the matching Easy API process (note the `/api/` prefix
+on the Easy API path):
 
 ```ts
 type SessionName = 'sales' | 'support';

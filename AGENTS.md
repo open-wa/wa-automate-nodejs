@@ -14,6 +14,13 @@ Format:
 The scope is optional. Keep the description imperative, concise, and no longer
 than 72 characters when practical.
 
+### No AI attribution
+
+Never add AI attribution to commits or pull requests. Do **not** include
+`Co-Authored-By: Claude`, `Generated with Claude Code`, `🤖`, or any similar
+"written by AI" trailer, footer, or line in commit messages or PR
+descriptions. Commits and PRs must read as authored by the human maintainer.
+
 Examples:
 
 - `✨ feat(api): add user authentication endpoints`

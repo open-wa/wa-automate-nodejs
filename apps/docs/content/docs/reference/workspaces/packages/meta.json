@@ -15,7 +15,6 @@
     "driver-playwright",
     "driver-puppeteer",
     "hyperemitter",
-    "legacy",
     "legacy-documented",
     "logger",
     "mcp",

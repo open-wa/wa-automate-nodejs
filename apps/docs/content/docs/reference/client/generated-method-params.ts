@@ -703,11 +703,11 @@ export interface SendAdvancedButtonsParams {
   /**
    * Message body, location, or media
    */
-  body: string | unknown;
+  body: any;
   /**
    * Array of advanced buttons (max 3)
    */
-  buttons: unknown[];
+  buttons: any[];
   /**
    * Message text
    */
@@ -771,11 +771,11 @@ export interface SendButtonsParams {
   /**
    * Message body or location
    */
-  body: string | unknown;
+  body: any;
   /**
    * Array of buttons (max 3)
    */
-  buttons: unknown[];
+  buttons: any[];
   /**
    * Message title
    */
@@ -925,7 +925,7 @@ export interface SendListMessageParams {
   /**
    * List sections
    */
-  sections: unknown[];
+  sections: any[];
   /**
    * List title
    */

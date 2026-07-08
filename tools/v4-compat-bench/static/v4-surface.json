@@ -1,0 +1,1038 @@
+[
+  {
+    "name": "acceptGroupJoinRequest",
+    "requiredParams": 1
+  },
+  {
+    "name": "addLabel",
+    "requiredParams": 2
+  },
+  {
+    "name": "addParticipant",
+    "requiredParams": 2
+  },
+  {
+    "name": "approveGroupJoinRequest",
+    "requiredParams": 2
+  },
+  {
+    "name": "archiveChat",
+    "requiredParams": 2
+  },
+  {
+    "name": "autoReject",
+    "requiredParams": 0
+  },
+  {
+    "name": "awaitMessages",
+    "requiredParams": 2
+  },
+  {
+    "name": "B",
+    "requiredParams": 2
+  },
+  {
+    "name": "checkNumberStatus",
+    "requiredParams": 1
+  },
+  {
+    "name": "checkReadReceipts",
+    "requiredParams": 1
+  },
+  {
+    "name": "clearAllChats",
+    "requiredParams": 0
+  },
+  {
+    "name": "clearChat",
+    "requiredParams": 1
+  },
+  {
+    "name": "contactBlock",
+    "requiredParams": 1
+  },
+  {
+    "name": "contactUnblock",
+    "requiredParams": 1
+  },
+  {
+    "name": "createCommunity",
+    "requiredParams": 3
+  },
+  {
+    "name": "createGroup",
+    "requiredParams": 2
+  },
+  {
+    "name": "createLabel",
+    "requiredParams": 1
+  },
+  {
+    "name": "createMessageCollector",
+    "requiredParams": 3
+  },
+  {
+    "name": "createNewProduct",
+    "requiredParams": 5
+  },
+  {
+    "name": "cutChatCache",
+    "requiredParams": 0
+  },
+  {
+    "name": "cutMsgCache",
+    "requiredParams": 0
+  },
+  {
+    "name": "darkMode",
+    "requiredParams": 1
+  },
+  {
+    "name": "decryptMedia",
+    "requiredParams": 1
+  },
+  {
+    "name": "deleteAllStatus",
+    "requiredParams": 0
+  },
+  {
+    "name": "deleteAllStories",
+    "requiredParams": 0
+  },
+  {
+    "name": "deleteChat",
+    "requiredParams": 1
+  },
+  {
+    "name": "deleteMessage",
+    "requiredParams": 2
+  },
+  {
+    "name": "deleteStaleChats",
+    "requiredParams": 0
+  },
+  {
+    "name": "deleteStatus",
+    "requiredParams": 1
+  },
+  {
+    "name": "deleteStory",
+    "requiredParams": 1
+  },
+  {
+    "name": "demoteParticipant",
+    "requiredParams": 2
+  },
+  {
+    "name": "download",
+    "requiredParams": 1
+  },
+  {
+    "name": "downloadFileWithCredentials",
+    "requiredParams": 1
+  },
+  {
+    "name": "downloadProfilePicFromMessage",
+    "requiredParams": 1
+  },
+  {
+    "name": "editMessage",
+    "requiredParams": 2
+  },
+  {
+    "name": "editProduct",
+    "requiredParams": 1
+  },
+  {
+    "name": "emitUnreadMessages",
+    "requiredParams": 0
+  },
+  {
+    "name": "favSticker",
+    "requiredParams": 1
+  },
+  {
+    "name": "forceRefocus",
+    "requiredParams": 0
+  },
+  {
+    "name": "forceStaleMediaUpdate",
+    "requiredParams": 1
+  },
+  {
+    "name": "forceUpdateConnectionState",
+    "requiredParams": 0
+  },
+  {
+    "name": "forceUpdateLiveLocation",
+    "requiredParams": 1
+  },
+  {
+    "name": "forwardMessages",
+    "requiredParams": 3
+  },
+  {
+    "name": "gc",
+    "requiredParams": 0
+  },
+  {
+    "name": "getAllChatIds",
+    "requiredParams": 0
+  },
+  {
+    "name": "getAllChats",
+    "requiredParams": 0
+  },
+  {
+    "name": "getAllChatsWithMessages",
+    "requiredParams": 0
+  },
+  {
+    "name": "getAllCommunities",
+    "requiredParams": 0
+  },
+  {
+    "name": "getAllContacts",
+    "requiredParams": 0
+  },
+  {
+    "name": "getAllGroups",
+    "requiredParams": 0
+  },
+  {
+    "name": "getAllLabels",
+    "requiredParams": 0
+  },
+  {
+    "name": "getAllMessagesInChat",
+    "requiredParams": 3
+  },
+  {
+    "name": "getAllNewMessages",
+    "requiredParams": 0
+  },
+  {
+    "name": "getAllUnreadMessages",
+    "requiredParams": 0
+  },
+  {
+    "name": "getAmountOfLoadedMessages",
+    "requiredParams": 0
+  },
+  {
+    "name": "getBatteryLevel",
+    "requiredParams": 0
+  },
+  {
+    "name": "getBlockedIds",
+    "requiredParams": 0
+  },
+  {
+    "name": "getBusinessProfile",
+    "requiredParams": 1
+  },
+  {
+    "name": "getBusinessProfilesProducts",
+    "requiredParams": 1
+  },
+  {
+    "name": "getChat",
+    "requiredParams": 1
+  },
+  {
+    "name": "getChatById",
+    "requiredParams": 1
+  },
+  {
+    "name": "getChatsByLabel",
+    "requiredParams": 1
+  },
+  {
+    "name": "getChatWithNonContacts",
+    "requiredParams": 0
+  },
+  {
+    "name": "getCommonGroups",
+    "requiredParams": 1
+  },
+  {
+    "name": "getCommunityAdminIds",
+    "requiredParams": 1
+  },
+  {
+    "name": "getCommunityAdmins",
+    "requiredParams": 1
+  },
+  {
+    "name": "getCommunityInfo",
+    "requiredParams": 1
+  },
+  {
+    "name": "getCommunityParticipantIds",
+    "requiredParams": 1
+  },
+  {
+    "name": "getCommunityParticipants",
+    "requiredParams": 1
+  },
+  {
+    "name": "getConfig",
+    "requiredParams": 0
+  },
+  {
+    "name": "getConnectionState",
+    "requiredParams": 0
+  },
+  {
+    "name": "getContact",
+    "requiredParams": 1
+  },
+  {
+    "name": "getEventSignature",
+    "requiredParams": 0
+  },
+  {
+    "name": "getFavStickers",
+    "requiredParams": 0
+  },
+  {
+    "name": "getFeatures",
+    "requiredParams": 0
+  },
+  {
+    "name": "getGeneratedUserAgent",
+    "requiredParams": 0
+  },
+  {
+    "name": "getGptArray",
+    "requiredParams": 1
+  },
+  {
+    "name": "getGroupAdmins",
+    "requiredParams": 1
+  },
+  {
+    "name": "getGroupApprovalRequests",
+    "requiredParams": 1
+  },
+  {
+    "name": "getGroupInfo",
+    "requiredParams": 1
+  },
+  {
+    "name": "getGroupInviteLink",
+    "requiredParams": 1
+  },
+  {
+    "name": "getGroupMembers",
+    "requiredParams": 1
+  },
+  {
+    "name": "getGroupMembersId",
+    "requiredParams": 1
+  },
+  {
+    "name": "getHostNumber",
+    "requiredParams": 0
+  },
+  {
+    "name": "getIndicatedNewMessages",
+    "requiredParams": 0
+  },
+  {
+    "name": "getInstanceId",
+    "requiredParams": 0
+  },
+  {
+    "name": "getIsPlugged",
+    "requiredParams": 0
+  },
+  {
+    "name": "getIssueLink",
+    "requiredParams": 0
+  },
+  {
+    "name": "getKickedGroups",
+    "requiredParams": 0
+  },
+  {
+    "name": "getLastMsgTimestamps",
+    "requiredParams": 0
+  },
+  {
+    "name": "getLastSeen",
+    "requiredParams": 1
+  },
+  {
+    "name": "getLicenseLink",
+    "requiredParams": 0
+  },
+  {
+    "name": "getLicenseType",
+    "requiredParams": 0
+  },
+  {
+    "name": "getListenerQueues",
+    "requiredParams": 0
+  },
+  {
+    "name": "getMe",
+    "requiredParams": 0
+  },
+  {
+    "name": "getMessageById",
+    "requiredParams": 1
+  },
+  {
+    "name": "getMessageInfo",
+    "requiredParams": 1
+  },
+  {
+    "name": "getMessageReaders",
+    "requiredParams": 1
+  },
+  {
+    "name": "getMyLastMessage",
+    "requiredParams": 0
+  },
+  {
+    "name": "getMyStatusArray",
+    "requiredParams": 0
+  },
+  {
+    "name": "getMyStoryArray",
+    "requiredParams": 0
+  },
+  {
+    "name": "getOrder",
+    "requiredParams": 1
+  },
+  {
+    "name": "getPage",
+    "requiredParams": 0
+  },
+  {
+    "name": "getPollData",
+    "requiredParams": 1
+  },
+  {
+    "name": "getProcessStats",
+    "requiredParams": 0
+  },
+  {
+    "name": "getProfilePicFromServer",
+    "requiredParams": 1
+  },
+  {
+    "name": "getSessionId",
+    "requiredParams": 0
+  },
+  {
+    "name": "getSessionInfo",
+    "requiredParams": 0
+  },
+  {
+    "name": "getSingleProperty",
+    "requiredParams": 3
+  },
+  {
+    "name": "getSnapshot",
+    "requiredParams": 0
+  },
+  {
+    "name": "getStarredMessages",
+    "requiredParams": 0
+  },
+  {
+    "name": "getStatus",
+    "requiredParams": 1
+  },
+  {
+    "name": "getStickerDecryptable",
+    "requiredParams": 1
+  },
+  {
+    "name": "getStoryViewers",
+    "requiredParams": 0
+  },
+  {
+    "name": "getTunnelCode",
+    "requiredParams": 0
+  },
+  {
+    "name": "getUnreadMessages",
+    "requiredParams": 3
+  },
+  {
+    "name": "getUnsentMessages",
+    "requiredParams": 0
+  },
+  {
+    "name": "getVCards",
+    "requiredParams": 1
+  },
+  {
+    "name": "getWAVersion",
+    "requiredParams": 0
+  },
+  {
+    "name": "ghostForward",
+    "requiredParams": 2
+  },
+  {
+    "name": "healthCheck",
+    "requiredParams": 0
+  },
+  {
+    "name": "iAmAdmin",
+    "requiredParams": 0
+  },
+  {
+    "name": "inviteInfo",
+    "requiredParams": 1
+  },
+  {
+    "name": "isChatMuted",
+    "requiredParams": 1
+  },
+  {
+    "name": "isChatOnline",
+    "requiredParams": 1
+  },
+  {
+    "name": "isConnected",
+    "requiredParams": 0
+  },
+  {
+    "name": "isGroupIdUnsafe",
+    "requiredParams": 1
+  },
+  {
+    "name": "isPhoneDisconnected",
+    "requiredParams": 0
+  },
+  {
+    "name": "joinGroupViaLink",
+    "requiredParams": 1
+  },
+  {
+    "name": "joinWebBeta",
+    "requiredParams": 1
+  },
+  {
+    "name": "keepMessage",
+    "requiredParams": 2
+  },
+  {
+    "name": "kill",
+    "requiredParams": 0
+  },
+  {
+    "name": "leaveGroup",
+    "requiredParams": 1
+  },
+  {
+    "name": "listWebhooks",
+    "requiredParams": 0
+  },
+  {
+    "name": "loadAllEarlierMessages",
+    "requiredParams": 1
+  },
+  {
+    "name": "loadAndGetAllMessagesInChat",
+    "requiredParams": 3
+  },
+  {
+    "name": "loadEarlierMessages",
+    "requiredParams": 1
+  },
+  {
+    "name": "loadEarlierMessagesTillDate",
+    "requiredParams": 2
+  },
+  {
+    "name": "loaded",
+    "requiredParams": 0
+  },
+  {
+    "name": "logger",
+    "requiredParams": 0
+  },
+  {
+    "name": "logout",
+    "requiredParams": 0
+  },
+  {
+    "name": "markAllRead",
+    "requiredParams": 0
+  },
+  {
+    "name": "markAsUnread",
+    "requiredParams": 1
+  },
+  {
+    "name": "metrics",
+    "requiredParams": 0
+  },
+  {
+    "name": "muteChat",
+    "requiredParams": 2
+  },
+  {
+    "name": "onAck",
+    "requiredParams": 1
+  },
+  {
+    "name": "onAddedToGroup",
+    "requiredParams": 1
+  },
+  {
+    "name": "onAnyMessage",
+    "requiredParams": 1
+  },
+  {
+    "name": "onBattery",
+    "requiredParams": 1
+  },
+  {
+    "name": "onBroadcast",
+    "requiredParams": 1
+  },
+  {
+    "name": "onButton",
+    "requiredParams": 1
+  },
+  {
+    "name": "onCallState",
+    "requiredParams": 1
+  },
+  {
+    "name": "onChatDeleted",
+    "requiredParams": 1
+  },
+  {
+    "name": "onChatOpened",
+    "requiredParams": 1
+  },
+  {
+    "name": "onChatState",
+    "requiredParams": 1
+  },
+  {
+    "name": "onContactAdded",
+    "requiredParams": 1
+  },
+  {
+    "name": "onGlobalParticipantsChanged",
+    "requiredParams": 1
+  },
+  {
+    "name": "onGroupApprovalRequest",
+    "requiredParams": 1
+  },
+  {
+    "name": "onGroupChange",
+    "requiredParams": 1
+  },
+  {
+    "name": "onIncomingCall",
+    "requiredParams": 1
+  },
+  {
+    "name": "onLabel",
+    "requiredParams": 1
+  },
+  {
+    "name": "onLiveLocation",
+    "requiredParams": 2
+  },
+  {
+    "name": "onLogout",
+    "requiredParams": 1
+  },
+  {
+    "name": "onMessage",
+    "requiredParams": 1
+  },
+  {
+    "name": "onMessageDeleted",
+    "requiredParams": 1
+  },
+  {
+    "name": "onNewProduct",
+    "requiredParams": 1
+  },
+  {
+    "name": "onOrder",
+    "requiredParams": 1
+  },
+  {
+    "name": "onParticipantsChanged",
+    "requiredParams": 2
+  },
+  {
+    "name": "onPlugged",
+    "requiredParams": 1
+  },
+  {
+    "name": "onPollVote",
+    "requiredParams": 1
+  },
+  {
+    "name": "onReaction",
+    "requiredParams": 1
+  },
+  {
+    "name": "onRemovedFromGroup",
+    "requiredParams": 1
+  },
+  {
+    "name": "onStateChanged",
+    "requiredParams": 1
+  },
+  {
+    "name": "onStory",
+    "requiredParams": 1
+  },
+  {
+    "name": "pinChat",
+    "requiredParams": 2
+  },
+  {
+    "name": "pinMessage",
+    "requiredParams": 2
+  },
+  {
+    "name": "postImageStatus",
+    "requiredParams": 2
+  },
+  {
+    "name": "postTextStatus",
+    "requiredParams": 4
+  },
+  {
+    "name": "postThumbnailStatus",
+    "requiredParams": 5
+  },
+  {
+    "name": "postVideoStatus",
+    "requiredParams": 2
+  },
+  {
+    "name": "prepEventData",
+    "requiredParams": 2
+  },
+  {
+    "name": "promoteParticipant",
+    "requiredParams": 2
+  },
+  {
+    "name": "react",
+    "requiredParams": 2
+  },
+  {
+    "name": "refresh",
+    "requiredParams": 0
+  },
+  {
+    "name": "registerWebhook",
+    "requiredParams": 2
+  },
+  {
+    "name": "rejectGroupJoinRequest",
+    "requiredParams": 2
+  },
+  {
+    "name": "removeAllListeners",
+    "requiredParams": 0
+  },
+  {
+    "name": "removeLabel",
+    "requiredParams": 2
+  },
+  {
+    "name": "removeListener",
+    "requiredParams": 1
+  },
+  {
+    "name": "removeParticipant",
+    "requiredParams": 2
+  },
+  {
+    "name": "removeProduct",
+    "requiredParams": 1
+  },
+  {
+    "name": "removeWebhook",
+    "requiredParams": 1
+  },
+  {
+    "name": "reply",
+    "requiredParams": 3
+  },
+  {
+    "name": "reportSpam",
+    "requiredParams": 1
+  },
+  {
+    "name": "resizePage",
+    "requiredParams": 0
+  },
+  {
+    "name": "revokeGroupInviteLink",
+    "requiredParams": 1
+  },
+  {
+    "name": "sendAdvancedButtons",
+    "requiredParams": 6
+  },
+  {
+    "name": "sendAudio",
+    "requiredParams": 2
+  },
+  {
+    "name": "sendBanner",
+    "requiredParams": 2
+  },
+  {
+    "name": "sendButtons",
+    "requiredParams": 3
+  },
+  {
+    "name": "sendContact",
+    "requiredParams": 2
+  },
+  {
+    "name": "sendCustomProduct",
+    "requiredParams": 3
+  },
+  {
+    "name": "sendEmoji",
+    "requiredParams": 2
+  },
+  {
+    "name": "sendFavSticker",
+    "requiredParams": 2
+  },
+  {
+    "name": "sendFile",
+    "requiredParams": 4
+  },
+  {
+    "name": "sendFileFromUrl",
+    "requiredParams": 4
+  },
+  {
+    "name": "sendGiphy",
+    "requiredParams": 3
+  },
+  {
+    "name": "sendGiphyAsSticker",
+    "requiredParams": 2
+  },
+  {
+    "name": "sendImage",
+    "requiredParams": 4
+  },
+  {
+    "name": "sendImageAsSticker",
+    "requiredParams": 2
+  },
+  {
+    "name": "sendImageAsStickerAsReply",
+    "requiredParams": 3
+  },
+  {
+    "name": "sendImageWithProduct",
+    "requiredParams": 5
+  },
+  {
+    "name": "sendLinkWithAutoPreview",
+    "requiredParams": 2
+  },
+  {
+    "name": "sendListMessage",
+    "requiredParams": 5
+  },
+  {
+    "name": "sendLocation",
+    "requiredParams": 4
+  },
+  {
+    "name": "sendMessageWithThumb",
+    "requiredParams": 6
+  },
+  {
+    "name": "sendMp4AsSticker",
+    "requiredParams": 2
+  },
+  {
+    "name": "sendMultipleContacts",
+    "requiredParams": 2
+  },
+  {
+    "name": "sendPaymentRequest",
+    "requiredParams": 3
+  },
+  {
+    "name": "sendPoll",
+    "requiredParams": 3
+  },
+  {
+    "name": "sendProduct",
+    "requiredParams": 2
+  },
+  {
+    "name": "sendPtt",
+    "requiredParams": 2
+  },
+  {
+    "name": "sendRawWebpAsSticker",
+    "requiredParams": 2
+  },
+  {
+    "name": "sendRawWebpAsStickerAsReply",
+    "requiredParams": 3
+  },
+  {
+    "name": "sendReplyWithMentions",
+    "requiredParams": 3
+  },
+  {
+    "name": "sendSeen",
+    "requiredParams": 1
+  },
+  {
+    "name": "sendStickerfromUrl",
+    "requiredParams": 2
+  },
+  {
+    "name": "sendStickerfromUrlAsReply",
+    "requiredParams": 3
+  },
+  {
+    "name": "sendText",
+    "requiredParams": 2
+  },
+  {
+    "name": "sendTextWithMentions",
+    "requiredParams": 2
+  },
+  {
+    "name": "sendVCard",
+    "requiredParams": 2
+  },
+  {
+    "name": "sendVideoAsGif",
+    "requiredParams": 4
+  },
+  {
+    "name": "sendYoutubeLink",
+    "requiredParams": 2
+  },
+  {
+    "name": "setChatBackgroundColourHex",
+    "requiredParams": 1
+  },
+  {
+    "name": "setChatEphemeral",
+    "requiredParams": 2
+  },
+  {
+    "name": "setChatState",
+    "requiredParams": 2
+  },
+  {
+    "name": "setGroupApprovalMode",
+    "requiredParams": 2
+  },
+  {
+    "name": "setGroupDescription",
+    "requiredParams": 2
+  },
+  {
+    "name": "setGroupEditToAdminsOnly",
+    "requiredParams": 2
+  },
+  {
+    "name": "setGroupIcon",
+    "requiredParams": 2
+  },
+  {
+    "name": "setGroupIconByUrl",
+    "requiredParams": 2
+  },
+  {
+    "name": "setGroupTitle",
+    "requiredParams": 2
+  },
+  {
+    "name": "setGroupToAdminsOnly",
+    "requiredParams": 2
+  },
+  {
+    "name": "setMyName",
+    "requiredParams": 1
+  },
+  {
+    "name": "setMyStatus",
+    "requiredParams": 1
+  },
+  {
+    "name": "setPresence",
+    "requiredParams": 1
+  },
+  {
+    "name": "setProfilePic",
+    "requiredParams": 1
+  },
+  {
+    "name": "simulateRecording",
+    "requiredParams": 2
+  },
+  {
+    "name": "simulateTyping",
+    "requiredParams": 2
+  },
+  {
+    "name": "starMessage",
+    "requiredParams": 1
+  },
+  {
+    "name": "syncContacts",
+    "requiredParams": 0
+  },
+  {
+    "name": "tagEveryone",
+    "requiredParams": 2
+  },
+  {
+    "name": "testButtons",
+    "requiredParams": 1
+  },
+  {
+    "name": "testCallback",
+    "requiredParams": 2
+  },
+  {
+    "name": "unmuteChat",
+    "requiredParams": 1
+  },
+  {
+    "name": "unstarMessage",
+    "requiredParams": 1
+  },
+  {
+    "name": "updateWebhook",
+    "requiredParams": 2
+  },
+  {
+    "name": "waitAllQEmpty",
+    "requiredParams": 0
+  },
+  {
+    "name": "waitWhQIdle",
+    "requiredParams": 0
+  }
+]
