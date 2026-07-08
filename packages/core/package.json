@@ -26,6 +26,7 @@
     "@open-wa/logger": "workspace:*",
     "@open-wa/plugin-sdk": "workspace:*",
     "@open-wa/schema": "workspace:*",
+    "effect": "catalog:",
     "hono": "catalog:",
     "p-queue": "6.6.2",
     "uuid": "catalog:"

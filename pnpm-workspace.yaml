@@ -11,6 +11,8 @@ packages:
 catalog:
   '@discordjs/collection': ^2.1.1
   '@elastic/elasticsearch': ^9.2.0
+  # Effect v4 is in beta; pin an exact version and upgrade deliberately (see EFFECT.md).
+  effect: 4.0.0-beta.94
   '@hono/node-server': ^1.19.12
   '@tailwindcss/vite': ^4.3.0
   '@tanstack/react-query': ^5.95.2
@@ -104,3 +106,7 @@ allowBuilds:
   unrs-resolver: false
   vue-demi: false
   workerd: true
+  # optional native accelerator for msgpackr; JS fallback is fine
+  msgpackr-extract: false
+minimumReleaseAgeExclude:
+  - effect@4.0.0-beta.94
