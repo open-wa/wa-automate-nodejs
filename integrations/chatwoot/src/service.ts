@@ -16,6 +16,6 @@ export const chatwootClientLayer = (
   ChatwootClientService,
   Effect.acquireRelease(
     Effect.sync(() => new ChatwootClient(config, logger)),
-    () => Effect.void,
+    (client) => Effect.sync(() => client.close()),
   ),
 );

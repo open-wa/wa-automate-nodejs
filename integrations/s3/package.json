@@ -15,6 +15,7 @@
   "scripts": {
     "build": "tsdown src/index.ts --format esm --format cjs",
     "dev": "tsdown src/index.ts --format esm --format cjs --watch",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint src",
     "clean": "rimraf dist"
@@ -29,7 +30,8 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "publishConfig": {
     "access": "public"

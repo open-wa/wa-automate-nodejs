@@ -1,6 +1,7 @@
 import { Effect } from 'effect';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { SessionScope } from './session-scope';
+import { makeInMemoryObservability } from './observability';
 
 describe('SessionScope', () => {
   it.each([
@@ -13,15 +14,30 @@ describe('SessionScope', () => {
     'interruption',
   ] as const)('releases resources on %s', async (reason) => {
     const scope = await SessionScope.make();
-    let releases = 0;
-    await scope.addFinalizer('resource', () => {
-      releases += 1;
-    });
+    const resourceKinds = [
+      'browser',
+      'page',
+      'process',
+      'plugin',
+      'queue',
+      'listener',
+      'timer',
+    ] as const;
+    const releases = new Map(resourceKinds.map((kind) => [kind, 0]));
+    for (const kind of resourceKinds) {
+      await scope.addFinalizer(kind, () => {
+        releases.set(kind, (releases.get(kind) ?? 0) + 1);
+      });
+    }
 
     await scope.close(reason);
+    await scope.close(reason);
 
-    expect(releases).toBe(1);
+    expect(Object.fromEntries(releases)).toEqual(Object.fromEntries(
+      resourceKinds.map((kind) => [kind, 1]),
+    ));
     expect(scope.snapshot().closed).toBe(true);
+    expect(scope.snapshot().finalizers).toEqual([]);
   });
 
   it('runs finalizers in reverse acquisition order exactly once', async () => {
@@ -73,5 +89,24 @@ describe('SessionScope', () => {
     await scope.close('interruption');
 
     expect(interrupted).toBe(true);
+  });
+
+  it('reports actual session-owned fibers until scope interruption', async () => {
+    const observability = makeInMemoryObservability();
+    const scope = await SessionScope.make({
+      observability,
+      metricAttributes: { session: 'test-session' },
+    });
+    await scope.fork(Effect.never);
+
+    await expect(Effect.runPromise(observability.snapshot)).resolves.toMatchObject({
+      'active_fibers{owner=session-scope,session=test-session}': 1,
+    });
+    await scope.close('interruption');
+    await vi.waitFor(async () => expect(
+      (await Effect.runPromise(observability.snapshot))[
+        'active_fibers{owner=session-scope,session=test-session}'
+      ],
+    ).toBe(0));
   });
 });

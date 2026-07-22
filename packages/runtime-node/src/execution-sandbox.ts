@@ -9,45 +9,86 @@ import {
 import { Effect } from 'effect';
 
 const SANDBOX_PROGRAM = String.raw`
-const read = async () => {
-  const chunks = [];
-  for await (const chunk of process.stdin) chunks.push(chunk);
-  return JSON.parse(Buffer.concat(chunks).toString('utf8'));
-};
+const { createInterface } = await import('node:readline');
 const { default: vm } = await import('node:vm');
+const lines = createInterface({ input: process.stdin });
+const responses = new Map();
+let receiveInitial;
+const initial = new Promise((resolve) => { receiveInitial = resolve; });
+lines.on('line', (line) => {
+  const message = JSON.parse(line);
+  if (message.type === 'init') receiveInitial(message.request);
+  if (message.type === 'capability-result') {
+    const pending = responses.get(message.id);
+    responses.delete(message.id);
+    if (message.ok) pending?.resolve(message.value);
+    else pending?.reject(new Error(message.error));
+  }
+});
+let capabilityId = 0;
+const capabilities = Object.freeze({
+  call(name, ...args) {
+    const id = ++capabilityId;
+    const result = new Promise((resolve, reject) => responses.set(id, { resolve, reject }));
+    process.stdout.write(JSON.stringify({ type: 'capability', id, name, args }) + '\n');
+    return result;
+  }
+});
 try {
-  const request = await read();
+  const request = await initial;
   const context = vm.createContext(Object.assign(Object.create(null), {
     input: structuredClone(request.input),
+    capabilities,
     console: Object.freeze({ log() {}, warn() {}, error() {} }),
     TextEncoder,
     TextDecoder,
   }), { codeGeneration: { strings: false, wasm: false } });
-  const script = new vm.Script('Promise.resolve((' + request.source + ')(input))');
+  const script = new vm.Script('Promise.resolve((' + request.source + ')(input, capabilities))');
   const value = await script.runInContext(context, { timeout: request.syncTimeoutMs });
-  process.stdout.write(JSON.stringify({ ok: true, value }));
+  process.stdout.write(JSON.stringify({ type: 'result', ok: true, value }) + '\n');
 } catch (error) {
-  process.stdout.write(JSON.stringify({ ok: false, error: error instanceof Error ? error.message : String(error) }));
+  process.stdout.write(JSON.stringify({ type: 'result', ok: false, error: error instanceof Error ? error.message : String(error) }) + '\n');
   process.exitCode = 1;
 }
+lines.close();
+process.stdin.pause();
+process.stdin.unref();
 `;
 
 const WORKER_PROGRAM = String.raw`
 const { parentPort, workerData } = require('node:worker_threads');
 const vm = require('node:vm');
+const responses = new Map();
+let capabilityId = 0;
+parentPort.on('message', (message) => {
+  if (message.type !== 'capability-result') return;
+  const pending = responses.get(message.id);
+  responses.delete(message.id);
+  if (message.ok) pending?.resolve(message.value);
+  else pending?.reject(new Error(message.error));
+});
+const capabilities = Object.freeze({
+  call(name, ...args) {
+    const id = ++capabilityId;
+    const result = new Promise((resolve, reject) => responses.set(id, { resolve, reject }));
+    parentPort.postMessage({ type: 'capability', id, name, args });
+    return result;
+  }
+});
 (async () => {
   try {
     const context = vm.createContext(Object.assign(Object.create(null), {
       input: structuredClone(workerData.input),
+      capabilities,
       console: Object.freeze({ log() {}, warn() {}, error() {} }),
       TextEncoder,
       TextDecoder,
     }), { codeGeneration: { strings: false, wasm: false } });
-    const script = new vm.Script('Promise.resolve((' + workerData.source + ')(input))');
+    const script = new vm.Script('Promise.resolve((' + workerData.source + ')(input, capabilities))');
     const value = await script.runInContext(context, { timeout: workerData.syncTimeoutMs });
-    parentPort.postMessage({ ok: true, value });
+    parentPort.postMessage({ type: 'result', ok: true, value });
   } catch (error) {
-    parentPort.postMessage({ ok: false, error: error instanceof Error ? error.message : String(error) });
+    parentPort.postMessage({ type: 'result', ok: false, error: error instanceof Error ? error.message : String(error) });
   }
 })();
 `;
@@ -57,13 +98,27 @@ export interface NodeExecutionSandboxOptions {
   readonly containerImage?: string;
   readonly workspacePath?: string;
   readonly maxOutputBytes?: number;
+  /** Converts an allowlist into runtime-specific container network arguments. */
+  readonly containerNetworkPolicy?: (
+    allowlist: ReadonlyArray<string>,
+  ) => ReadonlyArray<string> | Promise<ReadonlyArray<string>>;
 }
 
 interface SandboxReply {
+  readonly type: 'result';
   readonly ok: boolean;
   readonly value?: unknown;
   readonly error?: string;
 }
+
+interface CapabilityRequest {
+  readonly type: 'capability';
+  readonly id: number;
+  readonly name: string;
+  readonly args: ReadonlyArray<unknown>;
+}
+
+type SandboxMessage = SandboxReply | CapabilityRequest;
 
 export const makeNodeExecutionSandbox = (
   options: NodeExecutionSandboxOptions = {},
@@ -106,6 +161,55 @@ export const makeNodeExecutionSandbox = (
     return reply.value;
   };
 
+  const runCapability = async (
+    request: SandboxRequest,
+    message: CapabilityRequest,
+  ): Promise<{ type: 'capability-result'; id: number; ok: boolean; value?: unknown; error?: string }> => {
+    if (!request.policy.capabilities.includes(message.name)) {
+      return {
+        type: 'capability-result',
+        id: message.id,
+        ok: false,
+        error: `sandbox capability "${message.name}" is not allowed`,
+      };
+    }
+    const handler = request.capabilityHandlers?.[message.name];
+    if (!handler) {
+      return {
+        type: 'capability-result',
+        id: message.id,
+        ok: false,
+        error: `sandbox capability "${message.name}" is unavailable`,
+      };
+    }
+    try {
+      return {
+        type: 'capability-result',
+        id: message.id,
+        ok: true,
+        value: await handler(...message.args),
+      };
+    } catch (error) {
+      return {
+        type: 'capability-result',
+        id: message.id,
+        ok: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  };
+
+  const consumeProtocolLine = async (
+    request: SandboxRequest,
+    line: string,
+    send: (message: object) => void,
+  ): Promise<SandboxReply | undefined> => {
+    const message = JSON.parse(line) as SandboxMessage;
+    if (message.type === 'result') return message;
+    send(await runCapability(request, message));
+    return undefined;
+  };
+
   const runProcess = (request: SandboxRequest): Promise<unknown> =>
     new Promise((resolve, reject) => {
       const args = [
@@ -129,6 +233,8 @@ export const makeNodeExecutionSandbox = (
       let stdout = '';
       let stderr = '';
       let outputExceeded = false;
+      let reply: SandboxReply | undefined;
+      let protocol = Promise.resolve();
       const maxOutput = options.maxOutputBytes ?? 1024 * 1024;
 
       child.stdout?.on('data', (chunk) => {
@@ -136,6 +242,16 @@ export const makeNodeExecutionSandbox = (
         if (stdout.length > maxOutput) {
           outputExceeded = true;
           child.kill();
+        }
+        const lines = stdout.split('\n');
+        stdout = lines.pop() ?? '';
+        for (const line of lines) {
+          if (!line) continue;
+          protocol = protocol.then(async () => {
+            reply = await consumeProtocolLine(request, line, (message) => {
+              child.stdin?.write(`${JSON.stringify(message)}\n`);
+            }) ?? reply;
+          });
         }
       });
       child.stderr?.on('data', (chunk) => {
@@ -146,23 +262,31 @@ export const makeNodeExecutionSandbox = (
         }
       });
       child.once('error', reject);
-      child.once('close', () => {
+      child.once('close', async () => {
         untrack(request.chatId, child);
         if (outputExceeded) {
           reject(new Error(`sandbox output exceeded ${maxOutput} bytes`));
           return;
         }
         try {
-          resolve(processReply(request, JSON.parse(stdout) as SandboxReply));
+          if (stdout.trim()) {
+            reply = await consumeProtocolLine(request, stdout, () => undefined) ?? reply;
+          }
+          await protocol;
+          if (!reply) throw new Error('sandbox returned no result');
+          resolve(processReply(request, reply));
         } catch (error) {
           reject(new Error(stderr || (error instanceof Error ? error.message : String(error))));
         }
       });
-      child.stdin?.end(JSON.stringify({
-        source: request.source,
-        input: request.input,
-        syncTimeoutMs: request.policy.timeoutMs,
-      }));
+      child.stdin?.write(`${JSON.stringify({
+        type: 'init',
+        request: {
+          source: request.source,
+          input: request.input,
+          syncTimeoutMs: request.policy.timeoutMs,
+        },
+      })}\n`);
     });
 
   const runWorker = (request: SandboxRequest): Promise<unknown> =>
@@ -177,11 +301,16 @@ export const makeNodeExecutionSandbox = (
         resourceLimits: { maxOldGenerationSizeMb: request.policy.memoryMb },
       }));
       const timer = setTimeout(() => void worker.terminate(), request.policy.timeoutMs);
-      worker.once('message', (reply: SandboxReply) => {
+      worker.on('message', (message: SandboxMessage) => {
+        if (message.type === 'capability') {
+          void runCapability(request, message).then((reply) => worker.postMessage(reply));
+          return;
+        }
         clearTimeout(timer);
         untrack(request.chatId, worker);
+        void worker.terminate();
         try {
-          resolve(processReply(request, reply));
+          resolve(processReply(request, message));
         } catch (error) {
           reject(error);
         }
@@ -194,15 +323,17 @@ export const makeNodeExecutionSandbox = (
       });
     });
 
-  const runContainer = (request: SandboxRequest): Promise<unknown> => {
-    if (request.policy.network === 'allowlist') {
-      return Promise.reject(new Error('container network allowlists require an external network policy adapter'));
+  const runContainer = async (request: SandboxRequest): Promise<unknown> => {
+    const networkArgs = request.policy.network === 'allowlist'
+      ? await options.containerNetworkPolicy?.(request.policy.networkAllowlist)
+      : ['--network=none'];
+    if (!networkArgs) {
+      throw new Error('container network allowlists require a network policy adapter');
     }
-
     return new Promise((resolve, reject) => {
       const command = options.containerCommand ?? 'docker';
       const args = [
-        'run', '--rm', '-i', '--network=none', '--read-only',
+        'run', '--rm', '-i', ...networkArgs, '--read-only',
         `--memory=${request.policy.memoryMb}m`, '--cpus=1', '--pids-limit=64',
         '--tmpfs', '/tmp:rw,noexec,nosuid,size=16m',
       ];
@@ -224,22 +355,44 @@ export const makeNodeExecutionSandbox = (
       }));
       let stdout = '';
       let stderr = '';
-      child.stdout?.on('data', (chunk) => { stdout += chunk.toString(); });
+      let reply: SandboxReply | undefined;
+      let protocol = Promise.resolve();
+      child.stdout?.on('data', (chunk) => {
+        stdout += chunk.toString();
+        const lines = stdout.split('\n');
+        stdout = lines.pop() ?? '';
+        for (const line of lines) {
+          if (!line) continue;
+          protocol = protocol.then(async () => {
+            reply = await consumeProtocolLine(request, line, (message) => {
+              child.stdin?.write(`${JSON.stringify(message)}\n`);
+            }) ?? reply;
+          });
+        }
+      });
       child.stderr?.on('data', (chunk) => { stderr += chunk.toString(); });
       child.once('error', reject);
-      child.once('close', () => {
+      child.once('close', async () => {
         untrack(request.chatId, child);
         try {
-          resolve(processReply(request, JSON.parse(stdout) as SandboxReply));
+          if (stdout.trim()) {
+            reply = await consumeProtocolLine(request, stdout, () => undefined) ?? reply;
+          }
+          await protocol;
+          if (!reply) throw new Error('sandbox returned no result');
+          resolve(processReply(request, reply));
         } catch (error) {
           reject(new Error(stderr || (error instanceof Error ? error.message : String(error))));
         }
       });
-      child.stdin?.end(JSON.stringify({
-        source: request.source,
-        input: request.input,
-        syncTimeoutMs: request.policy.timeoutMs,
-      }));
+      child.stdin?.write(`${JSON.stringify({
+        type: 'init',
+        request: {
+          source: request.source,
+          input: request.input,
+          syncTimeoutMs: request.policy.timeoutMs,
+        },
+      })}\n`);
     });
   };
 

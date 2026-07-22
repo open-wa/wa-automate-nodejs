@@ -131,7 +131,7 @@ export class WebhookDeliverer {
       this.logger.error(
         `Webhook delivery failed after ${this.retries + 1} attempts: ${errMessage}`
       );
-      Effect.runSync(this.observability.increment('cause_failures', 1, {
+      Effect.runSync(this.observability.recordCause('webhook.delivery', error, {
         component: 'webhook',
       }));
       if (deliveryId) this.store?.markDeadLetter(deliveryId, errMessage);

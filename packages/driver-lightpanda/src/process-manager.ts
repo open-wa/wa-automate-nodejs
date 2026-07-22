@@ -20,7 +20,7 @@ type LightpandaSdkNamespaceModule = {
     };
 };
 
-type LightpandaChildProcess = Pick<ChildProcess, 'kill' | 'stderr' | 'once'>;
+type LightpandaChildProcess = Pick<ChildProcess, 'kill' | 'stderr' | 'once' | 'pid'>;
 
 export interface ProcessManagerConfig {
     executablePath?: string;
@@ -47,7 +47,7 @@ function isModuleMissing(error: unknown): boolean {
 
 async function loadLightpandaSdk(): Promise<LightpandaSdkModule> {
     try {
-        const module = await import('@lightpanda/browser') as LightpandaSdkModule & LightpandaSdkNamespaceModule;
+        const module = await import('@lightpanda/browser') as unknown as LightpandaSdkModule & LightpandaSdkNamespaceModule;
         const serve = typeof module.serve === 'function'
             ? module.serve.bind(module)
             : typeof module.lightpanda?.serve === 'function'
@@ -212,6 +212,10 @@ export class LightpandaProcessManager {
         return this.processInfo.wsEndpoint;
     }
 
+    getProcessId(): number | undefined {
+        return this.child?.pid;
+    }
+
     async stop(): Promise<void> {
         if (this.stopPromise) {
             return await this.stopPromise;
@@ -269,7 +273,7 @@ export class LightpandaProcessManager {
     }
 }
 
-export const __internal = {
+export const processManagerInternal = {
     DEFAULT_HOST,
     DEFAULT_PORT_ATTEMPTS,
     DEFAULT_PORT_START,

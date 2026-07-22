@@ -20,6 +20,8 @@ export class PuppeteerDriver implements IDriver {
             persistentContext: { supported: true },
             browserExtensions: { supported: true },
             exposeBinding: { supported: true },
+            screenshot: { supported: true },
+            rendering: { supported: true },
         };
     }
     

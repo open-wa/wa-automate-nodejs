@@ -14,7 +14,7 @@ import {
     type ChatSandboxPolicy,
     type SandboxIsolation,
 } from '@open-wa/runtime-core';
-import { makeNodeExecutionSandbox, observeMemory } from '@open-wa/runtime-node';
+import { makeNodeExecutionSandbox, observeBrowserProcessMemory } from '@open-wa/runtime-node';
 
 export interface CliRuntimeResult {
     server: WAServer;
@@ -642,10 +642,10 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         licenseKey: config.licenseKey as any,
         sandboxPolicy,
         executionSandbox,
-        memoryObservation: (observability) => observeMemory(
+        memoryObservation: (observability, getBrowserProcessId) => observeBrowserProcessMemory(
             observability,
-            () => process.memoryUsage().rss / 1024 / 1024,
-            { attributes: { session: config.sessionId, source: 'host-process-rss' } },
+            getBrowserProcessId,
+            { attributes: { session: config.sessionId } },
         ),
     });
 

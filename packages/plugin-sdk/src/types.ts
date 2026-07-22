@@ -39,6 +39,9 @@ export interface PluginInput<TConfig = unknown> {
   /** Current session ID */
   sessionId: string;
 
+  /** Aborted when the host starts disposing this plugin and its handlers. */
+  signal: AbortSignal;
+
   /**
    * Client proxy for calling WA methods.
    *

@@ -40,6 +40,8 @@ const HOOK_EVENT_MAPPING: Record<string, keyof OpenWAEventMap> = {
 interface PluginEntry {
   meta: PluginMeta;
   hooks: Hooks;
+  abortController: AbortController;
+  activeHandlers: Set<Promise<void>>;
 }
 
 // ============================================================================
@@ -90,8 +92,15 @@ export class PluginHost {
     const rawConfig = options.pluginConfig?.[name];
     const validatedConfig = validatePluginConfig(plugin, rawConfig, this.logger);
 
+    const abortController = new AbortController();
+
     // Create security-filtered event emitter
-    const gateway = createEventGateway(this.events, name, this.logger);
+    const gateway = createEventGateway(
+      this.events,
+      name,
+      this.logger,
+      abortController.signal,
+    );
 
     // Build the plugin input
     const input: PluginInput = {
@@ -100,11 +109,23 @@ export class PluginHost {
       config: validatedConfig,
       sessionId: options.sessionId,
       client: options.client,
+      signal: abortController.signal,
     };
 
     // Initialize the plugin
-    const hooks = await plugin(input);
-    this.plugins.set(name, { meta: plugin.meta, hooks });
+    let hooks: Hooks;
+    try {
+      hooks = await plugin(input);
+    } catch (error) {
+      abortController.abort(error);
+      throw error;
+    }
+    this.plugins.set(name, {
+      meta: plugin.meta,
+      hooks,
+      abortController,
+      activeHandlers: new Set(),
+    });
 
     // Wire hooks to events
     this.wireHooks(name, hooks);
@@ -126,20 +147,22 @@ export class PluginHost {
   }
 
   private wireSpecificHooks(name: string, hooks: Hooks): void {
+    const entry = this.plugins.get(name);
+    if (!entry) throw new Error(`Plugin "${name}" is not registered`);
+
     for (const [hookName, eventName] of Object.entries(HOOK_EVENT_MAPPING)) {
       const handler = hooks[hookName as keyof Hooks];
       if (handler && typeof handler === 'function') {
-        this.events.on(eventName, async (payload: unknown) => {
-          try {
-            await (handler as (payload: unknown) => Promise<void>)(payload);
-          } catch (err) {
-            this.logger.error('plugin_hook_error', {
-              plugin: name,
-              event: hookName,
-              error: err,
-            });
-          }
-        });
+        this.events.on(
+          eventName,
+          (payload: unknown) => this.superviseHandler(
+            entry,
+            'plugin_hook_error',
+            hookName,
+            () => (handler as (payload: unknown) => void | Promise<void>)(payload),
+          ),
+          { signal: entry.abortController.signal },
+        );
       }
     }
   }
@@ -147,22 +170,45 @@ export class PluginHost {
   private wireCatchAllHandler(name: string, hooks: Hooks): void {
     if (!hooks.event) return;
 
+    const entry = this.plugins.get(name);
+    if (!entry) throw new Error(`Plugin "${name}" is not registered`);
     const catchAllHandler = hooks.event;
     const publicEvents = getPublicEvents();
 
     for (const eventName of publicEvents) {
-      this.events.on(eventName, async (payload: unknown) => {
-        try {
-          await catchAllHandler({ event: eventName, payload });
-        } catch (err) {
-          this.logger.error('plugin_catchall_error', {
-            plugin: name,
-            event: eventName,
-            error: err,
-          });
-        }
-      });
+      this.events.on(
+        eventName,
+        (payload: unknown) => this.superviseHandler(
+          entry,
+          'plugin_catchall_error',
+          eventName,
+          () => catchAllHandler({ event: eventName, payload }),
+        ),
+        { signal: entry.abortController.signal },
+      );
     }
+  }
+
+  private superviseHandler(
+    entry: PluginEntry,
+    logEvent: 'plugin_hook_error' | 'plugin_catchall_error',
+    event: string,
+    handler: () => void | Promise<void>,
+  ): Promise<void> {
+    const task = Promise.resolve()
+      .then(handler)
+      .catch((error) => {
+        this.logger.error(logEvent, {
+          plugin: entry.meta.name,
+          event,
+          error,
+        });
+      })
+      .finally(() => {
+        entry.activeHandlers.delete(task);
+      });
+    entry.activeHandlers.add(task);
+    return task;
   }
 
   // ── Route Collection ─────────────────────────────────────
@@ -247,7 +293,10 @@ export class PluginHost {
    */
   async dispose(): Promise<void> {
     const entries = Array.from(this.plugins.entries()).reverse();
-    for (const [name, { hooks }] of entries) {
+    for (const [name, entry] of entries) {
+      entry.abortController.abort();
+      await Promise.allSettled([...entry.activeHandlers]);
+      const { hooks } = entry;
       if (hooks.dispose) {
         try {
           await hooks.dispose();

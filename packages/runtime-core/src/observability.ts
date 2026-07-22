@@ -3,10 +3,36 @@ import {
   RuntimeObservability,
   type RuntimeObservabilityShape,
   type RuntimeMetric,
+  type SerializedRuntimeCause,
+  type RuntimeCauseRecord,
 } from './services';
+
+const serializeCause = (cause: unknown, seen = new Set<unknown>()): SerializedRuntimeCause => {
+  if (!(cause instanceof Error)) {
+    return { name: typeof cause, message: String(cause) };
+  }
+  if (seen.has(cause)) {
+    return { name: cause.name, message: `${cause.message} [circular cause]` };
+  }
+  seen.add(cause);
+  const nested = 'cause' in cause && cause.cause !== undefined
+    ? serializeCause(cause.cause, seen)
+    : undefined;
+  const errors = cause instanceof AggregateError
+    ? cause.errors.map((error) => serializeCause(error, seen))
+    : undefined;
+  return {
+    name: cause.name,
+    message: cause.message,
+    ...(cause.stack ? { stack: cause.stack } : {}),
+    ...(nested ? { cause: nested } : {}),
+    ...(errors ? { errors } : {}),
+  };
+};
 
 export const makeInMemoryObservability = (): RuntimeObservabilityShape => {
   const values = new Map<string, number>();
+  const causes: RuntimeCauseRecord[] = [];
 
   const keyFor = (
     metric: RuntimeMetric,
@@ -31,6 +57,17 @@ export const makeInMemoryObservability = (): RuntimeObservabilityShape => {
         values.set(keyFor(metric, attributes), value);
       }),
     snapshot: Effect.sync(() => Object.fromEntries(values)),
+    recordCause: (scope, cause, attributes) => Effect.sync(() => {
+      causes.push({
+        scope,
+        recordedAt: Date.now(),
+        ...(attributes ? { attributes } : {}),
+        cause: serializeCause(cause),
+      });
+      const key = keyFor('cause_failures', { scope, ...attributes });
+      values.set(key, (values.get(key) ?? 0) + 1);
+    }),
+    causes: Effect.sync(() => causes.map((record) => ({ ...record }))),
   };
 };
 

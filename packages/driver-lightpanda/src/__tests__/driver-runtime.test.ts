@@ -87,7 +87,7 @@ describe('Lightpanda runtime', () => {
         vi.clearAllMocks();
         findFreePort.mockResolvedValue(9500);
         serve.mockReturnValue({ kill: vi.fn(() => true) });
-        globalThis.WebSocket = SuccessfulWebSocket as typeof WebSocket;
+        globalThis.WebSocket = SuccessfulWebSocket as unknown as typeof WebSocket;
     });
 
     afterEach(() => {
