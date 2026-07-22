@@ -1,7 +1,7 @@
 import type { Logger } from '@open-wa/logger';
 import { Context, Effect, Layer } from 'effect';
-import type { WebhookConfig } from './config.js';
-import { WebhookDeliverer } from './deliverer.js';
+import type { WebhookConfig } from './config';
+import { WebhookDeliverer } from './deliverer';
 
 export const WebhookDelivererService =
   Context.Service<WebhookDeliverer>('@open-wa/integration-webhook/WebhookDeliverer');

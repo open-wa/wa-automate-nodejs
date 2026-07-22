@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { clientRuntimeListenerSurface, clientRuntimeMethodSurface } from '../runtimeSurface.js';
-import { runtimeListenerSurface } from '../../../core/src/transport/runtimeListenerSurface.js';
+import { clientRuntimeListenerSurface, clientRuntimeMethodSurface } from '../runtimeSurface';
+import { runtimeListenerSurface } from '../../../core/src/transport/runtimeListenerSurface';
 
 type WapiTerminalStatus = 'implemented' | 'stub_false';
 

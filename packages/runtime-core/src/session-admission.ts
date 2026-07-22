@@ -1,10 +1,10 @@
 import { Effect, Layer, Semaphore } from 'effect';
-import { SessionAdmissionError } from './errors.js';
+import { SessionAdmissionError } from './errors';
 import {
   SessionAdmission,
   type SessionAdmissionShape,
   type RuntimeObservabilityShape,
-} from './services.js';
+} from './services';
 
 export interface SessionAdmissionOptions {
   readonly memoryCapacityMb: number;

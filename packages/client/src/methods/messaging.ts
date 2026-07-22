@@ -1,4 +1,4 @@
-import type { Client } from '../Client.js';
+import type { Client } from '../Client';
 import type {
   ChatId,
   ContactId,
@@ -8,7 +8,7 @@ import type {
   Base64,
   Content,
 } from '@open-wa/schema';
-import { createUnsupportedMethodStub } from '../runtimeSurface.js';
+import { createUnsupportedMethodStub } from '../runtimeSurface';
 
 declare const WAPI: {
   sendMessage: (to: string, content: string) => Promise<string>;

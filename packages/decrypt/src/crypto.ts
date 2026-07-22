@@ -6,7 +6,7 @@
  */
 import { createDecipheriv, hkdfSync } from 'node:crypto';
 
-import { mediaTypes } from './constants.js';
+import { mediaTypes } from './constants';
 
 /**
  * Derive the AES-256-CBC key and IV from the media key using HKDF-SHA256,

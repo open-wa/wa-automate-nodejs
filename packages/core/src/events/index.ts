@@ -1,1 +1,1 @@
-export * from './eventMap.js';
+export * from './eventMap';

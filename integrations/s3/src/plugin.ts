@@ -1,7 +1,7 @@
 import type { Plugin, PluginInput, Hooks } from '@open-wa/core';
-import type { S3Config } from './config.js';
+import type { S3Config } from './config';
 import { Effect, ManagedRuntime } from 'effect';
-import { S3UploaderService, s3UploaderLayer } from './service.js';
+import { S3UploaderService, s3UploaderLayer } from './service';
 
 interface MediaMessage {
   deprecatedMms3Url?: string;

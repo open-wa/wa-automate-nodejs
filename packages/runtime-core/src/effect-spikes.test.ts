@@ -6,7 +6,7 @@ import {
   OpenWaHttpApi,
   RuntimeEventSchema,
   decodeRuntimeEvent,
-} from './effect-spikes.js';
+} from './effect-spikes';
 
 describe('Effect replacement spikes', () => {
   it('decodes runtime events with Effect Schema', async () => {

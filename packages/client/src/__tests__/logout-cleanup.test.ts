@@ -5,7 +5,7 @@ import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { HyperEmitter } from '@open-wa/hyperemitter';
 import type { OpenWAClient, OpenWAEventMap, STATE, Transport } from '@open-wa/core';
-import { Client } from '../Client.js';
+import { Client } from '../Client';
 
 function createDeferred() {
   let resolve!: () => void;

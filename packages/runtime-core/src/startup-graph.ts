@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { StartupGraphError } from './errors.js';
+import { StartupGraphError } from './errors';
 
 export interface StartupNode<A = unknown> {
   readonly id: string;

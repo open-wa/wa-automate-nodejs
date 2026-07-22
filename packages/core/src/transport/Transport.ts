@@ -14,13 +14,13 @@ import type {
 } from '@open-wa/driver-interface';
 import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
-import type { OpenWAEventMap, STATE } from '../events/eventMap.js';
-import { fetchPatches, validateLicense } from './httpClient.js';
-import { InjectionController, type GenerationSnapshot } from './InjectionController.js';
-import { getProgObserverScript, injectInitPatch } from './initPatchScripts.js';
-import { getRuntimeListenerSurfaceEntry, runtimeListenerSurface } from './runtimeListenerSurface.js';
-import { auditWapiHelperAssetRequirements } from './ScriptLoader.js';
-import { chromiumConfig } from './browserConfig.js';
+import type { OpenWAEventMap, STATE } from '../events/eventMap';
+import { fetchPatches, validateLicense } from './httpClient';
+import { InjectionController, type GenerationSnapshot } from './InjectionController';
+import { getProgObserverScript, injectInitPatch } from './initPatchScripts';
+import { getRuntimeListenerSurfaceEntry, runtimeListenerSurface } from './runtimeListenerSurface';
+import { auditWapiHelperAssetRequirements } from './ScriptLoader';
+import { chromiumConfig } from './browserConfig';
 
 export interface PatchFetchConfig {
   patchesUrl?: string;

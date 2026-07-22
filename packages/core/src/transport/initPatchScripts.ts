@@ -1,5 +1,5 @@
 import type { IPage } from '@open-wa/driver-interface';
-import { ScriptLoader } from './ScriptLoader.js';
+import { ScriptLoader } from './ScriptLoader';
 
 /**
  * Shared ScriptLoader instance.

@@ -1,11 +1,11 @@
-export { Client } from './Client.js';
-export type { ClientConfig, EvaluateFn } from './Client.js';
+export { Client } from './Client';
+export type { ClientConfig, EvaluateFn } from './Client';
 
-export type { MessagingMethods } from './methods/messaging.js';
-export type { MediaMethods } from './methods/media.js';
-export type { GroupMethods } from './methods/groups.js';
-export type { ChatMethods } from './methods/chats.js';
-export type { ContactMethods } from './methods/contacts.js';
+export type { MessagingMethods } from './methods/messaging';
+export type { MediaMethods } from './methods/media';
+export type { GroupMethods } from './methods/groups';
+export type { ChatMethods } from './methods/chats';
+export type { ContactMethods } from './methods/contacts';
 
 export {
   MessageCollector,

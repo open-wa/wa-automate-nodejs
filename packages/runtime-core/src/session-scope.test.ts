@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
 import { describe, expect, it } from 'vitest';
-import { SessionScope } from './session-scope.js';
+import { SessionScope } from './session-scope';
 
 describe('SessionScope', () => {
   it.each([

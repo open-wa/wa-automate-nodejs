@@ -1,5 +1,5 @@
 import { Context, Effect } from 'effect';
-import type { SandboxExecutionError } from './errors.js';
+import type { SandboxExecutionError } from './errors';
 
 export type SandboxIsolation = 'worker' | 'process' | 'container';
 

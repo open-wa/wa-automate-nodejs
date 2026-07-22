@@ -6,9 +6,9 @@ import {
   bleachMessage,
   mediaTypes,
   MissingCriticalDataError,
-} from '../index.js';
-import type { DecryptableMessage } from '../types.js';
-import { decryptBuffer } from '../crypto.js';
+} from '../index';
+import type { DecryptableMessage } from '../types';
+import { decryptBuffer } from '../crypto';
 
 /**
  * Build a synthetic encrypted payload matching WhatsApp's scheme:

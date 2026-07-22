@@ -3,9 +3,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { WebhookPayload } from './config.js';
-import { WebhookDeliverer } from './deliverer.js';
-import { SqliteWebhookDeliveryStore } from './durable-store.js';
+import type { WebhookPayload } from './config';
+import { WebhookDeliverer } from './deliverer';
+import { SqliteWebhookDeliveryStore } from './durable-store';
 
 const directories: string[] = [];
 const temporaryDatabase = () => {

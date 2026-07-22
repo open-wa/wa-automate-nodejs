@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { decryptMedia as decryptMediaBuffer } from '@open-wa/decrypt';
-import type { Client } from '../Client.js';
+import type { Client } from '../Client';
 import type { ChatId, DataURL, Message, MessageId } from '@open-wa/schema';
-import { createUnsupportedMethodStub } from '../runtimeSurface.js';
+import { createUnsupportedMethodStub } from '../runtimeSurface';
 
 type DownloadHeaders = Record<string, string>;
 

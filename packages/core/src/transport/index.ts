@@ -1,2 +1,2 @@
-export * from './Transport.js';
-export * from './runtimeListenerSurface.js';
+export * from './Transport';
+export * from './runtimeListenerSurface';

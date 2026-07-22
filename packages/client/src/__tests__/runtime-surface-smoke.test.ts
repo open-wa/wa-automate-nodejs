@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { HyperEmitter } from '@open-wa/hyperemitter';
-import { Client } from '../Client.js';
+import { Client } from '../Client';
 import type { OpenWAClient, OpenWAEventMap, STATE, Transport } from '@open-wa/core';
 
 function createTestClient() {

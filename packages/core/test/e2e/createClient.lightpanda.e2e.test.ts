@@ -3,9 +3,9 @@ import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { createClient } from '../../src/createClient.js';
-import type { OpenWAClient } from '../../src/createClient.js';
-import { LightpandaDriver } from '../../../driver-lightpanda/src/LightpandaDriver.js';
+import { createClient } from '../../src/createClient';
+import type { OpenWAClient } from '../../src/createClient';
+import { LightpandaDriver } from '../../../driver-lightpanda/src/LightpandaDriver';
 
 const require = createRequire(import.meta.url);
 

@@ -2,7 +2,7 @@ import { upload, getCloudUrl } from 'pico-s3';
 import mime from 'mime';
 import type { Logger } from '@open-wa/logger';
 import { ScopedTaskQueue } from '@open-wa/runtime-core';
-import { type S3Config, DirectoryStrategy } from './config.js';
+import { type S3Config, DirectoryStrategy } from './config';
 
 interface MediaMessage {
   mId?: string;

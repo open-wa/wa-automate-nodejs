@@ -1,6 +1,6 @@
 import { Cause, Effect } from 'effect';
 import { describe, expect, it } from 'vitest';
-import { captureSandboxCause } from './sandbox.js';
+import { captureSandboxCause } from './sandbox';
 
 describe('Effect Cause sandboxing', () => {
   it('moves a typed failure Cause into the error channel', async () => {

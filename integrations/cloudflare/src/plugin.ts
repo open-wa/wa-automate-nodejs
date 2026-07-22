@@ -1,6 +1,6 @@
 import type { Plugin, PluginInput, Hooks } from '@open-wa/core';
-import type { CloudflareConfig } from './config.js';
-import { createTunnel, type TunnelResult } from './tunnel.js';
+import type { CloudflareConfig } from './config';
+import { createTunnel, type TunnelResult } from './tunnel';
 
 export function cloudflarePlugin(config: CloudflareConfig): Plugin {
   return async (input: PluginInput): Promise<Hooks> => {

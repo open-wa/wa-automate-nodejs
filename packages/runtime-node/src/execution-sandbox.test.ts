@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import { describe, expect, it } from 'vitest';
 import { defaultChatSandboxPolicy } from '@open-wa/runtime-core';
-import { makeNodeExecutionSandbox } from './execution-sandbox.js';
+import { makeNodeExecutionSandbox } from './execution-sandbox';
 
 describe('Node execution sandbox', () => {
   it('executes serializable functions in a separate permissioned process', async () => {

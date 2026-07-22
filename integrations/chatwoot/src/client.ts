@@ -1,5 +1,5 @@
 import type { Logger } from '@open-wa/logger';
-import type { ChatwootConfig } from './config.js';
+import type { ChatwootConfig } from './config';
 
 interface Contact {
   id: number;

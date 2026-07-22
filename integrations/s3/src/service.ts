@@ -1,7 +1,7 @@
 import type { Logger } from '@open-wa/logger';
 import { Context, Effect, Layer } from 'effect';
-import type { S3Config } from './config.js';
-import { S3Uploader } from './uploader.js';
+import type { S3Config } from './config';
+import { S3Uploader } from './uploader';
 
 export const S3UploaderService =
   Context.Service<S3Uploader>('@open-wa/integration-s3/S3Uploader');

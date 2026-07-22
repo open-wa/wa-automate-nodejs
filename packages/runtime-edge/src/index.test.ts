@@ -1,7 +1,7 @@
 import { RuntimeCapabilities } from '@open-wa/runtime-core';
 import { Effect, Exit } from 'effect';
 import { describe, expect, it } from 'vitest';
-import { EdgeRuntimeLayer } from './index.js';
+import { EdgeRuntimeLayer } from './index';
 
 describe('EdgeRuntimeLayer', () => {
   it('exposes Worker capabilities and rejects host-only work', async () => {

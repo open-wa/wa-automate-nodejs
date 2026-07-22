@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import type { WebhookPayload } from './config.js';
+import type { WebhookPayload } from './config';
 
 export interface StoredWebhookDelivery {
   readonly id: string;

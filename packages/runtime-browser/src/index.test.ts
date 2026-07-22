@@ -1,7 +1,7 @@
 import { RuntimeCapabilities } from '@open-wa/runtime-core';
 import { Effect, Exit } from 'effect';
 import { describe, expect, it } from 'vitest';
-import { BrowserRuntimeLayer } from './index.js';
+import { BrowserRuntimeLayer } from './index';
 
 describe('BrowserRuntimeLayer', () => {
   it('exposes control-plane capabilities and rejects host-only work', async () => {

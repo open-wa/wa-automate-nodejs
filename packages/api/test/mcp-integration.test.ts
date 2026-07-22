@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createApiServer } from '../src/createApiServer.js';
+import { createApiServer } from '../src/createApiServer';
 import { serve } from '@hono/node-server';
 import type { Config } from '@open-wa/config';
 

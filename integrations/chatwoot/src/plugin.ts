@@ -5,9 +5,9 @@
  * Provides a webhook endpoint for Chatwoot to send outbound messages.
  */
 import { createPlugin, z } from '@open-wa/plugin-sdk';
-import { createChatwootRouter } from './middleware.js';
+import { createChatwootRouter } from './middleware';
 import { Effect, ManagedRuntime } from 'effect';
-import { ChatwootClientService, chatwootClientLayer } from './service.js';
+import { ChatwootClientService, chatwootClientLayer } from './service';
 
 /**
  * Config schema for the Chatwoot plugin.
