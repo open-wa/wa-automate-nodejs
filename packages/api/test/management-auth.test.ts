@@ -86,10 +86,16 @@ describe('management route authentication', () => {
   });
 
   it('preserves management routes when authentication is not configured', async () => {
-    const app = createApiServer(createConfig()).getApp();
+    const server = createApiServer(createConfig());
+    server.setQR('public-qr-data');
+    const app = server.getApp();
 
-    const response = await app.request('/meta/integrations');
+    const integrations = await app.request('/meta/integrations');
+    const health = await app.request('/health');
+    const healthBody = (await health.json()) as { qr: string | null };
 
-    expect(response.status).toBe(200);
+    expect(integrations.status).toBe(200);
+    expect(health.status).toBe(200);
+    expect(healthBody.qr).toBe('public-qr-data');
   });
 });
