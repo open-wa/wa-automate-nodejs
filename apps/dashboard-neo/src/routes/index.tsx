@@ -376,7 +376,7 @@ function PreLaunchView({
           autoScroll
           showTimestamps
           showControls
-          onClear={() => setLogLines([])}
+          onClear={isDemo ? () => setDemoLogLines([]) : undefined}
         />
       </div>
 

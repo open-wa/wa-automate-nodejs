@@ -6,6 +6,20 @@ import {
 } from "./use-health"
 
 describe("runtime readiness helpers", () => {
+  const healthWithSession = (session: Record<string, unknown>): HealthData => ({
+    status: "ok",
+    version: "test",
+    connected: false,
+    session,
+    qr: null,
+    launchTimeline: [],
+    patches: [],
+    license: null,
+    reconnections: [],
+    startedAt: null,
+    lastEventAt: null,
+  })
+
   it("allows runtime calls when health marks the session ready", () => {
     expect(
       isRuntimeReadySession({ ready: true, state: "AUTHENTICATING" })
@@ -31,13 +45,11 @@ describe("runtime readiness helpers", () => {
   })
 
   it("derives runtime call permission from health data", () => {
-    expect(canInvokeRuntime({ session: { ready: true } } as HealthData)).toBe(
-      true
-    )
+    expect(canInvokeRuntime(healthWithSession({ ready: true }))).toBe(true)
     expect(
-      canInvokeRuntime({
-        session: { ready: false, state: "AUTHENTICATING" },
-      } as HealthData)
+      canInvokeRuntime(
+        healthWithSession({ ready: false, state: "AUTHENTICATING" })
+      )
     ).toBe(false)
     expect(canInvokeRuntime(null)).toBe(false)
   })

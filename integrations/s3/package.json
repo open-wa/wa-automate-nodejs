@@ -24,8 +24,8 @@
     "@open-wa/logger": "workspace:*",
     "@open-wa/runtime-core": "workspace:*",
     "effect": "catalog:",
-    "mime": "^4.0.0",
-    "pico-s3": "^1.0.0"
+    "mime": "^4.1.0",
+    "pico-s3": "^2.11.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",

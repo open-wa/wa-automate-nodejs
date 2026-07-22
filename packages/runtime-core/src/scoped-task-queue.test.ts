@@ -86,7 +86,7 @@ describe('ScopedTaskQueue', () => {
       capacity: 2,
       concurrency: 1,
       overload: 'backpressure',
-      rate: { limit: 1, intervalMs: 5 },
+      rate: { limit: 1, intervalMs: 100 },
     });
 
     await Promise.all([

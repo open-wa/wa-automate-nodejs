@@ -25,16 +25,16 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.1",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@open-wa/config": "workspace:*",
     "@open-wa/schema": "workspace:*",
     "@open-wa/utils": "workspace:*",
     "hono": "catalog:",
     "zod": "catalog:",
-    "zod-to-json-schema": "^3.23.2"
+    "zod-to-json-schema": "^3.25.2"
   },
   "devDependencies": {
-    "tsdown": "^0.21.7",
+    "tsdown": "^0.22.13",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },

@@ -34,11 +34,11 @@
     "generate": "tsx scripts/generate-json-schema.ts && tsx scripts/gen-config-reference.ts"
   },
   "dependencies": {
-    "cosmiconfig": "^9.0.0",
-    "cosmiconfig-typescript-loader": "^6.0.0",
-    "deepmerge-ts": "^7.1.3",
+    "cosmiconfig": "^9.0.2",
+    "cosmiconfig-typescript-loader": "^6.3.0",
+    "deepmerge-ts": "^7.1.5",
     "zod": "catalog:",
-    "zod-to-json-schema": "^3.22.3"
+    "zod-to-json-schema": "^3.25.2"
   },
   "devDependencies": {
     "@types/node": "catalog:",
