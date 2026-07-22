@@ -1,7 +1,7 @@
 node_modules
 dist
-session
-newsession
+/session/
+/newsession/
 **buttons.js
 **req.ts
 **qr_code_session.png

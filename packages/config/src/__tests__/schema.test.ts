@@ -22,6 +22,7 @@ describe('ConfigSchema', () => {
       expect(defaults.multiDevice).toBe(true);
       expect(defaults.onError).toBe(OnError.NOTHING);
       expect(defaults.qrFormat).toBe(QRFormat.PNG);
+      expect(defaults.sandboxChats).toBe(false);
     });
 
     it('should parse empty object with defaults', () => {
@@ -46,6 +47,27 @@ describe('ConfigSchema', () => {
       expect(result.success).toBe(true);
       expect(result.data?.sessionId).toBe('my-session');
       expect(result.data?.port).toBe(3000);
+    });
+
+    it('should apply safe defaults to per-chat sandbox policies', () => {
+      const result = ConfigSchema.safeParse({ sandboxChats: {} });
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.sandboxChats).toMatchObject({
+          isolation: 'process',
+          filesystem: 'none',
+          network: 'none',
+          env: 'none',
+          concurrency: 1,
+        });
+      }
+    });
+
+    it('should reject unsupported sandbox isolation modes', () => {
+      expect(ConfigSchema.safeParse({
+        sandboxChats: { isolation: 'iframe' },
+      }).success).toBe(false);
     });
 
     it('should reject invalid port number', () => {

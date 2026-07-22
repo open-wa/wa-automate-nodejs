@@ -9,6 +9,9 @@ packages:
   - sdks/*
 
 catalog:
+  '@effect/platform-browser': 4.0.0-beta.100
+  '@effect/platform-bun': 4.0.0-beta.100
+  '@effect/platform-node': 4.0.0-beta.100
   '@discordjs/collection': ^2.1.1
   '@elastic/elasticsearch': ^9.2.0
   '@hono/node-server': ^1.19.12
@@ -37,6 +40,7 @@ catalog:
   clsx: 2.1.1
   cors: ^2.8.5
   dotenv: ^16.0.0
+  effect: 4.0.0-beta.100
   express: ^4.17.3
   express-request-id: 1.4.1
   helmet: ^6.0.0
@@ -75,10 +79,8 @@ shamefullyHoist: true
 nodeLinker: hoisted
 strictPeerDependencies: false
 lockfile: true
-packageConfigs:
-  '@open-wa/node-red':
-    PUPPETEER_SKIP_DOWNLOAD: true
 allowBuilds:
+  '@lightpanda/browser': true
   bcrypt: true
   cloudflared: true
   core-js: true
@@ -91,5 +93,13 @@ allowBuilds:
   optipng-bin: true
   protobufjs: true
   puppeteer: true
+  sharp: true
   unix-dgram: true
+  workerd: true
   '@open-wa/wa-automate': false
+minimumReleaseAgeExclude:
+  - '@effect/platform-browser@4.0.0-beta.100'
+  - '@effect/platform-bun@4.0.0-beta.100'
+  - '@effect/platform-node-shared@4.0.0-beta.100'
+  - '@effect/platform-node@4.0.0-beta.100'
+  - effect@4.0.0-beta.100

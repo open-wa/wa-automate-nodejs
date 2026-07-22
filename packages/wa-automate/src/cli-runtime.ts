@@ -9,12 +9,19 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getCliOutputSink, type CliOutputSink } from './cli/output-sink';
+import {
+    defaultChatSandboxPolicy,
+    type ChatSandboxPolicy,
+    type SandboxIsolation,
+} from '@open-wa/runtime-core';
+import { makeNodeExecutionSandbox, observeMemory } from '@open-wa/runtime-node';
 
 export interface CliRuntimeResult {
     server: WAServer;
     client: ClientFacade;
     config: Config;
     events: ClientFacade['events'];
+    dispose(): void;
 }
 
 interface RuntimeEventPublisher {
@@ -293,6 +300,35 @@ function getVal(argv: string[], flag: string): string | undefined {
     return index !== -1 ? argv[index + 1] : undefined;
 }
 
+function parseSandboxIsolation(value: string): SandboxIsolation {
+    switch (value) {
+        case 'worker':
+        case 'process':
+        case 'container':
+            return value;
+        default:
+            throw new Error(`Invalid --sandbox-isolation value: ${value}`);
+    }
+}
+
+export function resolveChatSandboxPolicy(config: Config['sandboxChats']): ChatSandboxPolicy | undefined {
+    if (!config) return undefined;
+
+    const overrides = typeof config === 'object'
+        ? config as Partial<Omit<ChatSandboxPolicy, 'chats'>>
+        : {};
+    return {
+        ...defaultChatSandboxPolicy,
+        ...overrides,
+        chats: true,
+        networkAllowlist: [...(overrides.networkAllowlist ?? defaultChatSandboxPolicy.networkAllowlist)],
+        env: overrides.env === 'none' || overrides.env === undefined
+            ? overrides.env ?? defaultChatSandboxPolicy.env
+            : [...overrides.env],
+        capabilities: [...(overrides.capabilities ?? defaultChatSandboxPolicy.capabilities)],
+    };
+}
+
 export function parseCliArgs(argv: string[] = process.argv.slice(2)): ParsedCliArgs {
     const cliOverrides: PartialConfig = {};
     const unsupportedWarnings: string[] = [];
@@ -323,6 +359,21 @@ export function parseCliArgs(argv: string[] = process.argv.slice(2)): ParsedCliA
     if (argv.includes('--aggressive-garbage-collection')) cliOverrides.aggressiveGarbageCollection = true;
     if (argv.includes('--no-dashboard')) cliOverrides.dashboard = false;
     if (argv.includes('--ephemeral')) cliOverrides.ephemeral = true;
+    if (argv.includes('--sandbox-chats')) cliOverrides.sandboxChats = true;
+
+    const sandboxIsolation = getVal(argv, '--sandbox-isolation');
+    if (sandboxIsolation) {
+        const { chats: _chats, ...sandboxDefaults } = defaultChatSandboxPolicy;
+        cliOverrides.sandboxChats = {
+            ...sandboxDefaults,
+            isolation: parseSandboxIsolation(sandboxIsolation),
+            networkAllowlist: [...defaultChatSandboxPolicy.networkAllowlist],
+            env: defaultChatSandboxPolicy.env === 'none'
+                ? 'none'
+                : [...defaultChatSandboxPolicy.env],
+            capabilities: [...defaultChatSandboxPolicy.capabilities],
+        };
+    }
 
     const qrTimeout = getVal(argv, '--qr-timeout');
     if (qrTimeout) cliOverrides.qrTimeout = parseInt(qrTimeout, 10);
@@ -564,6 +615,11 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
     sink.status({ phase: 'client.starting', sessionId: config.sessionId });
     sink.write({ level: 'info', message: 'Starting WhatsApp Client...' });
 
+    const sandboxPolicy = resolveChatSandboxPolicy(config.sandboxChats);
+    const executionSandbox = sandboxPolicy
+        ? makeNodeExecutionSandbox({ workspacePath: process.cwd() })
+        : undefined;
+
     const openwaClient = await createClient({
         sessionId: config.sessionId,
         driver,
@@ -584,6 +640,13 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         blockAssets: config.blockAssets,
         safeMode: config.safeMode,
         licenseKey: config.licenseKey as any,
+        sandboxPolicy,
+        executionSandbox,
+        memoryObservation: (observability) => observeMemory(
+            observability,
+            () => process.memoryUsage().rss / 1024 / 1024,
+            { attributes: { session: config.sessionId, source: 'host-process-rss' } },
+        ),
     });
 
     server.setReadinessProvider(() => ({ ...openwaClient.getReadiness(), state: openwaClient.getState() }));
@@ -644,12 +707,22 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         });
     }
 
-    openwaClient.events.on('launch.browser.init.after', async () => {
+    const handleBrowserInit = async () => {
         const page = openwaClient.getTransport().getPage();
         if (page) {
             await server.setPage(page as any).catch(() => {});
         }
-    });
+    };
+    openwaClient.events.on('launch.browser.init.after', handleBrowserInit);
+
+    let disposed = false;
+    const dispose = () => {
+        if (disposed) return;
+        disposed = true;
+        detachRuntimeBridge();
+        openwaClient.events.off('launch.browser.init.after', handleBrowserInit);
+        runtimeBridgeListeners.clear();
+    };
 
     try {
       await client.start();
@@ -659,7 +732,7 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
       sink.write({ level: 'warn', message: 'Session kept alive for debugging. Browser page is still open.' });
       sink.write({ level: 'warn', message: 'The server is running — use /health and /api-docs to inspect state.' });
       detachLaunchNarration();
-      return { server, client, config, events: openwaClient.events };
+      return { server, client, config, events: openwaClient.events, dispose };
     }
 
     const readiness = openwaClient.getReadiness();
@@ -674,7 +747,7 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
     });
 
     detachLaunchNarration();
-    return { server, client, config, events: openwaClient.events };
+    return { server, client, config, events: openwaClient.events, dispose };
 }
 
 export async function main(argv: string[] = process.argv.slice(2)): Promise<CliRuntimeResult | void> {

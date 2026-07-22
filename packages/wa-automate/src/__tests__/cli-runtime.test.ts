@@ -112,7 +112,7 @@ describe('cli runtime chrome resolution', () => {
   });
 
   it('reuses a valid cached Chrome path without probing chrome-launcher again', async () => {
-    const { readChromePathCache, resolveExecutablePath, writeChromePathCache } = await importCliRuntimeUtilityModule();
+    const { resolveExecutablePath, writeChromePathCache } = await importCliRuntimeUtilityModule();
     const tempDir = mkdtempSync(join(tmpdir(), 'openwa-cli-runtime-'));
     tempDirs.push(tempDir);
     const cacheFilePath = join(tempDir, '.open-wa', 'chrome-executable-path.json');
@@ -194,6 +194,31 @@ describe('cli runtime chrome resolution', () => {
       useLightpanda: true,
     });
     expect(parsed.forwardedArgs).toEqual(['--session-id', 'alpha', '--port', '9000', '--headful', '--use-chrome', '--use-lightpanda']);
+  });
+
+  it('maps per-chat sandbox CLI flags into a concrete isolation policy', async () => {
+    const { parseCliArgs } = await importCliRuntimeUtilityModule();
+    const parsed = parseCliArgs(['--sandbox-chats', '--sandbox-isolation', 'container']);
+
+    expect(parsed.cliOverrides.sandboxChats).toMatchObject({
+      isolation: 'container',
+      filesystem: 'none',
+      network: 'none',
+      env: 'none',
+    });
+    expect(parsed.forwardedArgs).toEqual([
+      '--sandbox-chats',
+      '--sandbox-isolation',
+      'container',
+    ]);
+  });
+
+  it('rejects unknown sandbox isolation modes at the CLI boundary', async () => {
+    const { parseCliArgs } = await importCliRuntimeUtilityModule();
+
+    expect(() => parseCliArgs(['--sandbox-isolation', 'submarine'])).toThrow(
+      'Invalid --sandbox-isolation value: submarine',
+    );
   });
 
   it('routes startup, QR, and readiness notices through the sink abstraction', async () => {

@@ -1,7 +1,17 @@
 import { z } from 'zod';
-import { Options as PQueueOptions, DefaultAddOptions } from 'p-queue';
-import PriorityQueue from 'p-queue/dist/priority-queue';
 import { LicenseTier } from '../enums';
+
+export type QueueOverloadStrategy = 'backpressure' | 'dropping';
+
+export interface QueueOptions {
+    concurrency?: number;
+    capacity?: number;
+    overload?: QueueOverloadStrategy;
+    ordering?: 'fifo';
+    intervalCap?: number;
+    interval?: number;
+    timeout?: number;
+}
 
 export type EventStatus = 'stable' | 'beta' | 'deprecated' | 'experimental';
 
@@ -15,7 +25,7 @@ export interface EventMetadata {
     license?: LicenseTier;
     since?: string;
     payloadSchema: z.ZodTypeAny;
-    defaultQueueOptions?: PQueueOptions<PriorityQueue, DefaultAddOptions>;
+    defaultQueueOptions?: QueueOptions;
 }
 
 export interface EventDefinition {
@@ -69,14 +79,14 @@ export const eventRegistry = {
 };
 
 export const QueueOptionsSchema = z.object({
-    concurrency: z.number().positive().optional(),
-    intervalCap: z.number().positive().optional(),
+    concurrency: z.number().int().positive().optional(),
+    capacity: z.number().int().positive().optional(),
+    overload: z.enum(['backpressure', 'dropping']).optional(),
+    ordering: z.literal('fifo').optional(),
+    intervalCap: z.number().int().positive().optional(),
     interval: z.number().positive().optional(),
     timeout: z.number().positive().optional(),
-    priority: z.number().optional(),
 }).optional();
-
-export type QueueOptions = z.infer<typeof QueueOptionsSchema>;
 
 export function defineListenerV2<T extends z.ZodTypeAny>(
     name: string,
@@ -84,7 +94,7 @@ export function defineListenerV2<T extends z.ZodTypeAny>(
         legacyName?: string;
         meta: Omit<EventMetadata, 'eventName' | 'legacyName' | 'payloadSchema'>;
         payload: T;
-        defaultQueueOptions?: PQueueOptions<PriorityQueue, DefaultAddOptions>;
+        defaultQueueOptions?: QueueOptions;
     }
 ): z.ZodFunction<any, any> {
     

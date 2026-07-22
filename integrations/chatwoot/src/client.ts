@@ -38,7 +38,7 @@ export class ChatwootClient {
   private accountId: string;
   private inboxId: string;
   private expectedSelfWebhookUrl: string;
-  private readonly logger: Logger;
+  private readonly logger: Pick<Logger, 'debug' | 'info' | 'error'>;
   private readonly forceUpdateCwWebhook: boolean;
 
   // Registry mappings
@@ -46,7 +46,7 @@ export class ChatwootClient {
   private readonly convoReg: Map<string, number> = new Map();
   private readonly ignoreMap: Map<string, boolean | number> = new Map();
 
-  constructor(config: ChatwootConfig, logger: Logger) {
+  constructor(config: ChatwootConfig, logger: Pick<Logger, 'debug' | 'info' | 'error'>) {
     const url = new URL(config.chatwootUrl);
     this.origin = url.origin;
     this.apiAccessToken = config.chatwootApiAccessToken;
@@ -93,7 +93,7 @@ export class ChatwootClient {
         headers: fetchHeaders,
         body: data
           ? isFormData
-            ? (data as BodyInit)
+            ? (data as FormData)
             : JSON.stringify(data)
           : undefined,
       });

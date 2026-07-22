@@ -54,6 +54,14 @@ export async function performGracefulShutdown(state: ShutdownRuntimeState, signa
     }
   }
 
+  if (runtime) {
+    try {
+      runtime.dispose();
+    } catch (error) {
+      errors.push(normalizeError(error, 'runtime.dispose failed'));
+    }
+  }
+
   store?.projectStatus({ phase: 'shutdown.complete', detail: `Shutdown completed after ${signal}` });
 
   if (errors.length > 0) {

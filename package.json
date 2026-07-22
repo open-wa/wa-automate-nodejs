@@ -24,6 +24,8 @@
     "clean": "turbo clean && rimraf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "typecheck": "turbo typecheck",
+    "check:effect-contracts": "pnpm --filter './packages/runtime-*' test && pnpm --filter './packages/runtime-*' build && pnpm --filter './packages/runtime-*' typecheck && pnpm --filter @open-wa/integration-webhook test && pnpm --filter @open-wa/integration-webhook typecheck && pnpm --filter @open-wa/integration-s3 typecheck && pnpm --filter @open-wa/integration-chatwoot typecheck && pnpm --filter @open-wa/client test && pnpm --filter @open-wa/client typecheck && pnpm --filter @open-wa/config typecheck && pnpm --filter @open-wa/core exec vitest run test/unit/bootstrapContract.test.ts test/unit/sessionReadinessTruth.test.ts && pnpm --filter @open-wa/config exec vitest run src/__tests__/schema.test.ts && pnpm --filter @open-wa/wa-automate exec vitest run src/__tests__/cli-runtime.test.ts && node tools/check-portable-imports.mjs && node tools/check-effect-pins.mjs && node tools/bench-effect-startup.mjs",
+    "bench:runtime:real": "node tools/bench-real-runtime.mjs",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "repomix": "npx repomix@latest",

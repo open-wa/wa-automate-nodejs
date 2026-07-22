@@ -12,11 +12,13 @@
   "scripts": {
     "build": "tsdown src/index.ts --format esm --dts",
     "dev": "tsdown src/index.ts --format esm --dts --watch",
+    "typecheck": "tsc --noEmit",
     "lint": "oxlint src",
     "clean": "rimraf dist"
   },
   "dependencies": {
     "@open-wa/plugin-sdk": "workspace:*",
+    "effect": "catalog:",
     "hono": "catalog:"
   },
   "devDependencies": {

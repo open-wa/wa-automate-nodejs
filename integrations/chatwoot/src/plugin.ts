@@ -5,8 +5,9 @@
  * Provides a webhook endpoint for Chatwoot to send outbound messages.
  */
 import { createPlugin, z } from '@open-wa/plugin-sdk';
-import { ChatwootClient } from './client.js';
 import { createChatwootRouter } from './middleware.js';
+import { Effect, ManagedRuntime } from 'effect';
+import { ChatwootClientService, chatwootClientLayer } from './service.js';
 
 /**
  * Config schema for the Chatwoot plugin.
@@ -45,19 +46,26 @@ export default createPlugin({
   configSchema,
 
   init: async ({ config, client, logger, sessionId }) => {
-    const cwClient = new ChatwootClient(config, logger);
+    const runtime = ManagedRuntime.make(chatwootClientLayer(config, logger));
+    const cwClient = await runtime.runPromise(ChatwootClientService);
 
     return {
-      'core.started': async () => {
-        const hostAccountNumber = await client.getHostNumber();
-        await cwClient.init(sessionId, hostAccountNumber);
-        logger.info('Chatwoot integration initialized');
-      },
+      'core.started': () => runtime.runPromise(Effect.tryPromise({
+        try: async () => {
+          const hostAccountNumber = await client.getHostNumber();
+          await cwClient.init(sessionId, hostAccountNumber);
+          logger.info('Chatwoot integration initialized');
+        },
+        catch: (cause) => cause,
+      })),
 
-      'message.received': async ({ message }) => {
-        const decryptMedia = async (msg: unknown) => client.decryptMedia(msg);
-        await cwClient.processWAMessage(message as never, decryptMedia);
-      },
+      'message.received': ({ message }) => runtime.runPromise(Effect.tryPromise({
+        try: async () => {
+          const decryptMedia = async (msg: unknown) => client.decryptMedia(msg);
+          await cwClient.processWAMessage(message as never, decryptMedia);
+        },
+        catch: (cause) => cause,
+      })),
 
       routes: () => createChatwootRouter(cwClient, client, logger),
 
@@ -71,6 +79,7 @@ export default createPlugin({
       ],
 
       dispose: async () => {
+        await runtime.dispose();
         logger.info('Chatwoot integration disposed');
       },
     };
