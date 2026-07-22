@@ -16,8 +16,8 @@
   "scripts": {
     "add-node": "node ./utils/add-node.js",
     "copy": "copyfiles -u 1 src/**/*.{png,svg} dist/",
-    "build:editor": "pnpm run clean:editor && copyfiles -u 2 src/editor/**/*.{css,html} dist/ && rollup -c rollup.config.editor.js",
-    "build:editor:watch": "rollup -c rollup.config.editor.js -w",
+    "build:editor": "pnpm run clean:editor && copyfiles -u 2 src/editor/**/*.{css,html} dist/ && rollup -c rollup.config.editor.mjs",
+    "build:editor:watch": "rollup -c rollup.config.editor.mjs -w",
     "build:runtime": "pnpm run clean:runtime && tsc -p tsconfig.runtime.json",
     "build:runtime:watch": "tsc -p tsconfig.runtime.watch.json --watch --preserveWatchOutput",
     "build": "rimraf dist && pnpm run copy && pnpm run build:editor && pnpm run build:runtime",
@@ -26,8 +26,8 @@
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest --passWithNoTests",
     "dev": "rimraf dist && pnpm run copy && concurrently --names \"COPY,EDITOR,RUNTIME,TEST\" --prefix \"({name})\" --prefix-colors \"yellow.bold,cyan.bold,greenBright.bold,magenta.bold\" \"onchange -v \\\"src/**/*.png\\\" \\\"src/**/*.svg\\\" -- pnpm run copy\" \"pnpm run build:editor:watch\" \"pnpm run build:runtime:watch\" \"node -e \\\"setTimeout(() => process.exit(0), 10000)\\\" && pnpm run test:watch\"",
-    "lint": "oxlint src utils rollup.config.editor.js",
-    "lint:fix": "oxlint src utils rollup.config.editor.js --fix"
+    "lint": "oxlint src utils rollup.config.editor.mjs",
+    "lint:fix": "oxlint src utils rollup.config.editor.mjs --fix"
   },
   "author": "Mohammed Shah <@smashah>",
   "license": "H-DNH V1.0",
@@ -44,31 +44,32 @@
     }
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^8.2.3",
+    "@rollup/plugin-swc": "^0.4.1",
+    "@swc/core": "^1.15.46",
     "@types/express": "catalog:",
     "@types/node": "catalog:",
-    "@types/node-red": "^1.1.1",
-    "@types/node-red-node-test-helper": "^0.2.2",
-    "@types/sinon": "^10.0.2",
-    "@types/supertest": "^2.0.11",
-    "colorette": "^1.2.2",
-    "concurrently": "^7.6.0",
+    "@types/node-red": "^1.3.5",
+    "@types/node-red-node-test-helper": "^0.3.5",
+    "@types/sinon": "^22.0.0",
+    "@types/supertest": "^7.2.1",
+    "colorette": "^2.0.20",
+    "concurrently": "^10.0.3",
     "copyfiles": "^2.4.1",
-    "glob": "^7.1.7",
-    "vitest": "catalog:",
+    "glob": "^13.0.6",
     "mustache": "^4.2.0",
-    "node-red": "^1.3.5",
-    "node-red-node-test-helper": "^0.2.7",
+    "node-red": "^5.0.1",
+    "node-red-node-test-helper": "^0.3.6",
     "onchange": "^7.1.0",
     "prettier": "catalog:",
-    "rollup": "^2.53.2",
-    "type-fest": "^2.1.0",
+    "rollup": "^4.62.2",
+    "type-fest": "^5.8.0",
     "typescript": "catalog:",
-    "yarpm": "^1.1.1"
+    "vitest": "catalog:",
+    "yarpm": "^1.2.0"
   },
   "dependencies": {
-    "@open-wa/socket-client": "workspace:*",
     "@open-wa/schema": "workspace:*",
+    "@open-wa/socket-client": "workspace:*",
     "@open-wa/wa-automate-types-only": "workspace:*"
   }
 }

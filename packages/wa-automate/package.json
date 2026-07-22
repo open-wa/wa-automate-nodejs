@@ -31,8 +31,8 @@
     "@open-wa/runtime-node": "workspace:*",
     "@open-wa/schema": "workspace:*",
     "@open-wa/session-sync": "workspace:*",
-    "boxen": "^5.0.0",
-    "chrome-launcher": "^0.15.0",
+    "boxen": "^8.0.1",
+    "chrome-launcher": "^1.2.1",
     "hono": "catalog:",
     "qrcode-terminal": "^0.12.0"
   },

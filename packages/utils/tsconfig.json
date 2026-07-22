@@ -6,6 +6,9 @@
         "lib": [
             "ES2022"
         ],
+        "types": [
+            "node"
+        ],
         "declaration": true,
         "declarationMap": true,
         "sourceMap": true,

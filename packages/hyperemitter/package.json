@@ -36,11 +36,11 @@
     "@open-wa/logger": "workspace:*"
   },
   "devDependencies": {
-    "emittery": "^1.0.1",
+    "emittery": "^2.0.0",
     "eventemitter2": "^6.4.9",
-    "eventemitter3": "^5.0.1",
+    "eventemitter3": "^5.0.4",
     "mitt": "^3.0.1",
-    "tseep": "^1.0.1",
+    "tseep": "^1.3.1",
     "typescript": "catalog:"
   }
 }

@@ -1,11 +1,11 @@
-import { defineConfig } from "vite"
-import { fileURLToPath, URL } from "node:url"
+import { defineConfig } from "vitest/config"
+import { createRequire } from "node:module"
 import { devtools } from "@tanstack/devtools-vite"
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite"
 import viteReact from "@vitejs/plugin-react"
 import tailwindcss from "@tailwindcss/vite"
 
-const appReactPath = (path: string) => fileURLToPath(new URL(`./node_modules/${path}`, import.meta.url))
+const resolvePackageExport = createRequire(import.meta.url).resolve
 
 const config = defineConfig({
   base: '/dashboard/',
@@ -13,11 +13,11 @@ const config = defineConfig({
     tsconfigPaths: true,
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
     alias: [
-      { find: "react/jsx-runtime", replacement: appReactPath("react/jsx-runtime.js") },
-      { find: "react/jsx-dev-runtime", replacement: appReactPath("react/jsx-dev-runtime.js") },
-      { find: "react-dom/client", replacement: appReactPath("react-dom/client.js") },
-      { find: /^react$/, replacement: appReactPath("react/index.js") },
-      { find: /^react-dom$/, replacement: appReactPath("react-dom/index.js") },
+      { find: "react/jsx-runtime", replacement: resolvePackageExport("react/jsx-runtime") },
+      { find: "react/jsx-dev-runtime", replacement: resolvePackageExport("react/jsx-dev-runtime") },
+      { find: "react-dom/client", replacement: resolvePackageExport("react-dom/client") },
+      { find: /^react$/, replacement: resolvePackageExport("react") },
+      { find: /^react-dom$/, replacement: resolvePackageExport("react-dom") },
     ],
   },
   plugins: [

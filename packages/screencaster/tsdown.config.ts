@@ -9,9 +9,11 @@ export default defineConfig({
     format: 'esm',
     dts: true,
     clean: true,
-    external: [
-        '@open-wa/driver-interface',
-        'hono',
-        'hono/*',
-    ],
+    deps: {
+        neverBundle: [
+            '@open-wa/driver-interface',
+            'hono',
+            'hono/*',
+        ],
+    },
 });

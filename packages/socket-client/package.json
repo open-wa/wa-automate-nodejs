@@ -40,11 +40,11 @@
   "homepage": "https://github.com/open-wa/wa-automate-socket-client-nodejs#readme",
   "dependencies": {
     "@open-wa/wa-automate-types-only": "workspace:*",
-    "debug": "^4.3.4",
-    "eventsource": "^3.0.7",
+    "debug": "^4.4.3",
     "eventemitter2": "^6.4.9",
+    "eventsource": "^4.1.0",
     "isomorphic-ws": "^5.0.0",
-    "ws": "^8.20.0"
+    "ws": "^8.21.1"
   },
   "devDependencies": {
     "typescript": "catalog:",
