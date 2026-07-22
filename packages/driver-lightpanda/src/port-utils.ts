@@ -65,7 +65,7 @@ export async function findFreePort(startFrom: number, maxAttempts = DEFAULT_MAX_
     throw createPortExhaustionError(startFrom, maxAttempts);
 }
 
-export const __internal = {
+export const portUtilsInternal = {
     DEFAULT_MAX_ATTEMPTS,
     LOCAL_LOOPBACK_HOST,
     createPortExhaustionError,

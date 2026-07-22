@@ -1,8 +1,8 @@
-import PQueue from 'p-queue';
 import { upload, getCloudUrl } from 'pico-s3';
 import mime from 'mime';
 import type { Logger } from '@open-wa/logger';
-import { type S3Config, DirectoryStrategy } from './config.js';
+import { ScopedTaskQueue } from '@open-wa/runtime-core';
+import { type S3Config, DirectoryStrategy } from './config';
 
 interface MediaMessage {
   mId?: string;
@@ -31,17 +31,19 @@ interface S3UploadOpts {
 
 export class S3Uploader {
   private readonly config: S3Config;
-  private readonly logger: Logger;
-  private readonly uploadQueue: PQueue;
+  private readonly logger: Pick<Logger, 'error'>;
+  private readonly uploadQueue: Promise<ScopedTaskQueue>;
   private readonly processedFiles: Set<string> = new Set();
 
-  constructor(config: S3Config, logger: Logger) {
+  constructor(config: S3Config, logger: Pick<Logger, 'error'>) {
     this.config = config;
     this.logger = logger;
-    this.uploadQueue = new PQueue({
+    this.uploadQueue = ScopedTaskQueue.make({
+      name: 's3.upload',
       concurrency: 2,
-      interval: 1000,
-      intervalCap: 2,
+      capacity: 64,
+      overload: 'backpressure',
+      rate: { intervalMs: 1000, limit: 2 },
     });
   }
 
@@ -65,8 +67,11 @@ export class S3Uploader {
       const mediaData = await client.decryptMedia(message);
       const opts = this.buildUploadOptions(filename, mediaData, message.from);
 
+      await (await this.uploadQueue).submit(
+        () => upload(opts as never),
+        filename,
+      );
       this.processedFiles.add(filename);
-      await this.uploadQueue.add(() => upload(opts as never).catch(() => undefined));
 
       return this.getCloudUrlForFile(filename);
     } catch (error) {
@@ -132,6 +137,10 @@ export class S3Uploader {
   }
 
   async waitForQueue(): Promise<void> {
-    await this.uploadQueue.onIdle();
+    await (await this.uploadQueue).waitForIdle();
+  }
+
+  async close(): Promise<void> {
+    await (await this.uploadQueue).close();
   }
 }

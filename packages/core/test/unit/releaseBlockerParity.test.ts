@@ -4,8 +4,8 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
-import { Transport } from '../../src/transport/Transport.js';
-import type { OpenWAEventMap } from '../../src/events/eventMap.js';
+import { Transport } from '../../src/transport/Transport';
+import type { OpenWAEventMap } from '../../src/events/eventMap';
 import type {
   DisposableHandle,
   IBrowser,

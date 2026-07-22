@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { HyperEmitter } from '@open-wa/hyperemitter';
-import { Client } from '../Client.js';
+import { Client } from '../Client';
 import type { OpenWAClient, STATE, Transport } from '@open-wa/core';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

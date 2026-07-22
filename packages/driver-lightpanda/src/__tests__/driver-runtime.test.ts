@@ -87,7 +87,7 @@ describe('Lightpanda runtime', () => {
         vi.clearAllMocks();
         findFreePort.mockResolvedValue(9500);
         serve.mockReturnValue({ kill: vi.fn(() => true) });
-        globalThis.WebSocket = SuccessfulWebSocket as typeof WebSocket;
+        globalThis.WebSocket = SuccessfulWebSocket as unknown as typeof WebSocket;
     });
 
     afterEach(() => {
@@ -240,7 +240,7 @@ describe('Lightpanda runtime', () => {
         await page.close();
         expect(puppeteerPage.close).toHaveBeenCalled();
         expect(page.isClosed()).toBe(false);
-        expect(browser.pages()).resolves.toHaveLength(1);
+        await expect(browser.pages()).resolves.toHaveLength(1);
     });
 
     it('closes the puppeteer browser and Lightpanda process exactly once', async () => {

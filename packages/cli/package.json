@@ -27,16 +27,18 @@
   },
   "dependencies": {
     "@open-wa/core": "workspace:*",
+    "@open-wa/hyperemitter": "workspace:*",
     "@open-wa/wa-automate": "workspace:*",
-    "ink": "^5.2.1",
+    "ink": "^7.1.1",
     "qrcode": "^1.5.4",
-    "react": "^18.3.1",
-    "ws": "^8.20.0",
+    "react": "^19.2.8",
+    "ws": "^8.21.1",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "@types/react": "^18.3.12",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.2.17",
     "@types/ws": "^8.18.1",
     "typescript": "catalog:",
     "vitest": "catalog:"

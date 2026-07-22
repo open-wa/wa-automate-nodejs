@@ -58,11 +58,15 @@ class LightpandaElementHandle implements IElementHandle {
     }
 
     async getAttribute(name: string): Promise<string | null> {
-        return await this.handle.evaluate((element: Element, attributeName: string) => element.getAttribute(attributeName), name);
+        return await this.handle.evaluate(
+            (element: { getAttribute(attributeName: string): string | null }, attributeName: string) =>
+                element.getAttribute(attributeName),
+            name,
+        );
     }
 
     async textContent(): Promise<string | null> {
-        return await this.handle.evaluate((element: Element) => element.textContent);
+        return await this.handle.evaluate((element: { textContent: string | null }) => element.textContent);
     }
 
     async dispose(): Promise<void> {
@@ -155,7 +159,7 @@ export class LightpandaPage implements IPage {
         return element ? new LightpandaElementHandle(element) : null;
     }
 
-    async waitForFunction<Arg>(_script: string, _options?: WaitForFunctionOptions): Promise<void>;
+    async waitForFunction(_script: string, _options?: WaitForFunctionOptions): Promise<void>;
     async waitForFunction<Arg>(_fn: (arg: Arg) => boolean, _arg: Arg, _options?: WaitForFunctionOptions): Promise<void>;
     async waitForFunction<Arg>(
         fnOrScript: string | ((arg: Arg) => boolean),

@@ -42,7 +42,6 @@
     "jsx-a11y/lang": "off",
     "jsx-a11y/html-has-lang": "off",
     "jsx-a11y/prefer-tag-over-role": "off",
-    "typescript-eslint/no-extraneous-class": "off",
     "jest/no-disabled-tests": "off"
   },
   "ignorePatterns": [
@@ -53,6 +52,7 @@
     "**/.docusaurus/**",
     "**/build/**",
     "**/*.gen.ts",
+    "packages/core/src/transport/assets/**",
     "packages/orchestrator/tests/**"
   ],
   "overrides": [

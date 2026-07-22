@@ -1,0 +1,17 @@
+{
+  "recordedAt": "2026-07-21",
+  "runtime": "node-v26.4.0-darwin-arm64",
+  "effect": "4.0.0-beta.100",
+  "benchmark": "effect-startup-independent-phases",
+  "singleSession": {
+    "before": { "durationMs": 150, "rssPeakMb": 141.2, "rssDeltaMb": 0.1 },
+    "after": { "durationMs": 72, "rssPeakMb": 141.3, "rssDeltaMb": 0.1, "graphCriticalPathMs": 72 },
+    "speedup": 2.09
+  },
+  "threeConcurrentSessions": {
+    "before": { "durationMs": 454, "rssPeakMb": 141.4, "rssDeltaMb": 0.1 },
+    "after": { "durationMs": 70, "rssPeakMb": 141.8, "rssDeltaMb": 0.3 },
+    "speedup": 6.45
+  },
+  "note": "Comparative dependency-graph baseline. Real Puppeteer browser process-tree RSS is recorded separately; authenticated full-session baselines are release-environment artifacts because they require isolated credentials."
+}

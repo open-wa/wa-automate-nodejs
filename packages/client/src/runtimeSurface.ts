@@ -1,4 +1,4 @@
-import type { ListenerHandle } from './events/index.js';
+import type { ListenerHandle } from './events/index';
 
 export type ClientRuntimeSupport = 'runtime' | 'unsupported';
 

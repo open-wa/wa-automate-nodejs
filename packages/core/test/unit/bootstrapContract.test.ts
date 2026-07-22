@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createClient, type OpenWAClient } from '../../src/createClient.js';
-import { Transport, type PatchFetchConfig } from '../../src/transport/Transport.js';
+import { createClient, type OpenWAClient } from '../../src/createClient';
+import { Transport, type PatchFetchConfig } from '../../src/transport/Transport';
 import type {
   DisposableHandle,
   IBrowser,
@@ -12,7 +12,7 @@ import type {
   IRequest,
   WaitForFunctionOptions,
 } from '@open-wa/driver-interface';
-import type { OpenWAEventMap } from '../../src/events/eventMap.js';
+import type { OpenWAEventMap } from '../../src/events/eventMap';
 
 type RecordedEvent = {
   name: keyof OpenWAEventMap | string;

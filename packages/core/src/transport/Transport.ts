@@ -14,13 +14,13 @@ import type {
 } from '@open-wa/driver-interface';
 import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
-import type { OpenWAEventMap, STATE } from '../events/eventMap.js';
-import { fetchPatches, validateLicense } from './httpClient.js';
-import { InjectionController, type GenerationSnapshot } from './InjectionController.js';
-import { getProgObserverScript, injectInitPatch } from './initPatchScripts.js';
-import { getRuntimeListenerSurfaceEntry, runtimeListenerSurface } from './runtimeListenerSurface.js';
-import { auditWapiHelperAssetRequirements } from './ScriptLoader.js';
-import { chromiumConfig, sanitizeBrowserArgs } from './browserConfig.js';
+import type { OpenWAEventMap, STATE } from '../events/eventMap';
+import { fetchPatches, validateLicense } from './httpClient';
+import { InjectionController, type GenerationSnapshot } from './InjectionController';
+import { getProgObserverScript, injectInitPatch } from './initPatchScripts';
+import { getRuntimeListenerSurfaceEntry, runtimeListenerSurface } from './runtimeListenerSurface';
+import { auditWapiHelperAssetRequirements } from './ScriptLoader';
+import { chromiumConfig, sanitizeBrowserArgs } from './browserConfig';
 
 export interface PatchFetchConfig {
   patchesUrl?: string;
@@ -448,9 +448,10 @@ export class Transport {
   /** Cached live patch scripts for re-application during recovery */
   private cachedLivePatchScripts: string[] = [];
   private frameNavCounter = 0;
-  private options: TransportOptions = {} as TransportOptions;
+  private readonly options: TransportOptions;
 
   constructor(options: TransportOptions) {
+    this.options = options;
     this.driver = options.driver;
     this.events = options.events;
     this.logger = options.logger;
@@ -2092,8 +2093,6 @@ export class Transport {
 
   private async configurePageRuntime(page: IPage): Promise<void> {
     this.registerPageDiagnostics(page);
-
-    if (!this.options) this.options = {}
 
     // Inject self-healing watermark if configured
     if (this.options.watermark) {

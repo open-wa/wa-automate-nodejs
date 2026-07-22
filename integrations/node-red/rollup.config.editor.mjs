@@ -1,9 +1,9 @@
 import fs from "fs";
-import glob from "glob";
+import { globSync } from "glob";
 import path from "path";
-import typescript from "@rollup/plugin-typescript";
+import swc from "@rollup/plugin-swc";
 
-import packageJson from "./package.json";
+import packageJson from "./package.json" with { type: "json" };
 
 const allNodeTypes = Object.keys(packageJson["node-red"].nodes);
 
@@ -12,7 +12,7 @@ const htmlWatch = () => {
     name: "htmlWatch",
     load(id) {
       const editorDir = path.dirname(id);
-      const htmlFiles = glob.sync(path.join(editorDir, "*.html"));
+      const htmlFiles = globSync(path.join(editorDir, "*.html"));
       htmlFiles.map((file) => this.addWatchFile(file));
     },
   };
@@ -23,7 +23,7 @@ const htmlBundle = () => {
     name: "htmlBundle",
     renderChunk(code, chunk, _options) {
       const editorDir = path.dirname(chunk.facadeModuleId);
-      const htmlFiles = glob.sync(path.join(editorDir, "*.html"));
+      const htmlFiles = globSync(path.join(editorDir, "*.html"));
       const htmlContents = htmlFiles.map((fPath) => fs.readFileSync(fPath));
 
       code =
@@ -43,18 +43,18 @@ const htmlBundle = () => {
 
 const makePlugins = (nodeType) => [
   htmlWatch(),
-  typescript({
-    lib: ["es5", "es6", "dom"],
+  swc({
     include: [
       `src/nodes/${nodeType}/${nodeType}.html/**/*.ts`,
       `src/nodes/${nodeType}/shared/**/*.ts`,
       "src/nodes/shared/common.ts",
     ],
-    target: "es5",
-    tsconfig: false,
-    ignoreDeprecations: "6.0",
-    skipLibCheck: true,
-    noEmitOnError: process.env.ROLLUP_WATCH ? false : true,
+    swc: {
+      jsc: {
+        parser: { syntax: "typescript" },
+        target: "es5",
+      },
+    },
   }),
   htmlBundle(),
 ];

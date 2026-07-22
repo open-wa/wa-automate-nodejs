@@ -23,6 +23,9 @@
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
         "moduleResolution": "bundler",
+        "types": [
+            "node"
+        ],
         "allowSyntheticDefaultImports": true
     },
     "exclude": [

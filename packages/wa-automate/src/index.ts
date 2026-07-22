@@ -1,6 +1,6 @@
 export { WAServer } from './server/hono-server';
 export { APILifecycleManager } from './server/lifecycle-manager';
-export { SessionManager } from './session/SessionManager';
+export { SessionArchiveManager } from './session/SessionArchiveManager';
 export { main as runCli, start as startCli, parseCliArgs } from './cli-runtime';
 export type { CliRuntimeResult } from './cli-runtime';
 export { createConsoleOutputSink, getCliOutputSink, resetCliOutputSink, setCliOutputSink } from './cli/output-sink';

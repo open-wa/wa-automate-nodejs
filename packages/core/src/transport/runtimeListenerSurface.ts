@@ -1,4 +1,4 @@
-import type { OpenWAEventMap } from '../events/eventMap.js';
+import type { OpenWAEventMap } from '../events/eventMap';
 
 type RuntimeBridgeEvent = Extract<
   keyof OpenWAEventMap,

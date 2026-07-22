@@ -20,7 +20,7 @@ import { DocsShell } from './-shell';
 const loader = createServerFn({
   method: 'GET',
 })
-  .inputValidator((slugs: string[]) => slugs)
+  .validator((slugs: string[]) => slugs)
   .handler(async ({ data: slugs }) => {
     const { source } = await import('@/lib/source');
 

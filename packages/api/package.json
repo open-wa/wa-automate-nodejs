@@ -25,12 +25,12 @@
   "dependencies": {
     "@elastic/elasticsearch": "catalog:",
     "@hono/node-server": "catalog:",
-    "@hono/node-ws": "^1.3.0",
     "@open-wa/mcp": "workspace:*",
     "@open-wa/schema": "workspace:*",
     "@open-wa/screencaster": "workspace:*",
     "hono": "catalog:",
-    "tree-kill": "^1.2.2"
+    "tree-kill": "^1.2.2",
+    "ws": "^8.21.1"
   },
   "peerDependencies": {
     "vite": "*"
@@ -38,6 +38,7 @@
   "devDependencies": {
     "@open-wa/dashboard-neo": "workspace:*",
     "@types/node": "catalog:",
+    "@types/ws": "^8.18.1",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },

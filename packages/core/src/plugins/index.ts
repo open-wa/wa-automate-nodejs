@@ -22,6 +22,6 @@ export type {
 } from '@open-wa/plugin-sdk';
 
 // Core-only exports
-export { PluginHost } from './PluginHost.js';
-export { createEventGateway, getPublicEvents } from './EventGateway.js';
-export { loadPlugins, validatePluginConfig, type LoadedPlugin } from './PluginLoader.js';
+export { PluginHost } from './PluginHost';
+export { createEventGateway, getPublicEvents } from './EventGateway';
+export { loadPlugins, validatePluginConfig, type LoadedPlugin } from './PluginLoader';

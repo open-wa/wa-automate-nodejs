@@ -26,7 +26,7 @@ describe('LightpandaProcessManager', () => {
         }));
         vi.doMock('@lightpanda/browser', () => ({
             serve,
-        }), { virtual: true });
+        }));
 
         const process: MockProcess = {
             kill: vi.fn(() => true),
@@ -47,7 +47,7 @@ describe('LightpandaProcessManager', () => {
             }
         }
 
-        globalThis.WebSocket = SuccessfulWebSocket as typeof WebSocket;
+        globalThis.WebSocket = SuccessfulWebSocket as unknown as typeof WebSocket;
 
         const { LightpandaProcessManager } = await import('../process-manager');
         const manager = new LightpandaProcessManager();
@@ -76,7 +76,7 @@ describe('LightpandaProcessManager', () => {
             lightpanda: {
                 serve,
             },
-        }), { virtual: true });
+        }));
 
         const process: MockProcess = {
             kill: vi.fn(() => true),
@@ -97,7 +97,7 @@ describe('LightpandaProcessManager', () => {
             }
         }
 
-        globalThis.WebSocket = SuccessfulWebSocket as typeof WebSocket;
+        globalThis.WebSocket = SuccessfulWebSocket as unknown as typeof WebSocket;
 
         const { LightpandaProcessManager } = await import('../process-manager');
         const manager = new LightpandaProcessManager();
@@ -118,7 +118,7 @@ describe('LightpandaProcessManager', () => {
         }));
         vi.doMock('@lightpanda/browser', () => ({
             serve,
-        }), { virtual: true });
+        }));
 
         const process: MockProcess = {
             kill: vi.fn(() => true),
@@ -138,7 +138,7 @@ describe('LightpandaProcessManager', () => {
             }
         }
 
-        globalThis.WebSocket = SuccessfulWebSocket as typeof WebSocket;
+        globalThis.WebSocket = SuccessfulWebSocket as unknown as typeof WebSocket;
 
         const { LightpandaProcessManager } = await import('../process-manager');
         const manager = new LightpandaProcessManager();
@@ -156,7 +156,7 @@ describe('LightpandaProcessManager', () => {
         }));
         vi.doMock('@lightpanda/browser', () => ({
             serve,
-        }), { virtual: true });
+        }));
 
         const process: MockProcess = {
             kill: vi.fn(() => true),
@@ -176,7 +176,7 @@ describe('LightpandaProcessManager', () => {
             }
         }
 
-        globalThis.WebSocket = FailingWebSocket as typeof WebSocket;
+        globalThis.WebSocket = FailingWebSocket as unknown as typeof WebSocket;
 
         const { LightpandaProcessManager } = await import('../process-manager');
         const manager = new LightpandaProcessManager();
@@ -196,7 +196,7 @@ describe('LightpandaProcessManager', () => {
         }));
         vi.doMock('@lightpanda/browser', () => ({
             serve,
-        }), { virtual: true });
+        }));
 
         const firstProcess: MockProcess = {
             kill: vi.fn(() => true),
@@ -229,7 +229,7 @@ describe('LightpandaProcessManager', () => {
             }
         }
 
-        globalThis.WebSocket = RetryWebSocket as typeof WebSocket;
+        globalThis.WebSocket = RetryWebSocket as unknown as typeof WebSocket;
 
         const { LightpandaProcessManager } = await import('../process-manager');
         const manager = new LightpandaProcessManager();
@@ -265,7 +265,7 @@ describe('LightpandaProcessManager', () => {
                 error.code = 'ERR_MODULE_NOT_FOUND';
                 throw error;
             },
-        }), { virtual: true });
+        }));
 
         const { LightpandaProcessManager } = await import('../process-manager');
         const manager = new LightpandaProcessManager();

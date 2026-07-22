@@ -1,11 +1,11 @@
-import type { Client } from '../Client.js';
+import type { Client } from '../Client';
 import type {
   ChatId,
   ContactId,
   Contact,
   GroupId,
 } from '@open-wa/schema';
-import { createUnsupportedMethodStub } from '../runtimeSurface.js';
+import { createUnsupportedMethodStub } from '../runtimeSurface';
 
 declare const WAPI: {
   getContact: (contactId: string) => Contact;

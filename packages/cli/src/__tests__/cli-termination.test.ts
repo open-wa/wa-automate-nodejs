@@ -21,6 +21,9 @@ describe('CLI termination helpers', () => {
           order.push('client.stop');
         }),
       },
+      dispose: vi.fn(() => {
+        order.push('runtime.dispose');
+      }),
     } as any;
     const tunnelClient = {
       disconnect: vi.fn(() => {
@@ -36,6 +39,7 @@ describe('CLI termination helpers', () => {
       'server.stop',
       'tunnel.disconnect',
       'client.stop',
+      'runtime.dispose',
       'status:shutdown.complete',
     ]);
   });

@@ -1,6 +1,6 @@
 import { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Message, MessageId, ChatId, Chat } from '@open-wa/schema';
-import { Collector, CollectorFilter, CollectorOptions, Collection } from './Collector.js';
+import { Collector, CollectorFilter, CollectorOptions, Collection } from './Collector';
 
 export interface MessageCollectorOptions extends CollectorOptions {
   maxProcessed?: number;

@@ -1,5 +1,5 @@
 import type { Logger } from '@open-wa/logger';
-import type { ChatwootConfig } from './config.js';
+import type { ChatwootConfig } from './config';
 
 interface Contact {
   id: number;
@@ -38,15 +38,16 @@ export class ChatwootClient {
   private accountId: string;
   private inboxId: string;
   private expectedSelfWebhookUrl: string;
-  private readonly logger: Logger;
+  private readonly logger: Pick<Logger, 'debug' | 'info' | 'error'>;
   private readonly forceUpdateCwWebhook: boolean;
+  private readonly abortController = new AbortController();
 
   // Registry mappings
   private readonly contactReg: Map<string, number> = new Map();
   private readonly convoReg: Map<string, number> = new Map();
   private readonly ignoreMap: Map<string, boolean | number> = new Map();
 
-  constructor(config: ChatwootConfig, logger: Logger) {
+  constructor(config: ChatwootConfig, logger: Pick<Logger, 'debug' | 'info' | 'error'>) {
     const url = new URL(config.chatwootUrl);
     this.origin = url.origin;
     this.apiAccessToken = config.chatwootApiAccessToken;
@@ -91,9 +92,10 @@ export class ChatwootClient {
       const response = await fetch(url, {
         method,
         headers: fetchHeaders,
+        signal: this.abortController.signal,
         body: data
           ? isFormData
-            ? (data as BodyInit)
+            ? (data as FormData)
             : JSON.stringify(data)
           : undefined,
       });
@@ -123,6 +125,7 @@ export class ChatwootClient {
     if (!this.accountId) {
       const response = await fetch(`${this.origin}/api/v1/profile`, {
         headers: { api_access_token: this.apiAccessToken },
+        signal: this.abortController.signal,
       });
       const data = await response.json() as { account_id: number };
       this.accountId = String(data.account_id);
@@ -344,6 +347,7 @@ export class ChatwootClient {
         method: 'POST',
         headers: { api_access_token: this.apiAccessToken },
         body: formData,
+        signal: this.abortController.signal,
       });
 
       const data = await response.json() as CWMessage;
@@ -500,5 +504,12 @@ export class ChatwootClient {
    */
   getInboxId(): string {
     return this.inboxId;
+  }
+
+  close(): void {
+    this.abortController.abort();
+    this.contactReg.clear();
+    this.convoReg.clear();
+    this.ignoreMap.clear();
   }
 }

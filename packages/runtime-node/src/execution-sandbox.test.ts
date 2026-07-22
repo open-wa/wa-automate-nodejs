@@ -1,0 +1,169 @@
+import { Effect } from 'effect';
+import { describe, expect, it, vi } from 'vitest';
+import { defaultChatSandboxPolicy } from '@open-wa/runtime-core';
+import { makeNodeExecutionSandbox } from './execution-sandbox';
+
+describe('Node execution sandbox', () => {
+  it('executes serializable functions in a separate permissioned process', async () => {
+    const sandbox = makeNodeExecutionSandbox();
+    const result = await Effect.runPromise(sandbox.execute({
+      chatId: 'chat-1',
+      source: '(input) => ({ doubled: input.value * 2, processType: typeof process })',
+      input: { value: 21 },
+      policy: { ...defaultChatSandboxPolicy, chats: true, timeoutMs: 2_000 },
+    }));
+
+    expect(result).toEqual({ doubled: 42, processType: 'undefined' });
+    await Effect.runPromise(sandbox.close);
+  });
+
+  it('supports memory-limited worker isolation', async () => {
+    const sandbox = makeNodeExecutionSandbox();
+    const result = await Effect.runPromise(sandbox.execute({
+      chatId: 'chat-worker',
+      source: '(input) => input.message.toUpperCase()',
+      input: { message: 'isolated' },
+      policy: {
+        ...defaultChatSandboxPolicy,
+        chats: true,
+        isolation: 'worker',
+        timeoutMs: 2_000,
+        memoryMb: 64,
+      },
+    }));
+
+    expect(result).toBe('ISOLATED');
+    await Effect.runPromise(sandbox.close);
+  });
+
+  it.each(['process', 'worker'] as const)(
+    'brokers explicitly allowed capabilities from %s isolation',
+    async (isolation) => {
+      const sendText = vi.fn(async (chatId: unknown, text: unknown) => ({ chatId, text }));
+      const sandbox = makeNodeExecutionSandbox();
+      const result = await Effect.runPromise(sandbox.execute({
+        chatId: `chat-capability-${isolation}`,
+        source: '(input, capabilities) => capabilities.call("sendText", input.chatId, "hello")',
+        input: { chatId: '123@c.us' },
+        capabilityHandlers: { sendText },
+        policy: {
+          ...defaultChatSandboxPolicy,
+          chats: true,
+          isolation,
+          timeoutMs: 2_000,
+          capabilities: ['sendText'],
+        },
+      }));
+
+      expect(result).toEqual({ chatId: '123@c.us', text: 'hello' });
+      expect(sendText).toHaveBeenCalledWith('123@c.us', 'hello');
+      await Effect.runPromise(sandbox.close);
+    },
+  );
+
+  it('denies parent capabilities that are absent from the chat policy', async () => {
+    const sendFile = vi.fn(async () => 'should-not-run');
+    const sandbox = makeNodeExecutionSandbox();
+    const exit = await Effect.runPromise(Effect.exit(sandbox.execute({
+      chatId: 'chat-denied-capability',
+      source: '(_input, capabilities) => capabilities.call("sendFile", "secret")',
+      capabilityHandlers: { sendFile },
+      policy: {
+        ...defaultChatSandboxPolicy,
+        chats: true,
+        timeoutMs: 2_000,
+        capabilities: ['sendText'],
+      },
+    })));
+
+    expect(exit._tag).toBe('Failure');
+    expect(sendFile).not.toHaveBeenCalled();
+    await Effect.runPromise(sandbox.close);
+  });
+
+  it('kills executions that exceed their policy timeout', async () => {
+    const sandbox = makeNodeExecutionSandbox();
+    const exit = await Effect.runPromise(Effect.exit(sandbox.execute({
+      chatId: 'chat-timeout',
+      source: '() => new Promise(() => {})',
+      policy: { ...defaultChatSandboxPolicy, chats: true, timeoutMs: 25 },
+    })));
+
+    expect(exit._tag).toBe('Failure');
+    await Effect.runPromise(sandbox.close);
+  });
+
+  it('blocks ambient process, require, and string code generation in process mode', async () => {
+    const sandbox = makeNodeExecutionSandbox();
+    const result = await Effect.runPromise(sandbox.execute({
+      chatId: 'chat-escape',
+      source: `() => ({
+        process: typeof process,
+        require: typeof require,
+        constructorEscape: (() => {
+          try { return Function('return process')(); }
+          catch { return 'blocked'; }
+        })()
+      })`,
+      policy: { ...defaultChatSandboxPolicy, chats: true, timeoutMs: 2_000 },
+    }));
+
+    expect(result).toEqual({
+      process: 'undefined',
+      require: 'undefined',
+      constructorEscape: 'blocked',
+    });
+    await Effect.runPromise(sandbox.close);
+  });
+
+  it('terminates process output that exceeds its resource policy', async () => {
+    const sandbox = makeNodeExecutionSandbox({ maxOutputBytes: 128 });
+    const exit = await Effect.runPromise(Effect.exit(sandbox.execute({
+      chatId: 'chat-output-limit',
+      source: `() => 'x'.repeat(4096)`,
+      policy: { ...defaultChatSandboxPolicy, chats: true, timeoutMs: 2_000 },
+    })));
+
+    expect(exit._tag).toBe('Failure');
+    await Effect.runPromise(sandbox.close);
+  });
+
+  it('fails closed when a non-container policy requests host access', async () => {
+    const sandbox = makeNodeExecutionSandbox();
+    const exit = await Effect.runPromise(Effect.exit(sandbox.execute({
+      chatId: 'chat-policy',
+      source: '() => true',
+      policy: {
+        ...defaultChatSandboxPolicy,
+        chats: true,
+        network: 'allowlist',
+        networkAllowlist: ['api.example.test'],
+      },
+    })));
+
+    expect(exit._tag).toBe('Failure');
+    await Effect.runPromise(sandbox.close);
+  });
+
+  it('passes the exact container allowlist to the network policy adapter', async () => {
+    const policyAdapter = vi.fn(async () => {
+      throw new Error('adapter verified');
+    });
+    const sandbox = makeNodeExecutionSandbox({ containerNetworkPolicy: policyAdapter });
+    const exit = await Effect.runPromise(Effect.exit(sandbox.execute({
+      chatId: 'chat-container-network',
+      source: '() => true',
+      policy: {
+        ...defaultChatSandboxPolicy,
+        chats: true,
+        isolation: 'container',
+        network: 'allowlist',
+        networkAllowlist: ['api.example.test', 'cdn.example.test'],
+      },
+    })));
+
+    expect(exit._tag).toBe('Failure');
+    expect(policyAdapter).toHaveBeenCalledWith(['api.example.test', 'cdn.example.test']);
+    await Effect.runPromise(sandbox.close);
+  });
+});

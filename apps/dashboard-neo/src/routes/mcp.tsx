@@ -15,13 +15,13 @@ import {
   KeyRound,
   Copy,
 } from "lucide-react"
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import { getApiUrl } from "@/lib/api-client"
 
 export const Route = createFileRoute("/mcp")({ component: McpPage })
 
 export function McpPage() {
-  const { mcpAvailable, mcpEnabled, mcpPath, loading } = useHealth()
+  const { mcpAvailable, mcpEnabled, mcpPath } = useHealth()
   const [copied, setCopied] = useState<string | null>(null)
 
   const baseUrl = getApiUrl()
@@ -143,7 +143,6 @@ export function McpPage() {
               icon={<Bot size={16} className="text-primary" />}
               snippet={claudeConfig}
               copied={copied}
-              setCopied={setCopied}
               copyId="claude"
               copyToClipboard={copyToClipboard}
               instructions={[
@@ -160,7 +159,6 @@ export function McpPage() {
               icon={<Code2 size={16} className="text-primary" />}
               snippet={cursorConfig}
               copied={copied}
-              setCopied={setCopied}
               copyId="cursor"
               copyToClipboard={copyToClipboard}
               instructions={[
@@ -280,7 +278,6 @@ function ConfigSnippet({
   icon,
   snippet,
   copied,
-  setCopied,
   copyId,
   copyToClipboard,
   instructions,
@@ -289,10 +286,9 @@ function ConfigSnippet({
   icon: React.ReactNode
   snippet: string
   copied: string | null
-  setCopied: (v: string | null) => void
   copyId: string
   copyToClipboard: (text: string, id: string) => void
-  instructions: React.ReactNode[]
+  instructions: ReactNode[]
 }) {
   return (
     <div className="rounded-xl border bg-card">

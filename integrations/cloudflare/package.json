@@ -21,7 +21,7 @@
   "dependencies": {
     "@open-wa/core": "workspace:*",
     "@open-wa/logger": "workspace:*",
-    "cloudflared": "^0.5.0"
+    "cloudflared": "^0.7.1"
   },
   "devDependencies": {
     "@types/node": "catalog:",

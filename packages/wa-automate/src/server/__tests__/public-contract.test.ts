@@ -1,10 +1,22 @@
 import { describe, expect, it, vi } from 'vitest';
+import { ConfigSchema } from '@open-wa/config';
+
+vi.mock('@open-wa/logger', () => ({
+  createLogger: () => ({
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  }),
+}));
+vi.mock('@open-wa/session-sync', () => ({
+  LocalSessionCompression: class MockLocalSessionCompression {},
+  S3SyncManager: class MockS3SyncManager {},
+}));
 
 describe('wa-automate public contract', () => {
   it('re-exports config truth from @open-wa/config and runtime bootstrap from @open-wa/core', async () => {
     const createClientMock = vi.fn();
 
-    vi.resetModules();
     vi.doMock('@open-wa/core', () => ({ createClient: createClientMock }));
     vi.doMock('@open-wa/client', () => ({}));
     vi.doMock('@open-wa/schema', () => ({ eventRegistry: { getAll: () => [] } }));
@@ -13,7 +25,6 @@ describe('wa-automate public contract', () => {
 
     const waAutomate = await import('../../index');
     const { createClient } = await import('@open-wa/core');
-    const { ConfigSchema } = await import('@open-wa/config');
 
     expect(waAutomate.ConfigSchema).toBe(ConfigSchema);
     expect(waAutomate.createClient).toBe(createClient);
@@ -31,7 +42,7 @@ describe('wa-automate public contract', () => {
 
     expect(typeof waAutomate.WAServer).toBe('function');
     expect(typeof waAutomate.APILifecycleManager).toBe('function');
-    expect(typeof waAutomate.SessionManager).toBe('function');
+    expect(typeof waAutomate.SessionArchiveManager).toBe('function');
     expect(typeof waAutomate.runCli).toBe('function');
     expect(typeof waAutomate.startCli).toBe('function');
     expect(typeof waAutomate.parseCliArgs).toBe('function');

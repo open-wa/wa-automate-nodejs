@@ -1,9 +1,23 @@
 import { describe, expect, it } from 'vitest';
-import { createApiServer } from '../src/createApiServer.js';
-import { serve } from '@hono/node-server';
+import { createApiServer } from '../src/createApiServer';
 import type { Config } from '@open-wa/config';
 
 describe('MCP API Integration', () => {
+  it('starts and stops the Node adapter cleanly', async () => {
+    const config: Config = {
+      sessionName: 'test',
+      apiKey: 'test',
+      cors: '*',
+      host: '127.0.0.1',
+      port: 0,
+    };
+    const apiServer = createApiServer(config);
+
+    await apiServer.start();
+    await apiServer.stop();
+    await apiServer.stop();
+  });
+
   it('exposes MCP capabilities in /health when disabled', async () => {
     const config: Config = { sessionName: 'test', apiKey: 'test', cors: '*' };
     const apiServer = createApiServer(config);

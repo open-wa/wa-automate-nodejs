@@ -17,7 +17,7 @@ export interface OutputBrokerOptions {
 
 type Subscriber = (entry: BrokerEntry) => void;
 type ConsoleMethod = (...args: unknown[]) => void;
-type StreamWrite = (chunk: any, encoding?: BufferEncoding | ((error?: Error | null) => void), callback?: (error?: Error | null) => void) => boolean;
+type StreamWrite = NodeJS.WriteStream['write'];
 
 function stringifyArgs(args: unknown[]): string {
   return args
@@ -95,31 +95,8 @@ export class OutputBroker {
     };
 
     if (this.interceptStreams) {
-      process.stdout.write = ((chunk: any, encoding?: BufferEncoding | ((error?: Error | null) => void), callback?: (error?: Error | null) => void) => {
-        const message = Buffer.isBuffer(chunk) ? chunk.toString('utf8') : String(chunk);
-        this.forward('info', 'stdout', message, () => this.originalWrites?.stdout(chunk, encoding as any, callback));
-        if (this.interactive && !this.passthrough) {
-          if (typeof encoding === 'function') {
-            encoding(undefined);
-          } else {
-            callback?.(undefined);
-          }
-        }
-        return true;
-      }) as StreamWrite;
-
-      process.stderr.write = ((chunk: any, encoding?: BufferEncoding | ((error?: Error | null) => void), callback?: (error?: Error | null) => void) => {
-        const message = Buffer.isBuffer(chunk) ? chunk.toString('utf8') : String(chunk);
-        this.forward('error', 'stderr', message, () => this.originalWrites?.stderr(chunk, encoding as any, callback));
-        if (this.interactive && !this.passthrough) {
-          if (typeof encoding === 'function') {
-            encoding(undefined);
-          } else {
-            callback?.(undefined);
-          }
-        }
-        return true;
-      }) as StreamWrite;
+      process.stdout.write = this.createStreamInterceptor('info', 'stdout', this.originalWrites.stdout);
+      process.stderr.write = this.createStreamInterceptor('error', 'stderr', this.originalWrites.stderr);
     }
   }
 
@@ -163,6 +140,39 @@ export class OutputBroker {
 
   write(level: BrokerLevel, message: string, source: BrokerSource = 'runtime'): void {
     this.forward(level, source, message);
+  }
+
+  private createStreamInterceptor(level: BrokerLevel, source: BrokerSource, originalWrite: StreamWrite): StreamWrite {
+    const broker = this;
+    type WriteCallback = (error?: Error | null) => void;
+
+    function write(chunk: string | Uint8Array, callback?: WriteCallback): boolean;
+    function write(chunk: string | Uint8Array, encoding?: BufferEncoding, callback?: WriteCallback): boolean;
+    function write(
+      chunk: string | Uint8Array,
+      encoding?: BufferEncoding | WriteCallback,
+      callback?: WriteCallback,
+    ): boolean {
+      const message = Buffer.isBuffer(chunk) ? chunk.toString('utf8') : String(chunk);
+      broker.forward(level, source, message, () => {
+        if (typeof encoding === 'function') {
+          originalWrite(chunk, encoding);
+        } else {
+          originalWrite(chunk, encoding, callback);
+        }
+      });
+
+      if (broker.interactive && !broker.passthrough) {
+        if (typeof encoding === 'function') {
+          encoding(undefined);
+        } else {
+          callback?.(undefined);
+        }
+      }
+      return true;
+    }
+
+    return write;
   }
 
   private forward(level: BrokerLevel, source: BrokerSource, message: string, passthroughWriter?: () => void): void {

@@ -1,12 +1,12 @@
 import { EventEmitter as NodeEmitter } from 'node:events';
-import { RadixTree } from '../routing/RadixTree.js';
-import { ListenerOptions, HyperEmitterOptions } from '../types/index.js';
+import { RadixTree } from '../routing/RadixTree';
+import { ListenerOptions, HyperEmitterOptions } from '../types/index';
 import {
   ListenerRecord,
   attachAbort,
   cleanupAbort,
   createRecord
-} from '../utils/listener.js';
+} from '../utils/listener';
 import { createLogger, Logger } from '@open-wa/logger';
 import type { LogContext } from '@open-wa/logger';
 

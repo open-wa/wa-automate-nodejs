@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@open-wa/driver-interface": "workspace:*",
-    "playwright": "^1.41.0"
+    "playwright": "^1.61.1"
   },
   "devDependencies": {
     "@types/node": "catalog:",

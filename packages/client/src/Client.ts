@@ -28,16 +28,16 @@ import {
   Collection,
   CollectorFilter,
 } from '@open-wa/domain';
-import { ListenerManager, type ListenerHandle } from './events/index.js';
-import { throwUnsupportedListener } from './runtimeSurface.js';
+import { ListenerManager, type ListenerHandle } from './events/index';
+import { throwUnsupportedListener } from './runtimeSurface';
 import type { QueueOptions } from '@open-wa/schema';
 
-import { messagingMethods, type MessagingMethods } from './methods/messaging.js';
-import { mediaMethods, type MediaMethods } from './methods/media.js';
-import { groupMethods, type GroupMethods } from './methods/groups.js';
-import { chatMethods, type ChatMethods } from './methods/chats.js';
-import { contactMethods, type ContactMethods } from './methods/contacts.js';
-import { utilitiesMethods, type UtilitiesMethods } from './methods/utilities.js';
+import { messagingMethods, type MessagingMethods } from './methods/messaging';
+import { mediaMethods, type MediaMethods } from './methods/media';
+import { groupMethods, type GroupMethods } from './methods/groups';
+import { chatMethods, type ChatMethods } from './methods/chats';
+import { contactMethods, type ContactMethods } from './methods/contacts';
+import { utilitiesMethods, type UtilitiesMethods } from './methods/utilities';
 
 /**
  * Configuration for creating a WhatsApp Client.
@@ -104,6 +104,7 @@ export class Client implements MessagingMethods, MediaMethods, GroupMethods, Cha
     this._listenerManager = new ListenerManager({
       sessionId: config.client.sessionId,
       events: config.client.events,
+      observability: config.client.observability,
     });
     
     // Bind method modules
@@ -179,6 +180,7 @@ export class Client implements MessagingMethods, MediaMethods, GroupMethods, Cha
    * Stop the client gracefully.
    */
   async stop(reason?: string): Promise<void> {
+    await this._listenerManager.dispose();
     return this._client.stop(reason);
   }
   
@@ -221,6 +223,15 @@ export class Client implements MessagingMethods, MediaMethods, GroupMethods, Cha
     arg: Arg
   ): Promise<Ret> {
     return this._transport.evaluate(fn, arg);
+  }
+
+  /** Execute an explicitly supplied function expression inside this chat's configured sandbox. */
+  async executeInChatSandbox<T = unknown>(chatId: string, source: string, input?: unknown): Promise<T> {
+    return this._client.executeInChatSandbox<T>(chatId, source, input);
+  }
+
+  async closeChatSandbox(chatId: string): Promise<void> {
+    await this._client.closeChatSandbox(chatId);
   }
   
   // ─────────────────────────────────────────────────────────────────

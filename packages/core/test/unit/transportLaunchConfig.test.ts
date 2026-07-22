@@ -16,12 +16,12 @@ import type {
 } from '@open-wa/driver-interface';
 import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
-import type { OpenWAEventMap } from '../../src/events/eventMap.js';
-import { Transport } from '../../src/transport/Transport.js';
+import type { OpenWAEventMap } from '../../src/events/eventMap';
+import { Transport } from '../../src/transport/Transport';
 import {
   partitionDangerousBrowserArgs,
   sanitizeBrowserArgs,
-} from '../../src/transport/browserConfig.js';
+} from '../../src/transport/browserConfig';
 
 class TestConsoleMessage implements IConsoleMessage {
   constructor(
@@ -83,6 +83,7 @@ class TestRequest implements IRequest {
 
 class TestPage implements IPage {
   readonly name = 'test-driver';
+  readonly initScripts: string[] = [];
   readonly setRequestInterception = vi.fn(async (_enabled: boolean) => {
     if (this.throwOnSetRequestInterception) {
       throw new Error('request interception unsupported');
@@ -117,7 +118,8 @@ class TestPage implements IPage {
     return undefined as Ret;
   }
 
-  async addInitScript(_script: string): Promise<DisposableHandle> {
+  async addInitScript(script: string): Promise<DisposableHandle> {
+    this.initScripts.push(script);
     return { dispose(): void {} };
   }
 
@@ -301,6 +303,28 @@ describe('Transport launch/config plumbing', () => {
 
     expect(driver.capturedInitContext).toEqual({ logger });
     expect(driver.capturedLaunchOptions?.lightpanda).toEqual(lightpanda);
+  });
+
+  it('injects the configured watermark before navigation', async () => {
+    const page = new TestPage();
+    const transport = new Transport({
+      driver: new CaptureDriver(new TestBrowser(page)),
+      events: createEvents(),
+      logger: createLogger(),
+      watermark: {
+        text: 'AUTOMATION SESSION',
+        color: 'rgb(1, 2, 3)',
+        background: 'rgb(4, 5, 6)',
+      },
+      blockCrashLogs: false,
+    });
+
+    await transport.initialize();
+
+    expect(page.initScripts).toHaveLength(1);
+    expect(page.initScripts[0]).toContain('AUTOMATION SESSION');
+    expect(page.initScripts[0]).toContain('rgb(1, 2, 3)');
+    expect(page.initScripts[0]).toContain('rgb(4, 5, 6)');
   });
 
   it('logs browser console output and page errors when enabled', async () => {

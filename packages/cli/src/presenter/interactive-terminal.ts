@@ -1,4 +1,5 @@
 import QRCode from 'qrcode';
+import type { ReactNode } from 'react';
 import type { EventProjectionStore, ProjectionSnapshot } from '../state/event-projection-store';
 
 export interface InteractiveTerminalPresenterOptions {
@@ -9,7 +10,7 @@ export interface InteractiveTerminalPresenterOptions {
 
 type InkInstance = {
   clear?: () => void;
-  rerender?: (tree: unknown) => void;
+  rerender?: (tree: ReactNode) => void;
   unmount: () => void;
 };
 
@@ -24,7 +25,7 @@ export class InteractiveTerminalPresenter {
   private snapshot: ProjectionSnapshot;
   private qrAscii?: string;
   private qrValue?: string;
-  private renderTree?: () => unknown;
+  private renderTree?: () => ReactNode;
   private qrSequence = 0;
 
   constructor(options: InteractiveTerminalPresenterOptions) {

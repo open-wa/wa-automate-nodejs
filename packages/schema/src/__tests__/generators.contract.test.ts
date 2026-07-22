@@ -119,12 +119,15 @@ describe('generator outputs', () => {
 
         it('should create one generated MDX page per namespace', () => {
             const namespaces = Array.from(new Set(clientRegistry.getAll().map((def) => def.meta.namespace || 'core'))).sort();
-            const mdxFiles = fs
-                .readdirSync(clientDocsDir)
-                .filter((fileName) => fileName.endsWith('.mdx') && fileName !== 'index.mdx' && fileName !== 'client.mdx')
-                .sort();
+            const generatedFiles = namespaces.map((namespace) => `${namespace.toLowerCase()}.mdx`);
 
-            expect(mdxFiles).toEqual(namespaces.map((namespace) => `${namespace.toLowerCase()}.mdx`));
+            for (const fileName of generatedFiles) {
+                const filePath = path.join(clientDocsDir, fileName);
+                expect(fs.existsSync(filePath), `${fileName} should exist`).toBe(true);
+                expect(fs.readFileSync(filePath, 'utf-8')).toContain(
+                    'packages/schema/scripts/gen-client-reference-docs.ts',
+                );
+            }
         });
 
         it('should include sendText method details from the schema registry', () => {
@@ -145,12 +148,13 @@ describe('generator outputs', () => {
             expect(content).toContain('| Primary | `POST` | `/api/messages/sendText` | `sendText` | Active |');
             expect(content).toContain('| Alias | `POST` | `/api/sendText` | `sendText` | Active |');
             expect(content).toContain('### Usage');
-            expect(content).toContain('<Tabs items={["Client", "Namespaced client", "HTTP API"]}>');
-            expect(content).toContain('<Tab value="Client">');
+            expect(content).toContain('<InterfaceTabs>');
+            expect(content).toContain('<InterfaceTab value="Embedded">');
             expect(content).toContain('const result = await client.sendText({');
-            expect(content).toContain('<Tab value="Namespaced client">');
-            expect(content).toContain('const result = await client.messages.sendText({');
-            expect(content).toContain('<Tab value="HTTP API">');
+            expect(content).toContain('// namespaced form: client.messages.sendText(...)');
+            expect(content).toContain('<InterfaceTab value="SocketClient">');
+            expect(content).toContain("import { SocketClient } from '@open-wa/socket-client';");
+            expect(content).toContain('<InterfaceTab value="Easy API">');
             expect(content).toContain('curl -X POST "http://localhost:8080/api/messages/sendText"');
             expect(content).toContain('### Parameters');
             expect(content).toContain('<AutoTypeTable path="./generated-method-params.ts" name="SendTextParams" />');

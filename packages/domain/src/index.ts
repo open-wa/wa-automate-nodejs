@@ -5,11 +5,11 @@ export {
   type CollectorFilter,
   type CollectorOptions,
   type AwaitMessagesOptions
-} from './structures/Collector.js';
+} from './structures/Collector';
 
 export {
   MessageCollector,
   type MessageCollectorEvents,
   type MessageCollectorOptions,
   awaitMessages
-} from './structures/MessageCollector.js';
+} from './structures/MessageCollector';

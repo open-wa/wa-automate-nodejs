@@ -15,19 +15,23 @@
   "scripts": {
     "build": "tsdown src/index.ts --format esm --format cjs",
     "dev": "tsdown src/index.ts --format esm --format cjs --watch",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
     "lint": "oxlint src",
     "clean": "rimraf dist"
   },
   "dependencies": {
     "@open-wa/core": "workspace:*",
     "@open-wa/logger": "workspace:*",
-    "mime": "^4.0.0",
-    "p-queue": "^8.0.0",
-    "pico-s3": "^1.0.0"
+    "@open-wa/runtime-core": "workspace:*",
+    "effect": "catalog:",
+    "mime": "^4.1.0",
+    "pico-s3": "^2.11.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "publishConfig": {
     "access": "public"

@@ -12,17 +12,21 @@
   "scripts": {
     "build": "tsdown src/index.ts --format esm --dts",
     "dev": "tsdown src/index.ts --format esm --dts --watch",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
     "lint": "oxlint src",
     "clean": "rimraf dist"
   },
   "dependencies": {
     "@open-wa/plugin-sdk": "workspace:*",
+    "effect": "catalog:",
     "hono": "catalog:"
   },
   "devDependencies": {
     "@open-wa/logger": "workspace:*",
     "@types/node": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "publishConfig": {
     "access": "public"

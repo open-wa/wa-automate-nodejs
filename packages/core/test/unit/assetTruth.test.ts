@@ -7,7 +7,7 @@ import {
   LEGACY_WAPI_HELPER_GLOBAL_REQUIREMENTS,
   ScriptLoader,
   auditWapiHelperAssetRequirements,
-} from '../../src/transport/ScriptLoader.js';
+} from '../../src/transport/ScriptLoader';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../../..');

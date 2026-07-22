@@ -2,22 +2,35 @@ import { HyperEmitter } from '@open-wa/hyperemitter';
 import { createLogger, Logger } from '@open-wa/logger';
 import type { IDriver, LightpandaOptions } from '@open-wa/driver-interface';
 import { requireCapability, type CapabilitySubject } from '@open-wa/driver-interface';
-import { OpenWAEventMap, STATE } from './events/eventMap.js';
-import { PluginHost, loadPlugins } from './plugins/index.js';
+import { OpenWAEventMap, STATE } from './events/eventMap';
+import { PluginHost, loadPlugins } from './plugins/index';
 import type { Plugin, PluginClient } from '@open-wa/plugin-sdk';
 import {
   SessionManager,
   SessionStore,
   type SessionReadinessSnapshot,
   type SessionValidationStage,
-} from './sessionmanager/index.js';
-import { Transport } from './transport/index.js';
+} from './sessionmanager/index';
+import { Transport } from './transport/index';
 import type {
   LicenseKeyResolver,
   PatchFetchConfig,
   LicenseServerConfig,
   RuntimeValidationFailureReason,
-} from './transport/index.js';
+} from './transport/index';
+import { Effect } from 'effect';
+import {
+  SessionScope,
+  runStartupGraph,
+  type SessionAdmissionShape,
+  type SessionFinalizerReason,
+  type ChatSandboxPolicy,
+  type ExecutionSandboxShape,
+  type SandboxCapabilityHandlers,
+  type RuntimeObservabilityShape,
+  type RuntimeCauseRecord,
+  makeInMemoryObservability,
+} from '@open-wa/runtime-core';
 
 export interface CreateClientOptions {
   sessionId?: string;
@@ -90,6 +103,24 @@ export interface CreateClientOptions {
    * Controls the license check endpoint and offline mode.
    */
   licenseConfig?: LicenseServerConfig;
+
+  /** Optional process-wide admission policy used to cap browser-session RAM. */
+  sessionAdmission?: SessionAdmissionShape;
+
+  /** Estimated RAM reservation for this browser session. Defaults to 512 MiB. */
+  estimatedMemoryMb?: number;
+
+  /** Execution adapter and policy for explicit per-chat user-code isolation. */
+  executionSandbox?: ExecutionSandboxShape;
+  sandboxPolicy?: ChatSandboxPolicy;
+  /** Extra parent-side capabilities that isolated chat code may request by name. */
+  sandboxCapabilities?: SandboxCapabilityHandlers;
+  observability?: RuntimeObservabilityShape;
+  /** Runtime-specific memory sampler. Its fiber is owned by the session Scope. */
+  memoryObservation?: (
+    observability: RuntimeObservabilityShape,
+    getBrowserProcessId: () => number | undefined,
+  ) => Effect.Effect<never, unknown>;
 }
 
 export interface OpenWAClient {
@@ -99,6 +130,7 @@ export interface OpenWAClient {
   readonly session: SessionManager;
   readonly plugins: PluginHost;
   readonly config: Readonly<Pick<CreateClientOptions, 'deleteSessionDataOnLogout' | 'killClientOnLogout' | 'sessionDataPath' | 'userDataDir'>>;
+  readonly observability: RuntimeObservabilityShape;
 
   registerFinalizationHook(hook: () => void | Promise<void>): () => void;
   start(): Promise<void>;
@@ -108,6 +140,10 @@ export interface OpenWAClient {
   getTransport(): Transport;
   screenshot(): Promise<Uint8Array | null>;
   evaluateScript<T = unknown>(script: string): Promise<T | null>;
+  executeInChatSandbox<T = unknown>(chatId: string, source: string, input?: unknown): Promise<T>;
+  closeChatSandbox(chatId: string): Promise<void>;
+  getRuntimeMetrics(): Promise<Readonly<Record<string, number>>>;
+  getRuntimeCauses(): Promise<ReadonlyArray<RuntimeCauseRecord>>;
 }
 
 function hasCapabilitySubject(driver: IDriver): driver is IDriver & CapabilitySubject {
@@ -176,6 +212,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     component: 'core',
     sessionId,
   });
+  const observability = options.observability ?? makeInMemoryObservability();
 
   const events = new HyperEmitter<OpenWAEventMap>({
     delimiter: '.',
@@ -254,31 +291,72 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
   });
 
   const pluginHost = new PluginHost(events, logger);
+  const resourceScope = await SessionScope.make({
+    observability,
+    metricAttributes: { session: sessionId },
+  });
+  await resourceScope.addFinalizer('transport.close', () => transport.close());
+  await resourceScope.addFinalizer('plugins.dispose', () => pluginHost.dispose());
+  if (options.executionSandbox) {
+    await resourceScope.addFinalizer(
+      'chat-sandbox.close',
+      () => Effect.runPromise(options.executionSandbox!.close),
+    );
+  }
+  if (options.memoryObservation) {
+    await resourceScope.fork(options.memoryObservation(
+      observability,
+      () => transport.getBrowser()?.processId?.(),
+    ).pipe(
+      Effect.catchCause(() => Effect.never),
+    ));
+  }
 
   // Create the PluginClient proxy
   const pluginClient = createPluginClientProxy(transport, logger);
+  const sandboxCapabilityHandlers: SandboxCapabilityHandlers = {
+    sendText: (...args) => pluginClient.sendText(...args as Parameters<PluginClient['sendText']>),
+    sendImage: (...args) => pluginClient.sendImage(...args as Parameters<PluginClient['sendImage']>),
+    sendFile: (...args) => pluginClient.sendFile(...args as Parameters<PluginClient['sendFile']>),
+    sendLocation: (...args) => pluginClient.sendLocation(...args as Parameters<PluginClient['sendLocation']>),
+    sendLinkWithAutoPreview: (...args) => pluginClient.sendLinkWithAutoPreview(
+      ...args as Parameters<PluginClient['sendLinkWithAutoPreview']>
+    ),
+    reply: (...args) => pluginClient.reply(...args as Parameters<PluginClient['reply']>),
+    sendSeen: (...args) => pluginClient.sendSeen(...args as Parameters<PluginClient['sendSeen']>),
+    getHostNumber: (...args) => pluginClient.getHostNumber(...args as Parameters<PluginClient['getHostNumber']>),
+    getContact: (...args) => pluginClient.getContact(...args as Parameters<PluginClient['getContact']>),
+    getAllContacts: (...args) => pluginClient.getAllContacts(...args as Parameters<PluginClient['getAllContacts']>),
+    getAllChats: (...args) => pluginClient.getAllChats(...args as Parameters<PluginClient['getAllChats']>),
+    ...options.sandboxCapabilities,
+  };
 
   // Register directly-provided plugins
-  if (options.plugins) {
-    for (const plugin of options.plugins) {
-      await pluginHost.register(plugin, {
-        sessionId,
-        client: pluginClient,
-        pluginConfig: options.pluginConfig,
-      });
+  try {
+    if (options.plugins) {
+      for (const plugin of options.plugins) {
+        await pluginHost.register(plugin, {
+          sessionId,
+          client: pluginClient,
+          pluginConfig: options.pluginConfig,
+        });
+      }
     }
-  }
 
-  // Load and register config-referenced plugins
-  if (options.pluginRefs?.length) {
-    const loaded = await loadPlugins(options.pluginRefs, logger);
-    for (const { plugin } of loaded) {
-      await pluginHost.register(plugin, {
-        sessionId,
-        client: pluginClient,
-        pluginConfig: options.pluginConfig,
-      });
+    // Load and register config-referenced plugins
+    if (options.pluginRefs?.length) {
+      const loaded = await loadPlugins(options.pluginRefs, logger);
+      for (const { plugin } of loaded) {
+        await pluginHost.register(plugin, {
+          sessionId,
+          client: pluginClient,
+          pluginConfig: options.pluginConfig,
+        });
+      }
     }
+  } catch (error) {
+    await resourceScope.close('plugin-failure');
+    throw error;
   }
 
   const finalizationHooks = new Set<() => void | Promise<void>>();
@@ -304,6 +382,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     logger,
     session,
     plugins: pluginHost,
+    observability,
     config: {
       deleteSessionDataOnLogout: options.deleteSessionDataOnLogout,
       killClientOnLogout: options.killClientOnLogout,
@@ -313,7 +392,17 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     registerFinalizationHook,
 
     async start() {
+      try {
       events.emit('core.starting', { config: options });
+
+      if (options.sessionAdmission) {
+        const memoryMb = Math.max(1, Math.round(options.estimatedMemoryMb ?? 512));
+        const lease = await Effect.runPromise(options.sessionAdmission.acquire(memoryMb));
+        await resourceScope.addFinalizer(
+          'session-admission.release',
+          () => Effect.runPromise(lease.release),
+        );
+      }
 
       session.resetRuntime();
       await session.setState('STARTING');
@@ -350,6 +439,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
           error: normalizedError,
           fatal: true,
         });
+        Effect.runSync(observability.recordCause(scope, normalizedError));
         await session.setState('DISCONNECTED', scope);
         throw normalizedError;
       };
@@ -527,8 +617,55 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         result: Awaited<ReturnType<Transport['validateRuntimeUsability']>>
       ) => result.failureReason === 'required_method_missing' && !result.sessionLoaded;
 
-      await transport.initialize();
-      await transport.navigate();
+      const startupGraph = await Effect.runPromise(
+        runStartupGraph([
+          {
+            id: 'transport',
+            run: () => Effect.tryPromise({
+              try: async () => {
+                await transport.initialize();
+                await transport.navigate();
+                return true;
+              },
+              catch: (error) => error,
+            }),
+          },
+          {
+            id: 'patch-preload',
+            run: () => Effect.tryPromise({
+              try: () => transport.preloadLivePatchArtifacts(),
+              catch: (error) => error,
+            }),
+          },
+          {
+            id: 'license-preflight',
+            run: () => Effect.tryPromise({
+              try: () => transport.preloadLicenseArtifact({
+                sessionId,
+                licenseKey: options.licenseKey,
+              }),
+              catch: (error) => error,
+            }),
+          },
+        ], {
+          concurrency: 3,
+          onPhase: ({ id, durationMs }) => {
+            Effect.runSync(observability.gauge('startup_phase_ms', durationMs, { phase: id }));
+          },
+          onComplete: ({ criticalPathMs }) => {
+            Effect.runSync(observability.gauge('startup_critical_path_ms', criticalPathMs));
+          },
+        }),
+      );
+      logger.info('startup_graph_complete', {
+        criticalPathMs: startupGraph.criticalPathMs,
+        phases: startupGraph.phases.map(({ id, durationMs }) => ({ id, durationMs })),
+      });
+
+      const earlyLivePatchPreload = startupGraph.values.get('patch-preload') as
+        Awaited<ReturnType<Transport['preloadLivePatchArtifacts']>>;
+      const earlyLicensePreload = startupGraph.values.get('license-preflight') as
+        Awaited<ReturnType<Transport['preloadLicenseArtifact']>>;
 
       await session.setState('AUTHENTICATING');
 
@@ -763,12 +900,14 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         // Continue without debug info — preload methods will fall back gracefully
       }
 
-      const livePatchPreloadPromise = transport.preloadLivePatchArtifacts({ sessionInfo: sessionDebugInfo });
-      const licensePreloadPromise = transport.preloadLicenseArtifact({
-        sessionId,
-        licenseKey: options.licenseKey,
-        sessionInfo: sessionDebugInfo,
-      });
+      const livePatchPreloadPromise = Promise.resolve(earlyLivePatchPreload);
+      const licensePreloadPromise = sessionDebugInfo?.hostNumber && earlyLicensePreload.artifact
+        ? transport.preloadLicenseArtifact({
+            sessionId,
+            licenseKey: earlyLicensePreload.artifact.key,
+            sessionInfo: sessionDebugInfo,
+          })
+        : Promise.resolve(earlyLicensePreload);
 
       const livePatchPreload = await livePatchPreloadPromise.catch((error) =>
         emitFatalBootstrapError('bootstrap.live_patch.preload', error)
@@ -1023,14 +1162,30 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       logger.info('bootstrap_finalized', {
         sessionId,
       });
+      } catch (error) {
+        await resourceScope.close('startup-failure');
+        throw error;
+      }
     },
 
     async stop(reason?: string) {
       events.emit('core.stopping', { reason });
 
       await session.setState('STOPPED', reason);
-      await pluginHost.dispose();
-      await transport.close();
+      const supportedReasons = new Set<SessionFinalizerReason>([
+        'auth-timeout',
+        'browser-crash',
+        'failure',
+        'interruption',
+        'normal-stop',
+        'plugin-failure',
+        'signal',
+        'startup-failure',
+      ]);
+      const finalizerReason: SessionFinalizerReason = supportedReasons.has(reason as SessionFinalizerReason)
+        ? reason as SessionFinalizerReason
+        : 'normal-stop';
+      await resourceScope.close(finalizerReason);
 
       events.emit('core.stopped', {});
 
@@ -1062,6 +1217,32 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       const page = transport.getPage();
       if (!page || page.isClosed()) return null;
       return page.evaluateScript<T>(script);
+    },
+
+    async executeInChatSandbox<T = unknown>(chatId: string, source: string, input?: unknown): Promise<T> {
+      if (!options.executionSandbox || !options.sandboxPolicy?.chats) {
+        throw new Error('Chat sandboxing is disabled. Enable sandboxChats and configure an execution adapter.');
+      }
+      return Effect.runPromise(options.executionSandbox.execute({
+        chatId,
+        source,
+        input,
+        policy: options.sandboxPolicy,
+        capabilityHandlers: sandboxCapabilityHandlers,
+      })) as Promise<T>;
+    },
+
+    async closeChatSandbox(chatId: string): Promise<void> {
+      if (!options.executionSandbox) return;
+      await Effect.runPromise(options.executionSandbox.closeChat(chatId));
+    },
+
+    async getRuntimeMetrics(): Promise<Readonly<Record<string, number>>> {
+      return Effect.runPromise(observability.snapshot);
+    },
+
+    async getRuntimeCauses() {
+      return Effect.runPromise(observability.causes);
     },
   };
 

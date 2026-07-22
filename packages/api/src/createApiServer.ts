@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import { getRequestListener } from '@hono/node-server';
-import { createServer } from 'http';
-import { createNodeWebSocket } from '@hono/node-ws';
+import { createAdaptorServer, upgradeWebSocket } from '@hono/node-server';
+import { createServer, type Server } from 'node:http';
+import { WebSocketServer } from 'ws';
 import { getHttpMethodDefinitions, type Config } from '@open-wa/schema';
 import '@open-wa/schema';
 import {
@@ -50,7 +50,7 @@ export class ApiServer {
   private elasticEmitter?: ElasticEmitter;
   private latestQR: string | null = null;
   private screencastManager: ScreencastManager;
-  private injectWebSocket: ((server: unknown) => void) | null = null;
+  private server?: Server;
   private isDashboardActive: boolean = false;
   private pluginHost?: PluginHost;
   private healthStore: HealthStore = new HealthStore();
@@ -81,12 +81,6 @@ export class ApiServer {
     this.app = new Hono();
     this.screencastManager = new ScreencastManager();
     this.eventBroadcaster = new EventBroadcaster(this.config.sessionId);
-
-    // Set up WebSocket adapter for Node.js
-    const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({
-      app: this.app,
-    });
-    this.injectWebSocket = injectWebSocket as (server: unknown) => void;
 
     if (this.config.elasticUrl) {
       this.elasticEmitter = new ElasticEmitter({
@@ -196,38 +190,38 @@ export class ApiServer {
       }
     }
 
-    const honoListener = getRequestListener(this.app.fetch);
-
-    const requestListener = (req: any, res: any) => {
-      if (viteDevServer && req.url?.startsWith('/dashboard')) {
-        viteDevServer.middlewares(req, res, () => {
-          honoListener(req, res);
-        });
-        return;
-      }
-      honoListener(req, res);
-    };
-
-    const server = createServer(requestListener);
-    server.listen(this.config.port, this.config.host, () => {
-      console.log(
-        `Server running on http://${this.config.host}:${this.config.port}`,
-      );
+    const server = createAdaptorServer({
+      fetch: this.app.fetch,
+      websocket: {
+        server: new WebSocketServer({ noServer: true }),
+      },
+      createServer: (options, honoListener) =>
+        createServer(options, (request, response) => {
+          if (viteDevServer && request.url?.startsWith('/dashboard')) {
+            viteDevServer.middlewares(request, response, () => {
+              void honoListener(request, response);
+            });
+            return;
+          }
+          void honoListener(request, response);
+        }),
     });
+    this.server = server as Server;
 
-    if (this.injectWebSocket) {
-      let honoUpgradeListener: Function | null = null;
-      this.injectWebSocket({
-        on: (event: string, listener: Function) => {
-          if (event === 'upgrade') honoUpgradeListener = listener;
-        },
+    await new Promise<void>((resolve, reject) => {
+      const onError = (error: Error) => {
+        server.off('error', onError);
+        reject(error);
+      };
+      server.once('error', onError);
+      server.listen(this.config.port, this.config.host, () => {
+        server.off('error', onError);
+        console.log(
+          `Server running on http://${this.config.host}:${this.config.port}`,
+        );
+        resolve();
       });
-      if (honoUpgradeListener) {
-        server.on('upgrade', (req, socket, head) => {
-          honoUpgradeListener!(req, socket, head);
-        });
-      }
-    }
+    });
 
     if (this.elasticEmitter) {
       await this.elasticEmitter.start();
@@ -235,6 +229,13 @@ export class ApiServer {
   }
 
   public async stop() {
+    const server = this.server;
+    this.server = undefined;
+    if (server?.listening) {
+      await new Promise<void>((resolve, reject) => {
+        server.close((error) => (error ? reject(error) : resolve()));
+      });
+    }
     await this.screencastManager.destroy();
     if (this.elasticEmitter) {
       await this.elasticEmitter.stop();

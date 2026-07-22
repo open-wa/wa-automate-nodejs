@@ -43,6 +43,14 @@
       "dependsOn": ["^build"],
       "outputs": []
     },
+    "@open-wa/schema#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "src/generated/**"]
+    },
+    "docs#build": {
+      "dependsOn": ["^build", "@open-wa/schema#build"],
+      "outputs": ["dist/**", "build/**"]
+    },
     "registry#build": {
       "dependsOn": ["^build"],
       "outputs": []
