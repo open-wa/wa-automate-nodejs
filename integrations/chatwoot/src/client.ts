@@ -40,6 +40,7 @@ export class ChatwootClient {
   private expectedSelfWebhookUrl: string;
   private readonly logger: Pick<Logger, 'debug' | 'info' | 'error'>;
   private readonly forceUpdateCwWebhook: boolean;
+  private readonly abortController = new AbortController();
 
   // Registry mappings
   private readonly contactReg: Map<string, number> = new Map();
@@ -91,6 +92,7 @@ export class ChatwootClient {
       const response = await fetch(url, {
         method,
         headers: fetchHeaders,
+        signal: this.abortController.signal,
         body: data
           ? isFormData
             ? (data as FormData)
@@ -123,6 +125,7 @@ export class ChatwootClient {
     if (!this.accountId) {
       const response = await fetch(`${this.origin}/api/v1/profile`, {
         headers: { api_access_token: this.apiAccessToken },
+        signal: this.abortController.signal,
       });
       const data = await response.json() as { account_id: number };
       this.accountId = String(data.account_id);
@@ -344,6 +347,7 @@ export class ChatwootClient {
         method: 'POST',
         headers: { api_access_token: this.apiAccessToken },
         body: formData,
+        signal: this.abortController.signal,
       });
 
       const data = await response.json() as CWMessage;
@@ -500,5 +504,12 @@ export class ChatwootClient {
    */
   getInboxId(): string {
     return this.inboxId;
+  }
+
+  close(): void {
+    this.abortController.abort();
+    this.contactReg.clear();
+    this.convoReg.clear();
+    this.ignoreMap.clear();
   }
 }

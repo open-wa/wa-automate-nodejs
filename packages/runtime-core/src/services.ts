@@ -111,6 +111,27 @@ export interface RuntimeObservabilityShape {
     attributes?: Readonly<Record<string, string | number | boolean>>,
   ) => Effect.Effect<void>;
   readonly snapshot: Effect.Effect<Readonly<Record<string, number>>>;
+  readonly recordCause: (
+    scope: string,
+    cause: unknown,
+    attributes?: Readonly<Record<string, string | number | boolean>>,
+  ) => Effect.Effect<void>;
+  readonly causes: Effect.Effect<ReadonlyArray<RuntimeCauseRecord>>;
+}
+
+export interface SerializedRuntimeCause {
+  readonly name: string;
+  readonly message: string;
+  readonly stack?: string;
+  readonly cause?: SerializedRuntimeCause;
+  readonly errors?: ReadonlyArray<SerializedRuntimeCause>;
+}
+
+export interface RuntimeCauseRecord {
+  readonly scope: string;
+  readonly recordedAt: number;
+  readonly attributes?: Readonly<Record<string, string | number | boolean>>;
+  readonly cause: SerializedRuntimeCause;
 }
 
 export type RuntimeMetric =

@@ -14,7 +14,7 @@ export class LightpandaBrowser implements IBrowser {
     constructor(
         private readonly capabilities: DriverCapabilities,
         private readonly browser?: any,
-        private readonly processManager?: { stop(): Promise<void> },
+        private readonly processManager?: { stop(): Promise<void>; getProcessId?(): number | undefined },
     ) { }
 
     async newPage(options?: { clearFirstPage?: boolean }): Promise<IPage> {
@@ -59,6 +59,10 @@ export class LightpandaBrowser implements IBrowser {
 
     async versionString(): Promise<string> {
         return await this.requireBrowser().version();
+    }
+
+    processId(): number | undefined {
+        return this.processManager?.getProcessId?.();
     }
 
     unwrap(): unknown {

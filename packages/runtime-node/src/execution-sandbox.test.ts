@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { defaultChatSandboxPolicy } from '@open-wa/runtime-core';
 import { makeNodeExecutionSandbox } from './execution-sandbox';
 
@@ -33,6 +33,51 @@ describe('Node execution sandbox', () => {
     }));
 
     expect(result).toBe('ISOLATED');
+    await Effect.runPromise(sandbox.close);
+  });
+
+  it.each(['process', 'worker'] as const)(
+    'brokers explicitly allowed capabilities from %s isolation',
+    async (isolation) => {
+      const sendText = vi.fn(async (chatId: unknown, text: unknown) => ({ chatId, text }));
+      const sandbox = makeNodeExecutionSandbox();
+      const result = await Effect.runPromise(sandbox.execute({
+        chatId: `chat-capability-${isolation}`,
+        source: '(input, capabilities) => capabilities.call("sendText", input.chatId, "hello")',
+        input: { chatId: '123@c.us' },
+        capabilityHandlers: { sendText },
+        policy: {
+          ...defaultChatSandboxPolicy,
+          chats: true,
+          isolation,
+          timeoutMs: 2_000,
+          capabilities: ['sendText'],
+        },
+      }));
+
+      expect(result).toEqual({ chatId: '123@c.us', text: 'hello' });
+      expect(sendText).toHaveBeenCalledWith('123@c.us', 'hello');
+      await Effect.runPromise(sandbox.close);
+    },
+  );
+
+  it('denies parent capabilities that are absent from the chat policy', async () => {
+    const sendFile = vi.fn(async () => 'should-not-run');
+    const sandbox = makeNodeExecutionSandbox();
+    const exit = await Effect.runPromise(Effect.exit(sandbox.execute({
+      chatId: 'chat-denied-capability',
+      source: '(_input, capabilities) => capabilities.call("sendFile", "secret")',
+      capabilityHandlers: { sendFile },
+      policy: {
+        ...defaultChatSandboxPolicy,
+        chats: true,
+        timeoutMs: 2_000,
+        capabilities: ['sendText'],
+      },
+    })));
+
+    expect(exit._tag).toBe('Failure');
+    expect(sendFile).not.toHaveBeenCalled();
     await Effect.runPromise(sandbox.close);
   });
 
@@ -97,6 +142,28 @@ describe('Node execution sandbox', () => {
     })));
 
     expect(exit._tag).toBe('Failure');
+    await Effect.runPromise(sandbox.close);
+  });
+
+  it('passes the exact container allowlist to the network policy adapter', async () => {
+    const policyAdapter = vi.fn(async () => {
+      throw new Error('adapter verified');
+    });
+    const sandbox = makeNodeExecutionSandbox({ containerNetworkPolicy: policyAdapter });
+    const exit = await Effect.runPromise(Effect.exit(sandbox.execute({
+      chatId: 'chat-container-network',
+      source: '() => true',
+      policy: {
+        ...defaultChatSandboxPolicy,
+        chats: true,
+        isolation: 'container',
+        network: 'allowlist',
+        networkAllowlist: ['api.example.test', 'cdn.example.test'],
+      },
+    })));
+
+    expect(exit._tag).toBe('Failure');
+    expect(policyAdapter).toHaveBeenCalledWith(['api.example.test', 'cdn.example.test']);
     await Effect.runPromise(sandbox.close);
   });
 });

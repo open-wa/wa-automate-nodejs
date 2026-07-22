@@ -26,7 +26,8 @@ import type { PluginEventEmitter } from '@open-wa/plugin-sdk';
 export function createEventGateway(
   emitter: HyperEmitter<OpenWAEventMap>,
   pluginName: string,
-  logger: Logger
+  logger: Logger,
+  signal?: AbortSignal,
 ): PluginEventEmitter {
   const isBlocked = (event: string): boolean => {
     const meta = OpenWAEventMetaMap[event as keyof OpenWAEventMap];
@@ -44,7 +45,7 @@ export function createEventGateway(
         });
         return;
       }
-      emitter.on(event as keyof OpenWAEventMap, handler as never);
+      emitter.on(event as keyof OpenWAEventMap, handler as never, { signal });
     },
 
     once(event: string, handler: (payload: unknown) => void) {
@@ -56,7 +57,7 @@ export function createEventGateway(
         });
         return;
       }
-      emitter.once(event as keyof OpenWAEventMap, handler as never);
+      emitter.once(event as keyof OpenWAEventMap, handler as never, { signal });
     },
 
     off(event: string, handler: (payload: unknown) => void) {

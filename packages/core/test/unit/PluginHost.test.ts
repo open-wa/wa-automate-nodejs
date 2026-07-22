@@ -196,6 +196,47 @@ describe('PluginHost', () => {
       
       expect(dispose2).toHaveBeenCalledTimes(1);
     });
+
+    it('removes registered listeners before disposing plugins', async () => {
+      await host.register(createTestPlugin('listener-owner', async (input) => {
+        input.events.on('message.received', vi.fn());
+        return {
+          'client.ready': vi.fn(),
+          event: vi.fn(),
+        };
+      }), registerOptions);
+
+      expect(events.listenerCount()).toBeGreaterThan(0);
+      await host.dispose();
+
+      expect(events.listenerCount()).toBe(0);
+    });
+
+    it('waits for active handlers before disposing their service runtime', async () => {
+      const order: string[] = [];
+      await host.register(createTestPlugin('supervised', async (input) => ({
+        'client.ready': async () => {
+          order.push('handler-started');
+          await new Promise<void>((resolve) => {
+            input.signal.addEventListener('abort', () => resolve(), { once: true });
+          });
+          await new Promise((resolve) => setTimeout(resolve, 10));
+          order.push('handler-finished');
+        },
+        dispose: () => {
+          order.push('disposed');
+        },
+      })), registerOptions);
+
+      events.emit('client.ready', { sessionId: 'test-session' });
+      await vi.waitFor(() => expect(order).toContain('handler-started'));
+      const disposal = host.dispose();
+      await Promise.resolve();
+      expect(order).toEqual(['handler-started']);
+
+      await disposal;
+      expect(order).toEqual(['handler-started', 'handler-finished', 'disposed']);
+    });
   });
 
   describe('getTools', () => {

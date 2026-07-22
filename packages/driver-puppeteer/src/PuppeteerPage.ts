@@ -254,7 +254,7 @@ export class PuppeteerPage implements IPage {
         }
     }
 
-    async waitForFunction<Arg>(script: string, options?: WaitForFunctionOptions): Promise<void>;
+    async waitForFunction(script: string, options?: WaitForFunctionOptions): Promise<void>;
     async waitForFunction<Arg>(fn: (arg: Arg) => boolean, arg: Arg, options?: WaitForFunctionOptions): Promise<void>;
     async waitForFunction<Arg>(fnOrScript: string | ((arg: Arg) => boolean), argOrOptions?: Arg | WaitForFunctionOptions, maybeOptions?: WaitForFunctionOptions): Promise<void> {
         if (typeof fnOrScript === 'string') {

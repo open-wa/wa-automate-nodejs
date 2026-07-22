@@ -1,0 +1,111 @@
+{
+  "benchmark": "openwa-real-runtime",
+  "recordedAt": "2026-07-22T12:35:04.265Z",
+  "scope": "browser-navigation",
+  "driver": "puppeteer",
+  "mode": "browser",
+  "url": "about:blank",
+  "host": {
+    "platform": "darwin",
+    "release": "25.5.0",
+    "arch": "arm64",
+    "node": "v26.4.0",
+    "cpu": "Apple M1 Pro",
+    "cpuCount": 8,
+    "totalMemoryMb": 16384
+  },
+  "results": {
+    "1Session": {
+      "cold": {
+        "durationMs": 9152,
+        "peakBrowserTreeRssMb": 796.2,
+        "sessions": [
+          {
+            "browserVersion": "Chrome/150.0.7871.130"
+          }
+        ]
+      },
+      "warm": {
+        "samples": [
+          {
+            "durationMs": 1616,
+            "peakBrowserTreeRssMb": 772.8,
+            "sessions": [
+              {
+                "browserVersion": "Chrome/150.0.7871.130"
+              }
+            ]
+          },
+          {
+            "durationMs": 1781,
+            "peakBrowserTreeRssMb": 758.5,
+            "sessions": [
+              {
+                "browserVersion": "Chrome/150.0.7871.130"
+              }
+            ]
+          }
+        ],
+        "medianDurationMs": 1616,
+        "p95DurationMs": 1781,
+        "medianPeakBrowserTreeRssMb": 758.5,
+        "p95PeakBrowserTreeRssMb": 772.8
+      }
+    },
+    "3Session": {
+      "cold": {
+        "durationMs": 2845,
+        "peakBrowserTreeRssMb": 2204.5,
+        "sessions": [
+          {
+            "browserVersion": "Chrome/150.0.7871.130"
+          },
+          {
+            "browserVersion": "Chrome/150.0.7871.130"
+          },
+          {
+            "browserVersion": "Chrome/150.0.7871.130"
+          }
+        ]
+      },
+      "warm": {
+        "samples": [
+          {
+            "durationMs": 2367,
+            "peakBrowserTreeRssMb": 2268.3,
+            "sessions": [
+              {
+                "browserVersion": "Chrome/150.0.7871.130"
+              },
+              {
+                "browserVersion": "Chrome/150.0.7871.130"
+              },
+              {
+                "browserVersion": "Chrome/150.0.7871.130"
+              }
+            ]
+          },
+          {
+            "durationMs": 1695,
+            "peakBrowserTreeRssMb": 2258.6,
+            "sessions": [
+              {
+                "browserVersion": "Chrome/150.0.7871.130"
+              },
+              {
+                "browserVersion": "Chrome/150.0.7871.130"
+              },
+              {
+                "browserVersion": "Chrome/150.0.7871.130"
+              }
+            ]
+          }
+        ],
+        "medianDurationMs": 1695,
+        "p95DurationMs": 2367,
+        "medianPeakBrowserTreeRssMb": 2258.6,
+        "p95PeakBrowserTreeRssMb": 2268.3
+      }
+    }
+  }
+}

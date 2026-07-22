@@ -91,6 +91,8 @@ export interface IBrowser {
     close(): Promise<void>;
     isConnected(): boolean;
     versionString(): Promise<string>;
+    /** Root browser process PID when the driver owns a local process. */
+    processId?(): number | undefined;
 
     unwrap(): unknown;
 }

@@ -31,11 +31,21 @@ export const defaultChatSandboxPolicy: ChatSandboxPolicy = {
   capabilities: ['sendText'],
 };
 
+export type SandboxCapabilityHandler = (
+  ...args: ReadonlyArray<unknown>
+) => unknown | Promise<unknown>;
+
+export type SandboxCapabilityHandlers = Readonly<
+  Record<string, SandboxCapabilityHandler>
+>;
+
 export interface SandboxRequest {
   readonly chatId: string;
   readonly source: string;
   readonly input?: unknown;
   readonly policy: ChatSandboxPolicy;
+  /** Parent-owned capability implementations. Functions never enter the sandbox. */
+  readonly capabilityHandlers?: SandboxCapabilityHandlers;
 }
 
 export interface ExecutionSandboxShape {

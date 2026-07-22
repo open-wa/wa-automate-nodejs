@@ -26,7 +26,9 @@ import {
   type SessionFinalizerReason,
   type ChatSandboxPolicy,
   type ExecutionSandboxShape,
+  type SandboxCapabilityHandlers,
   type RuntimeObservabilityShape,
+  type RuntimeCauseRecord,
   makeInMemoryObservability,
 } from '@open-wa/runtime-core';
 
@@ -111,10 +113,13 @@ export interface CreateClientOptions {
   /** Execution adapter and policy for explicit per-chat user-code isolation. */
   executionSandbox?: ExecutionSandboxShape;
   sandboxPolicy?: ChatSandboxPolicy;
+  /** Extra parent-side capabilities that isolated chat code may request by name. */
+  sandboxCapabilities?: SandboxCapabilityHandlers;
   observability?: RuntimeObservabilityShape;
   /** Runtime-specific memory sampler. Its fiber is owned by the session Scope. */
   memoryObservation?: (
     observability: RuntimeObservabilityShape,
+    getBrowserProcessId: () => number | undefined,
   ) => Effect.Effect<never, unknown>;
 }
 
@@ -138,6 +143,7 @@ export interface OpenWAClient {
   executeInChatSandbox<T = unknown>(chatId: string, source: string, input?: unknown): Promise<T>;
   closeChatSandbox(chatId: string): Promise<void>;
   getRuntimeMetrics(): Promise<Readonly<Record<string, number>>>;
+  getRuntimeCauses(): Promise<ReadonlyArray<RuntimeCauseRecord>>;
 }
 
 function hasCapabilitySubject(driver: IDriver): driver is IDriver & CapabilitySubject {
@@ -285,7 +291,10 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
   });
 
   const pluginHost = new PluginHost(events, logger);
-  const resourceScope = await SessionScope.make();
+  const resourceScope = await SessionScope.make({
+    observability,
+    metricAttributes: { session: sessionId },
+  });
   await resourceScope.addFinalizer('transport.close', () => transport.close());
   await resourceScope.addFinalizer('plugins.dispose', () => pluginHost.dispose());
   if (options.executionSandbox) {
@@ -295,13 +304,32 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     );
   }
   if (options.memoryObservation) {
-    await resourceScope.fork(options.memoryObservation(observability).pipe(
+    await resourceScope.fork(options.memoryObservation(
+      observability,
+      () => transport.getBrowser()?.processId?.(),
+    ).pipe(
       Effect.catchCause(() => Effect.never),
     ));
   }
 
   // Create the PluginClient proxy
   const pluginClient = createPluginClientProxy(transport, logger);
+  const sandboxCapabilityHandlers: SandboxCapabilityHandlers = {
+    sendText: (...args) => pluginClient.sendText(...args as Parameters<PluginClient['sendText']>),
+    sendImage: (...args) => pluginClient.sendImage(...args as Parameters<PluginClient['sendImage']>),
+    sendFile: (...args) => pluginClient.sendFile(...args as Parameters<PluginClient['sendFile']>),
+    sendLocation: (...args) => pluginClient.sendLocation(...args as Parameters<PluginClient['sendLocation']>),
+    sendLinkWithAutoPreview: (...args) => pluginClient.sendLinkWithAutoPreview(
+      ...args as Parameters<PluginClient['sendLinkWithAutoPreview']>
+    ),
+    reply: (...args) => pluginClient.reply(...args as Parameters<PluginClient['reply']>),
+    sendSeen: (...args) => pluginClient.sendSeen(...args as Parameters<PluginClient['sendSeen']>),
+    getHostNumber: (...args) => pluginClient.getHostNumber(...args as Parameters<PluginClient['getHostNumber']>),
+    getContact: (...args) => pluginClient.getContact(...args as Parameters<PluginClient['getContact']>),
+    getAllContacts: (...args) => pluginClient.getAllContacts(...args as Parameters<PluginClient['getAllContacts']>),
+    getAllChats: (...args) => pluginClient.getAllChats(...args as Parameters<PluginClient['getAllChats']>),
+    ...options.sandboxCapabilities,
+  };
 
   // Register directly-provided plugins
   try {
@@ -411,7 +439,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
           error: normalizedError,
           fatal: true,
         });
-        Effect.runSync(observability.increment('cause_failures', 1, { scope }));
+        Effect.runSync(observability.recordCause(scope, normalizedError));
         await session.setState('DISCONNECTED', scope);
         throw normalizedError;
       };
@@ -1135,11 +1163,19 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       events.emit('core.stopping', { reason });
 
       await session.setState('STOPPED', reason);
-      const finalizerReason: SessionFinalizerReason = reason === 'signal'
-        ? 'signal'
-        : reason === 'browser-crash'
-          ? 'browser-crash'
-          : 'normal-stop';
+      const supportedReasons = new Set<SessionFinalizerReason>([
+        'auth-timeout',
+        'browser-crash',
+        'failure',
+        'interruption',
+        'normal-stop',
+        'plugin-failure',
+        'signal',
+        'startup-failure',
+      ]);
+      const finalizerReason: SessionFinalizerReason = supportedReasons.has(reason as SessionFinalizerReason)
+        ? reason as SessionFinalizerReason
+        : 'normal-stop';
       await resourceScope.close(finalizerReason);
 
       events.emit('core.stopped', {});
@@ -1183,6 +1219,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         source,
         input,
         policy: options.sandboxPolicy,
+        capabilityHandlers: sandboxCapabilityHandlers,
       })) as Promise<T>;
     },
 
@@ -1193,6 +1230,10 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
 
     async getRuntimeMetrics(): Promise<Readonly<Record<string, number>>> {
       return Effect.runPromise(observability.snapshot);
+    },
+
+    async getRuntimeCauses() {
+      return Effect.runPromise(observability.causes);
     },
   };
 

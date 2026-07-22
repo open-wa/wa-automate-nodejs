@@ -33,11 +33,15 @@ export class PuppeteerBrowser implements IBrowser {
     }
 
     isConnected(): boolean {
-        return this.browser.isConnected();
+        return this.browser.connected;
     }
 
     async versionString(): Promise<string> {
         return await this.browser.version();
+    }
+
+    processId(): number | undefined {
+        return this.browser.process()?.pid;
     }
 
     unwrap(): Browser {

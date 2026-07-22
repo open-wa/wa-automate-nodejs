@@ -13,5 +13,5 @@
     "after": { "durationMs": 70, "rssPeakMb": 141.8, "rssDeltaMb": 0.3 },
     "speedup": 6.45
   },
-  "note": "Synthetic contract baseline. Add Puppeteer, Playwright, and Lightpanda cold/warm browser baselines before enforcing production thresholds."
+  "note": "Comparative dependency-graph baseline. Real Puppeteer browser process-tree RSS is recorded separately; authenticated full-session baselines are release-environment artifacts because they require isolated credentials."
 }
