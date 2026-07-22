@@ -15,6 +15,7 @@ import { createHonoMcpAdapter } from '@open-wa/mcp';
 import { registerMetaRoutes } from './routes/meta';
 import { registerDebugRoutes } from './routes/debug';
 import { registerAgentDiscoveryRoutes } from './routes/agent-discovery';
+import { apiKeyMiddleware } from './auth/api-key';
 import { type EventBridge } from './events/EventBridge';
 import { HealthStore } from './health/HealthStore';
 import { EventBroadcaster } from './events/EventBroadcaster';
@@ -100,6 +101,7 @@ export class ApiServer {
     }
 
     this.setupMiddleware();
+    this.setupManagementAuthentication();
     this.registerRoutes();
 
     // Register screencast WebSocket route
@@ -300,6 +302,19 @@ export class ApiServer {
     }
   }
 
+  private setupManagementAuthentication() {
+    if (!this.config.apiKey) {
+      return;
+    }
+
+    const authenticate = apiKeyMiddleware(this.config.apiKey);
+    this.app.use('/meta/debug/*', authenticate);
+    this.app.use('/meta/integrations', authenticate);
+    this.app.use('/meta/integrations/*', authenticate);
+    this.app.use('/qr', authenticate);
+    this.app.use('/screencast', authenticate);
+  }
+
   private registerRoutes() {
     const methodDefinitions = getHttpMethodDefinitions();
     registerAgentDiscoveryRoutes(this.app, {
@@ -348,7 +363,8 @@ export class ApiServer {
           exposureSafe: false,
         },
         // QR code for pre-launch scanning
-        qr: this.latestQR ?? null,
+        // Keep the health probe public without bypassing the authenticated QR route.
+        qr: this.config.apiKey ? null : (this.latestQR ?? null),
         // Accumulated health data for the dashboard
         launchTimeline: healthSnapshot.launchTimeline,
         patches: healthSnapshot.patches,
