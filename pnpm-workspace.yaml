@@ -64,7 +64,8 @@ lockfile: true
 allowBuilds:
   '@lightpanda/browser': true
   '@swc/core': true
-  bcrypt: true
+  # node-red uses bcrypt's JavaScript fallback when its native build is disabled.
+  bcrypt: false
   cloudflared: true
   core-js: true
   deasync: true
@@ -73,6 +74,8 @@ allowBuilds:
   gifsicle: true
   highlight.js: true
   jpegtran-bin: true
+  # msgpackr falls back to its portable JavaScript implementation.
+  msgpackr-extract: false
   optipng-bin: true
   protobufjs: true
   puppeteer: true
@@ -83,8 +86,8 @@ allowBuilds:
   '@firebase/util': false
   '@scarf/scarf': false
   msw: false
-  unrs-resolver: true
-  vue-demi: true
+  unrs-resolver: false
+  vue-demi: false
 minimumReleaseAgeExclude:
   - '@effect/platform-browser@4.0.0-beta.100'
   - '@effect/platform-bun@4.0.0-beta.100'

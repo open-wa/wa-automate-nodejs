@@ -3,7 +3,7 @@
 # to get the exact Node and pnpm versions this repo builds and tests against.
 [tools]
 node = "22.21"   # matches package.json engines: node >=22.21.1
-pnpm = "11.9"    # matches package.json packageManager: pnpm@11.9.0
+pnpm = "11.15.1" # matches package.json packageManager: pnpm@11.15.1
 
 [tasks.install]
 description = "Install workspace dependencies"
