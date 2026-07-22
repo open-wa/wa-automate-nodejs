@@ -5,7 +5,8 @@
  * Supports event filtering, retry with exponential backoff, and concurrent delivery.
  */
 import { createPlugin, z } from '@open-wa/plugin-sdk';
-import { WebhookDeliverer } from './deliverer.js';
+import { Effect, ManagedRuntime } from 'effect';
+import { WebhookDelivererService, webhookDelivererLayer } from './service.js';
 
 const configSchema = z.object({
   /** Target URL for webhook delivery */
@@ -17,6 +18,12 @@ const configSchema = z.object({
   /** Max concurrent deliveries */
   concurrency: z.number().int().positive().default(10),
 
+  /** Maximum deliveries waiting in memory */
+  queueCapacity: z.number().int().positive().default(1000),
+
+  /** Full-queue behavior */
+  overload: z.enum(['backpressure', 'dropping']).default('backpressure'),
+
   /** Number of retry attempts */
   retries: z.number().int().min(0).default(3),
 
@@ -24,10 +31,16 @@ const configSchema = z.object({
   retryDelay: z.number().int().positive().default(1000),
 
   /** Additional headers */
-  headers: z.record(z.string()).optional(),
+  headers: z.record(z.string(), z.string()).optional(),
 
   /** Request timeout in ms */
   timeout: z.number().int().positive().default(30_000),
+
+  durability: z.object({
+    enabled: z.boolean().default(false),
+    path: z.string().default('.openwa/webhook-deliveries.sqlite'),
+    replayLimit: z.number().int().positive().default(1000),
+  }).optional(),
 });
 
 export type WebhookPluginConfig = z.infer<typeof configSchema>;
@@ -44,7 +57,8 @@ export default createPlugin({
 
   init: async ({ config, logger, sessionId }) => {
     const webhookId = crypto.randomUUID();
-    const deliverer = new WebhookDeliverer(config, logger);
+    const runtime = ManagedRuntime.make(webhookDelivererLayer(config, logger));
+    const deliverer = await runtime.runPromise(WebhookDelivererService);
 
     const allowedEvents = config.events === 'all'
       ? null
@@ -53,22 +67,22 @@ export default createPlugin({
     logger.info(`Webhook configured: ${config.url} (${config.events === 'all' ? 'all events' : `${(config.events as string[]).length} events`})`);
 
     return {
-      event: async ({ event, payload }) => {
-        if (allowedEvents && !allowedEvents.has(event)) {
-          return;
-        }
-
-        await deliverer.deliver({
-          webhookId,
-          sessionId,
-          event,
-          payload,
-          timestamp: Date.now(),
-        });
-      },
+      event: ({ event, payload }) => runtime.runPromise(Effect.tryPromise({
+        try: async () => {
+          if (allowedEvents && !allowedEvents.has(event)) return;
+          await deliverer.deliver({
+            webhookId,
+            sessionId,
+            event,
+            payload,
+            timestamp: Date.now(),
+          });
+        },
+        catch: (cause) => cause,
+      })),
 
       dispose: async () => {
-        await deliverer.waitForIdle();
+        await runtime.dispose();
         logger.info('Webhook deliverer queue drained');
       },
     };

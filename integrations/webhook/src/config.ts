@@ -13,6 +13,12 @@ export interface WebhookConfig {
   /** Max concurrent deliveries (default: 10) */
   concurrency?: number;
 
+  /** Maximum number of deliveries waiting in memory (default: 1000) */
+  queueCapacity?: number;
+
+  /** Whether a full queue waits for room or rejects new deliveries */
+  overload?: 'backpressure' | 'dropping';
+
   /** Number of retry attempts (default: 3) */
   retries?: number;
 
@@ -24,6 +30,13 @@ export interface WebhookConfig {
 
   /** Request timeout in ms (default: 30000) */
   timeout?: number;
+
+  /** Durable SQLite delivery journal. Pending rows are replayed after restart. */
+  durability?: {
+    enabled: boolean;
+    path?: string;
+    replayLimit?: number;
+  };
 }
 
 export interface Webhook {
@@ -40,4 +53,6 @@ export interface WebhookPayload {
   event: string;
   payload: unknown;
   timestamp: number;
+  /** Stable caller-provided deduplication key. Falls back to a payload hash. */
+  idempotencyKey?: string;
 }

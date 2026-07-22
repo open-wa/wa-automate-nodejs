@@ -1,12 +1,12 @@
 import { WAServer } from './hono-server';
 import type { Config } from '@open-wa/config';
-import { SessionManager } from '../session/SessionManager';
+import { SessionArchiveManager } from '../session/SessionArchiveManager';
 import { getCliOutputSink } from '../cli/output-sink';
 
 export class APILifecycleManager {
     private config: Config;
     private server?: WAServer;
-    private sessionManager?: SessionManager;
+    private sessionArchiveManager?: SessionArchiveManager;
     // @ts-ignore
     private _sessionConnected: boolean = false;
 
@@ -15,7 +15,7 @@ export class APILifecycleManager {
         
         // Initialize session manager if S3 sync is configured
         if (config.s3Sync) {
-            this.sessionManager = SessionManager.createFromConfig(config);
+            this.sessionArchiveManager = SessionArchiveManager.createFromConfig(config);
         }
     }
 
@@ -36,8 +36,8 @@ export class APILifecycleManager {
         }
         
         // Start session manager after all other initialization
-        if (this.sessionManager) {
-            await this.sessionManager.start();
+        if (this.sessionArchiveManager) {
+            await this.sessionArchiveManager.start();
         }
     }
 
@@ -66,8 +66,8 @@ export class APILifecycleManager {
     
     public async stop(): Promise<void> {
         // Stop session manager first
-        if (this.sessionManager) {
-            await this.sessionManager.stop();
+        if (this.sessionArchiveManager) {
+            await this.sessionArchiveManager.stop();
         }
         
         // Then stop server

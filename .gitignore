@@ -1,14 +1,7 @@
 node_modules
 dist
-# Runtime browser session data / Chrome userData — NEVER commit these. The
-# runtime's default userDataDir is _IGNORE_<sessionId> (see **_IGNORE_** below);
-# these also catch session dirs a user points userDataDir at.
-session/
-sessions/
-newsession/
-# ...but wa-automate's source `session` directory is real code, not data:
-!packages/wa-automate/src/session/
-!packages/wa-automate/src/session/**
+/session/
+/newsession/
 **buttons.js
 **req.ts
 **qr_code_session.png

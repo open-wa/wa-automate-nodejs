@@ -1,6 +1,10 @@
-import PQueue from 'p-queue';
 import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { OpenWAEventMap, STATE } from '@open-wa/core';
+import {
+  ScopedTaskQueue,
+  queueMetricsObserver,
+  type RuntimeObservabilityShape,
+} from '@open-wa/runtime-core';
 import { eventRegistry, type QueueOptions } from '@open-wa/schema';
 import type { Message, MessageId } from '@open-wa/schema';
 
@@ -20,6 +24,7 @@ export interface ListenerHandle {
 export interface ListenerManagerConfig {
   sessionId: string;
   events: HyperEmitter<OpenWAEventMap>;
+  observability?: RuntimeObservabilityShape;
 }
 
 type EventPayloadMap = {
@@ -104,8 +109,9 @@ const EVENT_BRIDGES: { [K in EventName]: RuntimeBridge<K> } = {
 export class ListenerManager {
   private readonly events: HyperEmitter<OpenWAEventMap>;
   private readonly sessionId: string;
+  private readonly observability?: RuntimeObservabilityShape;
   private readonly handles = new Map<string, ListenerHandle>();
-  private readonly queues = new Map<string, PQueue>();
+  private readonly queues = new Map<string, Promise<ScopedTaskQueue>>();
   private readonly listeners = new Map<EventName, Map<string, EventHandler<EventName>>>();
   private readonly bridgeHandlers = new Map<EventName, (rawPayload: OpenWAEventMap[keyof OpenWAEventMap]) => void | Promise<void>>();
   private handleCounter = 0;
@@ -113,6 +119,7 @@ export class ListenerManager {
   constructor(config: ListenerManagerConfig) {
     this.events = config.events;
     this.sessionId = config.sessionId;
+    this.observability = config.observability;
   }
 
   on<K extends EventName>(eventName: K, handler: EventHandler<K>, options?: QueueOptions): ListenerHandle {
@@ -130,30 +137,26 @@ export class ListenerManager {
       ...options,
     };
 
-    let queue: PQueue | undefined;
-    if (mergedOptions && Object.keys(mergedOptions).length > 0) {
-      const queueKey = `${eventName}_${id}`;
-      const queueConfig: ConstructorParameters<typeof PQueue>[0] = {
-        concurrency: mergedOptions.concurrency ?? 1,
-        ...(typeof mergedOptions.intervalCap === 'number' ? { intervalCap: mergedOptions.intervalCap } : {}),
-        ...(typeof mergedOptions.interval === 'number' ? { interval: mergedOptions.interval } : {}),
-        ...(typeof mergedOptions.timeout === 'number' ? { timeout: mergedOptions.timeout } : {}),
-      };
-
-      queue = new PQueue(queueConfig);
-      this.queues.set(queueKey, queue);
-    }
+    const queueKey = `${eventName}_${id}`;
+    const queue = ScopedTaskQueue.make({
+      name: `listener.${this.sessionId}.${eventName}.${id}`,
+      concurrency: mergedOptions.concurrency ?? 1,
+      capacity: mergedOptions.capacity ?? 1024,
+      overload: mergedOptions.overload ?? 'backpressure',
+      ...(this.observability ? { observe: queueMetricsObserver(this.observability) } : {}),
+      ...(typeof mergedOptions.timeout === 'number' ? { timeoutMs: mergedOptions.timeout } : {}),
+      ...(typeof mergedOptions.intervalCap === 'number' && typeof mergedOptions.interval === 'number'
+        ? { rate: { limit: mergedOptions.intervalCap, intervalMs: mergedOptions.interval } }
+        : {}),
+    });
+    this.queues.set(queueKey, queue);
 
     const wrappedHandler: EventHandler<K> = async (validatedPayload, ctx) => {
       const execute = async () => {
         await handler(validatedPayload, ctx);
       };
 
-      if (queue) {
-        await queue.add(execute, { priority: mergedOptions.priority ?? 0 });
-      } else {
-        await execute();
-      }
+      await (await queue).submit(execute, `${eventName}.${id}`);
     };
 
     const eventListeners = this.listeners.get(eventName) ?? new Map<string, EventHandler<EventName>>();
@@ -170,7 +173,9 @@ export class ListenerManager {
         if (boundListeners && boundListeners.size === 0) {
           this.listeners.delete(eventName);
         }
-        this.queues.delete(`${eventName}_${id}`);
+        const ownedQueue = this.queues.get(queueKey);
+        this.queues.delete(queueKey);
+        void ownedQueue?.then((value) => value.close());
         handle.active = false;
         this.handles.delete(id);
       },
@@ -189,9 +194,24 @@ export class ListenerManager {
   async waitForQueuesToDrain(): Promise<void> {
     const queues = [...this.queues.values()];
     for (const queue of queues) {
-      await queue.onEmpty();
-      await queue.onIdle();
+      await (await queue).waitForIdle();
     }
+  }
+
+  async dispose(): Promise<void> {
+    const queues = [...this.queues.values()];
+    for (const handle of [...this.handles.values()]) handle.off();
+    await Promise.all(queues.map(async (queue) => (await queue).close()));
+    this.queues.clear();
+
+    for (const [eventName, handler] of this.bridgeHandlers) {
+      const bridge = EVENT_BRIDGES[eventName];
+      this.events.off(
+        bridge.runtimeEvent,
+        handler as (payload: OpenWAEventMap[typeof bridge.runtimeEvent]) => void | Promise<void>,
+      );
+    }
+    this.bridgeHandlers.clear();
   }
 
   private ensureAutobind<K extends EventName>(eventName: K): void {

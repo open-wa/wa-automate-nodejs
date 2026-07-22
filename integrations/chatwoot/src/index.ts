@@ -6,3 +6,8 @@ export type { ChatwootPluginConfig } from './plugin.js';
 export { ChatwootClient } from './client.js';
 export { createChatwootRouter } from './middleware.js';
 export type { ChatwootConfig } from './config.js';
+export {
+  ChatwootClientService,
+  chatwootClientLayer,
+  chatwootClientTestLayer,
+} from './service.js';

@@ -104,6 +104,7 @@ export class Client implements MessagingMethods, MediaMethods, GroupMethods, Cha
     this._listenerManager = new ListenerManager({
       sessionId: config.client.sessionId,
       events: config.client.events,
+      observability: config.client.observability,
     });
     
     // Bind method modules
@@ -179,6 +180,7 @@ export class Client implements MessagingMethods, MediaMethods, GroupMethods, Cha
    * Stop the client gracefully.
    */
   async stop(reason?: string): Promise<void> {
+    await this._listenerManager.dispose();
     return this._client.stop(reason);
   }
   
@@ -221,6 +223,15 @@ export class Client implements MessagingMethods, MediaMethods, GroupMethods, Cha
     arg: Arg
   ): Promise<Ret> {
     return this._transport.evaluate(fn, arg);
+  }
+
+  /** Execute an explicitly supplied function expression inside this chat's configured sandbox. */
+  async executeInChatSandbox<T = unknown>(chatId: string, source: string, input?: unknown): Promise<T> {
+    return this._client.executeInChatSandbox<T>(chatId, source, input);
+  }
+
+  async closeChatSandbox(chatId: string): Promise<void> {
+    await this._client.closeChatSandbox(chatId);
   }
   
   // ─────────────────────────────────────────────────────────────────

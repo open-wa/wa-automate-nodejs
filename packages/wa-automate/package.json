@@ -28,6 +28,8 @@
     "@open-wa/driver-lightpanda": "workspace:*",
     "@open-wa/driver-puppeteer": "workspace:*",
     "@open-wa/logger": "workspace:*",
+    "@open-wa/runtime-core": "workspace:*",
+    "@open-wa/runtime-node": "workspace:*",
     "@open-wa/schema": "workspace:*",
     "@open-wa/session-sync": "workspace:*",
     "boxen": "^5.0.0",

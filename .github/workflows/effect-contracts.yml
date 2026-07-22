@@ -1,0 +1,47 @@
+name: Effect runtime contracts
+
+on:
+  pull_request:
+    paths:
+      - 'packages/runtime-*/**'
+      - 'packages/client/**'
+      - 'packages/core/**'
+      - 'integrations/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'tools/check-effect-pins.mjs'
+      - 'tools/check-portable-imports.mjs'
+      - 'tools/check-bun-runtime.ts'
+      - 'tools/bench-effect-startup.mjs'
+      - '.github/workflows/effect-contracts.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'packages/runtime-*/**'
+      - 'packages/client/**'
+      - 'packages/core/**'
+      - 'integrations/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.21.1
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
+      - run: pnpm check:effect-contracts
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun tools/check-bun-runtime.ts

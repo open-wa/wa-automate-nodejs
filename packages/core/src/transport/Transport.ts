@@ -448,9 +448,10 @@ export class Transport {
   /** Cached live patch scripts for re-application during recovery */
   private cachedLivePatchScripts: string[] = [];
   private frameNavCounter = 0;
-  private options: TransportOptions = {} as TransportOptions;
+  private readonly options: TransportOptions;
 
   constructor(options: TransportOptions) {
+    this.options = options;
     this.driver = options.driver;
     this.events = options.events;
     this.logger = options.logger;
@@ -2092,8 +2093,6 @@ export class Transport {
 
   private async configurePageRuntime(page: IPage): Promise<void> {
     this.registerPageDiagnostics(page);
-
-    if (!this.options) this.options = {}
 
     // Inject self-healing watermark if configured
     if (this.options.watermark) {

@@ -168,6 +168,19 @@ export const McpConfigSchema = z.object({
     .describe('Expose /meta/mcp-tools.json for dashboard and debugging.'),
 });
 
+export const ChatSandboxConfigSchema = z.object({
+  isolation: z.enum(['worker', 'process', 'container']).default('process'),
+  timeoutMs: z.number().int().positive().default(30_000),
+  idleTimeoutMs: z.number().int().positive().default(5 * 60_000),
+  memoryMb: z.number().int().positive().default(256),
+  concurrency: z.number().int().positive().default(1),
+  filesystem: z.enum(['none', 'read-only', 'workspace']).default('none'),
+  network: z.enum(['none', 'allowlist']).default('none'),
+  networkAllowlist: z.array(z.string()).default([]),
+  env: z.union([z.literal('none'), z.array(z.string())]).default('none'),
+  capabilities: z.array(z.string()).default(['sendText']),
+});
+
 // ============================================================================
 // Main Configuration Schema
 // ============================================================================
@@ -337,6 +350,11 @@ export const ConfigSchema = z.object({
 
   // Safety & Error Handling
   safeMode: z.boolean().default(false).describe('Check if page is valid before each command.'),
+
+  sandboxChats: z
+    .union([z.boolean(), ChatSandboxConfigSchema])
+    .default(false)
+    .describe('Run explicit per-chat user code in a worker, process, or container sandbox.'),
 
   onError: z.nativeEnum(OnError).default(OnError.NOTHING).describe('Error handling strategy.'),
 
@@ -523,6 +541,7 @@ export type Viewport = z.infer<typeof ViewportSchema>;
 export type LightpandaOptions = z.infer<typeof LightpandaOptionsSchema>;
 export type S3Sync = z.infer<typeof S3SyncSchema>;
 export type LoggingTransport = z.infer<typeof LoggingTransportSchema>;
+export type ChatSandboxConfig = z.infer<typeof ChatSandboxConfigSchema>;
 
 // ============================================================================
 // Partial/Strict Variants
