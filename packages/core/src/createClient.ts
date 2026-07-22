@@ -621,22 +621,31 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         runStartupGraph([
           {
             id: 'transport',
-            run: () => Effect.tryPromise(async () => {
-              await transport.initialize();
-              await transport.navigate();
-              return true;
+            run: () => Effect.tryPromise({
+              try: async () => {
+                await transport.initialize();
+                await transport.navigate();
+                return true;
+              },
+              catch: (error) => error,
             }),
           },
           {
             id: 'patch-preload',
-            run: () => Effect.tryPromise(() => transport.preloadLivePatchArtifacts()),
+            run: () => Effect.tryPromise({
+              try: () => transport.preloadLivePatchArtifacts(),
+              catch: (error) => error,
+            }),
           },
           {
             id: 'license-preflight',
-            run: () => Effect.tryPromise(() => transport.preloadLicenseArtifact({
-              sessionId,
-              licenseKey: options.licenseKey,
-            })),
+            run: () => Effect.tryPromise({
+              try: () => transport.preloadLicenseArtifact({
+                sessionId,
+                licenseKey: options.licenseKey,
+              }),
+              catch: (error) => error,
+            }),
           },
         ], {
           concurrency: 3,

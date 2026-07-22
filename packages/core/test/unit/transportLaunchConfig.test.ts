@@ -18,6 +18,10 @@ import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
 import type { OpenWAEventMap } from '../../src/events/eventMap';
 import { Transport } from '../../src/transport/Transport';
+import {
+  partitionDangerousBrowserArgs,
+  sanitizeBrowserArgs,
+} from '../../src/transport/browserConfig';
 
 class TestConsoleMessage implements IConsoleMessage {
   constructor(

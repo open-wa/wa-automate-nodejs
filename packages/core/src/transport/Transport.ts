@@ -20,7 +20,7 @@ import { InjectionController, type GenerationSnapshot } from './InjectionControl
 import { getProgObserverScript, injectInitPatch } from './initPatchScripts';
 import { getRuntimeListenerSurfaceEntry, runtimeListenerSurface } from './runtimeListenerSurface';
 import { auditWapiHelperAssetRequirements } from './ScriptLoader';
-import { chromiumConfig } from './browserConfig';
+import { chromiumConfig, sanitizeBrowserArgs } from './browserConfig';
 
 export interface PatchFetchConfig {
   patchesUrl?: string;
