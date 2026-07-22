@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { QueueClosedError, QueueOverloadedError, TaskTimeoutError } from './errors.js';
-import { ScopedTaskQueue } from './scoped-task-queue.js';
+import { QueueClosedError, QueueOverloadedError, TaskTimeoutError } from './errors';
+import { ScopedTaskQueue } from './scoped-task-queue';
 
 const waitUntil = async (predicate: () => boolean): Promise<void> => {
   for (let attempt = 0; attempt < 200; attempt += 1) {

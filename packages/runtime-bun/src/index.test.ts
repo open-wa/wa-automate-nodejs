@@ -6,7 +6,7 @@ describe('BunRuntimeLayer', () => {
   const runtimeIt = 'Bun' in globalThis ? it : it.skip;
 
   runtimeIt('runs the same portable capability program with Bun services', async () => {
-    const { BunRuntimeLayer } = await import('./index.js');
+    const { BunRuntimeLayer } = await import('./index');
     const result = await Effect.runPromise(
       Effect.gen(function* () {
         const capabilities = yield* RuntimeCapabilities;

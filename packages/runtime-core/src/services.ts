@@ -4,7 +4,7 @@ import type {
   RuntimeCapabilityError,
   RuntimeKind,
   SessionAdmissionError,
-} from './errors.js';
+} from './errors';
 
 export interface RuntimeCapabilitiesShape {
   readonly runtime: RuntimeKind;

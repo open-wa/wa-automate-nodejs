@@ -4,7 +4,7 @@ import {
   QueueOverloadedError,
   TaskExecutionError,
   TaskTimeoutError,
-} from './errors.js';
+} from './errors';
 
 export type QueueOverloadStrategy = 'backpressure' | 'dropping';
 

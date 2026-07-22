@@ -3,11 +3,11 @@ import {
   RuntimeCapabilityError,
   type RuntimeCapability,
   type RuntimeKind,
-} from './errors.js';
+} from './errors';
 import {
   RuntimeCapabilities,
   type RuntimeCapabilitiesShape,
-} from './services.js';
+} from './services';
 
 export const makeRuntimeCapabilities = (
   runtime: RuntimeKind,

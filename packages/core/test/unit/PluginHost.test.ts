@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { HyperEmitter } from '@open-wa/hyperemitter';
 import { createLogger } from '@open-wa/logger';
-import { PluginHost } from '../../src/plugins/PluginHost.js';
+import { PluginHost } from '../../src/plugins/PluginHost';
 import { createPlugin } from '@open-wa/plugin-sdk';
-import type { PluginClient, PluginInput } from '../../src/plugins/types.js';
-import type { OpenWAEventMap } from '../../src/events/eventMap.js';
+import type { PluginClient, PluginInput } from '../../src/plugins/types';
+import type { OpenWAEventMap } from '../../src/events/eventMap';
 
 function createTestEvents(): HyperEmitter<OpenWAEventMap> {
   return new HyperEmitter<OpenWAEventMap>({ delimiter: '.', captureRejections: true });

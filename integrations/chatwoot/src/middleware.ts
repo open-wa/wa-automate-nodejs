@@ -5,7 +5,7 @@
  * outgoing messages to WhatsApp via the plugin's client.
  */
 import { Hono } from 'hono';
-import type { ChatwootClient } from './client.js';
+import type { ChatwootClient } from './client';
 import type { PluginClient, PluginLogger } from '@open-wa/plugin-sdk';
 
 interface WebhookBody {

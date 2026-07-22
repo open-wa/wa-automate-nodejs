@@ -1,7 +1,7 @@
 import type { Hono } from 'hono';
 import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
-import type { OpenWAEventMap } from '../events/eventMap.js';
+import type { OpenWAEventMap } from '../events/eventMap';
 import type {
   Plugin,
   Hooks,
@@ -13,8 +13,8 @@ import type {
   PluginManifestEntry,
   PluginClient,
 } from '@open-wa/plugin-sdk';
-import { createEventGateway, getPublicEvents } from './EventGateway.js';
-import { validatePluginConfig } from './PluginLoader.js';
+import { createEventGateway, getPublicEvents } from './EventGateway';
+import { validatePluginConfig } from './PluginLoader';
 
 // ============================================================================
 // Hook → Event mapping

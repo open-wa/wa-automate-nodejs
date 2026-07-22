@@ -1,6 +1,6 @@
 import { ManagedRuntime } from 'effect';
 import { describe, expect, it, vi } from 'vitest';
-import { WebhookDelivererService, webhookDelivererLayer } from './service.js';
+import { WebhookDelivererService, webhookDelivererLayer } from './service';
 
 describe('WebhookDeliverer Layer', () => {
   it('automatically releases the queue when its managed scope closes', async () => {

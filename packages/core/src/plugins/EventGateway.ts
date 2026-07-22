@@ -12,8 +12,8 @@
  * with a policy derived from the source of truth.
  */
 import type { HyperEmitter } from '@open-wa/hyperemitter';
-import type { OpenWAEventMap } from '../events/eventMap.js';
-import { OpenWAEventMetaMap } from '../events/eventMap.js';
+import type { OpenWAEventMap } from '../events/eventMap';
+import { OpenWAEventMetaMap } from '../events/eventMap';
 import type { Logger } from '@open-wa/logger';
 import type { PluginEventEmitter } from '@open-wa/plugin-sdk';
 

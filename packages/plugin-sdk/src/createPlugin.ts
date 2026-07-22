@@ -5,7 +5,7 @@
  * It handles metadata attachment, config schema binding, and proper typing.
  */
 import type { z } from 'zod';
-import type { Plugin, PluginMeta, PluginInput, Hooks } from './types.js';
+import type { Plugin, PluginMeta, PluginInput, Hooks } from './types';
 
 export interface CreatePluginOptions<TConfig> {
   /** Plugin metadata — name is required, everything else is optional */

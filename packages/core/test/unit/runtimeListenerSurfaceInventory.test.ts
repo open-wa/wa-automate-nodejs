@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
-import { InjectionController } from '../../src/transport/InjectionController.js';
+import { InjectionController } from '../../src/transport/InjectionController';
 import {
   requiredRuntimeWapiMethods,
   runtimeListenerSurface,
-} from '../../src/transport/runtimeListenerSurface.js';
+} from '../../src/transport/runtimeListenerSurface';
 
 describe('runtime listener surface inventory', () => {
   it('derives the required WAPI method inventory from the shipped listener surface', async () => {

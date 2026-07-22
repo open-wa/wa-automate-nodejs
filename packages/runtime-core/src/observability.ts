@@ -3,7 +3,7 @@ import {
   RuntimeObservability,
   type RuntimeObservabilityShape,
   type RuntimeMetric,
-} from './services.js';
+} from './services';
 
 export const makeInMemoryObservability = (): RuntimeObservabilityShape => {
   const values = new Map<string, number>();

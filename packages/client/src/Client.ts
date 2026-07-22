@@ -28,16 +28,16 @@ import {
   Collection,
   CollectorFilter,
 } from '@open-wa/domain';
-import { ListenerManager, type ListenerHandle } from './events/index.js';
-import { throwUnsupportedListener } from './runtimeSurface.js';
+import { ListenerManager, type ListenerHandle } from './events/index';
+import { throwUnsupportedListener } from './runtimeSurface';
 import type { QueueOptions } from '@open-wa/schema';
 
-import { messagingMethods, type MessagingMethods } from './methods/messaging.js';
-import { mediaMethods, type MediaMethods } from './methods/media.js';
-import { groupMethods, type GroupMethods } from './methods/groups.js';
-import { chatMethods, type ChatMethods } from './methods/chats.js';
-import { contactMethods, type ContactMethods } from './methods/contacts.js';
-import { utilitiesMethods, type UtilitiesMethods } from './methods/utilities.js';
+import { messagingMethods, type MessagingMethods } from './methods/messaging';
+import { mediaMethods, type MediaMethods } from './methods/media';
+import { groupMethods, type GroupMethods } from './methods/groups';
+import { chatMethods, type ChatMethods } from './methods/chats';
+import { contactMethods, type ContactMethods } from './methods/contacts';
+import { utilitiesMethods, type UtilitiesMethods } from './methods/utilities';
 
 /**
  * Configuration for creating a WhatsApp Client.

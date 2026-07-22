@@ -1,5 +1,5 @@
-import type { Client } from '../Client.js';
-import { createUnsupportedMethodStub } from '../runtimeSurface.js';
+import type { Client } from '../Client';
+import { createUnsupportedMethodStub } from '../runtimeSurface';
 
 declare const WAPI: {
   getHostNumber: () => string;

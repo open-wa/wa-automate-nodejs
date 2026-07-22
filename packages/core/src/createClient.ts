@@ -2,22 +2,22 @@ import { HyperEmitter } from '@open-wa/hyperemitter';
 import { createLogger, Logger } from '@open-wa/logger';
 import type { IDriver, LightpandaOptions } from '@open-wa/driver-interface';
 import { requireCapability, type CapabilitySubject } from '@open-wa/driver-interface';
-import { OpenWAEventMap, STATE } from './events/eventMap.js';
-import { PluginHost, loadPlugins } from './plugins/index.js';
+import { OpenWAEventMap, STATE } from './events/eventMap';
+import { PluginHost, loadPlugins } from './plugins/index';
 import type { Plugin, PluginClient } from '@open-wa/plugin-sdk';
 import {
   SessionManager,
   SessionStore,
   type SessionReadinessSnapshot,
   type SessionValidationStage,
-} from './sessionmanager/index.js';
-import { Transport } from './transport/index.js';
+} from './sessionmanager/index';
+import { Transport } from './transport/index';
 import type {
   LicenseKeyResolver,
   PatchFetchConfig,
   LicenseServerConfig,
   RuntimeValidationFailureReason,
-} from './transport/index.js';
+} from './transport/index';
 import { Effect } from 'effect';
 import {
   SessionScope,

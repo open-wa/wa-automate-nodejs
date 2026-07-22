@@ -2,9 +2,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { HyperEmitter } from '@open-wa/hyperemitter';
 import { createLogger } from '@open-wa/logger';
 import type { IDriver } from '@open-wa/driver-interface';
-import { Transport } from '../../src/transport/Transport.js';
-import type { OpenWAEventMap } from '../../src/events/eventMap.js';
-import * as httpClient from '../../src/transport/httpClient.js';
+import { Transport } from '../../src/transport/Transport';
+import type { OpenWAEventMap } from '../../src/events/eventMap';
+import * as httpClient from '../../src/transport/httpClient';
 
 function createTransport(patchConfig?: ConstructorParameters<typeof Transport>[0]['patchConfig']): Transport {
   return new Transport({

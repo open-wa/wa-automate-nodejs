@@ -1,7 +1,7 @@
-export { createClient } from './createClient.js';
-export type { CreateClientOptions, OpenWAClient } from './createClient.js';
+export { createClient } from './createClient';
+export type { CreateClientOptions, OpenWAClient } from './createClient';
 
-export * from './events/index.js';
-export * from './plugins/index.js';
-export * from './sessionmanager/index.js';
-export * from './transport/index.js';
+export * from './events/index';
+export * from './plugins/index';
+export * from './sessionmanager/index';
+export * from './transport/index';

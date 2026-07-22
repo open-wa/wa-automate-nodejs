@@ -1,6 +1,6 @@
 import { tunnel } from 'cloudflared';
 import type { Logger } from '@open-wa/logger';
-import type { CloudflareConfig } from './config.js';
+import type { CloudflareConfig } from './config';
 
 export interface TunnelResult {
   url: string;

@@ -6,7 +6,7 @@
  */
 import { createPlugin, z } from '@open-wa/plugin-sdk';
 import { Effect, ManagedRuntime } from 'effect';
-import { WebhookDelivererService, webhookDelivererLayer } from './service.js';
+import { WebhookDelivererService, webhookDelivererLayer } from './service';
 
 const configSchema = z.object({
   /** Target URL for webhook delivery */

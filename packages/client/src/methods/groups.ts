@@ -1,4 +1,4 @@
-import type { Client } from '../Client.js';
+import type { Client } from '../Client';
 import type {
   ChatId,
   GroupId,
@@ -7,7 +7,7 @@ import type {
   Chat,
   DataURL,
 } from '@open-wa/schema';
-import { createUnsupportedMethodStub } from '../runtimeSurface.js';
+import { createUnsupportedMethodStub } from '../runtimeSurface';
 
 declare const WAPI: {
   createGroup: (groupName: string, contactId: string | string[]) => Promise<any>;

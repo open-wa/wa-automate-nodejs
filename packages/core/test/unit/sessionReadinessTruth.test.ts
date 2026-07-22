@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { HyperEmitter } from '@open-wa/hyperemitter';
-import { SessionManager } from '../../src/sessionmanager/index.js';
-import type { OpenWAEventMap } from '../../src/events/eventMap.js';
+import { SessionManager } from '../../src/sessionmanager/index';
+import type { OpenWAEventMap } from '../../src/events/eventMap';
 
 function createSessionManager() {
   return new SessionManager({

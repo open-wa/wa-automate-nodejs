@@ -5,7 +5,7 @@
  */
 import {
   DEFAULT_USER_AGENT,
-} from './constants.js';
+} from './constants';
 
 function buildUserAgent(override?: string): string {
   let ua = override ?? DEFAULT_USER_AGENT;

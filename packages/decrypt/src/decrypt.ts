@@ -3,10 +3,10 @@
  *
  * Downloads the encrypted blob → decrypts with AES-256-CBC via HKDF-derived keys.
  */
-import { MissingCriticalDataError, NON_SIZE_TYPES } from './constants.js';
-import { decryptBuffer } from './crypto.js';
-import { downloadEncryptedMedia } from './download.js';
-import type { DecryptableMessage, DecryptOptions } from './types.js';
+import { MissingCriticalDataError, NON_SIZE_TYPES } from './constants';
+import { decryptBuffer } from './crypto';
+import { downloadEncryptedMedia } from './download';
+import type { DecryptableMessage, DecryptOptions } from './types';
 
 /**
  * Download and decrypt a WhatsApp media message.

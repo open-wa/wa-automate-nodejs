@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import axios from 'axios';
 import { decryptMedia as decryptMediaBuffer } from '@open-wa/decrypt';
-import { Client } from '../Client.js';
+import { Client } from '../Client';
 import type { OpenWAClient, OpenWAEventMap, STATE, Transport } from '@open-wa/core';
 import { HyperEmitter } from '@open-wa/hyperemitter';
 

@@ -1,7 +1,7 @@
 import { Deferred, Effect, Exit, Fiber } from 'effect';
 import { describe, expect, it } from 'vitest';
-import { StartupGraphError } from './errors.js';
-import { runStartupGraph, validateStartupGraph } from './startup-graph.js';
+import { StartupGraphError } from './errors';
+import { runStartupGraph, validateStartupGraph } from './startup-graph';
 
 describe('startup graph', () => {
   it('starts independent nodes concurrently and waits for dependencies', async () => {

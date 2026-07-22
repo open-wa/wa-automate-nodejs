@@ -1,7 +1,7 @@
 import { RuntimeCapabilities } from '@open-wa/runtime-core';
 import { Effect } from 'effect';
 import { describe, expect, it } from 'vitest';
-import { NodeRuntimeLayer } from './index.js';
+import { NodeRuntimeLayer } from './index';
 
 describe('NodeRuntimeLayer', () => {
   it('runs a portable capability program with Node services', async () => {

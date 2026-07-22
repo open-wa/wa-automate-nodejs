@@ -19,5 +19,5 @@ export const NodeRuntimeLayer = Layer.mergeAll(
 );
 
 export { NodeRuntime } from '@effect/platform-node';
-export * from './execution-sandbox.js';
-export * from './memory-observability.js';
+export * from './execution-sandbox';
+export * from './memory-observability';

@@ -11,9 +11,9 @@ import type {
 } from '@open-wa/driver-interface';
 import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
-import type { OpenWAEventMap } from '../../src/events/eventMap.js';
-import { InjectionController } from '../../src/transport/InjectionController.js';
-import { Transport } from '../../src/transport/Transport.js';
+import type { OpenWAEventMap } from '../../src/events/eventMap';
+import { InjectionController } from '../../src/transport/InjectionController';
+import { Transport } from '../../src/transport/Transport';
 
 class FakeElementHandle implements IElementHandle {
   async click(): Promise<void> {}

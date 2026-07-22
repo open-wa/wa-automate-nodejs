@@ -6,12 +6,12 @@ import {
   type RuntimeObservabilityShape,
 } from '@open-wa/runtime-core';
 import { Effect } from 'effect';
-import type { WebhookConfig, WebhookPayload } from './config.js';
+import type { WebhookConfig, WebhookPayload } from './config';
 import {
   SqliteWebhookDeliveryStore,
   type StoredWebhookDelivery,
   type WebhookDeliveryStore,
-} from './durable-store.js';
+} from './durable-store';
 
 /**
  * Webhook Deliverer — uses native fetch instead of axios.
