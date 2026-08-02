@@ -34,9 +34,9 @@ Use the exact scheme your proxy provider gives you. If the proxy needs a usernam
 
 Use an **HTTP** or **HTTPS** proxy when your provider is forwarding normal web traffic and gives you an HTTP endpoint. This is the most common setup for data center, residential, and corporate outbound proxies.
 
-Use a **SOCKS** or **SOCKS5** proxy when your provider gives you a lower-level tunnel endpoint, or when HTTP proxying breaks WebSocket or browser network behavior in your environment.
+Use a **SOCKS** or **SOCKS5** proxy for a lower-level tunnel endpoint. Also use it when an HTTP proxy causes WebSocket or browser network failures.
 
-If both are available, start with `http://` or `https://`. Switch to `socks5://` when your provider recommends it or when browser authentication, media, or WebSocket paths fail through the HTTP proxy.
+If the two proxy types are available, start with `http://` or `https://`. Switch to `socks5://` if the HTTP proxy fails.
 
 ## Env-secret
 
@@ -74,7 +74,7 @@ docker run --init \
   openwa/wa-automate
 ```
 
-In production, make the proxy part of your session configuration rather than a manual shell-only step. Confirm the runtime host can reach the proxy before starting a long-lived session, and use separate proxy credentials per environment when possible.
+In production, put the proxy in your session configuration. Make sure that the runtime host can connect to the proxy before you start a long-lived session. Use separate proxy credentials for each environment.
 
 For orchestrated deployments, set the same variables in your platform config:
 
@@ -93,7 +93,7 @@ Proxy authentication is separate from open-wa API authentication. `proxyServerCr
 
 Some proxy providers require IP allowlisting instead of username/password auth. In that case, leave `username` and `password` unset and make sure the host running open-wa is allowlisted by the provider.
 
-Avoid putting proxy credentials directly in the proxy URL. Keeping the address, username, and password separate makes logs safer and avoids URL parsing issues with special characters in passwords.
+Do not put proxy credentials in the proxy URL. Keep the address, username, and password separate. This structure makes logs safer and prevents URL parsing problems with special characters.
 
 Test the proxy during the first WhatsApp authentication flow. A proxy can appear healthy after login but still fail during QR, link-code, media upload, or WebSocket reconnect paths.
 
@@ -119,7 +119,7 @@ If your proxy uses IP allowlisting and no username/password:
 curl -x "http://proxy.example:1234" https://api.ipify.org
 ```
 
-The returned IP should match the proxy exit IP, not the server's normal public IP.
+The returned IP must match the proxy exit IP, not the normal public IP of the server.
 
 Then start a session and verify the parts most likely to expose proxy issues:
 
@@ -137,6 +137,6 @@ If what you actually want is **remote consumer access to a running session witho
 
 ## Tips
 
-- Keep proxy credentials in environment variables or a secure secret store.
+- Keep proxy credentials in environment variables or a protected secret store.
 - Validate proxy behavior during authentication flows, not only after the session is already healthy.
 - Test media upload/download paths explicitly, because those tend to surface proxy issues first.

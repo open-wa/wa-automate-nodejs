@@ -20,7 +20,7 @@ For media helpers that expect content payloads, prefer a proper data URL or a re
 
 ## Data URL creation
 
-A data URL gives the runtime both the file bytes and the MIME type in one string. Use this shape when sending media from disk, a buffer, or another service:
+A data URL gives the runtime the file bytes and the MIME type in one string. Use this shape when sending media from disk, a buffer, or another service:
 
 ```text
 data:<mime-type>;base64,<base64-data>
@@ -50,7 +50,7 @@ WhatsApp decides how to render media from the helper you call, the filename, and
 | Audio files | `audio/mpeg`, `audio/mp4`, `audio/ogg` |
 | Documents | `application/pdf`, `text/plain`, or the real document MIME type |
 
-If a send fails or arrives as the wrong type, check the data URL prefix first. Common issues are missing `;base64`, using `image/jpg` instead of `image/jpeg`, sending a WebP image through a non-sticker helper, or fetching a remote URL that responds with `text/html` because it returned an auth page instead of the file.
+If a send fails or has the incorrect type, examine the data URL prefix first. Common problems include a missing `;base64` value or an `image/jpg` value instead of `image/jpeg`. A WebP image can fail in a non-sticker helper. A remote URL can return an auth page with `text/html` instead of the file.
 
 ## Remote URL auth
 
@@ -68,7 +68,7 @@ await client.sendFileFromUrl(
 );
 ```
 
-Prefer signed URLs when possible because they avoid passing long-lived credentials into the browser/runtime layer. If you use headers, make sure the file endpoint returns the actual file bytes and a useful `Content-Type` header.
+Use signed URLs when possible. They do not put long-lived credentials in the browser or runtime layer. If you use headers, make sure that the endpoint returns the file bytes and a correct `Content-Type` header.
 
 ## File size limits
 
@@ -80,7 +80,7 @@ Media limits are enforced by WhatsApp and can change without notice. Treat these
 | Video and GIF-style sends | Keep under 16 MB for the most reliable delivery |
 | Voice notes and audio | Keep under 16 MB unless you have tested larger files in your target runtime |
 | Stickers | Keep under 1 MB |
-| Documents | WhatsApp Web may accept larger files, but keep automation payloads under 100 MB unless you have tested your account, browser, and host memory |
+| Documents | WhatsApp Web can accept larger files, but keep automation payloads under 100 MB unless you have tested your account, browser, and host memory |
 
 Base64 data URLs are larger than the original file by roughly one third. A 12 MB image becomes about 16 MB of string data before it reaches the runtime, so leave headroom for memory and transport overhead.
 
@@ -181,7 +181,7 @@ Incoming media points to encrypted blobs on WhatsApp servers. Those URLs can exp
 
 When media is stale, decryption usually fails during the download step because the encrypted blob can no longer be fetched. Recovery helpers can sometimes ask the runtime to refresh the media reference, but success depends on WhatsApp still making the media available to that session.
 
-For production flows, decrypt and store media as soon as you receive it. If the media matters for compliance, support, or analytics, save it to disk, object storage, or the S3 integration before you acknowledge the workflow as complete.
+For production flows, decrypt and store media when you receive it. If the media is necessary for compliance, support, or analytics, save it before you complete the workflow. Use disk, object storage, or the S3 integration.
 
 ## Runtime limitations
 

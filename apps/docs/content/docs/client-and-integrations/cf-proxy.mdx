@@ -1,6 +1,6 @@
 ---
 title: Cloudflare Session Proxy
-description: Deploy a reverse-tunnel proxy on Cloudflare Workers to access your sessions remotely, no port forwarding required.
+description: Deploy a reverse-tunnel proxy on Cloudflare Workers to access your sessions remotely, no port forwarding necessary.
 ---
 
 # Cloudflare Session Proxy
@@ -174,7 +174,7 @@ Session-level auth such as your API key still applies on top of the proxy tokens
 
 ## Token rotation
 
-Rotate tokens any time a token is shared too widely, appears in logs, or a consumer no longer needs access.
+Replace a token if users share it too widely, it appears in logs, or a consumer no longer needs access.
 
 For consumer access, update the secret in Cloudflare and redeploy if Wrangler prompts for it:
 
@@ -184,7 +184,7 @@ wrangler secret put CONSUMER_TOKEN
 wrangler deploy
 ```
 
-Then update remote clients to use the new token. Existing consumer WebSocket connections should be closed and reconnected so they authenticate with the new value.
+Then, update the remote clients to use the new token. Close and reconnect the consumer WebSocket connections. The connections will authenticate with the new value.
 
 For upstream access, update `UPSTREAM_TOKEN` in Cloudflare, then restart the local open-wa CLI with the matching `--proxy-token` value:
 

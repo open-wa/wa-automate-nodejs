@@ -1,6 +1,6 @@
 ---
 title: Core Client Reference
-description: API reference for the main Open-WA Client and startup options.
+description: API reference for the primary Open-WA Client and startup options.
 ---
 
 # Core Client Reference
@@ -16,15 +16,15 @@ Open-WA exposes a few entry points because each one owns a different layer of th
 | Easy API | The hosted HTTP API and dashboard started by the CLI or API server. | You want the fastest path to a running WhatsApp API, generated docs, webhooks, or MCP tools. |
 | `createClient` | The low-level core factory exported from `@open-wa/core` and re-exported by `@open-wa/wa-automate`. | You want to own the browser driver, startup lifecycle, events, plugins, and shutdown inside your own Node.js process. |
 | `create` | A convenience runtime helper that resolves Open-WA config, chooses a driver, and then calls core `createClient`. | You want programmatic startup with config-style defaults instead of building a full `CreateClientOptions` object yourself. |
-| `OpenWAClient` | The object returned by `createClient`. | You already created a core runtime and need to start it, stop it, inspect readiness, access events, or reach the transport. |
+| `OpenWAClient` | The object returned by `createClient`. | You created a core runtime and must start it, stop it, inspect readiness, access events, or connect to the transport. |
 
 Think of Easy API as the packaged service, `create` as a config-aware helper, `createClient` as the core constructor, and `OpenWAClient` as the running runtime handle. The higher-level client facade and socket clients build on top of those pieces to expose familiar message methods. The core client itself focuses on lifecycle, event flow, plugin hosting, session readiness, and browser transport access.
 
-For most applications, start with Easy API. Use `createClient` when runtime ownership matters more than convenience, for example when you need a specific driver, custom plugin registration, direct readiness checks, or controlled shutdown behavior.
+For most applications, start with Easy API. Use `createClient` when you must own the runtime. Examples include a specified driver, custom plugin registration, direct readiness checks, and controlled shutdown behavior.
 
 ## Runnable example
 
-This example starts the core runtime directly with the Puppeteer driver, listens for lifecycle and message events, prints the readiness snapshot, and shuts down cleanly on process signals.
+This example starts the core runtime with the Puppeteer driver. It listens for lifecycle and message events and prints the readiness snapshot. Process signals cause a controlled shutdown.
 
 ```bash
 npm install @open-wa/wa-automate @open-wa/driver-puppeteer
@@ -74,7 +74,7 @@ main().catch((error) => {
 });
 ```
 
-The first run will need authentication. After the session reaches `READY`, `getReadiness()` should report `ready: true` and `exposureSafe: true`.
+The first run needs authentication. After the session reaches `READY`, `getReadiness()` reports `ready: true` and `exposureSafe: true`.
 
 ## Lifecycle
 
@@ -83,7 +83,7 @@ The core lifecycle is explicit. `createClient(options)` builds the runtime objec
 | Method or state | Meaning |
 | --- | --- |
 | `createClient(options)` | Creates the event bus, session manager, transport, plugin host, and plugin client proxy. |
-| `client.start()` | Initializes the driver, opens WhatsApp Web, injects WAPI, waits for authentication, applies patches and license checks, activates runtime events, runs finalization hooks, then emits readiness events. |
+| `client.start()` | Initializes the driver and opens WhatsApp Web. It completes authentication, validation, finalization, and readiness events. |
 | `client.stop(reason?)` | Moves the session to `STOPPED`, disposes plugins, closes the transport, and emits shutdown events. |
 | `client.getState()` | Returns the current core state. |
 | `client.getReadiness()` | Returns the readiness snapshot used to decide whether the session is safe to expose. |
@@ -102,7 +102,7 @@ Core session states are intentionally small:
 | `READY` | Runtime validation, patch lifecycle, license lifecycle, and finalization have completed safely. |
 | `STOPPED` | The runtime has been shut down by `client.stop()`. |
 
-Readiness is stricter than state. A client can be past authentication but still not safe to expose if runtime validation, patch handling, license handling, finalization, or lower-level transport truth is still pending. Check `getReadiness().ready` for the simple answer, and inspect `pending`, `blockers`, and `requirements` when you need to explain why a session is not ready yet.
+Readiness is stricter than state. Authentication can finish while runtime validation, patch handling, license handling, finalization, or transport checks remain. Examine `getReadiness().ready` first. Then, examine `pending`, `blockers`, and `requirements` to find why a session is not ready.
 
 ## CreateClientOptions
 
@@ -112,13 +112,13 @@ Options passed to the `createClient` function to initialize the runtime.
 
 ## OpenWAClient
 
-The main client interface returned by `createClient`.
+The primary client interface returned by `createClient`.
 
 <AutoTypeTable path="../../../../../packages/core/src/createClient.ts" name="OpenWAClient" />
 
 ## Plugin type references
 
-Core re-exports the plugin SDK types for backward compatibility. New plugins should import these types from `@open-wa/plugin-sdk` directly, but the core package still exposes them through `@open-wa/core/plugins` for internal consumers and older integrations.
+Core re-exports the plugin SDK types for backward compatibility. New plugins must import these types from `@open-wa/plugin-sdk`. Core also exposes them through `@open-wa/core/plugins` for internal consumers and old integrations.
 
 ### Plugin
 
@@ -194,7 +194,7 @@ One plugin entry inside the dashboard manifest.
 
 ## Plugin SDK exports
 
-`@open-wa/plugin-sdk` is the package plugin authors should import from. Core consumes the same contracts when it registers plugins and builds the filtered plugin runtime.
+Plugin authors must import from `@open-wa/plugin-sdk`. Core uses the same contracts when it registers plugins and makes the filtered plugin runtime.
 
 | Export | Kind | Relationship to core |
 | --- | --- | --- |

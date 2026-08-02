@@ -32,7 +32,7 @@ await client.demoteParticipant(groupId, participantId);
 
 ## Admin permissions
 
-Most group write actions require the connected WhatsApp account to be an admin in that group. That includes adding or removing participants, promoting or demoting admins, changing the group description, changing the group image, revoking invite links, approving join requests, and changing announcement or edit settings.
+Most group write actions need the connected WhatsApp account to be a group administrator. These methods add or remove participants and change administrator roles. They also change group data, invite links, join requests, announcements, and edit settings.
 
 Read actions like `getGroupInfo`, `getGroupMembers`, `getGroupAdmins`, and `getGroupInviteLink` still depend on the account being a member of the group.
 
@@ -59,7 +59,7 @@ await client.approveGroupJoinRequest(groupId, contactId);
 await client.rejectGroupJoinRequest(groupId, contactId);
 ```
 
-Treat join requests as short-lived. A request may already be handled by another admin, cancelled by the requester, or expired by the time your code acts on it.
+Treat join requests as short-lived. A request can already be handled by another admin, cancelled by the requester, or expired by the time your code acts on it.
 
 ## Settings
 
@@ -103,7 +103,7 @@ type ParticipantsChangedEvent = {
 };
 ```
 
-The same shape covers member added, removed, promoted, and demoted events. Older handlers may expose similar values as `who` for the affected contact and `by` for the actor, so log the first event in your runtime before wiring strict storage code.
+The same shape applies to added, removed, promoted, and demoted member events. Older handlers can expose similar values as `who` for the affected contact and `by` for the actor. Log the first runtime event before you configure strict storage code.
 
 ## Common errors
 
@@ -116,11 +116,11 @@ Group methods usually fail for one of a few reasons:
 - `invite-link-expired`: the invite link was revoked, expired, or requires approval. Fetch a new link or handle the join request flow.
 - `rate-limited`: too many group actions happened in a short window. Slow down and retry later.
 
-Return values may be `false` instead of throwing for some runtime-backed group calls. Check the result and log the group ID, participant ID, and action so retries can be handled safely.
+Return values can be `false` instead of throwing for some runtime-backed group calls. Check the result and log the group ID, participant ID, and action so retries can be handled safely.
 
 ## Safety/rate-limit warnings
 
-Group actions are visible to real people and can trigger WhatsApp abuse checks. Avoid bulk adding, bulk removing, repeated invite revokes, or rapid setting changes.
+Group actions are visible to users and can start WhatsApp abuse checks. Do not add or remove users in bulk. Do not revoke invitations or change settings rapidly.
 
 Queue group writes, add delays between actions, and stop retrying when WhatsApp returns a permission or rate-limit failure. If you need to reconcile many groups, read state first, then only send the smallest set of changes.
 

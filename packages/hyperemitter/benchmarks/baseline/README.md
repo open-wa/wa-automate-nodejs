@@ -5,5 +5,5 @@ Usage:
 - `node benchmarks/baseline/run-baseline.js --iterations 750000 --output custom.json`
 
 Notes:
-- Skips libraries that are not installed; install dev deps in this package to populate all competitors.
+- The runner skips libraries that are not installed. Install this package's development dependencies to include all competitors.
 - Includes exact-match (3 args) and wildcard runs where the library supports wildcards.

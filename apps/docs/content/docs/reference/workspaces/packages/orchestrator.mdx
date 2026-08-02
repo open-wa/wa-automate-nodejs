@@ -3,7 +3,7 @@ title: "@open-wa/orchestrator"
 description: "Multi-session orchestration core logic"
 ---
 
-> Generated from `packages/orchestrator/README.md` by `apps/docs/scripts/gen-workspace-readme-docs.js`. Do not edit this page directly.
+> `apps/docs/scripts/gen-workspace-readme-docs.js` generated this page from `packages/orchestrator/README.md`. Do not edit this page directly.
 
 # @open-wa/wa-orchestrate
 
@@ -90,7 +90,7 @@ POST /api/marketing
 
 ## The API explorer
 
-You can explore all possible API requests for the relevant sessions using `/api-docs/`. Open this in a web browser:
+You can explore all possible API requests for the relevant sessions at `/api-docs/`. Open this path in a web browser:
 
 ```http
 GET /api/marketing/api-docs/
@@ -152,7 +152,7 @@ Then change from root to that user
 > su openwa
 ```
 
-Then go to the home directory (as root user you were most probably in /root which will cause further issues)
+Then go to the home directory. The `/root` directory can cause more problems.
 
 ```bash
 > cd ~
@@ -164,7 +164,7 @@ Then try to run the CLI again to make sure everything is working properly
 > npx @open-wa/wa-automate
 ```
 
-It should now be able to start the session. If puppeteer is still causing issues try:
+The command can start the session. If Puppeteer still causes problems, try this command:
 
 ```bash
 > npm i -g  @open-wa/wa-automate
@@ -182,7 +182,7 @@ then try again:
 > npm i -g  @open-wa/wa-automate
 ```
 
-If it was installed correctly, now try to run the CLI again:
+If the installation succeeded, run the CLI again:
 
 ```bash
 > npx @open-wa/wa-automate
@@ -197,7 +197,7 @@ If the puppeteer issue is still happening on launch then try to install chrome o
 > sudo apt-get install google-chrome-stable -y
 ```
 
-Now try to run the CLI again:
+Run the CLI again:
 
 ```bash
 > npx @open-wa/wa-automate

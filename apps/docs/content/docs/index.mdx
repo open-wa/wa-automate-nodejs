@@ -5,7 +5,7 @@ description: Start the Easy API, write custom Node.js code, connect integrations
 
 # open-wa / wa-automate
 
-Use these docs to get a WhatsApp session running, connect it to your app or helpdesk, and look up exact API methods when you need them.
+Use these docs to start a WhatsApp session and connect it to your app or helpdesk. Use the API reference to find exact methods.
 
 ## What you can build
 
@@ -19,7 +19,7 @@ Use these docs to get a WhatsApp session running, connect it to your app or help
 ## Prerequisites
 
 - **Node.js** >= 22.21.1
-- **npm** or **pnpm** (pnpm >= 10.25.0 for repo development)
+- **npm** for released packages, or **pnpm 11.9.0** for repo development
 - A WhatsApp account on a phone that can stay connected
 
 ## v5 alpha status
@@ -34,8 +34,8 @@ The current stable line is **v4.76.0**. v5 is the new package line, but it is st
 # Production: use v4
 npx @open-wa/wa-automate@4.76.0
 
-# Testing: use v5 alpha
-npx @open-wa/wa-automate
+# Testing: use the v5 alpha dist-tag
+npx @open-wa/wa-automate@alpha
 ```
 
 ### What changed in v5
@@ -71,10 +71,10 @@ npx @open-wa/wa-automate
 ## Legal and Risk Context
 
 <Callout type="danger">
-This project is unofficial and is not affiliated with WhatsApp or Meta. Use it at your own risk. By using this project you agree to the Terms of Service.
+This project is unofficial and has no affiliation with WhatsApp or Meta. You accept the risk when you use it. When you use this project, you agree to the Terms of Service.
 </Callout>
 
-- Using automation tools carries a risk of account restriction or ban
+- Automation tools can cause an account restriction or ban
 - Check your local laws regarding cryptographic software before use
 - See the [Hippocratic + Do Not Harm License](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md) for full terms
 

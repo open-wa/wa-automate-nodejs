@@ -1,6 +1,6 @@
 ---
 title: Socket Client
-description: Connect to a remote Easy API instance from your own app using SocketClient.
+description: Connect your app to a remote Easy API instance with SocketClient.
 ---
 
 # Socket Client
@@ -53,7 +53,7 @@ For command calls, `SocketClient` sends that key to Easy API as the `X-API-Key` 
 X-API-Key: your-api-key
 ```
 
-For the SSE event stream, the same key is attached to the events URL as `api_key` because the standard `EventSource` API does not support custom headers.
+The SSE event stream adds the same key to the events URL as `api_key`. The standard `EventSource` API does not support custom headers.
 
 ## Full runnable consumer
 
@@ -197,7 +197,7 @@ try {
 }
 ```
 
-In most cases you only need to listen for `disconnect` and keep your consumer idempotent. Avoid assuming every dropped event stream means the WhatsApp session itself is dead. Check the Easy API session health before restarting the runtime.
+In most cases, listen for `disconnect` and keep your consumer idempotent. A stopped event stream does not always mean that the WhatsApp session stopped. Examine the Easy API session health before you restart the runtime.
 
 ## Cloudflare proxy URLs
 
@@ -215,17 +215,17 @@ Use `SocketClient` when:
 
 This `@open-wa/socket-client` page describes the current Easy API transport used by the v5 runtime: HTTP RPC for commands and SSE for events. It is intended for Easy API instances that expose `/api/{method}` command routes and `/api/events` for the event stream.
 
-Older v4 deployments and older socket.io-based examples may not match this transport. If you are running the stable v4 line, use the SocketClient version and docs that match that deployment. If you are testing v5 alpha, keep Easy API and `@open-wa/socket-client` on matching current packages from this repo.
+Older v4 deployments and older socket.io-based examples can not match this transport. If you are running the stable v4 line, use the SocketClient version and docs that match that deployment. If you are testing v5 alpha, keep Easy API and `@open-wa/socket-client` on matching current packages from this repo.
 
 ## Browser security
 
 `SocketClient` does not give your app browser access. It only gives your app API access to a running Easy API instance.
 
-That means your consumer can call exposed Easy API methods and receive events, but it cannot inspect the browser page, run browser-side code, or bypass the Easy API security boundary. Treat the API key like a server secret.
+Your consumer can call exposed Easy API methods and receive events. It cannot inspect the browser page or run browser-side code. It cannot bypass the Easy API security boundary. Treat the API key as a server secret.
 
 ## Plugin SocketClient guidance
 
-Plugins that run outside the Easy API process can use `SocketClient` to connect back to a local Easy API instance. This is useful when the plugin is packaged as a separate worker, sidecar, or integration service and should not own the WhatsApp browser runtime.
+Plugins outside the Easy API process can use `SocketClient` to connect to a local Easy API instance. Use this design when a separate worker, sidecar, or integration service must not own the WhatsApp browser runtime.
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -249,7 +249,7 @@ Keep the Easy API URL and API key in plugin configuration or environment variabl
 
 ## Troubleshooting
 
-- Verify the base URL first; include the protocol and the correct port.
+- Verify that the base URL includes the protocol and the correct port.
 - If events do not appear, confirm the target Easy API session is actually healthy before debugging the consumer.
 - If auth is enabled, verify the same API key that works over HTTP is the one you are passing to `SocketClient.connect()`.
 - If you need remote access without opening ports, prefer the Cloudflare proxy route instead of inventing your own transport bridge.

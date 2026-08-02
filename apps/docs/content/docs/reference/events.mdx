@@ -220,7 +220,7 @@ A normal first login usually follows this order:
 22. `client.ready`
 23. `core.started`
 
-Warm starts can skip QR events. Failed starts may emit retry, timeout, invalid session, or error events before the lifecycle reaches `client.ready`.
+Warm starts can skip QR events. Failed starts can emit retry, timeout, invalid session, or error events before the lifecycle reaches `client.ready`.
 
 ## Mapping to session-events guide
 

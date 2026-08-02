@@ -96,7 +96,7 @@ Implement retention policies in your integration:
 
 ## Licensing for Integrations
 
-Licensing follows the exact methods and runtime behavior an integration uses, not just the wrapper name. Webhooks, SocketClient, plugins, MCP, Chatwoot, and proxy workflows can call different parts of the API surface, so check the [pricing page](/docs/licensing/pricing) and the method-level reference before promising a workflow to a customer.
+Licensing follows the methods and runtime behavior that an integration uses, not only its wrapper name. Each integration can call different parts of the API surface. Examine the [pricing page](/docs/licensing/pricing) and method reference before you promise a workflow to a customer.
 
 ## Choosing Your Path
 
@@ -131,7 +131,7 @@ Use MCP:
 1. Enable MCP in config with `mcp: { enabled: true }` and keep `apiKey` configured
 2. Verify whether your installed build mounts the configured `/mcp` route
 3. If `/mcp` is mounted, point your AI client at that endpoint so it can discover and call WhatsApp methods
-4. If `/mcp` is not mounted in your build, give the agent the HTTP API docs, OpenAPI schema, or Postman collection instead
+4. If your build does not mount `/mcp`, give the agent the HTTP API docs or OpenAPI schema. You can also give it the Postman collection.
 
 ## Related
 

@@ -1,6 +1,6 @@
 ---
 title: v5 Alpha Prerelease
-description: What changed in @open-wa v5.0.0-alpha.0, who should test it, and how to try it safely.
+description: Changes in @open-wa v5.0.0-alpha.0, who can test it, and how to do a safe test.
 ---
 
 # @open-wa v5.0.0-alpha.0
@@ -13,7 +13,7 @@ This is an alpha release. Keep production systems on v4.76.0 unless you are deli
 
 ## What changed
 
-- The project is now a v5 monorepo with separate packages for the runtime, API, schema, browser drivers, plugins, and integrations.
+- The project is a v5 monorepo with separate packages for the runtime, API, schema, browser drivers, plugins, and integrations.
 - The public v5 runtime centers on `createClient` and schema-driven method metadata.
 - Easy API commands use HTTP, while runtime events stream over Server-Sent Events.
 - Browser automation can be tested through Puppeteer, Playwright, or Lightpanda-backed driver packages.
@@ -36,7 +36,7 @@ http://localhost:8080/meta/swagger.json
 http://localhost:8080/meta/postman.json
 ```
 
-For production workloads, stay on v4 for now:
+For production workloads, stay on v4:
 
 ```bash
 npx @open-wa/wa-automate@4.76.0

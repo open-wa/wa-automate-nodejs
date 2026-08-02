@@ -41,7 +41,7 @@ Plugins receive a **client proxy**, not direct browser or CDP access. You cannot
 
 ### No File System Access Beyond Plugin Scope
 
-Plugins cannot read or write arbitrary files on the host system. Any file operations should be scoped to the plugin's own data directory.
+Plugins cannot read or write arbitrary files on the host system. Limit file operations to the data directory of the plugin.
 
 ## What Plugins Can Do
 
@@ -129,7 +129,7 @@ const configSchema = z.object({
 });
 ```
 
-If `apiKey` is optional, your plugin should handle the case where it is `undefined`:
+If `apiKey` is optional, your plugin must accept an `undefined` value:
 
 ```ts
 init: async ({ config }) => {
@@ -168,7 +168,7 @@ The config file can read from `process.env` which picks up `.env` values if your
 
 ### Are Config Values Logged?
 
-Plugin config values are **not** automatically logged. However, if your plugin logs the config object directly, secrets will appear in the logs. Always redact sensitive fields:
+Plugin config values are **not** automatically logged. But if your plugin logs the config object directly, secrets will appear in the logs. Always redact sensitive fields:
 
 ```ts
 // BAD — logs the API key
@@ -190,7 +190,7 @@ This will fail validation with a clear error message if the key is missing or em
 
 ### Rotating Keys Without Restart
 
-Currently, config is validated once at plugin initialization. To rotate keys:
+Currently, config is validated once at plugin initialization. To replace keys:
 
 1. Update the environment variable or config file
 2. Restart the session
@@ -264,11 +264,11 @@ Use lifecycle hooks to detect connection state:
 },
 ```
 
-### Should You Throw or Continue?
+### Throw an error or continue
 
 - **`logger.error()` and continue** — For recoverable errors (network timeouts, rate limits). The plugin keeps processing other messages.
-- **Throw** — For unrecoverable errors (invalid config detected at runtime, critical dependency failure). This may crash the plugin.
-- **`dispose()` and unregister** — For errors that mean the plugin should stop entirely (license expired, API key revoked permanently).
+- **Throw** — For unrecoverable errors (invalid config detected at runtime, critical dependency failure). This can crash the plugin.
+- **`dispose()` and unregister** — Use this option for errors that must stop the plugin, such as an expired license or a revoked API key.
 - **Queue for retry** — For transient failures (network errors, rate limits). Implement retry with exponential backoff.
 
 ## Related

@@ -37,7 +37,7 @@ For production systems, treat the open-wa runtime like any other system that can
 
 ## Rate limits
 
-WhatsApp does not publish fixed automation limits, so production systems should assume limits can change without notice. Send slowly, avoid identical bulk messages, add backoff after failures, and prefer reply-first automation where the user has already messaged you.
+WhatsApp does not publish fixed automation limits. Production systems must expect limit changes without notice. Send messages slowly. Do not send identical bulk messages. Add backoff after failures. Prefer automation that replies to received messages.
 
 See **[Rate Limits and Ban Risk](/docs/guides/rate-limits)** for safe timing defaults, high-risk patterns, and mitigation steps.
 
@@ -120,7 +120,7 @@ AI agents need stricter guardrails than simple bots because they can generate va
 
 Use safe defaults:
 
-- only respond to messages that should trigger the agent
+- respond only to messages that must start the agent
 - skip your own messages, status updates, system messages, and unsupported media
 - rate-limit all outbound replies
 - keep a bounded conversation context window

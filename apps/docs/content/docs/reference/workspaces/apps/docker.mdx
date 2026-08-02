@@ -3,11 +3,11 @@ title: "@open-wa/docker"
 description: "This is a simple app that will expose an API that you can use to control your whatsapp instance."
 ---
 
-> Generated from `apps/docker/README.md` by `apps/docs/scripts/gen-workspace-readme-docs.js`. Do not edit this page directly.
+> `apps/docs/scripts/gen-workspace-readme-docs.js` generated this page from `apps/docker/README.md`. Do not edit this page directly.
 
 # wa-automate-docker
 
-This repo shows a simple way to create a memory efficient API out of your WhatsApp account using docker.
+This repository shows how to create a memory-efficient API for your WhatsApp account with Docker.
 
 ## Instructions
 
@@ -37,9 +37,9 @@ For example:
 
 ## Versioning
 
-The only tag for this docker image is `latest`. On launch of the docker container, the latest version of the main library is checked and updated. So all you need to do to use the latest [wa-automate](https://github.com/open-wa/wa-automate-nodejs) code is to restart your container.
+The Docker image has only the `latest` tag. At startup, the container checks and updates the primary library. Restart the container to get the latest [wa-automate](https://github.com/open-wa/wa-automate-nodejs) code.
 
-Sometimes you may want to use a previous version of the library, or just pin it due to stability reasons, in this case you can set the environment variable `W_A_V` to your [desired wa-automate library version](https://github.com/open-wa/wa-automate-nodejs/releases). For example:
+Set `W_A_V` to a specific [wa-automate library version](https://github.com/open-wa/wa-automate-nodejs/releases) if you need a stable, fixed version. For example:
 
 ```bash
 # Same setup as above but with library version 4.42.1

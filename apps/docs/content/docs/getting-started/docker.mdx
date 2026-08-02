@@ -34,7 +34,7 @@ docker run openwa/wa-automate:latest
 ## Typical production shape
 
 - publish the API port explicitly
-- persist any required session data or browser state
+- persist any necessary session data or browser state
 - add your API key and session id at container start
 
 ```bash
@@ -59,7 +59,7 @@ docker run -p 8080:8080 --init \
   openwa/wa-automate
 ```
 
-The v5 image runs from `/usr/src/app`. If `WA_USER_DATA_DIR` is not set and the session is not ephemeral, the runtime derives the browser profile path as `/usr/src/app/_IGNORE_<sessionId>` by default. Mounting `/sessions` alone does not move the profile there; set `WA_USER_DATA_DIR=/sessions/<sessionId>` or mount the derived `/usr/src/app/_IGNORE_<sessionId>` path directly.
+The v5 image runs from `/usr/src/app`. By default, the runtime uses `/usr/src/app/_IGNORE_<sessionId>` for a persistent browser profile. Set `WA_USER_DATA_DIR=/sessions/<sessionId>` to use the mounted directory. You can also mount the default profile path directly.
 
 Keep the mounted directory private because it can contain authentication state for the WhatsApp session.
 
@@ -113,7 +113,7 @@ docker run -p 8080:8080 --init \
   openwa/wa-automate
 ```
 
-Use the same path your deployment actually depends on. If you protect the API with a key, make sure the health check can still reach a suitable unauthenticated endpoint or send the required header.
+Use the path that your deployment uses. If you protect the API with a key, make sure that the health check can access an unauthenticated endpoint. Alternatively, send the necessary header.
 
 ## Docker Compose
 
@@ -162,7 +162,7 @@ docker run --name openwa-sales -p 8080:8080 --init \
   openwa/wa-automate
 ```
 
-2. Complete the first authentication flow by scanning the QR code or using link-code login.
+2. Complete the first authentication flow. Scan the QR code or use link-code login.
 3. Stop and remove only the container, not `./sessions`:
 
 ```bash
@@ -171,7 +171,7 @@ docker rm openwa-sales
 ```
 
 4. Start the same command again with the same `WA_SESSION_ID` and `WA_USER_DATA_DIR`.
-5. Expected local result: the runtime reuses the profile under `./sessions/sales` and reaches the connected session without asking for a new QR code.
+5. Expected local result: The runtime uses the profile in `./sessions/sales` again. It connects the session without a new QR code.
 
 Restart proof output, illustrative and abbreviated:
 
@@ -181,7 +181,9 @@ session sales connected
 api listening on http://localhost:8080
 ```
 
-The proof is the absence of a fresh QR prompt after restart, plus a connected session using the same mounted profile path. If a QR code appears again, treat persistence as broken. Confirm the volume is mounted at `/sessions`, `WA_USER_DATA_DIR` still points to `/sessions/sales`, and the `./sessions` directory was not deleted between runs. Next, add the same mount and env vars to Compose or your deploy platform before moving this session to production.
+A restart must not show a new QR prompt. The connected session must use the same mounted profile path. If a QR code appears, persistence failed.
+
+Mount the volume at `/sessions`. Set `WA_USER_DATA_DIR` to `/sessions/sales`. Do not delete `./sessions` between runs. Add the same settings to your production platform.
 
 ## Secrets
 
@@ -203,7 +205,7 @@ secrets:
 
 ## Production shape
 
-A production Docker deployment usually pins the image tag, publishes only the API port you need, mounts session storage, injects secrets at runtime, runs with `--init`, allocates enough browser resources, and defines a health check.
+A production Docker deployment pins the image tag and publishes only the necessary API port. It mounts session storage and injects secrets at runtime. It also runs with `--init`, allocates sufficient browser resources, and defines a health check.
 
 Keep the WhatsApp runtime small and focused. Put business logic in your own service, then call Easy API or consume events from it.
 

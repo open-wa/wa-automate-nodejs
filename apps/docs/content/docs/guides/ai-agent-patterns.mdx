@@ -9,7 +9,7 @@ This guide covers common architecture patterns for connecting LLMs to WhatsApp t
 
 ## Application-Provided AI Helpers
 
-The examples don't assume an official LLM, vision, or speech-to-text SDK. In your app, provide helpers with the same shape, then replace the stub bodies with your own provider calls.
+The examples do not assume an official LLM, vision, or speech-to-text SDK. In your app, provide helpers with the same shape, then replace the stub bodies with your own provider calls.
 
 ```ts
 type ChatTurn = {
@@ -111,7 +111,7 @@ client.onMessage(async (message) => {
 
 Expected behavior: each chat keeps its own rolling context. After more than 10 user and assistant exchanges, older turns are dropped before the next LLM call.
 
-### Using getMessagesForLLM
+### Use getMessagesForLLM
 
 Pattern snippet: if this method is available in your version, it can provide WhatsApp-native context. Provide your own `callLLM` helper for the returned message shape.
 
@@ -144,7 +144,7 @@ WhatsApp enforces limits on how many messages you can send. Safe defaults:
 
 ### Implementing Rate Limiting
 
-Install the limiter in your application. This documentation example doesn't add dependencies to the open-wa repo.
+Install the limiter in your application. This documentation example does not add dependencies to the open-wa repo.
 
 ```bash
 npm install bottleneck
@@ -207,7 +207,7 @@ client.onMessage(async (message) => {
 });
 ```
 
-Expected behavior: an image message comes in, the bot decrypts it, the vision helper returns text, and the bot replies to the original message with the description.
+Expected behavior: The bot receives and decrypts an image message. The vision helper returns text. The bot replies with the description.
 
 ### Processing Voice Notes
 
@@ -225,11 +225,11 @@ client.onMessage(async (message) => {
 });
 ```
 
-Expected behavior: a voice note comes in, the bot decrypts it, the speech helper returns text, the LLM helper creates a response, and the bot sends a text reply.
+Expected behavior: The bot receives and decrypts a voice note. The speech helper returns text. The LLM helper creates a response, and the bot sends it.
 
 ### Sending Generated Media
 
-Pattern snippet: `sendImage` on the embedded client uses `sendImage(to, dataUrlOrBase64, filename, caption?)`. The filename is required before the optional caption.
+Pattern snippet: `sendImage` on the embedded client uses `sendImage(to, dataUrlOrBase64, filename, caption?)`. The filename is necessary before the optional caption.
 
 ```ts
 const imageDataUrl = 'data:image/png;base64,...';
@@ -246,7 +246,7 @@ Expected behavior: the image is sent to the incoming chat with `ai-generated.png
 
 ### Detecting the Chat Type
 
-Pattern snippet: use this inside your message handler when group behavior should differ from direct-message behavior.
+Use this pattern in your message handler when group behavior must differ from direct-message behavior.
 
 ```ts
 client.onMessage(async (message) => {
@@ -267,16 +267,16 @@ Expected behavior: group messages only continue when the bot is mentioned. Direc
 
 ### Group-Specific Considerations
 
-- Only respond when mentioned, using `@botname` detection
+- Respond only when `@botname` detection finds a mention
 - Respect group admin rules
 - Be aware of group size and message volume
-- Consider using group-specific context windows
+- Use group-specific context windows when necessary
 
 ## Interactive Messages
 
 ### Buttons and Lists
 
-Pattern snippet: use these sends when your agent should offer constrained choices instead of free-form text.
+Use these sends when you want your agent to offer fixed choices instead of free-form text.
 
 ```ts
 await client.sendButtons(message.from, 'Choose an option:', [
@@ -350,7 +350,7 @@ Expected behavior: incoming messages enter the queue immediately, but only three
 
 ## Complete Runnable Skeleton
 
-Install the external queueing packages in your application before using this skeleton:
+Install the external queue packages in your application before you use this skeleton:
 
 ```bash
 npm install bottleneck p-queue
@@ -410,7 +410,7 @@ client.onMessage(async (message) => {
 });
 ```
 
-Expected behavior: text messages come in, group messages are ignored unless they mention `@bot`, LLM jobs are limited to two concurrent queue workers, and outgoing WhatsApp replies are spaced by the limiter. Logs show each outgoing response when it leaves the limiter.
+Expected behavior: The bot receives text messages. It ignores group messages that do not mention `@bot`. Two queue workers limit concurrent LLM jobs. The limiter controls the interval between WhatsApp replies. Logs show each outgoing response when it leaves the limiter.
 
 ## Related
 

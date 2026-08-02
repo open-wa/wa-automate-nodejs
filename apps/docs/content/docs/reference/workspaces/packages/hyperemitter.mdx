@@ -3,11 +3,11 @@ title: "@open-wa/hyperemitter"
 description: "HyperEmitter: high-performance, schema-driven event emitter for the open-wa v5 stack."
 ---
 
-> Generated from `packages/hyperemitter/README.md` by `apps/docs/scripts/gen-workspace-readme-docs.js`. Do not edit this page directly.
+> `apps/docs/scripts/gen-workspace-readme-docs.js` generated this page from `packages/hyperemitter/README.md`. Do not edit this page directly.
 
 # HyperEmitter (planning scaffold)
 
-This package placeholder exists to host the benchmarking + DX scaffolding for the upcoming HyperEmitter implementation. The real emitter code will land later; for now we capture performance baselines for competitor libraries and set up build/CI expectations.
+This package is a placeholder for the HyperEmitter benchmarks and developer tools. The emitter code will arrive later. This package records competitor performance and defines build and CI expectations.
 
 ## Baseline benchmarks
 
@@ -31,4 +31,4 @@ Outputs JSON to `packages/hyperemitter/benchmarks/baseline/results/baseline-node
 - Dual ESM/CJS outputs with typed entrypoints.
 - Adapters for `EventTarget`, Node `EventEmitter`, and worker threads.
 - Optional plugins (TTL/maxListeners/tracing) kept out of the hot path.
-- Perf budgets enforced via CI once HyperEmitter lands (5% envelope vs tseep for exact; ≥10x EE2 for wildcards).
+- CI will enforce performance budgets after HyperEmitter arrives. The targets are a 5% tseep envelope for exact events and 10x EE2 for wildcards.

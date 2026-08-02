@@ -8,13 +8,13 @@ Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs
 
 `@open-wa/integration-cloudflare` starts a named Cloudflare Tunnel for an open-wa session. The plugin starts the tunnel when the open-wa core emits `core.started` and stops and deletes it during `dispose`.
 
-Use this integration when a local open-wa HTTP service should be reachable through a Cloudflare-managed hostname without changing the open-wa runtime itself.
+Use this integration to make a local open-wa HTTP service available through a Cloudflare-managed hostname.
 
 ## Configuration
 
 The configuration type is `CloudflareConfig` in `src/config.ts`.
 
-| Field | Required | Source-visible behavior |
+| Field | Necessary | Source-visible behavior |
 | --- | --- | --- |
 | `hostDomain` | Yes | Base domain used to build the tunnel hostname. |
 | `namespace` | No | Optional namespace inserted between the session name and host domain. If omitted, the source uses `_owa` as the suffix segment. |

@@ -7,27 +7,27 @@ title: Packages Overview
 
 The Open-WA v5 monorepo consists of multiple modular packages. While most users only need `@open-wa/wa-automate`, you can use these individual packages for more granular control.
 
-## Main Packages
+## Primary Packages
 
 | Package | Description |
 |---------|-------------|
-| [`wa-automate`](../getting-started/custom-code) | The main entry point. Re-exports core functionality and includes the CLI/API server. |
+| [`wa-automate`](../getting-started/custom-code) | The primary entry point. Re-exports core functionality and includes the CLI/API server. |
 | [`client`](../getting-started/custom-code) | The type-safe API client for interacting with WhatsApp. |
 | [`cli`](../guides/configuration-and-cli) | Command-line interface for managing sessions and starting the Easy API. |
 | [`core`](../concepts/how-it-works) | The internal engine handling driver orchestration and event emitters. |
 
 ## Which package to install
 
-- Most users should install `@open-wa/wa-automate`.
-- Plugin developers should install `@open-wa/plugin-sdk`.
-- Remote consumers should install `@open-wa/socket-client`.
-- Media handling tools should install `@open-wa/decrypt`.
+- Most users install `@open-wa/wa-automate`.
+- Plugin developers install `@open-wa/plugin-sdk`.
+- Remote consumers install `@open-wa/socket-client`.
+- Media tools install `@open-wa/decrypt`.
 
 ## Stability notes
 
 Open-WA v5 is still in alpha overall. Treat the v5 package set as an active development surface unless a package documents a stable contract.
 
-The main user-facing paths, `@open-wa/wa-automate`, `@open-wa/socket-client`, and `@open-wa/decrypt`, are the safest places to start. Driver packages and lower-level internals are still settling as the v5 architecture matures.
+The primary user-facing paths, `@open-wa/wa-automate`, `@open-wa/socket-client`, and `@open-wa/decrypt`, are the safest places to start. Driver packages and lower-level internals are still settling as the v5 architecture matures.
 
 ## Driver explanations
 
@@ -45,8 +45,8 @@ Open-WA supports multiple browser drivers through a unified interface.
 
 | Package | Driver |
 |---------|--------|
-| `driver-playwright` | High-performance automation using Playwright. |
-| `driver-puppeteer` | Industry standard automation using Puppeteer. |
+| `driver-playwright` | High-performance automation with Playwright. |
+| `driver-puppeteer` | Industry-standard automation with Puppeteer. |
 | `driver-lightpanda` | Experimental, lightweight driver. |
 
 ## Utilities & SDKs

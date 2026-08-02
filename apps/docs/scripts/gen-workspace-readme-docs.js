@@ -38,7 +38,7 @@ function buildMissingReadme(workspace) {
   const scripts = Object.keys(workspace.packageJson?.scripts ?? {});
   const scriptLines = scripts.length > 0
     ? scripts.map((script) => `- \`pnpm --filter ${workspace.title} ${script}\``).join('\n')
-    : '- No package-level scripts are defined.';
+    : '- This package defines no package-level scripts.';
 
   return [
     `# ${workspace.title}`,
@@ -107,7 +107,7 @@ function buildWorkspacePage(workspace) {
   return [
     frontmatter(workspace).trimEnd(),
     '',
-    `> Generated from \`${workspace.relativeDir}/README.md\` by \`${generatorPath}\`. Do not edit this page directly.`,
+    `> \`${generatorPath}\` generated this page from \`${workspace.relativeDir}/README.md\`. Do not edit this page directly.`,
     '',
     readme,
     '',
@@ -124,7 +124,7 @@ function buildGroupIndex(root, workspaces) {
     '',
     `# ${root.title}`,
     '',
-    `These pages are generated from direct child README files under \`${root.key}/\`.`,
+    `The docs generator creates these pages from direct child README files under \`${root.key}/\`.`,
     '',
     ...links,
     '',
@@ -154,12 +154,12 @@ function buildRootIndex(allWorkspaces) {
   return [
     '---',
     'title: "Workspace Reference"',
-    'description: "Generated README reference pages for apps, packages, and integrations in the open-wa monorepo."',
+    'description: "README reference pages for apps, packages, and integrations in the open-wa monorepo."',
     '---',
     '',
     '# Workspace Reference',
     '',
-    `This section is generated from README files in direct child directories under ${dirList}. It includes ${countPhrases}.`,
+    `The docs generator creates this section from direct child README files under ${dirList}. It includes ${countPhrases}.`,
     '',
     ...counts.map(({ key, title }) => `- [${title}](./${key})`),
     '',

@@ -3,7 +3,7 @@ title: "@open-wa/node-red"
 description: "Official @open-wa node-red integration."
 ---
 
-> Generated from `integrations/node-red/README.md` by `apps/docs/scripts/gen-workspace-readme-docs.js`. Do not edit this page directly.
+> `apps/docs/scripts/gen-workspace-readme-docs.js` generated this page from `integrations/node-red/README.md`. Do not edit this page directly.
 
 # @open-wa/node-red
 
@@ -15,9 +15,9 @@ Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs
 
 `@open-wa/node-red` provides Node-RED nodes for connecting flows to a remote open-wa Easy API session. The package registers three Node-RED node types from `package.json`: `owa-server`, `cmd`, and `listen`.
 
-Use this integration when Node-RED should call open-wa commands or react to open-wa listener events through a configured Easy API server connection.
+Use this integration so Node-RED can call open-wa commands or react to events through an Easy API server connection.
 
-Legacy compatibility note: this integration still uses the `@open-wa/socket-client` surface for backward compatibility, but the active v5 runtime is backed by HTTP RPC + SSE rather than direct Socket.IO. Do not depend on `SocketManager` from `@open-wa/api` when integrating with current releases.
+Legacy compatibility note: this integration uses `@open-wa/socket-client`. The active v5 runtime uses HTTP RPC and SSE instead of direct Socket.IO. Do not use `SocketManager` from `@open-wa/api` with current releases.
 
 ## Node types
 

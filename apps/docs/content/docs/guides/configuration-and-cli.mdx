@@ -48,7 +48,7 @@ The CLI loads configuration through the shared config package before applying CL
 
 Discovery order is:
 
-1. `package.json` using the `wa` key
+1. The `wa` key in `package.json`
 2. `wa.config.js`
 3. `wa.config.cjs`
 4. `wa.config.mjs`
@@ -63,7 +63,7 @@ Discovery order is:
 
 The first matching file wins. Use `--config ./path/to/config` when you want to load a specific file instead of relying on discovery.
 
-Config values are merged in this order:
+The config loader merges values in this order:
 
 1. schema defaults
 2. config file
@@ -71,9 +71,9 @@ Config values are merged in this order:
 4. CLI flags
 5. programmatic overrides, mainly for tests and embedding
 
-Arrays are replaced rather than concatenated, so a later `plugins` value replaces the earlier one.
+The config loader replaces arrays instead of concatenating them. A later `plugins` value replaces the earlier value.
 
-Config files can export a plain object or a function that returns an object. TypeScript config files are supported by the config loader.
+Config files can export a plain object or a function that returns an object. The config loader supports TypeScript config files.
 
 ## JSON/TS examples
 
@@ -116,21 +116,21 @@ export default defineConfig({
 });
 ```
 
-In v5 config examples, prefer the same `WA_*` environment names that the config loader reads. If your deployment platform stores secrets under another name, map them into config explicitly instead of assuming bare names such as `PORT` or `API_KEY` are runtime config env vars.
+In v5 config examples, use the `WA_*` environment names that the config loader reads. If your platform uses different secret names, map them in the config. Names such as `PORT` and `API_KEY` are not automatic runtime config variables.
 
 </Tab>
 </Tabs>
 
 ## Env vars
 
-Runtime config can be supplied with `WA_*` environment variables. Names are converted from snake case to config keys, so `WA_SESSION_ID` becomes `sessionId`, `WA_API_KEY` becomes `apiKey`, and `WA_QR_TIMEOUT` becomes `qrTimeout`.
+Supply runtime config with `WA_*` environment variables. The loader converts snake-case names to config keys. For example, `WA_SESSION_ID` becomes `sessionId`.
 
-Values are coerced where possible:
+The config loader converts values when possible:
 
 - `true`, `1`, `yes`, and `on` become `true`
 - `false`, `0`, `no`, and `off` become `false`
 - numeric strings become numbers for numeric schema fields
-- JSON-looking values such as `{...}` or `[...]` are parsed for object and array fields
+- the loader parses JSON values such as `{...}` or `[...]` for object and array fields
 
 Common runtime environment variables:
 
@@ -172,7 +172,32 @@ There are also compatibility aliases for a few browser-related settings, includi
 
 # licensing
 --license-key "YOUR-LICENSE-KEY"
+
+# isolate explicit chat-triggered code/tool execution
+--sandbox-chats
+--sandbox-isolation container
 ```
+
+`sandboxChats` applies only to code or tools explicitly sent through `executeInChatSandbox`; it does not create a Chromium session per chat or change ordinary message handlers. The boolean form uses the process policy, while the object form controls the isolation boundary and resource access:
+
+```ts
+export default defineConfig({
+  sandboxChats: {
+    isolation: 'container', // worker | process | container
+    timeoutMs: 30_000,
+    idleTimeoutMs: 300_000,
+    memoryMb: 256,
+    concurrency: 1,
+    filesystem: 'none', // none | read-only | workspace
+    network: 'none', // none | allowlist
+    networkAllowlist: [],
+    env: 'none',
+    capabilities: ['sendText'],
+  },
+});
+```
+
+Container mode is the strong boundary for hostile code. Process mode strips ambient globals, environment, and filesystem permission and applies time/memory/output limits, but Node's permission model is defense in depth rather than a complete security boundary. Worker mode is intended for availability isolation around trusted code. Worker and process policies fail closed if they request filesystem, network, or environment access; those host-access policies require container mode.
 
 ## Full CLI reference
 
@@ -190,8 +215,10 @@ These are the major flags most users need when starting the Easy API from the co
 | `--tunnel` | transitional | Legacy tunnel flag. v5 currently warns that tunnel setup parity is not restored. |
 | `--mcp` | future or other-alpha shorthand only | The current source does not parse `--mcp`. Configure `mcp: { enabled: true }` in `wa.config.*` instead, keep `apiKey` enabled, and use `--mcp` only if your installed build documents it. |
 | `--host "0.0.0.0"`, `-h "0.0.0.0"` | `host` | Local bind host for the Easy API server. |
+| `--sandbox-chats` | `sandboxChats: true` | Enables isolated execution for explicit per-chat code/tool calls. |
+| `--sandbox-isolation process` | `sandboxChats.isolation` | Selects `worker`, `process`, or `container`; use container for hostile code. |
 
-Other useful runtime flags include `--host`, `--headless`, `--headful`, `--use-chrome`, `--use-lightpanda`, `--qr-timeout`, `--dashboard-port`, `--no-dashboard`, `--no-ezqr`, `--ephemeral`, `--log-console`, `--log-level`, and `--verbose`.
+Other useful runtime flags include `--host`, `--headless`, `--headful`, `--use-chrome`, `--use-lightpanda`, `--qr-timeout`, `--dashboard-port`, `--no-dashboard`, `--no-ezqr`, `--ephemeral`, `--sandbox-chats`, `--sandbox-isolation`, `--log-console`, `--log-level`, and `--verbose`.
 
 The standalone `@open-wa/cli` entrypoint also accepts output-mode flags such as `--interactive`, `--non-interactive`, and `--output-mode plain`. Those affect terminal output before the runtime config is parsed.
 
@@ -200,7 +227,7 @@ The standalone `@open-wa/cli` entrypoint also accepts output-mode flags such as 
 Most CLI flags are thin aliases over config schema fields. For example:
 
 ```bash
-npx @open-wa/wa-automate \
+npx @open-wa/wa-automate@alpha \
   --session-id sales \
   --port 8080 \
   --api-key "$WA_API_KEY" \
@@ -237,7 +264,7 @@ v5 is still alpha, so a few v4-era flags are present only as transitional compat
 | `--stats` | Warns that swagger-stats parity is not restored. |
 | `--generate-api-docs` | Warns that runtime docs are always served from the shared API layer. |
 | `--tunnel` | Warns that tunnel setup parity is not yet restored in the v5 CLI. |
-| `--mcp` | The current source does not parse this flag. Configure `mcp: { enabled: true }` in `wa.config.*`; treat `--mcp` only as future or other-alpha shorthand if your installed build documents it. |
+| `--mcp` | The current source does not parse this flag. Configure `mcp: { enabled: true }` in `wa.config.*`. Use `--mcp` only if your installed build documents it. |
 | `--api-host` | Not parsed by the current v5 CLI. Use `--host`/`-h` for the local bind host and configure any public origin in the integration that needs it. |
 | `--chatwoot-url`, `--twilio-webhook`, `--bot-press-url` | Legacy integration flags that are not yet wired into the v5 CLI boot path. Prefer plugins and config files. |
 | `sessionData`, `sessionDataPath`, `skipSessionSave` | Deprecated MD-obsolete JSON session fields. Prefer `userDataDir` managed persistence. |
@@ -263,7 +290,7 @@ export default {
 };
 ```
 
-Each item is a plugin reference. It can be an npm package name, a scoped package name, a relative path, or an absolute path. The module should export a plugin as its default export or as a named `plugin` export.
+Each item is a plugin reference. It can be an npm package name, a scoped package name, or a file path. The module must export a default plugin or a named `plugin` export.
 
 Plugins loaded from `plugins` are imported during `createClient()` startup. If a plugin does not expose `meta.name`, it cannot be registered correctly.
 
@@ -325,7 +352,7 @@ export default defineConfig({
 
 Keep secrets out of committed config files. Use environment variables for `apiKey`, `licenseKey`, webhook secrets, Chatwoot tokens, and plugin API keys.
 
-For local development, a `.env` file is convenient, but it should stay in `.gitignore`. In production, prefer your platform's secret store or a dedicated secret manager. Avoid logging full config objects because nested `pluginConfig` values often contain tokens.
+For local development, keep the `.env` file in `.gitignore`. In production, use the platform secret store or a secret manager. Do not log complete config objects. Nested `pluginConfig` values frequently contain tokens.
 
 ## Session events worth knowing about
 
@@ -333,4 +360,4 @@ If you need QR images, session-data capture, or low-level launch state, read **[
 
 ## One important caveat
 
-The old Docusaurus site generated a full CLI options table at build time. This new page intentionally documents the commonly used flags first, while the deeper config surface should ultimately stay aligned with the generated reference and runtime schema.
+The old Docusaurus site generated a complete CLI options table at build time. This page gives the common flags first. The detailed config surface must agree with the generated reference and runtime schema.

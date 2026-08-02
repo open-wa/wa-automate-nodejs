@@ -5,7 +5,7 @@ description: Understand which process owns WhatsApp, how sessions become ready, 
 
 # How it works
 
-Use this page to understand what has to be running before your code can send messages, receive events, or expose WhatsApp through an API. By the end, you should know which process owns the browser session, where readiness comes from, and whether to start with Easy API, custom code, or a remote consumer.
+This page explains the processes that operate before your code can send messages or receive events. It also explains which process owns the browser session. Use this information to select Easy API, custom code, or a remote consumer.
 
 ## Mental model
 
@@ -57,7 +57,7 @@ The browser is still the source of truth. The other layers decide how your code 
 
 open-wa starts or connects to a browser page, loads WhatsApp Web, then registers the bridge code inside that page. The bridge gives the Node.js side a controlled way to call WhatsApp Web capabilities and listen for runtime events.
 
-Injection is treated as part of session readiness, not just a setup detail. The runtime checks that the bridge, store, and required methods are present before the client is considered ready. If a navigation or reload removes the bridge, the runtime can detect that and run a reinjection path before exposing the session again.
+Injection is treated as part of session readiness, not just a setup detail. The runtime checks that the bridge, store, and necessary methods are present before the client is considered ready. If a navigation or reload removes the bridge, the runtime can detect that and run a reinjection path before exposing the session again.
 
 ## API/Socket/MCP flow
 
@@ -75,7 +75,7 @@ A session usually moves through these operational states:
 
 1. **starting**: the runtime is resolving config, opening the browser, and preparing the page
 2. **QR**: the browser needs authentication and a QR code or link-code flow is available
-3. **authenticated**: WhatsApp Web has accepted the login, but the runtime may still be syncing, injecting, or validating
+3. **authenticated**: WhatsApp Web has accepted the login, but the runtime can still be syncing, injecting, or validating
 4. **ready**: the bridge is usable and client methods can run safely
 5. **stopping**: shutdown has started and listeners, queues, plugins, and browser resources are being drained
 6. **stopped**: the process has released the browser/runtime resources for that session
@@ -84,13 +84,13 @@ In code, some of these are emitted through lower-level names such as `STARTING`,
 
 ## Session-data storage
 
-Modern session persistence is browser-profile based. Unless you opt into `ephemeral`, open-wa resolves a `userDataDir` for the browser profile. If you do not provide one, it derives a directory from the session id, usually `./_IGNORE_<sessionId>` relative to the configured `sessionDataPath` or the current working directory.
+Modern session persistence uses a browser profile. Unless you select `ephemeral`, open-wa resolves a `userDataDir` for the browser profile. If you do not provide one, the runtime derives a directory from the session ID. It usually uses `./_IGNORE_<sessionId>` relative to `sessionDataPath` or the working directory.
 
 That profile contains the browser state needed for WhatsApp Web to restore the login after restart. If you provide `userDataDir`, the runtime uses your path instead.
 
 Legacy JSON session restore still exists for migration. In that path, open-wa looks for `<sessionId>.data.json` under `sessionDataPath`, or treats `sessionDataPath` as the full file path if it already ends in `.data.json`. On logout cleanup, that file can be marked `LOGGED OUT` or deleted, and the `userDataDir` can also be removed when configured.
 
-The CLI may also create `.open-wa/chrome-executable-path.json` to cache the resolved Chrome executable path. That file is runtime convenience data, not WhatsApp authentication state.
+The CLI can also create `.open-wa/chrome-executable-path.json` to cache the resolved Chrome executable path. That file is runtime convenience data, not WhatsApp authentication state.
 
 ## Where plugins fit
 
@@ -133,11 +133,11 @@ Most operational questions in open-wa are really session questions:
 - where is its state stored?
 - how is it restored after restart?
 - which process owns it?
-- how do remote consumers reach it?
+- how do remote consumers connect to it?
 
 Answer those questions before choosing a guide. They decide whether you need a startup/auth flow, a multi-session plan, a remote consumer, or a proxy in front of the Easy API.
 
-## The three main usage modes
+## The three primary usage modes
 
 <Tabs items={['Library mode', 'Easy API mode', 'Remote-consumer mode']}>
 <Tab value="Library mode">
@@ -155,6 +155,6 @@ Answer those questions before choosing a guide. They decide whether you need a s
 
 - Start with **Easy API mode** when you need a running WhatsApp-backed HTTP API quickly.
 - Use **Library mode** when your Node.js app must own browser startup, lifecycle, and event handling directly.
-- Use **Remote-consumer mode** when another service should talk to an Easy API process that already owns the browser session.
+- Use **Remote-consumer mode** when another service must communicate with an Easy API process that owns the browser session.
 
-Whichever path you choose, confirm the session reaches **ready** before sending commands, keep session data somewhere durable if you need restarts to survive, and put API keys or proxy tokens in front of any remote surface.
+For each path, make sure that the session gets to **ready** before you send commands. Keep session data in durable storage when restarts are necessary. Protect all remote surfaces with API keys or proxy tokens.

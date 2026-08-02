@@ -37,9 +37,9 @@ Use a small session state enum in your own monitoring code so every runtime even
 | `qr` | The session needs a QR scan before it can continue. This usually means no valid saved session was restored. |
 | `authenticated` | WhatsApp accepted the saved session or QR scan, but the client is not fully ready yet. |
 | `ready` | The client is connected and safe for normal API calls. |
-| `disconnected` | The connection dropped after startup. This may be temporary, or it may mean the account was logged out. |
+| `disconnected` | The connection dropped after startup. This can be temporary, or it can mean the account was logged out. |
 | `stopping` | The process is shutting the client down on purpose. Do not treat this as a logout. |
-| `stopped` | The client has finished shutting down. A new process start is required before it can connect again. |
+| `stopped` | The client has finished shutting down. A new process start is necessary before it can connect again. |
 
 The older `onStateChanged` values such as `CONFLICT`, `UNLAUNCHED`, and `UNPAIRED` are still useful signals. Map them into your own state enum so alerts and recovery code do not depend on every raw value.
 
@@ -62,7 +62,7 @@ These are the normal transitions to expect in production monitoring:
 | `disconnected` | `stopping` | The app gives up recovery and shuts down cleanly. |
 | `stopping` | `stopped` | Cleanup finishes. |
 
-Treat any other transition as worth logging. It may still be valid, but it should include the raw state, previous state, reason, and session id so you can inspect it later.
+Log all other transitions. A valid transition can still occur, but the log entry must include the raw state, previous state, reason, and session ID.
 
 ## Recovery recipe
 
@@ -71,12 +71,12 @@ When a session logs out or disconnects, recover in this order:
 1. Record the transition with `sessionId`, previous state, next state, reason, and timestamp.
 2. Pause outbound sends for that session so your queue does not keep retrying against a dead client.
 3. Check whether the process is intentionally `stopping` or `stopped`. If it is, let your supervisor restart it if that is your normal deployment model.
-4. If the state is `disconnected`, wait for a short backoff window and allow one reconnect attempt from the same saved session.
+4. If the state is `disconnected`, wait for a short backoff period. Permit one reconnect attempt from the same saved session.
 5. If the session returns to `ready`, drain the paused queue carefully and mark the incident as recovered.
 6. If the state moves to `qr` or `UNPAIRED`, stop automatic sends, alert an operator, and start the QR re-auth workflow.
-7. If reconnect attempts repeat, keep the session offline and require a manual check before sending more messages.
+7. If reconnect attempts occur again, keep the session offline. Do a manual check before you send more messages.
 
-Keep the recovery loop small. A good default is one immediate reconnect window, one delayed restart, then a human alert if the session still cannot reach `ready`.
+Keep the recovery loop small. Use one immediate reconnect window and one delayed restart. Then, send an alert if the session cannot get to `ready`.
 
 ## QR re-auth
 

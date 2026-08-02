@@ -114,7 +114,7 @@ A first login usually follows this order:
 1. `core.starting`, the runtime has accepted the config and is launching.
 2. `auth.qr` or `launch.auth.qr.generated`, a QR is available for the user to scan.
 3. `auth.authenticated` or `launch.auth.check.after`, WhatsApp accepted the login.
-4. `client.ready`, the client can now send commands and receive messages.
+4. `client.ready`, the client can send commands and receive messages.
 5. `core.started`, startup has completed.
 
 If the session is already authenticated on disk, the QR step can be skipped. If WhatsApp disconnects later, listen for `session.connection.disconnected` or your integration's `client.disconnected` compatibility event.
@@ -145,15 +145,15 @@ ev.on('sessionData.**', async (sessionData, sessionId) => {
 
 ## QR/sessionData security
 
-QR codes and session data are sensitive auth material. Anyone who can read them may be able to connect or restore a WhatsApp session.
+QR codes and session data are sensitive auth material. Anyone who can read them can be able to connect or restore a WhatsApp session.
 
 Keep these rules strict:
 
-- Don't log QR strings, `sessionData`, or base64 session payloads.
-- Don't send them to analytics, crash reporting, or shared support channels.
+- do not log QR strings, `sessionData`, or base64 session payloads.
+- do not send them to analytics, crash reporting, or shared support channels.
 - Store session material only when you need it, and encrypt it at rest.
 - Redact these fields before forwarding wildcard event payloads to webhooks or logs.
-- Rotate or delete stored session data when a device is lost, an employee leaves, or a session is no longer trusted.
+- Replace or delete stored session data when a device is lost, an employee leaves, or a session is no longer trusted.
 
 ## Listen to launch namespaces
 
@@ -220,7 +220,7 @@ ev.on('**.**', (data, sessionId, namespace) => {
 
 ## `ev` vs client listener
 
-Use `ev` for process-level lifecycle events. It can see startup, authentication, QR generation, disconnects, session data, and other runtime signals that may happen before a client is ready.
+Use `ev` for process-level lifecycle events. It can see startup, authentication, QR generation, disconnects, session data, and other runtime signals that can happen before a client is ready.
 
 Use client listeners for WhatsApp activity after the client is connected:
 
@@ -235,7 +235,7 @@ client.onMessage(async (message) => {
 The split is practical:
 
 - `ev` answers questions about the runtime, such as "did auth start?", "which session emitted a QR?", or "why did this session disconnect?"
-- `client.onMessage` and similar listeners answer questions about WhatsApp traffic, such as "what message arrived?" or "what should the bot send back?"
+- `client.onMessage` and similar listeners give WhatsApp traffic data. For example, they show the received message and the necessary bot response.
 
 ## Wildcard patterns
 
@@ -255,4 +255,4 @@ ev.on('**.sales', (data, sessionId, namespace) => {});
 ev.on('**.**', (data, sessionId, namespace) => {});
 ```
 
-Wildcard listeners are convenient, but they can capture sensitive data. Filter by namespace, redact before logging, and avoid catch-all listeners in production unless you have a clear retention policy.
+Wildcard listeners can capture sensitive data. Filter by namespace and redact the data before you log it. Do not use catch-all listeners in production without a clear retention policy.

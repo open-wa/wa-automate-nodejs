@@ -1,6 +1,6 @@
 ---
 title: Webhooks for Business
-description: Connect WhatsApp events to your backend using webhooks. Plain language guide with source-backed v5 payload examples.
+description: Connect WhatsApp events to your backend with webhooks. This guide has source-backed v5 payload examples.
 ---
 
 # Webhooks for Business
@@ -13,7 +13,7 @@ Use this guide when you want to send events into a CRM, helpdesk, automation pla
 
 ### Config file
 
-The source-backed v5 alpha path is the webhook integration plugin loaded from config. The CLI still parses `--webhook`, but current source warns that CLI webhook registration parity is not restored, so do not rely on that flag for delivery in this alpha.
+The source-backed v5 alpha path loads the webhook integration plugin from config. The CLI still parses `--webhook`, but it does not register webhook delivery. Do not use that flag for delivery in this alpha release.
 
 ```js
 // wa.config.js
@@ -68,10 +68,10 @@ Copy these three fields first:
 | --- | --- | --- |
 | Sender | `payload.message.from` | Route the conversation to the right customer/contact. |
 | Text or caption | `payload.message.body` or `payload.message.caption` | Get the human-readable message content. |
-| Message id | `payload.message.id` | Deduplicate retries and avoid processing the same message twice. |
+| Message id | `payload.message.id` | Deduplicate retries and do not process the same message two times. |
 
 <Callout type="warning" title="Do not mix envelope shapes">
-Older snippets may show `{ event, data }`. The current v5 webhook plugin source sends `{ webhookId, sessionId, event, payload, timestamp }`. Use `payload`, not `data`, for v5 webhook receivers.
+Older snippets can show `{ event, data }`. The current v5 webhook plugin source sends `{ webhookId, sessionId, event, payload, timestamp }`. Use `payload`, not `data`, for v5 webhook receivers.
 </Callout>
 
 ## Test receiver with raw-body logging
@@ -189,7 +189,7 @@ sender: 1234567890@c.us
 text: Hello!
 ```
 
-The local `curl` request should return `HTTP/1.1 204 No Content`. If your receiver returns `401`, fix the shared secret header. If it returns any other non-`2xx` status when open-wa delivers a real event, open-wa treats that as a failure and retries according to the reliability rules below. After the one-request test passes, configure open-wa with your receiver URL and send one real WhatsApp message to confirm the production path.
+The local `curl` request returns `HTTP/1.1 204 No Content`. If your receiver returns `401`, correct the shared secret header. Open-wa identifies all other non-`2xx` responses as failed deliveries. It tries these deliveries again with the reliability rules below. After the test passes, configure the receiver URL and send one WhatsApp message. Make sure that the production path receives it.
 
 ## Platform mappings
 

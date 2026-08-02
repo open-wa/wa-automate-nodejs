@@ -5,7 +5,7 @@ description: Route WhatsApp conversations into a Chatwoot inbox and let agents r
 
 # Chatwoot integration
 
-Use this integration when support agents should handle WhatsApp conversations from a Chatwoot inbox. Incoming WhatsApp messages create or reopen Chatwoot conversations, and Chatwoot replies are sent back through the connected open-wa session.
+Use this integration when you want support agents to handle WhatsApp conversations from a Chatwoot inbox. Incoming WhatsApp messages create or reopen Chatwoot conversations. Chatwoot replies return through the connected open-wa session.
 
 ## Setup order
 
@@ -30,8 +30,8 @@ Start in Chatwoot before you start the open-wa runtime. The integration can crea
 
 1. Open the Chatwoot account you want WhatsApp conversations to appear in.
 2. Create a user access token from your Chatwoot profile settings. The token must be able to create contacts, conversations, messages, and inboxes for the target account.
-3. Decide whether open-wa should create the inbox automatically or whether you want to create it yourself.
-4. If you create it yourself, create an API inbox and use the public open-wa webhook URL as the inbox webhook URL.
+3. Decide whether open-wa or an administrator will create the inbox.
+4. If you create the inbox, create an API inbox. Use the public open-wa webhook URL as the inbox webhook URL.
 5. Keep the account ID and inbox ID handy. You can copy them from the Chatwoot URL after opening the account or inbox.
 
 The easiest path is to pass an account URL such as `https://app.chatwoot.com/api/v1/accounts/123` and let the plugin create or find the matching API inbox. If you already have an inbox, pass an inbox URL such as `https://app.chatwoot.com/api/v1/accounts/123/inboxes/456`.
@@ -93,7 +93,7 @@ If you want to bind the plugin to an existing Chatwoot inbox, include the inbox 
 chatwootUrl: 'https://app.chatwoot.com/api/v1/accounts/123/inboxes/456'
 ```
 
-`apiHost` should be the public origin Chatwoot can reach. Do not include `/plugins/chatwoot/webhook`; the plugin appends that path for you.
+`apiHost` must be the public origin that Chatwoot can access. Do not include `/plugins/chatwoot/webhook`. The plugin adds that path.
 
 ## Media mapping
 
@@ -117,7 +117,7 @@ The plugin marks outbound WhatsApp message IDs as ignored so the same message do
 
 ## Contact sync
 
-When a WhatsApp message arrives, the plugin looks for a Chatwoot contact using the WhatsApp phone number. If no contact exists and the message includes contact metadata, it creates one.
+When a WhatsApp message arrives, the plugin looks for a Chatwoot contact with the WhatsApp phone number. If no contact exists and the message includes contact metadata, it creates one.
 
 Created contacts use:
 
@@ -131,7 +131,7 @@ The plugin keeps an in-memory contact registry and conversation registry while t
 
 ## Older Easy API flags
 
-If you are reading older Easy API examples, you may see these flags:
+If you are reading older Easy API examples, you can see these flags:
 
 ```bash
 --chatwoot-url "https://app.chatwoot.com/api/v1/accounts/123"
@@ -140,7 +140,7 @@ If you are reading older Easy API examples, you may see these flags:
 
 ## Plugin vs CLI difference
 
-The plugin path is the recommended path for new deployments. It loads `@open-wa/integration-chatwoot`, validates `pluginConfig.chatwoot`, mounts the Chatwoot webhook route, and handles both WhatsApp to Chatwoot and Chatwoot to WhatsApp sync inside the plugin host.
+The plugin path is the recommended path for new deployments. It loads `@open-wa/integration-chatwoot`, validates `pluginConfig.chatwoot`, mounts the Chatwoot webhook route, and handles WhatsApp to Chatwoot and Chatwoot to WhatsApp sync inside the plugin host.
 
 The older CLI flags are shortcuts. They are useful when you are reading v4-era examples, but they do not describe the full plugin lifecycle. Prefer the plugin config because it makes the package name, webhook route, public API host, API key, and webhook update behavior explicit.
 
@@ -158,7 +158,7 @@ Check the integration in this order:
 
 ## Screenshots
 
-When it is working, Chatwoot should show a normal inbox conversation with the WhatsApp sender as the contact. Incoming WhatsApp messages should appear as incoming Chatwoot messages, agent replies should appear as outgoing messages, and media should appear either as attachments or file links depending on the media source.
+When the integration works, Chatwoot shows an inbox conversation with the WhatsApp sender as the contact. Incoming WhatsApp messages appear as incoming Chatwoot messages. Agent replies appear as outgoing messages. Media appears as attachments or file links, based on the media source.
 
 Useful screenshots to capture for your own runbook:
 
@@ -171,8 +171,8 @@ Useful screenshots to capture for your own runbook:
 
 - **No inbox appears**: confirm `chatwootUrl` contains the right account ID and that the Chatwoot token can manage inboxes.
 - **Webhook URL is wrong**: set `apiHost` to the public open-wa origin and set `forceUpdateCwWebhook: true` for one startup.
-- **Chatwoot replies do not reach WhatsApp**: confirm Chatwoot can reach `https://wa.example.com/plugins/chatwoot/webhook?api_key=your-secure-key` and that the `apiKey` value matches the open-wa config.
-- **WhatsApp messages do not appear in Chatwoot**: confirm the WhatsApp session is connected, the message is not from a group or broadcast chat, and the Chatwoot token can create contacts and conversations.
+- **Chatwoot replies do not arrive in WhatsApp**: Make sure that Chatwoot can access `https://wa.example.com/plugins/chatwoot/webhook?api_key=your-secure-key`. Also make sure that the `apiKey` value matches the open-wa config.
+- **WhatsApp messages do not appear in Chatwoot**: Make sure that the WhatsApp session is connected. Make sure that the message is not from a group or broadcast chat. Make sure that the Chatwoot token can create contacts and conversations.
 - **Media does not appear as an attachment**: confirm open-wa can decrypt the media. If the message has only a `cloudUrl`, Chatwoot receives a file link instead of an uploaded attachment.
 - **Duplicate messages appear**: check for multiple open-wa runtimes connected to the same WhatsApp account or multiple Chatwoot inboxes pointing to the same webhook.
 - **Location replies are sent as text**: use the expected location format at the start of the Chatwoot reply, for example `@51.5072,-0.1276 Meeting point`.
@@ -181,7 +181,7 @@ Useful screenshots to capture for your own runbook:
 
 Treat Chatwoot as a proper integration deployment:
 
-1. secure the inbound webhook path
-2. confirm outgoing message sync in both directions
+1. protect the inbound webhook path
+2. confirm incoming and outgoing message sync
 3. verify media handling and webhook updates
 4. make the public API host explicit so Chatwoot always calls the right address

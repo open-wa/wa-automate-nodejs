@@ -21,11 +21,11 @@ client.onAnyMessage((message) => {
 });
 ```
 
-Use `onMessage` for incoming traffic only and `onAnyMessage` when you need both directions.
+Use `onMessage` for incoming traffic only. Use `onAnyMessage` when you need incoming and outgoing traffic.
 
 ## Message object shape
 
-Incoming message objects include the message text, sender details, chat details, media flags, and quote metadata. WhatsApp may add extra fields, so treat the object as extensible.
+Incoming message objects include the message text, sender details, chat details, media flags, and quote metadata. WhatsApp can add extra fields, so treat the object as extensible.
 
 ```ts
 client.onMessage((message) => {
@@ -39,7 +39,7 @@ client.onMessage((message) => {
 | Field | Description |
 | --- | --- |
 | `id` | The message ID. Pass this to `reply`, `forwardMessages`, or lookup methods. |
-| `body` | Text content for text messages. For media messages, this may be empty. |
+| `body` | Text content for text messages. For media messages, this can be empty. |
 | `type` | WhatsApp message type, such as `chat`, `image`, `video`, `document`, `ptt`, `location`, `buttons_response`, or `list_response`. |
 | `from` | The chat that sent the message. In direct chats this is the contact ID. In groups this is the group chat ID. |
 | `to` | The chat or account that received the message. |
@@ -112,7 +112,7 @@ Use `sendText` for plain conversation updates. Use `sendImage`, `sendFile`, `sen
 
 ## Quoted replies
 
-Use `reply` when your response should quote an existing message. Pass the destination chat, the reply body, and the original message ID.
+Use `reply` when you want the response to quote an existing message. Pass the destination chat, reply body, and original message ID.
 
 ```ts
 client.onMessage(async (message) => {
@@ -218,7 +218,7 @@ When receiving a location message, read fields such as `lat`, `lng`, and `loc` f
 
 ## Errors
 
-Message sends can fail because the session is not ready, the chat ID is invalid, the target user cannot be reached, the media payload is too large or malformed, or WhatsApp rejects the action.
+A message send can fail when the session is not ready or the chat ID is incorrect. It can also fail when the user is not available. WhatsApp can reject a large, malformed, or prohibited payload.
 
 ```ts
 try {
@@ -244,7 +244,7 @@ Common checks:
 
 ## Rate limits
 
-WhatsApp can limit or block accounts that send too many messages, repeat the same content, or contact users without consent. Keep sends paced, avoid bulk blasts, and handle failures without tight retry loops.
+WhatsApp can limit or block accounts that send too many messages or send the same content again. It can also block accounts that contact users without consent. Send messages at a controlled rate. Do not send bulk messages. Do not use short retry loops.
 
 Read **[Rate limits](/docs/guides/rate-limits)** before running production automation.
 

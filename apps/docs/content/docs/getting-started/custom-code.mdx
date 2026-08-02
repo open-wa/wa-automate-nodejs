@@ -41,7 +41,7 @@ async function start() {
 start().catch(console.error);
 ```
 
-On first run, authenticate the session by scanning the QR code or using another supported login flow. When the session is ready, send `Hi` to the connected account and expect the reply above.
+On the first run, authenticate the session. Scan the QR code or use another supported login flow. When the session is ready, send `Hi` to the connected account. The account sends the reply above.
 
 </Tab>
 <Tab value="Legacy create">
@@ -124,9 +124,9 @@ Use an explicit driver and browser configuration when browser-specific behavior 
 
 ## Auth behavior
 
-On first run, the runtime needs to authenticate the WhatsApp session. Depending on your config and environment, that usually means scanning a QR code or using another supported login flow.
+On the first run, the runtime must authenticate the WhatsApp session. Scan a QR code or use another supported login flow. The available flow depends on your config and environment.
 
-After the first successful login, the session data is saved for the configured `sessionId`. Later runs with the same session can restore that state instead of asking you to log in again, as long as the saved auth data is still valid and available to the process.
+After the first successful login, the runtime saves session data for the configured `sessionId`. Later runs with the same session can restore that state. The process needs valid saved auth data. If the data is available, you do not need to log in again.
 
 ## First send/receive
 
@@ -193,7 +193,7 @@ start().catch(console.error);
 
 ## Plugin vs custom code
 
-Use plugins when you are building reusable integrations that should be loaded through config, shared across projects, or published as separate packages.
+Use plugins to make reusable integrations. You can load a plugin through config, share it across projects, or publish it as a package.
 
 Use custom code when the logic belongs to one app, such as routing incoming messages into your own database, queue, CRM, or business workflow.
 
@@ -205,7 +205,7 @@ Embedded runtime code owns the browser directly inside your process through `cre
 
 ## Browser/runtime notes
 
-- If you are using your own Chrome install, make that explicit instead of depending on auto-discovery.
+- If you use your Chrome installation, specify it in the config. Do not depend on automatic discovery.
 - On Linux hosts, validate browser dependencies before debugging application logic.
 - Keep the browser/runtime assumptions the same between local development and production where possible.
 

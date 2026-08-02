@@ -8,12 +8,12 @@ description: See the JSON your webhook receives, how to verify it, and which fie
 Use this page when you are building the service that receives open-wa webhook events. It shows the current v5 envelope, how to enable delivery, how to verify requests, and which fields to store first.
 
 <Callout type="note" title="This complements webhook usage docs">
-  Pair this page with the Easy API guide when you need to run the sender and with Webhooks for Business when you need a step-by-step receiver walkthrough.
+  Use the Easy API guide to run the sender. Use Webhooks for Business for a receiver procedure.
 </Callout>
 
 ## Enablement flow
 
-Use the source-backed v5 webhook integration plugin from config. The CLI still accepts `--webhook`, but current source warns that CLI webhook registration parity is not restored, so config is the reliable path for event delivery in this alpha:
+Use the source-backed v5 webhook integration plugin from config. The CLI still accepts `--webhook`, but it does not register webhook delivery. For this alpha release, use config for reliable event delivery:
 
 ```ts
 // wa.config.ts
@@ -89,13 +89,13 @@ The current v5 webhook plugin source sends `payload`, not `data`. If you see `{ 
 
 | Field to store | Current v5 path | Notes |
 | --- | --- | --- |
-| Sender | `payload.message.from` | Direct chats usually end in `@c.us`; groups usually end in `@g.us`. |
+| Sender | `payload.message.from` | Direct chats usually end in `@c.us`. Groups usually end in `@g.us`. |
 | Text or caption | `payload.message.body` or `payload.message.caption` | Media messages can have an empty `body` and a useful `caption`. |
 | Message id | `payload.message.id` | Use with `sessionId` for dedupe keys. |
 
 ## Endpoint handler examples
 
-Every webhook delivery is a JSON `POST`. Your endpoint should authenticate the request, log the raw body while developing, process only the events it cares about, then return a `2xx` response.
+Every webhook delivery is a JSON `POST`. Your endpoint must authenticate the request and process only the applicable events. During development, log the raw body. Then, return a `2xx` response.
 
 ### Express
 
@@ -327,7 +327,7 @@ text: Hello, I need help with my order
 message id: false_1234567890@c.us_ABC123
 ```
 
-The local `curl` request should return `HTTP/1.1 204 No Content`. A `401` means the shared secret header did not match. A malformed envelope should return `400`. Any non-`2xx` response during real webhook delivery is treated as a failed attempt and can be retried, so fix receiver validation before pointing production events at it.
+The local `curl` request returns `HTTP/1.1 204 No Content`. A `401` means that the shared secret header did not match. A malformed envelope returns `400`. Open-wa identifies a non-`2xx` response as a failed delivery and can try the delivery again. Correct receiver validation before you send production events.
 
 ## Auth/signature
 
@@ -352,7 +352,7 @@ pluginConfig: {
 }
 ```
 
-The current webhook plugin does not generate a request signature by itself. If you need HMAC-style verification, add a small signing proxy in front of your receiver or sign the request in your own infrastructure, then verify the raw body before parsing it.
+The current webhook plugin does not generate a request signature. For HMAC verification, add a signing proxy in front of your receiver. Alternatively, sign the request in your infrastructure. Verify the raw body before you parse it.
 
 ```ts
 import { createHmac, timingSafeEqual } from 'node:crypto';
@@ -382,11 +382,11 @@ By default, open-wa tries the first delivery plus 3 retries. The retry delay use
 
 After the final failed attempt, the failure is logged and the event is dropped from the in-memory delivery queue. If your receiver needs more protection, store the incoming webhook first, acknowledge it, then process it asynchronously.
 
-Next step: once the one-request local test returns `204`, configure open-wa with the receiver URL, send one real WhatsApp message, and compare your raw log with the envelope fields above.
+After the local test returns `204`, configure the receiver URL. Send one WhatsApp message. Compare the raw log with the envelope fields above.
 
 ## Delivery guarantees
 
-Webhook delivery is **at least once**. That means your endpoint may receive the same event more than once, especially when a previous response timed out or a retry happened after partial processing.
+Webhook delivery is **at least once**. Your endpoint can receive the same event more than one time. This can occur after a response timeout or incomplete processing.
 
 Ordering is best effort. Message events are emitted by the runtime in order, but the webhook deliverer can send multiple requests concurrently. If strict order matters, set `concurrency: 1` and still design for duplicates.
 
@@ -531,7 +531,7 @@ Filtering happens before delivery. Events that do not match the list are ignored
 | `payload.message.id` | The WhatsApp message ID. Store it if you need deduplication. |
 | `payload.message.from` | The chat that sent the message. Direct chats usually end in `@c.us`. |
 | `payload.message.to` | The receiving chat or session chat ID when it is present. |
-| `payload.message.body` | The text body. Media messages may have an empty body and use `caption` instead. |
+| `payload.message.body` | The text body. Media messages can have an empty body and use `caption` instead. |
 | `payload.message.caption` | The text caption attached to a media message. |
 | `payload.message.type` | The WhatsApp message kind, such as `chat`, `image`, `audio`, `video`, or `document`. |
 | `payload.message.timestamp` | When WhatsApp says the message was sent, usually in Unix seconds. |

@@ -119,7 +119,7 @@ function getTextMessage(message: unknown) {
 }
 ```
 
-**Payload:** `{ message: unknown }`. Check the fields you need before using them.
+**Payload:** `{ message: unknown }`. Examine the necessary fields before you use them.
 
 To detect message type, check the `type` field:
 
@@ -183,7 +183,7 @@ Called **before** a message is sent. Use it to modify outgoing content or stop y
 
 To stop a send, throw an error or set `output.content` to a sentinel value that your plugin handles downstream.
 
-**Performance note:** This interceptor runs for every message send. Keep it fast to avoid adding latency.
+**Performance note:** This interceptor runs for every message send. Keep it fast so that it does not add latency.
 
 ### `message.send.after`
 
@@ -261,7 +261,7 @@ See **[Dashboard pages](/docs/plugins/dashboard-pages)** for more details.
 
 ### `tool`
 
-Register tools that can be called by AI agents or automation scripts. Keep tool descriptions narrow, validate arguments, and avoid exposing actions you do not want an agent to run.
+Register tools that AI agents or automation scripts can call. Keep tool descriptions narrow and validate arguments. Do not expose actions that an agent must not run.
 
 ```ts
 init: async ({ client }) => ({
@@ -301,7 +301,7 @@ init: async ({ client }) => ({
 - `logger`, scoped logger
 - `abort`, AbortSignal for cancellation
 
-The tool context does not include `client`. Tools that need WhatsApp methods should close over `client` from `init()` as shown above.
+The tool context does not include `client`. Tools that need WhatsApp methods must close over `client` from `init()`, as shown above.
 
 See **[AI tools](/docs/plugins/ai-tools)** for more details.
 
@@ -334,7 +334,7 @@ event: async ({ event, payload }) => {
 
 **Input:** `{ event: string; payload: unknown }`
 
-Use specific hooks when possible. They are easier to test and avoid catch-all work on every event.
+Use specific hooks when possible. They are easier to test and prevent catch-all work on every event.
 
 ## Related
 

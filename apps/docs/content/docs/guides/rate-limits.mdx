@@ -8,7 +8,7 @@ description: Understand WhatsApp rate limits, safe automation defaults, and ban 
 WhatsApp enforces limits on message sending to prevent spam and abuse. Understanding these limits is critical for running automation safely.
 
 <Callout type="warning">
-This project is unofficial and is not affiliated with WhatsApp or Meta. Using automation tools carries a risk of account restriction or ban. Use at your own risk.
+This project is unofficial and has no affiliation with WhatsApp or Meta. Automation tools can cause an account restriction or ban. You accept this risk when you use the tools.
 </Callout>
 
 ## WhatsApp Rate Limits
@@ -21,7 +21,7 @@ WhatsApp enforces limits on how many messages you can send:
 - **Group messages**: Approximately 1 message per 30-60 seconds per group
 - **Broadcast lists**: Slower than direct messages
 
-These are approximate limits observed by the community. WhatsApp does not publish official limits and they may change without notice.
+These are approximate limits observed by the community. WhatsApp does not publish official limits and they can change without notice.
 
 ### What Triggers Rate Limits
 
@@ -32,8 +32,8 @@ These are approximate limits observed by the community. WhatsApp does not publis
 
 ### What Happens When You Exceed Limits
 
-1. **Temporary block**: WhatsApp may temporarily prevent you from sending messages
-2. **Warning message**: You may receive a warning about automated behavior
+1. **Temporary block**: WhatsApp can temporarily prevent you from sending messages
+2. **Warning message**: You can receive a warning about automated behavior
 3. **Account restriction**: Repeated violations can lead to longer restrictions
 4. **Ban**: Severe or repeated violations can result in permanent account ban
 
@@ -51,7 +51,7 @@ async function sendWithDelay(client, chatId, message, delay = 15000) {
 
 ### Random Delays
 
-Add randomness to avoid detectable patterns:
+Add random delays to prevent detectable patterns:
 
 ```ts
 function randomDelay(min = 5000, max = 15000) {
@@ -122,7 +122,7 @@ queue.add(() => client.sendText(chatId, 'Message 2'));
 2. **Wait 24-48 hours** before trying again
 3. **Reduce sending rate** when you resume
 4. **Review your automation patterns** for aggressive behavior
-5. **Consider using a different account** for automation
+5. **Use a different account** for automation when necessary
 
 ## Related
 

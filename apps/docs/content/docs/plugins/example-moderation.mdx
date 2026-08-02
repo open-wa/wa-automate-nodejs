@@ -5,7 +5,7 @@ description: Build a plugin that scans incoming group messages, labels flagged c
 
 # Example: OpenAI moderation
 
-This example builds a plugin that scans incoming group messages using OpenAI's Moderation API and takes follow-up action on flagged content. Incoming WhatsApp messages have already arrived, so the plugin can detect, label, delete when allowed, warn, report, or stop your own downstream handling.
+This example makes a plugin that scans incoming group messages with the OpenAI Moderation API. The plugin acts on flagged content. It can detect, label, or report the content. When permitted, it can delete the content or stop downstream handling.
 
 ## What the plugin does
 
@@ -169,8 +169,8 @@ if (msg.chatId && msg.id) {
 
 Notes:
 - The bot must be a group admin to delete messages
-- There may be a time limit on how old a message can be deleted
-- Incoming messages may have different deletion behavior than sent messages
+- There can be a time limit on how old a message can be deleted
+- Incoming messages can have different deletion behavior than sent messages
 
 ## Log actions
 

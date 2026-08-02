@@ -1,6 +1,6 @@
 ---
 title: Security and Deployment
-description: Secure your API, manage keys, and deploy to production safely.
+description: Protect your API, manage keys, and deploy to production safely.
 ---
 
 # Security and Deployment
@@ -9,15 +9,15 @@ Running open-wa in production requires attention to API key management, network 
 
 ## Runtime prerequisites
 
-For monorepo development and source builds, the repo declares **Node.js >= 22.21.1** and **pnpm >= 10.25.0**, with `packageManager` pinned to **pnpm@10.26.1**. Match those versions before debugging runtime or build issues.
+For monorepo development and source builds, the repo declares **Node.js >= 22.21.1** and pins `packageManager` to **pnpm@11.9.0**. Match those versions before debugging runtime or build issues.
 
 ## API Key Management
 
-### Why API Keys Are Required
+### Why API Keys Are Necessary
 
-Every open-wa session should be protected by an API key. Without one, anyone who can reach your server can control your WhatsApp session.
+Protect every open-wa session with an API key. Without a key, each user who can access your server can control the WhatsApp session.
 
-### Generating Secure Keys
+### Generate random keys
 
 Use a cryptographically random string:
 
@@ -34,7 +34,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ```bash
 export WA_API_KEY="your-generated-key"
-npx @open-wa/wa-automate --port 8080 --api-key "$WA_API_KEY"
+npx @open-wa/wa-automate@alpha --port 8080 --api-key "$WA_API_KEY"
 ```
 
 Or in a `.env` file:
@@ -71,7 +71,7 @@ If your API key is exposed:
 - Use a reverse proxy (nginx, Caddy) with HTTPS
 - Restrict access to known IP addresses when possible
 
-### Using Reverse Proxies
+### Use reverse proxies
 
 **nginx example:**
 
@@ -127,11 +127,11 @@ When open-wa sends webhooks to your service:
 
 ### Signature Verification
 
-If your webhook endpoint is public, implement signature verification to ensure requests come from your open-wa instance.
+If your webhook endpoint is public, implement signature verification to make sure requests come from your open-wa instance.
 
 ### Rate Limiting Webhook Receivers
 
-Your webhook receiver should handle the volume of incoming events. The webhook plugin supports:
+Your webhook receiver must handle the volume of incoming events. The webhook plugin supports:
 - `concurrency` (default: 10): max concurrent deliveries
 - `retries` (default: 3): retry attempts on failure
 - `retryDelay` (default: 1000ms): base delay with exponential backoff
@@ -167,7 +167,7 @@ Monitor MCP usage through:
 
 ### Cloudflare Proxy Token Rotation
 
-The Cloudflare Session Proxy uses consumer tokens for authentication. Rotate these tokens periodically:
+The Cloudflare Session Proxy uses consumer tokens for authentication. Replace these tokens periodically:
 
 1. Update the token in your Cloudflare Worker
 2. Update the token in your consumer connection string
@@ -201,7 +201,7 @@ Before deploying to production:
 ```
 
 - Simplest setup
-- Run with `npx @open-wa/wa-automate --port 8080 --api-key "key"`
+- Run with `npx @open-wa/wa-automate@alpha --port 8080 --api-key "key"`
 - Use PM2 or systemd for process management
 
 ### Docker Container
@@ -276,5 +276,5 @@ For large-scale deployments:
 ## Related
 
 - **[Quick Start](/docs/getting-started/quickstart)**: First-time setup
-- **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)**: Secure remote access
+- **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)**: Protected remote access
 - **[Best Practices](/docs/operations-and-troubleshooting/best-practices)**: Production patterns

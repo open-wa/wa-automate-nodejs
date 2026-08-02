@@ -50,7 +50,7 @@ Plugin logs flow through the host logging system. Whether they are persisted dep
 Redirect output to a file:
 
 ```bash
-npx @open-wa/wa-automate --port 8080 > open-wa.log 2>&1
+npx @open-wa/wa-automate@alpha --port 8080 > open-wa.log 2>&1
 ```
 
 ### Structured JSON Logs
@@ -69,7 +69,7 @@ cat open-wa.log | jq 'select(.plugin == "webhook")'
 
 ## Writing to Files
 
-### Using a Log Library
+### Use a log library
 
 For production systems, use a dedicated log library:
 
@@ -92,7 +92,7 @@ events.on('message.received', async ({ message }) => {
 
 ### Rotating Log Files
 
-Rotate logs to prevent disk fill:
+Use log rotation to prevent disk fill:
 
 ```ts
 import winston from 'winston';
@@ -135,7 +135,7 @@ events.on('message.received', async ({ message }) => {
 
 ### What Not to Log
 
-- **Message content**: Avoid logging full message bodies unless required
+- **Message content**: Do not log complete message bodies unless necessary
 - **Authentication tokens**: Never log session tokens or API keys
 - **Personal data**: Be mindful of GDPR and privacy regulations
 

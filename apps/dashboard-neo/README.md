@@ -12,7 +12,7 @@ npx shadcn@latest add button
 
 This will place the ui components in the `components` directory.
 
-## Using components
+## Use components
 
 To use the components in your app, import them as follows:
 

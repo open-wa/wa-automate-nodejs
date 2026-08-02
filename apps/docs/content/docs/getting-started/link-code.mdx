@@ -10,7 +10,7 @@ If the host account supports link-code login, you can request a link code ahead 
 ## Easy API
 
 ```bash
-npx @open-wa/wa-automate --link-code "447123456789"
+npx @open-wa/wa-automate@alpha --link-code "447123456789"
 ```
 
 You can also place the same value in your config file:
@@ -41,9 +41,9 @@ Start the authentication flow again to request a fresh code, then enter the new 
 
 ## QR still appears?
 
-Yes. The QR code may still appear as a fallback during authentication.
+Yes. The QR code can still appear as a fallback during authentication.
 
-If link-code login fails or times out, you can usually continue by scanning the QR code instead, unless your runtime configuration stops waiting for authentication first.
+If link-code login fails or times out, scan the QR code. This alternative works while the runtime continues to wait for authentication.
 
 ## Host device steps
 
@@ -60,7 +60,7 @@ On the phone that owns the WhatsApp account:
 ## Troubleshooting
 
 - Check that the number uses country code plus phone number only, with no plus sign or spaces.
-- Make sure you are using the WhatsApp account that owns the number you passed as `linkCode`.
+- Make sure that you use the WhatsApp account that owns the number in `linkCode`.
 - If the code expired, restart the login flow and use the new code.
 - If WhatsApp rejects the code, check for typing mistakes and request a fresh code.
 - If link-code login keeps failing, scan the QR code fallback instead.
@@ -78,4 +78,4 @@ create({
 
 - The code is tied to the host account number you provide.
 - The host device still needs to confirm the login flow.
-- Use this only when you already know which account should own the session.
+- Use this only when you know which account will own the session.

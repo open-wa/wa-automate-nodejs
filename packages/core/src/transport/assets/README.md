@@ -1,5 +1,5 @@
-## Files here should not be touched.
+## Do not change these files
 
 ---
 
-Files inside this directory are automatically generated and copied into dist bundle with the build scripts
+The build scripts generate these files and copy them into the distribution bundle.

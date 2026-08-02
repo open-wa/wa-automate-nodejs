@@ -9,8 +9,8 @@ Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs
 ## Features
 
 - **Driver Abstraction**: Unified interface for different browser automation engines.
-- **Session Management**: Secure storage and restoration of authentication states.
-- **Event Bus**: High-performance internal communication using `@open-wa/hyperemitter`.
+- **Session Management**: Protected storage and restoration of authentication states.
+- **Event Bus**: High-performance internal communication with `@open-wa/hyperemitter`.
 
 ## Install
 

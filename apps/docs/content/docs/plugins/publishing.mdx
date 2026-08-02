@@ -5,7 +5,7 @@ description: How to package, version, and share your plugin with the community.
 
 # Publishing a Plugin
 
-Once you have built a plugin, you may want to share it with others. This guide covers packaging, publishing, and documentation best practices.
+Once you have built a plugin, you can want to share it with others. This guide covers packaging, publishing, and documentation best practices.
 
 ## How to Share a Plugin
 
@@ -51,7 +51,7 @@ The workflow is:
 
 ### Key Fields
 
-- **`name`**, Use a scoped name (`@myorg/my-plugin`) to avoid collisions
+- **`name`**, Use a scoped name (`@myorg/my-plugin`) to prevent collisions
 - **`main`**, The entry point for CommonJS consumers
 - **`exports`**, Modern module resolution with ESM support
 - **`types`**, TypeScript type declarations
@@ -146,7 +146,7 @@ export default {
 
 ### README Template
 
-Your plugin's README should include:
+The plugin README must include:
 
 ````markdown
 # @myorg/my-plugin
@@ -168,7 +168,7 @@ export default {
   plugins: ['@myorg/my-plugin'],
   pluginConfig: {
     'my-plugin': {
-      // required: Description
+      // necessary: Description
       apiKey: process.env.MY_PLUGIN_API_KEY,
       // optional: Description (default: value)
       optionName: 'default',
@@ -202,7 +202,7 @@ Solution...
 
 Document each config field with:
 - Type
-- Whether it is required
+- Whether it is necessary
 - Default value
 - Description
 - Example
@@ -232,12 +232,12 @@ export default {
 Test with a named session to isolate test data:
 
 ```bash
-npx @open-wa/wa-automate --session-id plugin-test --port 8080
+npx @open-wa/wa-automate@alpha --session-id plugin-test --port 8080
 ```
 
 ### Multi-Session Compatibility
 
-If your plugin uses session-specific data, test it with multiple sessions running simultaneously to ensure there are no conflicts.
+If your plugin uses session-specific data, test it with multiple sessions running simultaneously to make sure there are no conflicts.
 
 ## Related
 

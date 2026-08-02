@@ -8,7 +8,7 @@
 > npx @open-wa/wa-automate -p 8002 -k api_key
 ```
 
-The compatibility client now talks to the EASY API over the active v5 transport: HTTP RPC for command execution and Server-Sent Events (SSE) for runtime events.
+The compatibility client talks to the Easy API over the v5 transport. It uses HTTP RPC for commands and Server-Sent Events for runtime events.
 
 2. Typescript code:
 

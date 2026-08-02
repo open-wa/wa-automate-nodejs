@@ -9,12 +9,12 @@ Follow these steps to start a local API, connect a WhatsApp account, and send on
 
 ## Prerequisites
 
-- **Node.js >= 22.21.1**, this is required. The library will not work on older versions. Check with `node --version`.
-- **npm or pnpm**, any package manager works, but pnpm is used for repo development.
+- **Node.js >= 22.21.1**, this is necessary. The library will not work on older versions. Check with `node --version`.
+- **npm or pnpm**, any package manager works, but the repository uses pnpm for development.
 - **A WhatsApp account** on a linked phone, this automates WhatsApp Web, not the mobile app.
 
 <Callout type="warning">
-**v5 is alpha.** Test in a disposable environment before using in production. For production systems, use v4: `npx @open-wa/wa-automate@4.76.0`
+**v5 is an alpha release.** Test it in a disposable environment before production use. For production systems, use v4: `npx @open-wa/wa-automate@4.76.0`
 </Callout>
 
 <Steps>
@@ -23,12 +23,12 @@ Follow these steps to start a local API, connect a WhatsApp account, and send on
 Run the CLI to start a local WhatsApp API:
 
 ```bash
-npx @open-wa/wa-automate --port 8080
+npx @open-wa/wa-automate@alpha --port 8080
 ```
 
 These examples pin port `8080` for consistency. If you omit `--port`, the current v5 CLI uses port `8002`.
 
-You should see terminal output showing:
+The terminal shows:
 
 - The browser launching
 - A QR code appearing in the terminal
@@ -44,7 +44,7 @@ The runtime will display a QR code in your terminal. Open WhatsApp on your phone
 3. Tap **Link a Device**
 4. Scan the QR code in your terminal
 
-Alternatively, if you know the host account number, use **[Link-code login](/docs/getting-started/link-code)** to avoid QR scanning.
+If you know the host account number, use **[Link-code login](/docs/getting-started/link-code)**. This flow does not use a QR scan.
 
 Once authenticated, the terminal will show the session is connected and the API is ready.
 
@@ -94,9 +94,9 @@ curl -X POST http://localhost:8080/api/sendText \
   -d '{"to": "1234567890@c.us", "text": "Hello from open-wa!"}'
 ```
 
-You should receive the message on your phone within seconds.
+Your phone receives the message within seconds.
 
-Expected API result, illustrative and abbreviated. The Easy API wraps method results in `data`; for `sendText`, that value is the sent message id string:
+Expected API result, illustrative and abbreviated. The Easy API puts the `sendText` message ID in `data`:
 
 ```http
 HTTP/1.1 200 OK
@@ -140,10 +140,10 @@ If the API is protected and the key is missing or wrong, expect an authenticatio
 
 ```bash
 # Protect with an API key
-npx @open-wa/wa-automate --port 8080 --api-key "your-secure-key"
+npx @open-wa/wa-automate@alpha --port 8080 --api-key "your-secure-key"
 
 # Run a named session
-npx @open-wa/wa-automate --session-id sales --port 8081
+npx @open-wa/wa-automate@alpha --session-id sales --port 8081
 
 # For source-backed webhook delivery in the current v5 alpha,
 # load @open-wa/integration-webhook from wa.config.* instead of relying on --webhook.

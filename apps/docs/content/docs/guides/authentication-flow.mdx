@@ -17,13 +17,13 @@ open-wa automates **WhatsApp Web**. When you start a session, the library:
 4. Waits for you to authenticate via your phone
 5. Stores the session token on disk for future use
 
-The session token allows the browser to reconnect without re-scanning, as long as the token remains valid and the session has not been logged out from the phone.
+A valid session token lets the browser reconnect without another scan. This works if the phone did not log out the session.
 
 ## Session Storage
 
 ### Where Session Data Lives
 
-Session data is stored on disk in a session directory. By default, this is created in the working directory where you run the CLI.
+Open-wa stores session data on disk in a session directory. By default, it creates this directory in the CLI working directory.
 
 The session files contain:
 
@@ -65,12 +65,12 @@ Once you scan the QR code:
 
 1. WhatsApp on your phone links the session
 2. The browser loads your WhatsApp data
-3. The session token is saved to disk
+3. The runtime saves the session token to disk
 4. The API becomes ready for use
 
 ### Timeout Behavior
 
-If no one scans the QR code within the timeout period (controlled by `qrTimeout`), a new QR code is emitted. This counts toward the `maxQr` limit.
+If no one scans the QR code before the `qrTimeout`, the runtime emits a new code. This counts toward the `maxQr` limit.
 
 ## Link-Code Flow
 
@@ -92,11 +92,11 @@ When you initiate a link-code login, a short numeric code appears on your phone'
 - Link codes expire after a short period (typically a few minutes)
 - If the code expires, you will need to request a new one
 - If the host account number is incorrect, authentication will fail
-- If the account is already linked to too many devices, linking may be rejected
+- If the account is already linked to too many devices, linking can be rejected
 
 ### Does QR Still Appear?
 
-When using link-code mode, the QR code flow is bypassed. If link-code authentication fails, the runtime may fall back to QR code display.
+Link-code mode bypasses the QR code flow. If link-code authentication fails, the runtime can show a QR code.
 
 ## Session Recovery
 
@@ -106,7 +106,7 @@ If the browser process crashes or is closed:
 
 - The session token on disk remains valid
 - Restarting the process will reload the session
-- You should not need to re-scan (unless the session was invalidated)
+- You do not need to scan again unless WhatsApp invalidated the session.
 
 ### What Happens If the Process Crashes
 
@@ -114,7 +114,7 @@ If the Node.js process crashes:
 
 - Session files on disk are usually intact
 - Restart the process to recover
-- If session files are corrupted, you may need to delete them and re-authenticate
+- If session files are corrupted, you can need to delete them and re-authenticate
 
 ### Re-Scan vs Re-Auth
 

@@ -85,7 +85,7 @@ Common media fields include:
 | `mimetype` | MIME type for the encrypted media, such as `image/jpeg` or `application/pdf`. |
 | `caption` | Optional text attached to image, video, or document messages. |
 | `mediaData` | Runtime metadata used to locate and decrypt the encrypted media. |
-| `clientUrl` / `deprecatedMms3Url` | Media URLs that may be present on some payloads. Treat them as runtime details. |
+| `clientUrl` / `deprecatedMms3Url` | Media URLs that can be present on some payloads. Treat them as runtime details. |
 
 To access the raw bytes, pass the whole message to `decryptMedia` after you
 have checked that the message has media metadata.
@@ -178,7 +178,7 @@ sets `fromMe: true`.
 }
 ```
 
-A media message may have no useful `body`. Use `caption` for attached text and
+A media message can have no useful `body`. Use `caption` for attached text and
 `mimetype` plus `mediaData` for decryption.
 
 ```json
@@ -214,7 +214,7 @@ A media message may have no useful `body`. Use `caption` for attached text and
 
 Contact objects describe a person or WhatsApp identity. The stable field is
 `id`, which is the contact chat ID. Display fields are optional because the
-runtime may know a saved name, a push name, both, or neither.
+runtime can know a saved name, a push name, the two names, or neither name.
 
 Common contact fields include `name`, `shortName`, `pushname`,
 `formattedName`, `isBusiness`, `isEnterprise`, `isMe`, `isMyContact`,
@@ -230,7 +230,7 @@ lookups, message targets, and deduplication.
 
 A chat object describes the conversation container. For a one-to-one chat,
 `id` points at a contact chat ID and `isGroup` is `false`. For a group chat,
-`id` uses `@g.us`, `isGroup` is `true`, and `groupMetadata` may be present.
+`id` uses `@g.us`, `isGroup` is `true`, and `groupMetadata` can be present.
 
 Common chat fields include `id`, `name`, `formattedTitle`, `isGroup`,
 `contact`, `groupMetadata`, `presence`, `unreadCount`, `lastReceivedKey`,
@@ -245,13 +245,13 @@ context, not permanent facts.
 ## Group metadata
 
 Group metadata describes the group itself rather than a single message. The
-required fields are `id`, `subject`, `creation`, and `participants`. Admin and
+necessary fields are `id`, `subject`, `creation`, and `participants`. Admin and
 configuration fields are optional because they depend on what the session can
 see and what WhatsApp has exposed for that group.
 
 Common group fields include `owner`, `desc`, `descTime`, `descOwner`,
 `restrict`, `announce`, and `participants`. Each participant has an `id`, an
-`isAdmin` flag, and may include `isSuperAdmin`.
+`isAdmin` flag, and can include `isSuperAdmin`.
 
 Use the group `id` as the chat ID for sending messages. Use participant IDs
 when mentioning, moderating, or showing who sent a group message.

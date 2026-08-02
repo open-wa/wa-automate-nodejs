@@ -5,7 +5,7 @@ description: Build a plugin that detects voice notes, sends audio to a speech-to
 
 # Example: voice note transcription
 
-This example builds a plugin that listens for WhatsApp voice notes, sends the decrypted audio to OpenAI's transcription API, and replies to the sender with the text.
+This example makes a plugin that listens for WhatsApp voice notes. It sends decrypted audio to the OpenAI transcription API. Then, it sends the transcription to the sender.
 
 ## What the plugin does
 
@@ -304,10 +304,10 @@ export default {
 Start a named session for testing:
 
 ```bash
-npx @open-wa/wa-automate --session-id dictation-test --port 8080
+npx @open-wa/wa-automate@alpha --session-id dictation-test --port 8080
 ```
 
-Send a voice note to your session. The plugin should reply with the transcription. If nothing happens, check that the message is an OGG audio voice note and that `STT_API_KEY` is set.
+Send a voice note to your session. The plugin replies with the transcription. If it does not reply, make sure that the message is an OGG voice note. Also make sure that `STT_API_KEY` is set.
 
 ## What can go wrong
 
@@ -315,7 +315,7 @@ The example catches errors and logs them without crashing:
 
 - **Decryption failure**: Logged, message skipped
 - **API failure**: Logged, message skipped
-- **Empty transcription**: Still sent (the user may want to know the API heard nothing)
+- **Empty transcription**: Still sent (the user can want to know the API heard nothing)
 
 ## Related
 

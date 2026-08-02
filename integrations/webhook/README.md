@@ -8,13 +8,13 @@ Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs
 
 `@open-wa/integration-webhook` forwards public open-wa events to an external URL with HTTP `POST`. It supports event filtering, custom headers, request timeouts, retry with exponential backoff, and concurrent delivery through a queue.
 
-Use this integration when another service should receive open-wa runtime events without embedding open-wa directly.
+Use this integration to send open-wa runtime events to another service without direct open-wa integration.
 
 ## Configuration
 
 The plugin config is validated by the plugin SDK schema in `src/plugin.ts`.
 
-| Field | Required | Source-visible behavior |
+| Field | Necessary | Source-visible behavior |
 | --- | --- | --- |
 | `url` | Yes | Target URL for webhook delivery. Must be a URL. |
 | `events` | No | `all` or an array of event names. Defaults to `all`. Non-matching events are skipped. |
@@ -45,7 +45,7 @@ The payload shape is defined by `WebhookPayload` in `src/config.ts` and produced
 - `WebhookDeliverer` posts JSON with native `fetch` and aborts requests with `AbortController` when the timeout elapses.
 - Non-2xx responses throw an error and enter the retry path.
 - Retry delay is `retryDelay * 2 ** attempt` until the configured retry count is exhausted.
-- Failed deliveries are logged after all attempts; the error is not rethrown from the final retry path.
+- The deliverer logs failed deliveries after all attempts. The final retry path does not throw the error again.
 - On `dispose`, the plugin waits for the queue to become idle and logs that the queue drained.
 
 ## Exports

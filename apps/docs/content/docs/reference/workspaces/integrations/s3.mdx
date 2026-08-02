@@ -3,7 +3,7 @@ title: "@open-wa/integration-s3"
 description: "S3/Cloud storage integration plugin for open-wa"
 ---
 
-> Generated from `integrations/s3/README.md` by `apps/docs/scripts/gen-workspace-readme-docs.js`. Do not edit this page directly.
+> `apps/docs/scripts/gen-workspace-readme-docs.js` generated this page from `integrations/s3/README.md`. Do not edit this page directly.
 
 # @open-wa/integration-s3
 
@@ -13,15 +13,15 @@ Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs
 
 ## What it does
 
-`@open-wa/integration-s3` handles WhatsApp `message.received` events that contain decryptable media, uploads the media to an S3-compatible cloud storage provider through `pico-s3`, and attaches the resulting `cloudUrl` to the message object.
+`@open-wa/integration-s3` handles `message.received` events that contain decryptable media. It uploads media through `pico-s3` to S3-compatible storage. It adds the resulting `cloudUrl` to the message object.
 
-Use this integration when downstream message handlers should receive a cloud URL for media instead of only the original WhatsApp media reference.
+Use this integration so downstream message handlers receive a cloud URL instead of only the original WhatsApp media reference.
 
 ## Configuration
 
 The configuration type is `S3Config` in `src/config.ts`.
 
-| Field | Required | Source-visible behavior |
+| Field | Necessary | Source-visible behavior |
 | --- | --- | --- |
 | `provider` | Yes | Cloud provider identifier. Source type allows `aws`, `gcp`, `do`, `wasabi`, or `backblaze`. |
 | `accessKeyId` | Yes | Passed to `pico-s3` upload and URL generation options. |
@@ -43,7 +43,7 @@ The configuration type is `S3Config` in `src/config.ts`.
 - File extensions are derived from the MIME type with the `mime` package, falling back to `bin`.
 - File names use `message.mId` when present, otherwise `Date.now()`.
 - Duplicate file names are tracked in memory and return the existing cloud URL instead of uploading again.
-- Uploads run through a `PQueue` with concurrency 2, interval 1000 ms, and interval cap 2.
+- Uploads run through a bounded Effect queue with concurrency 2 and a two-per-second rate limit.
 - After a successful queue upload, `getCloudUrl` is used to compute the URL and the plugin assigns it to `message.cloudUrl`.
 - On `dispose`, the plugin waits for the upload queue to become idle and logs that the queue drained.
 
