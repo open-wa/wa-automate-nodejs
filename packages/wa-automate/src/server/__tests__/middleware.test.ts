@@ -67,6 +67,59 @@ describe('Hono Middleware', () => {
       });
     });
 
+    it('protects operational endpoints with header-only authentication', async () => {
+      const apiKey = 'privacy-first-test-key-32-bytes';
+      const config = ConfigSchema.parse({
+        sessionId: 'test',
+        host: '0.0.0.0',
+        port: 8011,
+        apiKey,
+      });
+      const server = new WAServer(config);
+      server.setQR('sensitive-qr-payload');
+
+      const liveResponse = await server.getApp().request('/health/live');
+      expect(liveResponse.status).toBe(200);
+      await expect(liveResponse.json()).resolves.toEqual({ status: 'ok' });
+
+      for (const path of ['/health', '/qr', '/plugins/manifest', '/meta/debug/config']) {
+        const unauthenticated = await server.getApp().request(path);
+        expect(unauthenticated.status).toBe(401);
+      }
+
+      const queryAuth = await server.getApp().request(`/health?api_key=${apiKey}`);
+      expect(queryAuth.status).toBe(401);
+
+      const authenticatedHealth = await server.getApp().request('/health', {
+        headers: { 'X-API-Key': apiKey },
+      });
+      expect(authenticatedHealth.status).toBe(200);
+      const healthBody = (await authenticatedHealth.json()) as Record<string, unknown>;
+      expect(healthBody).not.toHaveProperty('qr');
+      expect(authenticatedHealth.headers.get('cache-control')).toBe('no-store');
+      expect(authenticatedHealth.headers.get('x-frame-options')).toBe('DENY');
+
+      const authenticatedQr = await server.getApp().request('/qr', {
+        headers: { 'X-API-Key': apiKey },
+      });
+      expect(authenticatedQr.status).toBe(200);
+      await expect(authenticatedQr.json()).resolves.toMatchObject({
+        qr: 'sensitive-qr-payload',
+      });
+    });
+
+    it('refuses a non-loopback bind without an API key', () => {
+      const config = ConfigSchema.parse({
+        sessionId: 'test',
+        host: '0.0.0.0',
+        port: 8012,
+      });
+
+      expect(() => new WAServer(config)).toThrow(
+        'Refusing to expose Easy API on a non-loopback host without apiKey.',
+      );
+    });
+
     it('should return an empty plugin manifest when no plugins are mounted', async () => {
       const config = ConfigSchema.parse({ sessionId: 'test', port: 8009 });
       const server = new WAServer(config);

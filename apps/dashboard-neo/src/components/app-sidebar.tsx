@@ -14,6 +14,7 @@ import { Link, useMatches } from "@tanstack/react-router"
 import { SessionStatusBadge } from "@/components/session-status-badge"
 import { useEffect, useState } from "react"
 import { useHealth } from "@/lib/hooks/use-health"
+import { apiFetch } from "@/lib/api-client"
 
 interface PluginPage {
   path: string
@@ -85,7 +86,7 @@ function usePluginManifest() {
     const fetchManifest = async () => {
       try {
         const base = (window as unknown as { __OPENWA_API_BASE__?: string }).__OPENWA_API_BASE__ ?? ""
-        const res = await fetch(`${base}/plugins/manifest`)
+        const res = await apiFetch(`${base}/plugins/manifest`)
         if (res.ok) {
           const data = await res.json()
           setPlugins(data.plugins ?? [])

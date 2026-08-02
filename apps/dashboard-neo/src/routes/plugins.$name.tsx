@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
 import { Plug, Puzzle, FileText } from "lucide-react"
+import { apiFetch } from "@/lib/api-client"
 
 interface PluginPageData {
   name: string
@@ -38,7 +39,7 @@ function PluginPageRoute() {
       try {
         setLoading(true)
         const base = (window as unknown as { __OPENWA_API_BASE__?: string }).__OPENWA_API_BASE__ ?? ""
-        const res = await fetch(`${base}/plugins/manifest`)
+        const res = await apiFetch(`${base}/plugins/manifest`)
         if (!res.ok) {
           setError("Failed to fetch plugin manifest")
           return

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { useSocket } from "@/lib/hooks/use-socket"
-import { getApiUrl, resetClient } from "@/lib/api-client"
+import { getApiKey, getApiUrl, resetClient, setApiKey } from "@/lib/api-client"
 
 const STORAGE_KEY = "wa-dashboard-connection"
 
@@ -45,6 +45,7 @@ export function ConnectionBadge() {
 
   const [host, setHost] = useState(stored?.host ?? "")
   const [port, setPort] = useState(stored?.port ?? "")
+  const [apiKey, setApiKeyInput] = useState(getApiKey())
 
   // Close on outside click
   useEffect(() => {
@@ -64,6 +65,7 @@ export function ConnectionBadge() {
       const s = getStoredConnection()
       setHost(s?.host ?? "")
       setPort(s?.port ?? "")
+      setApiKeyInput(getApiKey())
     }
   }, [open])
 
@@ -73,6 +75,7 @@ export function ConnectionBadge() {
     } else {
       clearConnection()
     }
+    setApiKey(apiKey.trim())
     // Reset the cached client so next getClient() uses the new URL
     resetClient()
     setOpen(false)
@@ -82,8 +85,10 @@ export function ConnectionBadge() {
 
   const reset = () => {
     clearConnection()
+    setApiKey("")
     setHost("")
     setPort("")
+    setApiKeyInput("")
     resetClient()
     setOpen(false)
     window.location.reload()
@@ -133,6 +138,18 @@ export function ConnectionBadge() {
                 value={host}
                 onChange={(e) => setHost(e.target.value)}
                 placeholder={typeof window !== "undefined" ? window.location.hostname : "localhost"}
+                className="h-8 w-full rounded-md border bg-background px-3 font-mono text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+                API key (kept only for this browser tab)
+              </label>
+              <input
+                type="password"
+                value={apiKey}
+                onChange={(e) => setApiKeyInput(e.target.value)}
+                autoComplete="off"
                 className="h-8 w-full rounded-md border bg-background px-3 font-mono text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>

@@ -18,6 +18,7 @@ export type { Client, ClientMethods } from "@open-wa/socket-client"
 import { SocketClient } from "@open-wa/socket-client"
 
 const STORAGE_KEY = "wa-dashboard-connection"
+const API_KEY_STORAGE_KEY = "wa-dashboard-api-key"
 
 // We lazy-connect so SSR doesn't try to open a socket.
 let _client: (SocketClient & import("@open-wa/socket-client").Client) | null = null
@@ -32,7 +33,7 @@ export async function getClient(url?: string) {
 
   if (!_connecting) {
     const target = url || getApiUrl()
-    _connecting = SocketClient.connect(target).then((c) => {
+    _connecting = SocketClient.connect(target, getApiKey()).then((c) => {
       _client = c
       _connecting = null
       return c
@@ -43,6 +44,27 @@ export async function getClient(url?: string) {
   }
 
   return _connecting
+}
+
+export function getApiKey(): string {
+  if (typeof window === "undefined") return ""
+  return sessionStorage.getItem(API_KEY_STORAGE_KEY) || ""
+}
+
+export function setApiKey(apiKey: string): void {
+  if (typeof window === "undefined") return
+  if (apiKey) {
+    sessionStorage.setItem(API_KEY_STORAGE_KEY, apiKey)
+  } else {
+    sessionStorage.removeItem(API_KEY_STORAGE_KEY)
+  }
+}
+
+export function apiFetch(input: RequestInfo | URL, init: RequestInit = {}) {
+  const headers = new Headers(init.headers)
+  const apiKey = getApiKey()
+  if (apiKey) headers.set("X-API-Key", apiKey)
+  return fetch(input, { ...init, headers })
 }
 
 /**

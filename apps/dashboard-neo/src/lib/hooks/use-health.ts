@@ -14,7 +14,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { getApiUrl, getClient } from "@/lib/api-client"
+import { apiFetch, getApiUrl, getClient } from "@/lib/api-client"
 import { useDemo } from "@/lib/demo/use-demo"
 import {
   demoLaunchTimeline,
@@ -310,11 +310,17 @@ export function useHealth() {
   const fetchHealth = useCallback(async () => {
     try {
       const baseUrl = getApiUrl()
-      const res = await fetch(`${baseUrl}/health`, {
+      const res = await apiFetch(`${baseUrl}/health`, {
         signal: AbortSignal.timeout(5000),
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = (await res.json()) as HealthData
+      const qrResponse = await apiFetch(`${baseUrl}/qr`, {
+        signal: AbortSignal.timeout(5000),
+      })
+      data.qr = qrResponse.ok
+        ? ((await qrResponse.json()) as { qr?: string }).qr ?? null
+        : null
       _cachedHealth = data
       _lastFetch = Date.now()
       if (mountedRef.current) {

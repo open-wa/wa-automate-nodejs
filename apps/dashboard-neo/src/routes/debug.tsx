@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { useState, useEffect } from "react"
 import { BarChart, Settings, FileText } from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
-import { getClient, getApiUrl } from "@/lib/api-client"
+import { apiFetch, getClient, getApiUrl } from "@/lib/api-client"
 
 export const Route = createFileRoute("/debug")({ component: DebugPage })
 
@@ -54,8 +54,8 @@ function DebugPage() {
         const apiUrl = getApiUrl()
 
         const [memRes, configRes] = await Promise.allSettled([
-          fetch(`${apiUrl}/meta/debug/memory`).then((r) => r.json()),
-          fetch(`${apiUrl}/meta/debug/config`).then((r) => r.json()),
+          apiFetch(`${apiUrl}/meta/debug/memory`).then((r) => r.json()),
+          apiFetch(`${apiUrl}/meta/debug/config`).then((r) => r.json()),
         ])
 
         setDebug((prev) => ({

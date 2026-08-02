@@ -32,6 +32,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { useMemo, useState, useEffect, useRef } from "react"
+import { toDataURL } from "qrcode"
 
 export const Route = createFileRoute("/")({ component: SessionPage })
 
@@ -83,6 +84,33 @@ function getLaunchPhase(
   return "launching"
 }
 
+function LocalQrCode({ value }: { value: string }) {
+  const [dataUrl, setDataUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    let active = true
+    setDataUrl(null)
+    toDataURL(value, { width: 256, margin: 1, errorCorrectionLevel: "M" })
+      .then((nextDataUrl) => {
+        if (active) setDataUrl(nextDataUrl)
+      })
+      .catch(() => {
+        if (active) setDataUrl(null)
+      })
+    return () => {
+      active = false
+    }
+  }, [value])
+
+  return dataUrl ? (
+    <img src={dataUrl} alt="QR Code" className="size-56" />
+  ) : (
+    <div className="flex size-56 items-center justify-center">
+      <Loader2 className="animate-spin text-muted-foreground" />
+    </div>
+  )
+}
+
 // ─── Pre-Launch View ─────────────────────────────────────────────
 function PreLaunchView({
   phase,
@@ -99,11 +127,6 @@ function PreLaunchView({
   )
   const demoTimeoutIds = useRef<ReturnType<typeof setTimeout>[]>([])
 
-  console.log({
-    phase,
-    qr,
-    isDemo,
-  })
   if (qr) phase = "qr"
   // In demo mode, drip-feed log lines to simulate a real launch
   useEffect(() => {
@@ -349,11 +372,7 @@ function PreLaunchView({
                     <div className="animate-scan absolute inset-x-3 h-0.5 bg-primary/60" />
                   </div>
                 ) : (
-                  <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(qr!)}`}
-                    alt="QR Code"
-                    className="size-56"
-                  />
+                  <LocalQrCode value={qr!} />
                 )}
               </div>
             </div>

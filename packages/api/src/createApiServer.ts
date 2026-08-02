@@ -26,6 +26,8 @@ import {
 import type { ApiServerOptions, ClientMethodMap } from './types';
 import type { IScreencastPage } from '@open-wa/screencaster/server';
 import type { PluginHost } from '@open-wa/core';
+import { apiKeyMiddleware } from './auth/api-key';
+import { rateLimitMiddleware } from './middleware/rate-limit';
 
 function parseCorsOrigin(corsConfig: string | string[]): string | string[] {
   if (corsConfig === '*') {
@@ -41,6 +43,20 @@ function parseCorsOrigin(corsConfig: string | string[]): string | string[] {
   }
 
   return corsConfig;
+}
+
+function isLoopbackHost(host: string): boolean {
+  const normalized = host.trim().toLowerCase().replace(/^\[|\]$/g, '');
+  return normalized === 'localhost'
+    || normalized === '::1'
+    || normalized.startsWith('127.');
+}
+
+function isPublicRoute(method: string, path: string): boolean {
+  return method === 'OPTIONS'
+    || path === '/health/live'
+    || path === '/dashboard'
+    || path.startsWith('/dashboard/');
 }
 
 export class ApiServer {
@@ -70,6 +86,12 @@ export class ApiServer {
 
   constructor(options: ApiServerOptions) {
     this.config = options.config;
+
+    if (!this.config.apiKey && !isLoopbackHost(this.config.host)) {
+      throw new Error(
+        'Refusing to expose Easy API on a non-loopback host without apiKey.',
+      );
+    }
 
     // Validate MCP configuration
     if (this.config.mcp?.enabled && !this.config.apiKey) {
@@ -261,13 +283,39 @@ export class ApiServer {
   }
 
   private setupMiddleware() {
+    this.app.use('/*', rateLimitMiddleware(300, 60_000));
+
+    this.app.use('/*', async (c, next) => {
+      c.header('Cache-Control', 'no-store');
+      c.header('Content-Security-Policy', "default-src 'self'; base-uri 'none'; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'");
+      c.header('Cross-Origin-Opener-Policy', 'same-origin');
+      c.header('Cross-Origin-Resource-Policy', 'same-origin');
+      c.header('Permissions-Policy', 'camera=(), geolocation=(), microphone=(), payment=(), usb=()');
+      c.header('Referrer-Policy', 'no-referrer');
+      c.header('X-Content-Type-Options', 'nosniff');
+      c.header('X-Frame-Options', 'DENY');
+      await next();
+    });
+
     this.app.use(
       '/*',
       cors({
         origin: parseCorsOrigin(this.config.cors),
-        credentials: true,
+        allowHeaders: ['Content-Type', 'X-API-Key'],
+        credentials: false,
       }),
     );
+
+    if (this.config.apiKey) {
+      const requireApiKey = apiKeyMiddleware(this.config.apiKey);
+      this.app.use('/*', async (c, next) => {
+        const path = new URL(c.req.url).pathname;
+        if (isPublicRoute(c.req.method, path)) {
+          return next();
+        }
+        return requireApiKey(c, next);
+      });
+    }
 
     this.app.use('/*', async (c, next) => {
       const path = new URL(c.req.url).pathname;
@@ -311,6 +359,8 @@ export class ApiServer {
       c.json(this.pluginHost?.getManifest() ?? { plugins: [] }),
     );
 
+    this.app.get('/health/live', (c) => c.json({ status: 'ok' }));
+
     this.app.get('/health', (c) => {
       const healthSnapshot = this.healthStore.getSnapshot();
       return c.json({
@@ -347,8 +397,6 @@ export class ApiServer {
           blockers: [],
           exposureSafe: false,
         },
-        // QR code for pre-launch scanning
-        qr: this.latestQR ?? null,
         // Accumulated health data for the dashboard
         launchTimeline: healthSnapshot.launchTimeline,
         patches: healthSnapshot.patches,
@@ -381,23 +429,6 @@ export class ApiServer {
     });
 
     this.app.get('/api/events', (c) => {
-      // TODO: Unify this inline auth check with the shared apiKeyMiddleware used across Easy API.
-      // Note: This intentionally supports query params to preserve legacy Easy API behavior,
-      // unlike the MCP adapter which strictly enforces header-only auth (X-API-Key) for security.
-      if (this.config.apiKey) {
-        const apiKey =
-          c.req.header('X-API-Key') ||
-          c.req.query('api_key') ||
-          c.req.query('key');
-
-        if (!apiKey || apiKey !== this.config.apiKey) {
-          return c.json(
-            { error: 'Unauthorized', details: 'Invalid or missing API key' },
-            401,
-          );
-        }
-      }
-
       const topicsParam = c.req.query('topics');
       const topics = topicsParam
         ? topicsParam

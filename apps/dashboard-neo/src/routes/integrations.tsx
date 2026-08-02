@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { useState, useEffect, type ReactNode } from "react"
 import { MessageSquare, Link as LinkIcon, Zap, RefreshCw, Database } from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
-import { getApiUrl } from "@/lib/api-client"
+import { apiFetch, getApiUrl } from "@/lib/api-client"
 
 export const Route = createFileRoute("/integrations")({ component: IntegrationsPage })
 
@@ -87,7 +87,7 @@ function IntegrationsPage() {
   useEffect(() => {
     if (!connected) return
     const apiUrl = getApiUrl()
-    fetch(`${apiUrl}/meta/integrations`)
+    apiFetch(`${apiUrl}/meta/integrations`)
       .then((r) => r.json())
       .then((data: Record<string, { enabled: boolean; config: Record<string, string> }>) => {
         const active = AVAILABLE_INTEGRATIONS.map((integ) => ({
@@ -114,7 +114,7 @@ function IntegrationsPage() {
     setSaving(true)
     try {
       const apiUrl = getApiUrl()
-      await fetch(`${apiUrl}/meta/integrations/${integId}`, {
+      await apiFetch(`${apiUrl}/meta/integrations/${integId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ enabled: true, config: configValues }),
@@ -133,7 +133,7 @@ function IntegrationsPage() {
   const toggle = async (integId: string, enabled: boolean) => {
     try {
       const apiUrl = getApiUrl()
-      await fetch(`${apiUrl}/meta/integrations/${integId}`, {
+      await apiFetch(`${apiUrl}/meta/integrations/${integId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ enabled }),

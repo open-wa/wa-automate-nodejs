@@ -361,25 +361,15 @@ export class SocketClient {
             this.resolveStreamOpen = resolve;
             this.rejectStreamOpen = reject;
 
-            let EventSourceCtor: any;
-            try {
-                EventSourceCtor = (globalThis as any).EventSource;
-            } catch {
-                EventSourceCtor = undefined;
-            }
-
-            if (!EventSourceCtor) {
-                EventSourceCtor = EventSourcePolyfill;
-            }
-
-            if (!EventSourceCtor) {
-                const error = new Error('EventSource is not available in this runtime');
-                this.streamOpenPromise = null;
-                reject(error);
-                return;
-            }
-
-            const stream = new EventSourceCtor(this.getEventsUrl());
+            const stream = new EventSourcePolyfill(this.getEventsUrl(), this.apiKey
+                ? {
+                    fetch: (input, init) => {
+                        const headers = new Headers(init?.headers);
+                        headers.set('X-API-Key', this.apiKey);
+                        return fetch(input, { ...init, headers });
+                    },
+                }
+                : undefined);
             this.stream = stream;
             this.boundStreamEvents.clear();
 
@@ -630,9 +620,6 @@ export class SocketClient {
     private getEventsUrl(): string {
         const parsed = new URL(`${this.getBaseUrl()}/api/events`);
         parsed.searchParams.set('topics', '*');
-        if (this.apiKey) {
-            parsed.searchParams.set('api_key', this.apiKey);
-        }
         return parsed.toString();
     }
 }

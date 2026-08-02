@@ -3,13 +3,15 @@ import { createApiServer } from '../src/createApiServer.js';
 import { serve } from '@hono/node-server';
 import type { Config } from '@open-wa/config';
 
+const AUTH_HEADERS = { 'X-API-Key': 'test' };
+
 describe('MCP API Integration', () => {
   it('exposes MCP capabilities in /health when disabled', async () => {
     const config: Config = { sessionName: 'test', apiKey: 'test', cors: '*' };
     const apiServer = createApiServer(config);
     const app = apiServer.getApp();
 
-    const res = await app.request('/health');
+    const res = await app.request('/health', { headers: AUTH_HEADERS });
     expect(res.status).toBe(200);
     const data = (await res.json()) as any;
     expect(data.capabilities).toBeDefined();
@@ -28,7 +30,7 @@ describe('MCP API Integration', () => {
     const apiServer = createApiServer(config);
     const app = apiServer.getApp();
 
-    const res = await app.request('/health');
+    const res = await app.request('/health', { headers: AUTH_HEADERS });
     expect(res.status).toBe(200);
     const data = (await res.json()) as any;
     expect(data.capabilities).toBeDefined();
@@ -47,7 +49,7 @@ describe('MCP API Integration', () => {
     const apiServer = createApiServer(config);
     const app = apiServer.getApp();
 
-    const res = await app.request('/meta/mcp-tools.json');
+    const res = await app.request('/meta/mcp-tools.json', { headers: AUTH_HEADERS });
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.endpoint).toBe('/mcp');
@@ -65,7 +67,7 @@ describe('MCP API Integration', () => {
     const apiServer = createApiServer(config);
     const app = apiServer.getApp();
 
-    const res = await app.request('/meta/mcp-tools.json');
+    const res = await app.request('/meta/mcp-tools.json', { headers: AUTH_HEADERS });
     expect(res.status).toBe(404);
   });
 

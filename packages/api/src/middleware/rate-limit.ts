@@ -2,14 +2,11 @@ import type { Context, Next } from 'hono';
 
 const requests = new Map<string, number[]>();
 
-function getRequestKey(c: Context): string {
-  const forwarded = c.req.header('x-forwarded-for');
-
-  if (forwarded) {
-    return forwarded.split(',')[0].trim();
-  }
-
-  return c.req.header('x-real-ip') || 'unknown';
+function getRequestKey(_c: Context): string {
+  // The standalone server has no trusted-proxy boundary, so client-supplied
+  // forwarding headers cannot safely identify callers. A process-wide bucket
+  // is conservative and cannot be bypassed by spoofing X-Forwarded-For.
+  return 'global';
 }
 
 export function rateLimitMiddleware(maxRequests = 100, windowMs = 60000) {
