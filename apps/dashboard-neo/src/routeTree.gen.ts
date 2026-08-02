@@ -9,68 +9,23 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as PortalRouteImport } from './routes/portal'
-import { Route as PlaygroundRouteImport } from './routes/playground'
-import { Route as McpRouteImport } from './routes/mcp'
-import { Route as IntegrationsRouteImport } from './routes/integrations'
-import { Route as HealthRouteImport } from './routes/health'
-import { Route as EventsRouteImport } from './routes/events'
-import { Route as DebugRouteImport } from './routes/debug'
-import { Route as ContactsRouteImport } from './routes/contacts'
-import { Route as ChatRouteImport } from './routes/chat'
-import { Route as AppsRouteImport } from './routes/apps'
-import { Route as ApiDocsRouteImport } from './routes/api-docs'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiDocsRouteImport } from './routes/api-docs'
+import { Route as AppsRouteImport } from './routes/apps'
+import { Route as ChatRouteImport } from './routes/chat'
+import { Route as ContactsRouteImport } from './routes/contacts'
+import { Route as DebugRouteImport } from './routes/debug'
+import { Route as EventsRouteImport } from './routes/events'
+import { Route as HealthRouteImport } from './routes/health'
+import { Route as IntegrationsRouteImport } from './routes/integrations'
+import { Route as McpRouteImport } from './routes/mcp'
+import { Route as PlaygroundRouteImport } from './routes/playground'
+import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PluginsNameRouteImport } from './routes/plugins.$name'
 
-const PortalRoute = PortalRouteImport.update({
-  id: '/portal',
-  path: '/portal',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlaygroundRoute = PlaygroundRouteImport.update({
-  id: '/playground',
-  path: '/playground',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const McpRoute = McpRouteImport.update({
-  id: '/mcp',
-  path: '/mcp',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IntegrationsRoute = IntegrationsRouteImport.update({
-  id: '/integrations',
-  path: '/integrations',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HealthRoute = HealthRouteImport.update({
-  id: '/health',
-  path: '/health',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EventsRoute = EventsRouteImport.update({
-  id: '/events',
-  path: '/events',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DebugRoute = DebugRouteImport.update({
-  id: '/debug',
-  path: '/debug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContactsRoute = ContactsRouteImport.update({
-  id: '/contacts',
-  path: '/contacts',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChatRoute = ChatRouteImport.update({
-  id: '/chat',
-  path: '/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppsRoute = AppsRouteImport.update({
-  id: '/apps',
-  path: '/apps',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiDocsRoute = ApiDocsRouteImport.update({
@@ -78,9 +33,54 @@ const ApiDocsRoute = ApiDocsRouteImport.update({
   path: '/api-docs',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AppsRoute = AppsRouteImport.update({
+  id: '/apps',
+  path: '/apps',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactsRoute = ContactsRouteImport.update({
+  id: '/contacts',
+  path: '/contacts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DebugRoute = DebugRouteImport.update({
+  id: '/debug',
+  path: '/debug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HealthRoute = HealthRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationsRoute = IntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlaygroundRoute = PlaygroundRouteImport.update({
+  id: '/playground',
+  path: '/playground',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalRoute = PortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PluginsNameRoute = PluginsNameRouteImport.update({
@@ -201,74 +201,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/portal': {
-      id: '/portal'
-      path: '/portal'
-      fullPath: '/portal'
-      preLoaderRoute: typeof PortalRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/playground': {
-      id: '/playground'
-      path: '/playground'
-      fullPath: '/playground'
-      preLoaderRoute: typeof PlaygroundRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mcp': {
-      id: '/mcp'
-      path: '/mcp'
-      fullPath: '/mcp'
-      preLoaderRoute: typeof McpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/integrations': {
-      id: '/integrations'
-      path: '/integrations'
-      fullPath: '/integrations'
-      preLoaderRoute: typeof IntegrationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/health': {
-      id: '/health'
-      path: '/health'
-      fullPath: '/health'
-      preLoaderRoute: typeof HealthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/events': {
-      id: '/events'
-      path: '/events'
-      fullPath: '/events'
-      preLoaderRoute: typeof EventsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/debug': {
-      id: '/debug'
-      path: '/debug'
-      fullPath: '/debug'
-      preLoaderRoute: typeof DebugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contacts': {
-      id: '/contacts'
-      path: '/contacts'
-      fullPath: '/contacts'
-      preLoaderRoute: typeof ContactsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/chat': {
-      id: '/chat'
-      path: '/chat'
-      fullPath: '/chat'
-      preLoaderRoute: typeof ChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/apps': {
-      id: '/apps'
-      path: '/apps'
-      fullPath: '/apps'
-      preLoaderRoute: typeof AppsRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api-docs': {
@@ -278,11 +215,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDocsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/apps': {
+      id: '/apps'
+      path: '/apps'
+      fullPath: '/apps'
+      preLoaderRoute: typeof AppsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contacts': {
+      id: '/contacts'
+      path: '/contacts'
+      fullPath: '/contacts'
+      preLoaderRoute: typeof ContactsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/debug': {
+      id: '/debug'
+      path: '/debug'
+      fullPath: '/debug'
+      preLoaderRoute: typeof DebugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/health': {
+      id: '/health'
+      path: '/health'
+      fullPath: '/health'
+      preLoaderRoute: typeof HealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integrations': {
+      id: '/integrations'
+      path: '/integrations'
+      fullPath: '/integrations'
+      preLoaderRoute: typeof IntegrationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/playground': {
+      id: '/playground'
+      path: '/playground'
+      fullPath: '/playground'
+      preLoaderRoute: typeof PlaygroundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/plugins/$name': {
