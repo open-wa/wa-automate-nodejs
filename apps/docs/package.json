@@ -10,7 +10,8 @@
     "build": "pnpm workspace-docs && vite build",
     "start": "serve dist/client",
     "types": "pnpm workspace-docs && fumadocs-mdx && tsc --noEmit",
-    "check": "pnpm workspace-docs && fumadocs-mdx && tsc --noEmit",
+    "check": "pnpm workspace-docs && pnpm check:ste && fumadocs-mdx && tsc --noEmit",
+    "check:ste": "node scripts/check-ste.mjs",
     "lint": "oxlint src scripts",
     "workspace-docs": "node scripts/gen-workspace-readme-docs.js",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,md,mdx}\" \"scripts/**/*.{ts,js}\"",
@@ -19,6 +20,7 @@
     "check:mascots": "node scripts/check-mascot-assets.js",
     "preview": "vite preview",
     "deploy": "pnpm run build && wrangler deploy",
+    "publish:agent-readiness": "node scripts/publish-agent-readiness.mjs --apply",
     "cf-typegen": "wrangler types",
     "test:og": "tsx scripts/test-og.ts"
   },

@@ -1,0 +1,6 @@
+; DNS-AID discovery for the open-wa documentation MCP server.
+; Publish both records because scanners may derive discovery from either the
+; registrable domain or the complete docs hostname.
+
+_index._agents.openwa.dev. 3600 IN SVCB 1 docs.openwa.dev. mandatory=alpn,port alpn="mcp,h2" port=443
+_index._agents.docs.openwa.dev. 3600 IN SVCB 1 docs.openwa.dev. mandatory=alpn,port alpn="mcp,h2" port=443

@@ -4,21 +4,38 @@ export const Route = createFileRoute('/.well-known/mcp/server-card.json')({
   // @ts-expect-error TanStack types mismatch
   server: {
     handlers: {
-      GET() {
+      GET({ request }: { request: Request }) {
+        const origin = new URL(request.url).origin;
+
         return new Response(
           JSON.stringify(
             {
-              error: 'MCP is not hosted on the docs site.',
-              docs: 'https://docs.openwa.dev/docs/guides/mcp',
-              runtimeEndpoint: '/mcp',
+              serverInfo: {
+                name: 'open-wa documentation',
+                version: '5.0.0-alpha',
+              },
+              transport: {
+                type: 'streamable-http',
+                endpoint: `${origin}/mcp`,
+              },
+              capabilities: {
+                tools: {
+                  listChanged: false,
+                },
+              },
+              authentication: {
+                required: false,
+              },
+              documentation: `${origin}/docs/guides/mcp`,
             },
             null,
             2,
           ),
           {
-            status: 404,
             headers: {
-              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+              'Cache-Control': 'public, max-age=3600',
+              'Content-Type': 'application/json; charset=utf-8',
             },
           },
         );
