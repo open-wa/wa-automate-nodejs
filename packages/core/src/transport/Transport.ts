@@ -153,6 +153,8 @@ const DOCUMENT_READY_CHECK_SCRIPT = `!!(
   || document.readyState === 'complete'
 )`;
 
+type RuntimeMutationKind = 'runtime_install' | 'runtime_recovery';
+
 const RUNTIME_REPLACEMENT_OBSERVER_SCRIPT = `(() => {
   const root = globalThis;
   const existingState = root.__OPENWA_RUNTIME_REPLACEMENT_OBSERVER__;
@@ -204,7 +206,19 @@ const RUNTIME_REPLACEMENT_OBSERVER_SCRIPT = `(() => {
       }
       currentValue = value;
 
-      if (previous && value && previous !== value) {
+      const lease = root.__OPENWA_RUNTIME_MUTATION_LEASE__;
+      const leaseActive = Boolean(
+        lease
+        && typeof lease.token === 'string'
+        && typeof lease.expiresAt === 'number'
+        && lease.expiresAt > Date.now()
+      );
+
+      if (lease && !leaseActive) {
+        delete root.__OPENWA_RUNTIME_MUTATION_LEASE__;
+      }
+
+      if (previous && value && previous !== value && !leaseActive) {
         notifyRuntimeReplacement();
       }
     },
@@ -405,6 +419,8 @@ const LIVE_PATCH_CACHE_FILENAME = 'patches.cache.json';
 const LIVE_PATCH_CACHE_MAX_AGE_MS = 86_400_000;
 /** Maximum consecutive recovery attempts before giving up */
 const MAX_CONSECUTIVE_RECOVERY_ATTEMPTS = 5;
+/** Safety expiry for a page-side lease covering intentional WAPI replacement. */
+const RUNTIME_MUTATION_LEASE_TTL_MS = 15_000;
 
 export class Transport {
   private static assetScriptCache = new Map<string, Promise<string>>();
@@ -445,6 +461,8 @@ export class Transport {
   private latestRuntimeRecoveryRequestId = 0;
   private pendingRuntimeRecoveryCount = 0;
   private consecutiveRecoveryAttempts = 0;
+  private readonly queuedRuntimeRecoveryKeys = new Set<string>();
+  private runtimeMutationLeaseSequence = 0;
   /** Cached live patch scripts for re-application during recovery */
   private cachedLivePatchScripts: string[] = [];
   private frameNavCounter = 0;
@@ -2439,6 +2457,22 @@ export class Transport {
     trigger: 'main_frame_navigation' | 'runtime_replaced',
     generation?: GenerationSnapshot,
   ): void {
+    const targetGeneration = generation ?? this.injectionController.captureGenerationSnapshot();
+    const recoveryKey = [
+      trigger,
+      targetGeneration.documentId,
+      targetGeneration.runtimeId ?? 'no-runtime',
+    ].join(':');
+
+    if (this.queuedRuntimeRecoveryKeys.has(recoveryKey)) {
+      this.logger.debug('runtime_recovery_coalesced', {
+        trigger,
+        recoveryKey,
+      });
+      return;
+    }
+
+    this.queuedRuntimeRecoveryKeys.add(recoveryKey);
     const requestId = ++this.latestRuntimeRecoveryRequestId;
     this.pendingRuntimeRecoveryCount += 1;
 
@@ -2449,8 +2483,8 @@ export class Transport {
     });
 
     this.runtimeRecoveryQueue = this.runtimeRecoveryQueue.then(
-      () => this.runRuntimeRecovery({ requestId, trigger, generation }),
-      () => this.runRuntimeRecovery({ requestId, trigger, generation }),
+      () => this.runRuntimeRecovery({ requestId, trigger, generation: targetGeneration, recoveryKey }),
+      () => this.runRuntimeRecovery({ requestId, trigger, generation: targetGeneration, recoveryKey }),
     ).catch((error) => {
       this.logger.warn('runtime_recovery_failed', {
         trigger,
@@ -2467,7 +2501,8 @@ export class Transport {
   private async runRuntimeRecovery(request: {
     requestId: number;
     trigger: 'main_frame_navigation' | 'runtime_replaced';
-    generation?: GenerationSnapshot;
+    generation: GenerationSnapshot;
+    recoveryKey: string;
   }): Promise<void> {
     try {
       if (!this.page) {
@@ -2555,11 +2590,21 @@ export class Transport {
         }
       }
 
-      const { reinjected } = await this.recoverRuntimeForCurrentDocument({
+      const { capability, reinjected } = await this.recoverRuntimeForCurrentDocument({
         trigger: request.trigger,
         shouldContinue: () => this.isLatestRuntimeRecoveryRequest(request.requestId),
         forceReinject: request.trigger === 'runtime_replaced',
       });
+
+      if (!this.isLatestRuntimeRecoveryRequest(request.requestId)) {
+        return;
+      }
+
+      if (!capability.hasRuntime || (capability.sessionLoaded && !capability.hasStoreMsg)) {
+        throw new Error(
+          `Runtime recovery postconditions failed: ${JSON.stringify(capability)}`,
+        );
+      }
 
       this.logger.info('runtime_recovery_completed', {
         trigger: request.trigger,
@@ -2572,6 +2617,7 @@ export class Transport {
       this.consecutiveRecoveryAttempts = 0;
     } finally {
       this.pendingRuntimeRecoveryCount = Math.max(0, this.pendingRuntimeRecoveryCount - 1);
+      this.queuedRuntimeRecoveryKeys.delete(request.recoveryKey);
     }
   }
 
@@ -2619,7 +2665,7 @@ export class Transport {
 
     // ── Step 1: Reinject wapi.js + launch.js + cached live patches ──
     // performRuntimeInjection already re-applies cached live patch scripts.
-    const reinjected = await this.performRuntimeInjection(shouldContinue);
+    const reinjected = await this.performRuntimeInjection(shouldContinue, 'runtime_recovery');
     if (!shouldContinue()) {
       capability = await this.probeRuntimeCapability();
       return { capability, reinjected };
@@ -2679,7 +2725,17 @@ export class Transport {
     };
   }
 
-  private async performRuntimeInjection(shouldContinue: () => boolean = () => true): Promise<boolean> {
+  private async performRuntimeInjection(
+    shouldContinue: () => boolean = () => true,
+    mutationKind: RuntimeMutationKind = 'runtime_install',
+  ): Promise<boolean> {
+    return this.withRuntimeMutationLease(
+      mutationKind,
+      () => this.performRuntimeInjectionUnderLease(shouldContinue),
+    );
+  }
+
+  private async performRuntimeInjectionUnderLease(shouldContinue: () => boolean): Promise<boolean> {
     if (!this.page) {
       throw new Error('Transport not initialized');
     }
@@ -2761,6 +2817,51 @@ export class Transport {
     }
 
     return success;
+  }
+
+  private async withRuntimeMutationLease<T>(
+    kind: RuntimeMutationKind,
+    task: () => Promise<T>,
+  ): Promise<T> {
+    if (!this.page) {
+      throw new Error('Transport not initialized');
+    }
+
+    const page = this.page;
+    const generation = this.injectionController.captureGenerationSnapshot();
+    const token = `${generation.documentId}:${++this.runtimeMutationLeaseSequence}:${Date.now()}`;
+    const startedAt = Date.now();
+
+    await page.evaluate((lease) => {
+      const root = globalThis as typeof globalThis & {
+        __OPENWA_RUNTIME_MUTATION_LEASE__?: typeof lease;
+      };
+      root.__OPENWA_RUNTIME_MUTATION_LEASE__ = lease;
+    }, {
+      token,
+      kind,
+      documentId: generation.documentId,
+      startedAt,
+      expiresAt: startedAt + RUNTIME_MUTATION_LEASE_TTL_MS,
+    });
+
+    try {
+      return await task();
+    } finally {
+      await page.evaluate((expectedToken) => {
+        const root = globalThis as typeof globalThis & {
+          __OPENWA_RUNTIME_MUTATION_LEASE__?: { token?: string };
+        };
+        if (root.__OPENWA_RUNTIME_MUTATION_LEASE__?.token === expectedToken) {
+          delete root.__OPENWA_RUNTIME_MUTATION_LEASE__;
+        }
+      }, token).catch((error) => {
+        this.logger.debug('runtime_mutation_lease_release_failed', {
+          kind,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      });
+    }
   }
 
   private async probeBrokenMethodIntegrity(): Promise<RuntimeMethodIntegrityResult> {
