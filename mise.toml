@@ -1,0 +1,26 @@
+# Pinned toolchain for the open-wa v5 monorepo.
+# Contributors: install mise (https://mise.jdx.dev), then run `mise install`
+# to get the exact Node and pnpm versions this repo builds and tests against.
+[tools]
+node = "22.21"   # matches package.json engines: node >=22.21.1
+pnpm = "11.9"    # matches package.json packageManager: pnpm@11.9.0
+
+[tasks.install]
+description = "Install workspace dependencies"
+run = "pnpm install"
+
+[tasks.build]
+description = "Build all workspace packages (excludes docs)"
+run = "pnpm build"
+
+[tasks.test]
+description = "Run the workspace test suite"
+run = "pnpm test"
+
+[tasks.typecheck]
+description = "Typecheck all workspace packages"
+run = "pnpm typecheck"
+
+[tasks.lint]
+description = "Lint the workspace with oxlint"
+run = "pnpm lint"

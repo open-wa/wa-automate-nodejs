@@ -373,11 +373,6 @@ export const MASCOT_BY_PATH: Record<string, MascotEntry> = {
     title: 'Package Hyperemitter Box Wally',
     activity: 'placing the @open-wa/hyperemitter package box on the workspace shelf.',
   },
-  '/docs/reference/workspaces/packages/legacy': {
-    src: '/mascots/wally-package-legacy-box.png',
-    title: 'Package Legacy Box Wally',
-    activity: 'placing the @open-wa/legacy package box on the workspace shelf.',
-  },
   '/docs/reference/workspaces/packages/legacy-documented': {
     src: '/mascots/wally-package-legacy-documented-box.png',
     title: 'Package Legacy Documented Wally',

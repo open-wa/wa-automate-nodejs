@@ -38,28 +38,32 @@ Add participant to group
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.addParticipant({
   groupId: "447123456789-1445627445@g.us",
   contactId: "447123456789@c.us",
 });
+// namespaced form: client.groups.addParticipant(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.addParticipant({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.addParticipant({
   groupId: "447123456789-1445627445@g.us",
   contactId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/addParticipant" \
@@ -71,8 +75,17 @@ curl -X PUT "http://localhost:8080/api/groups/addParticipant" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -111,28 +124,32 @@ Approve group join request
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.approveGroupJoinRequest({
   groupId: "447123456789-1445627445@g.us",
   contactId: "447123456789@c.us",
 });
+// namespaced form: client.groups.approveJoinRequest(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.approveJoinRequest({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.approveGroupJoinRequest({
   groupId: "447123456789-1445627445@g.us",
   contactId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/approveJoinRequest" \
@@ -144,8 +161,17 @@ curl -X PUT "http://localhost:8080/api/groups/approveJoinRequest" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -186,28 +212,32 @@ Create new group
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.createGroup({
   name: "name",
   contacts: "447123456789@c.us",
 });
+// namespaced form: client.groups.create(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.create({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.createGroup({
   name: "name",
   contacts: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X POST "http://localhost:8080/api/groups/create" \
@@ -219,8 +249,17 @@ curl -X POST "http://localhost:8080/api/groups/create" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -230,7 +269,9 @@ curl -X POST "http://localhost:8080/api/groups/create" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `demoteParticipant`
 
@@ -260,28 +301,32 @@ Demote participant from admin
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.demoteParticipant({
   groupId: "447123456789-1445627445@g.us",
   contactId: "447123456789@c.us",
 });
+// namespaced form: client.groups.demoteParticipant(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.demoteParticipant({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.demoteParticipant({
   groupId: "447123456789-1445627445@g.us",
   contactId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/demoteParticipant" \
@@ -293,8 +338,17 @@ curl -X PUT "http://localhost:8080/api/groups/demoteParticipant" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -336,26 +390,30 @@ Get all groups
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getAllGroups({
   withNewMessagesOnly: false,
 });
+// namespaced form: client.groups.getAll(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.getAll({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getAllGroups({
   withNewMessagesOnly: false,
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/groups/getAll" \
@@ -363,8 +421,17 @@ curl -G "http://localhost:8080/api/groups/getAll" \
   --data-urlencode "withNewMessagesOnly=false"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -374,7 +441,9 @@ curl -G "http://localhost:8080/api/groups/getAll" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown[]` |
+| Return type | `any[]` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getGroupAdmins`
 
@@ -403,26 +472,30 @@ Get group admins
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getGroupAdmins({
   groupId: "447123456789-1445627445@g.us",
 });
+// namespaced form: client.groups.getAdmins(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.getAdmins({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getGroupAdmins({
   groupId: "447123456789-1445627445@g.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/groups/getAdmins" \
@@ -430,8 +503,17 @@ curl -G "http://localhost:8080/api/groups/getAdmins" \
   --data-urlencode "groupId=447123456789-1445627445@g.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -441,7 +523,9 @@ curl -G "http://localhost:8080/api/groups/getAdmins" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown[]` |
+| Return type | `any[]` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getGroupInfo`
 
@@ -470,26 +554,30 @@ Get group metadata
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getGroupInfo({
   groupId: "447123456789-1445627445@g.us",
 });
+// namespaced form: client.groups.getInfo(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.getInfo({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getGroupInfo({
   groupId: "447123456789-1445627445@g.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/groups/getInfo" \
@@ -497,8 +585,17 @@ curl -G "http://localhost:8080/api/groups/getInfo" \
   --data-urlencode "groupId=447123456789-1445627445@g.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -508,7 +605,9 @@ curl -G "http://localhost:8080/api/groups/getInfo" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getGroupInviteLink`
 
@@ -537,26 +636,30 @@ Get group invite link
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getGroupInviteLink({
   groupId: "447123456789-1445627445@g.us",
 });
+// namespaced form: client.groups.getInviteLink(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.getInviteLink({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getGroupInviteLink({
   groupId: "447123456789-1445627445@g.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/groups/getInviteLink" \
@@ -564,8 +667,17 @@ curl -G "http://localhost:8080/api/groups/getInviteLink" \
   --data-urlencode "groupId=447123456789-1445627445@g.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -604,26 +716,30 @@ Retrieves members of a group
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getGroupMembers({
   groupId: "447123456789-1445627445@g.us",
 });
+// namespaced form: client.groups.getMembers(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.getMembers({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getGroupMembers({
   groupId: "447123456789-1445627445@g.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/groups/getMembers" \
@@ -631,8 +747,17 @@ curl -G "http://localhost:8080/api/groups/getMembers" \
   --data-urlencode "groupId=447123456789-1445627445@g.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -642,7 +767,9 @@ curl -G "http://localhost:8080/api/groups/getMembers" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown[]` |
+| Return type | `any[]` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getGroupMembersId`
 
@@ -673,26 +800,30 @@ Get group member IDs
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getGroupMembersId({
   groupId: "447123456789-1445627445@g.us",
 });
+// namespaced form: client.groups.getMemberIds(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.getMemberIds({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getGroupMembersId({
   groupId: "447123456789-1445627445@g.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/groups/getMemberIds" \
@@ -700,8 +831,17 @@ curl -G "http://localhost:8080/api/groups/getMemberIds" \
   --data-urlencode "groupId=447123456789-1445627445@g.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -740,22 +880,26 @@ Get groups where kicked
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getKickedGroups({});
+// namespaced form: client.groups.getKicked(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.getKicked({});
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getKickedGroups({});
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X GET "http://localhost:8080/api/groups/getKicked" \
@@ -764,8 +908,17 @@ curl -X GET "http://localhost:8080/api/groups/getKicked" \
   --data '{}'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -808,28 +961,32 @@ Join group via invite link
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.joinGroupViaLink({
   link: "link",
   returnChatObj: true,
 });
+// namespaced form: client.groups.join(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.join({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.joinGroupViaLink({
   link: "link",
   returnChatObj: true,
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X POST "http://localhost:8080/api/groups/join" \
@@ -841,8 +998,17 @@ curl -X POST "http://localhost:8080/api/groups/join" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -852,7 +1018,9 @@ curl -X POST "http://localhost:8080/api/groups/join" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `string \| boolean \| number \| unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `leaveGroup`
 
@@ -881,26 +1049,30 @@ Leave a group
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.leaveGroup({
   groupId: "447123456789-1445627445@g.us",
 });
+// namespaced form: client.groups.leave(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.leave({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.leaveGroup({
   groupId: "447123456789-1445627445@g.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/leave" \
@@ -911,8 +1083,17 @@ curl -X PUT "http://localhost:8080/api/groups/leave" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -922,7 +1103,9 @@ curl -X PUT "http://localhost:8080/api/groups/leave" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `promoteParticipant`
 
@@ -952,28 +1135,32 @@ Promote participant to admin
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.promoteParticipant({
   groupId: "447123456789-1445627445@g.us",
   contactId: "447123456789@c.us",
 });
+// namespaced form: client.groups.promoteParticipant(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.promoteParticipant({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.promoteParticipant({
   groupId: "447123456789-1445627445@g.us",
   contactId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/promoteParticipant" \
@@ -985,8 +1172,17 @@ curl -X PUT "http://localhost:8080/api/groups/promoteParticipant" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -1025,28 +1221,32 @@ Reject group join request
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.rejectGroupJoinRequest({
   groupId: "447123456789-1445627445@g.us",
   contactId: "447123456789@c.us",
 });
+// namespaced form: client.groups.rejectJoinRequest(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.rejectJoinRequest({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.rejectGroupJoinRequest({
   groupId: "447123456789-1445627445@g.us",
   contactId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/rejectJoinRequest" \
@@ -1058,8 +1258,17 @@ curl -X PUT "http://localhost:8080/api/groups/rejectJoinRequest" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -1099,28 +1308,32 @@ Remove participant from group
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.removeParticipant({
   groupId: "447123456789-1445627445@g.us",
   contactId: "447123456789@c.us",
 });
+// namespaced form: client.groups.removeParticipant(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.removeParticipant({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.removeParticipant({
   groupId: "447123456789-1445627445@g.us",
   contactId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/removeParticipant" \
@@ -1132,8 +1345,17 @@ curl -X PUT "http://localhost:8080/api/groups/removeParticipant" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -1172,26 +1394,30 @@ Revoke group invite link
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.revokeGroupInviteLink({
   groupId: "447123456789-1445627445@g.us",
 });
+// namespaced form: client.groups.revokeInviteLink(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.revokeInviteLink({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.revokeGroupInviteLink({
   groupId: "447123456789-1445627445@g.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/revokeInviteLink" \
@@ -1202,8 +1428,17 @@ curl -X PUT "http://localhost:8080/api/groups/revokeInviteLink" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -1242,28 +1477,32 @@ Set group description
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.setGroupDescription({
   groupId: "447123456789-1445627445@g.us",
   description: "description",
 });
+// namespaced form: client.groups.setDescription(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.setDescription({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.setGroupDescription({
   groupId: "447123456789-1445627445@g.us",
   description: "description",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/setDescription" \
@@ -1275,8 +1514,17 @@ curl -X PUT "http://localhost:8080/api/groups/setDescription" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -1316,28 +1564,32 @@ Restrict group editing to admins only
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.setGroupEditToAdminsOnly({
   groupId: "447123456789-1445627445@g.us",
   onlyAdmins: true,
 });
+// namespaced form: client.groups.setEditAdminsOnly(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.setEditAdminsOnly({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.setGroupEditToAdminsOnly({
   groupId: "447123456789-1445627445@g.us",
   onlyAdmins: true,
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/setEditAdminsOnly" \
@@ -1349,8 +1601,17 @@ curl -X PUT "http://localhost:8080/api/groups/setEditAdminsOnly" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -1389,28 +1650,32 @@ Set group icon
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.setGroupIcon({
   groupId: "447123456789-1445627445@g.us",
   image: "image",
 });
+// namespaced form: client.groups.setIcon(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.setIcon({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.setGroupIcon({
   groupId: "447123456789-1445627445@g.us",
   image: "image",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/setIcon" \
@@ -1422,8 +1687,17 @@ curl -X PUT "http://localhost:8080/api/groups/setIcon" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -1462,28 +1736,32 @@ Set group title
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.setGroupTitle({
   groupId: "447123456789-1445627445@g.us",
   title: "title",
 });
+// namespaced form: client.groups.setTitle(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.setTitle({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.setGroupTitle({
   groupId: "447123456789-1445627445@g.us",
   title: "title",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/setTitle" \
@@ -1495,8 +1773,17 @@ curl -X PUT "http://localhost:8080/api/groups/setTitle" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -1536,28 +1823,32 @@ Restrict group to admins only
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.setGroupToAdminsOnly({
   groupId: "447123456789-1445627445@g.us",
   onlyAdmins: true,
 });
+// namespaced form: client.groups.setAdminsOnly(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.groups.setAdminsOnly({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.setGroupToAdminsOnly({
   groupId: "447123456789-1445627445@g.us",
   onlyAdmins: true,
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/setAdminsOnly" \
@@ -1569,8 +1860,17 @@ curl -X PUT "http://localhost:8080/api/groups/setAdminsOnly" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 

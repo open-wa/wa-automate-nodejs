@@ -39,26 +39,30 @@ Block a contact
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.blockContact({
   contactId: "447123456789@c.us",
 });
+// namespaced form: client.contacts.block(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.contacts.block({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.blockContact({
   contactId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/contacts/block" \
@@ -69,8 +73,17 @@ curl -X PUT "http://localhost:8080/api/contacts/block" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -111,26 +124,30 @@ Check if number is on WhatsApp
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.checkNumberStatus({
   contactId: "447123456789@c.us",
 });
+// namespaced form: client.contacts.checkNumberStatus(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.contacts.checkNumberStatus({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.checkNumberStatus({
   contactId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/contacts/checkNumberStatus" \
@@ -138,8 +155,17 @@ curl -G "http://localhost:8080/api/contacts/checkNumberStatus" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -149,7 +175,9 @@ curl -G "http://localhost:8080/api/contacts/checkNumberStatus" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `checkReadReceipts`
 
@@ -180,26 +208,30 @@ Check read receipts setting
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.checkReadReceipts({
   contactId: "447123456789@c.us",
 });
+// namespaced form: client.contacts.checkReadReceipts(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.contacts.checkReadReceipts({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.checkReadReceipts({
   contactId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/contacts/checkReadReceipts" \
@@ -207,8 +239,17 @@ curl -G "http://localhost:8080/api/contacts/checkReadReceipts" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -250,22 +291,26 @@ Retrieves all contacts
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getAllContacts({});
+// namespaced form: client.contacts.getAll(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.contacts.getAll({});
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getAllContacts({});
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X GET "http://localhost:8080/api/contacts/getAll" \
@@ -274,8 +319,17 @@ curl -X GET "http://localhost:8080/api/contacts/getAll" \
   --data '{}'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -285,7 +339,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown[]` |
+| Return type | `any[]` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getBlockedIds`
 
@@ -314,22 +370,26 @@ Get blocked contact IDs
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getBlockedIds({});
+// namespaced form: client.contacts.getBlockedIds(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.contacts.getBlockedIds({});
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getBlockedIds({});
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X GET "http://localhost:8080/api/contacts/getBlockedIds" \
@@ -338,8 +398,17 @@ curl -X GET "http://localhost:8080/api/contacts/getBlockedIds" \
   --data '{}'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -378,26 +447,30 @@ Get common groups with contact
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getCommonGroups({
   contactId: "447123456789@c.us",
 });
+// namespaced form: client.contacts.getCommonGroups(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.contacts.getCommonGroups({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getCommonGroups({
   contactId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/contacts/getCommonGroups" \
@@ -405,8 +478,17 @@ curl -G "http://localhost:8080/api/contacts/getCommonGroups" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -416,7 +498,9 @@ curl -G "http://localhost:8080/api/contacts/getCommonGroups" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getContact`
 
@@ -445,26 +529,30 @@ Get specific contact
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getContact({
   contactId: "447123456789@c.us",
 });
+// namespaced form: client.contacts.get(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.contacts.get({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getContact({
   contactId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/contacts/get" \
@@ -472,8 +560,17 @@ curl -G "http://localhost:8080/api/contacts/get" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -483,7 +580,9 @@ curl -G "http://localhost:8080/api/contacts/get" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getNumberProfile` - insiders
 
@@ -514,26 +613,30 @@ Get profile of number
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getNumberProfile({
   contactId: "447123456789@c.us",
 });
+// namespaced form: client.contacts.getNumberProfile(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.contacts.getNumberProfile({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getNumberProfile({
   contactId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/contacts/getNumberProfile" \
@@ -541,8 +644,17 @@ curl -G "http://localhost:8080/api/contacts/getNumberProfile" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -552,7 +664,9 @@ curl -G "http://localhost:8080/api/contacts/getNumberProfile" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getProfilePicture`
 
@@ -583,26 +697,30 @@ Get profile picture from server
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getProfilePicture({
   chatId: "447123456789@c.us",
 });
+// namespaced form: client.contacts.getProfilePicture(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.contacts.getProfilePicture({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getProfilePicture({
   chatId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/contacts/getProfilePicture" \
@@ -610,8 +728,17 @@ curl -G "http://localhost:8080/api/contacts/getProfilePicture" \
   --data-urlencode "chatId=447123456789@c.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -652,26 +779,30 @@ Unblock a contact
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.unblockContact({
   contactId: "447123456789@c.us",
 });
+// namespaced form: client.contacts.unblock(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.contacts.unblock({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.unblockContact({
   contactId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/contacts/unblock" \
@@ -682,8 +813,17 @@ curl -X PUT "http://localhost:8080/api/contacts/unblock" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 

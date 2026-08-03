@@ -66,7 +66,7 @@ The visible editor templates and runtime source define these fields.
 
 ## Documentation
 
-See the [docs site](https://docs.openwa.dev).
+See the [docs site](https://openwa.dev).
 
 ## License
 

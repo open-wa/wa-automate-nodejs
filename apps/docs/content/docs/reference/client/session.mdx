@@ -37,22 +37,26 @@ Get phone battery level
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getBatteryLevel({});
+// namespaced form: client.session.getBatteryLevel(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.session.getBatteryLevel({});
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getBatteryLevel({});
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getBatteryLevel" \
@@ -61,8 +65,17 @@ curl -X GET "http://localhost:8080/api/session/getBatteryLevel" \
   --data '{}'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": 0
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -101,22 +114,26 @@ Get connection state
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getConnectionState({});
+// namespaced form: client.session.getConnectionState(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.session.getConnectionState({});
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getConnectionState({});
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getConnectionState" \
@@ -125,8 +142,17 @@ curl -X GET "http://localhost:8080/api/session/getConnectionState" \
   --data '{}'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -136,7 +162,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getFeatures`
 
@@ -165,22 +193,26 @@ Get enabled features
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getFeatures({});
+// namespaced form: client.session.getFeatures(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.session.getFeatures({});
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getFeatures({});
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getFeatures" \
@@ -189,8 +221,17 @@ curl -X GET "http://localhost:8080/api/session/getFeatures" \
   --data '{}'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -200,7 +241,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getHostNumber`
 
@@ -229,22 +272,26 @@ Get host phone number
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getHostNumber({});
+// namespaced form: client.session.getHostNumber(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.session.getHostNumber({});
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getHostNumber({});
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getHostNumber" \
@@ -253,8 +300,17 @@ curl -X GET "http://localhost:8080/api/session/getHostNumber" \
   --data '{}'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -293,22 +349,26 @@ Get license type
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getLicenseType({});
+// namespaced form: client.session.getLicenseType(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.session.getLicenseType({});
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getLicenseType({});
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getLicenseType" \
@@ -317,8 +377,17 @@ curl -X GET "http://localhost:8080/api/session/getLicenseType" \
   --data '{}'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -328,7 +397,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown \| boolean` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getLoadedMessageCount`
 
@@ -359,22 +430,26 @@ Get loaded message count
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getLoadedMessageCount({});
+// namespaced form: client.session.getLoadedMessageCount(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.session.getLoadedMessageCount({});
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getLoadedMessageCount({});
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getLoadedMessageCount" \
@@ -383,8 +458,17 @@ curl -X GET "http://localhost:8080/api/session/getLoadedMessageCount" \
   --data '{}'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": 0
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -423,22 +507,26 @@ Get host account info
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getMe({});
+// namespaced form: client.session.getMe(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.session.getMe({});
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getMe({});
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getMe" \
@@ -447,8 +535,17 @@ curl -X GET "http://localhost:8080/api/session/getMe" \
   --data '{}'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -458,7 +555,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getProcessStats`
 
@@ -487,22 +586,26 @@ Get process statistics
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getProcessStats({});
+// namespaced form: client.session.getProcessStats(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.session.getProcessStats({});
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getProcessStats({});
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getProcessStats" \
@@ -511,8 +614,17 @@ curl -X GET "http://localhost:8080/api/session/getProcessStats" \
   --data '{}'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -522,7 +634,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getSnapshot`
 
@@ -553,8 +667,8 @@ Take screenshot
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getSnapshot({
@@ -562,21 +676,25 @@ const result = await client.getSnapshot({
   width: 1,
   height: 1,
 });
+// namespaced form: client.session.getSnapshot(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.session.getSnapshot({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getSnapshot({
   chatId: "447123456789@c.us",
   width: 1,
   height: 1,
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/session/getSnapshot" \
@@ -586,8 +704,17 @@ curl -G "http://localhost:8080/api/session/getSnapshot" \
   --data-urlencode "height=1"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -628,26 +755,30 @@ Get user agent
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getUserAgent({
   userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
 });
+// namespaced form: client.session.getUserAgent(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.session.getUserAgent({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getUserAgent({
   userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/session/getUserAgent" \
@@ -655,8 +786,17 @@ curl -G "http://localhost:8080/api/session/getUserAgent" \
   --data-urlencode "userAgent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -697,22 +837,26 @@ Get WhatsApp Web version
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getWAVersion({});
+// namespaced form: client.session.getWAVersion(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.session.getWAVersion({});
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getWAVersion({});
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getWAVersion" \
@@ -721,8 +865,17 @@ curl -X GET "http://localhost:8080/api/session/getWAVersion" \
   --data '{}'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -761,22 +914,26 @@ Health check
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.healthCheck({});
+// namespaced form: client.session.healthCheck(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.session.healthCheck({});
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.healthCheck({});
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/healthCheck" \
@@ -785,8 +942,17 @@ curl -X GET "http://localhost:8080/api/session/healthCheck" \
   --data '{}'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -796,7 +962,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `isPlugged`
 
@@ -827,22 +995,26 @@ Check if phone is charging
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.isPlugged({});
+// namespaced form: client.session.isPlugged(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.session.isPlugged({});
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.isPlugged({});
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/isPlugged" \
@@ -851,8 +1023,17 @@ curl -X GET "http://localhost:8080/api/session/isPlugged" \
   --data '{}'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -894,26 +1075,30 @@ Set host name
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.setMyName({
   name: "OpenWA Bot",
 });
+// namespaced form: client.session.setName(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.session.setName({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.setMyName({
   name: "OpenWA Bot",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/session/setName" \
@@ -924,8 +1109,17 @@ curl -X PUT "http://localhost:8080/api/session/setName" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -967,26 +1161,30 @@ Set host status
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.setMyStatus({
   statusText: "Available",
 });
+// namespaced form: client.session.setStatus(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.session.setStatus({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.setMyStatus({
   statusText: "Available",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/session/setStatus" \
@@ -997,8 +1195,17 @@ curl -X PUT "http://localhost:8080/api/session/setStatus" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -1041,26 +1248,30 @@ Set profile picture
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.setProfilePicture({
   image: "data:image/png;base64,iVBORw0KGgo...",
 });
+// namespaced form: client.session.setProfilePicture(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.session.setProfilePicture({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.setProfilePicture({
   image: "data:image/png;base64,iVBORw0KGgo...",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/session/setProfilePicture" \
@@ -1071,8 +1282,17 @@ curl -X PUT "http://localhost:8080/api/session/setProfilePicture" \
   }'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 

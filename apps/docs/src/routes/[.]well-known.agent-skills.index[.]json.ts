@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/.well-known/agent-skills/index.json')({
-  // @ts-expect-error TanStack types mismatch
   server: {
     handlers: {
       GET() {

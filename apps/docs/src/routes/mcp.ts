@@ -168,7 +168,6 @@ async function handleRequest(message: JsonRpcRequest) {
 }
 
 export const Route = createFileRoute('/mcp')({
-  // @ts-expect-error TanStack types mismatch
   server: {
     handlers: {
       async POST({ request }: { request: Request }) {

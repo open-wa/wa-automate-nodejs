@@ -23,6 +23,7 @@
     "ai-agent-patterns",
     "---Configuration---",
     "configuration-and-cli",
+    "config-explorer",
     "config-schema",
     "config-secrets",
     "---Safety & limits---",

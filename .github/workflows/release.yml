@@ -15,6 +15,10 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    env:
+      # The release only builds and publishes packages — it never needs a
+      # browser. Skip the Puppeteer Chromium download during install/build.
+      PUPPETEER_SKIP_DOWNLOAD: '1'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -115,8 +119,22 @@ jobs:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
 
       # ── Post-publish: Generate release image ─────────────────────
+      # The image is rendered with Puppeteer/Chrome, but the job skips the
+      # Chromium download (PUPPETEER_SKIP_DOWNLOAD) to keep install/build lean,
+      # so fetch a browser here just for this cosmetic step. Both this install
+      # and the render are continue-on-error: a missing release image must
+      # never block the actual GitHub Release / Discord notification (the
+      # Create GitHub Release step already handles an absent release.png).
+      - name: Install Chrome for release image
+        if: steps.changesets.outputs.published == 'true'
+        continue-on-error: true
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: '0'
+        run: npx puppeteer browsers install chrome
+
       - name: Generate release image
         if: steps.changesets.outputs.published == 'true'
+        continue-on-error: true
         run: node tools/release-image.js --version ${{ steps.version.outputs.version }}
 
       # ── Post-publish: Create GitHub Release ──────────────────────

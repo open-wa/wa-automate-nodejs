@@ -317,6 +317,25 @@ The docs site generates LLM-readable content at:
 
 AI agents can use these endpoints to read the docs without browsing the site.
 
+## Agent discovery endpoints
+
+The docs site also exposes machine-readable discovery documents so agents and
+tools can find the API and skill surface programmatically:
+
+- **`/.well-known/mcp/server-card.json`** is reserved for deployments that host
+  MCP. The docs site does not host MCP and returns 404 for this path.
+- **`/.well-known/agent-skills.index.json`**, index of published Agent Skills
+  for the open-wa packages.
+- **`/.well-known/api-catalog`**, catalog pointing at the OpenAPI/HTTP API
+  descriptions.
+- **`/.well-known/oauth-protected-resource`** and
+  **`/.well-known/oauth-authorization-server`**, OAuth discovery documents for
+  clients that negotiate auth automatically.
+
+These describe the docs/agent surface. To actually call WhatsApp methods, an
+agent still connects to a running Easy API instance with a valid API key as
+described above.
+
 ## Related
 
 - **AI agent patterns**, architecture patterns for AI agents

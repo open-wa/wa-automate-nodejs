@@ -20,7 +20,7 @@ import { InjectionController, type GenerationSnapshot } from './InjectionControl
 import { getProgObserverScript, injectInitPatch } from './initPatchScripts';
 import { getRuntimeListenerSurfaceEntry, runtimeListenerSurface } from './runtimeListenerSurface';
 import { auditWapiHelperAssetRequirements } from './ScriptLoader';
-import { chromiumConfig } from './browserConfig';
+import { chromiumConfig, sanitizeBrowserArgs } from './browserConfig';
 
 export interface PatchFetchConfig {
   patchesUrl?: string;
@@ -60,6 +60,7 @@ export interface TransportOptions {
   executablePath?: string;
   watermark?: boolean | { text?: string; color?: string; background?: string; };
   browserArgs?: string[];
+  allowDangerousBrowserArgs?: boolean;
   userDataDir?: string;
   linkCode?: string;
   qrMax?: number;
@@ -421,6 +422,7 @@ export class Transport {
   private navigationTimeoutMs: number;
   private executablePath?: string;
   private browserArgs?: string[];
+  private allowDangerousBrowserArgs?: boolean;
   private userDataDir?: string;
   private linkCode?: string;
   private qrMax?: number;
@@ -462,6 +464,7 @@ export class Transport {
     this.navigationTimeoutMs = options.navigationTimeoutMs ?? 60_000;
     this.executablePath = options.executablePath;
     this.browserArgs = options.browserArgs;
+    this.allowDangerousBrowserArgs = options.allowDangerousBrowserArgs;
     this.userDataDir = options.userDataDir;
     this.linkCode = options.linkCode;
     this.qrMax = options.qrMax;
@@ -489,7 +492,19 @@ export class Transport {
     this.browser = await this.driver.launch({
       headless: this.headless,
       executablePath: this.executablePath,
-      args: [...chromiumConfig.chromiumArgs, ...(this.browserArgs || [])],
+      args: [
+        ...chromiumConfig.chromiumArgs,
+        ...sanitizeBrowserArgs(this.browserArgs, {
+          allowDangerous: this.allowDangerousBrowserArgs,
+          onRemoved: (removed) =>
+            this.logger.warn(
+              `Removed browser args known to crash WhatsApp Web: ${removed.join(', ')}. ` +
+                'These cause "Navigating frame was detached" errors on modern Chrome. ' +
+                'Set allowDangerousBrowserArgs: true to force them (unsupported).',
+              { removed }
+            ),
+        }),
+      ],
       userDataDir: this.userDataDir,
       defaultViewport: null,
       lightpanda: this.lightpanda,

@@ -26,8 +26,21 @@ These options are retained as downgraded compatibility switches. They may still 
 
 These options are deprecated compatibility inputs for the old `.data.json` session flow. They stay only for legacy migration. The truthful v5 persistence path is `userDataDir`.
 
+## Effect never leaks
+
+v5 uses Effect internally (see `EFFECT.md`), but Effect is not part of the
+public contract:
+
+- Public APIs are Promise-based. Method signatures, `@open-wa/plugin-sdk`,
+  `@open-wa/client`, and generated code never require or expose Effect types.
+- Failures cross the boundary as a plain `OpenWAError` (an `Error` subclass with
+  `name`, `message`, `status`, `details`, and preserved `cause`). Callers never
+  receive an Effect `Cause`, `Exit`, `FiberFailure`, or fiber trace.
+- HTTP surfaces map `OpenWAError.status` to the response code.
+
 ## Executable proof
 
 - `packages/config/src/__tests__/deprecation-contract.test.ts`
 - `packages/wa-automate/src/server/__tests__/public-contract.test.ts`
 - `packages/wa-automate/src/server/__tests__/readiness-parity.test.ts`
+- `packages/core/test/unit/effectErrors.test.ts` (Effect-never-leaks boundary)

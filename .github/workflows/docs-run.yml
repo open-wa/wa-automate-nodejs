@@ -1,24 +1,63 @@
-name: Build & Publish Documentation
+name: Build & Deploy Documentation
+
+# Builds the v5 docs app (apps/docs) and deploys it to Cloudflare Workers
+# (the `openwa-docs` worker, per apps/docs/wrangler.jsonc).
+#
+# Requires two repo secrets: CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID.
 
 on:
   release:
     types: [published]
   workflow_dispatch:
-    
+  push:
+    branches: [master]
+    paths:
+      - 'apps/docs/**'
+      - 'packages/schema/**'
+      - 'packages/config/**'
+      - '.github/workflows/docs-run.yml'
+
+concurrency:
+  group: docs-deploy
+  cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
         with:
-          token: ${{ secrets.CUSTOM_GH_TOKEN }}
-      - run: npm ci
-      - run: npm run build
-      - run: npm i
-      - run: git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      - run: git config --global user.name "github-actions[bot]"
-      - run: npm run docs
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
         env:
-          GIT_USER: smashah
-          GIT_PASS: ${{ secrets.CUSTOM_GH_TOKEN }}
+          PUPPETEER_SKIP_DOWNLOAD: '1'
+
+      # The docs app copies packages/schema/src/generated/openapi.json into
+      # public/ during prebuild, but that file (and the rest of schema's
+      # generated/ dir) is gitignored, so a fresh checkout doesn't have it.
+      # Build schema and its workspace deps first — schema's build runs its
+      # code generation, which (re)produces openapi.json before the docs build.
+      - name: Build schema (generates OpenAPI spec)
+        run: pnpm --filter @open-wa/schema... build
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: '1'
+
+      - name: Build docs
+        run: pnpm --filter docs build
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: '1'
+
+      - name: Deploy to Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/docs
+          command: deploy

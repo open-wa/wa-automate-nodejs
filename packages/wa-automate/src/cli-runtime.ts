@@ -632,6 +632,7 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         authTimeoutMs: typeof config.authTimeout === 'number' ? config.authTimeout * 1000 : undefined,
         executablePath: executableResolution.executablePath,
         browserArgs: config.chromiumArgs,
+        allowDangerousBrowserArgs: config.allowDangerousBrowserArgs,
         userDataDir: config.userDataDir,
         ephemeral: config.ephemeral,
         logConsole: config.logConsole,

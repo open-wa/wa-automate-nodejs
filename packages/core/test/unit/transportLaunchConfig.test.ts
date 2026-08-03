@@ -18,6 +18,10 @@ import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
 import type { OpenWAEventMap } from '../../src/events/eventMap';
 import { Transport } from '../../src/transport/Transport';
+import {
+  partitionDangerousBrowserArgs,
+  sanitizeBrowserArgs,
+} from '../../src/transport/browserConfig';
 
 class TestConsoleMessage implements IConsoleMessage {
   constructor(
@@ -397,5 +401,107 @@ describe('Transport launch/config plumbing', () => {
         blockAssets: true,
       }),
     );
+  });
+
+  it('strips dangerous browser args and warns by default', async () => {
+    const logger = createLogger();
+    const page = new TestPage();
+    const driver = new CaptureDriver(new TestBrowser(page));
+    const transport = new Transport({
+      driver,
+      events: createEvents(),
+      logger,
+      browserArgs: ['--single-process', '--no-zygote', '--window-size=800,600'],
+      blockCrashLogs: false,
+    });
+
+    await transport.initialize();
+
+    const args = driver.capturedLaunchOptions?.args ?? [];
+    expect(args).not.toContain('--single-process');
+    expect(args).not.toContain('--no-zygote');
+    expect(args).toContain('--window-size=800,600');
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('--single-process'),
+      expect.objectContaining({ removed: ['--single-process', '--no-zygote'] }),
+    );
+  });
+
+  it('keeps safe user browser args without warning', async () => {
+    const logger = createLogger();
+    const page = new TestPage();
+    const driver = new CaptureDriver(new TestBrowser(page));
+    const transport = new Transport({
+      driver,
+      events: createEvents(),
+      logger,
+      browserArgs: ['--proxy-server=http://127.0.0.1:8080'],
+      blockCrashLogs: false,
+    });
+
+    await transport.initialize();
+
+    expect(driver.capturedLaunchOptions?.args).toContain('--proxy-server=http://127.0.0.1:8080');
+    expect(logger.warn).not.toHaveBeenCalledWith(
+      expect.stringContaining('Removed browser args'),
+      expect.anything(),
+    );
+  });
+
+  it('keeps dangerous args when allowDangerousBrowserArgs is true', async () => {
+    const logger = createLogger();
+    const page = new TestPage();
+    const driver = new CaptureDriver(new TestBrowser(page));
+    const transport = new Transport({
+      driver,
+      events: createEvents(),
+      logger,
+      browserArgs: ['--single-process'],
+      allowDangerousBrowserArgs: true,
+      blockCrashLogs: false,
+    });
+
+    await transport.initialize();
+
+    expect(driver.capturedLaunchOptions?.args).toContain('--single-process');
+    expect(logger.warn).not.toHaveBeenCalledWith(
+      expect.stringContaining('Removed browser args'),
+      expect.anything(),
+    );
+  });
+});
+
+describe('sanitizeBrowserArgs / partitionDangerousBrowserArgs', () => {
+  it('partitions dangerous args by exact match and = form', () => {
+    const { safe, dangerous } = partitionDangerousBrowserArgs([
+      '--single-process',
+      '--no-zygote=1',
+      '--foo',
+    ]);
+    expect(dangerous).toEqual(['--single-process', '--no-zygote=1']);
+    expect(safe).toEqual(['--foo']);
+  });
+
+  it('strips and reports removed args by default', () => {
+    const removed: string[] = [];
+    const out = sanitizeBrowserArgs(['--single-process', '--foo'], {
+      onRemoved: (r) => removed.push(...r),
+    });
+    expect(out).toEqual(['--foo']);
+    expect(removed).toEqual(['--single-process']);
+  });
+
+  it('returns args untouched when allowDangerous is true', () => {
+    const removed: string[] = [];
+    const out = sanitizeBrowserArgs(['--single-process'], {
+      allowDangerous: true,
+      onRemoved: (r) => removed.push(...r),
+    });
+    expect(out).toEqual(['--single-process']);
+    expect(removed).toEqual([]);
+  });
+
+  it('handles undefined input', () => {
+    expect(sanitizeBrowserArgs(undefined)).toEqual([]);
   });
 });

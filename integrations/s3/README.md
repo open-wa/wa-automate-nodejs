@@ -55,7 +55,7 @@ The configuration type is `S3Config` in `src/config.ts`.
 
 ## Documentation
 
-See the [docs site](https://docs.openwa.dev).
+See the [docs site](https://openwa.dev).
 
 ## License
 

@@ -39,26 +39,30 @@ Get business products
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getBusinessProducts({
   contactId: "447123456789@c.us",
 });
+// namespaced form: client.business.getProducts(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.business.getProducts({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getBusinessProducts({
   contactId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/business/getProducts" \
@@ -66,8 +70,17 @@ curl -G "http://localhost:8080/api/business/getProducts" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -77,7 +90,9 @@ curl -G "http://localhost:8080/api/business/getProducts" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getBusinessProfile`
 
@@ -106,26 +121,30 @@ Get business profile
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getBusinessProfile({
   contactId: "447123456789@c.us",
 });
+// namespaced form: client.business.getProfile(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.business.getProfile({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getBusinessProfile({
   contactId: "447123456789@c.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/business/getProfile" \
@@ -133,8 +152,17 @@ curl -G "http://localhost:8080/api/business/getProfile" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -144,7 +172,9 @@ curl -G "http://localhost:8080/api/business/getProfile" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getOrder` - insiders
 
@@ -175,26 +205,30 @@ Get order details
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getOrder({
   id: "id",
 });
+// namespaced form: client.business.getOrder(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.business.getOrder({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getOrder({
   id: "id",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/business/getOrder" \
@@ -202,8 +236,17 @@ curl -G "http://localhost:8080/api/business/getOrder" \
   --data-urlencode "id=id"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -213,4 +256,6 @@ curl -G "http://localhost:8080/api/business/getOrder" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.

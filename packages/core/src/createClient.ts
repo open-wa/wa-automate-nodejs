@@ -72,6 +72,7 @@ export interface CreateClientOptions {
   executablePath?: string;
   watermark?: boolean | { text?: string; color?: string; background?: string; };
   browserArgs?: string[];
+  allowDangerousBrowserArgs?: boolean;
   userDataDir?: string;
   /**
    * When true, prevents auto-derivation of userDataDir from sessionId.
@@ -273,6 +274,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     navigationTimeoutMs: options.navigationTimeoutMs,
     executablePath: options.executablePath,
     browserArgs: options.browserArgs,
+    allowDangerousBrowserArgs: options.allowDangerousBrowserArgs,
     userDataDir: resolvedUserDataDir,
     linkCode: options.linkCode,
     qrMax: options.qrMax,

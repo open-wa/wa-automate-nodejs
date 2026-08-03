@@ -9,7 +9,8 @@
     "wa-automate": "./dist/cli.cjs"
   },
   "files": [
-    "dist"
+    "dist",
+    "skills"
   ],
   "scripts": {
     "build": "tsdown",

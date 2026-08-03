@@ -3,7 +3,12 @@
  *
  * Isolates all network concerns from Transport.ts so they can be tested and mocked independently.
  * Uses native `fetch` — no axios dependency.
+ *
+ * Internals use Effect for retry + typed errors (see EFFECT.md); the exported
+ * functions stay Promise-based and return the same `FetchAttemptResult`/throw
+ * behavior as before. The per-attempt timeout is enforced by AbortController.
  */
+import { Cause, Data, Effect, Exit, Schedule } from 'effect';
 
 export interface PatchFetchParams {
   waVersion?: string;
@@ -129,59 +134,99 @@ interface FetchAttemptResult {
   statusCode?: number;
 }
 
+// Typed failure channel for the internal Effect. 4xx is non-retryable; timeout
+// and network errors and 5xx are retryable.
+class HttpTimeoutError extends Data.TaggedError('HttpTimeoutError')<{
+  readonly timeoutMs: number;
+}> {}
+class HttpNetworkError extends Data.TaggedError('HttpNetworkError')<{
+  readonly cause: unknown;
+}> {}
+class HttpStatusError extends Data.TaggedError('HttpStatusError')<{
+  readonly status: number;
+  readonly statusText: string;
+}> {}
+
+type HttpError = HttpTimeoutError | HttpNetworkError | HttpStatusError;
+
+function isRetryable(error: HttpError): boolean {
+  if (error._tag === 'HttpStatusError') return error.status >= 500;
+  return true; // timeout + network errors retry
+}
+
+function errorMessage(error: HttpError, timeoutMs: number): string {
+  switch (error._tag) {
+    case 'HttpTimeoutError':
+      return `Request timed out after ${timeoutMs}ms`;
+    case 'HttpStatusError':
+      return `HTTP ${error.status} ${error.statusText}`;
+    case 'HttpNetworkError':
+      return error.cause instanceof Error ? error.cause.message : String(error.cause);
+  }
+}
+
+/** One fetch attempt: fails with a typed error, succeeds with the parsed body. */
+function fetchOnce(url: string, timeoutMs: number, init?: RequestInit) {
+  return Effect.tryPromise({
+    try: async () => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        return await fetch(url, { ...init, signal: controller.signal });
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    },
+    catch: (cause): HttpError =>
+      cause instanceof DOMException && cause.name === 'AbortError'
+        ? new HttpTimeoutError({ timeoutMs })
+        : new HttpNetworkError({ cause }),
+  }).pipe(
+    Effect.flatMap((response) => {
+      if (!response.ok) {
+        return Effect.fail(
+          new HttpStatusError({ status: response.status, statusText: response.statusText }),
+        );
+      }
+      return Effect.tryPromise({
+        try: async (): Promise<{ data: unknown; headers: Headers }> => {
+          const contentType = response.headers.get('content-type') ?? '';
+          const data = contentType.includes('application/json')
+            ? await response.json()
+            : await response.text();
+          return { data, headers: response.headers };
+        },
+        catch: (cause): HttpError => new HttpNetworkError({ cause }),
+      });
+    }),
+  );
+}
+
 async function fetchWithRetry(
   url: string,
   timeoutMs: number,
   maxRetries: number,
   init?: RequestInit,
 ): Promise<FetchAttemptResult> {
-  let lastError: string | undefined;
-  let attempts = 0;
+  const program = fetchOnce(url, timeoutMs, init).pipe(
+    Effect.retry({
+      times: maxRetries,
+      while: isRetryable,
+      schedule: Schedule.exponential('250 millis'),
+    }),
+  );
 
-  while (attempts <= maxRetries) {
-    attempts++;
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
-      const response = await fetch(url, {
-        ...init,
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        lastError = `HTTP ${response.status} ${response.statusText}`;
-        // Don't retry on 4xx (client errors)
-        if (response.status >= 400 && response.status < 500) {
-          return { ok: false, error: lastError, statusCode: response.status };
-        }
-        continue;
-      }
-
-      const contentType = response.headers.get('content-type') ?? '';
-      let data: unknown;
-
-      if (contentType.includes('application/json')) {
-        data = await response.json();
-      } else {
-        data = await response.text();
-      }
-
-      return { ok: true, data, headers: response.headers };
-    } catch (err) {
-      if (err instanceof DOMException && err.name === 'AbortError') {
-        lastError = `Request timed out after ${timeoutMs}ms`;
-      } else if (err instanceof Error) {
-        lastError = err.message;
-      } else {
-        lastError = String(err);
-      }
-    }
+  const exit = await Effect.runPromiseExit(program);
+  if (Exit.isSuccess(exit)) {
+    return { ok: true, data: exit.value.data, headers: exit.value.headers };
   }
 
-  return { ok: false, error: lastError };
+  const error = Cause.squash(exit.cause) as HttpError;
+  return {
+    ok: false,
+    error: errorMessage(error, timeoutMs),
+    statusCode: error._tag === 'HttpStatusError' ? error.status : undefined,
+  };
 }
 
 async function parsePatchResponse(result: FetchAttemptResult): Promise<PatchFetchResult> {

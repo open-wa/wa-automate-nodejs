@@ -29,7 +29,9 @@
     "test:watch": "vitest",
     "lint": "oxlint src scripts",
     "typecheck": "tsc --noEmit",
-    "generate:schema": "tsx scripts/generate-json-schema.ts"
+    "generate:schema": "tsx scripts/generate-json-schema.ts",
+    "generate:config-reference": "tsx scripts/gen-config-reference.ts",
+    "generate": "tsx scripts/generate-json-schema.ts && tsx scripts/gen-config-reference.ts"
   },
   "dependencies": {
     "cosmiconfig": "^9.0.2",

@@ -3,7 +3,6 @@ import { source } from '@/lib/source';
 import { getLLMText } from '@/lib/get-llm-text';
 
 export const Route = createFileRoute('/llms-full.txt')({
-  // @ts-expect-error TanStack types mismatch
   server: {
     handlers: {
       GET: async () => {

@@ -41,7 +41,7 @@ export async function downloadEncryptedMedia(
     if (res.status === 404) {
       throw new Error(
         'This media does not exist or is no longer available on the server. ' +
-          'See: https://docs.openwa.dev/pages/How%20to/decrypt-media.html#40439d',
+          'See: https://openwa.dev/pages/How%20to/decrypt-media.html#40439d',
       );
     }
 

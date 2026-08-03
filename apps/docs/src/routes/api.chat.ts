@@ -76,7 +76,6 @@ const systemPrompt = [
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute("/api/chat")({
-  // @ts-expect-error TanStack types mismatch
   server: {
     handlers: {
       POST: async (ctx: any) => {

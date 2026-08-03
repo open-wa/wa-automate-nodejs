@@ -40,22 +40,26 @@ Get all communities
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getAllCommunities({});
+// namespaced form: client.communities.getAll(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.communities.getAll({});
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getAllCommunities({});
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -X GET "http://localhost:8080/api/communities/getAll" \
@@ -64,8 +68,17 @@ curl -X GET "http://localhost:8080/api/communities/getAll" \
   --data '{}'
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -104,26 +117,30 @@ Get community admin IDs
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getCommunityAdminIds({
   communityId: "447123456789-1445627445@g.us",
 });
+// namespaced form: client.communities.getAdminIds(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.communities.getAdminIds({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getCommunityAdminIds({
   communityId: "447123456789-1445627445@g.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/communities/getAdminIds" \
@@ -131,8 +148,17 @@ curl -G "http://localhost:8080/api/communities/getAdminIds" \
   --data-urlencode "communityId=447123456789-1445627445@g.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -142,7 +168,9 @@ curl -G "http://localhost:8080/api/communities/getAdminIds" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getCommunityAdmins`
 
@@ -171,26 +199,30 @@ Get community admins
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getCommunityAdmins({
   communityId: "447123456789-1445627445@g.us",
 });
+// namespaced form: client.communities.getAdmins(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.communities.getAdmins({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getCommunityAdmins({
   communityId: "447123456789-1445627445@g.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/communities/getAdmins" \
@@ -198,8 +230,17 @@ curl -G "http://localhost:8080/api/communities/getAdmins" \
   --data-urlencode "communityId=447123456789-1445627445@g.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -209,7 +250,9 @@ curl -G "http://localhost:8080/api/communities/getAdmins" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getCommunityInfo`
 
@@ -238,26 +281,30 @@ Get community metadata
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getCommunityInfo({
   communityId: "447123456789-1445627445@g.us",
 });
+// namespaced form: client.communities.getInfo(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.communities.getInfo({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getCommunityInfo({
   communityId: "447123456789-1445627445@g.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/communities/getInfo" \
@@ -265,8 +312,17 @@ curl -G "http://localhost:8080/api/communities/getInfo" \
   --data-urlencode "communityId=447123456789-1445627445@g.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -276,7 +332,9 @@ curl -G "http://localhost:8080/api/communities/getInfo" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getCommunityParticipantIds`
 
@@ -305,26 +363,30 @@ Get community participant IDs
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getCommunityParticipantIds({
   communityId: "447123456789-1445627445@g.us",
 });
+// namespaced form: client.communities.getParticipantIds(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.communities.getParticipantIds({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getCommunityParticipantIds({
   communityId: "447123456789-1445627445@g.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/communities/getParticipantIds" \
@@ -332,8 +394,17 @@ curl -G "http://localhost:8080/api/communities/getParticipantIds" \
   --data-urlencode "communityId=447123456789-1445627445@g.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -343,7 +414,9 @@ curl -G "http://localhost:8080/api/communities/getParticipantIds" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getCommunityParticipants`
 
@@ -372,26 +445,30 @@ Get community participants
 
 ### Usage
 
-<Tabs items={["Client", "Namespaced client", "HTTP API"]}>
-  <Tab value="Client">
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
 
 ```ts
 const result = await client.getCommunityParticipants({
   communityId: "447123456789-1445627445@g.us",
 });
+// namespaced form: client.communities.getParticipants(...)
 ```
 
-  </Tab>
-  <Tab value="Namespaced client">
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
 
 ```ts
-const result = await client.communities.getParticipants({
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getCommunityParticipants({
   communityId: "447123456789-1445627445@g.us",
 });
 ```
 
-  </Tab>
-  <Tab value="HTTP API">
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
 
 ```bash
 curl -G "http://localhost:8080/api/communities/getParticipants" \
@@ -399,8 +476,17 @@ curl -G "http://localhost:8080/api/communities/getParticipants" \
   --data-urlencode "communityId=447123456789-1445627445@g.us"
 ```
 
-  </Tab>
-</Tabs>
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
 
 ### Parameters
 
@@ -410,4 +496,6 @@ curl -G "http://localhost:8080/api/communities/getParticipants" \
 
 | Prop | Value |
 | --- | --- |
-| Return type | `unknown` |
+| Return type | `any` |
+
+> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.

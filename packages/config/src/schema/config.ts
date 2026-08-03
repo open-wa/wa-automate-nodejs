@@ -239,7 +239,9 @@ export const ConfigSchema = z.object({
 
   bypassCSP: z.boolean().default(false).describe('Disable cors (bypass pagesetbypasscspenabled).'),
 
-  chromiumArgs: z.array(z.string()).optional().describe('Custom chrome/chromium argument strings.'),
+  chromiumArgs: z.array(z.string()).optional().describe('Custom chrome/chromium argument strings. Note: --single-process and --no-zygote are stripped by default because they crash WhatsApp Web with "Navigating frame was detached" on modern Chrome; set allowDangerousBrowserArgs to force them.'),
+
+  allowDangerousBrowserArgs: z.boolean().optional().describe('Allow known-dangerous chromium args (--single-process, --no-zygote) that are normally stripped. Unsupported: these cause detached-frame crash loops on modern Chrome.'),
 
   browserRevision: z
     .string()

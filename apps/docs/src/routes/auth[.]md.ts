@@ -36,7 +36,6 @@ The instance operator revokes access by rotating or removing the Easy API key an
 }
 
 export const Route = createFileRoute('/auth.md')({
-  // @ts-expect-error TanStack types mismatch
   server: {
     handlers: {
       GET({ request }: { request: Request }) {

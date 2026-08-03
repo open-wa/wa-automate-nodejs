@@ -1,3 +1,8 @@
+// NOTE: this route renders OG images with the Takumi WASM renderer
+// (@takumi-rs/wasm), NOT the native @takumi-rs/core. The WASM path is the only
+// one that runs on Cloudflare Workers (this docs app builds with
+// @cloudflare/vite-plugin). Do not "upgrade" this to @takumi-rs/core — it will
+// break the Cloudflare build. See issue #3343.
 import { fromJsx } from '@takumi-rs/helpers/jsx';
 import initWasm, { Renderer } from '@takumi-rs/wasm';
 import wasmModule from '@takumi-rs/wasm/auto';
@@ -16,7 +21,6 @@ async function getRenderer() {
 }
 
 export const Route = createFileRoute('/og/docs/$')({
-  // @ts-expect-error TanStack types mismatch
   server: {
     handlers: {
       async GET({
@@ -149,7 +153,9 @@ export const Route = createFileRoute('/og/docs/$')({
 
         return new Response(imageBody, {
           headers: {
-            'Cache-Control': 'public, max-age=86400',
+            // Long-lived, CDN-cacheable. Scrapers re-fetch OG images often, so
+            // avoid re-rasterizing on every unfurl.
+            'Cache-Control': 'public, max-age=86400, s-maxage=604800, immutable',
             'Content-Type': 'image/webp',
           },
         });

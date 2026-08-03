@@ -1,0 +1,49 @@
+name: v4 Compat Parity
+
+# Fails when the v4 -> v5 method parity regresses (more missing or more
+# arity-mismatched methods than the committed baseline report). See
+# tools/v4-compat-bench/README.md and issue #3339.
+
+on:
+  pull_request:
+    paths:
+      - 'packages/legacy-documented/src/api/Client.ts'
+      - 'packages/schema/**'
+      - 'tools/v4-compat-bench/**'
+      - '.github/workflows/v4-parity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    name: v4 parity check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: '1'
+
+      - name: Build schema dependencies
+        run: |
+          pnpm --filter @open-wa/config build
+          pnpm --filter @open-wa/utils build
+
+      - name: Build schema (the parity tool reads its built dist)
+        run: pnpm --filter @open-wa/schema build
+
+      - name: Check v4 parity did not regress
+        run: pnpm tsx tools/v4-compat-bench/static/parity.ts --check

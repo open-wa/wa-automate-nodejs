@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.4
 
 # Stage 1: Dependencies
-FROM node:18 AS deps
+FROM node:22 AS deps
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install build tools
@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install pnpm
-RUN npm install -g pnpm
+RUN npm install -g pnpm@11.9.0
 
 WORKDIR /app
 
@@ -26,11 +26,11 @@ COPY apps/*/package.json ./apps/
 RUN pnpm fetch
 
 # Stage 2: Builder
-FROM node:18 AS builder
+FROM node:22 AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install pnpm
-RUN npm install -g pnpm
+RUN npm install -g pnpm@11.9.0
 
 # Copy source code and dependencies from deps stage
 COPY --from=deps /app ./
@@ -39,7 +39,7 @@ COPY --from=deps /app ./
 RUN pnpm build
 
 # Stage 3: Runtime
-FROM node:18-slim
+FROM node:22-slim
 
 ENV APP_DIR=/usr/src/app
 ENV NODE_ENV=production

@@ -53,7 +53,7 @@ The generated webhook URL is `/plugins/chatwoot/webhook` under the selected API 
 
 ## Documentation
 
-See the [docs site](https://docs.openwa.dev).
+See the [docs site](https://openwa.dev).
 
 ## License
 

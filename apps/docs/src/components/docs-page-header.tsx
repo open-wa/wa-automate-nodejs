@@ -64,7 +64,8 @@ export function DocsPageHeader({
 
 function PageActions({ pagePath }: Readonly<{ pagePath: string }>) {
   const docsUrlPath = getDocsUrlPath(pagePath);
-  const markdownUrl = `/llms.mdx${docsUrlPath}`;
+  const markdownUrl =
+    docsUrlPath === '/docs' ? '/llms.mdx/docs/' : `/llms.mdx${docsUrlPath}`;
 
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">

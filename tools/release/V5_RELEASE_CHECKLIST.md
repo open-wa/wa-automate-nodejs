@@ -141,7 +141,7 @@ pnpm add @open-wa/<name>
 
 ## Documentation
 
-See the [docs site](https://docs.openwa.dev).
+See the [docs site](https://openwa.dev).
 
 ## License
 
@@ -152,7 +152,7 @@ See the [docs site](https://docs.openwa.dev).
 
 ## 3. 📖 Documentation Coverage (apps/docs)
 
-Every public package should have at least a docs page at `docs.openwa.dev`. Check the docs site for coverage:
+Every public package should have at least a docs page at `openwa.dev`. Check the docs site for coverage:
 
 ### How to verify
 
@@ -175,7 +175,7 @@ curl -s http://localhost:3000/sitemap.xml | grep -i "package\|api\|guide"
 - [ ] **Migration from v4** guide exists (if applicable)
 - [ ] **Package overview page** lists all public packages with one-line descriptions
 - [ ] **API Reference** links to generated typedocs (if available)
-- [ ] Every package's README links back to `docs.openwa.dev`
+- [ ] Every package's README links back to `openwa.dev`
 
 > [!TIP]
 > The docs site at `apps/docs` uses file-based routing. Add new pages in `apps/docs/src/routes/docs/`.

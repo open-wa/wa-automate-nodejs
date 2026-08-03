@@ -8,7 +8,6 @@ const server = createFromSource(source, {
 });
 
 export const Route = createFileRoute('/api/search')({
-    // @ts-expect-error TanStack types mismatch
     server: {
         handlers: {
             GET: async () => {
