@@ -50,7 +50,7 @@
   "engines": {
     "node": ">=22.21.1"
   },
-  "packageManager": "pnpm@11.15.1",
+  "packageManager": "pnpm@11.20.0",
   "dependencies": {
     "@elastic/elasticsearch": "catalog:"
   }
