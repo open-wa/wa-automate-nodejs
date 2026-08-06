@@ -14,7 +14,6 @@ jobs:
         with:
           repository: smashah/peardrop.fyi
           ref: 73f25962a33b46b20212d79d8efea0d5cb856d71
-          token: ${{ secrets.PEARDROP_BOOTSTRAP_GH_TOKEN }}
           fetch-depth: 0
       - uses: pnpm/action-setup@v4
         with:
