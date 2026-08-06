@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: smashah/peardrop.fyi
-          ref: 73f25968460ee83a182df57415b9f2fe41120f7c
+          ref: 73f25962a33b46b20212d79d8efea0d5cb856d71
           fetch-depth: 0
       - uses: pnpm/action-setup@v4
         with:
