@@ -1,5 +1,8 @@
 import QRCode from 'qrcode';
-import type { EventProjectionStore, ProjectionSnapshot } from '../state/event-projection-store';
+import type {
+  EventProjectionStore,
+  ProjectionSnapshot,
+} from '../state/event-projection-store';
 
 export interface InteractiveTerminalPresenterOptions {
   store: EventProjectionStore;
@@ -26,6 +29,8 @@ export class InteractiveTerminalPresenter {
   private qrValue?: string;
   private renderTree?: () => unknown;
   private qrSequence = 0;
+  private livePatchHandler?: () => void | Promise<void>;
+  private livePatchRunning = false;
 
   constructor(options: InteractiveTerminalPresenterOptions) {
     this.store = options.store;
@@ -60,21 +65,36 @@ export class InteractiveTerminalPresenter {
             ink.Text,
             {
               key: `${entry.timestamp}-${index}`,
-              color: entry.level === 'error' ? 'red' : entry.level === 'warn' ? 'yellow' : 'white',
+              color:
+                entry.level === 'error'
+                  ? 'red'
+                  : entry.level === 'warn'
+                    ? 'yellow'
+                    : 'white',
             },
-            `[${entry.level}] ${entry.message}`
-          )
-        )
+            `[${entry.level}] ${entry.message}`,
+          ),
+        ),
       );
     };
 
-    const QrBlock = ({ snapshot, qrAscii }: { snapshot: ProjectionSnapshot; qrAscii?: string }) => {
+    const QrBlock = ({
+      snapshot,
+      qrAscii,
+    }: {
+      snapshot: ProjectionSnapshot;
+      qrAscii?: string;
+    }) => {
       if (!snapshot.qr) {
         return null;
       }
 
       if (!qrAscii) {
-        return React.createElement(ink.Text, { color: 'yellow' }, 'Generating QR view...');
+        return React.createElement(
+          ink.Text,
+          { color: 'yellow' },
+          'Generating QR view...',
+        );
       }
 
       const qrLines = qrAscii.split('\n');
@@ -83,28 +103,83 @@ export class InteractiveTerminalPresenter {
         ink.Box,
         { flexDirection: 'column', marginTop: 1 },
         React.createElement(ink.Text, { color: 'green' }, 'QR Code'),
-        ...qrLines.map((line, index) => React.createElement(ink.Text, { key: `qr-${index}` }, line))
+        ...qrLines.map((line, index) =>
+          React.createElement(ink.Text, { key: `qr-${index}` }, line),
+        ),
       );
     };
 
-    const App = ({ snapshot, qrAscii }: { snapshot: ProjectionSnapshot; qrAscii?: string }) =>
-      React.createElement(
+    const App = ({
+      snapshot,
+      qrAscii,
+    }: {
+      snapshot: ProjectionSnapshot;
+      qrAscii?: string;
+    }) => {
+      ink.useInput((input) => {
+        if (
+          input.toLowerCase() !== 'r' ||
+          !snapshot.ready ||
+          !this.livePatchHandler ||
+          this.livePatchRunning
+        ) {
+          return;
+        }
+        this.livePatchRunning = true;
+        void Promise.resolve(this.livePatchHandler()).finally(() => {
+          this.livePatchRunning = false;
+        });
+      });
+
+      return React.createElement(
         ink.Box,
         { flexDirection: 'column', paddingX: 1 },
-        React.createElement(ink.Text, { color: 'greenBright' }, '[VT-OS] OPEN-WA CLI'),
+        React.createElement(
+          ink.Text,
+          { color: 'greenBright' },
+          '[VT-OS] OPEN-WA CLI',
+        ),
         React.createElement(ink.Text, null, 'Mode: ink-interactive'),
         React.createElement(ink.Text, null, `Phase: ${snapshot.phase}`),
-        React.createElement(ink.Text, null, `Session: ${snapshot.sessionId ?? 'pending'}`),
-        React.createElement(ink.Text, null, `Ready: ${snapshot.ready ? 'yes' : 'no'}`),
-        React.createElement(ink.Text, null, `Messages: ${snapshot.messageCount} | Ack updates: ${snapshot.ackCount}`),
+        React.createElement(
+          ink.Text,
+          null,
+          `Session: ${snapshot.sessionId ?? 'pending'}`,
+        ),
+        React.createElement(
+          ink.Text,
+          null,
+          `Ready: ${snapshot.ready ? 'yes' : 'no'}`,
+        ),
+        React.createElement(
+          ink.Text,
+          null,
+          `Messages: ${snapshot.messageCount} | Ack updates: ${snapshot.ackCount}`,
+        ),
+        snapshot.ready
+          ? React.createElement(
+              ink.Text,
+              { color: 'cyan' },
+              'Press r to check and apply live patches',
+            )
+          : null,
         snapshot.detail
-          ? React.createElement(ink.Text, { color: snapshot.phase === 'error' ? 'red' : 'yellow' }, `Detail: ${snapshot.detail}`)
+          ? React.createElement(
+              ink.Text,
+              { color: snapshot.phase === 'error' ? 'red' : 'yellow' },
+              `Detail: ${snapshot.detail}`,
+            )
           : null,
         React.createElement(QrBlock, { snapshot, qrAscii }),
-        React.createElement(LogStream, { snapshot })
+        React.createElement(LogStream, { snapshot }),
       );
+    };
 
-    this.renderTree = () => React.createElement(App, { snapshot: this.snapshot, qrAscii: this.qrAscii });
+    this.renderTree = () =>
+      React.createElement(App, {
+        snapshot: this.snapshot,
+        qrAscii: this.qrAscii,
+      });
 
     this.ink = ink.render(this.renderTree(), {
       stdout: this.stdout,
@@ -134,6 +209,10 @@ export class InteractiveTerminalPresenter {
 
     this.ink?.unmount();
     this.ink = undefined;
+  }
+
+  setLivePatchHandler(handler: () => void | Promise<void>): void {
+    this.livePatchHandler = handler;
   }
 
   private async handleSnapshot(snapshot: ProjectionSnapshot): Promise<void> {
@@ -167,7 +246,10 @@ export class InteractiveTerminalPresenter {
 
     this.qrValue = snapshot.qr.qr;
     const sequence = ++this.qrSequence;
-    const qrAscii = await QRCode.toString(snapshot.qr.qr, { type: 'terminal', small: true });
+    const qrAscii = await QRCode.toString(snapshot.qr.qr, {
+      type: 'terminal',
+      small: true,
+    });
 
     if (this.stopped || sequence !== this.qrSequence) {
       return;

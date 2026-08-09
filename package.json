@@ -28,7 +28,8 @@
     "version-packages": "changeset version",
     "repomix": "npx repomix@latest",
     "publish-packages": "./tools/release/publish-packages.sh",
-    "release-image": "node tools/release-image.js"
+    "release-image": "node tools/release-image.js",
+    "publish:patches": "node tools/publish-live-patches.mjs"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.6.0",

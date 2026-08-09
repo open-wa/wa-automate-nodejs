@@ -1,4 +1,10 @@
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -18,7 +24,9 @@ class FakeEmitter {
   off(event: string, handler: (payload: unknown) => void) {
     this.handlers.set(
       event,
-      (this.handlers.get(event) ?? []).filter((registered) => registered !== handler)
+      (this.handlers.get(event) ?? []).filter(
+        (registered) => registered !== handler,
+      ),
     );
     return this;
   }
@@ -48,15 +56,24 @@ async function importCliRuntimeUtilityModule() {
   vi.doMock('@open-wa/core', () => ({ createClient: vi.fn() }));
   vi.doMock('@open-wa/client', () => ({ Client: class MockClient {} }));
   vi.doMock('@open-wa/schema', () => ({ eventRegistry: { getAll: () => [] } }));
-  vi.doMock('../server/hono-server', () => ({ WAServer: class MockWAServer {} }));
-  vi.doMock('@open-wa/driver-puppeteer', () => ({ PuppeteerDriver: class MockPuppeteerDriver {} }));
-  vi.doMock('@open-wa/driver-lightpanda', () => ({ LightpandaDriver: class MockLightpandaDriver {} }));
+  vi.doMock('../server/hono-server', () => ({
+    WAServer: class MockWAServer {},
+  }));
+  vi.doMock('@open-wa/driver-puppeteer', () => ({
+    PuppeteerDriver: class MockPuppeteerDriver {},
+  }));
+  vi.doMock('@open-wa/driver-lightpanda', () => ({
+    LightpandaDriver: class MockLightpandaDriver {},
+  }));
   return await import('../cli-runtime');
 }
 
 describe('cli runtime chrome resolution', () => {
   const tempDirs: string[] = [];
-  const getInstallationsSpy = vi.spyOn(chromeLauncher.Launcher, 'getInstallations');
+  const getInstallationsSpy = vi.spyOn(
+    chromeLauncher.Launcher,
+    'getInstallations',
+  );
 
   afterEach(() => {
     getInstallationsSpy.mockReset();
@@ -76,14 +93,26 @@ describe('cli runtime chrome resolution', () => {
   });
 
   it('prefers local Chrome by default for CLI startup even when schema defaults useChrome to false', async () => {
-    const { readChromePathCache, resolveExecutablePath, shouldPreferLocalChrome } = await importCliRuntimeUtilityModule();
+    const {
+      readChromePathCache,
+      resolveExecutablePath,
+      shouldPreferLocalChrome,
+    } = await importCliRuntimeUtilityModule();
     const tempDir = mkdtempSync(join(tmpdir(), 'openwa-cli-runtime-'));
     tempDirs.push(tempDir);
-    const cacheFilePath = join(tempDir, '.open-wa', 'chrome-executable-path.json');
+    const cacheFilePath = join(
+      tempDir,
+      '.open-wa',
+      'chrome-executable-path.json',
+    );
     const localChromePath = createTempExecutable(tempDir, 'Google Chrome');
     const config = makeConfig();
 
-    expect(shouldPreferLocalChrome(config, { defaults: { useChrome: false } } as TrackedConfig['rawConfigs'])).toBe(true);
+    expect(
+      shouldPreferLocalChrome(config, {
+        defaults: { useChrome: false },
+      } as TrackedConfig['rawConfigs']),
+    ).toBe(true);
 
     getInstallationsSpy.mockReturnValue([localChromePath]);
 
@@ -96,7 +125,9 @@ describe('cli runtime chrome resolution', () => {
       executablePath: localChromePath,
       source: 'chrome_installation',
     });
-    expect(readChromePathCache(cacheFilePath)?.executablePath).toBe(localChromePath);
+    expect(readChromePathCache(cacheFilePath)?.executablePath).toBe(
+      localChromePath,
+    );
   });
 
   it('honors explicit useChrome false overrides', async () => {
@@ -107,16 +138,24 @@ describe('cli runtime chrome resolution', () => {
       shouldPreferLocalChrome(config, {
         defaults: { useChrome: false },
         file: { useChrome: false },
-      } as TrackedConfig['rawConfigs'])
+      } as TrackedConfig['rawConfigs']),
     ).toBe(false);
   });
 
   it('reuses a valid cached Chrome path without probing chrome-launcher again', async () => {
-    const { readChromePathCache, resolveExecutablePath, writeChromePathCache } = await importCliRuntimeUtilityModule();
+    const { readChromePathCache, resolveExecutablePath, writeChromePathCache } =
+      await importCliRuntimeUtilityModule();
     const tempDir = mkdtempSync(join(tmpdir(), 'openwa-cli-runtime-'));
     tempDirs.push(tempDir);
-    const cacheFilePath = join(tempDir, '.open-wa', 'chrome-executable-path.json');
-    const cachedChromePath = createTempExecutable(tempDir, 'Cached Google Chrome');
+    const cacheFilePath = join(
+      tempDir,
+      '.open-wa',
+      'chrome-executable-path.json',
+    );
+    const cachedChromePath = createTempExecutable(
+      tempDir,
+      'Cached Google Chrome',
+    );
     const config = makeConfig();
 
     writeChromePathCache(cachedChromePath, cacheFilePath);
@@ -134,16 +173,31 @@ describe('cli runtime chrome resolution', () => {
   });
 
   it('ignores stale cached paths and refreshes them from a newly detected local Chrome executable', async () => {
-    const { readChromePathCache, resolveExecutablePath } = await importCliRuntimeUtilityModule();
+    const { readChromePathCache, resolveExecutablePath } =
+      await importCliRuntimeUtilityModule();
     const tempDir = mkdtempSync(join(tmpdir(), 'openwa-cli-runtime-'));
     tempDirs.push(tempDir);
-    const cacheFilePath = join(tempDir, '.open-wa', 'chrome-executable-path.json');
-    const refreshedChromePath = createTempExecutable(tempDir, 'Refreshed Google Chrome');
+    const cacheFilePath = join(
+      tempDir,
+      '.open-wa',
+      'chrome-executable-path.json',
+    );
+    const refreshedChromePath = createTempExecutable(
+      tempDir,
+      'Refreshed Google Chrome',
+    );
     const config = makeConfig();
 
     mkdirSync(join(tempDir, '.open-wa'), { recursive: true });
-    writeFileSync(cacheFilePath, JSON.stringify({ executablePath: join(tempDir, 'missing-chrome') }), 'utf8');
-    getInstallationsSpy.mockReturnValue([join(tempDir, 'missing-chrome'), refreshedChromePath]);
+    writeFileSync(
+      cacheFilePath,
+      JSON.stringify({ executablePath: join(tempDir, 'missing-chrome') }),
+      'utf8',
+    );
+    getInstallationsSpy.mockReturnValue([
+      join(tempDir, 'missing-chrome'),
+      refreshedChromePath,
+    ]);
 
     const result = await resolveExecutablePath(config, {
       preferLocalChrome: true,
@@ -154,18 +208,29 @@ describe('cli runtime chrome resolution', () => {
       executablePath: refreshedChromePath,
       source: 'chrome_installation',
     });
-    expect(readChromePathCache(cacheFilePath)?.executablePath).toBe(refreshedChromePath);
+    expect(readChromePathCache(cacheFilePath)?.executablePath).toBe(
+      refreshedChromePath,
+    );
   });
 
   it('clears invalid cache entries and returns a truthful fallback warning when local Chrome cannot be resolved', async () => {
-    const { clearChromePathCache, readChromePathCache, resolveExecutablePath } = await importCliRuntimeUtilityModule();
+    const { clearChromePathCache, readChromePathCache, resolveExecutablePath } =
+      await importCliRuntimeUtilityModule();
     const tempDir = mkdtempSync(join(tmpdir(), 'openwa-cli-runtime-'));
     tempDirs.push(tempDir);
-    const cacheFilePath = join(tempDir, '.open-wa', 'chrome-executable-path.json');
+    const cacheFilePath = join(
+      tempDir,
+      '.open-wa',
+      'chrome-executable-path.json',
+    );
     const config = makeConfig();
 
     mkdirSync(join(tempDir, '.open-wa'), { recursive: true });
-    writeFileSync(cacheFilePath, JSON.stringify({ executablePath: join(tempDir, 'missing-chrome') }), 'utf8');
+    writeFileSync(
+      cacheFilePath,
+      JSON.stringify({ executablePath: join(tempDir, 'missing-chrome') }),
+      'utf8',
+    );
     getInstallationsSpy.mockReturnValue([join(tempDir, 'also-missing-chrome')]);
 
     const result = await resolveExecutablePath(config, {
@@ -175,7 +240,8 @@ describe('cli runtime chrome resolution', () => {
 
     expect(result).toEqual({
       source: 'driver_default',
-      warning: 'Chrome resolution warning: no valid local Chrome installation was found. Falling back to Puppeteer/default driver browser resolution.',
+      warning:
+        'Chrome resolution warning: no valid local Chrome installation was found. Falling back to Puppeteer/default driver browser resolution.',
     });
     expect(readChromePathCache(cacheFilePath)).toBeUndefined();
     clearChromePathCache(cacheFilePath);
@@ -184,7 +250,15 @@ describe('cli runtime chrome resolution', () => {
 
   it('keeps CLI override mapping source-local before resolveConfig owns precedence', async () => {
     const { parseCliArgs } = await importCliRuntimeUtilityModule();
-    const parsed = parseCliArgs(['--session-id', 'alpha', '--port', '9000', '--headful', '--use-chrome', '--use-lightpanda']);
+    const parsed = parseCliArgs([
+      '--session-id',
+      'alpha',
+      '--port',
+      '9000',
+      '--headful',
+      '--use-chrome',
+      '--use-lightpanda',
+    ]);
 
     expect(parsed.cliOverrides).toMatchObject({
       sessionId: 'alpha',
@@ -193,7 +267,40 @@ describe('cli runtime chrome resolution', () => {
       useChrome: true,
       useLightpanda: true,
     });
-    expect(parsed.forwardedArgs).toEqual(['--session-id', 'alpha', '--port', '9000', '--headful', '--use-chrome', '--use-lightpanda']);
+    expect(parsed.forwardedArgs).toEqual([
+      '--session-id',
+      'alpha',
+      '--port',
+      '9000',
+      '--headful',
+      '--use-chrome',
+      '--use-lightpanda',
+    ]);
+  });
+
+  it('parses socket, interval, and cron live patch modes without consuming following flags', async () => {
+    const { parseCliArgs } = await importCliRuntimeUtilityModule();
+
+    expect(parseCliArgs(['--live-patch']).cliOverrides.livePatch).toBe(true);
+    expect(
+      parseCliArgs(['--poll-patch', '--headful']).cliOverrides,
+    ).toMatchObject({
+      pollPatch: true,
+      headless: false,
+    });
+    expect(parseCliArgs(['--poll-patch', '15']).cliOverrides.pollPatch).toBe(
+      15,
+    );
+    expect(
+      parseCliArgs(['--poll-patch=*/10 * * * *']).cliOverrides.pollPatch,
+    ).toBe('*/10 * * * *');
+  });
+
+  it('rejects simultaneous socket and polling modes', async () => {
+    const { parseCliArgs } = await importCliRuntimeUtilityModule();
+    expect(() => parseCliArgs(['--live-patch', '--poll-patch'])).toThrow(
+      /mutually exclusive/i,
+    );
   });
 
   it('routes startup, QR, and readiness notices through the sink abstraction', async () => {
@@ -205,9 +312,16 @@ describe('cli runtime chrome resolution', () => {
     };
 
     const resolveConfigMock = vi.fn().mockResolvedValue({
-      config: makeConfig({ sessionId: 'sink-session', port: 8123, host: '127.0.0.1' }),
+      config: makeConfig({
+        sessionId: 'sink-session',
+        port: 8123,
+        host: '127.0.0.1',
+      }),
       sources: ['defaults', 'cli'],
-      rawConfigs: { defaults: { useChrome: false }, cli: { sessionId: 'sink-session' } },
+      rawConfigs: {
+        defaults: { useChrome: false },
+        cli: { sessionId: 'sink-session' },
+      },
     });
     const createClientMock = vi.fn().mockResolvedValue({
       events: fakeEmitter,
@@ -215,7 +329,9 @@ describe('cli runtime chrome resolution', () => {
       getTransport: () => ({ transport: true }),
     });
     const clientStartMock = vi.fn(async () => {
-      fakeEmitter.emit('launch.auth.qr.generated', { details: { qr: 'qr-value' } });
+      fakeEmitter.emit('launch.auth.qr.generated', {
+        details: { qr: 'qr-value' },
+      });
     });
     const clientGetStateMock = vi.fn(() => 'CONNECTED');
     const PuppeteerDriverMock = vi.fn(function MockPuppeteerDriver() {
@@ -233,7 +349,9 @@ describe('cli runtime chrome resolution', () => {
         getState = clientGetStateMock;
       },
     }));
-    vi.doMock('@open-wa/schema', () => ({ eventRegistry: { getAll: () => [] } }));
+    vi.doMock('@open-wa/schema', () => ({
+      eventRegistry: { getAll: () => [] },
+    }));
     vi.doMock('../server/hono-server', () => ({
       WAServer: class MockWAServer {
         start = vi.fn();
@@ -243,10 +361,17 @@ describe('cli runtime chrome resolution', () => {
         setClient = vi.fn();
       },
     }));
-    vi.doMock('@open-wa/driver-puppeteer', () => ({ PuppeteerDriver: PuppeteerDriverMock }));
-    vi.doMock('@open-wa/driver-lightpanda', () => ({ LightpandaDriver: LightpandaDriverMock }));
+    vi.doMock('@open-wa/driver-puppeteer', () => ({
+      PuppeteerDriver: PuppeteerDriverMock,
+    }));
+    vi.doMock('@open-wa/driver-lightpanda', () => ({
+      LightpandaDriver: LightpandaDriverMock,
+    }));
     vi.doMock('@open-wa/config', async () => {
-      const actual = await vi.importActual<typeof import('@open-wa/config')>('@open-wa/config');
+      const actual =
+        await vi.importActual<typeof import('@open-wa/config')>(
+          '@open-wa/config',
+        );
       return {
         ...actual,
         resolveConfig: resolveConfigMock,
@@ -270,20 +395,45 @@ describe('cli runtime chrome resolution', () => {
 
     expect(result.config.sessionId).toBe('sink-session');
     expect(sink.status).toHaveBeenCalledWith({ phase: 'boot' });
-    expect(sink.status).toHaveBeenCalledWith({ phase: 'config.resolved', sessionId: 'sink-session' });
-    expect(sink.status).toHaveBeenCalledWith({ phase: 'server.starting', sessionId: 'sink-session' });
-    expect(sink.status).toHaveBeenCalledWith({ phase: 'server.started', sessionId: 'sink-session' });
-    expect(sink.status).toHaveBeenCalledWith({ phase: 'client.starting', sessionId: 'sink-session' });
-    expect(sink.qr).toHaveBeenCalledWith({ qr: 'qr-value', sessionId: 'sink-session' });
+    expect(sink.status).toHaveBeenCalledWith({
+      phase: 'config.resolved',
+      sessionId: 'sink-session',
+    });
+    expect(sink.status).toHaveBeenCalledWith({
+      phase: 'server.starting',
+      sessionId: 'sink-session',
+    });
+    expect(sink.status).toHaveBeenCalledWith({
+      phase: 'server.started',
+      sessionId: 'sink-session',
+    });
+    expect(sink.status).toHaveBeenCalledWith({
+      phase: 'client.starting',
+      sessionId: 'sink-session',
+    });
+    expect(sink.qr).toHaveBeenCalledWith({
+      qr: 'qr-value',
+      sessionId: 'sink-session',
+    });
     expect(PuppeteerDriverMock).toHaveBeenCalledTimes(1);
     expect(LightpandaDriverMock).not.toHaveBeenCalled();
-    expect(createClientMock).toHaveBeenCalledWith(expect.objectContaining({ driver: expect.objectContaining({ name: 'puppeteer' }) }));
-    expect(sink.write).toHaveBeenCalledWith(expect.objectContaining({ message: 'Starting WhatsApp Client...' }));
-    expect(sink.write).toHaveBeenCalledWith(expect.objectContaining({ message: 'Browser engine: Puppeteer' }));
+    expect(createClientMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        driver: expect.objectContaining({ name: 'puppeteer' }),
+      }),
+    );
+    expect(sink.write).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Starting WhatsApp Client...' }),
+    );
+    expect(sink.write).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Browser engine: Puppeteer' }),
+    );
     expect(sink.write).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: expect.stringContaining('WhatsApp Client ready with state: CONNECTED'),
-      })
+        message: expect.stringContaining(
+          'WhatsApp Client ready with state: CONNECTED',
+        ),
+      }),
     );
 
     outputSinkModule.resetCliOutputSink();
@@ -312,7 +462,10 @@ describe('cli runtime chrome resolution', () => {
         },
       }),
       sources: ['defaults', 'programmatic'],
-      rawConfigs: { defaults: { useChrome: false }, programmatic: { useLightpanda: true } },
+      rawConfigs: {
+        defaults: { useChrome: false },
+        programmatic: { useLightpanda: true },
+      },
     });
     const createClientMock = vi.fn().mockResolvedValue({
       events: fakeEmitter,
@@ -334,9 +487,11 @@ describe('cli runtime chrome resolution', () => {
         start = clientStartMock;
         stop = vi.fn();
         getState = clientGetStateMock;
-      }
+      },
     }));
-    vi.doMock('@open-wa/schema', () => ({ eventRegistry: { getAll: () => [] } }));
+    vi.doMock('@open-wa/schema', () => ({
+      eventRegistry: { getAll: () => [] },
+    }));
     vi.doMock('../server/hono-server', () => ({
       WAServer: class MockWAServer {
         start = vi.fn();
@@ -344,12 +499,19 @@ describe('cli runtime chrome resolution', () => {
         setReadinessProvider = vi.fn();
         setQR = vi.fn();
         setClient = vi.fn();
-      }
+      },
     }));
-    vi.doMock('@open-wa/driver-puppeteer', () => ({ PuppeteerDriver: PuppeteerDriverMock }));
-    vi.doMock('@open-wa/driver-lightpanda', () => ({ LightpandaDriver: LightpandaDriverMock }));
+    vi.doMock('@open-wa/driver-puppeteer', () => ({
+      PuppeteerDriver: PuppeteerDriverMock,
+    }));
+    vi.doMock('@open-wa/driver-lightpanda', () => ({
+      LightpandaDriver: LightpandaDriverMock,
+    }));
     vi.doMock('@open-wa/config', async () => {
-      const actual = await vi.importActual<typeof import('@open-wa/config')>('@open-wa/config');
+      const actual =
+        await vi.importActual<typeof import('@open-wa/config')>(
+          '@open-wa/config',
+        );
       return {
         ...actual,
         resolveConfig: resolveConfigMock,
@@ -376,14 +538,17 @@ describe('cli runtime chrome resolution', () => {
       expect.objectContaining({
         driver: expect.objectContaining({ name: 'lightpanda' }),
         executablePath: '/tmp/lightpanda-bin',
-      })
+      }),
     );
     expect(getInstallationsSpy).not.toHaveBeenCalled();
-    expect(sink.write).toHaveBeenCalledWith(expect.objectContaining({ message: 'Browser engine: Lightpanda' }));
+    expect(sink.write).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Browser engine: Lightpanda' }),
+    );
     expect(sink.write).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Browser executable: explicit Lightpanda override (/tmp/lightpanda-bin)',
-      })
+        message:
+          'Browser executable: explicit Lightpanda override (/tmp/lightpanda-bin)',
+      }),
     );
 
     outputSinkModule.resetCliOutputSink();

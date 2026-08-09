@@ -79,6 +79,19 @@ describe('Environment Variable Loader', () => {
       expect(config.licenseKey).toBe('my-license-key');
     });
 
+    it('loads live patch modes without turning boolean polling into cron', () => {
+      expect(loadFromEnv({ env: { WA_LIVE_PATCH: 'true' } }).livePatch).toBe(
+        true,
+      );
+      expect(loadFromEnv({ env: { WA_POLL_PATCH: 'true' } }).pollPatch).toBe(
+        true,
+      );
+      expect(loadFromEnv({ env: { WA_POLL_PATCH: '15' } }).pollPatch).toBe(15);
+      expect(
+        loadFromEnv({ env: { WA_POLL_PATCH: '*/10 * * * *' } }).pollPatch,
+      ).toBe('*/10 * * * *');
+    });
+
     it('should ignore non-WA_ prefixed env vars', () => {
       const env = {
         WA_SESSION_ID: 'my-session',

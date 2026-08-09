@@ -6,10 +6,17 @@ describe('InteractiveTerminalPresenter', () => {
     const clear = vi.fn();
     const unmount = vi.fn();
     const render = vi.fn(() => ({ rerender, clear, unmount }));
-    const createElement = vi.fn((type: unknown, props?: Record<string, unknown>, ...children: unknown[]) => ({
-      type,
-      props: { ...(props ?? {}), children },
-    }));
+    const createElement = vi.fn(
+      (
+        type: unknown,
+        props?: Record<string, unknown>,
+        ...children: unknown[]
+      ) => ({
+        type,
+        props: { ...(props ?? {}), children },
+      }),
+    );
+    let inputHandler: ((input: string) => void) | undefined;
     const subscribe = vi.fn((listener: (snapshot: unknown) => void) => {
       subscribe.listener = listener;
       listener({
@@ -25,7 +32,13 @@ describe('InteractiveTerminalPresenter', () => {
     }) as ReturnType<typeof vi.fn> & { listener?: () => void };
     const getSnapshot = vi
       .fn()
-      .mockReturnValueOnce({ phase: 'boot', recentLogs: [], messageCount: 0, ackCount: 0, ready: false })
+      .mockReturnValueOnce({
+        phase: 'boot',
+        recentLogs: [],
+        messageCount: 0,
+        ackCount: 0,
+        ready: false,
+      })
       .mockReturnValue({
         phase: 'auth.qr',
         sessionId: 'demo',
@@ -41,6 +54,9 @@ describe('InteractiveTerminalPresenter', () => {
       render,
       Box: 'Box',
       Text: 'Text',
+      useInput: vi.fn((handler: (input: string) => void) => {
+        inputHandler = handler;
+      }),
     }));
     vi.doMock('qrcode', () => ({
       default: {
@@ -48,7 +64,8 @@ describe('InteractiveTerminalPresenter', () => {
       },
     }));
 
-    const { InteractiveTerminalPresenter } = await import('../presenter/interactive-terminal');
+    const { InteractiveTerminalPresenter } =
+      await import('../presenter/interactive-terminal');
     const presenter = new InteractiveTerminalPresenter({
       store: {
         subscribe,
@@ -64,11 +81,37 @@ describe('InteractiveTerminalPresenter', () => {
     expect(render).toHaveBeenCalledTimes(1);
     expect(rerender).toHaveBeenCalled();
 
-    const rerenderedTree = rerender.mock.calls.at(-1)?.[0] as { props?: { qrAscii?: string } } | undefined;
+    let rerenderedTree = rerender.mock.calls.at(-1)?.[0] as
+      | {
+          type?: (props: Record<string, unknown>) => unknown;
+          props?: { qrAscii?: string };
+        }
+      | undefined;
     expect(rerenderedTree?.props?.qrAscii).toBe('QR ASCII');
     expect(
-      createElement.mock.calls.some((call) => call.includes('Terminal window too small to render QR Code visually. Please expand.'))
+      createElement.mock.calls.some((call) =>
+        call.includes(
+          'Terminal window too small to render QR Code visually. Please expand.',
+        ),
+      ),
     ).toBe(false);
+
+    const livePatchHandler = vi.fn();
+    presenter.setLivePatchHandler(livePatchHandler);
+    subscribe.listener?.({
+      phase: 'ready',
+      sessionId: 'demo',
+      recentLogs: [],
+      messageCount: 0,
+      ackCount: 0,
+      ready: true,
+    });
+    await Promise.resolve();
+    rerenderedTree = rerender.mock.calls.at(-1)?.[0] as typeof rerenderedTree;
+    rerenderedTree?.type?.(rerenderedTree.props ?? {});
+    inputHandler?.('r');
+    await Promise.resolve();
+    expect(livePatchHandler).toHaveBeenCalledTimes(1);
 
     presenter.stop();
 

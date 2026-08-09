@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "open-wa-live-patches",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-16",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "LIVE_PATCH_HUB",
+        "class_name": "LivePatchHub",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["LivePatchHub"],
+    },
+  ],
+}

@@ -6,17 +6,25 @@ import { Transport } from '../../src/transport/Transport.js';
 import type { OpenWAEventMap } from '../../src/events/eventMap.js';
 import * as httpClient from '../../src/transport/httpClient.js';
 
-function createTransport(patchConfig?: ConstructorParameters<typeof Transport>[0]['patchConfig']): Transport {
+function createTransport(
+  patchConfig?: ConstructorParameters<typeof Transport>[0]['patchConfig'],
+): Transport {
   return new Transport({
     driver: {} as IDriver,
     events: new HyperEmitter<OpenWAEventMap>({
       delimiter: '.',
       captureRejections: true,
-      logger: createLogger({ component: 'core-test', sessionId: 'patch-semantics' }),
+      logger: createLogger({
+        component: 'core-test',
+        sessionId: 'patch-semantics',
+      }),
       debug: false,
       onError: () => undefined,
     }),
-    logger: createLogger({ component: 'core-test', sessionId: 'patch-semantics' }),
+    logger: createLogger({
+      component: 'core-test',
+      sessionId: 'patch-semantics',
+    }),
     patchConfig,
   });
 }
@@ -26,18 +34,67 @@ afterEach(() => {
 });
 
 describe('transport patch lifecycle semantics', () => {
+  it('coalesces replacement storms to one trailing recovery request', () => {
+    const transport = createTransport();
+    const internals = transport as never as {
+      runtimeRecoveryQueue: Promise<void>;
+      pendingRuntimeRecoveryCount: number;
+      latestRuntimeRecoveryRequestId: number;
+      coalescedRuntimeRecoveryRequest: { requestId: number } | null;
+      queueRuntimeRecovery: (trigger: 'runtime_replaced') => void;
+    };
+    internals.runtimeRecoveryQueue = new Promise<void>(() => undefined);
+
+    for (let index = 0; index < 100; index += 1) {
+      internals.queueRuntimeRecovery('runtime_replaced');
+    }
+
+    expect(internals.pendingRuntimeRecoveryCount).toBe(2);
+    expect(internals.latestRuntimeRecoveryRequestId).toBe(100);
+    expect(internals.coalescedRuntimeRecoveryRequest?.requestId).toBe(100);
+  });
+
+  it('suppresses replacement callbacks caused by recovery injection itself', () => {
+    const transport = createTransport();
+    const internals = transport as never as {
+      runtimeRecoverySuppressionDepth: number;
+      pendingRuntimeRecoveryCount: number;
+      latestRuntimeRecoveryRequestId: number;
+      queueRuntimeRecovery: (trigger: 'runtime_replaced') => void;
+    };
+    internals.runtimeRecoverySuppressionDepth = 1;
+
+    internals.queueRuntimeRecovery('runtime_replaced');
+
+    expect(internals.pendingRuntimeRecoveryCount).toBe(0);
+    expect(internals.latestRuntimeRecoveryRequestId).toBe(0);
+  });
+
   it('keeps disk cache opt-in instead of reading or writing it by default', async () => {
     const transport = createTransport({ cachedPatch: false });
-    const loadCachedSpy = vi.spyOn(transport as never as { loadCachedLivePatches: () => Promise<unknown> }, 'loadCachedLivePatches');
-    const saveCachedSpy = vi.spyOn(transport as never as { saveCachedLivePatches: (value: unknown) => Promise<void> }, 'saveCachedLivePatches');
+    const loadCachedSpy = vi.spyOn(
+      transport as never as { loadCachedLivePatches: () => Promise<unknown> },
+      'loadCachedLivePatches',
+    );
+    const saveCachedSpy = vi.spyOn(
+      transport as never as {
+        saveCachedLivePatches: (value: unknown) => Promise<void>;
+      },
+      'saveCachedLivePatches',
+    );
     const fetchSpy = vi.spyOn(httpClient, 'fetchPatches').mockResolvedValue({
       data: ['console.log("remote")'],
       tag: 'remote-tag',
     });
 
-    const result = await (transport as never as {
-      fetchLivePatchesWithCache: (sessionInfo?: { WA_VERSION?: string; WA_AUTOMATE_VERSION?: string }) => Promise<{ source: string; tag: string; data: string[] }>;
-    }).fetchLivePatchesWithCache({
+    const result = await (
+      transport as never as {
+        fetchLivePatchesWithCache: (sessionInfo?: {
+          WA_VERSION?: string;
+          WA_AUTOMATE_VERSION?: string;
+        }) => Promise<{ source: string; tag: string; data: string[] }>;
+      }
+    ).fetchLivePatchesWithCache({
       WA_VERSION: '2.2400.1',
       WA_AUTOMATE_VERSION: '5.0.0',
     });
@@ -47,27 +104,54 @@ describe('transport patch lifecycle semantics', () => {
     expect(saveCachedSpy).not.toHaveBeenCalled();
     expect(fetchSpy).toHaveBeenCalledWith(
       'https://cdn.openwa.dev/patches.json',
-      expect.objectContaining({ waVersion: '2.2400.1', waAutomateVersion: '5.0.0' }),
-      { fallbackUrl: 'https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/patches.json' },
+      expect.objectContaining({
+        waVersion: '2.2400.1',
+        waAutomateVersion: '5.0.0',
+      }),
+      {
+        fallbackUrl:
+          'https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/patches.json',
+      },
     );
   });
 
   it('returns a fresh cache hit immediately and refreshes it in the background when cachedPatch is enabled', async () => {
     const transport = createTransport({ cachedPatch: true });
-    vi.spyOn(transport as never as { loadCachedLivePatches: () => Promise<{ data: string[]; tag: string } | null> }, 'loadCachedLivePatches').mockResolvedValue({
+    vi.spyOn(
+      transport as never as {
+        loadCachedLivePatches: () => Promise<{
+          data: string[];
+          tag: string;
+        } | null>;
+      },
+      'loadCachedLivePatches',
+    ).mockResolvedValue({
       data: ['console.log("cached")'],
       tag: 'cached-tag',
     });
-    const refreshSpy = vi.spyOn(transport as never as {
-      fetchFreshLivePatches: (sessionInfo?: { WA_VERSION?: string; WA_AUTOMATE_VERSION?: string }) => Promise<{ data: string[]; tag: string }>;
-    }, 'fetchFreshLivePatches').mockResolvedValue({
-      data: ['console.log("fresh")'],
-      tag: 'fresh-tag',
-    });
+    const refreshSpy = vi
+      .spyOn(
+        transport as never as {
+          fetchFreshLivePatches: (sessionInfo?: {
+            WA_VERSION?: string;
+            WA_AUTOMATE_VERSION?: string;
+          }) => Promise<{ data: string[]; tag: string }>;
+        },
+        'fetchFreshLivePatches',
+      )
+      .mockResolvedValue({
+        data: ['console.log("fresh")'],
+        tag: 'fresh-tag',
+      });
 
-    const result = await (transport as never as {
-      fetchLivePatchesWithCache: (sessionInfo?: { WA_VERSION?: string; WA_AUTOMATE_VERSION?: string }) => Promise<{ source: string; tag: string; data: string[] }>;
-    }).fetchLivePatchesWithCache({
+    const result = await (
+      transport as never as {
+        fetchLivePatchesWithCache: (sessionInfo?: {
+          WA_VERSION?: string;
+          WA_AUTOMATE_VERSION?: string;
+        }) => Promise<{ source: string; tag: string; data: string[] }>;
+      }
+    ).fetchLivePatchesWithCache({
       WA_VERSION: '2.2400.1',
       WA_AUTOMATE_VERSION: '5.0.0',
     });
@@ -90,9 +174,14 @@ describe('transport patch lifecycle semantics', () => {
       tag: 'github-tag',
     });
 
-    const result = await (transport as never as {
-      fetchFreshLivePatches: (sessionInfo?: { WA_VERSION?: string; WA_AUTOMATE_VERSION?: string }) => Promise<{ tag: string; data: string[] }>;
-    }).fetchFreshLivePatches({
+    const result = await (
+      transport as never as {
+        fetchFreshLivePatches: (sessionInfo?: {
+          WA_VERSION?: string;
+          WA_AUTOMATE_VERSION?: string;
+        }) => Promise<{ tag: string; data: string[] }>;
+      }
+    ).fetchFreshLivePatches({
       WA_VERSION: '2.2400.1',
       WA_AUTOMATE_VERSION: '5.0.0',
     });
@@ -100,7 +189,10 @@ describe('transport patch lifecycle semantics', () => {
     expect(result).toMatchObject({ tag: 'github-tag' });
     expect(fetchSpy).toHaveBeenCalledWith(
       'https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/patches.json',
-      expect.objectContaining({ waVersion: '2.2400.1', waAutomateVersion: '5.0.0' }),
+      expect.objectContaining({
+        waVersion: '2.2400.1',
+        waAutomateVersion: '5.0.0',
+      }),
       { fallbackUrl: undefined },
     );
   });

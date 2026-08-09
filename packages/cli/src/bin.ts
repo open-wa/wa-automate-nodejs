@@ -1,13 +1,22 @@
 #!/usr/bin/env node
-import { resetCliOutputSink, runCli, setCliOutputSink, type CliRuntimeResult } from '@open-wa/wa-automate';
+import {
+  resetCliOutputSink,
+  runCli,
+  setCliOutputSink,
+  type CliRuntimeResult,
+} from '@open-wa/wa-automate';
 import { TunnelClient } from './tunnel-client';
 import { parseCliLocalFlags } from './config/cli-flags-schema';
-import { performGracefulShutdown, writeVisibleFatalError } from './runtime/cli-termination';
+import {
+  performGracefulShutdown,
+  writeVisibleFatalError,
+} from './runtime/cli-termination';
 import type { OutputBroker } from './runtime/output-broker';
 import { detectOutputMode } from './runtime/output-mode';
 import { createInteractiveCliSession } from './runtime/interactive-session';
 import { createShutdownController } from './runtime/shutdown-controller';
 import type { EventProjectionStore } from './state/event-projection-store';
+import type { InteractiveTerminalPresenter } from './presenter/interactive-terminal';
 
 async function main() {
   const parsedLocalFlags = parseCliLocalFlags(process.argv.slice(2));
@@ -16,7 +25,10 @@ async function main() {
   let broker: OutputBroker | undefined;
   let store: EventProjectionStore | undefined;
   let detachEvents: (() => void) | undefined;
-  let interactiveCleanup: ((options?: { clearPresenter?: boolean }) => void) | undefined;
+  let interactiveCleanup:
+    | ((options?: { clearPresenter?: boolean }) => void)
+    | undefined;
+  let interactivePresenter: InteractiveTerminalPresenter | undefined;
 
   const cleanupCliResources = (options: { clearPresenter?: boolean } = {}) => {
     const clearPresenter = options.clearPresenter ?? true;
@@ -27,6 +39,7 @@ async function main() {
     interactiveCleanup = undefined;
     broker = undefined;
     store = undefined;
+    interactivePresenter = undefined;
   };
 
   if (outputMode.interactive) {
@@ -34,6 +47,7 @@ async function main() {
     broker = session.broker;
     store = session.store;
     interactiveCleanup = session.cleanup;
+    interactivePresenter = session.presenter;
     setCliOutputSink(session.sink);
   }
 
@@ -65,7 +79,20 @@ async function main() {
     if (store) {
       detachEvents = store.attachEmitter(runtime.events);
     }
-    
+
+    interactivePresenter?.setLivePatchHandler(async () => {
+      broker?.write('info', 'Checking for a verified live patch...');
+      const result = await runtime!.client.updateLivePatch('keyboard');
+      broker?.write(
+        result.status === 'failed'
+          ? 'error'
+          : result.status === 'rolled_back'
+            ? 'warn'
+            : 'info',
+        `Live patch ${result.status}: ${result.oldHash?.slice(0, 8) ?? 'none'} -> ${result.newHash?.slice(0, 8) ?? 'none'} (${result.reloadDurationMs ?? 0}ms reload)`,
+      );
+    });
+
     // If pm2 is used, result is void
     if (runtime?.config.proxyHost && runtime.config.proxyToken) {
       const log = (level: 'info' | 'warn' | 'error', message: string) => {
@@ -87,7 +114,10 @@ async function main() {
         console.log(message);
       };
 
-      log('info', `[CLI] Starting TunnelClient connecting to ${runtime.config.proxyHost}...`);
+      log(
+        'info',
+        `[CLI] Starting TunnelClient connecting to ${runtime.config.proxyHost}...`,
+      );
       tunnelClient = new TunnelClient({
         proxyHost: runtime.config.proxyHost,
         proxyToken: runtime.config.proxyToken,
@@ -98,12 +128,17 @@ async function main() {
       tunnelClient.connect();
     }
   } catch (err: unknown) {
-    const message = err instanceof Error ? `${err.message}${err.stack ? `\n${err.stack}` : ''}` : String(err);
+    const message =
+      err instanceof Error
+        ? `${err.message}${err.stack ? `\n${err.stack}` : ''}`
+        : String(err);
     store?.projectStatus({ phase: 'error', detail: message });
     shutdownController.dispose();
     if (broker) {
       broker.write('error', `Fatal error: ${message}`);
-      writeVisibleFatalError(message, (rawMessage) => broker?.writeRawStderr(rawMessage));
+      writeVisibleFatalError(message, (rawMessage) =>
+        broker?.writeRawStderr(rawMessage),
+      );
       cleanupCliResources({ clearPresenter: false });
     } else {
       console.error('Fatal error:', err);

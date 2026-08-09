@@ -3,6 +3,7 @@
   "icon": "CircleAlert",
   "pages": [
     "best-practices",
+    "live-patches",
     "error-handling",
     "detect-logouts"
   ]

@@ -39,9 +39,12 @@ const NESTED_ENV_PREFIXES = new Set(['lightpanda']);
  * Detect the expected type for a config key from the Zod schema.
  * Returns: 'number' | 'boolean' | 'array' | 'object' | 'string'
  */
-function getSchemaFieldType(key: string): 'number' | 'boolean' | 'array' | 'object' | 'string' {
+function getSchemaFieldType(
+  key: string,
+): 'number' | 'boolean' | 'array' | 'object' | 'string' {
   const [topLevelKey, nestedKey] = key.split('.', 2);
-  const field = ConfigSchema.shape[topLevelKey as keyof typeof ConfigSchema.shape];
+  const field =
+    ConfigSchema.shape[topLevelKey as keyof typeof ConfigSchema.shape];
   if (!field) return 'string';
 
   // Unwrap optional/default wrappers
@@ -51,7 +54,9 @@ function getSchemaFieldType(key: string): 'number' | 'boolean' | 'array' | 'obje
   }
 
   if (nestedKey && inner instanceof z.ZodObject) {
-    const nestedField = inner.shape[nestedKey as keyof typeof inner.shape] as z.ZodTypeAny | undefined;
+    const nestedField = inner.shape[nestedKey as keyof typeof inner.shape] as
+      | z.ZodTypeAny
+      | undefined;
     if (!nestedField) return 'string';
 
     inner = nestedField;
@@ -64,7 +69,8 @@ function getSchemaFieldType(key: string): 'number' | 'boolean' | 'array' | 'obje
   if (inner instanceof z.ZodNumber) return 'number';
   if (inner instanceof z.ZodBoolean) return 'boolean';
   if (inner instanceof z.ZodArray) return 'array';
-  if (inner instanceof z.ZodObject || inner instanceof z.ZodRecord) return 'object';
+  if (inner instanceof z.ZodObject || inner instanceof z.ZodRecord)
+    return 'object';
   if (inner instanceof z.ZodUnion) {
     // Check if any option is a number/boolean
     const options = inner._def.options as z.ZodTypeAny[];
@@ -85,6 +91,13 @@ const FALSY_VALUES = new Set(['false', 'FALSE', '0', 'no', 'NO', 'off', 'OFF']);
  * Parse a string value to the appropriate type based on schema
  */
 function parseEnvValue(value: string, key: string): unknown {
+  if (key === 'pollPatch') {
+    if (TRUTHY_VALUES.has(value)) return true;
+    if (FALSY_VALUES.has(value)) return false;
+    const minutes = Number(value);
+    return !Number.isNaN(minutes) && value.trim() !== '' ? minutes : value;
+  }
+
   const expectedType = getSchemaFieldType(key);
 
   switch (expectedType) {
@@ -122,7 +135,9 @@ function parseEnvValue(value: string, key: string): unknown {
  * Convert SNAKE_CASE (without prefix) to camelCase config key
  */
 function snakeToCamel(snakeCase: string): string {
-  return snakeCase.toLowerCase().replace(/_([a-z])/g, (_, char) => char.toUpperCase());
+  return snakeCase
+    .toLowerCase()
+    .replace(/_([a-z])/g, (_, char) => char.toUpperCase());
 }
 
 /**
@@ -156,7 +171,8 @@ function isNestedConfigKey(key: string): boolean {
     return false;
   }
 
-  const field = ConfigSchema.shape[topLevelKey as keyof typeof ConfigSchema.shape];
+  const field =
+    ConfigSchema.shape[topLevelKey as keyof typeof ConfigSchema.shape];
   if (!field) return false;
 
   let inner: z.ZodTypeAny = field;
@@ -167,7 +183,11 @@ function isNestedConfigKey(key: string): boolean {
   return inner instanceof z.ZodObject && nestedKey in inner.shape;
 }
 
-function setConfigValue(target: Record<string, unknown>, key: string, value: unknown): void {
+function setConfigValue(
+  target: Record<string, unknown>,
+  key: string,
+  value: unknown,
+): void {
   const [topLevelKey, nestedKey] = key.split('.', 2);
 
   if (!nestedKey) {
@@ -237,7 +257,7 @@ export function loadFromEnv(options: LoadEnvOptions = {}): PartialConfig {
     const parsedValue = parseEnvValue(value, configKey);
     setConfigValue(config, configKey, parsedValue);
     loadedVars.push(
-      `${envName}=${typeof parsedValue === 'string' ? parsedValue : JSON.stringify(parsedValue)}`
+      `${envName}=${typeof parsedValue === 'string' ? parsedValue : JSON.stringify(parsedValue)}`,
     );
   }
 
@@ -262,7 +282,13 @@ export function configKeyToEnvVar(key: string, prefix: string = 'WA_'): string {
   // Standard camelCase to SNAKE_CASE conversion
   const normalizedKey = key.replace(/\./g, '_');
 
-  return prefix + normalizedKey.replace(/([A-Z])/g, '_$1').toUpperCase().replace(/^_/, '');
+  return (
+    prefix +
+    normalizedKey
+      .replace(/([A-Z])/g, '_$1')
+      .toUpperCase()
+      .replace(/^_/, '')
+  );
 }
 
 /**
@@ -270,26 +296,33 @@ export function configKeyToEnvVar(key: string, prefix: string = 'WA_'): string {
  * Derived from ConfigSchema - single source of truth.
  */
 export function getConfigEnvVars(
-  prefix: string = 'WA_'
+  prefix: string = 'WA_',
 ): Array<{ envVar: string; configKey: string }> {
-  const nestedConfigKeys = Array.from(NESTED_ENV_PREFIXES).flatMap((topLevelKey) => {
-    const field = ConfigSchema.shape[topLevelKey as keyof typeof ConfigSchema.shape];
-    if (!field) return [];
+  const nestedConfigKeys = Array.from(NESTED_ENV_PREFIXES).flatMap(
+    (topLevelKey) => {
+      const field =
+        ConfigSchema.shape[topLevelKey as keyof typeof ConfigSchema.shape];
+      if (!field) return [];
 
-    let inner: z.ZodTypeAny = field;
-    while (inner instanceof z.ZodOptional || inner instanceof z.ZodDefault) {
-      inner = inner._def.innerType as z.ZodTypeAny;
-    }
+      let inner: z.ZodTypeAny = field;
+      while (inner instanceof z.ZodOptional || inner instanceof z.ZodDefault) {
+        inner = inner._def.innerType as z.ZodTypeAny;
+      }
 
-    if (!(inner instanceof z.ZodObject)) {
-      return [];
-    }
+      if (!(inner instanceof z.ZodObject)) {
+        return [];
+      }
 
-    return Object.keys(inner.shape).map((nestedKey) => `${topLevelKey}.${nestedKey}`);
-  });
+      return Object.keys(inner.shape).map(
+        (nestedKey) => `${topLevelKey}.${nestedKey}`,
+      );
+    },
+  );
 
-  return [...Array.from(VALID_CONFIG_KEYS), ...nestedConfigKeys].map((configKey) => ({
-    envVar: configKeyToEnvVar(configKey, prefix),
-    configKey,
-  }));
+  return [...Array.from(VALID_CONFIG_KEYS), ...nestedConfigKeys].map(
+    (configKey) => ({
+      envVar: configKeyToEnvVar(configKey, prefix),
+      configKey,
+    }),
+  );
 }

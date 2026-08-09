@@ -86,11 +86,13 @@ export const ProxyServerCredentialsSchema = z.object({
     .string()
     .optional()
     .describe(
-      'The protocol on which the proxy is running. E.g `http`, `https`, `socks4` or `socks5`'
+      'The protocol on which the proxy is running. E.g `http`, `https`, `socks4` or `socks5`',
     ),
   address: z
     .string()
-    .describe("Proxy Server address. This can include the port e.g '127.0.0.1:5005'"),
+    .describe(
+      "Proxy Server address. This can include the port e.g '127.0.0.1:5005'",
+    ),
   username: z.string().describe('Username for Proxy Server authentication'),
   password: z.string().describe('Password for Proxy Server authentication'),
 });
@@ -113,7 +115,10 @@ export const ViewportSchema = z.object({
 });
 
 export const LightpandaOptionsSchema = z.object({
-  executablePath: z.string().optional().describe('Override path to Lightpanda binary.'),
+  executablePath: z
+    .string()
+    .optional()
+    .describe('Override path to Lightpanda binary.'),
   portStart: z
     .number()
     .int()
@@ -142,11 +147,16 @@ export const S3SyncSchema = z.object({
   endpoint: z.string().optional().describe('Custom S3 endpoint'),
   host: z.string().optional().describe('PicoS3 support'),
   syncInterval: z.number().default(600000).describe('Sync interval in ms'),
-  enableLocalCompression: z.boolean().optional().describe('Enable local session compression'),
+  enableLocalCompression: z
+    .boolean()
+    .optional()
+    .describe('Enable local session compression'),
 });
 
 export const LoggingTransportSchema = z.object({
-  type: z.enum(['console', 'file', 'syslog', 'elasticsearch']).describe('Transport type'),
+  type: z
+    .enum(['console', 'file', 'syslog', 'elasticsearch'])
+    .describe('Transport type'),
   level: z.enum(['error', 'warn', 'info', 'debug', 'verbose']).optional(),
   filename: z.string().optional().describe('For file transport'),
   host: z.string().optional().describe('For syslog/elasticsearch'),
@@ -178,18 +188,21 @@ export const ConfigSchema = z.object({
     .union([SessionDataSchema, z.string()])
     .optional()
     .describe(
-      'Deprecated compatibility input for JSON or base64 session restore. This MD-obsolete flow remains only for legacy migration. Prefer userDataDir for persistent auth state.'
+      'Deprecated compatibility input for JSON or base64 session restore. This MD-obsolete flow remains only for legacy migration. Prefer userDataDir for persistent auth state.',
     ),
 
   linkCode: z.string().optional().describe('Link code for new login method.'),
 
-  sessionId: z.string().default('session').describe('Name of the session. Must be unique.'),
+  sessionId: z
+    .string()
+    .default('session')
+    .describe('Name of the session. Must be unique.'),
 
   sessionDataPath: z
     .string()
     .default('')
     .describe(
-      'Deprecated legacy path for .data.json session restore files. This only exists for MD-obsolete JSON session compatibility. Prefer userDataDir.'
+      'Deprecated legacy path for .data.json session restore files. This only exists for MD-obsolete JSON session compatibility. Prefer userDataDir.',
     ),
 
   userDataDir: z
@@ -201,14 +214,14 @@ export const ConfigSchema = z.object({
     .boolean()
     .default(false)
     .describe(
-      'When true, prevents auto-derivation of userDataDir from sessionId. The browser launches with an ephemeral temp profile that is discarded on exit. Useful for testing without leaving _IGNORE_ directories behind.'
+      'When true, prevents auto-derivation of userDataDir from sessionId. The browser launches with an ephemeral temp profile that is discarded on exit. Useful for testing without leaving _IGNORE_ directories behind.',
     ),
 
   skipSessionSave: z
     .boolean()
     .default(false)
     .describe(
-      'Deprecated legacy flag for .data.json session persistence. This only affects the MD-obsolete JSON restore path. Prefer userDataDir-managed persistence.'
+      'Deprecated legacy flag for .data.json session persistence. This only affects the MD-obsolete JSON restore path. Prefer userDataDir-managed persistence.',
     ),
 
   licenseKey: z
@@ -222,13 +235,29 @@ export const ConfigSchema = z.object({
     .optional()
     .describe('Connect to existing chrome window (Experimental).'),
 
-  useStealth: z.boolean().default(false).describe('Enable/disable puppeteer stealth plugin.'),
+  useStealth: z
+    .boolean()
+    .default(false)
+    .describe('Enable/disable puppeteer stealth plugin.'),
 
-  bypassCSP: z.boolean().default(false).describe('Disable cors (bypass pagesetbypasscspenabled).'),
+  bypassCSP: z
+    .boolean()
+    .default(false)
+    .describe('Disable cors (bypass pagesetbypasscspenabled).'),
 
-  chromiumArgs: z.array(z.string()).optional().describe('Custom chrome/chromium argument strings. Note: --single-process and --no-zygote are stripped by default because they crash WhatsApp Web with "Navigating frame was detached" on modern Chrome; set allowDangerousBrowserArgs to force them.'),
+  chromiumArgs: z
+    .array(z.string())
+    .optional()
+    .describe(
+      'Custom chrome/chromium argument strings. Note: --single-process and --no-zygote are stripped by default because they crash WhatsApp Web with "Navigating frame was detached" on modern Chrome; set allowDangerousBrowserArgs to force them.',
+    ),
 
-  allowDangerousBrowserArgs: z.boolean().optional().describe('Allow known-dangerous chromium args (--single-process, --no-zygote) that are normally stripped. Unsupported: these cause detached-frame crash loops on modern Chrome.'),
+  allowDangerousBrowserArgs: z
+    .boolean()
+    .optional()
+    .describe(
+      'Allow known-dangerous chromium args (--single-process, --no-zygote) that are normally stripped. Unsupported: these cause detached-frame crash loops on modern Chrome.',
+    ),
 
   browserRevision: z
     .string()
@@ -237,25 +266,42 @@ export const ConfigSchema = z.object({
 
   executablePath: z.string().optional().describe('Path to chrome instance.'),
 
-  useChrome: z.boolean().default(false).describe('Automatically detect chrome instance.'),
+  useChrome: z
+    .boolean()
+    .default(false)
+    .describe('Automatically detect chrome instance.'),
 
-  useLightpanda: z.boolean().default(false).describe('Enable Lightpanda local browser mode.'),
+  useLightpanda: z
+    .boolean()
+    .default(false)
+    .describe('Enable Lightpanda local browser mode.'),
 
-  lightpanda: LightpandaOptionsSchema.optional().describe('Lightpanda local mode configuration.'),
+  lightpanda: LightpandaOptionsSchema.optional().describe(
+    'Lightpanda local mode configuration.',
+  ),
 
   headless: z.boolean().default(true).describe('Run browser in headless mode.'),
 
-  resizable: z.boolean().default(true).describe('Sync viewport size with window size.'),
+  resizable: z
+    .boolean()
+    .default(true)
+    .describe('Sync viewport size with window size.'),
 
   viewport: ViewportSchema.optional(),
 
   proxyServerCredentials: ProxyServerCredentialsSchema.optional().describe(
-    'Proxy server credentials.'
+    'Proxy server credentials.',
   ),
 
-  useNativeProxy: z.boolean().default(false).describe('Use native proxy system.'),
+  useNativeProxy: z
+    .boolean()
+    .default(false)
+    .describe('Use native proxy system.'),
 
-  corsFix: z.boolean().default(false).describe('Bypass web security to fix CORS issues.'),
+  corsFix: z
+    .boolean()
+    .default(false)
+    .describe('Bypass web security to fix CORS issues.'),
 
   raspi: z.boolean().default(false).describe('Enable Raspberry Pi OS support.'),
 
@@ -263,131 +309,292 @@ export const ConfigSchema = z.object({
   qrTimeout: z
     .number()
     .default(60)
-    .describe('Wait time for QR scan before killing process. 0 to wait forever.'),
+    .describe(
+      'Wait time for QR scan before killing process. 0 to wait forever.',
+    ),
 
-  qrLogSkip: z.boolean().default(false).describe('Skip logging QR Code to console.'),
+  qrLogSkip: z
+    .boolean()
+    .default(false)
+    .describe('Skip logging QR Code to console.'),
 
-  qrQuality: z.number().default(1.0).describe('QR code output quality (0.1 - 1.0).'),
+  qrQuality: z
+    .number()
+    .default(1.0)
+    .describe('QR code output quality (0.1 - 1.0).'),
 
-  qrFormat: z.nativeEnum(QRFormat).default(QRFormat.PNG).describe('QR code output format.'),
+  qrFormat: z
+    .nativeEnum(QRFormat)
+    .default(QRFormat.PNG)
+    .describe('QR code output format.'),
 
   qrPopUpOnly: z
     .boolean()
     .optional()
     .describe(
-      'Downgraded legacy QR convenience flag. v5 may still expose QR PNG output, but popup and local QR parity is not a guaranteed runtime contract.'
+      'Downgraded legacy QR convenience flag. v5 may still expose QR PNG output, but popup and local QR parity is not a guaranteed runtime contract.',
     ),
 
-  qrMax: z.number().optional().describe('Automatically kill the process after a set amount of qr codes.'),
+  qrMax: z
+    .number()
+    .optional()
+    .describe('Automatically kill the process after a set amount of qr codes.'),
 
   ezqr: z.boolean().default(true).describe('Enable easy QR code endpoint.'),
 
   // Authentication & Timeouts
-  authTimeout: z.number().default(60).describe('Wait time for session authentication.'),
+  authTimeout: z
+    .number()
+    .default(60)
+    .describe('Wait time for session authentication.'),
 
-  oorTimeout: z.number().default(60).describe('Phone out of reach check timeout.'),
+  oorTimeout: z
+    .number()
+    .default(60)
+    .describe('Phone out of reach check timeout.'),
 
   waitForRipeSessionTimeout: z
     .number()
     .default(5)
     .describe('Wait time for session to load fully. 0 to wait forever.'),
 
-  callTimeout: z.number().default(0).describe('Wait time for client method resolution.'),
+  callTimeout: z
+    .number()
+    .default(0)
+    .describe('Wait time for client method resolution.'),
 
   // Popup & UI
   popup: z
     .union([z.boolean(), z.number()])
     .default(false)
     .describe(
-      'Downgraded legacy compatibility option. Opens a local browser window for status or manual inspection, but v5 does not guarantee legacy popup QR parity.'
+      'Downgraded legacy compatibility option. Opens a local browser window for status or manual inspection, but v5 does not guarantee legacy popup QR parity.',
     ),
 
   // Logging & Debugging
-  logConsole: z.boolean().default(false).describe('Log console messages from browser.'),
+  logConsole: z
+    .boolean()
+    .default(false)
+    .describe('Log console messages from browser.'),
 
-  logConsoleErrors: z.boolean().default(false).describe('Log error messages from browser.'),
+  logConsoleErrors: z
+    .boolean()
+    .default(false)
+    .describe('Log error messages from browser.'),
 
-  logFile: z.boolean().default(false).describe('Create log file for all actions.'),
+  logFile: z
+    .boolean()
+    .default(false)
+    .describe('Create log file for all actions.'),
 
   logDebugInfoAsObject: z
     .boolean()
     .default(false)
     .describe('Log debug info as object instead of console.table.'),
 
-  logInternalEvents: z.boolean().optional().describe('Log all internal wa web events.'),
+  logInternalEvents: z
+    .boolean()
+    .optional()
+    .describe('Log all internal wa web events.'),
 
-  logLevel: z.string().optional().describe('Logging level (VERBOSE, INFO, ERROR, SILENT).'),
+  logLevel: z
+    .string()
+    .optional()
+    .describe('Logging level (VERBOSE, INFO, ERROR, SILENT).'),
 
-  logging: z.array(LoggingTransportSchema).optional().describe('Winston logging transport configurations.'),
+  logging: z
+    .array(LoggingTransportSchema)
+    .optional()
+    .describe('Winston logging transport configurations.'),
 
-  disableSpins: z.boolean().default(false).describe('Disable spins in logs (for docker).'),
+  disableSpins: z
+    .boolean()
+    .default(false)
+    .describe('Disable spins in logs (for docker).'),
 
-  devtools: z.union([z.boolean(), DevToolsSchema]).optional().describe('Enable remote devtools.'),
+  devtools: z
+    .union([z.boolean(), DevToolsSchema])
+    .optional()
+    .describe('Enable remote devtools.'),
 
   // Process Behavior
-  killProcessOnBrowserClose: z.boolean().default(false).describe('Kill process when browser closes.'),
+  killProcessOnBrowserClose: z
+    .boolean()
+    .default(false)
+    .describe('Kill process when browser closes.'),
 
-  killProcessOnTimeout: z.boolean().default(false).describe('Kill process on auth/qr timeout.'),
+  killProcessOnTimeout: z
+    .boolean()
+    .default(false)
+    .describe('Kill process on auth/qr timeout.'),
 
-  killProcessOnBan: z.boolean().default(true).describe('Kill process when temporary ban detected.'),
+  killProcessOnBan: z
+    .boolean()
+    .default(true)
+    .describe('Kill process when temporary ban detected.'),
 
-  killClientOnLogout: z.boolean().default(false).describe('Kill client when logout detected.'),
+  killClientOnLogout: z
+    .boolean()
+    .default(false)
+    .describe('Kill client when logout detected.'),
 
-  restartOnCrash: z.any().optional().describe('Function to call upon restart if page crashes.'),
+  restartOnCrash: z
+    .any()
+    .optional()
+    .describe('Function to call upon restart if page crashes.'),
 
   // Safety & Error Handling
-  safeMode: z.boolean().default(false).describe('Check if page is valid before each command.'),
+  safeMode: z
+    .boolean()
+    .default(false)
+    .describe('Check if page is valid before each command.'),
 
-  onError: z.nativeEnum(OnError).default(OnError.NOTHING).describe('Error handling strategy.'),
+  onError: z
+    .nativeEnum(OnError)
+    .default(OnError.NOTHING)
+    .describe('Error handling strategy.'),
 
-  throwErrorOnTosBlock: z.boolean().optional().describe('Throw error if session blocked or unable to get QR.'),
+  throwErrorOnTosBlock: z
+    .boolean()
+    .optional()
+    .describe('Throw error if session blocked or unable to get QR.'),
 
-  throwOnExpiredSessionData: z.boolean().default(false).describe('Return false if session data expired.'),
+  throwOnExpiredSessionData: z
+    .boolean()
+    .default(false)
+    .describe('Return false if session data expired.'),
 
   // Features & Behavior
-  skipBrokenMethodsCheck: z.boolean().default(false).describe('Bypass health check before startup.'),
+  skipBrokenMethodsCheck: z
+    .boolean()
+    .default(false)
+    .describe('Bypass health check before startup.'),
 
-  skipUpdateCheck: z.boolean().default(false).describe('Bypass latest version check.'),
+  skipUpdateCheck: z
+    .boolean()
+    .default(false)
+    .describe('Bypass latest version check.'),
 
   customUserAgent: z.string().optional().describe('Custom user agent.'),
 
-  blockCrashLogs: z.boolean().default(true).describe('Block network calls to crash log servers.'),
+  blockCrashLogs: z
+    .boolean()
+    .default(true)
+    .describe('Block network calls to crash log servers.'),
 
-  blockAssets: z.boolean().default(false).describe('Block all assets from loading.'),
+  blockAssets: z
+    .boolean()
+    .default(false)
+    .describe('Block all assets from loading.'),
 
   cacheEnabled: z.boolean().default(false).describe('Enable/disable cache.'),
 
-  hostNotificationLang: z.nativeEnum(NotificationLanguage).optional().describe('Language of host notification.'),
+  hostNotificationLang: z
+    .nativeEnum(NotificationLanguage)
+    .optional()
+    .describe('Language of host notification.'),
 
-  autoRefresh: z.boolean().default(true).describe('Automatically refresh QR codes (Deprecated).'),
+  autoRefresh: z
+    .boolean()
+    .default(true)
+    .describe('Automatically refresh QR codes (Deprecated).'),
 
-  qrRefreshS: z.number().optional().describe('QR refresh interval (Deprecated).'),
+  qrRefreshS: z
+    .number()
+    .optional()
+    .describe('QR refresh interval (Deprecated).'),
 
-  legacy: z.boolean().default(false).describe('Roll back on late beta features.'),
+  legacy: z
+    .boolean()
+    .default(false)
+    .describe('Roll back on late beta features.'),
 
-  deleteSessionDataOnLogout: z.boolean().default(false).describe('Delete session data file on logout.'),
+  deleteSessionDataOnLogout: z
+    .boolean()
+    .default(false)
+    .describe('Delete session data file on logout.'),
 
-  eventMode: z.boolean().default(true).describe('Automatically register SimpleListener events.'),
+  eventMode: z
+    .boolean()
+    .default(true)
+    .describe('Automatically register SimpleListener events.'),
 
-  idCorrection: z.boolean().default(false).describe('Attempt to correct invalid chatIds.'),
+  idCorrection: z
+    .boolean()
+    .default(false)
+    .describe('Attempt to correct invalid chatIds.'),
 
-  ignoreNuke: z.boolean().optional().describe("Don't implicitly determine if the host logged out."),
+  ignoreNuke: z
+    .boolean()
+    .optional()
+    .describe("Don't implicitly determine if the host logged out."),
 
-  ensureHeadfulIntegrity: z.boolean().optional().describe('Makes sure the headless session is usable even on first login.'),
+  ensureHeadfulIntegrity: z
+    .boolean()
+    .optional()
+    .describe('Makes sure the headless session is usable even on first login.'),
 
-  waitForRipeSession: z.boolean().default(true).describe('Wait for a valid headful session.'),
+  waitForRipeSession: z
+    .boolean()
+    .default(true)
+    .describe('Wait for a valid headful session.'),
 
-  keepUpdated: z.boolean().default(false).describe('Always start with latest version (Alpha).'),
+  keepUpdated: z
+    .boolean()
+    .default(false)
+    .describe('Always start with latest version (Alpha).'),
 
-  ghPatch: z.boolean().default(false).describe('Use default cached raw github link for patches.'),
+  ghPatch: z
+    .boolean()
+    .default(false)
+    .describe('Use default cached raw github link for patches.'),
 
-  cachedPatch: z.boolean().default(false).describe('Save local copy of patches.json.'),
+  cachedPatch: z
+    .boolean()
+    .default(false)
+    .describe('Save local copy of patches.json.'),
 
-  screenshotOnInitializationBrowserError: z.boolean().default(false).describe('Screenshot on unexpected initialization error.'),
+  livePatch: z
+    .boolean()
+    .default(false)
+    .describe(
+      'Connect to the OpenWA patch control plane and apply announced releases to live sessions.',
+    ),
 
-  inDocker: z.boolean().default(false).describe('Try to infer config from environment variables.'),
+  pollPatch: z
+    .union([z.boolean(), z.number().min(5), z.string().min(1)])
+    .default(false)
+    .describe(
+      'Poll for live patches every five minutes, at a custom interval in minutes, or on a cron schedule.',
+    ),
 
-  aggressiveGarbageCollection: z.boolean().optional().describe('Run gc() before every command sent to the browser.'),
+  livePatchEndpoint: z
+    .string()
+    .url()
+    .default('https://live-patches.openwa.dev/v1')
+    .describe('OpenWA live patch control-plane endpoint.'),
+
+  livePatchPublicKey: z
+    .string()
+    .optional()
+    .describe(
+      'PEM-encoded Ed25519 public key used to verify live patch release manifests.',
+    ),
+
+  screenshotOnInitializationBrowserError: z
+    .boolean()
+    .default(false)
+    .describe('Screenshot on unexpected initialization error.'),
+
+  inDocker: z
+    .boolean()
+    .default(false)
+    .describe('Try to infer config from environment variables.'),
+
+  aggressiveGarbageCollection: z
+    .boolean()
+    .optional()
+    .describe('Run gc() before every command sent to the browser.'),
 
   // Stickers & Messaging
   stickerServerEndpoint: z
@@ -395,41 +602,74 @@ export const ConfigSchema = z.object({
     .default('https://sticker-api.openwa.dev')
     .describe('Sticker server endpoint.'),
 
-  autoEmoji: z.union([z.string(), z.literal(false)]).default(':').describe('Automatic emoji detection character.'),
+  autoEmoji: z
+    .union([z.string(), z.literal(false)])
+    .default(':')
+    .describe('Automatic emoji detection character.'),
 
-  linkParser: z.string().default('https://link.openwa.cloud/api').describe('URL of serverless meta grabber.'),
+  linkParser: z
+    .string()
+    .default('https://link.openwa.cloud/api')
+    .describe('URL of serverless meta grabber.'),
 
   // Preprocessors & Cloud Upload
-  messagePreprocessor: z.any().optional().describe('Message preprocessor options.'),
+  messagePreprocessor: z
+    .any()
+    .optional()
+    .describe('Message preprocessor options.'),
 
-  preprocFilter: z.string().optional().describe('Filter for message preprocessor.'),
+  preprocFilter: z
+    .string()
+    .optional()
+    .describe('Filter for message preprocessor.'),
 
-  cloudUploadOptions: CloudUploadOptionsSchema.optional().describe('Options for cloud upload preprocessor.'),
+  cloudUploadOptions: CloudUploadOptionsSchema.optional().describe(
+    'Options for cloud upload preprocessor.',
+  ),
 
   pQueueDefault: z.any().optional().describe('Default pqueue options.'),
 
   // Session Limits
-  maxChats: z.number().optional().describe('Maximum amount of chats to be present in a session.'),
+  maxChats: z
+    .number()
+    .optional()
+    .describe('Maximum amount of chats to be present in a session.'),
 
-  maxMessages: z.number().optional().describe('Maximum amount of messages to be present in a session.'),
+  maxMessages: z
+    .number()
+    .optional()
+    .describe('Maximum amount of messages to be present in a session.'),
 
-  discord: z.string().optional().describe('Your Discord ID to get onto the sticker leaderboard.'),
+  discord: z
+    .string()
+    .optional()
+    .describe('Your Discord ID to get onto the sticker leaderboard.'),
 
   // Multi-device
-  multiDevice: z.boolean().default(true).describe('Enable multi-device support (Beta).'),
+  multiDevice: z
+    .boolean()
+    .default(true)
+    .describe('Enable multi-device support (Beta).'),
 
-  sessionDataBucketAuth: z.string().optional().describe('Base64 encoded S3 Bucket & Authentication object.'),
+  sessionDataBucketAuth: z
+    .string()
+    .optional()
+    .describe('Base64 encoded S3 Bucket & Authentication object.'),
 
   // v5 Specific Features
   apiLifecycle: z
     .enum(['immediate', 'post-connection', 'hybrid'])
     .default('hybrid')
-    .describe('When to start the API: immediate, after connection, or hybrid (QR only first).'),
+    .describe(
+      'When to start the API: immediate, after connection, or hybrid (QR only first).',
+    ),
 
   dashboard: z
     .boolean()
     .default(true)
-    .describe('Launch the session management dashboard. Disable with --no-dashboard.'),
+    .describe(
+      'Launch the session management dashboard. Disable with --no-dashboard.',
+    ),
 
   dashboardPort: z
     .number()
@@ -442,13 +682,16 @@ export const ConfigSchema = z.object({
   proxyHost: z
     .string()
     .optional()
-    .describe('Host of the Cloudflare session proxy worker, e.g. wss://proxy.account.workers.dev'),
+    .describe(
+      'Host of the Cloudflare session proxy worker, e.g. wss://proxy.account.workers.dev',
+    ),
 
   proxyToken: z
     .string()
     .optional()
-    .describe('Token used to authenticate this session with the Cloudflare proxy upstream.'),
-
+    .describe(
+      'Token used to authenticate this session with the Cloudflare proxy upstream.',
+    ),
 
   integrations: z
     .record(
@@ -456,19 +699,33 @@ export const ConfigSchema = z.object({
       z.object({
         enabled: z.boolean().default(false),
         config: z.record(z.string(), z.string()).default({}),
-      })
+      }),
     )
     .optional()
-    .describe('Integration configurations (chatwoot, webhook, n8n, etc.). Changes require restart.'),
+    .describe(
+      'Integration configurations (chatwoot, webhook, n8n, etc.). Changes require restart.',
+    ),
 
   // Server Configuration
-  apiKey: z.string().optional().describe('API key for authentication (minimum 8 characters).'),
+  apiKey: z
+    .string()
+    .optional()
+    .describe('API key for authentication (minimum 8 characters).'),
 
-  port: z.number().int().min(1).max(65535).default(8080).describe('Port for the API server.'),
+  port: z
+    .number()
+    .int()
+    .min(1)
+    .max(65535)
+    .default(8080)
+    .describe('Port for the API server.'),
 
   host: z.string().default('localhost').describe('Host address to bind.'),
 
-  cors: z.union([z.string(), z.array(z.string())]).default('*').describe('CORS allowed origins.'),
+  cors: z
+    .union([z.string(), z.array(z.string())])
+    .default('*')
+    .describe('CORS allowed origins.'),
 
   webhook: z.string().url().optional().describe('Webhook URL for events.'),
 
@@ -476,19 +733,33 @@ export const ConfigSchema = z.object({
   elasticUrl: z.string().url().optional().describe('ElasticSearch URL.'),
   elasticUsername: z.string().optional().describe('ElasticSearch username.'),
   elasticPassword: z.string().optional().describe('ElasticSearch password.'),
-  elasticBufferSize: z.number().default(50).describe('ElasticSearch buffer size.'),
-  elasticPipeline: z.string().optional().describe('ElasticSearch ingest pipeline.'),
-  elasticIndexPrefix: z.string().default('open-wa-').describe('ElasticSearch index prefix.'),
+  elasticBufferSize: z
+    .number()
+    .default(50)
+    .describe('ElasticSearch buffer size.'),
+  elasticPipeline: z
+    .string()
+    .optional()
+    .describe('ElasticSearch ingest pipeline.'),
+  elasticIndexPrefix: z
+    .string()
+    .default('open-wa-')
+    .describe('ElasticSearch index prefix.'),
 
   // Session Sync (S3)
-  s3Sync: S3SyncSchema.optional().describe('S3 Session Synchronization configuration'),
+  s3Sync: S3SyncSchema.optional().describe(
+    'S3 Session Synchronization configuration',
+  ),
 
   // ── Plugin System ──────────────────────────────────────────
   /**
    * Plugins to load. Can be npm package names or local file paths.
    * @example ['@open-wa/integration-chatwoot', './my-local-plugin']
    */
-  plugins: z.array(z.string()).default([]).describe('Plugin references to load (npm packages or file paths).'),
+  plugins: z
+    .array(z.string())
+    .default([])
+    .describe('Plugin references to load (npm packages or file paths).'),
 
   /**
    * Plugin-specific configuration keyed by plugin name.
@@ -502,12 +773,17 @@ export const ConfigSchema = z.object({
    * }
    * ```
    */
-  pluginConfig: z.record(z.string(), z.unknown()).default({}).describe('Plugin configuration keyed by plugin name.'),
+  pluginConfig: z
+    .record(z.string(), z.unknown())
+    .default({})
+    .describe('Plugin configuration keyed by plugin name.'),
 
   /**
    * Easy API MCP configuration. Hosted MCP requires apiKey.
    */
-  mcp: McpConfigSchema.optional().describe('Easy API MCP configuration. Hosted MCP requires apiKey.'),
+  mcp: McpConfigSchema.optional().describe(
+    'Easy API MCP configuration. Hosted MCP requires apiKey.',
+  ),
 });
 
 // ============================================================================
@@ -517,7 +793,9 @@ export const ConfigSchema = z.object({
 export type Config = z.infer<typeof ConfigSchema>;
 export type SessionData = z.infer<typeof SessionDataSchema>;
 export type DevTools = z.infer<typeof DevToolsSchema>;
-export type ProxyServerCredentials = z.infer<typeof ProxyServerCredentialsSchema>;
+export type ProxyServerCredentials = z.infer<
+  typeof ProxyServerCredentialsSchema
+>;
 export type CloudUploadOptions = z.infer<typeof CloudUploadOptionsSchema>;
 export type Viewport = z.infer<typeof ViewportSchema>;
 export type LightpandaOptions = z.infer<typeof LightpandaOptionsSchema>;

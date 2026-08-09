@@ -16,11 +16,18 @@ import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
 import type { OpenWAEventMap, STATE } from '../events/eventMap.js';
 import { fetchPatches, validateLicense } from './httpClient.js';
-import { InjectionController, type GenerationSnapshot } from './InjectionController.js';
+import {
+  InjectionController,
+  type GenerationSnapshot,
+} from './InjectionController.js';
 import { getProgObserverScript, injectInitPatch } from './initPatchScripts.js';
-import { getRuntimeListenerSurfaceEntry, runtimeListenerSurface } from './runtimeListenerSurface.js';
+import {
+  getRuntimeListenerSurfaceEntry,
+  runtimeListenerSurface,
+} from './runtimeListenerSurface.js';
 import { auditWapiHelperAssetRequirements } from './ScriptLoader.js';
 import { chromiumConfig, sanitizeBrowserArgs } from './browserConfig.js';
+import { LivePatchActivityGate } from '../livePatch/index.js';
 
 export interface PatchFetchConfig {
   patchesUrl?: string;
@@ -58,7 +65,7 @@ export interface TransportOptions {
   qrPollingMs?: number;
   navigationTimeoutMs?: number;
   executablePath?: string;
-  watermark?: boolean | { text?: string; color?: string; background?: string; };
+  watermark?: boolean | { text?: string; color?: string; background?: string };
   browserArgs?: string[];
   allowDangerousBrowserArgs?: boolean;
   userDataDir?: string;
@@ -100,7 +107,8 @@ const PRE_AUTH_SURFACE_READY_CHECK_SCRIPT = `(() => {
     return false;
   }
 })()`;
-const QR_SELECTOR_PRIMARY = "canvas[aria-label='Scan this QR code to link a device!']";
+const QR_SELECTOR_PRIMARY =
+  "canvas[aria-label='Scan this QR code to link a device!']";
 const QR_SELECTOR_FALLBACK = 'canvas[aria-label]';
 const PRE_API_HELPER_READY_CHECK_SCRIPT = `Boolean(!['jsSHA','axios','QRCode','Base64','objectHash'].find(x=>!window[x]))`;
 
@@ -222,7 +230,13 @@ export interface RuntimeCapabilityProbe {
   sessionLoaded: boolean;
 }
 
-export type AuthSettlementOutcome = 'authenticated' | 'qr_timeout' | 'auth_timeout' | 'invalid_session' | 'phone_out_of_reach' | 'qr_max';
+export type AuthSettlementOutcome =
+  | 'authenticated'
+  | 'qr_timeout'
+  | 'auth_timeout'
+  | 'invalid_session'
+  | 'phone_out_of_reach'
+  | 'qr_max';
 
 export interface AuthSettlementResult {
   outcome: AuthSettlementOutcome;
@@ -237,8 +251,15 @@ export interface PostAuthRuntimeReconciliationResult extends RuntimeCapabilityPr
   path: 'fresh_auth' | 'resumed_session';
 }
 
-export type RuntimeValidationStage = 'post_injection' | 'post_patch' | 'post_overlay';
-export type RuntimeValidationFailureReason = 'runtime_missing' | 'store_missing' | 'session_not_loaded' | 'required_method_missing';
+export type RuntimeValidationStage =
+  | 'post_injection'
+  | 'post_patch'
+  | 'post_overlay';
+export type RuntimeValidationFailureReason =
+  | 'runtime_missing'
+  | 'store_missing'
+  | 'session_not_loaded'
+  | 'required_method_missing';
 
 export interface RuntimeMethodIntegrityResult {
   bridgeReady: boolean;
@@ -266,12 +287,19 @@ export interface TransportOperationalReadinessSnapshot {
   missingRuntimeMethods: string[];
 }
 
-export type LicenseStatus = 'valid' | 'metadata_only' | 'missing' | 'invalid' | 'expired';
+export type LicenseStatus =
+  | 'valid'
+  | 'metadata_only'
+  | 'missing'
+  | 'invalid'
+  | 'expired';
 export type LicenseSource = 'local' | 'remote' | 'cached' | 'none';
 export type LicenseKeyResolver =
   | string
   | Record<string, string | undefined>
-  | ((sessionId: string) => Promise<string | null | undefined> | string | null | undefined);
+  | ((
+      sessionId: string,
+    ) => Promise<string | null | undefined> | string | null | undefined);
 
 export interface LicensePreloadOptions {
   sessionId: string;
@@ -330,6 +358,7 @@ export interface LivePatchPreloadResult {
   outcome: 'ready' | 'none' | 'failed';
   source: 'builtin' | 'remote' | 'cached' | 'none';
   tag: string | null;
+  hash: string | null;
   artifacts: PatchArtifact[];
   blockingFailure: boolean;
   error?: Error;
@@ -359,7 +388,8 @@ interface LivePatchFetchResult {
 const BUILTIN_LIVE_PATCH_ARTIFACTS: readonly PatchArtifact[] = [
   {
     patchId: 'runtime-bootstrap-overlay',
-    description: 'Records bootstrap patch attestation after runtime activation.',
+    description:
+      'Records bootstrap patch attestation after runtime activation.',
     required: true,
     source: 'builtin',
     applicabilityCheckScript: 'Boolean(window.WAPI)',
@@ -386,7 +416,8 @@ const BUILTIN_LIVE_PATCH_ARTIFACTS: readonly PatchArtifact[] = [
  */
 const INIT_PATCH_ARTIFACT: PatchArtifact = {
   patchId: 'init-patch-legacy',
-  description: 'Legacy init-patch: webpack module interceptor + Store.sendMessage guard.',
+  description:
+    'Legacy init-patch: webpack module interceptor + Store.sendMessage guard.',
   required: true,
   source: 'builtin',
   // No applicability check — always inject; the obfuscated blob handles its own guards.
@@ -396,7 +427,8 @@ const INIT_PATCH_ARTIFACT: PatchArtifact = {
 /** Default live-patch endpoint (legacy: pkg.patches from package.json) */
 const DEFAULT_LIVE_PATCHES_URL = 'https://cdn.openwa.dev/patches.json';
 /** Fallback GitHub raw live-patches URL */
-const GH_LIVE_PATCHES_FALLBACK_URL = 'https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/patches.json';
+const GH_LIVE_PATCHES_FALLBACK_URL =
+  'https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/patches.json';
 /** Default license validation endpoint (legacy: pkg.licenseCheckUrl from package.json) */
 const DEFAULT_LICENSE_CHECK_URL = 'https://funcs.openwa.dev/license-check';
 /** Live-patch cache file path relative to cwd */
@@ -445,9 +477,18 @@ export class Transport {
   private latestRuntimeRecoveryRequestId = 0;
   private pendingRuntimeRecoveryCount = 0;
   private consecutiveRecoveryAttempts = 0;
+  private runtimeRecoverySuppressionDepth = 0;
+  private coalescedRuntimeRecoveryRequest: {
+    requestId: number;
+    trigger: 'main_frame_navigation' | 'runtime_replaced';
+    generation?: GenerationSnapshot;
+  } | null = null;
   /** Cached live patch scripts for re-application during recovery */
   private cachedLivePatchScripts: string[] = [];
+  private activeLivePatchPreload: LivePatchPreloadResult | null = null;
   private frameNavCounter = 0;
+  private plannedRuntimeMutationDepth = 0;
+  private readonly livePatchActivity = new LivePatchActivityGate(10_000);
   private options: TransportOptions = {} as TransportOptions;
 
   constructor(options: TransportOptions) {
@@ -484,7 +525,7 @@ export class Transport {
       correlationId: 'transport-init',
       ts: Date.now(),
       step: 'browser_init',
-      details: { headless: this.headless }
+      details: { headless: this.headless },
     });
 
     await this.driver.init({ logger: this.logger });
@@ -500,7 +541,7 @@ export class Transport {
               `Removed browser args known to crash WhatsApp Web: ${removed.join(', ')}. ` +
                 'These cause "Navigating frame was detached" errors on modern Chrome. ' +
                 'Set allowDangerousBrowserArgs: true to force them (unsupported).',
-              { removed }
+              { removed },
             ),
         }),
       ],
@@ -510,18 +551,17 @@ export class Transport {
     });
     this.page = await this.browser.newPage();
 
-
     await this.configurePageRuntime(this.page);
 
     await this.page.setUserAgent(
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36'
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36',
     );
 
     this.events.emit('launch.browser.init.after', {
       correlationId: 'transport-init',
       ts: Date.now(),
       step: 'browser_init',
-      details: {}
+      details: {},
     });
 
     this.logger.info('transport_initialized', { driverName: this.driver.name });
@@ -536,7 +576,7 @@ export class Transport {
       correlationId: 'transport-nav',
       ts: Date.now(),
       step: 'navigation',
-      details: { url: this.waWebUrl }
+      details: { url: this.waWebUrl },
     });
     await this.page.goto(this.waWebUrl, {
       waitUntil: 'domcontentloaded',
@@ -547,7 +587,7 @@ export class Transport {
       correlationId: 'transport-nav',
       ts: Date.now(),
       step: 'navigation',
-      details: { finalUrl: this.page.url() }
+      details: { finalUrl: this.page.url() },
     });
 
     this.logger.info('transport_navigated', { url: this.waWebUrl });
@@ -566,7 +606,9 @@ export class Transport {
     return true;
   }
 
-  async injectWapi(): Promise<boolean> {
+  async injectWapi(
+    options: { activateBridge?: boolean; reuseCachedPatches?: boolean } = {},
+  ): Promise<boolean> {
     if (!this.page) {
       throw new Error('Transport not initialized');
     }
@@ -581,16 +623,19 @@ export class Transport {
       correlationId: 'transport-inject',
       ts: Date.now(),
       step: 'wapi_inject',
-      details: { injectPreApiScripts: true }
+      details: { injectPreApiScripts: true },
     });
 
     let success = false;
 
     try {
       await this.runPreApiHelperPhase();
-      success = await this.performRuntimeInjection();
+      success = await this.performRuntimeInjection(
+        () => true,
+        options.reuseCachedPatches !== false,
+      );
 
-      if (success) {
+      if (success && options.activateBridge !== false) {
         await this.configureRuntimeEventBridge();
       }
 
@@ -600,7 +645,7 @@ export class Transport {
         correlationId: 'transport-inject',
         ts: Date.now(),
         step: 'wapi_inject',
-        details: { success }
+        details: { success },
       });
     }
   }
@@ -616,53 +661,72 @@ export class Transport {
    * bridge metadata. No WAPI code is called.
    */
   async registerRuntimeEventBridgeBindings(): Promise<void> {
-    const messageReceivedSurface = getRuntimeListenerSurfaceEntry('message.received');
+    const messageReceivedSurface =
+      getRuntimeListenerSurfaceEntry('message.received');
     const messageAnySurface = getRuntimeListenerSurfaceEntry('message.any');
     const ackChangedSurface = getRuntimeListenerSurfaceEntry('ack.changed');
-    const stateChangedSurface = getRuntimeListenerSurfaceEntry('session.state.changed');
-    const addedToGroupSurface = getRuntimeListenerSurfaceEntry('group.addedToGroup');
+    const stateChangedSurface = getRuntimeListenerSurfaceEntry(
+      'session.state.changed',
+    );
+    const addedToGroupSurface =
+      getRuntimeListenerSurfaceEntry('group.addedToGroup');
 
     await this.injectionController.registerRuntimeWapiBridge(
       messageReceivedSurface.event,
       messageReceivedSurface.bindingName,
       (message: unknown) => {
+        this.livePatchActivity.noteActivity();
         this.events.emit('message.received', {
           ctx: { correlationId: 'runtime-message-received', ts: Date.now() },
           message,
         });
       },
-      { wapiMethod: messageReceivedSurface.wapiMethod, required: messageReceivedSurface.required },
+      {
+        wapiMethod: messageReceivedSurface.wapiMethod,
+        required: messageReceivedSurface.required,
+      },
     );
 
     await this.injectionController.registerRuntimeWapiBridge(
       messageAnySurface.event,
       messageAnySurface.bindingName,
       (message: unknown) => {
+        this.livePatchActivity.noteActivity();
         this.events.emit('message.any', {
           ctx: { correlationId: 'runtime-message-any', ts: Date.now() },
           message,
         });
       },
-      { wapiMethod: messageAnySurface.wapiMethod, required: messageAnySurface.required },
+      {
+        wapiMethod: messageAnySurface.wapiMethod,
+        required: messageAnySurface.required,
+      },
     );
 
     await this.injectionController.registerRuntimeWapiBridge(
       ackChangedSurface.event,
       ackChangedSurface.bindingName,
       (ack: unknown) => {
+        this.livePatchActivity.noteActivity();
         this.events.emit('ack.changed', {
           ctx: { correlationId: 'runtime-ack-changed', ts: Date.now() },
           ack,
         });
       },
-      { wapiMethod: ackChangedSurface.wapiMethod, required: ackChangedSurface.required },
+      {
+        wapiMethod: ackChangedSurface.wapiMethod,
+        required: ackChangedSurface.required,
+      },
     );
 
     await this.injectionController.registerRuntimeWapiBridge(
       stateChangedSurface.event,
       stateChangedSurface.bindingName,
       (state: unknown) => {
-        const next = (typeof state === 'string' ? state : String(state ?? '')) as STATE;
+        this.livePatchActivity.noteActivity();
+        const next = (
+          typeof state === 'string' ? state : String(state ?? '')
+        ) as STATE;
         const prev = this.lastRuntimeState ?? next;
         this.lastRuntimeState = next || this.lastRuntimeState;
 
@@ -673,13 +737,17 @@ export class Transport {
           details: { prev, next },
         });
       },
-      { wapiMethod: stateChangedSurface.wapiMethod, required: stateChangedSurface.required },
+      {
+        wapiMethod: stateChangedSurface.wapiMethod,
+        required: stateChangedSurface.required,
+      },
     );
 
     await this.injectionController.registerRuntimeWapiBridge(
       addedToGroupSurface.event,
       addedToGroupSurface.bindingName,
       (chat: Record<string, unknown> | null | undefined) => {
+        this.livePatchActivity.noteActivity();
         const groupId = String(chat?.id ?? chat?.chatId ?? '');
         if (!groupId) {
           return;
@@ -688,10 +756,14 @@ export class Transport {
         this.events.emit('group.addedToGroup', {
           ctx: { correlationId: 'runtime-group-added', ts: Date.now() },
           groupId,
-          by: typeof chat?.['groupMetadata'] === 'object' ? undefined : undefined,
+          by:
+            typeof chat?.['groupMetadata'] === 'object' ? undefined : undefined,
         });
       },
-      { wapiMethod: addedToGroupSurface.wapiMethod, required: addedToGroupSurface.required },
+      {
+        wapiMethod: addedToGroupSurface.wapiMethod,
+        required: addedToGroupSurface.required,
+      },
     );
 
     this.logger.info('runtime_event_bridge_bindings_registered', {
@@ -779,23 +851,27 @@ export class Transport {
     return capability;
   }
 
-  async validateRuntimeUsability(stage: RuntimeValidationStage): Promise<RuntimeValidationResult> {
+  async validateRuntimeUsability(
+    stage: RuntimeValidationStage,
+  ): Promise<RuntimeValidationResult> {
     try {
-
       const capability = await this.probeRuntimeCapability();
       const integrity = capability.hasRuntime
         ? await this.probeBrokenMethodIntegrity()
-        : {
-          bridgeReady: false,
-          requiredMethods: this.injectionController.getRequiredRuntimeMethods(),
-          missingMethods: [],
-        } satisfies RuntimeMethodIntegrityResult;
+        : ({
+            bridgeReady: false,
+            requiredMethods:
+              this.injectionController.getRequiredRuntimeMethods(),
+            missingMethods: [],
+          } satisfies RuntimeMethodIntegrityResult);
 
       const failureReason = !capability.hasRuntime
         ? 'runtime_missing'
-        : (stage === 'post_patch' || stage === 'post_overlay') && !capability.hasStoreMsg
+        : (stage === 'post_patch' || stage === 'post_overlay') &&
+            !capability.hasStoreMsg
           ? 'store_missing'
-          : (stage === 'post_patch' || stage === 'post_overlay') && !capability.sessionLoaded
+          : (stage === 'post_patch' || stage === 'post_overlay') &&
+              !capability.sessionLoaded
             ? 'session_not_loaded'
             : integrity.missingMethods.length > 0 || !integrity.bridgeReady
               ? 'required_method_missing'
@@ -812,7 +888,7 @@ export class Transport {
         failureReason,
       };
     } catch (error) {
-      console.log("ERRORED OUT IN VALIDATE RUNTIME USABILITY", error)
+      console.log('ERRORED OUT IN VALIDATE RUNTIME USABILITY', error);
       throw error;
     }
   }
@@ -822,10 +898,12 @@ export class Transport {
    * WITHOUT checking bridge integrity.
    *
    * Used for early validation stages (post_injection) where the WAPI bridge
-   * has not yet been activated and calling `probeBrokenMethodIntegrity()` → 
+   * has not yet been activated and calling `probeBrokenMethodIntegrity()` →
    * `ensureRuntimeBridge()` would prematurely wire listeners to unpatched WAPI.
    */
-  async validateRuntimeCapabilityOnly(stage: RuntimeValidationStage): Promise<RuntimeValidationResult> {
+  async validateRuntimeCapabilityOnly(
+    stage: RuntimeValidationStage,
+  ): Promise<RuntimeValidationResult> {
     const capability = await this.probeRuntimeCapability();
 
     const failureReason = !capability.hasRuntime
@@ -868,7 +946,9 @@ export class Transport {
     return result;
   }
 
-  async repairRuntimeIntegrity(reason: RuntimeValidationFailureReason): Promise<boolean> {
+  async repairRuntimeIntegrity(
+    reason: RuntimeValidationFailureReason,
+  ): Promise<boolean> {
     this.logger.info('broken_method_integrity_gate_repair', { reason });
     const recovery = await this.recoverRuntimeForCurrentDocument({
       trigger: 'validation_failure',
@@ -878,7 +958,9 @@ export class Transport {
     return recovery.reinjected || recovery.capability.hasRuntime;
   }
 
-  async preloadLivePatchArtifacts(options?: { sessionInfo?: SessionDebugInfo }): Promise<LivePatchPreloadResult> {
+  async preloadLivePatchArtifacts(options?: {
+    sessionInfo?: SessionDebugInfo;
+  }): Promise<LivePatchPreloadResult> {
     const correlationId = 'transport-patch-preload';
     const startTime = Date.now();
 
@@ -891,15 +973,20 @@ export class Transport {
 
     try {
       // Start with builtin attestation artifacts
-      const artifacts: PatchArtifact[] = BUILTIN_LIVE_PATCH_ARTIFACTS.map((artifact) => ({ ...artifact }));
+      const artifacts: PatchArtifact[] = BUILTIN_LIVE_PATCH_ARTIFACTS.map(
+        (artifact) => ({ ...artifact }),
+      );
 
       // Attempt remote patch fetch
       let remoteFetchResult: LivePatchFetchResult | null = null;
 
       try {
-        remoteFetchResult = await this.fetchLivePatchesWithCache(options?.sessionInfo);
+        remoteFetchResult = await this.fetchLivePatchesWithCache(
+          options?.sessionInfo,
+        );
       } catch (fetchError) {
-        const fetchMsg = fetchError instanceof Error ? fetchError.message : String(fetchError);
+        const fetchMsg =
+          fetchError instanceof Error ? fetchError.message : String(fetchError);
         this.logger.warn('remote_patch_fetch_failed', { error: fetchMsg });
         // Remote fetch failure is non-blocking — we fall through to builtin-only
       }
@@ -917,16 +1004,27 @@ export class Transport {
         }
       }
 
-      const effectiveSource = remoteFetchResult?.source ?? (artifacts.length > 0 ? 'builtin' : 'none');
-      const tag = remoteFetchResult?.tag
-        ?? (artifacts.length > 0
-          ? createHash('sha1').update(JSON.stringify(artifacts)).digest('hex').slice(0, 8)
+      const effectiveSource =
+        remoteFetchResult?.source ??
+        (artifacts.length > 0 ? 'builtin' : 'none');
+      const tag =
+        remoteFetchResult?.tag ??
+        (artifacts.length > 0
+          ? createHash('sha1')
+              .update(JSON.stringify(artifacts))
+              .digest('hex')
+              .slice(0, 8)
           : null);
 
       const outcome: LivePatchPreloadResult = {
         outcome: artifacts.length > 0 ? 'ready' : 'none',
         source: effectiveSource,
         tag,
+        hash: remoteFetchResult
+          ? createHash('sha256')
+              .update(JSON.stringify(remoteFetchResult.data))
+              .digest('hex')
+          : null,
         artifacts,
         blockingFailure: false,
       };
@@ -949,11 +1047,13 @@ export class Transport {
 
       return outcome;
     } catch (error) {
-      const normalizedError = error instanceof Error ? error : new Error(String(error));
+      const normalizedError =
+        error instanceof Error ? error : new Error(String(error));
       const outcome: LivePatchPreloadResult = {
         outcome: 'failed',
         source: 'builtin',
         tag: null,
+        hash: null,
         artifacts: [],
         blockingFailure: true,
         error: normalizedError,
@@ -984,7 +1084,9 @@ export class Transport {
     }
   }
 
-  async applyLivePatchArtifacts(preloaded: LivePatchPreloadResult): Promise<PatchApplyResult> {
+  async applyLivePatchArtifacts(
+    preloaded: LivePatchPreloadResult,
+  ): Promise<PatchApplyResult> {
     if (preloaded.outcome === 'failed') {
       return this.buildFailedLivePatchApplyResult(preloaded);
     }
@@ -999,7 +1101,9 @@ export class Transport {
     // scripts (not builtin attestation or deferred init-patch markers).
     if (result.outcome !== 'failed') {
       this.cachedLivePatchScripts = preloaded.artifacts
-        .filter((a) => a.source === 'remote' && a.script !== 'DEFERRED_INIT_PATCH')
+        .filter(
+          (a) => a.source === 'remote' && a.script !== 'DEFERRED_INIT_PATCH',
+        )
         .map((a) => a.script);
 
       if (this.cachedLivePatchScripts.length > 0) {
@@ -1007,9 +1111,53 @@ export class Transport {
           count: this.cachedLivePatchScripts.length,
         });
       }
+
+      this.activeLivePatchPreload = {
+        ...preloaded,
+        artifacts: preloaded.artifacts.map((artifact) => ({ ...artifact })),
+      };
     }
 
     return result;
+  }
+
+  prepareLivePatchRelease(
+    scripts: string[],
+    hash: string,
+  ): LivePatchPreloadResult {
+    const artifacts: PatchArtifact[] = [
+      ...BUILTIN_LIVE_PATCH_ARTIFACTS.map((artifact) => ({ ...artifact })),
+      ...scripts.map((script, index) => ({
+        patchId: `remote-patch-${index}`,
+        description: `Verified live patch #${index} (${hash.slice(0, 8)})`,
+        required: true,
+        script,
+        source: 'remote' as const,
+      })),
+    ];
+
+    return {
+      outcome: 'ready',
+      source: 'remote',
+      tag: hash.slice(0, 8),
+      hash,
+      artifacts,
+      blockingFailure: false,
+    };
+  }
+
+  getActiveLivePatchPreload(): LivePatchPreloadResult | null {
+    if (!this.activeLivePatchPreload) return null;
+    return {
+      ...this.activeLivePatchPreload,
+      artifacts: this.activeLivePatchPreload.artifacts.map((artifact) => ({
+        ...artifact,
+      })),
+    };
+  }
+
+  getActiveLivePatchHash(): string | null {
+    return this.activeLivePatchPreload?.hash ?? null;
   }
 
   async applyDeferredInitPatchArtifact(): Promise<PatchApplyResult> {
@@ -1019,19 +1167,24 @@ export class Transport {
     });
   }
 
-  private buildFailedLivePatchApplyResult(preloaded: LivePatchPreloadResult): PatchApplyResult {
+  private buildFailedLivePatchApplyResult(
+    preloaded: LivePatchPreloadResult,
+  ): PatchApplyResult {
     return {
       outcome: 'failed',
       applied: [],
       blockingFailure: preloaded.blockingFailure,
       results: preloaded.error
-        ? [{
-          patchId: 'patch-preload',
-          description: 'Patch preload failed before application could begin.',
-          required: true,
-          outcome: 'failed',
-          detail: preloaded.error.message,
-        }]
+        ? [
+            {
+              patchId: 'patch-preload',
+              description:
+                'Patch preload failed before application could begin.',
+              required: true,
+              outcome: 'failed',
+              detail: preloaded.error.message,
+            },
+          ]
         : [],
     };
   }
@@ -1109,11 +1262,15 @@ export class Transport {
           let appliedSuccessfully: boolean;
           // Handle deferred init-patch: call the actual injection function directly
           if (artifact.script === 'DEFERRED_INIT_PATCH') {
-            this.logger.info('applying_deferred_init_patch', { patchId: artifact.patchId });
+            this.logger.info('applying_deferred_init_patch', {
+              patchId: artifact.patchId,
+            });
             await injectInitPatch(this.page);
             appliedSuccessfully = true; // deferred patches succeed if no exception thrown
           } else {
-            const applyResult = await this.page.evaluateScript<unknown>(artifact.script);
+            const applyResult = await this.page.evaluateScript<unknown>(
+              artifact.script,
+            );
             appliedSuccessfully = applyResult !== false;
           }
 
@@ -1139,7 +1296,8 @@ export class Transport {
           }
         }
       } catch (error) {
-        const normalizedError = error instanceof Error ? error : new Error(String(error));
+        const normalizedError =
+          error instanceof Error ? error : new Error(String(error));
         result = {
           patchId: artifact.patchId,
           description: artifact.description,
@@ -1213,7 +1371,9 @@ export class Transport {
     return outcome;
   }
 
-  async preloadLicenseArtifact(options: LicensePreloadOptions): Promise<LicensePreloadResult> {
+  async preloadLicenseArtifact(
+    options: LicensePreloadOptions,
+  ): Promise<LicensePreloadResult> {
     const correlationId = 'transport-license-preload';
     const startTime = Date.now();
     const source = options.source ?? 'local';
@@ -1226,7 +1386,10 @@ export class Transport {
     });
 
     try {
-      const resolvedKey = await this.resolveLicenseKey(options.licenseKey, options.sessionId);
+      const resolvedKey = await this.resolveLicenseKey(
+        options.licenseKey,
+        options.sessionId,
+      );
 
       if (!resolvedKey) {
         const outcome: LicensePreloadResult = {
@@ -1261,9 +1424,13 @@ export class Transport {
       let payload: string;
       let payloadSource: 'server' | 'local_metadata';
 
-      if (!this.licenseConfig.offlineLicenseMode && options.sessionInfo?.hostNumber) {
+      if (
+        !this.licenseConfig.offlineLicenseMode &&
+        options.sessionInfo?.hostNumber
+      ) {
         try {
-          const licenseCheckUrl = this.licenseConfig.licenseCheckUrl ?? DEFAULT_LICENSE_CHECK_URL;
+          const licenseCheckUrl =
+            this.licenseConfig.licenseCheckUrl ?? DEFAULT_LICENSE_CHECK_URL;
           const serverPayload = await validateLicense(licenseCheckUrl, {
             key: resolvedKey,
             number: options.sessionInfo.hostNumber,
@@ -1305,10 +1472,17 @@ export class Transport {
 
           payload = serverPayload;
           payloadSource = 'server';
-          this.logger.info('license_server_validation_success', { maskedKey: this.maskLicenseKey(resolvedKey) });
+          this.logger.info('license_server_validation_success', {
+            maskedKey: this.maskLicenseKey(resolvedKey),
+          });
         } catch (serverError) {
-          const serverMsg = serverError instanceof Error ? serverError.message : String(serverError);
-          this.logger.warn('license_server_validation_failed', { error: serverMsg });
+          const serverMsg =
+            serverError instanceof Error
+              ? serverError.message
+              : String(serverError);
+          this.logger.warn('license_server_validation_failed', {
+            error: serverMsg,
+          });
           // Fall back to local metadata injection
           payload = this.buildLicensePayload(resolvedKey, keyType);
           payloadSource = 'local_metadata';
@@ -1334,9 +1508,10 @@ export class Transport {
         source,
         artifact,
         blockingFailure: false,
-        detail: payloadSource === 'server'
-          ? 'License capability was confirmed by the validation server.'
-          : 'License metadata fallback was prepared without server confirmation.',
+        detail:
+          payloadSource === 'server'
+            ? 'License capability was confirmed by the validation server.'
+            : 'License metadata fallback was prepared without server confirmation.',
       };
 
       this.events.emit('launch.license.preload.after', {
@@ -1356,7 +1531,8 @@ export class Transport {
 
       return outcome;
     } catch (error) {
-      const normalizedError = error instanceof Error ? error : new Error(String(error));
+      const normalizedError =
+        error instanceof Error ? error : new Error(String(error));
       const outcome: LicensePreloadResult = {
         outcome: 'failed',
         status: 'invalid',
@@ -1390,7 +1566,9 @@ export class Transport {
     }
   }
 
-  async checkLicenseArtifact(preloaded: LicensePreloadResult): Promise<LicenseCheckResult> {
+  async checkLicenseArtifact(
+    preloaded: LicensePreloadResult,
+  ): Promise<LicenseCheckResult> {
     const correlationId = 'transport-license-check';
     const startTime = Date.now();
     const source = preloaded.source === 'none' ? 'local' : preloaded.source;
@@ -1417,7 +1595,10 @@ export class Transport {
         source,
         artifact: null,
         blockingFailure: true,
-        detail: preloaded.detail ?? preloaded.error?.message ?? 'License preload failed before validation.',
+        detail:
+          preloaded.detail ??
+          preloaded.error?.message ??
+          'License preload failed before validation.',
       };
     } else if (!preloaded.artifact) {
       result = {
@@ -1425,7 +1606,9 @@ export class Transport {
         source,
         artifact: null,
         blockingFailure: false,
-        detail: preloaded.detail ?? 'No license material was available for this session.',
+        detail:
+          preloaded.detail ??
+          'No license material was available for this session.',
       };
     } else if (this.isExpiredLicenseKey(preloaded.artifact.key)) {
       result = {
@@ -1445,13 +1628,17 @@ export class Transport {
       };
     } else {
       result = {
-        status: preloaded.artifact.payloadSource === 'server' ? 'valid' : 'metadata_only',
+        status:
+          preloaded.artifact.payloadSource === 'server'
+            ? 'valid'
+            : 'metadata_only',
         source,
         artifact: preloaded.artifact,
         blockingFailure: false,
-        detail: preloaded.artifact.payloadSource === 'server'
-          ? 'License capability remained server-confirmed at check time.'
-          : 'License metadata fallback is available, but capability is not server-confirmed.',
+        detail:
+          preloaded.artifact.payloadSource === 'server'
+            ? 'License capability remained server-confirmed at check time.'
+            : 'License metadata fallback is available, but capability is not server-confirmed.',
       };
     }
 
@@ -1483,12 +1670,17 @@ export class Transport {
     return result;
   }
 
-  async applyLicenseArtifact(checked: LicenseCheckResult): Promise<LicenseApplyResult> {
+  async applyLicenseArtifact(
+    checked: LicenseCheckResult,
+  ): Promise<LicenseApplyResult> {
     if (!this.page) {
       throw new Error('Transport not initialized');
     }
 
-    if ((checked.status !== 'valid' && checked.status !== 'metadata_only') || !checked.artifact) {
+    if (
+      (checked.status !== 'valid' && checked.status !== 'metadata_only') ||
+      !checked.artifact
+    ) {
       return {
         status: checked.status,
         applied: false,
@@ -1513,16 +1705,24 @@ export class Transport {
     let result: LicenseApplyResult;
 
     try {
-      const applied = await this.page.evaluateScript<boolean>(checked.artifact.payload);
-      const launchError = await this.page.evaluateScript<string | null>('window.launchError || null');
-      const detectedKeyType = await this.page.evaluateScript<string | false>('window.KEYTYPE || false');
+      const applied = await this.page.evaluateScript<boolean>(
+        checked.artifact.payload,
+      );
+      const launchError = await this.page.evaluateScript<string | null>(
+        'window.launchError || null',
+      );
+      const detectedKeyType = await this.page.evaluateScript<string | false>(
+        'window.KEYTYPE || false',
+      );
 
       if (!applied || launchError) {
         result = {
           status: 'invalid',
           applied: false,
           blockingFailure: true,
-          detail: launchError ?? 'License payload did not confirm successful application.',
+          detail:
+            launchError ??
+            'License payload did not confirm successful application.',
         };
       } else {
         result = {
@@ -1530,13 +1730,15 @@ export class Transport {
           applied: true,
           blockingFailure: false,
           keyType: detectedKeyType || checked.artifact.keyType,
-          detail: checked.status === 'valid'
-            ? 'License capability was unlocked using a server-confirmed payload.'
-            : 'Metadata-only license fallback injected session metadata without server-confirmed unlock.',
+          detail:
+            checked.status === 'valid'
+              ? 'License capability was unlocked using a server-confirmed payload.'
+              : 'Metadata-only license fallback injected session metadata without server-confirmed unlock.',
         };
       }
     } catch (error) {
-      const normalizedError = error instanceof Error ? error : new Error(String(error));
+      const normalizedError =
+        error instanceof Error ? error : new Error(String(error));
       result = {
         status: 'invalid',
         applied: false,
@@ -1571,7 +1773,7 @@ export class Transport {
       correlationId: 'qr-wait',
       ts: Date.now(),
       step: 'qr_wait',
-      details: { smartQr: false }
+      details: { smartQr: false },
     });
 
     this.qrWatcherAbort = new AbortController();
@@ -1586,7 +1788,7 @@ export class Transport {
         correlationId: 'qr-wait',
         ts: Date.now(),
         step: 'qr_timeout',
-        details: { timeoutMs: this.qrTimeoutMs }
+        details: { timeoutMs: this.qrTimeoutMs },
       });
       return null;
     }
@@ -1596,7 +1798,9 @@ export class Transport {
     }
 
     try {
-      const qrData = await this.page.evaluateScript<string | null>(QR_CHECK_SCRIPT);
+      const qrData = await this.page.evaluateScript<string | null>(
+        QR_CHECK_SCRIPT,
+      );
       if (qrData && typeof qrData === 'string' && qrData !== this.lastQrData) {
         this.lastQrData = qrData;
         this.qrAttempt++;
@@ -1606,8 +1810,8 @@ export class Transport {
           step: 'qr_generated',
           details: {
             qr: qrData,
-            attemptInThisCycle: this.qrAttempt
-          }
+            attemptInThisCycle: this.qrAttempt,
+          },
         });
         this.logger.info('qr_code_generated', { attempt: this.qrAttempt });
       }
@@ -1618,7 +1822,9 @@ export class Transport {
     }
   }
 
-  async waitForSessionLoaded(timeoutMs: number = this.authTimeoutMs): Promise<boolean> {
+  async waitForSessionLoaded(
+    timeoutMs: number = this.authTimeoutMs,
+  ): Promise<boolean> {
     if (!this.page) {
       throw new Error('Transport not initialized');
     }
@@ -1639,7 +1845,9 @@ export class Transport {
     }
   }
 
-  async waitForRipeSession(timeoutMs: number = this.authTimeoutMs): Promise<boolean> {
+  async waitForRipeSession(
+    timeoutMs: number = this.authTimeoutMs,
+  ): Promise<boolean> {
     if (!this.page) {
       throw new Error('Transport not initialized');
     }
@@ -1734,7 +1942,7 @@ export class Transport {
       // QR selectors not found = no QR code available right now.
       // Hang here so that isInsideChat(), sessionDataInvalid(), or the
       // outer auth-timeout signal in waitForAuthentication() can win.
-      return new Promise(() => { });
+      return new Promise(() => {});
     }
   }
 
@@ -1749,7 +1957,7 @@ export class Transport {
       });
       return true;
     } catch {
-      return new Promise(() => { });
+      return new Promise(() => {});
     }
   }
 
@@ -1765,7 +1973,7 @@ export class Transport {
       });
       return 'NUKE';
     } catch {
-      return new Promise(() => { });
+      return new Promise(() => {});
     }
   }
 
@@ -1787,7 +1995,10 @@ export class Transport {
    * This matches legacy v4 robustness and prevents store_missing failures.
    */
   async waitForStoreMsg(timeoutMs: number = 15000): Promise<boolean> {
-    return this.waitForFunctionProbe(STORE_MSG_CHECK_SCRIPT, { timeoutMs, polling: 200 });
+    return this.waitForFunctionProbe(STORE_MSG_CHECK_SCRIPT, {
+      timeoutMs,
+      polling: 200,
+    });
   }
 
   /**
@@ -1796,13 +2007,17 @@ export class Transport {
   async getStoreKeys(): Promise<string[]> {
     if (!this.page) return [];
     try {
-      return await this.page.evaluateScript<string[]>(`Object.keys(window.Store || {})`);
+      return await this.page.evaluateScript<string[]>(
+        `Object.keys(window.Store || {})`,
+      );
     } catch {
       return [];
     }
   }
 
-  async waitForAuthentication(_options?: { attemptingReauth?: boolean }): Promise<AuthSettlementResult> {
+  async waitForAuthentication(_options?: {
+    attemptingReauth?: boolean;
+  }): Promise<AuthSettlementResult> {
     if (!this.page) {
       throw new Error('Transport not initialized');
     }
@@ -1821,11 +2036,15 @@ export class Transport {
       details: { smartQr: false },
     });
 
-    const authRace: Array<Promise<unknown>> = [this.isAuthenticated().catch(() => undefined)];
+    const authRace: Array<Promise<unknown>> = [
+      this.isAuthenticated().catch(() => undefined),
+    ];
     if (this.authTimeoutMs !== 0) {
-      authRace.push(new Promise((resolve) => {
-        setTimeout(() => resolve('timeout'), this.authTimeoutMs);
-      }));
+      authRace.push(
+        new Promise((resolve) => {
+          setTimeout(() => resolve('timeout'), this.authTimeoutMs);
+        }),
+      );
     }
 
     const authenticated = await Promise.race(authRace);
@@ -1874,7 +2093,9 @@ export class Transport {
     }
 
     if (this.linkCode) {
-      const linkCodeSupported = await this.evaluateBooleanScript(LINK_CODE_AVAILABLE_CHECK_SCRIPT).catch(() => false);
+      const linkCodeSupported = await this.evaluateBooleanScript(
+        LINK_CODE_AVAILABLE_CHECK_SCRIPT,
+      ).catch(() => false);
       if (linkCodeSupported) {
         this.events.emit('launch.auth.linkCode.requested', {
           correlationId: 'auth-settle',
@@ -1882,7 +2103,9 @@ export class Transport {
           step: 'link_code_requested',
         });
 
-        const generatedLinkCode = await this.page.evaluateScript<string | null>(`(() => {
+        const generatedLinkCode = await this.page.evaluateScript<
+          string | null
+        >(`(() => {
           try {
             return typeof window.linkCode === 'function' ? window.linkCode(${JSON.stringify(this.linkCode)}) : null;
           } catch {
@@ -1909,21 +2132,24 @@ export class Transport {
             };
           }
 
-          const linkCodeTimeoutMs = this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
-          const sessionLoaded = await this.waitForSessionLoaded(linkCodeTimeoutMs || this.authTimeoutMs);
+          const linkCodeTimeoutMs =
+            this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
+          const sessionLoaded = await this.waitForSessionLoaded(
+            linkCodeTimeoutMs || this.authTimeoutMs,
+          );
           return sessionLoaded
             ? {
-              outcome: 'authenticated',
-              qrSeen: true,
-              qrAttempts: this.qrAttempt,
-              authMethod: 'link_code',
-            }
+                outcome: 'authenticated',
+                qrSeen: true,
+                qrAttempts: this.qrAttempt,
+                authMethod: 'link_code',
+              }
             : {
-              outcome: 'qr_timeout',
-              qrSeen: true,
-              qrAttempts: this.qrAttempt,
-              authMethod: 'link_code',
-            };
+                outcome: 'qr_timeout',
+                qrSeen: true,
+                qrAttempts: this.qrAttempt,
+                authMethod: 'link_code',
+              };
         }
       } else {
         this.logger.warn('link_code_not_available', {
@@ -1943,7 +2169,9 @@ export class Transport {
     }
 
     const qrScanTimeoutMs = this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
-    const sessionLoaded = await this.waitForSessionLoaded(qrScanTimeoutMs || this.authTimeoutMs);
+    const sessionLoaded = await this.waitForSessionLoaded(
+      qrScanTimeoutMs || this.authTimeoutMs,
+    );
     if (sessionLoaded) {
       return {
         outcome: 'authenticated',
@@ -2032,11 +2260,55 @@ export class Transport {
     this.qrWatcherAbort = null;
   }
 
-  async evaluate<Arg, Ret>(fn: (arg: Arg) => Ret | Promise<Ret>, arg: Arg): Promise<Ret> {
+  async evaluate<Arg, Ret>(
+    fn: (arg: Arg) => Ret | Promise<Ret>,
+    arg: Arg,
+  ): Promise<Ret> {
+    return this.livePatchActivity.runOperation(() =>
+      this.evaluateInternal(fn, arg),
+    );
+  }
+
+  async evaluateInternal<Arg, Ret>(
+    fn: (arg: Arg) => Ret | Promise<Ret>,
+    arg: Arg,
+  ): Promise<Ret> {
     if (!this.page) {
       throw new Error('Transport not initialized');
     }
     return this.page.evaluate(fn, arg);
+  }
+
+  getLivePatchActivityGate(): LivePatchActivityGate {
+    return this.livePatchActivity;
+  }
+
+  getDriverName(): string {
+    return this.driver.name;
+  }
+
+  getRuntimeGenerationKey(): string | null {
+    const generation = this.injectionController.getHealthSnapshot().generation;
+    if (!generation.documentId || !generation.runtimeId) return null;
+    return `${generation.browserContextId}:${generation.documentId}:${generation.runtimeId}`;
+  }
+
+  async runPlannedRuntimeMutation<T>(operation: () => Promise<T>): Promise<T> {
+    this.plannedRuntimeMutationDepth += 1;
+    this.latestRuntimeRecoveryRequestId += 1;
+    try {
+      return await operation();
+    } finally {
+      this.plannedRuntimeMutationDepth = Math.max(
+        0,
+        this.plannedRuntimeMutationDepth - 1,
+      );
+    }
+  }
+
+  async reloadPage(): Promise<void> {
+    if (!this.page) throw new Error('Transport not initialized');
+    await this.page.reload();
   }
 
   getPage(): IPage | null {
@@ -2046,11 +2318,11 @@ export class Transport {
   getOperationalReadinessSnapshot(): TransportOperationalReadinessSnapshot {
     const health = this.injectionController.getHealthSnapshot();
     const driverActiveGeneration = Boolean(
-      this.page
-      && !this.page.isClosed()
-      && health.phase !== 'disposed'
-      && health.generation.documentId
-      && health.generation.runtimeId
+      this.page &&
+      !this.page.isClosed() &&
+      health.phase !== 'disposed' &&
+      health.generation.documentId &&
+      health.generation.runtimeId,
     );
     const missingRuntimeMethods = [...health.missingRuntimeMethods].sort();
 
@@ -2058,8 +2330,10 @@ export class Transport {
       generation: driverActiveGeneration ? { ...health.generation } : null,
       phase: health.phase,
       driverActiveGeneration,
-      runtimeOperational: health.runtimePresent && health.hasStoreMsg && health.sessionLoaded,
-      runtimeBridgeReady: health.bridgeReady && missingRuntimeMethods.length === 0,
+      runtimeOperational:
+        health.runtimePresent && health.hasStoreMsg && health.sessionLoaded,
+      runtimeBridgeReady:
+        health.bridgeReady && missingRuntimeMethods.length === 0,
       reinjectionSettled: this.pendingRuntimeRecoveryCount === 0,
       missingRuntimeMethods,
     };
@@ -2093,13 +2367,25 @@ export class Transport {
   private async configurePageRuntime(page: IPage): Promise<void> {
     this.registerPageDiagnostics(page);
 
-    if (!this.options) this.options = {}
+    if (!this.options) this.options = {};
 
     // Inject self-healing watermark if configured
     if (this.options.watermark) {
-      const wbg = typeof this.options.watermark === 'object' && this.options.watermark.background ? this.options.watermark.background : 'rgba(255, 0, 0, 0.1)';
-      const wcolor = typeof this.options.watermark === 'object' && this.options.watermark.color ? this.options.watermark.color : 'rgba(255, 0, 0, 0.5)';
-      const wtext = typeof this.options.watermark === 'object' && this.options.watermark.text ? this.options.watermark.text : 'RESTRICTED AUTOMATION';
+      const wbg =
+        typeof this.options.watermark === 'object' &&
+        this.options.watermark.background
+          ? this.options.watermark.background
+          : 'rgba(255, 0, 0, 0.1)';
+      const wcolor =
+        typeof this.options.watermark === 'object' &&
+        this.options.watermark.color
+          ? this.options.watermark.color
+          : 'rgba(255, 0, 0, 0.5)';
+      const wtext =
+        typeof this.options.watermark === 'object' &&
+        this.options.watermark.text
+          ? this.options.watermark.text
+          : 'RESTRICTED AUTOMATION';
 
       await page.addInitScript(`
         (() => {
@@ -2158,59 +2444,95 @@ export class Transport {
   private async configureLaunchBootstrap(page: IPage): Promise<void> {
     const logoutSurface = getRuntimeListenerSurfaceEntry('session.logout');
 
-    await this.injectionController.registerPersistentBinding('ProgressBarEvent', (data: { value?: number; text?: string }) => {
-      const msg = `${(data.value || data.value === 0) ? `${data.value}%:\t` : ''} ${data.text ?? ''}`;
-      this.logger.info('progress_bar_event', { value: data.value, text: data.text, msg });
-      this.events.emit('internal_launch_progress', {
-        value: data.value,
-        text: data.text,
-      });
-    });
+    await this.injectionController.registerPersistentBinding(
+      'ProgressBarEvent',
+      (data: { value?: number; text?: string }) => {
+        const msg = `${data.value || data.value === 0 ? `${data.value}%:\t` : ''} ${data.text ?? ''}`;
+        this.logger.info('progress_bar_event', {
+          value: data.value,
+          text: data.text,
+          msg,
+        });
+        this.events.emit('internal_launch_progress', {
+          value: data.value,
+          text: data.text,
+        });
+      },
+    );
 
-    await this.injectionController.registerPersistentBinding('CriticalInternalMessage', (data: { value?: string; text?: string }) => {
-      this.logger.warn('critical_internal_message', { value: data.value, text: data.text });
-      this.events.emit('critical_internal_message', {
-        value: data.value,
-        text: data.text,
-      });
-    });
+    await this.injectionController.registerPersistentBinding(
+      'CriticalInternalMessage',
+      (data: { value?: string; text?: string }) => {
+        this.logger.warn('critical_internal_message', {
+          value: data.value,
+          text: data.text,
+        });
+        this.events.emit('critical_internal_message', {
+          value: data.value,
+          text: data.text,
+        });
+      },
+    );
 
-    await this.injectionController.registerPersistentBinding('OpenWA_RuntimeReplacementDetected', () => {
-      this.queueRuntimeRecovery('runtime_replaced');
-    });
+    await this.injectionController.registerPersistentBinding(
+      'OpenWA_RuntimeReplacementDetected',
+      () => {
+        this.queueRuntimeRecovery('runtime_replaced');
+      },
+    );
 
-    this.injectionController.registerNavigationObserver(logoutSurface.observerId, (frame) => {
-      const url = frame.url();
-      if (!url.includes('post_logout=1')) {
-        return;
-      }
+    this.injectionController.registerNavigationObserver(
+      logoutSurface.observerId,
+      (frame) => {
+        const url = frame.url();
+        if (!url.includes('post_logout=1')) {
+          return;
+        }
 
-      this.events.emit('session.logout', {
-        correlationId: 'page-post-logout',
-        ts: Date.now(),
-        step: 'session_logout',
-        details: { reason: 'post_logout=1' },
-      });
-    });
+        this.events.emit('session.logout', {
+          correlationId: 'page-post-logout',
+          ts: Date.now(),
+          step: 'session_logout',
+          details: { reason: 'post_logout=1' },
+        });
+      },
+    );
 
-    this.injectionController.registerNavigationObserver('runtime.navigation_recovery', (_frame, generation) => {
-      this.logger.info(`FRAME NAV DETECTED ${this.frameNavCounter}, ${_frame.url()}, Reinjecting APIs...`);
-      this.queueRuntimeRecovery('main_frame_navigation', generation);
-      this.frameNavCounter++;
-    });
+    this.injectionController.registerNavigationObserver(
+      'runtime.navigation_recovery',
+      (_frame, generation) => {
+        this.logger.info(
+          `FRAME NAV DETECTED ${this.frameNavCounter}, ${_frame.url()}, Reinjecting APIs...`,
+        );
+        this.queueRuntimeRecovery('main_frame_navigation', generation);
+        this.frameNavCounter++;
+      },
+    );
 
-    await this.injectionController.registerPersistentInitScript('prog_observer', await getProgObserverScript());
-    await this.injectionController.registerPersistentInitScript('runtime_replacement_observer', RUNTIME_REPLACEMENT_OBSERVER_SCRIPT);
+    await this.injectionController.registerPersistentInitScript(
+      'prog_observer',
+      await getProgObserverScript(),
+    );
+    await this.injectionController.registerPersistentInitScript(
+      'runtime_replacement_observer',
+      RUNTIME_REPLACEMENT_OBSERVER_SCRIPT,
+    );
     await this.injectionController.initialize(page);
 
     this.logger.debug('exposed_page_callbacks', {
-      functions: ['ProgressBarEvent', 'CriticalInternalMessage', 'OpenWA_RuntimeReplacementDetected'],
+      functions: [
+        'ProgressBarEvent',
+        'CriticalInternalMessage',
+        'OpenWA_RuntimeReplacementDetected',
+      ],
     });
     this.logger.info('prog_observer_registered_post_navigation');
   }
 
   private async runPreApiHelperPhase(): Promise<void> {
-    const helpersReady = await this.evaluateBooleanScript(PRE_API_HELPER_READY_CHECK_SCRIPT).catch(() => false);
+    const helpersReady = await this.evaluateBooleanScript(
+      PRE_API_HELPER_READY_CHECK_SCRIPT,
+    ).catch(() => false);
 
     this.events.emit('launch.helper.pre_api.before', {
       correlationId: 'transport-pre-api-helper',
@@ -2227,11 +2549,16 @@ export class Transport {
     }
 
     if (audit.requiredLegacyHelpers.length > 0) {
-      throw new Error(`Legacy pre-api helper phase is required but not implemented for: ${audit.requiredLegacyHelpers.join(', ')}`);
+      throw new Error(
+        `Legacy pre-api helper phase is required but not implemented for: ${audit.requiredLegacyHelpers.join(', ')}`,
+      );
     }
 
     if (!helpersReady) {
-      const helperAssets: Array<'qr.min.js' | 'hash.js'> = ['qr.min.js', 'hash.js'];
+      const helperAssets: Array<'qr.min.js' | 'hash.js'> = [
+        'qr.min.js',
+        'hash.js',
+      ];
       for (const asset of helperAssets) {
         const assetPath = Transport.resolveAssetPath(asset);
         const helperScript = await Transport.getAssetScript(asset);
@@ -2293,7 +2620,9 @@ export class Transport {
 
     try {
       await page.setRequestInterception(true);
-      this.pageListeners.push(page.on('request', (request) => this.handleInterceptedRequest(request)));
+      this.pageListeners.push(
+        page.on('request', (request) => this.handleInterceptedRequest(request)),
+      );
       this.logger.info('page_request_interception_enabled', {
         blockCrashLogs: this.blockCrashLogs,
         blockAssets: shouldBlockAssets,
@@ -2346,12 +2675,19 @@ export class Transport {
     const url = request.url();
     const resourceType = request.resourceType();
 
-    if (this.blockCrashLogs && CRASH_LOG_URL_FRAGMENTS.some((fragment) => url.includes(fragment))) {
+    if (
+      this.blockCrashLogs &&
+      CRASH_LOG_URL_FRAGMENTS.some((fragment) => url.includes(fragment))
+    ) {
       await request.abort();
       return;
     }
 
-    if (shouldBlockAssets && resourceType && BLOCKED_ASSET_RESOURCE_TYPES.has(resourceType)) {
+    if (
+      shouldBlockAssets &&
+      resourceType &&
+      BLOCKED_ASSET_RESOURCE_TYPES.has(resourceType)
+    ) {
       await request.abort();
       return;
     }
@@ -2366,18 +2702,25 @@ export class Transport {
     }
   }
 
-  private static async getAssetScript(assetFileName: 'launch.js' | 'wapi.js' | 'qr.min.js' | 'hash.js'): Promise<string> {
+  private static async getAssetScript(
+    assetFileName: 'launch.js' | 'wapi.js' | 'qr.min.js' | 'hash.js',
+  ): Promise<string> {
     const cached = Transport.assetScriptCache.get(assetFileName);
     if (cached) {
       return cached;
     }
 
-    const scriptPromise = readFile(Transport.resolveAssetPath(assetFileName), 'utf8');
+    const scriptPromise = readFile(
+      Transport.resolveAssetPath(assetFileName),
+      'utf8',
+    );
     Transport.assetScriptCache.set(assetFileName, scriptPromise);
     return scriptPromise;
   }
 
-  private static resolveAssetPath(assetFileName: 'launch.js' | 'wapi.js' | 'qr.min.js' | 'hash.js'): string {
+  private static resolveAssetPath(
+    assetFileName: 'launch.js' | 'wapi.js' | 'qr.min.js' | 'hash.js',
+  ): string {
     const moduleDir = Transport.resolveCurrentModuleDir();
     const candidates = [
       join(moduleDir, 'assets', assetFileName),
@@ -2386,7 +2729,9 @@ export class Transport {
 
     const match = candidates.find((candidate) => existsSync(candidate));
     if (!match) {
-      throw new Error(`Unable to resolve ${assetFileName} for runtime activation from module-relative candidates: ${candidates.join(', ')}`);
+      throw new Error(
+        `Unable to resolve ${assetFileName} for runtime activation from module-relative candidates: ${candidates.join(', ')}`,
+      );
     }
 
     return match;
@@ -2405,20 +2750,25 @@ export class Transport {
 
     try {
       Error.prepareStackTrace = (_error, stack) => stack;
-      const stack = new Error().stack as unknown as NodeJS.CallSite[] | undefined;
+      const stack = new Error().stack as unknown as
+        | NodeJS.CallSite[]
+        | undefined;
       const fileName = stack
         ?.map((callSite) => callSite.getFileName())
-        .find((candidate): candidate is string => (
-          typeof candidate === 'string'
-          && candidate.length > 0
-          && !candidate.startsWith('node:')
-          && !candidate.startsWith('[')
-          && !candidate.includes('/[eval]')
-          && !candidate.includes('\[eval]')
-        ));
+        .find(
+          (candidate): candidate is string =>
+            typeof candidate === 'string' &&
+            candidate.length > 0 &&
+            !candidate.startsWith('node:') &&
+            !candidate.startsWith('[') &&
+            !candidate.includes('/[eval]') &&
+            !candidate.includes('\[eval]'),
+        );
 
       if (!fileName) {
-        throw new Error('Unable to determine current module path for launch.js resolution');
+        throw new Error(
+          'Unable to determine current module path for launch.js resolution',
+        );
       }
 
       return dirname(fileName);
@@ -2439,24 +2789,74 @@ export class Transport {
     trigger: 'main_frame_navigation' | 'runtime_replaced',
     generation?: GenerationSnapshot,
   ): void {
-    const requestId = ++this.latestRuntimeRecoveryRequestId;
-    this.pendingRuntimeRecoveryCount += 1;
+    if (
+      this.plannedRuntimeMutationDepth > 0 ||
+      this.runtimeRecoverySuppressionDepth > 0
+    ) {
+      this.logger.debug('runtime_recovery_suppressed', {
+        trigger,
+        reason:
+          this.plannedRuntimeMutationDepth > 0
+            ? 'planned_mutation'
+            : 'recovery_injection',
+      });
+      return;
+    }
 
+    const requestId = ++this.latestRuntimeRecoveryRequestId;
+    const request = { requestId, trigger, generation };
+
+    if (this.pendingRuntimeRecoveryCount > 0) {
+      if (this.coalescedRuntimeRecoveryRequest) {
+        Object.assign(this.coalescedRuntimeRecoveryRequest, request);
+      } else {
+        this.coalescedRuntimeRecoveryRequest = request;
+        this.enqueueRuntimeRecovery(() => {
+          const coalesced = this.coalescedRuntimeRecoveryRequest;
+          this.coalescedRuntimeRecoveryRequest = null;
+          return coalesced;
+        });
+      }
+      this.logger.debug('runtime_recovery_coalesced', {
+        trigger,
+        requestId: String(requestId),
+      });
+      return;
+    }
 
     this.logger.warn('runtime_recovery_queued', {
       trigger,
       requestId: String(requestId),
     });
+    this.enqueueRuntimeRecovery(() => request);
+  }
 
-    this.runtimeRecoveryQueue = this.runtimeRecoveryQueue.then(
-      () => this.runRuntimeRecovery({ requestId, trigger, generation }),
-      () => this.runRuntimeRecovery({ requestId, trigger, generation }),
-    ).catch((error) => {
-      this.logger.warn('runtime_recovery_failed', {
-        trigger,
-        requestId: String(requestId),
-        error: error instanceof Error ? error.message : String(error),
-      });
+  private enqueueRuntimeRecovery(
+    getRequest: () => {
+      requestId: number;
+      trigger: 'main_frame_navigation' | 'runtime_replaced';
+      generation?: GenerationSnapshot;
+    } | null,
+  ): void {
+    this.pendingRuntimeRecoveryCount += 1;
+    this.runtimeRecoveryQueue = this.runtimeRecoveryQueue.then(async () => {
+      const request = getRequest();
+      if (!request) {
+        this.pendingRuntimeRecoveryCount = Math.max(
+          0,
+          this.pendingRuntimeRecoveryCount - 1,
+        );
+        return;
+      }
+      try {
+        await this.runRuntimeRecovery(request);
+      } catch (error) {
+        this.logger.warn('runtime_recovery_failed', {
+          trigger: request.trigger,
+          requestId: String(request.requestId),
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
     });
   }
 
@@ -2476,7 +2876,9 @@ export class Transport {
 
       // Guard: prevent infinite recovery loops
       this.consecutiveRecoveryAttempts++;
-      if (this.consecutiveRecoveryAttempts > MAX_CONSECUTIVE_RECOVERY_ATTEMPTS) {
+      if (
+        this.consecutiveRecoveryAttempts > MAX_CONSECUTIVE_RECOVERY_ATTEMPTS
+      ) {
         this.logger.warn('runtime_recovery_max_attempts_exceeded', {
           trigger: request.trigger,
           attempts: this.consecutiveRecoveryAttempts,
@@ -2497,8 +2899,8 @@ export class Transport {
       }
 
       if (
-        request.generation
-        && request.generation.documentId !== settledGeneration.documentId
+        request.generation &&
+        request.generation.documentId !== settledGeneration.documentId
       ) {
         this.logger.debug('runtime_recovery_generation_superseded', {
           trigger: request.trigger,
@@ -2529,7 +2931,7 @@ export class Transport {
           const injectable = await this.waitForInjectableSession();
           if (injectable) {
             const livePatchIntact = await this.evaluateBooleanScript(
-              `!!(typeof window.moi === 'function' && window.moi())`
+              `!!(typeof window.moi === 'function' && window.moi())`,
             );
             if (livePatchIntact) {
               this.logger.info('runtime_recovery_skipped_session_intact', {
@@ -2550,16 +2952,29 @@ export class Transport {
           this.logger.debug('runtime_recovery_integrity_probe_failed', {
             trigger: request.trigger,
             requestId: String(request.requestId),
-            error: probeError instanceof Error ? probeError.message : String(probeError),
+            error:
+              probeError instanceof Error
+                ? probeError.message
+                : String(probeError),
           });
         }
       }
 
-      const { reinjected } = await this.recoverRuntimeForCurrentDocument({
-        trigger: request.trigger,
-        shouldContinue: () => this.isLatestRuntimeRecoveryRequest(request.requestId),
-        forceReinject: request.trigger === 'runtime_replaced',
-      });
+      this.runtimeRecoverySuppressionDepth += 1;
+      let reinjected = false;
+      try {
+        ({ reinjected } = await this.recoverRuntimeForCurrentDocument({
+          trigger: request.trigger,
+          shouldContinue: () =>
+            this.isLatestRuntimeRecoveryRequest(request.requestId),
+          forceReinject: request.trigger === 'runtime_replaced',
+        }));
+      } finally {
+        this.runtimeRecoverySuppressionDepth = Math.max(
+          0,
+          this.runtimeRecoverySuppressionDepth - 1,
+        );
+      }
 
       this.logger.info('runtime_recovery_completed', {
         trigger: request.trigger,
@@ -2571,12 +2986,19 @@ export class Transport {
       // Reset consecutive counter on successful recovery
       this.consecutiveRecoveryAttempts = 0;
     } finally {
-      this.pendingRuntimeRecoveryCount = Math.max(0, this.pendingRuntimeRecoveryCount - 1);
+      this.pendingRuntimeRecoveryCount = Math.max(
+        0,
+        this.pendingRuntimeRecoveryCount - 1,
+      );
     }
   }
 
   private async recoverRuntimeForCurrentDocument(options: {
-    trigger: 'main_frame_navigation' | 'runtime_replaced' | 'post_authentication' | 'validation_failure';
+    trigger:
+      | 'main_frame_navigation'
+      | 'runtime_replaced'
+      | 'post_authentication'
+      | 'validation_failure';
     shouldContinue?: () => boolean;
     forceReinject?: boolean;
   }): Promise<{ capability: RuntimeCapabilityProbe; reinjected: boolean }> {
@@ -2634,8 +3056,9 @@ export class Transport {
     //   wapi → live patches (CDN) → license → init patch → bridge wiring
     // Applying init_patch here would be premature (before live patches exist)
     // and causes "Identifier already declared" when bootstrap tries again later.
-    const isContextFlushRecovery = options.trigger === 'main_frame_navigation'
-      || options.trigger === 'runtime_replaced';
+    const isContextFlushRecovery =
+      options.trigger === 'main_frame_navigation' ||
+      options.trigger === 'runtime_replaced';
 
     if (reinjected && isContextFlushRecovery) {
       try {
@@ -2647,7 +3070,10 @@ export class Transport {
           trigger: options.trigger,
         });
       } catch (initPatchError) {
-        const msg = initPatchError instanceof Error ? initPatchError.message : String(initPatchError);
+        const msg =
+          initPatchError instanceof Error
+            ? initPatchError.message
+            : String(initPatchError);
         this.logger.warn('recovery_init_patch_reapply_failed', {
           trigger: options.trigger,
           error: msg,
@@ -2657,13 +3083,17 @@ export class Transport {
       // ── Step 3: Wire the bridge (AFTER all patches are applied) ──
       // This matches the v4 order: patches → init → client.loaded() (bridge)
       try {
-        const bridgeReady = await this.injectionController.ensureRuntimeBridge();
+        const bridgeReady =
+          await this.injectionController.ensureRuntimeBridge();
         this.logger.info('recovery_bridge_wired', {
           trigger: options.trigger,
           bridgeReady,
         });
       } catch (bridgeError) {
-        const msg = bridgeError instanceof Error ? bridgeError.message : String(bridgeError);
+        const msg =
+          bridgeError instanceof Error
+            ? bridgeError.message
+            : String(bridgeError);
         this.logger.warn('recovery_bridge_wiring_failed', {
           trigger: options.trigger,
           error: msg,
@@ -2679,7 +3109,10 @@ export class Transport {
     };
   }
 
-  private async performRuntimeInjection(shouldContinue: () => boolean = () => true): Promise<boolean> {
+  private async performRuntimeInjection(
+    shouldContinue: () => boolean = () => true,
+    reuseCachedPatches = true,
+  ): Promise<boolean> {
     if (!this.page) {
       throw new Error('Transport not initialized');
     }
@@ -2693,7 +3126,10 @@ export class Transport {
     });
     await this.page.evaluateScript(wapiScript);
 
-    await this.waitForFunctionProbe(WAPI_RUNTIME_CHECK_SCRIPT, { timeoutMs: 3000, polling: 50 });
+    await this.waitForFunctionProbe(WAPI_RUNTIME_CHECK_SCRIPT, {
+      timeoutMs: 3000,
+      polling: 50,
+    });
     if (!shouldContinue()) {
       return false;
     }
@@ -2714,7 +3150,9 @@ export class Transport {
     try {
       await this.page.evaluateScript(launchScript);
     } catch (error) {
-      const qrData = await this.page.evaluateScript<string | null>(QR_CHECK_SCRIPT).catch(() => null);
+      const qrData = await this.page
+        .evaluateScript<string | null>(QR_CHECK_SCRIPT)
+        .catch(() => null);
       if (!qrData) {
         throw error;
       }
@@ -2725,7 +3163,10 @@ export class Transport {
       });
     }
 
-    await this.waitForFunctionProbe(WAPI_RUNTIME_CHECK_SCRIPT, { timeoutMs: 3000, polling: 50 });
+    await this.waitForFunctionProbe(WAPI_RUNTIME_CHECK_SCRIPT, {
+      timeoutMs: 3000,
+      polling: 50,
+    });
     if (!shouldContinue()) {
       return false;
     }
@@ -2744,7 +3185,11 @@ export class Transport {
     // Without this, the freshly injected WAPI overwrites the live-patched version,
     // causing onStateChanged (and similar methods) to fail and triggering an
     // infinite recovery loop.
-    if (success && this.cachedLivePatchScripts.length > 0) {
+    if (
+      success &&
+      reuseCachedPatches &&
+      this.cachedLivePatchScripts.length > 0
+    ) {
       this.logger.info('recovery_reapplying_live_patches', {
         count: this.cachedLivePatchScripts.length,
       });
@@ -2754,8 +3199,14 @@ export class Transport {
           await this.page.evaluateScript(this.cachedLivePatchScripts[i]);
           this.logger.debug('recovery_live_patch_reapplied', { index: i });
         } catch (reapplyError) {
-          const msg = reapplyError instanceof Error ? reapplyError.message : String(reapplyError);
-          this.logger.warn('recovery_live_patch_reapply_failed', { index: i, error: msg });
+          const msg =
+            reapplyError instanceof Error
+              ? reapplyError.message
+              : String(reapplyError);
+          this.logger.warn('recovery_live_patch_reapply_failed', {
+            index: i,
+            error: msg,
+          });
         }
       }
     }
@@ -2764,7 +3215,8 @@ export class Transport {
   }
 
   private async probeBrokenMethodIntegrity(): Promise<RuntimeMethodIntegrityResult> {
-    const requiredMethods = this.injectionController.getRequiredRuntimeMethods();
+    const requiredMethods =
+      this.injectionController.getRequiredRuntimeMethods();
     const bridgeReady = await this.injectionController.ensureRuntimeBridge();
     const health = this.injectionController.getHealthSnapshot();
 
@@ -2799,7 +3251,11 @@ export class Transport {
       return null;
     }
 
-    let resolved: string | Record<string, string | undefined> | null | undefined;
+    let resolved:
+      | string
+      | Record<string, string | undefined>
+      | null
+      | undefined;
     if (typeof input === 'function') {
       resolved = await input(sessionId);
     } else {
@@ -2886,12 +3342,16 @@ export class Transport {
       try {
         const cached = await this.loadCachedLivePatches();
         if (cached) {
-          this.logger.info('live_patch_loaded_from_cache', { tag: cached.tag, patchCount: cached.data.length });
+          this.logger.info('live_patch_loaded_from_cache', {
+            tag: cached.tag,
+            patchCount: cached.data.length,
+          });
           void this.refreshLivePatchCacheInBackground(sessionInfo);
           return { data: cached.data, tag: cached.tag, source: 'cached' };
         }
       } catch (cacheError) {
-        const cacheMsg = cacheError instanceof Error ? cacheError.message : String(cacheError);
+        const cacheMsg =
+          cacheError instanceof Error ? cacheError.message : String(cacheError);
         this.logger.debug('live_patch_cache_read_failed', { error: cacheMsg });
       }
     }
@@ -2906,20 +3366,34 @@ export class Transport {
     return { data: result.data, tag: result.tag, source: 'remote' };
   }
 
-  private async refreshLivePatchCacheInBackground(sessionInfo?: SessionDebugInfo): Promise<void> {
+  private async refreshLivePatchCacheInBackground(
+    sessionInfo?: SessionDebugInfo,
+  ): Promise<void> {
     try {
       const result = await this.fetchFreshLivePatches(sessionInfo);
-      this.logger.debug('live_patch_cache_refreshed_in_background', { tag: result.tag, count: result.data.length });
+      this.logger.debug('live_patch_cache_refreshed_in_background', {
+        tag: result.tag,
+        count: result.data.length,
+      });
     } catch (refreshError) {
-      const refreshMsg = refreshError instanceof Error ? refreshError.message : String(refreshError);
-      this.logger.debug('live_patch_cache_background_refresh_failed', { error: refreshMsg });
+      const refreshMsg =
+        refreshError instanceof Error
+          ? refreshError.message
+          : String(refreshError);
+      this.logger.debug('live_patch_cache_background_refresh_failed', {
+        error: refreshMsg,
+      });
     }
   }
 
-  private async fetchFreshLivePatches(sessionInfo?: SessionDebugInfo): Promise<{ data: string[]; tag: string }> {
+  private async fetchFreshLivePatches(
+    sessionInfo?: SessionDebugInfo,
+  ): Promise<{ data: string[]; tag: string }> {
     const patchesUrl = this.patchConfig.patchesUrl ?? DEFAULT_LIVE_PATCHES_URL;
     const useGithubPrimary = this.patchConfig.ghPatch === true;
-    const primaryUrl = useGithubPrimary ? GH_LIVE_PATCHES_FALLBACK_URL : patchesUrl;
+    const primaryUrl = useGithubPrimary
+      ? GH_LIVE_PATCHES_FALLBACK_URL
+      : patchesUrl;
     const fallbackUrl = useGithubPrimary
       ? undefined
       : this.patchConfig.ghPatchFallback === false
@@ -2948,9 +3422,13 @@ export class Transport {
     if (this.patchConfig.cachedPatch === true) {
       try {
         await this.saveCachedLivePatches(result);
-        this.logger.debug('live_patch_saved_to_cache', { tag: result.tag, count: result.data.length });
+        this.logger.debug('live_patch_saved_to_cache', {
+          tag: result.tag,
+          count: result.data.length,
+        });
       } catch (saveError) {
-        const saveMsg = saveError instanceof Error ? saveError.message : String(saveError);
+        const saveMsg =
+          saveError instanceof Error ? saveError.message : String(saveError);
         this.logger.debug('live_patch_cache_write_failed', { error: saveMsg });
       }
     }
@@ -2958,7 +3436,10 @@ export class Transport {
     return result;
   }
 
-  private async loadCachedLivePatches(): Promise<{ data: string[]; tag: string } | null> {
+  private async loadCachedLivePatches(): Promise<{
+    data: string[];
+    tag: string;
+  } | null> {
     const cachePath = join(process.cwd(), LIVE_PATCH_CACHE_FILENAME);
 
     if (!existsSync(cachePath)) {
@@ -2968,23 +3449,36 @@ export class Transport {
     // Check staleness
     const fileStat = await stat(cachePath);
     if (Date.now() - fileStat.mtime.getTime() > LIVE_PATCH_CACHE_MAX_AGE_MS) {
-      this.logger.debug('live_patch_cache_stale', { ageMs: Date.now() - fileStat.mtime.getTime() });
+      this.logger.debug('live_patch_cache_stale', {
+        ageMs: Date.now() - fileStat.mtime.getTime(),
+      });
       return null;
     }
 
     const raw = await readFile(cachePath, 'utf-8');
     const parsed = JSON.parse(raw);
 
-    if (!parsed || !Array.isArray(parsed.data) || typeof parsed.tag !== 'string') {
+    if (
+      !parsed ||
+      !Array.isArray(parsed.data) ||
+      typeof parsed.tag !== 'string'
+    ) {
       return null;
     }
 
     return { data: parsed.data, tag: parsed.tag };
   }
 
-  private async saveCachedLivePatches(result: { data: string[]; tag: string }): Promise<void> {
+  private async saveCachedLivePatches(result: {
+    data: string[];
+    tag: string;
+  }): Promise<void> {
     const cachePath = join(process.cwd(), LIVE_PATCH_CACHE_FILENAME);
-    await writeFile(cachePath, JSON.stringify({ data: result.data, tag: result.tag }), 'utf-8');
+    await writeFile(
+      cachePath,
+      JSON.stringify({ data: result.data, tag: result.tag }),
+      'utf-8',
+    );
   }
 
   // ─── Session Debug Info ───────────────────────────────────────────────────
@@ -2999,7 +3493,9 @@ export class Transport {
    */
   async getSessionDebugInfo(): Promise<SessionDebugInfo> {
     if (!this.page) {
-      throw new Error('Transport not initialized — cannot extract session debug info');
+      throw new Error(
+        'Transport not initialized — cannot extract session debug info',
+      );
     }
 
     const info = await this.page.evaluate(

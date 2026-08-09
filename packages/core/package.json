@@ -29,6 +29,7 @@
     "effect": "catalog:",
     "hono": "catalog:",
     "p-queue": "6.6.2",
+    "cron-parser": "^5.4.0",
     "uuid": "catalog:"
   },
   "devDependencies": {

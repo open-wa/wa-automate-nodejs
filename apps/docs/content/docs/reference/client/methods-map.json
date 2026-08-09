@@ -121,5 +121,6 @@
   "unblockContact": "/docs/reference/client/contacts#unblockcontact",
   "unmuteChat": "/docs/reference/client/chats#unmutechat",
   "unpinChat": "/docs/reference/client/chats#unpinchat",
-  "unstarMessage": "/docs/reference/client/messages#unstarmessage"
+  "unstarMessage": "/docs/reference/client/messages#unstarmessage",
+  "updateLivePatch": "/docs/reference/client/session#updatelivepatch"
 }

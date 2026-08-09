@@ -1,0 +1,48 @@
+---
+title: Live patches
+description: Apply verified WAPI patch releases without restarting the open-wa process.
+---
+
+# Live patches
+
+Live patching is off by default. It refreshes the WhatsApp Web page inside the existing browser profile, then rebuilds the complete runtime generation so authentication and the Node.js process survive while WAPI, launch patches, release patches, license overlays, bindings, and listeners are installed in their normal order.
+
+Every release is an immutable JSON artifact identified by its full SHA-256. The client verifies the signed release manifest, downloads the exact byte length, verifies the artifact hash, and only then waits for a safe update window. If the new generation does not pass readiness validation, open-wa refreshes again and restores the last known-good patch and license generation.
+
+## Automatic modes
+
+Set `WA_LIVE_PATCH_PUBLIC_KEY` to the PEM-encoded Ed25519 release verification key. Set `WA_LIVE_PATCH_ENDPOINT` when using a control-plane deployment other than the default.
+
+```bash
+# Receive release notifications over a WebSocket.
+openwa --live-patch
+
+# Poll every five minutes.
+openwa --poll-patch
+
+# Poll at a longer interval in minutes.
+openwa --poll-patch 15
+
+# Poll on a cron schedule whose occurrences are at least five minutes apart.
+openwa --poll-patch "*/10 * * * *"
+```
+
+`--live-patch` and `--poll-patch` are mutually exclusive. Automatic updates wait for ten seconds of continuous session inactivity, freeze new browser operations, and drain in-flight work before refreshing. Socket reconnects use bounded exponential backoff, while polling never runs more frequently than once every five minutes.
+
+## Operator-controlled updates
+
+Manual checks do not wait for the ten-second idle window, but they still freeze and drain in-flight work before changing the page generation.
+
+- Press `r` in the interactive CLI after the session is ready.
+- Call `await client.updateLivePatch()` from the embedded client.
+- Send `POST /api/session/updateLivePatch` to the Easy API with the normal API authentication.
+
+All three return whether the release was applied, the old and new SHA-256 values, the page reload duration, the total duration, and a status of `up_to_date`, `updated`, `rolled_back`, or `failed`.
+
+## Analytics and privacy
+
+Patch checks report only the runtime versions, platform, architecture, driver, trigger, current patch hash, and an optional five-character host identifier. The host identifier is the first five hexadecimal characters of an unsalted SHA-256 of the normalized host account number; open-wa never sends the raw number, session id, message data, auth state, license key, or local paths.
+
+## Publishing releases
+
+Maintainers can run `pnpm publish:patches`. The publisher reads credentials only from environment variables, uploads a hash-addressed artifact, verifies the exact bytes through Bunny CDN, signs the manifest, and announces the release to the control plane only after CDN verification succeeds. See `packages/live-patch-worker/README.md` for the deployment and publisher variables.

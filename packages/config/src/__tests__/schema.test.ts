@@ -22,6 +22,8 @@ describe('ConfigSchema', () => {
       expect(defaults.multiDevice).toBe(true);
       expect(defaults.onError).toBe(OnError.NOTHING);
       expect(defaults.qrFormat).toBe(QRFormat.PNG);
+      expect(defaults.livePatch).toBe(false);
+      expect(defaults.pollPatch).toBe(false);
     });
 
     it('should parse empty object with defaults', () => {
@@ -35,6 +37,16 @@ describe('ConfigSchema', () => {
   });
 
   describe('validation', () => {
+    it('accepts opt-in live patch modes and rejects poll intervals below five minutes', () => {
+      expect(ConfigSchema.safeParse({ livePatch: true }).success).toBe(true);
+      expect(ConfigSchema.safeParse({ pollPatch: true }).success).toBe(true);
+      expect(ConfigSchema.safeParse({ pollPatch: 15 }).success).toBe(true);
+      expect(
+        ConfigSchema.safeParse({ pollPatch: '*/10 * * * *' }).success,
+      ).toBe(true);
+      expect(ConfigSchema.safeParse({ pollPatch: 4 }).success).toBe(false);
+    });
+
     it('should accept valid config', () => {
       const config = {
         sessionId: 'my-session',

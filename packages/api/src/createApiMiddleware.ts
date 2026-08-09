@@ -1,5 +1,8 @@
 import { Hono } from 'hono';
-import { getHttpMethodDefinitions, type HttpMethodDefinition } from '@open-wa/schema';
+import {
+  getHttpMethodDefinitions,
+  type HttpMethodDefinition,
+} from '@open-wa/schema';
 import '@open-wa/schema/methods';
 import { apiKeyMiddleware } from './auth/api-key';
 import { rateLimitMiddleware } from './middleware/rate-limit';
@@ -7,9 +10,15 @@ import { normalizeMethodPayload } from './compat/args';
 import { assertSessionPath } from './compat/session-path';
 import { invokeClientMethod } from './invoke-client-method';
 import { executeCapability } from './execution/kernel';
-import type { ApiMiddlewareOptions, ClientMethodMap, ClientSource } from './types';
+import type {
+  ApiMiddlewareOptions,
+  ClientMethodMap,
+  ClientSource,
+} from './types';
 
-function resolveClient(clientSource: ClientSource): ClientMethodMap | undefined {
+function resolveClient(
+  clientSource: ClientSource,
+): ClientMethodMap | undefined {
   return typeof clientSource === 'function' ? clientSource() : clientSource;
 }
 
@@ -63,10 +72,14 @@ function shouldBlockForLifecycle(options: ApiMiddlewareOptions): boolean {
   return !options.isSessionConnected();
 }
 
-export function createApiMiddleware(clientSource: ClientSource, options: ApiMiddlewareOptions) {
+export function createApiMiddleware(
+  clientSource: ClientSource,
+  options: ApiMiddlewareOptions,
+) {
   const app = new Hono();
   const basePath = options.basePath || '/api';
-  const methodDefinitions = options.methodDefinitions || getHttpMethodDefinitions(basePath);
+  const methodDefinitions =
+    options.methodDefinitions || getHttpMethodDefinitions(basePath);
   const methods = createMethodMap(methodDefinitions);
   const useSessionIdInPath = options.useSessionIdInPath || false;
 
@@ -82,11 +95,11 @@ export function createApiMiddleware(clientSource: ClientSource, options: ApiMidd
     routeSessionId?: string,
     routeDefinition?: HttpMethodDefinition,
   ) => {
-    if (shouldBlockForLifecycle(options)) {
-      return c.json({ error: 'API not available until the session is truly ready', status: 503 }, 503);
-    }
-
-    const sessionCheck = assertSessionPath(options.config.sessionId, routeSessionId, useSessionIdInPath);
+    const sessionCheck = assertSessionPath(
+      options.config.sessionId,
+      routeSessionId,
+      useSessionIdInPath,
+    );
 
     if (!sessionCheck.ok) {
       return c.json({ error: sessionCheck.error }, sessionCheck.status as any);
@@ -94,9 +107,15 @@ export function createApiMiddleware(clientSource: ClientSource, options: ApiMidd
 
     const startTime = Date.now();
     const query = readQueryParams(c);
-    const body = c.req.method === 'GET' || c.req.method === 'DELETE' ? {} : await readRequestBody(c);
+    const body =
+      c.req.method === 'GET' || c.req.method === 'DELETE'
+        ? {}
+        : await readRequestBody(c);
     const payload = { ...body, ...query };
-    const methodName = routeMethod || routeDefinition?.functionName || (typeof payload.method === 'string' ? payload.method : undefined);
+    const methodName =
+      routeMethod ||
+      routeDefinition?.functionName ||
+      (typeof payload.method === 'string' ? payload.method : undefined);
 
     if (!methodName) {
       return c.json({ error: 'Missing method name' }, 400);
@@ -106,6 +125,19 @@ export function createApiMiddleware(clientSource: ClientSource, options: ApiMidd
 
     if (!definition) {
       return c.json({ error: `Unknown method: ${methodName}` }, 404);
+    }
+
+    if (
+      shouldBlockForLifecycle(options) &&
+      !definition.availableDuringRuntimeMutation
+    ) {
+      return c.json(
+        {
+          error: 'API not available until the session is truly ready',
+          status: 503,
+        },
+        503,
+      );
     }
 
     const result = await executeCapability({
@@ -143,25 +175,31 @@ export function createApiMiddleware(clientSource: ClientSource, options: ApiMidd
 
     for (const aliasRoute of definition.aliasRoutes) {
       const localAliasPath = toLocalPath(aliasRoute.path, basePath);
-      app.on(definition.httpMethod, localAliasPath, (c) => redirectToCanonical(definition, c));
+      app.on(definition.httpMethod, localAliasPath, (c) =>
+        redirectToCanonical(definition, c),
+      );
     }
   }
 
   app.post('/', (c) => handleInvocation(c, undefined));
   app.post('/:method', (c) => handleInvocation(c, c.req.param('method')));
-  app.post('/:namespace/:method', (c) => handleInvocation(c, `${c.req.param('namespace')}.${c.req.param('method')}`));
+  app.post('/:namespace/:method', (c) =>
+    handleInvocation(c, `${c.req.param('namespace')}.${c.req.param('method')}`),
+  );
 
   if (useSessionIdInPath) {
-    app.post('/:sessionId', (c) => handleInvocation(c, undefined, c.req.param('sessionId')));
+    app.post('/:sessionId', (c) =>
+      handleInvocation(c, undefined, c.req.param('sessionId')),
+    );
     app.post('/:sessionId/:method', (c) =>
-      handleInvocation(c, c.req.param('method'), c.req.param('sessionId'))
+      handleInvocation(c, c.req.param('method'), c.req.param('sessionId')),
     );
     app.post('/:sessionId/:namespace/:method', (c) =>
       handleInvocation(
         c,
         `${c.req.param('namespace')}.${c.req.param('method')}`,
         c.req.param('sessionId'),
-      )
+      ),
     );
   }
 
@@ -177,7 +215,7 @@ export function createApiMiddleware(clientSource: ClientSource, options: ApiMidd
         aliases: def.aliases,
         routeSignatures: def.routeSignatures,
       })),
-    })
+    }),
   );
 
   return app;

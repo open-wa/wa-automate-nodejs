@@ -1,7 +1,10 @@
 import { HyperEmitter } from '@open-wa/hyperemitter';
 import { createLogger, Logger } from '@open-wa/logger';
 import type { IDriver, LightpandaOptions } from '@open-wa/driver-interface';
-import { requireCapability, type CapabilitySubject } from '@open-wa/driver-interface';
+import {
+  requireCapability,
+  type CapabilitySubject,
+} from '@open-wa/driver-interface';
 import { OpenWAEventMap, STATE } from './events/eventMap.js';
 import { PluginHost, loadPlugins } from './plugins/index.js';
 import type { Plugin, PluginClient } from '@open-wa/plugin-sdk';
@@ -17,7 +20,19 @@ import type {
   PatchFetchConfig,
   LicenseServerConfig,
   RuntimeValidationFailureReason,
+  LicensePreloadResult,
+  LivePatchPreloadResult,
 } from './transport/index.js';
+import {
+  LivePatchControlClient,
+  LivePatchCoordinator,
+  LivePatchAutomation,
+  createLivePatchAnalytics,
+  type LivePatchRuntimeConfig,
+  type LivePatchTrigger,
+  type LivePatchUpdateResult,
+  type LivePatchReleaseManifest,
+} from './livePatch/index.js';
 
 export interface CreateClientOptions {
   sessionId?: string;
@@ -57,7 +72,7 @@ export interface CreateClientOptions {
   oorTimeoutMs?: number;
   navigationTimeoutMs?: number;
   executablePath?: string;
-  watermark?: boolean | { text?: string; color?: string; background?: string; };
+  watermark?: boolean | { text?: string; color?: string; background?: string };
   browserArgs?: string[];
   allowDangerousBrowserArgs?: boolean;
   userDataDir?: string;
@@ -90,6 +105,7 @@ export interface CreateClientOptions {
    * Controls the license check endpoint and offline mode.
    */
   licenseConfig?: LicenseServerConfig;
+  livePatchConfig?: LivePatchRuntimeConfig;
 }
 
 export interface OpenWAClient {
@@ -98,9 +114,19 @@ export interface OpenWAClient {
   readonly logger: Logger;
   readonly session: SessionManager;
   readonly plugins: PluginHost;
-  readonly config: Readonly<Pick<CreateClientOptions, 'deleteSessionDataOnLogout' | 'killClientOnLogout' | 'sessionDataPath' | 'userDataDir'>>;
+  readonly config: Readonly<
+    Pick<
+      CreateClientOptions,
+      | 'deleteSessionDataOnLogout'
+      | 'killClientOnLogout'
+      | 'sessionDataPath'
+      | 'userDataDir'
+    >
+  >;
 
   registerFinalizationHook(hook: () => void | Promise<void>): () => void;
+  registerLivePatchQuiesceHook(hook: () => void | Promise<void>): () => void;
+  updateLivePatch(trigger?: LivePatchTrigger): Promise<LivePatchUpdateResult>;
   start(): Promise<void>;
   stop(reason?: string): Promise<void>;
   getState(): STATE;
@@ -110,7 +136,9 @@ export interface OpenWAClient {
   evaluateScript<T = unknown>(script: string): Promise<T | null>;
 }
 
-function hasCapabilitySubject(driver: IDriver): driver is IDriver & CapabilitySubject {
+function hasCapabilitySubject(
+  driver: IDriver,
+): driver is IDriver & CapabilitySubject {
   return 'capabilities' in driver;
 }
 
@@ -119,24 +147,36 @@ function hasCapabilitySubject(driver: IDriver): driver is IDriver & CapabilitySu
  * This mirrors SocketClient's Proxy approach — any method call becomes
  * an `ask(methodName, args)` invocation.
  */
-function createPluginClientProxy(transport: Transport, logger: Logger): PluginClient {
-  const ask = async <T = unknown>(method: string, args?: unknown[] | Record<string, unknown>): Promise<T> => {
+function createPluginClientProxy(
+  transport: Transport,
+  logger: Logger,
+): PluginClient {
+  const ask = async <T = unknown>(
+    method: string,
+    args?: unknown[] | Record<string, unknown>,
+  ): Promise<T> => {
     const page = transport.getPage();
     if (!page || page.isClosed()) {
       throw new Error(`Cannot call "${method}" — page is not available`);
     }
     // Delegate to the transport's evaluateScript which runs WAPI calls
     const argsStr = JSON.stringify(args ?? []);
-    const result = await page.evaluateScript<T>(
-      `window.WAPI.${method}(...${argsStr})`
-    );
+    const result = await transport
+      .getLivePatchActivityGate()
+      .runOperation(() =>
+        page.evaluateScript<T>(`window.WAPI.${method}(...${argsStr})`),
+      );
     return result as T;
   };
 
-  const listen = async (listener: string, callback: (data: unknown) => void): Promise<string> => {
+  const listen = async (
+    listener: string,
+    callback: (data: unknown) => void,
+  ): Promise<string> => {
     logger.warn('plugin_listen_not_supported', {
       listener,
-      reason: 'Direct listen is not supported on SDK-level PluginClient. Use event hooks instead.',
+      reason:
+        'Direct listen is not supported on SDK-level PluginClient. Use event hooks instead.',
     });
     return 'noop';
   };
@@ -146,11 +186,20 @@ function createPluginClientProxy(transport: Transport, logger: Logger): PluginCl
     ask,
     listen,
     sendText: (to: string, content: string) => ask('sendText', [to, content]),
-    sendImage: (to: string, url: string, filename: string, caption?: string) => ask('sendImage', [to, url, filename, caption ?? '']),
-    sendFile: (to: string, base64: string, filename: string, caption?: string) => ask('sendFile', [to, base64, filename, caption ?? '']),
-    sendLocation: (to: string, lat: string, lng: string, text?: string) => ask('sendLocation', [to, lat, lng, text ?? '']),
-    sendLinkWithAutoPreview: (to: string, url: string, text: string) => ask('sendLinkWithAutoPreview', [to, url, text]),
-    reply: (to: string, content: string, quotedMsgId: string) => ask('reply', [to, content, quotedMsgId]),
+    sendImage: (to: string, url: string, filename: string, caption?: string) =>
+      ask('sendImage', [to, url, filename, caption ?? '']),
+    sendFile: (
+      to: string,
+      base64: string,
+      filename: string,
+      caption?: string,
+    ) => ask('sendFile', [to, base64, filename, caption ?? '']),
+    sendLocation: (to: string, lat: string, lng: string, text?: string) =>
+      ask('sendLocation', [to, lat, lng, text ?? '']),
+    sendLinkWithAutoPreview: (to: string, url: string, text: string) =>
+      ask('sendLinkWithAutoPreview', [to, url, text]),
+    reply: (to: string, content: string, quotedMsgId: string) =>
+      ask('reply', [to, content, quotedMsgId]),
     decryptMedia: (message: unknown) => ask('decryptMedia', [message]),
     getHostNumber: () => ask('getHostNumber'),
     getContact: (contactId: string) => ask('getContact', [contactId]),
@@ -169,7 +218,9 @@ function createPluginClientProxy(transport: Transport, logger: Logger): PluginCl
   });
 }
 
-export async function createClient(options: CreateClientOptions): Promise<OpenWAClient> {
+export async function createClient(
+  options: CreateClientOptions,
+): Promise<OpenWAClient> {
   const sessionId = options.sessionId ?? 'session';
 
   const logger = createLogger({
@@ -196,7 +247,8 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     logger.info('user_data_dir_resolved', {
       mode: 'ephemeral',
       userDataDir: null,
-      detail: 'Ephemeral mode enabled — browser will use a disposable temp profile with no session persistence',
+      detail:
+        'Ephemeral mode enabled — browser will use a disposable temp profile with no session persistence',
     });
   } else if (options.userDataDir) {
     // Explicitly provided by caller
@@ -282,6 +334,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
   }
 
   const finalizationHooks = new Set<() => void | Promise<void>>();
+  const livePatchQuiesceHooks = new Set<() => void | Promise<void>>();
 
   const registerFinalizationHook = (hook: () => void | Promise<void>) => {
     finalizationHooks.add(hook);
@@ -296,7 +349,309 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     }
   };
 
-  const getReadinessSnapshot = () => session.getReadinessSnapshot(transport.getOperationalReadinessSnapshot());
+  const registerLivePatchQuiesceHook = (hook: () => void | Promise<void>) => {
+    livePatchQuiesceHooks.add(hook);
+    return () => livePatchQuiesceHooks.delete(hook);
+  };
+
+  const runLivePatchQuiesceHooks = async () => {
+    for (const hook of [...livePatchQuiesceHooks]) {
+      await hook();
+    }
+  };
+
+  interface PreparedLivePatchRelease {
+    manifest: LivePatchReleaseManifest;
+    patches: LivePatchPreloadResult;
+    license: LicensePreloadResult;
+  }
+
+  const preparedLivePatchReleases = new Map<string, PreparedLivePatchRelease>();
+  let lastKnownGoodLicensePreload: LicensePreloadResult | null = null;
+  const analyticsByTrigger = new Map<
+    LivePatchTrigger,
+    ReturnType<typeof createLivePatchAnalytics>
+  >();
+  const livePatchConfig = options.livePatchConfig;
+  if (
+    (livePatchConfig?.livePatch || livePatchConfig?.pollPatch) &&
+    !livePatchConfig.publicKey
+  ) {
+    throw new Error(
+      'Automatic live patch modes require livePatchPublicKey / WA_LIVE_PATCH_PUBLIC_KEY',
+    );
+  }
+  const livePatchControl = livePatchConfig?.publicKey
+    ? new LivePatchControlClient({
+        endpoint: livePatchConfig.endpoint,
+        publicKey: livePatchConfig.publicKey.replace(/\\n/g, '\n'),
+      })
+    : null;
+
+  const applyLivePatchGeneration = async (
+    patchPreload: LivePatchPreloadResult,
+    licensePreload: LicensePreloadResult,
+  ): Promise<number> => {
+    const startedAt = Date.now();
+
+    await transport.runPlannedRuntimeMutation(async () => {
+      session.resetRuntime();
+      await session.setState('STARTING', 'live_patch_update');
+      await transport.reloadPage();
+
+      const injectable = await transport.waitForInjectableSession();
+      if (!injectable)
+        throw new Error('Reloaded session did not become injectable');
+
+      const injected = await transport.injectWapi({
+        activateBridge: false,
+        reuseCachedPatches: false,
+      });
+      if (!injected)
+        throw new Error('WAPI/launch injection failed after live patch reload');
+
+      const reconciled = await transport.reconcilePostAuthRuntime({
+        freshAuth: false,
+      });
+      if (!reconciled.ripeSessionLoaded) {
+        throw new Error(
+          'Authenticated session did not settle after live patch reload',
+        );
+      }
+      if (!(await transport.waitForStoreMsg(15_000))) {
+        throw new Error('Store.Msg did not settle after live patch reload');
+      }
+
+      const runtimeCapability =
+        await transport.validateRuntimeCapabilityOnly('post_injection');
+      if (!runtimeCapability.usable) {
+        throw new Error(
+          `Reloaded runtime is unusable: ${runtimeCapability.failureReason ?? 'unknown_failure'}`,
+        );
+      }
+      session.updateReadiness(
+        'runtimeUsable',
+        'satisfied',
+        'Live patch generation restored an authenticated runtime',
+      );
+
+      const patchApply = await transport.applyLivePatchArtifacts(patchPreload);
+      if (patchApply.blockingFailure || patchApply.outcome === 'failed') {
+        const failed = patchApply.results.find(
+          (result) => result.outcome === 'failed',
+        );
+        throw new Error(
+          failed?.detail ?? 'Verified live patch bundle failed to apply',
+        );
+      }
+
+      await transport.registerRuntimeEventBridgeBindings();
+      const postPatchCapability =
+        await transport.validateRuntimeCapabilityOnly('post_patch');
+      if (!postPatchCapability.usable) {
+        throw new Error(
+          `Post-patch runtime validation failed: ${postPatchCapability.failureReason ?? 'unknown_failure'}`,
+        );
+      }
+
+      const licenseCheck = await transport.checkLicenseArtifact(licensePreload);
+      if (
+        licenseCheck.status === 'invalid' ||
+        licenseCheck.status === 'expired' ||
+        licenseCheck.blockingFailure
+      ) {
+        throw new Error(
+          licenseCheck.detail ??
+            `License lifecycle failed with ${licenseCheck.status}`,
+        );
+      }
+      if (licenseCheck.status === 'missing') {
+        session.updateReadiness(
+          'licenseLifecycle',
+          'non_blocking',
+          licenseCheck.detail ?? 'No license configured',
+        );
+      } else {
+        const licenseApply = await transport.applyLicenseArtifact(licenseCheck);
+        if (licenseApply.blockingFailure || !licenseApply.applied) {
+          throw new Error(
+            licenseApply.detail ?? 'License payload failed to apply',
+          );
+        }
+        session.updateReadiness(
+          'licenseLifecycle',
+          licenseApply.status === 'valid' ? 'satisfied' : 'non_blocking',
+          licenseApply.detail,
+        );
+      }
+
+      const initPatchApply = await transport.applyDeferredInitPatchArtifact();
+      if (
+        initPatchApply.blockingFailure ||
+        initPatchApply.outcome === 'failed'
+      ) {
+        const failed = initPatchApply.results.find(
+          (result) => result.outcome === 'failed',
+        );
+        throw new Error(
+          failed?.detail ?? 'Deferred init patch failed to apply',
+        );
+      }
+
+      await transport.activateRuntimeEventBridge();
+      session.updateReadiness(
+        'patchLifecycle',
+        'satisfied',
+        'Live patch and deferred init patch applied',
+      );
+      session.setFinalization(
+        'pending',
+        'Live patch generation finalization in progress',
+      );
+
+      const finalValidation =
+        await transport.validateRuntimeUsability('post_overlay');
+      session.recordValidation({
+        stage: 'post_overlay',
+        attempt: 1,
+        usable: finalValidation.usable,
+        repairable: finalValidation.repairable,
+        repaired: false,
+        checkedAt: Date.now(),
+        failureReason: finalValidation.failureReason,
+        capability: {
+          hasRuntime: finalValidation.hasRuntime,
+          hasStoreMsg: finalValidation.hasStoreMsg,
+          sessionLoaded: finalValidation.sessionLoaded,
+        },
+      });
+      if (!finalValidation.usable) {
+        throw new Error(
+          `Post-overlay validation failed: ${finalValidation.failureReason ?? 'unknown_failure'}`,
+        );
+      }
+
+      await runFinalizationHooks();
+      const operationalReadiness =
+        await transport.waitForOperationalReadiness();
+      session.setFinalization('ready', 'Live patch generation is operational');
+      const readiness = session.getReadinessSnapshot(operationalReadiness);
+      if (!readiness.exposureSafe) {
+        throw new Error(
+          `Live patch readiness remained blocked: ${readiness.pending.join(', ')}`,
+        );
+      }
+
+      await session.setState('READY', 'live_patch_update_complete');
+    });
+
+    return Date.now() - startedAt;
+  };
+
+  const livePatchCoordinator = new LivePatchCoordinator({
+    gate: transport.getLivePatchActivityGate(),
+    getCurrentHash: () => transport.getActiveLivePatchHash(),
+    check: async (trigger, currentHash) => {
+      if (!livePatchControl) {
+        throw new Error('Live patch public key is not configured');
+      }
+
+      const sessionInfo = await transport.getSessionDebugInfo();
+      const analytics = createLivePatchAnalytics({
+        hostNumber: sessionInfo.hostNumber,
+        waVersion: sessionInfo.WA_VERSION,
+        coreVersion: sessionInfo.WA_AUTOMATE_VERSION,
+        driver: transport.getDriverName(),
+        trigger,
+        currentHash,
+      });
+      analyticsByTrigger.set(trigger, analytics);
+      const manifest = await livePatchControl.check(analytics);
+      if (!manifest || manifest.hash === currentHash) return null;
+
+      const [scripts, license] = await Promise.all([
+        livePatchControl.download(manifest),
+        transport.preloadLicenseArtifact({
+          sessionId,
+          licenseKey: options.licenseKey,
+          sessionInfo,
+        }),
+      ]);
+      preparedLivePatchReleases.set(manifest.hash, {
+        manifest,
+        patches: transport.prepareLivePatchRelease(scripts, manifest.hash),
+        license,
+      });
+      return manifest;
+    },
+    beforeApply: runLivePatchQuiesceHooks,
+    apply: async (manifest) => {
+      const prepared = preparedLivePatchReleases.get(manifest.hash);
+      if (!prepared)
+        throw new Error('Verified live patch release was not prepared');
+      const previous = transport.getActiveLivePatchPreload();
+      const previousLicense = lastKnownGoodLicensePreload;
+
+      try {
+        const reloadDurationMs = await applyLivePatchGeneration(
+          prepared.patches,
+          prepared.license,
+        );
+        lastKnownGoodLicensePreload = prepared.license;
+        return {
+          activeHash: manifest.hash,
+          reloadDurationMs,
+          rolledBack: false,
+        };
+      } catch (updateError) {
+        logger.error('live_patch_generation_failed', {
+          hash: manifest.hash,
+          error:
+            updateError instanceof Error
+              ? updateError.message
+              : String(updateError),
+        });
+        if (!previous) throw updateError;
+
+        try {
+          const reloadDurationMs = await applyLivePatchGeneration(
+            previous,
+            previousLicense ?? prepared.license,
+          );
+          return {
+            activeHash: previous.hash,
+            reloadDurationMs,
+            rolledBack: true,
+          };
+        } catch (rollbackError) {
+          await session.setState('DISCONNECTED', 'live_patch_rollback_failed');
+          throw new Error(
+            `Live patch update and rollback failed: ${rollbackError instanceof Error ? rollbackError.message : String(rollbackError)}`,
+          );
+        }
+      } finally {
+        preparedLivePatchReleases.delete(manifest.hash);
+      }
+    },
+    report: async (trigger, result) => {
+      const analytics = analyticsByTrigger.get(trigger);
+      if (livePatchControl && analytics)
+        await livePatchControl.report(analytics, result);
+    },
+  });
+  const livePatchAutomation = livePatchConfig
+    ? new LivePatchAutomation({
+        config: livePatchConfig,
+        update: (trigger) => livePatchCoordinator.update(trigger),
+        onError: (error) =>
+          logger.warn('live_patch_automation_error', {
+            error: error instanceof Error ? error.message : String(error),
+          }),
+      })
+    : null;
+
+  const getReadinessSnapshot = () =>
+    session.getReadinessSnapshot(transport.getOperationalReadinessSnapshot());
 
   const client: OpenWAClient = {
     sessionId,
@@ -311,6 +666,11 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       userDataDir: resolvedUserDataDir,
     },
     registerFinalizationHook,
+    registerLivePatchQuiesceHook,
+
+    async updateLivePatch(trigger: LivePatchTrigger = 'client') {
+      return livePatchCoordinator.update(trigger);
+    },
 
     async start() {
       events.emit('core.starting', { config: options });
@@ -343,7 +703,8 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       };
 
       const emitFatalBootstrapError = async (scope: string, error: unknown) => {
-        const normalizedError = error instanceof Error ? error : new Error(String(error));
+        const normalizedError =
+          error instanceof Error ? error : new Error(String(error));
         markReadinessFailure(scope, normalizedError.message);
         events.emit('error', {
           scope,
@@ -375,8 +736,10 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
           correlationId: string;
           allowRepair: boolean;
           invalidScope: string;
-          deferFailure?: (result: Awaited<ReturnType<Transport['validateRuntimeUsability']>>) => boolean;
-        }
+          deferFailure?: (
+            result: Awaited<ReturnType<Transport['validateRuntimeUsability']>>,
+          ) => boolean;
+        },
       ) => {
         const validateAttempt = async (attempt: number, repaired: boolean) => {
           events.emit('launch.session.validityCheck.before', {
@@ -441,11 +804,14 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         if (!options.allowRepair || !firstResult.repairable) {
           return emitFatalBootstrapError(
             options.invalidScope,
-            new Error(`Session validation failed during ${stage}: ${firstResult.failureReason ?? 'unknown_failure'}`)
+            new Error(
+              `Session validation failed during ${stage}: ${firstResult.failureReason ?? 'unknown_failure'}`,
+            ),
           );
         }
 
-        const repairReason: RuntimeValidationFailureReason = firstResult.failureReason ?? 'runtime_missing';
+        const repairReason: RuntimeValidationFailureReason =
+          firstResult.failureReason ?? 'runtime_missing';
 
         events.emit('launch.session.invalid.retry', {
           correlationId: options.correlationId,
@@ -516,7 +882,9 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         if (!repairedResult.usable) {
           return emitFatalBootstrapError(
             options.invalidScope,
-            new Error(`Session validation failed after repair during ${stage}: ${repairedResult.failureReason ?? repairReason}`)
+            new Error(
+              `Session validation failed after repair during ${stage}: ${repairedResult.failureReason ?? repairReason}`,
+            ),
           );
         }
 
@@ -524,8 +892,10 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       };
 
       const shouldDeferPreAuthRuntimeIntegrity = (
-        result: Awaited<ReturnType<Transport['validateRuntimeUsability']>>
-      ) => result.failureReason === 'required_method_missing' && !result.sessionLoaded;
+        result: Awaited<ReturnType<Transport['validateRuntimeUsability']>>,
+      ) =>
+        result.failureReason === 'required_method_missing' &&
+        !result.sessionLoaded;
 
       await transport.initialize();
       await transport.navigate();
@@ -533,12 +903,14 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       await session.setState('AUTHENTICATING');
 
       try {
-        await transport.injectWapi();
+        await transport.injectWapi({ activateBridge: false });
       } catch (error) {
         return emitFatalBootstrapError('bootstrap.injection', error);
       }
 
-      const attemptingReauth = await transport.detectAttemptingReauth().catch(() => false);
+      const attemptingReauth = await transport
+        .detectAttemptingReauth()
+        .catch(() => false);
       logger.info('launch_auth_mode_detected', {
         attemptingReauth,
       });
@@ -556,7 +928,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         session.updateReadiness(
           'runtimeUsable',
           'pending',
-          'Pre-auth runtime integrity is incomplete before authentication; strict runtime validation is deferred until the authenticated runtime settles'
+          'Pre-auth runtime integrity is incomplete before authentication; strict runtime validation is deferred until the authenticated runtime settles',
         );
 
         logger.warn('runtime_activation_deferred', {
@@ -571,7 +943,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         session.updateReadiness(
           'runtimeUsable',
           'satisfied',
-          'Runtime injection and post-injection validation proved usable capability'
+          'Runtime injection and post-injection validation proved usable capability',
         );
 
         logger.info('runtime_activation_ready', {
@@ -585,44 +957,66 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         usePatch: !!options.patchConfig,
       });
 
-      const authResult = await transport.waitForAuthentication({ attemptingReauth });
+      const authResult = await transport.waitForAuthentication({
+        attemptingReauth,
+      });
       if (authResult.outcome === 'qr_timeout') {
-        emitFailedFinalization('QR scan took too long. Increase qrTimeout or set qrTimeout=0 to wait forever.');
+        emitFailedFinalization(
+          'QR scan took too long. Increase qrTimeout or set qrTimeout=0 to wait forever.',
+        );
         return emitFatalBootstrapError(
           'bootstrap.auth.qr_timeout',
-          new Error('QR scan took too long. Increase qrTimeout or set qrTimeout=0 to wait forever.')
+          new Error(
+            'QR scan took too long. Increase qrTimeout or set qrTimeout=0 to wait forever.',
+          ),
         );
       }
 
       if (authResult.outcome === 'auth_timeout') {
-        emitFailedFinalization('Authentication timed out. Increase authTimeout or set authTimeout=0 to wait forever.');
+        emitFailedFinalization(
+          'Authentication timed out. Increase authTimeout or set authTimeout=0 to wait forever.',
+        );
         return emitFatalBootstrapError(
           'bootstrap.auth.timeout',
-          new Error('Authentication timed out. Increase authTimeout or set authTimeout=0 to wait forever.')
+          new Error(
+            'Authentication timed out. Increase authTimeout or set authTimeout=0 to wait forever.',
+          ),
         );
       }
 
       if (authResult.outcome === 'phone_out_of_reach') {
-        emitFailedFinalization('Authentication timed out because the host phone is out of reach. Open WhatsApp on the phone and try again.');
+        emitFailedFinalization(
+          'Authentication timed out because the host phone is out of reach. Open WhatsApp on the phone and try again.',
+        );
         return emitFatalBootstrapError(
           'bootstrap.auth.phone_out_of_reach',
-          new Error('Authentication timed out because the host phone is out of reach. Open WhatsApp on the phone and try again.')
+          new Error(
+            'Authentication timed out because the host phone is out of reach. Open WhatsApp on the phone and try again.',
+          ),
         );
       }
 
       if (authResult.outcome === 'invalid_session') {
-        emitFailedFinalization('Session data most likely expired due to manual host account logout. Re-authenticate this session or set ignoreNuke to bypass the explicit invalid-session classification.');
+        emitFailedFinalization(
+          'Session data most likely expired due to manual host account logout. Re-authenticate this session or set ignoreNuke to bypass the explicit invalid-session classification.',
+        );
         return emitFatalBootstrapError(
           'bootstrap.auth.invalid_session',
-          new Error('Session data most likely expired due to manual host account logout. Re-authenticate this session or set ignoreNuke to bypass the explicit invalid-session classification.')
+          new Error(
+            'Session data most likely expired due to manual host account logout. Re-authenticate this session or set ignoreNuke to bypass the explicit invalid-session classification.',
+          ),
         );
       }
 
       if (authResult.outcome === 'qr_max') {
-        emitFailedFinalization('Authentication aborted because the configured QR/link-code limit was reached before login completed. Increase qrMax or remove it to keep waiting.');
+        emitFailedFinalization(
+          'Authentication aborted because the configured QR/link-code limit was reached before login completed. Increase qrMax or remove it to keep waiting.',
+        );
         return emitFatalBootstrapError(
           'bootstrap.auth.qr_max',
-          new Error('Authentication aborted because the configured QR/link-code limit was reached before login completed. Increase qrMax or remove it to keep waiting.')
+          new Error(
+            'Authentication aborted because the configured QR/link-code limit was reached before login completed. Increase qrMax or remove it to keep waiting.',
+          ),
         );
       }
 
@@ -631,10 +1025,14 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       });
 
       if (!postAuthRuntime.ripeSessionLoaded) {
-        emitFailedFinalization('Authenticated runtime did not reach a ripe session before post-auth reinjection/gating completed.');
+        emitFailedFinalization(
+          'Authenticated runtime did not reach a ripe session before post-auth reinjection/gating completed.',
+        );
         return emitFatalBootstrapError(
           'bootstrap.auth.ripe_session_timeout',
-          new Error('Authenticated runtime did not reach a ripe session before post-auth reinjection/gating completed.')
+          new Error(
+            'Authenticated runtime did not reach a ripe session before post-auth reinjection/gating completed.',
+          ),
         );
       }
 
@@ -657,7 +1055,8 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       // do NOT check bridge integrity — the bridge is not yet wired to WAPI.
       // Using validateRuntimeCapabilityOnly avoids probeBrokenMethodIntegrity()
       // which would prematurely call ensureRuntimeBridge() and wire unpatched WAPI.
-      const postAuthRuntimeCapability = await transport.validateRuntimeCapabilityOnly('post_injection');
+      const postAuthRuntimeCapability =
+        await transport.validateRuntimeCapabilityOnly('post_injection');
 
       session.recordValidation({
         stage: 'post_injection',
@@ -677,13 +1076,19 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       if (!postAuthRuntimeCapability.usable) {
         // Attempt repair: reinject the runtime
         try {
-          await transport.repairRuntimeIntegrity(postAuthRuntimeCapability.failureReason ?? 'runtime_missing');
+          await transport.repairRuntimeIntegrity(
+            postAuthRuntimeCapability.failureReason ?? 'runtime_missing',
+          );
         } catch (repairError) {
-          return emitFatalBootstrapError('bootstrap.auth.runtime_validation', repairError);
+          return emitFatalBootstrapError(
+            'bootstrap.auth.runtime_validation',
+            repairError,
+          );
         }
 
         // Re-validate after repair (capability-only — bridge still not wired)
-        const revalidated = await transport.validateRuntimeCapabilityOnly('post_injection');
+        const revalidated =
+          await transport.validateRuntimeCapabilityOnly('post_injection');
         session.recordValidation({
           stage: 'post_injection',
           attempt: 2,
@@ -702,7 +1107,9 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         if (!revalidated.usable) {
           return emitFatalBootstrapError(
             'bootstrap.auth.runtime_validation',
-            new Error(`Post-injection capability validation failed after repair: ${revalidated.failureReason ?? 'unknown_failure'}`)
+            new Error(
+              `Post-injection capability validation failed after repair: ${revalidated.failureReason ?? 'unknown_failure'}`,
+            ),
           );
         }
       }
@@ -727,7 +1134,9 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         });
         return emitFatalBootstrapError(
           'bootstrap.store_settle',
-          new Error(`Store.Msg not available after 15s store-settle window. Available Store keys: ${storeKeys.join(', ')}`)
+          new Error(
+            `Store.Msg not available after 15s store-settle window. Available Store keys: ${storeKeys.join(', ')}`,
+          ),
         );
       } else {
         logger.info('store_settle_gate_satisfied');
@@ -738,7 +1147,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         'satisfied',
         deferredPreAuthRuntimeIntegrity
           ? 'Authenticated runtime validation proved usable capability after the deferred pre-auth integrity check and store-settle gate'
-          : 'Authenticated runtime validation proved usable capability after runtime bridge registration and store-settle gate'
+          : 'Authenticated runtime validation proved usable capability after runtime bridge registration and store-settle gate',
       );
 
       logger.info('runtime_activation_ready', {
@@ -754,16 +1163,23 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       try {
         sessionDebugInfo = await transport.getSessionDebugInfo();
         logger.info('session_debug_info_extracted', {
-          hostNumber: sessionDebugInfo.hostNumber ? '***' + sessionDebugInfo.hostNumber.slice(-4) : 'unknown',
+          hostNumber: sessionDebugInfo.hostNumber
+            ? '***' + sessionDebugInfo.hostNumber.slice(-4)
+            : 'unknown',
           waVersion: sessionDebugInfo.WA_VERSION,
         });
       } catch (debugInfoError) {
-        const dbgMsg = debugInfoError instanceof Error ? debugInfoError.message : String(debugInfoError);
+        const dbgMsg =
+          debugInfoError instanceof Error
+            ? debugInfoError.message
+            : String(debugInfoError);
         logger.warn('session_debug_info_extraction_failed', { error: dbgMsg });
         // Continue without debug info — preload methods will fall back gracefully
       }
 
-      const livePatchPreloadPromise = transport.preloadLivePatchArtifacts({ sessionInfo: sessionDebugInfo });
+      const livePatchPreloadPromise = transport.preloadLivePatchArtifacts({
+        sessionInfo: sessionDebugInfo,
+      });
       const licensePreloadPromise = transport.preloadLicenseArtifact({
         sessionId,
         licenseKey: options.licenseKey,
@@ -771,7 +1187,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       });
 
       const livePatchPreload = await livePatchPreloadPromise.catch((error) =>
-        emitFatalBootstrapError('bootstrap.live_patch.preload', error)
+        emitFatalBootstrapError('bootstrap.live_patch.preload', error),
       );
       logger.info('live_patch_artifacts_preloaded', {
         outcome: livePatchPreload.outcome,
@@ -780,15 +1196,22 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         artifactCount: livePatchPreload.artifacts.length,
       });
 
-      const livePatchApply = await transport.applyLivePatchArtifacts(livePatchPreload).catch((error) =>
-        emitFatalBootstrapError('bootstrap.live_patch.apply', error)
-      );
+      const livePatchApply = await transport
+        .applyLivePatchArtifacts(livePatchPreload)
+        .catch((error) =>
+          emitFatalBootstrapError('bootstrap.live_patch.apply', error),
+        );
 
       if (livePatchApply.blockingFailure) {
-        const blockingPatch = livePatchApply.results.find((result) => result.required && result.outcome !== 'applied');
+        const blockingPatch = livePatchApply.results.find(
+          (result) => result.required && result.outcome !== 'applied',
+        );
         await emitFatalBootstrapError(
           'bootstrap.live_patch.lifecycle',
-          new Error(blockingPatch?.detail ?? 'Required live patch lifecycle did not complete successfully')
+          new Error(
+            blockingPatch?.detail ??
+              'Required live patch lifecycle did not complete successfully',
+          ),
         );
       }
 
@@ -806,7 +1229,10 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       try {
         await transport.registerRuntimeEventBridgeBindings();
       } catch (error) {
-        return emitFatalBootstrapError('bootstrap.runtime_bridge_registration', error);
+        return emitFatalBootstrapError(
+          'bootstrap.runtime_bridge_registration',
+          error,
+        );
       }
 
       // ── Post-patch capability validation ──────────────
@@ -816,7 +1242,8 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       // (activateRuntimeEventBridge) below, after init patch has been applied.
       // Using validateRuntimeCapabilityOnly prevents ensureRuntimeBridge() from
       // prematurely calling onStateChanged before Store.State is ready.
-      const postPatchCapability = await transport.validateRuntimeCapabilityOnly('post_patch');
+      const postPatchCapability =
+        await transport.validateRuntimeCapabilityOnly('post_patch');
 
       session.recordValidation({
         stage: 'post_patch',
@@ -836,7 +1263,9 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       if (!postPatchCapability.usable) {
         return emitFatalBootstrapError(
           'bootstrap.patch.integrity',
-          new Error(`Post-patch capability validation failed: ${postPatchCapability.failureReason ?? 'unknown_failure'}`)
+          new Error(
+            `Post-patch capability validation failed: ${postPatchCapability.failureReason ?? 'unknown_failure'}`,
+          ),
         );
       }
 
@@ -858,68 +1287,97 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       });
 
       const licensePreload = await licensePreloadPromise.catch((error) =>
-        emitFatalBootstrapError('bootstrap.license.preload', error)
+        emitFatalBootstrapError('bootstrap.license.preload', error),
       );
-      const licenseCheck = await transport.checkLicenseArtifact(licensePreload).catch((error) =>
-        emitFatalBootstrapError('bootstrap.license.check', error)
-      );
+      const licenseCheck = await transport
+        .checkLicenseArtifact(licensePreload)
+        .catch((error) =>
+          emitFatalBootstrapError('bootstrap.license.check', error),
+        );
 
       if (licenseCheck.status === 'missing') {
         session.updateReadiness(
           'licenseLifecycle',
           'non_blocking',
-          licenseCheck.detail ?? 'License metadata lifecycle classified as explicitly non-blocking'
+          licenseCheck.detail ??
+            'License metadata lifecycle classified as explicitly non-blocking',
         );
         logger.info('license_lifecycle_complete', {
           status: licenseCheck.status,
           detail: licenseCheck.detail,
           readinessImpact: 'allow_ready',
         });
-      } else if (licenseCheck.status === 'invalid' || licenseCheck.status === 'expired' || licenseCheck.blockingFailure) {
+      } else if (
+        licenseCheck.status === 'invalid' ||
+        licenseCheck.status === 'expired' ||
+        licenseCheck.blockingFailure
+      ) {
         await emitFatalBootstrapError(
           'bootstrap.license.lifecycle',
-          new Error(licenseCheck.detail ?? `License lifecycle blocked readiness with status: ${licenseCheck.status}`)
+          new Error(
+            licenseCheck.detail ??
+              `License lifecycle blocked readiness with status: ${licenseCheck.status}`,
+          ),
         );
       } else {
-        const licenseApply = await transport.applyLicenseArtifact(licenseCheck).catch((error) =>
-          emitFatalBootstrapError('bootstrap.license.apply', error)
-        );
+        const licenseApply = await transport
+          .applyLicenseArtifact(licenseCheck)
+          .catch((error) =>
+            emitFatalBootstrapError('bootstrap.license.apply', error),
+          );
 
         if (licenseApply.blockingFailure || !licenseApply.applied) {
           await emitFatalBootstrapError(
             'bootstrap.license.apply',
-            new Error(licenseApply.detail ?? 'License lifecycle did not complete successfully')
+            new Error(
+              licenseApply.detail ??
+                'License lifecycle did not complete successfully',
+            ),
           );
         }
 
-        const readinessState = licenseApply.status === 'valid' ? 'satisfied' : 'non_blocking';
-        const readinessDetail = licenseApply.status === 'valid'
-          ? licenseApply.detail ?? 'License lifecycle completed with a server-confirmed unlock'
-          : licenseApply.detail ?? 'License lifecycle completed with metadata-only fallback; capability was not server-confirmed';
+        const readinessState =
+          licenseApply.status === 'valid' ? 'satisfied' : 'non_blocking';
+        const readinessDetail =
+          licenseApply.status === 'valid'
+            ? (licenseApply.detail ??
+              'License lifecycle completed with a server-confirmed unlock')
+            : (licenseApply.detail ??
+              'License lifecycle completed with metadata-only fallback; capability was not server-confirmed');
 
         session.updateReadiness(
           'licenseLifecycle',
           readinessState,
-          readinessDetail
+          readinessDetail,
         );
 
         logger.info('license_lifecycle_complete', {
           status: licenseApply.status,
           applied: licenseApply.applied,
           keyType: licenseApply.keyType,
-          readinessImpact: readinessState === 'satisfied' ? 'satisfy_requirement' : 'allow_ready_without_server_unlock',
+          readinessImpact:
+            readinessState === 'satisfied'
+              ? 'satisfy_requirement'
+              : 'allow_ready_without_server_unlock',
         });
       }
 
-      const initPatchApply = await transport.applyDeferredInitPatchArtifact().catch((error) =>
-        emitFatalBootstrapError('bootstrap.patch.init', error)
-      );
+      const initPatchApply = await transport
+        .applyDeferredInitPatchArtifact()
+        .catch((error) =>
+          emitFatalBootstrapError('bootstrap.patch.init', error),
+        );
 
       if (initPatchApply.blockingFailure) {
-        const blockingInitPatch = initPatchApply.results.find((result) => result.required && result.outcome !== 'applied');
+        const blockingInitPatch = initPatchApply.results.find(
+          (result) => result.required && result.outcome !== 'applied',
+        );
         await emitFatalBootstrapError(
           'bootstrap.patch.lifecycle',
-          new Error(blockingInitPatch?.detail ?? 'Deferred init patch did not complete successfully')
+          new Error(
+            blockingInitPatch?.detail ??
+              'Deferred init patch did not complete successfully',
+          ),
         );
       }
 
@@ -931,23 +1389,34 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       try {
         await transport.activateRuntimeEventBridge();
       } catch (error) {
-        return emitFatalBootstrapError('bootstrap.runtime_bridge_activation', error);
+        return emitFatalBootstrapError(
+          'bootstrap.runtime_bridge_activation',
+          error,
+        );
       }
 
-      const combinedPatchResults = [...livePatchApply.results, ...initPatchApply.results];
-      const combinedPatchApplied = [...livePatchApply.applied, ...initPatchApply.applied];
-      const combinedPatchOutcome = livePatchApply.outcome === 'failed' || initPatchApply.outcome === 'failed'
-        ? 'failed'
-        : combinedPatchApplied.length > 0
-          ? 'applied'
-          : 'skipped';
+      const combinedPatchResults = [
+        ...livePatchApply.results,
+        ...initPatchApply.results,
+      ];
+      const combinedPatchApplied = [
+        ...livePatchApply.applied,
+        ...initPatchApply.applied,
+      ];
+      const combinedPatchOutcome =
+        livePatchApply.outcome === 'failed' ||
+        initPatchApply.outcome === 'failed'
+          ? 'failed'
+          : combinedPatchApplied.length > 0
+            ? 'applied'
+            : 'skipped';
 
       session.updateReadiness(
         'patchLifecycle',
         combinedPatchOutcome === 'applied' ? 'satisfied' : 'non_blocking',
         combinedPatchOutcome === 'applied'
           ? 'Patch lifecycle completed successfully, including deferred init patch finalization'
-          : `Patch lifecycle completed with non-blocking outcome: ${combinedPatchOutcome}`
+          : `Patch lifecycle completed with non-blocking outcome: ${combinedPatchOutcome}`,
       );
 
       logger.info('patch_lifecycle_complete', {
@@ -979,31 +1448,48 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         logger.info('session_finalization_validated', { ...finalValidation });
 
         if (finalizationHooks.size > 0) {
-          session.setFinalization('pending', 'Loaded-equivalent client finalization hooks are running');
+          session.setFinalization(
+            'pending',
+            'Loaded-equivalent client finalization hooks are running',
+          );
           await runFinalizationHooks();
         }
 
-        session.setFinalization('pending', 'Waiting for finalized operational readiness truth to settle');
-        const operationalReadiness = await transport.waitForOperationalReadiness();
+        session.setFinalization(
+          'pending',
+          'Waiting for finalized operational readiness truth to settle',
+        );
+        const operationalReadiness =
+          await transport.waitForOperationalReadiness();
 
-        session.setFinalization('ready', 'Post-overlay validation, client finalization hooks, and operational readiness truth verification completed');
+        session.setFinalization(
+          'ready',
+          'Post-overlay validation, client finalization hooks, and operational readiness truth verification completed',
+        );
 
-        const finalizedReadiness = session.getReadinessSnapshot(operationalReadiness);
+        const finalizedReadiness =
+          session.getReadinessSnapshot(operationalReadiness);
 
         if (!finalizedReadiness.exposureSafe) {
           const pendingTruth = finalizedReadiness.pending.join(', ');
-          const detail = pendingTruth.length > 0
-            ? `Finalized readiness truth is still pending: ${pendingTruth}`
-            : 'Finalized readiness truth verification failed unexpectedly';
-          return emitFatalBootstrapError('bootstrap.finalization.readiness_truth', new Error(detail));
+          const detail =
+            pendingTruth.length > 0
+              ? `Finalized readiness truth is still pending: ${pendingTruth}`
+              : 'Finalized readiness truth verification failed unexpectedly';
+          return emitFatalBootstrapError(
+            'bootstrap.finalization.readiness_truth',
+            new Error(detail),
+          );
         }
       } catch (error) {
-        const normalizedError = error instanceof Error ? error : new Error(String(error));
+        const normalizedError =
+          error instanceof Error ? error : new Error(String(error));
         emitFailedFinalization(normalizedError.message);
         throw normalizedError;
       }
 
       await session.setState('READY');
+      lastKnownGoodLicensePreload = licensePreload;
 
       events.emit('launch.client.finalize.after', {
         correlationId: 'bootstrap-client-finalize',
@@ -1023,10 +1509,13 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       logger.info('bootstrap_finalized', {
         sessionId,
       });
+      livePatchAutomation?.start();
     },
 
     async stop(reason?: string) {
       events.emit('core.stopping', { reason });
+
+      livePatchAutomation?.stop();
 
       await session.setState('STOPPED', reason);
       await pluginHost.dispose();
@@ -1055,13 +1544,17 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       }
       const page = transport.getPage();
       if (!page || page.isClosed()) return null;
-      return page.screenshot({ fullPage: true });
+      return transport
+        .getLivePatchActivityGate()
+        .runOperation(() => page.screenshot({ fullPage: true }));
     },
 
     async evaluateScript<T = unknown>(script: string): Promise<T | null> {
       const page = transport.getPage();
       if (!page || page.isClosed()) return null;
-      return page.evaluateScript<T>(script);
+      return transport
+        .getLivePatchActivityGate()
+        .runOperation(() => page.evaluateScript<T>(script));
     },
   };
 
