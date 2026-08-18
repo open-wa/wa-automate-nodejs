@@ -1,59 +1,57 @@
 ---
-title: Plugin getting started
-description: Build a small plugin that listens for a message, checks necessary fields, and sends a reply.
+title: Plugin development quickstart
+description: Build a custom open-wa plugin that intercepts incoming messages and sends automated replies.
 ---
 
-# Plugin getting started
+# Plugin development quickstart
 
-Use a plugin when you want reusable logic to run inside the Easy API process. A plugin can listen for events, call client methods, mount HTTP routes, add dashboard pages, or register AI tools.
+Plugins execute custom TypeScript or JavaScript logic inside the open-wa Easy API process. A plugin can subscribe to events, call client methods, mount HTTP routes, add web dashboard panels, or register Model Context Protocol (MCP) tools for AI agents.
 
-## What plugins can do
+## Plugin capabilities
 
-A plugin is an npm package (or local file) that:
+A plugin package can:
 
-- Listens to WhatsApp events (messages, auth, lifecycle)
-- Calls WhatsApp methods (send messages, decrypt media)
-- Mounts HTTP routes at `/plugins/<name>/`
-- Adds pages to the dashboard sidebar
-- Registers tools for AI agents to call
+- Subscribe to WhatsApp events (such as incoming messages and lifecycle updates)
+- Invoke client automation methods (such as sending messages and decrypting media)
+- Mount custom HTTP routes under `/plugins/<name>/`
+- Add UI tabs to the web dashboard
+- Expose typed MCP tools to AI assistants
 
-Plugins run **inside the Easy API process**, not as separate services. They receive a security-filtered event emitter and a transport-agnostic client proxy.
+Plugins run **inside the Easy API host process**. They interact with the runtime through a security-filtered event gateway and a transport-agnostic client proxy.
 
-### Pick the right extension point
+### When to build a plugin
 
-| Use a plugin when... | Use something else when... |
-|---|---|
-| Building reusable integrations | You need a separate process (use SocketClient) |
-| Sharing functionality across sessions | You need direct browser control (use createClient) |
-| Adding dashboard pages | You only need simple event forwarding (use the webhook integration plugin) |
-| Exposing AI tools via MCP | You need low-level runtime ownership (use embedded runtime) |
+| Use a plugin when... | Use an alternative when... |
+| --- | --- |
+| Building reusable business extensions | Running in an isolated microservice (use `SocketClient`) |
+| Sharing logic across multiple session instances | Managing the browser lifecycle directly (use `createClient`) |
+| Adding custom dashboard views or HTTP routes | Needing basic event forwarding (use `@open-wa/integration-webhook`) |
+| Exposing specialized MCP tools | Requiring custom browser automation primitives |
 
-## Install the SDK
+## Install the Plugin SDK
 
-```bash
-pnpm add @open-wa/plugin-sdk
-# or
-npm install @open-wa/plugin-sdk
-```
+Install the SDK in your project workspace:
+
+<PackageManagerTabs command="install @open-wa/plugin-sdk" />
 
 The SDK provides:
 
 - `createPlugin()`: Type-safe plugin factory
-- `defineConfig()`: Zod wrapper for plugin configuration
-- `z`: Zod (re-exported for convenience)
-- TypeScript types for all plugin contracts
+- `defineConfig()`: Zod wrapper for validating plugin options
+- `z`: Re-exported Zod validation library
+- TypeScript definitions for all hook payloads and client interfaces
 
 ## Build your first plugin
 
 <Steps>
-<Step title="Create the plugin">
+<Step title="Create the plugin module">
 
-Use the `createPlugin()` factory:
+Define the plugin using the `createPlugin()` factory:
 
 ```ts
 import { createPlugin } from '@open-wa/plugin-sdk';
 
-function getTextMessage(message: unknown) {
+function parseTextMessage(message: unknown) {
   if (!message || typeof message !== 'object') return null;
 
   const candidate = message as { body?: unknown; from?: unknown };
@@ -73,7 +71,7 @@ export default createPlugin({
 
   init: async ({ client, logger }) => ({
     'message.received': async ({ message }) => {
-      const msg = getTextMessage(message);
+      const msg = parseTextMessage(message);
 
       if (!msg) return;
 
@@ -87,14 +85,14 @@ export default createPlugin({
 ```
 
 </Step>
-<Step title="Define configuration">
+<Step title="Define the configuration schema">
 
-Use `defineConfig()` with Zod for typed configuration:
+Use `defineConfig()` with Zod to enforce typed configuration:
 
 ```ts
 import { createPlugin, defineConfig, z } from '@open-wa/plugin-sdk';
 
-function getTextMessage(message: unknown) {
+function parseTextMessage(message: unknown) {
   if (!message || typeof message !== 'object') return null;
 
   const candidate = message as { body?: unknown; from?: unknown };
@@ -105,23 +103,26 @@ function getTextMessage(message: unknown) {
   return { body: candidate.body, from: candidate.from };
 }
 
-const config = defineConfig(z => z.object({
-  greeting: z.string().default('👋 Welcome!'),
-  triggerWord: z.string().default('Hi'),
-}));
+const configSchema = defineConfig((z) =>
+  z.object({
+    greeting: z.string().default('👋 Welcome!'),
+    triggerWord: z.string().default('Hi'),
+  })
+);
 
 export default createPlugin({
   meta: { name: 'greeting-bot' },
-  configSchema: config,
+  configSchema,
 
   init: async ({ client, logger, config }) => ({
     'message.received': async ({ message }) => {
-      const msg = getTextMessage(message);
+      const msg = parseTextMessage(message);
 
       if (!msg) return;
 
       if (msg.body === config.triggerWord) {
         await client.sendText(msg.from, config.greeting);
+        logger.info('Dispatched configured greeting', { to: msg.from });
       }
     },
   }),
@@ -129,22 +130,22 @@ export default createPlugin({
 ```
 
 </Step>
-<Step title="Add event handlers">
+<Step title="Register event hooks">
 
-The `init` function returns a `Hooks` object. Available hooks include:
+The `init` function returns a record of event handlers:
 
-- `'message.received'`: Incoming messages
-- `'message.sent'`: Outgoing messages
-- `'core.started'`: After the session is ready
-- `'auth.qr'`: When a QR code is emitted
-- `'dispose'`: On session shutdown
+- `'message.received'`: Dispatched when incoming messages arrive
+- `'message.sent'`: Dispatched when the local session sends a message
+- `'core.started'`: Dispatched once the session reaches ready state
+- `'auth.qr'`: Dispatched when a new QR code is generated
+- `'dispose'`: Dispatched during runtime shutdown to clean up resources
 
-See the **[Hooks reference](/docs/plugins/hooks-reference)** for the complete list.
+For the complete list, see the [Hooks reference](/docs/plugins/hooks-reference).
 
 </Step>
-<Step title="Put the files in one project">
+<Step title="Organize project files">
 
-Use a layout where the config file and plugin file live next to each other:
+Organize your plugin files alongside your open-wa configuration:
 
 ```text
 my-openwa-app/
@@ -153,125 +154,103 @@ my-openwa-app/
     greeting-bot.mjs
 ```
 
-Put the plugin code from Step 2 in `plugins/greeting-bot.mjs`. The plugin loader uses dynamic `import(ref)`, so the local plugin must contain loadable JavaScript. Do not use `./plugins/greeting-bot.ts` unless your Node.js environment installs a TypeScript loader. The plugin loader does not compile TypeScript.
+Save your plugin implementation in `plugins/greeting-bot.mjs`.
 
 </Step>
-<Step title="Load the plugin">
+<Step title="Load the plugin in configuration">
 
-In `wa.config.mjs`, build the plugin reference from the config file location:
+In `wa.config.mjs`, reference the plugin file and provide runtime options:
 
 ```js
-// wa.config.mjs
 export default {
-  sessionId: 'my-session',
+  sessionId: 'sales',
   plugins: [
     new URL('./plugins/greeting-bot.mjs', import.meta.url).href,
   ],
   pluginConfig: {
     'greeting-bot': {
-      greeting: 'Hello! Welcome to our service.',
+      greeting: 'Hello! Welcome to our customer support.',
       triggerWord: 'hello',
     },
   },
 };
 ```
 
-The `plugins` array accepts npm package names, scoped package names, absolute local references, and local references that Node can import. The module must export a plugin as its default export or as a named `plugin` export. The `pluginConfig` object uses the **plugin name** from `meta.name`, not the package name or file path.
+Key points:
+
+- The `plugins` array accepts npm package names or file URLs.
+- The `pluginConfig` object must be keyed by the plugin's `meta.name` (`'greeting-bot'`).
 
 </Step>
-<Step title="Run from the project directory">
+<Step title="Start the runtime and verify">
 
-Run the CLI from `my-openwa-app/` or pass the config path explicitly:
+Start the Easy API server:
 
 ```bash
-npx @open-wa/wa-automate@alpha --config ./wa.config.mjs --port 8080
+npx @open-wa/wa-automate@alpha --config ./wa.config.mjs --port 8080 --api-key "YOUR_SECURE_KEY"
 ```
 
-If this Easy API instance is reachable outside your machine, add `--api-key "your-secure-key"` so plugin-mounted routes and the primary API share the same authentication boundary.
-
-The expected local startup logs are examples, not captured output. A successful load includes plugin loader and registration messages similar to these messages:
+Verify in the logs that the plugin loaded:
 
 ```text
 plugin_loaded { ref: 'file:///.../plugins/greeting-bot.mjs', name: 'greeting-bot', version: '1.0.0' }
 plugin_registered { plugin: 'greeting-bot', version: '1.0.0' }
 ```
 
-After the session is connected, send the trigger word from another WhatsApp account:
-
-```text
-hello
-```
-
-Expected local behavior: the plugin sends `Hello! Welcome to our service.` back to the sender and logs the greeting action.
-
-The expected plugin failure logs are shortened examples. A missing file or incorrect config stops the load before the plugin handles messages. The log shows a message similar to this message:
-
-```text
-plugin_load_error { ref: 'file:///.../plugins/greeting-bot.mjs', error: 'Cannot find module' }
-plugin_config_invalid { plugin: 'greeting-bot', issues: [...] }
-```
+Send the configured trigger word (`hello`) to your connected WhatsApp number to verify that the automated response arrives.
 
 </Step>
 </Steps>
 
-### If the plugin does not load
+## Troubleshooting
 
-- Confirm the CLI loaded the intended config file. Run with `--config ./wa.config.mjs` when in doubt.
-- Confirm the plugin reference points to JavaScript that Node can import, such as `.mjs` or compiled `.js`.
-- Confirm the module exports `default createPlugin(...)` or a named `plugin` export.
-- Confirm `meta.name` is present. Missing names are skipped with a `plugin_load_skip` warning.
-- Confirm `pluginConfig` is keyed by `meta.name`, for example `'greeting-bot'`.
-- If the greeting never appears, send the exact configured `triggerWord`, then check for `plugin_loaded`, `plugin_registered`, `plugin_config_invalid`, or `plugin_load_error` in the Easy API logs. After the load succeeds, move reusable behavior into a package and read **[Publishing a plugin](/docs/plugins/publishing)**.
+### Plugin fails to load
 
-### If a hook never fires
+- Ensure the path points to valid JavaScript (`.mjs` or compiled `.js`).
+- Verify that the module exports `createPlugin(...)` as default or as a named `plugin` export.
+- Check that `meta.name` is defined in your plugin object.
+- Confirm `pluginConfig` is keyed by `meta.name`.
 
-- **The event is filtered.** Plugins only receive public events. Subscribing to
-  internal or sensitive events (`launch.*`, `browser.*`, `transport.*`,
-  `license.*`) via the catch-all `event` hook will silently receive nothing —
-  this is enforced by the plugin event gateway, see **[Security model](/docs/plugins/security-model)**.
-- **Wrong hook name.** Hook keys are exact strings (for example
-  `message.received`, `client.ready`). A typo registers a hook that never
-  matches. Cross-check against the **[Hooks reference](/docs/plugins/hooks-reference)**.
-- **The plugin did not actually register.** Confirm `plugin_registered` appears
-  in the logs before assuming the hook is the problem.
+### Hook does not execute
 
-### Duplicate plugin name
+- **Sensitive event filtering**: Plugins cannot subscribe to internal system events (such as `launch.*`, `browser.*`, `transport.*`, or `license.*`).
+- **Hook spelling**: Verify exact string matching against the [Hooks reference](/docs/plugins/hooks-reference).
+- **Registration status**: Confirm the plugin registered successfully in server startup logs.
 
-If two loaded plugins share the same `meta.name`, registration **throws**
-`Plugin "<name>" is already registered` and startup fails — it is not silently
-skipped. Give every plugin a globally unique `meta.name`.
+### Duplicate plugin names
+
+If multiple plugins register with the same `meta.name`, initialization fails with `Plugin "<name>" is already registered`. Ensure every plugin has a unique identifier.
 
 ## Plugin architecture
 
-### Security-filtered event emitter
+### Security-filtered event gateway
 
-Plugins receive a filtered event emitter that:
+Plugins receive an isolated event emitter:
 
-- **Can** subscribe to public events (`on`, `once`, `off`)
-- **Cannot** emit events (only the host can emit)
-- **Cannot** listen to internal events (`launch.*`, `browser.*`, `transport.*`)
-- **Cannot** listen to sensitive events (`license.*`, session data)
+- **Can** subscribe to public messaging and lifecycle events (`on`, `once`, `off`)
+- **Cannot** emit events onto the core bus
+- **Cannot** intercept authentication tokens or internal browser state
 
 ### Transport-agnostic client proxy
 
-Plugins get a `client` proxy that forwards method calls to the WhatsApp runtime. This is not direct browser access. It works through the host's transport layer (HTTP RPC / SSE).
+Plugins interact with the `client` proxy object. Calls are routed across the runtime transport boundary without direct DOM access.
 
-### Config validation
+### Configuration schema validation
 
-If you provide a `configSchema`, the host validates the plugin's config **before** calling `init()`. If validation fails, the plugin will not load and an error is logged.
+When a plugin defines `configSchema`, the runtime validates `pluginConfig[meta.name]` against the Zod schema before calling `init()`. Invalid options halt plugin initialization and log validation issues.
 
-## When to use plugins
+## Recommended use cases
 
-- Building reusable integrations (CRM bridges, webhook forwarders)
-- Adding custom message processing (moderation, translation, transcription)
-- Exposing HTTP endpoints alongside the API
-- Adding dashboard pages for monitoring
-- Registering tools for AI agents
+- **CRM synchronization**: Forward customer messages and updates to external CRM platforms
+- **Automated triage**: Perform content moderation, auto-responses, or language translation
+- **Custom APIs**: Mount specialized webhooks or REST endpoints under `/plugins/<name>/`
+- **Dashboard monitoring**: Render custom operational widgets in the web interface
+- **AI tooling**: Register Model Context Protocol (MCP) tools for connected agents
 
-## Related
+## Next steps
 
-- **[Hooks reference](/docs/plugins/hooks-reference)**: Complete hooks API
-- **[PluginClient reference](/docs/plugins/plugin-client)**: Available client methods
-- **[PluginInput breakdown](/docs/plugins/plugin-input)**: What your plugin receives
-- **[Plugin security model](/docs/plugins/security-model)**: Boundaries and restrictions
-- **[Publishing a plugin](/docs/plugins/publishing)**: How to share your plugin
+- **Complete hooks catalogue**: See [Hooks reference](/docs/plugins/hooks-reference).
+- **Client method reference**: See [PluginClient](/docs/plugins/plugin-client).
+- **Input context**: See [PluginInput](/docs/plugins/plugin-input).
+- **Security boundaries**: See [Plugin security model](/docs/plugins/security-model).
+- **Publish to npm**: See [Publishing a plugin](/docs/plugins/publishing).

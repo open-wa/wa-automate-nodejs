@@ -64,28 +64,29 @@ export type EvaluateFn = <Arg, Ret>(
 ) => Promise<Ret>;
 
 /**
- * Client - High-level facade for WhatsApp Web automation.
- * 
+ * High-level facade for WhatsApp Web automation.
+ *
  * Composes:
- * - OpenWAClient from @open-wa/core (lifecycle, events, plugins)
- * - Transport for WAPI method calls
- * - Domain-specific method modules (messaging, groups, chats, contacts)
- * 
+ * - {@link OpenWAClient} from `@open-wa/core` (lifecycle, events, plugins)
+ * - Transport layer for WAPI method invocations
+ * - Domain method interfaces (messaging, media, groups, chats, contacts, utilities)
+ *
  * @example
  * ```typescript
- * import { createClient } from '@open-wa/core';
- * import { Client } from '@open-wa/client';
- * 
- * const openwa = await createClient({ driver, plugins: [] });
- * 
- * const client = new Client({ client: openwa, transport: openwa.getTransport() });
- * await client.start();
- * 
+ * import { createClient } from '@open-wa/wa-automate';
+ * import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+ *
+ * const client = await createClient({
+ *   sessionId: 'sales',
+ *   driver: new PuppeteerDriver(),
+ *   headless: true,
+ * });
+ *
  * // Send a message
- * await client.sendText('123456789@c.us', 'Hello!');
- * 
- * // Listen to messages
- * client.onMessage(msg => console.log(msg));
+ * await client.sendText('447700900000@c.us', 'Hello!');
+ *
+ * // Subscribe to incoming messages
+ * client.onMessage(msg => console.log('Received message:', msg.body));
  * ```
  */
 export class Client implements MessagingMethods, MediaMethods, GroupMethods, ChatMethods, ContactMethods, UtilitiesMethods {

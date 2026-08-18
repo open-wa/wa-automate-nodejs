@@ -1,13 +1,13 @@
 ---
-title: PluginInput Breakdown
-description: Understand what your plugin receives — events, logger, config, sessionId, and client.
+title: PluginInput reference
+description: Overview of the PluginInput context object provided to plugin initialization hooks.
 ---
 
-# PluginInput Breakdown
+# PluginInput reference
 
-When your plugin's `init()` function is called, it receives a `PluginInput` object. This contains everything your plugin needs to operate.
+When open-wa invokes a plugin's `init()` method, it passes a `PluginInput` object containing event emitters, scoped loggers, validated configuration, and client proxies.
 
-## What is PluginInput?
+## Interface definition
 
 ```ts
 interface PluginInput<TConfig = unknown> {
@@ -19,70 +19,68 @@ interface PluginInput<TConfig = unknown> {
 }
 ```
 
-Each field is described below.
+## The events gateway
 
-## `events` — Security-Filtered Event Emitter
+The `events` property provides a security-filtered event bus.
 
-The `events` field is an event emitter that has been filtered for security.
+### Allowed operations
 
-### What you can do
-
-- Subscribe to public events with `on()`, `once()`, and `off()`
+Subscribe to public messaging and lifecycle events using `on()`, `once()`, and `off()`:
 
 ```ts
 events.on('message.received', (payload) => {
-  logger.info('Message received');
+  logger.info('Received incoming message payload');
 });
 ```
 
-### What you cannot do
+### Restricted operations
 
-- **Emit events** — Only the host can emit. Plugins can only subscribe.
-- **Listen to internal events** — Events prefixed with `launch.*`, `browser.*`, and `transport.*` are blocked.
-- **Listen to sensitive events** — Events prefixed with `license.*` and session data events are blocked.
+- **Event emission**: Plugins cannot dispatch events onto the internal event bus.
+- **System events**: Internal events prefixed with `launch.*`, `browser.*`, or `transport.*` are filtered out.
+- **Sensitive events**: Licensing payloads (`license.*`) and authentication session data are inaccessible.
 
-This ensures plugins cannot interfere with the runtime lifecycle or access sensitive information.
+## The logger utility
 
-## `logger` — Scoped Logger
+The `logger` provides structured logging automatically prefixed with your plugin's `meta.name`.
 
-The `logger` provides structured logging with automatic plugin name prefixing.
-
-### Methods
+### Logging methods
 
 ```ts
 logger.info('Plugin initialized', { version: '1.0.0' });
-logger.warn('API key is missing, using defaults');
-logger.error('Failed to connect', { error: 'ECONNREFUSED' });
-logger.debug('Processing message', { messageId: 'abc123' });
+logger.warn('Configuration property missing; applying default');
+logger.error('Failed to connect to upstream service', { error: 'ECONNREFUSED' });
+logger.debug('Processing message payload', { messageId: '3EB0A1B2' });
 ```
 
-- `info(message, meta?)` — Informational messages
-- `warn(message, meta?)` — Warnings
-- `error(message, meta?)` — Errors
-- `debug(message, meta?)` — Debug output (only visible when debug logging is enabled)
+Available log levels:
 
-### Auto-Prefixing
+- `logger.info(message, meta?)`: Informational messages
+- `logger.warn(message, meta?)`: Operational warnings
+- `logger.error(message, meta?)`: Error events and stack traces
+- `logger.debug(message, meta?)`: Verbose debugging output (enabled via debug log levels)
 
-All log output is automatically prefixed with your plugin name:
+### Automatic prefixing
 
-```
+All log messages include the plugin identifier prefix:
+
+```text
 [greeting-bot] Plugin initialized { version: '1.0.0' }
 ```
 
-### Log Persistence
+### Log persistence
 
-Plugin logs flow through the host's logging system. Whether they are persisted depends on the host's logging configuration. By default, logs are written to stdout/stderr.
+Plugin log messages stream into the host process logging pipeline (writing to standard output and standard error by default).
 
-## `config` — Validated Configuration
+## Validated configuration (config)
 
-The `config` field contains your plugin's configuration from the global `wa.config.js` file, already validated against your `configSchema`.
+The `config` property contains plugin options parsed from `wa.config.mjs`, validated against your plugin's `configSchema`.
 
-### Access Pattern
+### Configuration access pattern
 
-Your plugin's config is accessed via the `pluginConfig` key in the global config file:
+Specify options under `pluginConfig.<plugin-name>` in `wa.config.mjs`:
 
 ```js
-// wa.config.js
+// wa.config.mjs
 export default {
   pluginConfig: {
     'my-plugin': {
@@ -93,18 +91,24 @@ export default {
 };
 ```
 
+Access the validated values inside your plugin:
+
 ```ts
 // my-plugin.ts
-init: async ({ config }) => {
-  // config is { apiUrl: string; apiKey: string }
-  // Already validated against your configSchema
-  console.log(config.apiUrl);
-}
+export default createPlugin({
+  meta: { name: 'my-plugin' },
+  configSchema,
+
+  init: async ({ config }) => {
+    // Typed as { apiUrl: string; apiKey: string }
+    console.log('Connecting to API:', config.apiUrl);
+  },
+});
 ```
 
-### Type Inference
+### Automatic type inference
 
-When you provide a `configSchema`, the `config` type is automatically inferred:
+When you define a `configSchema` using Zod, TypeScript infers the exact shape of `config`:
 
 ```ts
 const configSchema = z.object({
@@ -114,40 +118,38 @@ const configSchema = z.object({
 });
 
 // config is typed as { apiUrl: string; apiKey: string; retries: number }
-init: async ({ config }) => { ... }
+init: async ({ config }) => {
+  // TypeScript enforces properties on config
+};
 ```
 
-## `sessionId` — Current Session
+## Session identifier (sessionId)
 
-A string identifier for the current session.
+`sessionId` contains the unique string identifier for the active WhatsApp session:
 
 ```ts
-init: async ({ sessionId }) => {
+init: async ({ sessionId, logger }) => {
   logger.info('Plugin loaded for session', { sessionId });
-}
+};
 ```
 
-Use this for:
+Use `sessionId` to partition data storage, segment audit records, or scope multi-tenant integrations.
 
-- Logging and debugging
-- Scoping data to a specific session
-- Differentiating behavior across multiple sessions
+## WhatsApp client proxy (client)
 
-## `client` — WA Method Proxy
-
-The `client` is a transport-agnostic proxy for calling WhatsApp methods.
+The `client` object is a transport-agnostic proxy exposing WhatsApp automation methods:
 
 ```ts
 init: async ({ client }) => {
-  await client.sendText('1234567890@c.us', 'Hello!');
-  const number = await client.getHostNumber();
-}
+  await client.sendText('447700900000@c.us', 'Service initialized');
+  const hostNumber = await client.getHostNumber();
+};
 ```
 
-See the **[PluginClient reference](/docs/plugins/plugin-client)** for the complete list of available methods.
+For the complete method list, see the [PluginClient reference](/docs/plugins/plugin-client).
 
-## Related
+## Next steps
 
-- **[Hooks reference](/docs/plugins/hooks-reference)** — What your plugin can return
-- **[PluginClient reference](/docs/plugins/plugin-client)** — Available client methods
-- **[Plugin security model](/docs/plugins/security-model)** — What plugins can and cannot do
+- **Event hooks catalog**: See [Hooks reference](/docs/plugins/hooks-reference).
+- **Client method catalog**: See [PluginClient reference](/docs/plugins/plugin-client).
+- **Security boundaries**: See [Plugin security model](/docs/plugins/security-model).

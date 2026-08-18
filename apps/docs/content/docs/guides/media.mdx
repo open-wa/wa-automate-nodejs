@@ -1,30 +1,44 @@
 ---
-title: Media
-description: Send files and media, then decrypt incoming content when your flow needs access to the raw bytes.
+title: Media handling and decryption
+description: Send images, documents, audio, stickers, and videos, and decrypt incoming media payloads.
 ---
 
-# Media
+# Media handling and decryption
+
+This guide explains how to dispatch media attachments and decrypt incoming media payloads received from WhatsApp.
 
 ## Send files and media
 
+Use domain client methods to dispatch media to conversations:
+
 ```ts
-await client.sendImage(chatId, dataUrl, 'photo.jpg', 'caption');
+const chatId = '447700900000@c.us';
+
+// Dispatch photo attachments
+await client.sendImage(chatId, dataUrl, 'photo.jpg', 'Item snapshot');
+
+// Dispatch voice notes (Push to Talk)
 await client.sendPtt(chatId, dataUrl);
-await client.sendFile(chatId, dataUrl, 'file.pdf', 'check this pdf');
-await client.sendFileFromUrl(chatId, url);
+
+// Dispatch documents (PDFs, spreadsheets, text files)
+await client.sendFile(chatId, dataUrl, 'invoice.pdf', 'Monthly invoice');
+
+// Dispatch media directly from a remote HTTP URL
+await client.sendFileFromUrl(chatId, 'https://cdn.example.com/assets/report.pdf');
+
+// Dispatch custom stickers
 await client.sendImageAsSticker(chatId, dataUrl);
-await client.sendStickerfromUrl(chatId, url);
 ```
 
-For media helpers that expect content payloads, prefer a proper data URL or a remote URL that your runtime can actually fetch.
+## Data URL generation
 
-## Data URL creation
-
-A data URL gives the runtime the file bytes and the MIME type in one string. Use this shape when sending media from disk, a buffer, or another service:
+Media methods accept base64 Data URLs encoding both the file MIME type and the raw binary payload:
 
 ```text
-data:<mime-type>;base64,<base64-data>
+data:<MIME_TYPE>;base64,<BASE64_DATA>
 ```
+
+Construct Data URLs in Node.js using `fs/promises`:
 
 ```ts
 import { readFile } from 'node:fs/promises';
@@ -32,100 +46,67 @@ import { readFile } from 'node:fs/promises';
 const buffer = await readFile('./photo.jpg');
 const dataUrl = `data:image/jpeg;base64,${buffer.toString('base64')}`;
 
-await client.sendImage(chatId, dataUrl, 'photo.jpg', 'caption');
+await client.sendImage('447700900000@c.us', dataUrl, 'photo.jpg', 'Product image');
 ```
 
-Set the MIME type to the real file type whenever you know it. `application/octet-stream` can work for generic documents, but image, audio, video, and sticker helpers often need a more specific value.
+## MIME type guidelines
 
-## MIME rules
+WhatsApp validates file types based on the declared MIME type and file extension:
 
-WhatsApp decides how to render media from the helper you call, the filename, and the MIME type in the data URL or remote response. Common safe values are:
+| Media kind | Recommended MIME types | Target methods |
+| --- | --- | --- |
+| Images | `image/jpeg`, `image/png`, `image/webp` | `sendImage` |
+| Animated GIFs | `image/gif` | `sendVideoAsGif` |
+| Video clips | `video/mp4`, `video/quicktime` | `sendFile`, `sendVideoAsGif` |
+| Voice notes | `audio/ogg; codecs=opus` | `sendPtt` |
+| Audio files | `audio/mpeg`, `audio/mp4`, `audio/ogg` | `sendAudio`, `sendFile` |
+| Documents | `application/pdf`, `text/plain`, `application/zip` | `sendFile` |
+| Stickers | `image/webp`, `image/png` | `sendImageAsSticker` |
 
-| Media | MIME types to prefer |
-| --- | --- |
-| Images | `image/jpeg`, `image/png`, `image/webp` |
-| GIFs | `image/gif` |
-| Video | `video/mp4`, `video/quicktime` |
-| Voice notes | `audio/ogg` with Opus audio |
-| Audio files | `audio/mpeg`, `audio/mp4`, `audio/ogg` |
-| Documents | `application/pdf`, `text/plain`, or the real document MIME type |
+## Remote URL authentication
 
-If a send fails or has the incorrect type, examine the data URL prefix first. Common problems include a missing `;base64` value or an `image/jpg` value instead of `image/jpeg`. A WebP image can fail in a non-sticker helper. A remote URL can return an auth page with `text/html` instead of the file.
-
-## Remote URL auth
-
-`sendFileFromUrl` is useful when the file already lives behind HTTP. The runtime must be able to fetch the URL directly, so private files need either a short-lived signed URL or headers that your server accepts.
+When dispatching media from private CDNs or authenticated APIs, pass custom HTTP request headers to `sendFileFromUrl`:
 
 ```ts
 await client.sendFileFromUrl(
-  chatId,
-  'https://files.example.com/invoices/123.pdf',
-  'invoice-123.pdf',
-  'Invoice 123',
+  '447700900000@c.us',
+  'https://api.example.com/v1/invoices/9876.pdf',
+  'invoice-9876.pdf',
+  'Invoice 9876',
   {
     Authorization: `Bearer ${process.env.FILE_API_TOKEN}`,
   }
 );
 ```
 
-Use signed URLs when possible. They do not put long-lived credentials in the browser or runtime layer. If you use headers, make sure that the endpoint returns the file bytes and a correct `Content-Type` header.
+## File size constraints
 
-## File size limits
-
-Media limits are enforced by WhatsApp and can change without notice. Treat these as practical limits to test against, not a permanent contract:
-
-| Media type | Practical limit |
-| --- | --- |
-| Images | Keep under 16 MB |
-| Video and GIF-style sends | Keep under 16 MB for the most reliable delivery |
-| Voice notes and audio | Keep under 16 MB unless you have tested larger files in your target runtime |
-| Stickers | Keep under 1 MB |
-| Documents | WhatsApp Web can accept larger files, but keep automation payloads under 100 MB unless you have tested your account, browser, and host memory |
-
-Base64 data URLs are larger than the original file by roughly one third. A 12 MB image becomes about 16 MB of string data before it reaches the runtime, so leave headroom for memory and transport overhead.
-
-## Video and GIF caveat
-
-Video-style delivery depends on the browser/runtime surface you launch with. If you rely on Chrome-specific behavior, configure the browser path explicitly and test against the environment you deploy.
+| Media category | Recommended limit | Notes |
+| --- | --- | --- |
+| Images & Photos | Up to 16 MB | Automatic compression applied by WhatsApp |
+| Video clips | Up to 16 MB | Use MP4 encoding for maximum device compatibility |
+| Voice notes & Audio | Up to 16 MB | Opus audio format in OGG container |
+| Stickers | Up to 1 MB | 512x512 square WebP format |
+| Generic Documents | Up to 100 MB | Large attachments require adequate host RAM |
 
 ## Decrypt incoming media
 
+Incoming WhatsApp media files are encrypted end-to-end. Decrypt them to access the raw binary bytes:
+
 ```ts
-import { decryptMedia } from '@open-wa/wa-automate';
+import { decryptMedia } from '@open-wa/decrypt';
 
 client.onMessage(async (message) => {
-  if (!message.mimetype) return;
+  if (!message.isMedia || !message.mimetype) return;
 
-  const mediaData = await decryptMedia(message);
-  // persist, inspect, or re-send it from here
+  const buffer = await decryptMedia(message);
+  console.log(`Decrypted ${buffer.length} bytes for message ${message.id}`);
 });
 ```
 
-## DecryptMedia output
+## Persistent storage examples
 
-The standalone `decryptMedia` helper from the decrypt package returns a Node.js `Buffer` containing the raw decrypted bytes:
-
-```ts
-import { writeFile } from 'node:fs/promises';
-import { decryptMedia } from '@open-wa/decrypt';
-
-const buffer = await decryptMedia(message);
-await writeFile('./incoming-media', buffer);
-```
-
-The higher-level client method in the current client surface returns a data URL so it can be passed straight back into send helpers:
-
-```ts
-const dataUrl = await client.decryptMedia(message);
-const base64 = dataUrl.split(',')[1] ?? '';
-const buffer = Buffer.from(base64, 'base64');
-```
-
-Use `message.mimetype` to choose the file extension or upload metadata. Decryption needs the media fields WhatsApp provides on the message, including the media URL, media key, type, MIME type, hash, and usually size.
-
-## Storage example
-
-To save decrypted media to disk, convert the decrypted output into a buffer and write it with the right extension:
+### Save media to local disk
 
 ```ts
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -134,19 +115,20 @@ import mime from 'mime-types';
 import { decryptMedia } from '@open-wa/decrypt';
 
 client.onMessage(async (message) => {
-  if (!message.mimetype) return;
+  if (!message.isMedia || !message.mimetype) return;
 
   const buffer = await decryptMedia(message);
   const extension = mime.extension(message.mimetype) || 'bin';
-  const filename = `${message.id ?? Date.now()}.${extension}`;
+  const filename = `${message.id}.${extension}`;
   const outputPath = path.join('media', filename);
 
   await mkdir('media', { recursive: true });
   await writeFile(outputPath, buffer);
+  console.log(`Saved media to ${outputPath}`);
 });
 ```
 
-For S3, upload the same bytes and keep the MIME type as object metadata:
+### Stream media to Amazon S3 or Cloudflare R2
 
 ```ts
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
@@ -155,45 +137,34 @@ import { decryptMedia } from '@open-wa/decrypt';
 const s3 = new S3Client({ region: 'us-east-1' });
 
 client.onMessage(async (message) => {
-  if (!message.mimetype) return;
+  if (!message.isMedia || !message.mimetype) return;
 
   const buffer = await decryptMedia(message);
-  const key = `whatsapp/${message.id ?? Date.now()}`;
+  const key = `inbox/${message.id}`;
 
-  await s3.send(new PutObjectCommand({
-    Bucket: process.env.MEDIA_BUCKET,
-    Key: key,
-    Body: buffer,
-    ContentType: message.mimetype,
-  }));
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: process.env.MEDIA_BUCKET,
+      Key: key,
+      Body: buffer,
+      ContentType: message.mimetype,
+    })
+  );
+  console.log(`Uploaded media to S3: ${key}`);
 });
 ```
 
-If you want this handled automatically, use the S3 media integration instead of writing upload logic in every message handler.
+## Stale media recovery and caching
 
-## Recovery helpers
+WhatsApp server URLs for media attachments expire over time. If a media message is not decrypted immediately upon arrival:
 
-Some older helpers such as stale-media recovery or sticker-specific decryption can depend on the runtime surface you are targeting. Validate those helpers in your deployment before baking them into a production flow.
+- Media URLs may return HTTP 404/410 errors.
+- Decrypt calls on historic messages may fail.
 
-## Stale media recovery
+**Best Practice**: Decrypt incoming media immediately upon receipt and archive the resulting buffers to durable object storage (e.g. S3, Cloudflare R2, or disk).
 
-Incoming media points to encrypted blobs on WhatsApp servers. Those URLs can expire or become unavailable, especially for older messages or messages that were not downloaded while the session was active.
+## Next steps
 
-When media is stale, decryption usually fails during the download step because the encrypted blob can no longer be fetched. Recovery helpers can sometimes ask the runtime to refresh the media reference, but success depends on WhatsApp still making the media available to that session.
-
-For production flows, decrypt and store media when you receive it. If the media is necessary for compliance, support, or analytics, save it before you complete the workflow. Use disk, object storage, or the S3 integration.
-
-## Runtime limitations
-
-Media handling depends on more than the open-wa method call. The browser driver, host memory, network access, Chrome feature support, and WhatsApp Web changes can all affect send and decrypt behavior.
-
-Known limitations to plan around:
-
-- remote URLs must be reachable from the runtime host, not just from your app server
-- data URLs keep the full file in memory as a string, so large files can pressure Node.js and the browser
-- video, GIF, sticker, and voice-note behavior is more runtime-sensitive than plain document sending
-- stale media is not always recoverable after WhatsApp removes or expires the encrypted blob
-- MIME type mismatches can make media send as a document, fail validation, or decrypt without a useful extension
-- headless browser differences can affect media capture, conversion, and upload flows
-
-Test the exact media types, sizes, and runtime driver you plan to deploy. Small local examples are not a guarantee that high-volume or large-file production traffic will behave the same way.
+- **Amazon S3 integration plugin**: See [S3 media guide](/docs/guides/s3-media).
+- **Incoming webhook dispatching**: See [Webhooks for business](/docs/guides/webhooks-for-business).
+- **Core messages guide**: See [Messages and message events](/docs/guides/messages).

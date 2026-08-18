@@ -1,24 +1,24 @@
 ---
 title: Custom code
-description: Use createClient in your Node.js app, choose a driver, and handle startup and shutdown safely.
+description: Use createClient in your Node.js application, select a browser driver, and manage startup and shutdown lifecycles.
 ---
 
 # Custom code
 
-Use this path when your Node.js app needs to own the open-wa runtime instead of calling a separate Easy API process.
+Use this guide when your Node.js application needs to embed the open-wa runtime directly instead of connecting to a separate Easy API server.
 
 ## Install the package and a driver
 
 <PackageManagerTabs command="@open-wa/wa-automate @open-wa/driver-puppeteer" />
 
-If your environment has stricter native-install permissions, only fall back to `--unsafe-perm` when you have confirmed you actually need it.
+If your environment has strict native module installation permissions, pass `--unsafe-perm` only when required by your system.
 
-## Runtime entrypoint
+## Runtime entry point
 
 <Tabs items={['v5 createClient', 'Legacy create']}>
 <Tab value="v5 createClient">
 
-The v5 public contract centers on `createClient` from `@open-wa/core`, exposed through `@open-wa/wa-automate`. Start new v5 custom code with `createClient` because it matches the current runtime and driver architecture.
+The v5 programmatic API centers on `createClient` from `@open-wa/core`, re-exported through `@open-wa/wa-automate`. Use `createClient` for all new v5 custom code projects.
 
 ```ts
 import { createClient } from '@open-wa/wa-automate';
@@ -41,12 +41,12 @@ async function start() {
 start().catch(console.error);
 ```
 
-On the first run, authenticate the session. Scan the QR code or use another supported login flow. When the session is ready, send `Hi` to the connected account. The account sends the reply above.
+During the initial run, authenticate the session by scanning the QR code in the terminal or using link-code pairing. Once the session is ready, incoming messages trigger the `onMessage` listener.
 
 </Tab>
 <Tab value="Legacy create">
 
-`create()` is the older compatibility entry point. It still appears in some v4-era examples, but it is not the first pattern to copy for new v5 code.
+`create()` is the legacy entry point from v4. It is retained for backward compatibility, but is not recommended for new v5 development.
 
 ```ts
 import { create } from '@open-wa/wa-automate';
@@ -69,13 +69,13 @@ start().catch(console.error);
 </Tab>
 </Tabs>
 
-## Choose the driver explicitly
+## Choose a browser driver explicitly
 
-For embedded runtime code, install the driver package you want to run with. The examples above use Puppeteer:
+Install the driver package that matches your target runtime environment. The following example uses Puppeteer:
 
 <PackageManagerTabs command="@open-wa/driver-puppeteer" />
 
-Then pass the driver when you create the client:
+Pass the driver instance to the `createClient` options object:
 
 ```ts
 import { createClient } from '@open-wa/wa-automate';
@@ -98,17 +98,20 @@ async function start() {
 start().catch(console.error);
 ```
 
-## TypeScript setup
+## TypeScript configuration
 
-Custom code projects work best with a normal Node.js TypeScript setup. Use a recent Node target, keep module resolution compatible with your runtime, and await async client methods instead of treating them like sync helpers.
+Custom code projects work best with modern TypeScript compiler settings (`target: ES2022`, `moduleResolution: NodeNext` or `Bundler`). Ensure you `await` all asynchronous client methods.
 
 ## What runtime creation does
 
-`createClient()` launches the automation runtime, restores or authenticates the session, and returns the client surface you use for listeners and actions.
+The `createClient` function:
 
-It is the boundary where configuration, browser launch, authentication state, and runtime listeners all meet.
+1. Initializes the browser driver process.
+2. Restores saved credentials from disk or initiates the authentication flow.
+3. Injects the automation client into the WhatsApp Web session.
+4. Returns a `Client` instance for registering event listeners and executing actions.
 
-## Build a real launch config
+## Build a custom launch configuration
 
 ```ts
 const client = await createClient({
@@ -120,17 +123,17 @@ const client = await createClient({
 });
 ```
 
-Use an explicit driver and browser configuration when browser-specific behavior matters for your flow.
+Specify explicit driver options whenever your deployment requires custom browser flags or non-default binary locations.
 
-## Auth behavior
+## Authentication lifecycle
 
-On the first run, the runtime must authenticate the WhatsApp session. Scan a QR code or use another supported login flow. The available flow depends on your config and environment.
+During the initial launch, the runtime requires authentication. You can authenticate by scanning the QR code in the terminal or using an eight-digit pairing code.
 
-After the first successful login, the runtime saves session data for the configured `sessionId`. Later runs with the same session can restore that state. The process needs valid saved auth data. If the data is available, you do not need to log in again.
+After successful authentication, session credentials are saved to disk under the directory matching your configured `sessionId`. Subsequent process restarts reload this saved state automatically.
 
-## First send/receive
+## Send and receive messages
 
-This example sends a startup message to a known chat and replies when that chat sends `Hi`:
+The following example sends an initial status message to a specific chat ID and listens for incoming replies:
 
 ```ts
 import { createClient } from '@open-wa/wa-automate';
@@ -157,11 +160,9 @@ async function start() {
 start().catch(console.error);
 ```
 
-Replace `15551234567@c.us` with the chat id you want to test against.
+## Process cleanup and graceful shutdown
 
-## Cleanup/shutdown
-
-If your process handles shutdown signals, close the client before exiting so the browser and runtime resources are cleaned up:
+To release browser resources and cleanly exit when the host process terminates, register signal handlers that call `client.stop()`:
 
 ```ts
 import { createClient } from '@open-wa/wa-automate';
@@ -185,45 +186,25 @@ async function start() {
 start().catch(console.error);
 ```
 
-## v5 caveat
+## Compare plugins and custom code
 
-<Callout type="tip" title="Default to createClient">
-  v5 is the forward path, but some examples still show the older `create()` shape for compatibility. Treat `createClient` as the default for new v5 custom code unless a page says otherwise.
-</Callout>
+- **Plugins**: Use `@open-wa/plugin-sdk` to author reusable modular features that can be distributed as packages and loaded via configuration.
+- **Custom code**: Use custom application code for application-specific business logic, database mutations, and internal message routing.
 
-## Plugin vs custom code
+## Compare SocketClient and embedded runtime
 
-Use plugins to make reusable integrations. You can load a plugin through config, share it across projects, or publish it as a package.
+- **SocketClient**: Connects over HTTP RPC and Server-Sent Events to an external Easy API daemon. Choose this when you want to isolate browser process overhead from your application service.
+- **Embedded runtime**: Embeds the browser and client lifecycle directly in your Node.js process using `createClient`. Choose this when you need fine-grained control over driver initialization and browser configuration.
 
-Use custom code when the logic belongs to one app, such as routing incoming messages into your own database, queue, CRM, or business workflow.
+## Browser and runtime guidelines
 
-## SocketClient vs embedded runtime
+- When using a system Chrome installation, pass `executablePath` explicitly in your configuration.
+- On Linux servers, ensure required native libraries for Chromium are installed before launching headless browsers.
+- Always handle errors asynchronously and register error listeners on the client instance.
 
-`SocketClient` connects your Node.js app to a running Easy API instance. The Easy API process owns the browser, session lifecycle, and HTTP surface while your app consumes commands and events remotely.
+## Next steps
 
-Embedded runtime code owns the browser directly inside your process through `createClient`. Use it when you need direct control over driver selection, launch config, shutdown, and session behavior.
-
-## Browser/runtime notes
-
-- If you use your Chrome installation, specify it in the config. Do not depend on automatic discovery.
-- On Linux hosts, validate browser dependencies before debugging application logic.
-- Keep the browser/runtime assumptions the same between local development and production where possible.
-
-## Recommended next steps
-
-- Move session-specific settings into a real config object.
-- Read **[Configuration and CLI](/docs/guides/configuration-and-cli)** for the core options.
-- Read **[Session events](/docs/guides/session-events)** if you need QR or lifecycle hooks.
-- Read **[Best practices](/docs/operations-and-troubleshooting/best-practices)** before production rollout.
-
-## Runtime notes
-
-- Prefer explicit Chrome configuration when you rely on browser-specific behavior.
-- Keep one primary client per process unless you have a clear multi-session orchestration plan.
-- Treat all client methods as async operations and await them consistently.
-
-## Common next moves
-
-- Add `ev` listeners when you need raw lifecycle hooks.
-- Externalize heavy work to queues or workers instead of doing everything inside one `onMessage` callback.
-- Read **[Error handling](/docs/operations-and-troubleshooting/error-handling)** and **[Best practices](/docs/operations-and-troubleshooting/best-practices)** before shipping a long-running bot.
+- **Configure options**: See [Configuration and CLI](/docs/guides/configuration-and-cli).
+- **Listen for lifecycle events**: See [Session events](/docs/guides/session-events).
+- **Review production practices**: See [Production best practices](/docs/operations-and-troubleshooting/best-practices).
+- **Implement error recovery**: See [Error handling](/docs/operations-and-troubleshooting/error-handling).

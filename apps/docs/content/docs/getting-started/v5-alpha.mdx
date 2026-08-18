@@ -1,63 +1,61 @@
 ---
-title: v5 Alpha Status
-description: Understand the current version, when to use v5 vs v4, and what has changed.
+title: Version 5 alpha status
+description: Learn about the current version 5 alpha release, architectural updates, and when to use version 4 or version 5.
 ---
 
-# v5 Alpha Status
+# Version 5 alpha status
 
-This repository is currently on **version 5**, which is still in alpha.
+This repository is currently developed on **version 5**, which is in active alpha.
 
-## What "Alpha" Means
+## What alpha status means
 
-- Maintainers are reorganizing the architecture into a cleaner monorepo structure
-- APIs can change between minor releases
-- Maintainers are still testing some features
-- Breaking changes are possible without major version bumps
+- The codebase is structured as a modular monorepo.
+- Internal and public APIs may evolve between minor releases.
+- Certain legacy v4 flags and helpers are being replaced or redesigned.
 
-**For production systems, use v4.76.0:**
+**For production stability, use version 4.76.0:**
 
 ```bash
 npx @open-wa/wa-automate@4.76.0
 ```
 
-## When to Use v5 vs v4
+## Choose between version 4 and version 5
 
-| Use v5 if... | Use v4 if... |
-|---|---|
-| You are testing new features | You have a mature production system |
-| You are contributing to the project | You need stability guarantees |
-| You are starting a new project | You depend on v4-specific flags or behavior |
-| You want the plugin system | You are not prepared for breaking changes |
+| Use version 5 if... | Use version 4 if... |
+| --- | --- |
+| You are evaluating new features | You run an existing production system |
+| You are contributing to open-wa development | You require strict stability guarantees |
+| You are starting a new project | You rely on legacy v4 flags and conventions |
+| You want to use the plugin SDK or MCP server | You want to avoid breaking changes during upgrades |
 
-## What Changed in v5
+## Key changes in version 5
 
-- **Monorepo architecture**: The project is a monorepo with separate packages
-- **Pluggable browser drivers**: Choose Puppeteer, Playwright, or Lightpanda via separate packages
-- **`createClient` replaces `create`**: The v5 public contract uses `createClient` from `@open-wa/core`
-- **Plugin system**: Load reusable integrations via `plugins` and `pluginConfig` in config
-- **MCP server**: Built-in Model Context Protocol server for AI agent integration
-- **HTTP RPC + SSE**: The runtime uses HTTP RPC for commands and Server-Sent Events for runtime events
+- **Monorepo architecture**: Modular repository containing decoupled packages
+- **Pluggable browser drivers**: Support for Puppeteer, Playwright, and Lightpanda via dedicated driver packages
+- **`createClient` entry point**: Primary programmatic entry point from `@open-wa/core`
+- **Plugin system**: Modular extensions loaded via `plugins` and `pluginConfig`
+- **MCP server**: Built-in Model Context Protocol server exposing methods as tools for AI agents
+- **Transport architecture**: Uses HTTP RPC for method calls and Server-Sent Events (SSE) for real-time events
 
-## Migration from v4
+## Migrate from version 4
 
-If you are moving from v4 to v5:
+To evaluate version 5 alongside an existing v4 deployment:
 
-1. Start with Easy API and confirm `http://localhost:8080/api-docs/` works
-2. Test named sessions, auth, webhooks, and generated schemas in a separate environment
-3. Prefer SocketClient for remote consumers instead of embedding browser/runtime everywhere
-4. Use `createClient` only when you need direct runtime ownership
-5. Expect some older v4 docs, examples, and flags to be reorganized or replaced
+1. Start with Easy API and confirm that `http://localhost:8080/api-docs/` connects and serves methods.
+2. Test session persistence, authentication, webhooks, and schemas in an isolated test environment.
+3. Use `SocketClient` for remote automation rather than embedding browser instances in distributed workers.
+4. Use `createClient` when your application requires direct browser lifecycle management.
 
-See **[Custom code](/docs/getting-started/custom-code)** for the v5 API details.
+For complete programmatic setup instructions, see [Custom code](/docs/getting-started/custom-code).
 
-## Legal and Risk Context
+## Legal and risk considerations
 
 <Callout type="warning">
-**This is unofficial software.** This project is not affiliated with, authorized by, maintained by, sponsored by, or endorsed by WhatsApp or any of its affiliates or subsidiaries.
+This is unofficial software. This project is not affiliated with, authorized by, maintained by, sponsored by, or endorsed by WhatsApp or Meta.
 </Callout>
 
-- **Terms of Service**: When you use this project, you agree to the [Terms of Service](https://github.com/open-wa/wa-automate-nodejs/blob/master/tos.md)
-- **Ban risk**: Automating WhatsApp can violate their terms of service. Use at your own risk. Account bans are possible, especially with aggressive automation or high message volumes.
-- **Rate limits**: WhatsApp enforces rate limits on message sending. Exceeding these can trigger temporary blocks or permanent bans. See **[Rate limits](/docs/guides/rate-limits)** for details.
-- **Cryptography notice**: This distribution includes cryptographic software. Depending on your jurisdiction, there can be restrictions on import, possession, use, or re-export of encryption software. See [Wassenaar Arrangement](http://www.wassenaar.org/) for more information.
-- **Session data**: Session files contain sensitive authentication material. Protect them appropriately.
+- **Terms of Service**: Using this project constitutes agreement to the [Terms of Service](https://github.com/open-wa/wa-automate-nodejs/blob/master/tos.md).
+- **Account restrictions**: Automated WhatsApp interactions can result in temporary blocks or permanent account bans. Test using dedicated non-critical phone numbers.
+- **Rate limits**: Observe messaging limits to avoid spam detection. For details, see [Rate limits](/docs/guides/rate-limits).
+- **Cryptography notice**: This software includes cryptographic libraries. Verify compliance with your local laws regarding cryptographic software. For details, see the [Wassenaar Arrangement guidelines](http://www.wassenaar.org/).
+- **Session security**: Session storage files contain authentication tokens. Restrict file system permissions accordingly.

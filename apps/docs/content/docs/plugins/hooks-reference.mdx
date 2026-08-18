@@ -1,92 +1,88 @@
 ---
 title: Hooks reference
-description: Find the plugin hook to use for lifecycle events, auth, messages, interceptors, routes, pages, tools, and cleanup.
+description: Complete catalogue of open-wa plugin hooks for lifecycle events, authentication, messages, routes, dashboard pages, and tools.
 ---
 
 # Hooks reference
 
-Hooks connect your plugin to the open-wa host. Your plugin's `init()` function returns the handlers and features it wants to use.
+Plugin hooks connect your custom logic to the open-wa execution lifecycle. Return a handlers object from your plugin's `init()` method to register the hooks your integration requires.
 
-All hooks are optional. Use only the hook your task needs.
+All hooks are optional.
 
 ## Lifecycle hooks
 
 ### `core.starting`
 
-Fires when the session is starting up.
+Dispatched when the open-wa runtime starts initialization.
 
 ```ts
 'core.starting': async ({ config }) => {
-  // config is the global wa.config.js contents
-  logger.info('Session starting');
-}
+  logger.info('Session initializing');
+};
 ```
 
-**Payload:** `{ config: unknown }`, the global configuration object.
+**Payload:** `{ config: unknown }` containing global configuration properties.
 
 ### `core.started`
 
-Fires after the session has fully started.
+Dispatched once the session reaches full operational readiness.
 
 ```ts
 'core.started': async () => {
   logger.info('Session ready');
-  // Start one-time setup here
-}
+};
 ```
 
 ### `core.stopping`
 
-Fires when the session is shutting down.
+Dispatched when the host initiates runtime shutdown.
 
 ```ts
 'core.stopping': async ({ reason }) => {
   logger.info('Session stopping', { reason });
-  // Flush queues, save state
-}
+};
 ```
 
-**Payload:** `{ reason?: string }`, why the session is stopping.
+**Payload:** `{ reason?: string }` describing the shutdown cause.
 
 ### `client.ready`
 
-Fires when the WhatsApp client is connected and authenticated.
+Dispatched when the WhatsApp client completes connection and authentication.
 
 ```ts
 'client.ready': async ({ sessionId }) => {
-  logger.info('WhatsApp connected', { sessionId });
-}
+  logger.info('WhatsApp client connected', { sessionId });
+};
 ```
 
-**Payload:** `{ sessionId: string }`, the current session identifier.
+**Payload:** `{ sessionId: string }` containing the current session identifier.
 
-## Auth hooks
+## Authentication hooks
 
 ### `auth.qr`
 
-Fires when a QR code is emitted.
+Dispatched when a new QR code is generated for pairing.
 
 ```ts
 'auth.qr': async ({ sessionId, qr, attempt }) => {
   logger.info('QR code emitted', { sessionId, attempt });
-  // Send the QR to your own display channel
-}
+};
 ```
 
 **Payload:**
 
-- `sessionId`, current session ID
-- `qr`, the QR code string
-- `attempt`, which QR emission this is (increments each time)
+- `sessionId` (`string`): Active session ID
+- `qr` (`string`): Raw QR code data string
+- `attempt` (`number`): Monotonically increasing attempt counter
 
 ### `auth.authenticated`
 
-Fires after successful authentication.
+Dispatched when credentials verify successfully.
 
 ```ts
 'auth.authenticated': async ({ sessionId }) => {
-  logger.info('Authenticated', { sessionId });
-}
+  logger.info('Session authenticated', { sessionId });
+};
 ```
 
 **Payload:** `{ sessionId: string }`
@@ -95,10 +91,10 @@ Fires after successful authentication.
 
 ### `message.received`
 
-Fires when a message is received.
+Dispatched when an incoming message arrives.
 
 ```ts
-function getTextMessage(message: unknown) {
+function parseTextMessage(message: unknown) {
   if (!message || typeof message !== 'object') return null;
 
   const candidate = message as { body?: unknown; from?: unknown; type?: unknown };
@@ -111,83 +107,77 @@ function getTextMessage(message: unknown) {
 }
 
 'message.received': async ({ message }) => {
-  const msg = getTextMessage(message);
-
+  const msg = parseTextMessage(message);
   if (!msg) return;
 
   logger.info('Text message received', { from: msg.from });
-}
+};
 ```
 
-**Payload:** `{ message: unknown }`. Examine the necessary fields before you use them.
+**Payload:** `{ message: unknown }` representing the incoming WhatsApp message object.
 
-To detect message type, check the `type` field:
+Inspect the `type` property to identify message kinds:
 
-- `'chat'`, text message
-- `'image'`, image
-- `'video'`, video
-- `'audio'`, voice note or audio message
-- `'document'`, document/file
-- `'sticker'`, sticker
-- `'location'`, location share
-
-To detect group messages, check `message.isGroupMsg` or whether the `from` field ends with `@g.us`.
+- `'chat'`: Plain text conversation
+- `'image'`: Photo attachment
+- `'video'`: Video clip
+- `'audio'`: Voice note or audio file
+- `'document'`: Generic file attachment
+- `'sticker'`: WhatsApp sticker
+- `'location'`: Geographic coordinate pin
 
 ### `message.sent`
 
-Fires when a message is sent.
+Dispatched when the local session sends a message.
 
 ```ts
 'message.sent': async ({ message }) => {
-  logger.info('Message sent', { message });
-}
+  logger.info('Message dispatched', { message });
+};
 ```
 
 **Payload:** `{ message: unknown }`
 
 ### `message.ack`
 
-Fires when a message acknowledgment is received.
+Dispatched when message delivery status updates.
 
 ```ts
 'message.ack': async ({ messageId, ack }) => {
   logger.info('Message acknowledged', { messageId, ack });
-}
+};
 ```
 
 **Payload:**
 
-- `messageId`, the message ID
-- `ack`, the acknowledgment state (number indicating delivery/read status)
+- `messageId` (`string`): Message identifier
+- `ack` (`number`): WhatsApp acknowledgment status code (`1` = sent, `2` = delivered, `3` = read)
 
 ## Message interceptors
 
 ### `message.send.before`
 
-Called **before** a message is sent. Use it to modify outgoing content or stop your own send flow.
+Invoked **before** dispatching an outgoing message. Use this interceptor to mutate message content or halt dispatch.
 
 ```ts
 'message.send.before': async (
   input: { to: string; content: unknown },
   output: { content: unknown; metadata?: Record<string, unknown> }
 ) => {
-  // Modify outgoing text before it is sent
   if (typeof output.content === 'string') {
-    output.content = output.content.replace(/badword/g, '****');
+    output.content = output.content.trim();
   }
-}
+};
 ```
 
-**Input:** `{ to: string; content: unknown }`, the target and original content.
-**Output:** `{ content: unknown; metadata?: Record<string, unknown> }`, modify `content` to change what gets sent, or add `metadata`.
+**Input:** `{ to: string; content: unknown }`
+**Output:** `{ content: unknown; metadata?: Record<string, unknown> }`
 
-To stop a send, throw an error or set `output.content` to a sentinel value that your plugin handles downstream.
-
-**Performance note:** This interceptor runs for every message send. Keep it fast so that it does not add latency.
+To prevent sending, throw an error from the hook.
 
 ### `message.send.after`
 
-Called **after** a message is sent. Can add metadata.
+Invoked **after** an outgoing message is dispatched.
 
 ```ts
 'message.send.after': async (
@@ -195,17 +185,15 @@ Called **after** a message is sent. Can add metadata.
   output: { metadata?: Record<string, unknown> }
 ) => {
   output.metadata = { sentAt: Date.now() };
-}
+};
 ```
 
 **Input:** `{ messageId: string; to: string }`
 **Output:** `{ metadata?: Record<string, unknown> }`
 
-## API routes
+## Custom API routes (routes)
 
-### `routes`
-
-Return a Hono sub-app that will be mounted at `/plugins/<plugin-name>/`.
+Mount custom HTTP routes using a Hono sub-application under `/plugins/<plugin-name>/`:
 
 ```ts
 import { Hono } from 'hono';
@@ -214,130 +202,89 @@ routes: () => {
   const app = new Hono();
 
   app.get('/status', (c) => {
-    return c.json({ plugin: 'my-plugin', status: 'ok' });
+    return c.json({ status: 'ok' });
   });
 
   app.post('/webhook', async (c) => {
     const body = await c.req.json();
-    // handle incoming webhook
-    return c.json({ ok: true });
+    return c.json({ received: true });
   });
 
   return app;
-}
+};
 ```
 
-Routes are automatically mounted and accessible at `/plugins/<plugin-name>/`.
+## Web dashboard pages (pages)
 
-See **[HTTP routes in plugins](/docs/plugins/hono-routes)** for more details.
-
-## Dashboard pages
-
-### `pages`
-
-Declare dashboard pages this plugin wants rendered in the dashboard sidebar.
+Declare custom panels to render in the web dashboard navigation sidebar:
 
 ```ts
-pages: [{
-  path: '/',
-  title: 'Plugin Status',
-  icon: '📊',
-  order: 1,
-  description: 'Current plugin status and configuration',
-}]
+pages: [
+  {
+    path: '/',
+    title: 'Plugin Status',
+    icon: 'Activity',
+    order: 1,
+    description: 'Current plugin status and metrics',
+  },
+];
 ```
 
-**Fields:**
+## Model Context Protocol tools (tool)
 
-- `path`, route segment (becomes `/plugins/<pluginName>/<path>`)
-- `title`, display title in sidebar
-- `icon`, emoji or Lucide icon name
-- `order`, sort order (lower = higher in sidebar)
-- `description`, optional description for the default status view
-
-See **[Dashboard pages](/docs/plugins/dashboard-pages)** for more details.
-
-## AI tools
-
-### `tool`
-
-Register tools that AI agents or automation scripts can call. Keep tool descriptions narrow and validate arguments. Do not expose actions that an agent must not run.
+Register structured tools callable by connected AI assistants:
 
 ```ts
 init: async ({ client }) => ({
   tool: {
-    sendWelcomeMessage: {
-      description: 'Send a welcome message to a contact',
+    sendGreeting: {
+      description: 'Send a greeting message to a contact',
       args: {
-        chatId: z.string().describe('The chat ID to send to'),
-        name: z.string().describe('The contact name'),
+        chatId: z.string().describe('Target WhatsApp chat ID'),
+        name: z.string().describe('Recipient name'),
       },
       execute: async (args, context) => {
         if (typeof args.chatId !== 'string' || typeof args.name !== 'string') {
-          return 'chatId and name must be strings';
+          return 'Invalid arguments: chatId and name must be strings';
         }
 
         await client.sendText(
           args.chatId,
-          `Welcome, ${args.name}!`
+          `Hello, ${args.name}!`
         );
-        context.logger.info('Welcome message sent', { sessionId: context.sessionId });
-        return `Welcome message sent to ${args.chatId}`;
+        context.logger.info('Greeting sent', { sessionId: context.sessionId });
+        return `Greeting successfully delivered to ${args.chatId}`;
       },
     },
   },
-})
+});
 ```
 
-**Tool definition:**
+## Resource disposal (dispose)
 
-- `description`, what the tool does (shown to AI agents)
-- `args`, Zod schema for arguments
-- `execute`, the implementation function
-
-**Tool context:**
-
-- `sessionId`, current session ID
-- `logger`, scoped logger
-- `abort`, AbortSignal for cancellation
-
-The tool context does not include `client`. Tools that need WhatsApp methods must close over `client` from `init()`, as shown above.
-
-See **[AI tools](/docs/plugins/ai-tools)** for more details.
-
-## Cleanup
-
-### `dispose`
-
-Called when the session is shutting down. Use this to clean up resources.
+Invoked during shutdown to release external resources:
 
 ```ts
 dispose: async () => {
-  // Close database connections
-  // Flush message queues
-  // Wait for in-flight requests
-  logger.info('Plugin disposed');
-}
+  // Close database connections and flush in-flight queues
+  logger.info('Plugin resources cleaned up');
+};
 ```
 
-## Catch-all
+## Catch-all event hook (event)
 
-### `event`
-
-Receives every public event. Use this when you need to react to events that do not have a specific hook.
+Subscribes to all public events dispatched across the runtime:
 
 ```ts
 event: async ({ event, payload }) => {
-  logger.debug('Event received', { event, payload });
-}
+  logger.debug('Runtime event dispatched', { event, payload });
+};
 ```
 
 **Input:** `{ event: string; payload: unknown }`
 
-Use specific hooks when possible. They are easier to test and prevent catch-all work on every event.
+## Next steps
 
-## Related
-
-- **[Plugin getting started](/docs/plugins/getting-started)**, build your first plugin
-- **[PluginClient reference](/docs/plugins/plugin-client)**, available client methods
-- **[PluginInput breakdown](/docs/plugins/plugin-input)**, what your plugin receives
+- **Build your first plugin**: See [Plugin development quickstart](/docs/plugins/getting-started).
+- **Client method reference**: See [PluginClient reference](/docs/plugins/plugin-client).
+- **Context reference**: See [PluginInput reference](/docs/plugins/plugin-input).

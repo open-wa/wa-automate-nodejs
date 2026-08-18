@@ -1,33 +1,34 @@
 ---
-title: Publishing a Plugin
-description: How to package, version, and share your plugin with the community.
+title: Publishing a plugin
+description: Package, version, test, and publish open-wa plugins to the npm registry.
 ---
 
-# Publishing a Plugin
+# Publishing a plugin
 
-Once you have built a plugin, you can want to share it with others. This guide covers packaging, publishing, and documentation best practices.
+Once you have built a custom open-wa plugin, you can publish it to the public npm registry (or a private package registry) to share it across projects.
 
-## How to Share a Plugin
+## Distribution model
 
 <Callout type="info">
-**There is no public plugin marketplace.** Sharing a plugin means publishing it as an npm package that users can install and load.
+Plugins are standard npm packages. Users install them using their preferred package manager and register them in their `wa.config.mjs` configuration.
 </Callout>
 
-The workflow is:
-1. Build your plugin as an npm package
-2. Publish it to npm (or a private registry)
-3. Users install it with `npm install` or `pnpm add`
-4. Users load it via the `plugins` array in `wa.config.js`
+The publishing workflow comprises four steps:
 
-## Package Structure
+1. Build and bundle your plugin module with TypeScript.
+2. Publish the package to npm.
+3. Consumers install the package with `npm install` or `pnpm add`.
+4. Consumers register the package name in their `plugins` array.
 
-### package.json
+## Package structure
+
+### Manifest configuration (package.json)
 
 ```json
 {
   "name": "@myorg/my-plugin",
   "version": "1.0.0",
-  "description": "A plugin that does X",
+  "description": "Custom open-wa plugin for CRM synchronization",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -49,21 +50,19 @@ The workflow is:
 }
 ```
 
-### Key Fields
+### Key manifest properties
 
-- **`name`**, Use a scoped name (`@myorg/my-plugin`) to prevent collisions
-- **`main`**, The entry point for CommonJS consumers
-- **`exports`**, Modern module resolution with ESM support
-- **`types`**, TypeScript type declarations
-- **`files`**, Only ship the `dist` folder, not source files
-- **`peerDependencies`**, Declare compatibility with `@open-wa/plugin-sdk`
+- `name`: Use a scoped package name (`@myorg/my-plugin`) to prevent namespace collisions.
+- `main` and `exports`: Point to compiled JavaScript bundles in `dist/`.
+- `types`: Declare the path to generated TypeScript declaration files (`.d.ts`).
+- `files`: Include only build output in the published archive.
+- `peerDependencies`: Specify the supported `@open-wa/plugin-sdk` version range.
 
-### TypeScript Compilation
+### TypeScript build configuration
 
-Compile your plugin before publishing:
+Configure `tsconfig.json` to emit declaration files:
 
 ```json
-// tsconfig.json
 {
   "compilerOptions": {
     "target": "ES2022",
@@ -81,17 +80,17 @@ Compile your plugin before publishing:
 
 ## Versioning
 
-### Semantic Versioning
+### Semantic versioning
 
-Follow semver (`MAJOR.MINOR.PATCH`):
+Follow Semantic Versioning (`MAJOR.MINOR.PATCH`):
 
-- **MAJOR**, Breaking changes (e.g., removing hooks, changing config schema)
-- **MINOR**, New features (e.g., adding new hooks, new config options)
-- **PATCH**, Bug fixes
+- **MAJOR**: Breaking changes (such as modified hook payloads or updated configuration schema keys)
+- **MINOR**: Backward-compatible new features (such as new tools, routes, or hooks)
+- **PATCH**: Backward-compatible bug fixes
 
-### Compatibility with open-wa Versions
+### Compatibility with open-wa releases
 
-Note which versions of open-wa your plugin is compatible with:
+Declare compatibility ranges in `package.json`:
 
 ```json
 {
@@ -104,54 +103,52 @@ Note which versions of open-wa your plugin is compatible with:
 }
 ```
 
-### Communicating Breaking Changes
+### Breaking change management
 
-When releasing a major version:
-- Update the README with migration instructions
-- Use GitHub releases with changelogs
-- Consider deprecation warnings in the plugin code before removing features
+When publishing a major version:
 
-## Telling Users How to Load It
+- Document migration steps in the package `README.md`.
+- Detail breaking changes in GitHub release notes.
+- Emit runtime deprecation warnings prior to removing functionality.
 
-### Installation
+## Installation and usage instructions
+
+### Package installation
+
+Provide installation commands in your plugin documentation:
 
 ```bash
 npm install @myorg/my-plugin
-# or
-pnpm add @myorg/my-plugin
 ```
 
-### Configuration
+### Configuration example
 
-Document the exact `wa.config.js` entries users need:
+Document the configuration structure required in `wa.config.mjs`:
 
 ```js
-// wa.config.js
 export default {
   plugins: [
     '@myorg/my-plugin',
   ],
   pluginConfig: {
     'my-plugin': {
-      // Document each field here
       apiUrl: 'https://api.example.com',
       apiKey: process.env.MY_PLUGIN_API_KEY,
-      enabled: true,
     },
   },
 };
 ```
 
-## Documenting Your Plugin
+## Documentation guidelines
 
-### README Template
+### README template
 
-The plugin README must include:
+Include a clear usage template in your repository `README.md`:
 
 ````markdown
 # @myorg/my-plugin
 
-Brief description of what the plugin does.
+Brief description of the plugin's functionality.
 
 ## Installation
 
@@ -161,86 +158,61 @@ npm install @myorg/my-plugin
 
 ## Configuration
 
-Add to your `wa.config.js`:
+Add the plugin to `wa.config.mjs`:
 
 ```js
 export default {
   plugins: ['@myorg/my-plugin'],
   pluginConfig: {
     'my-plugin': {
-      // necessary: Description
       apiKey: process.env.MY_PLUGIN_API_KEY,
-      // optional: Description (default: value)
-      optionName: 'default',
+      timeoutMs: 5000,
     },
   },
 };
 ```
 
-### Configuration Options
+## Configuration reference
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| apiKey | string | Yes | - | Your API key |
-| optionName | string | No | "default" | Description |
-
-## Features
-
-- Feature 1
-- Feature 2
-
-## Troubleshooting
-
-### Common issue 1
-Solution...
-
-### Common issue 2
-Solution...
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `apiKey` | `string` | Yes | - | API key for upstream authentication |
+| `timeoutMs` | `number` | No | `5000` | Request timeout in milliseconds |
 ````
 
-### Config Options Reference
+## Testing plugins locally
 
-Document each config field with:
-- Type
-- Whether it is necessary
-- Default value
-- Description
-- Example
+### Test with a local file path
 
-## Testing Before Publishing
-
-### Local Testing with File Path
-
-Before publishing to npm, test locally:
+Before publishing, load the local build directory directly:
 
 ```js
-// wa.config.js
 export default {
   plugins: [
-    './path/to/my-plugin',  // Local file path
+    './path/to/my-plugin/dist/index.js',
   ],
   pluginConfig: {
     'my-plugin': {
-      // test config
+      apiKey: 'test-key',
     },
   },
 };
 ```
 
-### Named Session Testing
+### Test with isolated sessions
 
-Test with a named session to isolate test data:
+Run tests using an isolated temporary session:
 
 ```bash
 npx @open-wa/wa-automate@alpha --session-id plugin-test --port 8080
 ```
 
-### Multi-Session Compatibility
+### Multi-session verification
 
-If your plugin uses session-specific data, test it with multiple sessions running simultaneously to make sure there are no conflicts.
+If your plugin stores state or manages caching, verify that multiple sessions executing concurrently do not corrupt shared state.
 
-## Related
+## Next steps
 
-- **[Plugin getting started](/docs/plugins/getting-started)**, Build your first plugin
-- **[Hooks reference](/docs/plugins/hooks-reference)**, Available hooks
-- **[Plugin security model](/docs/plugins/security-model)**, Security boundaries
+- **Plugin development quickstart**: See [Plugin development quickstart](/docs/plugins/getting-started).
+- **Hooks catalogue**: See [Hooks reference](/docs/plugins/hooks-reference).
+- **Security model**: See [Plugin security model](/docs/plugins/security-model).

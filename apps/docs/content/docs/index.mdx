@@ -1,89 +1,94 @@
 ---
-title: open-wa docs
-description: Start the Easy API, write custom Node.js code, connect integrations, and find the API reference.
+title: open-wa documentation
+description: Start the Easy API, write custom Node.js code, connect integrations, and explore the API reference.
 ---
 
 # open-wa / wa-automate
 
-Use these docs to start a WhatsApp session and connect it to your app or helpdesk. Use the API reference to find exact methods.
+Use this documentation to configure a WhatsApp session and connect it to your application or helpdesk. Consult the API reference for exact method signatures and event schemas.
 
 ## What you can build
 
-- Customer support inboxes that sync WhatsApp into your own tools
-- Order, booking, and delivery notifications from internal systems
-- Bots that react to messages, group activity, and runtime events
-- Webhook bridges for CRMs, helpdesks, automations, and low-code tools
-- Multi-session automations with named accounts and isolated consumers
-- AI-agent workflows through the built-in Model Context Protocol server
+- Customer support inboxes that sync WhatsApp into your internal tools
+- Order, booking, and delivery notifications triggered by backend systems
+- Bots that respond to messages, group activity, and runtime events
+- Webhook bridges for CRMs, helpdesks, automations, and workflow systems
+- Multi-session setups with named accounts and isolated consumers
+- AI agent tool surfaces using the built-in Model Context Protocol server
 
 ## Prerequisites
 
-- **Node.js** >= 22.21.1
-- **npm** for released packages, or **pnpm 11.9.0** for repo development
-- A WhatsApp account on a phone that can stay connected
+- **Node.js**: `>= 22.21.1`
+- **npm** for published packages, or **pnpm 11.9.0** for repository development
+- A WhatsApp account on a mobile device that remains connected to the internet
 
 ## v5 alpha status
 
 <Callout type="warning">
-v5 is currently in alpha. Use v4 (4.76.0) for production systems unless you are intentionally testing v5.
+Version 5 is in alpha. Use version 4 (`4.76.0`) for production systems unless you are actively testing v5.
 </Callout>
 
-The current stable line is **v4.76.0**. v5 is the new package line, but it is still alpha:
+The current stable release is **v4.76.0**. Version 5 is published under the `alpha` dist-tag:
 
 ```bash
 # Production: use v4
 npx @open-wa/wa-automate@4.76.0
 
-# Testing: use the v5 alpha dist-tag
+# Testing: use the v5 alpha release
 npx @open-wa/wa-automate@alpha
 ```
 
 ### What changed in v5
 
-- Monorepo architecture with separate packages
-- Pluggable browser drivers (Puppeteer, Playwright, Lightpanda)
-- `createClient` as the new public contract
-- Plugin system with SDK for reusable integrations
-- Built-in MCP server for AI agent integration
+- Modular monorepo architecture with decoupled packages
+- Pluggable browser drivers (`@open-wa/driver-puppeteer`, `@open-wa/driver-playwright`, `@open-wa/driver-lightpanda`)
+- `createClient` as the primary programmatic entry point
+- Plugin system and SDK (`@open-wa/plugin-sdk`) for modular extensions
+- Built-in MCP server for AI agent tool integration
 
-### When to use v5 vs v4
+### Choose between v4 and v5
 
-- **v4**: Production systems, mature deployments, existing integrations
-- **v5**: Testing new features, contributing to development, fresh projects willing to track alpha changes
+- **v4**: Choose this version for production systems, existing deployments, and stable integrations.
+- **v5**: Choose this version to evaluate new features, contribute to development, or build new projects tracking alpha updates.
 
 ## Start here
 
-- Use **[Quick start](/docs/getting-started/quickstart)** if you want to start the API, authenticate WhatsApp, and send your first message.
-- Use **[Custom Code](/docs/getting-started/custom-code)** if you are embedding the library in your own Node.js project.
-- Use **[Socket Client](/docs/client-and-integrations/socket-client)** if you want to connect to a remote Easy API instance.
-- Use **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)** if you want remote session access without exposing a public port.
+- **[Quickstart](/docs/getting-started/quickstart)**: Start the API server, authenticate your account, and send your first message.
+- **[Custom code](/docs/getting-started/custom-code)**: Embed the library directly into your Node.js application using `createClient`.
+- **[SocketClient](/docs/client-and-integrations/socket-client)**: Connect a remote application to a running Easy API instance.
+- **[Cloudflare session proxy](/docs/client-and-integrations/cf-proxy)**: Access a session remotely without exposing inbound local ports.
 
-## Documentation map
+## Documentation structure
 
-- **Getting Started**, first-run guides for Quick start, Easy API, Docker, custom code, and link-code login.
-- **Guides**, practical guides for config, events, sessions, messages, media, and groups.
-- **Client & Integrations**, SocketClient, Chatwoot, proxying, and Cloudflare session proxy.
-- **Concepts**, the runtime model and core terminology.
-- **API Reference**, generated API docs from the active reference set.
-- **Operations & Troubleshooting**, error handling, logout recovery, and production best practices.
-- **Licensing**, licensed features and feature-availability notes.
+- **Getting started**: First-run guides covering Quickstart, Easy API, Docker, custom code, and link-code authentication.
+- **Guides**: Practical walkthroughs for configuration, events, sessions, messages, media, and groups.
+- **Client and integrations**: Guides for `SocketClient`, Chatwoot, webhook payloads, and Cloudflare session proxy.
+- **Concepts**: Architectural model, data structures, and core terminology.
+- **API reference**: Generated documentation covering all exported methods, classes, and types.
+- **Operations and troubleshooting**: Error handling, session recovery, and production operations.
+- **Licensing**: Information on commercial features and licensing tiers.
 
-## Legal and Risk Context
+## Legal and risk notice
 
 <Callout type="danger">
-This project is unofficial and has no affiliation with WhatsApp or Meta. You accept the risk when you use it. When you use this project, you agree to the Terms of Service.
+This project is unofficial and is not affiliated with WhatsApp or Meta. You accept all operational risk when using this software. Using this software constitutes acceptance of the [Terms of Service](https://github.com/open-wa/wa-automate-nodejs/blob/master/tos.md).
 </Callout>
 
-- Automation tools can cause an account restriction or ban
-- Check your local laws regarding cryptographic software before use
-- See the [Hippocratic + Do Not Harm License](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md) for full terms
+- Automated interactions can lead to account restrictions or bans.
+- Review your jurisdiction's laws regarding cryptographic software before deployment.
+- Review the [Hippocratic + Do Not Harm License](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md) for licensing terms.
 
-## Support
+## Support resources
 
-- **Documentation**: https://openwa.dev
-- **Discord**: https://discord.gg/dnpp72a
-- **Get a license key**: https://openwa.page.link/key
+- **Documentation**: [openwa.dev](https://openwa.dev)
+- **Discord community**: [Join Discord](https://discord.gg/dnpp72a)
+- **Commercial license key**: [Purchase license](https://openwa.page.link/key)
 
-## If you came from the old docs
+## Migrate from previous documentation
 
-Start from the task you need to finish. Use Easy API for a running local API, Custom Code for `createClient`, Socket Client for remote consumers, and the generated reference for exact methods.
+To find the right guide for your workflow:
+
+- For a standalone HTTP API server, see [Easy API](/docs/getting-started/easy-api).
+- For embedded Node.js code, see [Custom code](/docs/getting-started/custom-code).
+- For remote client connections, see [SocketClient](/docs/client-and-integrations/socket-client).
+- For method and event signatures, consult the [API reference](/docs/reference).

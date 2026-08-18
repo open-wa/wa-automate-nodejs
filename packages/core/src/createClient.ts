@@ -205,6 +205,24 @@ function createPluginClientProxy(transport: Transport, logger: Logger): PluginCl
   });
 }
 
+/**
+ * Initializes and starts a new open-wa WhatsApp automation client session.
+ *
+ * @param options - Configuration options for the client session including browser driver, session identifiers, and plugin definitions.
+ * @returns A promise that resolves to an initialized {@link OpenWAClient} instance ready for automation.
+ *
+ * @example
+ * ```ts
+ * import { createClient } from '@open-wa/wa-automate';
+ * import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+ *
+ * const client = await createClient({
+ *   sessionId: 'sales',
+ *   driver: new PuppeteerDriver(),
+ *   headless: true,
+ * });
+ * ```
+ */
 export async function createClient(options: CreateClientOptions): Promise<OpenWAClient> {
   const sessionId = options.sessionId ?? 'session';
 
