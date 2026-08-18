@@ -71,22 +71,29 @@ start().catch(console.error);
 
 ## Choose a browser driver explicitly
 
-Install the driver package that matches your target runtime environment. The following example uses Puppeteer:
+Install the driver package and client package that match your target runtime environment. The following example uses Puppeteer:
 
-<PackageManagerTabs command="@open-wa/driver-puppeteer" />
+<PackageManagerTabs command="@open-wa/wa-automate @open-wa/client @open-wa/driver-puppeteer" />
 
-Pass the driver instance to the `createClient` options object:
+Pass the driver instance to the `createClient` options object and instantiate the `Client` facade:
 
 ```ts
 import { createClient } from '@open-wa/wa-automate';
 import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+import { Client } from '@open-wa/client';
 
 async function start() {
-  const client = await createClient({
+  const openwa = await createClient({
     sessionId: 'my-session',
     driver: new PuppeteerDriver(),
     headless: true,
   });
+
+  const client = new Client({
+    client: openwa,
+    transport: openwa.getTransport(),
+  });
+  await client.start();
 
   client.onMessage(async (message) => {
     if (message.body === 'Hi') {
@@ -106,15 +113,20 @@ Custom code projects work best with modern TypeScript compiler settings (`target
 
 The `createClient` function:
 
-1. Initializes the browser driver process.
+1. Initializes the configured browser driver process.
 2. Restores saved credentials from disk or initiates the authentication flow.
 3. Injects the automation client into the WhatsApp Web session.
-4. Returns a `Client` instance for registering event listeners and executing actions.
+4. Returns an `OpenWAClient` instance managing browser lifecycle, events, and transport.
+
+To execute messaging and domain operations, wrap the `OpenWAClient` with `new Client({ client: openwa, transport: openwa.getTransport() })` and call `await client.start()`.
 
 ## Build a custom launch configuration
 
 ```ts
-const client = await createClient({
+import { createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+
+const openwa = await createClient({
   sessionId: 'sales',
   driver: new PuppeteerDriver(),
   headless: true,
@@ -138,13 +150,20 @@ The following example sends an initial status message to a specific chat ID and 
 ```ts
 import { createClient } from '@open-wa/wa-automate';
 import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+import { Client } from '@open-wa/client';
 
 async function start() {
-  const client = await createClient({
+  const openwa = await createClient({
     sessionId: 'sales',
     driver: new PuppeteerDriver(),
     headless: true,
   });
+
+  const client = new Client({
+    client: openwa,
+    transport: openwa.getTransport(),
+  });
+  await client.start();
 
   const chatId = '15551234567@c.us';
 

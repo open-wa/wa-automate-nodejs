@@ -49,19 +49,25 @@ const dataUrl = `data:image/jpeg;base64,${buffer.toString('base64')}`;
 await client.sendImage('447700900000@c.us', dataUrl, 'photo.jpg', 'Product image');
 ```
 
+> [!NOTE]
+> Base64 Data URLs expand binary size by approximately 33% in memory. When transferring large attachments (over 10 MB), monitor Node.js process heap memory.
+
 ## MIME type guidelines
 
 WhatsApp validates file types based on the declared MIME type and file extension:
 
-| Media kind | Recommended MIME types | Target methods |
+| Media kind | Recommended MIME types | Method |
 | --- | --- | --- |
 | Images | `image/jpeg`, `image/png`, `image/webp` | `sendImage` |
-| Animated GIFs | `image/gif` | `sendVideoAsGif` |
-| Video clips | `video/mp4`, `video/quicktime` | `sendFile`, `sendVideoAsGif` |
-| Voice notes | `audio/ogg; codecs=opus` | `sendPtt` |
-| Audio files | `audio/mpeg`, `audio/mp4`, `audio/ogg` | `sendAudio`, `sendFile` |
+| Video clips | `video/mp4`, `video/quicktime` | `sendFile` |
 | Documents | `application/pdf`, `text/plain`, `application/zip` | `sendFile` |
-| Stickers | `image/webp`, `image/png` | `sendImageAsSticker` |
+| Stickers | `image/webp` (512x512 square) | `sendSticker` |
+
+### MIME debugging tips
+
+- Use `image/jpeg` rather than `image/jpg` in Data URL prefixes for maximum compatibility.
+- Ensure animated WebP files are sent using sticker methods rather than standard image methods.
+- If sending from remote URLs fails with invalid payload errors, verify that the remote server does not return an HTML error page or login redirect (`text/html`).
 
 ## Remote URL authentication
 
@@ -88,6 +94,9 @@ await client.sendFileFromUrl(
 | Voice notes & Audio | Up to 16 MB | Opus audio format in OGG container |
 | Stickers | Up to 1 MB | 512x512 square WebP format |
 | Generic Documents | Up to 100 MB | Large attachments require adequate host RAM |
+
+> [!WARNING]
+> File size limits are enforced by WhatsApp servers and may change. Exceeding platform thresholds results in delivery failure.
 
 ## Decrypt incoming media
 

@@ -218,6 +218,7 @@ try {
 | --- | --- |
 | Invalid chat ID format | Verify the ID ends in `@c.us`, `@g.us`, or `@lid`. See [ChatId primer](/docs/guides/chatid-primer). |
 | Session not ready | Await client readiness before sending messages. |
+| Temporary WhatsApp block | If sending fails with rate limits or spam restrictions, back off traffic and inspect session status. |
 | Media payload rejected | Ensure the base64 Data URL format includes valid MIME headers and data encoding. |
 
 ## Complete bot example
@@ -225,13 +226,20 @@ try {
 ```ts
 import { createClient } from '@open-wa/wa-automate';
 import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+import { Client } from '@open-wa/client';
 
 async function main() {
-  const client = await createClient({
+  const openwa = await createClient({
     sessionId: 'bot-session',
     driver: new PuppeteerDriver(),
     headless: true,
   });
+
+  const client = new Client({
+    client: openwa,
+    transport: openwa.getTransport(),
+  });
+  await client.start();
 
   client.onMessage(async (message) => {
     try {
@@ -243,18 +251,9 @@ async function main() {
       if (message.body === '!help') {
         await client.sendText(
           message.from,
-          '*Available Commands*\n• `!ping` - Test connection\n• `!poll` - Launch a poll'
+          '*Available commands*\n• `!ping` - Test connection\n• `!info` - Session information'
         );
         return;
-      }
-
-      if (message.body === '!poll') {
-        await client.sendPoll(
-          message.from,
-          'Rate your experience today:',
-          ['Excellent', 'Good', 'Needs improvement'],
-          1
-        );
       }
     } catch (error) {
       console.error('Error handling incoming message:', error);

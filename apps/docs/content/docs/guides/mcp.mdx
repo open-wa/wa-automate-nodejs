@@ -7,6 +7,10 @@ description: Connect authenticated AI agents to open-wa using the Model Context 
 
 Use the **Model Context Protocol (MCP)** integration to expose open-wa Easy API methods as structured tools for AI assistants (such as Claude Desktop, Cursor, or custom agents).
 
+<Callout type="info">
+**Easy API integration only:** MCP is provided exclusively through the Easy API daemon layer. It is not available as a direct function call inside embedded `createClient()` custom code applications.
+</Callout>
+
 <Callout type="warning">
 **Version 5 alpha requirement:** The runtime mounts the MCP adapter when `mcp.enabled` is `true` in `wa.config.mjs`. Server initialization fails if no `apiKey` is configured. The CLI does not parse a standalone `--mcp` flag; enable MCP in your configuration file.
 </Callout>
@@ -90,6 +94,13 @@ When `exposeToolsMeta` is enabled, view the generated tool catalog at `/meta/mcp
 ```bash
 curl -s http://localhost:8080/meta/mcp-tools.json | jq '.endpoint, .requiresApiKey, (.tools | length)'
 ```
+
+## Agent discovery endpoints
+
+The runtime exposes standard agent discovery metadata:
+
+- `http://localhost:8080/.well-known/agent-tools`: JSON metadata describing available tools and authentication requirements
+- `http://localhost:8080/meta/mcp-tools.json`: Full JSON array of tool definitions, descriptions, and parameter schemas
 
 ## Streamable HTTP transport
 
@@ -239,6 +250,10 @@ export default {
     {
       question: 'Why does the MCP client receive 401 Unauthorized responses?',
       answer: 'Verify that your client includes the X-API-Key header with the exact key configured in wa.config.mjs.',
+    },
+    {
+      question: 'Why does tools/list return 0 tools?',
+      answer: 'Ensure exposeToolsMeta is true and that the server has finished starting up and registering internal routes.',
     },
     {
       question: 'Why do tool executions return session not ready errors?',

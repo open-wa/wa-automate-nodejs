@@ -75,18 +75,25 @@ export type EvaluateFn = <Arg, Ret>(
  * ```typescript
  * import { createClient } from '@open-wa/wa-automate';
  * import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+ * import { Client } from '@open-wa/client';
  *
- * const client = await createClient({
+ * const openwa = await createClient({
  *   sessionId: 'sales',
  *   driver: new PuppeteerDriver(),
  *   headless: true,
  * });
  *
+ * const client = new Client({
+ *   client: openwa,
+ *   transport: openwa.getTransport(),
+ * });
+ * await client.start();
+ *
  * // Send a message
  * await client.sendText('447700900000@c.us', 'Hello!');
  *
  * // Subscribe to incoming messages
- * client.onMessage(msg => console.log('Received message:', msg.body));
+ * client.onMessage((msg) => console.log('Received message:', msg.body));
  * ```
  */
 export class Client implements MessagingMethods, MediaMethods, GroupMethods, ChatMethods, ContactMethods, UtilitiesMethods {

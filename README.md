@@ -164,19 +164,26 @@ main().catch(console.error);
 For full control over the browser lifecycle, launch options, and session initialization, embed open-wa directly into your application:
 
 ```bash
-npm install @open-wa/wa-automate @open-wa/driver-puppeteer
+npm install @open-wa/wa-automate @open-wa/client @open-wa/driver-puppeteer
 ```
 
 ```ts
 import { createClient } from '@open-wa/wa-automate';
 import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+import { Client } from '@open-wa/client';
 
 async function main() {
-  const client = await createClient({
+  const openwa = await createClient({
     sessionId: 'sales-bot',
     driver: new PuppeteerDriver(),
     headless: true,
   });
+
+  const client = new Client({
+    client: openwa,
+    transport: openwa.getTransport(),
+  });
+  await client.start();
 
   client.onMessage(async (message) => {
     if (message.body === '!hello') {
@@ -201,6 +208,9 @@ main().catch(console.error);
 ## AI agent integration (MCP)
 
 Open-WA includes a native **Model Context Protocol (MCP)** server, exposing WhatsApp automation methods as structured tools to AI assistants.
+
+> [!NOTE]
+> MCP is an Easy API integration exposed over HTTP/SSE. It is enabled via `wa.config.mjs` or CLI daemon mode.
 
 ### 1. Enable MCP in `wa.config.mjs`
 
@@ -303,6 +313,7 @@ const client = await SocketClient.connect(
 | **Messages Guide** | Sending text, media, buttons, and polls | [openwa.dev/docs/guides/messages](https://openwa.dev/docs/guides/messages) |
 | **MCP AI Tools** | Exposing WhatsApp methods to LLMs | [openwa.dev/docs/guides/mcp](https://openwa.dev/docs/guides/mcp) |
 | **Plugin SDK** | Authoring and publishing plugins | [openwa.dev/docs/plugins/getting-started](https://openwa.dev/docs/plugins/getting-started) |
+| **v5 Migration Guide** | Migrating from version 4 to version 5 | [openwa.dev/docs/releases/v5-alpha](https://openwa.dev/docs/releases/v5-alpha) |
 | **API Reference** | Complete method catalogue | [openwa.dev/docs/reference/client/index](https://openwa.dev/docs/reference/client/index) |
 
 ---
@@ -312,7 +323,7 @@ const client = await SocketClient.connect(
 ### Prerequisites
 
 - **Node.js**: `>=22.21.1`
-- **pnpm**: `11.15.1` (managed via [`mise.toml`](./mise.toml))
+- **pnpm**: `11.20.0` (managed via [`package.json`](./package.json))
 
 ```bash
 # Clone the repository
@@ -335,7 +346,7 @@ For detailed contribution workflows, see [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ---
 
-## Support & Commercial Inquiries
+## Support and commercial inquiries
 
 - **Community Discord**: [Join the open-wa Discord server](https://discord.gg/dnpp72a)
 - **Commercial Licenses**: [Purchase an open-wa commercial key](https://openwa.page.link/key)
@@ -343,7 +354,7 @@ For detailed contribution workflows, see [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ---
 
-## License & Legal Notice
+## License and legal notice
 
 - **License**: [Hippocratic + Do Not Harm Version 1.0](./LICENSE.md)
 - **Legal Notice**: This project is independent and unofficial software. It is not affiliated with, authorized, maintained, sponsored, or endorsed by WhatsApp or Meta.
