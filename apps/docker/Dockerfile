@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install pnpm
-RUN npm install -g pnpm@11.9.0
+RUN npm install -g pnpm@11.25.0
 
 WORKDIR /app
 
@@ -30,7 +30,7 @@ FROM node:22 AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install pnpm
-RUN npm install -g pnpm@11.9.0
+RUN npm install -g pnpm@11.25.0
 
 # Copy source code and dependencies from deps stage
 COPY --from=deps /app ./
