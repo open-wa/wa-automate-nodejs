@@ -15,7 +15,7 @@ catalog:
   '@effect/platform-node': 4.0.0-beta.100
   '@discordjs/collection': ^2.1.1
   '@elastic/elasticsearch': ^9.4.2
-  '@hono/node-server': ^2.0.11
+  '@hono/node-server': ^2.0.10
   '@tailwindcss/vite': ^4.3.3
   '@tanstack/react-query': ^5.101.4
   '@tanstack/react-router': 1.170.18
