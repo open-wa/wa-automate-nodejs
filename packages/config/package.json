@@ -36,7 +36,7 @@
   "dependencies": {
     "cosmiconfig": "^9.0.2",
     "cosmiconfig-typescript-loader": "^6.3.0",
-    "deepmerge-ts": "^7.1.5",
+    "deepmerge-ts": "^8.0.0",
     "zod": "catalog:",
     "zod-to-json-schema": "^3.25.2"
   },
