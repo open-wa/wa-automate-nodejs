@@ -1,55 +1,56 @@
 ---
-title: Quick start
-description: Start the Easy API, connect WhatsApp, open the docs, and send a test message.
+title: Quickstart
+description: Start the Easy API, connect WhatsApp, view interactive documentation, and send a test message.
 ---
 
-# Quick start
+# Quickstart
 
-Follow these steps to start a local API, connect a WhatsApp account, and send one test message.
+Follow these steps to start a local API server, connect a WhatsApp account, and send a test message.
 
 ## Prerequisites
 
-- **Node.js >= 22.21.1**, this is necessary. The library will not work on older versions. Check with `node --version`.
-- **npm or pnpm**, any package manager works, but the repository uses pnpm for development.
-- **A WhatsApp account** on a linked phone, this automates WhatsApp Web, not the mobile app.
+- **Node.js**: `>= 22.21.1` (required; verify using `node --version`)
+- **npm** or **pnpm**: Package manager for installing dependencies
+- **WhatsApp account**: Active account on a phone with internet access
 
 <Callout type="warning">
-**v5 is an alpha release.** Test it in a disposable environment before production use. For production systems, use v4: `npx @open-wa/wa-automate@4.76.0`
+**Version 5 is in alpha.** Test in a disposable environment before deploying to production. For production systems, use version 4: `npx @open-wa/wa-automate@4.76.0`
 </Callout>
 
 <Steps>
 <Step title="Start the Easy API">
 
-Run the CLI to start a local WhatsApp API:
+Run the CLI to start a local WhatsApp API server:
 
 ```bash
 npx @open-wa/wa-automate@alpha --port 8080
 ```
 
-These examples pin port `8080` for consistency. If you omit `--port`, the current v5 CLI uses port `8002`.
+These examples specify port `8080` for consistency. If you omit `--port`, the v5 CLI defaults to port `8002`.
 
-The terminal shows:
+The terminal logs display:
 
-- The browser launching
-- A QR code appearing in the terminal
-- The local API address (usually `http://localhost:8080`)
-
-</Step>
-<Step title="Authenticate">
-
-The runtime will display a QR code in your terminal. Open WhatsApp on your phone:
-
-1. Tap **Menu** or **Settings**
-2. Tap **Linked Devices**
-3. Tap **Link a Device**
-4. Scan the QR code in your terminal
-
-If you know the host account number, use **[Link-code login](/docs/getting-started/link-code)**. This flow does not use a QR scan.
-
-Once authenticated, the terminal will show the session is connected and the API is ready.
+- Browser process launch status
+- A QR code in the terminal
+- The local API server URL (`http://localhost:8080`)
 
 </Step>
-<Step title="Verify the API is running">
+<Step title="Authenticate the session">
+
+The runtime displays a QR code in your terminal. On your mobile phone:
+
+1. Open WhatsApp.
+2. Tap **Settings** (iOS) or the three-dot menu (Android).
+3. Select **Linked Devices**.
+4. Tap **Link a Device**.
+5. Scan the QR code displayed in your terminal.
+
+If you know the phone number in advance, you can use [link-code login](/docs/getting-started/link-code) to authenticate using an eight-digit code instead of scanning a QR code.
+
+After authentication completes, the terminal logs indicate that the session is connected and the API is ready.
+
+</Step>
+<Step title="Verify the API endpoint">
 
 Open your browser to:
 
@@ -57,24 +58,24 @@ Open your browser to:
 http://localhost:8080/api-docs/
 ```
 
-This is the interactive API documentation for your live session. If this page loads, your session is up, the API is reachable, and you can discover all available methods.
+This page provides interactive API documentation for your active session. You can inspect all available methods and test requests directly.
 
-Other useful endpoints:
+Additional metadata endpoints:
 
-- `http://localhost:8080/meta/swagger.json`, OpenAPI schema
-- `http://localhost:8080/meta/postman.json`, Postman collection
+- `http://localhost:8080/meta/swagger.json`: OpenAPI 3.0 specification
+- `http://localhost:8080/meta/postman.json`: Postman collection
 
 </Step>
 <Step title="Send your first message">
 
-<Tabs items={['API docs UI', 'curl']}>
-<Tab value="API docs UI">
+<Tabs items={['API documentation UI', 'curl']}>
+<Tab value="API documentation UI">
 
-1. Open `http://localhost:8080/api-docs/`
-2. Find the `sendText` method
-3. Enter a chat ID (your own number in format `1234567890@c.us`)
-4. Enter a message body
-5. Execute the request
+1. Open `http://localhost:8080/api-docs/` in your browser.
+2. Locate the `sendText` method.
+3. In the `to` field, enter a chat ID (such as your own phone number in the format `1234567890@c.us`).
+4. In the `text` field, enter a message body.
+5. Click **Execute** to send the request.
 
 </Tab>
 <Tab value="curl">
@@ -85,18 +86,18 @@ curl -X POST http://localhost:8080/api/sendText \
   -d '{"to": "1234567890@c.us", "text": "Hello from open-wa!"}'
 ```
 
-If you started the API with `--api-key "your-secure-key"`, include it in the header:
+If you started the API with an API key (`--api-key "YOUR_SECURE_KEY"`), include the `X-API-Key` header:
 
 ```bash
 curl -X POST http://localhost:8080/api/sendText \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: your-secure-key" \
+  -H "X-API-Key: YOUR_SECURE_KEY" \
   -d '{"to": "1234567890@c.us", "text": "Hello from open-wa!"}'
 ```
 
-Your phone receives the message within seconds.
+The recipient device receives the message.
 
-Expected API result, illustrative and abbreviated. The Easy API puts the `sendText` message ID in `data`:
+Example successful response:
 
 ```http
 HTTP/1.1 200 OK
@@ -108,7 +109,7 @@ Content-Type: application/json
 }
 ```
 
-Auth failure result, illustrative and abbreviated:
+Example authentication failure response:
 
 ```http
 HTTP/1.1 401 Unauthorized
@@ -119,7 +120,7 @@ Content-Type: application/json
 }
 ```
 
-If the API is protected and the key is missing or wrong, expect an authentication error instead of a message send. Add the same `X-API-Key` value that you used when starting the runtime, then retry the request. Once the send succeeds, keep the API key on every client request and move to the guide that matches your next use case below.
+If the API is protected with an API key, requests without a valid `X-API-Key` header return a `401 Unauthorized` status code.
 
 </Tab>
 </Tabs>
@@ -127,24 +128,24 @@ If the API is protected and the key is missing or wrong, expect an authenticatio
 </Step>
 </Steps>
 
-## Where next?
+## Next steps
 
-- **I want to build a bot** → Read **[Messages and events](/docs/guides/messages)**
-- **I want to connect my CRM** → Read **[Chatwoot integration](/docs/client-and-integrations/chatwoot)**
-- **I want AI agents to access WhatsApp** → Read **[MCP integration](/docs/guides/mcp)**
-- **I want to build a plugin** → Read **[Plugin getting started](/docs/plugins/getting-started)**
-- **I want to deploy to production** → Read **[Security & deployment](/docs/operations/security-and-deployment)**
-- **I want to write custom code** → Read **[Custom code](/docs/getting-started/custom-code)**
+- **Handle messages and events**: See [Messages and events](/docs/guides/messages).
+- **Connect a helpdesk**: See [Chatwoot integration](/docs/client-and-integrations/chatwoot).
+- **Integrate AI tools**: See [MCP integration](/docs/guides/mcp).
+- **Build a custom plugin**: See [Plugin authoring](/docs/plugins/getting-started).
+- **Deploy to production**: See [Security and deployment](/docs/operations/security-and-deployment).
+- **Embed in a Node.js app**: See [Custom code](/docs/getting-started/custom-code).
 
-## Common next commands
+## Common CLI commands
 
 ```bash
-# Protect with an API key
-npx @open-wa/wa-automate@alpha --port 8080 --api-key "your-secure-key"
+# Protect the API with an API key
+npx @open-wa/wa-automate@alpha --port 8080 --api-key "YOUR_SECURE_KEY"
 
-# Run a named session
+# Start a named session
 npx @open-wa/wa-automate@alpha --session-id sales --port 8081
 
-# For source-backed webhook delivery in the current v5 alpha,
-# load @open-wa/integration-webhook from wa.config.* instead of relying on --webhook.
+# Note: In version 5, configure @open-wa/integration-webhook in wa.config.mjs
+# for source-backed webhook delivery rather than using the --webhook CLI flag.
 ```

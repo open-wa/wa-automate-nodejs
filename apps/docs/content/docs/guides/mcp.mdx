@@ -1,55 +1,53 @@
 ---
-title: MCP integration
-description: Safely prepare an authenticated AI agent integration for the Easy API Model Context Protocol adapter.
+title: Model Context Protocol (MCP) integration
+description: Connect authenticated AI agents to open-wa using the Model Context Protocol adapter.
 ---
 
-# MCP integration
+# Model Context Protocol (MCP) integration
 
-Use the **Model Context Protocol (MCP)** integration only when you want an authenticated AI agent to call Easy API tools. Treat the MCP endpoint like API access to your WhatsApp session.
+Use the **Model Context Protocol (MCP)** integration to expose open-wa Easy API methods as structured tools for AI assistants (such as Claude Desktop, Cursor, or custom agents).
 
-<Callout type="warning">
-**v5 alpha status:** The source mounts the MCP adapter when `mcp.enabled` is true. Startup stops if this configuration has no Easy API `apiKey`. The CLI does not parse `--mcp`. Enable MCP through `wa.config.*`.
+<Callout type="info">
+**Easy API integration only:** MCP is provided exclusively through the Easy API daemon layer. It is not available as a direct function call inside embedded `createClient()` custom code applications.
 </Callout>
 
 <Callout type="warning">
-When enabled, MCP can read and send WhatsApp data through the connected session. Keep it behind an API key, do not expose it publicly, and use a dedicated session for agent work when possible.
+**Version 5 alpha requirement:** The runtime mounts the MCP adapter when `mcp.enabled` is `true` in `wa.config.mjs`. Server initialization fails if no `apiKey` is configured. The CLI does not parse a standalone `--mcp` flag; enable MCP in your configuration file.
+</Callout>
+
+<Callout type="warning">
+When enabled, an authenticated MCP client can read conversation history and dispatch messages through your WhatsApp session. Always protect the endpoint with an API key and avoid public internet exposure without an authenticating reverse proxy.
 </Callout>
 
 ## Security checklist before you enable MCP
 
-- Start Easy API with `apiKey`. Source validation refuses MCP configuration without one.
-- Send that key on every MCP request with `X-API-Key`, `api_key`, or `key` headers.
-- Share the MCP URL only with clients you trust to read and send WhatsApp messages.
-- Put the MCP endpoint behind HTTPS or a trusted reverse proxy before remote use.
-- Use a dedicated WhatsApp session for AI-agent experiments.
-- Watch logs and the MCP dashboard while testing new prompts or tools.
+- Configure an `apiKey` in `wa.config.mjs`.
+- Provide the API key in the `X-API-Key` request header from your MCP client.
+- Run the server behind HTTPS or an authenticated reverse proxy before connecting remote agents.
+- Use a dedicated WhatsApp account for agent testing and development.
+- Monitor tool execution logs in your terminal and the web dashboard.
 
-## What MCP gives the agent
+## Capabilities provided by MCP
 
-The Model Context Protocol is a standard for connecting AI assistants to external tools and data sources. When enabled in config, open-wa mounts the MCP adapter and an authenticated AI agent can call Easy API methods as tools, including methods that can:
+When enabled, the MCP adapter maps Easy API methods to typed tools:
 
-- Read incoming messages
-- Send messages to any contact or group
-- Access contact information
-- Manage groups
-- Send media (images, files, locations)
+- Reading incoming messages and chat history
+- Sending text, media, documents, and contact cards
+- Managing group membership and group settings
+- Querying contact profiles and presence state
 
-Your MCP client, prompt, and permissions model control when the agent can call these tools.
+## Compare MCP with the direct HTTP API
 
-## MCP vs direct HTTP API
+| Feature | Model Context Protocol | Direct HTTP API |
+| --- | --- | --- |
+| Tool discovery | Automatic schema discovery via `tools/list` | Manual inspection of OpenAPI specifications |
+| Tool invocation | Standardized JSON-RPC tool calls | Custom HTTP `POST` requests |
+| Session readiness | Automatically blocks tool execution until session connects | Requires manual polling of health endpoints |
+| Endpoint structure | Single Streamable HTTP endpoint (`/mcp`) | Multiple distinct REST endpoints |
 
-| MCP | Direct HTTP API |
-|---|---|
-| Authenticated AI agents can list available tools | You construct API calls yourself |
-| Implemented tools are generated from the schema registry | You must read API docs and build requests |
-| The implemented adapter enforces session readiness | You must check session state yourself |
-| MCP adapter uses a single Streamable HTTP endpoint | Multiple endpoints for different operations |
+## Quickstart
 
-## Quick start
-
-The source-backed v5 alpha path is to enable MCP in config and start Easy API with an API key. In the current source, this mounts the MCP adapter at the configured path.
-
-Create `wa.config.mjs`:
+Configure MCP in `wa.config.mjs`:
 
 ```js
 export default {
@@ -63,72 +61,63 @@ export default {
 };
 ```
 
-Start Easy API from the same directory:
+Start the Easy API server:
 
 ```bash
-WA_API_KEY="your-secure-key" npx @open-wa/wa-automate@alpha --config ./wa.config.mjs
+WA_API_KEY="YOUR_SECURE_KEY" npx @open-wa/wa-automate@alpha --config ./wa.config.mjs
 ```
 
-The configured MCP path is:
+The MCP endpoint is mounted at:
 
 ```text
 http://localhost:8080/mcp
 ```
 
-The current `packages/wa-automate/src/cli-runtime.ts` source does not parse `--mcp`. Use the config file above.
+### Verify enabled capabilities
 
-### Expected enabled state
-
-After startup, check `/health`:
+Check the `/health` endpoint to confirm MCP availability:
 
 ```bash
 curl -s http://localhost:8080/health | jq '.capabilities.mcpEnabled, .capabilities.mcpAvailable, .capabilities.mcpPath'
 ```
 
-Expected local result after config is loaded and an API key is present, illustrative local verification guidance:
+Expected JSON response:
 
-```text
+```json
 true
 true
 "/mcp"
 ```
 
-This output is an example, not captured output. If `mcpEnabled` is `false`, the runtime did not load the config or `mcp.enabled` is not set. If `mcpAvailable` is `false`, make sure that `apiKey` is configured. The health fields show the config and API key state. The source mounts enabled MCP during API route registration.
-
-When tool metadata is enabled, you can also inspect the generated tool catalog:
+When `exposeToolsMeta` is enabled, view the generated tool catalog at `/meta/mcp-tools.json`:
 
 ```bash
 curl -s http://localhost:8080/meta/mcp-tools.json | jq '.endpoint, .requiresApiKey, (.tools | length)'
 ```
 
-Expected local result, illustrative local verification guidance:
+## Agent discovery endpoints
 
-```text
-"/mcp"
-true
-<number greater than 0>
-```
+The runtime exposes standard agent discovery metadata:
 
-If the tool count is `0`, confirm the session finished authentication and the schema registry loaded. Tool metadata is useful for inspecting what is exposed, but it is not a successful MCP client handshake.
+- `http://localhost:8080/.well-known/agent-tools`: JSON metadata describing available tools and authentication requirements
+- `http://localhost:8080/meta/mcp-tools.json`: Full JSON array of tool definitions, descriptions, and parameter schemas
 
 ## Streamable HTTP transport
 
-The adapter uses the **Streamable HTTP** transport for MCP. This means:
+The adapter implements the **Streamable HTTP** transport for MCP:
 
-- **Single endpoint**, no separate SSE or messages paths. Everything goes through the configured MCP path.
-- **Session readiness**, tools block until the WhatsApp session is fully connected. An AI agent cannot send messages before the session is ready.
-- **Stateful connections**, the server maintains MCP session state across requests.
-
-For a protocol-level check, connect with an MCP client and call `tools/list`. A healthy endpoint lists open-wa tools from the Easy API method catalog. A raw `curl` JSON-RPC request or `/meta/mcp-tools.json` is not a complete MCP client handshake. The Streamable HTTP transport needs the standard client flow.
+- **Single endpoint**: All JSON-RPC messages and tool calls route through `/mcp`.
+- **Readiness gating**: Tool executions block until the underlying WhatsApp session completes authentication.
+- **Stateful sessions**: Maintains connection state across sequential requests.
 
 ## Configure AI clients
 
-Use these client snippets after you start Easy API with `mcp.enabled` and an `apiKey` in config.
+Add the following configurations to connect your AI assistant:
 
 <Tabs items={['Claude Desktop', 'Cursor', 'Windsurf', 'Custom client']}>
 <Tab value="Claude Desktop">
 
-Add to your `claude_desktop_config.json`:
+Add to `claude_desktop_config.json`:
 
 ```json
 {
@@ -136,128 +125,102 @@ Add to your `claude_desktop_config.json`:
     "open-wa": {
       "url": "http://localhost:8080/mcp",
       "headers": {
-        "X-API-Key": "your-secure-key"
+        "X-API-Key": "YOUR_SECURE_KEY"
       }
     }
   }
 }
 ```
 
-After you add this configuration, restart Claude Desktop. The open-wa tools appear in the available tools list. If they do not appear, examine the `X-API-Key` header and make sure that the config loaded. Then, try `tools/list` again before you let the agent call send-message tools.
+Restart Claude Desktop to load the tools into your assistant context.
 
 </Tab>
 <Tab value="Cursor">
 
-1. Open Cursor settings
-2. Navigate to the MCP servers section
-3. Add a new MCP server with:
-   - URL: `http://localhost:8080/mcp`
-   - Headers: `X-API-Key: your-secure-key`
-4. Test the connection
+1. Open **Cursor Settings** > **Features** > **MCP**.
+2. Click **Add New MCP Server**.
+3. Set the Type to **SSE** or **HTTP**.
+4. Set the URL to `http://localhost:8080/mcp`.
+5. Add the header `X-API-Key: YOUR_SECURE_KEY`.
+6. Click **Test Connection**.
 
 </Tab>
 <Tab value="Windsurf">
 
-1. Open Windsurf settings
-2. Add a new MCP server
-3. Configure:
-   - URL: `http://localhost:8080/mcp`
-   - Include `X-API-Key` in headers with your API key value
-4. Verify the connection
+1. Open **Windsurf Settings** > **MCP Plugins**.
+2. Add a new server configuration with URL `http://localhost:8080/mcp`.
+3. Include the `X-API-Key: YOUR_SECURE_KEY` header.
+4. Verify the connection status.
 
 </Tab>
 <Tab value="Custom client">
 
-If you are building a custom MCP client:
+When connecting programmatically with the Model Context Protocol SDK:
 
-1. Connect to `http://localhost:8080/mcp` with the Streamable HTTP transport
-2. Include `X-API-Key: your-secure-key` in every request, or use the accepted `api_key` or `key` header names
-3. Use the `tools/list` method to discover available tools after a successful MCP handshake
-4. Use `tools/call` to execute tools
+1. Initialize a Streamable HTTP transport targeting `http://localhost:8080/mcp`.
+2. Attach `X-API-Key: YOUR_SECURE_KEY` to outgoing headers.
+3. Call `tools/list` to inspect available tool signatures.
+4. Invoke methods using `tools/call`.
 
 </Tab>
 </Tabs>
 
 ## Security model
 
-<Callout type="warning">
-**MCP is an Easy API-only integration.** It is not available through `createClient()`. The API key is mandatory, and current source validation refuses MCP configuration without one.
-</Callout>
+### API key enforcement
 
-### API Key Enforcement
+Every MCP request must provide a valid API key via `X-API-Key`, `api_key`, or `key` request headers. The server rejects unauthenticated requests immediately.
 
-Every MCP request must include the same API key as the Easy API. The adapter accepts `X-API-Key`, `api_key`, or `key` headers and rejects requests without a valid key.
+### Accessible data
 
-### What data AI agents can access
+The adapter exposes all registered Easy API methods as tools. An authenticated agent can:
 
-The adapter exposes **all** Easy API methods as tools. An authenticated AI agent can be able to:
-
-- Read all messages in all chats
-- Send messages to any contact or group
-- Access contact information
-- Manage groups (create, modify, delete)
-- Send media
+- Read messages and conversation threads
+- Dispatch messages to contacts and groups
+- Modify group settings and participants
+- Download and decrypt media attachments
 
 ### Permission scopes
 
-There are **no permission scopes** in the current implementation. Any authenticated agent can call any exposed tool. Plan your deployment accordingly:
+The current version 5 alpha does not enforce fine-grained tool scopes. Any authenticated agent has access to all exposed methods. Ensure you only connect trusted AI clients.
 
-- Use a dedicated session for AI agent use
-- Do not share the MCP endpoint publicly
-- Monitor AI agent activity through logs
+### Audit agent actions
 
-### What happens if access is not controlled
+Monitor AI agent actions through:
 
-If the MCP endpoint is exposed publicly, the API key is leaked, or untrusted agents are allowed to use the key:
-
-- Those agents can control your WhatsApp session
-- Messages can be read and sent by unauthorized parties
-- Session information can be accessed
-
-Always use the API key, keep it secret, and consider placing the endpoint behind a reverse proxy.
-
-### Audit AI-agent actions
-
-When you use MCP, monitor the AI agent through:
-
-- The dashboard MCP page (`http://localhost:8080/dashboard/mcp`), where available
-- API access logs
-- Your reverse proxy access logs
-- The session event log
+- The web dashboard MCP panel at `http://localhost:8080/dashboard/mcp`
+- Easy API HTTP access logs
+- Browser session event logs
 
 ## Tool discovery
 
-### How tools are generated
+### Dynamic tool generation
 
-The adapter generates tools from the schema registry. Each Easy API method becomes an MCP tool with:
-
-- A name matching the API method
-- A description from the schema
-- Typed parameters
+The MCP adapter inspects the internal OpenAPI schema registry and automatically generates tool schemas with parameter types and descriptions.
 
 ### List available tools
 
-Connect with a real MCP client and call `tools/list` to see all available tools. The response includes each tool's name, description, and parameter schema.
+Connect using an MCP client and dispatch a `tools/list` request to view all supported methods.
 
-### Same methods as the HTTP API
+### Parity with the HTTP API
 
-The implemented MCP tools are generated from the same method catalog as the HTTP API. Use the HTTP API docs as the fallback if MCP handshake or `tools/list` is unavailable.
+All methods documented in the interactive OpenAPI specification (`http://localhost:8080/api-docs/`) are available as MCP tools.
 
-## Dashboard MCP page
+## Web dashboard MCP panel
 
-When available in your build, open `http://localhost:8080/dashboard/mcp` to see:
+When enabled, navigate to `http://localhost:8080/dashboard/mcp` in your browser to view:
 
-- **Connection status**, whether MCP is configured and healthy
-- **Configuration snippets**, copy-paste configuration for Claude Desktop, Cursor, and Windsurf
-- **Tool details**, list of generated tool metadata with descriptions
+- **Connection status**: Current MCP adapter health and readiness
+- **Client snippets**: Generated configuration snippets for Claude Desktop, Cursor, and Windsurf
+- **Tool catalog**: Interactive browser for all generated tool definitions and parameters
 
 ## Configuration reference
 
-In your `wa.config.mjs`:
+In `wa.config.mjs`:
 
 ```js
 export default {
-  apiKey: "your-secure-key",
+  apiKey: "YOUR_SECURE_KEY",
   mcp: {
     enabled: true,
     path: "/mcp",
@@ -266,78 +229,57 @@ export default {
 };
 ```
 
-### Fields
+### Properties
 
-- **`mcp.enabled`**, enable or disable MCP configuration (default: `false`)
-- **`mcp.path`**, the configured URL path for the MCP endpoint (default: `"/mcp"`)
-- **`mcp.exposeToolsMeta`**, whether to expose tool metadata in the dashboard (default: `true`)
+- `mcp.enabled`: Enable or disable the MCP adapter (default: `false`)
+- `mcp.path`: URL path for the Streamable HTTP endpoint (default: `"/mcp"`)
+- `mcp.exposeToolsMeta`: Expose tool schema JSON at `/meta/mcp-tools.json` (default: `true`)
 
 ## Troubleshooting
 
 <FAQ
   items={[
     {
-      question: 'Why does MCP fail when no API key is set?',
-      answer: 'MCP configuration requires the Easy API apiKey. If mcp.enabled is true and no API key is configured, the server refuses to start. Set apiKey in wa.config.* or pass --api-key when starting from a config file that enables MCP.',
+      question: 'Why does the server fail to start when MCP is enabled?',
+      answer: 'MCP requires API key authentication. Ensure you configure apiKey in wa.config.mjs or pass WA_API_KEY in your environment.',
     },
     {
-      question: 'Can I use the --mcp flag?',
-      answer: 'The current source does not parse --mcp. Create wa.config.mjs with MCP enabled in config and start with --config ./wa.config.mjs.',
+      question: 'Why does the CLI reject the --mcp flag?',
+      answer: 'The command-line interface does not parse a standalone --mcp argument in version 5. Enable MCP using mcp: { enabled: true } in your wa.config.mjs configuration file.',
     },
     {
-      question: 'Why do I get 401 or 403 from the MCP endpoint?',
-      answer: 'Send the Easy API key as X-API-Key in your MCP client configuration. The implemented MCP adapter rejects requests with a missing or wrong key before tool handling.',
+      question: 'Why does the MCP client receive 401 Unauthorized responses?',
+      answer: 'Verify that your client includes the X-API-Key header with the exact key configured in wa.config.mjs.',
     },
     {
-      question: 'Why are tools not listed?',
-      answer: 'First check /health for capabilities.mcpEnabled, capabilities.mcpAvailable, and capabilities.mcpPath from config and API key state. Then check /meta/mcp-tools.json when mcp.exposeToolsMeta is enabled, remembering that metadata is not a successful MCP handshake.',
+      question: 'Why does tools/list return 0 tools?',
+      answer: 'Ensure exposeToolsMeta is true and that the server has finished starting up and registering internal routes.',
     },
     {
-      question: 'Why do tool calls say the session is not ready?',
-      answer: 'When MCP is enabled, tool execution is blocked until the WhatsApp session is connected unless the runtime is explicitly configured for immediate API lifecycle behavior. Complete authentication first, then retry tools/list and a low-risk read-only tool before allowing send-message tools.',
+      question: 'Why do tool executions return session not ready errors?',
+      answer: 'The MCP adapter gates tool calls until WhatsApp Web completes authentication. Scan the terminal QR code or complete link-code pairing before executing tools.',
     },
   ]}
 />
 
-## Without MCP: HTTP alternative
+## Direct HTTP alternative
 
-If you prefer not to use MCP, use the HTTP API docs and schemas directly:
+If you prefer not to use MCP, interact with the HTTP API directly:
 
-- **Interactive docs:** `http://localhost:8080/api-docs/`
-- **OpenAPI schema:** `http://localhost:8080/meta/swagger.json`
-- **Postman collection:** `http://localhost:8080/meta/postman.json`
+- **Interactive OpenAPI documentation**: `http://localhost:8080/api-docs/`
+- **OpenAPI JSON schema**: `http://localhost:8080/meta/swagger.json`
+- **Postman collection**: `http://localhost:8080/meta/postman.json`
 
-## LLM-readable docs
+## Machine-readable documentation
 
-The docs site generates LLM-readable content at:
+AI agents can parse documentation directly using specialized endpoints:
 
-- **`/llms.txt`**, index of all docs pages in LLM-readable format
-- **`/llms-full.txt`**, full docs content for LLM consumption
-- **`/llms.mdx/docs/$`**, per-page MDX for LLMs
+- `/llms.txt`: Summary index of documentation pages
+- `/llms-full.txt`: Full aggregated documentation content
+- `/llms.mdx/docs/$`: Clean markdown source for individual pages
 
-AI agents can use these endpoints to read the docs without browsing the site.
+## Next steps
 
-## Agent discovery endpoints
-
-The docs site also exposes machine-readable discovery documents so agents and
-tools can find the API and skill surface programmatically:
-
-- **`/.well-known/mcp/server-card.json`** is reserved for deployments that host
-  MCP. The docs site does not host MCP and returns 404 for this path.
-- **`/.well-known/agent-skills.index.json`**, index of published Agent Skills
-  for the open-wa packages.
-- **`/.well-known/api-catalog`**, catalog pointing at the OpenAPI/HTTP API
-  descriptions.
-- **`/.well-known/oauth-protected-resource`** and
-  **`/.well-known/oauth-authorization-server`**, OAuth discovery documents for
-  clients that negotiate auth automatically.
-
-These describe the docs/agent surface. To actually call WhatsApp methods, an
-agent still connects to a running Easy API instance with a valid API key as
-described above.
-
-## Related
-
-- **AI agent patterns**, architecture patterns for AI agents
-- **[Easy API quick start](/docs/getting-started/easy-api)**, start the API
-- **Security & deployment**, production security
+- **AI agent architectural patterns**: See [AI agent patterns](/docs/guides/ai-agent-patterns).
+- **Start the HTTP server**: See [Easy API quickstart](/docs/getting-started/easy-api).
+- **Configure production security**: See [Security and deployment](/docs/operations-and-troubleshooting/security-and-deployment).

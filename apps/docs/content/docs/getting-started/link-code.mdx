@@ -1,81 +1,83 @@
 ---
 title: Link-code login
-description: Authenticate a session with a link code instead of scanning a QR code.
+description: Authenticate a session using an eight-digit pairing code instead of scanning a QR code.
 ---
 
 # Link-code login
 
-If the host account supports link-code login, you can request a link code ahead of authentication instead of scanning a QR code.
+If your WhatsApp account supports pairing codes, you can request an eight-digit link code instead of scanning a QR code.
 
-## Easy API
+## Configure Easy API
+
+Pass the `--link-code` CLI flag with the phone number:
 
 ```bash
 npx @open-wa/wa-automate@alpha --link-code "447123456789"
 ```
 
-You can also place the same value in your config file:
+You can also specify the property in `wa.config.mjs`:
 
-```json
-{
-  "linkCode": "447123456789"
-}
+```js
+export default {
+  linkCode: '447123456789',
+};
 ```
 
-## Phone format
+## Phone number format
 
-Use the full phone number with the country code first. Do not include a plus sign, spaces, brackets, or dashes.
+Specify the full phone number including the country code. Do not include a plus sign (`+`), spaces, brackets, or hyphens.
 
-For example, use `447123456789`, not `+44 7123 456789`.
+For example, use `447123456789` instead of `+44 7123 456789`.
 
-## Where code appears
+## Retrieve the link code
 
-The link code appears in the host device's WhatsApp app during the Linked Devices flow.
+The pairing code is printed in the terminal logs when the runtime initializes.
 
-On the phone that owns the account, open WhatsApp and go to Linked Devices. Choose the option to link with a phone number instead of scanning a QR code, then enter the code shown by open-wa.
+## Complete authentication on your mobile device
 
-## Expiry/failure
-
-Link codes expire after a short time. If the code expires, or if it is entered incorrectly, WhatsApp will reject the login attempt and the session will not connect with that code.
-
-Start the authentication flow again to request a fresh code, then enter the new code on the host device.
-
-## QR still appears?
-
-Yes. The QR code can still appear as a fallback during authentication.
-
-If link-code login fails or times out, scan the QR code. This alternative works while the runtime continues to wait for authentication.
-
-## Host device steps
-
-On the phone that owns the WhatsApp account:
+On the mobile phone that owns the WhatsApp account:
 
 1. Open WhatsApp.
-2. Go to Settings.
-3. Open Linked Devices.
-4. Tap Link a Device.
-5. Choose the option to link with a phone number instead.
-6. Enter the link code shown by open-wa.
-7. Confirm the login when WhatsApp asks.
+2. Tap **Settings** (iOS) or the three-dot menu (Android).
+3. Select **Linked Devices**.
+4. Tap **Link a Device**.
+5. Select **Link with phone number instead**.
+6. Enter the eight-digit code displayed by open-wa in your terminal.
+7. Confirm the pairing prompt on your device.
+
+## Expiration and error handling
+
+Pairing codes expire after a short interval. If the code expires or is entered incorrectly, WhatsApp rejects the pairing attempt and the session does not connect.
+
+To generate a new pairing code, restart the CLI process and enter the updated code on your device.
+
+## QR code fallback
+
+The runtime can still display a QR code in the terminal alongside the link code. If link-code pairing fails or times out, you can scan the terminal QR code to complete authentication.
+
+## Configure custom code
+
+When embedding the runtime using `createClient`, pass `linkCode` in the options object:
+
+```ts
+import { createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+
+async function start() {
+  const client = await createClient({
+    sessionId: 'sales',
+    driver: new PuppeteerDriver(),
+    linkCode: '447123456789',
+    headless: true,
+  });
+}
+
+start().catch(console.error);
+```
 
 ## Troubleshooting
 
-- Check that the number uses country code plus phone number only, with no plus sign or spaces.
-- Make sure that you use the WhatsApp account that owns the number in `linkCode`.
-- If the code expired, restart the login flow and use the new code.
-- If WhatsApp rejects the code, check for typing mistakes and request a fresh code.
-- If link-code login keeps failing, scan the QR code fallback instead.
-- If the session times out before you can enter the code, increase your auth timeout settings or try again when the host device is ready.
-
-## In custom code
-
-```ts
-create({
-  linkCode: '447123456789',
-});
-```
-
-## Important behavior
-
-- The code is tied to the host account number you provide.
-- The host device still needs to confirm the login flow.
-- Use this only when you know which account will own the session.
+- Verify that the phone number contains only digits (country code followed by subscriber number).
+- Ensure the WhatsApp application on the mobile device is active and has an active network connection.
+- If pairing times out, increase `authTimeout` in your configuration or initiate the pairing flow when the host device is immediately accessible.
+- If link-code pairing continues to fail, scan the fallback QR code.

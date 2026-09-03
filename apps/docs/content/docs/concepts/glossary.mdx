@@ -1,86 +1,86 @@
 ---
 title: Glossary
-description: Core terms used throughout the open-wa docs.
+description: Definitions of core terminology used across the open-wa documentation.
 ---
 
 # Glossary
 
-## ChatId
+## Chat ID (ChatId)
 
-A ChatId is the identifier for a WhatsApp chat. Direct messages use the `phone@c.us` format. Groups use the `group@g.us` format.
+A unique identifier for a WhatsApp conversation. Direct conversations use the `phone@c.us` format. Group conversations use the `group@g.us` format.
 
-## ContactId
+## Contact ID (ContactId)
 
-A ContactId is a chat ID that refers to a specific contact. It always ends in `@c.us`.
+A chat ID representing an individual contact. It always ends with the `@c.us` domain suffix.
 
 ## Driver
 
-A driver is the browser automation backend open-wa uses to control WhatsApp Web. Common drivers include Puppeteer, Playwright, and Lightpanda.
+The browser automation backend open-wa uses to control WhatsApp Web. Supported drivers include Puppeteer, Playwright, and Lightpanda.
 
 ## Easy API
 
-The hosted runtime surface that exposes client functionality over HTTP and related runtime transports. It is the ready made HTTP API surface that runs when you execute `npx @open-wa/wa-automate`, including interactive docs and generated schemas.
+The standalone HTTP server that exposes WhatsApp client actions over REST endpoints. Running `npx @open-wa/wa-automate` starts the Easy API server, serves interactive OpenAPI documentation, and hosts the MCP endpoint.
 
 ## Event namespace
 
-An event namespace is the naming convention used for runtime events, such as `message.received`, `client.ready`, and `core.stopping`.
+The hierarchical naming convention used for runtime events, such as `message.received`, `client.ready`, and `core.stopping`.
 
-## GroupChatId
+## Group chat ID (GroupChatId)
 
-A GroupChatId is a chat ID that refers to a WhatsApp group. It always ends in `@g.us`.
+A chat ID representing a WhatsApp group conversation. It always ends with the `@g.us` domain suffix.
 
-## Headless / headful
+## Headless and visible modes
 
-`headless` means the browser runs without a visible UI. `headful` means the browser window is visible for debugging or manual observation.
+In `headless` mode, Chromium runs in the background without a graphical user interface. In visible (headful) mode, the browser window is displayed on your screen for debugging.
 
 ## Host account
 
-The WhatsApp account that authenticates and owns the session.
+The primary WhatsApp account on a mobile device that authenticates and establishes the session.
 
 ## License tiers
 
-License tiers are the different licensing levels that gate certain features, such as free, insiders, and restricted.
+Licensing levels that govern access to commercial features, including Community, Insiders, and Enterprise tiers.
 
-## LID
+## Linked device identifier (LID)
 
-LID means Linked Device ID. It is an internal identifier WhatsApp uses for linked device sessions.
+An internal identifier used by WhatsApp to route messages across linked companion devices.
 
-## MCP
+## Model Context Protocol (MCP)
 
-MCP means Model Context Protocol. It is a standard for connecting AI assistants to external tools, and open-wa exposes Easy API methods as MCP tools.
+An open protocol allowing AI assistants (such as Claude Desktop or Cursor) to discover and invoke tools. open-wa includes a built-in MCP server that maps Easy API methods to AI tools.
 
 ## Proxy
 
-A proxy is a middleman service that forwards traffic between your app and WhatsApp. In open-wa contexts, this can include Cloudflare Session Proxy and SOCKS or HTTP proxies.
+An intermediary service that routes network traffic between your application and WhatsApp. Examples include HTTP/SOCKS proxies for outbound requests and the Cloudflare session proxy for inbound remote client access.
 
-## Re-auth
+## Re-authentication
 
-Re-auth is the process of bringing an existing session back online without a fresh QR scan when the necessary auth state is still usable.
+The automated restoration of an existing session using saved disk credentials without requiring a new QR code scan.
 
 ## Re-scan
 
-A re-scan is the user action of scanning a fresh QR code after a session can no longer be restored automatically.
+The action of scanning a new QR code when existing session tokens have expired or been revoked.
 
 ## Session
 
-A session is a named automation instance. The `sessionId` is the stable identifier you use to distinguish one runtime from another.
+An isolated WhatsApp automation instance identified by a unique `sessionId`.
 
 ## Session data
 
-Session data is the authentication material that restores a session. Its portability depends on the auth/runtime mode that you use.
+The browser profile data, authentication keys, and cookies stored on disk to maintain session state across process restarts.
 
 ## SocketClient
 
-The remote consumer client used to connect to an Easy API instance without embedding the full browser automation runtime in your own app.
+A lightweight client library (`@open-wa/socket-client`) used by Node.js applications to interact with a remote Easy API instance without running a local browser process.
 
 ## Tunnel
 
-A tunnel, such as Cloudflare Tunnel, exposes a local service to the internet. It does not open ports on your machine or network.
+A secure network bridge (such as Cloudflare Tunnel) that exposes a local service to the internet without opening inbound firewall ports.
 
 ## WAPI
 
-WAPI is the internal WhatsApp Web API that open-wa bridges to. It is the abstraction layer between the browser runtime and WhatsApp Web.
+The internal JavaScript bridge injected into the WhatsApp Web page context by open-wa to control page state and dispatch events.
 
 ## Webhook
 
-A webhook is an HTTP POST notification sent to your endpoint when WhatsApp events occur.
+An HTTP `POST` request dispatched by open-wa to an external endpoint when incoming messages or lifecycle events occur.
