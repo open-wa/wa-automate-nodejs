@@ -1697,10 +1697,6 @@ describe('bootstrap contract harness', () => {
 
   it('publishes a changed QR while waiting for authentication', async () => {
     const page = new FakePage({ qrCode: 'first-qr', qrCodes: ['second-qr'] });
-    vi.spyOn(page, 'waitForFunction').mockImplementation(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 20));
-      throw new Error('authentication still pending');
-    });
 
     const events: Array<{ name: string; payload: unknown }> = [];
     const transport = Object.assign(Object.create(Transport.prototype), {
@@ -1710,14 +1706,31 @@ describe('bootstrap contract harness', () => {
       qrPollingMs: 1,
       events: { emit: (name: string, payload: unknown) => events.push({ name, payload }) },
       logger: { info: vi.fn(), debug: vi.fn() },
-    }) as Transport;
+    }) as Transport & { waitForQrSession(timeoutMs: number): Promise<string> };
 
-    expect(await transport.waitForSessionLoaded(20)).toBe(false);
+    expect(await transport.waitForQrSession(20)).toBe('timeout');
     const generated = events.filter((event) => event.name === 'launch.auth.qr.generated');
     expect(generated).toHaveLength(1);
     expect(generated[0]?.payload).toMatchObject({
       details: { qr: 'second-qr', attemptInThisCycle: 2 },
     });
+  });
+
+  it('stops at qrMax before publishing the next QR', async () => {
+    const page = new FakePage({ qrCode: 'first-qr', qrCodes: ['second-qr'] });
+    const events: Array<{ name: string; payload: unknown }> = [];
+    const transport = Object.assign(Object.create(Transport.prototype), {
+      page,
+      lastQrData: 'first-qr',
+      qrAttempt: 1,
+      qrMax: 1,
+      qrPollingMs: 1,
+      events: { emit: (name: string, payload: unknown) => events.push({ name, payload }) },
+      logger: { info: vi.fn(), debug: vi.fn() },
+    }) as Transport & { waitForQrSession(timeoutMs: number): Promise<string> };
+
+    expect(await transport.waitForQrSession(1000)).toBe('qr_max');
+    expect(events.filter((event) => event.name === 'launch.auth.qr.generated')).toHaveLength(0);
   });
 
   it('fails fast in createClient.screenshot() before touching the Lightpanda page screenshot path', async () => {
