@@ -6,6 +6,7 @@ import { useHealth } from "@/lib/hooks/use-health"
 import { getClient } from "@/lib/api-client"
 import { useDemo } from "@/lib/demo/use-demo"
 import { usePrivacy } from "@/lib/hooks/use-privacy"
+import { QRCodeSVG } from "qrcode.react"
 import {
   demoMessageVolume,
   demoMessageTypes,
@@ -99,11 +100,6 @@ function PreLaunchView({
   )
   const demoTimeoutIds = useRef<ReturnType<typeof setTimeout>[]>([])
 
-  console.log({
-    phase,
-    qr,
-    isDemo,
-  })
   if (qr) phase = "qr"
   // In demo mode, drip-feed log lines to simulate a real launch
   useEffect(() => {
@@ -349,9 +345,10 @@ function PreLaunchView({
                     <div className="animate-scan absolute inset-x-3 h-0.5 bg-primary/60" />
                   </div>
                 ) : (
-                  <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(qr!)}`}
-                    alt="QR Code"
+                  <QRCodeSVG
+                    value={qr!}
+                    size={224}
+                    title="WhatsApp pairing code"
                     className="size-56"
                   />
                 )}
