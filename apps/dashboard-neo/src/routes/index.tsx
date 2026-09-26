@@ -363,7 +363,7 @@ function PreLaunchView({
                 WhatsApp → Settings → Linked Devices → Link a Device
               </p>
               <p className="text-xs text-muted-foreground/60">
-                The QR code refreshes automatically every 20 seconds
+                The QR code updates when WhatsApp refreshes it
               </p>
             </div>
           </div>
