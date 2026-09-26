@@ -1695,6 +1695,31 @@ describe('bootstrap contract harness', () => {
     await client.stop('qr_max_classification_cleanup');
   });
 
+  it('publishes a changed QR while waiting for authentication', async () => {
+    const page = new FakePage({ qrCode: 'first-qr', qrCodes: ['second-qr'] });
+    vi.spyOn(page, 'waitForFunction').mockImplementation(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      throw new Error('authentication still pending');
+    });
+
+    const events: Array<{ name: string; payload: unknown }> = [];
+    const transport = Object.assign(Object.create(Transport.prototype), {
+      page,
+      lastQrData: 'first-qr',
+      qrAttempt: 1,
+      qrPollingMs: 1,
+      events: { emit: (name: string, payload: unknown) => events.push({ name, payload }) },
+      logger: { info: vi.fn(), debug: vi.fn() },
+    }) as Transport;
+
+    expect(await transport.waitForSessionLoaded(20)).toBe(false);
+    const generated = events.filter((event) => event.name === 'launch.auth.qr.generated');
+    expect(generated).toHaveLength(1);
+    expect(generated[0]?.payload).toMatchObject({
+      details: { qr: 'second-qr', attemptInThisCycle: 2 },
+    });
+  });
+
   it('fails fast in createClient.screenshot() before touching the Lightpanda page screenshot path', async () => {
     const { client, page } = await createHarness({
       runtimeAvailable: true,

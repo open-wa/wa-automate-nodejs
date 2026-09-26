@@ -1598,20 +1598,7 @@ export class Transport {
 
     try {
       const qrData = await this.page.evaluateScript<string | null>(QR_CHECK_SCRIPT);
-      if (qrData && typeof qrData === 'string' && qrData !== this.lastQrData) {
-        this.lastQrData = qrData;
-        this.qrAttempt++;
-        this.events.emit('launch.auth.qr.generated', {
-          correlationId: 'qr-wait',
-          ts: Date.now(),
-          step: 'qr_generated',
-          details: {
-            qr: qrData,
-            attemptInThisCycle: this.qrAttempt
-          }
-        });
-        this.logger.info('qr_code_generated', { attempt: this.qrAttempt });
-      }
+      this.publishQrIfChanged(qrData);
       return qrData;
     } catch (error) {
       this.logger.debug('qr_check_error', { error });
@@ -1619,10 +1606,39 @@ export class Transport {
     }
   }
 
+  private publishQrIfChanged(qrData: string | null): void {
+    if (!qrData || qrData === this.lastQrData) return;
+
+    this.lastQrData = qrData;
+    this.qrAttempt++;
+    this.events.emit('launch.auth.qr.generated', {
+      correlationId: 'qr-wait',
+      ts: Date.now(),
+      step: 'qr_generated',
+      details: { qr: qrData, attemptInThisCycle: this.qrAttempt }
+    });
+    this.logger.info('qr_code_generated', { attempt: this.qrAttempt });
+  }
+
   async waitForSessionLoaded(timeoutMs: number = this.authTimeoutMs): Promise<boolean> {
     if (!this.page) {
       throw new Error('Transport not initialized');
     }
+
+    let polling = this.lastQrData !== null;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const checkForUpdatedQr = async () => {
+      if (!polling) return;
+      try {
+        const qrData = await this.page?.evaluateScript<string | null>(QR_CHECK_SCRIPT);
+        if (polling) this.publishQrIfChanged(qrData ?? null);
+      } catch (error) {
+        this.logger.debug('qr_check_error', { error });
+      } finally {
+        if (polling) timer = setTimeout(checkForUpdatedQr, this.qrPollingMs);
+      }
+    };
+    if (polling) timer = setTimeout(checkForUpdatedQr, this.qrPollingMs);
 
     try {
       await this.page.waitForFunction(AUTHENTICATED_SHELL_CHECK_SCRIPT, {
@@ -1637,6 +1653,9 @@ export class Transport {
       return true;
     } catch {
       return false;
+    } finally {
+      polling = false;
+      if (timer) clearTimeout(timer);
     }
   }
 
