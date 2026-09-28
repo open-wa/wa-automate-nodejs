@@ -144,7 +144,8 @@ Publishing is driven by Bumpy and the `release` branch — **not** `master`.
   2. That push makes Bumpy open a **"chore: version packages"** PR that bumps
      the fixed `@open-wa/*` group and consumes the bump files.
   3. Merging that version PR publishes to npm + GitHub Packages, tags, creates
-     the GitHub Release (which also deploys the docs), and notifies Discord.
+     the GitHub Release, and notifies Discord. Documentation deployment has
+     its own workflow and must be checked separately.
 - Stable packages publish under npm's `latest` tag. Bumpy's release config is
   `.bumpy/_config.json`; do not reintroduce Changesets pre-mode.
 - `tools/release/publish-packages-local.sh` is intentionally gitignored — it is
