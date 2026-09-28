@@ -42,11 +42,11 @@ jobs:
 
           REPORT+="## 📋 Release Readiness Checklist\n\n"
 
-          # ── 1. Changeset check ──────────────────────────────────
-          REPORT+="### Changesets\n"
-          CHANGESET_FILES=$(find .changeset -name "*.md" ! -name "README.md" 2>/dev/null | wc -l | tr -d ' ')
-          if [ "$CHANGESET_FILES" -gt 0 ]; then
-            add_pass "Found $CHANGESET_FILES changeset file(s); Changesets will create a version PR"
+          # ── 1. Bump file check ──────────────────────────────────
+          REPORT+="### Bumpy\n"
+          BUMP_FILES=$(find .bumpy -maxdepth 1 -name "*.md" ! -name "README.md" 2>/dev/null | wc -l | tr -d ' ')
+          if [ "$BUMP_FILES" -gt 0 ]; then
+            add_pass "Found $BUMP_FILES bump file(s); Bumpy will create a version PR"
           else
             VERSIONED_PACKAGES=0
             while IFS= read -r MANIFEST; do
@@ -57,9 +57,9 @@ jobs:
               fi
             done < <(git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" -- 'packages/*/package.json' 'integrations/*/package.json')
             if [ "$VERSIONED_PACKAGES" -gt 0 ]; then
-              add_info "No pending changesets; $VERSIONED_PACKAGES package version(s) changed, so verify the intended versions before publishing"
+                add_info "No pending bump files; $VERSIONED_PACKAGES package version(s) changed, so verify the intended versions before publishing"
             else
-              add_warn "No pending changesets or package version changes; this PR will not publish a release"
+                add_warn "No pending bump files or package version changes; this PR will not publish a release"
             fi
           fi
 

@@ -37,21 +37,33 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # ── Changesets: version + publish ────────────────────────────
-      - name: Create Release PR or Publish
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          version: pnpm version-packages
-          publish: pnpm publish-packages
-          commit: '🔖 chore(release): version packages'
-          title: 'chore: version packages'
+      - name: Plan release
+        id: plan
+        run: pnpm exec bumpy ci plan
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Build packages for publish
+        if: steps.plan.outputs.mode == 'publish'
+        run: pnpm build
+
+      - name: Create version PR or publish to npm
+        if: steps.plan.outputs.mode != 'nothing'
+        run: pnpm exec bumpy ci release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUMPY_GH_TOKEN: ${{ secrets.CUSTOM_GH_TOKEN }}
+
+      - name: Publish to GitHub Packages
+        if: steps.plan.outputs.mode == 'publish'
+        run: ./tools/release/publish-github-packages.sh
+        env:
+          BUMPY_PACKAGES: ${{ steps.plan.outputs.packages }}
+          GITHUB_TOKEN: ${{ github.token }}
 
       # ── Post-publish: Get version ────────────────────────────────
       - name: Get published version
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.plan.outputs.mode == 'publish' && contains(fromJSON(steps.plan.outputs.packages), '@open-wa/core')
         id: version
         run: |
           VERSION=$(jq -r .version packages/core/package.json)
@@ -60,7 +72,7 @@ jobs:
 
       # ── Post-publish: Generate release notes ─────────────────────
       - name: Generate release notes
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.plan.outputs.mode == 'publish' && contains(fromJSON(steps.plan.outputs.packages), '@open-wa/core')
         run: pnpm tsx tools/release/generate-notes.ts --version ${{ steps.version.outputs.version }}
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
@@ -73,20 +85,20 @@ jobs:
       # never block the actual GitHub Release / Discord notification (the
       # Create GitHub Release step already handles an absent release.png).
       - name: Install Chrome for release image
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.plan.outputs.mode == 'publish' && contains(fromJSON(steps.plan.outputs.packages), '@open-wa/core')
         continue-on-error: true
         env:
           PUPPETEER_SKIP_DOWNLOAD: '0'
         run: npx puppeteer browsers install chrome
 
       - name: Generate release image
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.plan.outputs.mode == 'publish' && contains(fromJSON(steps.plan.outputs.packages), '@open-wa/core')
         continue-on-error: true
         run: node tools/release-image.js --version ${{ steps.version.outputs.version }}
 
       # ── Post-publish: Create GitHub Release ──────────────────────
       - name: Create GitHub Release
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.plan.outputs.mode == 'publish' && contains(fromJSON(steps.plan.outputs.packages), '@open-wa/core')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -126,7 +138,7 @@ jobs:
 
       # ── Post-publish: Discord notification ───────────────────────
       - name: Notify Discord
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.plan.outputs.mode == 'publish' && contains(fromJSON(steps.plan.outputs.packages), '@open-wa/core')
         run: pnpm tsx tools/release/discord-notify.ts --version ${{ steps.version.outputs.version }}
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
