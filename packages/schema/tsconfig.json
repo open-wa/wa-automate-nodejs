@@ -6,9 +6,6 @@
         "composite": true,
         "skipLibCheck": true
     },
-    "files": [
-        "./src/open-wa-utils.d.ts"
-    ],
     "include": [
         "src/**/*"
     ]
