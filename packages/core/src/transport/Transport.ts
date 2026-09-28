@@ -1598,25 +1598,26 @@ export class Transport {
 
     try {
       const qrData = await this.page.evaluateScript<string | null>(QR_CHECK_SCRIPT);
-      if (qrData && typeof qrData === 'string' && qrData !== this.lastQrData) {
-        this.lastQrData = qrData;
-        this.qrAttempt++;
-        this.events.emit('launch.auth.qr.generated', {
-          correlationId: 'qr-wait',
-          ts: Date.now(),
-          step: 'qr_generated',
-          details: {
-            qr: qrData,
-            attemptInThisCycle: this.qrAttempt
-          }
-        });
-        this.logger.info('qr_code_generated', { attempt: this.qrAttempt });
-      }
+      this.publishQrIfChanged(qrData);
       return qrData;
     } catch (error) {
       this.logger.debug('qr_check_error', { error });
       return null;
     }
+  }
+
+  private publishQrIfChanged(qrData: string | null): void {
+    if (!qrData || qrData === this.lastQrData) return;
+
+    this.lastQrData = qrData;
+    this.qrAttempt++;
+    this.events.emit('launch.auth.qr.generated', {
+      correlationId: 'qr-wait',
+      ts: Date.now(),
+      step: 'qr_generated',
+      details: { qr: qrData, attemptInThisCycle: this.qrAttempt }
+    });
+    this.logger.info('qr_code_generated', { attempt: this.qrAttempt });
   }
 
   async waitForSessionLoaded(timeoutMs: number = this.authTimeoutMs): Promise<boolean> {
@@ -1638,6 +1639,36 @@ export class Transport {
     } catch {
       return false;
     }
+  }
+
+  private async waitForQrSession(timeoutMs: number): Promise<'authenticated' | 'qr_max' | 'timeout'> {
+    if (!this.page) throw new Error('Transport not initialized');
+
+    const deadline = timeoutMs === 0 ? Infinity : Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      try {
+        if (await this.page.evaluateScript<boolean>(AUTHENTICATED_SHELL_CHECK_SCRIPT)) {
+          this.events.emit('launch.auth.qr.scanned', {
+            correlationId: 'auth-wait',
+            ts: Date.now(),
+            step: 'qr_scanned',
+          });
+          return 'authenticated';
+        }
+
+        const qrData = await this.page.evaluateScript<string | null>(QR_CHECK_SCRIPT);
+        if (qrData && qrData !== this.lastQrData) {
+          if (this.qrMax && this.qrAttempt >= this.qrMax) return 'qr_max';
+          this.publishQrIfChanged(qrData);
+        }
+      } catch (error) {
+        this.logger.debug('qr_check_error', { error });
+      }
+
+      const remainingMs = deadline - Date.now();
+      await new Promise((resolve) => setTimeout(resolve, Math.max(0, Math.min(this.qrPollingMs, remainingMs))));
+    }
+    return 'timeout';
   }
 
   async waitForRipeSession(timeoutMs: number = this.authTimeoutMs): Promise<boolean> {
@@ -1944,8 +1975,8 @@ export class Transport {
     }
 
     const qrScanTimeoutMs = this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
-    const sessionLoaded = await this.waitForSessionLoaded(qrScanTimeoutMs || this.authTimeoutMs);
-    if (sessionLoaded) {
+    const qrOutcome = await this.waitForQrSession(qrScanTimeoutMs || this.authTimeoutMs);
+    if (qrOutcome === 'authenticated') {
       return {
         outcome: 'authenticated',
         qrSeen: true,
@@ -1954,7 +1985,7 @@ export class Transport {
       };
     }
 
-    if (this.qrMax && this.qrAttempt >= this.qrMax) {
+    if (qrOutcome === 'qr_max' || (this.qrMax && this.qrAttempt >= this.qrMax)) {
       return {
         outcome: 'qr_max',
         qrSeen: true,
