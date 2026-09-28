@@ -16,7 +16,7 @@ The 27 packages in Bumpy's `fixed` group retain one version. Other public packag
 
 Each existing npm package has a Trusted Publisher connection to `open-wa/wa-automate-nodejs`, workflow `release.yml`, environment `Release`. The workflow grants `id-token: write` and uses npm 11 on Node 24. npm requires a package to exist before its Trusted Publisher can be configured, so first publication of a new package needs an authenticated maintainer publish.
 
-The built-in `GITHUB_TOKEN` creates Bumpy's version PR and publishes to GitHub Packages. GitHub does not trigger other workflows from PRs created with this token; merging the version PR still triggers the release push. `GOOGLE_API_KEY` is used for release notes, and `DISCORD_WEBHOOK_URL` sends the notification.
+The built-in `GITHUB_TOKEN` creates Bumpy's version PR and publishes to GitHub Packages. GitHub does not trigger other workflows from PRs created with this token; merging the version PR still triggers the release push. `GOOGLE_API_KEY` optionally adds an AI summary to release notes. Set `DISCORD_WEBHOOK_URL` in the repository or `Release` environment secrets before publishing; the aggregate release fails visibly without it.
 
 ## Local commands
 
@@ -29,4 +29,6 @@ pnpm publish-packages             # publish unpublished versions locally
 
 `tools/release/publish-github-packages.sh` is the CI step for GitHub Packages. It receives the package names from Bumpy's publish plan, skips versions already present, and packs each missing package with pnpm before publishing with `GITHUB_TOKEN`. When npm is already published, the step reconciles every public package so a failed GitHub Packages publish can be retried by pushing `release` again. The aggregate GitHub release is also resumed if its npm version exists but its `vX.Y.Z` release does not.
 
-`generate-notes.ts` writes `RELEASE_BODY.md` and `release-notes-detailed.md`. `discord-notify.ts` sends the release announcement. `release-image.js` renders an optional image; its failure does not block publication.
+`generate-notes.ts` writes `RELEASE_BODY.md` and `release-notes-detailed.md`. `release-image.js` renders `release.png` from those notes and the package changelogs. The image is required for the aggregate GitHub release and Discord announcement, so a render failure stops the announcement after package publication instead of uploading a stale image. `discord-notify.ts` sends the notes and image together and requires Discord to return a message ID.
+
+To repair or announce an existing GitHub release without republishing packages, dispatch `.github/workflows/release.yml` on the `release` branch with its `version` input (for example, `5.0.0`). It reads that release's body, replaces its image asset, and posts the image and notes to Discord. Dispatching it again posts another Discord message.
