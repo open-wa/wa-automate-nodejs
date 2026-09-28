@@ -22,7 +22,6 @@ create_npmjs_npmrc() {
   temp_npmrc_files+=("${npmjs_npmrc}")
   {
     printf '%s\n' 'registry=https://registry.npmjs.org/'
-    printf '%s\n' '//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}'
   } > "${npmjs_npmrc}"
 }
 
@@ -66,13 +65,12 @@ else
   printf '%s\n' 'Publishing stable versions with the latest dist tag.'
 fi
 
-if [[ -n "${NPM_TOKEN:-}" ]]; then
-  create_npmjs_npmrc
-  printf '%s\n' 'Publishing changed packages to npmjs...'
-  run_changeset_publish "${npmjs_npmrc}" "${NPM_TOKEN}" "${npm_publish_args[@]}"
-else
-  printf '%s\n' 'Skipping npmjs publish: NPM_TOKEN is not set.'
-fi
+create_npmjs_npmrc
+printf '%s\n' 'Publishing changed packages to npmjs with trusted publishing...'
+env -u NODE_AUTH_TOKEN -u NPM_TOKEN \
+  NPM_CONFIG_USERCONFIG="${npmjs_npmrc}" \
+  npm_config_userconfig="${npmjs_npmrc}" \
+  pnpm exec changeset "${npm_publish_args[@]}"
 
 if [[ -n "${GITHUB_TOKEN:-}" ]]; then
   create_github_npmrc
