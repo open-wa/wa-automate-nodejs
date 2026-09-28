@@ -9,6 +9,10 @@ on:
         description: Existing release version to render and announce, without the v prefix
         required: true
         type: string
+      discord_message_id:
+        description: Existing Discord release message to update instead of posting a new cover
+        required: false
+        type: string
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -121,7 +125,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.aggregate.outputs.version }}
         run: |
-          gh release view "v${VERSION}" --json body --jq .body > RELEASE_BODY.md
+          if [ "$VERSION" = '5.0.0' ]; then
+            cp tools/release/v5-release-notes.md RELEASE_BODY.md
+            gh release edit "v${VERSION}" --notes-file RELEASE_BODY.md
+          else
+            gh release view "v${VERSION}" --json body --jq .body > RELEASE_BODY.md
+          fi
           test -s RELEASE_BODY.md
 
       # ── Post-publish: Generate release image ─────────────────────
@@ -138,9 +147,12 @@ jobs:
           VERSION: ${{ steps.aggregate.outputs.version }}
           RELEASE_IMAGE_NO_SANDBOX: '1'
         run: |
-          rm -f release.png
+          rm -f release.png release-[0-9]*.png
           node tools/release-image.js --version "$VERSION"
           test -s release.png
+          shopt -s nullglob
+          pages=(release-[0-9]*.png)
+          test "${#pages[@]}" -gt 0
 
       # ── Post-publish: Create GitHub Release ──────────────────────
       - name: Create GitHub Release
@@ -158,9 +170,16 @@ jobs:
           fi
 
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" release.png --clobber
+            shopt -s nullglob
+            images=(release.png release-[0-9]*.png)
+            while IFS= read -r asset; do
+              if [[ "$asset" =~ ^release-[0-9]+\.png$ ]] && [ ! -f "$asset" ]; then
+                gh release delete-asset "$TAG" "$asset" --yes
+              fi
+            done < <(gh release view "$TAG" --json assets --jq '.assets[].name')
+            gh release upload "$TAG" "${images[@]}" --clobber
           else
-            gh release create "$TAG" --title "$TAG" --notes-file RELEASE_BODY.md $PRE_FLAG release.png
+            gh release create "$TAG" --title "$TAG" --notes-file RELEASE_BODY.md $PRE_FLAG release.png release-[0-9]*.png
           fi
 
           echo "✅ GitHub Release image ready: $TAG"
@@ -168,6 +187,13 @@ jobs:
       # ── Post-publish: Discord notification ───────────────────────
       - name: Notify Discord
         if: steps.aggregate.outputs.needed == 'true'
-        run: pnpm tsx tools/release/discord-notify.ts --version ${{ steps.aggregate.outputs.version }}
+        run: |
+          args=(--version "$VERSION")
+          if [ -n "$DISCORD_MESSAGE_ID" ]; then
+            args+=(--edit-message "$DISCORD_MESSAGE_ID")
+          fi
+          pnpm tsx tools/release/discord-notify.ts "${args[@]}"
         env:
+          VERSION: ${{ steps.aggregate.outputs.version }}
+          DISCORD_MESSAGE_ID: ${{ inputs.discord_message_id }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
