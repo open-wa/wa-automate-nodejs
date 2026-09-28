@@ -136,6 +136,7 @@ jobs:
         if: steps.aggregate.outputs.needed == 'true'
         env:
           VERSION: ${{ steps.aggregate.outputs.version }}
+          RELEASE_IMAGE_NO_SANDBOX: '1'
         run: |
           rm -f release.png
           node tools/release-image.js --version "$VERSION"

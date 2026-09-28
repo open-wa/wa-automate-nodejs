@@ -283,7 +283,13 @@ async function run() {
 
   const html = buildHTML(version, changes);
 
-  const browser = await puppeteer.launch({ headless: "new", timeout: 0 });
+  const browser = await puppeteer.launch({
+    headless: "new",
+    timeout: 0,
+    args: process.env.RELEASE_IMAGE_NO_SANDBOX === "1"
+      ? ["--no-sandbox", "--disable-setuid-sandbox"]
+      : [],
+  });
   const page = await browser.newPage();
   await page.setViewport({ width: 900, height: 900, deviceScaleFactor: 2 });
   await page.setContent(html, { waitUntil: "networkidle0" });
