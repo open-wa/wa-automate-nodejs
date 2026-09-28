@@ -33,7 +33,7 @@
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-router-devtools": "catalog:",
     "@tanstack/react-router-ssr-query": "catalog:",
-    "@tanstack/router-plugin": "^1.168.40",
+    "@tanstack/router-plugin": "^1.168.41",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
     "@types/node": "catalog:",
