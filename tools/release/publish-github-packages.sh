@@ -24,8 +24,11 @@ for (const root of ['packages', 'integrations', 'sdks', 'apps']) {
     const manifest = `${dir}/package.json`;
     if (!fs.existsSync(manifest)) continue;
     const pkg = JSON.parse(fs.readFileSync(manifest, 'utf8'));
+    if (pkg.private) {
+      if (names.has(pkg.name)) throw new Error(`Refusing to publish private package ${pkg.name}`);
+      continue;
+    }
     if (reconcileAll || names.has(pkg.name)) {
-      if (pkg.private) throw new Error(`Refusing to publish private package ${pkg.name}`);
       names.delete(pkg.name);
       console.log(dir);
     }
