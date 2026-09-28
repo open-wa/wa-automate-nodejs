@@ -18,13 +18,13 @@ catalog:
   '@hono/node-server': ^2.1.1
   '@tailwindcss/vite': ^4.3.3
   '@tanstack/react-query': ^5.101.4
-  '@tanstack/react-router': 1.170.39
+  '@tanstack/react-router': 1.170.40
   '@tanstack/react-router-devtools': 1.167.2
   '@tanstack/react-router-ssr-query': 1.167.3
-  '@tanstack/react-start': 1.168.58
+  '@tanstack/react-start': 1.168.59
   '@tanstack/router-generator': 1.167.21
   '@tanstack/router-plugin': 1.168.23
-  '@tanstack/start-static-server-functions': ^1.167.37
+  '@tanstack/start-static-server-functions': ^1.167.38
   '@types/cors': ^2.8.12
   '@types/express': ^5.0.6
   '@types/jest': ^29.5.0
@@ -73,7 +73,7 @@ catalog:
   vite-tsconfig-paths: ^6.1.1
   vitest: 5.0.2
   winston: ^3.19.0
-  wrangler: ^4.141.0
+  wrangler: ^4.142.0
   zod: ^4.6.5
 shamefullyHoist: true
 nodeLinker: hoisted
@@ -122,10 +122,11 @@ minimumReleaseAgeExclude:
   - '@effect/platform-node-shared@4.0.0-beta.100'
   - '@effect/platform-node@4.0.0-beta.100'
   - effect@4.0.0-beta.100
-  - '@ai-sdk/gateway@4.0.26'
-  - '@ai-sdk/mcp@2.0.16'
-  - '@ai-sdk/provider-utils@5.0.12'
-  - '@ai-sdk/react@4.0.37'
+  - '@ai-sdk/gateway@4.0.26 || 4.0.98'
+  - '@ai-sdk/mcp@2.0.16 || 2.0.61'
+  - '@ai-sdk/provider@4.0.19'
+  - '@ai-sdk/provider-utils@5.0.12 || 5.0.50'
+  - '@ai-sdk/react@4.0.37 || 4.0.123'
   - '@cloudflare/vite-plugin@1.46.0'
   - '@cloudflare/workers-types@5.20260722.1'
   - '@oxlint/binding-android-arm-eabi@1.75.0'
@@ -162,7 +163,7 @@ minimumReleaseAgeExclude:
   - '@tanstack/query-core@5.101.4'
   - '@tanstack/react-query@5.101.4'
   - '@vitejs/plugin-react@6.0.4'
-  - ai@7.0.34
+  - ai@7.0.34 || 7.0.120
   - miniflare@4.20260721.0
   - oxlint@1.75.0
   - postcss@8.5.22
