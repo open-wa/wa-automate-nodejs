@@ -16,7 +16,7 @@ The 27 packages in Bumpy's `fixed` group retain one version. Other public packag
 
 Each existing npm package has a Trusted Publisher connection to `open-wa/wa-automate-nodejs`, workflow `release.yml`, environment `Release`. The workflow grants `id-token: write` and uses npm 11 on Node 24. npm requires a package to exist before its Trusted Publisher can be configured, so first publication of a new package needs an authenticated maintainer publish.
 
-`CUSTOM_GH_TOKEN` lets Bumpy's version PR trigger other GitHub workflows. The built-in `GITHUB_TOKEN` publishes to GitHub Packages. `GOOGLE_API_KEY` is used for release notes, and `DISCORD_WEBHOOK_URL` sends the notification.
+The built-in `GITHUB_TOKEN` creates Bumpy's version PR and publishes to GitHub Packages. GitHub does not trigger other workflows from PRs created with this token; merging the version PR still triggers the release push. `GOOGLE_API_KEY` is used for release notes, and `DISCORD_WEBHOOK_URL` sends the notification.
 
 ## Local commands
 

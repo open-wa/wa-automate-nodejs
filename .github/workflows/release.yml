@@ -49,10 +49,9 @@ jobs:
 
       - name: Create version PR or publish to npm
         if: steps.plan.outputs.mode != 'nothing'
-        run: pnpm exec bumpy ci release
+        run: pnpm exec bumpy ci release --expect-mode "${{ steps.plan.outputs.mode }}"
         env:
           GH_TOKEN: ${{ github.token }}
-          BUMPY_GH_TOKEN: ${{ secrets.CUSTOM_GH_TOKEN }}
 
       - name: Publish to GitHub Packages
         if: steps.plan.outputs.mode == 'publish'
