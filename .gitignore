@@ -116,6 +116,7 @@ packages/api/dashboard-neo/
 RELEASE_BODY.md
 release-notes-detailed.md
 /release.png
+/release-[0-9]*.png
 apps/docs/.fumadocs-typescript/
 apps/docs/.wrangler/
 apps/docs/types_error.txt
