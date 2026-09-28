@@ -1,5 +1,21 @@
 # @open-wa/api
 
+## 5.0.0
+
+### Patch Changes
+
+- Ship the dashboard SPA with the Easy API runtime so clean CLI installs can serve `/dashboard/`.
+
+- Embed the built dashboard SPA in the API package so clean CLI installs can serve `/dashboard/` without resolving a separate dashboard package.
+
+- Deduplicate React in the embedded dashboard build so the production dashboard does not crash on startup.
+
+- Allow pre-auth QR bootstrap to continue when WhatsApp Web exposes the QR surface before `WAWebCollections` is injectable, gate dashboard runtime API calls until the session is ready, and return an empty plugin manifest when no plugins are mounted.
+- Updated dependencies [[`6a55aef`](https://github.com/open-wa/wa-automate-nodejs/commit/6a55aef602b347bfffc8550e448585e7776baf18)]:
+  - @open-wa/schema@5.0.0
+  - @open-wa/mcp@5.0.0
+  - @open-wa/screencaster@5.0.0
+
 ## 5.0.0-alpha.7
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/logger",
-  "version": "5.0.0-alpha.7",
+  "version": "5.0.0",
   "description": "Centralized logging and terminal UI for open-wa v5",
   "main": "dist/index.cjs",
   "types": "dist/index.d.cts",
@@ -11,11 +11,11 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "chalk": "^5.6.2",
-    "figlet": "^1.11.3",
+    "chalk": "^6.0.1",
+    "figlet": "^1.11.4",
     "log-update": "^8.0.0",
     "ora": "^9.4.1",
-    "winston": "^3.19.0",
+    "winston": "catalog:",
     "winston-transport": "^4.9.0",
     "zod": "catalog:"
   },
@@ -35,5 +35,9 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     }
-  }
+  },
+  "license": "SEE LICENSE IN LICENSE.md",
+  "files": [
+    "dist"
+  ]
 }

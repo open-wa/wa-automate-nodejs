@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/driver-playwright",
-  "version": "5.0.0-alpha.7",
+  "version": "5.0.0",
   "description": "Playwright driver implementation for open-wa",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@open-wa/driver-interface": "workspace:*",
-    "playwright": "^1.61.1"
+    "playwright": "^1.63.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",
@@ -32,5 +32,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/open-wa/wa-automate-nodejs.git"
-  }
+  },
+  "license": "SEE LICENSE IN LICENSE.md",
+  "files": [
+    "dist"
+  ]
 }

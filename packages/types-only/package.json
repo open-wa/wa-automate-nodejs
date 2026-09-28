@@ -1,10 +1,10 @@
 {
   "name": "@open-wa/wa-automate-types-only",
-  "version": "5.0.0-alpha.7",
+  "version": "5.0.0",
   "description": "Lightweight type-only re-exports from @open-wa/schema — zero runtime dependencies",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
       "require": {
@@ -37,11 +37,14 @@
   "publishConfig": {
     "access": "public"
   },
-  "license": "H-DNH V1.0",
+  "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
     "@open-wa/schema": "workspace:*"
   },
   "devDependencies": {
     "typescript": "catalog:"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

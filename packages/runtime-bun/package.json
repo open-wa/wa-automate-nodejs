@@ -1,12 +1,18 @@
 {
   "name": "@open-wa/runtime-bun",
-  "version": "5.0.0-alpha.7",
+  "version": "5.0.0",
   "description": "Bun Effect runtime Layer for open-wa",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
-  "exports": { ".": { "import": "./dist/index.mjs", "require": "./dist/index.cjs", "types": "./dist/index.d.mts" } },
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.mts"
+    }
+  },
   "scripts": {
     "build": "tsdown src/index.ts --format esm --format cjs",
     "test": "vitest run --passWithNoTests",
@@ -19,6 +25,16 @@
     "@open-wa/runtime-core": "workspace:*",
     "effect": "catalog:"
   },
-  "devDependencies": { "@types/node": "catalog:", "typescript": "catalog:", "vitest": "catalog:" },
-  "publishConfig": { "access": "public" }
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "SEE LICENSE IN LICENSE.md",
+  "files": [
+    "dist"
+  ]
 }

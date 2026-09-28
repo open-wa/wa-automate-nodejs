@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/session-sync",
-  "version": "5.0.0-alpha.7",
+  "version": "5.0.0",
   "main": "dist/index.cjs",
   "types": "dist/index.d.cts",
   "scripts": {
@@ -33,5 +33,9 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     }
-  }
+  },
+  "license": "SEE LICENSE IN LICENSE.md",
+  "files": [
+    "dist"
+  ]
 }

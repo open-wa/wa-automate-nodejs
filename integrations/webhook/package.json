@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/integration-webhook",
-  "version": "5.0.0-alpha.7",
+  "version": "5.0.0",
   "description": "Webhook delivery integration plugin for open-wa",
   "type": "module",
   "exports": {
@@ -34,5 +34,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/open-wa/wa-automate-nodejs.git"
-  }
+  },
+  "license": "SEE LICENSE IN LICENSE.md",
+  "files": [
+    "dist"
+  ]
 }
