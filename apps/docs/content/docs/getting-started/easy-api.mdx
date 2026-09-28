@@ -10,7 +10,7 @@ Use this page when you want a local WhatsApp API running before you write custom
 ## Run it
 
 ```bash
-npx @open-wa/wa-automate@alpha --port 8080
+npx @open-wa/wa-automate@latest --port 8080
 ```
 
 That starts an Easy API instance on port `8080` and prints the local address for the API and the interactive docs.
@@ -42,13 +42,13 @@ That makes Easy API the shortest route from “I want an API” to “I can send
 
 ```bash
 # choose a port
-npx @open-wa/wa-automate@alpha --port 8080
+npx @open-wa/wa-automate@latest --port 8080
 
 # protect the API with your own key
-npx @open-wa/wa-automate@alpha --port 8080 --api-key "your-secure-key"
+npx @open-wa/wa-automate@latest --port 8080 --api-key "your-secure-key"
 
 # run a named session
-npx @open-wa/wa-automate@alpha --session-id sales --port 8081
+npx @open-wa/wa-automate@latest --session-id sales --port 8081
 ```
 
 ## API-key examples
@@ -56,7 +56,7 @@ npx @open-wa/wa-automate@alpha --session-id sales --port 8081
 Use `--api-key "your-secure-key"` when your apps, scripts, or team members need a stable key. The CLI reads the value after `--api-key`, `--key`, or `-k`. A bare `--api-key` does not generate a key.
 
 ```bash
-npx @open-wa/wa-automate@alpha --port 8080 --api-key "your-secure-key"
+npx @open-wa/wa-automate@latest --port 8080 --api-key "your-secure-key"
 ```
 
 When calling the API, send the same key with your request headers.
@@ -105,7 +105,7 @@ The current v5 CLI only shows a warning when you use `--tunnel`. It does not con
 
 ## Webhooks
 
-The current CLI parses `--webhook` into config, but startup warns that v5 CLI webhook registration parity is not restored. For source-backed webhook delivery in the current v5 alpha, load `@open-wa/integration-webhook` from `wa.config.*` through the plugin config section below.
+The current CLI parses `--webhook` into config, but startup warns that v5 CLI webhook registration parity is not restored. For source-backed webhook delivery in the current v5, load `@open-wa/integration-webhook` from `wa.config.*` through the plugin config section below.
 
 ## Load a plugin from config
 
@@ -128,7 +128,7 @@ pluginConfig: {
 If you want automatic restarts and supervised uptime, run under a process manager.
 
 ```bash
-npx @open-wa/wa-automate@alpha --pm2 --session-id STICKER-BOT --port 8080
+npx @open-wa/wa-automate@latest --pm2 --session-id STICKER-BOT --port 8080
 ```
 
 PM2 is useful when you need process restarts, basic memory controls, and a named process per session.

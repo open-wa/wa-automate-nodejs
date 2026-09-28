@@ -215,7 +215,7 @@ Use `SocketClient` when:
 
 This `@open-wa/socket-client` page describes the current Easy API transport used by the v5 runtime: HTTP RPC for commands and SSE for events. It is intended for Easy API instances that expose `/api/{method}` command routes and `/api/events` for the event stream.
 
-Older v4 deployments and older socket.io-based examples can not match this transport. If you are running the stable v4 line, use the SocketClient version and docs that match that deployment. If you are testing v5 alpha, keep Easy API and `@open-wa/socket-client` on matching current packages from this repo.
+Older v4 deployments and socket.io-based examples cannot use this transport. Keep the v5 Easy API and `@open-wa/socket-client` on matching package versions while migrating.
 
 ## Browser security
 

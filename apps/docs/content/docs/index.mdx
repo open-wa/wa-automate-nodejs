@@ -19,23 +19,16 @@ Use these docs to start a WhatsApp session and connect it to your app or helpdes
 ## Prerequisites
 
 - **Node.js** >= 22.21.1
-- **npm** for released packages, or **pnpm 11.9.0** for repo development
+- **npm** for released packages, or **pnpm 11.25.0** for repo development
 - A WhatsApp account on a phone that can stay connected
 
-## v5 alpha status
+## v5 release
 
-<Callout type="warning">
-v5 is currently in alpha. Use v4 (4.76.0) for production systems unless you are intentionally testing v5.
-</Callout>
-
-The current stable line is **v4.76.0**. v5 is the new package line, but it is still alpha:
+Version 5 is the current npm release line. The `latest` tag selects v5; pin an explicit version for repeatable deployments:
 
 ```bash
-# Production: use v4
-npx @open-wa/wa-automate@4.76.0
-
-# Testing: use the v5 alpha dist-tag
-npx @open-wa/wa-automate@alpha
+# Current release
+npx @open-wa/wa-automate@latest
 ```
 
 ### What changed in v5
@@ -46,10 +39,9 @@ npx @open-wa/wa-automate@alpha
 - Plugin system with SDK for reusable integrations
 - Built-in MCP server for AI agent integration
 
-### When to use v5 vs v4
+### Migrating from v4
 
-- **v4**: Production systems, mature deployments, existing integrations
-- **v5**: Testing new features, contributing to development, fresh projects willing to track alpha changes
+The v5 CLI, runtime, and SocketClient use new contracts. Pin `@open-wa/wa-automate@4.76.0` only while an existing v4 integration is being migrated, and keep the v5 Easy API and SocketClient on matching versions.
 
 ## Start here
 

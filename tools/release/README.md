@@ -41,14 +41,14 @@ Full pipeline orchestrator. Starts a local Verdaccio registry, builds all packag
 
 ### `publish-packages.sh`
 
-CI publish wrapper used by `pnpm publish-packages`. It builds once with `pnpm build`, then publishes changed packages through Changesets alpha prerelease mode. The script never edits the project `.npmrc`; it creates temporary npmrc files and deletes them on exit.
+CI publish wrapper used by `pnpm publish-packages`. It builds once with `pnpm build`, then publishes changed packages through Changesets. Stable versions go to npm's `latest` tag. The script never edits the project `.npmrc`; it creates temporary npmrc files and deletes them on exit.
 
 Publish order:
 
 1. npmjs, when `NPM_TOKEN` is set.
 2. GitHub Packages, when `GITHUB_TOKEN` is set.
 
-GitHub Packages uses the `@open-wa` scope registry (`https://npm.pkg.github.com`) and `--no-git-tag` when the installed Changesets CLI supports it, so the second registry publish does not try to create the same git tags again. This repo is already in Changesets pre mode with the `alpha` tag, so no one needs to switch registry settings by hand. The installed Changesets CLI rejects an explicit `--tag alpha` while pre mode is active; the script lets `.changeset/pre.json` provide the alpha tag in that case.
+GitHub Packages uses the `@open-wa` scope registry (`https://npm.pkg.github.com`) and `--no-git-tag` when the installed Changesets CLI supports it, so the second registry publish does not try to create the same git tags again. Prerelease tags are supplied by Changesets pre mode when it is active; the stable release has exited pre mode.
 
 ```bash
 pnpm publish-packages
@@ -66,7 +66,7 @@ GOOGLE_API_KEY=xxx pnpm tsx tools/release/generate-notes.ts
 pnpm tsx tools/release/generate-notes.ts
 
 # Specify version
-pnpm tsx tools/release/generate-notes.ts --version 5.0.0-alpha.2
+pnpm tsx tools/release/generate-notes.ts --version 5.0.0
 ```
 
 **Output:** `RELEASE_BODY.md` (for GitHub Release) and `release-notes-detailed.md` (full commit log).
@@ -76,12 +76,12 @@ pnpm tsx tools/release/generate-notes.ts --version 5.0.0-alpha.2
 Posts a rich Discord embed with version info, highlights, and release image.
 
 ```bash
-DISCORD_WEBHOOK_URL=xxx pnpm tsx tools/release/discord-notify.ts --version 5.0.0-alpha.2
+DISCORD_WEBHOOK_URL=xxx pnpm tsx tools/release/discord-notify.ts --version 5.0.0
 ```
 
 ### `ensure-changeset.ts`
 
-Auto-creates a changeset file if none exists. Used by the CI release workflow to auto-generate changesets based on PR labels (`bump:major`, `bump:minor`, or default `patch`).
+Legacy helper for creating a changeset from a bump type. The release workflow uses changesets committed on `master` and does not invoke this script.
 
 ```bash
 pnpm tsx tools/release/ensure-changeset.ts --bump minor
@@ -93,13 +93,11 @@ pnpm tsx tools/release/ensure-changeset.ts --bump minor
 
 Triggered on push to the `release` branch. Flow:
 
-1. Detect version bump from merged PR labels (`bump:major`, `bump:minor`, or default `patch`)
-2. Auto-create changeset if none exists
-3. Run `changesets/action` to version and dual-publish to npmjs and GitHub Packages through `pnpm publish-packages`
-4. Generate AI release notes (Gemini)
-5. Generate release image (Puppeteer)
-6. Create GitHub Release with notes + image
-7. Post to Discord
+1. Run `changesets/action` to create a version PR when changesets exist, or publish an already versioned package set through `pnpm publish-packages`
+2. Generate release notes (Gemini when configured)
+3. Generate the optional release image (Puppeteer)
+4. Create the GitHub Release with notes and the image when available
+5. Post to Discord
 
 **Required secrets and permissions:**
 
@@ -114,29 +112,25 @@ Triggered on push to the `release` branch. Flow:
 Runs on PRs targeting `release`. Posts a checklist comment checking:
 
 - Changeset presence
-- Version bump label
+- Versioned manifests when no changeset remains
 - README/description/exports for changed packages
 
 ## Version Strategy
 
-All `@open-wa/*` packages are in a **fixed version group** (see `.changeset/config.json`). This means:
+The 27 packages listed in `.changeset/config.json` form a **fixed version group**. Other public packages can also receive version updates when their workspace dependencies change. For this v5 release, all 32 public packages are versioned `5.0.0`.
 
-- **Every release bumps ALL packages** to the same version
-- Users always know what works with what based on semver
-- PR labels control the bump type:
-  - No label → `patch` (default)
-  - `bump:minor` → `minor`
-  - `bump:major` → `major`
+- Changeset frontmatter controls the bump type for the fixed group.
+- Published packages must use compatible workspace dependency versions; inspect the packed manifests before release.
 
 ## Branch Strategy
 
 ```
-main ───────────────────────── (latest development)
+master ─────────────────────── (latest development)
            \
             └──── release ──── (triggers CI release pipeline)
 ```
 
-1. All development happens on `main`
-2. When ready to release, merge `main` → `release` via PR
-3. Add `bump:minor` or `bump:major` label to the PR if needed
-4. Merge triggers the release workflow; `pnpm publish-packages` handles npmjs and GitHub Packages without manual registry switching
+1. Commit development and changesets to `master`.
+2. Merge the Changesets version PR so public packages receive their release versions.
+3. Reconcile `release` to the intended `master` commit. A push to `release` triggers the publish workflow.
+4. Verify npm `latest`, GitHub Packages, and the GitHub Release after the workflow finishes.

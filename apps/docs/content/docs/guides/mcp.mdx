@@ -8,7 +8,7 @@ description: Safely prepare an authenticated AI agent integration for the Easy A
 Use the **Model Context Protocol (MCP)** integration only when you want an authenticated AI agent to call Easy API tools. Treat the MCP endpoint like API access to your WhatsApp session.
 
 <Callout type="warning">
-**v5 alpha status:** The source mounts the MCP adapter when `mcp.enabled` is true. Startup stops if this configuration has no Easy API `apiKey`. The CLI does not parse `--mcp`. Enable MCP through `wa.config.*`.
+**v5 status:** The source mounts the MCP adapter when `mcp.enabled` is true. Startup stops if this configuration has no Easy API `apiKey`. The CLI does not parse `--mcp`. Enable MCP through `wa.config.*`.
 </Callout>
 
 <Callout type="warning">
@@ -47,7 +47,7 @@ Your MCP client, prompt, and permissions model control when the agent can call t
 
 ## Quick start
 
-The source-backed v5 alpha path is to enable MCP in config and start Easy API with an API key. In the current source, this mounts the MCP adapter at the configured path.
+The source-backed v5 path is to enable MCP in config and start Easy API with an API key. In the current source, this mounts the MCP adapter at the configured path.
 
 Create `wa.config.mjs`:
 
@@ -66,7 +66,7 @@ export default {
 Start Easy API from the same directory:
 
 ```bash
-WA_API_KEY="your-secure-key" npx @open-wa/wa-automate@alpha --config ./wa.config.mjs
+WA_API_KEY="your-secure-key" npx @open-wa/wa-automate@latest --config ./wa.config.mjs
 ```
 
 The configured MCP path is:
