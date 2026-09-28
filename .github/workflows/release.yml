@@ -16,6 +16,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    environment: Release
     env:
       # The release only builds and publishes packages — it never needs a
       # browser. Skip the Puppeteer Chromium download during install/build.
