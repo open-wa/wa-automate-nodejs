@@ -61,7 +61,9 @@ interface Commit {
 
 function getLastTag(): string | null {
   try {
-    return execSync("git describe --tags --abbrev=0 2>/dev/null", {
+    // Package tags are created during publish at the current HEAD. Compare
+    // against the previous aggregate release instead.
+    return execSync("git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null", {
       encoding: "utf-8",
       cwd: ROOT,
     }).trim();
@@ -93,7 +95,8 @@ function getCommitsSince(ref: string | null): Commit[] {
       const body = bodyParts.join(FIELD).trim();
 
       // Parse conventional commit
-      const match = subject.match(
+      const conventionalSubject = subject.trim().replace(/^[^\p{L}\d]+/u, "");
+      const match = conventionalSubject.match(
         /^(\w+)(?:\(([^)]*)\))?(!)?:\s*(.+)$/
       );
 
@@ -211,7 +214,8 @@ function generateTemplate(
   version: string,
   commits: Commit[],
   packageChanges: PackageChanges[],
-  grouped: ReturnType<typeof groupCommits>
+  grouped: ReturnType<typeof groupCommits>,
+  previousTag: string | null
 ): string {
   const lines: string[] = [];
 
@@ -250,7 +254,9 @@ function generateTemplate(
 
   lines.push(`---`);
   lines.push(
-    `Full changelog: https://github.com/open-wa/wa-automate-nodejs/compare/v${version}...HEAD`
+    previousTag
+      ? `Full changelog: https://github.com/open-wa/wa-automate-nodejs/compare/${previousTag}...v${version}`
+      : `Full changelog: https://github.com/open-wa/wa-automate-nodejs/releases/tag/v${version}`
   );
 
   return lines.join("\n");
@@ -386,7 +392,7 @@ async function main() {
   const grouped = { groups, order };
 
   // Generate template notes first (used as fallback and for raw data)
-  const templateNotes = generateTemplate(version, commits, packageChanges, grouped);
+  const templateNotes = generateTemplate(version, commits, packageChanges, grouped, lastTag);
 
   // Try AI summary
   const aiNotes = await generateAISummary(version, commits, packageChanges, templateNotes);

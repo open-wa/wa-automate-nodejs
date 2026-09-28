@@ -145,11 +145,10 @@ async function sendWebhook(
   webhookUrl: string,
   version: string,
   notes: string,
-  imagePath: string | null,
+  imagePath: string,
   isTest: boolean
 ) {
   const embed = buildEmbed(version, notes, isTest);
-  const isPreRelease = version.includes("-");
 
   const testPrefix = isTest ? "🧪 **[TEST DRY RUN]** " : "";
   const payload = {
@@ -158,49 +157,33 @@ async function sendWebhook(
     embeds: [embed],
   };
 
-  // If we have a release image, send as multipart form data
-  if (imagePath && existsSync(imagePath)) {
-    console.log("📎 Attaching release image...");
+  // Send the rendered image and notes in the same confirmed message.
+  console.log("📎 Attaching release image...");
+  const imageBuffer = readFileSync(imagePath);
+  const formData = new FormData();
+  formData.append("payload_json", JSON.stringify(payload));
+  formData.append(
+    "files[0]",
+    new Blob([imageBuffer], { type: "image/png" }),
+    "release.png"
+  );
 
-    const imageBuffer = readFileSync(imagePath);
+  const confirmedUrl = new URL(webhookUrl);
+  confirmedUrl.searchParams.set("wait", "true");
+  const response = await fetch(confirmedUrl, {
+    method: "POST",
+    body: formData,
+  });
 
-    const formData = new FormData();
-    formData.append("payload_json", JSON.stringify(payload));
-    formData.append(
-      "files[0]",
-      new Blob([imageBuffer], { type: "image/png" }),
-      "release.png"
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(
+      `Discord webhook failed: ${response.status} ${response.statusText}\n${text}`
     );
-
-    const response = await fetch(webhookUrl, {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(
-        `Discord webhook failed: ${response.status} ${response.statusText}\n${text}`
-      );
-    }
-  } else {
-    // No image — simple JSON post
-    // Remove image reference from embed
-    delete embed.image;
-
-    const response = await fetch(webhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(
-        `Discord webhook failed: ${response.status} ${response.statusText}\n${text}`
-      );
-    }
   }
+  const message = (await response.json()) as { id?: string };
+  if (!message.id) throw new Error("Discord did not confirm a posted message");
+  console.log(`Discord message ID: ${message.id}`);
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────
@@ -223,29 +206,19 @@ async function main() {
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
 
   if (!webhookUrl) {
-    console.log(
-      "⚠️  No DISCORD_WEBHOOK_URL set — skipping Discord notification"
-    );
-    process.exit(0);
+    throw new Error("DISCORD_WEBHOOK_URL is required for a release announcement");
   }
 
   console.log(`📢 Posting release notification for v${version} to Discord...`);
 
   // Read release notes
-  let notes = "Internal improvements and dependency updates.";
-  if (existsSync(notesPath)) {
-    notes = readFileSync(notesPath, "utf-8");
-  } else {
-    console.log(`⚠️  Release notes not found at ${notesPath}, using default`);
-  }
+  if (!existsSync(notesPath)) throw new Error(`Release notes not found: ${notesPath}`);
+  const notes = readFileSync(notesPath, "utf-8");
 
   // Check for release image
-  const hasImage = existsSync(imagePath);
-  if (!hasImage) {
-    console.log(`⚠️  Release image not found at ${imagePath}`);
-  }
+  if (!existsSync(imagePath)) throw new Error(`Release image not found: ${imagePath}`);
 
-  await sendWebhook(webhookUrl, version, notes, hasImage ? imagePath : null, isTest);
+  await sendWebhook(webhookUrl, version, notes, imagePath, isTest);
 
   console.log("✅ Discord notification sent!");
 }
