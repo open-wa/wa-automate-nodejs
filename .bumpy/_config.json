@@ -1,12 +1,9 @@
 {
-  "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
-  "changelog": [
-    "@changesets/changelog-github",
-    {
-      "repo": "open-wa/wa-automate-nodejs"
-    }
-  ],
-  "commit": false,
+  "$schema": "../node_modules/@varlock/bumpy/config-schema.json",
+  "baseBranch": "release",
+  "access": "public",
+  "changelog": "github",
+  "versionCommitMessage": "🔖 chore(release): version packages",
   "fixed": [
     [
       "@open-wa/api",
@@ -38,9 +35,14 @@
       "@open-wa/wa-automate-types-only"
     ]
   ],
-  "linked": [],
-  "access": "public",
-  "baseBranch": "master",
   "updateInternalDependencies": "patch",
-  "ignore": []
+  "publish": {
+    "packManager": "pnpm",
+    "publishManager": "npm",
+    "provenance": true
+  },
+  "versionPr": {
+    "title": "chore: version packages",
+    "branch": "bumpy/version-packages"
+  }
 }
