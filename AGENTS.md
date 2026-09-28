@@ -131,22 +131,22 @@ stop and report the issue instead of forcing a push.
 
 ## Release Process
 
-Publishing is driven by Changesets and the `release` branch — **not** `master`.
+Publishing is driven by Bumpy and the `release` branch — **not** `master`.
 
-- Development and changesets land on `master`. Merging PRs to `master` never
+- Development and bump files land on `master`. Merging PRs to `master` never
   publishes.
 - The **`release`** branch is a publish-trigger mirror of `master`. A push to
   `release` runs `.github/workflows/release.yml`.
 - To cut a release:
-  1. Reconcile `release` to `master`: `git push origin origin/master:release --force`
-     (release is a mirror; its only unique history is auto-generated version/
-     changelog commits, which are safe to discard — npm versions are immutable).
-  2. That push makes the Changesets action open a **"chore: version packages"**
-     PR that bumps the fixed `@open-wa/*` group and consumes the changesets.
+  1. Reconcile `release` to the intended `master` commit. Use a fast-forward
+     push when possible; a non-fast-forward mirror reset needs explicit
+     authorization.
+  2. That push makes Bumpy open a **"chore: version packages"** PR that bumps
+     the fixed `@open-wa/*` group and consumes the bump files.
   3. Merging that version PR publishes to npm + GitHub Packages, tags, creates
      the GitHub Release (which also deploys the docs), and notifies Discord.
-- The alpha train uses Changesets pre-mode (`.changeset/pre.json`, tag `alpha`).
-  Do not edit `pre.json` casually.
+- Stable packages publish under npm's `latest` tag. Bumpy's release config is
+  `.bumpy/_config.json`; do not reintroduce Changesets pre-mode.
 - `tools/release/publish-packages-local.sh` is intentionally gitignored — it is
   a local-only helper. Do not commit it.
 
