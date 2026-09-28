@@ -54,25 +54,35 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Publish to GitHub Packages
-        if: steps.plan.outputs.mode == 'publish'
+        if: steps.plan.outputs.mode != 'version-pr'
         run: ./tools/release/publish-github-packages.sh
         env:
           BUMPY_PACKAGES: ${{ steps.plan.outputs.packages }}
           GITHUB_TOKEN: ${{ github.token }}
 
-      # ── Post-publish: Get version ────────────────────────────────
-      - name: Get published version
-        if: steps.plan.outputs.mode == 'publish' && contains(fromJSON(steps.plan.outputs.packages), '@open-wa/core')
-        id: version
+      # ── Post-publish: Check the aggregate release ───────────────
+      - name: Check aggregate release
+        if: steps.plan.outputs.mode != 'version-pr'
+        id: aggregate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUMPY_PACKAGES: ${{ steps.plan.outputs.packages }}
         run: |
           VERSION=$(jq -r .version packages/core/package.json)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Published version: $VERSION"
+          if gh release view "v${VERSION}" >/dev/null 2>&1; then
+            echo "needed=false" >> $GITHUB_OUTPUT
+          elif echo "$BUMPY_PACKAGES" | jq -e 'index("@open-wa/core") != null' >/dev/null || \
+               npm view "@open-wa/core@${VERSION}" version --prefer-online >/dev/null 2>&1; then
+            echo "needed=true" >> $GITHUB_OUTPUT
+          else
+            echo "needed=false" >> $GITHUB_OUTPUT
+          fi
 
       # ── Post-publish: Generate release notes ─────────────────────
       - name: Generate release notes
-        if: steps.plan.outputs.mode == 'publish' && contains(fromJSON(steps.plan.outputs.packages), '@open-wa/core')
-        run: pnpm tsx tools/release/generate-notes.ts --version ${{ steps.version.outputs.version }}
+        if: steps.aggregate.outputs.needed == 'true'
+        run: pnpm tsx tools/release/generate-notes.ts --version ${{ steps.aggregate.outputs.version }}
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
 
@@ -84,24 +94,24 @@ jobs:
       # never block the actual GitHub Release / Discord notification (the
       # Create GitHub Release step already handles an absent release.png).
       - name: Install Chrome for release image
-        if: steps.plan.outputs.mode == 'publish' && contains(fromJSON(steps.plan.outputs.packages), '@open-wa/core')
+        if: steps.aggregate.outputs.needed == 'true'
         continue-on-error: true
         env:
           PUPPETEER_SKIP_DOWNLOAD: '0'
         run: npx puppeteer browsers install chrome
 
       - name: Generate release image
-        if: steps.plan.outputs.mode == 'publish' && contains(fromJSON(steps.plan.outputs.packages), '@open-wa/core')
+        if: steps.aggregate.outputs.needed == 'true'
         continue-on-error: true
-        run: node tools/release-image.js --version ${{ steps.version.outputs.version }}
+        run: node tools/release-image.js --version ${{ steps.aggregate.outputs.version }}
 
       # ── Post-publish: Create GitHub Release ──────────────────────
       - name: Create GitHub Release
-        if: steps.plan.outputs.mode == 'publish' && contains(fromJSON(steps.plan.outputs.packages), '@open-wa/core')
+        if: steps.aggregate.outputs.needed == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
+          VERSION="${{ steps.aggregate.outputs.version }}"
           TAG="v${VERSION}"
 
           # Use release notes if available, otherwise a default
@@ -137,7 +147,7 @@ jobs:
 
       # ── Post-publish: Discord notification ───────────────────────
       - name: Notify Discord
-        if: steps.plan.outputs.mode == 'publish' && contains(fromJSON(steps.plan.outputs.packages), '@open-wa/core')
-        run: pnpm tsx tools/release/discord-notify.ts --version ${{ steps.version.outputs.version }}
+        if: steps.aggregate.outputs.needed == 'true'
+        run: pnpm tsx tools/release/discord-notify.ts --version ${{ steps.aggregate.outputs.version }}
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

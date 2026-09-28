@@ -27,6 +27,6 @@ pnpm version-packages             # consume bump files locally
 pnpm publish-packages             # publish unpublished versions locally
 ```
 
-`tools/release/publish-github-packages.sh` is the CI step for GitHub Packages. It receives the package names from Bumpy's publish plan, skips versions already present, and packs each package with pnpm before publishing with `GITHUB_TOKEN`.
+`tools/release/publish-github-packages.sh` is the CI step for GitHub Packages. It receives the package names from Bumpy's publish plan, skips versions already present, and packs each missing package with pnpm before publishing with `GITHUB_TOKEN`. When npm is already published, the step reconciles every public package so a failed GitHub Packages publish can be retried by pushing `release` again. The aggregate GitHub release is also resumed if its npm version exists but its `vX.Y.Z` release does not.
 
 `generate-notes.ts` writes `RELEASE_BODY.md` and `release-notes-detailed.md`. `discord-notify.ts` sends the release announcement. `release-image.js` renders an optional image; its failure does not block publication.
