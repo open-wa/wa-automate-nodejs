@@ -5,7 +5,7 @@
  * Supports: wa.config.js, wa.config.ts, wa.config.json, .warc, package.json#wa
  */
 import { cosmiconfig, cosmiconfigSync, type CosmiconfigResult } from 'cosmiconfig';
-import { TypeScriptLoader } from 'cosmiconfig-typescript-loader';
+import { TypeScriptLoader, TypeScriptLoaderSync } from 'cosmiconfig-typescript-loader';
 import { resolveConfigInput, type ConfigInput } from './define-config';
 import type { PartialConfig } from './schema';
 
@@ -34,6 +34,11 @@ const SEARCH_PLACES = [
   'cli.config.json',
 ];
 
+// Cosmiconfig's synchronous explorer cannot load ESM config files.
+const SYNC_SEARCH_PLACES = SEARCH_PLACES.filter(
+  (place) => !place.endsWith('.mjs') && !place.endsWith('.mts')
+);
+
 /**
  * Create cosmiconfig explorer with TypeScript support
  */
@@ -53,11 +58,10 @@ function createExplorer() {
  */
 function createExplorerSync() {
   return cosmiconfigSync(MODULE_NAME, {
-    searchPlaces: SEARCH_PLACES,
+    searchPlaces: SYNC_SEARCH_PLACES,
     loaders: {
-      '.ts': TypeScriptLoader(),
-      '.mts': TypeScriptLoader(),
-      '.cts': TypeScriptLoader(),
+      '.ts': TypeScriptLoaderSync(),
+      '.cts': TypeScriptLoaderSync(),
     },
   });
 }

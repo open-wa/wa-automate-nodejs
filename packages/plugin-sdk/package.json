@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/plugin-sdk",
-  "version": "5.0.0-alpha.7",
+  "version": "5.0.0",
   "description": "SDK for building open-wa plugins — types, helpers, and the createPlugin() factory",
   "type": "module",
   "exports": {
@@ -31,7 +31,7 @@
     "access": "public"
   },
   "author": "Mohammed Shah <@smashah>",
-  "license": "H-DNH V1.0",
+  "license": "SEE LICENSE IN LICENSE.md",
   "keywords": [
     "open-wa",
     "plugin",

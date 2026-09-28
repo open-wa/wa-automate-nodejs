@@ -36,23 +36,11 @@ create_github_npmrc() {
 }
 
 changeset_help_mentions_no_git_tag() {
-  pnpm exec changeset --help 2>/dev/null | grep -q -- '--no-git-tag'
+  pnpm exec changeset publish --help 2>/dev/null | grep -q -- '--no-git-tag'
 }
 
 changeset_pre_mode_tag() {
   node -e "const fs=require('fs'); const p='.changeset/pre.json'; if (!fs.existsSync(p)) process.exit(1); const data=JSON.parse(fs.readFileSync(p,'utf8')); if (data.mode === 'pre' && data.tag) process.stdout.write(data.tag); else process.exit(1);" 2>/dev/null || true
-}
-
-set_publish_args_for_current_pre_mode() {
-  local pre_tag
-  pre_tag="$(changeset_pre_mode_tag)"
-
-  if [[ "${pre_tag}" == "alpha" ]]; then
-    npm_publish_args=(publish)
-    return
-  fi
-
-  npm_publish_args=(publish --tag alpha)
 }
 
 run_changeset_publish() {
@@ -70,15 +58,17 @@ run_changeset_publish() {
 printf '%s\n' 'Building packages once before publishing...'
 pnpm build
 
-npm_publish_args=()
-set_publish_args_for_current_pre_mode
-if [[ "${#npm_publish_args[@]}" -eq 1 ]]; then
-  printf '%s\n' 'Changesets pre mode is already set to alpha; publishing without --tag alpha because this installed CLI rejects explicit --tag in pre mode.'
+npm_publish_args=(publish)
+pre_tag="$(changeset_pre_mode_tag)"
+if [[ -n "${pre_tag}" ]]; then
+  printf 'Changesets pre mode is active; publishing with its %s dist tag.\n' "${pre_tag}"
+else
+  printf '%s\n' 'Publishing stable versions with the latest dist tag.'
 fi
 
 if [[ -n "${NPM_TOKEN:-}" ]]; then
   create_npmjs_npmrc
-  printf '%s\n' 'Publishing changed packages to npmjs with the alpha dist tag...'
+  printf '%s\n' 'Publishing changed packages to npmjs...'
   run_changeset_publish "${npmjs_npmrc}" "${NPM_TOKEN}" "${npm_publish_args[@]}"
 else
   printf '%s\n' 'Skipping npmjs publish: NPM_TOKEN is not set.'

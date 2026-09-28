@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/cli",
-  "version": "5.0.0-alpha.7",
+  "version": "5.0.0",
   "description": "CLI for @open-wa WhatsApp automation - Easy API mode",
   "main": "./dist/index.cjs",
   "module": "./dist/index.cjs",
@@ -31,14 +31,14 @@
     "@open-wa/wa-automate": "workspace:*",
     "ink": "^7.1.1",
     "qrcode": "^1.5.4",
-    "react": "^19.2.8",
-    "ws": "^8.21.1",
+    "react": "catalog:",
+    "ws": "^8.22.0",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "@types/qrcode": "^1.5.6",
-    "@types/react": "^19.2.17",
+    "@types/react": "catalog:",
     "@types/ws": "^8.18.1",
     "typescript": "catalog:",
     "vitest": "catalog:"
@@ -50,5 +50,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/open-wa/wa-automate-nodejs.git"
-  }
+  },
+  "license": "SEE LICENSE IN LICENSE.md",
+  "files": [
+    "dist"
+  ]
 }

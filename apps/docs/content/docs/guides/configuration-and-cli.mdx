@@ -213,7 +213,7 @@ These are the major flags most users need when starting the Easy API from the co
 | `--license-key "key"`, `-l "key"` | `licenseKey` | Supplies a license key for licensed features where applicable. |
 | `--link-code "447123456789"` | `linkCode` | Uses link-code login instead of relying only on QR scanning. |
 | `--tunnel` | transitional | Legacy tunnel flag. v5 currently warns that tunnel setup parity is not restored. |
-| `--mcp` | future or other-alpha shorthand only | The current source does not parse `--mcp`. Configure `mcp: { enabled: true }` in `wa.config.*` instead, keep `apiKey` enabled, and use `--mcp` only if your installed build documents it. |
+| `--mcp` | unsupported shorthand | The current source does not parse `--mcp`. Configure `mcp: { enabled: true }` in `wa.config.*` instead and keep `apiKey` enabled. |
 | `--host "0.0.0.0"`, `-h "0.0.0.0"` | `host` | Local bind host for the Easy API server. |
 | `--sandbox-chats` | `sandboxChats: true` | Enables isolated execution for explicit per-chat code/tool calls. |
 | `--sandbox-isolation process` | `sandboxChats.isolation` | Selects `worker`, `process`, or `container`; use container for hostile code. |
@@ -227,7 +227,7 @@ The standalone `@open-wa/cli` entrypoint also accepts output-mode flags such as 
 Most CLI flags are thin aliases over config schema fields. For example:
 
 ```bash
-npx @open-wa/wa-automate@alpha \
+npx @open-wa/wa-automate@latest \
   --session-id sales \
   --port 8080 \
   --api-key "$WA_API_KEY" \
@@ -253,7 +253,7 @@ Not every flag is a schema field. `--config` selects which file to load, `--pm2`
 
 ## Deprecated flags
 
-v5 is still alpha, so a few v4-era flags are present only as transitional compatibility warnings.
+Some v4-era flags remain as compatibility warnings and do not enable their old behavior.
 
 <Accordions type="single">
 <Accordion title="Deprecated and transitional flags" id="deprecated-and-transitional-flags">

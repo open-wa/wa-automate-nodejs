@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/node-red",
-  "version": "5.0.0-alpha.7",
+  "version": "5.0.0",
   "description": "Official @open-wa node-red integration.",
   "publishConfig": {
     "access": "public"
@@ -30,7 +30,7 @@
     "lint:fix": "oxlint src utils rollup.config.editor.mjs --fix"
   },
   "author": "Mohammed Shah <@smashah>",
-  "license": "H-DNH V1.0",
+  "license": "SEE LICENSE IN LICENSE.md",
   "node-red": {
     "nodes": {
       "listen": "./dist/nodes/listen/listen.js",
@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-swc": "^0.4.1",
-    "@swc/core": "^1.15.46",
+    "@swc/core": "^1.16.2",
     "@types/express": "catalog:",
     "@types/node": "catalog:",
     "@types/node-red": "^1.3.5",
@@ -53,16 +53,16 @@
     "@types/sinon": "^22.0.0",
     "@types/supertest": "^7.2.1",
     "colorette": "^2.0.20",
-    "concurrently": "^10.0.3",
+    "concurrently": "^10.0.5",
     "copyfiles": "^2.4.1",
     "glob": "^13.0.6",
     "mustache": "^4.2.0",
-    "node-red": "^5.0.1",
+    "node-red": "^5.0.7",
     "node-red-node-test-helper": "^0.3.6",
     "onchange": "^7.1.0",
     "prettier": "catalog:",
-    "rollup": "^4.62.2",
-    "type-fest": "^5.8.0",
+    "rollup": "^4.63.5",
+    "type-fest": "^5.10.0",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "yarpm": "^1.2.0"

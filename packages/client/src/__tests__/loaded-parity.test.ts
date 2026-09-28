@@ -8,14 +8,9 @@ import type { OpenWAClient, STATE, Transport } from '@open-wa/core';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../../../');
-const legacyRoot = process.env.OPENWA_LEGACY_ROOT ?? '/Users/Mohammed/projects/tools/wa copy/src';
 
 function readRepoFile(relativePath: string): string {
   return readFileSync(resolve(repoRoot, relativePath), 'utf8');
-}
-
-function readLegacyFile(relativePath: string): string {
-  return readFileSync(resolve(legacyRoot, relativePath), 'utf8');
 }
 
 function createTestClient() {
@@ -61,16 +56,10 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('Client.loaded parity', () => {
-  it('keeps the legacy loaded() semantics visible in the audited source', () => {
-    const legacyClientSource = readLegacyFile('api/Client.ts');
+describe('Client.loaded contract', () => {
+  it('keeps loaded() finalization semantics visible in the current source', () => {
     const currentClientSource = readRepoFile('packages/client/src/Client.ts');
     const { client } = createTestClient();
-
-    expect(legacyClientSource).toMatch(/async loaded\(\) : Promise<void>/);
-    expect(legacyClientSource).toMatch(/WAPI\.isSessionLoaded\(\)/);
-    expect(legacyClientSource).toMatch(/registerAllSimpleListenersOnEv\(/);
-    expect(legacyClientSource).toMatch(/deleteSessionDataOnLogout|killClientOnLogout/);
 
     expect(typeof client.loaded).toBe('function');
     expect(currentClientSource).toMatch(/loaded\(\): Promise<void>/);

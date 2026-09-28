@@ -13,17 +13,13 @@ Follow these steps to start a local API, connect a WhatsApp account, and send on
 - **npm or pnpm**, any package manager works, but the repository uses pnpm for development.
 - **A WhatsApp account** on a linked phone, this automates WhatsApp Web, not the mobile app.
 
-<Callout type="warning">
-**v5 is an alpha release.** Test it in a disposable environment before production use. For production systems, use v4: `npx @open-wa/wa-automate@4.76.0`
-</Callout>
-
 <Steps>
 <Step title="Start the Easy API">
 
 Run the CLI to start a local WhatsApp API:
 
 ```bash
-npx @open-wa/wa-automate@alpha --port 8080
+npx @open-wa/wa-automate@latest --port 8080
 ```
 
 These examples pin port `8080` for consistency. If you omit `--port`, the current v5 CLI uses port `8002`.
@@ -140,11 +136,11 @@ If the API is protected and the key is missing or wrong, expect an authenticatio
 
 ```bash
 # Protect with an API key
-npx @open-wa/wa-automate@alpha --port 8080 --api-key "your-secure-key"
+npx @open-wa/wa-automate@latest --port 8080 --api-key "your-secure-key"
 
 # Run a named session
-npx @open-wa/wa-automate@alpha --session-id sales --port 8081
+npx @open-wa/wa-automate@latest --session-id sales --port 8081
 
-# For source-backed webhook delivery in the current v5 alpha,
+# For source-backed webhook delivery in the current v5,
 # load @open-wa/integration-webhook from wa.config.* instead of relying on --webhook.
 ```
