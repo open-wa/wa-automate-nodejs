@@ -10,6 +10,7 @@ permissions:
   contents: write
   pull-requests: write
   packages: write
+  id-token: write
 
 jobs:
   release:
@@ -28,19 +29,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: 'pnpm'
 
-      - run: pnpm install --frozen-lockfile
+      - run: npm install --global npm@^11.5.1
 
-      - name: Validate release secrets
-        env:
-          NPM_TOKEN: ${{ secrets['NPM_TOKEN'] }}
-        run: |
-          if [ -z "$NPM_TOKEN" ]; then
-            echo "::error::NPM_TOKEN is not available to this workflow. Add it as a repository Actions secret, or grant this repository access if it is an organization secret."
-            exit 1
-          fi
+      - run: pnpm install --frozen-lockfile
 
       # ── Changesets: version + publish ────────────────────────────
       - name: Create Release PR or Publish
@@ -49,12 +43,10 @@ jobs:
         with:
           version: pnpm version-packages
           publish: pnpm publish-packages
-          commit: 'chore: version packages'
+          commit: '🔖 chore(release): version packages'
           title: 'chore: version packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets['NPM_TOKEN'] }}
-          NODE_AUTH_TOKEN: ${{ secrets['NPM_TOKEN'] }}
 
       # ── Post-publish: Get version ────────────────────────────────
       - name: Get published version
