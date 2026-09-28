@@ -7,6 +7,7 @@ REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
 cd "${REPO_ROOT}"
 
 temp_npmrc_files=()
+publish_bin=""
 
 cleanup() {
   for npmrc_file in "${temp_npmrc_files[@]:-}"; do
@@ -14,6 +15,9 @@ cleanup() {
       rm -f "${npmrc_file}"
     fi
   done
+  if [[ -n "${publish_bin}" && -d "${publish_bin}" ]]; then
+    rm -rf "${publish_bin}"
+  fi
 }
 trap cleanup EXIT
 
@@ -66,10 +70,15 @@ else
 fi
 
 create_npmjs_npmrc
+real_pnpm="$(command -v pnpm)"
+publish_bin="$(mktemp -d "${TMPDIR:-/tmp}/open-wa-npm-publish.XXXXXX")"
+ln -s "${SCRIPT_DIR}/pnpm-publish-via-npm.sh" "${publish_bin}/pnpm"
 printf '%s\n' 'Publishing changed packages to npmjs with trusted publishing...'
 env -u NODE_AUTH_TOKEN -u NPM_TOKEN \
   NPM_CONFIG_USERCONFIG="${npmjs_npmrc}" \
   npm_config_userconfig="${npmjs_npmrc}" \
+  REAL_PNPM="${real_pnpm}" \
+  PATH="${publish_bin}:${PATH}" \
   pnpm exec changeset "${npm_publish_args[@]}"
 
 if [[ -n "${GITHUB_TOKEN:-}" ]]; then
