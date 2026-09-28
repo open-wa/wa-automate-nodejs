@@ -22,8 +22,8 @@ catalog:
   '@tanstack/react-router-devtools': 1.167.2
   '@tanstack/react-router-ssr-query': 1.167.3
   '@tanstack/react-start': 1.168.59
-  '@tanstack/router-generator': 1.167.21
-  '@tanstack/router-plugin': 1.168.23
+  '@tanstack/router-generator': 1.167.39
+  '@tanstack/router-plugin': 1.168.41
   '@tanstack/start-static-server-functions': ^1.167.38
   '@types/cors': ^2.8.12
   '@types/express': ^5.0.6
