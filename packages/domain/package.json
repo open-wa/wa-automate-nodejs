@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/domain",
-  "version": "5.0.0-alpha.7",
+  "version": "5.1.0",
   "description": "Domain data structures for open-wa WhatsApp automation (Collectors, etc.)",
   "main": "./dist/index.cjs",
   "module": "./dist/index.cjs",
@@ -30,10 +30,21 @@
     "vitest": "catalog:"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "import": "./dist/index.cjs",
+        "require": "./dist/index.cjs",
+        "types": "./dist/index.d.cts"
+      }
+    }
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/open-wa/wa-automate-nodejs.git"
-  }
+  },
+  "license": "SEE LICENSE IN LICENSE.md",
+  "files": [
+    "dist"
+  ]
 }

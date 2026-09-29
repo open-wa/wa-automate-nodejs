@@ -1,9 +1,10 @@
 import { z } from 'zod';
 import * as common from '../src/common-types';
 import * as returns from '../src/return-types';
+import * as interactive from '../src/interactive';
 
 export const namedSchemas = Object.fromEntries(
-  [...Object.entries(common), ...Object.entries(returns)]
+  [...Object.entries(common), ...Object.entries(returns), ...Object.entries(interactive)]
     .filter(([name, value]) => name.endsWith('Schema') && value instanceof z.ZodType)
     .map(([name, value]) => [name.replace(/Schema$/, ''), value as z.ZodType]),
 );
@@ -29,6 +30,7 @@ export function describeType(schema: z.ZodType, inline = false): string {
     case 'optional': return `${describeType(def.innerType)} | undefined`;
     case 'nullable': return `${describeType(def.innerType)} | null`;
     case 'default': case 'prefault': case 'readonly': return describeType(def.innerType);
+    case 'lazy': return describeType(def.getter());
     case 'pipe': return describeType(def.out);
     case 'record': return `Record<${describeType(def.keyType)}, ${describeType(def.valueType)}>`;
     case 'object': return `{ ${Object.entries(def.shape).map(([key, value]) => {

@@ -125,22 +125,28 @@ await client.sendText(chatId, 'Order *confirmed* for _today_.');
 Text messages only need a chat ID and a string body. Attachment messages include a file payload, a filename, and often a caption.
 
 ```ts
+import { readFile } from 'node:fs/promises';
+
 await client.sendText(chatId, 'Here is the receipt.');
 
+const image = await readFile('./receipt.png');
+const imageDataUrl = `data:image/png;base64,${image.toString('base64')}`;
 await client.sendImage(
   chatId,
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...',
+  imageDataUrl,
   'receipt.png',
   'Receipt attached'
 );
 ```
 
-Use `sendText` for plain conversation updates and `sendImage` for media on the
-embedded client. The current embedded surface marks `sendFile` unsupported and
-does not declare `sendAudio`, `sendPtt`, or `sendVideoAsGif`; those names belong
-to the generated Easy API schema, so check their method references and runtime
-support before using them. Captions belong to the attachment message, not a
-separate text message.
+Put a real `receipt.png` in the process working directory before running this
+example. The embedded `sendImage` method accepts base64 data or a data URL; the
+snippet encodes the actual file instead of a placeholder payload. Use
+`sendText` for plain conversation updates. The current embedded surface marks
+`sendFile` unsupported and does not declare `sendAudio`, `sendPtt`, or
+`sendVideoAsGif`; those names belong to the generated Easy API schema, so check
+their method references and runtime support before using them. Captions belong
+to the attachment message, not a separate text message.
 
 ## Quoted replies
 
@@ -184,46 +190,21 @@ Set `hideTags` to `true` when you want WhatsApp to notify the users without show
 
 ## Buttons, lists, and polls
 
-Interactive messages let users choose from fixed options, but support status is
-part of each method's contract. `sendButtons` and `sendListMessage` are marked
-deprecated and require an `insiders` license in the current schema. Read the
-[sendButtons reference](/docs/reference/client/messages#sendbuttons) and
-[sendListMessage reference](/docs/reference/client/messages#sendlistmessage)
-before using them; an HTTP route or imported method does not prove that the
-session is licensed. For a supported fixed-choice flow, prefer the active,
-ungated [`sendPoll`](/docs/reference/client/messages#sendpoll) method when its
-poll semantics fit the product. These examples use the generated Easy API
-method names; the current embedded `Client` does not declare these
-rich-message methods.
+For new v5 integrations, use [`sendInteractive`](/docs/guides/interactive-messages)
+for buttons, lists, forms, carousels, or bookings. It requires an applied
+Insiders or higher license for the sending account. The guide covers the
+message format, response listeners, HTTP route, and recipient-side caveats.
+
+`sendButtons` and `sendListMessage` are deprecated legacy methods and remain
+Insiders-gated. `sendAdvancedButtons` is also an Insiders-gated legacy method.
+Check their exact contracts in the [sendButtons reference](/docs/reference/client/messages#sendbuttons)
+and [sendListMessage reference](/docs/reference/client/messages#sendlistmessage)
+before maintaining existing integrations. An available route does not prove
+that the session is licensed. For a fixed-choice flow without an Insiders gate,
+use the active [`sendPoll`](/docs/reference/client/messages#sendpoll) method
+when poll semantics fit the product.
 
 ```ts
-await client.sendButtons(
-  chatId,
-  'Choose an option',
-  [
-    { id: 'yes', text: 'Yes' },
-    { id: 'no', text: 'No' },
-  ],
-  'Confirmation',
-  'Reply with one tap'
-);
-
-await client.sendListMessage(
-  chatId,
-  [
-    {
-      title: 'Main menu',
-      rows: [
-        { id: 'orders', title: 'Orders' },
-        { id: 'support', title: 'Support' },
-      ],
-    },
-  ],
-  'Menu',
-  'Pick a topic',
-  'Open menu'
-);
-
 await client.sendPoll(
   chatId,
   'Which day works best?',
@@ -232,11 +213,11 @@ await client.sendPoll(
 );
 ```
 
-Button and list replies arrive as message events with types such as
-`buttons_response` or `list_response`. Poll updates arrive through WhatsApp
-message events when supported by the session. Rich-message availability can
-also vary with the WhatsApp account and client version, so handle unsupported
-or rejected sends explicitly.
+Legacy button and list replies arrive as message events with types such as
+`buttons_response` or `list_response`. Interactive-message response events
+use the structured shapes described in the linked guide. Poll updates arrive
+through WhatsApp message events when supported by the session. Handle
+unsupported or rejected sends explicitly.
 
 ## Forward messages
 
@@ -303,57 +284,68 @@ Read **[Rate limits](/docs/guides/rate-limits)** before running production autom
 
 ## Full bot example
 
-This example receives messages, sends formatted text, sends a quoted reply,
-sends an image, and sends a poll. Use the generated mention methods shown above
-when your runtime exposes that Easy API surface.
+This example creates the embedded runtime, wraps it in the `Client` facade,
+starts the session, and replies to an incoming command. It uses the same
+connected-client lifecycle as the [custom-code guide](/docs/getting-started/custom-code).
 
 ```ts
-import { createClient } from '@open-wa/wa-automate';
+import { Client, createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
 
-async function start() {
-  const client = await createClient({
+async function main(): Promise<void> {
+  const runtime = await createClient({
     sessionId: 'messages-guide',
+    driver: new PuppeteerDriver(),
+    headless: false,
   });
+
+  const client = new Client({
+    client: runtime,
+    transport: runtime.getTransport(),
+  });
+
+  await client.start();
+  const readiness = runtime.getReadiness();
+  if (!readiness.ready) {
+    throw new Error(`Session is not ready: ${readiness.pending.join(', ') || 'unknown blocker'}`);
+  }
+
+  console.log(`Session ${runtime.sessionId} is ready`);
 
   client.onMessage(async (message) => {
     try {
-      if (message.body === '!help') {
-        await client.reply(
-          message.from,
-          '*Commands*\n!image\n!poll',
-          message.id
-        );
+      if (message.body !== '!help') return;
 
-        return;
+      const result = await client.reply(
+        message.from,
+        'I received your request.',
+        message.id
+      );
+
+      if (result === false) {
+        console.warn('WhatsApp did not return a reply message ID');
+      } else {
+        console.log('Reply result:', result);
       }
-
-      if (message.body === '!image') {
-        await client.sendImage(
-          message.from,
-          'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...',
-          'example.png',
-          'Here is an example image.'
-        );
-
-        return;
-      }
-
-      if (message.body === '!poll') {
-        await client.sendPoll(
-          message.from,
-          'What should we do next?',
-          ['Send update', 'Wait', 'Ask support'],
-          1
-        );
-
-        return;
-      }
-
     } catch (error) {
       console.error('Message handler failed', error);
     }
   });
+
+  let stopping = false;
+  const shutdown = async (signal: string): Promise<void> => {
+    if (stopping) return;
+    stopping = true;
+    console.log(`Stopping after ${signal}...`);
+    await client.stop(signal);
+  };
+
+  process.once('SIGINT', () => void shutdown('SIGINT'));
+  process.once('SIGTERM', () => void shutdown('SIGTERM'));
 }
 
-start().catch(console.error);
+main().catch((error: unknown) => {
+  console.error('open-wa failed:', error);
+  process.exitCode = 1;
+});
 ```

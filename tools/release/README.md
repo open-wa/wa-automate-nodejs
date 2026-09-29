@@ -1,142 +1,48 @@
-# Release Tools
+# Release tools
 
-Scripts for testing and executing the `@open-wa` release pipeline.
+The repository uses `@varlock/bumpy` 1.18.1 for package versions, changelogs, and npm publishing. Bump files live in `.bumpy/`; the configuration is `.bumpy/_config.json`.
 
-## Quick Start: Dry Run
+## Release flow
 
-Test the entire release pipeline locally before going live on npmjs and GitHub Packages:
+1. Commit development and bump files to `master`. Use `pnpm bump` to create a bump file and `pnpm exec bumpy status` to inspect the release plan.
+2. Reconcile the `release` branch to the intended `master` commit. A push to `release` runs `.github/workflows/release.yml`; merging a PR to `master` alone does not publish.
+3. Bumpy creates or updates `chore: version packages` when bump files are present. Merge that PR into `release` to publish the versioned packages.
+4. The publish job builds packages, packs with pnpm to resolve `workspace:` and `catalog:` ranges, and publishes to npm with the npm CLI and GitHub OIDC. It then publishes the same versions to GitHub Packages, creates package tags and releases, and runs the aggregate notes, image, release, and Discord steps when `@open-wa/core` is included.
+5. Confirm the registry `latest` tags and the GitHub release. The release workflow's success alone is not proof that every registry read has propagated.
 
-```bash
-# Run the full dry run (build → publish to Verdaccio → generate notes → verify)
-./tools/release/dry-run.sh
+The 27 packages in Bumpy's `fixed` group retain one version. Other public packages can receive their own version updates through their dependencies. Stable releases use npm's `latest` tag.
 
-# Keep Verdaccio running to browse published packages
-./tools/release/dry-run.sh --keep-verdaccio
+## Publishing access
 
-# Skip build (use existing dist/ output)
-./tools/release/dry-run.sh --skip-build
+Each existing npm package has a Trusted Publisher connection to `open-wa/wa-automate-nodejs`, workflow `release.yml`, environment `Release`. The workflow grants `id-token: write` and uses npm 11 on Node 24. npm requires a package to exist before its Trusted Publisher can be configured, so first publication of a new package needs an authenticated maintainer publish.
 
-# Specify a different port
-./tools/release/dry-run.sh --port 4874
-```
+The built-in `GITHUB_TOKEN` creates Bumpy's version PR and publishes to GitHub Packages. GitHub does not trigger other workflows from PRs created with this token; merging the version PR still triggers the release push. `GOOGLE_API_KEY` optionally adds an AI summary to release notes. Set `DISCORD_WEBHOOK_URL` in the repository or `Release` environment secrets before publishing; the aggregate release fails visibly without it.
 
-Then open http://localhost:4873 to browse the locally published packages.
-
-## Scripts
-
-### `dry-run.sh`
-
-Full pipeline orchestrator. Starts a local Verdaccio registry, builds all packages, publishes them, generates release notes + image, and runs a test install to verify everything resolves correctly.
-
-**Options:**
-
-| Flag               | Description                                    |
-| ------------------ | ---------------------------------------------- |
-| `--skip-build`     | Skip `turbo build` (use existing `dist/`)      |
-| `--skip-image`     | Skip release image generation                  |
-| `--skip-install`   | Skip test-install verification                 |
-| `--keep-verdaccio` | Keep Verdaccio running after the script exits  |
-| `--port PORT`      | Verdaccio port (default: 4873)                 |
-| `--bump TYPE`      | Version bump type: `patch` / `minor` / `major` |
-
-### `publish-packages.sh`
-
-CI publish wrapper used by `pnpm publish-packages`. It builds once with `pnpm build`, then publishes changed packages through Changesets alpha prerelease mode. The script never edits the project `.npmrc`; it creates temporary npmrc files and deletes them on exit.
-
-Publish order:
-
-1. npmjs, when `NPM_TOKEN` is set.
-2. GitHub Packages, when `GITHUB_TOKEN` is set.
-
-GitHub Packages uses the `@open-wa` scope registry (`https://npm.pkg.github.com`) and `--no-git-tag` when the installed Changesets CLI supports it, so the second registry publish does not try to create the same git tags again. This repo is already in Changesets pre mode with the `alpha` tag, so no one needs to switch registry settings by hand. The installed Changesets CLI rejects an explicit `--tag alpha` while pre mode is active; the script lets `.changeset/pre.json` provide the alpha tag in that case.
+## Local commands
 
 ```bash
-pnpm publish-packages
+pnpm bump                         # create a bump file
+pnpm exec bumpy status            # inspect pending bumps
+pnpm version-packages             # consume bump files locally
+pnpm publish-packages             # publish unpublished versions locally
 ```
 
-### `generate-notes.ts`
+`tools/release/publish-github-packages.sh` is the CI step for GitHub Packages. It receives the package names from Bumpy's publish plan, skips versions already present, and packs each missing package with pnpm before publishing with `GITHUB_TOKEN`. When npm is already published, the step reconciles every public package so a failed GitHub Packages publish can be retried by pushing `release` again. The aggregate GitHub release is also resumed if its npm version exists but its `vX.Y.Z` release does not.
 
-AI-powered release notes generator. Reads git history and per-package changelogs, then produces a polished Markdown summary.
+`generate-notes.ts` writes `RELEASE_BODY.md` and `release-notes-detailed.md`. `release-image.js` renders `release.png` and numbered pages from those notes and the package changelogs. The images are required for the aggregate GitHub release. New releases automatically announce on Discord: `discord-notify.ts` sends the cover and page batches as visible file attachments and checks that Discord returned every file.
 
-```bash
-# With AI summary (requires GOOGLE_API_KEY)
-GOOGLE_API_KEY=xxx pnpm tsx tools/release/generate-notes.ts
+To repair or announce an existing GitHub release without republishing packages, dispatch `.github/workflows/release.yml` on the `release` branch with its `version` input (for example, `5.0.0`). It reads that release's body and replaces its image assets. Review the notes and images first, then dispatch with `publish_discord=true` to post them to Discord. Pass every existing message ID in `discord_message_ids` (cover first, followed by each page batch) to update an announcement; omitting the IDs creates new messages. New releases published by a push to `release` post automatically. Manual dispatches keep `publish_discord=false` by default so rerendering alone does not repost the announcement. When editing, the notifier updates existing batches, adds any extra batches, and removes surplus supplied batches only after all replacement images are confirmed.
 
-# Without AI (structured template)
-pnpm tsx tools/release/generate-notes.ts
+## Changelog articles
 
-# Specify version
-pnpm tsx tools/release/generate-notes.ts --version 5.0.0-alpha.2
-```
+Write the release breakdown alongside the feature work in `apps/docs/content/docs/releases/`. Add `release` frontmatter with `version`, an ISO publication `date`, `headline`, ordered `highlights`, and optional `audience` and cover `image`. This gives the same MDX article a dated entry at `/changelog` and a permanent `/changelog/VERSION` URL; existing documentation links keep working.
 
-**Output:** `RELEASE_BODY.md` (for GitHub Release) and `release-notes-detailed.md` (full commit log).
+Lead with the user-facing change, explain what it enables, include a short usable example and upgrade guidance, then cover limitations and smaller fixes. Group dependency sync and coordinated bumps at the end. Use the actual release changes as the source, and publish the article with the release. The site renders the checked-in explanation; it does not generate new claims at request time.
 
-### `discord-notify.ts`
+## Release image content
 
-Posts a rich Discord embed with version info, highlights, and release image.
+The cover leads with the feature headline. Set `headline`, `summary`, `badge`, and an optional ordered `packages` list for a release in `tools/release/image-highlights.json`. Without an editorial entry, the renderer uses the leading changelog heading or release title and the first change summary. Keep cover copy short enough to read in a Discord thumbnail.
 
-```bash
-DISCORD_WEBHOOK_URL=xxx pnpm tsx tools/release/discord-notify.ts --version 5.0.0-alpha.2
-```
+Changes are ordered by security/breaking impact, then major, minor and patch significance; editorial package order breaks ties. Identical entries shared by several packages appear once with the affected packages. Version alignment and dependency-only entries are collected in one final section. Packages, integrations and SDKs are included, along with independently versioned companions changed since the preceding aggregate release.
 
-### `ensure-changeset.ts`
-
-Auto-creates a changeset file if none exists. Used by the CI release workflow to auto-generate changesets based on PR labels (`bump:major`, `bump:minor`, or default `patch`).
-
-```bash
-pnpm tsx tools/release/ensure-changeset.ts --bump minor
-```
-
-## CI/CD Workflows
-
-### Release (`release.yml`)
-
-Triggered on push to the `release` branch. Flow:
-
-1. Detect version bump from merged PR labels (`bump:major`, `bump:minor`, or default `patch`)
-2. Auto-create changeset if none exists
-3. Run `changesets/action` to version and dual-publish to npmjs and GitHub Packages through `pnpm publish-packages`
-4. Generate AI release notes (Gemini)
-5. Generate release image (Puppeteer)
-6. Create GitHub Release with notes + image
-7. Post to Discord
-
-**Required secrets and permissions:**
-
-- `NPM_TOKEN` — npmjs publish token with write access to `@open-wa/*`
-- `GITHUB_TOKEN` — built in to GitHub Actions; used for GitHub Packages
-- `packages: write` — required workflow permission for GitHub Packages publish
-- `GOOGLE_API_KEY` — Gemini API key for release notes
-- `DISCORD_WEBHOOK_URL` — Discord webhook for notifications
-
-### PR Docs Check (`pr-docs-check.yml`)
-
-Runs on PRs targeting `release`. Posts a checklist comment checking:
-
-- Changeset presence
-- Version bump label
-- README/description/exports for changed packages
-
-## Version Strategy
-
-All `@open-wa/*` packages are in a **fixed version group** (see `.changeset/config.json`). This means:
-
-- **Every release bumps ALL packages** to the same version
-- Users always know what works with what based on semver
-- PR labels control the bump type:
-  - No label → `patch` (default)
-  - `bump:minor` → `minor`
-  - `bump:major` → `major`
-
-## Branch Strategy
-
-```
-main ───────────────────────── (latest development)
-           \
-            └──── release ──── (triggers CI release pipeline)
-```
-
-1. All development happens on `main`
-2. When ready to release, merge `main` → `release` via PR
-3. Add `bump:minor` or `bump:major` label to the PR if needed
-4. Merge triggers the release workflow; `pnpm publish-packages` handles npmjs and GitHub Packages without manual registry switching
+Markdown is rendered by GitHub's `POST /markdown` API in GFM mode, including headings, nested lists, code fences, links, emphasis and tables. Local rendering uses `gh` authentication; the workflow supplies `GH_TOKEN`. Pagination measures the rendered HTML and keeps headings with their following content. Oversized blocks fail visibly rather than being silently cropped.

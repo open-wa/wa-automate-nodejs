@@ -881,6 +881,16 @@ export interface SendImageParams {
   waitForId?: boolean;
 }
 
+export interface SendInteractiveParams {
+  /**
+   * Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c|g)\.us$|^\d+@lid$
+   * @example "447123456789@c.us"
+   * @remarks Key aliases: 'chatId'
+   */
+  to: string;
+  content: { actions: ({ id: string; label: string; type: "reply" } | { label: string; type: "url"; url: string } | { label: string; phoneNumber: string; type: "call" } | { code: string; label: string; type: "copy" })[]; body: string; footer?: string; header?: { text: string; type: "text" } | { filename?: string; source: string; title?: string; type: "image" } | { filename?: string; source: string; title?: string; type: "video" } | { filename?: string; source: string; title?: string; type: "document" }; type: "buttons"; version?: 1 } | { body: string; buttonLabel: string; footer?: string; sections: { rows: { description?: string; id: string; title: string }[]; title?: string }[]; title?: string; type: "list"; version?: 1 } | { body: string; footer?: string; questions: ({ allowCustomAnswer?: boolean; id: string; label: string; options: { id: string; label: string }[]; type: "singleSelect" | "multiSelect" })[]; title?: string; type: "form"; version?: 1 } | { body: string; cards: ({ actions: ({ id: string; label: string; type: "reply" } | { label: string; type: "url"; url: string } | { label: string; phoneNumber: string; type: "call" } | { code: string; label: string; type: "copy" })[]; body: string; header: { filename?: string; source: string; title?: string; type: "image" } })[]; footer?: string; type: "carousel"; version?: 1 } | { actions?: ({ label: string; type: "url"; url: string } | { label: string; phoneNumber: string; type: "call" } | { code: string; label: string; type: "copy" })[]; body: string; booking: { description?: string; email?: string; endAt?: string; labels?: { addToCalendar?: string; detailsTitle?: string; language?: string; manageBooking?: string; meetingType?: string; viewOnMap?: string }; location?: string; managementUrl?: string; phoneNumber?: string; startAt: string; url?: string }; buttonLabel: string; footer?: string; title?: string; type: "booking"; version?: 1 } | { actions: { name: string; parameters?: object }[]; body: string; footer?: string; header?: { text: string; type: "text" } | { filename?: string; source: string; title?: string; type: "image" } | { filename?: string; source: string; title?: string; type: "video" } | { filename?: string; source: string; title?: string; type: "document" }; parameters?: object; type: "native"; version?: 1 };
+}
+
 export interface SendLinkWithAutoPreviewParams {
   /**
    * Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c|g)\.us$|^\d+@lid$
@@ -1090,6 +1100,16 @@ export interface SendPttParams {
    * @remarks Deprecated key aliases: 'msgId'
    */
   quotedMsgId?: string;
+}
+
+export interface SendRawMessageParams {
+  /**
+   * Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c|g)\.us$|^\d+@lid$
+   * @example "447123456789@c.us"
+   * @remarks Key aliases: 'chatId'
+   */
+  to: string;
+  payload: Record<string, any>;
 }
 
 export interface SendReplyWithMentionsParams {

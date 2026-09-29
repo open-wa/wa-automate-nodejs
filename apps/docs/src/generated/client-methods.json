@@ -4785,6 +4785,64 @@
     }
   },
   {
+    "id": "messages.sendinteractive",
+    "anchor": "sendinteractive",
+    "name": "sendInteractive",
+    "namespacedName": "messages.sendInteractive",
+    "namespace": "messages",
+    "description": "Send a portable interactive message document (Insiders and above)",
+    "license": "insiders",
+    "aliases": [
+      "messages.sendInteractive"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "to",
+      "content"
+    ],
+    "parameters": [
+      {
+        "name": "to",
+        "type": "string",
+        "required": true,
+        "description": "Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\\d+(-\\d+)?@(c|g)\\.us$|^\\d+@lid$",
+        "aliases": [
+          "chatId"
+        ],
+        "deprecatedAliases": [],
+        "example": "`\"447123456789@c.us\"`",
+        "namedType": "ChatId"
+      },
+      {
+        "name": "content",
+        "type": "{ actions: ({ id: string; label: string; type: \"reply\" } | { label: string; type: \"url\"; url: string } | { label: string; phoneNumber: string; type: \"call\" } | { code: string; label: string; type: \"copy\" })[]; body: string; footer?: string; header?: { text: string; type: \"text\" } | { filename?: string; source: string; title?: string; type: \"image\" } | { filename?: string; source: string; title?: string; type: \"video\" } | { filename?: string; source: string; title?: string; type: \"document\" }; type: \"buttons\"; version?: 1 } | { body: string; buttonLabel: string; footer?: string; sections: { rows: { description?: string; id: string; title: string }[]; title?: string }[]; title?: string; type: \"list\"; version?: 1 } | { body: string; footer?: string; questions: ({ allowCustomAnswer?: boolean; id: string; label: string; options: { id: string; label: string }[]; type: \"singleSelect\" | \"multiSelect\" })[]; title?: string; type: \"form\"; version?: 1 } | { body: string; cards: ({ actions: ({ id: string; label: string; type: \"reply\" } | { label: string; type: \"url\"; url: string } | { label: string; phoneNumber: string; type: \"call\" } | { code: string; label: string; type: \"copy\" })[]; body: string; header: { filename?: string; source: string; title?: string; type: \"image\" } })[]; footer?: string; type: \"carousel\"; version?: 1 } | { actions?: ({ label: string; type: \"url\"; url: string } | { label: string; phoneNumber: string; type: \"call\" } | { code: string; label: string; type: \"copy\" })[]; body: string; booking: { description?: string; email?: string; endAt?: string; labels?: { addToCalendar?: string; detailsTitle?: string; language?: string; manageBooking?: string; meetingType?: string; viewOnMap?: string }; location?: string; managementUrl?: string; phoneNumber?: string; startAt: string; url?: string }; buttonLabel: string; footer?: string; title?: string; type: \"booking\"; version?: 1 } | { actions: { name: string; parameters?: object }[]; body: string; footer?: string; header?: { text: string; type: \"text\" } | { filename?: string; source: string; title?: string; type: \"image\" } | { filename?: string; source: string; title?: string; type: \"video\" } | { filename?: string; source: string; title?: string; type: \"document\" }; parameters?: object; type: \"native\"; version?: 1 }",
+        "required": true,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "string",
+    "returnTypeLinks": {
+      "MessageId": "/docs/reference/client/return-types#messageid"
+    },
+    "sdkReturnType": "MessageId",
+    "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/messages/sendInteractive",
+      "flatPath": "/api/sendInteractive"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.sendInteractive(\"447123456789@c.us\", {});",
+      "nodeCall": "const result = await client.sendInteractive({\n  to: \"447123456789@c.us\",\n  content: {},\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendInteractive({\n  to: \"447123456789@c.us\",\n  content: {},\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/messages/sendInteractive\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"content\": {}\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": \"example\"\n}"
+    }
+  },
+  {
     "id": "messages.sendlinkwithautopreview",
     "anchor": "sendlinkwithautopreview",
     "name": "sendLinkWithAutoPreview",
@@ -5508,6 +5566,64 @@
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendPtt({\n  to: \"447123456789@c.us\",\n  file: \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendPtt\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"file\": \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\"\n  }'",
       "response": "{\n  \"success\": true,\n  \"data\": \"true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n}"
+    }
+  },
+  {
+    "id": "messages.sendrawmessage",
+    "anchor": "sendrawmessage",
+    "name": "sendRawMessage",
+    "namespacedName": "messages.sendRaw",
+    "namespace": "messages",
+    "description": "Send a constructed WhatsApp protobuf Message payload (Insiders and above); media must already be uploaded",
+    "license": "insiders",
+    "aliases": [
+      "messages.sendRaw"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "to",
+      "payload"
+    ],
+    "parameters": [
+      {
+        "name": "to",
+        "type": "string",
+        "required": true,
+        "description": "Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\\d+(-\\d+)?@(c|g)\\.us$|^\\d+@lid$",
+        "aliases": [
+          "chatId"
+        ],
+        "deprecatedAliases": [],
+        "example": "`\"447123456789@c.us\"`",
+        "namedType": "ChatId"
+      },
+      {
+        "name": "payload",
+        "type": "object",
+        "required": true,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "string",
+    "returnTypeLinks": {
+      "MessageId": "/docs/reference/client/return-types#messageid"
+    },
+    "sdkReturnType": "MessageId",
+    "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/messages/sendRaw",
+      "flatPath": "/api/sendRawMessage"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.sendRawMessage(\"447123456789@c.us\", {});",
+      "nodeCall": "const result = await client.sendRawMessage({\n  to: \"447123456789@c.us\",\n  payload: {},\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendRawMessage({\n  to: \"447123456789@c.us\",\n  payload: {},\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/messages/sendRaw\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"payload\": {}\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": \"example\"\n}"
     }
   },
   {

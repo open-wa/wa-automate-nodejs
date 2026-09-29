@@ -6,7 +6,7 @@ import {
   type RuntimeObservabilityShape,
 } from '@open-wa/runtime-core';
 import { eventRegistry, type QueueOptions } from '@open-wa/schema';
-import type { Message, MessageId } from '@open-wa/schema';
+import type { Message, MessageId, InteractiveResponse, FormResponse } from '@open-wa/schema';
 
 export interface EventContext {
   sessionId: string;
@@ -28,6 +28,8 @@ export interface ListenerManagerConfig {
 }
 
 type EventPayloadMap = {
+  interactiveResponse: InteractiveResponse;
+  formResponse: FormResponse;
   message: Message;
   anyMessage: Message;
   messageDeleted: { messageId: string; chatId: string; by?: string };
@@ -45,6 +47,17 @@ type RuntimeBridge<K extends EventName> = {
 };
 
 const EVENT_BRIDGES: { [K in EventName]: RuntimeBridge<K> } = {
+  interactiveResponse: {
+    runtimeEvent: 'interactive.response',
+    transform: payload => (payload as OpenWAEventMap['interactive.response']).response as InteractiveResponse,
+  },
+  formResponse: {
+    runtimeEvent: 'interactive.response',
+    transform: payload => {
+      const response = (payload as OpenWAEventMap['interactive.response']).response as InteractiveResponse;
+      return response?.type === 'form' ? response : null;
+    },
+  },
   message: {
     runtimeEvent: 'message.received',
     transform: (payload) => (payload as OpenWAEventMap['message.received'])?.message as Message,

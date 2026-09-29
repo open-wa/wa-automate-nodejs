@@ -942,3 +942,450 @@ Related types: [ChatId](/docs/reference/client/return-types#chatid), [Chat](/doc
 | `sender` | `Contact \| null` — [Contact](/docs/reference/client/return-types#contact) | No |
 
 Additional provider fields may be present; narrow them before use.
+## BookingContent
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type BookingContent = { version?: 1; body: string; footer?: string; type: "booking"; title?: string; buttonLabel?: string; booking: { startAt: string; endAt?: string; location?: string; url?: string; managementUrl?: string; phoneNumber?: string; email?: string; description?: string; labels?: { language?: string; meetingType?: string; detailsTitle?: string; addToCalendar?: string; viewOnMap?: string; manageBooking?: string } }; actions?: (LinkAction | CallAction | CopyAction)[] }
+```
+
+</details>
+
+Related types: [CallAction](/docs/reference/client/return-types#callaction), [CopyAction](/docs/reference/client/return-types#copyaction), [LinkAction](/docs/reference/client/return-types#linkaction)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `version` | `1` | No |
+| `body` | `string` | Yes |
+| `footer` | `string` | No |
+| `type` | `"booking"` | Yes |
+| `title` | `string` | No |
+| `buttonLabel` | `string` | No |
+| `booking` | `{ startAt: string; endAt?: string; location?: string; url?: string; managementUrl?: string; phoneNumber?: string; email?: string; description?: string; labels?: { language?: string; meetingType?: string; detailsTitle?: string; addToCalendar?: string; viewOnMap?: string; manageBooking?: string } }` | Yes |
+| `actions` | `(LinkAction \| CallAction \| CopyAction)[]` — [CallAction](/docs/reference/client/return-types#callaction), [CopyAction](/docs/reference/client/return-types#copyaction), [LinkAction](/docs/reference/client/return-types#linkaction) | No |
+
+Additional provider fields may be present; narrow them before use.
+## ButtonsContent
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type ButtonsContent = { version?: 1; body: string; footer?: string; type: "buttons"; header?: InteractiveHeader; actions: InteractiveAction[] }
+```
+
+</details>
+
+Related types: [InteractiveAction](/docs/reference/client/return-types#interactiveaction), [InteractiveHeader](/docs/reference/client/return-types#interactiveheader)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `version` | `1` | No |
+| `body` | `string` | Yes |
+| `footer` | `string` | No |
+| `type` | `"buttons"` | Yes |
+| `header` | `InteractiveHeader` — [InteractiveHeader](/docs/reference/client/return-types#interactiveheader) | No |
+| `actions` | `InteractiveAction[]` — [InteractiveAction](/docs/reference/client/return-types#interactiveaction) | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## CallAction
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type CallAction = { type: "call"; label: string; phoneNumber: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `type` | `"call"` | Yes |
+| `label` | `string` | Yes |
+| `phoneNumber` | `string` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## CarouselCard
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type CarouselCard = { body: string; header: { type: "image"; source: string; filename?: string; title?: string }; actions: InteractiveAction[] }
+```
+
+</details>
+
+Related types: [InteractiveAction](/docs/reference/client/return-types#interactiveaction)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `body` | `string` | Yes |
+| `header` | `{ type: "image"; source: string; filename?: string; title?: string }` | Yes |
+| `actions` | `InteractiveAction[]` — [InteractiveAction](/docs/reference/client/return-types#interactiveaction) | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## CarouselContent
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type CarouselContent = { version?: 1; body: string; footer?: string; type: "carousel"; cards: CarouselCard[] }
+```
+
+</details>
+
+Related types: [CarouselCard](/docs/reference/client/return-types#carouselcard)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `version` | `1` | No |
+| `body` | `string` | Yes |
+| `footer` | `string` | No |
+| `type` | `"carousel"` | Yes |
+| `cards` | `CarouselCard[]` — [CarouselCard](/docs/reference/client/return-types#carouselcard) | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## CopyAction
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type CopyAction = { type: "copy"; label: string; code: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `type` | `"copy"` | Yes |
+| `label` | `string` | Yes |
+| `code` | `string` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## FormContent
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type FormContent = { version?: 1; body: string; footer?: string; type: "form"; title?: string; questions: FormQuestion[] }
+```
+
+</details>
+
+Related types: [FormQuestion](/docs/reference/client/return-types#formquestion)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `version` | `1` | No |
+| `body` | `string` | Yes |
+| `footer` | `string` | No |
+| `type` | `"form"` | Yes |
+| `title` | `string` | No |
+| `questions` | `FormQuestion[]` — [FormQuestion](/docs/reference/client/return-types#formquestion) | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## FormQuestion
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type FormQuestion = { type: "singleSelect" | "multiSelect"; id: string; label: string; options: { id: string; label: string }[]; allowCustomAnswer?: boolean }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `type` | `"singleSelect" \| "multiSelect"` | Yes |
+| `id` | `string` | Yes |
+| `label` | `string` | Yes |
+| `options` | `{ id: string; label: string }[]` | Yes |
+| `allowCustomAnswer` | `boolean` | No |
+
+Additional provider fields may be present; narrow them before use.
+## FormResponse
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type FormResponse = { messageId: string; chatId: string; senderId: string; originalMessageId?: string; timestamp?: number; raw: JsonObject; type: "form"; answers: Record<string, string | string[]> }
+```
+
+</details>
+
+Related types: [JsonObject](/docs/reference/client/return-types#jsonobject)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `messageId` | `string` | Yes |
+| `chatId` | `string` | Yes |
+| `senderId` | `string` | Yes |
+| `originalMessageId` | `string` | No |
+| `timestamp` | `number` | No |
+| `raw` | `JsonObject` — [JsonObject](/docs/reference/client/return-types#jsonobject) | Yes |
+| `type` | `"form"` | Yes |
+| `answers` | `Record<string, string \| string[]>` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## InteractiveAction
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type InteractiveAction = ReplyAction | LinkAction | CallAction | CopyAction
+```
+
+</details>
+
+Related types: [CallAction](/docs/reference/client/return-types#callaction), [CopyAction](/docs/reference/client/return-types#copyaction), [LinkAction](/docs/reference/client/return-types#linkaction), [ReplyAction](/docs/reference/client/return-types#replyaction)
+
+## InteractiveContent
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type InteractiveContent = ButtonsContent | ListContent | FormContent | CarouselContent | BookingContent | NativeContent
+```
+
+</details>
+
+Related types: [BookingContent](/docs/reference/client/return-types#bookingcontent), [ButtonsContent](/docs/reference/client/return-types#buttonscontent), [CarouselContent](/docs/reference/client/return-types#carouselcontent), [FormContent](/docs/reference/client/return-types#formcontent), [ListContent](/docs/reference/client/return-types#listcontent), [NativeContent](/docs/reference/client/return-types#nativecontent)
+
+## InteractiveHeader
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type InteractiveHeader = { type: "text"; text: string } | { type: "image"; source: string; filename?: string; title?: string } | { type: "video"; source: string; filename?: string; title?: string } | { type: "document"; source: string; filename?: string; title?: string }
+```
+
+</details>
+
+
+
+## InteractiveResponse
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type InteractiveResponse = FormResponse | { messageId: string; chatId: string; senderId: string; originalMessageId?: string; timestamp?: number; raw: JsonObject; type: "reply"; id: string; label?: string } | { messageId: string; chatId: string; senderId: string; originalMessageId?: string; timestamp?: number; raw: JsonObject; type: "list"; id: string; label?: string } | { messageId: string; chatId: string; senderId: string; originalMessageId?: string; timestamp?: number; raw: JsonObject; type: "native"; name: string; parameters?: JsonValue; parseError?: string }
+```
+
+</details>
+
+Related types: [FormResponse](/docs/reference/client/return-types#formresponse), [JsonObject](/docs/reference/client/return-types#jsonobject), [JsonValue](/docs/reference/client/return-types#jsonvalue)
+
+## JsonObject
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type JsonObject = Record<string, JsonValue>
+```
+
+</details>
+
+Related types: [JsonValue](/docs/reference/client/return-types#jsonvalue)
+
+## JsonValue
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type JsonValue = null | boolean | number | string | JsonValue[] | Record<string, JsonValue>
+```
+
+</details>
+
+
+
+## LinkAction
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type LinkAction = { type: "url"; label: string; url: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `type` | `"url"` | Yes |
+| `label` | `string` | Yes |
+| `url` | `string` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## ListContent
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type ListContent = { version?: 1; body: string; footer?: string; type: "list"; title?: string; buttonLabel?: string; sections: { title?: string; rows: ListRow[] }[] }
+```
+
+</details>
+
+Related types: [ListRow](/docs/reference/client/return-types#listrow)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `version` | `1` | No |
+| `body` | `string` | Yes |
+| `footer` | `string` | No |
+| `type` | `"list"` | Yes |
+| `title` | `string` | No |
+| `buttonLabel` | `string` | No |
+| `sections` | `{ title?: string; rows: ListRow[] }[]` — [ListRow](/docs/reference/client/return-types#listrow) | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## ListRow
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type ListRow = { id: string; title: string; description?: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `string` | Yes |
+| `title` | `string` | Yes |
+| `description` | `string` | No |
+
+Additional provider fields may be present; narrow them before use.
+## NativeAction
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type NativeAction = { name: string; parameters?: JsonObject }
+```
+
+</details>
+
+Related types: [JsonObject](/docs/reference/client/return-types#jsonobject)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `name` | `string` | Yes |
+| `parameters` | `JsonObject` — [JsonObject](/docs/reference/client/return-types#jsonobject) | No |
+
+Additional provider fields may be present; narrow them before use.
+## NativeContent
+
+Advanced extension for new native action types; parameters are passed through without claiming recipient support
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type NativeContent = { version?: 1; body: string; footer?: string; type: "native"; header?: InteractiveHeader; actions: NativeAction[]; parameters?: JsonObject }
+```
+
+</details>
+
+Related types: [InteractiveHeader](/docs/reference/client/return-types#interactiveheader), [JsonObject](/docs/reference/client/return-types#jsonobject), [NativeAction](/docs/reference/client/return-types#nativeaction)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `version` | `1` | No |
+| `body` | `string` | Yes |
+| `footer` | `string` | No |
+| `type` | `"native"` | Yes |
+| `header` | `InteractiveHeader` — [InteractiveHeader](/docs/reference/client/return-types#interactiveheader) | No |
+| `actions` | `NativeAction[]` — [NativeAction](/docs/reference/client/return-types#nativeaction) | Yes |
+| `parameters` | `JsonObject` — [JsonObject](/docs/reference/client/return-types#jsonobject) | No |
+
+Additional provider fields may be present; narrow them before use.
+## ReplyAction
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type ReplyAction = { type: "reply"; id: string; label: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `type` | `"reply"` | Yes |
+| `id` | `string` | Yes |
+| `label` | `string` | Yes |
+
+Additional provider fields may be present; narrow them before use.

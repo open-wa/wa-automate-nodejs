@@ -1,10 +1,10 @@
 {
   "name": "@open-wa/wa-automate-types-only",
-  "version": "5.0.0-alpha.7",
-  "description": "Lightweight type-only re-exports from @open-wa/schema — zero runtime dependencies",
+  "version": "5.1.0",
+  "description": "Lightweight type-only re-exports from @open-wa/schema \u2014 zero runtime dependencies",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
       "bun": "./src/index.ts",
@@ -32,17 +32,32 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/open-wa/wa-automate-nodejs.git"
+    "url": "https://github.com/open-wa/wa-automate-nodejs.git"
   },
   "author": "Mohammed Shah <@smashah>",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "require": {
+          "types": "./dist/index.d.cts",
+          "default": "./dist/index.cjs"
+        },
+        "import": {
+          "types": "./dist/index.d.mts",
+          "default": "./dist/index.mjs"
+        }
+      }
+    }
   },
-  "license": "H-DNH V1.0",
+  "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
     "@open-wa/schema": "workspace:*"
   },
   "devDependencies": {
     "typescript": "catalog:"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

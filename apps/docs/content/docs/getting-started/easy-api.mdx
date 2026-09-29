@@ -65,6 +65,8 @@ npx @open-wa/wa-automate@5.1.0 --session-id sales --host 0.0.0.0 --port 8080
 npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --session-id sales --host 127.0.0.1 --port 8080
 ```
 
+The v5 CLI's `--tunnel` flag only prints a warning; it does not configure a tunnel. For remote access, use **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)**.
+
 ## Authentication and persistence
 
 The published Easy API CLI authenticates with the QR code shown by the computer runtime. Link-code login is available to embedded Node.js applications through `createClient`; follow **[Link-code login](/docs/getting-started/link-code)** for that flow. The phone already runs WhatsApp; it links the phone to the browser session on the computer.

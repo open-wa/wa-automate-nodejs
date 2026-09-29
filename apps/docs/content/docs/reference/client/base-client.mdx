@@ -112,6 +112,7 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `sendFile` | `messages` | `sendFile` | `to`, `file`, `filename`, `caption` | `MessageIdReturn \| string` |
 | `sendFileFromUrl` | `messages` | `sendFileFromUrl` | `to`, `url`, `filename`, `caption`, `headers` | `string \| boolean` |
 | `sendImage` | `messages` | `sendImage` | `to`, `imgData`, `filename`, `caption`, `id`, `waitForId` | `MessageIdReturn \| boolean \| string` |
+| `sendInteractive` | `messages` | `sendInteractive` | `to`, `content` | `string` |
 | `sendLinkWithAutoPreview` | `messages` | `sendLinkWithAutoPreview` | `to`, `url`, `text`, `thumbnail`, `quotedMsgId`, `customSize` | `MessageIdReturn \| boolean` |
 | `sendListMessage` | `messages` | `sendListMessage` | `to`, `sections`, `title`, `description`, `actionText` | `MessageIdReturn \| boolean` |
 | `sendLocation` | `messages` | `sendLocation` | `to`, `lat`, `lng`, `loc`, `address`, `url` | `MessageIdReturn \| boolean` |
@@ -120,6 +121,7 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `sendPaymentRequest` | `messages` | `sendPaymentRequest` | `to`, `amount`, `currency`, `message` | `MessageIdReturn \| boolean` |
 | `sendPoll` | `messages` | `sendPoll` | `to`, `name`, `options`, `selectableCount` | `MessageIdReturn \| boolean` |
 | `sendPtt` | `messages` | `sendPtt` | `to`, `file`, `quotedMsgId` | `MessageIdReturn \| boolean` |
+| `sendRawMessage` | `messages` | `sendRawMessage` | `to`, `payload` | `string` |
 | `sendReplyWithMentions` | `messages` | `sendReplyWithMentions` | `to`, `content`, `replyMessageId`, `hideTags`, `mentions` | `MessageIdReturn \| boolean` |
 | `sendSeen` | `messages` | `sendSeen` | `chatId` | `boolean` |
 | `sendText` | `messages` | `sendText` | `to`, `content`, `options` | `MessageIdReturn \| boolean \| string` |

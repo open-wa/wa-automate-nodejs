@@ -6,7 +6,7 @@ icon: "BookOpen"
 
 # Messages Client API
 
-This page documents 37 schema-registry client methods in the `messages` namespace.
+This page documents 39 schema-registry client methods in the `messages` namespace.
 
 
 ## `deleteMessage`
@@ -1879,6 +1879,104 @@ In-process Client resolves to `Promise<MessageId \| false>`. The contract above 
 
 </details>
 
+<LicensedMethodSection tier="insiders">
+
+<span id="sendinteractive---insiders" aria-hidden="true"></span>
+## `sendInteractive`
+
+Send a portable interactive message document (Insiders and above)
+
+**Signature** `client.sendInteractive(to: string, content: { actions: ({ id: string; label: string; type: "reply" } \| { label: string; type: "url"; url: string } \| { label: string; phoneNumber: string; type: "call" } \| { code: string; label: string; type: "copy" })[]; body: string; footer?: string; header?: { text: string; type: "text" } \| { filename?: string; source: string; title?: string; type: "image" } \| { filename?: string; source: string; title?: string; type: "video" } \| { filename?: string; source: string; title?: string; type: "document" }; type: "buttons"; version?: 1 } \| { body: string; buttonLabel: string; footer?: string; sections: { rows: { description?: string; id: string; title: string }[]; title?: string }[]; title?: string; type: "list"; version?: 1 } \| { body: string; footer?: string; questions: ({ allowCustomAnswer?: boolean; id: string; label: string; options: { id: string; label: string }[]; type: "singleSelect" \| "multiSelect" })[]; title?: string; type: "form"; version?: 1 } \| { body: string; cards: ({ actions: ({ id: string; label: string; type: "reply" } \| { label: string; type: "url"; url: string } \| { label: string; phoneNumber: string; type: "call" } \| { code: string; label: string; type: "copy" })[]; body: string; header: { filename?: string; source: string; title?: string; type: "image" } })[]; footer?: string; type: "carousel"; version?: 1 } \| { actions?: ({ label: string; type: "url"; url: string } \| { label: string; phoneNumber: string; type: "call" } \| { code: string; label: string; type: "copy" })[]; body: string; booking: { description?: string; email?: string; endAt?: string; labels?: { addToCalendar?: string; detailsTitle?: string; language?: string; manageBooking?: string; meetingType?: string; viewOnMap?: string }; location?: string; managementUrl?: string; phoneNumber?: string; startAt: string; url?: string }; buttonLabel: string; footer?: string; title?: string; type: "booking"; version?: 1 } \| { actions: { name: string; parameters?: object }[]; body: string; footer?: string; header?: { text: string; type: "text" } \| { filename?: string; source: string; title?: string; type: "image" } \| { filename?: string; source: string; title?: string; type: "video" } \| { filename?: string; source: string; title?: string; type: "document" }; parameters?: object; type: "native"; version?: 1 }): Promise<string>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.sendInteractive("447123456789@c.us", {});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.sendInteractive({
+  to: "447123456789@c.us",
+  content: {},
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendInteractive" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "content": {}
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "example"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="SendInteractiveParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<string>` |
+
+Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<MessageId>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `content` |
+| Aliases | `messages.sendInteractive` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendInteractive` | `sendInteractive` | Active |
+| Alias | `POST` | `/api/sendInteractive` | `sendInteractive` | Active |
+
+</details>
+
+</LicensedMethodSection>
+
 
 ## `sendLinkWithAutoPreview`
 
@@ -2627,6 +2725,104 @@ This method is not declared on the in-process Client facade. Use the remote Node
 | Alias | `POST` | `/api/sendVoiceNote` | `sendVoiceNote` | Active |
 
 </details>
+
+<LicensedMethodSection tier="insiders">
+
+<span id="sendrawmessage---insiders" aria-hidden="true"></span>
+## `sendRawMessage`
+
+Send a constructed WhatsApp protobuf Message payload (Insiders and above); media must already be uploaded
+
+**Signature** `client.sendRawMessage(to: string, payload: object): Promise<string>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.sendRawMessage("447123456789@c.us", {});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.sendRawMessage({
+  to: "447123456789@c.us",
+  payload: {},
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendRaw" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "payload": {}
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "example"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="SendRawMessageParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<string>` |
+
+Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<MessageId>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `payload` |
+| Aliases | `messages.sendRaw` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendRaw` | `sendRawMessage` | Active |
+| Alias | `POST` | `/api/sendRawMessage` | `sendRawMessage` | Active |
+
+</details>
+
+</LicensedMethodSection>
 
 
 ## `sendReplyWithMentions`

@@ -78,4 +78,4 @@ See the [Chatwoot guide](https://openwa.dev/docs/client-and-integrations/chatwoo
 
 ## License
 
-[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md) - Hippocratic + Do Not Harm
+[H-DNH 1.1](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md) - Hippocratic + Do Not Harm

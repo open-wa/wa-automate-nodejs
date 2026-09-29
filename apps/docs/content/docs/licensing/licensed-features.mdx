@@ -48,6 +48,8 @@ The current generated method schema marks these methods as licensed:
 | `getStatus` | `insiders` |
 | `deleteStatus` | `insiders` |
 | `deleteAllStatus` / `deleteAllStatuses` | `insiders` |
+| `sendInteractive` (buttons, lists, forms, carousels, bookings) | `insiders` |
+| `sendRawMessage` (constructed protocol payloads) | `insiders` |
 | `sendButtons` | `insiders` |
 | `sendAdvancedButtons` | `insiders` |
 | `sendListMessage` / `sendList` | `insiders` |
@@ -57,6 +59,12 @@ The current generated method schema marks these methods as licensed:
 | `joinGroupViaLink` / `joinGroup` | `restricted` |
 
 Methods marked `none` are not license-gated in the schema. Old docs and changelog entries can contain previous tiers, names, or runtime surfaces. Use the generated API reference for the package version that you deploy.
+
+For new v5 integrations, use [`sendInteractive`](/docs/guides/interactive-messages)
+for buttons, lists, forms, carousels, and bookings. It requires an applied
+Insiders or higher license for the sending account. The legacy `sendButtons`,
+`sendAdvancedButtons`, and `sendListMessage` methods remain in the schema with
+their own Insider gates; `sendButtons` and `sendListMessage` are deprecated.
 
 ### Runtime-specific number check
 

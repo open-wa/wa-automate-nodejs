@@ -54,6 +54,9 @@ const config: UserConfig = {
             },
             pages: [
                 {
+                    path: '/changelog',
+                },
+                {
                     path: '/docs',
                 },
                 {

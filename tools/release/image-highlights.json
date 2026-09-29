@@ -1,0 +1,14 @@
+{
+  "5.1.0": {
+    "headline": "Buttons are back.",
+    "summary": "Reply buttons, forms, carousels and booking cards. One API, with structured answers your code can use.",
+    "badge": "Available to Insiders and above",
+    "packages": ["@open-wa/client", "@open-wa/schema", "@open-wa/api", "@open-wa/core", "@open-wa/wa-automate"]
+  },
+  "5.0.0": {
+    "headline": "A new foundation.",
+    "summary": "Three years in the making. A new foundation for everyone coming from v4.",
+    "badge": "A guide for v4 users",
+    "packages": ["@open-wa/wa-automate", "@open-wa/core", "@open-wa/client"]
+  }
+}

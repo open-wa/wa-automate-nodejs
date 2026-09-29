@@ -1,12 +1,19 @@
 {
   "name": "@open-wa/runtime-edge",
-  "version": "5.0.0-alpha.7",
+  "version": "5.0.1",
   "description": "Web API Effect runtime Layer for open-wa edge control planes",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
-  "exports": { ".": { "bun": "./src/index.ts", "import": "./dist/index.mjs", "require": "./dist/index.cjs", "types": "./dist/index.d.mts" } },
+  "exports": {
+    ".": {
+      "bun": "./src/index.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.mts"
+    }
+  },
   "scripts": {
     "build": "tsdown src/index.ts --format esm --format cjs",
     "test": "vitest run --passWithNoTests",
@@ -18,6 +25,27 @@
     "@open-wa/runtime-core": "workspace:*",
     "effect": "catalog:"
   },
-  "devDependencies": { "@types/node": "catalog:", "typescript": "catalog:", "vitest": "catalog:" },
-  "publishConfig": { "access": "public" }
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs",
+        "types": "./dist/index.d.mts"
+      }
+    }
+  },
+  "license": "SEE LICENSE IN LICENSE.md",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/open-wa/wa-automate-nodejs.git"
+  }
 }

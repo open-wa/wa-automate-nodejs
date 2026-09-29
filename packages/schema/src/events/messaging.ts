@@ -1,3 +1,4 @@
+import { InteractiveResponseSchema, FormResponseSchema } from '../interactive';
 import { z } from 'zod';
 import { defineListenerV2 } from './registry';
 import { MessageSchema, MessageAck } from '../common-types';
@@ -69,4 +70,17 @@ export const reactionEvent = defineListenerV2('reaction', {
         senderId: z.string(),
         timestamp: z.number(),
     }),
+});
+
+export const interactiveResponseEvent = defineListenerV2('interactiveResponse', {
+    legacyName: 'onInteractiveResponse',
+    meta: { description: 'Structured reply, list, form or native interactive response', namespace: 'messages', status: 'stable', license: 'insiders' },
+    payload: InteractiveResponseSchema,
+    defaultQueueOptions: { concurrency: 1 },
+});
+export const formResponseEvent = defineListenerV2('formResponse', {
+    legacyName: 'onFormResponse',
+    meta: { description: 'A form submission with question IDs and chosen option IDs', namespace: 'messages', status: 'stable', license: 'insiders' },
+    payload: FormResponseSchema,
+    defaultQueueOptions: { concurrency: 1 },
 });

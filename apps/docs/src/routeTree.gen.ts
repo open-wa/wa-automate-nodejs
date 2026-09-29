@@ -24,6 +24,8 @@ import { Route as DotwellKnownOauthProtectedResourceRouteImport } from './routes
 import { Route as ApiChatRouteImport } from './routes/api.chat'
 import { Route as ApiFeedbackRouteImport } from './routes/api.feedback'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
+import { Route as ChangelogIndexRouteImport } from './routes/changelog/index'
+import { Route as ChangelogVersionRouteImport } from './routes/changelog/$version'
 import { Route as DocsSplatRouteImport } from './routes/docs/$'
 import { Route as DotwellKnownAgentSkillsIndexDotjsonRouteImport } from './routes/[.]well-known.agent-skills.index[.]json'
 import { Route as DotwellKnownMcpServerCardDotjsonRouteImport } from './routes/[.]well-known.mcp.server-card[.]json'
@@ -107,6 +109,16 @@ const ApiSearchRoute = ApiSearchRouteImport.update({
   path: '/api/search',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChangelogIndexRoute = ChangelogIndexRouteImport.update({
+  id: '/changelog/',
+  path: '/changelog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChangelogVersionRoute = ChangelogVersionRouteImport.update({
+  id: '/changelog/$version',
+  path: '/changelog/$version',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DocsSplatRoute = DocsSplatRouteImport.update({
   id: '/docs/$',
   path: '/docs/$',
@@ -151,7 +163,9 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/api/feedback': typeof ApiFeedbackRoute
   '/api/search': typeof ApiSearchRoute
+  '/changelog/$version': typeof ChangelogVersionRoute
   '/docs/$': typeof DocsSplatRoute
+  '/changelog/': typeof ChangelogIndexRoute
   '/.well-known/agent-skills/index.json': typeof DotwellKnownAgentSkillsIndexDotjsonRoute
   '/.well-known/mcp/server-card.json': typeof DotwellKnownMcpServerCardDotjsonRoute
   '/llms.mdx/docs/$': typeof LlmsDotmdxDocsSplatRoute
@@ -173,7 +187,9 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/api/feedback': typeof ApiFeedbackRoute
   '/api/search': typeof ApiSearchRoute
+  '/changelog/$version': typeof ChangelogVersionRoute
   '/docs/$': typeof DocsSplatRoute
+  '/changelog': typeof ChangelogIndexRoute
   '/.well-known/agent-skills/index.json': typeof DotwellKnownAgentSkillsIndexDotjsonRoute
   '/.well-known/mcp/server-card.json': typeof DotwellKnownMcpServerCardDotjsonRoute
   '/llms.mdx/docs/$': typeof LlmsDotmdxDocsSplatRoute
@@ -196,7 +212,9 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/api/feedback': typeof ApiFeedbackRoute
   '/api/search': typeof ApiSearchRoute
+  '/changelog/$version': typeof ChangelogVersionRoute
   '/docs/$': typeof DocsSplatRoute
+  '/changelog/': typeof ChangelogIndexRoute
   '/.well-known/agent-skills/index.json': typeof DotwellKnownAgentSkillsIndexDotjsonRoute
   '/.well-known/mcp/server-card.json': typeof DotwellKnownMcpServerCardDotjsonRoute
   '/llms.mdx/docs/$': typeof LlmsDotmdxDocsSplatRoute
@@ -220,7 +238,9 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/feedback'
     | '/api/search'
+    | '/changelog/$version'
     | '/docs/$'
+    | '/changelog/'
     | '/.well-known/agent-skills/index.json'
     | '/.well-known/mcp/server-card.json'
     | '/llms.mdx/docs/$'
@@ -242,7 +262,9 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/feedback'
     | '/api/search'
+    | '/changelog/$version'
     | '/docs/$'
+    | '/changelog'
     | '/.well-known/agent-skills/index.json'
     | '/.well-known/mcp/server-card.json'
     | '/llms.mdx/docs/$'
@@ -264,7 +286,9 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/feedback'
     | '/api/search'
+    | '/changelog/$version'
     | '/docs/$'
+    | '/changelog/'
     | '/.well-known/agent-skills/index.json'
     | '/.well-known/mcp/server-card.json'
     | '/llms.mdx/docs/$'
@@ -287,7 +311,9 @@ export interface RootRouteChildren {
   ApiChatRoute: typeof ApiChatRoute
   ApiFeedbackRoute: typeof ApiFeedbackRoute
   ApiSearchRoute: typeof ApiSearchRoute
+  ChangelogVersionRoute: typeof ChangelogVersionRoute
   DocsSplatRoute: typeof DocsSplatRoute
+  ChangelogIndexRoute: typeof ChangelogIndexRoute
   DotwellKnownAgentSkillsIndexDotjsonRoute: typeof DotwellKnownAgentSkillsIndexDotjsonRoute
   DotwellKnownMcpServerCardDotjsonRoute: typeof DotwellKnownMcpServerCardDotjsonRoute
   LlmsDotmdxDocsSplatRoute: typeof LlmsDotmdxDocsSplatRoute
@@ -401,6 +427,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSearchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/changelog/': {
+      id: '/changelog/'
+      path: '/changelog'
+      fullPath: '/changelog/'
+      preLoaderRoute: typeof ChangelogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/changelog/$version': {
+      id: '/changelog/$version'
+      path: '/changelog/$version'
+      fullPath: '/changelog/$version'
+      preLoaderRoute: typeof ChangelogVersionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/docs/$': {
       id: '/docs/$'
       path: '/docs/$'
@@ -457,7 +497,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChatRoute: ApiChatRoute,
   ApiFeedbackRoute: ApiFeedbackRoute,
   ApiSearchRoute: ApiSearchRoute,
+  ChangelogVersionRoute: ChangelogVersionRoute,
   DocsSplatRoute: DocsSplatRoute,
+  ChangelogIndexRoute: ChangelogIndexRoute,
   DotwellKnownAgentSkillsIndexDotjsonRoute:
     DotwellKnownAgentSkillsIndexDotjsonRoute,
   DotwellKnownMcpServerCardDotjsonRoute: DotwellKnownMcpServerCardDotjsonRoute,

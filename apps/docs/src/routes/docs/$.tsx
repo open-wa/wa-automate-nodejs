@@ -33,6 +33,7 @@ const loader = createServerFn({
 
       return {
         path: page.path,
+        canonical: page.data.release ? getAbsoluteDocsUrl(`/changelog/${page.data.release.version}`) : undefined,
         meta: getDocsSocialMeta({
           title: page.data.title,
           description,
@@ -57,6 +58,7 @@ export const Route = createFileRoute('/docs/$')({
   head: ({ loaderData }) => {
     return {
       meta: loaderData?.meta ?? [{ title: SITE_NAME }],
+      links: loaderData?.canonical ? [{ rel: 'canonical', href: loaderData.canonical }] : [],
     };
   },
   component: Page,

@@ -7,10 +7,11 @@ description: Delete messages locally or request provider-side removal, with resu
 
 `deleteMessage` accepts a chat ID, one message ID or an array of message IDs,
 and an optional `onlyLocal` flag. It returns a boolean: `true` means the
-runtime completed the requested operation, while `false` means the chat could
-not be found. A rejected call also needs an error path. Even when a revoke
-operation completes, the return value cannot prove that every recipient has
-removed a message.
+runtime completed its deletion jobs, while `false` means the chat could
+not be found. The current runtime also returns `true` when none of the supplied
+message IDs match a loaded message, so that value alone does not prove a message
+was removed. Handle rejected calls too. Even when a revoke operation completes,
+the return value cannot prove that every recipient has removed the message.
 
 ## Local deletion versus revoke for everyone
 
@@ -45,7 +46,7 @@ const revoked = await client.deleteMessage(
 );
 
 if (!revoked) {
-  console.error('WhatsApp did not accept the revoke request');
+  console.error('The deletion request did not complete; check the chat and message IDs');
 }
 ```
 

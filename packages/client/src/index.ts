@@ -35,3 +35,7 @@ export type {
   Base64,
   Content,
 } from '@open-wa/schema';
+
+export type { InteractiveMethods } from './methods/interactive';
+export { defineInteractiveMessage, InteractiveContentSchema, InteractiveResponseSchema, FormResponseSchema } from '@open-wa/schema';
+export type { InteractiveContent, InteractiveAction, InteractiveHeader, FormQuestion, InteractiveResponse, FormResponse, JsonValue } from '@open-wa/schema';

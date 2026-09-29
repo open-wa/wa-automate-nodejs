@@ -1,19 +1,20 @@
+import { version } from '../../../../packages/wa-automate/package.json';
+
 export type LicenseTier = 'insiders' | 'restricted';
 
 export const SITE_NAME = 'open-wa v5 docs';
 // Canonical origin for the docs site. Used for sitemap, robots, OG image URLs,
-// and og:url so they never disagree. The docs are served at openwa.dev (there
-// is no docs.openwa.dev subdomain). If the deploy moves, change it here.
+// and og:url so they never disagree. Current docs are served at openwa.dev;
+// docs.openwa.dev hosts the v4 archive.
 export const SITE_ORIGIN = 'https://openwa.dev';
 export const REPO_URL = 'https://github.com/open-wa/wa-automate-nodejs';
 export const LICENSE_CHECKOUT_URL = `${SITE_ORIGIN}/checkout`;
 export const GENERIC_LICENSE_URL = LICENSE_CHECKOUT_URL;
-// Active docs/package line. Prerelease tags and the v4 archive are documented
-// on their own pages; shell, search, feedback, and generated metadata use the
-// supported stable release here.
-export const CURRENT_VERSION = '5.1.0';
+export const GENERIC_GUMROAD_URL = 'https://smashah.gumroad.com/l/open-wa?wanted=true';
+export const CURRENT_VERSION = version;
 
 export const DOCS_PATHS = {
+  changelog: '/changelog',
   overview: '/docs',
   apiExplorer: '/api-explorer',
   quickstart: '/docs/getting-started/quickstart',

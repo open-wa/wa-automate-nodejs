@@ -6,7 +6,7 @@ icon: "BookOpen"
 
 # Events
 
-open-wa emits **10** events. Subscribe with the client helper (`client.onMessage`), the legacy listener name, or the event bus wildcard. Payload types are derived from each event's registered schema.
+open-wa emits **12** events. Subscribe with the client helper (`client.onMessage`), the legacy listener name, or the event bus wildcard. Payload types are derived from each event's registered schema.
 
 | Event | Legacy listener | Description | Payload | Status | License |
 | --- | --- | --- | --- | --- | --- |
@@ -14,6 +14,8 @@ open-wa emits **10** events. Subscribe with the client helper (`client.onMessage
 | <span id="addedtogroup"></span>`addedToGroup` | `onAddedToGroup` | Fired when you are added to a group | `{ groupId: string; groupName: string; addedBy?: string }` | stable | - |
 | <span id="anymessage"></span>`anyMessage` | `onAnyMessage` | Fired for any message including own messages | `Message` | stable | - |
 | <span id="chatstate"></span>`chatState` | `onChatState` | Fired when someone is typing or recording | `{ chatId: string; state: "typing" \| "recording" \| "paused"; senderId: string }` | stable | - |
+| <span id="formresponse"></span>`formResponse` | `onFormResponse` | A form submission with question IDs and chosen option IDs | `FormResponse` | stable | `insiders` |
+| <span id="interactiveresponse"></span>`interactiveResponse` | `onInteractiveResponse` | Structured reply, list, form or native interactive response | `InteractiveResponse` | stable | `insiders` |
 | <span id="logout"></span>`logout` | `onLogout` | Fired when the session is logged out | `{ reason?: string; timestamp: number }` | stable | - |
 | <span id="message"></span>`message` | `onMessage` | Fired when a new message is received (excluding own messages) | `Message` | stable | - |
 | <span id="messagedeleted"></span>`messageDeleted` | `onMessageDeleted` | Fired when a message is deleted | `Message` | stable | - |

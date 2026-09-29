@@ -42,34 +42,28 @@ jobs:
 
           REPORT+="## 📋 Release Readiness Checklist\n\n"
 
-          PR_NUMBER=${{ github.event.pull_request.number }}
-          LABELS=$(gh pr view "$PR_NUMBER" --json labels -q '.labels[].name' 2>/dev/null || true)
-
-          HAS_MAJOR=$(echo "$LABELS" | grep -c "bump:major" || true)
-          HAS_MINOR=$(echo "$LABELS" | grep -c "bump:minor" || true)
-
-          # ── 1. Changeset check ──────────────────────────────────
-          REPORT+="### Changesets\n"
-          CHANGESET_FILES=$(find .changeset -name "*.md" ! -name "README.md" 2>/dev/null | wc -l | tr -d ' ')
-          if [ "$CHANGESET_FILES" -gt 0 ]; then
-            add_pass "Found $CHANGESET_FILES changeset file(s)"
-          elif [ "$HAS_MAJOR" -gt 0 ] || [ "$HAS_MINOR" -gt 0 ]; then
-            add_info "No changeset files found — release workflow will auto-create one from the PR bump label"
+          # ── 1. Bump file check ──────────────────────────────────
+          REPORT+="### Bumpy\n"
+          BUMP_FILES=$(find .bumpy -maxdepth 1 -name "*.md" ! -name "README.md" 2>/dev/null | wc -l | tr -d ' ')
+          if [ "$BUMP_FILES" -gt 0 ]; then
+            add_pass "Found $BUMP_FILES bump file(s); Bumpy will create a version PR"
           else
-            add_warn "No changeset files found and no bump label set — release workflow will use the default patch bump"
+            VERSIONED_PACKAGES=0
+            while IFS= read -r MANIFEST; do
+              OLD_VERSION=$(git show "${{ github.event.pull_request.base.sha }}:$MANIFEST" 2>/dev/null | jq -r '.version // empty')
+              NEW_VERSION=$(jq -r '.version // empty' "$MANIFEST")
+              if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
+                VERSIONED_PACKAGES=$((VERSIONED_PACKAGES + 1))
+              fi
+            done < <(git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" -- 'packages/*/package.json' 'integrations/*/package.json')
+            if [ "$VERSIONED_PACKAGES" -gt 0 ]; then
+                add_info "No pending bump files; $VERSIONED_PACKAGES package version(s) changed, so verify the intended versions before publishing"
+            else
+                add_warn "No pending bump files or package version changes; this PR will not publish a release"
+            fi
           fi
 
-          # ── 2. Version bump label check ─────────────────────────
-          REPORT+="\n### Version Bump\n"
-          if [ "$HAS_MAJOR" -gt 0 ]; then
-            add_info "**MAJOR prerelease** bump — stays on the active alpha train while Changesets pre mode is enabled"
-          elif [ "$HAS_MINOR" -gt 0 ]; then
-            add_info "**MINOR prerelease** bump — stays on the active alpha train while Changesets pre mode is enabled"
-          else
-            add_info "**PATCH prerelease** bump (default) — add `bump:minor` or `bump:major` label to override"
-          fi
-
-          # ── 3. Changed packages detection ───────────────────────
+          # ── 2. Changed packages detection ───────────────────────
           REPORT+="\n### Changed Packages\n"
           BASE_REF="${{ github.event.pull_request.base.sha }}"
           HEAD_REF="${{ github.event.pull_request.head.sha }}"
@@ -123,11 +117,11 @@ jobs:
             add_info "$PKG_COUNT package(s) changed: $CHANGED_PKGS"
           fi
 
-          # ── 4. Build check ──────────────────────────────────────
+          # ── 3. Build check ──────────────────────────────────────
           REPORT+="\n### Build Status\n"
           add_info "Build will be verified during the release workflow"
 
-          # ── 5. Summary ──────────────────────────────────────────
+          # ── 4. Summary ──────────────────────────────────────────
           REPORT+="\n---\n"
           if [ "$ERRORS" -gt 0 ]; then
             REPORT+="**⛔ $ERRORS error(s) and $WARNINGS warning(s) found.** Please fix errors before merging.\n"

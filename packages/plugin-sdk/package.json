@@ -1,7 +1,7 @@
 {
   "name": "@open-wa/plugin-sdk",
-  "version": "5.0.0-alpha.7",
-  "description": "SDK for building open-wa plugins — types, helpers, and the createPlugin() factory",
+  "version": "5.1.0",
+  "description": "SDK for building open-wa plugins \u2014 types, helpers, and the createPlugin() factory",
   "type": "module",
   "exports": {
     ".": {
@@ -30,10 +30,16 @@
     "vitest": "catalog:"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "import": "./dist/index.mjs",
+        "types": "./dist/index.d.mts"
+      }
+    }
   },
   "author": "Mohammed Shah <@smashah>",
-  "license": "H-DNH V1.0",
+  "license": "SEE LICENSE IN LICENSE.md",
   "keywords": [
     "open-wa",
     "plugin",

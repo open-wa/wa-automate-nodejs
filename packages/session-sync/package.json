@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/session-sync",
-  "version": "5.0.0-alpha.7",
+  "version": "5.1.0",
   "main": "dist/index.cjs",
   "types": "dist/index.d.cts",
   "scripts": {
@@ -33,6 +33,19 @@
       "types": "./dist/index.d.cts",
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
+    }
+  },
+  "license": "SEE LICENSE IN LICENSE.md",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.cts",
+        "require": "./dist/index.cjs",
+        "default": "./dist/index.cjs"
+      }
     }
   }
 }
