@@ -1,6 +1,18 @@
 # @open-wa/api
 
 
+
+## 5.2.0
+<sub>2026-09-29</sub>
+
+- [#3464](https://github.com/open-wa/wa-automate-nodejs/pull/3464)  *(patch)* Thanks [@smashah](https://github.com/smashah)!
+  Describe client return values with named types and generate canonical method references, linked type definitions, and OpenAPI responses from the same contracts.
+
+  Preserve configured session, host, and port values when their CLI flags are omitted. Forward link-code configuration to the runtime and display generated codes in the local CLI console.
+
+  Add bounded session diagnostics for reviewable dashboard issue reports, report the running API package version, and share Base UI controls and theme tokens between docs and dashboard.
+- *(minor)* Version bump from group with `@open-wa/client` v5.2.0, `@open-wa/config` v5.2.0, `@open-wa/core` v5.2.0, `@open-wa/driver-interface` v5.2.0, `@open-wa/driver-puppeteer` v5.2.0, `@open-wa/schema` v5.2.0, `@open-wa/wa-automate` v5.2.0
+
 ## 5.1.0
 <sub>2026-09-29</sub>
 
