@@ -27,6 +27,7 @@ if (!webhookSecret) throw new Error('OPEN_WA_WEBHOOK_SECRET is required');
 export default {
   sessionId: 'sales',
   host: '127.0.0.1',
+  port: 8080,
   plugins: ['@open-wa/integration-webhook'],
   pluginConfig: {
     webhook: {

@@ -22,11 +22,11 @@ init: async ({ logger }) => {
 
 By default those records go to the Easy API process's stdout/stderr. Capture that stream with your process supervisor or shell:
 
-Create `wa.config.mjs` with the runtime settings you need before running this command; see [Configuration and CLI](/docs/guides/configuration-and-cli). The explicit session, host, and port flags below select a local `logs` session and override those values from the config file.
+The explicit flags below start a local `logs` session and bind the API to loopback. Set the session ID and host to the values your application uses.
 
 ```bash
 mkdir -p ./logs
-npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --session-id logs --host 127.0.0.1 --port 8080 \
+npx @open-wa/wa-automate@5.1.0 --session-id logs --host 127.0.0.1 --port 8080 \
   >> ./logs/open-wa.log 2>&1
 ```
 
@@ -38,6 +38,7 @@ Install both the logger and the transport used by the sample:
 
 ```bash
 npm install winston winston-daily-rotate-file
+export OPENWA_SESSION_ID='sales'
 ```
 
 ```ts
@@ -51,6 +52,9 @@ const rotate = new DailyRotateFile({
   maxSize: '50m',
   zippedArchive: true,
 });
+
+const sessionId = process.env.OPENWA_SESSION_ID;
+if (!sessionId) throw new Error('Set OPENWA_SESSION_ID to the Easy API session ID');
 
 rotate.on('error', (error) => {
   // Surface a transport failure to the process supervisor; do not silently lose it.
@@ -70,12 +74,14 @@ logger.on('error', (error) => {
 export function recordMessage(message) {
   logger.info('message.received', {
     messageId: message.id,
-    sessionId: process.env.OPENWA_SESSION_ID,
+    sessionId,
     chatId: message.chatId,
     timestamp: new Date().toISOString(),
   });
 }
 ```
+
+Pass `recordMessage` to your `Client` instance's `onMessage` listener when you want this record for each incoming message.
 
 The `winston-daily-rotate-file` import is required because `DailyRotateFile` is not provided by `winston` alone. The example records identifiers and routing fields; add message content only when the business purpose and access policy require it.
 
@@ -96,25 +102,38 @@ tail -n 50 ./logs/open-wa-*.log
 
 ## Store a narrow audit record
 
-An audit table can record what happened without copying every message field:
+For a small app-owned journal, SQLite can store identifiers and timestamps without copying message bodies. Install `better-sqlite3`, create the table once, then insert only the fields your workflow needs:
 
 ```ts
-await db.auditEvents.insert({
-  event: 'message.received',
-  sessionId,
-  messageId: message.id,
-  chatId: message.chatId,
-  observedAt: new Date(),
-});
+import Database from 'better-sqlite3';
+
+const db = new Database('./logs/audit.sqlite');
+db.exec(`
+  CREATE TABLE IF NOT EXISTS message_audit (
+    session_id TEXT NOT NULL,
+    message_id TEXT NOT NULL,
+    chat_id TEXT NOT NULL,
+    observed_at INTEGER NOT NULL,
+    PRIMARY KEY (session_id, message_id)
+  )
+`);
+const insertAudit = db.prepare(`
+  INSERT OR IGNORE INTO message_audit (session_id, message_id, chat_id, observed_at)
+  VALUES (?, ?, ?, ?)
+`);
+
+function recordMessage(message) {
+  insertAudit.run(sessionId, message.id, message.chatId, Date.now());
+}
 ```
 
-This creates an application record; it does not prove regulatory compliance. Whether the record satisfies a policy depends on the deployment controls and the requirement you are addressing, so define who can read or delete it, how long it is retained, whether records need tamper evidence or legal hold, which region stores it, and how a correction is recorded. Keep tokens, QR values, session credentials, and complete message bodies out of logs unless a documented purpose requires them.
+Install the database package alongside the logger dependencies with `npm install better-sqlite3`. This is an application record, not proof of regulatory compliance. Define who can read or delete it, how long it is retained, and whether your policy requires tamper evidence, legal hold, or a specific storage region. Keep tokens, QR values, session credentials, and complete message bodies out of logs unless a documented purpose requires them.
 
 ## Troubleshooting
 
 | Symptom | Command or observation | Expected result | Next action |
 | --- | --- | --- | --- |
-| No host logs appear | `mkdir -p ./logs && npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --session-id logs --host 127.0.0.1 --port 8080 >> ./logs/open-wa.log 2>&1` | Startup lines appear in `./logs/open-wa.log`. | Check the working directory, permissions, and process-supervisor stdout capture; run the process in the foreground when you need to see stderr directly. |
+| No host logs appear | `mkdir -p ./logs && npx @open-wa/wa-automate@5.1.0 --session-id logs --host 127.0.0.1 --port 8080 >> ./logs/open-wa.log 2>&1` | Startup lines appear in `./logs/open-wa.log`. | Check the working directory, permissions, and process-supervisor stdout capture; run the process in the foreground when you need to see stderr directly. |
 | Host log exists but rotating file is empty | `ls -lh ./logs; tail -n 50 ./logs/open-wa-*.log` | The application logger's file exists and contains JSON records after `recordMessage` runs. | Confirm `winston-daily-rotate-file` is installed, the import is present, and the app logger is actually called; host logs use a separate stream. |
 | Transport emits an error | Inspect stderr for `rotating log transport failed` | The error includes the path or filesystem cause. | Fix directory ownership, free disk space, or change the path, then restart the process. |
 | A webhook is retried | Inspect the webhook sender log for `Webhook delivery failed` | The line includes an attempt count and delay. | Make the receiver return a fast `2xx`; use its durable journal if restart replay is required. |
@@ -125,11 +144,12 @@ This creates an application record; it does not prove regulatory compliance. Whe
 A retention job should be scoped to the fields and policy your application owns:
 
 ```ts
-const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
-await db.auditEvents.deleteWhere({ observedAt: { before: cutoff } });
+const cutoff = Date.now() - 90 * 24 * 60 * 60 * 1000;
+const result = db.prepare('DELETE FROM message_audit WHERE observed_at < ?').run(cutoff);
+console.info('expired audit rows removed', result.changes);
 ```
 
-Ninety days is an example, not a legal requirement. Align the value with your data inventory, customer commitments, deletion requests, incident response, and provider lifecycle controls.
+This continues the SQLite example above. Ninety days is an example, not a legal requirement; choose a period that matches your data inventory, customer commitments, deletion requests, incident response, and provider lifecycle controls.
 
 ## Related
 
