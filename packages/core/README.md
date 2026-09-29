@@ -1,27 +1,17 @@
 # @open-wa/core
 
-> Integration backbone for the open-wa monorepo.
-
-This package provides the core orchestration logic, state management, and driver abstraction layers that power `@open-wa/wa-automate`.
+`@open-wa/core` creates and runs a browser-backed Open-WA session. It owns session lifecycle, events, plugins, readiness state, and the transport used by `@open-wa/client` to call WhatsApp Web methods. Applications can usually start with `@open-wa/wa-automate`, which assembles these packages behind a CLI and HTTP API.
 
 Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
 
-## Features
+## Main exports
 
-- **Driver Abstraction**: Unified interface for different browser automation engines.
-- **Session Management**: Protected storage and restoration of authentication states.
-- **Event Bus**: High-performance internal communication with `@open-wa/hyperemitter`.
+- `createClient(options)` creates a session and returns an `OpenWAClient` with `start`, `stop`, `getState`, `getReadiness`, and `getTransport` methods.
+- `OpenWAClient.events` exposes the session event emitter.
+- Plugin, session, and transport types are also exported from this package.
 
-## Install
-
-```bash
-pnpm add @open-wa/core
-```
-
-## Documentation
-
-See the [architecture overview](https://openwa.dev/docs/reference/core) on our docs site.
+The `driver` option is required. See the [custom code guide](https://openwa.dev/docs/getting-started/custom-code) for an example using `@open-wa/driver-puppeteer`, and [how Open-WA works](https://openwa.dev/docs/concepts/how-it-works) for how the packages fit together.
 
 ## License
 
-[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md) — Hippocratic + Do Not Harm
+[H-DNH 1.1](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md) - Hippocratic + Do Not Harm

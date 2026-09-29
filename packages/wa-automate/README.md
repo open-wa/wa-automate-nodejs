@@ -1,15 +1,8 @@
 # @open-wa/wa-automate
 
-> The most reliable WhatsApp automation CLI and API server.
+`@open-wa/wa-automate` runs an Open-WA session and exposes its client methods through an HTTP API. It also exports the session client and `createClient` for applications that need direct control in the same Node.js process.
 
 Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
-
-## Features
-
-- **Easy API**: Run a standalone server and interact via HTTP.
-- **Multi-session**: Manage multiple WhatsApp accounts simultaneously.
-- **Robustness**: Advanced retries and state management.
-- **Drivers**: Support for Playwright, Puppeteer, and Lightpanda.
 
 ## Install
 
@@ -17,18 +10,18 @@ Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs
 npm install @open-wa/wa-automate@5.1.0
 ```
 
-## Usage
+## Start a local API server
 
 ```bash
-npx @open-wa/wa-automate@5.1.0 --session-id quickstart --host 127.0.0.1 --port 8080
+npx @open-wa/wa-automate@5.1.0 --session-id main --host 127.0.0.1 --port 8080 --api-key replace-this-key
 ```
 
-Authenticate the session from the terminal, then check `http://localhost:8080/health` until it reports `connected: true` and `session.ready: true`. `/health` is public and can include QR and operational details, so keep the API bound to loopback or a private network. See the [quick start](https://openwa.dev/docs/getting-started/quickstart) for the first-message journey and the [CLI options](https://openwa.dev/docs/guides/configuration-and-cli) for configuration.
+Scan the QR code shown in the terminal to sign in. Check `http://127.0.0.1:8080/health` until it reports `connected: true` and `session.ready: true`. Keep the API on loopback or a private network unless you have configured an appropriate access boundary. Connect from another Node.js application with [`@open-wa/socket-client`](https://openwa.dev/docs/client-and-integrations/socket-client).
 
 ## Documentation
 
-For full guides and API reference, visit the [docs site](https://openwa.dev).
+See the [CLI reference](https://openwa.dev/docs/guides/configuration-and-cli), [custom code guide](https://openwa.dev/docs/getting-started/custom-code), and [docs site](https://openwa.dev).
 
 ## License
 
-[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md) — Hippocratic + Do Not Harm
+[H-DNH 1.1](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md) - Hippocratic + Do Not Harm
