@@ -26,6 +26,28 @@ const messageId = await client.sendInteractive('PHONE_NUMBER@c.us', message);
 
 The HTTP equivalent is `POST /api/messages/sendInteractive` with `{ "to": "PHONE_NUMBER@c.us", "content": message }`. Supply your configured API authentication. SDK and HTTP calls use the same validation and client implementation.
 
+## Connect the SDK client
+
+The examples use the `Client` facade. If you are starting a standalone SDK app, create the runtime, attach the facade and start the session:
+
+```ts
+import { Client, createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+
+const runtime = await createClient({
+  driver: new PuppeteerDriver(),
+  licenseKey: process.env.OPENWA_LICENSE_KEY,
+  headless: false,
+});
+const client = new Client({ client: runtime, transport: runtime.getTransport() });
+client.onFormResponse(response => console.log(response.answers));
+await client.start();
+// Authenticate in the browser, then use client.sendInteractive(...).
+// When your application shuts down: await client.stop();
+```
+
+`createClient` from the core runtime exposes session lifecycle; the `Client` facade supplies messaging methods and typed listeners. The Easy API constructs this facade for you.
+
 ## Document contract
 
 `version: 1` is optional and describes the OpenWA document format. Additive content types can be introduced without changing existing documents. Unknown fields are rejected so misspelled properties do not silently disappear. `InteractiveContentSchema` and the individual content/action schemas are exported by `@open-wa/schema`; `InteractiveContentSchema`, `defineInteractiveMessage` and the content types are also exported by the main package. Builders should store this document and export it directly, with no separate builder-specific wire format.
