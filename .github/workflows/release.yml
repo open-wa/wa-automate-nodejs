@@ -9,10 +9,15 @@ on:
         description: Existing release version to render and announce, without the v prefix
         required: true
         type: string
-      discord_message_id:
-        description: Existing Discord release message to update instead of posting a new cover
+      discord_message_ids:
+        description: Comma-separated Discord message IDs to update in order (cover, then page batches)
         required: false
         type: string
+      publish_discord:
+        description: Publish the reviewed announcement to Discord
+        required: true
+        default: false
+        type: boolean
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -103,7 +108,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Require Discord webhook
-        if: steps.aggregate.outputs.needed == 'true'
+        if: steps.aggregate.outputs.needed == 'true' && github.event_name == 'workflow_dispatch' && inputs.publish_discord
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
@@ -186,14 +191,15 @@ jobs:
 
       # ── Post-publish: Discord notification ───────────────────────
       - name: Notify Discord
-        if: steps.aggregate.outputs.needed == 'true'
+        if: steps.aggregate.outputs.needed == 'true' && github.event_name == 'workflow_dispatch' && inputs.publish_discord
         run: |
           args=(--version "$VERSION")
-          if [ -n "$DISCORD_MESSAGE_ID" ]; then
-            args+=(--edit-message "$DISCORD_MESSAGE_ID")
+          if [ -n "$DISCORD_MESSAGE_IDS" ]; then
+            args+=(--edit-messages "$DISCORD_MESSAGE_IDS")
           fi
+          args+=(--approved-discord-post)
           pnpm tsx tools/release/discord-notify.ts "${args[@]}"
         env:
           VERSION: ${{ steps.aggregate.outputs.version }}
-          DISCORD_MESSAGE_ID: ${{ inputs.discord_message_id }}
+          DISCORD_MESSAGE_IDS: ${{ inputs.discord_message_ids }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

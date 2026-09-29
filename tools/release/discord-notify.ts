@@ -6,7 +6,7 @@
  *
  * Usage:
  *   tsx tools/release/discord-notify.ts --version X.Y.Z [--notes RELEASE_BODY.md]
- *     [--image release.png] [--edit-message DISCORD_MESSAGE_ID]
+ *     [--image release.png] [--edit-messages ID,ID,...] --approved-discord-post
  *
  * Env:
  *   DISCORD_WEBHOOK_URL — Discord webhook URL (required)
@@ -27,15 +27,17 @@ function parseArgs() {
   let version = "";
   let notesPath = join(ROOT, "RELEASE_BODY.md");
   let imagePath = join(ROOT, "release.png");
-  let editMessageId = "";
+  let editMessageIds = "";
   let isTest = false;
+  let approved = false;
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--version" && args[i + 1]) version = args[++i];
     if (args[i] === "--notes" && args[i + 1]) notesPath = args[++i];
     if (args[i] === "--image" && args[i + 1]) imagePath = args[++i];
-    if (args[i] === "--edit-message" && args[i + 1]) editMessageId = args[++i];
+    if (args[i] === "--edit-messages" && args[i + 1]) editMessageIds = args[++i];
     if (args[i] === "--test") isTest = true;
+    if (args[i] === "--approved-discord-post") approved = true;
   }
 
   if (!version) {
@@ -45,7 +47,7 @@ function parseArgs() {
     version = corePkg.version;
   }
 
-  return { version, notesPath, imagePath, editMessageId, isTest };
+  return { version, notesPath, imagePath, editMessageIds, isTest, approved };
 }
 
 // ─── Parse Release Notes ────────────────────────────────────────────────────
@@ -88,7 +90,6 @@ interface DiscordEmbed {
   color: number;
   url?: string;
   fields?: Array<{ name: string; value: string; inline?: boolean }>;
-  image?: { url: string };
   footer?: { text: string; icon_url?: string };
   timestamp?: string;
 }
@@ -142,7 +143,6 @@ function buildEmbed(version: string, notes: string, isTest: boolean): DiscordEmb
         inline: false,
       },
     ],
-    image: { url: "attachment://release.png" },
     footer: {
       text: "open-wa/wa-automate-nodejs",
     },
@@ -197,8 +197,21 @@ async function sendWebhook(
       `Discord webhook failed: ${response.status} ${response.statusText}\n${text}`
     );
   }
-  const message = (await response.json()) as { id?: string };
+  const message = (await response.json()) as {
+    id?: string;
+    attachments?: Array<{ filename: string; size: number; url: string }>;
+  };
   if (!message.id) throw new Error("Discord did not confirm a posted message");
+  const expectedNames = images.map((image) => image.split("/").pop()!);
+  const received = message.attachments ?? [];
+  if (received.length !== expectedNames.length ||
+      expectedNames.some((name) => !received.some((file) =>
+        file.filename === name && file.size > 0 && !!file.url))) {
+    throw new Error(
+      `Discord message ${message.id} was posted without all image attachments: ` +
+      `expected ${expectedNames.join(", ")}, received ${received.map((file) => file.filename).join(", ")}`
+    );
+  }
   console.log(`Discord message ID: ${message.id}`);
 }
 
@@ -218,14 +231,15 @@ async function main() {
     }
   }
 
-  const { version, notesPath, imagePath, editMessageId, isTest } = parseArgs();
+  const { version, notesPath, imagePath, editMessageIds, isTest, approved } = parseArgs();
+  if (!approved) throw new Error("Discord posting requires --approved-discord-post after draft review");
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
 
   if (!webhookUrl) {
     throw new Error("DISCORD_WEBHOOK_URL is required for a release announcement");
   }
 
-  console.log(`${editMessageId ? "Updating" : "Posting"} release v${version} on Discord...`);
+  console.log(`${editMessageIds ? "Updating" : "Posting"} release v${version} on Discord...`);
 
   // Read release notes
   if (!existsSync(notesPath)) throw new Error(`Release notes not found: ${notesPath}`);
@@ -235,27 +249,29 @@ async function main() {
   if (!existsSync(imagePath)) throw new Error(`Release image not found: ${imagePath}`);
 
   const images = releaseImages(imagePath);
+  const messageCount = 1 + Math.ceil((images.length - 1) / 3);
+  const existingMessages = editMessageIds ? editMessageIds.split(",").map((id) => id.trim()) : [];
+  if (existingMessages.length && existingMessages.length !== messageCount) {
+    throw new Error(`Expected ${messageCount} Discord message IDs, received ${existingMessages.length}`);
+  }
+  if (existingMessages.some((id) => !/^\d{17,20}$/.test(id))) {
+    throw new Error("Invalid Discord message ID");
+  }
   const cover = images[0];
   const intro = {
     username: "OpenWA",
     content: `${isTest ? "[TEST] " : ""}**OpenWA v${version}** · ${images.length} readable release pages`,
     embeds: [buildEmbed(version, notes, isTest)],
   };
-  await sendWebhook(webhookUrl, intro, [cover], editMessageId);
+  await sendWebhook(webhookUrl, intro, [cover], existingMessages[0]);
 
   // Three sheets per message keep the long release browsable.
   for (let start = 1; start < images.length; start += 3) {
     const batch = images.slice(start, start + 3);
-    const embeds = batch.map((file, index) => ({
-      title: `Release notes · page ${String(start + index + 1).padStart(2, "0")} / ${String(images.length).padStart(2, "0")}`,
-      color: 0x2d6bff,
-      image: { url: `attachment://${file.split("/").pop()}` },
-    }));
     await sendWebhook(webhookUrl, {
       username: "OpenWA",
-      content: `OpenWA v${version} · release notes`,
-      embeds,
-    }, batch);
+      content: `**OpenWA v${version}** · release notes, pages ${String(start + 1).padStart(2, "0")}–${String(start + batch.length).padStart(2, "0")} / ${String(images.length).padStart(2, "0")}`,
+    }, batch, existingMessages[1 + Math.floor((start - 1) / 3)]);
   }
 
   console.log(`Discord release pages sent: ${images.length}`);
