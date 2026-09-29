@@ -25,13 +25,14 @@
     "test:og": "tsx scripts/test-og.ts"
   },
   "dependencies": {
-    "@ai-sdk/react": "^4.0.37",
-    "@cloudflare/vite-plugin": "^1.46.0",
-    "@openrouter/ai-sdk-provider": "^3.0.0",
-    "@orama/orama": "^3.1.18",
-    "@radix-ui/react-popover": "^1.1.20",
+    "@ai-sdk/react": "4.0.125",
+    "@base-ui/react": "catalog:",
+    "@cloudflare/vite-plugin": "^1.62.0",
+    "@open-wa/ui-components": "workspace:*",
+    "@openrouter/ai-sdk-provider": "3.1.0",
+    "@paper-design/shaders-react": "0.0.81",
     "@radix-ui/react-presence": "^1.1.8",
-    "@scalar/api-reference-react": "^0.9.59",
+    "@scalar/api-reference-react": "0.9.74",
     "@tailwindcss/vite": "catalog:",
     "@takumi-rs/helpers": "^2.4.1",
     "@takumi-rs/image-response": "^2.4.1",
@@ -45,13 +46,13 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
-    "ai": "^7.0.34",
+    "ai": "7.0.122",
     "class-variance-authority": "^0.7.1",
     "flexsearch": "^0.8.212",
-    "fumadocs-core": "16.11.5",
-    "fumadocs-mdx": "15.2.0",
-    "fumadocs-typescript": "^5.3.0",
-    "fumadocs-ui": "16.11.5",
+    "fumadocs-core": "16.15.15",
+    "fumadocs-mdx": "15.4.5",
+    "fumadocs-typescript": "^5.4.1",
+    "fumadocs-ui": "16.15.15",
     "hast-util-to-jsx-runtime": "^2.3.6",
     "lucide-react": "^1.25.0",
     "lucide-static": "^1.25.0",
@@ -66,7 +67,6 @@
     "typescript": "catalog:",
     "unist-util-visit": "^5.1.0",
     "vite": "catalog:",
-    "vite-tsconfig-paths": "catalog:",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -78,7 +78,6 @@
     "@vitejs/plugin-react": "catalog:",
     "serve": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
-    "vite-tsconfig-paths": "catalog:"
+    "vite": "catalog:"
   }
 }
