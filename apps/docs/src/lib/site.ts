@@ -1,3 +1,5 @@
+import { version } from '../../../../packages/wa-automate/package.json';
+
 export type LicenseTier = 'insiders' | 'restricted';
 
 export const SITE_NAME = 'open-wa v5 docs';
@@ -8,9 +10,10 @@ export const SITE_ORIGIN = 'https://openwa.dev';
 export const REPO_URL = 'https://github.com/open-wa/wa-automate-nodejs';
 export const GENERIC_LICENSE_URL = 'https://smashah.gumroad.com/l/open-wa?wanted=true';
 export const GENERIC_GUMROAD_URL = 'https://smashah.gumroad.com/l/open-wa?wanted=true';
-export const CURRENT_VERSION = '5.0.0-alpha.0';
+export const CURRENT_VERSION = version;
 
 export const DOCS_PATHS = {
+  changelog: '/changelog',
   overview: '/docs',
   apiExplorer: '/api-explorer',
   quickstart: '/docs/getting-started/quickstart',

@@ -59,6 +59,9 @@ const config: UserConfig & NitroConfig = {
             },
             pages: [
                 {
+                    path: '/changelog',
+                },
+                {
                     path: '/docs',
                 },
                 {

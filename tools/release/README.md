@@ -33,6 +33,12 @@ pnpm publish-packages             # publish unpublished versions locally
 
 To repair or announce an existing GitHub release without republishing packages, dispatch `.github/workflows/release.yml` on the `release` branch with its `version` input (for example, `5.0.0`). It reads that release's body and replaces its image assets. Review the notes and images first, then dispatch with `publish_discord=true` to post them to Discord. Pass every existing message ID in `discord_message_ids` (cover first, followed by each page batch) to update an announcement; omitting the IDs creates new messages. New releases published by a push to `release` post automatically. Manual dispatches keep `publish_discord=false` by default so rerendering alone does not repost the announcement. When editing, the notifier updates existing batches, adds any extra batches, and removes surplus supplied batches only after all replacement images are confirmed.
 
+## Changelog articles
+
+Write the release breakdown alongside the feature work in `apps/docs/content/docs/releases/`. Add `release` frontmatter with `version`, an ISO publication `date`, `headline`, ordered `highlights`, and optional `audience` and cover `image`. This gives the same MDX article a dated entry at `/changelog` and a permanent `/changelog/VERSION` URL; existing documentation links keep working.
+
+Lead with the user-facing change, explain what it enables, include a short usable example and upgrade guidance, then cover limitations and smaller fixes. Group dependency sync and coordinated bumps at the end. Use the actual release changes as the source, and publish the article with the release. The site renders the checked-in explanation; it does not generate new claims at request time.
+
 ## Release image content
 
 The cover leads with the feature headline. Set `headline`, `summary`, `badge`, and an optional ordered `packages` list for a release in `tools/release/image-highlights.json`. Without an editorial entry, the renderer uses the leading changelog heading or release title and the first change summary. Keep cover copy short enough to read in a Discord thumbnail.

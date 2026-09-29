@@ -5,7 +5,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
   "assets": {
-    "run_worker_first": ["/", "/docs", "/docs/*"],
+    "run_worker_first": ["/", "/docs", "/docs/*", "/changelog", "/changelog/*"],
   },
   "observability": {
     "enabled": true,

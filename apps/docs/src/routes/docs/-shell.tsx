@@ -8,13 +8,18 @@ import { MessageCircleIcon } from 'lucide-react';
 import { AISearch, AISearchPanel, AISearchTrigger } from '@/components/ai/search';
 import { baseOptions } from '@/lib/layout.shared';
 import { cn } from '@/lib/cn';
-import { DOCS_PATHS, GENERIC_LICENSE_URL, REPO_URL } from '@/lib/site';
+import { CURRENT_VERSION, DOCS_PATHS, GENERIC_LICENSE_URL, REPO_URL } from '@/lib/site';
 
 type DocsShellData = {
   pageTree: SerializedPageTree;
 };
 
 const docsTabs: LayoutTab[] = [
+  {
+    title: 'Changelog',
+    description: 'See what is new and what you can build with it.',
+    url: DOCS_PATHS.changelog,
+  },
   {
     title: 'Quick Start',
     description: 'Run the Easy API and send the first message.',
@@ -95,8 +100,9 @@ export function DocsShell({
 
   return (
     <>
-      <Banner id="open-wa-v5-alpha">
-        open-wa v5 is alpha. Use v4.76.0 for mature production systems unless you are validating v5.
+      <Banner id={`open-wa-release-${CURRENT_VERSION}`}>
+        OpenWA {CURRENT_VERSION} is out.{' '}
+        <a href={DOCS_PATHS.changelog} className="underline underline-offset-4">Read what’s new →</a>
       </Banner>
       <DocsLayout
         {...layoutOptions}

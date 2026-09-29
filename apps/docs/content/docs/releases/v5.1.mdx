@@ -1,9 +1,17 @@
 ---
 title: "V5.1: Buttons are back"
-description: Reply buttons, lists, forms, image carousels and booking cards return with a new API for Insiders and above.
+description: "Build conversations people can tap through: reply buttons, lists, forms, image carousels and booking cards, with answers your code can use."
+release:
+  version: "5.1.0"
+  date: "2026-09-29T03:19:46Z"
+  headline: "Buttons are back."
+  audience: "Interactive messages · Insiders and above"
+  image: "https://github.com/open-wa/wa-automate-nodejs/releases/download/v5.1.0/release.png"
+  highlights:
+    - "One sendInteractive API for buttons, lists, forms, carousels and bookings."
+    - "Structured form answers and stable reply IDs through the SDK and HTTP events."
+    - "Shared fixes for Bun packages, event bindings and license readiness."
 ---
-
-# Buttons are back
 
 If you gave up on WhatsApp buttons, OpenWA 5.1 gives you a reason to try them again. Send reply buttons, lists, forms, image carousels and booking cards through one `sendInteractive(to, content)` API, with the same JSON document in the SDK and HTTP API.
 
@@ -14,15 +22,20 @@ If you gave up on WhatsApp buttons, OpenWA 5.1 gives you a reason to try them ag
 `onInteractiveResponse` gives you the selected reply or list row ID. `onFormResponse` gives you answers keyed by your own question IDs, including arrays for multiple selections:
 
 ```ts
-client.onFormResponse(({ answers }) => {
+client.onFormResponse(({ answers, originalMessageId }) => {
   // { plan: 'pro', extras: ['delivery', 'gift'] }
   console.log(answers);
+  console.log(originalMessageId); // Match the submission to the form you sent.
 });
 ```
 
-Keep your application IDs stable while changing the labels your customers see. Responses include the sender, chat, response message ID and original message reference, and HTTP integrations can subscribe to `interactive.response` on the event stream.
+You can use those answers directly in a booking, support or onboarding workflow. There's no need to scrape the displayed reply or work out which translated option a person selected. Keep your application IDs stable while changing the labels your customers see.
+
+Responses include the sender, chat, response message ID and original message reference, and HTTP integrations can subscribe to `interactive.response` on the event stream. Subscribe before sending, and deduplicate responses by message ID when your integration reconnects or syncs history.
 
 ## Start with a few lines
+
+A customer shouldn't need to guess which phrase your bot understands. Give each reply a label they can read and an ID your application can act on:
 
 ```ts
 client.onInteractiveResponse(response => {
@@ -38,7 +51,24 @@ await client.sendInteractive(to, {
 });
 ```
 
-`defineInteractiveMessage(...)` adds validation and useful defaults when you want to save or reuse a document. Advanced integrations can use native actions or `sendRawMessage` for constructed protocol payloads.
+These examples use a started, licensed `client` and the recipient's chat ID in `to`. Keep the IDs stable and change or translate the labels whenever you need to; your routing code keeps working.
+
+## More ways to build a conversation
+
+| What you're building | Message type |
+| --- | --- |
+| A short menu or confirmation | Reply buttons |
+| A website link, phone action or copyable code | URL, call and copy buttons |
+| A longer menu grouped by category | A sectioned list |
+| Preferences, choices or a sequence of questions | A form |
+| Visual options people can browse and choose | An image carousel |
+| Appointment information with a details view | A booking card |
+
+## One document across your integrations
+
+The SDK and Easy API accept the same JSON message document. Send it to `POST /api/messages/sendInteractive`, then consume `interactive.response` from the HTTP event stream. Save a template and reuse it from a bot, service or workflow tool.
+
+`defineInteractiveMessage(...)` validates reusable documents and keeps their specific TypeScript type, with defaults and errors that point to the field that needs attention. For integrations that already construct protocol messages, `sendRawMessage` accepts raw WhatsApp protobuf Message objects. Native actions also have an explicit extension format.
 
 ## Upgrade
 
@@ -47,3 +77,15 @@ npm install @open-wa/wa-automate@^5.1.0
 ```
 
 Read the [interactive messages guide](/docs/guides/interactive-messages) for all message types, response handlers, media and HTTP examples, and recipient support limits. This is the new V5 API; use it for new integrations rather than carrying over V4 button calls.
+
+Recipient apps control rendering, so what appears can vary between WhatsApp versions. Send reply buttons separately from URL, call and copy actions. Booking cards use WhatsApp's calendar icon and details layout; custom booking icons and header images aren't supported here.
+
+## Also improved
+
+- **Bun package imports:** local development can resolve TypeScript source, while published packages resolve their distributed files. This shared fix applies across 30 packages.
+- **Event subscriptions:** registering the browser bridge again preserves installed event bindings.
+- **License readiness:** health responses report the applied, server-confirmed license state, with improvements to host-account resolution and bootstrap recovery.
+
+## Package alignment
+
+The main interactive change spans the client, schema, API, core and Easy API packages. Coordinated version bumps and dependency updates in 22 packages keep the release aligned; they aren't 22 additional features. The [full release and package changelogs](https://github.com/open-wa/wa-automate-nodejs/releases/tag/v5.1.0) contain the technical details.

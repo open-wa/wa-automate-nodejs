@@ -1,4 +1,5 @@
-import { defineConfig, defineDocs } from 'fumadocs-mdx/config';
+import { defineConfig, defineDocs, frontmatterSchema } from 'fumadocs-mdx/config';
+import { z } from 'zod';
 import {
     remarkAutoTypeTable,
     createGenerator,
@@ -218,6 +219,16 @@ const generator = createGenerator({
 export const docs = defineDocs({
     dir: 'content/docs',
     docs: {
+        schema: frontmatterSchema.extend({
+            release: z.object({
+                version: z.string(),
+                date: z.string().datetime(),
+                headline: z.string(),
+                highlights: z.array(z.string()),
+                image: z.string().url().optional(),
+                audience: z.string().optional(),
+            }).optional(),
+        }),
         postprocess: {
             includeProcessedMarkdown: true,
         },
