@@ -5,7 +5,11 @@ description: Register custom AI tools from your plugin for use with MCP and AI a
 
 # AI Tools
 
-Plugins can register custom tools that AI agents can discover and call through the MCP server. This lets your plugin expose WhatsApp functionality to AI agents like Claude, Cursor, and Windsurf.
+Plugins can declare custom tools in the `Hooks` object returned by `init()`. The current `PluginHost` collects those declarations for its internal tool registry, but the current API/MCP adapter does not mount that registry into `tools/list` or `tools/call`. Treat the examples below as the plugin-side contract; discovery and invocation through MCP require a host integration that is not present in this checkout.
+
+<Callout type="warning">
+The `tool` hook is source-supported as a declaration, but this documentation does not claim that a running MCP endpoint exposes plugin tools. Confirm that the host has an explicit plugin-tool bridge before advertising a tool to an agent.
+</Callout>
 
 ## What Are Plugin Tools
 

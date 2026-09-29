@@ -90,12 +90,18 @@ async function checkModeration(text: string, apiKey: string) {
 
 ## Prevent flagged outgoing messages
 
-Use the `message.send.before` interceptor to prevent flagged messages from being sent:
+The SDK declares a `message.send.before` type, but the current `PluginHost` does not wire that interceptor. A plugin cannot rely on it to block arbitrary sends. Apply moderation before calling `client.sendText()` in your own workflow, or put the policy in the service that owns outgoing sends:
 
 ```ts
-'message.send.before': async ({ message }) => {
-  // This interceptor runs before a message is sent
-  // Return modified output or cancel the send
+async function sendModerated(client, chatId, content, logger) {
+  const result = await moderateText(content);
+  if (result.flagged) {
+    logger.warn('Outgoing message blocked by moderation', { chatId });
+    return { sent: false, reason: 'flagged' };
+  }
+
+  const messageId = await client.sendText(chatId, content);
+  return { sent: true, messageId };
 }
 ```
 

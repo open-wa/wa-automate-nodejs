@@ -1,167 +1,87 @@
 ---
 title: Plugin getting started
-description: Build a small plugin that listens for a message, checks necessary fields, and sends a reply.
+description: Build a small JavaScript plugin that listens for a message, serves a health route, and appears in the dashboard.
 ---
 
 # Plugin getting started
 
-Use a plugin when you want reusable logic to run inside the Easy API process. A plugin can listen for events, call client methods, mount HTTP routes, add dashboard pages, or register AI tools.
+Use a plugin when you want reusable logic to run inside the Easy API process. A plugin can listen for events, call client methods, mount HTTP routes, add dashboard metadata, or register AI tools.
 
-## What plugins can do
-
-A plugin is an npm package (or local file) that:
-
-- Listens to WhatsApp events (messages, auth, lifecycle)
-- Calls WhatsApp methods (send messages, decrypt media)
-- Mounts HTTP routes at `/plugins/<name>/`
-- Adds pages to the dashboard sidebar
-- Registers tools for AI agents to call
-
-Plugins run **inside the Easy API process**, not as separate services. They receive a security-filtered event emitter and a transport-agnostic client proxy.
-
-### Pick the right extension point
-
-| Use a plugin when... | Use something else when... |
-|---|---|
-| Building reusable integrations | You need a separate process (use SocketClient) |
-| Sharing functionality across sessions | You need direct browser control (use createClient) |
-| Adding dashboard pages | You only need simple event forwarding (use the webhook integration plugin) |
-| Exposing AI tools via MCP | You need low-level runtime ownership (use embedded runtime) |
+Plugins are trusted, dynamically imported modules in the host process. The SDK filters the event emitter and exposes a client proxy, but it does not sandbox Node.js code. Review a plugin and its dependencies before loading it; see the [security model](/docs/plugins/security-model) for the boundary that actually exists.
 
 ## Install the SDK
 
 ```bash
-pnpm add @open-wa/plugin-sdk
+pnpm add @open-wa/plugin-sdk@5.1.0 hono
 # or
-npm install @open-wa/plugin-sdk
+npm install @open-wa/plugin-sdk@5.1.0 hono
 ```
 
-The SDK provides:
+The SDK provides `createPlugin()`, `defineConfig()`, `z`, and the plugin contract types. The starter below imports `Hono` separately because the route is a regular Hono app.
 
-- `createPlugin()`: Type-safe plugin factory
-- `defineConfig()`: Zod wrapper for plugin configuration
-- `z`: Zod (re-exported for convenience)
-- TypeScript types for all plugin contracts
+## Build the starter plugin
 
-## Build your first plugin
+Create `plugins/greeting-bot.mjs` with this JavaScript module:
 
-<Steps>
-<Step title="Create the plugin">
+```js
+import { Hono } from 'hono';
+import { createPlugin, defineConfig } from '@open-wa/plugin-sdk';
 
-Use the `createPlugin()` factory:
+const configSchema = defineConfig((zod) => zod.object({
+  greeting: zod.string().default('👋 Welcome!'),
+  triggerWord: zod.string().default('Hi'),
+}));
 
-```ts
-import { createPlugin } from '@open-wa/plugin-sdk';
-
-function getTextMessage(message: unknown) {
+function getTextMessage(message) {
   if (!message || typeof message !== 'object') return null;
 
-  const candidate = message as { body?: unknown; from?: unknown };
-  if (typeof candidate.body !== 'string' || typeof candidate.from !== 'string') {
-    return null;
-  }
+  const body = message.body;
+  const from = message.from;
+  if (typeof body !== 'string' || typeof from !== 'string') return null;
 
-  return { body: candidate.body, from: candidate.from };
+  return { body, from };
 }
 
 export default createPlugin({
   meta: {
     name: 'greeting-bot',
     version: '1.0.0',
-    description: 'Greets new contacts with a welcome message',
+    description: 'Replies to a configured greeting word',
   },
-
-  init: async ({ client, logger }) => ({
-    'message.received': async ({ message }) => {
-      const msg = getTextMessage(message);
-
-      if (!msg) return;
-
-      if (msg.body === 'Hi') {
-        await client.sendText(msg.from, '👋 Welcome! How can I help?');
-        logger.info('Sent greeting', { from: msg.from });
-      }
-    },
-  }),
-});
-```
-
-</Step>
-<Step title="Define configuration">
-
-Use `defineConfig()` with Zod for typed configuration:
-
-```ts
-import { createPlugin, defineConfig, z } from '@open-wa/plugin-sdk';
-
-function getTextMessage(message: unknown) {
-  if (!message || typeof message !== 'object') return null;
-
-  const candidate = message as { body?: unknown; from?: unknown };
-  if (typeof candidate.body !== 'string' || typeof candidate.from !== 'string') {
-    return null;
-  }
-
-  return { body: candidate.body, from: candidate.from };
-}
-
-const config = defineConfig(z => z.object({
-  greeting: z.string().default('👋 Welcome!'),
-  triggerWord: z.string().default('Hi'),
-}));
-
-export default createPlugin({
-  meta: { name: 'greeting-bot' },
-  configSchema: config,
+  configSchema,
 
   init: async ({ client, logger, config }) => ({
     'message.received': async ({ message }) => {
       const msg = getTextMessage(message);
+      if (!msg || msg.body !== config.triggerWord) return;
 
-      if (!msg) return;
-
-      if (msg.body === config.triggerWord) {
-        await client.sendText(msg.from, config.greeting);
-      }
+      await client.sendText(msg.from, config.greeting);
+      logger.info('Sent greeting', { from: msg.from });
     },
+
+    routes: () => {
+      const app = new Hono();
+      app.get('/health', (c) => c.json({ ok: true, plugin: 'greeting-bot' }));
+      return app;
+    },
+
+    pages: [{
+      path: '/',
+      title: 'Greeting bot',
+      icon: '👋',
+      description: 'The plugin is loaded and its health route is available.',
+    }],
   }),
 });
 ```
 
-</Step>
-<Step title="Add event handlers">
+The important shape is `init: async (...) => ({ ... })`: event handlers, `routes`, `pages`, tools, and `dispose` are returned from `init`. They are not sibling options on `createPlugin()`.
 
-The `init` function returns a `Hooks` object. Available hooks include:
+## Configure the plugin
 
-- `'message.received'`: Incoming messages
-- `'message.sent'`: Outgoing messages
-- `'core.started'`: After the session is ready
-- `'auth.qr'`: When a QR code is emitted
-- `'dispose'`: On session shutdown
-
-See the **[Hooks reference](/docs/plugins/hooks-reference)** for the complete list.
-
-</Step>
-<Step title="Put the files in one project">
-
-Use a layout where the config file and plugin file live next to each other:
-
-```text
-my-openwa-app/
-  wa.config.mjs
-  plugins/
-    greeting-bot.mjs
-```
-
-Put the plugin code from Step 2 in `plugins/greeting-bot.mjs`. The plugin loader uses dynamic `import(ref)`, so the local plugin must contain loadable JavaScript. Do not use `./plugins/greeting-bot.ts` unless your Node.js environment installs a TypeScript loader. The plugin loader does not compile TypeScript.
-
-</Step>
-<Step title="Load the plugin">
-
-In `wa.config.mjs`, build the plugin reference from the config file location:
+Create `wa.config.mjs` beside the `plugins` directory. The `plugins` entry is loaded with Node's dynamic `import()`, so the file must contain JavaScript that Node can execute. The loader does not compile TypeScript.
 
 ```js
-// wa.config.mjs
 export default {
   sessionId: 'my-session',
   plugins: [
@@ -176,102 +96,38 @@ export default {
 };
 ```
 
-The `plugins` array accepts npm package names, scoped package names, absolute local references, and local references that Node can import. The module must export a plugin as its default export or as a named `plugin` export. The `pluginConfig` object uses the **plugin name** from `meta.name`, not the package name or file path.
+The `pluginConfig` key is `meta.name` (`greeting-bot`), not the package name or file path. The loader accepts npm package names and importable local references, and it uses a module's default export or named `plugin` export.
 
-</Step>
-<Step title="Run from the project directory">
+## Run it
 
-Run the CLI from `my-openwa-app/` or pass the config path explicitly:
+Run the CLI from the directory containing `wa.config.mjs`:
 
 ```bash
-npx @open-wa/wa-automate@alpha --config ./wa.config.mjs --port 8080
+npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --port 8080
 ```
 
-If this Easy API instance is reachable outside your machine, add `--api-key "your-secure-key"` so plugin-mounted routes and the primary API share the same authentication boundary.
+If the API is reachable outside your machine, add `--api-key "your-secure-key"` for the `/api` surface. Plugin routes are mounted under `/plugins` and need their own guard; see [HTTP routes in plugins](/docs/plugins/hono-routes).
 
-The expected local startup logs are examples, not captured output. A successful load includes plugin loader and registration messages similar to these messages:
+After the session is connected, send `hello` from another WhatsApp account. The plugin sends `Hello! Welcome to our service.` back to the sender.
 
-```text
-plugin_loaded { ref: 'file:///.../plugins/greeting-bot.mjs', name: 'greeting-bot', version: '1.0.0' }
-plugin_registered { plugin: 'greeting-bot', version: '1.0.0' }
-```
+The route is served by the API at `/plugins/greeting-bot/health`. A configured Easy API key does not automatically protect plugin routes, so add an explicit plugin guard before exposing this endpoint.
 
-After the session is connected, send the trigger word from another WhatsApp account:
+The dashboard reads the returned page declaration from `/plugins/manifest`, adds Greeting bot to the Plugins sidebar, and opens the standard plugin status view when selected. The declaration supplies metadata for that view; it does not provide a custom React component.
 
-```text
-hello
-```
-
-Expected local behavior: the plugin sends `Hello! Welcome to our service.` back to the sender and logs the greeting action.
-
-The expected plugin failure logs are shortened examples. A missing file or incorrect config stops the load before the plugin handles messages. The log shows a message similar to this message:
-
-```text
-plugin_load_error { ref: 'file:///.../plugins/greeting-bot.mjs', error: 'Cannot find module' }
-plugin_config_invalid { plugin: 'greeting-bot', issues: [...] }
-```
-
-</Step>
-</Steps>
-
-### If the plugin does not load
+## If the plugin does not load
 
 - Confirm the CLI loaded the intended config file. Run with `--config ./wa.config.mjs` when in doubt.
 - Confirm the plugin reference points to JavaScript that Node can import, such as `.mjs` or compiled `.js`.
 - Confirm the module exports `default createPlugin(...)` or a named `plugin` export.
-- Confirm `meta.name` is present. Missing names are skipped with a `plugin_load_skip` warning.
-- Confirm `pluginConfig` is keyed by `meta.name`, for example `'greeting-bot'`.
-- If the greeting never appears, send the exact configured `triggerWord`, then check for `plugin_loaded`, `plugin_registered`, `plugin_config_invalid`, or `plugin_load_error` in the Easy API logs. After the load succeeds, move reusable behavior into a package and read **[Publishing a plugin](/docs/plugins/publishing)**.
+- Confirm `meta.name` is present and that `pluginConfig` uses the same name.
+- Check for `plugin_loaded`, `plugin_registered`, `plugin_config_invalid`, or `plugin_load_error` in the Easy API logs.
 
-### If a hook never fires
-
-- **The event is filtered.** Plugins only receive public events. Subscribing to
-  internal or sensitive events (`launch.*`, `browser.*`, `transport.*`,
-  `license.*`) via the catch-all `event` hook will silently receive nothing —
-  this is enforced by the plugin event gateway, see **[Security model](/docs/plugins/security-model)**.
-- **Wrong hook name.** Hook keys are exact strings (for example
-  `message.received`, `client.ready`). A typo registers a hook that never
-  matches. Cross-check against the **[Hooks reference](/docs/plugins/hooks-reference)**.
-- **The plugin did not actually register.** Confirm `plugin_registered` appears
-  in the logs before assuming the hook is the problem.
-
-### Duplicate plugin name
-
-If two loaded plugins share the same `meta.name`, registration **throws**
-`Plugin "<name>" is already registered` and startup fails — it is not silently
-skipped. Give every plugin a globally unique `meta.name`.
-
-## Plugin architecture
-
-### Security-filtered event emitter
-
-Plugins receive a filtered event emitter that:
-
-- **Can** subscribe to public events (`on`, `once`, `off`)
-- **Cannot** emit events (only the host can emit)
-- **Cannot** listen to internal events (`launch.*`, `browser.*`, `transport.*`)
-- **Cannot** listen to sensitive events (`license.*`, session data)
-
-### Transport-agnostic client proxy
-
-Plugins get a `client` proxy that forwards method calls to the WhatsApp runtime. This is not direct browser access. It works through the host's transport layer (HTTP RPC / SSE).
-
-### Config validation
-
-If you provide a `configSchema`, the host validates the plugin's config **before** calling `init()`. If validation fails, the plugin will not load and an error is logged.
-
-## When to use plugins
-
-- Building reusable integrations (CRM bridges, webhook forwarders)
-- Adding custom message processing (moderation, translation, transcription)
-- Exposing HTTP endpoints alongside the API
-- Adding dashboard pages for monitoring
-- Registering tools for AI agents
+If a hook never fires, check the exact hook name against the [Hooks reference](/docs/plugins/hooks-reference). Internal and sensitive events are filtered by the event gateway and do not reach plugins; this API restriction does not isolate the plugin's Node.js process capabilities.
 
 ## Related
 
 - **[Hooks reference](/docs/plugins/hooks-reference)**: Complete hooks API
 - **[PluginClient reference](/docs/plugins/plugin-client)**: Available client methods
-- **[PluginInput breakdown](/docs/plugins/plugin-input)**: What your plugin receives
-- **[Plugin security model](/docs/plugins/security-model)**: Boundaries and restrictions
+- **[PluginInput breakdown](/docs/plugins/plugin-input)**: What `init()` receives
+- **[Plugin security model](/docs/plugins/security-model)**: Runtime boundary and restrictions
 - **[Publishing a plugin](/docs/plugins/publishing)**: How to share your plugin

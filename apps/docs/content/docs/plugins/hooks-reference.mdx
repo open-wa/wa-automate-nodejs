@@ -67,29 +67,33 @@ Fires when the WhatsApp client is connected and authenticated.
 Fires when a QR code is emitted.
 
 ```ts
-'auth.qr': async ({ sessionId, qr, attempt }) => {
-  logger.info('QR code emitted', { sessionId, attempt });
+'auth.qr': async ({ details }) => {
+  const qr = details?.qr;
+  const attempt = details?.attemptInThisCycle;
+  logger.info('QR code emitted', { attempt });
   // Send the QR to your own display channel
 }
 ```
 
 **Payload:**
 
-- `sessionId`, current session ID
-- `qr`, the QR code string
-- `attempt`, which QR emission this is (increments each time)
+- `details.qr`, the QR code string
+- `details.attemptInThisCycle`, the QR emission count for this cycle, when provided
+
+The current host delivers this hook from its internal QR event, so the payload also contains the event envelope (`correlationId`, `ts`, and `step`). It does not include a `sessionId` field.
 
 ### `auth.authenticated`
 
 Fires after successful authentication.
 
 ```ts
-'auth.authenticated': async ({ sessionId }) => {
-  logger.info('Authenticated', { sessionId });
+'auth.authenticated': async ({ details }) => {
+  if (!details?.isAuthenticated) return;
+  logger.info('Authenticated', { method: details.method });
 }
 ```
 
-**Payload:** `{ sessionId: string }`
+**Payload:** an event envelope whose `details` object contains `isAuthenticated` and, when known, the authentication `method`. The hook does not receive a `sessionId` field.
 
 ## Message hooks
 
@@ -135,7 +139,7 @@ To detect group messages, check `message.isGroupMsg` or whether the `from` field
 
 ### `message.sent`
 
-Fires when a message is sent.
+The current host maps this hook to its `message.any` event. Inspect the message payload if you need to distinguish sent messages from other message events.
 
 ```ts
 'message.sent': async ({ message }) => {
@@ -143,7 +147,7 @@ Fires when a message is sent.
 }
 ```
 
-**Payload:** `{ message: unknown }`
+**Payload:** `{ ctx: EventContext; message: unknown }`
 
 ### `message.ack`
 
@@ -157,14 +161,14 @@ Fires when a message acknowledgment is received.
 
 **Payload:**
 
-- `messageId`, the message ID
-- `ack`, the acknowledgment state (number indicating delivery/read status)
+- `ctx`, the event context
+- `ack`, the acknowledgment value supplied by the runtime
 
 ## Message interceptors
 
 ### `message.send.before`
 
-Called **before** a message is sent. Use it to modify outgoing content or stop your own send flow.
+The SDK type declares this field, but the current `PluginHost` does not wire it to a runtime event. Returning it from `init()` does not intercept sends today.
 
 ```ts
 'message.send.before': async (
@@ -178,16 +182,11 @@ Called **before** a message is sent. Use it to modify outgoing content or stop y
 }
 ```
 
-**Input:** `{ to: string; content: unknown }`, the target and original content.
-**Output:** `{ content: unknown; metadata?: Record<string, unknown> }`, modify `content` to change what gets sent, or add `metadata`.
-
-To stop a send, throw an error or set `output.content` to a sentinel value that your plugin handles downstream.
-
-**Performance note:** This interceptor runs for every message send. Keep it fast so that it does not add latency.
+The shown shape documents the declared type only. Use an explicit wrapper around your own `client.sendText()` calls when you need outbound filtering until host support is added.
 
 ### `message.send.after`
 
-Called **after** a message is sent. Can add metadata.
+The SDK type also declares this field, but the current `PluginHost` does not wire it to a runtime event. Returning it from `init()` does not observe sends today.
 
 ```ts
 'message.send.after': async (
@@ -198,8 +197,7 @@ Called **after** a message is sent. Can add metadata.
 }
 ```
 
-**Input:** `{ messageId: string; to: string }`
-**Output:** `{ metadata?: Record<string, unknown> }`
+The shown shape documents the declared type only. Use a wrapper around your own send calls when you need post-send bookkeeping.
 
 ## API routes
 
@@ -207,24 +205,26 @@ Called **after** a message is sent. Can add metadata.
 
 Return a Hono sub-app that will be mounted at `/plugins/<plugin-name>/`.
 
-```ts
+```js
 import { Hono } from 'hono';
 
-routes: () => {
-  const app = new Hono();
+init: async () => ({
+  routes: () => {
+    const app = new Hono();
 
-  app.get('/status', (c) => {
-    return c.json({ plugin: 'my-plugin', status: 'ok' });
-  });
+    app.get('/status', (c) => {
+      return c.json({ plugin: 'my-plugin', status: 'ok' });
+    });
 
-  app.post('/webhook', async (c) => {
-    const body = await c.req.json();
-    // handle incoming webhook
-    return c.json({ ok: true });
-  });
+    app.post('/webhook', async (c) => {
+      const body = await c.req.json();
+      // handle incoming webhook
+      return c.json({ ok: true, body });
+    });
 
-  return app;
-}
+    return app;
+  },
+})
 ```
 
 Routes are automatically mounted and accessible at `/plugins/<plugin-name>/`.
@@ -237,23 +237,27 @@ See **[HTTP routes in plugins](/docs/plugins/hono-routes)** for more details.
 
 Declare dashboard pages this plugin wants rendered in the dashboard sidebar.
 
-```ts
-pages: [{
-  path: '/',
-  title: 'Plugin Status',
-  icon: '📊',
-  order: 1,
-  description: 'Current plugin status and configuration',
-}]
+```js
+init: async () => ({
+  pages: [{
+    path: '/',
+    title: 'Plugin Status',
+    icon: '📊',
+    order: 1,
+    description: 'Current plugin status and configuration',
+  }],
+})
 ```
 
 **Fields:**
 
-- `path`, route segment (becomes `/plugins/<pluginName>/<path>`)
+- `path`, declared route segment; use `/` for the current dashboard entry
 - `title`, display title in sidebar
 - `icon`, emoji or Lucide icon name
-- `order`, sort order (lower = higher in sidebar)
-- `description`, optional description for the default status view
+- `order`, optional ordering metadata for dashboard consumers
+- `description`, optional description shown with the standard plugin status view
+
+The current dashboard uses these declarations as manifest and sidebar metadata and renders its standard plugin status screen. They do not provide custom React page components.
 
 See **[Dashboard pages](/docs/plugins/dashboard-pages)** for more details.
 
@@ -312,12 +316,14 @@ See **[AI tools](/docs/plugins/ai-tools)** for more details.
 Called when the session is shutting down. Use this to clean up resources.
 
 ```ts
-dispose: async () => {
-  // Close database connections
-  // Flush message queues
-  // Wait for in-flight requests
-  logger.info('Plugin disposed');
-}
+init: async ({ logger }) => ({
+  dispose: async () => {
+    // Close database connections
+    // Flush message queues
+    // Wait for in-flight requests
+    logger.info('Plugin disposed');
+  },
+})
 ```
 
 ## Catch-all
@@ -327,9 +333,11 @@ dispose: async () => {
 Receives every public event. Use this when you need to react to events that do not have a specific hook.
 
 ```ts
-event: async ({ event, payload }) => {
-  logger.debug('Event received', { event, payload });
-}
+init: async ({ logger }) => ({
+  event: async ({ event, payload }) => {
+    logger.debug('Event received', { event, payload });
+  },
+})
 ```
 
 **Input:** `{ event: string; payload: unknown }`
