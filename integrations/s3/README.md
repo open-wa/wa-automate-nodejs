@@ -8,7 +8,7 @@ Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs
 
 `@open-wa/integration-s3` handles `message.received` events that contain decryptable media. It uploads media through `pico-s3` to S3-compatible storage. It adds the resulting `cloudUrl` to the message object.
 
-Use this integration so downstream message handlers receive a cloud URL instead of only the original WhatsApp media reference.
+The plugin assigns `cloudUrl` to the received message after asynchronous decryption and upload finish. It does not emit an upload-complete event, and other `message.received` listeners run independently, so they must not assume the field is present during that event callback. For an awaited completion result in application code, use the exported `S3Uploader.uploadMedia()` helper instead of the plugin hook.
 
 ## Configuration
 
@@ -38,13 +38,19 @@ The configuration type is `S3Config` in `src/config.ts`.
 - Duplicate file names are tracked in memory and return the existing cloud URL instead of uploading again.
 - Uploads run through a bounded Effect queue with concurrency 2 and a two-per-second rate limit.
 - After a successful queue upload, `getCloudUrl` is used to compute the URL and the plugin assigns it to `message.cloudUrl`.
+- The mutation happens after `decryptMedia` and the queued upload resolve. There is no separate completion event for consumers.
+- Decryption or upload failures are logged and return `null`; the message is left without `cloudUrl` and no durable retry record is created.
 - On `dispose`, the plugin waits for the upload queue to become idle and logs that the queue drained.
 
 ## Exports
 
 - `s3Plugin` from `src/plugin.ts`.
-- `S3Uploader` from `src/uploader.ts`.
+- `S3Uploader` from `src/uploader.ts`; `uploadMedia(message, client)` resolves to a generated URL on success or `null` when there is no URL or upload fails.
 - `S3Config`, `CloudProvider`, and `DirectoryStrategy` from `src/config.ts`.
+
+`S3Uploader` accepts the same `S3Config` as `s3Plugin`. Its `client` argument supplies `decryptMedia(message)` as a base64 string. The high-level `Client.decryptMedia()` method returns a data URL, so an application adapting that facade should pass only the base64 portion to `uploadMedia`.
+
+`public` is passed through to `pico-s3`; it does not prove that a bucket or object is private, public, signed, or available for a particular duration. Provider-specific access and lifecycle behavior must be checked against the selected provider's configuration and policy.
 
 ## Development
 
@@ -59,4 +65,4 @@ See the [docs site](https://openwa.dev).
 
 ## License
 
-[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/main/LICENSE.md) - Hippocratic + Do Not Harm
+[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md) - Hippocratic + Do Not Harm

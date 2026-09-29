@@ -1,131 +1,107 @@
 ---
 title: Rate Limits and Ban Risk
-description: Understand WhatsApp rate limits, safe automation defaults, and ban risk profiles.
+description: Control queue pressure, handle provider rejection, and understand what this project can and cannot promise about WhatsApp restrictions.
 ---
 
 # Rate Limits and Ban Risk
 
-WhatsApp enforces limits on message sending to prevent spam and abuse. Understanding these limits is critical for running automation safely.
+open-wa does not expose a WhatsApp rate-limit guarantee. WhatsApp does not
+publish a stable per-chat or per-group rate table, and provider restrictions can
+change without notice, so a local queue is a pacing control rather than a ban
+avoidance mechanism.
 
 <Callout type="warning">
-This project is unofficial and has no affiliation with WhatsApp or Meta. Automation tools can cause an account restriction or ban. You accept this risk when you use the tools.
+This project is unofficial and has no affiliation with WhatsApp or Meta. Any
+automation can be restricted or banned by the provider. Consent, a bounded
+queue, and explicit handling for rejected sends reduce avoidable load but do not
+guarantee delivery or account safety.
 </Callout>
 
-## WhatsApp Rate Limits
+## What is known and what is not
 
-### Messages Per Minute
+The client and schema define how open-wa validates and dispatches a send. They
+do not define WhatsApp's server-side quota, rolling window, account-age rule, or
+restriction duration. Treat community measurements as dated observations that
+need their own evidence; this guide does not turn them into defaults.
 
-WhatsApp enforces limits on how many messages you can send:
+Provider rejection can happen even when a local queue is obeying its schedule.
+Handle the rejected operation, stop or slow the relevant workflow, and record
+the provider error before deciding whether a retry is appropriate. Do not retry
+in a short loop, and do not assume that a random delay makes a pattern safe.
 
-- **Direct messages**: Approximately 1 message per 10-30 seconds per chat
-- **Group messages**: Approximately 1 message per 30-60 seconds per group
-- **Broadcast lists**: Slower than direct messages
+## Queue concurrency and rate are different
 
-These are approximate limits observed by the community. WhatsApp does not publish official limits and they can change without notice.
-
-### What Triggers Rate Limits
-
-- Sending many messages in a short time
-- Sending identical messages to many contacts
-- Sending messages to users who have not messaged you first
-- High-volume sending from a new account
-
-### What Happens When You Exceed Limits
-
-1. **Temporary block**: WhatsApp can temporarily prevent you from sending messages
-2. **Warning message**: You can receive a warning about automated behavior
-3. **Account restriction**: Repeated violations can lead to longer restrictions
-4. **Ban**: Severe or repeated violations can result in permanent account ban
-
-## Safe Defaults for Automation
-
-### Message Timing
+`concurrency` limits how many queue tasks run at the same time. It does not set
+the time between tasks. In `p-queue`, `intervalCap` and `interval` implement an
+interval window; omitting `intervalCap` leaves the cap at its default of
+Infinity. The following example uses strict rolling-window mode to allow no
+more than one queued send in any 15-second span, runs one task at a time, and
+records rejected jobs:
 
 ```ts
-// Wait between messages
-async function sendWithDelay(client, chatId, message, delay = 15000) {
-  await client.sendText(chatId, message);
-  await new Promise(r => setTimeout(r, delay));
-}
-```
+import PQueue from 'p-queue';
+import { Client, createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
 
-### Random Delays
-
-Add random delays to prevent detectable patterns:
-
-```ts
-function randomDelay(min = 5000, max = 15000) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-// Usage
-await new Promise(r => setTimeout(r, randomDelay()));
-```
-
-### Queue-Based Sending
-
-Use a queue to control sending rate:
-
-```ts
-import pQueue from 'p-queue';
-
-const queue = new pQueue({
-  concurrency: 1, // One message at a time
-  interval: 15000, // Minimum 15 seconds between messages
+const runtime = await createClient({
+  sessionId: 'paced-sender',
+  driver: new PuppeteerDriver(),
+});
+const client = new Client({
+  client: runtime,
+  transport: runtime.getTransport(),
 });
 
-queue.add(() => client.sendText(chatId, 'Message 1'));
-queue.add(() => client.sendText(chatId, 'Message 2'));
+const sendQueue = new PQueue({
+  concurrency: 1,
+  intervalCap: 1,
+  interval: 15_000,
+  strict: true,
+});
+
+async function enqueueSend(chatId: string, text: string) {
+  try {
+    const result = await sendQueue.add(() => client.sendText(chatId, text));
+    if (result === false) {
+      console.error('WhatsApp did not accept the send request', { chatId });
+      return false;
+    }
+    return result;
+  } catch (error) {
+    console.error('WhatsApp rejected a queued send', { chatId, error });
+    throw error;
+  }
+}
+
+await client.start();
+await enqueueSend('447700900000@c.us', 'Hello');
 ```
 
-## Ban Risk Profile
+Install the example dependencies with `npm install @open-wa/wa-automate@5.1.0 @open-wa/driver-puppeteer@5.1.0 p-queue`. Complete the normal client authentication when it starts. This is a process-local schedule: it does not coordinate other sessions or senders and does not establish a provider quota. Choose the interval for your workflow, consent model, and operational budget, then stop or reclassify work when WhatsApp reports a restriction.
 
-### High Risk Behaviors
+## Safer workflow boundaries
 
-- **New accounts**: Accounts less than 30 days old are more likely to be flagged
-- **Bulk messaging**: Sending the same message to many contacts
-- **Unsolicited messages**: Messaging users who have not opted in
-- **Rapid sending**: Sending messages faster than a human would
-- **Spam reports**: Users reporting your messages as spam
+- Accept messages or jobs only from a bounded source so a traffic spike cannot
+  create an unbounded backlog.
+- Keep consent and opt-out state beside the job, and remove opted-out
+  recipients before enqueueing a send.
+- Keep one clear owner for retries. A queue retry and an application retry can
+  multiply traffic if both act on the same rejection.
+- Record the chat ID, operation, result, and provider error without logging
+  message contents or credentials by default.
+- Stop or pause the queue after repeated rejections and require an operator to
+  decide whether the workflow should resume.
 
-### Low Risk Behaviors
+## Handling a restriction
 
-- **Responding to incoming messages**: Only replying when messaged first
-- **Aged accounts**: Accounts with long history of normal use
-- **Varied timing**: Random delays between messages
-- **Personalized content**: Different messages for different contacts
-- **Opt-in contacts**: Only messaging users who have consented
-
-### Risk Mitigation Checklist
-
-- Use an aged WhatsApp account
-- Only respond to incoming messages
-- Add random delays between responses
-- Vary message content and length
-- Monitor for warning messages from WhatsApp
-- Have a backup account ready
-- Do not send bulk messages
-- Respect user opt-out requests
-
-## Monitoring Your Account
-
-### Warning Signs
-
-- Messages failing to send repeatedly
-- Warning messages from WhatsApp
-- Contacts reporting they cannot see your messages
-- QR code requiring frequent re-scanning
-
-### What to Do If Restricted
-
-1. **Stop automation immediately**
-2. **Wait 24-48 hours** before trying again
-3. **Reduce sending rate** when you resume
-4. **Review your automation patterns** for aggressive behavior
-5. **Use a different account** for automation when necessary
+There is no documented universal wait time for a WhatsApp restriction. Stop the
+automation, retain the provider warning or error, and review consent, queue
+depth, duplicate sends, retry behavior, and account context. Resume only after
+you have a bounded plan and a reason to believe the provider state allows it;
+timing alone cannot establish that the account is clear.
 
 ## Related
 
-- **[AI Agent Patterns](/docs/guides/ai-agent-patterns)** - Safe defaults for AI agents
-- **[Best practices](/docs/operations-and-troubleshooting/best-practices)** - Production checklist
-- **[Security and deployment](/docs/operations/security-and-deployment)** - Production security
+- **[AI Agent Patterns](/docs/guides/ai-agent-patterns)**: Separate model concurrency from outbound pacing
+- **[Messages guide](/docs/guides/messages)**: Handle send results and provider failures
+- **[p-queue interval options](https://github.com/sindresorhus/p-queue#options)**: `intervalCap`, `interval`, and `concurrency`

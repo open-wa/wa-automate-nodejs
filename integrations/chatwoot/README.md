@@ -1,60 +1,81 @@
 # @open-wa/integration-chatwoot
 
-Chatwoot integration plugin for open-wa
+`@open-wa/integration-chatwoot` bridges WhatsApp messages with a Chatwoot API inbox. The current plugin package is `5.1.0`. It initializes the Chatwoot client at `core.started`, syncs supported WhatsApp messages into Chatwoot, and exposes `createChatwootRouter` for Chatwoot webhooks.
 
-Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
+## Quick start
 
-## What it does
+Install the plugin in the open-wa application that owns the WhatsApp session, then configure it under `pluginConfig.chatwoot`:
 
-`@open-wa/integration-chatwoot` bridges WhatsApp messages with Chatwoot CRM. The plugin creates a Chatwoot client and initializes the Chatwoot inbox at `core.started`. It processes `message.received` events and exposes `createChatwootRouter` for Chatwoot webhooks.
+```ts
+export default {
+  port: 8080,
+  host: '0.0.0.0',
+  apiKey: 'your-secure-key',
+  plugins: ['@open-wa/integration-chatwoot'],
+  pluginConfig: {
+    chatwoot: {
+      chatwootUrl: 'https://app.chatwoot.com/api/v1/accounts/123',
+      chatwootApiAccessToken: 'your-chatwoot-user-access-token',
+      apiHost: 'https://wa.example.com',
+      apiKey: 'your-secure-key',
+      forceUpdateCwWebhook: true,
+    },
+  },
+};
+```
 
-Use this integration to show WhatsApp conversations in Chatwoot. It sends Chatwoot agent replies through the open-wa client.
+`chatwootUrl` may include an existing inbox, for example `.../accounts/123/inboxes/456`. Otherwise the client finds or creates an API inbox. `apiHost` is the public origin Chatwoot can reach; the plugin adds `/plugins/chatwoot/webhook` and, when `apiKey` is present, appends it as a query value.
+
+The callback router currently parses the webhook body but does not validate that `api_key` query value itself. Put a reverse proxy or gateway in front of the callback when it must be authenticated, and have that boundary validate the query or an equivalent header before forwarding to open-wa.
 
 ## Configuration
 
-The plugin config is validated by the plugin SDK schema in `src/plugin.ts`.
-
-| Field | Necessary | Source-visible behavior |
+| Field | Required | Behavior |
 | --- | --- | --- |
-| `chatwootUrl` | Yes | URL for the Chatwoot instance. The client parses the Chatwoot origin, account ID, and optional inbox ID from this value. |
+| `chatwootUrl` | Yes | Chatwoot origin plus account ID and optional inbox ID. |
 | `chatwootApiAccessToken` | Yes | Sent as `api_access_token` on Chatwoot API requests. |
-| `apiHost` | No | Public API host used to build the expected Chatwoot webhook URL. |
-| `host` | No | Used with `https` and `port` to build the webhook URL when `apiHost` is not provided. |
-| `https` | No | Selects `https` or `http` when constructing the webhook URL from `host` and `port`. |
-| `port` | No | Used in the constructed webhook URL when `apiHost` is not provided. |
-| `apiKey` | No | Appended to the Chatwoot webhook URL as `api_key` when present. |
-| `forceUpdateCwWebhook` | No | Defaults to `false` in the schema. When true, initialization patches the Chatwoot inbox webhook URL. |
+| `apiHost` | No | Public origin used to build the Chatwoot webhook URL. |
+| `host`, `https`, `port` | No | Alternative callback host settings used when `apiHost` is absent. |
+| `apiKey` | No | Appended to the callback URL as `api_key`; enforce it at a proxy or gateway. |
+| `forceUpdateCwWebhook` | No | Defaults to `false`; when true, patches the inbox webhook URL during initialization. |
 
-The generated webhook URL is `/plugins/chatwoot/webhook` under the selected API host.
+## Message behavior and limits
 
-## Runtime behavior
+- Direct WhatsApp messages create or reopen contacts and conversations. Group, broadcast, and echo messages are ignored.
+- Text replies from Chatwoot use `sendText`. Replies containing a URL use link preview support.
+- A reply beginning with a token such as `@51.5072,-0.1276 Meeting point` becomes a WhatsApp location.
+- Chatwoot attachments are sent with `sendImage`, using the Chatwoot message content as the first caption.
+- Inbound image, audio, voice note, video, and document messages become Chatwoot attachments when open-wa can decrypt the media and the required media fields are present. When only `cloudUrl` is available, Chatwoot receives a file link in text.
+- Contact and conversation registries are in memory. Restarting the process rebuilds them from later messages and the configured inbox state.
 
-- On `core.started`, the plugin calls `client.getHostNumber()`, initializes the Chatwoot client with the current `sessionId`, and finds or creates a Chatwoot inbox.
-- If the Chatwoot URL does not include an account ID, the client requests `/api/v1/profile` to discover it.
-- If no inbox ID is present, the client searches existing inboxes for `additional_attributes.hostAccountNumber`. If the search fails, it creates an API inbox.
-- On `message.received`, the plugin ignores group chats, broadcast chats, and echo messages. It finds or creates contacts and conversations. It sends the messages to Chatwoot.
-- Media messages with `cloudUrl` are sent to Chatwoot as a file URL in text. Media messages without `cloudUrl` can be decrypted through `client.decryptMedia` and uploaded to Chatwoot as attachments when `deprecatedMms3Url` and `mimetype` are present.
-- The router handles `POST /webhook` for Chatwoot outbound messages. It ignores echo payloads and events that are not public `message_created` events. It uses the applicable client method for attachments, locations, links, or text.
-- On `dispose`, the plugin logs that the integration was disposed.
+The integration marks outbound message IDs as ignored so a reply does not loop back as a new inbound message. It does not provide a durable message archive or guarantee attachment delivery when media decryption is unavailable.
 
-## Exports
+## Callback checks
 
-- Default export and `chatwootPlugin` from `src/plugin.ts`.
-- `ChatwootClient` from `src/client.ts`.
-- `createChatwootRouter` from `src/middleware.ts`.
-- `ChatwootPluginConfig` and `ChatwootConfig` types.
+After startup, confirm the log contains `Chatwoot integration initialized`, then check the inbox webhook URL. It should be `https://wa.example.com/plugins/chatwoot/webhook?api_key=your-secure-key` when both `apiHost` and `apiKey` are set.
+
+Use Chatwoot's profile endpoint to check the token and account before diagnosing open-wa:
+
+```bash
+curl -i \
+  -H "api_access_token: $CHATWOOT_API_ACCESS_TOKEN" \
+  "$CHATWOOT_ORIGIN/api/v1/profile"
+```
+
+A `200` response with an account ID confirms the token reaches Chatwoot. A `401` means the token or Chatwoot origin needs correction. Then send a direct WhatsApp message and a plain Chatwoot reply, checking the open-wa log and the callback response at each boundary.
 
 ## Development
 
-- `pnpm --filter @open-wa/integration-chatwoot build`
-- `pnpm --filter @open-wa/integration-chatwoot dev`
-- `pnpm --filter @open-wa/integration-chatwoot lint`
-- `pnpm --filter @open-wa/integration-chatwoot clean`
+```bash
+pnpm --filter @open-wa/integration-chatwoot dev
+```
+
+The plugin exports `chatwootPlugin`, `ChatwootClient`, `createChatwootRouter`, `ChatwootPluginConfig`, and `ChatwootConfig`.
 
 ## Documentation
 
-See the [docs site](https://openwa.dev).
+See the [Chatwoot guide](https://openwa.dev/docs/client-and-integrations/chatwoot) for the setup journey, media mapping, and recovery table.
 
 ## License
 
-[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/main/LICENSE.md) - Hippocratic + Do Not Harm
+[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md) - Hippocratic + Do Not Harm

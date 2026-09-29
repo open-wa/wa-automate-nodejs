@@ -22,13 +22,13 @@ async function callLLM(input: string | ChatTurn[] | unknown): Promise<string> {
   return 'Thanks, I received your message.';
 }
 
-async function callVisionLLM(base64Image: string, mimeType?: string): Promise<string> {
-  void base64Image;
+async function callVisionLLM(imageDataUrlOrBase64: string, mimeType?: string): Promise<string> {
+  void imageDataUrlOrBase64;
   return `Image received${mimeType ? ` as ${mimeType}` : ''}.`;
 }
 
-async function callSTT(audio: Buffer): Promise<string> {
-  void audio;
+async function callSTT(audioDataUrlOrBase64: string): Promise<string> {
+  void audioDataUrlOrBase64;
   return 'Transcribed voice note text.';
 }
 ```
@@ -40,7 +40,7 @@ Expected behavior with the stubs: a message comes in, the bot sends a determinis
 The simplest AI agent receives messages, sends them to an LLM helper, and replies with the response.
 
 ```ts
-import { createClient } from '@open-wa/wa-automate';
+import { Client, createClient } from '@open-wa/wa-automate';
 import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
 
 type ChatTurn = {
@@ -53,11 +53,14 @@ async function callLLM(input: string | ChatTurn[]): Promise<string> {
   return 'Thanks, I received your message.';
 }
 
-const client = await createClient({
+const runtime = await createClient({
   sessionId: 'ai-bot',
   driver: new PuppeteerDriver(),
-  headless: true,
+  headless: false,
 });
+
+const client = new Client({ client: runtime, transport: runtime.getTransport() });
+await client.start();
 
 client.onMessage(async (message) => {
   if (message.type !== 'chat' || message.fromMe) return;
@@ -113,13 +116,11 @@ Expected behavior: each chat keeps its own rolling context. After more than 10 u
 
 ### Use getMessagesForLLM
 
-Pattern snippet: if this method is available in your version, it can provide WhatsApp-native context. Provide your own `callLLM` helper for the returned message shape.
+Pattern snippet: if this generated Easy API method is available in your version, it can provide WhatsApp-native context. Its second argument is `last`, not `count`; provide your own `callLLM` helper for the returned message shape. Check the method reference before using it on an embedded client.
 
 ```ts
 client.onMessage(async (message) => {
-  const recentMessages = await client.getMessagesForLLM(message.chatId, {
-    count: 20,
-  });
+  const recentMessages = await client.getMessagesForLLM(message.chatId, 20);
 
   const response = await callLLM(recentMessages);
   await client.sendText(message.from, response);
@@ -131,16 +132,10 @@ Expected behavior: the bot asks open-wa for recent chat context, sends that cont
 ## Rate Limits and Safety
 
 <Callout type="warning">
-Sending too many messages too quickly can trigger WhatsApp rate limits and increase ban risk. Always implement rate limiting in your AI agent.
+WhatsApp controls delivery and account restrictions on the provider side. A
+local limiter controls your own queue, but it cannot guarantee delivery or
+prevent an account restriction.
 </Callout>
-
-### Messages Per Minute
-
-WhatsApp enforces limits on how many messages you can send. Safe defaults:
-
-- **Direct messages**: 1 message per 10-30 seconds per chat
-- **Group messages**: 1 message per 30-60 seconds per group
-- **New conversations**: Start slower, increase gradually over days
 
 ### Implementing Rate Limiting
 
@@ -163,31 +158,31 @@ const limiter = new Bottleneck({
 client.onMessage(async (message) => {
   if (message.type !== 'chat' || message.fromMe) return;
 
-  await limiter.schedule(async () => {
-    console.log('ai-agent: sending rate-limited reply', { chatId: message.from });
+  try {
     const response = await callLLM(message.body);
-    await client.sendText(message.from, response);
-  });
+    await limiter.schedule(() => {
+      console.log('ai-agent: sending rate-limited reply', { chatId: message.from });
+      return client.sendText(message.from, response);
+    });
+  } catch (error) {
+    console.error('ai-agent: queued reply failed', { chatId: message.from, error });
+  }
 });
 ```
 
-Expected behavior: text messages enter immediately, but outgoing replies leave at least 15 seconds apart. Logs show when a reply is sent through the limiter.
+Expected behavior: model calls run before the global outbound limiter, and
+outgoing replies start at least 15 seconds apart within this process. The
+catch block handles both provider rejection and queue failure; this schedule is
+not a WhatsApp safety guarantee and does not preserve per-chat ordering by
+itself.
 
 ### Ban Risk Profile
 
-Factors that increase ban risk:
-
-- Sending messages to users who have not messaged you first
-- High message volume from a new account
-- Identical messages sent to many contacts
-- Automated behavior patterns that look non-human
-
-Safe defaults:
-
-- Only respond to incoming messages
-- Add random delays of 1-5 seconds between responses
-- Vary response length and timing
-- Use an aged WhatsApp account, not a new one
+Provider restrictions can reflect volume, repeated content, recipient consent,
+account context, or signals that are not documented by open-wa. Keep consent,
+opt-out state, queue depth, and retry ownership in your application, and pause
+the workflow when the provider rejects sends. Random timing and an account's
+age are observations or assumptions, not controls this guide can promise.
 
 ## Media in LLM Pipelines
 
@@ -200,7 +195,7 @@ client.onMessage(async (message) => {
   if (message.type !== 'image') return;
 
   const mediaData = await client.decryptMedia(message);
-  const base64 = mediaData.toString('base64');
+  const base64 = mediaData.split(',')[1] ?? mediaData;
   const description = await callVisionLLM(base64, message.mimetype);
 
   await client.reply(message.from, `Image: ${description}`, message.id);
@@ -237,10 +232,9 @@ const imageFilename = 'ai-generated.png';
 const imageCaption = 'Generated image';
 
 await client.sendImage(message.from, imageDataUrl, imageFilename, imageCaption);
-await client.sendPtt(message.from, 'data:audio/mp3;base64,...');
 ```
 
-Expected behavior: the image is sent to the incoming chat with `ai-generated.png` as the attachment filename and `Generated image` as the caption. The PTT call sends a generated voice note after the image.
+Expected behavior: the image is sent to the incoming chat with `ai-generated.png` as the attachment filename and `Generated image` as the caption. `sendPtt` is a generated Easy API method; check that method's runtime support before adding voice-note output to an embedded client.
 
 ## Group Chats vs Direct Messages
 
@@ -277,6 +271,10 @@ Expected behavior: group messages only continue when the bot is mentioned. Direc
 ### Buttons and Lists
 
 Use these sends when you want your agent to offer fixed choices instead of free-form text.
+These are generated Easy API methods: `sendButtons` and `sendListMessage` are
+deprecated and require an Insiders license, and the current embedded `Client`
+does not declare them. The alias `sendList` refers to `sendListMessage` on
+surfaces that expose aliases.
 
 ```ts
 await client.sendButtons(message.from, 'Choose an option:', [
@@ -336,53 +334,73 @@ client.onMessage(async (message) => {
     console.log('ai-agent: processing queued message', { chatId: message.from });
     const response = await callLLM(message.body);
     await client.sendText(message.from, response);
+  }).catch((error) => {
+    console.error('ai-agent: queued message failed', { chatId: message.from, error });
   });
 });
 ```
 
-Expected behavior: incoming messages enter the queue immediately, but only three LLM jobs run at once. Logs show each queued message when processing starts.
+Expected behavior: incoming messages enter the queue immediately, but only
+three combined LLM-and-send jobs run at once. The rejection handler prevents an
+unobserved queued failure; this compact example does not provide per-chat
+ordering or a separate outbound schedule.
 
 ### Queue Configuration
 
-- **concurrency**: Maximum parallel LLM calls, start with 2-3
+- **concurrency**: Maximum parallel queued jobs in this compact example; use a separate LLM queue when send pacing must not occupy a worker
 - **timeout**: Maximum time per message, for example 30 seconds
 - **retry**: Retry failed calls with exponential backoff in your own queue wrapper
 
 ## Complete Runnable Skeleton
 
-Install the external queue packages in your application before you use this skeleton:
+Install the runtime, driver, and queue package in your application before you use this skeleton:
 
 ```bash
-npm install bottleneck p-queue
+npm install @open-wa/wa-automate@5.1.0 @open-wa/driver-puppeteer@5.1.0 p-queue
 ```
 
-This skeleton is runnable once you install open-wa runtime packages and replace the `callLLM` stub with your provider. It keeps the placeholder helper local so there are no undefined calls.
+Save the following JavaScript as `ai-agent.mjs`. The local `callLLM` stub returns a placeholder response, so the example does not call an AI provider.
 
-```ts
-import { createClient } from '@open-wa/wa-automate';
+```js
+import { Client, createClient } from '@open-wa/wa-automate';
 import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
-import Bottleneck from 'bottleneck';
 import PQueue from 'p-queue';
 
-type ChatTurn = {
-  role: 'user' | 'assistant';
-  content: string;
-};
-
-async function callLLM(input: ChatTurn[]): Promise<string> {
+async function callLLM(input) {
   void input;
   return 'Thanks, I received your message.';
 }
 
-const limiter = new Bottleneck({ minTime: 15000, maxConcurrent: 1 });
-const queue = new PQueue({ concurrency: 2 });
-const contextWindow = new Map<string, ChatTurn[]>();
+// At most two model calls run at once across different chats.
+const llmQueue = new PQueue({ concurrency: 2 });
 
-const client = await createClient({
+// One process-local queue starts at most one outbound task every 15 seconds.
+// This controls local scheduling, not provider acceptance or account status.
+const sendQueue = new PQueue({ concurrency: 1, intervalCap: 1, interval: 15000, strict: true });
+
+const contextWindow = new Map();
+const chatTails = new Map();
+
+function enqueueForChat(chatId, task) {
+  const previous = chatTails.get(chatId) ?? Promise.resolve();
+  const next = previous.catch(() => undefined).then(task);
+  chatTails.set(chatId, next);
+
+  const cleanup = () => {
+    if (chatTails.get(chatId) === next) chatTails.delete(chatId);
+  };
+  void next.then(cleanup, cleanup);
+
+  return next;
+}
+
+const runtime = await createClient({
   sessionId: 'ai-bot',
   driver: new PuppeteerDriver(),
   headless: true,
 });
+const client = new Client({ client: runtime, transport: runtime.getTransport() });
+await client.start();
 
 client.onMessage(async (message) => {
   if (message.type !== 'chat' || message.fromMe) return;
@@ -390,27 +408,47 @@ client.onMessage(async (message) => {
   const isGroup = message.from.includes('@g.us');
   if (isGroup && !message.body.includes('@bot')) return;
 
-  void queue.add(async () => {
-    const history = contextWindow.get(message.from) ?? [];
-    history.push({ role: 'user', content: message.body });
+  const job = enqueueForChat(message.from, async () => {
+    const history = [
+      ...(contextWindow.get(message.from) ?? []),
+      { role: 'user', content: message.body },
+    ];
 
     if (history.length > 20) {
       history.splice(0, history.length - 20);
     }
 
-    await limiter.schedule(async () => {
-      console.log('ai-agent: sending response', { chatId: message.from });
-      const response = await callLLM(history);
-      history.push({ role: 'assistant', content: response });
-      contextWindow.set(message.from, history);
+    const response = await llmQueue.add(() => callLLM([...history]));
 
-      await client.sendText(message.from, response);
+    const sendResult = await sendQueue.add(() => {
+      console.log('ai-agent: sending response', { chatId: message.from });
+      return client.sendText(message.from, response);
     });
+    if (sendResult === false) {
+      throw new Error('WhatsApp did not accept the send request');
+    }
+
+    history.push({ role: 'assistant', content: response });
+    contextWindow.set(message.from, history);
+  });
+
+  void job.catch((error) => {
+    console.error('ai-agent: message job failed', { chatId: message.from, error });
   });
 });
 ```
 
-Expected behavior: The bot receives text messages. It ignores group messages that do not mention `@bot`. Two queue workers limit concurrent LLM jobs. The limiter controls the interval between WhatsApp replies. Logs show each outgoing response when it leaves the limiter.
+Run it with `node ai-agent.mjs` and complete the normal client authentication when the browser opens.
+
+Expected behavior: The bot receives text messages and ignores group messages
+that do not mention `@bot`. Two `llmQueue` workers can call the model at once
+across different chats. `sendQueue` runs one send task at a time and starts at
+most one every 15 seconds in this process. `chatTails` waits for the previous
+model-and-send job for the same chat, preserving the order in which that chat's
+callbacks enter this process and keeping its context updates sequential. A
+rejected model or send reaches `job.catch`, where the application logs it; the
+next queued job for that chat still runs. A local interval is not a delivery or
+account-safety guarantee.
 
 ## Related
 

@@ -1,118 +1,156 @@
 ---
-title: Node-RED Integration
-description: Use Node-RED for visual WhatsApp automation with open-wa nodes.
+title: Node-RED integration
+description: Connect Node-RED to an existing open-wa Easy API session with the current v5 nodes.
 ---
 
-# Node-RED Integration
+# Node-RED integration
 
-Node-RED is a low-code visual automation tool. The open-wa Node-RED contribution lets you build WhatsApp flows visually without writing code.
+`@open-wa/node-red` connects Node-RED to an already running open-wa Easy API instance. The current package is `5.1.0` and registers exactly three node types: the `owa-server` configuration node, `Command`, and `Listen`. It does not provide separate Send, Receive, Session, or Media nodes.
 
-## What Is Node-RED
+## Prerequisites
 
-Node-RED is a flow-based programming tool where you connect nodes together to create automations. The open-wa contribution adds WhatsApp-specific nodes for sending, receiving, and managing sessions.
+- Node-RED 5.x and Node.js available on the machine that runs the flow.
+- An authenticated open-wa session with Easy API enabled.
+- The Easy API base URL, for example `http://127.0.0.1:8080`.
+- The Easy API key if the session was started with `--api-key`.
 
-## Installation
+## Install the supported package
 
-Install the Node-RED contribution:
+Install into the Node-RED user directory so Node-RED can load it from its palette:
 
 ```bash
-npm install @open-wa/node-red-contrib-wa-automate
+cd ~/.node-red
+npm install @open-wa/node-red@5.1.0
+node-red
 ```
 
-Or install through the Node-RED palette manager by searching for `@open-wa/node-red-contrib-wa-automate`.
+Open `http://127.0.0.1:1880`, choose **Manage palette**, and confirm the `@open-wa/node-red` package is installed. The package name is `@open-wa/node-red`; the older `@open-wa/node-red-contrib-wa-automate` guide describes a different package and palette.
 
-## Available Nodes
+## Connect to Easy API
 
-### Send Node
+Start an Easy API session separately. Add an API key when Node-RED is on another host or the API is reachable outside localhost:
 
-Send WhatsApp messages through the flow:
+```bash
+npx @open-wa/wa-automate@5.1.0 --session-id sales --port 8080 --api-key "$OPENWA_API_KEY"
+```
 
-- Text messages
-- Images and media
-- Location
-- Contact cards
-- Buttons and lists
+In Node-RED, add the **owa-server** configuration node and fill these fields:
 
-Configure the target chatId and message content in the node properties.
+| Field | Value |
+| --- | --- |
+| Name | A label such as `sales Easy API`. |
+| URL | The Easy API base URL, such as `http://127.0.0.1:8080`. |
+| Key | The same value passed to `--api-key`; leave empty only when the API has no key. |
 
-### Receive Node
+The node creates a `SocketClient` for that URL. In v5 the client uses HTTP RPC for commands and the event stream for listeners; the old node help text mentioning `--socket` is stale for this package.
 
-Receive WhatsApp messages as flow input:
+## Current palette
 
-- Incoming messages trigger the flow
-- Message payload includes sender, body, type, and metadata
-- Filter by chat type (group vs direct)
+### `owa-server` configuration node
 
-### Session Node
+Stores `name`, `url`, and optional `key`. It reports connected, disconnected, and connection-error status and keeps the client available to the flow.
 
-Manage WhatsApp session lifecycle:
+### `Command`
 
-- Start and stop sessions
-- Monitor session state
-- Handle authentication
+The visible palette label is **Command** and the runtime type is `cmd`. It loads command names from `/meta/basic/commands`, then calls the selected method through the configured server. Set `method` and JSON `args` in the node, or provide `msg.method` and `msg.args` at runtime. A command waits for the server connection and defaults to a 30-second timeout; set `timeout` to `-1` only when an unbounded call is intentional.
 
-### Media Node
+For `sendText`, the argument object is:
 
-Handle media operations:
+```json
+{
+  "to": "1234567890@c.us",
+  "content": "Hello from Node-RED"
+}
+```
 
-- Download media from messages
-- Process images and documents
-- Upload media for sending
+### `Listen`
 
-## Example Flows
+The visible palette label is **Listen** and the runtime type is `listen`. It loads listener names from `/meta/basic/listeners`, registers one listener against the server, and emits received data as `msg.payload`. Use `onMessage` for inbound message events; the listener is stopped when the node closes.
 
-### Echo Bot
+## Importable echo flow
 
-1. Add a Receive node to capture incoming messages
-2. Connect it to a Send node
-3. Configure the Send node to reply to the same chatId with the message body
+Import this JSON from Node-RED's menu (**Import** → **Clipboard**). Edit the `url` and `key` on the `owa-server` configuration node before deploying. The flow listens for `onMessage`, maps the message to a `sendText` command, and sends the response back to the originating chat.
 
-This creates a simple echo bot that repeats any message it receives.
+```json
+[
+  {
+    "id": "openwa-tab",
+    "type": "tab",
+    "label": "open-wa echo",
+    "disabled": false,
+    "info": "Echo inbound messages through the v5 Easy API client"
+  },
+  {
+    "id": "openwa-server",
+    "type": "owa-server",
+    "name": "sales Easy API",
+    "url": "http://127.0.0.1:8080",
+    "key": "REPLACE_WITH_API_KEY"
+  },
+  {
+    "id": "openwa-listen",
+    "type": "listen",
+    "z": "openwa-tab",
+    "name": "incoming messages",
+    "server": "openwa-server",
+    "listener": "onMessage",
+    "x": 170,
+    "y": 120,
+    "wires": [["openwa-format"]]
+  },
+  {
+    "id": "openwa-format",
+    "type": "function",
+    "z": "openwa-tab",
+    "name": "make echo command",
+    "func": "const message = msg.payload || {};\nif (!message.from || !message.body) return null;\nmsg.method = 'sendText';\nmsg.args = { to: message.from, content: message.body };\nreturn msg;",
+    "outputs": 1,
+    "x": 390,
+    "y": 120,
+    "wires": [["openwa-command"]]
+  },
+  {
+    "id": "openwa-command",
+    "type": "cmd",
+    "z": "openwa-tab",
+    "name": "sendText",
+    "server": "openwa-server",
+    "method": "sendText",
+    "args": "{}",
+    "timeout": "30",
+    "x": 610,
+    "y": 120,
+    "wires": [["openwa-debug"]]
+  },
+  {
+    "id": "openwa-debug",
+    "type": "debug",
+    "z": "openwa-tab",
+    "name": "send result",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 820,
+    "y": 120,
+    "wires": []
+  }
+]
+```
 
-### CRM Integration
-
-1. Receive node captures incoming messages
-2. Function node formats the data
-3. HTTP Request node sends the data to your CRM API
-4. Response node sends a confirmation back to WhatsApp
-
-### Conditional Routing
-
-1. Receive node captures messages
-2. Switch node routes based on message content or sender
-3. Different paths handle different message types
-4. Each path sends an appropriate response
-
-## Connecting to Easy API
-
-The Node-RED nodes connect to a running Easy API instance:
-
-1. Start the Easy API: `npx @open-wa/wa-automate@alpha --port 8080`
-2. Configure the Node-RED nodes with the API URL and key
-3. Deploy your flow
+The `REPLACE_WITH_API_KEY` value is a flow placeholder, not a secret to commit. Store secrets in Node-RED's credential store or deployment environment, then confirm that the `owa-server` URL and key match the running Easy API.
 
 ## Troubleshooting
 
-### Connection Issues
-
-- Verify the Easy API is running on the configured port
-- Check the API key matches
-- Make sure the session is authenticated
-
-### Message Not Sending
-
-- Check the chatId format (phone number plus @c.us)
-- Verify the session is connected
-- Check Node-RED logs for error details
-
-### Session Disconnected
-
-- The Session node can detect disconnection
-- Configure auto-reconnect in the node settings
-- Monitor session state in the Easy API dashboard
+| Symptom | Command or observation | Expected result | Next action |
+| --- | --- | --- | --- |
+| `owa-server` stays disconnected | `curl -sS -H "X-API-Key: $OPENWA_API_KEY" http://127.0.0.1:8080/health` | HTTP `200` with `connected: true` and `session.ready: true` proves the API is reachable and the WhatsApp session is ready; connection refusal means nothing is listening. | If the command fails to connect, start Easy API or correct URL/port. If it returns `401`, fix **Key**. If it returns `200` with `connected: false` or `session.ready: false`, keep Node-RED unchanged and finish WhatsApp authentication/readiness first. |
+| Metadata request is `401` | `curl -i -H "X-API-Key: $OPENWA_API_KEY" http://127.0.0.1:8080/meta/basic/commands` | The response lists command metadata. | Put the same key in **owa-server → Key**; an empty or different key is rejected. |
+| `Command` shows “Waiting for socket connection” | Run `curl -sS -H "X-API-Key: $OPENWA_API_KEY" http://127.0.0.1:8080/health` and `curl -sS -H "X-API-Key: $OPENWA_API_KEY" http://127.0.0.1:8080/meta/basic/commands` | `/health` distinguishes an unreachable API, `401`, and a reachable but unready session; `/meta/basic/commands` returns command metadata only when the URL/key is accepted. | For connection refusal, start Easy API or correct **URL**. For `401`, correct **Key**. For `200` with `session.ready: false`, complete QR/link authentication and wait for readiness. For metadata failure despite healthy `/health`, inspect the Node-RED server node URL and API-key field, then redeploy. |
+| Echo receives no messages | Check the `Listen` node status and `/meta/basic/listeners` response | The node should show `listening`, and `onMessage` should be listed. | Confirm the session is connected and select `onMessage`; a session with no WhatsApp connection cannot emit messages. |
+| `sendText` times out | Inspect the `Command` status | It reports a timeout after the configured seconds. | Check the chat ID (`@c.us` or `@g.us`), session readiness, and Easy API logs; increase timeout only for a known slow operation. |
 
 ## Related
 
-- **[Easy API quick start](/docs/getting-started/easy-api)** - Start the API
-- **[Integrations overview](/docs/guides/integrations-overview)** - Choose the right integration
-- **[Webhooks for business](/docs/guides/webhooks-for-business)** - Alternative integration pattern
+- [Easy API quick start](/docs/getting-started/easy-api)
+- [Socket Client](/docs/client-and-integrations/socket-client)
+- [Webhooks for Business](/docs/guides/webhooks-for-business)

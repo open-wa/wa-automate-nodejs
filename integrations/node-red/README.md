@@ -1,73 +1,100 @@
 # @open-wa/node-red
 
-Official @open-wa node-red integration.
+`@open-wa/node-red` connects Node-RED flows to an existing open-wa Easy API session. The current package is `5.1.0` and registers three node types: `owa-server`, `cmd`, and `listen`.
 
-Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
+The integration keeps the Node-RED palette small and maps commands and events to the Easy API metadata endpoints. It uses `@open-wa/socket-client` as the compatibility client; v5 commands travel over HTTP RPC and runtime events use the client event stream.
 
-## What it does
+## Quick start
 
-`@open-wa/node-red` provides Node-RED nodes for connecting flows to a remote open-wa Easy API session. The package registers three Node-RED node types from `package.json`: `owa-server`, `cmd`, and `listen`.
+Start Easy API separately, then install the package into Node-RED's user directory:
 
-Use this integration so Node-RED can call open-wa commands or react to events through an Easy API server connection.
+```bash
+npx @open-wa/wa-automate@5.1.0 \
+  --session-id sales \
+  --port 8080 \
+  --api-key "$OPENWA_API_KEY"
 
-Legacy compatibility note: this integration uses `@open-wa/socket-client`. The active v5 runtime uses HTTP RPC and SSE instead of direct Socket.IO. Do not use `SocketManager` from `@open-wa/api` with current releases.
+cd ~/.node-red
+npm install @open-wa/node-red@5.1.0
+node-red
+```
+
+Open `http://127.0.0.1:1880`, choose **Manage palette**, and confirm `@open-wa/node-red` is installed. Add an **owa-server** configuration node with the Easy API URL and the same key passed to `--api-key`. Leave the key empty only when Easy API was started without one.
+
+The configuration node keeps the `SocketClient` in Node-RED global context. It reports `connected`, `disconnected`, and connection-error states so a flow can distinguish a stopped API from a command failure.
 
 ## Node types
 
-| Node type | Source-visible behavior |
-| --- | --- |
-| `owa-server` | Configuration node that stores `name`, `url`, and `key`, creates a `SocketClient`, exposes its socket-like connection object, and stores the client in Node-RED global context. It emits and reports connected, disconnected, and connect error status changes. |
-| `cmd` | Executes a selected open-wa command against the configured server. It loads command metadata from `/meta/basic/commands`, accepts `method` and `args` from the incoming message or node config, calls `server.client.ask(method, args)`, and supports a timeout in seconds. |
-| `listen` | Registers an event listener against the configured server. It loads listener names from `/meta/basic/listeners`, calls `client.listen(listener, listenerFn)`, sends received event data as `msg.payload`, and stops the listener on node close. |
+| Palette label | Runtime type | Behavior |
+| --- | --- | --- |
+| **owa-server** | `owa-server` | Stores `name`, `url`, and optional `key`, creates a `SocketClient`, and owns the connection lifecycle. |
+| **Command** | `cmd` | Loads command metadata from `/meta/basic/commands`, then calls `client.ask(method, args)` with node or message values. |
+| **Listen** | `listen` | Loads listener names from `/meta/basic/listeners`, subscribes with `client.listen(listener, callback)`, and emits event data as `msg.payload`. |
+
+The visible labels are **Command** and **Listen**. Older guides that describe separate Send, Receive, Session, or Media nodes refer to `@open-wa/node-red-contrib-wa-automate`, which is a different package and palette.
 
 ## Configuration fields
 
-The visible editor templates and runtime source define these fields.
-
 ### `owa-server`
 
-- `name`: Node-RED display name and status payload socket ID.
-- `url`: Base URL for the remote open-wa Easy API server.
-- `key`: Optional API key sent as `X-API-Key` when loading command and listener metadata and passed to `SocketClient`.
+- `name`: Node-RED display name.
+- `url`: Easy API base URL, such as `http://127.0.0.1:8080`.
+- `key`: Optional API key. The editor sends it as `X-API-Key` while loading command and listener metadata, and the client uses it for runtime requests.
 
 ### `cmd`
 
-- `server`: Reference to an `owa-server` config node.
-- `method`: Command method to call when the incoming message does not provide `msg.method`.
-- `args`: JSON-like command arguments merged with object-like `msg.payload` values when present.
-- `name`: Node-RED display name.
-- `timeout`: Timeout in seconds. The runtime treats `-1` as no timeout and falls back to 30 seconds when parsing fails.
+- `server`: The **owa-server** configuration node.
+- `method`: Command name, such as `sendText`.
+- `args`: JSON arguments. Message values in `msg.method` and `msg.args` take precedence; object-like `msg.payload` is merged when configured arguments are object-like.
+- `timeout`: Seconds. Invalid or empty values fall back to 30 seconds; `-1` intentionally disables the command timeout.
+
+For `sendText`, the command arguments can be an object:
+
+```json
+{
+  "to": "1234567890@c.us",
+  "content": "Hello from Node-RED"
+}
+```
 
 ### `listen`
 
-- `server`: Reference to an `owa-server` config node.
-- `listener`: Listener name to register.
+- `server`: The **owa-server** configuration node.
+- `listener`: Listener name, for example `onMessage`.
 - `name`: Node-RED display name.
 
-## Runtime behavior
+The listener stops when its node closes or its server disconnects. A session that is not authenticated or ready cannot emit WhatsApp events even when Node-RED itself is running.
 
-- `owa-server` constructs `new SocketClient(url, key)`, stores it under the node ID in the global `CLIENT_STORE`, and removes it on disconnect or node removal.
-- `cmd` uses `/meta/basic/commands` to populate command options in the editor. At runtime it prefers `msg.method` and `msg.args`, otherwise it parses configured args and `msg.payload`, then sends the result with `client.ask`.
-- `cmd` reports `Executing..`, `Done`, timeout, waiting, and missing server states through Node-RED node status.
-- `listen` uses `/meta/basic/listeners` to populate listener options in the editor. It registers once per node instance, forwards listener messages as `payload`, reports connection status, and calls `stopListener` on close.
+## Connection checks
+
+Use the same URL and key outside Node-RED to separate API reachability, authentication, and session readiness:
+
+```bash
+curl -sS -D - \
+  -H "X-API-Key: $OPENWA_API_KEY" \
+  http://127.0.0.1:8080/health
+
+curl -sS -D - \
+  -H "X-API-Key: $OPENWA_API_KEY" \
+  http://127.0.0.1:8080/meta/basic/commands
+```
+
+A connection refusal means the URL or process is wrong. `401` means the configured key is absent or different. A `200` health response with `connected: false` or `session.ready: false` means Node-RED can reach Easy API but the WhatsApp session still needs authentication or readiness work.
 
 ## Development
 
-- `pnpm --filter @open-wa/node-red add-node`
-- `pnpm --filter @open-wa/node-red copy`
-- `pnpm --filter @open-wa/node-red build:editor`
-- `pnpm --filter @open-wa/node-red build:runtime`
-- `pnpm --filter @open-wa/node-red build`
-- `pnpm --filter @open-wa/node-red dev`
-- `pnpm --filter @open-wa/node-red lint`
-- `pnpm --filter @open-wa/node-red lint:fix`
-- `pnpm --filter @open-wa/node-red test`
-- `pnpm --filter @open-wa/node-red test:watch`
+From the monorepo checkout:
+
+```bash
+pnpm --filter @open-wa/node-red dev
+```
+
+The package source lives under `integrations/node-red`; the published Node-RED entrypoints are the `dist/nodes/*` files declared in `package.json`.
 
 ## Documentation
 
-See the [docs site](https://openwa.dev).
+See the [Node-RED guide](https://openwa.dev/docs/guides/node-red) for the importable echo flow and the full troubleshooting journey.
 
 ## License
 
-[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/main/LICENSE.md) - Hippocratic + Do Not Harm
+[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md) - Hippocratic + Do Not Harm
