@@ -62,7 +62,7 @@ export function DocsHomepage() {
         <div className="landing-hero-copy">
           <h1 id="landing-title">Connect WhatsApp<br />to your<br /><span>application.</span></h1>
           <p className="landing-lead">Send order updates, reply to incoming messages, and connect WhatsApp to the tools you already use. open-wa runs on your own computer or server.</p>
-          <p className="landing-requirements">You’ll need <a href={`${DOCS_PATHS.quickstart}#prerequisites`}>Node.js 22.21.1 or newer</a> and a phone with WhatsApp.</p>
+          <p className="landing-requirements">You’ll need <a href={`${DOCS_PATHS.quickstart}#before-you-start`}>Node.js 22.21.1 or newer</a> and a phone with WhatsApp.</p>
           <ol className="landing-steps" aria-label="Get started"><li><span>1</span> Start open-wa</li><li><span>2</span> Link WhatsApp</li><li><span>3</span> Send a message</li></ol>
           <p className="landing-command-label">Start the <a href={DOCS_PATHS.easyApi}>Easy API</a>, open-wa’s HTTP server, in your terminal:</p>
           <div className="landing-command"><span aria-hidden="true">$</span><code>{runCommand}</code><CopyButton value={runCommand} label="Copy run command" /></div>
