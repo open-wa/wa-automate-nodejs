@@ -1,6 +1,6 @@
 import type { ListenerHandle } from './events/index';
 
-export type ClientRuntimeSupport = 'runtime' | 'unsupported';
+export type ClientRuntimeSupport = 'runtime' | 'licensed' | 'unsupported';
 
 export interface ClientRuntimeMethodSurfaceEntry {
   support: ClientRuntimeSupport;
@@ -15,8 +15,14 @@ export interface ClientRuntimeListenerSurfaceEntry {
 }
 
 export const clientRuntimeMethodSurface = {
-  sendInteractive: { support: 'runtime', runtimeMethod: 'sendInteractive' },
-  sendRawMessage: { support: 'runtime', runtimeMethod: 'sendRawMessage' },
+  sendInteractive: {
+    support: 'licensed', runtimeMethod: 'sendInteractive',
+    reason: 'provided by the server-confirmed Insiders license payload',
+  },
+  sendRawMessage: {
+    support: 'licensed', runtimeMethod: 'sendRawMessage',
+    reason: 'provided by the server-confirmed Insiders license payload',
+  },
   sendText: { support: 'runtime', runtimeMethod: 'sendMessage' },
   sendImage: { support: 'runtime', runtimeMethod: 'sendImage' },
   sendFile: {

@@ -8,7 +8,7 @@ icon: "BookOpen"
 
 > Generated file warning: `packages/schema/scripts/gen-client-reference-docs.ts` generates this page. Do not edit generated method content by hand.
 
-open-wa emits **10** events. Subscribe with the client helper (`client.onMessage`), the legacy listener name, or the event bus wildcard. Payload types are derived from each event's registered schema.
+open-wa emits **12** events. Subscribe with the client helper (`client.onMessage`), the legacy listener name, or the event bus wildcard. Payload types are derived from each event's registered schema.
 
 | Event | Legacy listener | Description | Payload | Status | License |
 | --- | --- | --- | --- | --- | --- |
@@ -16,6 +16,8 @@ open-wa emits **10** events. Subscribe with the client helper (`client.onMessage
 | `addedToGroup` | `onAddedToGroup` | Fired when you are added to a group | `object &#123; addedBy, groupId, groupName &#125;` | stable | - |
 | `anyMessage` | `onAnyMessage` | Fired for any message including own messages | `object &#123; ack, author, body, broadcast, caption, chat, chatId, clientUrl, content, deprecatedMms3Url, from, fromMe, id, invis, isForwarded, isGroupMsg, isMedia, isMMS, isNewMsg, isNotification, isPSA, isQuotedMsgAvailable, labels, mentionedJidList, notifyName, quotedMsg, quotedMsgObj, recvFresh, self, sender, senderId, star, t, timestamp, to, type &#125;` | stable | - |
 | `chatState` | `onChatState` | Fired when someone is typing or recording | `object &#123; chatId, senderId, state &#125;` | stable | - |
+| `formResponse` | `onFormResponse` | A form submission with question IDs and chosen option IDs | `object &#123; answers, chatId, messageId, originalMessageId, raw, senderId, timestamp, type &#125;` | stable | `insiders` |
+| `interactiveResponse` | `onInteractiveResponse` | Structured reply, list, form or native interactive response | `object &#123; answers, chatId, messageId, originalMessageId, raw, senderId, timestamp, type &#125; \| object &#123; chatId, id, label, messageId, originalMessageId, raw, senderId, timestamp, type &#125; \| object &#123; chatId, messageId, name, originalMessageId, parameters, parseError, raw, senderId, timestamp, type &#125;` | stable | `insiders` |
 | `logout` | `onLogout` | Fired when the session is logged out | `object &#123; reason, timestamp &#125;` | stable | - |
 | `message` | `onMessage` | Fired when a new message is received (excluding own messages) | `object &#123; ack, author, body, broadcast, caption, chat, chatId, clientUrl, content, deprecatedMms3Url, from, fromMe, id, invis, isForwarded, isGroupMsg, isMedia, isMMS, isNewMsg, isNotification, isPSA, isQuotedMsgAvailable, labels, mentionedJidList, notifyName, quotedMsg, quotedMsgObj, recvFresh, self, sender, senderId, star, t, timestamp, to, type &#125;` | stable | - |
 | `messageDeleted` | `onMessageDeleted` | Fired when a message is deleted | `object &#123; ack, author, body, broadcast, caption, chat, chatId, clientUrl, content, deprecatedMms3Url, from, fromMe, id, invis, isForwarded, isGroupMsg, isMedia, isMMS, isNewMsg, isNotification, isPSA, isQuotedMsgAvailable, labels, mentionedJidList, notifyName, quotedMsg, quotedMsgObj, recvFresh, self, sender, senderId, star, t, timestamp, to, type &#125;` | stable | - |

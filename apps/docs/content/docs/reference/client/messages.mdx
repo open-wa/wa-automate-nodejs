@@ -8,7 +8,7 @@ icon: "BookOpen"
 
 > Generated file warning: `packages/schema/scripts/gen-client-reference-docs.ts` generates this page. Do not edit generated method content by hand.
 
-This page documents 37 schema-registry client methods in the `messages` namespace.
+This page documents 39 schema-registry client methods in the `messages` namespace.
 
 ## `deleteMessage`
 
@@ -1788,6 +1788,94 @@ Example response envelope:
 | --- | --- |
 | Return type | `object &#123; _serialized &#125; \| boolean \| string` |
 
+## `sendInteractive` - insiders
+
+Send a portable interactive message document (Insiders and above)
+
+<LicensedFeatureCallout tier="insiders" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `content` |
+| Aliases | `messages.sendInteractive` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendInteractive` | `sendInteractive` | Active |
+| Alias | `POST` | `/api/sendInteractive` | `sendInteractive` | Active |
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.sendInteractive({
+  to: "447123456789@c.us",
+  content: {},
+});
+// namespaced form: client.messages.sendInteractive(...)
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.sendInteractive({
+  to: "447123456789@c.us",
+  content: {},
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendInteractive" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "content": {}
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="SendInteractiveParams" />
+
+### Output
+
+| Prop | Value |
+| --- | --- |
+| Return type | `string` |
+
 ## `sendLinkWithAutoPreview`
 
 Sends a link with auto-generated preview
@@ -2552,6 +2640,94 @@ Example response envelope:
 | Prop | Value |
 | --- | --- |
 | Return type | `object &#123; _serialized &#125; \| boolean` |
+
+## `sendRawMessage` - insiders
+
+Send a constructed WhatsApp protobuf Message payload (Insiders and above); media must already be uploaded
+
+<LicensedFeatureCallout tier="insiders" />
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `payload` |
+| Aliases | `messages.sendRaw` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendRaw` | `sendRawMessage` | Active |
+| Alias | `POST` | `/api/sendRawMessage` | `sendRawMessage` | Active |
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.sendRawMessage({
+  to: "447123456789@c.us",
+  payload: {},
+});
+// namespaced form: client.messages.sendRaw(...)
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.sendRawMessage({
+  to: "447123456789@c.us",
+  payload: {},
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendRaw" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "payload": {}
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="SendRawMessageParams" />
+
+### Output
+
+| Prop | Value |
+| --- | --- |
+| Return type | `string` |
 
 ## `sendReplyWithMentions`
 
