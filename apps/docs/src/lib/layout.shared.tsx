@@ -16,6 +16,11 @@ export function baseOptions(): BaseLayoutProps {
     },
     links: [
       {
+        text: 'Changelog',
+        url: DOCS_PATHS.changelog,
+        active: 'nested-url',
+      },
+      {
         text: 'Get Started',
         type: 'menu',
         items: [
