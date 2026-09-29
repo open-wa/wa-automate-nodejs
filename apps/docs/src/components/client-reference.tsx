@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
 import recordsJson from '@/generated/client-methods.json';
+import { LicensedMethodSection } from '@/components/licensing';
 
 type ParameterRecord = {
   name: string;
@@ -92,12 +93,11 @@ function MethodBlock({ method, mode, expanded }: { method: MethodRecord; mode: E
   const caveat = method.returnType === 'any' || method.returnType === 'any[]'
     ? 'Raw WhatsApp Web data. Validate its shape before reading fields.'
     : null;
-  return (
-    <article id={method.anchor} className="reference-method">
+  const content = (
+    <>
       {method.license ? <span id={`${method.anchor}---${method.license}`} aria-hidden="true" /> : null}
       <div className="reference-method-heading">
         <h2><a href={`#${method.anchor}`}><code>{method.name}</code><span className="method-anchor" aria-hidden="true">#</span></a></h2>
-        {method.license ? <a className="reference-license" href="/docs/licensing/licensed-features">{method.license}</a> : null}
       </div>
       <p className="reference-description">{method.description}</p>
       <details className="reference-parameters" open={open} onToggle={(event) => setOpen(event.currentTarget.open)}>
@@ -124,8 +124,13 @@ function MethodBlock({ method, mode, expanded }: { method: MethodRecord; mode: E
       {mode !== 'sdk' || returnType ? <CodeBlock value={mode === 'http' ? method.examples.http : compactExample(mode === 'sdk' ? method.examples.inProcessSdk : method.examples.nodeCall)} lang={mode === 'http' ? 'bash' : 'ts'} /> : null}
       {mode === 'http' && method.route ? <p className="reference-route"><span>{method.route.method}</span> {method.route.path}</p> : null}
       {method.aliases.length ? <details className="reference-aliases"><summary>Aliases ({method.aliases.length})</summary><p>{method.aliases.join(', ')}</p></details> : null}
-    </article>
+    </>
   );
+  return <article id={method.anchor} className="reference-method">
+    {method.license === 'insiders' || method.license === 'restricted'
+      ? <LicensedMethodSection tier={method.license} className="licensed-method-compact">{content}</LicensedMethodSection>
+      : content}
+  </article>;
 }
 
 export function ClientReference() {
@@ -149,9 +154,15 @@ export function ClientReference() {
     (namespace === 'all' || method.namespace === namespace) &&
     [method.name, method.namespace, ...method.aliases].join(' ').toLowerCase().includes(normalizedQuery));
   React.useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-      if (visible[0]) setActiveMethod(visible[0].target.id);
+    const observer = new IntersectionObserver(() => {
+      const controls = document.querySelector('.reference-controls');
+      const contentTop = controls?.getBoundingClientRect().bottom ?? 80;
+      const visible = [...document.querySelectorAll<HTMLElement>('.reference-method')]
+        .find((element) => {
+          const bounds = element.getBoundingClientRect();
+          return bounds.bottom > contentTop + 8 && bounds.top < window.innerHeight;
+        });
+      if (visible) setActiveMethod(visible.id);
     }, { rootMargin: '-80px 0px -65% 0px' });
     document.querySelectorAll('.reference-method').forEach((element) => observer.observe(element));
     return () => observer.disconnect();
@@ -188,7 +199,7 @@ export function ClientReference() {
         <select aria-label="Method category" value={namespace} onChange={(event) => setNamespace(event.target.value)}><option value="all">All categories</option>{[...new Set(records.map((method) => method.namespace))].sort().map((item) => <option key={item} value={item}>{item}</option>)}</select>
         <p aria-live="polite">{matchingRecords.length} of {records.length} methods</p>
         {!matchingRecords.length ? <div className="method-empty">No methods match this filter.<button type="button" onClick={() => { setQuery(''); setNamespace('all'); }}>Clear filters</button></div> : null}
-        <nav ref={explorerRef} aria-label="Client methods">{matchingRecords.map((method) => <a key={method.id} href={`#${method.anchor}`} aria-current={activeMethod === method.anchor ? 'location' : undefined} onClick={() => setActiveMethod(method.anchor)}><span>{method.name}</span>{method.license ? <span className="method-license-dot" title={`${method.license} license`} aria-label={`${method.license} license`} /> : null}</a>)}</nav>
+        <nav ref={explorerRef} aria-label="Client methods">{matchingRecords.map((method) => <a key={method.id} href={`#${method.anchor}`} aria-current={activeMethod === method.anchor ? 'location' : undefined} onClick={() => setActiveMethod(method.anchor)}><span>{method.name}</span>{method.license ? <span className="method-license-dot" data-license-tier={method.license} title={`${method.license} license`} aria-label={`${method.license} license`} /> : null}</a>)}</nav>
         </div>
       </aside>
     </div>

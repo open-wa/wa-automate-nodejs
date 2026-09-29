@@ -9,7 +9,7 @@ icon: "BookOpen"
 This page documents 3 schema-registry client methods in the `business` namespace.
 
 
-<h2 id="getbusinessproducts"><code>getBusinessProducts</code></h2>
+## `getBusinessProducts`
 
 Get business products
 
@@ -18,13 +18,6 @@ Get business products
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -101,7 +94,7 @@ This method is not declared on the in-process Client facade. Use the remote Node
 </details>
 
 
-<h2 id="getbusinessprofile"><code>getBusinessProfile</code></h2>
+## `getBusinessProfile`
 
 Get business profile
 
@@ -110,13 +103,6 @@ Get business profile
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -192,25 +178,18 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 </details>
 
+<LicensedMethodSection tier="insiders">
+
 <span id="getorder---insiders" aria-hidden="true"></span>
-<h2 id="getorder"><code>getOrder</code></h2>
+## `getOrder`
 
 Get order details
-
-<LicensedFeatureCallout tier="insiders" />
 
 **Signature** `client.getOrder(id: string): Promise<Order>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -291,3 +270,5 @@ This method is not declared on the in-process Client facade. Use the remote Node
 | Alias | `GET` | `/api/getOrder` | `getOrder` | Active |
 
 </details>
+
+</LicensedMethodSection>

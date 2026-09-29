@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { ArrowRight, Ticket } from 'lucide-react';
+import { ArrowRight, ExternalLink, Info, Ticket } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@open-wa/ui-components/dialog';
 import { GENERIC_LICENSE_URL, getLicenseTierHref, getLicenseTierLabel, getLicenseTierSummary, type LicenseTier } from '@/lib/site';
 
 function joinClasses(...classes: Array<string | undefined>): string {
@@ -13,7 +14,73 @@ export function GetLicenseButton({ href = GENERIC_LICENSE_URL, className, label 
 }
 
 export function LicenseBadge({ tier, className }: { tier: LicenseTier; className?: string }) {
-  return <span className={joinClasses('ow-license-foil inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[13px] font-semibold', className)}><Ticket size={14} aria-hidden="true" /><span>{getLicenseTierLabel(tier)}</span></span>;
+  return <span data-license-tier={tier} className={joinClasses('ow-license-foil inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[13px] font-semibold', className)}><Ticket size={14} aria-hidden="true" /><span>{getLicenseTierLabel(tier)}</span></span>;
+}
+
+const LicenseShader = React.lazy(() => import('./licensed-method-shader'));
+
+class LicenseShaderBoundary extends React.Component<{ children: React.ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() { return this.state.failed ? null : this.props.children; }
+}
+
+export function LicensedMethodSection({ tier, children, className }: {
+  tier: LicenseTier;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const surface = React.useRef<HTMLElement>(null);
+  const [animate, setAnimate] = React.useState(false);
+  const label = getLicenseTierLabel(tier);
+
+  React.useEffect(() => {
+    const element = surface.current;
+    if (!element) return;
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let inView = false;
+    const update = () => setAnimate(inView && !preference.matches && document.visibilityState === 'visible');
+    const observer = new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+      update();
+    });
+    observer.observe(element);
+    preference.addEventListener('change', update);
+    document.addEventListener('visibilitychange', update);
+    return () => {
+      observer.disconnect();
+      preference.removeEventListener('change', update);
+      document.removeEventListener('visibilitychange', update);
+    };
+  }, []);
+
+  return (
+    <section ref={surface} data-license-tier={tier} data-animate={animate} className={joinClasses('licensed-method-surface', className)}>
+      <div className="licensed-method-shader" aria-hidden="true">
+        {animate && <LicenseShaderBoundary><React.Suspense fallback={null}><LicenseShader tier={tier} /></React.Suspense></LicenseShaderBoundary>}
+      </div>
+      <div className="licensed-method-actions not-prose" aria-label={`${label} access`}>
+        <LicenseBadge tier={tier} />
+        <a className="licensed-method-action" href={getLicenseTierHref(tier)} target="_blank" rel="noopener noreferrer" aria-label={`Get ${label} access (opens in a new tab)`} title="Get a license">
+          <ExternalLink size={15} aria-hidden="true" />
+        </a>
+        <Dialog>
+          <DialogTrigger className="licensed-method-action" aria-label={`About ${label} licensing`} title="License details">
+            <Info size={16} aria-hidden="true" />
+          </DialogTrigger>
+          <DialogContent className="license-details-dialog w-[calc(100vw-2rem)] max-w-md gap-4 rounded-2xl p-6">
+            <LicenseBadge tier={tier} className="w-fit" />
+            <DialogTitle>{label} license details</DialogTitle>
+            <DialogDescription>{getLicenseTierSummary(tier)}</DialogDescription>
+            <p className="text-sm leading-6 text-muted-foreground">A license covers access to the marked feature. Its availability can also depend on your WhatsApp account and the method’s current limitations.</p>
+            <a href="/docs/licensing/licensed-features" className="text-sm font-medium text-primary underline underline-offset-4">Read the feature requirements</a>
+            <GetLicenseButton href={getLicenseTierHref(tier)} label="See current license options" />
+          </DialogContent>
+        </Dialog>
+      </div>
+      <div className="licensed-method-content">{children}</div>
+    </section>
+  );
 }
 
 export function LicensedFeatureCallout({ tier, title, children, className }: { tier: LicenseTier; title?: string; children?: React.ReactNode; className?: string }) {

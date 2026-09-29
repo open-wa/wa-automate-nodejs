@@ -8,25 +8,18 @@ icon: "BookOpen"
 
 This page documents 1 schema-registry client methods in the `mystatus` namespace.
 
+<LicensedMethodSection tier="insiders">
+
 <span id="getstatus---insiders" aria-hidden="true"></span>
-<h2 id="getstatus"><code>getStatus</code></h2>
+## `getStatus`
 
 Get specific status
-
-<LicensedFeatureCallout tier="insiders" />
 
 **Signature** `client.getStatus(contactId: string): Promise<ContactStatus>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -102,3 +95,5 @@ This method is not declared on the in-process Client facade. Use the remote Node
 | Alias | `GET` | `/api/getStatus` | `getStatus` | Active |
 
 </details>
+
+</LicensedMethodSection>

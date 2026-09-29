@@ -9,7 +9,7 @@ icon: "BookOpen"
 This page documents 22 schema-registry client methods in the `groups` namespace.
 
 
-<h2 id="addparticipant"><code>addParticipant</code></h2>
+## `addParticipant`
 
 Add participant to group
 
@@ -104,7 +104,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="approvegroupjoinrequest"><code>approveGroupJoinRequest</code></h2>
+## `approveGroupJoinRequest`
 
 Approve group join request
 
@@ -113,13 +113,6 @@ Approve group join request
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -197,12 +190,12 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 </details>
 
+<LicensedMethodSection tier="restricted">
+
 <span id="creategroup---restricted" aria-hidden="true"></span>
-<h2 id="creategroup"><code>createGroup</code></h2>
+## `createGroup`
 
 Create new group
-
-<LicensedFeatureCallout tier="restricted" />
 
 **Signature** `client.createGroup(name: string, contacts: string[]): Promise<GroupCreationResult \| null>`
 
@@ -298,8 +291,10 @@ In-process Client resolves to `Promise<{ gid: GroupId } \| null>`. The contract 
 
 </details>
 
+</LicensedMethodSection>
 
-<h2 id="demoteparticipant"><code>demoteParticipant</code></h2>
+
+## `demoteParticipant`
 
 Demote participant from admin
 
@@ -394,7 +389,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="getallgroups"><code>getAllGroups</code></h2>
+## `getAllGroups`
 
 Get all groups
 
@@ -403,13 +398,6 @@ Get all groups
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -487,7 +475,7 @@ Serialized chat returned by chat lookups and listings. Its id is an opaque ChatI
 </details>
 
 
-<h2 id="getgroupadmins"><code>getGroupAdmins</code></h2>
+## `getGroupAdmins`
 
 Get group admins
 
@@ -496,13 +484,6 @@ Get group admins
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -578,7 +559,7 @@ Opaque WhatsApp contact identifier. Preserve the exact value returned by the API
 </details>
 
 
-<h2 id="getgroupinfo"><code>getGroupInfo</code></h2>
+## `getGroupInfo`
 
 Get group metadata
 
@@ -673,7 +654,7 @@ In-process Client resolves to `Promise<GroupMetadata \| null>`. The contract abo
 </details>
 
 
-<h2 id="getgroupinvitelink"><code>getGroupInviteLink</code></h2>
+## `getGroupInviteLink`
 
 Get group invite link
 
@@ -762,7 +743,7 @@ In-process Client resolves to `Promise<string>`. The contract above is for the r
 </details>
 
 
-<h2 id="getgroupmembers"><code>getGroupMembers</code></h2>
+## `getGroupMembers`
 
 Retrieves members of a group
 
@@ -852,7 +833,7 @@ In-process Client resolves to `Promise<ContactId[]>`. The contract above is for 
 </details>
 
 
-<h2 id="getgroupmembersid"><code>getGroupMembersId</code></h2>
+## `getGroupMembersId`
 
 Get group member IDs
 
@@ -861,13 +842,6 @@ Get group member IDs
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -945,7 +919,7 @@ Opaque WhatsApp contact identifier. Preserve the exact value returned by the API
 </details>
 
 
-<h2 id="getkickedgroups"><code>getKickedGroups</code></h2>
+## `getKickedGroups`
 
 Get groups where kicked
 
@@ -954,13 +928,6 @@ Get groups where kicked
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -1034,12 +1001,12 @@ Opaque group conversation identifier returned by a group lookup or join method.
 
 </details>
 
+<LicensedMethodSection tier="restricted">
+
 <span id="joingroupvialink---restricted" aria-hidden="true"></span>
-<h2 id="joingroupvialink"><code>joinGroupViaLink</code></h2>
+## `joinGroupViaLink`
 
 Join group via invite link
-
-<LicensedFeatureCallout tier="restricted" />
 
 **Signature** `client.joinGroupViaLink(link: string, returnChatObj?: boolean): Promise<GroupChatId \| boolean \| number \| Chat>`
 
@@ -1132,8 +1099,10 @@ In-process Client resolves to `Promise<GroupId \| boolean \| number>`. The contr
 
 </details>
 
+</LicensedMethodSection>
 
-<h2 id="leavegroup"><code>leaveGroup</code></h2>
+
+## `leaveGroup`
 
 Leave a group
 
@@ -1224,7 +1193,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="promoteparticipant"><code>promoteParticipant</code></h2>
+## `promoteParticipant`
 
 Promote participant to admin
 
@@ -1319,7 +1288,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="rejectgroupjoinrequest"><code>rejectGroupJoinRequest</code></h2>
+## `rejectGroupJoinRequest`
 
 Reject group join request
 
@@ -1328,13 +1297,6 @@ Reject group join request
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -1413,7 +1375,7 @@ This method is not declared on the in-process Client facade. Use the remote Node
 </details>
 
 
-<h2 id="removeparticipant"><code>removeParticipant</code></h2>
+## `removeParticipant`
 
 Remove participant from group
 
@@ -1508,7 +1470,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="revokegroupinvitelink"><code>revokeGroupInviteLink</code></h2>
+## `revokeGroupInviteLink`
 
 Revoke group invite link
 
@@ -1600,7 +1562,7 @@ In-process Client resolves to `Promise<string \| boolean>`. The contract above i
 </details>
 
 
-<h2 id="setgroupdescription"><code>setGroupDescription</code></h2>
+## `setGroupDescription`
 
 Set group description
 
@@ -1694,7 +1656,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="setgroupedittoadminsonly"><code>setGroupEditToAdminsOnly</code></h2>
+## `setGroupEditToAdminsOnly`
 
 Restrict group editing to admins only
 
@@ -1703,13 +1665,6 @@ Restrict group editing to admins only
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -1789,7 +1744,7 @@ This method is not declared on the in-process Client facade. Use the remote Node
 </details>
 
 
-<h2 id="setgroupicon"><code>setGroupIcon</code></h2>
+## `setGroupIcon`
 
 Set group icon
 
@@ -1883,7 +1838,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="setgrouptitle"><code>setGroupTitle</code></h2>
+## `setGroupTitle`
 
 Set group title
 
@@ -1977,7 +1932,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="setgrouptoadminsonly"><code>setGroupToAdminsOnly</code></h2>
+## `setGroupToAdminsOnly`
 
 Restrict group to admins only
 
@@ -1986,13 +1941,6 @@ Restrict group to admins only
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts

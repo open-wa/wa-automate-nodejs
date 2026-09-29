@@ -8,25 +8,18 @@ icon: "BookOpen"
 
 This page documents 6 schema-registry client methods in the `status` namespace.
 
+<LicensedMethodSection tier="insiders">
+
 <span id="deleteallstatus---insiders" aria-hidden="true"></span>
-<h2 id="deleteallstatus"><code>deleteAllStatus</code></h2>
+## `deleteAllStatus`
 
 Delete all statuses
-
-<LicensedFeatureCallout tier="insiders" />
 
 **Signature** `client.deleteAllStatus(): Promise<boolean>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -99,25 +92,20 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 </details>
 
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="insiders">
+
 <span id="deletestatus---insiders" aria-hidden="true"></span>
-<h2 id="deletestatus"><code>deleteStatus</code></h2>
+## `deleteStatus`
 
 Delete status
-
-<LicensedFeatureCallout tier="insiders" />
 
 **Signature** `client.deleteStatus(statusesToDelete: string \| string[]): Promise<boolean>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -193,25 +181,20 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 </details>
 
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="insiders">
+
 <span id="getstories---insiders" aria-hidden="true"></span>
-<h2 id="getstories"><code>getStories</code></h2>
+## `getStories`
 
 Get all stories
-
-<LicensedFeatureCallout tier="insiders" />
 
 **Signature** `client.getStories(): Promise<Story[]>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -288,25 +271,20 @@ Message-shaped status entry, based on the legacy story API. Chat and sender may 
 
 </details>
 
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="insiders">
+
 <span id="postimagestatus---insiders" aria-hidden="true"></span>
-<h2 id="postimagestatus"><code>postImageStatus</code></h2>
+## `postImageStatus`
 
 Post image status
-
-<LicensedFeatureCallout tier="insiders" />
 
 **Signature** `client.postImageStatus(image: string, caption?: string): Promise<MessageId \| string \| boolean>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -383,25 +361,20 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 </details>
 
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="insiders">
+
 <span id="posttextstatus---insiders" aria-hidden="true"></span>
-<h2 id="posttextstatus"><code>postTextStatus</code></h2>
+## `postTextStatus`
 
 Post text status
-
-<LicensedFeatureCallout tier="insiders" />
 
 **Signature** `client.postTextStatus(text: string, backgroundColor?: string, font?: number): Promise<MessageId \| string \| boolean>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -478,25 +451,20 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 </details>
 
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="insiders">
+
 <span id="postvideostatus---insiders" aria-hidden="true"></span>
-<h2 id="postvideostatus"><code>postVideoStatus</code></h2>
+## `postVideoStatus`
 
 Post video status
-
-<LicensedFeatureCallout tier="insiders" />
 
 **Signature** `client.postVideoStatus(video: string, caption?: string): Promise<MessageId \| string \| boolean>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -572,3 +540,5 @@ This method is not declared on the in-process Client facade. Use the remote Node
 | Alias | `POST` | `/api/postVideoStatus` | `postVideoStatus` | Active |
 
 </details>
+
+</LicensedMethodSection>

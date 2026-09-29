@@ -4,6 +4,7 @@
 @import 'fumadocs-ui/css/preset.css';
 @import '@open-wa/ui-components/theme.css';
 @import './landing.css';
+@import './licensed-methods.css';
 @source '../../../../packages/ui-components/src';
 
 .api-explorer-shell {
@@ -545,6 +546,10 @@
 
 .reference-controls { position: sticky; top: calc(var(--fd-banner-height, 0px) + var(--ow-docs-header-height)); z-index: 4; padding-block: 8px; background: var(--background); border-bottom: 1px solid var(--border); }
 .reference-method { scroll-margin-block-start: calc(var(--fd-banner-height, 0px) + var(--ow-docs-header-height) + var(--ow-docs-contents-height)); }
+.docs-guide-page :is(h2, h3, h4)[id],
+.docs-guide-page span[id][aria-hidden="true"] {
+  scroll-margin-block-start: calc(var(--fd-banner-height, 0px) + var(--ow-docs-header-height) + var(--ow-docs-contents-height) + 12px);
+}
 .reference-code pre, .reference-return code { font-size: 14px!important; }
 .method-explorer nav a { font-size: 14px; }
 @media (max-width: 767px) {

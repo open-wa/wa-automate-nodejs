@@ -442,15 +442,6 @@ function buildOverviewBlock(def: MethodDefinition): string {
   ].join('\n');
 }
 
-function buildLicenseCallout(def: MethodDefinition): string {
-  const license = def.meta.license;
-  if (!license || license === 'none') {
-    return '';
-  }
-
-  return `<LicensedFeatureCallout tier="${license}" />`;
-}
-
 function buildOutputBlock(outputSummary: string, notes?: string): string {
   const lines = [
     '| Prop | Value |',
@@ -617,13 +608,15 @@ function buildUsageTabs(def: MethodDefinition, route: HttpMethodDefinition | und
     '### Usage',
     '',
     '<InterfaceTabs>',
-    '  <InterfaceTab value="Embedded">',
-    '',
-    '```ts',
-    record.examples.inProcessSdk || '// Use SocketClient or HTTP; this method is not on the in-process Client facade.',
-    '```',
-    '',
-    '  </InterfaceTab>',
+    ...(record.sdkReturnType ? [
+      '  <InterfaceTab value="Embedded">',
+      '',
+      '```ts',
+      record.examples.inProcessSdk,
+      '```',
+      '',
+      '  </InterfaceTab>',
+    ] : []),
     '  <InterfaceTab value="SocketClient">',
     '',
     '```ts',
@@ -729,15 +722,12 @@ function buildMethodSection(def: MethodDefinition, route: HttpMethodDefinition |
   const record = buildCanonicalMethodRecord(def, route);
   const outputSummary = record.returnType;
   const parameters = record.parameters;
-  const licenseCallout = buildLicenseCallout(def);
 
   const parts = [
     record.license ? `<span id="${record.anchor}---${record.license}" aria-hidden="true"></span>` : '',
-    `<h2 id="${record.anchor}"><code>${def.meta.functionName}</code></h2>`,
+    `## \`${def.meta.functionName}\``,
     '',
     record.description,
-    '',
-    licenseCallout,
     '',
     `**Signature** \`${escapeMarkdownInline(buildMethodSignature(record))}\``,
     '',
@@ -768,7 +758,20 @@ function buildMethodSection(def: MethodDefinition, route: HttpMethodDefinition |
     '</details>',
   ];
 
-  return parts.filter((part, index) => part !== '' || parts[index - 1] !== '').join('\n');
+  const section = parts.filter((part, index) => part !== '' || parts[index - 1] !== '').join('\n');
+  if (!record.license) {
+    return section;
+  }
+
+  // Keep the whole method contract inside the tier treatment. The blank lines
+  // make headings, tables, and tabs parse as Markdown children of the MDX node.
+  return [
+    `<LicensedMethodSection tier="${record.license}">`,
+    '',
+    section,
+    '',
+    '</LicensedMethodSection>',
+  ].join('\n');
 }
 
 function slugForNamespace(namespace: string): string {
@@ -823,23 +826,29 @@ function buildLicensedMethodsPage(methods: MethodDefinition[]): string {
     const rows = list.map((def) => {
       return `| [\`${def.meta.functionName}\`](/docs/reference/client/client#${methodAnchor(def.meta.functionName)}) | \`${escapeTableCell(def.meta.namespace ?? 'core')}\` | ${escapeTableCell(def.meta.description ?? '')} |`;
     });
-    return [
+    const section = [
       `## \`${tier}\` (${list.length})`,
-      '',
-      `<LicensedFeatureCallout tier="${tier}" />`,
       '',
       '| Method | Namespace | Description |',
       '| --- | --- | --- |',
       ...rows,
     ].join('\n');
+    return [
+      `<LicensedMethodSection tier="${tier}">`,
+      '',
+      section,
+      '',
+      '</LicensedMethodSection>',
+    ].join('\n');
   });
 
   const freeCount = (byTier.get('none') ?? []).length;
+  const licensedCount = methods.length - freeCount;
   return buildGeneratedPage(
     'Licensed methods',
     'Client methods that require a license key, grouped by tier.',
     [
-      `Most methods are free. **${freeCount}** methods require no license. The methods below require a license key for the listed tier — calling them without one returns a licensing error.`,
+      `The method registry marks **${licensedCount}** methods as licensed. The tables group them by required tier; check each method’s reference for runtime and account requirements.`,
       '',
       sections.join('\n\n'),
     ].join('\n'),

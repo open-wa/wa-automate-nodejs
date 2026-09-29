@@ -10,6 +10,7 @@ import {
   GetLicenseButton,
   LicenseBadge,
   LicensedFeatureCallout,
+  LicensedMethodSection,
   type LicenseTier,
 } from '@/components/licensing';
 import {
@@ -170,6 +171,7 @@ export const docsMdxComponents = {
   GetLicenseButton,
   LicenseBadge,
   LicensedFeatureCallout,
+  LicensedMethodSection,
   Callout,
   ComparisonTable,
   FAQ,

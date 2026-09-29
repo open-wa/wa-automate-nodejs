@@ -9,7 +9,7 @@ icon: "BookOpen"
 This page documents 15 schema-registry client methods in the `chats` namespace.
 
 
-<h2 id="archivechat"><code>archiveChat</code></h2>
+## `archiveChat`
 
 Archive a chat
 
@@ -101,7 +101,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="clearchat"><code>clearChat</code></h2>
+## `clearChat`
 
 Clear chat history
 
@@ -193,7 +193,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="deletechat"><code>deleteChat</code></h2>
+## `deleteChat`
 
 Delete a chat
 
@@ -285,7 +285,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="getallchats"><code>getAllChats</code></h2>
+## `getAllChats`
 
 Returns serialized Chat objects from the current session, optionally limited to chats with unread messages.
 
@@ -378,7 +378,7 @@ Serialized chat returned by chat lookups and listings. Its id is an opaque ChatI
 </details>
 
 
-<h2 id="getchat"><code>getChat</code></h2>
+## `getChat`
 
 Get specific chat by ID
 
@@ -476,7 +476,7 @@ In-process Client resolves to `Promise<Chat \| false \| undefined>`. The contrac
 </details>
 
 
-<h2 id="getchatwithnoncontacts"><code>getChatWithNonContacts</code></h2>
+## `getChatWithNonContacts`
 
 Get chats with non-contacts
 
@@ -485,13 +485,6 @@ Get chats with non-contacts
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -565,7 +558,7 @@ This method is not declared on the in-process Client facade. Use the remote Node
 </details>
 
 
-<h2 id="ischatonline"><code>isChatOnline</code></h2>
+## `isChatOnline`
 
 Check if chat is online
 
@@ -654,7 +647,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="markasread"><code>markAsRead</code></h2>
+## `markAsRead`
 
 Mark chat as read
 
@@ -663,13 +656,6 @@ Mark chat as read
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -746,7 +732,7 @@ This method is not declared on the in-process Client facade. Use the remote Node
 </details>
 
 
-<h2 id="markasunread"><code>markAsUnread</code></h2>
+## `markAsUnread`
 
 Mark chat as unread
 
@@ -838,7 +824,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="mutechat"><code>muteChat</code></h2>
+## `muteChat`
 
 Mute a chat
 
@@ -932,7 +918,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="pinchat"><code>pinChat</code></h2>
+## `pinChat`
 
 Pin a chat
 
@@ -1024,7 +1010,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="setchatephemeral"><code>setChatEphemeral</code></h2>
+## `setChatEphemeral`
 
 Set ephemeral messages for chat
 
@@ -1033,13 +1019,6 @@ Set ephemeral messages for chat
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -1118,7 +1097,7 @@ This method is not declared on the in-process Client facade. Use the remote Node
 </details>
 
 
-<h2 id="unarchivechat"><code>unarchiveChat</code></h2>
+## `unarchiveChat`
 
 Unarchive a chat
 
@@ -1210,7 +1189,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="unmutechat"><code>unmuteChat</code></h2>
+## `unmuteChat`
 
 Unmute a chat
 
@@ -1302,7 +1281,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="unpinchat"><code>unpinChat</code></h2>
+## `unpinChat`
 
 Unpin a chat
 

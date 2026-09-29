@@ -9,7 +9,7 @@ icon: "BookOpen"
 This page documents 10 schema-registry client methods in the `contacts` namespace.
 
 
-<h2 id="blockcontact"><code>blockContact</code></h2>
+## `blockContact`
 
 Block a contact
 
@@ -102,12 +102,12 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 
 </details>
 
+<LicensedMethodSection tier="insiders">
+
 <span id="checknumberstatus---insiders" aria-hidden="true"></span>
-<h2 id="checknumberstatus"><code>checkNumberStatus</code></h2>
+## `checkNumberStatus`
 
 Check if number is on WhatsApp
-
-<LicensedFeatureCallout tier="insiders" />
 
 **Signature** `client.checkNumberStatus(contactId: string): Promise<NumberCheck>`
 
@@ -201,8 +201,10 @@ In-process Client resolves to `Promise<NumberCheck>`. The contract above is for 
 
 </details>
 
+</LicensedMethodSection>
 
-<h2 id="checkreadreceipts"><code>checkReadReceipts</code></h2>
+
+## `checkReadReceipts`
 
 Check read receipts setting
 
@@ -211,13 +213,6 @@ Check read receipts setting
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -293,7 +288,7 @@ This method is not declared on the in-process Client facade. Use the remote Node
 </details>
 
 
-<h2 id="getallcontacts"><code>getAllContacts</code></h2>
+## `getAllContacts`
 
 Retrieves all contacts
 
@@ -385,7 +380,7 @@ In-process Client resolves to `Promise<Contact[]>`. The contract above is for th
 </details>
 
 
-<h2 id="getblockedids"><code>getBlockedIds</code></h2>
+## `getBlockedIds`
 
 Get blocked contact IDs
 
@@ -394,13 +389,6 @@ Get blocked contact IDs
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -474,7 +462,7 @@ This method is not declared on the in-process Client facade. Use the remote Node
 </details>
 
 
-<h2 id="getcommongroups"><code>getCommonGroups</code></h2>
+## `getCommonGroups`
 
 Get common groups with contact
 
@@ -564,7 +552,7 @@ In-process Client resolves to `Promise<Array<{ id: GroupId; title: string }>>`. 
 </details>
 
 
-<h2 id="getcontact"><code>getContact</code></h2>
+## `getContact`
 
 Get specific contact
 
@@ -655,25 +643,18 @@ In-process Client resolves to `Promise<Contact \| null>`. The contract above is 
 
 </details>
 
+<LicensedMethodSection tier="insiders">
+
 <span id="getnumberprofile---insiders" aria-hidden="true"></span>
-<h2 id="getnumberprofile"><code>getNumberProfile</code></h2>
+## `getNumberProfile`
 
 Get profile of number
-
-<LicensedFeatureCallout tier="insiders" />
 
 **Signature** `client.getNumberProfile(contactId: string): Promise<NumberProfile>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -748,8 +729,10 @@ Provisional number profile based on the public Contact fields. Fields are option
 
 </details>
 
+</LicensedMethodSection>
 
-<h2 id="getprofilepicture"><code>getProfilePicture</code></h2>
+
+## `getProfilePicture`
 
 Get profile picture from server
 
@@ -840,7 +823,7 @@ In-process Client resolves to `Promise<string \| null>`. The contract above is f
 </details>
 
 
-<h2 id="unblockcontact"><code>unblockContact</code></h2>
+## `unblockContact`
 
 Unblock a contact
 

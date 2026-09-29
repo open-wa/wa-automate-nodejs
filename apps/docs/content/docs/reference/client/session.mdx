@@ -9,7 +9,7 @@ icon: "BookOpen"
 This page documents 16 schema-registry client methods in the `session` namespace.
 
 
-<h2 id="getbatterylevel"><code>getBatteryLevel</code></h2>
+## `getBatteryLevel`
 
 Get phone battery level
 
@@ -97,7 +97,7 @@ In-process Client resolves to `Promise<number>`. The contract above is for the r
 </details>
 
 
-<h2 id="getconnectionstate"><code>getConnectionState</code></h2>
+## `getConnectionState`
 
 Get connection state
 
@@ -185,7 +185,7 @@ In-process Client resolves to `Promise<string>`. The contract above is for the r
 </details>
 
 
-<h2 id="getfeatures"><code>getFeatures</code></h2>
+## `getFeatures`
 
 Get enabled features
 
@@ -275,7 +275,7 @@ WhatsApp feature flags keyed by name. Values are provider-defined and must be na
 </details>
 
 
-<h2 id="gethostnumber"><code>getHostNumber</code></h2>
+## `getHostNumber`
 
 Get host phone number
 
@@ -363,7 +363,7 @@ In-process Client resolves to `Promise<string>`. The contract above is for the r
 </details>
 
 
-<h2 id="getlicensetype"><code>getLicenseType</code></h2>
+## `getLicenseType`
 
 Get license type
 
@@ -372,13 +372,6 @@ Get license type
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -452,7 +445,7 @@ This method is not declared on the in-process Client facade. Use the remote Node
 </details>
 
 
-<h2 id="getloadedmessagecount"><code>getLoadedMessageCount</code></h2>
+## `getLoadedMessageCount`
 
 Get loaded message count
 
@@ -542,7 +535,7 @@ In-process Client resolves to `Promise<number>`. The contract above is for the r
 </details>
 
 
-<h2 id="getme"><code>getMe</code></h2>
+## `getMe`
 
 Get host account info
 
@@ -638,7 +631,7 @@ Host account attributes plus the current account ID. Additional WhatsApp Web att
 </details>
 
 
-<h2 id="getprocessstats"><code>getProcessStats</code></h2>
+## `getProcessStats`
 
 Get process statistics
 
@@ -728,7 +721,7 @@ Process diagnostics keyed by process ID. The provider controls each entry; no st
 </details>
 
 
-<h2 id="getsnapshot"><code>getSnapshot</code></h2>
+## `getSnapshot`
 
 Take screenshot
 
@@ -737,13 +730,6 @@ Take screenshot
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -818,7 +804,7 @@ This method is not declared on the in-process Client facade. Use the remote Node
 </details>
 
 
-<h2 id="getuseragent"><code>getUserAgent</code></h2>
+## `getUserAgent`
 
 Get user agent
 
@@ -827,13 +813,6 @@ Get user agent
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -908,7 +887,7 @@ This method is not declared on the in-process Client facade. Use the remote Node
 </details>
 
 
-<h2 id="getwaversion"><code>getWAVersion</code></h2>
+## `getWAVersion`
 
 Get WhatsApp Web version
 
@@ -998,7 +977,7 @@ In-process Client resolves to `Promise<string>`. The contract above is for the r
 </details>
 
 
-<h2 id="healthcheck"><code>healthCheck</code></h2>
+## `healthCheck`
 
 Health check
 
@@ -1007,13 +986,6 @@ Health check
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -1088,7 +1060,7 @@ Browser health diagnostics. This is not the Easy API /health HTTP envelope.
 </details>
 
 
-<h2 id="isplugged"><code>isPlugged</code></h2>
+## `isPlugged`
 
 Check if phone is charging
 
@@ -1178,7 +1150,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="setmyname"><code>setMyName</code></h2>
+## `setMyName`
 
 Set host name
 
@@ -1273,7 +1245,7 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
-<h2 id="setmystatus"><code>setMyStatus</code></h2>
+## `setMyStatus`
 
 Set host status
 
@@ -1367,25 +1339,18 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 
 </details>
 
+<LicensedMethodSection tier="insiders">
+
 <span id="setprofilepicture---insiders" aria-hidden="true"></span>
-<h2 id="setprofilepicture"><code>setProfilePicture</code></h2>
+## `setProfilePicture`
 
 Set profile picture
-
-<LicensedFeatureCallout tier="insiders" />
 
 **Signature** `client.setProfilePicture(image: string): Promise<boolean>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-// Use SocketClient or HTTP; this method is not on the in-process Client facade.
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -1462,3 +1427,5 @@ This method is not declared on the in-process Client facade. Use the remote Node
 | Alias | `PUT` | `/api/setProfilePicture` | `setProfilePicture` | Active |
 
 </details>
+
+</LicensedMethodSection>
