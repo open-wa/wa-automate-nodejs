@@ -14,7 +14,7 @@
 .landing-steps li{display:flex;align-items:center;gap:7px;white-space:nowrap}.landing-steps li>span{display:flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;font-size:12px;background:var(--ow-surface-selected);color:var(--primary)}
 .landing-command{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--ow-border-strong);border-radius:10px;background:var(--muted);min-width:0}
 .landing-command>span{font-family:var(--font-mono);color:var(--muted-foreground)}
-.landing-command code{font-family:var(--font-mono);font-size:13px;overflow-x:auto;white-space:nowrap;min-width:0;color:var(--foreground)}
+.landing-command code{font-family:var(--font-mono);font-size:13px;white-space:normal;overflow-wrap:anywhere;min-width:0;color:var(--foreground)}
 .landing-copy{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 9px!important;margin-left:auto;flex-shrink:0;border:1px solid var(--border);border-radius:7px;background:var(--card);font-size:13px;color:var(--foreground);box-shadow:none;cursor:pointer}
 .landing-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}.landing-button{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:44px;padding:12px 16px;font-size:14px;font-weight:500;border-radius:10px;line-height:20px}
 .landing-primary{background:var(--ow-color-cobalt-500);color:white;border:1px solid var(--ow-color-cobalt-500)}.landing a.landing-primary:hover{background:var(--ow-color-cobalt-700);color:white}
