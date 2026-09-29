@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/runtime-browser",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Browser Effect runtime Layer for open-wa control-plane clients",
   "type": "module",
   "main": "./dist/index.cjs",

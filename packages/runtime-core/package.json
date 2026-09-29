@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/runtime-core",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Portable Effect runtime capabilities for open-wa",
   "type": "module",
   "main": "./dist/index.cjs",

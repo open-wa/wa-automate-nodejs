@@ -1,5 +1,11 @@
 # @open-wa/node-red
 
+
+## 5.1.0
+<sub>2026-09-29</sub>
+
+- *(minor)* Version bump from group with `@open-wa/api` v5.1.0, `@open-wa/client` v5.1.0, `@open-wa/core` v5.1.0, `@open-wa/schema` v5.1.0, `@open-wa/wa-automate` v5.1.0
+
 ## 5.0.0
 
 ### Patch Changes
