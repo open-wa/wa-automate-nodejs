@@ -7,15 +7,6 @@ description: Build a plugin that detects voice notes, sends audio to a speech-to
 
 This example makes a plugin that listens for WhatsApp voice notes. It sends decrypted audio to the OpenAI transcription API. Then, it sends the transcription to the sender.
 
-## What the plugin does
-
-When someone sends a voice note to your WhatsApp session:
-
-1. The plugin detects it is a voice note
-2. Decrypts the audio data
-3. Sends it to a speech-to-text API
-4. Replies to the sender with the transcription as a quoted message
-
 ## Detect voice notes
 
 Voice notes arrive as messages with specific properties:
@@ -61,7 +52,7 @@ function getVoiceNote(message: unknown): VoiceNoteMessage | null {
 
 ## Decrypt media
 
-Use `client.decryptMedia` to get the raw audio bytes:
+`client.decryptMedia` returns the decrypted media as a data URL. Decode its base64 content before uploading the audio:
 
 ```ts
 function errorMessage(error: unknown) {
@@ -75,8 +66,8 @@ function errorMessage(error: unknown) {
 
   try {
     const mediaData = await client.decryptMedia(message);
-    // mediaData is a Buffer containing the OGG audio
-    logger.info('Media decrypted', { size: mediaData.length });
+    // mediaData is a data:audio/ogg;base64,... URL.
+    logger.info('Media decrypted', { hasMedia: mediaData.startsWith('data:') });
   } catch (error) {
     logger.error('Failed to decrypt media', { error: errorMessage(error) });
   }
@@ -88,9 +79,14 @@ function errorMessage(error: unknown) {
 Send the audio to a speech-to-text service. This example uses OpenAI's audio transcription endpoint:
 
 ```ts
-async function transcribe(audioBuffer: Buffer, apiKey: string): Promise<string> {
+async function transcribe(audioDataUrl: string, apiKey: string): Promise<string> {
+  const match = /^data:([^;,]+);base64,(.+)$/.exec(audioDataUrl);
+  if (!match) throw new Error('Decrypted media was not a base64 data URL');
+
+  const [, mimeType, encodedAudio] = match;
+  const audioBuffer = Buffer.from(encodedAudio, 'base64');
   const formData = new FormData();
-  formData.append('file', new Blob([audioBuffer]), 'audio.ogg');
+  formData.append('file', new Blob([new Uint8Array(audioBuffer)], { type: mimeType }), 'audio.ogg');
   formData.append('model', 'whisper-1');
 
   const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
@@ -115,73 +111,11 @@ async function transcribe(audioBuffer: Buffer, apiKey: string): Promise<string> 
 }
 ```
 
-## Reply with the transcript
-
-Use `client.reply` to send the transcription as a quoted reply:
+## Complete plugin
 
 ```ts
-'message.received': async ({ message, client, logger }) => {
-  // ... after transcription ...
-  const voiceNote = getVoiceNote(message);
-
-  if (!voiceNote) return;
-
-  const transcription = await transcribe(mediaData, config.apiKey);
-
-  await client.reply(voiceNote.from, transcription, voiceNote.id);
-  logger.info('Transcription sent');
-}
-```
-
-## Configuration
-
-Use Zod for configuration validation so the plugin fails at startup when the API key is missing:
-
-```ts
-import { createPlugin } from '@open-wa/plugin-sdk';
-import { z } from 'zod';
-
-const configSchema = z.object({
-  apiKey: z.string().min(1, 'STT API key is required'),
-  language: z.string().default('en'),
-  enabled: z.boolean().default(true),
-});
-
-export default createPlugin({
-  meta: { name: 'voice-transcriber' },
-  configSchema,
-  init: async ({ events, logger, config, client }) => {
-    if (!config.enabled) {
-      logger.info('Plugin disabled');
-      return;
-    }
-
-    logger.info('Voice transcriber loaded');
-
-    events.on('message.received', async ({ message }) => {
-      const voiceNote = getVoiceNote(message);
-
-      if (!voiceNote) return;
-
-      try {
-        const mediaData = await client.decryptMedia(message);
-        const transcription = await transcribe(mediaData, config.apiKey);
-        await client.reply(voiceNote.from, transcription, voiceNote.id);
-        logger.info('Transcription sent');
-      } catch (error) {
-        logger.error('Transcription failed', { error: errorMessage(error) });
-      }
-    });
-  },
-});
-```
-
-## Full code example
-
-```ts
-// voice-transcriber.ts
-import { createPlugin } from '@open-wa/plugin-sdk';
-import { z } from 'zod';
+// src/voice-transcriber.ts
+import { createPlugin, z } from '@open-wa/plugin-sdk';
 
 type VoiceNoteMessage = {
   type: 'audio';
@@ -222,9 +156,14 @@ const configSchema = z.object({
   enabled: z.boolean().default(true),
 });
 
-async function transcribe(audioBuffer: Buffer, apiKey: string, language: string): Promise<string> {
+async function transcribe(audioDataUrl: string, apiKey: string, language: string): Promise<string> {
+  const match = /^data:([^;,]+);base64,(.+)$/.exec(audioDataUrl);
+  if (!match) throw new Error('Decrypted media was not a base64 data URL');
+
+  const [, mimeType, encodedAudio] = match;
+  const audioBuffer = Buffer.from(encodedAudio, 'base64');
   const formData = new FormData();
-  formData.append('file', new Blob([audioBuffer]), 'audio.ogg');
+  formData.append('file', new Blob([new Uint8Array(audioBuffer)], { type: mimeType }), 'audio.ogg');
   formData.append('model', 'whisper-1');
   formData.append('language', language);
 
@@ -267,7 +206,7 @@ export default createPlugin({
 
       try {
         const mediaData = await client.decryptMedia(message);
-        logger.info('Media decrypted', { size: mediaData.length });
+        logger.info('Media decrypted', { hasMedia: mediaData.startsWith('data:') });
 
         const transcription = await transcribe(mediaData, config.apiKey, config.language);
         logger.info('Transcription complete', { length: transcription.length });
@@ -281,15 +220,14 @@ export default createPlugin({
 });
 ```
 
-## Load and test it
+## Compile and load it
 
-Add to your `wa.config.js`:
+Using the TypeScript setup in [Publishing a plugin](/docs/plugins/publishing), compile `src/voice-transcriber.ts` to `dist/voice-transcriber.js`. Save this configuration as `wa.config.mjs` beside `src` and `dist`:
 
 ```js
-// wa.config.js
 export default {
   plugins: [
-    './plugins/voice-transcriber', // Local path
+    new URL('./dist/voice-transcriber.js', import.meta.url).href,
   ],
   pluginConfig: {
     'voice-transcriber': {
@@ -301,21 +239,21 @@ export default {
 };
 ```
 
-Start a named session for testing:
+Start a named session with this config:
 
 ```bash
-npx @open-wa/wa-automate@5.1.0 --session-id dictation-test --host 127.0.0.1 --port 8080
+npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --session-id dictation-test --host 127.0.0.1 --port 8080
 ```
 
-Send a voice note to your session. The plugin replies with the transcription. If it does not reply, make sure that the message is an OGG voice note. Also make sure that `STT_API_KEY` is set.
+Send an OGG voice note to the connected account. The plugin replies with the transcription; if it does not, check the Easy API logs and confirm that `STT_API_KEY` is set.
 
 ## What can go wrong
 
-The example catches errors and logs them without crashing:
+The example logs per-message failures and continues handling later events:
 
 - **Decryption failure**: Logged, message skipped
 - **API failure**: Logged, message skipped
-- **Empty transcription**: Still sent (the user can want to know the API heard nothing)
+- **Empty transcription**: The API's empty text is still sent as a reply.
 
 ## Related
 

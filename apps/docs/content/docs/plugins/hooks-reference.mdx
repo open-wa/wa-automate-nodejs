@@ -139,7 +139,7 @@ To detect group messages, check `message.isGroupMsg` or whether the `from` field
 
 ### `message.sent`
 
-The current host maps this hook to its `message.any` event. Inspect the message payload if you need to distinguish sent messages from other message events.
+This hook currently reports the `message.any` event. Inspect the payload if you need to distinguish sent messages from other message events.
 
 ```ts
 'message.sent': async ({ message }) => {
@@ -154,21 +154,18 @@ The current host maps this hook to its `message.any` event. Inspect the message 
 Fires when a message acknowledgment is received.
 
 ```ts
-'message.ack': async ({ messageId, ack }) => {
-  logger.info('Message acknowledged', { messageId, ack });
+'message.ack': async ({ ack }) => {
+  logger.info('Message acknowledged', { ack });
 }
 ```
 
-**Payload:**
-
-- `ctx`, the event context
-- `ack`, the acknowledgment value supplied by the runtime
+**Payload:** `{ ctx: EventContext; ack: unknown }`, the event context and runtime acknowledgment value.
 
 ## Message interceptors
 
 ### `message.send.before`
 
-The SDK type declares this field, but the current `PluginHost` does not wire it to a runtime event. Returning it from `init()` does not intercept sends today.
+The hook is declared in the SDK types, but the host does not call it when a message is sent. Returning it from `init()` does not intercept sends.
 
 ```ts
 'message.send.before': async (
@@ -186,7 +183,7 @@ The shown shape documents the declared type only. Use an explicit wrapper around
 
 ### `message.send.after`
 
-The SDK type also declares this field, but the current `PluginHost` does not wire it to a runtime event. Returning it from `init()` does not observe sends today.
+The hook is declared in the SDK types, but the host does not call it after a message is sent. Returning it from `init()` does not observe sends.
 
 ```ts
 'message.send.after': async (
@@ -254,10 +251,10 @@ init: async () => ({
 - `path`, declared route segment; use `/` for the current dashboard entry
 - `title`, display title in sidebar
 - `icon`, emoji or Lucide icon name
-- `order`, optional ordering metadata for dashboard consumers
-- `description`, optional description shown with the standard plugin status view
+- `order`, optional ordering metadata; the current dashboard does not sort by it
+- `description`, optional metadata; the current dashboard does not display it
 
-The current dashboard uses these declarations as manifest and sidebar metadata and renders its standard plugin status screen. They do not provide custom React page components.
+The dashboard uses these declarations for its manifest and sidebar, then opens the standard plugin status view. The hook does not add a custom plugin screen.
 
 See **[Dashboard pages](/docs/plugins/dashboard-pages)** for more details.
 
@@ -265,7 +262,7 @@ See **[Dashboard pages](/docs/plugins/dashboard-pages)** for more details.
 
 ### `tool`
 
-Register tools that AI agents or automation scripts can call. Keep tool descriptions narrow and validate arguments. Do not expose actions that an agent must not run.
+Declare a tool for a host integration to connect to an agent. Keep its description narrow, validate arguments, and avoid actions the agent must not run. The current MCP endpoint does not expose plugin-declared tools; see [AI Tools](/docs/plugins/ai-tools) for that limitation.
 
 ```ts
 init: async ({ client }) => ({

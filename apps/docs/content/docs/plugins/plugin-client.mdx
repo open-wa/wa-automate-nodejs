@@ -137,8 +137,8 @@ await client.reply('1234567890@c.us', 'Got it!', originalMessageId);
 Decrypt media from a message object.
 
 ```ts
-const base64Data = await client.decryptMedia(message);
-// base64Data is a base64-encoded string of the media content
+const mediaDataUrl = await client.decryptMedia(message);
+// mediaDataUrl is a data URL, such as 'data:image/png;base64,...'
 ```
 
 Use this for images, voice notes, videos, and documents received in messages.

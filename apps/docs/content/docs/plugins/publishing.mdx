@@ -5,7 +5,7 @@ description: How to package, version, and share your plugin with the community.
 
 # Publishing a Plugin
 
-Once you have built a plugin, you can want to share it with others. This guide covers packaging, publishing, and documentation best practices.
+Package your plugin as an npm module so users can install it and load it from their open-wa configuration.
 
 ## How to Share a Plugin
 
@@ -40,7 +40,7 @@ The workflow is:
     "dist"
   ],
   "peerDependencies": {
-    "@open-wa/plugin-sdk": ">=5.0.0"
+    "@open-wa/plugin-sdk": ">=5.0.0 <6.0.0"
   },
   "scripts": {
     "build": "tsc",
@@ -51,12 +51,12 @@ The workflow is:
 
 ### Key Fields
 
-- **`name`**, Use a scoped name (`@myorg/my-plugin`) to prevent collisions
-- **`main`**, The entry point for CommonJS consumers
-- **`exports`**, Modern module resolution with ESM support
-- **`types`**, TypeScript type declarations
-- **`files`**, Only ship the `dist` folder, not source files
-- **`peerDependencies`**, Declare compatibility with `@open-wa/plugin-sdk`
+- **`name`**: Use a scoped name such as `@myorg/my-plugin` to reduce naming collisions.
+- **`main`**: Set the package entry point for tools that read this legacy field.
+- **`exports`**: Declare the ESM entry point and type declarations; add a `require` entry if you support CommonJS consumers.
+- **`types`**: Point TypeScript users to the generated declarations.
+- **`files`**: Publish only the files users need, such as `dist`.
+- **`peerDependencies`**: Declare the SDK versions your plugin supports.
 
 ### TypeScript Compilation
 
@@ -85,9 +85,9 @@ Compile your plugin before publishing:
 
 Follow semver (`MAJOR.MINOR.PATCH`):
 
-- **MAJOR**, Breaking changes (e.g., removing hooks, changing config schema)
-- **MINOR**, New features (e.g., adding new hooks, new config options)
-- **PATCH**, Bug fixes
+- **MAJOR**: Breaking changes, such as removing a hook or changing a required config field.
+- **MINOR**: Backward-compatible features, such as adding an optional config field.
+- **PATCH**: Backward-compatible fixes.
 
 ### Compatibility with open-wa Versions
 
@@ -106,10 +106,7 @@ Note which versions of open-wa your plugin is compatible with:
 
 ### Communicating Breaking Changes
 
-When releasing a major version:
-- Update the README with migration instructions
-- Use GitHub releases with changelogs
-- Consider deprecation warnings in the plugin code before removing features
+For a major release, include migration instructions in the README and changelog. If you plan to remove a feature, give users a deprecation period where practical.
 
 ## Telling Users How to Load It
 
@@ -123,10 +120,10 @@ pnpm add @myorg/my-plugin
 
 ### Configuration
 
-Document the exact `wa.config.js` entries users need:
+Document the exact `wa.config.mjs` entries users need:
 
 ```js
-// wa.config.js
+// wa.config.mjs
 export default {
   plugins: [
     '@myorg/my-plugin',
@@ -141,6 +138,8 @@ export default {
   },
 };
 ```
+
+Use the package name in `plugins`; the `pluginConfig` key must match the plugin's `meta.name`.
 
 ## Documenting Your Plugin
 
@@ -161,7 +160,7 @@ npm install @myorg/my-plugin
 
 ## Configuration
 
-Add to your `wa.config.js`:
+Add to your `wa.config.mjs`:
 
 ```js
 export default {
@@ -198,26 +197,17 @@ Solution...
 Solution...
 ````
 
-### Config Options Reference
+## Check the published package locally
 
-Document each config field with:
-- Type
-- Whether it is necessary
-- Default value
-- Description
-- Example
-
-## Testing Before Publishing
-
-### Local Testing with File Path
+### Load a local package build
 
 Before publishing to npm, test locally:
 
 ```js
-// wa.config.js
+// wa.config.mjs
 export default {
   plugins: [
-    './path/to/my-plugin',  // Local file path
+    new URL('./path/to/my-plugin/dist/index.js', import.meta.url).href,
   ],
   pluginConfig: {
     'my-plugin': {
@@ -227,20 +217,20 @@ export default {
 };
 ```
 
-### Named Session Testing
+### Use a named session
 
-Test with a named session to isolate test data:
+Use a named session while trying the plugin:
 
 ```bash
-npx @open-wa/wa-automate@5.1.0 --session-id plugin-test --host 127.0.0.1 --port 8080
+npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --session-id plugin-test --host 127.0.0.1 --port 8080
 ```
 
 ### Multi-Session Compatibility
 
-If your plugin uses session-specific data, test it with multiple sessions running simultaneously to make sure there are no conflicts.
+If your plugin stores session-specific data, run two named sessions and verify each plugin instance reads and writes data for its own session.
 
 ## Related
 
 - **[Plugin getting started](/docs/plugins/getting-started)**, Build your first plugin
 - **[Hooks reference](/docs/plugins/hooks-reference)**, Available hooks
-- **[Plugin security model](/docs/plugins/security-model)**, Security boundaries
+- **[Plugin security model](/docs/plugins/security-model)**, Plugin permissions and isolation

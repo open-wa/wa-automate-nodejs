@@ -1,21 +1,19 @@
 ---
 title: AI Tools
-description: Register custom AI tools from your plugin for use with MCP and AI agents.
+description: Declare custom plugin tools and understand the host integration needed to expose them to agents.
 ---
 
 # AI Tools
 
-Plugins can declare custom tools in the `Hooks` object returned by `init()`. The current `PluginHost` collects those declarations for its internal tool registry, but the current API/MCP adapter does not mount that registry into `tools/list` or `tools/call`. Treat the examples below as the plugin-side contract; discovery and invocation through MCP require a host integration that is not present in this checkout.
+Plugins can declare tools in the `tool` hook returned by `init()`. The current open-wa MCP endpoint does not discover or invoke plugin-declared tools, so use these examples only when you are building a host integration that connects the hook to an agent.
 
 <Callout type="warning">
-The `tool` hook is source-supported as a declaration, but this documentation does not claim that a running MCP endpoint exposes plugin tools. Confirm that the host has an explicit plugin-tool bridge before advertising a tool to an agent.
+The declaration alone does not make a tool available to an agent. Connect it to a tool host before advertising it.
 </Callout>
 
-## What Are Plugin Tools
+## Declare a tool
 
-Tools are functions that AI agents can call. Each tool has a name, description, argument schema, and execution function.
-
-## ToolDefinition Structure
+Each tool has a name, description, argument schema, and execution function. The host integration decides whether and how agents can discover and call it.
 
 ```ts
 init: async ({ client }) => ({
@@ -116,15 +114,15 @@ init: async ({ client }) => ({
 })
 ```
 
-## Best Practices
+## Write a useful tool contract
 
 ### Descriptive Names
 
-Use clear, action-oriented names like `lookupContact` not `getContact`, and `sendMessage` not `send`.
+Use a name that says what the action does, such as `lookupContact` or `sendMessage`.
 
 ### Clear Descriptions
 
-Write descriptions that help AI agents decide when to use the tool:
+Describe when to use the tool and what it returns:
 
 ```ts
 description: 'Look up a contact by phone number. Returns the contact name and profile info.'
@@ -132,7 +130,7 @@ description: 'Look up a contact by phone number. Returns the contact name and pr
 
 ### Argument Descriptions
 
-Describe each argument so AI agents know what to pass:
+Describe each argument, including its expected format:
 
 ```ts
 args: {
@@ -142,7 +140,7 @@ args: {
 
 ### Error Handling
 
-Catch errors and return meaningful results:
+Return useful errors to the caller and log the failure:
 
 ```ts
 execute: async (args, context) => {

@@ -5,7 +5,7 @@ description: Understand what plugins can and cannot do, how config validation wo
 
 # Plugin Security Model
 
-Plugins are trusted JavaScript modules dynamically imported into the open-wa Node.js host process. They run with that process's operating-system permissions, so the plugin SDK does not create a filesystem, network, or process sandbox. Install only plugins whose source and dependencies you have reviewed.
+Plugins load as JavaScript modules in the open-wa Node.js process and run with that process's operating-system permissions. The SDK does not create a filesystem, network, or process sandbox, so review a plugin and its dependencies before loading it.
 
 ## API restrictions
 
@@ -33,7 +33,7 @@ The gateway checks the event metadata registered by the host. Events marked `int
 
 ## What the SDK does not isolate
 
-The loader uses Node's dynamic `import(ref)` for each configured package or file path, so plugin top-level code and `init()` run in the host process. A plugin can use Node.js APIs, installed dependencies, and the host process's OS permissions. The event gateway and client proxy describe the SDK interfaces; they do not restrict what plugin code can import or establish an isolation boundary.
+Node's dynamic `import()` runs both a plugin's top-level code and `init()` in the host process. The event gateway and client proxy describe SDK interfaces; they do not limit a plugin's Node.js imports or OS permissions.
 
 Review the plugin source, transitive dependencies, and requested permissions before installation. If code must be treated as untrusted, run it in a separately managed service with an operating-system or container boundary and communicate through an external API. Configure that isolation in your deployment environment; open-wa does not provide a plugin sandbox.
 
@@ -70,7 +70,7 @@ init: async () => ({
 
 The host mounts the returned Hono app at `/plugins/<name>/`.
 
-### Register AI Tools
+### Declare AI Tools
 
 ```ts
 init: async () => ({
@@ -83,6 +83,8 @@ init: async () => ({
   },
 })
 ```
+
+This declares a tool in the plugin hooks. The current MCP endpoint does not expose plugin-declared tools; see [AI Tools](/docs/plugins/ai-tools) for the host integration requirement.
 
 ### Add dashboard pages
 
@@ -158,9 +160,9 @@ export default {
 };
 ```
 
-### .env File Support
+### Read values from a `.env` file
 
-Use a `.env` file in your project root:
+If your app loads dotenv values, keep them in a `.env` file in the project root:
 
 ```
 MY_PLUGIN_API_KEY=sk-abc123...

@@ -5,9 +5,7 @@ description: "Understand what your plugin receives: events, logger, config, sess
 
 # PluginInput Breakdown
 
-When your plugin's `init()` function is called, it receives a `PluginInput` object. This contains everything your plugin needs to operate.
-
-## What is PluginInput?
+The host passes a `PluginInput` object to your plugin's `init()` function. It contains the event interface, logger, plugin configuration, session identifier, lifetime signal, and client proxy.
 
 ```ts
 interface PluginInput<TConfig = unknown> {
@@ -75,14 +73,14 @@ Plugin logs flow through the host's logging system. Whether they are persisted d
 
 ## `config`: Validated Configuration
 
-The `config` field contains your plugin's configuration from the global `wa.config.js` file. When you provide a `configSchema`, the host validates and parses the value before calling `init()`; without a schema, the host passes the configured value through (or `{}` when it is absent).
+The `config` field contains your plugin's configuration from `wa.config.mjs`. When you provide a `configSchema`, the host validates and parses the value before calling `init()`; without a schema, it passes the configured value through (or `{}` when it is absent).
 
 ### Access Pattern
 
 Your plugin's config is accessed via the `pluginConfig` key in the global config file:
 
 ```js
-// wa.config.js
+// wa.config.mjs
 export default {
   pluginConfig: {
     'my-plugin': {
@@ -94,7 +92,7 @@ export default {
 ```
 
 ```ts
-// my-plugin.ts
+// src/my-plugin.ts
 init: async ({ config }) => {
   // config is { apiUrl: string; apiKey: string }
   // Already validated against your configSchema

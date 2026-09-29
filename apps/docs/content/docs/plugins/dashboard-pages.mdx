@@ -5,7 +5,7 @@ description: Add plugin status metadata to the open-wa dashboard.
 
 # Dashboard Pages
 
-Continue with `greeting-bot.mjs` and `wa.config.mjs` from [Plugin getting started](/docs/plugins/getting-started). The starter returns its message hook, route, and page declaration from async `init()`.
+Continue with `greeting-bot.mjs` and `wa.config.mjs` from [Plugin getting started](/docs/plugins/getting-started). Its async `init()` already returns the message hook and health route; add a page declaration to that returned object.
 
 ## Declare a page from `init()`
 
@@ -20,19 +20,19 @@ pages: [{
 }],
 ```
 
-Open the [local dashboard](http://localhost:8080/dashboard/) and select **Greeting bot**. The supported status view is at `/dashboard/plugins/greeting-bot`; another path can change the sidebar link but does not create a matching screen or custom plugin UI.
+Open the [local dashboard](http://localhost:8080/dashboard/) and select **Greeting bot**. The link opens the standard status view at `/dashboard/plugins/greeting-bot`; changing `path` changes the sidebar URL but does not create a custom plugin screen.
 
 ### Page properties
 
 - **`path`**: The path segment used in dashboard navigation. Use `/` for the standard status view; other values do not enable custom dashboard rendering.
 - **`title`**: The label shown in the sidebar.
-- **`icon`**: An emoji or icon name shown beside the label.
+- **`icon`**: An emoji or supported icon name shown beside the label.
 - **`order`**: Optional ordering metadata; the current dashboard does not use it to sort plugin pages.
 - **`description`**: Optional page metadata; the current dashboard does not display it. Use the plugin's `meta.description` for the status view summary.
 
 ## Add plugin-owned data
 
-The declaration adds status information and a sidebar link; it does not render a custom plugin interface. In the starter, open [the health route](http://localhost:8080/plugins/greeting-bot/health) for the plugin's JSON response. Use the [HTTP routes guide](/docs/plugins/hono-routes) to add endpoints for other plugin-owned data.
+The declaration adds a sidebar link to the standard status view. To display plugin-owned data, open the starter's [health route](http://localhost:8080/plugins/greeting-bot/health), or add another endpoint using the [HTTP routes guide](/docs/plugins/hono-routes).
 
 ## Related
 
