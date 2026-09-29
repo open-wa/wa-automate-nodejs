@@ -31,6 +31,7 @@ if (!webhookSecret) throw new Error('OPEN_WA_WEBHOOK_SECRET is required');
 
 export default {
   sessionId: 'sales',
+  host: '127.0.0.1',
   plugins: ['@open-wa/integration-webhook'],
   pluginConfig: {
     webhook: {
@@ -57,7 +58,7 @@ export default {
 Start the session with the config file:
 
 ```bash
-npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --port 8080
+npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --session-id sales --host 127.0.0.1 --port 8080
 ```
 
 ## Run the receiver

@@ -22,8 +22,11 @@ init: async ({ logger }) => {
 
 By default those records go to the Easy API process's stdout/stderr. Capture that stream with your process supervisor or shell:
 
+Create `wa.config.mjs` with the runtime settings you need before running this command; see [Configuration and CLI](/docs/guides/configuration-and-cli). The explicit session, host, and port flags below select a local `logs` session and override those values from the config file.
+
 ```bash
-npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --port 8080 \
+mkdir -p ./logs
+npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --session-id logs --host 127.0.0.1 --port 8080 \
   >> ./logs/open-wa.log 2>&1
 ```
 
@@ -111,7 +114,7 @@ This creates an application record; it does not prove regulatory compliance. Whe
 
 | Symptom | Command or observation | Expected result | Next action |
 | --- | --- | --- | --- |
-| No host logs appear | `npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --port 8080 >> ./logs/open-wa.log 2>&1` | Startup lines appear in `./logs/open-wa.log`. | Check the working directory, permissions, and process-supervisor stdout capture; run the process in the foreground when you need to see stderr directly. |
+| No host logs appear | `mkdir -p ./logs && npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --session-id logs --host 127.0.0.1 --port 8080 >> ./logs/open-wa.log 2>&1` | Startup lines appear in `./logs/open-wa.log`. | Check the working directory, permissions, and process-supervisor stdout capture; run the process in the foreground when you need to see stderr directly. |
 | Host log exists but rotating file is empty | `ls -lh ./logs; tail -n 50 ./logs/open-wa-*.log` | The application logger's file exists and contains JSON records after `recordMessage` runs. | Confirm `winston-daily-rotate-file` is installed, the import is present, and the app logger is actually called; host logs use a separate stream. |
 | Transport emits an error | Inspect stderr for `rotating log transport failed` | The error includes the path or filesystem cause. | Fix directory ownership, free disk space, or change the path, then restart the process. |
 | A webhook is retried | Inspect the webhook sender log for `Webhook delivery failed` | The line includes an attempt count and delay. | Make the receiver return a fast `2xx`; use its durable journal if restart replay is required. |

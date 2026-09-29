@@ -86,6 +86,7 @@ Run the CLI on the machine that owns the WhatsApp browser session. It keeps the 
 export OPENWA_PROXY_HOST='https://open-wa-proxy.<account>.workers.dev'
 npx @open-wa/wa-automate@5.1.0 \
   --session-id sales \
+  --host 127.0.0.1 \
   --port 8080 \
   --proxy-host "$OPENWA_PROXY_HOST" \
   --proxy-token "$OPENWA_PROXY_UPSTREAM_TOKEN"

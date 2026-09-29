@@ -66,7 +66,7 @@ export default {
 Start Easy API from the same directory:
 
 ```bash
-WA_API_KEY="your-secure-key" npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs
+WA_API_KEY="your-secure-key" npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --session-id mcp --host 127.0.0.1 --port 8080
 ```
 
 The configured MCP path is:
@@ -77,7 +77,7 @@ http://localhost:8080/mcp
 
 If you set `mcp.path` to another value, use that path in the MCP client URL. The dashboard is served separately at `/dashboard/mcp` when the dashboard is enabled.
 
-The current `packages/wa-automate/src/cli-runtime.ts` source does not parse `--mcp`. Use the config file above.
+Enable MCP in the [configuration file](/docs/guides/configuration-and-cli); the CLI does not have a `--mcp` flag.
 
 ### Expected enabled state
 

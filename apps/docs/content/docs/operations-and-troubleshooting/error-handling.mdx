@@ -201,16 +201,17 @@ try {
 
 ## Readiness and authentication checks
 
-Run these checks from the same host that calls Easy API. They separate a dead
-HTTP process, a rejected API key, and a live process whose WhatsApp session is
-still authenticating:
+Run these checks from the same host that calls Easy API. `/health` is public: it
+reports process and session readiness but does not check the API key. The
+metadata request checks a configured key, so the two results separate an
+unreachable process, a rejected key, and a live process whose WhatsApp session
+is still authenticating:
 
 ```bash
 export OPENWA_API_URL="http://127.0.0.1:8080"
 export OPENWA_API_KEY="your-secure-key"
 
 curl -sS -D - \
-  -H "X-API-Key: $OPENWA_API_KEY" \
   "$OPENWA_API_URL/health"
 
 curl -sS -D - \
@@ -220,9 +221,9 @@ curl -sS -D - \
 
 Interpret the response before retrying a command:
 
-- `HTTP 200` from `/health` with `connected: true` and `session.ready: true` means the API and WhatsApp session are ready. A successful `/meta/basic/commands` response confirms that the same URL and key can load command metadata.
+- `HTTP 200` from `/health` with `connected: true` and `session.ready: true` means the API and WhatsApp session are ready. A successful `/meta/basic/commands` response confirms that the same URL and configured key can load command metadata.
 - `HTTP 200` with `connected: false` or `session.ready: false` means the process is alive but authentication or runtime finalization is incomplete. Finish the QR or link-code flow, then inspect `session.pending` and `session.blockers` and check again.
-- `HTTP 401` means the key is absent or does not match the process configuration. Compare the value passed as `--api-key` (or its config source) with `OPENWA_API_KEY`; do not keep retrying the same key.
+- `HTTP 401` from `/meta/basic/commands` means the key is absent or does not match the process configuration. `/health` does not return `401` for a missing or incorrect key. Compare the value passed as `--api-key` (or its config source) with `OPENWA_API_KEY`; do not keep retrying the same key.
 - A connection-refused or timeout error means the host, port, process, or network boundary is wrong. Start Easy API or correct `OPENWA_API_URL` before investigating WhatsApp state.
 
 Once readiness is true, make one low-risk send request and keep the response headers while diagnosing delivery:
@@ -284,7 +285,7 @@ Turn on enough logging to see which layer failed: your app, Easy API, the browse
 For Easy API, start by capturing stdout and stderr:
 
 ```bash
-npx @open-wa/wa-automate@5.1.0 --port 8080 --log-console --verbose > open-wa.log 2>&1
+npx @open-wa/wa-automate@5.1.0 --session-id sales --host 127.0.0.1 --port 8080 --log-console --verbose > open-wa.log 2>&1
 ```
 
 For custom code, enable browser console logging during diagnosis:
