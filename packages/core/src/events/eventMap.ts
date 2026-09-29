@@ -172,6 +172,7 @@ export interface OpenWAEventMap {
 
   'message.received': { ctx: EventContext; message: Message };
   'message.any': { ctx: EventContext; message: Message };
+  'interactive.response': { ctx: EventContext; response: unknown };
   'message.deleted': { ctx: EventContext; messageId: string; chatId: string; by?: string };
 
   'ack.changed': { ctx: EventContext; ack: Ack };
@@ -350,6 +351,7 @@ export const OpenWAEventMetaMap: Record<keyof OpenWAEventMap, OpenWAEventMeta> =
 
   'message.received': { internal: false, sensitive: false },
   'message.any': { internal: false, sensitive: false },
+  'interactive.response': { internal: false, sensitive: true },
   'message.deleted': { internal: false, sensitive: false },
   'ack.changed': { internal: false, sensitive: false },
   'group.addedToGroup': { internal: false, sensitive: false },

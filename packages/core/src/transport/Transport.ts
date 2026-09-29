@@ -615,6 +615,16 @@ export class Transport {
    * bridge metadata. No WAPI code is called.
    */
   async registerRuntimeEventBridgeBindings(): Promise<void> {
+    const interactiveSurface = getRuntimeListenerSurfaceEntry('interactive.response');
+    await this.injectionController.registerRuntimeWapiBridge(
+      interactiveSurface.event, interactiveSurface.bindingName,
+      (response: unknown) => {
+        this.events.emit('interactive.response', {
+          ctx: { correlationId: 'runtime-interactive-response', ts: Date.now() }, response,
+        });
+      },
+      { wapiMethod: interactiveSurface.wapiMethod, required: interactiveSurface.required },
+    );
     const messageReceivedSurface = getRuntimeListenerSurfaceEntry('message.received');
     const messageAnySurface = getRuntimeListenerSurfaceEntry('message.any');
     const ackChangedSurface = getRuntimeListenerSurfaceEntry('ack.changed');
@@ -695,6 +705,7 @@ export class Transport {
 
     this.logger.info('runtime_event_bridge_bindings_registered', {
       bindings: [
+        interactiveSurface.bindingName,
         messageReceivedSurface.bindingName,
         messageAnySurface.bindingName,
         ackChangedSurface.bindingName,

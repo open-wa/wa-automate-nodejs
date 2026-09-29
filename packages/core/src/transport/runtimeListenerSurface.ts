@@ -2,7 +2,7 @@ import type { OpenWAEventMap } from '../events/eventMap';
 
 type RuntimeBridgeEvent = Extract<
   keyof OpenWAEventMap,
-  'message.received' | 'message.any' | 'ack.changed' | 'session.state.changed' | 'group.addedToGroup'
+  'message.received' | 'message.any' | 'interactive.response' | 'ack.changed' | 'session.state.changed' | 'group.addedToGroup'
 >;
 
 type RuntimeNavigationEvent = Extract<keyof OpenWAEventMap, 'session.logout'>;
@@ -26,6 +26,10 @@ export type RuntimeListenerSurfaceEntry =
   | RuntimeNavigationListenerSurfaceEntry;
 
 export const runtimeListenerSurface = {
+  'interactive.response': {
+    kind: 'wapi', event: 'interactive.response', bindingName: 'OpenWA_RuntimeInteractiveResponse',
+    wapiMethod: 'onInteractiveResponse', required: false,
+  },
   'message.received': {
     kind: 'wapi',
     event: 'message.received',

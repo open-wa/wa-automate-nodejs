@@ -15,6 +15,8 @@ export interface ClientRuntimeListenerSurfaceEntry {
 }
 
 export const clientRuntimeMethodSurface = {
+  sendInteractive: { support: 'runtime', runtimeMethod: 'sendInteractive' },
+  sendRawMessage: { support: 'runtime', runtimeMethod: 'sendRawMessage' },
   sendText: { support: 'runtime', runtimeMethod: 'sendMessage' },
   sendImage: { support: 'runtime', runtimeMethod: 'sendImage' },
   sendFile: {
@@ -148,6 +150,8 @@ export const clientRuntimeMethodSurface = {
 } as const satisfies Record<string, ClientRuntimeMethodSurfaceEntry>;
 
 export const clientRuntimeListenerSurface = {
+  onInteractiveResponse: { support: 'runtime', runtimeSupportEvent: 'interactive.response' },
+  onFormResponse: { support: 'runtime', runtimeSupportEvent: 'interactive.response' },
   onMessage: { support: 'runtime', runtimeSupportEvent: 'message.received' },
   onAck: { support: 'runtime', runtimeSupportEvent: 'ack.changed' },
   onStateChanged: { support: 'runtime', runtimeSupportEvent: 'session.state.changed' },
