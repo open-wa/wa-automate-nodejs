@@ -1,6 +1,12 @@
 # @open-wa/domain
 
 
+
+## 5.2.0
+<sub>2026-09-29</sub>
+
+- *(minor)* Version bump from group with `@open-wa/client` v5.2.0, `@open-wa/config` v5.2.0, `@open-wa/core` v5.2.0, `@open-wa/driver-interface` v5.2.0, `@open-wa/driver-puppeteer` v5.2.0, `@open-wa/schema` v5.2.0, `@open-wa/wa-automate` v5.2.0
+
 ## 5.1.0
 <sub>2026-09-29</sub>
 
