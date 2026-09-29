@@ -27,7 +27,7 @@ export default createPlugin({
 });
 ```
 
-This serves `GET /plugins/greeting-bot/health`, as in the starter. `routes` is not a top-level `createPlugin()` option; `createPlugin()` stores metadata and calls `init()`, while the host collects the returned hooks.
+This serves `GET /plugins/greeting-bot/health`, as in the starter. Declare `routes` in the object returned by `init()`; keep plugin metadata and `configSchema` in the top-level `createPlugin()` options.
 
 ## Route patterns
 
@@ -99,7 +99,25 @@ export default createPlugin({
 });
 ```
 
-This snippet adds `webhookSecret` to the plugin schema. Set it under the `greeting-bot` key in `pluginConfig`, using an environment variable rather than a committed value. This example is a bearer-secret check for a private route; it does not implement a provider-specific request signature. If an upstream webhook defines an HMAC or timestamped signing protocol, implement that protocol over the raw request body.
+Add `webhookSecret` to the existing `configSchema`, then save this complete config as `wa.config.mjs` beside the `plugins` directory:
+
+```js
+export default {
+  sessionId: 'my-session',
+  plugins: [
+    new URL('./plugins/greeting-bot.mjs', import.meta.url).href,
+  ],
+  pluginConfig: {
+    'greeting-bot': {
+      greeting: 'Hello! Welcome to our service.',
+      triggerWord: 'hello',
+      webhookSecret: process.env.GREETING_BOT_WEBHOOK_SECRET,
+    },
+  },
+};
+```
+
+Keep the secret in an environment variable rather than committing its value. This example checks a bearer secret for a private route; it does not implement a provider-specific request signature. If an upstream webhook defines an HMAC or timestamped signing protocol, implement that protocol over the raw request body.
 
 ## Common uses
 
@@ -122,10 +140,10 @@ init: async () => ({
     app.get('/oauth/callback', async (c) => {
       const code = c.req.query('code');
       const state = c.req.query('state');
+      if (!code) return c.json({ error: 'Missing authorization code' }, 400);
       if (!state || !await consumeOAuthState(state)) {
         return c.json({ error: 'Invalid OAuth state' }, 400);
       }
-      if (!code) return c.json({ error: 'Missing authorization code' }, 400);
 
       await exchangeOAuthCode(code);
       return c.json({ connected: true });

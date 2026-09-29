@@ -304,7 +304,7 @@ export default {
 Start a named session for testing:
 
 ```bash
-npx @open-wa/wa-automate@5.1.0 --session-id dictation-test --port 8080
+npx @open-wa/wa-automate@5.1.0 --session-id dictation-test --host 127.0.0.1 --port 8080
 ```
 
 Send a voice note to your session. The plugin replies with the transcription. If it does not reply, make sure that the message is an OGG voice note. Also make sure that `STT_API_KEY` is set.

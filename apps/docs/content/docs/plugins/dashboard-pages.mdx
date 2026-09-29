@@ -5,13 +5,11 @@ description: Add plugin status metadata to the open-wa dashboard.
 
 # Dashboard Pages
 
-Continue with the `greeting-bot.mjs` file and `wa.config.mjs` from [Plugin getting started](/docs/plugins/getting-started). Its async `init()` returns the message hook, Hono route, and dashboard page together; this page explains what that page declaration renders.
+Continue with `greeting-bot.mjs` and `wa.config.mjs` from [Plugin getting started](/docs/plugins/getting-started). The starter returns its message hook, route, and page declaration from async `init()`.
 
 ## Declare a page from `init()`
 
-`pages` is part of the `Hooks` object returned by the async `init()` function:
-
-In `greeting-bot.mjs`, add this property to the object already returned by `init()`, alongside its message hook and `routes`:
+In `greeting-bot.mjs`, add `pages` to the object already returned by `init()`, alongside the message hook and `routes`:
 
 ```js
 pages: [{
@@ -22,19 +20,19 @@ pages: [{
 }],
 ```
 
-The host includes the returned declaration in `GET /plugins/manifest`. The dashboard uses the declaration's `path`, `title`, and `icon` metadata to build its plugin navigation, then renders the standard plugin status screen. The current dashboard route supports `/plugins/<plugin-name>`; use `path: '/'` for that view. A different path does not register a custom React page or add a route to the dashboard.
+Open the [local dashboard](http://localhost:8080/dashboard/) and select **Greeting bot**. The supported status view is at `/dashboard/plugins/greeting-bot`; another path can change the sidebar link but does not create a matching screen or custom plugin UI.
 
 ### Page properties
 
-- **`path`**: The declared path segment used in dashboard navigation. Use `/` for the plugin's supported status view; other path values do not enable custom dashboard rendering.
+- **`path`**: The path segment used in dashboard navigation. Use `/` for the standard status view; other values do not enable custom dashboard rendering.
 - **`title`**: The label shown in the sidebar.
 - **`icon`**: An emoji or icon name shown beside the label.
-- **`order`**: Optional ordering metadata for dashboard consumers that sort page declarations.
-- **`description`**: Optional text shown with the plugin status metadata.
+- **`order`**: Optional ordering metadata; the current dashboard does not use it to sort plugin pages.
+- **`description`**: Optional page metadata; the current dashboard does not display it. Use the plugin's `meta.description` for the status view summary.
 
 ## Add plugin-owned data
 
-The dashboard page declaration is metadata. It does not render plugin-owned React components or turn a route declaration into a dashboard data endpoint. In the starter, the same plugin serves `GET /plugins/greeting-bot/health`; open that URL for its JSON response and use the dashboard link for the standard plugin status view. Use the [HTTP routes guide](/docs/plugins/hono-routes) to add endpoints for other plugin-owned data.
+The declaration adds status information and a sidebar link; it does not render a custom plugin interface. In the starter, open [the health route](http://localhost:8080/plugins/greeting-bot/health) for the plugin's JSON response. Use the [HTTP routes guide](/docs/plugins/hono-routes) to add endpoints for other plugin-owned data.
 
 ## Related
 

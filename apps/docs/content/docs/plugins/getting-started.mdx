@@ -103,16 +103,16 @@ The `pluginConfig` key is `meta.name` (`greeting-bot`), not the package name or 
 Run the CLI from the directory containing `wa.config.mjs`:
 
 ```bash
-npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --port 8080
+npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --session-id my-session --host 127.0.0.1 --port 8080
 ```
 
-If the API is reachable outside your machine, add `--api-key "your-secure-key"` for the `/api` surface. Plugin routes are mounted under `/plugins` and need their own guard; see [HTTP routes in plugins](/docs/plugins/hono-routes).
+This binds the API to loopback, so it is reachable only from this machine. If you choose another host, protect `/api` with `--api-key "your-secure-key"` and add a guard to plugin routes before exposing them. See [HTTP routes in plugins](/docs/plugins/hono-routes).
 
 After the session is connected, send `hello` from another WhatsApp account. The plugin sends `Hello! Welcome to our service.` back to the sender.
 
-The route is served by the API at `/plugins/greeting-bot/health`. A configured Easy API key does not automatically protect plugin routes, so add an explicit plugin guard before exposing this endpoint.
+The plugin's health endpoint is [http://localhost:8080/plugins/greeting-bot/health](http://localhost:8080/plugins/greeting-bot/health).
 
-The dashboard reads the returned page declaration from `/plugins/manifest`, adds Greeting bot to the Plugins sidebar, and opens the standard plugin status view when selected. The declaration supplies metadata for that view; it does not provide a custom React component.
+Open the [local dashboard](http://localhost:8080/dashboard/) and select Greeting bot in the Plugins sidebar. It opens the standard plugin status view; the declaration supplies metadata for that view, not a custom dashboard component.
 
 ## If the plugin does not load
 
@@ -122,7 +122,7 @@ The dashboard reads the returned page declaration from `/plugins/manifest`, adds
 - Confirm `meta.name` is present and that `pluginConfig` uses the same name.
 - Check for `plugin_loaded`, `plugin_registered`, `plugin_config_invalid`, or `plugin_load_error` in the Easy API logs.
 
-If a hook never fires, check the exact hook name against the [Hooks reference](/docs/plugins/hooks-reference). Internal and sensitive events are filtered by the event gateway and do not reach plugins; this API restriction does not isolate the plugin's Node.js process capabilities.
+If a hook never fires, check the exact hook name against the [Hooks reference](/docs/plugins/hooks-reference). The reference marks hooks that plugins can subscribe to.
 
 ## Related
 
