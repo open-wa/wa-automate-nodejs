@@ -17,6 +17,10 @@ If you gave up on WhatsApp buttons, OpenWA 5.1 gives you a reason to try them ag
 
 **Available to Insiders and above.** Update OpenWA and restart your licensed session to load the new capabilities.
 
+![Illustration of a WhatsApp message with reply buttons](/images/interactive/quick-replies.png)
+
+*Choose a reply in the conversation; route it by its stable ID. These are illustrations from our interactive message examples. Recipient appearance varies by WhatsApp version.*
+
 ## Get answers your code can use
 
 `onInteractiveResponse` gives you the selected reply or list row ID. `onFormResponse` gives you answers keyed by your own question IDs, including arrays for multiple selections:
@@ -32,6 +36,10 @@ client.onFormResponse(({ answers, originalMessageId }) => {
 You can use those answers directly in a booking, support or onboarding workflow. There's no need to scrape the displayed reply or work out which translated option a person selected. Keep your application IDs stable while changing the labels your customers see.
 
 Responses include the sender, chat, response message ID and original message reference, and HTTP integrations can subscribe to `interactive.response` on the event stream. Subscribe before sending, and deduplicate responses by message ID when your integration reconnects or syncs history.
+
+![Illustration of a submitted form beside its structured onFormResponse answers](/images/interactive/form-response.png)
+
+*A form submission becomes structured answers your application can use.*
 
 ## Start with a few lines
 
@@ -63,6 +71,16 @@ These examples use a started, licensed `client` and the recipient's chat ID in `
 | Preferences, choices or a sequence of questions | A form |
 | Visual options people can browse and choose | An image carousel |
 | Appointment information with a details view | A booking card |
+
+![Illustration of a carousel with Starter and Pro image cards and reply actions](/images/interactive/image-carousel.png)
+
+*Let people browse image cards and choose an option without leaving the conversation.*
+
+![Illustration of a booking card and its appointment details view](/images/interactive/booking-details.png)
+
+*Give an appointment its own card and details view, using the recipient app’s native layout.*
+
+Explore [all eight illustrated examples in the interactive messages guide](/docs/guides/interactive-messages), including URL/call/copy actions, sectioned lists and single- or multiple-choice forms.
 
 ## One document across your integrations
 
