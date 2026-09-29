@@ -23,7 +23,6 @@ import { auditWapiHelperAssetRequirements } from './ScriptLoader';
 import { chromiumConfig, sanitizeBrowserArgs } from './browserConfig';
 
 export interface PatchFetchConfig {
-  patchesUrl?: string;
   /** Use GitHub raw patches as the primary source instead of the default CDN. */
   ghPatch?: boolean;
   /** @deprecated Prefer `ghPatch`. When false, disables the CDN -> GitHub fallback path. */
@@ -32,7 +31,6 @@ export interface PatchFetchConfig {
 }
 
 export interface LicenseServerConfig {
-  licenseCheckUrl?: string;
   offlineLicenseMode?: boolean;
 }
 
@@ -397,7 +395,7 @@ const INIT_PATCH_ARTIFACT: PatchArtifact = {
 const DEFAULT_LIVE_PATCHES_URL = 'https://cdn.openwa.dev/patches.json';
 /** Fallback GitHub raw live-patches URL */
 const GH_LIVE_PATCHES_FALLBACK_URL = 'https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/patches.json';
-/** Default license validation endpoint (legacy: pkg.licenseCheckUrl from package.json) */
+/** OpenWA license validation endpoint. */
 const DEFAULT_LICENSE_CHECK_URL = 'https://funcs.openwa.dev/license-check';
 /** Live-patch cache file path relative to cwd */
 const LIVE_PATCH_CACHE_FILENAME = 'patches.cache.json';
@@ -617,6 +615,16 @@ export class Transport {
    * bridge metadata. No WAPI code is called.
    */
   async registerRuntimeEventBridgeBindings(): Promise<void> {
+    const interactiveSurface = getRuntimeListenerSurfaceEntry('interactive.response');
+    await this.injectionController.registerRuntimeWapiBridge(
+      interactiveSurface.event, interactiveSurface.bindingName,
+      (response: unknown) => {
+        this.events.emit('interactive.response', {
+          ctx: { correlationId: 'runtime-interactive-response', ts: Date.now() }, response,
+        });
+      },
+      { wapiMethod: interactiveSurface.wapiMethod, required: interactiveSurface.required },
+    );
     const messageReceivedSurface = getRuntimeListenerSurfaceEntry('message.received');
     const messageAnySurface = getRuntimeListenerSurfaceEntry('message.any');
     const ackChangedSurface = getRuntimeListenerSurfaceEntry('ack.changed');
@@ -697,6 +705,7 @@ export class Transport {
 
     this.logger.info('runtime_event_bridge_bindings_registered', {
       bindings: [
+        interactiveSurface.bindingName,
         messageReceivedSurface.bindingName,
         messageAnySurface.bindingName,
         ackChangedSurface.bindingName,
@@ -823,7 +832,7 @@ export class Transport {
    * WITHOUT checking bridge integrity.
    *
    * Used for early validation stages (post_injection) where the WAPI bridge
-   * has not yet been activated and calling `probeBrokenMethodIntegrity()` → 
+   * has not yet been activated and calling `probeBrokenMethodIntegrity()` →
    * `ensureRuntimeBridge()` would prematurely wire listeners to unpatched WAPI.
    */
   async validateRuntimeCapabilityOnly(stage: RuntimeValidationStage): Promise<RuntimeValidationResult> {
@@ -1257,15 +1266,14 @@ export class Transport {
       }
 
       const keyType = this.deriveLicenseKeyType(resolvedKey);
-
       // Attempt server validation if not in offline mode
       let payload: string;
       let payloadSource: 'server' | 'local_metadata';
 
       if (!this.licenseConfig.offlineLicenseMode && options.sessionInfo?.hostNumber) {
+
         try {
-          const licenseCheckUrl = this.licenseConfig.licenseCheckUrl ?? DEFAULT_LICENSE_CHECK_URL;
-          const serverPayload = await validateLicense(licenseCheckUrl, {
+          const serverPayload = await validateLicense(DEFAULT_LICENSE_CHECK_URL, {
             key: resolvedKey,
             number: options.sessionInfo.hostNumber,
             WA_VERSION: options.sessionInfo.WA_VERSION,
@@ -1275,6 +1283,7 @@ export class Transport {
             OS: options.sessionInfo.OS,
             NUM_HASH: options.sessionInfo.NUM_HASH,
           });
+
 
           if (serverPayload === false) {
             // Server rejected the key
@@ -1339,6 +1348,7 @@ export class Transport {
           ? 'License capability was confirmed by the validation server.'
           : 'License metadata fallback was prepared without server confirmation.',
       };
+
 
       this.events.emit('launch.license.preload.after', {
         correlationId,
@@ -1536,6 +1546,7 @@ export class Transport {
             : 'Metadata-only license fallback injected session metadata without server-confirmed unlock.',
         };
       }
+
     } catch (error) {
       const normalizedError = error instanceof Error ? error : new Error(String(error));
       result = {
@@ -2103,7 +2114,7 @@ export class Transport {
       await page.addInitScript(`
         (() => {
           if (window !== window.top) return;
-          
+
           let element = null;
           const bg = ${JSON.stringify(wbg)};
           const color = ${JSON.stringify(wcolor)};
@@ -2119,23 +2130,23 @@ export class Transport {
               host.style.height = '100vh';
               host.style.pointerEvents = 'none';
               host.style.zIndex = '2147483647';
-              
+
               const shadow = host.attachShadow({ mode: 'closed' });
-              
+
               const tint = document.createElement('div');
               tint.style.cssText = \`position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: \${bg}; pointer-events: none; mix-blend-mode: multiply;\`;
-              
+
               const text = document.createElement('div');
               text.style.cssText = \`position: absolute; bottom: 20px; right: 20px; color: \${color}; font-family: sans-serif; font-size: 24px; font-weight: bold; text-shadow: 1px 1px 2px rgba(255,255,255,0.8); pointer-events: none;\`;
               text.textContent = txt;
 
               shadow.appendChild(tint);
               shadow.appendChild(text);
-              
+
               document.documentElement.appendChild(host);
               element = host;
             }
-            
+
             if (element) {
               element.style.display = 'block';
               element.style.opacity = '1';
@@ -2820,15 +2831,9 @@ export class Transport {
   private deriveLicenseKeyType(key: string): string {
     const normalizedKey = key.trim();
     const [head] = normalizedKey.split(/[-:]/);
-    if (!head) {
-      return 'license';
-    }
-
-    if (/^(invalid|expired)$/i.test(head)) {
-      return 'license';
-    }
-
-    return head.toLowerCase();
+    return /^(insiders|restricted)$/i.test(head ?? '')
+      ? head.toLowerCase()
+      : 'license';
   }
 
   private maskLicenseKey(key: string): string {
@@ -2898,7 +2903,7 @@ export class Transport {
     const result = await this.fetchFreshLivePatches(sessionInfo);
     this.logger.info('live_patch_downloaded', {
       source: 'remote',
-      url: this.patchConfig.patchesUrl ?? DEFAULT_LIVE_PATCHES_URL,
+      url: DEFAULT_LIVE_PATCHES_URL,
       tag: result.tag,
       patchCount: result.data.length,
     });
@@ -2916,9 +2921,8 @@ export class Transport {
   }
 
   private async fetchFreshLivePatches(sessionInfo?: SessionDebugInfo): Promise<{ data: string[]; tag: string }> {
-    const patchesUrl = this.patchConfig.patchesUrl ?? DEFAULT_LIVE_PATCHES_URL;
     const useGithubPrimary = this.patchConfig.ghPatch === true;
-    const primaryUrl = useGithubPrimary ? GH_LIVE_PATCHES_FALLBACK_URL : patchesUrl;
+    const primaryUrl = useGithubPrimary ? GH_LIVE_PATCHES_FALLBACK_URL : DEFAULT_LIVE_PATCHES_URL;
     const fallbackUrl = useGithubPrimary
       ? undefined
       : this.patchConfig.ghPatchFallback === false
@@ -3002,12 +3006,20 @@ export class Transport {
     }
 
     const info = await this.page.evaluate(
-      () => ({
-        waVersion: (globalThis as any).Debug?.VERSION ?? 'unknown',
-        hostNumber: (globalThis as any).Store?.Conn?.me?._serialized ?? '',
-        pageUA: navigator.userAgent,
-        os: navigator.platform ?? 'unknown',
-      }),
+      () => {
+        const runtime = globalThis as any;
+        const connectionHost = runtime.Store?.Conn?.me?._serialized;
+        const patchedHost = !connectionHost && typeof runtime.moi === 'function'
+          ? runtime.moi()
+          : '';
+
+        return {
+          waVersion: runtime.Debug?.VERSION ?? 'unknown',
+          hostNumber: connectionHost || (typeof patchedHost === 'string' ? patchedHost : ''),
+          pageUA: navigator.userAgent,
+          os: navigator.platform ?? 'unknown',
+        };
+      },
       undefined,
     );
 

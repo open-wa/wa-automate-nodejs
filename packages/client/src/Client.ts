@@ -18,6 +18,8 @@ import type {
   Message,
   Chat,
   Contact,
+  InteractiveResponse,
+  FormResponse,
 } from '@open-wa/schema';
 import {
   MessageCollector,
@@ -32,6 +34,7 @@ import { ListenerManager, type ListenerHandle } from './events/index';
 import { throwUnsupportedListener } from './runtimeSurface';
 import type { QueueOptions } from '@open-wa/schema';
 
+import { interactiveMethods, type InteractiveMethods } from './methods/interactive';
 import { messagingMethods, type MessagingMethods } from './methods/messaging';
 import { mediaMethods, type MediaMethods } from './methods/media';
 import { groupMethods, type GroupMethods } from './methods/groups';
@@ -88,7 +91,7 @@ export type EvaluateFn = <Arg, Ret>(
  * client.onMessage(msg => console.log(msg));
  * ```
  */
-export class Client implements MessagingMethods, MediaMethods, GroupMethods, ChatMethods, ContactMethods, UtilitiesMethods {
+export class Client implements InteractiveMethods, MessagingMethods, MediaMethods, GroupMethods, ChatMethods, ContactMethods, UtilitiesMethods {
   private readonly _client: OpenWAClient;
   private readonly _transport: Transport;
   private readonly _listenerManager: ListenerManager;
@@ -109,6 +112,7 @@ export class Client implements MessagingMethods, MediaMethods, GroupMethods, Cha
     
     // Bind method modules
     this._bindMethods(messagingMethods, this);
+    this._bindMethods(interactiveMethods, this);
     this._bindMethods(mediaMethods, this);
     this._bindMethods(groupMethods, this);
     this._bindMethods(chatMethods, this);
@@ -306,8 +310,18 @@ export class Client implements MessagingMethods, MediaMethods, GroupMethods, Cha
   // ─────────────────────────────────────────────────────────────────
   
   /**
-   * Listen for all incoming messages.
+   * Listen for structured interactive selections and submissions.
    */
+  onInteractiveResponse(callback: (response: InteractiveResponse) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
+    return this._listenerManager.on('interactiveResponse', callback, options);
+  }
+
+  /** Listen only for form submissions from the interactive response stream. */
+  onFormResponse(callback: (response: FormResponse) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
+    return this._listenerManager.on('formResponse', callback, options);
+  }
+
+  /** Listen for all incoming messages. */
   onMessage(callback: (message: Message) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
     return this._listenerManager.on('message', async (payload) => {
       await callback(payload);
@@ -535,6 +549,8 @@ export class Client implements MessagingMethods, MediaMethods, GroupMethods, Cha
   // ─────────────────────────────────────────────────────────────────
   
   // Messaging methods
+  declare sendInteractive: InteractiveMethods['sendInteractive'];
+  declare sendRawMessage: InteractiveMethods['sendRawMessage'];
   declare sendText: MessagingMethods['sendText'];
   declare sendImage: MessagingMethods['sendImage'];
   declare sendFile: MessagingMethods['sendFile'];

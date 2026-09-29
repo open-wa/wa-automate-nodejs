@@ -6,6 +6,7 @@
   "types": "./dist/index.d.cts",
   "exports": {
     ".": {
+      "bun": "./src/index.ts",
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs",
@@ -31,7 +32,15 @@
   ],
   "author": "Mohammed Shah <@smashah>",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.mts",
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs",
+        "default": "./dist/index.cjs"
+      }
+    }
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "bugs": {

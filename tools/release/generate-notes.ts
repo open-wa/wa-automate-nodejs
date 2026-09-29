@@ -378,11 +378,14 @@ async function main() {
 
   console.log(`📝 Generating release notes for v${version}...`);
 
-  // The three-year v4→v5 release needs a maintained migration story. A tag at
-  // HEAD otherwise produces an empty commit count and buries it under raw notes.
-  if (version === "5.0.0") {
-    writeFileSync(output, readFileSync(join(__dirname, "v5-release-notes.md"), "utf-8"), "utf-8");
-    console.log(`✅ Curated v5 release notes written to ${output}`);
+  // Keep the reviewed launch story intact for milestone releases.
+  const curatedNotes: Record<string, string> = {
+    "5.0.0": "v5-release-notes.md",
+    "5.1.0": "v5.1-release-notes.md",
+  };
+  if (curatedNotes[version]) {
+    writeFileSync(output, readFileSync(join(__dirname, curatedNotes[version]), "utf-8"), "utf-8");
+    console.log(`✅ Curated v${version} release notes written to ${output}`);
     return;
   }
 

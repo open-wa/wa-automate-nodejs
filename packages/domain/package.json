@@ -7,6 +7,7 @@
   "types": "./dist/index.d.cts",
   "exports": {
     ".": {
+      "bun": "./src/index.ts",
       "import": "./dist/index.cjs",
       "require": "./dist/index.cjs",
       "types": "./dist/index.d.cts"
@@ -29,7 +30,14 @@
     "vitest": "catalog:"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "import": "./dist/index.cjs",
+        "require": "./dist/index.cjs",
+        "types": "./dist/index.d.cts"
+      }
+    }
   },
   "repository": {
     "type": "git",

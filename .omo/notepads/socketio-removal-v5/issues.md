@@ -1,3 +1,0 @@
-- 2026-04-12: `pnpm --filter @open-wa/wa-automate test` still fails for pre-existing issues unrelated to this cleanup: unresolved package entry problems for `@open-wa/logger` / `@open-wa/api` in vitest context plus an existing `routes.contract.test.ts` expectation mismatch for `getChat` (`chatId` vs `contactId`).
-- 2026-04-12: JSON and Markdown LSP diagnostics could not be executed in this environment because the configured `biome` server is not installed and no Markdown LSP is configured.
-- 2026-04-12: Repository-wide `pnpm typecheck` still fails for pre-existing workspace configuration issues in `packages/utils` (missing Node/global type declarations), so monorepo typecheck could not be used as a clean signal for this scoped transport cleanup.

@@ -2147,13 +2147,11 @@ window.WAPI.pyFunc = async function (fn, done) {
  * Please use google to find out how to disable CSP. You can also use this extension: https://chrome.google.com/webstore/detail/disable-content-security/ieelmcmcagommplceebfedjlakkhpden/related?hl=en
  */
 window.WAPI.addLicenseKey = async function (key) {
-    const pkgR = await fetch('https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/package.json');
-    const pkg = await pkgR.json();
     const body = JSON.stringify({
         number: Store.Me.me._serialized,
         key
     });
-    const r = await fetch(pkg.licenseCheckUrl, {
+    const r = await fetch('https://funcs.openwa.dev/license-check', {
         method: 'POST',
         mode: 'cors',
         cache: 'no-cache',

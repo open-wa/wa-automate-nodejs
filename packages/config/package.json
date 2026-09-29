@@ -8,17 +8,20 @@
   "type": "module",
   "exports": {
     ".": {
+      "bun": "./src/index.ts",
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     },
     "./schema": {
+      "bun": "./src/schema/index.ts",
       "types": "./dist/schema.d.mts",
       "import": "./dist/schema.mjs",
       "require": "./dist/schema.cjs"
     }
   },
   "files": [
+    "src",
     "dist",
     "schema.json"
   ],
@@ -46,7 +49,19 @@
     "vitest": "catalog:"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.mts",
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs"
+      },
+      "./schema": {
+        "types": "./dist/schema.d.mts",
+        "import": "./dist/schema.mjs",
+        "require": "./dist/schema.cjs"
+      }
+    }
   },
   "keywords": [
     "open-wa",

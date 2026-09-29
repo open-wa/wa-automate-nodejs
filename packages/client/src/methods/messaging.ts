@@ -50,10 +50,19 @@ export function messagingMethods(client: Client): MessagingMethods {
   
   return {
     async sendText(to: ChatId, content: string): Promise<MessageId> {
-      return evaluate(
+      const result = await evaluate(
         ({ to, content }) => WAPI.sendMessage(to, content),
         { to, content }
-      ) as Promise<MessageId>;
+      );
+      if (result === 'Not a contact') {
+        const message = 'Starting a chat with a new number requires an applied restricted or premium license.';
+        client.logger.error('send_text_unknown_number_requires_license', {
+          sessionId: client.sessionId,
+          detail: message,
+        });
+        throw new Error(message);
+      }
+      return result as MessageId;
     },
     
     async sendImage(

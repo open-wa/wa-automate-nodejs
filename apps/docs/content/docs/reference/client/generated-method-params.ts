@@ -881,6 +881,16 @@ export interface SendImageParams {
   waitForId: boolean;
 }
 
+export interface SendInteractiveParams {
+  /**
+   * Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c|g)\.us$|^\d+@lid$
+   * @example "447123456789@c.us"
+   * @remarks Key aliases: 'chatId'
+   */
+  to: string;
+  content: { actions: any; body: any; footer: any; header: any; type: any; version } | object { body: any; buttonLabel: any; footer: any; sections: any; title: any; type: any; version } | object { body: any; footer: any; questions: any; title: any; type: any; version } | object { body: any; cards: any; footer: any; type: any; version } | object { actions: any; body: any; booking: any; buttonLabel: any; footer: any; title: any; type: any; version } | object { actions: any; body: any; footer: any; header: any; parameters: any; type: any; version: any; };
+}
+
 export interface SendLinkWithAutoPreviewParams {
   /**
    * Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c|g)\.us$|^\d+@lid$
@@ -1090,6 +1100,16 @@ export interface SendPttParams {
    * @remarks Deprecated key aliases: 'msgId'
    */
   quotedMsgId?: string;
+}
+
+export interface SendRawMessageParams {
+  /**
+   * Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c|g)\.us$|^\d+@lid$
+   * @example "447123456789@c.us"
+   * @remarks Key aliases: 'chatId'
+   */
+  to: string;
+  payload: Record<string, any>;
 }
 
 export interface SendReplyWithMentionsParams {

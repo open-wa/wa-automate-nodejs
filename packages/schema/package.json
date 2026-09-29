@@ -7,10 +7,12 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "files": [
+    "src",
     "dist"
   ],
   "exports": {
     ".": {
+      "bun": "./src/index.ts",
       "require": {
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
@@ -21,6 +23,7 @@
       }
     },
     "./generated": {
+      "bun": "./src/generated/index.ts",
       "require": {
         "types": "./dist/generated/index.d.cts",
         "default": "./dist/generated/index.cjs"
@@ -31,6 +34,7 @@
       }
     },
     "./implementor": {
+      "bun": "./src/implementor.ts",
       "require": {
         "types": "./dist/implementor.d.cts",
         "default": "./dist/implementor.cjs"
@@ -41,6 +45,7 @@
       }
     },
     "./methods": {
+      "bun": "./src/methods/index.ts",
       "require": {
         "types": "./dist/methods/index.d.cts",
         "default": "./dist/methods/index.cjs"
@@ -51,6 +56,7 @@
       }
     },
     "./http-manifest": {
+      "bun": "./src/http-manifest.ts",
       "require": {
         "types": "./dist/http-manifest.d.cts",
         "default": "./dist/http-manifest.cjs"
@@ -84,7 +90,59 @@
     "vitest": "catalog:"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "require": {
+          "types": "./dist/index.d.cts",
+          "default": "./dist/index.cjs"
+        },
+        "import": {
+          "types": "./dist/index.d.mts",
+          "default": "./dist/index.mjs"
+        }
+      },
+      "./generated": {
+        "require": {
+          "types": "./dist/generated/index.d.cts",
+          "default": "./dist/generated/index.cjs"
+        },
+        "import": {
+          "types": "./dist/generated/index.d.mts",
+          "default": "./dist/generated/index.mjs"
+        }
+      },
+      "./implementor": {
+        "require": {
+          "types": "./dist/implementor.d.cts",
+          "default": "./dist/implementor.cjs"
+        },
+        "import": {
+          "types": "./dist/implementor.d.mts",
+          "default": "./dist/implementor.mjs"
+        }
+      },
+      "./methods": {
+        "require": {
+          "types": "./dist/methods/index.d.cts",
+          "default": "./dist/methods/index.cjs"
+        },
+        "import": {
+          "types": "./dist/methods/index.d.mts",
+          "default": "./dist/methods/index.mjs"
+        }
+      },
+      "./http-manifest": {
+        "require": {
+          "types": "./dist/http-manifest.d.cts",
+          "default": "./dist/http-manifest.cjs"
+        },
+        "import": {
+          "types": "./dist/http-manifest.d.mts",
+          "default": "./dist/http-manifest.mjs"
+        }
+      }
+    }
   },
   "repository": {
     "type": "git",
