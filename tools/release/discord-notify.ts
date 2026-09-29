@@ -251,11 +251,11 @@ async function main() {
   const images = releaseImages(imagePath);
   const messageCount = 1 + Math.ceil((images.length - 1) / 3);
   const existingMessages = editMessageIds ? editMessageIds.split(",").map((id) => id.trim()) : [];
-  if (existingMessages.length && existingMessages.length !== messageCount) {
-    throw new Error(`Expected ${messageCount} Discord message IDs, received ${existingMessages.length}`);
-  }
   if (existingMessages.some((id) => !/^\d{17,20}$/.test(id))) {
     throw new Error("Invalid Discord message ID");
+  }
+  if (new Set(existingMessages).size !== existingMessages.length) {
+    throw new Error("Discord message IDs must be unique");
   }
   const cover = images[0];
   const intro = {
@@ -272,6 +272,18 @@ async function main() {
       username: "OpenWA",
       content: `**OpenWA v${version}** · release notes, pages ${String(start + 1).padStart(2, "0")}–${String(start + batch.length).padStart(2, "0")} / ${String(images.length).padStart(2, "0")}`,
     }, batch, existingMessages[1 + Math.floor((start - 1) / 3)]);
+  }
+
+  // A clearer release can need fewer pages. Remove obsolete batches only after
+  // Discord has confirmed every replacement image, using the supplied IDs.
+  for (const id of existingMessages.slice(messageCount)) {
+    const url = new URL(webhookUrl);
+    url.pathname += `/messages/${id}`;
+    const response = await fetch(url, { method: "DELETE" });
+    if (!response.ok && response.status !== 404) {
+      throw new Error(`Could not remove obsolete Discord release batch ${id}: ${response.status}`);
+    }
+    console.log(`Removed obsolete Discord message: ${id}`);
   }
 
   console.log(`Discord release pages sent: ${images.length}`);

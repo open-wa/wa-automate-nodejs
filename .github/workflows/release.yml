@@ -149,6 +149,7 @@ jobs:
       - name: Generate release image
         if: steps.aggregate.outputs.needed == 'true'
         env:
+          GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.aggregate.outputs.version }}
           RELEASE_IMAGE_NO_SANDBOX: '1'
         run: |
