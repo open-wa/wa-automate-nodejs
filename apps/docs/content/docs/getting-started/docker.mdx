@@ -1,254 +1,157 @@
 ---
 title: Docker
-description: Run open-wa in Docker for Easy API or as a base image for your own project.
+description: Run the supported open-wa release in Docker with an explicit port, API key, and persistent session profile.
 ---
 
-# Docker
+Use Docker to run the Easy API with its browser dependencies in one container. You will need Docker and a writable `./sessions` directory for the WhatsApp profile. Choose a long, random string for your API key and replace `your-secure-key` in the examples with it. These steps start open-wa `5.1.0` and make the API available on your local machine.
 
-Use Docker when you want a repeatable runtime with browser dependencies handled for you.
+The commands pin the Docker image digest and the npm package installed at startup. They also pass `--session-id`, `--host`, and `--port` explicitly so the session and listener use the requested values.
 
 ## Run the Easy API container
 
-```bash
-docker run openwa/wa-automate
-```
-
-Pass the same CLI flags you would normally use with `npx @open-wa/wa-automate`.
-
-## Image tags
-
-Docker tags follow the package version you want to run. Pin a version when you need repeatable deploys, especially for production or rollback testing.
-
-Use a v4 tag such as `4.76.0` for the current stable line. Use `latest` only when you are intentionally testing the v5 alpha image.
-
-## v4/v5 tags
+Start with this baseline. It publishes port `8080` on loopback, names the session `sales`, persists its browser profile in `./sessions/sales`, and sets the API key for protected requests:
 
 ```bash
-# v4 stable
-docker run openwa/wa-automate:4.76.0
-
-# v5 alpha
-docker run openwa/wa-automate:latest
-```
-
-## Typical production shape
-
-- publish the API port explicitly
-- persist any necessary session data or browser state
-- add your API key and session id at container start
-
-```bash
-docker run -p 8080:8080 --init \
-  -v ./sessions:/sessions \
+docker run --name openwa-sales --init \
+  -p 127.0.0.1:8080:8080 \
+  -v "$PWD/sessions:/sessions" \
+  -e W_A_V=5.1.0 \
   -e WA_PORT=8080 \
+  -e WA_HOST=0.0.0.0 \
   -e WA_SESSION_ID=sales \
   -e WA_USER_DATA_DIR=/sessions/sales \
   -e WA_API_KEY="your-secure-key" \
-  openwa/wa-automate
+  openwa/wa-automate:latest@sha256:d31f5a8f59c4890a302294e9834a25f217a973d80339896ef74cf3d35d903cb3 \
+  --session-id sales --host 0.0.0.0 --port 8080
 ```
 
-## Volume mounts
-
-Mount a local directory when you want session data to survive container restarts, and point `WA_USER_DATA_DIR` at the mounted path for the session.
+Complete authentication in the terminal, then check readiness from the host:
 
 ```bash
-docker run -p 8080:8080 --init \
-  -v ./sessions:/sessions \
-  -e WA_SESSION_ID=sales \
-  -e WA_USER_DATA_DIR=/sessions/sales \
-  openwa/wa-automate
+curl http://localhost:8080/health
 ```
 
-The v5 image runs from `/usr/src/app`. By default, the runtime uses `/usr/src/app/_IGNORE_<sessionId>` for a persistent browser profile. Set `WA_USER_DATA_DIR=/sessions/<sessionId>` to use the mounted directory. You can also mount the default profile path directly.
+`/health` is public and can include QR and operational details, so the loopback binding is important; `status: "ok"` confirms the HTTP process is live, while `connected: true` and `session.ready: true` confirm WhatsApp readiness.
 
-Keep the mounted directory private because it can contain authentication state for the WhatsApp session.
+The mounted `./sessions` directory contains authentication state. Keep it private and do not remove it when recreating the container.
 
-## Env vars
+## Version pins and image source
 
-Pass runtime configuration with environment variables when that fits your deploy platform better than CLI flags.
+Docker Hub currently uses a moving `latest` tag, so the commands use the immutable OCI digest shown in each image reference. The image startup script otherwise installs npm `latest`; `W_A_V=5.1.0` selects the [published npm release](https://www.npmjs.com/package/@open-wa/wa-automate/v/5.1.0) used by these examples. See the [Docker Hub image](https://hub.docker.com/r/openwa/wa-automate/tags) and its [pinned startup script](https://raw.githubusercontent.com/open-wa/wa-automate-docker/5e3cf42b9a5549e85804c31c05cc05f1c58fda47/start.sh). The image declares Node.js `23.8.0`, which is above v5.1.0's `22.21.1` minimum.
+
+## Environment variables and secrets
+
+The runtime configuration loader consumes `WA_*` names. `WA_API_KEY` configures the Easy API key, `WA_SESSION_ID` names the session, and `WA_USER_DATA_DIR` selects the profile; see [Configuration and CLI](/docs/guides/configuration-and-cli) for supported settings. `OPENWA_API_KEY`, `PORT`, and `SESSION_ID` are not automatic aliases.
+
+For a local `.env` file, keep it outside version control and load it explicitly with Docker:
+
+```dotenv
+WA_PORT=8080
+WA_HOST=0.0.0.0
+WA_SESSION_ID=sales
+WA_USER_DATA_DIR=/sessions/sales
+WA_API_KEY=your-secure-key
+W_A_V=5.1.0
+```
 
 ```bash
-docker run -p 8080:8080 \
-  -e WA_PORT=8080 \
-  -e WA_API_KEY="your-secure-key" \
-  -e WA_SESSION_ID=sales \
-  -e WA_USER_DATA_DIR=/sessions/sales \
-  -v ./sessions:/sessions \
-  openwa/wa-automate
+docker run --name openwa-sales --init \
+  -p 127.0.0.1:8080:8080 \
+  -v "$PWD/sessions:/sessions" \
+  --env-file .env \
+  openwa/wa-automate:latest@sha256:d31f5a8f59c4890a302294e9834a25f217a973d80339896ef74cf3d35d903cb3 \
+  --session-id sales --host 0.0.0.0 --port 8080
 ```
 
-For v5 runtime config, use `WA_*` names such as `WA_PORT`, `WA_API_KEY`, `WA_SESSION_ID`, and `WA_USER_DATA_DIR`. Bare `PORT`, `API_KEY`, and `SESSION_ID` are not documented as v5 config env vars here.
-
-You can also keep environment values in a file and load them at container start.
-
-```bash
-docker run -p 8080:8080 --env-file .env openwa/wa-automate
-```
-
-## --init
-
-Add `--init` when running the container directly with Docker. The browser can create child processes, and an init process helps clean up zombies when those child processes exit.
-
-```bash
-docker run -p 8080:8080 --init openwa/wa-automate
-```
-
-## Browser resources
-
-The container still runs a browser. Give it enough memory and CPU for WhatsApp Web, especially if you run multiple sessions or process heavy message volume.
-
-If the browser exits unexpectedly, check memory limits, shared memory settings, CPU throttling, and the host architecture before changing application code.
-
-## Running on low-memory hosts
-
-WhatsApp Web is a heavy page. A single session realistically needs about
-**700 MB–1 GB of RAM**; below that, no browser flag will keep it stable.
-
-<Callout type="error" title="Never pass --single-process or --no-zygote">
-These args are copied from old low-RAM Puppeteer guides, but they break
-Chrome's multi-process/frame model and crash WhatsApp Web with
-`Navigating frame was detached` / `Attempted to use detached Frame`. The
-runtime **strips them from `chromiumArgs` by default** and logs a warning; set
-`allowDangerousBrowserArgs: true` only if you understand you are opting into an
-unsupported, crash-prone configuration.
-</Callout>
-
-Do this instead on constrained hosts:
-
-- Keep `--disable-dev-shm-usage` (already in the runtime defaults) **or** give
-  the container real shared memory: `docker run --shm-size=1gb ...` (Compose:
-  `shm_size: "1gb"`). Chrome writes to `/dev/shm`; the default 64 MB is too
-  small and causes renderer crashes that look like OOM.
-- Run with `--init` (or `dumb-init`, as the image already does) so orphaned
-  Chrome processes are reaped instead of accumulating.
-- Set a realistic memory limit rather than an artificially low one; OOM-killed
-  renderers also surface as detached-frame errors.
-
-## Health checks
-
-Add a health check that calls the Easy API over the published port.
-
-```bash
-docker run -p 8080:8080 --init \
-  -e WA_PORT=8080 \
-  --health-cmd="curl -f http://localhost:8080/api-docs/ || exit 1" \
-  --health-interval=30s \
-  --health-timeout=10s \
-  --health-retries=3 \
-  openwa/wa-automate
-```
-
-Use the path that your deployment uses. If you protect the API with a key, make sure that the health check can access an unauthenticated endpoint. Alternatively, send the necessary header.
+The env file supplies the same values as the baseline. The command arguments set the session and listener explicitly; Docker forwards requests from loopback to the container. Keep `.env` out of version control and inject these values through your platform's secret store in production.
 
 ## Docker Compose
 
-Compose is useful when you want the port, volume, environment, and health check committed next to your app config.
+Compose keeps the port, profile mount, environment, and process init together:
 
 ```yaml
 services:
   openwa:
-    image: openwa/wa-automate:latest
+    image: openwa/wa-automate:latest@sha256:d31f5a8f59c4890a302294e9834a25f217a973d80339896ef74cf3d35d903cb3
     init: true
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     volumes:
       - ./sessions:/sessions
     environment:
       WA_PORT: "8080"
+      WA_HOST: "0.0.0.0"
       WA_SESSION_ID: sales
       WA_USER_DATA_DIR: /sessions/sales
-      WA_API_KEY: ${WA_API_KEY}
+      WA_API_KEY: ${WA_API_KEY:?Set WA_API_KEY in .env before starting}
+      W_A_V: 5.1.0
+    command: ["--session-id", "sales", "--host", "0.0.0.0", "--port", "8080"]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api-docs/"]
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
 ```
 
-Start it with:
+Start it with the key supplied from the shell or an ignored `.env` file:
 
 ```bash
 WA_API_KEY="your-secure-key" docker compose up
 ```
 
-## Restart verification checklist
+The Compose health check only confirms an HTTP response; it does not confirm WhatsApp authentication.
 
-Use this local checklist after the first successful authentication. The expected output is illustrative local verification guidance, not captured output from this docs update.
+## `--init` and browser resources
 
-1. Start the container with a named session and explicit profile directory:
+Use `--init` when running the container directly. The browser creates child processes, and an init process reaps them when they exit. Give the container enough memory and CPU for WhatsApp Web, especially when running multiple sessions.
 
-```bash
-docker run --name openwa-sales -p 8080:8080 --init \
-  -v ./sessions:/sessions \
-  -e WA_PORT=8080 \
-  -e WA_SESSION_ID=sales \
-  -e WA_USER_DATA_DIR=/sessions/sales \
-  -e WA_API_KEY="your-secure-key" \
-  openwa/wa-automate
-```
+<Callout type="danger" title="Never pass --single-process or --no-zygote">
+These old low-memory Chromium flags break the multi-process/frame model and can produce `Navigating frame was detached` errors. The runtime strips them from `chromiumArgs` by default; setting `allowDangerousBrowserArgs: true` opts into an unsupported configuration.
+</Callout>
 
-2. Complete the first authentication flow. Scan the QR code or use link-code login.
-3. Stop and remove only the container, not `./sessions`:
+On constrained hosts, keep the runtime's normal browser arguments and add `--shm-size=1gb` to the launch command to give Chrome more shared memory. A single session typically needs **700 MB–1 GB of RAM**. See [browser launch troubleshooting](/docs/operations-and-troubleshooting/error-handling) if Chrome fails to start or exits unexpectedly.
 
-```bash
-docker stop openwa-sales
-docker rm openwa-sales
-```
+## Verify persistence after a restart
 
-4. Start the same command again with the same `WA_SESSION_ID` and `WA_USER_DATA_DIR`.
-5. Expected local result: The runtime uses the profile in `./sessions/sales` again. It connects the session without a new QR code.
+After the first successful authentication:
 
-Restart proof output, illustrative and abbreviated:
+1. Stop and remove only the container, leaving `./sessions` in place:
 
-```text
-session sales restoring profile from /sessions/sales
-session sales connected
-api listening on http://localhost:8080
-```
+   ```bash
+   docker stop openwa-sales
+   docker rm openwa-sales
+   ```
 
-A restart must not show a new QR prompt. The connected session must use the same mounted profile path. If a QR code appears, persistence failed.
+2. Run the same baseline command again with the same `WA_SESSION_ID` and `WA_USER_DATA_DIR`.
+3. Check `/health` until `connected: true` and `session.ready: true`.
 
-Mount the volume at `/sessions`. Set `WA_USER_DATA_DIR` to `/sessions/sales`. Do not delete `./sessions` between runs. Add the same settings to your production platform.
-
-## Secrets
-
-Do not bake API keys, license keys, or session material into your image. Inject secrets at runtime with environment variables, an `.env` file outside version control, or Docker secrets when your platform supports them.
-
-For Docker secrets, mount the secret file and have your startup script read it before launching the API.
-
-```yaml
-services:
-  openwa:
-    image: openwa/wa-automate:4.76.0
-    secrets:
-      - openwa_api_key
-
-secrets:
-  openwa_api_key:
-    file: ./secrets/openwa_api_key.txt
-```
-
-## Production shape
-
-A production Docker deployment pins the image tag and publishes only the necessary API port. It mounts session storage and injects secrets at runtime. It also runs with `--init`, allocates sufficient browser resources, and defines a health check.
-
-Keep the WhatsApp runtime small and focused. Put business logic in your own service, then call Easy API or consume events from it.
+The runtime should reuse `/sessions/sales` without a new QR prompt. If a new QR appears, inspect the host mount and the profile path before deleting any session data.
 
 ## Use the image as a base for your own code
 
-If you want the browser/runtime dependencies but not the default entrypoint, override it:
+If you need the browser/runtime dependencies but want your own entrypoint:
 
-```docker
-FROM openwa/wa-automate
+```dockerfile
+FROM openwa/wa-automate:latest@sha256:d31f5a8f59c4890a302294e9834a25f217a973d80339896ef74cf3d35d903cb3
 ENTRYPOINT []
 
 # copy your project and run your own command afterwards
 ```
 
-That lets you build your own app on top of the tested runtime image.
+Keep business logic in your service and call the Easy API or consume events from it. Embedded Node.js code that owns the browser belongs in **[Custom code](/docs/getting-started/custom-code)**.
 
-## Notes
+## Production notes
 
-- Revalidate browser and architecture assumptions against the image you are actually deploying.
-- Keep secrets out of the image and inject them at runtime.
-- If your goal is remote access rather than containerization, look at **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)**.
+Keep the API port private, persist the session profile, inject secrets at runtime, and configure `WA_API_KEY` for protected API methods. The API key does not replace WhatsApp authentication.
+
+## v4 archive
+
+The npm v4 archive remains available for existing v4 applications:
+
+```bash
+npx @open-wa/wa-automate@4.76.0
+```
+
+Docker Hub does not provide a matching versioned `4.76.0` image tag.
+
+Keep v4 configuration and session profiles separate from a v5 deployment. New npm examples on this site target `5.1.0`.
