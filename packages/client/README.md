@@ -1,6 +1,6 @@
 # @open-wa/client
 
-> User-facing API client for Open-WA WhatsApp automation.
+> User-facing API client for open-wa WhatsApp automation.
 
 Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
 
@@ -30,8 +30,8 @@ await client.sendText('1234567890@c.us', 'Hello from v5!');
 
 ## Documentation
 
-See the [Developer Guide](https://openwa.dev/guides/client) on our docs site.
+See the [Developer Guide](https://openwa.dev/docs/getting-started/custom-code) on our docs site.
 
 ## License
 
-[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/main/LICENSE.md) — Hippocratic + Do Not Harm
+[H-DNH V1.0](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md) — Hippocratic + Do Not Harm

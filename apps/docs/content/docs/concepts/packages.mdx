@@ -1,62 +1,39 @@
 ---
-title: Packages Overview
+title: Choose a package
+description: Choose the runtime, remote client, driver, or SDK that fits your application.
 ---
 
-# Packages Overview
+Start with the package that matches where your WhatsApp session will run. You can add integrations and lower-level packages when your application needs them.
 
+| What you want to do | Package and setup guide |
+| --- | --- |
+| Run a local HTTP API | [`@open-wa/wa-automate`: Easy API quick start](/docs/getting-started/quickstart) |
+| Own the browser and session inside a Node.js app | [`@open-wa/wa-automate`: custom code](/docs/getting-started/custom-code) |
+| Connect to an Easy API session that is already running | [`@open-wa/socket-client`: remote client setup](/docs/client-and-integrations/socket-client) |
+| Build a plugin | [`@open-wa/plugin-sdk`: plugin getting started](/docs/plugins/getting-started) |
+| Decrypt downloaded WhatsApp media | [`@open-wa/decrypt`: package reference](/docs/reference/workspaces/packages/decrypt) |
 
-The Open-WA v5 monorepo consists of multiple modular packages. While most users only need `@open-wa/wa-automate`, you can use these individual packages for more granular control.
+The installation examples use **5.1.0**. See [release status](/docs/releases/v5-alpha) before choosing a different npm tag or Docker image; those release channels can move independently.
 
-## Primary Packages
+## Choose a browser driver
 
-| Package | Description |
-|---------|-------------|
-| [`wa-automate`](../getting-started/custom-code) | The primary entry point. Re-exports core functionality and includes the CLI/API server. |
-| [`client`](../getting-started/custom-code) | The type-safe API client for interacting with WhatsApp. |
-| [`cli`](../guides/configuration-and-cli) | Command-line interface for managing sessions and starting the Easy API. |
-| [`core`](../concepts/how-it-works) | The internal engine handling driver orchestration and event emitters. |
+Embedded applications pass a driver to `createClient()`. The [custom-code guide](/docs/getting-started/custom-code) includes a complete Puppeteer example with installation, authentication, message handling, and shutdown.
 
-## Which package to install
+| Driver package | When to consider it |
+| --- | --- |
+| [`@open-wa/driver-puppeteer`](/docs/reference/workspaces/packages/driver-puppeteer) | Follow the Puppeteer setup used in the getting-started examples. |
+| [`@open-wa/driver-playwright`](/docs/reference/workspaces/packages/driver-playwright) | Use the Playwright adapter when it fits your browser setup. |
+| [`@open-wa/driver-lightpanda`](/docs/reference/workspaces/packages/driver-lightpanda) | Explore the experimental Lightpanda adapter and its current limitations. |
 
-- Most users install `@open-wa/wa-automate`.
-- Plugin developers install `@open-wa/plugin-sdk`.
-- Remote consumers install `@open-wa/socket-client`.
-- Media tools install `@open-wa/decrypt`.
+## Explore the implementation
 
-## Stability notes
+Most applications can stay with the entry points above. If you need to work on the runtime itself, the package references describe each workspace:
 
-Open-WA v5 is still in alpha overall. Treat the v5 package set as an active development surface unless a package documents a stable contract.
+- [`@open-wa/client`](/docs/reference/workspaces/packages/client) exposes the Client API.
+- [`@open-wa/core`](/docs/reference/workspaces/packages/core) coordinates the browser driver and runtime events.
+- [`@open-wa/config`](/docs/reference/workspaces/packages/config) loads and validates configuration.
+- [`@open-wa/session-sync`](/docs/reference/workspaces/packages/session-sync) handles session synchronization.
+- [`@open-wa/screencaster`](/docs/reference/workspaces/packages/screencaster) streams the browser screen to a client.
+- [`@open-wa/hyperemitter`](/docs/reference/workspaces/packages/hyperemitter) provides the runtime's schema-based event emitter.
 
-The primary user-facing paths, `@open-wa/wa-automate`, `@open-wa/socket-client`, and `@open-wa/decrypt`, are the safest places to start. Driver packages and lower-level internals are still settling as the v5 architecture matures.
-
-## Driver explanations
-
-- Use Puppeteer when you want the standard browser automation path.
-- Use Playwright when you want a higher-performance driver and are comfortable testing the fit for your setup.
-- Use Lightpanda only for experimental lightweight browser work.
-
-## Plugin SDK link
-
-If you want to build plugins, start with the [plugins getting started guide](/docs/plugins/getting-started).
-
-## Drivers
-
-Open-WA supports multiple browser drivers through a unified interface.
-
-| Package | Driver |
-|---------|--------|
-| `driver-playwright` | High-performance automation with Playwright. |
-| `driver-puppeteer` | Industry-standard automation with Puppeteer. |
-| `driver-lightpanda` | Experimental, lightweight driver. |
-
-## Utilities & SDKs
-
-| Package | Description |
-|---------|-------------|
-| `plugin-sdk` | Tools and types for building custom Open-WA plugins. |
-| `session-sync` | Sync your session data to remote S3 or Zstd storage. |
-| `screencaster` | Stream your headless browser screen to a client. |
-| `decrypt` | Zero-dependency WhatsApp media decryption. |
-| `hyperemitter` | Schema-driven event emitter powering the v5 architecture. |
-
-Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
+Browse the [workspace reference](/docs/reference/workspaces) for the complete package, application, and integration list.
