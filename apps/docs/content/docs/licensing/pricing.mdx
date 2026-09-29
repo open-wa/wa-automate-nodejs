@@ -6,16 +6,15 @@ description: Decide whether your open-wa workflow needs a license key, then use 
 # Pricing and licensing
 
 Use this page to decide whether your workflow needs a runtime license and where
-to review the current open-wa onboarding offer.
+to choose the right license for it.
 
 If you already know the gated method or runtime behavior you need, read
 **[Licensed features](/docs/licensing/licensed-features)** for the operational
 details before you buy.
 
 <Callout type="note" title="Prices live in the purchase flow">
-  Prices and terms are shown in the first-party account flow and can change.
-  It currently opens the “Open-WA License” onboarding offer; review the current offer and
-  terms there before deciding what to purchase.
+  Configure your license here, then continue to Gumroad with your details
+  already filled in. Review the current price and terms there before paying.
 </Callout>
 
 <div className="my-6 flex flex-wrap gap-3">
@@ -48,7 +47,7 @@ unsupported method available in your deployed version.
       values: {
         answer: 'The method metadata marks this behavior as Restricted.',
         nextStep:
-          'Review the current first-party offer and confirm it covers this runtime tier, then validate the licence against the host account and session you will run.',
+          'Choose Restricted in the license form, then validate the purchased key against the host account and session you will run.',
       },
     },
     {
@@ -56,7 +55,7 @@ unsupported method available in your deployed version.
       values: {
         answer: 'The method metadata marks this behavior as Insiders.',
         nextStep:
-          'Review the current first-party offer and confirm it covers this runtime tier, then test the exact method in the real runtime session.',
+          'Choose Insiders in the license form, then try the exact method in your connected session after configuring the purchased key.',
       },
     },
     {
@@ -74,8 +73,8 @@ unsupported method available in your deployed version.
 
 Use this matrix to separate runtime license requirements from upstream feature
 availability. A working host account and a method present in your deployed
-release are still required. The first-party checkout does not choose a runtime
-tier from these rows.
+release are still required. The purchase buttons below select the relevant
+tier in the license form.
 
 <ComparisonTable
   columns={[
@@ -100,7 +99,7 @@ tier from these rows.
         access: 'The runtime client reports that this special path needs a Restricted or Premium license, although `sendText` itself is marked `none` in method metadata.',
         runtime: 'This additional check applies to the unknown-number path; ordinary sends to existing contacts do not use it.',
         validate: 'Confirm the actual runtime license status and test the path in the same session and release.',
-        purchase: <a href="/checkout">Review the current first-party offer</a>,
+        purchase: <GetLicenseButton tier="restricted" label="Configure Restricted" />,
       },
     },
     {
@@ -109,7 +108,7 @@ tier from these rows.
         access: 'Insiders applies to the methods currently marked `insiders`; check each exact method.',
         runtime: 'The method must exist in the deployed API catalog and be supported by the host account.',
         validate: 'Check the method tier and availability for your deployed version, then call the exact feature.',
-        purchase: <a href="/checkout">Review the current first-party offer</a>,
+        purchase: <GetLicenseButton tier="insiders" label="Configure Insiders" />,
       },
     },
     {
@@ -118,7 +117,7 @@ tier from these rows.
         access: 'Restricted applies to methods currently marked `restricted`.',
         runtime: 'The host account must be able to perform the group operation.',
         validate: 'Test the exact group method with the production session and key.',
-        purchase: <a href="/checkout">Review the current first-party offer</a>,
+        purchase: <GetLicenseButton tier="restricted" label="Configure Restricted" />,
       },
     },
     {
@@ -127,7 +126,7 @@ tier from these rows.
         access: 'Follows the underlying methods the integration calls; the wrapper has no separate tier.',
         runtime: 'Integration availability and license eligibility are separate checks.',
         validate: 'List or document the methods the integration will invoke, then test those methods.',
-        purchase: <a href="/checkout">Review the current first-party offer after checking the underlying methods.</a>,
+        purchase: <a href="/checkout">Choose a license after checking the underlying methods.</a>,
       },
     },
   ]}
@@ -166,9 +165,8 @@ mapping.
 <Callout type="tip" title="Buy for the runtime you will operate">
   A license is part of the runtime launch path. Validate it with the host
   account, session, deployment clock, and exact gated method you plan to use in
-  production. The checkout entry does not select a tier or prefill purchase
-  fields; when opened from the dashboard it carries session and phone only as
-  support context.
+  production. Enter that account’s WhatsApp number in the license form. If you
+  open it from the dashboard, the number is filled in when available.
 </Callout>
 
 ## What a license key changes at runtime
@@ -250,8 +248,8 @@ The license decision follows the behavior the integration calls.
 
 ## Team and organization buying
 
-For team or organization questions, review the current offer in the first-party
-account flow and use the project support paths for terms it does not explain.
+For team or organization questions, review the current offer at checkout
+and use the project support paths for terms it does not explain.
 The docs do not define
 multi-seat terms, per-developer scope, customer deployment scope, transfer rules,
 or support service levels.
@@ -345,7 +343,7 @@ question, use Discord or the paid support links in the project README.
     {
       question: 'What if I need team or organization licensing?',
       answer:
-        'Review the current offer first. If the account flow does not answer your team or organization scope question, use Discord or the paid consult/support links from the README. The docs do not publish multi-seat terms.',
+        'Review the current offer first. If checkout does not answer your team or organization scope question, use Discord or the paid consult/support links from the README. The docs do not publish multi-seat terms.',
     },
     {
       question: 'What should I read before buying?',
