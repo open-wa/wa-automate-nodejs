@@ -1,0 +1,51 @@
+---
+title: "V5.0: A new foundation"
+description: "Choose how you run WhatsApp: a hosted API, a remote client, or an embedded runtime. V5 rebuilds OpenWA around the way your application works."
+release:
+  version: "5.0.0"
+  date: "2026-09-28T20:02:10Z"
+  headline: "A new foundation for OpenWA."
+  audience: "Major release · Migration from V4"
+  highlights:
+    - "Run Easy API as a service, connect remotely, or embed the session in your app."
+    - "Extend with plugins and dedicated integration packages."
+    - "Discover the running API through generated docs and authenticated MCP tools."
+---
+
+Three years in the making, V5 is a major change to how you run and extend OpenWA. WhatsApp automation still sits at the centre, but you now have a clearer choice about which process owns the browser and session—and how the rest of your application talks to it.
+
+V5 became npm's `latest` release with this launch. Existing V4 applications need a deliberate migration; installing V5 over an unchanged V4 application isn't a drop-in upgrade.
+
+## Start with the way you want to run it
+
+**Run WhatsApp as an API.** Easy API owns browser setup, authentication, the session and HTTP hosting. Start it as a process and call its documented methods from your service. This is the shortest route when you want an API without managing a browser lifecycle in your application.
+
+**Connect your application remotely.** SocketClient connects a Node.js app to a running Easy API instance. Commands travel over HTTP and live events over Server-Sent Events. Your bot, worker or dashboard can consume a session without opening its own browser.
+
+**Embed the runtime when you need control.** Use `createClient`, choose a browser driver, and own startup and shutdown inside your application. V4 applications using `create` need to move to the V5 contract.
+
+Start with the [Easy API guide](/docs/getting-started/easy-api), the [SocketClient guide](/docs/client-and-integrations/socket-client), or the [embedded runtime guide](/docs/getting-started/custom-code).
+
+## Extend OpenWA around your workflow
+
+The runtime, API, schema, browser drivers and integrations now live in separate packages. Reusable behaviour loads through `plugins` and `pluginConfig`, with dedicated paths for webhooks, Chatwoot, S3 media handling, Cloudflare session proxying and Node-RED.
+
+That separation makes ownership clearer: the session runs in one place, and the integrations around it can be configured for the application you're building. The [configuration guide](/docs/guides/configuration-and-cli) explains how to connect those pieces.
+
+## Discover the API you actually run
+
+The method schema powers interactive API documentation and generated metadata. Easy API exposes Swagger and Postman descriptions alongside its live methods, so you can inspect the service's actual contract while building an integration.
+
+For agent integrations, Easy API can expose that schema as MCP tools at `/mcp`. Discovery and execution require the Easy API key. Enable MCP through `wa.config.*`; `--mcp` isn't a V5 CLI option.
+
+## Moving from V4
+
+1. **Keep existing deployments pinned while migrating.** Pin `4.76.0` for an application that still uses V4, and run V5 separately until you've moved its configuration and workflows.
+2. **Choose the right consumer.** Move remote consumers to SocketClient and embedded applications to `createClient`. Check the methods and schemas your application calls against `/api-docs/` on your running Easy API.
+3. **Update webhook configuration and receivers.** Configure `@open-wa/integration-webhook` through `wa.config.*`. The V5 CLI accepts `--webhook` but doesn't register delivery. Receivers now read `payload` from `{ webhookId, sessionId, event, payload, timestamp }`, rather than V4-style `data`.
+
+The [webhook guide](/docs/guides/webhooks-for-business) covers the new delivery path. Move one workflow at a time, including its login, named session and recovery behaviour, before switching production traffic.
+
+## Package changes
+
+The package split supports these runtime and integration choices. Version alignment and dependency updates sit in the [full package changelogs](https://github.com/open-wa/wa-automate-nodejs/releases/tag/v5.0.0), alongside the detailed source comparison. Start with the ownership and migration changes above when deciding what your application needs to update.
