@@ -8,13 +8,14 @@ export function baseOptions(): BaseLayoutProps {
       transparentMode: 'top',
       title: (
         <span className="flex items-center gap-2 font-semibold">
-          <img src="/logo.png" alt="Open-wa" className="w-5 h-5 object-contain" />
+          <img src="/logo.png" alt="open-wa" className="w-5 h-5 object-contain" />
           <span>open-wa</span>
         </span>
       ),
       url: '/',
     },
     links: [
+      { text: 'Blog', url: DOCS_PATHS.blog, active: 'nested-url' },
       {
         text: 'Changelog',
         url: DOCS_PATHS.changelog,

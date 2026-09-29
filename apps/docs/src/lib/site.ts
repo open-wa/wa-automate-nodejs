@@ -13,6 +13,7 @@ export const GENERIC_GUMROAD_URL = 'https://smashah.gumroad.com/l/open-wa?wanted
 export const CURRENT_VERSION = version;
 
 export const DOCS_PATHS = {
+  blog: '/blog',
   changelog: '/changelog',
   overview: '/docs',
   apiExplorer: '/api-explorer',

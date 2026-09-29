@@ -12,7 +12,7 @@ export const Route = createFileRoute('/changelog/')({
   loader: () => loadChangelog(),
   head: ({ loaderData }) => ({
     meta: getDocsSocialMeta({
-      title: 'Changelog — OpenWA',
+      title: 'Changelog — open-wa',
       description: 'New features, useful improvements, and what they mean for your WhatsApp integrations.',
       imageUrl: loaderData?.[0]?.image ?? getAbsoluteDocsUrl(getPageImage([]).url),
     }),
@@ -26,7 +26,7 @@ function Changelog() {
   return <ChangelogLayout>
     <header className="changelog-intro">
       <p className="changelog-eyebrow">Made for what you’re building</p>
-      <h1>What’s new in OpenWA.</h1>
+      <h1>What’s new in open-wa.</h1>
       <p>New possibilities, useful improvements, and the details that matter when you upgrade.</p>
     </header>
     <div className="release-feed">{entries.map((entry, index) => <ReleaseCard key={entry.version} entry={entry} latest={index === 0} />)}</div>

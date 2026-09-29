@@ -46,7 +46,7 @@ export function ReleaseArticle({ entry, children }: { entry: ChangelogEntry; chi
         <h1>{entry.headline}</h1>
         <p className="release-description">{entry.description}</p>
         {entry.audience && <p className="release-audience">{entry.audience}</p>}
-        {entry.image && <img className="release-cover" src={entry.image} alt={`OpenWA ${entry.version}: ${entry.headline}`} width="1440" height="900" />}
+        {entry.image && <img className="release-cover" src={entry.image} alt={`open-wa ${entry.version}: ${entry.headline}`} width="1440" height="900" />}
       </header>
       {children}
       <footer className="release-article-footer">
