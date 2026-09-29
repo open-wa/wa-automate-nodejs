@@ -1,146 +1,111 @@
 ---
 title: Easy API quick start
-description: Start the open-wa Easy API, add an API key, verify the docs URL, and know the next command to run.
+description: Run the supported open-wa Easy API release with an API key, persistent session, and readiness check.
 ---
 
 # Easy API quick start
 
-Use this page when you want a local WhatsApp API running before you write custom Node.js code.
+Use this page when you want a local HTTP API before writing embedded Node.js code. The npm registry reported `@open-wa/wa-automate@5.1.0` as `latest` on 2026-09-29.
 
 ## Run it
 
 ```bash
-npx @open-wa/wa-automate@alpha --port 8080
+npx @open-wa/wa-automate@5.1.0 --session-id sales --host 127.0.0.1 --port 8080
 ```
 
-That starts an Easy API instance on port `8080` and prints the local address for the API and the interactive docs.
+The published `5.1.0` CLI defaults to `0.0.0.0:8002`; set both flags to keep a local setup on loopback at port `8080`. The session profile is persisted under `./_IGNORE_sales` unless you set `userDataDir` in a config file.
 
-These examples pin port `8080` for consistency. If you omit `--port`, the current v5 CLI uses port `8002`.
+The process may expose HTTP routes before WhatsApp authentication finishes. Follow the **[Quick start](/docs/getting-started/quickstart)** pairing steps, then use `/health` to confirm readiness.
 
-## Expected terminal output
+## Check the API and session separately
 
-Exact log lines vary by version and browser driver. The runtime starts and then prints the local API address and docs URL.
+The interactive docs route proves that the HTTP surface responds:
 
 ```text
-Easy API listening on http://localhost:8080
-Interactive docs: http://localhost:8080/api-docs/
+http://localhost:8080/api-docs/
 ```
 
-Open the docs URL after the session is connected. If you changed the port, replace `8080` with your chosen port.
+It does not prove that the WhatsApp session is authenticated. Check the session:
 
-## What you get
+```bash
+curl http://localhost:8080/health
+```
 
-When the runtime is healthy you usually have three things:
+Proceed with messaging only when the response contains `"connected": true` and `"session": { "ready": true }`. If readiness is false, inspect `session.pending` and `session.blockers`, complete QR authentication, and check again. Link-code login is supported through embedded `createClient` in 5.1.0; the published Easy API CLI uses QR authentication.
 
-- the session bootstrap flow (QR or link-code authentication)
-- the HTTP API surface
-- the generated interactive docs for that running session
+## Protect the API with a key
 
-That makes Easy API the shortest route from “I want an API” to “I can send and receive messages”.
+Pass a key explicitly at startup and send the same value in `X-API-Key` on protected requests:
+
+```bash
+npx @open-wa/wa-automate@5.1.0 \
+  --host 127.0.0.1 \
+  --session-id sales \
+  --port 8080 \
+  --api-key "your-secure-key"
+```
+
+```bash
+curl http://localhost:8080/api/session/getConnectionState \
+  -H "X-API-Key: your-secure-key"
+```
+
+This calls the protected [`getConnectionState`](/docs/reference/client/client#getconnectionstate) method. The CLI accepts `--api-key`, `--key`, and `-k`; a bare key flag does not generate a secret. `/health` is public and may include QR and diagnostic data, so keep the bind address private and do not expose that route through a public proxy. Keep the key and session profile private.
 
 ## Common flags
 
 ```bash
-# choose a port
-npx @open-wa/wa-automate@alpha --port 8080
+# Run a second named session on another port
+npx @open-wa/wa-automate@5.1.0 --session-id support --host 127.0.0.1 --port 8081
 
-# protect the API with your own key
-npx @open-wa/wa-automate@alpha --port 8080 --api-key "your-secure-key"
+# Bind to a host explicitly when a reverse proxy or container needs it
+npx @open-wa/wa-automate@5.1.0 --session-id sales --host 0.0.0.0 --port 8080
 
-# run a named session
-npx @open-wa/wa-automate@alpha --session-id sales --port 8081
+# Use a config file for plugins or other structured settings
+npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --host 127.0.0.1 --port 8080
 ```
 
-## API-key examples
+## Authentication and persistence
 
-Use `--api-key "your-secure-key"` when your apps, scripts, or team members need a stable key. The CLI reads the value after `--api-key`, `--key`, or `-k`. A bare `--api-key` does not generate a key.
+The published Easy API CLI authenticates with the QR code shown by the computer runtime. Link-code login is available to embedded Node.js applications through `createClient`; follow **[Link-code login](/docs/getting-started/link-code)** for that flow. The phone already runs WhatsApp; it links the phone to the browser session on the computer.
 
-```bash
-npx @open-wa/wa-automate@alpha --port 8080 --api-key "your-secure-key"
+After a successful login, restart from the same working directory with the same `--session-id` and the runtime reuses `./_IGNORE_sales`. Stop the process before backing up that directory, and protect the copy as authentication material.
+
+## Plugins and webhooks
+
+Load plugins from `wa.config.mjs` through `plugins`, then put each plugin's settings under its `pluginConfig` key:
+
+```js
+// wa.config.mjs
+export default {
+  port: 8080,
+  plugins: ['@open-wa/integration-webhook'],
+  pluginConfig: {
+    webhook: {
+      url: 'https://your-app.example/webhooks/open-wa',
+      events: ['message.received'],
+      headers: {
+        'X-Webhook-Secret': process.env.OPEN_WA_WEBHOOK_SECRET,
+      },
+    },
+  },
+};
 ```
 
-When calling the API, send the same key with your request headers.
+Use **[Webhook payloads](/docs/client-and-integrations/webhook-payloads)** for the supported plugin contract. The CLI still parses `--webhook` as a legacy config value, but current v5 delivery is configured through the plugin.
 
-```bash
-curl http://localhost:8080/api-docs/ \
-  -H "X-API-Key: your-secure-key"
-```
+## Production boundary
 
-## Good defaults for a first session
+Do not expose Easy API directly to the public internet. `/health` is public even when an API key protects API calls, and its response may include QR and diagnostic data; keep it on a private network and do not proxy it publicly. Use an API key for protected API calls, protect the session profile, and make the readiness distinction part of your supervisor: HTTP liveness means the process answers, while `connected` and `session.ready` mean the WhatsApp session can be used.
 
-- Set a **session id** early if you plan to run more than one account.
-- Protect the API with an **API key** before exposing it anywhere outside your machine.
-- Treat the Easy API as a **runtime surface**, then move business logic into your own app or worker processes.
-
-## Session persistence
-
-Easy API stores the browser profile for a session on disk so a restart can reuse the same authenticated WhatsApp Web session.
-
-By default, the profile directory is derived from the session id. For `--session-id sales`, the local profile directory is `./_IGNORE_sales`. If you do not set a session id, the default session uses `./_IGNORE_session`.
-
-To keep the session across restarts, start the process from the same working directory and reuse the same `--session-id`. To back it up, stop the process first, then copy the matching `_IGNORE_*` directory to safe storage. Restore that directory before starting the runtime again.
-
-## Authentication paths
-
-- If you are doing an ordinary first login, scan the QR code the runtime emits.
-- If you know the host account number and do not want to scan a QR code, use **[Link-code login](/docs/getting-started/link-code)**.
-
-If you want the fastest path to first success, follow the **[Quick Start](/docs/getting-started/quickstart)** guide.
-
-## Deployment notes
-
-- Use `--host` or `-h` to choose the local bind host.
-- Use `--session-id` plus distinct ports when you run multiple sessions on one host.
-- Configure a restart policy before you use the process in production.
-
-## Production warning
-
-<Callout type="warning">
-Do not expose Easy API to the public internet without a clear security boundary. Use an API key and limit network access. Use HTTPS behind a trusted proxy. Protect session profile data. Do not share interactive docs with untrusted users.
-</Callout>
-
-## Tunneling and remote access
-
-The current v5 CLI only shows a warning when you use `--tunnel`. It does not configure a tunnel. Use **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)** for controlled remote access.
-
-## Webhooks
-
-The current CLI parses `--webhook` into config, but startup warns that v5 CLI webhook registration parity is not restored. For source-backed webhook delivery in the current v5 alpha, load `@open-wa/integration-webhook` from `wa.config.*` through the plugin config section below.
-
-## Load a plugin from config
-
-Load plugins from the config file through the `plugins` array. Put plugin-specific settings in `pluginConfig`.
-
-```ts
-plugins: [
-  '@open-wa/integration-webhook',
-  './my-local-plugin'
-],
-pluginConfig: {
-  webhook: {
-    // plugin-specific config
-  }
-}
-```
+For a repeatable browser container, use the [Docker baseline](/docs/getting-started/docker). For direct browser ownership, use [Custom code](/docs/getting-started/custom-code). For a remote consumer, use [Socket Client](/docs/client-and-integrations/socket-client).
 
 ## Process management
 
-If you want automatic restarts and supervised uptime, run under a process manager.
+Use a process manager when you need automatic restarts and one named process per session:
 
 ```bash
-npx @open-wa/wa-automate@alpha --pm2 --session-id STICKER-BOT --port 8080
+npx @open-wa/wa-automate@5.1.0 --pm2 --session-id sales --host 127.0.0.1 --port 8080
 ```
 
-PM2 is useful when you need process restarts, basic memory controls, and a named process per session.
-
-## When to graduate from this page
-
-- Move to **[Custom code](/docs/getting-started/custom-code)** if you want direct client control.
-- Move to **[Socket Client](/docs/client-and-integrations/socket-client)** if your app needs to consume a remote Easy API instance.
-- Move to **[Multiple sessions](/docs/guides/multiple-sessions)** if one runtime is no longer enough.
-
-## Related guides
-
-- **[CLI options](/docs/guides/configuration-and-cli)**
-- **[Multiple sessions](/docs/guides/multiple-sessions)**
-- **[Socket Client](/docs/client-and-integrations/socket-client)**
+Process restarts do not replace session readiness checks; after a restart, wait for `/health` to report `connected: true` and `session.ready: true` before sending.

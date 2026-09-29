@@ -5,7 +5,7 @@ description: Protect your API, manage keys, and deploy to production safely.
 
 # Security and Deployment
 
-Running open-wa in production requires attention to API key management, network security, and session protection.
+Running open-wa in production requires attention to API key management, network security, and session protection. The published npm CLI `5.1.0` defaults to `0.0.0.0:8002`, so use explicit `--host` and `--port` values for the intended bind address and port.
 
 ## Runtime prerequisites
 
@@ -34,7 +34,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ```bash
 export WA_API_KEY="your-generated-key"
-npx @open-wa/wa-automate@alpha --port 8080 --api-key "$WA_API_KEY"
+npx @open-wa/wa-automate@5.1.0 --host 127.0.0.1 --port 8080 --api-key "$WA_API_KEY"
 ```
 
 Or in a `.env` file:
@@ -65,7 +65,7 @@ If your API key is exposed:
 
 ### Exposing Ports to the Internet
 
-**Never expose the Easy API port directly to the internet without authentication.** At minimum:
+**Never expose the Easy API port directly to the internet without authentication.** `/health` is public even when the API key protects API calls, and its response can include QR and diagnostic data. Keep the health route private and do not expose it through a public proxy. At minimum:
 
 - Always use `--api-key "your-secure-key"`
 - Use a reverse proxy (nginx, Caddy) with HTTPS
@@ -201,20 +201,22 @@ Before deploying to production:
 ```
 
 - Simplest setup
-- Run with `npx @open-wa/wa-automate@alpha --port 8080 --api-key "key"`
+- Run with `npx @open-wa/wa-automate@5.1.0 --host 127.0.0.1 --port 8080 --api-key "key"`
 - Use PM2 or systemd for process management
 
 ### Docker Container
 
+The `openwa/wa-automate` image tag moves independently from the npm release, so pin a verified image digest before production. The published npm CLI `5.1.0` ignores `WA_HOST` and `WA_PORT` in favor of its startup defaults; for that CLI, pass bind and port arguments explicitly as shown here. The moving image's entrypoint and argument contract are not verified by this guide.
+
 ```bash
 docker run -p 8080:8080 \
-  -e WA_PORT=8080 \
   -e WA_API_KEY="your-key" \
   -e WA_SESSION_ID=sales \
   -e WA_USER_DATA_DIR=/sessions/sales \
   -v ./sessions:/sessions \
   --init \
-  openwa/wa-automate
+  openwa/wa-automate \
+  --host 0.0.0.0 --port 8080
 ```
 
 - Isolated environment
@@ -225,11 +227,14 @@ The v5 Docker image runs from `/usr/src/app`. If `WA_USER_DATA_DIR` is not set a
 
 ### Docker Compose (Multi-Session)
 
+The Compose example uses the moving image tag and its command forwarding has not been verified. Pin a digest and confirm its entrypoint accepts these arguments before deployment; `/health` remains public and may return QR and diagnostic data even when `WA_API_KEY` protects other API calls.
+
 ```yaml
 version: '3'
 services:
   sales-bot:
     image: openwa/wa-automate
+    command: ["--host", "0.0.0.0", "--port", "8080"]
     ports:
       - "8080:8080"
     volumes:
@@ -237,11 +242,11 @@ services:
     environment:
       - WA_API_KEY=sales-key
       - WA_SESSION_ID=sales
-      - WA_PORT=8080
       - WA_USER_DATA_DIR=/sessions/sales
 
   support-bot:
     image: openwa/wa-automate
+    command: ["--host", "0.0.0.0", "--port", "8081"]
     ports:
       - "8081:8081"
     volumes:
@@ -249,7 +254,6 @@ services:
     environment:
       - WA_API_KEY=support-key
       - WA_SESSION_ID=support
-      - WA_PORT=8081
       - WA_USER_DATA_DIR=/sessions/support
 ```
 

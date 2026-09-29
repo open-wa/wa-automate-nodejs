@@ -1,63 +1,69 @@
 ---
-title: v5 Alpha Status
-description: Understand the current version, when to use v5 vs v4, and what has changed.
+title: v5 Release Status
+description: Use the supported v5.1.0 release, understand prerelease tags, and keep existing v4 deployments available.
 ---
 
-# v5 Alpha Status
+The npm examples on these pages pin **5.1.0**. The npm registry reported `latest=5.1.0` and `alpha=5.0.0-alpha.8` on 2026-09-29. Docker Hub listed only its moving `latest` tag, so the Docker image version could not be pinned to the npm release. Choose `alpha` only for deliberate prerelease work.
 
-This repository is currently on **version 5**, which is still in alpha.
+<Callout type="info" title="Example baseline: 5.1.0">
+The example version is pinned; the registry tags above were checked on 2026-09-29. Generated API pages describe the package build that produced them, so verify exact method routes and return shapes against the version you deploy.
+</Callout>
 
-## What "Alpha" Means
+## Install v5.1.0
 
-- Maintainers are reorganizing the architecture into a cleaner monorepo structure
-- APIs can change between minor releases
-- Maintainers are still testing some features
-- Breaking changes are possible without major version bumps
+Easy API:
 
-**For production systems, use v4.76.0:**
+```bash
+npx @open-wa/wa-automate@5.1.0 --session-id quickstart --host 127.0.0.1 --port 8080
+```
+
+Custom code:
+
+```bash
+npm install @open-wa/wa-automate@5.1.0 @open-wa/driver-puppeteer@5.1.0
+```
+
+Docker currently publishes only its moving `latest` tag; Docker image parity with npm `5.1.0` could not be pinned from the tag list checked on 2026-09-29.
+
+Use the [quick start](/docs/getting-started/quickstart), [Docker](/docs/getting-started/docker), or [Custom code](/docs/getting-started/custom-code) page for the complete flow. A docs page returning HTTP 200 does not establish WhatsApp authentication; inspect `/health` and require `connected: true` plus `session.ready: true` before sending.
+
+## What v5 includes
+
+- A monorepo package line with the runtime, API, schema, browser drivers, plugins, and integrations separated into packages.
+- `createClient` for applications that own the embedded runtime, with the exported `Client` facade for message listeners and methods.
+- HTTP Easy API commands, generated API docs, and runtime event delivery through the supported server surface.
+- Separate driver packages so an embedded application can choose Puppeteer or another supported driver.
+- Config-driven plugins through `plugins` and `pluginConfig`, including the webhook and Chatwoot integrations.
+
+## Prerelease tags
+
+The `alpha` dist-tag currently points to `5.0.0-alpha.8`. It is a separate prerelease selection and can change independently of `latest`; it is not the command used by the supported-release onboarding pages. If you intentionally test it, record the exact package and image tag with your report and use a disposable account and profile.
+
+```bash
+npx @open-wa/wa-automate@alpha --session-id alpha-test --port 8080
+```
+
+## v4 archive
+
+Existing v4 applications can continue to use the archived npm package:
 
 ```bash
 npx @open-wa/wa-automate@4.76.0
 ```
 
-## When to Use v5 vs v4
+Docker Hub did not list a versioned v4 image tag when checked on 2026-09-29. Keep v4 configuration, examples, and session profiles separate from v5. The v4 npm package remains available for migration work; new examples on this site use `5.1.0`.
 
-| Use v5 if... | Use v4 if... |
-|---|---|
-| You are testing new features | You have a mature production system |
-| You are contributing to the project | You need stability guarantees |
-| You are starting a new project | You depend on v4-specific flags or behavior |
-| You want the plugin system | You are not prepared for breaking changes |
+## Migration notes
 
-## What Changed in v5
+1. Start a separate v5 session with Easy API and authenticate a disposable WhatsApp account.
+2. Check `/health` until `connected` and `session.ready` are both true.
+3. Exercise the method, session recovery, plugin, and webhook flows your application needs.
+4. Move to embedded `createClient` only when your application must own the browser and session lifecycle; use SocketClient for a remote consumer of Easy API.
 
-- **Monorepo architecture**: The project is a monorepo with separate packages
-- **Pluggable browser drivers**: Choose Puppeteer, Playwright, or Lightpanda via separate packages
-- **`createClient` replaces `create`**: The v5 public contract uses `createClient` from `@open-wa/core`
-- **Plugin system**: Load reusable integrations via `plugins` and `pluginConfig` in config
-- **MCP server**: Built-in Model Context Protocol server for AI agent integration
-- **HTTP RPC + SSE**: The runtime uses HTTP RPC for commands and Server-Sent Events for runtime events
-
-## Migration from v4
-
-If you are moving from v4 to v5:
-
-1. Start with Easy API and confirm `http://localhost:8080/api-docs/` works
-2. Test named sessions, auth, webhooks, and generated schemas in a separate environment
-3. Prefer SocketClient for remote consumers instead of embedding browser/runtime everywhere
-4. Use `createClient` only when you need direct runtime ownership
-5. Expect some older v4 docs, examples, and flags to be reorganized or replaced
-
-See **[Custom code](/docs/getting-started/custom-code)** for the v5 API details.
-
-## Legal and Risk Context
+## Legal and account safety
 
 <Callout type="warning">
-**This is unofficial software.** This project is not affiliated with, authorized by, maintained by, sponsored by, or endorsed by WhatsApp or any of its affiliates or subsidiaries.
+This is unofficial software and is not affiliated with, authorized by, maintained by, sponsored by, or endorsed by WhatsApp or its affiliates. Automating WhatsApp can violate its terms of service, and account restrictions or bans are possible.
 </Callout>
 
-- **Terms of Service**: When you use this project, you agree to the [Terms of Service](https://github.com/open-wa/wa-automate-nodejs/blob/master/tos.md)
-- **Ban risk**: Automating WhatsApp can violate their terms of service. Use at your own risk. Account bans are possible, especially with aggressive automation or high message volumes.
-- **Rate limits**: WhatsApp enforces rate limits on message sending. Exceeding these can trigger temporary blocks or permanent bans. See **[Rate limits](/docs/guides/rate-limits)** for details.
-- **Cryptography notice**: This distribution includes cryptographic software. Depending on your jurisdiction, there can be restrictions on import, possession, use, or re-export of encryption software. See [Wassenaar Arrangement](http://www.wassenaar.org/) for more information.
-- **Session data**: Session files contain sensitive authentication material. Protect them appropriately.
+Protect session profile directories, respect rate limits, and use a separate account while evaluating a new package or prerelease.

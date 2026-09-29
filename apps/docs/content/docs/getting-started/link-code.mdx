@@ -1,81 +1,84 @@
 ---
 title: Link-code login
-description: Authenticate a session with a link code instead of scanning a QR code.
+description: Authenticate an embedded Node.js session with a WhatsApp link code.
 ---
 
-# Link-code login
+Link-code login pairs a browser session with the WhatsApp account on your phone. In the supported npm release `5.1.0`, embedded applications can request the code through `createClient` and receive it from the runtime event emitter. The published Easy API CLI does not forward `linkCode` or print the generated event, so use its QR flow instead.
 
-If the host account supports link-code login, you can request a link code ahead of authentication instead of scanning a QR code.
+<Callout type="warning" title="Keep the code private">
+The `launch.auth.linkCode.generated` event is sensitive. The example prints it only in the local terminal that started the application. Do not forward it to HTTP routes, shared logs, chat, or issue reports. The plugin event gateway blocks sensitive events.
+</Callout>
 
-## Easy API
+## 1. Create the project
+
+Install the matching runtime and Puppeteer driver packages in a new Node.js project:
 
 ```bash
-npx @open-wa/wa-automate@alpha --link-code "447123456789"
+mkdir open-wa-link-code
+cd open-wa-link-code
+npm init -y
+npm pkg set type=module
+npm install @open-wa/wa-automate@5.1.0 @open-wa/driver-puppeteer@5.1.0
 ```
 
-You can also place the same value in your config file:
+Save the following as `index.mjs`. Replace the example number with the full phone number, including country code, using digits only.
 
-```json
-{
-  "linkCode": "447123456789"
-}
-```
+```js
+import { Client, createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
 
-## Phone format
-
-Use the full phone number with the country code first. Do not include a plus sign, spaces, brackets, or dashes.
-
-For example, use `447123456789`, not `+44 7123 456789`.
-
-## Where code appears
-
-The link code appears in the host device's WhatsApp app during the Linked Devices flow.
-
-On the phone that owns the account, open WhatsApp and go to Linked Devices. Choose the option to link with a phone number instead of scanning a QR code, then enter the code shown by open-wa.
-
-## Expiry/failure
-
-Link codes expire after a short time. If the code expires, or if it is entered incorrectly, WhatsApp will reject the login attempt and the session will not connect with that code.
-
-Start the authentication flow again to request a fresh code, then enter the new code on the host device.
-
-## QR still appears?
-
-Yes. The QR code can still appear as a fallback during authentication.
-
-If link-code login fails or times out, scan the QR code. This alternative works while the runtime continues to wait for authentication.
-
-## Host device steps
-
-On the phone that owns the WhatsApp account:
-
-1. Open WhatsApp.
-2. Go to Settings.
-3. Open Linked Devices.
-4. Tap Link a Device.
-5. Choose the option to link with a phone number instead.
-6. Enter the link code shown by open-wa.
-7. Confirm the login when WhatsApp asks.
-
-## Troubleshooting
-
-- Check that the number uses country code plus phone number only, with no plus sign or spaces.
-- Make sure that you use the WhatsApp account that owns the number in `linkCode`.
-- If the code expired, restart the login flow and use the new code.
-- If WhatsApp rejects the code, check for typing mistakes and request a fresh code.
-- If link-code login keeps failing, scan the QR code fallback instead.
-- If the session times out before you can enter the code, increase your auth timeout settings or try again when the host device is ready.
-
-## In custom code
-
-```ts
-create({
+const runtime = await createClient({
+  sessionId: 'link-code-demo',
+  driver: new PuppeteerDriver(),
+  headless: false,
   linkCode: '447123456789',
 });
+
+runtime.events.on('launch.auth.linkCode.generated', (event) => {
+  const code = event.details?.linkCode;
+  if (code) console.log('Enter this code on your phone:', code);
+});
+
+const client = new Client({
+  client: runtime,
+  transport: runtime.getTransport(),
+});
+
+const shutdown = async (signal) => {
+  await client.stop(signal);
+};
+
+process.once('SIGINT', () => void shutdown('SIGINT'));
+process.once('SIGTERM', () => void shutdown('SIGTERM'));
+
+await client.start();
+
+const readiness = runtime.getReadiness();
+console.log('WhatsApp session ready:', readiness.ready);
 ```
 
-## Important behavior
+The event listener is attached before `client.start()` because startup emits the generated code while authenticating. Run the application and keep its terminal open:
 
-- The code is tied to the host account number you provide.
-- The host device still needs to confirm the login flow.
-- Use this only when you know which account will own the session.
+```bash
+node index.mjs
+```
+
+## 2. Enter the code on your phone
+
+On the phone that owns the number in `linkCode`:
+
+1. Open WhatsApp.
+2. Open **Settings** on iPhone, or **Menu** then **Linked devices** on Android.
+3. Tap **Link a device**.
+4. Choose **Link with phone number instead**. The wording can vary by platform version.
+5. Enter the code printed in the computer's local terminal and confirm the link.
+
+Use digits only in `linkCode`. Do not include a plus sign, spaces, brackets, or dashes. For example, use `447123456789`, not `+44 7123 456789`. A chat ID such as `447123456789@c.us` belongs in messaging calls after the session connects, not in `linkCode`.
+
+## 3. Confirm readiness
+
+The program prints `WhatsApp session ready: true` after startup completes successfully. In code, `runtime.getReadiness()` exposes `ready`, `pending`, and `blockers`; proceed with messaging only when `ready` is true. Code generation alone does not mean that the phone completed pairing.
+
+Link codes expire. If the phone rejects the code or startup times out, stop the current process and start it again to request a fresh code. If the loaded WhatsApp Web build does not support link-code login, the runtime can fall back to QR authentication in the browser window.
+
+For a complete embedded lifecycle and messaging example, see **[Custom code](/docs/getting-started/custom-code)**. For the Easy API CLI, use the **[Quick start](/docs/getting-started/quickstart)** QR flow.

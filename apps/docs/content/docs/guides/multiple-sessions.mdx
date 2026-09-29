@@ -43,9 +43,9 @@ There are three common ways to run more than one session. Pick the one that matc
 Run one Easy API process for each WhatsApp account. Each process gets its own `sessionId`, port, API key, and restart policy.
 
 ```bash
-npx @open-wa/wa-automate@alpha --session-id sales --port 8081 --api-key "sales-api-key"
-npx @open-wa/wa-automate@alpha --session-id support --port 8082 --api-key "support-api-key"
-npx @open-wa/wa-automate@alpha --session-id ops --port 8083 --api-key "ops-api-key"
+npx @open-wa/wa-automate@5.1.0 --session-id sales --host 127.0.0.1 --port 8081 --api-key "sales-api-key"
+npx @open-wa/wa-automate@5.1.0 --session-id support --host 127.0.0.1 --port 8082 --api-key "support-api-key"
+npx @open-wa/wa-automate@5.1.0 --session-id ops --host 127.0.0.1 --port 8083 --api-key "ops-api-key"
 ```
 
 This is the easiest model to reason about in production. If `support` crashes, `sales` and `ops` keep running.
@@ -85,14 +85,14 @@ module.exports = {
     {
       name: 'open-wa-sales',
       script: 'npx',
-      args: '@open-wa/wa-automate --session-id sales --port 8081 --api-key sales-api-key',
+      args: '@open-wa/wa-automate@5.1.0 --session-id sales --host 127.0.0.1 --port 8081 --api-key sales-api-key',
       autorestart: true,
       max_memory_restart: '1G',
     },
     {
       name: 'open-wa-support',
       script: 'npx',
-      args: '@open-wa/wa-automate --session-id support --port 8082 --api-key support-api-key',
+      args: '@open-wa/wa-automate@5.1.0 --session-id support --host 127.0.0.1 --port 8082 --api-key support-api-key',
       autorestart: true,
       max_memory_restart: '1G',
     },
@@ -193,13 +193,15 @@ In this model, each WhatsApp account is a separate operating system process. Thi
 Start each session with its own name, port, and API key:
 
 ```bash
-npx @open-wa/wa-automate@alpha \
+npx @open-wa/wa-automate@5.1.0 \
   --session-id sales \
+  --host 127.0.0.1 \
   --port 8081 \
   --api-key "sales-api-key"
 
-npx @open-wa/wa-automate@alpha \
+npx @open-wa/wa-automate@5.1.0 \
   --session-id support \
+  --host 127.0.0.1 \
   --port 8082 \
   --api-key "support-api-key"
 ```

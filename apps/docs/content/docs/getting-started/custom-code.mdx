@@ -1,229 +1,179 @@
 ---
 title: Custom code
-description: Use createClient in your Node.js app, choose a driver, and handle startup and shutdown safely.
+description: Install open-wa, create a complete Node.js consumer, and handle readiness, messages, and shutdown.
 ---
 
-# Custom code
+Use embedded custom code when your Node.js process owns the browser and session lifecycle. The examples target the supported `5.1.0` packages; the [SocketClient](/docs/client-and-integrations/socket-client) path is separate and connects to an already running Easy API process.
 
-Use this path when your Node.js app needs to own the open-wa runtime instead of calling a separate Easy API process.
+<Callout type="info" title="Supported release: 5.1.0">
+The npm registry reported `5.1.0` as `latest` on 2026-09-29. The generated reference remains the authority for exact method and type details in the package version you install.
+</Callout>
 
-## Install the package and a driver
+## Minimal JavaScript project
 
-<PackageManagerTabs command="@open-wa/wa-automate @open-wa/driver-puppeteer" />
+Create a project, install the runtime and Puppeteer driver, then create `index.mjs`:
 
-If your environment has stricter native-install permissions, only fall back to `--unsafe-perm` when you have confirmed you actually need it.
+```bash
+mkdir open-wa-bot
+cd open-wa-bot
+npm init -y
+npm pkg set type=module
+npm install @open-wa/wa-automate@5.1.0 @open-wa/driver-puppeteer@5.1.0
+```
 
-## Runtime entrypoint
+Save this as `index.mjs`:
 
-<Tabs items={['v5 createClient', 'Legacy create']}>
-<Tab value="v5 createClient">
-
-The v5 public contract centers on `createClient` from `@open-wa/core`, exposed through `@open-wa/wa-automate`. Start new v5 custom code with `createClient` because it matches the current runtime and driver architecture.
-
-```ts
-import { createClient } from '@open-wa/wa-automate';
+```js
+import { Client, createClient } from '@open-wa/wa-automate';
 import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
 
-async function start() {
-  const client = await createClient({
-    sessionId: 'my-session',
-    driver: new PuppeteerDriver(),
-    headless: true,
-  });
-
-  client.onMessage(async (message) => {
-    if (message.body === 'Hi') {
-      await client.sendText(message.from, '👋 Hello!');
-    }
-  });
-}
-
-start().catch(console.error);
-```
-
-On the first run, authenticate the session. Scan the QR code or use another supported login flow. When the session is ready, send `Hi` to the connected account. The account sends the reply above.
-
-</Tab>
-<Tab value="Legacy create">
-
-`create()` is the older compatibility entry point. It still appears in some v4-era examples, but it is not the first pattern to copy for new v5 code.
-
-```ts
-import { create } from '@open-wa/wa-automate';
-
-async function start() {
-  const client = await create({
-    sessionId: 'my-session',
-  });
-
-  client.onMessage(async (message) => {
-    if (message.body === 'Hi') {
-      await client.sendText(message.from, '👋 Hello!');
-    }
-  });
-}
-
-start().catch(console.error);
-```
-
-</Tab>
-</Tabs>
-
-## Choose the driver explicitly
-
-For embedded runtime code, install the driver package you want to run with. The examples above use Puppeteer:
-
-<PackageManagerTabs command="@open-wa/driver-puppeteer" />
-
-Then pass the driver when you create the client:
-
-```ts
-import { createClient } from '@open-wa/wa-automate';
-import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
-
-async function start() {
-  const client = await createClient({
-    sessionId: 'my-session',
-    driver: new PuppeteerDriver(),
-    headless: true,
-  });
-
-  client.onMessage(async (message) => {
-    if (message.body === 'Hi') {
-      await client.sendText(message.from, '👋 Hello!');
-    }
-  });
-}
-
-start().catch(console.error);
-```
-
-## TypeScript setup
-
-Custom code projects work best with a normal Node.js TypeScript setup. Use a recent Node target, keep module resolution compatible with your runtime, and await async client methods instead of treating them like sync helpers.
-
-## What runtime creation does
-
-`createClient()` launches the automation runtime, restores or authenticates the session, and returns the client surface you use for listeners and actions.
-
-It is the boundary where configuration, browser launch, authentication state, and runtime listeners all meet.
-
-## Build a real launch config
-
-```ts
-const client = await createClient({
-  sessionId: 'sales',
+const runtime = await createClient({
+  sessionId: 'hello-bot',
   driver: new PuppeteerDriver(),
-  headless: true,
-  qrTimeout: 0,
-  authTimeout: 60,
+  headless: false,
+});
+
+const client = new Client({
+  client: runtime,
+  transport: runtime.getTransport(),
+});
+
+await client.start();
+console.log('open-wa is ready:', runtime.getReadiness().ready);
+
+client.onMessage(async (message) => {
+  if (message.body === 'Hi') {
+    const result = await client.sendText(message.from, '👋 Hello from custom code.');
+    console.log('reply sent:', result);
+  }
+});
+
+const shutdown = async (signal) => {
+  console.log(`Stopping after ${signal}...`);
+  await client.stop(signal);
+};
+
+process.once('SIGINT', () => void shutdown('SIGINT'));
+process.once('SIGTERM', () => void shutdown('SIGTERM'));
+```
+
+Run it with:
+
+```bash
+node index.mjs
+```
+
+On the first run, scan the QR code shown in the visible browser window. Successful startup is the log line `open-wa is ready: true`; then send `Hi` to the linked account and look for `reply sent:`. The listener reuses the exact `message.from` chat ID, so it also works when the runtime supplies an `@lid` identifier.
+
+## TypeScript project
+
+Install the TypeScript runner and types in the same project:
+
+```bash
+npm install --save-dev tsx typescript @types/node
+npm pkg set type=module
+mkdir -p src
+```
+
+Save this as `src/index.ts`:
+
+```ts
+import { Client, createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+
+async function main(): Promise<void> {
+  const runtime = await createClient({
+    sessionId: 'hello-bot-ts',
+    driver: new PuppeteerDriver(),
+    headless: false,
+  });
+
+  const client = new Client({
+    client: runtime,
+    transport: runtime.getTransport(),
+  });
+
+  await client.start();
+  const readiness = runtime.getReadiness();
+  if (!readiness.ready) {
+    throw new Error(`WhatsApp session is not ready: ${readiness.pending.join(', ') || 'unknown blocker'}`);
+  }
+
+  console.log(`open-wa is ready for ${runtime.sessionId}`);
+
+  client.onMessage(async (message) => {
+    if (message.body !== 'Hi') return;
+
+    const result = await client.sendText(message.from, '👋 Hello from TypeScript.');
+    console.log('reply sent:', result);
+  });
+
+  let stopping = false;
+  const shutdown = async (signal: string): Promise<void> => {
+    if (stopping) return;
+    stopping = true;
+    console.log(`Stopping after ${signal}...`);
+    await client.stop(signal);
+  };
+
+  process.once('SIGINT', () => void shutdown('SIGINT'));
+  process.once('SIGTERM', () => void shutdown('SIGTERM'));
+}
+
+main().catch((error: unknown) => {
+  console.error('open-wa failed to start:', error);
+  process.exitCode = 1;
 });
 ```
 
-Use an explicit driver and browser configuration when browser-specific behavior matters for your flow.
+Run the saved file with:
 
-## Auth behavior
-
-On the first run, the runtime must authenticate the WhatsApp session. Scan a QR code or use another supported login flow. The available flow depends on your config and environment.
-
-After the first successful login, the runtime saves session data for the configured `sessionId`. Later runs with the same session can restore that state. The process needs valid saved auth data. If the data is available, you do not need to log in again.
-
-## First send/receive
-
-This example sends a startup message to a known chat and replies when that chat sends `Hi`:
-
-```ts
-import { createClient } from '@open-wa/wa-automate';
-import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
-
-async function start() {
-  const client = await createClient({
-    sessionId: 'sales',
-    driver: new PuppeteerDriver(),
-    headless: true,
-  });
-
-  const chatId = '15551234567@c.us';
-
-  await client.sendText(chatId, 'Bot is online. Send Hi to test the reply flow.');
-
-  client.onMessage(async (message) => {
-    if (message.from === chatId && message.body === 'Hi') {
-      await client.sendText(message.from, '👋 Hello from custom code.');
-    }
-  });
-}
-
-start().catch(console.error);
+```bash
+npx tsx src/index.ts
 ```
 
-Replace `15551234567@c.us` with the chat id you want to test against.
+This variant checks runtime readiness before registering the reply flow, stops the browser on signals, and reports startup failures through the process exit code.
 
-## Cleanup/shutdown
+## Choose another browser driver
 
-If your process handles shutdown signals, close the client before exiting so the browser and runtime resources are cleaned up:
+The examples use `PuppeteerDriver` so the install and run path is complete. To use Lightpanda, install the matching driver package and change only the driver import and constructor:
 
-```ts
-import { createClient } from '@open-wa/wa-automate';
-import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
-
-async function start() {
-  const client = await createClient({
-    sessionId: 'sales',
-    driver: new PuppeteerDriver(),
-  });
-
-  const shutdown = async () => {
-    await client.stop();
-    process.exit(0);
-  };
-
-  process.once('SIGINT', shutdown);
-  process.once('SIGTERM', shutdown);
-}
-
-start().catch(console.error);
+```bash
+npm install @open-wa/driver-lightpanda@5.1.0
 ```
 
-## v5 caveat
+```ts
+import { LightpandaDriver } from '@open-wa/driver-lightpanda';
 
-<Callout type="tip" title="Default to createClient">
-  v5 is the forward path, but some examples still show the older `create()` shape for compatibility. Treat `createClient` as the default for new v5 custom code unless a page says otherwise.
-</Callout>
+const runtime = await createClient({
+  sessionId: 'hello-bot',
+  driver: new LightpandaDriver(),
+});
+```
 
-## Plugin vs custom code
+Keep the rest of the lifecycle and readiness code unchanged. If you need to attach to an existing browser, set the driver and its connection options explicitly; do not mix embedded `createClient` ownership with `SocketClient` ownership in the same process.
 
-Use plugins to make reusable integrations. You can load a plugin through config, share it across projects, or publish it as a package.
+## Link-code authentication
 
-Use custom code when the logic belongs to one app, such as routing incoming messages into your own database, queue, CRM, or business workflow.
+Pass `linkCode` to `createClient` when the account uses phone-number pairing:
 
-## SocketClient vs embedded runtime
+```ts
+const runtime = await createClient({
+  sessionId: 'hello-bot',
+  driver: new PuppeteerDriver(),
+  headless: false,
+  linkCode: '447123456789',
+});
+```
 
-`SocketClient` connects your Node.js app to a running Easy API instance. The Easy API process owns the browser, session lifecycle, and HTTP surface while your app consumes commands and events remotely.
+Use digits only, and enter the generated code on the phone that owns that number. See **[Link-code login](/docs/getting-started/link-code)** for the two-device sequence and fallback behavior.
 
-Embedded runtime code owns the browser directly inside your process through `createClient`. Use it when you need direct control over driver selection, launch config, shutdown, and session behavior.
+## Embedded runtime versus SocketClient
 
-## Browser/runtime notes
+Embedded code creates the browser with `createClient`, wraps it in the exported `Client` facade, and calls `client.start()` and `client.stop()`. `SocketClient` connects to an Easy API process that owns the browser, so install and run that server separately and give the client its URL and API key. Choose one owner for each session so two processes do not compete for the same profile.
 
-- If you use your Chrome installation, specify it in the config. Do not depend on automatic discovery.
-- On Linux hosts, validate browser dependencies before debugging application logic.
-- Keep the browser/runtime assumptions the same between local development and production where possible.
+## Next steps
 
-## Recommended next steps
-
-- Move session-specific settings into a real config object.
-- Read **[Configuration and CLI](/docs/guides/configuration-and-cli)** for the core options.
-- Read **[Session events](/docs/guides/session-events)** if you need QR or lifecycle hooks.
-- Read **[Best practices](/docs/operations-and-troubleshooting/best-practices)** before production rollout.
-
-## Runtime notes
-
-- Prefer explicit Chrome configuration when you rely on browser-specific behavior.
-- Keep one primary client per process unless you have a clear multi-session orchestration plan.
-- Treat all client methods as async operations and await them consistently.
-
-## Common next moves
-
-- Add `ev` listeners when you need raw lifecycle hooks.
-- Externalize heavy work to queues or workers instead of doing everything inside one `onMessage` callback.
-- Read **[Error handling](/docs/operations-and-troubleshooting/error-handling)** and **[Best practices](/docs/operations-and-troubleshooting/best-practices)** before shipping a long-running bot.
+- Read **[Configuration and CLI](/docs/guides/configuration-and-cli)** for session paths, timeouts, and `WA_*` settings.
+- Read **[Session events](/docs/guides/session-events)** when you need lifecycle hooks.
+- Read **[Error handling](/docs/operations-and-troubleshooting/error-handling)** before building a long-running bot.
