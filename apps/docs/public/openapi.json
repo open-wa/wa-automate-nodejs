@@ -7794,6 +7794,1156 @@
           }
         }
       }
+    },
+    "/api/messages/sendInteractive": {
+      "post": {
+        "tags": [
+          "messages"
+        ],
+        "operationId": "sendInteractive",
+        "summary": "Send a portable interactive message document (Insiders and above)",
+        "description": "Send a portable interactive message document (Insiders and above)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "to": {
+                    "description": "Recipient chat ID",
+                    "type": "string",
+                    "pattern": "^\\d+(-\\d+)?@(c|g)\\.us$|^\\d+@lid$"
+                  },
+                  "content": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "description": "Document format version, defaults to 1; independent of WhatsApp protocol versions",
+                            "type": "number",
+                            "enum": [
+                              1
+                            ]
+                          },
+                          "body": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "footer": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "buttons"
+                            ]
+                          },
+                          "header": {
+                            "oneOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "text"
+                                    ]
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  }
+                                },
+                                "required": [
+                                  "type",
+                                  "text"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "image"
+                                    ]
+                                  },
+                                  "source": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "HTTP(S) URL, local file path or base64 data URL; resolved by the client before sending"
+                                  },
+                                  "filename": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "title": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "type",
+                                  "source"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "video"
+                                    ]
+                                  },
+                                  "source": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "HTTP(S) URL, local file path or base64 data URL; resolved by the client before sending"
+                                  },
+                                  "filename": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "title": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "type",
+                                  "source"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "document"
+                                    ]
+                                  },
+                                  "source": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "HTTP(S) URL, local file path or base64 data URL; resolved by the client before sending"
+                                  },
+                                  "filename": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "title": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "type",
+                                  "source"
+                                ],
+                                "additionalProperties": false
+                              }
+                            ]
+                          },
+                          "actions": {
+                            "minItems": 1,
+                            "type": "array",
+                            "items": {
+                              "oneOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "reply"
+                                      ]
+                                    },
+                                    "id": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "description": "Stable application-defined ID returned when the recipient chooses this item"
+                                    },
+                                    "label": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "id",
+                                    "label"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "url"
+                                      ]
+                                    },
+                                    "label": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "url": {
+                                      "type": "string",
+                                      "format": "uri"
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "label",
+                                    "url"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "call"
+                                      ]
+                                    },
+                                    "label": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "phoneNumber": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "label",
+                                    "phoneNumber"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "copy"
+                                      ]
+                                    },
+                                    "label": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "code": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "label",
+                                    "code"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "body",
+                          "type",
+                          "actions"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "description": "Document format version, defaults to 1; independent of WhatsApp protocol versions",
+                            "type": "number",
+                            "enum": [
+                              1
+                            ]
+                          },
+                          "body": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "footer": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "list"
+                            ]
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "buttonLabel": {
+                            "default": "Choose an option",
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "sections": {
+                            "minItems": 1,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string"
+                                },
+                                "rows": {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "description": "Stable application-defined ID returned when the recipient chooses this item"
+                                      },
+                                      "title": {
+                                        "type": "string",
+                                        "minLength": 1
+                                      },
+                                      "description": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "title"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "rows"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "body",
+                          "type",
+                          "buttonLabel",
+                          "sections"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "description": "Document format version, defaults to 1; independent of WhatsApp protocol versions",
+                            "type": "number",
+                            "enum": [
+                              1
+                            ]
+                          },
+                          "body": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "footer": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "form"
+                            ]
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "questions": {
+                            "minItems": 1,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "singleSelect",
+                                    "multiSelect"
+                                  ]
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "description": "Stable application-defined ID returned when the recipient chooses this item"
+                                },
+                                "label": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "options": {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "description": "Stable application-defined ID returned when the recipient chooses this item"
+                                      },
+                                      "label": {
+                                        "type": "string",
+                                        "minLength": 1
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "label"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "allowCustomAnswer": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "id",
+                                "label",
+                                "options"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "body",
+                          "type",
+                          "questions"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "description": "Document format version, defaults to 1; independent of WhatsApp protocol versions",
+                            "type": "number",
+                            "enum": [
+                              1
+                            ]
+                          },
+                          "body": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "footer": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "carousel"
+                            ]
+                          },
+                          "cards": {
+                            "minItems": 1,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "body": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "header": {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "image"
+                                      ]
+                                    },
+                                    "source": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "description": "HTTP(S) URL, local file path or base64 data URL; resolved by the client before sending"
+                                    },
+                                    "filename": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "title": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "source"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "actions": {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "oneOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "type": {
+                                            "type": "string",
+                                            "enum": [
+                                              "reply"
+                                            ]
+                                          },
+                                          "id": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "description": "Stable application-defined ID returned when the recipient chooses this item"
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "minLength": 1
+                                          }
+                                        },
+                                        "required": [
+                                          "type",
+                                          "id",
+                                          "label"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "type": {
+                                            "type": "string",
+                                            "enum": [
+                                              "url"
+                                            ]
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "minLength": 1
+                                          },
+                                          "url": {
+                                            "type": "string",
+                                            "format": "uri"
+                                          }
+                                        },
+                                        "required": [
+                                          "type",
+                                          "label",
+                                          "url"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "type": {
+                                            "type": "string",
+                                            "enum": [
+                                              "call"
+                                            ]
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "minLength": 1
+                                          },
+                                          "phoneNumber": {
+                                            "type": "string",
+                                            "minLength": 1
+                                          }
+                                        },
+                                        "required": [
+                                          "type",
+                                          "label",
+                                          "phoneNumber"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "type": {
+                                            "type": "string",
+                                            "enum": [
+                                              "copy"
+                                            ]
+                                          },
+                                          "label": {
+                                            "type": "string",
+                                            "minLength": 1
+                                          },
+                                          "code": {
+                                            "type": "string",
+                                            "minLength": 1
+                                          }
+                                        },
+                                        "required": [
+                                          "type",
+                                          "label",
+                                          "code"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  }
+                                }
+                              },
+                              "required": [
+                                "body",
+                                "header",
+                                "actions"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "body",
+                          "type",
+                          "cards"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "description": "Document format version, defaults to 1; independent of WhatsApp protocol versions",
+                            "type": "number",
+                            "enum": [
+                              1
+                            ]
+                          },
+                          "body": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "footer": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "booking"
+                            ]
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "buttonLabel": {
+                            "default": "View booking",
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "booking": {
+                            "type": "object",
+                            "properties": {
+                              "startAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                              },
+                              "endAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                              },
+                              "location": {
+                                "type": "string"
+                              },
+                              "url": {
+                                "type": "string",
+                                "format": "uri"
+                              },
+                              "managementUrl": {
+                                "type": "string",
+                                "format": "uri"
+                              },
+                              "phoneNumber": {
+                                "type": "string"
+                              },
+                              "email": {
+                                "type": "string",
+                                "format": "email",
+                                "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                              },
+                              "description": {
+                                "type": "string"
+                              },
+                              "labels": {
+                                "type": "object",
+                                "properties": {
+                                  "language": {
+                                    "type": "string"
+                                  },
+                                  "meetingType": {
+                                    "type": "string"
+                                  },
+                                  "detailsTitle": {
+                                    "type": "string"
+                                  },
+                                  "addToCalendar": {
+                                    "type": "string"
+                                  },
+                                  "viewOnMap": {
+                                    "type": "string"
+                                  },
+                                  "manageBooking": {
+                                    "type": "string"
+                                  }
+                                },
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "startAt"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "actions": {
+                            "type": "array",
+                            "items": {
+                              "oneOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "url"
+                                      ]
+                                    },
+                                    "label": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "url": {
+                                      "type": "string",
+                                      "format": "uri"
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "label",
+                                    "url"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "call"
+                                      ]
+                                    },
+                                    "label": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "phoneNumber": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "label",
+                                    "phoneNumber"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "copy"
+                                      ]
+                                    },
+                                    "label": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "code": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "label",
+                                    "code"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "body",
+                          "type",
+                          "buttonLabel",
+                          "booking"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "description": "Document format version, defaults to 1; independent of WhatsApp protocol versions",
+                            "type": "number",
+                            "enum": [
+                              1
+                            ]
+                          },
+                          "body": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "footer": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "native"
+                            ]
+                          },
+                          "header": {
+                            "oneOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "text"
+                                    ]
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  }
+                                },
+                                "required": [
+                                  "type",
+                                  "text"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "image"
+                                    ]
+                                  },
+                                  "source": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "HTTP(S) URL, local file path or base64 data URL; resolved by the client before sending"
+                                  },
+                                  "filename": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "title": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "type",
+                                  "source"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "video"
+                                    ]
+                                  },
+                                  "source": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "HTTP(S) URL, local file path or base64 data URL; resolved by the client before sending"
+                                  },
+                                  "filename": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "title": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "type",
+                                  "source"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "document"
+                                    ]
+                                  },
+                                  "source": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "HTTP(S) URL, local file path or base64 data URL; resolved by the client before sending"
+                                  },
+                                  "filename": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "title": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "type",
+                                  "source"
+                                ],
+                                "additionalProperties": false
+                              }
+                            ]
+                          },
+                          "actions": {
+                            "minItems": 1,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "description": "WhatsApp native action name; availability depends on the recipient and account"
+                                },
+                                "parameters": {
+                                  "type": "object",
+                                  "additionalProperties": {
+                                    "$ref": "#/definitions/__schema0"
+                                  }
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "parameters": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "$ref": "#/definitions/__schema0"
+                            }
+                          }
+                        },
+                        "required": [
+                          "body",
+                          "type",
+                          "actions"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Advanced extension for new native action types; parameters are passed through without claiming recipient support"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "to",
+                  "content"
+                ],
+                "additionalProperties": false,
+                "definitions": {
+                  "__schema0": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                          null
+                        ]
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/definitions/__schema0"
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": {
+                          "$ref": "#/definitions/__schema0"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-openwa-aliases": [
+          "POST /api/sendInteractive"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/messages/sendRaw": {
+      "post": {
+        "tags": [
+          "messages"
+        ],
+        "operationId": "sendRawMessage",
+        "summary": "Send a constructed WhatsApp protobuf Message payload (Insiders and above); media must already be uploaded",
+        "description": "Send a constructed WhatsApp protobuf Message payload (Insiders and above); media must already be uploaded",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "to": {
+                    "description": "Recipient chat ID",
+                    "type": "string",
+                    "pattern": "^\\d+(-\\d+)?@(c|g)\\.us$|^\\d+@lid$"
+                  },
+                  "payload": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "$ref": "#/definitions/__schema0"
+                    }
+                  }
+                },
+                "required": [
+                  "to",
+                  "payload"
+                ],
+                "additionalProperties": false,
+                "definitions": {
+                  "__schema0": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                          null
+                        ]
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/definitions/__schema0"
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": {
+                          "$ref": "#/definitions/__schema0"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-openwa-aliases": [
+          "POST /api/sendRawMessage"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
     }
   }
 }

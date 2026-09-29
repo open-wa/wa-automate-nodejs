@@ -36,7 +36,7 @@ import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
 
 const runtime = await createClient({
   driver: new PuppeteerDriver(),
-  licenseKey: process.env.OPENWA_LICENSE_KEY,
+  licenseKey: process.env.WA_LICENSE_KEY,
   headless: false,
 });
 const client = new Client({ client: runtime, transport: runtime.getTransport() });
@@ -127,7 +127,7 @@ Question IDs are unique within the form, and option IDs within each question. `a
 HTTP integrations can subscribe to the same responses before sending a message:
 
 ```sh
-curl -N -H "X-API-Key: $OPENWA_API_KEY" \
+curl -N -H "X-API-Key: $WA_API_KEY" \
   'http://localhost:8002/api/events?topics=interactive.response'
 ```
 
