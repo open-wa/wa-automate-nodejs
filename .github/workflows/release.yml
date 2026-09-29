@@ -14,7 +14,7 @@ on:
         required: false
         type: string
       publish_discord:
-        description: Publish the reviewed announcement to Discord
+        description: Publish this manual announcement to Discord (new releases announce automatically)
         required: true
         default: false
         type: boolean
@@ -108,7 +108,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Require Discord webhook
-        if: steps.aggregate.outputs.needed == 'true' && github.event_name == 'workflow_dispatch' && inputs.publish_discord
+        if: steps.aggregate.outputs.needed == 'true' && (github.event_name == 'push' || inputs.publish_discord)
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
@@ -191,7 +191,7 @@ jobs:
 
       # ── Post-publish: Discord notification ───────────────────────
       - name: Notify Discord
-        if: steps.aggregate.outputs.needed == 'true' && github.event_name == 'workflow_dispatch' && inputs.publish_discord
+        if: steps.aggregate.outputs.needed == 'true' && (github.event_name == 'push' || inputs.publish_discord)
         run: |
           args=(--version "$VERSION")
           if [ -n "$DISCORD_MESSAGE_IDS" ]; then
