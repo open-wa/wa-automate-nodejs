@@ -128,6 +128,7 @@ function redactSensitive(value: string) {
   return value
     .replace(/["']?(?:api[_-]?key|license[_-]?key|licence[_-]?key|authorization|cookie|token|password|secret|webhook[_-]?(?:url|secret|key|token)|access[_-]?key|session[_-]?id)["']?\s*[:=]\s*(?:"[^"]*"|'[^']*'|[^,;\s}]+)/gi, "[CREDENTIAL REDACTED]")
     .replace(/(?:Bearer|Basic)\s+[A-Za-z0-9._~+/=-]+/gi, "[REDACTED AUTH]")
+    .replace(/\b(?:https?|wss?):\/\/[^/\s?#]+@[^/\s?#]+/gi, "[URL CREDENTIALS REDACTED]")
     .replace(/https?:\/\/[^\s/]+\/[^\s]*(?:webhook|hooks?)[^\s]*/gi, "[WEBHOOK URL REDACTED]")
     .replace(/https?:\/\/[^\s/]+\/[^\s]*(?:api[_-]?key|token|secret|password)=[^&\s]+[^\s]*/gi, "[URL REDACTED]")
     .replace(/\b\d{8,}@(?:c\.us|g\.us|lid)\b/gi, "[CHAT ID REDACTED]")
@@ -194,7 +195,9 @@ function errorMessage(value: unknown) {
   const record = records[records.length - 1] || unwrap(value)
   const nestedError = record.error instanceof Error ? record.error : null
   const nestedErrorRecord = record.error && typeof record.error === "object" ? record.error as Record<string, unknown> : null
-  return sanitizeDiagnosticText(nestedError?.message || valueAt(nestedErrorRecord || {}, "message", "msg") || valueAt(record, "message", "error", "msg", "text") || value)
+  const message = nestedError?.message || valueAt(nestedErrorRecord || {}, "message", "msg") || valueAt(record, "message", "error", "msg", "text")
+  const stack = nestedError?.stack || valueAt(nestedErrorRecord || {}, "stack", "trace") || valueAt(record, "stack", "trace", "errorStack")
+  return sanitizeDiagnosticText(message || (typeof stack === "string" ? stack.split(/\r?\n/, 1)[0] : value))
 }
 
 function diagnosticKey(message: string, stack: string | null, method: string | null, route: string | null) {
@@ -233,7 +236,7 @@ function captureError(value: unknown, source: DiagnosticError["source"] = "live 
               source: entry.source === "server history" || source === "server history" ? "server history" : "live event",
               lastSeen: now,
               count: entry.count + 1,
-              context: [contextLine, ...entry.context].filter(Boolean).slice(0, MAX_CONTEXT),
+              context: [...new Set([contextLine, ...entry.context].filter(Boolean))].slice(0, MAX_CONTEXT),
             }
           : entry,
       ).sort((left, right) => right.lastSeen - left.lastSeen),

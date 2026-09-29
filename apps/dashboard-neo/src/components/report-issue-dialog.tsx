@@ -1,5 +1,5 @@
 import { useDemo } from "@/lib/demo/use-demo"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Bug, Clipboard, Download, ExternalLink, RefreshCw } from "lucide-react"
 import { Button } from "@open-wa/ui-components/button"
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@open-wa/ui-components/dialog"
@@ -18,6 +18,16 @@ export function ReportIssueDialog() {
   const [reproduction, setReproduction] = useState("")
   const [expected, setExpected] = useState("")
   const [notice, setNotice] = useState<string | null>(null)
+  const previousSessionId = useRef(diagnostics.sessionId)
+
+  useEffect(() => {
+    if (previousSessionId.current === diagnostics.sessionId) return
+    previousSessionId.current = diagnostics.sessionId
+    setSelectedId(diagnostics.errors[0]?.id || null)
+    setReproduction("")
+    setExpected("")
+    setNotice(null)
+  }, [diagnostics.errors, diagnostics.sessionId])
 
   const selected = selectedId === "manual"
     ? null
@@ -63,6 +73,13 @@ export function ReportIssueDialog() {
     if (nextOpen) {
       setSelectedId(diagnostics.errors[0]?.id || null)
       setNotice(null)
+      setReproduction("")
+      setExpected("")
+    } else {
+      setSelectedId(null)
+      setReproduction("")
+      setExpected("")
+      setNotice(null)
     }
     setOpen(nextOpen)
   }
@@ -91,6 +108,10 @@ export function ReportIssueDialog() {
   }
 
   const selectError = (error: DiagnosticError) => {
+    if (selectedId !== error.id) {
+      setReproduction("")
+      setExpected("")
+    }
     setSelectedId(error.id)
     setNotice(null)
   }
@@ -181,7 +202,7 @@ export function ReportIssueDialog() {
                   </div>
                 )}
 
-                <button type="button" className="mt-5 text-xs font-medium text-primary underline-offset-4 hover:underline" onClick={() => { setSelectedId("manual"); setNotice("Describe the new issue below; no captured error will be attached.") }}>
+                <button type="button" className="mt-5 text-xs font-medium text-primary underline-offset-4 hover:underline" onClick={() => { setSelectedId("manual"); setReproduction(""); setExpected(""); setNotice("Describe the new issue below; no captured error will be attached.") }}>
                   Report another issue
                 </button>
               </aside>

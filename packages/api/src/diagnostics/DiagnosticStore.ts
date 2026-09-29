@@ -35,7 +35,16 @@ function isErrorEvent(event: string, payload: unknown) {
   const levels = records.map((record) => String(record.level ?? record.severity ?? record.type ?? record.kind ?? '').toLowerCase());
   if (records.some((record) => record.warning === true) || levels.some((level) => ['warn', 'warning', 'info', 'debug', 'trace', 'verbose'].includes(level))) return false;
   if (event === 'error') return true;
-  return event === 'debug:log' && levels.some((level) => level === 'error' || level === 'fatal');
+  const nestedError = nested.error && typeof nested.error === 'object'
+    ? nested.error as Record<string, unknown>
+    : null;
+  return event === 'debug:log' && (
+    levels.some((level) => level === 'error' || level === 'fatal')
+    || payload instanceof Error
+    || records.some((record) => record.error instanceof Error)
+    || Boolean(nestedError && (typeof nestedError.message === 'string' || typeof nestedError.stack === 'string'))
+    || records.some((record) => Boolean(record.stack) && record.fatal !== false)
+  );
 }
 
 /** Holds structured runtime errors observed on this API server's event bridge. */
@@ -60,9 +69,11 @@ export class DiagnosticStore {
     const errorRecord = record.error && typeof record.error === 'object'
       ? record.error as Record<string, unknown>
       : {};
-    const message = text(error?.message ?? errorRecord.message ?? record.message ?? record.msg ?? (typeof record.error === 'string' ? record.error : undefined) ?? (event === 'error' && typeof payload === 'string' ? payload : undefined), 1_500);
+    const stackValue = error?.stack ?? errorRecord.stack ?? record.stack ?? record.trace;
+    const message = text(error?.message ?? errorRecord.message ?? record.message ?? record.msg ?? (typeof record.error === 'string' ? record.error : undefined) ?? (event === 'error' && typeof payload === 'string' ? payload : undefined), 1_500)
+      ?? text(typeof stackValue === 'string' ? stackValue.split(/\r?\n/, 1)[0] : null, 1_500);
     if (!message) return;
-    const stack = text(error?.stack ?? errorRecord.stack ?? record.stack ?? record.trace, MAX_TEXT);
+    const stack = text(stackValue, MAX_TEXT);
     this.records.push({
       id: ++this.nextId,
       event,

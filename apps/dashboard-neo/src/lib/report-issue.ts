@@ -67,6 +67,8 @@ export function buildBugReportPayload(error: DiagnosticError, environment: Diagn
   const environmentInfo = [
     `- OS: ${value(environment.os)} (${value(environment.architecture)})`,
     `- Node: ${value(environment.node)}`,
+    "- Package manager: unavailable (not exposed by runtime diagnostics).",
+    "- Container: unavailable (not exposed by runtime diagnostics).",
     `- Browser: ${value(environment.browser)}`,
     `- Driver: ${value(environment.driver)}`,
     `- Execution mode: ${value(environment.executionMode)}`,
@@ -94,7 +96,7 @@ export function buildBugReportPayload(error: DiagnosticError, environment: Diagn
     curr_b: current,
     expected_b: sanitizeDiagnosticBlock(answers.expected) || "Please describe the expected behavior.",
     repro: sanitizeDiagnosticBlock(answers.reproduction) || "Please add the steps that reproduce this error.",
-    c_code: ["v5 runtime configuration (allowlisted):", "```json", formatConfig(environment.config), "```"].join("\n"),
+    c_code: ["Client/CLI invocation: unavailable (not collected by dashboard diagnostics).", "", "v5 runtime configuration (allowlisted):", "```json", formatConfig(environment.config), "```"].join("\n"),
     d_info: debugInfo,
     enviro: environmentInfo,
     screenshots: ["Sanitized captured log context:", "```text", context, "```"].join("\n"),
