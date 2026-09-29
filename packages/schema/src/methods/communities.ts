@@ -1,3 +1,5 @@
+import { GroupChatIdSchema } from '../common-types';
+import { CommunityAdminIdsSchema, CommunityAdminsSchema, CommunityMetadataSchema, CommunityParticipantIdsSchema, CommunityParticipantsSchema } from '../return-types';
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
 import { communityIdParam } from '../parameters';
@@ -20,7 +22,7 @@ export const getAllCommunities = defineMethodV2('getAllCommunities', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.array(z.string())
+    output: z.array(GroupChatIdSchema),
 });
 
 /**
@@ -39,7 +41,7 @@ export const getCommunityInfo = defineMethodV2('getCommunityInfo', {
         communityId: communityIdParam
     }),
     parameterOrder: ['communityId'],
-    output: z.any()
+    output: CommunityMetadataSchema,
 });
 
 /**
@@ -58,7 +60,7 @@ export const getCommunityParticipantIds = defineMethodV2('getCommunityParticipan
         communityId: communityIdParam
     }),
     parameterOrder: ['communityId'],
-    output: z.any()
+    output: z.array(CommunityParticipantIdsSchema),
 });
 
 /**
@@ -77,7 +79,7 @@ export const getCommunityAdminIds = defineMethodV2('getCommunityAdminIds', {
         communityId: communityIdParam
     }),
     parameterOrder: ['communityId'],
-    output: z.any()
+    output: z.array(CommunityAdminIdsSchema),
 });
 
 /**
@@ -96,7 +98,7 @@ export const getCommunityParticipants = defineMethodV2('getCommunityParticipants
         communityId: communityIdParam
     }),
     parameterOrder: ['communityId'],
-    output: z.any()
+    output: z.array(CommunityParticipantsSchema),
 });
 
 /**
@@ -115,5 +117,5 @@ export const getCommunityAdmins = defineMethodV2('getCommunityAdmins', {
         communityId: communityIdParam
     }),
     parameterOrder: ['communityId'],
-    output: z.any()
+    output: z.array(CommunityAdminsSchema),
 });

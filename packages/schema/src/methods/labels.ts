@@ -1,3 +1,5 @@
+import { ChatSchema } from '../common-types';
+import { LabelSchema } from '../return-types';
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
 import { toParam } from '../parameters';
@@ -20,7 +22,7 @@ export const getAllLabels = defineMethodV2('getAllLabels', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.array(z.any())
+    output: z.array(LabelSchema),
 });
 
 /**
@@ -42,7 +44,7 @@ export const getChatsByLabel = defineMethodV2('getChatsByLabel', {
         label: z.string().describe('Label name')
     }),
     parameterOrder: ['label'],
-    output: z.array(z.any())
+    output: z.array(ChatSchema),
 });
 
 /**

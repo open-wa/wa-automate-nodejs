@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
+import { describeType, namedSchemas, typeLinks } from './type-documentation';
 import { getHttpMethodDefinitions, type HttpMethodDefinition } from '../src/http-manifest';
 import { clientRegistry, getParameterMetadata, type MethodDefinition, type ParameterMetadata } from '../src/registry';
 import { eventRegistry, type EventDefinition } from '../src/events/registry';
@@ -37,10 +38,52 @@ type ParameterRow = {
   aliases: string[];
   deprecatedAliases: string[];
   example: string;
+  namedType?: string;
+};
+
+type CanonicalMethodRecord = {
+  id: string;
+  anchor: string;
+  name: string;
+  namespace: string;
+  description: string;
+  license: string | null;
+  aliases: string[];
+  deprecatedAliases: string[];
+  parameterOrder: string[];
+  parameters: ParameterRow[];
+  returnType: string;
+  returnTypeLinks: Record<string, string>;
+  sdkReturnType: string | null;
+  returnCaveat?: string;
+  returnNotes: string;
+  route: { method: string; path: string } | null;
+  examples: {
+    inProcessSdk: string;
+    nodeCall: string;
+    nodeClient: string;
+    http: string;
+    response: string;
+  };
 };
 
 const generatorPath = 'packages/schema/scripts/gen-client-reference-docs.ts';
 const docsDir = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '../../../apps/docs/content/docs/reference/client');
+const recordsPath = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '../../../apps/docs/src/generated/client-methods.json');
+
+// The in-process Client facade can normalize the raw registry result. Read its
+// public declarations so the UI does not silently apply one contract to both.
+const sdkReturnTypes = new Map<string, string>();
+const sdkMethodsDir = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '../../client/src/methods');
+for (const file of fs.readdirSync(sdkMethodsDir).filter((file) => file.endsWith('.ts'))) {
+  const text = fs.readFileSync(path.join(sdkMethodsDir, file), 'utf8');
+  const start = text.indexOf('export interface ');
+  const end = text.indexOf('\nexport function ', start);
+  for (const match of text.slice(start, end).matchAll(/^\s*(\w+)\([^\n]*\):\s*Promise<(.+)>;/gm)) {
+    sdkReturnTypes.set(match[1], match[2]);
+  }
+}
+const sdkAliases: Record<string, string> = { isPlugged: 'getIsPlugged', getLoadedMessageCount: 'getAmountOfLoadedMessages', getProfilePicture: 'getProfilePic' };
 
 function sortStrings(values: string[]): string[] {
   return [...values].sort((left, right) => left.localeCompare(right));
@@ -75,7 +118,7 @@ function stringifyExample(value: ParameterMetadata['example'] | undefined): stri
 }
 
 function escapeMarkdownInline(value: string): string {
-  return value.replace(/`/g, '\\`').replace(/\|/g, '\\|').replace(/{/g, '&#123;').replace(/}/g, '&#125;');
+  return value.replace(/`/g, '\\`').replace(/\|/g, '\\|');
 }
 
 function escapeTableCell(value: string): string {
@@ -179,7 +222,8 @@ function summarizeSchema(schema: JsonSchema): string {
   }
 
   if (schema.type === 'array') {
-    return `${schema.items ? summarizeSchema(schema.items) : 'any'}[]`;
+    const item = schema.items ? summarizeSchema(schema.items) : 'any';
+    return `${item.includes(' | ') ? `(${item})` : item}[]`;
   }
 
   if (schema.type === 'object') {
@@ -188,7 +232,8 @@ function summarizeSchema(schema: JsonSchema): string {
       return 'object';
     }
 
-    return `object { ${sortStrings(propertyNames).join(', ')} }`;
+    const required = new Set(schema.required ?? []);
+    return `{ ${sortStrings(propertyNames).map((name) => `${name}${required.has(name) ? '' : '?'}: ${summarizeSchema(schema.properties![name])}`).join('; ')} }`;
   }
 
   return (schema.type as string) ?? 'any';
@@ -209,8 +254,9 @@ function summarizeZodType(schema: z.ZodTypeAny, depth = 0): string {
 
   switch (type) {
     case 'any':
-    case 'unknown':
       return 'any';
+    case 'unknown':
+      return 'unknown';
     case 'string':
     case 'number':
     case 'boolean':
@@ -241,12 +287,15 @@ function summarizeZodType(schema: z.ZodTypeAny, depth = 0): string {
 
 /** Best-effort output type summary: JSON-schema first, Zod introspection fallback. */
 function summarizeOutput(schema: z.ZodTypeAny): string {
-  const fromJson = summarizeSchema(schemaToJsonSchema(schema));
-  if (fromJson !== 'unknown' && fromJson !== 'unknown[]') return fromJson;
-  const fromZod = summarizeZodType(schema);
-  // Preserve array-ness if JSON schema knew it was an array.
-  if (fromJson === 'unknown[]' && !fromZod.endsWith('[]')) return `${fromZod}[]`;
-  return fromZod;
+  const inspect = (item: z.ZodTypeAny): void => {
+    const def = item._zod.def as any;
+    if (def.type === 'any') throw new Error('Method output uses any; supply its contract or explicitly document an unknown provider payload.');
+    if (def.element) inspect(def.element);
+    if (def.innerType) inspect(def.innerType);
+    if (def.options) def.options.forEach(inspect);
+  };
+  inspect(schema);
+  return describeType(schema);
 }
 
 function isUnstructuredOutput(summary: string): boolean {
@@ -275,18 +324,21 @@ function buildParameterRows(def: MethodDefinition): ParameterRow[] {
 
     return {
       name,
-      type: summarizeSchema(property),
-      required: required.has(name),
+      type: summarizeSchema(property) === 'any' && inputShape[name]
+        ? summarizeZodType(inputShape[name])
+        : summarizeSchema(property),
+      required: inputShape[name] ? !inputShape[name].isOptional() : required.has(name),
       description: descriptionParts.join(' '),
       aliases: sortStrings(metadata?.keyAliases ?? []),
       deprecatedAliases: sortStrings(metadata?.deprecatedKeyAliases ?? []),
       example: stringifyExample(metadata?.example),
+      namedType: metadata?.brandedType,
     };
   });
 }
 function cleanTsType(typeStr: string): string {
   let cleaned = typeStr.trim();
-  if (cleaned === 'unknown' || !cleaned) {
+  if (!cleaned) {
     return 'any';
   }
   if (cleaned.startsWith('object {')) {
@@ -399,32 +451,61 @@ function buildLicenseCallout(def: MethodDefinition): string {
   return `<LicensedFeatureCallout tier="${license}" />`;
 }
 
-function buildOutputBlock(outputSummary: string): string {
+function buildOutputBlock(outputSummary: string, notes?: string): string {
   const lines = [
     '| Prop | Value |',
     '| --- | --- |',
-    `| Return type | \`${escapeTableCell(outputSummary)}\` |`,
+    `| Return type | \`Promise<${escapeTableCell(outputSummary)}>\` |`,
+    ...Object.entries(typeLinks(outputSummary)).map(([name, url]) => `| ${name} | [View fields](${url}) |`),
   ];
   if (isUnstructuredOutput(outputSummary)) {
     lines.push('');
     lines.push('> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.');
   }
+  lines.push('');
+  lines.push(notes ?? `The call resolves to \`${escapeMarkdownInline(outputSummary)}\`. A rejected Promise indicates input validation or dispatch failure.`);
   return lines.join('\n');
 }
 
-/** A sample response value for the given output summary, as a JSON literal. */
-function sampleResponseForOutput(summary: string): string {
-  if (summary.endsWith('[]')) return '[]';
-  if (summary.includes('boolean')) return 'true';
-  if (summary.includes('number')) return '0';
-  if (summary === 'any' || summary.startsWith('object')) return '{}';
-  // MessageId / string-ish
-  return JSON.stringify('true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB');
+function buildReturnNotes(def: MethodDefinition, outputSummary: string): string {
+  if (def.meta.functionName === 'sendText') {
+    return 'A successful send returns a message ID as a string; some Easy API responses may serialize it as an object with `_serialized`. A boolean or a non-ID status string is not a message ID: the current WAPI can return values such as `Not a contact` or `Not able to send message to broadcast`. The in-process Client converts `Not a contact` into a rejected Promise because sending to an unknown number requires a Restricted or Premium license; the method is not otherwise license-gated. The in-process Client is declared as `Promise<string | false>`. Check returned values before passing them to another method, and handle rejected Promises for input, dispatch, license, or provider errors.';
+  }
+
+  if (def.meta.functionName === 'deleteMessage') {
+    return 'Resolves to `boolean`: `true` means the runtime accepted the operation and `false` means it did not complete. Provider-side revoke can still be rejected, so the value is not proof that every recipient removed the message. A rejected Promise indicates input validation or dispatch failure.';
+  }
+
+  const description = def.meta.outputSchema.description;
+  if (description) return description;
+  return `Resolves to \`${escapeMarkdownInline(outputSummary)}\`. A rejected Promise indicates input validation or dispatch failure.`;
 }
 
-/** The Easy API response envelope wrapping a sample result: `{ success, data }`. */
-function buildResponseExample(summary: string): string {
-  return JSON.stringify({ success: true, data: JSON.parse(sampleResponseForOutput(summary)) }, null, 2);
+/** Illustrative JSON data follows the output schema, never a guessed ID for every object. */
+function responseValue(schema: z.ZodType, depth = 0): unknown {
+  if (depth > 8) return undefined;
+  const def = schema._zod.def as any;
+  const name = describeType(schema);
+  if (name === 'DataURL') return 'data:image/png;base64,...';
+  if (/^(ChatId|ContactId)$/.test(name)) return '447123456789@c.us';
+  if (/^(GroupId|GroupChatId)$/.test(name)) return '447123456789-1445627445@g.us';
+  if (name === 'MessageId') return 'true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB';
+  switch (def.type) {
+    case 'array': return [];
+    case 'boolean': return true;
+    case 'number': return 0;
+    case 'string': return 'example';
+    case 'literal': return [...def.values][0];
+    case 'enum': return Object.values(def.entries)[0];
+    case 'union': return responseValue(def.options[0], depth + 1);
+    case 'optional': case 'nullable': case 'default': case 'readonly': return responseValue(def.innerType, depth + 1);
+    case 'object': return Object.fromEntries(Object.entries(def.shape).filter(([, value]) => !(value as z.ZodType).isOptional()).map(([key, value]) => [key, responseValue(value as z.ZodType, depth + 1)]));
+    case 'record': return {};
+    default: return undefined;
+  }
+}
+function buildResponseExample(schema: z.ZodType): string {
+  return JSON.stringify({ success: true, data: responseValue(schema) }, null, 2);
 }
 
 function decodeMarkdownInline(value: string): string {
@@ -433,12 +514,14 @@ function decodeMarkdownInline(value: string): string {
 
 function sampleValueForParameter(row: ParameterRow): string {
   if (row.example !== '-') {
-    return decodeMarkdownInline(row.example);
+    const example = decodeMarkdownInline(row.example);
+    return row.type.endsWith('[]') && !row.type.includes(' | ') && !example.startsWith('[') ? `[${example}]` : example;
   }
 
-  if (row.type.endsWith('[]')) {
-    return '[]';
-  }
+  if (row.name === 'options' && row.description.includes('Poll')) return '[\"Yes\", \"No\"]';
+  if (row.type.startsWith('{') || row.type.startsWith('object') || row.type === 'unknown' || row.type === 'any') return '{}';
+  if (row.type === 'string | string[]' && row.name === 'contactId') return JSON.stringify('447123456789@c.us');
+  if (row.type.endsWith('[]')) return '[]';
 
   if (row.type.includes('number')) {
     return '1';
@@ -455,16 +538,21 @@ function sampleValueForParameter(row: ParameterRow): string {
   return JSON.stringify(row.name);
 }
 
-function buildParameterObject(rows: ParameterRow[], indent: string): string {
+function buildPositionalCall(functionName: string, rows: ParameterRow[]): string {
+  const argumentsList = rows.map((row) => sampleValueForParameter(row)).join(', ');
+  return `const result = await client.${functionName}(${argumentsList});`;
+}
+
+function buildObjectCall(functionName: string, rows: ParameterRow[]): string {
   if (rows.length === 0) {
-    return '{}';
+    return `const result = await client.${functionName}();`;
   }
 
-  return [
-    '{',
-    ...rows.map((row) => `${indent}${row.name}: ${sampleValueForParameter(row)},`),
-    '}',
-  ].join('\n');
+  if (functionName === 'decryptMedia' || functionName === 'downloadMedia') {
+    return `// Use the full media message received by your message handler.\nconst result = await client.${functionName}({ message${functionName === 'downloadMedia' ? ', path: \"./downloaded-media\"' : ''} });`;
+  }
+  const body = rows.map((row) => `  ${row.name}: ${sampleValueForParameter(row)},`).join('\n');
+  return `const result = await client.${functionName}({\n${body}\n});`;
 }
 
 function buildJsonBody(rows: ParameterRow[], indent: string): string {
@@ -490,6 +578,9 @@ function buildCurlExample(route: HttpMethodDefinition | undefined, rows: Paramet
   }
 
   const url = `http://localhost:8080${route.path}`;
+  if (rows.some((row) => row.name === 'message' && row.type.startsWith('{'))) {
+    return `# Save the full incoming media message as the "message" field in request.json.\n# For downloadMedia, also set "path" to the destination filename.\ncurl -X ${route.httpMethod} "${url}" \\\n  -H "content-type: application/json" \\\n  -H "x-api-key: YOUR_API_KEY" \\\n  --data-binary @request.json`;
+  }
   if (route.httpMethod === 'GET' && rows.length > 0) {
     return [
       `curl -G ${JSON.stringify(url)} \\`,
@@ -512,7 +603,12 @@ function buildCurlExample(route: HttpMethodDefinition | undefined, rows: Paramet
 function buildUsageTabs(def: MethodDefinition, route: HttpMethodDefinition | undefined, rows: ParameterRow[], outputSummary: string): string {
   const namespace = def.meta.namespace ?? 'core';
   const namespacedName = def.meta.namespacedName ?? def.meta.functionName;
-  const parameterObject = buildParameterObject(rows, '  ');
+  const exampleRows = rows.filter((row) => row.required);
+  const exampleCall = def.meta.functionName === 'sendText'
+    ? buildPositionalCall(def.meta.functionName, exampleRows)
+    : buildObjectCall(def.meta.functionName, exampleRows);
+
+  const record = buildCanonicalMethodRecord(def, route);
 
   // Interface-aware usage: the tab shown follows the reader's site-wide
   // "preferred interface" choice. SocketClient is the same call surface over a
@@ -524,8 +620,7 @@ function buildUsageTabs(def: MethodDefinition, route: HttpMethodDefinition | und
     '  <InterfaceTab value="Embedded">',
     '',
     '```ts',
-    `const result = await client.${def.meta.functionName}(${parameterObject});`,
-    `// namespaced form: client.${namespace}.${namespacedName}(...)`,
+    record.examples.inProcessSdk || '// Use SocketClient or HTTP; this method is not on the in-process Client facade.',
     '```',
     '',
     '  </InterfaceTab>',
@@ -535,20 +630,20 @@ function buildUsageTabs(def: MethodDefinition, route: HttpMethodDefinition | und
     "import { SocketClient } from '@open-wa/socket-client';",
     '',
     "const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');",
-    `const result = await client.${def.meta.functionName}(${parameterObject});`,
+    exampleCall,
     '```',
     '',
     '  </InterfaceTab>',
     '  <InterfaceTab value="Easy API">',
     '',
     '```bash',
-    buildCurlExample(route, rows),
+    buildCurlExample(route, exampleRows),
     '```',
     '',
     'Example response envelope:',
     '',
     '```json',
-    buildResponseExample(outputSummary),
+    buildResponseExample(def.meta.outputSchema),
     '```',
     '',
     '  </InterfaceTab>',
@@ -556,22 +651,99 @@ function buildUsageTabs(def: MethodDefinition, route: HttpMethodDefinition | und
   ].join('\n');
 }
 
-function buildMethodSection(def: MethodDefinition, route: HttpMethodDefinition | undefined): string {
-  const outputSummary = summarizeOutput(def.meta.outputSchema);
+function methodAnchor(functionName: string): string {
+  return functionName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+function buildCanonicalMethodRecord(
+  def: MethodDefinition,
+  route: HttpMethodDefinition | undefined,
+): CanonicalMethodRecord {
   const parameters = buildParameterRows(def);
-  const licenseSuffix = (def.meta.license && def.meta.license !== 'none') ? ` - ${def.meta.license}` : '';
+  const returnType = summarizeOutput(def.meta.outputSchema);
+  const sdkReturnType = sdkReturnTypes.get(sdkAliases[def.meta.functionName] ?? def.meta.functionName) ?? null;
+  const anchor = methodAnchor(def.meta.functionName);
+  const exampleParameters = parameters.filter((parameter) => parameter.required);
+  const exampleCall = def.meta.functionName === 'sendText'
+    ? [
+      `const result = await client.sendText(${sampleValueForParameter(parameters.find((parameter) => parameter.name === 'to')!)}, ${sampleValueForParameter(parameters.find((parameter) => parameter.name === 'content')!)});`,
+      'const candidate = typeof result === \'string\' ? result : typeof result === \'object\' && result !== null && \'_serialized\' in result ? result._serialized : null;',
+      'const messageId = typeof candidate === \'string\' && /^(true|false)_.+_.+$/.test(candidate) ? candidate : null;',
+      'if (!messageId) {',
+      '  throw new Error(`Message was not sent: ${String(result)}`);',
+      '}',
+      'console.log(\'Message ID:\', messageId);',
+    ].join('\n')
+    : buildObjectCall(def.meta.functionName, exampleParameters);
+
+  return {
+    id: `${slugForNamespace(def.meta.namespace ?? 'core')}.${anchor}`,
+    anchor,
+    name: def.meta.functionName,
+    namespace: def.meta.namespace ?? 'core',
+    description: def.meta.description ?? `Client method ${def.meta.functionName}.`,
+    license: def.meta.license && def.meta.license !== 'none' ? def.meta.license : null,
+    aliases: sortStrings(def.meta.allAliases ?? []),
+    deprecatedAliases: sortStrings(def.meta.deprecatedAliases ?? []),
+    parameterOrder: [...def.meta.parameterOrder],
+    parameters,
+    returnType,
+    returnTypeLinks: typeLinks(`${returnType} ${sdkReturnType ?? ''}`),
+    sdkReturnType,
+    returnCaveat: def.meta.outputSchema.description ?? (def.meta.outputSchema._zod.def as any).element?.description,
+    returnNotes: buildReturnNotes(def, returnType),
+    route: route ? { method: route.httpMethod, path: route.path } : null,
+    examples: {
+      inProcessSdk: !sdkReturnType ? '' : def.meta.functionName === 'decryptMedia' || def.meta.functionName === 'downloadMedia'
+        ? `// Use the full media message from your message handler.\nconst result = await client.${def.meta.functionName}(message${def.meta.functionName === 'downloadMedia' ? ', "./downloaded-media"' : ''});`
+        : def.meta.functionName === 'sendText'
+          ? [
+            "const result = await client.sendText('447123456789@c.us', 'Hello from open-wa');",
+            'const messageId = typeof result === \'string\' && /^(true|false)_.+_.+$/.test(result) ? result : null;',
+            'if (!messageId) throw new Error(`Message was not sent: ${String(result)}`);',
+            "console.log('Message ID:', messageId);",
+          ].join('\n')
+          : buildPositionalCall(sdkAliases[def.meta.functionName] ?? def.meta.functionName, exampleParameters),
+      nodeCall: exampleCall,
+      nodeClient: [
+        "import { SocketClient } from '@open-wa/socket-client';",
+        '',
+        "const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');",
+        exampleCall,
+      ].join('\n'),
+      http: buildCurlExample(route, exampleParameters),
+      response: buildResponseExample(def.meta.outputSchema),
+    },
+  };
+}
+
+function buildMethodSignature(record: CanonicalMethodRecord): string {
+  const parameters = record.parameterOrder.map((name) => {
+    const parameter = record.parameters.find((item) => item.name === name);
+    return `${name}${parameter?.required ? '' : '?'}: ${parameter?.type ?? 'unknown'}`;
+  });
+  return `client.${record.name}(${parameters.join(', ')}): Promise<${record.returnType}>`;
+}
+
+function buildMethodSection(def: MethodDefinition, route: HttpMethodDefinition | undefined): string {
+  const record = buildCanonicalMethodRecord(def, route);
+  const outputSummary = record.returnType;
+  const parameters = record.parameters;
   const licenseCallout = buildLicenseCallout(def);
 
   const parts = [
-    `## \`${def.meta.functionName}\`${licenseSuffix}`,
+    record.license ? `<span id="${record.anchor}---${record.license}" aria-hidden="true"></span>` : '',
+    `<h2 id="${record.anchor}"><code>${def.meta.functionName}</code></h2>`,
     '',
-    def.meta.description ?? `Client method ${def.meta.functionName}.`,
+    record.description,
     '',
     licenseCallout,
     '',
-    buildOverviewBlock(def),
+    `**Signature** \`${escapeMarkdownInline(buildMethodSignature(record))}\``,
     '',
-    buildRouteBlock(route),
+    def.meta.functionName === 'sendText'
+      ? 'Start with `await client.sendText(to, content)`. The registry still accepts an optional `options` value for compatibility, but the current Client implementation ignores it. Use `reply(to, content, messageId)` for quoted replies and `sendTextWithMentions(to, content, hideTags, mentions)` for mentions.'
+      : '',
     '',
     buildUsageTabs(def, route, parameters, outputSummary),
     '',
@@ -579,9 +751,21 @@ function buildMethodSection(def: MethodDefinition, route: HttpMethodDefinition |
     '',
     buildParameterTable(def, parameters),
     '',
-    '### Output',
+    '### Returns',
     '',
-    buildOutputBlock(outputSummary),
+    buildOutputBlock(outputSummary, buildReturnNotes(def, outputSummary)),
+    '',
+    record.sdkReturnType ? `In-process Client resolves to \`Promise<${escapeMarkdownInline(record.sdkReturnType)}>\`. The contract above is for the remote Node.js client; HTTP wraps that result in its \`data\` property.` : 'This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.',
+    record.returnCaveat ?? '',
+    '',
+    '<details>',
+    '<summary>Advanced method metadata</summary>',
+    '',
+    buildOverviewBlock(def),
+    '',
+    buildRouteBlock(route),
+    '',
+    '</details>',
   ];
 
   return parts.filter((part, index) => part !== '' || parts[index - 1] !== '').join('\n');
@@ -597,8 +781,6 @@ function buildGeneratedPage(title: string, description: string, body: string): s
     '',
     `# ${title}`,
     '',
-    buildGeneratedWarning(),
-    '',
     body.trim(),
     '',
   ].join('\n');
@@ -607,20 +789,22 @@ function buildGeneratedPage(title: string, description: string, body: string): s
 // ── #5: lightweight flat client index (was a 177KB full dump) ────────────────
 function buildClientIndexPage(methods: MethodDefinition[]): string {
   const rows = methods.map((def) => {
-    const nsSlug = slugForNamespace(def.meta.namespace ?? 'core');
-    const anchor = def.meta.functionName.toLowerCase();
+    const anchor = methodAnchor(def.meta.functionName);
     const license = def.meta.license && def.meta.license !== 'none' ? `\`${def.meta.license}\`` : '-';
-    return `| [\`${def.meta.functionName}\`](/docs/reference/client/${nsSlug}#${anchor}) | \`${escapeTableCell(def.meta.namespace ?? 'core')}\` | ${escapeTableCell(def.meta.description ?? '')} | ${license} |`;
+    return `| [\`${def.meta.functionName}\`](/docs/reference/client/client#${anchor}) | \`${escapeTableCell(def.meta.namespace ?? 'core')}\` | ${escapeTableCell(def.meta.description ?? '')} | ${license} |`;
   });
   return buildGeneratedPage(
-    'All client methods',
-    'Alphabetical index of every client method, linking to its namespace reference.',
+    'Client API',
+    'Client methods, return values, and examples.',
     [
-      `This is an alphabetical index of all ${methods.length} client methods. Each method links to its full reference on the namespace page (parameters, usage, HTTP route, and response).`,
+      '<ClientReference />',
+      '',
+      '<details>\n<summary>Plain-text method index</summary>\n',
       '',
       '| Method | Namespace | Description | License |',
       '| --- | --- | --- | --- |',
       ...rows,
+      '\n</details>',
     ].join('\n'),
   );
 }
@@ -637,8 +821,7 @@ function buildLicensedMethodsPage(methods: MethodDefinition[]): string {
   const sections = tierOrder.map((tier) => {
     const list = (byTier.get(tier) ?? []).sort((a, b) => a.meta.functionName.localeCompare(b.meta.functionName));
     const rows = list.map((def) => {
-      const nsSlug = slugForNamespace(def.meta.namespace ?? 'core');
-      return `| [\`${def.meta.functionName}\`](/docs/reference/client/${nsSlug}#${def.meta.functionName.toLowerCase()}) | \`${escapeTableCell(def.meta.namespace ?? 'core')}\` | ${escapeTableCell(def.meta.description ?? '')} |`;
+      return `| [\`${def.meta.functionName}\`](/docs/reference/client/client#${methodAnchor(def.meta.functionName)}) | \`${escapeTableCell(def.meta.namespace ?? 'core')}\` | ${escapeTableCell(def.meta.description ?? '')} |`;
     });
     return [
       `## \`${tier}\` (${list.length})`,
@@ -798,9 +981,27 @@ function buildInternalsPages(
       '`gen-types.ts` emits input and output type aliases for every method from its `inputSchema` and `outputSchema` into `packages/schema/src/generated/types.ts`. `@open-wa/wa-automate-types-only` re-exposes this generated surface so consumers can import method types without the runtime.',
     ].join('\n')),
 
-    'send-text-worked-example': buildGeneratedPage('Worked example: sendText', 'Following one method from schema definition to dispatch.', [
+    'send-text-worked-example': buildGeneratedPage('Trace sendText through the runtime', 'Contributor walkthrough of how sendText is defined and dispatched.', [
       sendText
         ? [
+            'This contributor walkthrough follows `sendText` from its schema definition to runtime dispatch. For the consumer contract, start with the [sendText method block](/docs/reference/client/messages#sendtext).',
+            '',
+            '## Consumer usage',
+            '',
+            '```ts',
+            "import { create } from '@open-wa/wa-automate';",
+            '',
+            "const client = await create({ sessionId: 'docs-example' });",
+            "const result = await client.sendText('447123456789@c.us', 'Hello from open-wa');",
+            'if (typeof result === \'string\') {',
+            '  console.log(`Sent message: ${result}`);',
+            '} else {',
+            '  console.error(\'The client did not return a message id\', result);',
+            '}',
+            '```',
+            '',
+            '## Runtime trace',
+            '',
             '`sendText` is defined in `packages/schema/src/methods/messaging.ts`:',
             '',
             '```ts',
@@ -830,7 +1031,8 @@ function buildEventsPage(events: EventDefinition[]): string {
     const payload = summarizeOutput(m.payloadSchema);
     const status = m.status ?? 'stable';
     const license = m.license && m.license !== 'none' ? `\`${m.license}\`` : '-';
-    return `| \`${escapeTableCell(m.eventName)}\` | \`${escapeTableCell(m.legacyName)}\` | ${escapeTableCell(m.description ?? '')} | \`${escapeTableCell(payload)}\` | ${status} | ${license} |`;
+    const eventAnchor = m.eventName.toLowerCase();
+    return `| <span id="${eventAnchor}"></span>\`${escapeTableCell(m.eventName)}\` | \`${escapeTableCell(m.legacyName)}\` | ${escapeTableCell(m.description ?? '')} | \`${escapeTableCell(payload)}\` | ${status} | ${license} |`;
   });
 
   return buildGeneratedPage(
@@ -854,6 +1056,7 @@ const INTERNALS_PAGE_ORDER = [
   'aliases',
   'schemas',
   'generated-types',
+  'return-types',
   'send-text-worked-example',
 ];
 
@@ -872,7 +1075,7 @@ function cleanGeneratedDocs(): void {
   }
 
   for (const entry of fs.readdirSync(docsDir)) {
-    if (entry.endsWith('.mdx') || entry === 'meta.json' || entry === 'methods-map.json' || entry === 'generated-method-params.ts') {
+    if (entry.endsWith('.mdx') || entry === 'meta.json' || entry === 'methods-map.json' || entry === 'methods-records.json' || entry === 'generated-method-params.ts') {
       fs.rmSync(path.join(docsDir, entry));
     }
   }
@@ -910,8 +1113,6 @@ const indexContent = [
   buildFrontmatter('Client API Reference', 'Generated reference for schema-registry client methods.', 'BookOpen'),
   '',
   '# Client API Reference',
-  '',
-  buildGeneratedWarning(),
   '',
   '`packages/schema/scripts/gen-client-reference-docs.ts` generates these pages from the schema registry and method files.',
   '',
@@ -978,8 +1179,6 @@ for (const namespace of namespaces) {
     '',
     `# ${titleCase(namespace)} Client API`,
     '',
-    buildGeneratedWarning(),
-    '',
     `This page documents ${namespaceMethods.length} schema-registry client methods in the \`${namespace}\` namespace.`,
     '',
     namespaceMethods.map((def) => buildMethodSection(def, routesByFunctionName.get(def.meta.functionName))).join('\n\n'),
@@ -989,14 +1188,40 @@ for (const namespace of namespaces) {
 }
 
 const methodsMap: Record<string, string> = {};
+const canonicalMethodRecords: CanonicalMethodRecord[] = [];
 for (const def of methods) {
-  const nsSlug = slugForNamespace(def.meta.namespace ?? 'core');
-  methodsMap[def.meta.functionName] = `/docs/reference/client/${nsSlug}#${def.meta.functionName.toLowerCase()}`;
+  const record = buildCanonicalMethodRecord(def, routesByFunctionName.get(def.meta.functionName));
+  canonicalMethodRecords.push(record);
+  methodsMap[def.meta.functionName] = `/docs/reference/client/client#${record.anchor}`;
 }
 
 writeFileIfChanged(path.join(docsDir, 'methods-map.json'), `${JSON.stringify(methodsMap, null, 2)}\n`);
+writeFileIfChanged(recordsPath, `${JSON.stringify(canonicalMethodRecords, null, 2)}\n`);
 
 const interfacesContent = buildAllParamsInterfaces(methods);
 writeFileIfChanged(path.join(docsDir, 'generated-method-params.ts'), interfacesContent);
 
 console.log(`Successfully generated Client API reference docs: ${methods.length} methods across ${namespaces.length} namespaces, internals pages, licensed-methods page, flat index, methods map, and parameter interfaces`);
+
+const modelPages = Object.entries(namedSchemas).map(([name, schema]) => {
+  const def = schema._zod.def as any;
+  const related = Object.entries(typeLinks(describeType(schema, true))).filter(([n]) => n !== name).map(([n, url]) => `[${n}](${url})`).join(', ');
+  const lines = [`## ${name}`, '', schema.description ?? '', '', '<details>', '<summary>Type declaration</summary>', '', '```ts', `type ${name} = ${describeType(schema, true)}`, '```', '', '</details>', '', related ? `Related types: ${related}` : '', ''];
+  if (def.type === 'object') {
+    lines.push('| Field | Type | Required |', '| --- | --- | --- |');
+    for (const [field, value] of Object.entries(def.shape)) {
+      const item = value as z.ZodType;
+      const type = describeType(item).replace(/ \| undefined$/, '');
+      const links = Object.entries(typeLinks(type)).map(([n, url]) => `[${n}](${url})`).join(', ');
+      lines.push(`| \`${field}\` | \`${escapeTableCell(type)}\`${links ? ` — ${links}` : ''} | ${item.isOptional() ? 'No' : 'Yes'} |`);
+    }
+    lines.push('', 'Additional provider fields may be present; narrow them before use.');
+  }
+  return lines.join('\n');
+});
+writeFileIfChanged(path.join(docsDir, 'return-types.mdx'), [
+  buildFrontmatter('Return types', 'Named data models used by client method results.', 'Braces'),
+  '', '# Return types', '',
+  'These are TypeScript data shapes, not class instances. Follow a type from a method to inspect its fields. `unknown` marks a provider-controlled value that needs narrowing; it does not promise an undocumented shape.',
+  '', ...modelPages,
+].join('\n') + '\n');

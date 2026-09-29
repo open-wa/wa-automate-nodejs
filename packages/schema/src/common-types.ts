@@ -1,22 +1,23 @@
 import { z } from 'zod';
 
 // Aliases
-export const ContactIdSchema = z.string().brand('ContactId');
+export const ContactIdSchema = z.string().brand('ContactId').describe('Opaque WhatsApp contact identifier. Preserve the exact value returned by the API.');
 export type ContactId = z.infer<typeof ContactIdSchema>;
 
-export const ChatIdSchema = z.string().brand('ChatId');
+export const ChatIdSchema = z.string().brand('ChatId').describe('Opaque conversation identifier. Use the exact value returned by a message event or chat lookup.');
 export type ChatId = z.infer<typeof ChatIdSchema>;
 
-export const MessageIdSchema = z.string().brand('MessageId');
+export const MessageIdSchema = z.string().brand('MessageId').describe('Message identifier returned by a send method or message event.');
 export type MessageId = z.infer<typeof MessageIdSchema>;
 
-export const GroupChatIdSchema = z.string().brand('GroupChatId');
+export const GroupChatIdSchema = z.string().brand('GroupChatId').describe('Opaque group conversation identifier returned by a group lookup or join method.');
 export type GroupChatId = z.infer<typeof GroupChatIdSchema>;
 
-export const GroupIdSchema = z.string().brand('GroupId');
+export const GroupIdSchema = z.string().brand('GroupId').describe('Identifier for a WhatsApp group. Use the value returned by the API.');
 export type GroupId = z.infer<typeof GroupIdSchema>;
 
-export type DataURL = `data:${string};base64,${string}`;
+export const DataURLSchema = z.templateLiteral(['data:', z.string(), ';base64,', z.string()]);
+export type DataURL = z.infer<typeof DataURLSchema>;
 export type Base64 = string;
 export type Content = string | DataURL | Base64 | Buffer;
 
@@ -35,7 +36,7 @@ export const GroupMetadataSchema = z.object({
         isAdmin: z.boolean(),
         isSuperAdmin: z.boolean().optional(),
     })),
-}).passthrough();
+}).passthrough().describe('Serialized group metadata returned by group lookups. Additional WhatsApp Web fields may be present.');
 export type GroupMetadata = z.infer<typeof GroupMetadataSchema>;
 
 // Id
@@ -215,7 +216,7 @@ export const ContactSchema = z.object({
     isUser: z.boolean().optional(),
     isWAContact: z.boolean().optional(),
     labels: z.array(z.string()).optional(),
-    msgs: z.array(z.any()).optional(), // Avoid infinite recursion
+    msgs: z.array(z.unknown()).nullable().optional(), // Raw nested messages avoid recursive serialization
     profilePicThumbObj: z.object({
         eurl: z.string().optional(),
         id: IdSchema.optional(),
@@ -246,23 +247,23 @@ export type Location = z.infer<typeof LocationSchema>;
 
 // Chat
 export const ChatSchema = z.object({
-    id: ContactIdSchema.or(GroupChatIdSchema),
+    id: ChatIdSchema,
     name: z.string().optional(),
     formattedTitle: z.string().optional(),
     isGroup: z.boolean(),
-    contact: ContactSchema,
-    groupMetadata: z.any().optional(), // Metadata
-    presence: z.any().optional(),
+    contact: ContactSchema.nullable(),
+    groupMetadata: GroupMetadataSchema.nullable().optional(),
+    presence: z.record(z.string(), z.unknown()).nullable().optional(),
     t: z.number().optional(),
     unreadCount: z.number().optional(),
     lastReceivedKey: z.any().optional(),
-    msgs: z.array(z.any()).optional(), // Avoid infinite recursion
+    msgs: z.array(z.unknown()).nullable().optional(), // Raw nested messages avoid recursive serialization
     isReadOnly: z.boolean().optional(),
     muteExpiration: z.number().optional(),
     notSpam: z.boolean().optional(),
     pin: z.number().optional(),
     ack: z.any().optional(),
-}).passthrough();
+}).passthrough().describe('Serialized chat returned by chat lookups and listings. Its id is an opaque ChatId; additional WhatsApp Web fields may be present.');
 
 export type Chat = z.infer<typeof ChatSchema>;
 
@@ -275,6 +276,12 @@ export const MessageSchema = MessageSchemaBase.extend({
 export type Message = z.infer<typeof MessageSchema>;
 
 // Additional return types
-export const MessageIdReturnSchema = z.object({
+export const SerializedMessageIdSchema = z.object({
     _serialized: z.string(),
 }).passthrough();
+
+export const MessageIdReturnSchema = z.union([MessageIdSchema, SerializedMessageIdSchema])
+    .describe('A message ID as a string or an object containing the serialized ID. Validate it before passing it to another method.');
+export type MessageIdReturn = z.infer<typeof MessageIdReturnSchema>;
+
+export type SerializedMessageId = z.infer<typeof SerializedMessageIdSchema>;

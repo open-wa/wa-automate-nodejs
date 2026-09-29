@@ -6,37 +6,14 @@ icon: "BookOpen"
 
 # Communities Client API
 
-> Generated file warning: `packages/schema/scripts/gen-client-reference-docs.ts` generates this page. Do not edit generated method content by hand.
-
 This page documents 6 schema-registry client methods in the `communities` namespace.
 
-## `getAllCommunities`
+
+<h2 id="getallcommunities"><code>getAllCommunities</code></h2>
 
 Get all communities
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `communities` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | - |
-| Aliases | `communities.all`, `communities.getAll`, `communities.list`, `listCommunities` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/communities/getAll` | `getAllCommunities` | Active |
-| Alias | `GET` | `/api/communities/all` | `communities.all` | Active |
-| Alias | `GET` | `/api/communities/list` | `communities.list` | Active |
-| Alias | `GET` | `/api/getAllCommunities` | `getAllCommunities` | Active |
-| Alias | `GET` | `/api/listCommunities` | `listCommunities` | Active |
+**Signature** `client.getAllCommunities(): Promise<GroupChatId[]>`
 
 ### Usage
 
@@ -44,8 +21,7 @@ Get all communities
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.getAllCommunities({});
-// namespaced form: client.communities.getAll(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -55,7 +31,7 @@ const result = await client.getAllCommunities({});
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getAllCommunities({});
+const result = await client.getAllCommunities();
 ```
 
   </InterfaceTab>
@@ -84,15 +60,20 @@ Example response envelope:
 
 This method does not define input parameters.
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `string[]` |
+| Return type | `Promise<GroupChatId[]>` |
+| GroupChatId | [View fields](/docs/reference/client/return-types#groupchatid) |
 
-## `getCommunityAdminIds`
+Resolves to `GroupChatId[]`. A rejected Promise indicates input validation or dispatch failure.
 
-Get community admin IDs
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+Opaque group conversation identifier returned by a group lookup or join method.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -101,8 +82,8 @@ Get community admin IDs
 | Namespace | `communities` |
 | Action | `read` |
 | Functionality | `both` |
-| Positional parameter order | `communityId` |
-| Aliases | `communities.getAdminIds` |
+| Positional parameter order | - |
+| Aliases | `communities.all`, `communities.getAll`, `communities.list`, `listCommunities` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -112,8 +93,20 @@ Get community admin IDs
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/communities/getAdminIds` | `getCommunityAdminIds` | Active |
-| Alias | `GET` | `/api/getCommunityAdminIds` | `getCommunityAdminIds` | Active |
+| Primary | `GET` | `/api/communities/getAll` | `getAllCommunities` | Active |
+| Alias | `GET` | `/api/communities/all` | `communities.all` | Active |
+| Alias | `GET` | `/api/communities/list` | `communities.list` | Active |
+| Alias | `GET` | `/api/getAllCommunities` | `getAllCommunities` | Active |
+| Alias | `GET` | `/api/listCommunities` | `listCommunities` | Active |
+
+</details>
+
+
+<h2 id="getcommunityadminids"><code>getCommunityAdminIds</code></h2>
+
+Get community admin IDs
+
+**Signature** `client.getCommunityAdminIds(communityId: string): Promise<CommunityAdminIds[]>`
 
 ### Usage
 
@@ -121,10 +114,7 @@ Get community admin IDs
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.getCommunityAdminIds({
-  communityId: "447123456789-1445627445@g.us",
-});
-// namespaced form: client.communities.getAdminIds(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -153,7 +143,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": []
 }
 ```
 
@@ -164,17 +154,19 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetCommunityAdminIdsParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<CommunityAdminIds[]>` |
+| CommunityAdminIds | [View fields](/docs/reference/client/return-types#communityadminids) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `CommunityAdminIds[]`. A rejected Promise indicates input validation or dispatch failure.
 
-## `getCommunityAdmins`
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
-Get community admins
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -184,7 +176,7 @@ Get community admins
 | Action | `read` |
 | Functionality | `both` |
 | Positional parameter order | `communityId` |
-| Aliases | `communities.getAdmins` |
+| Aliases | `communities.getAdminIds` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -194,8 +186,17 @@ Get community admins
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/communities/getAdmins` | `getCommunityAdmins` | Active |
-| Alias | `GET` | `/api/getCommunityAdmins` | `getCommunityAdmins` | Active |
+| Primary | `GET` | `/api/communities/getAdminIds` | `getCommunityAdminIds` | Active |
+| Alias | `GET` | `/api/getCommunityAdminIds` | `getCommunityAdminIds` | Active |
+
+</details>
+
+
+<h2 id="getcommunityadmins"><code>getCommunityAdmins</code></h2>
+
+Get community admins
+
+**Signature** `client.getCommunityAdmins(communityId: string): Promise<CommunityAdmins[]>`
 
 ### Usage
 
@@ -203,10 +204,7 @@ Get community admins
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.getCommunityAdmins({
-  communityId: "447123456789-1445627445@g.us",
-});
-// namespaced form: client.communities.getAdmins(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -235,7 +233,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": []
 }
 ```
 
@@ -246,17 +244,19 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetCommunityAdminsParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<CommunityAdmins[]>` |
+| CommunityAdmins | [View fields](/docs/reference/client/return-types#communityadmins) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `CommunityAdmins[]`. A rejected Promise indicates input validation or dispatch failure.
 
-## `getCommunityInfo`
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
-Get community metadata
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -266,7 +266,7 @@ Get community metadata
 | Action | `read` |
 | Functionality | `both` |
 | Positional parameter order | `communityId` |
-| Aliases | `communities.getInfo` |
+| Aliases | `communities.getAdmins` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -276,8 +276,17 @@ Get community metadata
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/communities/getInfo` | `getCommunityInfo` | Active |
-| Alias | `GET` | `/api/getCommunityInfo` | `getCommunityInfo` | Active |
+| Primary | `GET` | `/api/communities/getAdmins` | `getCommunityAdmins` | Active |
+| Alias | `GET` | `/api/getCommunityAdmins` | `getCommunityAdmins` | Active |
+
+</details>
+
+
+<h2 id="getcommunityinfo"><code>getCommunityInfo</code></h2>
+
+Get community metadata
+
+**Signature** `client.getCommunityInfo(communityId: string): Promise<CommunityMetadata>`
 
 ### Usage
 
@@ -285,10 +294,7 @@ Get community metadata
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.getCommunityInfo({
-  communityId: "447123456789-1445627445@g.us",
-});
-// namespaced form: client.communities.getInfo(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -317,7 +323,13 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": {
+    "id": "447123456789-1445627445@g.us",
+    "subject": "example",
+    "creation": 0,
+    "participants": [],
+    "subGroups": []
+  }
 }
 ```
 
@@ -328,17 +340,19 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetCommunityInfoParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<CommunityMetadata>` |
+| CommunityMetadata | [View fields](/docs/reference/client/return-types#communitymetadata) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `CommunityMetadata`. A rejected Promise indicates input validation or dispatch failure.
 
-## `getCommunityParticipantIds`
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
-Get community participant IDs
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -348,7 +362,7 @@ Get community participant IDs
 | Action | `read` |
 | Functionality | `both` |
 | Positional parameter order | `communityId` |
-| Aliases | `communities.getParticipantIds` |
+| Aliases | `communities.getInfo` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -358,8 +372,17 @@ Get community participant IDs
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/communities/getParticipantIds` | `getCommunityParticipantIds` | Active |
-| Alias | `GET` | `/api/getCommunityParticipantIds` | `getCommunityParticipantIds` | Active |
+| Primary | `GET` | `/api/communities/getInfo` | `getCommunityInfo` | Active |
+| Alias | `GET` | `/api/getCommunityInfo` | `getCommunityInfo` | Active |
+
+</details>
+
+
+<h2 id="getcommunityparticipantids"><code>getCommunityParticipantIds</code></h2>
+
+Get community participant IDs
+
+**Signature** `client.getCommunityParticipantIds(communityId: string): Promise<CommunityParticipantIds[]>`
 
 ### Usage
 
@@ -367,10 +390,7 @@ Get community participant IDs
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.getCommunityParticipantIds({
-  communityId: "447123456789-1445627445@g.us",
-});
-// namespaced form: client.communities.getParticipantIds(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -399,7 +419,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": []
 }
 ```
 
@@ -410,17 +430,19 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetCommunityParticipantIdsParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<CommunityParticipantIds[]>` |
+| CommunityParticipantIds | [View fields](/docs/reference/client/return-types#communityparticipantids) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `CommunityParticipantIds[]`. A rejected Promise indicates input validation or dispatch failure.
 
-## `getCommunityParticipants`
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
-Get community participants
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -430,7 +452,7 @@ Get community participants
 | Action | `read` |
 | Functionality | `both` |
 | Positional parameter order | `communityId` |
-| Aliases | `communities.getParticipants` |
+| Aliases | `communities.getParticipantIds` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -440,8 +462,17 @@ Get community participants
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/communities/getParticipants` | `getCommunityParticipants` | Active |
-| Alias | `GET` | `/api/getCommunityParticipants` | `getCommunityParticipants` | Active |
+| Primary | `GET` | `/api/communities/getParticipantIds` | `getCommunityParticipantIds` | Active |
+| Alias | `GET` | `/api/getCommunityParticipantIds` | `getCommunityParticipantIds` | Active |
+
+</details>
+
+
+<h2 id="getcommunityparticipants"><code>getCommunityParticipants</code></h2>
+
+Get community participants
+
+**Signature** `client.getCommunityParticipants(communityId: string): Promise<CommunityParticipants[]>`
 
 ### Usage
 
@@ -449,10 +480,7 @@ Get community participants
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.getCommunityParticipants({
-  communityId: "447123456789-1445627445@g.us",
-});
-// namespaced form: client.communities.getParticipants(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -481,7 +509,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": []
 }
 ```
 
@@ -492,10 +520,39 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetCommunityParticipantsParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<CommunityParticipants[]>` |
+| CommunityParticipants | [View fields](/docs/reference/client/return-types#communityparticipants) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `CommunityParticipants[]`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `communities` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `communityId` |
+| Aliases | `communities.getParticipants` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/communities/getParticipants` | `getCommunityParticipants` | Active |
+| Alias | `GET` | `/api/getCommunityParticipants` | `getCommunityParticipants` | Active |
+
+</details>

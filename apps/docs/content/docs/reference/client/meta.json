@@ -11,6 +11,7 @@
     "aliases",
     "schemas",
     "generated-types",
+    "return-types",
     "send-text-worked-example",
     "events",
     "licensed-methods",

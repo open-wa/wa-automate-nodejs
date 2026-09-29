@@ -6,36 +6,16 @@ icon: "BookOpen"
 
 # Mystatus Client API
 
-> Generated file warning: `packages/schema/scripts/gen-client-reference-docs.ts` generates this page. Do not edit generated method content by hand.
-
 This page documents 1 schema-registry client methods in the `mystatus` namespace.
 
-## `getStatus` - insiders
+<span id="getstatus---insiders" aria-hidden="true"></span>
+<h2 id="getstatus"><code>getStatus</code></h2>
 
 Get specific status
 
 <LicensedFeatureCallout tier="insiders" />
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `mystatus` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | `contactId` |
-| Aliases | `mystatus.getStatus` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/mystatus/getStatus` | `getStatus` | Active |
-| Alias | `GET` | `/api/getStatus` | `getStatus` | Active |
+**Signature** `client.getStatus(contactId: string): Promise<ContactStatus>`
 
 ### Usage
 
@@ -43,10 +23,7 @@ Get specific status
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.getStatus({
-  contactId: "447123456789@c.us",
-});
-// namespaced form: client.mystatus.getStatus(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -75,7 +52,10 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": {
+    "id": "example",
+    "status": "example"
+  }
 }
 ```
 
@@ -86,10 +66,39 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetStatusParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<ContactStatus>` |
+| ContactStatus | [View fields](/docs/reference/client/return-types#contactstatus) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `ContactStatus`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `mystatus` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `contactId` |
+| Aliases | `mystatus.getStatus` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/mystatus/getStatus` | `getStatus` | Active |
+| Alias | `GET` | `/api/getStatus` | `getStatus` | Active |
+
+</details>

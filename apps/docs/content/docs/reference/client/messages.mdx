@@ -6,13 +6,81 @@ icon: "BookOpen"
 
 # Messages Client API
 
-> Generated file warning: `packages/schema/scripts/gen-client-reference-docs.ts` generates this page. Do not edit generated method content by hand.
-
 This page documents 37 schema-registry client methods in the `messages` namespace.
 
-## `deleteMessage`
+
+<h2 id="deletemessage"><code>deleteMessage</code></h2>
 
 Deletes a message
+
+**Signature** `client.deleteMessage(chatId: string, messageId: string[] \| string, onlyLocal?: boolean): Promise<boolean>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.deleteMessage("447123456789@c.us", ["false_447123456789@c.us_ABC123","false_447123456789@c.us_DEF456"]);
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.deleteMessage({
+  chatId: "447123456789@c.us",
+  messageId: ["false_447123456789@c.us_ABC123","false_447123456789@c.us_DEF456"],
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X DELETE "http://localhost:8080/api/messages/delete" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us",
+    "messageId": [
+      "false_447123456789@c.us_ABC123",
+      "false_447123456789@c.us_DEF456"
+    ]
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="DeleteMessageParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<boolean>` |
+
+Resolves to `boolean`: `true` means the runtime accepted the operation and `false` means it did not complete. Provider-side revoke can still be rejected, so the value is not proof that every recipient removed the message. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -35,18 +103,22 @@ Deletes a message
 | Primary | `DELETE` | `/api/messages/delete` | `deleteMessage` | Active |
 | Alias | `DELETE` | `/api/deleteMessage` | `deleteMessage` | Active |
 
+</details>
+
+
+<h2 id="forwardmessages"><code>forwardMessages</code></h2>
+
+Forwards messages to a chat
+
+**Signature** `client.forwardMessages(to: string, messages: string[] \| string, skipMyMessages?: boolean): Promise<MessageIdReturn[] \| boolean>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.deleteMessage({
-  chatId: "447123456789@c.us",
-  messageId: ["false_447123456789@c.us_ABC123","false_447123456789@c.us_DEF456"],
-  onlyLocal: true,
-});
-// namespaced form: client.messages.delete(...)
+const result = await client.forwardMessages("447123456789@c.us", ["false_447123456789@c.us_ABC123","false_447123456789@c.us_DEF456"]);
 ```
 
   </InterfaceTab>
@@ -56,10 +128,9 @@ const result = await client.deleteMessage({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.deleteMessage({
-  chatId: "447123456789@c.us",
-  messageId: ["false_447123456789@c.us_ABC123","false_447123456789@c.us_DEF456"],
-  onlyLocal: true,
+const result = await client.forwardMessages({
+  to: "447123456789@c.us",
+  messages: ["false_447123456789@c.us_ABC123","false_447123456789@c.us_DEF456"],
 });
 ```
 
@@ -67,16 +138,15 @@ const result = await client.deleteMessage({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X DELETE "http://localhost:8080/api/messages/delete" \
+curl -X POST "http://localhost:8080/api/messages/forward" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
-    "chatId": "447123456789@c.us",
-    "messageId": [
+    "to": "447123456789@c.us",
+    "messages": [
       "false_447123456789@c.us_ABC123",
       "false_447123456789@c.us_DEF456"
-    ],
-    "onlyLocal": true
+    ]
   }'
 ```
 
@@ -85,7 +155,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": []
 }
 ```
 
@@ -94,17 +164,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="DeleteMessageParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="ForwardMessagesParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<MessageIdReturn[] \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-## `forwardMessages`
+Resolves to `MessageIdReturn[] \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Forwards messages to a chat
+In-process Client resolves to `Promise<MessageIdReturn[] \| boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -127,18 +201,22 @@ Forwards messages to a chat
 | Primary | `POST` | `/api/messages/forward` | `forwardMessages` | Active |
 | Alias | `POST` | `/api/forwardMessages` | `forwardMessages` | Active |
 
+</details>
+
+
+<h2 id="getallmessages"><code>getAllMessages</code></h2>
+
+Retrieves all messages in the session
+
+**Signature** `client.getAllMessages(chatId?: string, includeMe?: boolean, includeNotifications?: boolean): Promise<Message[]>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.forwardMessages({
-  to: "447123456789@c.us",
-  messages: ["false_447123456789@c.us_ABC123","false_447123456789@c.us_DEF456"],
-  skipMyMessages: false,
-});
-// namespaced form: client.messages.forward(...)
+const result = await client.getAllMessages();
 ```
 
   </InterfaceTab>
@@ -148,28 +226,17 @@ const result = await client.forwardMessages({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.forwardMessages({
-  to: "447123456789@c.us",
-  messages: ["false_447123456789@c.us_ABC123","false_447123456789@c.us_DEF456"],
-  skipMyMessages: false,
-});
+const result = await client.getAllMessages();
 ```
 
   </InterfaceTab>
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/messages/forward" \
+curl -X GET "http://localhost:8080/api/messages/getAll" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "to": "447123456789@c.us",
-    "messages": [
-      "false_447123456789@c.us_ABC123",
-      "false_447123456789@c.us_DEF456"
-    ],
-    "skipMyMessages": false
-  }'
+  --data '{}'
 ```
 
 Example response envelope:
@@ -177,7 +244,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": []
 }
 ```
 
@@ -186,17 +253,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="ForwardMessagesParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="GetAllMessagesParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `object &#123; _serialized &#125;[] \| boolean` |
+| Return type | `Promise<Message[]>` |
+| Message | [View fields](/docs/reference/client/return-types#message) |
 
-## `getAllMessages`
+Resolves to `Message[]`. A rejected Promise indicates input validation or dispatch failure.
 
-Retrieves all messages in the session
+In-process Client resolves to `Promise<Message[]>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -222,95 +293,14 @@ Retrieves all messages in the session
 | Alias | `GET` | `/api/messages/all` | `messages.all` | Active |
 | Alias | `GET` | `/api/messages/list` | `messages.list` | Active |
 
-### Usage
+</details>
 
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
 
-```ts
-const result = await client.getAllMessages({
-  chatId: "447123456789@c.us",
-  includeMe: true,
-  includeNotifications: true,
-});
-// namespaced form: client.messages.getAll(...)
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getAllMessages({
-  chatId: "447123456789@c.us",
-  includeMe: true,
-  includeNotifications: true,
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -G "http://localhost:8080/api/messages/getAll" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data-urlencode "chatId=447123456789@c.us" \
-  --data-urlencode "includeMe=true" \
-  --data-urlencode "includeNotifications=true"
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": []
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="GetAllMessagesParams" />
-
-### Output
-
-| Prop | Value |
-| --- | --- |
-| Return type | `any[]` |
-
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
-
-## `getMessageById`
+<h2 id="getmessagebyid"><code>getMessageById</code></h2>
 
 Retrieves a specific message by ID
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | `messageId` |
-| Aliases | `getMessage`, `messages.get`, `messages.getById` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/messages/get` | `getMessageById` | Active |
-| Alias | `GET` | `/api/getMessage` | `getMessage` | Active |
-| Alias | `GET` | `/api/getMessageById` | `getMessageById` | Active |
-| Alias | `GET` | `/api/messages/getById` | `messages.getById` | Active |
+**Signature** `client.getMessageById(messageId: string): Promise<Message \| null \| false>`
 
 ### Usage
 
@@ -318,10 +308,7 @@ Retrieves a specific message by ID
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.getMessageById({
-  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-});
-// namespaced form: client.messages.get(...)
+const result = await client.getMessageById("false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB");
 ```
 
   </InterfaceTab>
@@ -350,7 +337,34 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": {
+    "id": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+    "body": "example",
+    "type": "chat",
+    "t": 0,
+    "from": "447123456789@c.us",
+    "to": "447123456789@c.us",
+    "self": "in",
+    "ack": "ACK_PENDING",
+    "sender": {
+      "id": "447123456789@c.us"
+    },
+    "timestamp": 0,
+    "content": "example",
+    "isGroupMsg": true,
+    "isMedia": true,
+    "isNotification": true,
+    "fromMe": true,
+    "chat": {
+      "id": "447123456789@c.us",
+      "isGroup": true,
+      "contact": {
+        "id": "447123456789@c.us"
+      }
+    },
+    "chatId": "447123456789@c.us",
+    "isQuotedMsgAvailable": true
+  }
 }
 ```
 
@@ -361,17 +375,19 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetMessageByIdParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<Message \| null \| false>` |
+| Message | [View fields](/docs/reference/client/return-types#message) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `Message \| null \| false`. A rejected Promise indicates input validation or dispatch failure.
 
-## `getMessageInfo`
+In-process Client resolves to `Promise<Message \| false \| null>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
-Get message delivery info
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -381,7 +397,7 @@ Get message delivery info
 | Action | `read` |
 | Functionality | `both` |
 | Positional parameter order | `messageId` |
-| Aliases | `messages.getInfo` |
+| Aliases | `getMessage`, `messages.get`, `messages.getById` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -391,8 +407,19 @@ Get message delivery info
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/messages/getInfo` | `getMessageInfo` | Active |
-| Alias | `GET` | `/api/getMessageInfo` | `getMessageInfo` | Active |
+| Primary | `GET` | `/api/messages/get` | `getMessageById` | Active |
+| Alias | `GET` | `/api/getMessage` | `getMessage` | Active |
+| Alias | `GET` | `/api/getMessageById` | `getMessageById` | Active |
+| Alias | `GET` | `/api/messages/getById` | `messages.getById` | Active |
+
+</details>
+
+
+<h2 id="getmessageinfo"><code>getMessageInfo</code></h2>
+
+Get message delivery info
+
+**Signature** `client.getMessageInfo(messageId: string): Promise<MessageInfo>`
 
 ### Usage
 
@@ -400,10 +427,7 @@ Get message delivery info
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.getMessageInfo({
-  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-});
-// namespaced form: client.messages.getInfo(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -432,7 +456,15 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": {
+    "id": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+    "deliveryRemaining": 0,
+    "playedRemaining": 0,
+    "readRemaining": 0,
+    "delivery": [],
+    "read": [],
+    "played": []
+  }
 }
 ```
 
@@ -443,17 +475,109 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetMessageInfoParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<MessageInfo>` |
+| MessageInfo | [View fields](/docs/reference/client/return-types#messageinfo) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `MessageInfo`. A rejected Promise indicates input validation or dispatch failure.
 
-## `getMessagesForLLM`
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `messageId` |
+| Aliases | `messages.getInfo` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/messages/getInfo` | `getMessageInfo` | Active |
+| Alias | `GET` | `/api/getMessageInfo` | `getMessageInfo` | Active |
+
+</details>
+
+
+<h2 id="getmessagesforllm"><code>getMessagesForLLM</code></h2>
 
 Get messages formatted for LLMs
+
+**Signature** `client.getMessagesForLLM(chatId: string, last?: number): Promise<LLMMessage[]>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getMessagesForLLM({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -G "http://localhost:8080/api/messages/getForLLM" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "chatId=447123456789@c.us"
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="GetMessagesForLLMParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<LLMMessage[]>` |
+| LLMMessage | [View fields](/docs/reference/client/return-types#llmmessage) |
+
+Resolves to `LLMMessage[]`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -478,17 +602,22 @@ Get messages formatted for LLMs
 | Alias | `GET` | `/api/getMessagesForLLM` | `getMessagesForLLM` | Active |
 | Deprecated alias | `GET` | `/api/messages/getGptArray` | `messages.getGptArray` | **Deprecated** |
 
+</details>
+
+
+<h2 id="getmylastmessage"><code>getMyLastMessage</code></h2>
+
+Get last message sent by host
+
+**Signature** `client.getMyLastMessage(chatId?: string): Promise<Message \| undefined>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.getMessagesForLLM({
-  chatId: "447123456789@c.us",
-  last: 1,
-});
-// namespaced form: client.messages.getForLLM(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -498,20 +627,17 @@ const result = await client.getMessagesForLLM({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getMessagesForLLM({
-  chatId: "447123456789@c.us",
-  last: 1,
-});
+const result = await client.getMyLastMessage();
 ```
 
   </InterfaceTab>
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -G "http://localhost:8080/api/messages/getForLLM" \
+curl -X GET "http://localhost:8080/api/messages/getMyLast" \
+  -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
-  --data-urlencode "chatId=447123456789@c.us" \
-  --data-urlencode "last=1"
+  --data '{}'
 ```
 
 Example response envelope:
@@ -519,7 +645,34 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": {
+    "id": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+    "body": "example",
+    "type": "chat",
+    "t": 0,
+    "from": "447123456789@c.us",
+    "to": "447123456789@c.us",
+    "self": "in",
+    "ack": "ACK_PENDING",
+    "sender": {
+      "id": "447123456789@c.us"
+    },
+    "timestamp": 0,
+    "content": "example",
+    "isGroupMsg": true,
+    "isMedia": true,
+    "isNotification": true,
+    "fromMe": true,
+    "chat": {
+      "id": "447123456789@c.us",
+      "isGroup": true,
+      "contact": {
+        "id": "447123456789@c.us"
+      }
+    },
+    "chatId": "447123456789@c.us",
+    "isQuotedMsgAvailable": true
+  }
 }
 ```
 
@@ -528,19 +681,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetMessagesForLLMParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="GetMyLastMessageParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<Message \| undefined>` |
+| Message | [View fields](/docs/reference/client/return-types#message) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `Message \| undefined`. A rejected Promise indicates input validation or dispatch failure.
 
-## `getMyLastMessage`
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
-Get last message sent by host
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -563,16 +718,24 @@ Get last message sent by host
 | Primary | `GET` | `/api/messages/getMyLast` | `getMyLastMessage` | Active |
 | Alias | `GET` | `/api/getMyLastMessage` | `getMyLastMessage` | Active |
 
+</details>
+
+<span id="getstarredmessages---insiders" aria-hidden="true"></span>
+<h2 id="getstarredmessages"><code>getStarredMessages</code></h2>
+
+Get starred messages
+
+<LicensedFeatureCallout tier="insiders" />
+
+**Signature** `client.getStarredMessages(chatId?: string): Promise<Message[]>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.getMyLastMessage({
-  chatId: "447123456789@c.us",
-});
-// namespaced form: client.messages.getMyLast(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -582,18 +745,17 @@ const result = await client.getMyLastMessage({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getMyLastMessage({
-  chatId: "447123456789@c.us",
-});
+const result = await client.getStarredMessages();
 ```
 
   </InterfaceTab>
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -G "http://localhost:8080/api/messages/getMyLast" \
+curl -X GET "http://localhost:8080/api/messages/getStarred" \
+  -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
-  --data-urlencode "chatId=447123456789@c.us"
+  --data '{}'
 ```
 
 Example response envelope:
@@ -601,7 +763,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": []
 }
 ```
 
@@ -610,21 +772,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetMyLastMessageParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="GetStarredMessagesParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<Message[]>` |
+| Message | [View fields](/docs/reference/client/return-types#message) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `Message[]`. A rejected Promise indicates input validation or dispatch failure.
 
-## `getStarredMessages` - insiders
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
-Get starred messages
-
-<LicensedFeatureCallout tier="insiders" />
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -647,87 +809,14 @@ Get starred messages
 | Primary | `GET` | `/api/messages/getStarred` | `getStarredMessages` | Active |
 | Alias | `GET` | `/api/getStarredMessages` | `getStarredMessages` | Active |
 
-### Usage
+</details>
 
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
 
-```ts
-const result = await client.getStarredMessages({
-  chatId: "447123456789@c.us",
-});
-// namespaced form: client.messages.getStarred(...)
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getStarredMessages({
-  chatId: "447123456789@c.us",
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -G "http://localhost:8080/api/messages/getStarred" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data-urlencode "chatId=447123456789@c.us"
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": []
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="GetStarredMessagesParams" />
-
-### Output
-
-| Prop | Value |
-| --- | --- |
-| Return type | `any[]` |
-
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
-
-## `getUnsentMessages`
+<h2 id="getunsentmessages"><code>getUnsentMessages</code></h2>
 
 Get unsent/pending messages
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | - |
-| Aliases | `messages.getUnsent` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/messages/getUnsent` | `getUnsentMessages` | Active |
-| Alias | `GET` | `/api/getUnsentMessages` | `getUnsentMessages` | Active |
+**Signature** `client.getUnsentMessages(): Promise<Message[]>`
 
 ### Usage
 
@@ -735,8 +824,7 @@ Get unsent/pending messages
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.getUnsentMessages({});
-// namespaced form: client.messages.getUnsent(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -746,7 +834,7 @@ const result = await client.getUnsentMessages({});
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getUnsentMessages({});
+const result = await client.getUnsentMessages();
 ```
 
   </InterfaceTab>
@@ -775,17 +863,19 @@ Example response envelope:
 
 This method does not define input parameters.
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any[]` |
+| Return type | `Promise<Message[]>` |
+| Message | [View fields](/docs/reference/client/return-types#message) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `Message[]`. A rejected Promise indicates input validation or dispatch failure.
 
-## `getVCards`
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
-Extract vCards from message
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -794,8 +884,8 @@ Extract vCards from message
 | Namespace | `messages` |
 | Action | `read` |
 | Functionality | `both` |
-| Positional parameter order | `messageId` |
-| Aliases | `messages.getVCards` |
+| Positional parameter order | - |
+| Aliases | `messages.getUnsent` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -805,8 +895,17 @@ Extract vCards from message
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/messages/getVCards` | `getVCards` | Active |
-| Alias | `GET` | `/api/getVCards` | `getVCards` | Active |
+| Primary | `GET` | `/api/messages/getUnsent` | `getUnsentMessages` | Active |
+| Alias | `GET` | `/api/getUnsentMessages` | `getUnsentMessages` | Active |
+
+</details>
+
+
+<h2 id="getvcards"><code>getVCards</code></h2>
+
+Extract vCards from message
+
+**Signature** `client.getVCards(messageId: string): Promise<string[]>`
 
 ### Usage
 
@@ -814,10 +913,7 @@ Extract vCards from message
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.getVCards({
-  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-});
-// namespaced form: client.messages.getVCards(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -857,15 +953,111 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetVCardsParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `string[]` |
+| Return type | `Promise<string[]>` |
 
-## `loadEarlierMessages`
+Resolves to `string[]`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `messageId` |
+| Aliases | `messages.getVCards` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/messages/getVCards` | `getVCards` | Active |
+| Alias | `GET` | `/api/getVCards` | `getVCards` | Active |
+
+</details>
+
+
+<h2 id="loadearliermessages"><code>loadEarlierMessages</code></h2>
 
 Loads earlier messages from a chat
+
+**Signature** `client.loadEarlierMessages(chatId: string, count?: number, includeMe?: boolean): Promise<Message[]>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.loadEarlierMessages("447123456789@c.us");
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.loadEarlierMessages({
+  chatId: "447123456789@c.us",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/loadEarlier" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us"
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="LoadEarlierMessagesParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<Message[]>` |
+| Message | [View fields](/docs/reference/client/return-types#message) |
+
+Resolves to `Message[]`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<Message[]>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -890,96 +1082,14 @@ Loads earlier messages from a chat
 | Alias | `POST` | `/api/loadOlderMessages` | `loadOlderMessages` | Active |
 | Alias | `POST` | `/api/messages/loadOlder` | `messages.loadOlder` | Active |
 
-### Usage
+</details>
 
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
 
-```ts
-const result = await client.loadEarlierMessages({
-  chatId: "447123456789@c.us",
-  count: 1,
-  includeMe: true,
-});
-// namespaced form: client.messages.loadEarlier(...)
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.loadEarlierMessages({
-  chatId: "447123456789@c.us",
-  count: 1,
-  includeMe: true,
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X POST "http://localhost:8080/api/messages/loadEarlier" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "chatId": "447123456789@c.us",
-    "count": 1,
-    "includeMe": true
-  }'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": []
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="LoadEarlierMessagesParams" />
-
-### Output
-
-| Prop | Value |
-| --- | --- |
-| Return type | `any[]` |
-
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
-
-## `react`
+<h2 id="react"><code>react</code></h2>
 
 React to message with emoji
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Action | `send` |
-| Functionality | `both` |
-| Positional parameter order | `messageId`, `emoji` |
-| Aliases | `messages.react` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/react` | `react` | Active |
-| Alias | `POST` | `/api/react` | `react` | Active |
+**Signature** `client.react(messageId: string, emoji: string): Promise<boolean>`
 
 ### Usage
 
@@ -987,11 +1097,7 @@ React to message with emoji
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.react({
-  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-  emoji: "emoji",
-});
-// namespaced form: client.messages.react(...)
+const result = await client.react("false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB", "emoji");
 ```
 
   </InterfaceTab>
@@ -1036,17 +1142,121 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="ReactParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
 
-## `sendAdvancedButtons` - insiders
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `messageId`, `emoji` |
+| Aliases | `messages.react` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/react` | `react` | Active |
+| Alias | `POST` | `/api/react` | `react` | Active |
+
+</details>
+
+<span id="sendadvancedbuttons---insiders" aria-hidden="true"></span>
+<h2 id="sendadvancedbuttons"><code>sendAdvancedButtons</code></h2>
 
 Sends an advanced button message with media (deprecated)
 
 <LicensedFeatureCallout tier="insiders" />
+
+**Signature** `client.sendAdvancedButtons(to: string, body?: string \| any, buttons: any[], text: string, footer: string, filename: string): Promise<MessageIdReturn \| boolean>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.sendAdvancedButtons({
+  to: "447123456789@c.us",
+  buttons: [],
+  text: "text",
+  footer: "footer",
+  filename: "filename",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendAdvancedButtons" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "buttons": [],
+    "text": "text",
+    "footer": "footer",
+    "filename": "filename"
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="SendAdvancedButtonsParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
+
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1069,21 +1279,22 @@ Sends an advanced button message with media (deprecated)
 | Primary | `POST` | `/api/messages/sendAdvancedButtons` | `sendAdvancedButtons` | Active |
 | Alias | `POST` | `/api/sendAdvancedButtons` | `sendAdvancedButtons` | Active |
 
+</details>
+
+
+<h2 id="sendaudio"><code>sendAudio</code></h2>
+
+Sends an audio file to a chat
+
+**Signature** `client.sendAudio(to: string, file: string, filename?: string, quotedMsgId?: string): Promise<MessageIdReturn \| boolean>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendAdvancedButtons({
-  to: "447123456789@c.us",
-  body: "body",
-  buttons: [],
-  text: "text",
-  footer: "footer",
-  filename: "filename",
-});
-// namespaced form: client.messages.sendAdvancedButtons(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -1093,13 +1304,9 @@ const result = await client.sendAdvancedButtons({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendAdvancedButtons({
+const result = await client.sendAudio({
   to: "447123456789@c.us",
-  body: "body",
-  buttons: [],
-  text: "text",
-  footer: "footer",
-  filename: "filename",
+  file: "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...",
 });
 ```
 
@@ -1107,16 +1314,12 @@ const result = await client.sendAdvancedButtons({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/messages/sendAdvancedButtons" \
+curl -X POST "http://localhost:8080/api/messages/sendAudio" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
     "to": "447123456789@c.us",
-    "body": "body",
-    "buttons": [],
-    "text": "text",
-    "footer": "footer",
-    "filename": "filename"
+    "file": "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA..."
   }'
 ```
 
@@ -1125,7 +1328,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -1134,17 +1337,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendAdvancedButtonsParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="SendAudioParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean` |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-## `sendAudio`
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Sends an audio file to a chat
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1167,97 +1374,14 @@ Sends an audio file to a chat
 | Primary | `POST` | `/api/messages/sendAudio` | `sendAudio` | Active |
 | Alias | `POST` | `/api/sendAudio` | `sendAudio` | Active |
 
-### Usage
+</details>
 
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
 
-```ts
-const result = await client.sendAudio({
-  to: "447123456789@c.us",
-  file: "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...",
-  filename: "document.pdf",
-  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-});
-// namespaced form: client.messages.sendAudio(...)
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendAudio({
-  to: "447123456789@c.us",
-  file: "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...",
-  filename: "document.pdf",
-  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X POST "http://localhost:8080/api/messages/sendAudio" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "to": "447123456789@c.us",
-    "file": "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...",
-    "filename": "document.pdf",
-    "quotedMsgId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
-  }'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": true
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="SendAudioParams" />
-
-### Output
-
-| Prop | Value |
-| --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean` |
-
-## `sendBanner`
+<h2 id="sendbanner"><code>sendBanner</code></h2>
 
 Sends a banner image
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Action | `send` |
-| Functionality | `both` |
-| Positional parameter order | `to`, `base64` |
-| Aliases | `messages.sendBanner` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendBanner` | `sendBanner` | Active |
-| Alias | `POST` | `/api/sendBanner` | `sendBanner` | Active |
+**Signature** `client.sendBanner(to: string, base64: string): Promise<MessageIdReturn \| boolean>`
 
 ### Usage
 
@@ -1265,11 +1389,7 @@ Sends a banner image
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendBanner({
-  to: "447123456789@c.us",
-  base64: "base64",
-});
-// namespaced form: client.messages.sendBanner(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -1303,7 +1423,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -1314,17 +1434,116 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="SendBannerParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean` |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-## `sendButtons` - insiders
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `base64` |
+| Aliases | `messages.sendBanner` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendBanner` | `sendBanner` | Active |
+| Alias | `POST` | `/api/sendBanner` | `sendBanner` | Active |
+
+</details>
+
+<span id="sendbuttons---insiders" aria-hidden="true"></span>
+<h2 id="sendbuttons"><code>sendButtons</code></h2>
 
 Sends a button message (deprecated)
 
 <LicensedFeatureCallout tier="insiders" />
+
+**Signature** `client.sendButtons(to: string, body?: string \| any, buttons: any[], title?: string, footer?: string): Promise<MessageIdReturn \| boolean>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.sendButtons({
+  to: "447123456789@c.us",
+  buttons: [],
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendButtons" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "buttons": []
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="SendButtonsParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
+
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1347,20 +1566,22 @@ Sends a button message (deprecated)
 | Primary | `POST` | `/api/messages/sendButtons` | `sendButtons` | Active |
 | Alias | `POST` | `/api/sendButtons` | `sendButtons` | Active |
 
+</details>
+
+
+<h2 id="sendcontact"><code>sendContact</code></h2>
+
+Sends a single contact
+
+**Signature** `client.sendContact(to: string, contactId: string \| string[]): Promise<MessageIdReturn \| boolean \| void>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendButtons({
-  to: "447123456789@c.us",
-  body: "body",
-  buttons: [],
-  title: "title",
-  footer: "footer",
-});
-// namespaced form: client.messages.sendButtons(...)
+const result = await client.sendContact("447123456789@c.us", "447123456789@c.us");
 ```
 
   </InterfaceTab>
@@ -1370,12 +1591,9 @@ const result = await client.sendButtons({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendButtons({
+const result = await client.sendContact({
   to: "447123456789@c.us",
-  body: "body",
-  buttons: [],
-  title: "title",
-  footer: "footer",
+  contactId: "447123456789@c.us",
 });
 ```
 
@@ -1383,15 +1601,12 @@ const result = await client.sendButtons({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/messages/sendButtons" \
+curl -X POST "http://localhost:8080/api/messages/sendContact" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
     "to": "447123456789@c.us",
-    "body": "body",
-    "buttons": [],
-    "title": "title",
-    "footer": "footer"
+    "contactId": "447123456789@c.us"
   }'
 ```
 
@@ -1400,7 +1615,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -1409,17 +1624,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendButtonsParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="SendContactParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean` |
+| Return type | `Promise<MessageIdReturn \| boolean \| void>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-## `sendContact`
+Resolves to `MessageIdReturn \| boolean \| void`. A rejected Promise indicates input validation or dispatch failure.
 
-Sends a single contact
+In-process Client resolves to `Promise<void>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1442,17 +1661,22 @@ Sends a single contact
 | Primary | `POST` | `/api/messages/sendContact` | `sendContact` | Active |
 | Alias | `POST` | `/api/sendContact` | `sendContact` | Active |
 
+</details>
+
+
+<h2 id="sendfile"><code>sendFile</code></h2>
+
+Sends a file or document to a chat
+
+**Signature** `client.sendFile(to: string, file: string, filename?: string, caption?: string): Promise<MessageIdReturn \| string>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendContact({
-  to: "447123456789@c.us",
-  contactId: [],
-});
-// namespaced form: client.messages.sendContact(...)
+const result = await client.sendFile("447123456789@c.us", "data:application/pdf;base64,JVBERi0xLjQK...");
 ```
 
   </InterfaceTab>
@@ -1462,9 +1686,9 @@ const result = await client.sendContact({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendContact({
+const result = await client.sendFile({
   to: "447123456789@c.us",
-  contactId: [],
+  file: "data:application/pdf;base64,JVBERi0xLjQK...",
 });
 ```
 
@@ -1472,12 +1696,12 @@ const result = await client.sendContact({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/messages/sendContact" \
+curl -X POST "http://localhost:8080/api/messages/sendFile" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
     "to": "447123456789@c.us",
-    "contactId": []
+    "file": "data:application/pdf;base64,JVBERi0xLjQK..."
   }'
 ```
 
@@ -1486,7 +1710,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -1495,17 +1719,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendContactParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="SendFileParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean` |
+| Return type | `Promise<MessageIdReturn \| string>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-## `sendFile`
+Resolves to `MessageIdReturn \| string`. A rejected Promise indicates input validation or dispatch failure.
 
-Sends a file or document to a chat
+In-process Client resolves to `Promise<MessageId>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1528,19 +1756,22 @@ Sends a file or document to a chat
 | Primary | `POST` | `/api/messages/sendFile` | `sendFile` | Active |
 | Alias | `POST` | `/api/sendFile` | `sendFile` | Active |
 
+</details>
+
+
+<h2 id="sendfilefromurl"><code>sendFileFromUrl</code></h2>
+
+Downloads a file from a URL and sends it to a chat
+
+**Signature** `client.sendFileFromUrl(to: string, url: string, filename: string, caption?: string, headers?: object): Promise<string \| boolean>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendFile({
-  to: "447123456789@c.us",
-  file: "data:application/pdf;base64,JVBERi0xLjQK...",
-  filename: "document.pdf",
-  caption: "Check out this image!",
-});
-// namespaced form: client.messages.sendFile(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -1550,11 +1781,10 @@ const result = await client.sendFile({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendFile({
+const result = await client.sendFileFromUrl({
   to: "447123456789@c.us",
-  file: "data:application/pdf;base64,JVBERi0xLjQK...",
-  filename: "document.pdf",
-  caption: "Check out this image!",
+  url: "url",
+  filename: "filename",
 });
 ```
 
@@ -1562,14 +1792,13 @@ const result = await client.sendFile({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/messages/sendFile" \
+curl -X POST "http://localhost:8080/api/messages/sendFileFromUrl" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
     "to": "447123456789@c.us",
-    "file": "data:application/pdf;base64,JVBERi0xLjQK...",
-    "filename": "document.pdf",
-    "caption": "Check out this image!"
+    "url": "url",
+    "filename": "filename"
   }'
 ```
 
@@ -1578,7 +1807,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": "example"
 }
 ```
 
@@ -1587,17 +1816,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendFileParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="SendFileFromUrlParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `object &#123; _serialized &#125; \| string` |
+| Return type | `Promise<string \| boolean>` |
 
-## `sendFileFromUrl`
+Message ID or success status
 
-Downloads a file from a URL and sends it to a chat
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+Message ID or success status
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1620,20 +1853,22 @@ Downloads a file from a URL and sends it to a chat
 | Primary | `POST` | `/api/messages/sendFileFromUrl` | `sendFileFromUrl` | Active |
 | Alias | `POST` | `/api/sendFileFromUrl` | `sendFileFromUrl` | Active |
 
+</details>
+
+
+<h2 id="sendimage"><code>sendImage</code></h2>
+
+Sends an image to a chat
+
+**Signature** `client.sendImage(to: string, imgData: string, filename?: string, caption?: string, id?: string, waitForId?: boolean): Promise<MessageIdReturn \| boolean \| string>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendFileFromUrl({
-  to: "447123456789@c.us",
-  url: "url",
-  filename: "filename",
-  caption: "caption",
-  headers: {},
-});
-// namespaced form: client.messages.sendFileFromUrl(...)
+const result = await client.sendImage("447123456789@c.us", "data:image/png;base64,iVBORw0KGgo...");
 ```
 
   </InterfaceTab>
@@ -1643,12 +1878,9 @@ const result = await client.sendFileFromUrl({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendFileFromUrl({
+const result = await client.sendImage({
   to: "447123456789@c.us",
-  url: "url",
-  filename: "filename",
-  caption: "caption",
-  headers: {},
+  imgData: "data:image/png;base64,iVBORw0KGgo...",
 });
 ```
 
@@ -1656,15 +1888,12 @@ const result = await client.sendFileFromUrl({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/messages/sendFileFromUrl" \
+curl -X POST "http://localhost:8080/api/messages/sendImage" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
     "to": "447123456789@c.us",
-    "url": "url",
-    "filename": "filename",
-    "caption": "caption",
-    "headers": {}
+    "imgData": "data:image/png;base64,iVBORw0KGgo..."
   }'
 ```
 
@@ -1673,7 +1902,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -1682,17 +1911,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendFileFromUrlParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="SendImageParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `string \| boolean` |
+| Return type | `Promise<MessageIdReturn \| boolean \| string>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-## `sendImage`
+Resolves to `MessageIdReturn \| boolean \| string`. A rejected Promise indicates input validation or dispatch failure.
 
-Sends an image to a chat
+In-process Client resolves to `Promise<MessageId \| false>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1715,21 +1948,22 @@ Sends an image to a chat
 | Primary | `POST` | `/api/messages/sendImage` | `sendImage` | Active |
 | Alias | `POST` | `/api/sendImage` | `sendImage` | Active |
 
+</details>
+
+
+<h2 id="sendlinkwithautopreview"><code>sendLinkWithAutoPreview</code></h2>
+
+Sends a link with auto-generated preview
+
+**Signature** `client.sendLinkWithAutoPreview(to: string, url: string, text?: string, thumbnail?: string, quotedMsgId?: string, customSize?: { height: number; width: number }): Promise<MessageIdReturn \| boolean>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendImage({
-  to: "447123456789@c.us",
-  imgData: "data:image/png;base64,iVBORw0KGgo...",
-  filename: "document.pdf",
-  caption: "Check out this image!",
-  id: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-  waitForId: true,
-});
-// namespaced form: client.messages.sendImage(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -1739,13 +1973,9 @@ const result = await client.sendImage({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendImage({
+const result = await client.sendLinkWithAutoPreview({
   to: "447123456789@c.us",
-  imgData: "data:image/png;base64,iVBORw0KGgo...",
-  filename: "document.pdf",
-  caption: "Check out this image!",
-  id: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-  waitForId: true,
+  url: "url",
 });
 ```
 
@@ -1753,16 +1983,12 @@ const result = await client.sendImage({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/messages/sendImage" \
+curl -X POST "http://localhost:8080/api/messages/sendLinkWithAutoPreview" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
     "to": "447123456789@c.us",
-    "imgData": "data:image/png;base64,iVBORw0KGgo...",
-    "filename": "document.pdf",
-    "caption": "Check out this image!",
-    "id": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-    "waitForId": true
+    "url": "url"
   }'
 ```
 
@@ -1771,7 +1997,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -1780,17 +2006,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendImageParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="SendLinkWithAutoPreviewParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean \| string` |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-## `sendLinkWithAutoPreview`
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Sends a link with auto-generated preview
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1815,106 +2045,16 @@ Sends a link with auto-generated preview
 | Alias | `POST` | `/api/sendLink` | `sendLink` | Active |
 | Alias | `POST` | `/api/sendLinkWithAutoPreview` | `sendLinkWithAutoPreview` | Active |
 
-### Usage
+</details>
 
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.sendLinkWithAutoPreview({
-  to: "447123456789@c.us",
-  url: "url",
-  text: "Hello, world!",
-  thumbnail: "thumbnail",
-  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-  customSize: {},
-});
-// namespaced form: client.messages.sendLinkWithAutoPreview(...)
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendLinkWithAutoPreview({
-  to: "447123456789@c.us",
-  url: "url",
-  text: "Hello, world!",
-  thumbnail: "thumbnail",
-  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-  customSize: {},
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X POST "http://localhost:8080/api/messages/sendLinkWithAutoPreview" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "to": "447123456789@c.us",
-    "url": "url",
-    "text": "Hello, world!",
-    "thumbnail": "thumbnail",
-    "quotedMsgId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-    "customSize": {}
-  }'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": true
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="SendLinkWithAutoPreviewParams" />
-
-### Output
-
-| Prop | Value |
-| --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean` |
-
-## `sendListMessage` - insiders
+<span id="sendlistmessage---insiders" aria-hidden="true"></span>
+<h2 id="sendlistmessage"><code>sendListMessage</code></h2>
 
 Sends a list/menu message (deprecated)
 
 <LicensedFeatureCallout tier="insiders" />
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Action | `send` |
-| Functionality | `both` |
-| Positional parameter order | `to`, `sections`, `title`, `description`, `actionText` |
-| Aliases | `messages.sendList`, `sendList` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendList` | `sendListMessage` | Active |
-| Alias | `POST` | `/api/sendList` | `sendList` | Active |
-| Alias | `POST` | `/api/sendListMessage` | `sendListMessage` | Active |
+**Signature** `client.sendListMessage(to: string, sections: any[], title: string, description: string, actionText: string): Promise<MessageIdReturn \| boolean>`
 
 ### Usage
 
@@ -1922,14 +2062,7 @@ Sends a list/menu message (deprecated)
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendListMessage({
-  to: "447123456789@c.us",
-  sections: [],
-  title: "title",
-  description: "description",
-  actionText: "actionText",
-});
-// namespaced form: client.messages.sendList(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -1969,7 +2102,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -1980,15 +2113,117 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="SendListMessageParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean` |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-## `sendLocation`
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `sections`, `title`, `description`, `actionText` |
+| Aliases | `messages.sendList`, `sendList` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendList` | `sendListMessage` | Active |
+| Alias | `POST` | `/api/sendList` | `sendList` | Active |
+| Alias | `POST` | `/api/sendListMessage` | `sendListMessage` | Active |
+
+</details>
+
+
+<h2 id="sendlocation"><code>sendLocation</code></h2>
 
 Sends a location to a chat
+
+**Signature** `client.sendLocation(to: string, lat: number \| string, lng: number \| string, loc?: string, address?: string, url?: string): Promise<MessageIdReturn \| boolean>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.sendLocation("447123456789@c.us", 51.5074, -0.1278);
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.sendLocation({
+  to: "447123456789@c.us",
+  lat: 51.5074,
+  lng: -0.1278,
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendLocation" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "lat": 51.5074,
+    "lng": -0.1278
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="SendLocationParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
+
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<MessageId \| false>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -2011,21 +2246,22 @@ Sends a location to a chat
 | Primary | `POST` | `/api/messages/sendLocation` | `sendLocation` | Active |
 | Alias | `POST` | `/api/sendLocation` | `sendLocation` | Active |
 
+</details>
+
+
+<h2 id="sendmessagewiththumb"><code>sendMessageWithThumb</code></h2>
+
+Sends a link preview message with custom thumbnail
+
+**Signature** `client.sendMessageWithThumb(thumb: string, url: string, title: string, description: string, content: string, to: string, quotedMsgId?: string, customSize?: { height: number; width: number }): Promise<MessageIdReturn \| boolean>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendLocation({
-  to: "447123456789@c.us",
-  lat: 51.5074,
-  lng: -0.1278,
-  loc: "London, UK",
-  address: "address",
-  url: "url",
-});
-// namespaced form: client.messages.sendLocation(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -2035,13 +2271,13 @@ const result = await client.sendLocation({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendLocation({
-  to: "447123456789@c.us",
-  lat: 51.5074,
-  lng: -0.1278,
-  loc: "London, UK",
-  address: "address",
+const result = await client.sendMessageWithThumb({
+  thumb: "thumb",
   url: "url",
+  title: "title",
+  description: "description",
+  content: "Hello, world!",
+  to: "447123456789@c.us",
 });
 ```
 
@@ -2049,16 +2285,16 @@ const result = await client.sendLocation({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/messages/sendLocation" \
+curl -X POST "http://localhost:8080/api/messages/sendLinkWithThumbnail" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
-    "to": "447123456789@c.us",
-    "lat": 51.5074,
-    "lng": -0.1278,
-    "loc": "London, UK",
-    "address": "address",
-    "url": "url"
+    "thumb": "thumb",
+    "url": "url",
+    "title": "title",
+    "description": "description",
+    "content": "Hello, world!",
+    "to": "447123456789@c.us"
   }'
 ```
 
@@ -2067,7 +2303,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -2076,17 +2312,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendLocationParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="SendMessageWithThumbParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean` |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-## `sendMessageWithThumb`
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Sends a link preview message with custom thumbnail
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -2111,23 +2351,22 @@ Sends a link preview message with custom thumbnail
 | Alias | `POST` | `/api/sendLinkWithThumbnail` | `sendLinkWithThumbnail` | Active |
 | Alias | `POST` | `/api/sendMessageWithThumb` | `sendMessageWithThumb` | Active |
 
+</details>
+
+
+<h2 id="sendmultiplecontacts"><code>sendMultipleContacts</code></h2>
+
+Sends multiple contacts
+
+**Signature** `client.sendMultipleContacts(to: string, contactIds: string[]): Promise<MessageIdReturn \| boolean>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendMessageWithThumb({
-  thumb: "thumb",
-  url: "url",
-  title: "title",
-  description: "description",
-  content: "Hello, world!",
-  to: "447123456789@c.us",
-  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-  customSize: {},
-});
-// namespaced form: client.messages.sendLinkWithThumbnail(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -2137,15 +2376,9 @@ const result = await client.sendMessageWithThumb({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendMessageWithThumb({
-  thumb: "thumb",
-  url: "url",
-  title: "title",
-  description: "description",
-  content: "Hello, world!",
+const result = await client.sendMultipleContacts({
   to: "447123456789@c.us",
-  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-  customSize: {},
+  contactIds: ["447123456789@c.us"],
 });
 ```
 
@@ -2153,18 +2386,14 @@ const result = await client.sendMessageWithThumb({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/messages/sendLinkWithThumbnail" \
+curl -X POST "http://localhost:8080/api/messages/sendContacts" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
-    "thumb": "thumb",
-    "url": "url",
-    "title": "title",
-    "description": "description",
-    "content": "Hello, world!",
     "to": "447123456789@c.us",
-    "quotedMsgId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-    "customSize": {}
+    "contactIds": [
+      "447123456789@c.us"
+    ]
   }'
 ```
 
@@ -2173,7 +2402,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -2182,17 +2411,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendMessageWithThumbParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="SendMultipleContactsParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean` |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-## `sendMultipleContacts`
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Sends multiple contacts
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -2217,17 +2450,22 @@ Sends multiple contacts
 | Alias | `POST` | `/api/sendContacts` | `sendContacts` | Active |
 | Alias | `POST` | `/api/sendMultipleContacts` | `sendMultipleContacts` | Active |
 
+</details>
+
+
+<h2 id="sendpaymentrequest"><code>sendPaymentRequest</code></h2>
+
+Sends a payment request message
+
+**Signature** `client.sendPaymentRequest(to: string, amount: number, currency: string, message?: string): Promise<MessageIdReturn \| boolean>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendMultipleContacts({
-  to: "447123456789@c.us",
-  contactIds: "447123456789@c.us",
-});
-// namespaced form: client.messages.sendContacts(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -2237,9 +2475,10 @@ const result = await client.sendMultipleContacts({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendMultipleContacts({
+const result = await client.sendPaymentRequest({
   to: "447123456789@c.us",
-  contactIds: "447123456789@c.us",
+  amount: 1,
+  currency: "currency",
 });
 ```
 
@@ -2247,12 +2486,13 @@ const result = await client.sendMultipleContacts({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/messages/sendContacts" \
+curl -X POST "http://localhost:8080/api/messages/sendPaymentRequest" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
     "to": "447123456789@c.us",
-    "contactIds": "447123456789@c.us"
+    "amount": 1,
+    "currency": "currency"
   }'
 ```
 
@@ -2261,7 +2501,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -2270,17 +2510,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendMultipleContactsParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="SendPaymentRequestParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean` |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-## `sendPaymentRequest`
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Sends a payment request message
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -2303,19 +2547,22 @@ Sends a payment request message
 | Primary | `POST` | `/api/messages/sendPaymentRequest` | `sendPaymentRequest` | Active |
 | Alias | `POST` | `/api/sendPaymentRequest` | `sendPaymentRequest` | Active |
 
+</details>
+
+
+<h2 id="sendpoll"><code>sendPoll</code></h2>
+
+Sends a poll message
+
+**Signature** `client.sendPoll(to: string, name: string, options: string[], selectableCount?: number): Promise<MessageIdReturn \| boolean>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendPaymentRequest({
-  to: "447123456789@c.us",
-  amount: 1,
-  currency: "currency",
-  message: "message",
-});
-// namespaced form: client.messages.sendPaymentRequest(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -2325,11 +2572,10 @@ const result = await client.sendPaymentRequest({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendPaymentRequest({
+const result = await client.sendPoll({
   to: "447123456789@c.us",
-  amount: 1,
-  currency: "currency",
-  message: "message",
+  name: "name",
+  options: ["Yes", "No"],
 });
 ```
 
@@ -2337,14 +2583,16 @@ const result = await client.sendPaymentRequest({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/messages/sendPaymentRequest" \
+curl -X POST "http://localhost:8080/api/messages/sendPoll" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
     "to": "447123456789@c.us",
-    "amount": 1,
-    "currency": "currency",
-    "message": "message"
+    "name": "name",
+    "options": [
+      "Yes",
+      "No"
+    ]
   }'
 ```
 
@@ -2353,7 +2601,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -2362,17 +2610,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendPaymentRequestParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="SendPollParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean` |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-## `sendPoll`
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Sends a poll message
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -2395,19 +2647,22 @@ Sends a poll message
 | Primary | `POST` | `/api/messages/sendPoll` | `sendPoll` | Active |
 | Alias | `POST` | `/api/sendPoll` | `sendPoll` | Active |
 
+</details>
+
+
+<h2 id="sendptt"><code>sendPtt</code></h2>
+
+Sends a voice note (push-to-talk) to a chat
+
+**Signature** `client.sendPtt(to: string, file: string, quotedMsgId?: string): Promise<MessageIdReturn \| boolean>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendPoll({
-  to: "447123456789@c.us",
-  name: "name",
-  options: [],
-  selectableCount: 1,
-});
-// namespaced form: client.messages.sendPoll(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -2417,11 +2672,9 @@ const result = await client.sendPoll({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendPoll({
+const result = await client.sendPtt({
   to: "447123456789@c.us",
-  name: "name",
-  options: [],
-  selectableCount: 1,
+  file: "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...",
 });
 ```
 
@@ -2429,14 +2682,12 @@ const result = await client.sendPoll({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/messages/sendPoll" \
+curl -X POST "http://localhost:8080/api/messages/sendPtt" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
     "to": "447123456789@c.us",
-    "name": "name",
-    "options": [],
-    "selectableCount": 1
+    "file": "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA..."
   }'
 ```
 
@@ -2445,7 +2696,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -2454,17 +2705,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendPollParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="SendPttParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean` |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-## `sendPtt`
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Sends a voice note (push-to-talk) to a chat
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -2489,18 +2744,22 @@ Sends a voice note (push-to-talk) to a chat
 | Alias | `POST` | `/api/sendPtt` | `sendPtt` | Active |
 | Alias | `POST` | `/api/sendVoiceNote` | `sendVoiceNote` | Active |
 
+</details>
+
+
+<h2 id="sendreplywithmentions"><code>sendReplyWithMentions</code></h2>
+
+Sends a reply to a message that includes @mentions
+
+**Signature** `client.sendReplyWithMentions(to: string, content: string, replyMessageId: string, hideTags?: boolean, mentions?: string[]): Promise<MessageIdReturn \| boolean>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendPtt({
-  to: "447123456789@c.us",
-  file: "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...",
-  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-});
-// namespaced form: client.messages.sendPtt(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -2510,10 +2769,10 @@ const result = await client.sendPtt({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendPtt({
+const result = await client.sendReplyWithMentions({
   to: "447123456789@c.us",
-  file: "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...",
-  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+  content: "Hello, world!",
+  replyMessageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
 });
 ```
 
@@ -2521,13 +2780,13 @@ const result = await client.sendPtt({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/messages/sendPtt" \
+curl -X POST "http://localhost:8080/api/messages/sendReplyWithMentions" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
     "to": "447123456789@c.us",
-    "file": "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...",
-    "quotedMsgId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+    "content": "Hello, world!",
+    "replyMessageId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
   }'
 ```
 
@@ -2536,7 +2795,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -2545,17 +2804,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendPttParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="SendReplyWithMentionsParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean` |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-## `sendReplyWithMentions`
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Sends a reply to a message that includes @mentions
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -2578,103 +2841,14 @@ Sends a reply to a message that includes @mentions
 | Primary | `POST` | `/api/messages/sendReplyWithMentions` | `sendReplyWithMentions` | Active |
 | Alias | `POST` | `/api/sendReplyWithMentions` | `sendReplyWithMentions` | Active |
 
-### Usage
+</details>
 
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
 
-```ts
-const result = await client.sendReplyWithMentions({
-  to: "447123456789@c.us",
-  content: "Hello, world!",
-  replyMessageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-  hideTags: true,
-  mentions: ["447123456789@c.us","441234567890@c.us"],
-});
-// namespaced form: client.messages.sendReplyWithMentions(...)
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendReplyWithMentions({
-  to: "447123456789@c.us",
-  content: "Hello, world!",
-  replyMessageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-  hideTags: true,
-  mentions: ["447123456789@c.us","441234567890@c.us"],
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X POST "http://localhost:8080/api/messages/sendReplyWithMentions" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "to": "447123456789@c.us",
-    "content": "Hello, world!",
-    "replyMessageId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-    "hideTags": true,
-    "mentions": [
-      "447123456789@c.us",
-      "441234567890@c.us"
-    ]
-  }'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": true
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="SendReplyWithMentionsParams" />
-
-### Output
-
-| Prop | Value |
-| --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean` |
-
-## `sendSeen`
+<h2 id="sendseen"><code>sendSeen</code></h2>
 
 Mark message as seen
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Action | `update` |
-| Functionality | `both` |
-| Positional parameter order | `chatId` |
-| Aliases | `messages.sendSeen` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/messages/sendSeen` | `sendSeen` | Active |
-| Alias | `PUT` | `/api/sendSeen` | `sendSeen` | Active |
+**Signature** `client.sendSeen(chatId: string): Promise<boolean>`
 
 ### Usage
 
@@ -2682,10 +2856,7 @@ Mark message as seen
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendSeen({
-  chatId: "447123456789@c.us",
-});
-// namespaced form: client.messages.sendSeen(...)
+const result = await client.sendSeen("447123456789@c.us");
 ```
 
   </InterfaceTab>
@@ -2728,15 +2899,115 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="SendSeenParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
 
-## `sendText`
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `messages.sendSeen` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/messages/sendSeen` | `sendSeen` | Active |
+| Alias | `PUT` | `/api/sendSeen` | `sendSeen` | Active |
+
+</details>
+
+
+<h2 id="sendtext"><code>sendText</code></h2>
 
 Sends a text message to a chat
+
+**Signature** `client.sendText(to: string, content: string, options?: unknown): Promise<MessageIdReturn \| boolean \| string>`
+
+Start with `await client.sendText(to, content)`. The registry still accepts an optional `options` value for compatibility, but the current Client implementation ignores it. Use `reply(to, content, messageId)` for quoted replies and `sendTextWithMentions(to, content, hideTags, mentions)` for mentions.
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.sendText('447123456789@c.us', 'Hello from open-wa');
+const messageId = typeof result === 'string' && /^(true|false)_.+_.+$/.test(result) ? result : null;
+if (!messageId) throw new Error(`Message was not sent: ${String(result)}`);
+console.log('Message ID:', messageId);
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.sendText("447123456789@c.us", "Hello, world!");
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendText" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "content": "Hello, world!"
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="SendTextParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<MessageIdReturn \| boolean \| string>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
+
+A successful send returns a message ID as a string; some Easy API responses may serialize it as an object with `_serialized`. A boolean or a non-ID status string is not a message ID: the current WAPI can return values such as `Not a contact` or `Not able to send message to broadcast`. The in-process Client converts `Not a contact` into a rejected Promise because sending to an unknown number requires a Restricted or Premium license; the method is not otherwise license-gated. The in-process Client is declared as `Promise<string | false>`. Check returned values before passing them to another method, and handle rejected Promises for input, dispatch, license, or provider errors.
+
+In-process Client resolves to `Promise<string \| false>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -2759,18 +3030,22 @@ Sends a text message to a chat
 | Primary | `POST` | `/api/messages/sendText` | `sendText` | Active |
 | Alias | `POST` | `/api/sendText` | `sendText` | Active |
 
+</details>
+
+
+<h2 id="sendtextwithmentions"><code>sendTextWithMentions</code></h2>
+
+Sends a text message that includes @mentions
+
+**Signature** `client.sendTextWithMentions(to: string, content: string, hideTags?: boolean, mentions?: string[]): Promise<MessageIdReturn \| boolean>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendText({
-  to: "447123456789@c.us",
-  content: "Hello, world!",
-  options: {"quotedMsg":"messageId","mentionedJidList":["447123456789@c.us"]},
-});
-// namespaced form: client.messages.sendText(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -2780,10 +3055,9 @@ const result = await client.sendText({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendText({
+const result = await client.sendTextWithMentions({
   to: "447123456789@c.us",
   content: "Hello, world!",
-  options: {"quotedMsg":"messageId","mentionedJidList":["447123456789@c.us"]},
 });
 ```
 
@@ -2791,18 +3065,12 @@ const result = await client.sendText({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/messages/sendText" \
+curl -X POST "http://localhost:8080/api/messages/sendTextWithMentions" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
     "to": "447123456789@c.us",
-    "content": "Hello, world!",
-    "options": {
-      "quotedMsg": "messageId",
-      "mentionedJidList": [
-        "447123456789@c.us"
-      ]
-    }
+    "content": "Hello, world!"
   }'
 ```
 
@@ -2811,7 +3079,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -2820,17 +3088,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendTextParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="SendTextWithMentionsParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean \| string` |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-## `sendTextWithMentions`
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Sends a text message that includes @mentions
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -2853,19 +3125,22 @@ Sends a text message that includes @mentions
 | Primary | `POST` | `/api/messages/sendTextWithMentions` | `sendTextWithMentions` | Active |
 | Alias | `POST` | `/api/sendTextWithMentions` | `sendTextWithMentions` | Active |
 
+</details>
+
+
+<h2 id="sendvcard"><code>sendVCard</code></h2>
+
+Sends a contact card (vCard)
+
+**Signature** `client.sendVCard(to: string, vcard: string, contactName?: string, contactNumber?: string): Promise<boolean>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendTextWithMentions({
-  to: "447123456789@c.us",
-  content: "Hello, world!",
-  hideTags: true,
-  mentions: ["447123456789@c.us","441234567890@c.us"],
-});
-// namespaced form: client.messages.sendTextWithMentions(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -2875,11 +3150,9 @@ const result = await client.sendTextWithMentions({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendTextWithMentions({
+const result = await client.sendVCard({
   to: "447123456789@c.us",
-  content: "Hello, world!",
-  hideTags: true,
-  mentions: ["447123456789@c.us","441234567890@c.us"],
+  vcard: "vcard",
 });
 ```
 
@@ -2887,17 +3160,12 @@ const result = await client.sendTextWithMentions({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/messages/sendTextWithMentions" \
+curl -X POST "http://localhost:8080/api/messages/sendVCard" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
     "to": "447123456789@c.us",
-    "content": "Hello, world!",
-    "hideTags": true,
-    "mentions": [
-      "447123456789@c.us",
-      "441234567890@c.us"
-    ]
+    "vcard": "vcard"
   }'
 ```
 
@@ -2915,17 +3183,20 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendTextWithMentionsParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="SendVCardParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean` |
+| Return type | `Promise<boolean>` |
 
-## `sendVCard`
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Sends a contact card (vCard)
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -2948,19 +3219,22 @@ Sends a contact card (vCard)
 | Primary | `POST` | `/api/messages/sendVCard` | `sendVCard` | Active |
 | Alias | `POST` | `/api/sendVCard` | `sendVCard` | Active |
 
+</details>
+
+
+<h2 id="sendvideoasgif"><code>sendVideoAsGif</code></h2>
+
+Sends a video as an animated GIF
+
+**Signature** `client.sendVideoAsGif(to: string, file: string, filename?: string, caption?: string, quotedMsgId?: string): Promise<MessageIdReturn \| boolean>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendVCard({
-  to: "447123456789@c.us",
-  vcard: "vcard",
-  contactName: "contactName",
-  contactNumber: "contactNumber",
-});
-// namespaced form: client.messages.sendVCard(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -2970,11 +3244,9 @@ const result = await client.sendVCard({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendVCard({
+const result = await client.sendVideoAsGif({
   to: "447123456789@c.us",
-  vcard: "vcard",
-  contactName: "contactName",
-  contactNumber: "contactNumber",
+  file: "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...",
 });
 ```
 
@@ -2982,14 +3254,12 @@ const result = await client.sendVCard({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/messages/sendVCard" \
+curl -X POST "http://localhost:8080/api/messages/sendVideoAsGif" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
     "to": "447123456789@c.us",
-    "vcard": "vcard",
-    "contactName": "contactName",
-    "contactNumber": "contactNumber"
+    "file": "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21..."
   }'
 ```
 
@@ -2998,7 +3268,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -3007,17 +3277,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendVCardParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="SendVideoAsGifParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-## `sendVideoAsGif`
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Sends a video as an animated GIF
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -3040,20 +3314,22 @@ Sends a video as an animated GIF
 | Primary | `POST` | `/api/messages/sendVideoAsGif` | `sendVideoAsGif` | Active |
 | Alias | `POST` | `/api/sendVideoAsGif` | `sendVideoAsGif` | Active |
 
+</details>
+
+
+<h2 id="sendyoutubelink"><code>sendYouTubeLink</code></h2>
+
+Sends a YouTube link with auto-generated preview
+
+**Signature** `client.sendYouTubeLink(to: string, url: string, text?: string, thumbnail?: string, quotedMsgId?: string, customSize?: { height: number; width: number }): Promise<MessageIdReturn \| boolean>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendVideoAsGif({
-  to: "447123456789@c.us",
-  file: "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...",
-  filename: "document.pdf",
-  caption: "Check out this image!",
-  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-});
-// namespaced form: client.messages.sendVideoAsGif(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -3063,12 +3339,9 @@ const result = await client.sendVideoAsGif({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendVideoAsGif({
+const result = await client.sendYouTubeLink({
   to: "447123456789@c.us",
-  file: "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...",
-  filename: "document.pdf",
-  caption: "Check out this image!",
-  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+  url: "url",
 });
 ```
 
@@ -3076,15 +3349,12 @@ const result = await client.sendVideoAsGif({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/messages/sendVideoAsGif" \
+curl -X POST "http://localhost:8080/api/messages/sendYouTubeLink" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
     "to": "447123456789@c.us",
-    "file": "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...",
-    "filename": "document.pdf",
-    "caption": "Check out this image!",
-    "quotedMsgId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+    "url": "url"
   }'
 ```
 
@@ -3093,7 +3363,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -3102,17 +3372,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendVideoAsGifParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="SendYouTubeLinkParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean` |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-## `sendYouTubeLink`
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Sends a YouTube link with auto-generated preview
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -3137,103 +3411,14 @@ Sends a YouTube link with auto-generated preview
 | Deprecated alias | `POST` | `/api/sendYoutubeLink` | `sendYoutubeLink` | **Deprecated** |
 | Alias | `POST` | `/api/sendYouTubeLink` | `sendYouTubeLink` | Active |
 
-### Usage
+</details>
 
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
 
-```ts
-const result = await client.sendYouTubeLink({
-  to: "447123456789@c.us",
-  url: "url",
-  text: "Hello, world!",
-  thumbnail: "thumbnail",
-  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-  customSize: {},
-});
-// namespaced form: client.messages.sendYouTubeLink(...)
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendYouTubeLink({
-  to: "447123456789@c.us",
-  url: "url",
-  text: "Hello, world!",
-  thumbnail: "thumbnail",
-  quotedMsgId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-  customSize: {},
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X POST "http://localhost:8080/api/messages/sendYouTubeLink" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "to": "447123456789@c.us",
-    "url": "url",
-    "text": "Hello, world!",
-    "thumbnail": "thumbnail",
-    "quotedMsgId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-    "customSize": {}
-  }'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": true
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="SendYouTubeLinkParams" />
-
-### Output
-
-| Prop | Value |
-| --- | --- |
-| Return type | `object &#123; _serialized &#125; \| boolean` |
-
-## `starMessage`
+<h2 id="starmessage"><code>starMessage</code></h2>
 
 Star a message
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Action | `update` |
-| Functionality | `both` |
-| Positional parameter order | `messageId` |
-| Aliases | `messages.star` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/messages/star` | `starMessage` | Active |
-| Alias | `PUT` | `/api/starMessage` | `starMessage` | Active |
+**Signature** `client.starMessage(messageId: string): Promise<boolean>`
 
 ### Usage
 
@@ -3241,10 +3426,7 @@ Star a message
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.starMessage({
-  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-});
-// namespaced form: client.messages.star(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -3287,15 +3469,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="StarMessageParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
 
-## `unstarMessage`
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Unstar a message
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -3305,7 +3490,7 @@ Unstar a message
 | Action | `update` |
 | Functionality | `both` |
 | Positional parameter order | `messageId` |
-| Aliases | `messages.unstar` |
+| Aliases | `messages.star` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -3315,8 +3500,17 @@ Unstar a message
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/messages/unstar` | `unstarMessage` | Active |
-| Alias | `PUT` | `/api/unstarMessage` | `unstarMessage` | Active |
+| Primary | `PUT` | `/api/messages/star` | `starMessage` | Active |
+| Alias | `PUT` | `/api/starMessage` | `starMessage` | Active |
+
+</details>
+
+
+<h2 id="unstarmessage"><code>unstarMessage</code></h2>
+
+Unstar a message
+
+**Signature** `client.unstarMessage(messageId: string): Promise<boolean>`
 
 ### Usage
 
@@ -3324,10 +3518,7 @@ Unstar a message
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.unstarMessage({
-  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
-});
-// namespaced form: client.messages.unstar(...)
+// Use SocketClient or HTTP; this method is not on the in-process Client facade.
 ```
 
   </InterfaceTab>
@@ -3370,8 +3561,38 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="UnstarMessageParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
+
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `messageId` |
+| Aliases | `messages.unstar` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/messages/unstar` | `unstarMessage` | Active |
+| Alias | `PUT` | `/api/unstarMessage` | `unstarMessage` | Active |
+
+</details>

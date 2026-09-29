@@ -1,10 +1,11 @@
+import { ChatIdSchema, ChatSchema, ContactSchema } from '../common-types';
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
 import { chatIdParam, withNewMessagesOnlyParam } from '../parameters';
 
 export const getAllChats = defineMethodV2('getAllChats', {
     meta: {
-        description: 'Retrieves all chats',
+        description: 'Returns serialized Chat objects from the current session, optionally limited to chats with unread messages.',
         action: 'read',
         namespace: 'chats',
         license: 'none',
@@ -13,7 +14,7 @@ export const getAllChats = defineMethodV2('getAllChats', {
     },
     input: z.object({ withNewMessagesOnly: withNewMessagesOnlyParam }),
     parameterOrder: ['withNewMessagesOnly'],
-    output: z.array(z.any()),
+    output: z.array(ChatSchema),
 });
 
 export const getAllChatIds = defineMethodV2('getAllChatIds', {
@@ -30,7 +31,7 @@ export const getAllChatIds = defineMethodV2('getAllChatIds', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.array(z.string()),
+    output: z.array(ChatIdSchema),
 });
 
 // export const getAllChatsWithMessages = defineMethodV2('getAllChatsWithMessages', {
@@ -65,7 +66,7 @@ export const getChat = defineMethodV2('getChat', {
         chatId: chatIdParam,
     }),
     parameterOrder: ['chatId'],
-    output: z.any(),
+    output: ChatSchema.nullable().optional().or(z.literal(false)),
 });
 
 export const getChatWithNonContacts = defineMethodV2('getChatWithNonContacts', {
@@ -79,7 +80,7 @@ export const getChatWithNonContacts = defineMethodV2('getChatWithNonContacts', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.array(z.any()),
+    output: z.array(ContactSchema),
 });
 
 export const archiveChat = defineMethodV2('archiveChat', {

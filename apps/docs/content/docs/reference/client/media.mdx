@@ -6,13 +6,77 @@ icon: "BookOpen"
 
 # Media Client API
 
-> Generated file warning: `packages/schema/scripts/gen-client-reference-docs.ts` generates this page. Do not edit generated method content by hand.
-
 This page documents 2 schema-registry client methods in the `media` namespace.
 
-## `decryptMedia`
+
+<h2 id="decryptmedia"><code>decryptMedia</code></h2>
 
 Decrypts media from a message
+
+**Signature** `client.decryptMedia(message: { ack: -1 \| 0 \| 1 \| 2 \| 3 \| 4; author?: string; body: string; broadcast?: boolean; caption?: string; chat: { ack?: any; contact: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; formattedTitle?: string; groupMetadata?: { announce?: boolean; creation: number; desc?: string; descOwner?: string; descTime?: number; id: string; owner?: string; participants: { id: string; isAdmin: boolean; isSuperAdmin?: boolean }[]; restrict?: boolean; subject: string }; id: string; isGroup: boolean; isReadOnly?: boolean; lastReceivedKey?: any; msgs?: any[]; muteExpiration?: number; name?: string; notSpam?: boolean; pin?: number; presence?: object; t?: number; unreadCount?: number }; chatId: string; clientUrl?: string; content: string; deprecatedMms3Url?: string; from: string; fromMe: boolean; id: string; invis?: boolean; isForwarded?: boolean; isGroupMsg: boolean; isMedia: boolean; isMMS?: boolean; isNewMsg?: boolean; isNotification: boolean; isPSA?: boolean; isQuotedMsgAvailable: boolean; labels?: string[]; mentionedJidList?: string[]; notifyName?: string; quotedMsg?: any; quotedMsgObj?: any; recvFresh?: boolean; self: "in" \| "out"; sender: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; senderId?: string; star?: boolean; t: number; timestamp: number; to: string; type: "chat" \| "audio" \| "ptt" \| "image" \| "video" \| "document" \| "sticker" \| "location" \| "vcard" \| "multi_vcard" \| "revoked" \| "order" \| "buttons_response" \| "list_response" \| "unknown" }): Promise<DataURL>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+// Use the full media message from your message handler.
+const result = await client.decryptMedia(message);
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+// Use the full media message received by your message handler.
+const result = await client.decryptMedia({ message });
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+# Save the full incoming media message as the "message" field in request.json.
+# For downloadMedia, also set "path" to the destination filename.
+curl -X POST "http://localhost:8080/api/media/decrypt" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-binary @request.json
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "data:image/png;base64,..."
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="DecryptMediaParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<DataURL>` |
+| DataURL | [View fields](/docs/reference/client/return-types#dataurl) |
+
+Resolves to `DataURL`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<DataURL>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -35,16 +99,23 @@ Decrypts media from a message
 | Primary | `POST` | `/api/media/decrypt` | `decryptMedia` | Active |
 | Alias | `POST` | `/api/decryptMedia` | `decryptMedia` | Active |
 
+</details>
+
+
+<h2 id="downloadmedia"><code>downloadMedia</code></h2>
+
+Downloads and decrypts media from a message to a file
+
+**Signature** `client.downloadMedia(message: { ack: -1 \| 0 \| 1 \| 2 \| 3 \| 4; author?: string; body: string; broadcast?: boolean; caption?: string; chat: { ack?: any; contact: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; formattedTitle?: string; groupMetadata?: { announce?: boolean; creation: number; desc?: string; descOwner?: string; descTime?: number; id: string; owner?: string; participants: { id: string; isAdmin: boolean; isSuperAdmin?: boolean }[]; restrict?: boolean; subject: string }; id: string; isGroup: boolean; isReadOnly?: boolean; lastReceivedKey?: any; msgs?: any[]; muteExpiration?: number; name?: string; notSpam?: boolean; pin?: number; presence?: object; t?: number; unreadCount?: number }; chatId: string; clientUrl?: string; content: string; deprecatedMms3Url?: string; from: string; fromMe: boolean; id: string; invis?: boolean; isForwarded?: boolean; isGroupMsg: boolean; isMedia: boolean; isMMS?: boolean; isNewMsg?: boolean; isNotification: boolean; isPSA?: boolean; isQuotedMsgAvailable: boolean; labels?: string[]; mentionedJidList?: string[]; notifyName?: string; quotedMsg?: any; quotedMsgObj?: any; recvFresh?: boolean; self: "in" \| "out"; sender: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; senderId?: string; star?: boolean; t: number; timestamp: number; to: string; type: "chat" \| "audio" \| "ptt" \| "image" \| "video" \| "document" \| "sticker" \| "location" \| "vcard" \| "multi_vcard" \| "revoked" \| "order" \| "buttons_response" \| "list_response" \| "unknown" }, path: string): Promise<string>`
+
 ### Usage
 
 <InterfaceTabs>
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.decryptMedia({
-  message: {},
-});
-// namespaced form: client.media.decrypt(...)
+// Use the full media message from your message handler.
+const result = await client.downloadMedia(message, "./downloaded-media");
 ```
 
   </InterfaceTab>
@@ -54,21 +125,20 @@ const result = await client.decryptMedia({
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.decryptMedia({
-  message: {},
-});
+// Use the full media message received by your message handler.
+const result = await client.downloadMedia({ message, path: "./downloaded-media" });
 ```
 
   </InterfaceTab>
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/media/decrypt" \
+# Save the full incoming media message as the "message" field in request.json.
+# For downloadMedia, also set "path" to the destination filename.
+curl -X POST "http://localhost:8080/api/media/download" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "message": {}
-  }'
+  --data-binary @request.json
 ```
 
 Example response envelope:
@@ -76,7 +146,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+  "data": "example"
 }
 ```
 
@@ -85,17 +155,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="DecryptMediaParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="DownloadMediaParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `string` |
+| Return type | `Promise<string>` |
 
-## `downloadMedia`
+Path to the saved file
 
-Downloads and decrypts media from a message to a file
+In-process Client resolves to `Promise<string>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+Path to the saved file
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -118,63 +192,4 @@ Downloads and decrypts media from a message to a file
 | Primary | `POST` | `/api/media/download` | `downloadMedia` | Active |
 | Alias | `POST` | `/api/downloadMedia` | `downloadMedia` | Active |
 
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.downloadMedia({
-  message: {},
-  path: "path",
-});
-// namespaced form: client.media.download(...)
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.downloadMedia({
-  message: {},
-  path: "path",
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X POST "http://localhost:8080/api/media/download" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "message": {},
-    "path": "path"
-  }'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="DownloadMediaParams" />
-
-### Output
-
-| Prop | Value |
-| --- | --- |
-| Return type | `string` |
+</details>
