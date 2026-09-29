@@ -87,12 +87,20 @@ const uploader = new S3Uploader(mediaConfig, {
   error: (message) => console.error('S3 upload failed', message),
 });
 
+function getBase64Payload(dataUrl) {
+  const match = typeof dataUrl === 'string'
+    ? /^data:[^,]+;base64,([A-Za-z0-9+/]+={0,2})$/.exec(dataUrl)
+    : null;
+  if (!match) throw new Error('decryptMedia did not return a base64 data URL');
+  return match[1];
+}
+
 client.onMessage(async (message) => {
   if (!message.deprecatedMms3Url || !message.mimetype) return;
 
   const cloudUrl = await uploader.uploadMedia(message, {
     decryptMedia: async (mediaMessage) => {
-      return client.decryptMedia(mediaMessage);
+      return getBase64Payload(await client.decryptMedia(mediaMessage));
     },
   });
 

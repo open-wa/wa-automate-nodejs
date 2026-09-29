@@ -138,7 +138,7 @@ Import this JSON from Node-RED's menu (**Import** → **Clipboard**). Edit the `
 ]
 ```
 
-The `REPLACE_WITH_API_KEY` value is a flow placeholder, not a secret to commit. Store secrets in Node-RED's credential store or deployment environment, then confirm that the `owa-server` URL and key match the running Easy API.
+The `REPLACE_WITH_API_KEY` value is a placeholder, not a secret to commit. This node stores `key` as an ordinary flow property, not as a declared Node-RED credential. Do not commit or share an exported flow containing a real key, and restrict access to the Node-RED editor and flow exports. Confirm that the `owa-server` URL and key match the running Easy API.
 
 ## Troubleshooting
 
