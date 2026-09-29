@@ -43,6 +43,7 @@ FROM node:22-slim
 
 ENV APP_DIR=/usr/src/app
 ENV NODE_ENV=production
+ENV WA_HOST=0.0.0.0
 ENV WA_POPUP=true
 ENV IS_DOCKER=true
 ENV WA_DISABLE_SPINS=true

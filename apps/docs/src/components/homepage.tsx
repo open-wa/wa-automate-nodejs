@@ -6,7 +6,7 @@ import { WorkbenchTexture } from '@/components/workbench-texture';
 import { baseOptions } from '@/lib/layout.shared';
 import { CURRENT_VERSION, DOCS_PATHS, REPO_URL } from '@/lib/site';
 
-const runCommand = `npx @open-wa/wa-automate@${CURRENT_VERSION}`;
+const runCommand = `npx @open-wa/wa-automate@${CURRENT_VERSION} --host 127.0.0.1 --port 8080`;
 const examples = {
   HTTP: `curl -X POST http://localhost:8080/api/messages/sendText \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "to": "447123456789@c.us",\n    "content": "Your order is ready to collect!",\n    "options": {}\n  }'`,
   'Node.js': `await client.sendText(\n  '447123456789@c.us',\n  'Your order is ready to collect!'\n);`,

@@ -579,8 +579,8 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         cliOverrides: {
             disableSpins: true,
             apiLifecycle: 'hybrid',
-            host: '0.0.0.0',
-            port: 8002,
+            // Let schema defaults, config files, and WA_HOST/WA_PORT resolve
+            // before applying host/port flags actually supplied by the user.
             ...cliOverrides,
         },
         includeRawConfigs: true,

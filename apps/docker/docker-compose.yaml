@@ -14,6 +14,7 @@ services:
       WA_DISABLE_SPINS: 'true' # See supported environment variables: https://openwa.dev/docs/guides/config-secrets
       WA_SESSION_ID: "MY_SESSION" # Change this
       WA_PORT: "8080"
+      WA_HOST: "0.0.0.0"
       WA_USER_DATA_DIR: /sessions/MY_SESSION
       WA_API_KEY: ${WA_API_KEY:?Set WA_API_KEY in .env before starting}
     healthcheck:
