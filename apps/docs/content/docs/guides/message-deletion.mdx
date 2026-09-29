@@ -1,114 +1,142 @@
 ---
 title: Deleting Messages
-description: How to delete WhatsApp messages, timing constraints, and limitations.
+description: Delete messages locally or request provider-side removal, with result, permission, and failure handling.
 ---
 
 # Deleting Messages
 
-This guide covers how to delete messages in WhatsApp through open-wa, including the differences between deleting incoming and sent messages.
+`deleteMessage` accepts a chat ID, one message ID or an array of message IDs,
+and an optional `onlyLocal` flag. It returns a boolean: `true` means the
+runtime completed the requested operation, while `false` means the chat could
+not be found. A rejected call also needs an error path. Even when a revoke
+operation completes, the return value cannot prove that every recipient has
+removed a message.
 
-## Which Method Deletes Messages
+## Local deletion versus revoke for everyone
 
-Use the `deleteMessage` method to remove messages from a chat:
+The default is `onlyLocal: false`. For messages sent by this session, the
+runtime requests revoke for everyone; for incoming messages, it deletes the
+local copy. Revoke can depend on message ownership, group permissions, message
+age, account state, and current WhatsApp rules.
 
-```ts
-await client.deleteMessage(chatId, messageId);
-```
-
-Parameters:
-- **chatId**: The chat ID where the message exists (e.g., `1234567890@c.us` or `group@g.us`)
-- **messageId**: The unique message identifier to delete
-
-## Incoming vs Sent Messages
-
-### Deleting Your Own Messages
-
-You can delete messages you have sent:
+Set `onlyLocal: true` when the goal is to remove the message from this session's
+local view only. Local deletion does not remove a message from other devices or
+recipients.
 
 ```ts
-// Send a message
-const result = await client.sendText('1234567890@c.us', 'Oops, wrong message!');
+const removedLocally = await client.deleteMessage(
+  '447700900000@c.us',
+  'false_447700900000@c.us_ABC123',
+  true
+);
 
-// Delete it
-await client.deleteMessage('1234567890@c.us', result.id);
-```
-
-### Deleting Incoming Messages
-
-You can delete messages you have received, but only if:
-- The message is in a group where you are an admin
-- The message is recent enough
-
-```ts
-client.onMessage(async (message) => {
-  if (message.body.includes('inappropriate')) {
-    await client.deleteMessage(message.chatId, message.id);
-  }
-});
-```
-
-## Timing Constraints
-
-WhatsApp has time limits on message deletion:
-
-- **Your messages**: Can typically be deleted within a certain window after sending
-- **Others messages**: Can only be deleted in groups where you are an admin
-- **Old messages**: Deletion can fail for messages older than the allowed window
-
-The exact time windows are controlled by WhatsApp and can change without notice.
-
-## Use Cases
-
-### Moderation
-
-Delete inappropriate messages in groups:
-
-```ts
-client.onMessage(async (message) => {
-  if (!message.isGroupMsg) return;
-
-  const flagged = await checkModeration(message.body);
-  if (flagged) {
-    await client.deleteMessage(message.chatId, message.id);
-    await client.sendText(message.chatId, 'Message removed for violating rules.');
-  }
-});
-```
-
-### Cleanup
-
-Remove outdated automated messages:
-
-```ts
-// Send a temporary notification
-const result = await client.sendText(chatId, 'Processing your request...');
-
-// Later, delete it
-await client.deleteMessage(chatId, result.id);
-await client.sendText(chatId, 'Processing complete!');
-```
-
-## Limitations
-
-- Deletion is not guaranteed. WhatsApp can reject deletion requests.
-- Deleted messages can still be visible to recipients who saw them before deletion.
-- There is no way to delete messages for everyone in direct messages after the time window expires.
-- Group admins can delete any message in their group.
-
-## Error Handling
-
-Always wrap deletion in try-catch:
-
-```ts
-try {
-  await client.deleteMessage(chatId, messageId);
-} catch (error) {
-  console.error('Failed to delete message:', error.message);
-  // Message deletion failed, handle accordingly
+if (!removedLocally) {
+  console.error('The local deletion was not completed');
 }
 ```
 
+For a provider-side request, use `false` or omit the third argument and handle
+`false` as a failed request:
+
+```ts
+const revoked = await client.deleteMessage(
+  '447700900000@c.us',
+  'false_447700900000@c.us_ABC123'
+);
+
+if (!revoked) {
+  console.error('WhatsApp did not accept the revoke request');
+}
+```
+
+## Use a supported message ID
+
+The in-process `Client` declares `sendText` as `Promise<string | false>`; the
+current runtime can also return status strings such as `Not a contact`. The
+Easy API schema also permits a boolean or an object containing `_serialized`.
+Only a value matching the message-ID shape is safe to pass to
+`deleteMessage`:
+
+```ts
+type SendResult =
+  | string
+  | boolean
+  | { _serialized: string; [key: string]: unknown };
+
+function messageIdFrom(result: SendResult): string | null {
+  const value = typeof result === 'string'
+    ? result
+    : typeof result === 'object' && result !== null
+      ? result._serialized
+      : null;
+
+  return value && /^(true|false)_.+_.+$/.test(value) ? value : null;
+}
+
+const sent = await client.sendText(
+  '447700900000@c.us',
+  'This message may be removed shortly.'
+);
+const messageId = messageIdFrom(sent);
+
+if (!messageId) {
+  throw new Error(`sendText did not return a usable message ID: ${String(sent)}`);
+}
+
+const removed = await client.deleteMessage(
+  '447700900000@c.us',
+  messageId,
+  false
+);
+
+if (!removed) {
+  console.error('The provider rejected or could not complete deletion');
+}
+```
+
+The message ID format shown here is the current schema's representative shape.
+Prefer the ID returned by the send call or event rather than constructing one.
+If your method surface returns a serialized object, use its `_serialized` value;
+never pass the whole object or a boolean to `deleteMessage`.
+
+## Incoming messages and permissions
+
+You can request deletion from an incoming-message handler, but the provider may
+allow only messages you sent or messages covered by the connected account's
+group permissions. Older messages can also fall outside the provider's current
+revoke window. None of those windows or permissions are guaranteed by the
+open-wa method, so keep the failure path explicit:
+
+```ts
+client.onMessage(async (message) => {
+  if (!message.body.includes('[remove]')) return;
+
+  try {
+    const removed = await client.deleteMessage(
+      message.chatId,
+      message.id,
+      false
+    );
+
+    if (!removed) {
+      console.warn('Deletion was rejected or unavailable', {
+        chatId: message.chatId,
+        messageId: message.id,
+      });
+    }
+  } catch (error) {
+    console.error('Deletion failed before completion', error);
+  }
+});
+```
+
+Deleting a message cannot undo a recipient seeing, copying, or storing it
+before the provider processes the request. If your policy requires immediate
+redaction, remove the local copy and stop downstream processing while the
+provider result is unresolved.
+
 ## Related
 
-- **[Group moderation](/docs/guides/groups)** - Group management
-- **[AI Agent Patterns](/docs/guides/ai-agent-patterns)** - Building automated responses
+- **[Client message reference](/docs/reference/client/messages#deletemessage)**: Exact parameters and output
+- **[Messages guide](/docs/guides/messages)**: Send messages and handle result unions
+- **[Groups guide](/docs/guides/groups)**: Group membership and administrator behavior

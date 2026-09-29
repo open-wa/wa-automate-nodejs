@@ -1,124 +1,123 @@
 ---
 title: Understanding Chat IDs
-description: Learn what chat IDs are, how they are formatted, and how to convert phone numbers.
+description: Learn which chat identifiers the API accepts and how to preserve identifiers received in message events.
 ---
 
 # Understanding Chat IDs
 
-Every conversation in WhatsApp — whether with an individual, a group, or a broadcast list — is identified by a **chat ID**. You will use chat IDs in every message operation.
+Every conversation is addressed with a chat ID. Use the identifier returned by
+an event or lookup when you have one; only construct an ID from a phone number
+when you are deliberately addressing a direct contact.
 
-## Format
+## Accepted API formats
 
-A chat ID follows this pattern:
+The current `ChatId` schema accepts these forms:
 
-```
-identifier@suffix
-```
-
-The suffix determines the type of conversation.
-
-## Suffix Types
-
-| Suffix | Type | Example |
+| Form | Meaning | Example |
 |---|---|---|
-| `@c.us` | Individual contact | `1234567890@c.us` |
-| `@g.us` | Group chat | `1234567890-1234567890@g.us` |
-| `@lid` | LinkedIn-style ID (linked device) | `1234567890:1234567890@lid` |
-| `@broadcast` | Broadcast list | `status@broadcast` |
+| `<digits>@c.us` | A direct-contact JID | `447700900000@c.us` |
+| `<digits>(-<digits>)?@g.us` | A group JID | `447123456789-1445627445@g.us` |
+| `<digits>@lid` | A numeric LID JID accepted by the API | `12345678901234@lid` |
 
-### `@c.us` — Individual Contacts
+The schema is a validation contract for method inputs. It does not prove that
+every WhatsApp account, device, or incoming payload uses every form shown here.
+In particular, a LID is an opaque WhatsApp identifier: this guide does
+not claim that all LIDs are colon-separated or that a LID can be derived from a
+phone number.
 
-This is the most common suffix. It represents a direct conversation with a single contact. The identifier is the phone number in international format **without** the `+` sign.
+## Phone numbers and direct-contact IDs
 
-```
-1234567890@c.us    ← Phone number 1234567890
-447700900000@c.us  ← UK number +44 7700 900000
-```
-
-### `@g.us` — Group Chats
-
-Group IDs are assigned by WhatsApp when a group is created. They contain a numeric identifier followed by a timestamp-like suffix.
-
-```
-1234567890-1234567890@g.us
-```
-
-You cannot construct a group ID from a phone number. You must obtain it from:
-- An incoming group message (check `message.from` or `message.chatId`)
-- The API (listing groups)
-- An invite link (see below)
-
-### `@lid` — Linked Device IDs
-
-LIDs are used for linked devices and certain internal WhatsApp identifiers. They use a colon-separated format. Most ordinary automation tasks will not need LIDs.
-
-### `@broadcast` — Broadcast Lists
-
-The status broadcast list uses a fixed identifier:
-
-```
-status@broadcast
-```
-
-## Converting Phone Numbers to Chat IDs
-
-To convert a phone number to a chat ID:
-
-1. **Start with international format** — Include the country code (e.g., `+44` for UK, `+1` for US)
-2. **Remove the `+` sign** — `+447700900000` becomes `447700900000`
-3. **Remove spaces, dashes, and parentheses** — `+1 (555) 123-4567` becomes `15551234567`
-4. **Append `@c.us`** — `15551234567@c.us`
+For a direct contact, use the country code, remove the leading `+`, spaces,
+dashes, and parentheses, then append `@c.us`:
 
 ```ts
 function phoneToChatId(phone: string): string {
-  // Remove +, spaces, dashes, parentheses
-  const cleaned = phone.replace(/[\+\-\s\(\)]/g, '');
-  return `${cleaned}@c.us`;
+  const digits = phone.replace(/\D/g, '');
+  return `${digits}@c.us`;
 }
 
 phoneToChatId('+44 7700 900000'); // '447700900000@c.us'
-phoneToChatId('+1 (555) 123-4567'); // '15551234567@c.us'
 ```
 
-<Callout type="warning">
-Always include the country code. A number like `7700900000@c.us` without a country code will not resolve to a valid contact.
-</Callout>
+The runtime also has a codec for bare numeric input. It preserves already
+formatted IDs; for bare digits it applies heuristic rules, including a special
+case for 18 digits as a group ID and 14 digits (except numbers beginning with
+`62`) as a LID. Prefer an explicit suffix when you know the identifier because
+those heuristics cannot establish what a real WhatsApp account represents.
 
-## Getting Group IDs
+## Group IDs
 
-### From Messages
-
-When you receive a message from a group, the `message.from` or `message.chatId` field contains the group ID:
+Group IDs are assigned by WhatsApp. Keep the full value exactly as returned by
+`message.from`, `message.chatId`, a group lookup, or a group method; do not
+rebuild one from a group name, participant numbers, or a timestamp assumption.
 
 ```ts
 client.onMessage((message) => {
   if (message.isGroupMsg) {
-    console.log('Group ID:', message.from); // '1234567890-1234567890@g.us'
+    console.log('Group ID:', message.chatId);
   }
 });
 ```
 
-### From Invite Links
+An invite URL is an invite token, not a group ID. If the workflow is to join a
+group, pass the URL to [`joinGroupViaLink`](/docs/reference/client/groups#joingroupvialink)
+and keep the returned identifier only after checking the method's result. The
+method is license-gated and can return a failure value, so a successful HTTP
+request alone is not proof that a group was joined.
 
-Group invite links contain the group ID in the URL:
+```ts
+const result = await client.joinGroupViaLink(
+  'https://chat.whatsapp.com/REDACTED_INVITE_TOKEN'
+);
 
+if (typeof result === 'string') {
+  console.log('Joined group:', result);
+} else {
+  console.error('The invite could not be resolved:', result);
+}
 ```
-https://chat.whatsapp.com/ABCdefGHIjklMNOpqrSTUv
+
+## Incoming fields and LIDs
+
+Message events expose the conversation through fields such as `from` and
+`chatId`. Representative sanitized payloads for the documented contact and
+group forms look like this:
+
+```json
+{
+  "from": "447700900000@c.us",
+  "chatId": "447700900000@c.us",
+  "isGroupMsg": false
+}
 ```
 
-You can use the API to resolve an invite link to a group ID.
+```json
+{
+  "from": "447123456789-1445627445@g.us",
+  "chatId": "447123456789-1445627445@g.us",
+  "isGroupMsg": true
+}
+```
 
-## Common Mistakes
+The supported source and schema do not establish one universal incoming LID
+representation beyond the numeric `@lid` input accepted by the current API.
+When an event contains a LID, pass the exact `from` or `chatId` value to the
+next method and record the release and event payload before documenting a new
+shape. Do not split, rewrite, or infer a phone number from it.
+
+## Common mistakes
 
 | Mistake | Wrong | Correct |
 |---|---|---|
 | Missing country code | `7700900000@c.us` | `447700900000@c.us` |
-| Wrong suffix | `1234567890@g.us` (for individual) | `1234567890@c.us` |
-| Display names | `John Doe@c.us` | `447700900000@c.us` |
-| Keeping the + sign | `+447700900000@c.us` | `447700900000@c.us` |
-| Spaces in number | `44 7700 900000@c.us` | `447700900000@c.us` |
+| Wrong suffix for a contact | `1234567890@g.us` | `1234567890@c.us` |
+| Display name instead of ID | `John Doe@c.us` | `447700900000@c.us` |
+| Keeping the `+` sign | `+447700900000@c.us` | `447700900000@c.us` |
+| Treating an invite URL as a group ID | `ABCdef...@g.us` | Resolve it through the group method |
+| Reconstructing an opaque ID | A guessed LID or group suffix | Reuse the returned identifier |
 
 ## Related
 
 - **[Messages guide](/docs/guides/messages)** — Send and receive messages with chat IDs
-- **[Groups guide](/docs/guides/groups)** — Working with group chats
+- **[Groups guide](/docs/guides/groups)** — Work with group chats and invite links
+- **[Client messages reference](/docs/reference/client/messages)** — Exact method parameters and return types

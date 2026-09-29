@@ -8,7 +8,7 @@ description: Safely prepare an authenticated AI agent integration for the Easy A
 Use the **Model Context Protocol (MCP)** integration only when you want an authenticated AI agent to call Easy API tools. Treat the MCP endpoint like API access to your WhatsApp session.
 
 <Callout type="warning">
-**v5 alpha status:** The source mounts the MCP adapter when `mcp.enabled` is true. Startup stops if this configuration has no Easy API `apiKey`. The CLI does not parse `--mcp`. Enable MCP through `wa.config.*`.
+The current v5 runtime mounts the MCP adapter when `mcp.enabled` is true. Startup stops if this configuration has no Easy API `apiKey`. The CLI does not parse `--mcp`. Enable MCP through `wa.config.*`.
 </Callout>
 
 <Callout type="warning">
@@ -47,7 +47,7 @@ Your MCP client, prompt, and permissions model control when the agent can call t
 
 ## Quick start
 
-The source-backed v5 alpha path is to enable MCP in config and start Easy API with an API key. In the current source, this mounts the MCP adapter at the configured path.
+Enable MCP in config, then start Easy API with an API key. The runtime mounts the MCP adapter at the configured path.
 
 Create `wa.config.mjs`:
 
@@ -66,7 +66,7 @@ export default {
 Start Easy API from the same directory:
 
 ```bash
-WA_API_KEY="your-secure-key" npx @open-wa/wa-automate@alpha --config ./wa.config.mjs
+WA_API_KEY="your-secure-key" npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs
 ```
 
 The configured MCP path is:
@@ -74,6 +74,8 @@ The configured MCP path is:
 ```text
 http://localhost:8080/mcp
 ```
+
+If you set `mcp.path` to another value, use that path in the MCP client URL. The dashboard is served separately at `/dashboard/mcp` when the dashboard is enabled.
 
 The current `packages/wa-automate/src/cli-runtime.ts` source does not parse `--mcp`. Use the config file above.
 
@@ -190,7 +192,7 @@ Every MCP request must include the same API key as the Easy API. The adapter acc
 
 ### What data AI agents can access
 
-The adapter exposes **all** Easy API methods as tools. An authenticated AI agent can be able to:
+The adapter projects every method in the HTTP method schema catalog into an MCP tool. An authenticated AI agent can call those registered tools, including methods that can:
 
 - Read all messages in all chats
 - Send messages to any contact or group
@@ -200,7 +202,7 @@ The adapter exposes **all** Easy API methods as tools. An authenticated AI agent
 
 ### Permission scopes
 
-There are **no permission scopes** in the current implementation. Any authenticated agent can call any exposed tool. Plan your deployment accordingly:
+There are **no per-tool permission scopes** in the current implementation. Any authenticated agent can call any tool in that catalog. Plan your deployment accordingly:
 
 - Use a dedicated session for AI agent use
 - Do not share the MCP endpoint publicly
@@ -229,7 +231,7 @@ When you use MCP, monitor the AI agent through:
 
 ### How tools are generated
 
-The adapter generates tools from the schema registry. Each Easy API method becomes an MCP tool with:
+The adapter projects method definitions from the HTTP method schema registry. Each registered method becomes an MCP tool with:
 
 - A name matching the API method
 - A description from the schema
@@ -271,6 +273,14 @@ export default {
 - **`mcp.enabled`**, enable or disable MCP configuration (default: `false`)
 - **`mcp.path`**, the configured URL path for the MCP endpoint (default: `"/mcp"`)
 - **`mcp.exposeToolsMeta`**, whether to expose tool metadata in the dashboard (default: `true`)
+
+The environment adapter accepts the complete MCP object as JSON through
+`WA_MCP`. It does not expose separate `WA_MCP_ENABLED`, `WA_MCP_PATH`, or
+`--mcp` adapters, so use the config file when you want readable nested fields:
+
+```bash
+WA_MCP='{"enabled":true,"path":"/mcp","exposeToolsMeta":true}'
+```
 
 ## Troubleshooting
 

@@ -62,12 +62,46 @@ client.onMessage((message) => {
 
 ```ts
 await client.sendText(chatId, 'Hello');
-await client.sendTextWithMentions(chatId, 'Hello @447700000000');
 await client.reply(chatId, 'Hello', messageId);
-await client.sendReplyWithMentions(chatId, 'Hello @447700000000', messageId);
 ```
 
-Always `await` message operations so failures are visible.
+The minimum call is `sendText(chatId, text)`. The generated
+[sendText reference](/docs/reference/client/client#sendtext) lists an optional
+`options` value retained for request compatibility, but the current Client
+implementation ignores it. Use [`reply`](/docs/reference/client/client#reply)
+with a message ID for a quoted reply. For mentions, use the generated Easy API
+method [`sendTextWithMentions`](/docs/reference/client/client#sendtextwithmentions)
+with contact IDs such as `447700900000@c.us`; the current embedded Client does
+not declare that method.
+
+The in-process `Client` declares `sendText` as `Promise<string | false>`. The
+WAPI can return status strings such as `Not a contact` or
+`Not able to send message to broadcast`; the in-process Client turns
+`Not a contact` into a rejected Promise because sending to an unknown number
+requires a Restricted or Premium license. The Easy API schema also allows a
+boolean or a serialized ID object. A string is safe to pass to a follow-up
+method only when it has the message ID shape. Handle both returned values and
+rejected Promises.
+
+Mention helpers are generated Easy API methods with their own parameter
+contract; they are not methods declared by the current embedded `Client`
+surface. When using that API surface, the call shape is:
+
+```ts
+await client.sendTextWithMentions(
+  groupId,
+  'Hello @447700000000',
+  false,
+  ['447700000000@c.us']
+);
+await client.sendReplyWithMentions(
+  groupId,
+  'Hello @447700000000',
+  messageId,
+  false,
+  ['447700000000@c.us']
+);
+```
 
 ## Formatting
 
@@ -99,16 +133,14 @@ await client.sendImage(
   'receipt.png',
   'Receipt attached'
 );
-
-await client.sendFile(
-  chatId,
-  'data:application/pdf;base64,JVBERi0xLjQK...',
-  'receipt.pdf',
-  'PDF receipt'
-);
 ```
 
-Use `sendText` for plain conversation updates. Use `sendImage`, `sendFile`, `sendAudio`, `sendPtt`, or `sendVideoAsGif` when the payload is media. Captions belong to the attachment message, not a separate text message.
+Use `sendText` for plain conversation updates and `sendImage` for media on the
+embedded client. The current embedded surface marks `sendFile` unsupported and
+does not declare `sendAudio`, `sendPtt`, or `sendVideoAsGif`; those names belong
+to the generated Easy API schema, so check their method references and runtime
+support before using them. Captions belong to the attachment message, not a
+separate text message.
 
 ## Quoted replies
 
@@ -122,7 +154,8 @@ client.onMessage(async (message) => {
 });
 ```
 
-For replies that also mention users, use `sendReplyWithMentions`.
+For replies that also mention users, use the generated Easy API method
+`sendReplyWithMentions`.
 
 ```ts
 await client.sendReplyWithMentions(
@@ -151,7 +184,17 @@ Set `hideTags` to `true` when you want WhatsApp to notify the users without show
 
 ## Buttons, lists, and polls
 
-Interactive messages let users choose from fixed options. Availability can depend on the WhatsApp account, client version, and message type.
+Interactive messages let users choose from fixed options, but support status is
+part of each method's contract. `sendButtons` and `sendListMessage` are marked
+deprecated and require an `insiders` license in the current schema. Read the
+[sendButtons reference](/docs/reference/client/messages#sendbuttons) and
+[sendListMessage reference](/docs/reference/client/messages#sendlistmessage)
+before using them; an HTTP route or imported method does not prove that the
+session is licensed. For a supported fixed-choice flow, prefer the active,
+ungated [`sendPoll`](/docs/reference/client/messages#sendpoll) method when its
+poll semantics fit the product. These examples use the generated Easy API
+method names; the current embedded `Client` does not declare these
+rich-message methods.
 
 ```ts
 await client.sendButtons(
@@ -189,7 +232,11 @@ await client.sendPoll(
 );
 ```
 
-Button and list replies arrive as message events with types such as `buttons_response` or `list_response`. Poll updates arrive through WhatsApp message events when supported by the session.
+Button and list replies arrive as message events with types such as
+`buttons_response` or `list_response`. Poll updates arrive through WhatsApp
+message events when supported by the session. Rich-message availability can
+also vary with the WhatsApp account and client version, so handle unsupported
+or rejected sends explicitly.
 
 ## Forward messages
 
@@ -224,8 +271,14 @@ A message send can fail when the session is not ready or the chat ID is incorrec
 try {
   const result = await client.sendText(chatId, 'Hello');
 
-  if (!result) {
-    console.warn('Message send returned no message ID');
+  const messageId = typeof result === 'string'
+    ? result
+    : typeof result === 'object' && result !== null
+      ? result._serialized
+      : null;
+
+  if (!messageId || !/^(true|false)_.+_.+$/.test(messageId)) {
+    console.warn('Message send did not return a usable message ID', { result });
   }
 } catch (error) {
   console.error('Could not send message', error);
@@ -239,8 +292,8 @@ Common checks:
 | Invalid chat ID | Confirm the value matches a contact, group, or LID format. See **[ChatId primer](/docs/guides/chatid-primer)**. |
 | Session not ready | Wait for authentication and connection before sending. |
 | Media rejected | Check the MIME type, base64 data URL, filename, and file size. |
-| Message not delivered | Watch `onAck` and retry only when it is safe for your workflow. |
-| Temporary WhatsApp block | Slow down sends and review automation volume. |
+| Message not delivered | Watch `onAck`; retry only from one bounded owner after reviewing the failure. |
+| Provider restriction | Pause or slow the relevant queue and retain the provider error. Timing alone does not prove that the account is clear. |
 
 ## Rate limits
 
@@ -250,7 +303,9 @@ Read **[Rate limits](/docs/guides/rate-limits)** before running production autom
 
 ## Full bot example
 
-This example receives messages, sends formatted text, sends a quoted reply, mentions a group participant, sends an image, and sends a poll.
+This example receives messages, sends formatted text, sends a quoted reply,
+sends an image, and sends a poll. Use the generated mention methods shown above
+when your runtime exposes that Easy API surface.
 
 ```ts
 import { createClient } from '@open-wa/wa-automate';
@@ -265,7 +320,7 @@ async function start() {
       if (message.body === '!help') {
         await client.reply(
           message.from,
-          '*Commands*\n!image\n!poll\n!mention',
+          '*Commands*\n!image\n!poll',
           message.id
         );
 
@@ -294,17 +349,6 @@ async function start() {
         return;
       }
 
-      if (message.body === '!mention' && message.isGroupMsg && message.author) {
-        const contactId = message.author;
-        const phone = contactId.replace('@c.us', '');
-
-        await client.sendTextWithMentions(
-          message.from,
-          `Thanks @${phone}`,
-          false,
-          [contactId]
-        );
-      }
     } catch (error) {
       console.error('Message handler failed', error);
     }

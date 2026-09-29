@@ -5,32 +5,29 @@ description: Decide whether your open-wa workflow needs a license key, then use 
 
 # Pricing and licensing
 
-Use this page to decide whether you need a license key.
+Use this page to decide whether your workflow needs a runtime license and where
+to review the current open-wa onboarding offer.
 
 If you already know the gated method or runtime behavior you need, read
 **[Licensed features](/docs/licensing/licensed-features)** for the operational
 details before you buy.
 
 <Callout type="note" title="Prices live in the purchase flow">
-  Prices are shown in the purchase flow and can change. Use the license key page
-  for the current purchase options shown there.
+  Prices and terms are shown in the first-party account flow and can change.
+  It currently opens the “Open-WA License” onboarding offer; review the current offer and
+  terms there before deciding what to purchase.
 </Callout>
 
 <div className="my-6 flex flex-wrap gap-3">
-  <GetLicenseButton />
-  <a
-    href="https://openwa.page.link/key"
-    className="inline-flex items-center justify-center rounded-full border border-fd-border bg-fd-card px-5 py-2.5 text-sm font-medium text-fd-foreground hover:bg-fd-accent hover:text-fd-accent-foreground"
-  >
-    Open license key page
-  </a>
+  <GetLicenseButton label="See current license options" />
 </div>
 
 ## First decision: do you need a key?
 
-Start from the method or integration your workflow calls. The current docs mark
-licensed methods as `restricted`, `insiders`, or `none` in the generated method
-metadata. Methods marked `none` are not license-gated in the schema.
+Start from the behavior your workflow needs. Method metadata marks methods as
+`restricted`, `insiders`, or `none`; runtime-specific checks can add a
+requirement to a particular path, and neither metadata nor a license makes an
+unsupported method available in your deployed version.
 
 <ComparisonTable
   columns={[
@@ -41,33 +38,96 @@ metadata. Methods marked `none` are not license-gated in the schema.
     {
       feature: 'Your workflow only uses methods marked `none`',
       values: {
-        answer: 'You do not need a license key for that method based on the current schema.',
+        answer: 'That method is not marked as license-gated by the current schema. Check the deployed version and any runtime-specific checks for the exact behavior you need.',
         nextStep:
-          'Run the workflow normally, then keep the generated API reference for your deployed version as the source of truth.',
+          'Use the method in your deployed version and review the method reference for that release.',
       },
     },
     {
       feature: 'Your workflow calls a `restricted` method',
       values: {
-        answer: 'You need a restricted license key before you rely on that gated behavior.',
+        answer: 'The method metadata marks this behavior as Restricted.',
         nextStep:
-          'Buy or request the key through the license key page, then validate it against the host account and session you will run.',
+          'Review the current first-party offer and confirm it covers this runtime tier, then validate the licence against the host account and session you will run.',
       },
     },
     {
       feature: 'Your workflow calls an `insiders` method',
       values: {
-        answer: 'You need insiders access before you rely on that gated behavior.',
+        answer: 'The method metadata marks this behavior as Insiders.',
         nextStep:
-          'Use the purchase flow for the current insiders option, then test the exact method in the real runtime session.',
+          'Review the current first-party offer and confirm it covers this runtime tier, then test the exact method in the real runtime session.',
       },
     },
     {
       feature: 'You are unsure which method an integration calls',
       values: {
-        answer: 'Do not buy based on the integration name alone.',
+        answer: 'The integration name does not determine its licence requirement.',
         nextStep:
-          'Map the integration to the exact method or runtime behavior first, then decide from the licensed-feature metadata.',
+          'Check the integration path and the exact method or runtime behavior it calls, then use the applicable method metadata and runtime caveats.',
+      },
+    },
+  ]}
+/>
+
+## Use-case and license matrix
+
+Use this matrix to separate runtime license requirements from upstream feature
+availability. A working host account and a method present in your deployed
+release are still required. The first-party checkout does not choose a runtime
+tier from these rows.
+
+<ComparisonTable
+  columns={[
+    { key: 'access', label: 'Runtime licence requirement' },
+    { key: 'runtime', label: 'Runtime qualification' },
+    { key: 'validate', label: 'Validate before relying on it' },
+    { key: 'purchase', label: 'Purchase route' },
+  ]}
+  rows={[
+    {
+      feature: 'Read chats or send to an existing contact',
+      values: {
+        access: 'The current method metadata marks the ordinary chat/read path `none`.',
+        runtime: 'Requires a connected session and the normal API authentication setup.',
+        validate: 'Check the exact method in the reference for your deployed version.',
+        purchase: 'No license is indicated for methods marked `none`.',
+      },
+    },
+    {
+      feature: 'Send a message to a number that is not already a contact',
+      values: {
+        access: 'The runtime client reports that this special path needs a Restricted or Premium license, although `sendText` itself is marked `none` in method metadata.',
+        runtime: 'This additional check applies to the unknown-number path; ordinary sends to existing contacts do not use it.',
+        validate: 'Confirm the actual runtime license status and test the path in the same session and release.',
+        purchase: <a href="/checkout">Review the current first-party offer</a>,
+      },
+    },
+    {
+      feature: 'Stories, status, buttons, lists, profile lookup, or profile pictures',
+      values: {
+        access: 'Insiders applies to the methods currently marked `insiders`; check each exact method.',
+        runtime: 'The method must exist in the deployed API catalog and be supported by the host account.',
+        validate: 'Check the method tier and availability for your deployed version, then call the exact feature.',
+        purchase: <a href="/checkout">Review the current first-party offer</a>,
+      },
+    },
+    {
+      feature: 'Create or join groups',
+      values: {
+        access: 'Restricted applies to methods currently marked `restricted`.',
+        runtime: 'The host account must be able to perform the group operation.',
+        validate: 'Test the exact group method with the production session and key.',
+        purchase: <a href="/checkout">Review the current first-party offer</a>,
+      },
+    },
+    {
+      feature: 'MCP, webhooks, Chatwoot, Node-RED, or a plugin',
+      values: {
+        access: 'Follows the underlying methods the integration calls; the wrapper has no separate tier.',
+        runtime: 'Integration availability and license eligibility are separate checks.',
+        validate: 'List or document the methods the integration will invoke, then test those methods.',
+        purchase: <a href="/checkout">Review the current first-party offer after checking the underlying methods.</a>,
       },
     },
   ]}
@@ -104,8 +164,11 @@ mapping.
 />
 
 <Callout type="tip" title="Buy for the runtime you will operate">
-  A key is part of the runtime launch path. Validate it with the host account,
-  session, deployment clock, and exact gated method you plan to use in production.
+  A license is part of the runtime launch path. Validate it with the host
+  account, session, deployment clock, and exact gated method you plan to use in
+  production. The checkout entry does not select a tier or prefill purchase
+  fields; when opened from the dashboard it carries session and phone only as
+  support context.
 </Callout>
 
 ## What a license key changes at runtime
@@ -187,14 +250,15 @@ The license decision follows the behavior the integration calls.
 
 ## Team and organization buying
 
-The current source-backed path for team or organization questions is the public
-license key page plus the project support paths. The docs do not define
+For team or organization questions, review the current offer in the first-party
+account flow and use the project support paths for terms it does not explain.
+The docs do not define
 multi-seat terms, per-developer scope, customer deployment scope, transfer rules,
 or support service levels.
 
 If the purchase has multiple users, accounts, environments, or customer deployments,
-do not assume its scope. Use the license key page first. If it does not answer
-your purchase question, use Discord or the paid support links in the project README.
+do not assume its scope. If the current offer does not answer your purchase
+question, use Discord or the paid support links in the project README.
 
 ## Before you buy
 
@@ -271,7 +335,7 @@ your purchase question, use Discord or the paid support links in the project REA
     {
       question: 'Where are the prices?',
       answer:
-        'Prices are shown in the purchase flow and can change. Open the license key page for the current purchase options.',
+        <>Prices are shown in the purchase flow and can change. <a href="/checkout">See the current Open-WA offer</a>.</>,
     },
     {
       question: 'Can I decide from an integration name like webhooks, Chatwoot, Node-RED, MCP, or plugin SDK?',
@@ -281,12 +345,12 @@ your purchase question, use Discord or the paid support links in the project REA
     {
       question: 'What if I need team or organization licensing?',
       answer:
-        'Use the license key page first. If the purchase flow does not answer your team or organization scope question, use Discord or the paid consult/support links from the README. The docs do not publish multi-seat terms.',
+        'Review the current offer first. If the account flow does not answer your team or organization scope question, use Discord or the paid consult/support links from the README. The docs do not publish multi-seat terms.',
     },
     {
       question: 'What should I read before buying?',
       answer:
-        'Read [Licensed features](/docs/licensing/licensed-features), identify the exact gated method, then validate the key in the real host-account session after purchase.',
+        <>Read <a href="/docs/licensing/licensed-features">Licensed features</a>, identify the exact gated method, then validate the license in the real host-account session after setup.</>,
     },
   ]}
 />
