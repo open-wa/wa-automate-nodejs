@@ -6,7 +6,7 @@ export type ConfigManifestEntry = {
   default: string | null;
   description: string | null;
   cliFlag: string | null;
-  envVar: string;
+  envVar: string | null;
 };
 
 /** Group labels in schema-declaration order. */
@@ -26,7 +26,10 @@ export const configGroups: string[] = [
   "Multi-device",
   "v5 Specific Features",
   "Server Configuration",
-  "ElasticSearch Monitoring"
+  "ElasticSearch Monitoring",
+  "MCP",
+  "Plugin System",
+  "Session Sync"
 ];
 
 export const configManifest: ConfigManifestEntry[] = [
@@ -45,7 +48,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": null,
     "description": "Allow known-dangerous chromium args (--single-process, --no-zygote) that are normally stripped. Unsupported: these cause detached-frame crash loops on modern Chrome.",
-    "cliFlag": "--allow-dangerous-browser-args",
+    "cliFlag": null,
     "envVar": "WA_ALLOW_DANGEROUS_BROWSER_ARGS"
   },
   {
@@ -63,7 +66,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "\"immediate\" | \"post-connection\" | \"hybrid\"",
     "default": "\"hybrid\"",
     "description": "When to start the API: immediate, after connection, or hybrid (QR only first).",
-    "cliFlag": "--api-lifecycle",
+    "cliFlag": null,
     "envVar": "WA_API_LIFECYCLE"
   },
   {
@@ -72,7 +75,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "number",
     "default": "60",
     "description": "Wait time for session authentication.",
-    "cliFlag": "--auth-timeout",
+    "cliFlag": null,
     "envVar": "WA_AUTH_TIMEOUT"
   },
   {
@@ -81,7 +84,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string | false",
     "default": "\":\"",
     "description": "Automatic emoji detection character.",
-    "cliFlag": "--auto-emoji",
+    "cliFlag": null,
     "envVar": "WA_AUTO_EMOJI"
   },
   {
@@ -90,7 +93,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "true",
     "description": "Automatically refresh QR codes (Deprecated).",
-    "cliFlag": "--auto-refresh",
+    "cliFlag": null,
     "envVar": "WA_AUTO_REFRESH"
   },
   {
@@ -99,7 +102,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Block all assets from loading.",
-    "cliFlag": "--block-assets",
+    "cliFlag": null,
     "envVar": "WA_BLOCK_ASSETS"
   },
   {
@@ -108,7 +111,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "true",
     "description": "Block network calls to crash log servers.",
-    "cliFlag": "--block-crash-logs",
+    "cliFlag": null,
     "envVar": "WA_BLOCK_CRASH_LOGS"
   },
   {
@@ -117,7 +120,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string",
     "default": null,
     "description": "Specific browser revision to download and use.",
-    "cliFlag": "--browser-revision",
+    "cliFlag": null,
     "envVar": "WA_BROWSER_REVISION"
   },
   {
@@ -126,7 +129,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string",
     "default": null,
     "description": "Connect to existing chrome window (Experimental).",
-    "cliFlag": "--browser-wsendpoint",
+    "cliFlag": null,
     "envVar": "WA_BROWSER_WS_ENDPOINT"
   },
   {
@@ -135,7 +138,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Disable cors (bypass pagesetbypasscspenabled).",
-    "cliFlag": "--bypass-csp",
+    "cliFlag": null,
     "envVar": "WA_BYPASS_CSP"
   },
   {
@@ -144,7 +147,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Save local copy of patches.json.",
-    "cliFlag": "--cached-patch",
+    "cliFlag": null,
     "envVar": "WA_CACHED_PATCH"
   },
   {
@@ -153,7 +156,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Enable/disable cache.",
-    "cliFlag": "--cache-enabled",
+    "cliFlag": null,
     "envVar": "WA_CACHE_ENABLED"
   },
   {
@@ -162,7 +165,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "number",
     "default": "0",
     "description": "Wait time for client method resolution.",
-    "cliFlag": "--call-timeout",
+    "cliFlag": null,
     "envVar": "WA_CALL_TIMEOUT"
   },
   {
@@ -171,7 +174,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string[]",
     "default": null,
     "description": "Custom chrome/chromium argument strings. Note: --single-process and --no-zygote are stripped by default because they crash WhatsApp Web with \"Navigating frame was detached\" on modern Chrome; set allowDangerousBrowserArgs to force them.",
-    "cliFlag": "--chromium-args",
+    "cliFlag": null,
     "envVar": "WA_CHROMIUM_ARGS"
   },
   {
@@ -180,7 +183,88 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "object",
     "default": null,
     "description": "Options for cloud upload preprocessor.",
-    "cliFlag": "--cloud-upload-options",
+    "cliFlag": null,
+    "envVar": "WA_CLOUD_UPLOAD_OPTIONS"
+  },
+  {
+    "key": "cloudUploadOptions.accessKeyId",
+    "group": "Preprocessors & Cloud Upload",
+    "type": "string",
+    "default": null,
+    "description": null,
+    "cliFlag": null,
+    "envVar": "WA_CLOUD_UPLOAD_OPTIONS"
+  },
+  {
+    "key": "cloudUploadOptions.bucket",
+    "group": "Preprocessors & Cloud Upload",
+    "type": "string",
+    "default": null,
+    "description": null,
+    "cliFlag": null,
+    "envVar": "WA_CLOUD_UPLOAD_OPTIONS"
+  },
+  {
+    "key": "cloudUploadOptions.directory",
+    "group": "Preprocessors & Cloud Upload",
+    "type": "\"DATE\" | \"CHAT\" | \"CHAT_DATE\" | \"DATE_CHAT\" | string",
+    "default": null,
+    "description": null,
+    "cliFlag": null,
+    "envVar": "WA_CLOUD_UPLOAD_OPTIONS"
+  },
+  {
+    "key": "cloudUploadOptions.headers",
+    "group": "Preprocessors & Cloud Upload",
+    "type": "object",
+    "default": null,
+    "description": null,
+    "cliFlag": null,
+    "envVar": "WA_CLOUD_UPLOAD_OPTIONS"
+  },
+  {
+    "key": "cloudUploadOptions.ignoreHostAccount",
+    "group": "Preprocessors & Cloud Upload",
+    "type": "boolean",
+    "default": null,
+    "description": null,
+    "cliFlag": null,
+    "envVar": "WA_CLOUD_UPLOAD_OPTIONS"
+  },
+  {
+    "key": "cloudUploadOptions.provider",
+    "group": "Preprocessors & Cloud Upload",
+    "type": "\"GCP\" | \"WASABI\" | \"AWS\" | \"CONTABO\" | \"DO\" | \"MINIO\"",
+    "default": null,
+    "description": null,
+    "cliFlag": null,
+    "envVar": "WA_CLOUD_UPLOAD_OPTIONS"
+  },
+  {
+    "key": "cloudUploadOptions.public",
+    "group": "Preprocessors & Cloud Upload",
+    "type": "boolean",
+    "default": null,
+    "description": null,
+    "cliFlag": null,
+    "envVar": "WA_CLOUD_UPLOAD_OPTIONS"
+  },
+  {
+    "key": "cloudUploadOptions.region",
+    "group": "Preprocessors & Cloud Upload",
+    "type": "string",
+    "default": null,
+    "description": null,
+    "cliFlag": null,
+    "envVar": "WA_CLOUD_UPLOAD_OPTIONS"
+  },
+  {
+    "key": "cloudUploadOptions.secretAccessKey",
+    "group": "Preprocessors & Cloud Upload",
+    "type": "string",
+    "default": null,
+    "description": null,
+    "cliFlag": null,
     "envVar": "WA_CLOUD_UPLOAD_OPTIONS"
   },
   {
@@ -189,7 +273,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string | string[]",
     "default": "\"*\"",
     "description": "CORS allowed origins.",
-    "cliFlag": "--cors",
+    "cliFlag": null,
     "envVar": "WA_CORS"
   },
   {
@@ -198,7 +282,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Bypass web security to fix CORS issues.",
-    "cliFlag": "--cors-fix",
+    "cliFlag": null,
     "envVar": "WA_CORS_FIX"
   },
   {
@@ -207,7 +291,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string",
     "default": null,
     "description": "Custom user agent.",
-    "cliFlag": "--custom-user-agent",
+    "cliFlag": null,
     "envVar": "WA_CUSTOM_USER_AGENT"
   },
   {
@@ -216,7 +300,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "true",
     "description": "Launch the session management dashboard. Disable with --no-dashboard.",
-    "cliFlag": "--dashboard",
+    "cliFlag": "--no-dashboard",
     "envVar": "WA_DASHBOARD"
   },
   {
@@ -234,7 +318,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Delete session data file on logout.",
-    "cliFlag": "--delete-session-data-on-logout",
+    "cliFlag": null,
     "envVar": "WA_DELETE_SESSION_DATA_ON_LOGOUT"
   },
   {
@@ -243,8 +327,26 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean | object",
     "default": null,
     "description": "Enable remote devtools.",
-    "cliFlag": "--devtools",
+    "cliFlag": null,
     "envVar": "WA_DEBUG"
+  },
+  {
+    "key": "devtools.pass",
+    "group": "Logging & Debugging",
+    "type": "string",
+    "default": null,
+    "description": "Password for devtools",
+    "cliFlag": null,
+    "envVar": null
+  },
+  {
+    "key": "devtools.user",
+    "group": "Logging & Debugging",
+    "type": "string",
+    "default": null,
+    "description": "Username for devtools",
+    "cliFlag": null,
+    "envVar": null
   },
   {
     "key": "disableSpins",
@@ -252,7 +354,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Disable spins in logs (for docker).",
-    "cliFlag": "--disable-spins",
+    "cliFlag": null,
     "envVar": "WA_DISABLE_SPINS"
   },
   {
@@ -261,7 +363,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string",
     "default": null,
     "description": "Your Discord ID to get onto the sticker leaderboard.",
-    "cliFlag": "--discord",
+    "cliFlag": null,
     "envVar": "WA_DISCORD"
   },
   {
@@ -270,7 +372,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "number",
     "default": "50",
     "description": "ElasticSearch buffer size.",
-    "cliFlag": "--elastic-buffer-size",
+    "cliFlag": null,
     "envVar": "WA_ELASTIC_BUFFER_SIZE"
   },
   {
@@ -279,7 +381,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string",
     "default": "\"open-wa-\"",
     "description": "ElasticSearch index prefix.",
-    "cliFlag": "--elastic-index-prefix",
+    "cliFlag": null,
     "envVar": "WA_ELASTIC_INDEX_PREFIX"
   },
   {
@@ -288,7 +390,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string",
     "default": null,
     "description": "ElasticSearch password.",
-    "cliFlag": "--elastic-password",
+    "cliFlag": null,
     "envVar": "WA_ELASTIC_PASSWORD"
   },
   {
@@ -297,7 +399,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string",
     "default": null,
     "description": "ElasticSearch ingest pipeline.",
-    "cliFlag": "--elastic-pipeline",
+    "cliFlag": null,
     "envVar": "WA_ELASTIC_PIPELINE"
   },
   {
@@ -306,7 +408,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string",
     "default": null,
     "description": "ElasticSearch URL.",
-    "cliFlag": "--elastic-url",
+    "cliFlag": null,
     "envVar": "WA_ELASTIC_URL"
   },
   {
@@ -315,7 +417,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string",
     "default": null,
     "description": "ElasticSearch username.",
-    "cliFlag": "--elastic-username",
+    "cliFlag": null,
     "envVar": "WA_ELASTIC_USERNAME"
   },
   {
@@ -324,7 +426,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": null,
     "description": "Makes sure the headless session is usable even on first login.",
-    "cliFlag": "--ensure-headful-integrity",
+    "cliFlag": null,
     "envVar": "WA_ENSURE_HEADFUL_INTEGRITY"
   },
   {
@@ -342,7 +444,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "true",
     "description": "Automatically register SimpleListener events.",
-    "cliFlag": "--event-mode",
+    "cliFlag": null,
     "envVar": "WA_EVENT_MODE"
   },
   {
@@ -351,7 +453,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string",
     "default": null,
     "description": "Path to chrome instance.",
-    "cliFlag": "--executable-path",
+    "cliFlag": null,
     "envVar": "WA_EXECUTABLE_PATH"
   },
   {
@@ -360,7 +462,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "true",
     "description": "Enable easy QR code endpoint.",
-    "cliFlag": "--ezqr",
+    "cliFlag": "--no-ezqr",
     "envVar": "WA_EZQR"
   },
   {
@@ -369,7 +471,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Use default cached raw github link for patches.",
-    "cliFlag": "--gh-patch",
+    "cliFlag": null,
     "envVar": "WA_GH_PATCH"
   },
   {
@@ -396,7 +498,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "\"pt-br\" | \"en-gb\" | \"de-de\" | \"id-id\" | \"it-it\" | \"nl-nl\" | \"es\"",
     "default": null,
     "description": "Language of host notification.",
-    "cliFlag": "--host-notification-lang",
+    "cliFlag": null,
     "envVar": "WA_HOST_NOTIFICATION_LANG"
   },
   {
@@ -405,7 +507,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Attempt to correct invalid chatIds.",
-    "cliFlag": "--id-correction",
+    "cliFlag": null,
     "envVar": "WA_ID_CORRECTION"
   },
   {
@@ -414,7 +516,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": null,
     "description": "Don't implicitly determine if the host logged out.",
-    "cliFlag": "--ignore-nuke",
+    "cliFlag": null,
     "envVar": "WA_IGNORE_NUKE"
   },
   {
@@ -423,7 +525,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Try to infer config from environment variables.",
-    "cliFlag": "--in-docker",
+    "cliFlag": null,
     "envVar": "WA_IN_DOCKER"
   },
   {
@@ -432,7 +534,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "object",
     "default": null,
     "description": "Integration configurations (chatwoot, webhook, n8n, etc.). Changes require restart.",
-    "cliFlag": "--integrations",
+    "cliFlag": null,
     "envVar": "WA_INTEGRATIONS"
   },
   {
@@ -441,7 +543,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Always start with latest version (Alpha).",
-    "cliFlag": "--keep-updated",
+    "cliFlag": null,
     "envVar": "WA_KEEP_UPDATED"
   },
   {
@@ -450,7 +552,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Kill client when logout detected.",
-    "cliFlag": "--kill-client-on-logout",
+    "cliFlag": null,
     "envVar": "WA_KILL_CLIENT_ON_LOGOUT"
   },
   {
@@ -459,7 +561,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "true",
     "description": "Kill process when temporary ban detected.",
-    "cliFlag": "--kill-process-on-ban",
+    "cliFlag": null,
     "envVar": "WA_KILL_PROCESS_ON_BAN"
   },
   {
@@ -468,7 +570,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Kill process when browser closes.",
-    "cliFlag": "--kill-process-on-browser-close",
+    "cliFlag": null,
     "envVar": "WA_KILL_PROCESS_ON_BROWSER_CLOSE"
   },
   {
@@ -477,7 +579,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Kill process on auth/qr timeout.",
-    "cliFlag": "--kill-process-on-timeout",
+    "cliFlag": null,
     "envVar": "WA_KILL_PROCESS_ON_TIMEOUT"
   },
   {
@@ -486,7 +588,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Roll back on late beta features.",
-    "cliFlag": "--legacy",
+    "cliFlag": null,
     "envVar": "WA_LEGACY"
   },
   {
@@ -504,7 +606,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "object",
     "default": null,
     "description": "Lightpanda local mode configuration.",
-    "cliFlag": "--lightpanda",
+    "cliFlag": null,
     "envVar": "WA_LIGHTPANDA"
   },
   {
@@ -558,7 +660,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string",
     "default": null,
     "description": "Link code for new login method.",
-    "cliFlag": "--link-code",
+    "cliFlag": null,
     "envVar": "WA_LINK_CODE"
   },
   {
@@ -567,7 +669,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string",
     "default": "\"https://link.openwa.cloud/api\"",
     "description": "URL of serverless meta grabber.",
-    "cliFlag": "--link-parser",
+    "cliFlag": null,
     "envVar": "WA_LINK_PARSER"
   },
   {
@@ -585,7 +687,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Log error messages from browser.",
-    "cliFlag": "--log-console-errors",
+    "cliFlag": null,
     "envVar": "WA_LOG_CONSOLE_ERRORS"
   },
   {
@@ -594,7 +696,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Log debug info as object instead of console.table.",
-    "cliFlag": "--log-debug-info-as-object",
+    "cliFlag": null,
     "envVar": "WA_LOG_DEBUG_INFO_AS_OBJECT"
   },
   {
@@ -603,7 +705,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Create log file for all actions.",
-    "cliFlag": "--log-file",
+    "cliFlag": null,
     "envVar": "WA_LOG_FILE"
   },
   {
@@ -612,7 +714,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "object[]",
     "default": null,
     "description": "Winston logging transport configurations.",
-    "cliFlag": "--logging",
+    "cliFlag": null,
     "envVar": "WA_LOGGING"
   },
   {
@@ -621,7 +723,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": null,
     "description": "Log all internal wa web events.",
-    "cliFlag": "--log-internal-events",
+    "cliFlag": null,
     "envVar": "WA_LOG_INTERNAL_EVENTS"
   },
   {
@@ -639,7 +741,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "number",
     "default": null,
     "description": "Maximum amount of chats to be present in a session.",
-    "cliFlag": "--max-chats",
+    "cliFlag": null,
     "envVar": "WA_MAX_CHATS"
   },
   {
@@ -648,16 +750,43 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "number",
     "default": null,
     "description": "Maximum amount of messages to be present in a session.",
-    "cliFlag": "--max-messages",
+    "cliFlag": null,
     "envVar": "WA_MAX_MESSAGES"
   },
   {
     "key": "mcp",
-    "group": "ElasticSearch Monitoring",
+    "group": "MCP",
     "type": "object",
     "default": null,
     "description": "Easy API MCP configuration. Hosted MCP requires apiKey.",
-    "cliFlag": "--mcp",
+    "cliFlag": null,
+    "envVar": "WA_MCP"
+  },
+  {
+    "key": "mcp.enabled",
+    "group": "MCP",
+    "type": "boolean",
+    "default": "false",
+    "description": "Enable the hosted MCP endpoint for Easy API. Requires apiKey.",
+    "cliFlag": null,
+    "envVar": "WA_MCP"
+  },
+  {
+    "key": "mcp.exposeToolsMeta",
+    "group": "MCP",
+    "type": "boolean",
+    "default": "true",
+    "description": "Expose /meta/mcp-tools.json for dashboard and debugging.",
+    "cliFlag": null,
+    "envVar": "WA_MCP"
+  },
+  {
+    "key": "mcp.path",
+    "group": "MCP",
+    "type": "string",
+    "default": "\"/mcp\"",
+    "description": "Hosted MCP endpoint path for Easy API.",
+    "cliFlag": null,
     "envVar": "WA_MCP"
   },
   {
@@ -666,7 +795,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "any",
     "default": null,
     "description": "Message preprocessor options.",
-    "cliFlag": "--message-preprocessor",
+    "cliFlag": null,
     "envVar": "WA_MESSAGE_PREPROCESSOR"
   },
   {
@@ -675,7 +804,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "true",
     "description": "Enable multi-device support (Beta).",
-    "cliFlag": "--multi-device",
+    "cliFlag": null,
     "envVar": "WA_MULTI_DEVICE"
   },
   {
@@ -684,7 +813,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "\"AS_STRING\" | \"RETURN_FALSE\" | \"THROW\" | \"LOG_AND_FALSE\" | \"LOG_AND_STRING\" | \"RETURN_ERROR\" | \"NOTHING\"",
     "default": "\"NOTHING\"",
     "description": "Error handling strategy.",
-    "cliFlag": "--on-error",
+    "cliFlag": null,
     "envVar": "WA_ON_ERROR"
   },
   {
@@ -693,25 +822,25 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "number",
     "default": "60",
     "description": "Phone out of reach check timeout.",
-    "cliFlag": "--oor-timeout",
+    "cliFlag": null,
     "envVar": "WA_OOR_TIMEOUT"
   },
   {
     "key": "pluginConfig",
-    "group": "ElasticSearch Monitoring",
+    "group": "Plugin System",
     "type": "object",
     "default": "{}",
     "description": "Plugin configuration keyed by plugin name.",
-    "cliFlag": "--plugin-config",
+    "cliFlag": null,
     "envVar": "WA_PLUGIN_CONFIG"
   },
   {
     "key": "plugins",
-    "group": "ElasticSearch Monitoring",
+    "group": "Plugin System",
     "type": "string[]",
     "default": "[]",
     "description": "Plugin references to load (npm packages or file paths).",
-    "cliFlag": "--plugins",
+    "cliFlag": null,
     "envVar": "WA_PLUGINS"
   },
   {
@@ -720,7 +849,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean | number",
     "default": "false",
     "description": "Downgraded legacy compatibility option. Opens a local browser window for status or manual inspection, but v5 does not guarantee legacy popup QR parity.",
-    "cliFlag": "--popup",
+    "cliFlag": null,
     "envVar": "WA_POPUP"
   },
   {
@@ -738,7 +867,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "any",
     "default": null,
     "description": "Default pqueue options.",
-    "cliFlag": "--p-queue-default",
+    "cliFlag": null,
     "envVar": "WA_P_QUEUE_DEFAULT"
   },
   {
@@ -747,7 +876,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string",
     "default": null,
     "description": "Filter for message preprocessor.",
-    "cliFlag": "--preproc-filter",
+    "cliFlag": null,
     "envVar": "WA_PREPROC_FILTER"
   },
   {
@@ -765,7 +894,43 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "object",
     "default": null,
     "description": "Proxy server credentials.",
-    "cliFlag": "--proxy-server-credentials",
+    "cliFlag": null,
+    "envVar": "WA_PROXY_SERVER_CREDENTIALS"
+  },
+  {
+    "key": "proxyServerCredentials.address",
+    "group": "Browser Configuration",
+    "type": "string",
+    "default": null,
+    "description": "Proxy Server address. This can include the port e.g '127.0.0.1:5005'",
+    "cliFlag": null,
+    "envVar": "WA_PROXY_SERVER_CREDENTIALS"
+  },
+  {
+    "key": "proxyServerCredentials.password",
+    "group": "Browser Configuration",
+    "type": "string",
+    "default": null,
+    "description": "Password for Proxy Server authentication",
+    "cliFlag": null,
+    "envVar": "WA_PROXY_SERVER_CREDENTIALS"
+  },
+  {
+    "key": "proxyServerCredentials.protocol",
+    "group": "Browser Configuration",
+    "type": "string",
+    "default": null,
+    "description": "The protocol on which the proxy is running. E.g `http`, `https`, `socks4` or `socks5`",
+    "cliFlag": null,
+    "envVar": "WA_PROXY_SERVER_CREDENTIALS"
+  },
+  {
+    "key": "proxyServerCredentials.username",
+    "group": "Browser Configuration",
+    "type": "string",
+    "default": null,
+    "description": "Username for Proxy Server authentication",
+    "cliFlag": null,
     "envVar": "WA_PROXY_SERVER_CREDENTIALS"
   },
   {
@@ -783,7 +948,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "\"png\" | \"jpeg\" | \"webm\"",
     "default": "\"png\"",
     "description": "QR code output format.",
-    "cliFlag": "--qr-format",
+    "cliFlag": null,
     "envVar": "WA_QR_FORMAT"
   },
   {
@@ -792,7 +957,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Skip logging QR Code to console.",
-    "cliFlag": "--qr-log-skip",
+    "cliFlag": null,
     "envVar": "WA_QR_LOG_SKIP"
   },
   {
@@ -801,7 +966,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "number",
     "default": null,
     "description": "Automatically kill the process after a set amount of qr codes.",
-    "cliFlag": "--qr-max",
+    "cliFlag": null,
     "envVar": "WA_QR_MAX"
   },
   {
@@ -810,7 +975,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": null,
     "description": "Downgraded legacy QR convenience flag. v5 may still expose QR PNG output, but popup and local QR parity is not a guaranteed runtime contract.",
-    "cliFlag": "--qr-pop-up-only",
+    "cliFlag": null,
     "envVar": "WA_QR_POP_UP_ONLY"
   },
   {
@@ -819,7 +984,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "number",
     "default": "1",
     "description": "QR code output quality (0.1 - 1.0).",
-    "cliFlag": "--qr-quality",
+    "cliFlag": null,
     "envVar": "WA_QR_QUALITY"
   },
   {
@@ -828,7 +993,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "number",
     "default": null,
     "description": "QR refresh interval (Deprecated).",
-    "cliFlag": "--qr-refresh-s",
+    "cliFlag": null,
     "envVar": "WA_QR_REFRESH_S"
   },
   {
@@ -846,7 +1011,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Enable Raspberry Pi OS support.",
-    "cliFlag": "--raspi",
+    "cliFlag": null,
     "envVar": "WA_RASPI"
   },
   {
@@ -855,7 +1020,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "true",
     "description": "Sync viewport size with window size.",
-    "cliFlag": "--resizable",
+    "cliFlag": null,
     "envVar": "WA_RESIZABLE"
   },
   {
@@ -864,16 +1029,88 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "any",
     "default": null,
     "description": "Function to call upon restart if page crashes.",
-    "cliFlag": "--restart-on-crash",
+    "cliFlag": null,
     "envVar": "WA_RESTART_ON_CRASH"
   },
   {
     "key": "s3Sync",
-    "group": "ElasticSearch Monitoring",
+    "group": "Session Sync",
     "type": "object",
     "default": null,
     "description": "S3 Session Synchronization configuration",
-    "cliFlag": "--s3-sync",
+    "cliFlag": null,
+    "envVar": "WA_S3_SYNC"
+  },
+  {
+    "key": "s3Sync.accessKeyId",
+    "group": "Session Sync",
+    "type": "string",
+    "default": null,
+    "description": "AWS access key ID",
+    "cliFlag": null,
+    "envVar": "WA_S3_SYNC"
+  },
+  {
+    "key": "s3Sync.bucket",
+    "group": "Session Sync",
+    "type": "string",
+    "default": null,
+    "description": "S3 bucket name",
+    "cliFlag": null,
+    "envVar": "WA_S3_SYNC"
+  },
+  {
+    "key": "s3Sync.enableLocalCompression",
+    "group": "Session Sync",
+    "type": "boolean",
+    "default": null,
+    "description": "Enable local session compression",
+    "cliFlag": null,
+    "envVar": "WA_S3_SYNC"
+  },
+  {
+    "key": "s3Sync.endpoint",
+    "group": "Session Sync",
+    "type": "string",
+    "default": null,
+    "description": "Custom S3 endpoint",
+    "cliFlag": null,
+    "envVar": "WA_S3_SYNC"
+  },
+  {
+    "key": "s3Sync.host",
+    "group": "Session Sync",
+    "type": "string",
+    "default": null,
+    "description": "PicoS3 support",
+    "cliFlag": null,
+    "envVar": "WA_S3_SYNC"
+  },
+  {
+    "key": "s3Sync.region",
+    "group": "Session Sync",
+    "type": "string",
+    "default": null,
+    "description": "S3 region",
+    "cliFlag": null,
+    "envVar": "WA_S3_SYNC"
+  },
+  {
+    "key": "s3Sync.secretAccessKey",
+    "group": "Session Sync",
+    "type": "string",
+    "default": null,
+    "description": "AWS secret access key",
+    "cliFlag": null,
+    "envVar": "WA_S3_SYNC"
+  },
+  {
+    "key": "s3Sync.syncInterval",
+    "group": "Session Sync",
+    "type": "number",
+    "default": "600000",
+    "description": "Sync interval in ms",
+    "cliFlag": null,
     "envVar": "WA_S3_SYNC"
   },
   {
@@ -882,8 +1119,107 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Check if page is valid before each command.",
-    "cliFlag": "--safe-mode",
+    "cliFlag": null,
     "envVar": "WA_SAFE_MODE"
+  },
+  {
+    "key": "sandboxChats",
+    "group": "Safety & Error Handling",
+    "type": "boolean | object",
+    "default": "false",
+    "description": "Run explicit per-chat user code in a worker, process, or container sandbox.",
+    "cliFlag": "--sandbox-chats",
+    "envVar": "WA_SANDBOX_CHATS"
+  },
+  {
+    "key": "sandboxChats.capabilities",
+    "group": "Safety & Error Handling",
+    "type": "string[]",
+    "default": "[\"sendText\"]",
+    "description": null,
+    "cliFlag": null,
+    "envVar": null
+  },
+  {
+    "key": "sandboxChats.concurrency",
+    "group": "Safety & Error Handling",
+    "type": "number",
+    "default": "1",
+    "description": null,
+    "cliFlag": null,
+    "envVar": null
+  },
+  {
+    "key": "sandboxChats.env",
+    "group": "Safety & Error Handling",
+    "type": "\"none\" | string[]",
+    "default": "\"none\"",
+    "description": null,
+    "cliFlag": null,
+    "envVar": null
+  },
+  {
+    "key": "sandboxChats.filesystem",
+    "group": "Safety & Error Handling",
+    "type": "\"none\" | \"read-only\" | \"workspace\"",
+    "default": "\"none\"",
+    "description": null,
+    "cliFlag": null,
+    "envVar": null
+  },
+  {
+    "key": "sandboxChats.idleTimeoutMs",
+    "group": "Safety & Error Handling",
+    "type": "number",
+    "default": "300000",
+    "description": null,
+    "cliFlag": null,
+    "envVar": null
+  },
+  {
+    "key": "sandboxChats.isolation",
+    "group": "Safety & Error Handling",
+    "type": "\"worker\" | \"process\" | \"container\"",
+    "default": "\"process\"",
+    "description": null,
+    "cliFlag": "--sandbox-isolation",
+    "envVar": null
+  },
+  {
+    "key": "sandboxChats.memoryMb",
+    "group": "Safety & Error Handling",
+    "type": "number",
+    "default": "256",
+    "description": null,
+    "cliFlag": null,
+    "envVar": null
+  },
+  {
+    "key": "sandboxChats.network",
+    "group": "Safety & Error Handling",
+    "type": "\"none\" | \"allowlist\"",
+    "default": "\"none\"",
+    "description": null,
+    "cliFlag": null,
+    "envVar": null
+  },
+  {
+    "key": "sandboxChats.networkAllowlist",
+    "group": "Safety & Error Handling",
+    "type": "string[]",
+    "default": "[]",
+    "description": null,
+    "cliFlag": null,
+    "envVar": null
+  },
+  {
+    "key": "sandboxChats.timeoutMs",
+    "group": "Safety & Error Handling",
+    "type": "number",
+    "default": "30000",
+    "description": null,
+    "cliFlag": null,
+    "envVar": null
   },
   {
     "key": "screenshotOnInitializationBrowserError",
@@ -891,7 +1227,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Screenshot on unexpected initialization error.",
-    "cliFlag": "--screenshot-on-initialization-browser-error",
+    "cliFlag": null,
     "envVar": "WA_SCREENSHOT_ON_INITIALIZATION_BROWSER_ERROR"
   },
   {
@@ -900,8 +1236,44 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "object | string",
     "default": null,
     "description": "Deprecated compatibility input for JSON or base64 session restore. This MD-obsolete flow remains only for legacy migration. Prefer userDataDir for persistent auth state.",
-    "cliFlag": "--session-data",
+    "cliFlag": null,
     "envVar": "WA_SESSION_DATA"
+  },
+  {
+    "key": "sessionData.WABrowserId",
+    "group": "Session & Authentication",
+    "type": "string",
+    "default": null,
+    "description": null,
+    "cliFlag": null,
+    "envVar": null
+  },
+  {
+    "key": "sessionData.WASecretBundle",
+    "group": "Session & Authentication",
+    "type": "string",
+    "default": null,
+    "description": null,
+    "cliFlag": null,
+    "envVar": null
+  },
+  {
+    "key": "sessionData.WAToken1",
+    "group": "Session & Authentication",
+    "type": "string",
+    "default": null,
+    "description": null,
+    "cliFlag": null,
+    "envVar": null
+  },
+  {
+    "key": "sessionData.WAToken2",
+    "group": "Session & Authentication",
+    "type": "string",
+    "default": null,
+    "description": null,
+    "cliFlag": null,
+    "envVar": null
   },
   {
     "key": "sessionDataBucketAuth",
@@ -909,7 +1281,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string",
     "default": null,
     "description": "Base64 encoded S3 Bucket & Authentication object.",
-    "cliFlag": "--session-data-bucket-auth",
+    "cliFlag": null,
     "envVar": "WA_SESSION_DATA_BUCKET_AUTH"
   },
   {
@@ -918,7 +1290,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string",
     "default": "\"\"",
     "description": "Deprecated legacy path for .data.json session restore files. This only exists for MD-obsolete JSON session compatibility. Prefer userDataDir.",
-    "cliFlag": "--session-data-path",
+    "cliFlag": null,
     "envVar": "WA_SESSION_DATA_PATH"
   },
   {
@@ -936,7 +1308,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Bypass health check before startup.",
-    "cliFlag": "--skip-broken-methods-check",
+    "cliFlag": null,
     "envVar": "WA_SKIP_BROKEN_METHODS_CHECK"
   },
   {
@@ -945,7 +1317,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Deprecated legacy flag for .data.json session persistence. This only affects the MD-obsolete JSON restore path. Prefer userDataDir-managed persistence.",
-    "cliFlag": "--skip-session-save",
+    "cliFlag": null,
     "envVar": "WA_SKIP_SESSION_SAVE"
   },
   {
@@ -954,7 +1326,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Bypass latest version check.",
-    "cliFlag": "--skip-update-check",
+    "cliFlag": null,
     "envVar": "WA_SKIP_UPDATE_CHECK"
   },
   {
@@ -963,7 +1335,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string | boolean",
     "default": "\"https://sticker-api.openwa.dev\"",
     "description": "Sticker server endpoint.",
-    "cliFlag": "--sticker-server-endpoint",
+    "cliFlag": null,
     "envVar": "WA_STICKER_SERVER_ENDPOINT"
   },
   {
@@ -972,7 +1344,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": null,
     "description": "Throw error if session blocked or unable to get QR.",
-    "cliFlag": "--throw-error-on-tos-block",
+    "cliFlag": null,
     "envVar": "WA_THROW_ERROR_ON_TOS_BLOCK"
   },
   {
@@ -981,7 +1353,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Return false if session data expired.",
-    "cliFlag": "--throw-on-expired-session-data",
+    "cliFlag": null,
     "envVar": "WA_THROW_ON_EXPIRED_SESSION_DATA"
   },
   {
@@ -1008,7 +1380,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Use native proxy system.",
-    "cliFlag": "--use-native-proxy",
+    "cliFlag": null,
     "envVar": "WA_USE_NATIVE_PROXY"
   },
   {
@@ -1017,7 +1389,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "string",
     "default": null,
     "description": "Browser profile directory used for persistent session storage.",
-    "cliFlag": "--user-data-dir",
+    "cliFlag": null,
     "envVar": "WA_USER_DATA_DIR"
   },
   {
@@ -1026,7 +1398,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "false",
     "description": "Enable/disable puppeteer stealth plugin.",
-    "cliFlag": "--use-stealth",
+    "cliFlag": null,
     "envVar": "WA_USE_STEALTH"
   },
   {
@@ -1035,7 +1407,25 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "object",
     "default": null,
     "description": null,
-    "cliFlag": "--viewport",
+    "cliFlag": null,
+    "envVar": "WA_VIEWPORT"
+  },
+  {
+    "key": "viewport.height",
+    "group": "Browser Configuration",
+    "type": "number",
+    "default": "900",
+    "description": "Page height in pixels",
+    "cliFlag": null,
+    "envVar": "WA_VIEWPORT"
+  },
+  {
+    "key": "viewport.width",
+    "group": "Browser Configuration",
+    "type": "number",
+    "default": "1440",
+    "description": "Page width in pixels",
+    "cliFlag": null,
     "envVar": "WA_VIEWPORT"
   },
   {
@@ -1044,7 +1434,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "boolean",
     "default": "true",
     "description": "Wait for a valid headful session.",
-    "cliFlag": "--wait-for-ripe-session",
+    "cliFlag": null,
     "envVar": "WA_WAIT_FOR_RIPE_SESSION"
   },
   {
@@ -1053,7 +1443,7 @@ export const configManifest: ConfigManifestEntry[] = [
     "type": "number",
     "default": "5",
     "description": "Wait time for session to load fully. 0 to wait forever.",
-    "cliFlag": "--wait-for-ripe-session-timeout",
+    "cliFlag": null,
     "envVar": "WA_WAIT_FOR_RIPE_SESSION_TIMEOUT"
   },
   {

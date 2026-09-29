@@ -1,30 +1,30 @@
 # @open-wa/cli
 
-> Command line tool for the Open-WA WhatsApp automation stack.
+`@open-wa/cli` provides the `wa` command for starting and managing an Open-WA session and API server. The CLI delegates session startup to `@open-wa/wa-automate`.
 
 Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
-
-## Features
-
-- **Easy API mode**: Start a WhatsApp server with a single command.
-- **Session Auth**: Interactive QR code scanning in the terminal.
-- **Diagnostics**: Built-in tools for testing connections and drivers.
 
 ## Install
 
 ```bash
-pnpm add -g @open-wa/cli
+npm install --global @open-wa/cli@5.1.0
 ```
 
-## Usage
+## Start the API server
 
 ```bash
-wa-automate --help
+wa --session-id main --host 127.0.0.1 --port 8080
 ```
+
+Scan the QR code shown in the terminal to sign in. The server listens on `127.0.0.1:8080`; use `wa --help` to see the available options. Add an API key with `--api-key` when clients need authentication, and keep the server on loopback or a private network unless you have configured an appropriate access boundary.
+
+## Remote clients
+
+Use [`@open-wa/socket-client`](https://openwa.dev/docs/client-and-integrations/socket-client) to send commands to this server and receive runtime events.
 
 ## Documentation
 
-See the [CLI reference](https://openwa.dev/reference/cli) on our docs site.
+See the [CLI reference](https://openwa.dev/docs/guides/configuration-and-cli).
 
 ## License
 

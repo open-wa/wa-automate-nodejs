@@ -1,3 +1,4 @@
+import { BusinessProfileSchema, OrderSchema, ProductSchema } from '../return-types';
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
 import { contactIdParam, messageIdParam } from '../parameters';
@@ -13,7 +14,7 @@ export const getBusinessProfile = defineMethodV2('getBusinessProfile', {
     },
     input: z.object({ contactId: contactIdParam }),
     parameterOrder: ['contactId'],
-    output: z.any(),
+    output: BusinessProfileSchema,
 });
 
 export const getBusinessProducts = defineMethodV2('getBusinessProducts', {
@@ -31,7 +32,7 @@ export const getBusinessProducts = defineMethodV2('getBusinessProducts', {
     },
     input: z.object({ contactId: contactIdParam }),
     parameterOrder: ['contactId'],
-    output: z.any(),
+    output: z.array(ProductSchema).or(z.literal(false)),
 });
 
 export const getOrder = defineMethodV2('getOrder', {
@@ -47,5 +48,5 @@ export const getOrder = defineMethodV2('getOrder', {
         id: z.union([messageIdParam, z.string()]).describe('Order or message ID'),
     }),
     parameterOrder: ['id'],
-    output: z.any(),
+    output: OrderSchema,
 });

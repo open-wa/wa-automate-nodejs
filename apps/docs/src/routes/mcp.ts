@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { getLLMText } from '@/lib/get-llm-text';
 import { source } from '@/lib/source';
+import { CURRENT_VERSION } from '@/lib/site';
 
 const DEFAULT_PROTOCOL_VERSION = '2025-11-25';
 
@@ -108,7 +109,7 @@ async function handleRequest(message: JsonRpcRequest) {
     return success(id, {
       protocolVersion,
       capabilities: { tools: { listChanged: false } },
-      serverInfo: { name: 'open-wa documentation', version: '5.0.0-alpha' },
+      serverInfo: { name: 'open-wa documentation', version: CURRENT_VERSION },
       instructions:
         'Use search_docs to find open-wa documentation and read_doc to retrieve a page as Markdown.',
     });

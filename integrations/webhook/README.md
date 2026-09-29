@@ -19,10 +19,13 @@ The plugin config is validated by the plugin SDK schema in `src/plugin.ts`.
 | `url` | Yes | Target URL for webhook delivery. Must be a URL. |
 | `events` | No | `all` or an array of event names. Defaults to `all`. Non-matching events are skipped. |
 | `concurrency` | No | Max concurrent deliveries. Defaults to 10. |
+| `queueCapacity` | No | Maximum queued deliveries in memory. Defaults to 1000. |
+| `overload` | No | A full queue waits for room with `backpressure` (default), or rejects with `dropping`. |
 | `retries` | No | Number of retry attempts after a failed delivery. Defaults to 3. |
 | `retryDelay` | No | Base retry delay in milliseconds. Defaults to 1000 and is exponentially backed off per attempt. |
 | `headers` | No | Additional headers merged into each request. |
 | `timeout` | No | Request timeout in milliseconds. Defaults to 30000. |
+| `durability` | No | When enabled, stores pending deliveries in a SQLite journal and replays up to `replayLimit` after startup. Disabled by default. |
 
 Each delivery also sends `Content-Type: application/json`.
 
@@ -45,8 +48,12 @@ The payload shape is defined by `WebhookPayload` in `src/config.ts` and produced
 - `WebhookDeliverer` posts JSON with native `fetch` and aborts requests with `AbortController` when the timeout elapses.
 - Non-2xx responses throw an error and enter the retry path.
 - Retry delay is `retryDelay * 2 ** attempt` until the configured retry count is exhausted.
-- The deliverer logs failed deliveries after all attempts. The final retry path does not throw the error again.
-- On `dispose`, the plugin waits for the queue to become idle and logs that the queue drained.
+- The default queue and its waiting deliveries live in memory. A process exit or restart loses deliveries that were not accepted successfully.
+- After the final attempt, the deliverer logs the failure and the plugin hook rejects. With durability enabled, the delivery row is marked `dead_letter`; without it, no record remains for automatic replay.
+- With durability enabled, pending rows are replayed on a later startup up to `replayLimit`, and the sender includes the durable row ID as `Idempotency-Key`. Duplicate requests can still arrive if the receiver committed its work but the response was lost.
+- The plugin closes its delivery runtime on `dispose`; pending durable rows remain in SQLite for a later startup. The integration does not expose a built-in dead-letter inspection or replay route.
+
+Persist the receiver's inbox record or idempotency key before returning `2xx`. The sender does not create an HMAC signature, and its retry policy does not promise eventual delivery. Keep credentials out of logs and use a receiver-side secret or a signature scheme implemented by your gateway.
 
 ## Exports
 

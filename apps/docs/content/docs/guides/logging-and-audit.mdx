@@ -1,161 +1,159 @@
 ---
-title: Logging and Audit Trails
-description: Configure logging, export logs, and write audit trails for compliance.
+title: Logging and audit trails
+description: Keep useful open-wa diagnostics, rotate application logs, and define an honest audit record.
 ---
 
-# Logging and Audit Trails
+# Logging and audit trails
 
-Proper logging is essential for debugging, monitoring, and compliance. This guide covers logging configuration, export patterns, and audit trail implementation.
+open-wa plugin logs go through the host logger. Your application can also create its own Winston logger for selected events, but that second logger does not automatically capture the host's stdout or plugin logs. Decide which stream owns each record before you choose a retention or audit process.
 
-## PluginLogger
+## Host and plugin logs
 
-Plugins receive a scoped logger through `PluginLogger`:
+Plugins receive a scoped logger:
 
 ```ts
 init: async ({ logger }) => {
   logger.info('Plugin initialized', { version: '1.0.0' });
-  logger.warn('API key is missing, using defaults');
-  logger.error('Failed to connect', { error: 'ECONNREFUSED' });
-  logger.debug('Processing message', { messageId: 'abc123' });
+  logger.warn('API key is missing');
+  logger.error('Failed to connect', { code: 'ECONNREFUSED' });
+  logger.debug('Processing message', { messageId: 'redacted-id' });
 }
 ```
 
-### Methods
+By default those records go to the Easy API process's stdout/stderr. Capture that stream with your process supervisor or shell:
 
-- **info(message, meta?)**: Informational messages
-- **warn(message, meta?)**: Warnings
-- **error(message, meta?)**: Errors
-- **debug(message, meta?)**: Debug output (only visible when debug logging is enabled)
-
-### Auto-Prefixing
-
-All log output is prefixed with your plugin name:
-
-```
-[greeting-bot] Plugin initialized { version: '1.0.0' }
-```
-
-## Log Persistence
-
-Plugin logs flow through the host logging system. Whether they are persisted depends on the host configuration:
-
-- **Default**: Logs are written to stdout/stderr
-- **With file logging**: Configure the host to write logs to files
-- **With external logging**: Forward logs to a logging service
-
-## Exporting Logs
-
-### From stdout/stderr
-
-Redirect output to a file:
+The explicit flags below start a local `logs` session and bind the API to loopback. Set the session ID and host to the values your application uses.
 
 ```bash
-npx @open-wa/wa-automate@latest --port 8080 > open-wa.log 2>&1
+mkdir -p ./logs
+npx @open-wa/wa-automate@5.1.0 --session-id logs --host 127.0.0.1 --port 8080 \
+  >> ./logs/open-wa.log 2>&1
 ```
 
-### Structured JSON Logs
+The host's output format and persistence are deployment choices. Redirecting stdout does not capture a separately configured application logger, and creating a Winston logger does not change how host logs are stored.
 
-If the host supports structured logging, logs are output as JSON:
+## Application-owned rotating logs
 
-```json
-{"level":"info","plugin":"webhook","message":"Event forwarded","timestamp":"2024-01-01T00:00:00Z"}
-```
-
-Parse these with tools like `jq`:
+Install both the logger and the transport used by the sample:
 
 ```bash
-cat open-wa.log | jq 'select(.plugin == "webhook")'
+npm install winston winston-daily-rotate-file
+export OPENWA_SESSION_ID='sales'
 ```
-
-## Writing to Files
-
-### Use a log library
-
-For production systems, use a dedicated log library:
 
 ```ts
 import winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
+
+const rotate = new DailyRotateFile({
+  filename: './logs/open-wa-%DATE%.log',
+  datePattern: 'YYYY-MM-DD',
+  maxFiles: '14d',
+  maxSize: '50m',
+  zippedArchive: true,
+});
+
+const sessionId = process.env.OPENWA_SESSION_ID;
+if (!sessionId) throw new Error('Set OPENWA_SESSION_ID to the Easy API session ID');
+
+rotate.on('error', (error) => {
+  // Surface a transport failure to the process supervisor; do not silently lose it.
+  console.error('rotating log transport failed', error);
+});
 
 const logger = winston.createLogger({
   level: 'info',
   format: winston.format.json(),
-  transports: [
-    new winston.transports.File({ filename: 'open-wa.log' }),
-  ],
+  transports: [rotate],
 });
 
-// Forward plugin logs
-events.on('message.received', async ({ message }) => {
-  logger.info('Message received', { from: message.from, chatId: message.chatId });
+logger.on('error', (error) => {
+  console.error('application logger failed', error);
 });
-```
 
-### Rotating Log Files
-
-Use log rotation to prevent disk fill:
-
-```ts
-import winston from 'winston';
-
-const logger = winston.createLogger({
-  transports: [
-    new winston.transports.DailyRotateFile({
-      filename: 'open-wa-%DATE%.log',
-      datePattern: 'YYYY-MM-DD',
-      maxFiles: '14d', // Keep 14 days of logs
-    }),
-  ],
-});
-```
-
-## Writing to Databases
-
-For audit compliance, write logs to a database:
-
-```ts
-events.on('message.received', async ({ message }) => {
-  await db.logs.create({
-    event: 'message.received',
-    from: message.from,
+export function recordMessage(message) {
+  logger.info('message.received', {
+    messageId: message.id,
+    sessionId,
     chatId: message.chatId,
-    timestamp: new Date(),
-    metadata: JSON.stringify(message),
+    timestamp: new Date().toISOString(),
   });
-});
+}
 ```
 
-## Audit Trail Best Practices
+Pass `recordMessage` to your `Client` instance's `onMessage` listener when you want this record for each incoming message.
 
-### What to Log
+The `winston-daily-rotate-file` import is required because `DailyRotateFile` is not provided by `winston` alone. The example records identifiers and routing fields; add message content only when the business purpose and access policy require it.
 
-- **Message events**: Incoming and outgoing messages
-- **Authentication events**: Session start, QR scan, logout
-- **Error events**: Failed API calls, connection drops
-- **Admin actions**: Configuration changes, plugin enable/disable
+## Structured output and queries
 
-### What Not to Log
+When your logger writes JSON, filter the file with `jq`:
 
-- **Message content**: Do not log complete message bodies unless necessary
-- **Authentication tokens**: Never log session tokens or API keys
-- **Personal data**: Be mindful of GDPR and privacy regulations
+```bash
+jq 'select(.message == "message.received")' ./logs/open-wa-*.log
+```
 
-### Log Retention
+If the command reports no matches, inspect the file path and logger level before changing application code:
 
-Define a retention policy:
+```bash
+ls -lh ./logs
+tail -n 50 ./logs/open-wa-*.log
+```
+
+## Store a narrow audit record
+
+For a small app-owned journal, SQLite can store identifiers and timestamps without copying message bodies. Install `better-sqlite3`, create the table once, then insert only the fields your workflow needs:
 
 ```ts
-// Delete logs older than 90 days
-const retentionDays = 90;
-const cutoffDate = new Date();
-cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
+import Database from 'better-sqlite3';
 
-await db.logs.deleteMany({
-  timestamp: { lt: cutoffDate },
-});
+const db = new Database('./logs/audit.sqlite');
+db.exec(`
+  CREATE TABLE IF NOT EXISTS message_audit (
+    session_id TEXT NOT NULL,
+    message_id TEXT NOT NULL,
+    chat_id TEXT NOT NULL,
+    observed_at INTEGER NOT NULL,
+    PRIMARY KEY (session_id, message_id)
+  )
+`);
+const insertAudit = db.prepare(`
+  INSERT OR IGNORE INTO message_audit (session_id, message_id, chat_id, observed_at)
+  VALUES (?, ?, ?, ?)
+`);
+
+function recordMessage(message) {
+  insertAudit.run(sessionId, message.id, message.chatId, Date.now());
+}
 ```
+
+Install the database package alongside the logger dependencies with `npm install better-sqlite3`. This is an application record, not proof of regulatory compliance. Define who can read or delete it, how long it is retained, and whether your policy requires tamper evidence, legal hold, or a specific storage region. Keep tokens, QR values, session credentials, and complete message bodies out of logs unless a documented purpose requires them.
+
+## Troubleshooting
+
+| Symptom | Command or observation | Expected result | Next action |
+| --- | --- | --- | --- |
+| No host logs appear | `mkdir -p ./logs && npx @open-wa/wa-automate@5.1.0 --session-id logs --host 127.0.0.1 --port 8080 >> ./logs/open-wa.log 2>&1` | Startup lines appear in `./logs/open-wa.log`. | Check the working directory, permissions, and process-supervisor stdout capture; run the process in the foreground when you need to see stderr directly. |
+| Host log exists but rotating file is empty | `ls -lh ./logs; tail -n 50 ./logs/open-wa-*.log` | The application logger's file exists and contains JSON records after `recordMessage` runs. | Confirm `winston-daily-rotate-file` is installed, the import is present, and the app logger is actually called; host logs use a separate stream. |
+| Transport emits an error | Inspect stderr for `rotating log transport failed` | The error includes the path or filesystem cause. | Fix directory ownership, free disk space, or change the path, then restart the process. |
+| A webhook is retried | Inspect the webhook sender log for `Webhook delivery failed` | The line includes an attempt count and delay. | Make the receiver return a fast `2xx`; use its durable journal if restart replay is required. |
+| Audit rows exist but cannot support a policy claim | Review the stored columns and retention job | Rows contain identifiers and timestamps, but no automatic tamper or deletion controls. | Add the deployment's access, retention, deletion, regional, and evidence controls before calling the process compliant. |
+
+## Retention is an explicit policy
+
+A retention job should be scoped to the fields and policy your application owns:
+
+```ts
+const cutoff = Date.now() - 90 * 24 * 60 * 60 * 1000;
+const result = db.prepare('DELETE FROM message_audit WHERE observed_at < ?').run(cutoff);
+console.info('expired audit rows removed', result.changes);
+```
+
+This continues the SQLite example above. Ninety days is an example, not a legal requirement; choose a period that matches your data inventory, customer commitments, deletion requests, incident response, and provider lifecycle controls.
 
 ## Related
 
-- **[Plugin getting started](/docs/plugins/getting-started)** - Build your first plugin
-- **[Security and deployment](/docs/operations/security-and-deployment)** - Production security
-- **[Best practices](/docs/operations-and-troubleshooting/best-practices)** - Production checklist
+- [Node-RED integration](/docs/guides/node-red)
+- [S3 media storage](/docs/guides/s3-media)
+- [Security and deployment](/docs/operations/security-and-deployment)
+- [Webhook payloads](/docs/client-and-integrations/webhook-payloads)

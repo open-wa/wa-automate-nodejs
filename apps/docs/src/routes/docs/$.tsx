@@ -68,8 +68,17 @@ const clientLoader = browserCollections.docs.createClientLoader<{
   pagePath: string;
 }>({
   component({ toc, frontmatter, default: MDX }, { pagePath }) {
+    const normalizedPagePath = pagePath.replace(/^\/+/, '').replace(/\.mdx$/, '');
+    const isCompactClientReference = normalizedPagePath === 'reference/client/client';
+
     return (
-      <DocsPage toc={toc} breadcrumb={{ enabled: false }}>
+      <DocsPage
+        full={isCompactClientReference}
+        className={isCompactClientReference ? 'docs-reference-page' : 'docs-guide-page'}
+        toc={isCompactClientReference ? [] : toc.filter((item) => item.depth > 1)}
+        tableOfContent={{ enabled: !isCompactClientReference }}
+        breadcrumb={{ enabled: false }}
+      >
         <DocsPageHeader
           title={frontmatter.title}
           description={frontmatter.description}
@@ -101,8 +110,8 @@ function Page() {
 
   return (
     <DocsShell loaderData={data}>
-      {data.path === 'index' ? (
-        <DocsHomepage />
+      {data.path.replace(/\.mdx$/, '') === 'index' ? (
+        <DocsPage full tableOfContent={{ enabled: false }} breadcrumb={{ enabled: false }} className="docs-hub-page"><DocsHomepage /></DocsPage>
       ) : (
         <Content pagePath={data.path} />
       )}

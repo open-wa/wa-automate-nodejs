@@ -1,3 +1,4 @@
+import type { HostAccount } from '@open-wa/schema';
 import type { Client } from '../Client';
 import { createUnsupportedMethodStub } from '../runtimeSurface';
 
@@ -8,9 +9,9 @@ declare const WAPI: {
   getBatteryLevel: () => number;
   getIsPlugged: () => boolean;
   getAmountOfLoadedMessages: () => number;
-  getMe: () => any;
-  getFeatures: () => any;
-  getProcessStats: () => any;
+  getMe: () => HostAccount;
+  getFeatures: () => Record<string, unknown>;
+  getProcessStats: () => Record<string, unknown>;
   setMyName: (name: string) => boolean;
   setMyStatus: (status: string) => boolean;
 };
@@ -22,9 +23,9 @@ export interface UtilitiesMethods {
   getBatteryLevel(): Promise<number>;
   getIsPlugged(): Promise<boolean>;
   getAmountOfLoadedMessages(): Promise<number>;
-  getMe(): Promise<any>;
-  getFeatures(): Promise<any>;
-  getProcessStats(): Promise<any>;
+  getMe(): Promise<HostAccount>;
+  getFeatures(): Promise<Record<string, unknown>>;
+  getProcessStats(): Promise<Record<string, unknown>>;
   setMyName(name: string): Promise<boolean>;
   setMyStatus(status: string): Promise<boolean>;
 }
@@ -57,15 +58,15 @@ export function utilitiesMethods(client: Client): UtilitiesMethods {
       return evaluate(() => WAPI.getAmountOfLoadedMessages(), undefined);
     },
     
-    async getMe(): Promise<any> {
+    async getMe(): Promise<HostAccount> {
       return evaluate(() => WAPI.getMe(), undefined);
     },
     
-    async getFeatures(): Promise<any> {
+    async getFeatures(): Promise<Record<string, unknown>> {
       return evaluate(() => WAPI.getFeatures(), undefined);
     },
     
-    async getProcessStats(): Promise<any> {
+    async getProcessStats(): Promise<Record<string, unknown>> {
       return evaluate(() => WAPI.getProcessStats(), undefined);
     },
     

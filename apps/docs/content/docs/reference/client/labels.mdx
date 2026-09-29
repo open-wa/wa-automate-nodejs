@@ -6,49 +6,18 @@ icon: "BookOpen"
 
 # Labels Client API
 
-> Generated file warning: `packages/schema/scripts/gen-client-reference-docs.ts` generates this page. Do not edit generated method content by hand.
-
 This page documents 4 schema-registry client methods in the `labels` namespace.
+
 
 ## `addLabel`
 
 Add label to chat
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `labels` |
-| Action | `update` |
-| Functionality | `business-only` |
-| Positional parameter order | `label`, `chatId` |
-| Aliases | `labels.add` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/labels/add` | `addLabel` | Active |
-| Alias | `PUT` | `/api/addLabel` | `addLabel` | Active |
+**Signature** `client.addLabel(label: string, chatId: string): Promise<boolean>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.addLabel({
-  label: "label",
-  chatId: "447123456789@c.us",
-});
-// namespaced form: client.labels.add(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -90,25 +59,28 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="AddLabelParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
 
-## `getAllLabels`
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Get all labels
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
 | Prop | Value |
 | --- | --- |
 | Namespace | `labels` |
-| Action | `read` |
+| Action | `update` |
 | Functionality | `business-only` |
-| Positional parameter order | - |
-| Aliases | `labels.all`, `labels.getAll`, `labels.list`, `listLabels` |
+| Positional parameter order | `label`, `chatId` |
+| Aliases | `labels.add` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -118,30 +90,28 @@ Get all labels
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/labels/getAll` | `getAllLabels` | Active |
-| Alias | `GET` | `/api/getAllLabels` | `getAllLabels` | Active |
-| Alias | `GET` | `/api/labels/all` | `labels.all` | Active |
-| Alias | `GET` | `/api/labels/list` | `labels.list` | Active |
-| Alias | `GET` | `/api/listLabels` | `listLabels` | Active |
+| Primary | `PUT` | `/api/labels/add` | `addLabel` | Active |
+| Alias | `PUT` | `/api/addLabel` | `addLabel` | Active |
+
+</details>
+
+
+## `getAllLabels`
+
+Get all labels
+
+**Signature** `client.getAllLabels(): Promise<Label[]>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getAllLabels({});
-// namespaced form: client.labels.getAll(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getAllLabels({});
+const result = await client.getAllLabels();
 ```
 
   </InterfaceTab>
@@ -170,17 +140,19 @@ Example response envelope:
 
 This method does not define input parameters.
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any[]` |
+| Return type | `Promise<Label[]>` |
+| Label | [View fields](/docs/reference/client/return-types#label) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `Label[]`. A rejected Promise indicates input validation or dispatch failure.
 
-## `getChatsByLabel`
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
-Get chats by label
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -189,8 +161,8 @@ Get chats by label
 | Namespace | `labels` |
 | Action | `read` |
 | Functionality | `business-only` |
-| Positional parameter order | `label` |
-| Aliases | `labels.getChats`, `labels.getChatsBy` |
+| Positional parameter order | - |
+| Aliases | `labels.all`, `labels.getAll`, `labels.list`, `listLabels` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -200,23 +172,24 @@ Get chats by label
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/labels/getChats` | `getChatsByLabel` | Active |
-| Alias | `GET` | `/api/getChatsByLabel` | `getChatsByLabel` | Active |
-| Alias | `GET` | `/api/labels/getChatsBy` | `labels.getChatsBy` | Active |
+| Primary | `GET` | `/api/labels/getAll` | `getAllLabels` | Active |
+| Alias | `GET` | `/api/getAllLabels` | `getAllLabels` | Active |
+| Alias | `GET` | `/api/labels/all` | `labels.all` | Active |
+| Alias | `GET` | `/api/labels/list` | `labels.list` | Active |
+| Alias | `GET` | `/api/listLabels` | `listLabels` | Active |
+
+</details>
+
+
+## `getChatsByLabel`
+
+Get chats by label
+
+**Signature** `client.getChatsByLabel(label: string): Promise<Chat[]>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getChatsByLabel({
-  label: "label",
-});
-// namespaced form: client.labels.getChats(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -253,27 +226,30 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetChatsByLabelParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any[]` |
+| Return type | `Promise<Chat[]>` |
+| Chat | [View fields](/docs/reference/client/return-types#chat) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `Chat[]`. A rejected Promise indicates input validation or dispatch failure.
 
-## `removeLabel`
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+Serialized chat returned by chat lookups and listings. Its id is an opaque ChatId; additional WhatsApp Web fields may be present.
 
-Remove label from chat
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
 | Prop | Value |
 | --- | --- |
 | Namespace | `labels` |
-| Action | `update` |
+| Action | `read` |
 | Functionality | `business-only` |
-| Positional parameter order | `label`, `chatId` |
-| Aliases | `labels.remove` |
+| Positional parameter order | `label` |
+| Aliases | `labels.getChats`, `labels.getChatsBy` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -283,23 +259,22 @@ Remove label from chat
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/labels/remove` | `removeLabel` | Active |
-| Alias | `PUT` | `/api/removeLabel` | `removeLabel` | Active |
+| Primary | `GET` | `/api/labels/getChats` | `getChatsByLabel` | Active |
+| Alias | `GET` | `/api/getChatsByLabel` | `getChatsByLabel` | Active |
+| Alias | `GET` | `/api/labels/getChatsBy` | `labels.getChatsBy` | Active |
+
+</details>
+
+
+## `removeLabel`
+
+Remove label from chat
+
+**Signature** `client.removeLabel(label: string, chatId: string): Promise<boolean>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.removeLabel({
-  label: "label",
-  chatId: "447123456789@c.us",
-});
-// namespaced form: client.labels.remove(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -341,8 +316,38 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="RemoveLabelParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
+
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `labels` |
+| Action | `update` |
+| Functionality | `business-only` |
+| Positional parameter order | `label`, `chatId` |
+| Aliases | `labels.remove` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/labels/remove` | `removeLabel` | Active |
+| Alias | `PUT` | `/api/removeLabel` | `removeLabel` | Active |
+
+</details>

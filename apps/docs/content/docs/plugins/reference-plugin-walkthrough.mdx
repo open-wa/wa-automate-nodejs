@@ -5,11 +5,11 @@ description: Step-by-step walkthrough of the webhook and Chatwoot reference plug
 
 # Anatomy of a Plugin
 
-This page explains two plugins that open-wa supplies. Use these patterns to make your plugin.
+This page explains the event and lifecycle patterns used by the webhook and Chatwoot integrations in this checkout. Keep the source files as the authority when an integration adds provider-specific behavior.
 
 ## The Webhook Plugin
 
-The webhook plugin pushes WhatsApp events to an external HTTP endpoint. It demonstrates event forwarding, configuration, and HTTP route mounting.
+The webhook plugin pushes public WhatsApp events to an external HTTP endpoint. It demonstrates catch-all event forwarding, configuration, bounded delivery, retries, and disposal.
 
 ### File Location
 
@@ -23,8 +23,15 @@ integrations/webhook/src/plugin.ts
 export default createPlugin({
   meta: { name: 'webhook' },
   configSchema: webhookConfigSchema,
-  init: async ({ events, logger, config, client }) => { ... },
-  routes: () => { ... },
+  init: async ({ logger, config, sessionId }) => ({
+    event: async ({ event, payload }) => {
+      // The integration's deliverer applies filtering, queueing and retries.
+      await deliver(event, payload, config, sessionId);
+    },
+    dispose: async () => {
+      // Drain and close the delivery runtime.
+    },
+  }),
 });
 ```
 
@@ -32,26 +39,27 @@ export default createPlugin({
 
 - **`meta.name`**: Used for logging prefix and config key mapping
 - **`configSchema`**: Zod schema that validates `pluginConfig.webhook` from `wa.config.js`
-- **`init`**: Sets up event listeners that forward WhatsApp events to the configured webhook URL
-- **`routes`**: Mounts a health check endpoint at `/plugins/webhook/health`
+- **`init`**: Creates the delivery runtime and returns the plugin's `Hooks` object
+- **`event`**: Receives public events; the integration filters and queues the events selected by its config
+- **`dispose`**: Releases the delivery runtime and drains its queue during shutdown
 
 ### Event Forwarding Pattern
 
 ```ts
-events.on('message.received', async ({ message }) => {
+event: async ({ event, payload }) => {
   await fetch(config.url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      event: 'message.received',
-      data: message,
+      event,
+      data: payload,
       timestamp: Date.now(),
     }),
   });
 });
 ```
 
-This pattern is reusable for any external service integration.
+This is a shape for a simple receiver. The supplied integration adds event filtering, queue capacity, retry policy, request timeouts, and optional durable delivery around the HTTP call.
 
 ## The Chatwoot Plugin
 
@@ -136,7 +144,7 @@ try {
 
 ### 4. Graceful Degradation
 
-Continue processing even when external services fail:
+Keep the host alive when an external service fails, but make the retry or persistence policy explicit:
 
 ```ts
 events.on('message.received', async ({ message }) => {
@@ -144,7 +152,7 @@ events.on('message.received', async ({ message }) => {
     await processMessage(message);
   } catch (error) {
     logger.error('Processing failed', { error: error.message });
-    // Message is not lost - it will be retried or logged
+    // Add an explicit retry or durable queue if the event must not be lost.
   }
 });
 ```

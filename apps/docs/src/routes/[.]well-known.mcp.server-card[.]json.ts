@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { CURRENT_VERSION } from '@/lib/site';
 
 export const Route = createFileRoute('/.well-known/mcp/server-card.json')({
   server: {
@@ -11,7 +12,7 @@ export const Route = createFileRoute('/.well-known/mcp/server-card.json')({
             {
               serverInfo: {
                 name: 'open-wa documentation',
-                version: '5.0.0-alpha',
+                version: CURRENT_VERSION,
               },
               transport: {
                 type: 'streamable-http',

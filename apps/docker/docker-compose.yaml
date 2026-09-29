@@ -2,17 +2,28 @@ version: "3.9"
 services:
 
   owa:
-    image: openwa/wa-automate:latest
+    image: openwa/wa-automate:latest@sha256:d31f5a8f59c4890a302294e9834a25f217a973d80339896ef74cf3d35d903cb3
     hostname: owa
     init: true
     restart: on-failure
     volumes:
       - "sessions:/sessions"
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
-      WA_DISABLE_SPINS: 'true' # Example cli config as ENV VAR. Use any flag from https://openwa.dev/docs/configuration/command-line-options and convert to capital snake case with `WA_` prefix
+      WA_DISABLE_SPINS: 'true' # See supported environment variables: https://openwa.dev/docs/guides/config-secrets
+      W_A_V: "5.1.0"
       WA_SESSION_ID: "MY_SESSION" # Change this
+      WA_PORT: "8080"
+      WA_HOST: "0.0.0.0"
+      WA_USER_DATA_DIR: /sessions/MY_SESSION
+      WA_API_KEY: ${WA_API_KEY:?Set WA_API_KEY in .env before starting}
+    command: ["--session-id", "MY_SESSION", "--host", "0.0.0.0", "--port", "8080"]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   sessions:

@@ -7,27 +7,49 @@ description: Handle runtime failures, create-time failures, and browser-side iss
 
 Treat every client method as an async operation and handle failures explicitly.
 
-## Application-level pattern
+## Embedded runtime pattern
 
 ```ts
-client.onMessage(async (message) => {
+import { Client, createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+
+const runtime = await createClient({
+  sessionId: 'sales',
+  driver: new PuppeteerDriver(),
+  headless: false,
+});
+const client = new Client({ client: runtime, transport: runtime.getTransport() });
+
+await client.start();
+runtime.events.on('message.received', async ({ message }) => {
   try {
     await client.sendText(message.from, 'Hi!');
   } catch (error) {
-    console.error(error);
+    console.error('sendText failed', error);
   }
 });
 ```
 
-## Handling `create()` failures
+`createClient()` creates the embedded runtime and `client.start()` begins the browser/session lifecycle. Keep those ownership boundaries together; use `SocketClient` when another Easy API process owns the browser.
+
+## Handling startup failures
 
 ```ts
 async function launch() {
   try {
-    const client = await create();
-    await start(client);
+    const runtime = await createClient({
+      sessionId: 'sales',
+      driver: new PuppeteerDriver(),
+      headless: false,
+    });
+    const client = new Client({ client: runtime, transport: runtime.getTransport() });
+    await client.start();
+    const readiness = runtime.getReadiness();
+    if (!readiness.ready) throw new Error(`Session is not ready: ${readiness.pending.join(', ') || 'unknown blocker'}`);
+    return { runtime, client };
   } catch (error) {
-    console.error(error);
+    console.error('open-wa failed to start', error);
+    throw error;
   }
 }
 ```
@@ -76,18 +98,21 @@ Recovery steps:
 4. If the same saved session continues to fail, log out that linked device from the phone. Delete only that session's files, and authenticate again.
 
 ```ts
-const client = await create({
+const runtime = await createClient({
+  driver: new PuppeteerDriver(),
   sessionId: 'sales',
-  qrTimeout: 0,
-  authTimeout: 120,
+  qrTimeoutMs: 0,
+  authTimeoutMs: 120_000,
 });
+const client = new Client({ client: runtime, transport: runtime.getTransport() });
+await client.start();
 ```
 
-Use `qrTimeout: 0` only when you want the QR flow to wait without expiring in unattended or slow manual setup. For production, pair long auth windows with process supervision so a stuck startup can still be restarted intentionally.
+Use `qrTimeoutMs: 0` only when you want the QR flow to wait without expiring in unattended or slow manual setup. For production, pair long auth windows with process supervision so a stuck startup can still be restarted intentionally.
 
 ## Browser failures
 
-Browser failures usually happen during `create()` or shortly after session startup. The Node.js process is running, but the browser driver cannot launch, attach, navigate, or keep the WhatsApp Web page alive.
+Browser failures usually happen during `createClient()` or shortly after `client.start()`. The Node.js process is running, but the browser driver cannot launch, attach, navigate, or keep the WhatsApp Web page alive.
 
 Check these first:
 
@@ -99,7 +124,8 @@ Check these first:
 - Enable browser console logging when the page loads but WhatsApp Web fails inside the browser.
 
 ```ts
-const client = await create({
+const runtime = await createClient({
+  driver: new PuppeteerDriver(),
   sessionId: 'sales',
   useChrome: true,
   headless: false,
@@ -173,6 +199,49 @@ try {
 }
 ```
 
+## Readiness and authentication checks
+
+Run these checks from the same host that calls Easy API. `/health` is public: it
+reports process and session readiness but does not check the API key. The
+metadata request checks a configured key, so the two results separate an
+unreachable process, a rejected key, and a live process whose WhatsApp session
+is still authenticating:
+
+```bash
+export OPENWA_API_URL="http://127.0.0.1:8080"
+export OPENWA_API_KEY="your-secure-key"
+
+curl -sS -D - \
+  "$OPENWA_API_URL/health"
+
+curl -sS -D - \
+  -H "X-API-Key: $OPENWA_API_KEY" \
+  "$OPENWA_API_URL/meta/basic/commands"
+```
+
+Interpret the response before retrying a command:
+
+- `HTTP 200` from `/health` with `connected: true` and `session.ready: true` means the API and WhatsApp session are ready. A successful `/meta/basic/commands` response confirms that the same URL and configured key can load command metadata.
+- `HTTP 200` with `connected: false` or `session.ready: false` means the process is alive but authentication or runtime finalization is incomplete. Finish the QR or link-code flow, then inspect `session.pending` and `session.blockers` and check again.
+- `HTTP 401` from `/meta/basic/commands` means the key is absent or does not match the process configuration. `/health` does not return `401` for a missing or incorrect key. Compare the value passed as `--api-key` (or its config source) with `OPENWA_API_KEY`; do not keep retrying the same key.
+- A connection-refused or timeout error means the host, port, process, or network boundary is wrong. Start Easy API or correct `OPENWA_API_URL` before investigating WhatsApp state.
+
+Once readiness is true, make one low-risk send request and keep the response headers while diagnosing delivery:
+
+```bash
+curl -sS -D - -X POST \
+  -H "X-API-Key: $OPENWA_API_KEY" \
+  -H "Content-Type: application/json" \
+  "$OPENWA_API_URL/api/messages/sendText" \
+  -d '{"to":"447123456789@c.us","content":"readiness check","options":{}}'
+```
+
+An HTTP `2xx` response with a message result means the API accepted the
+request. A `401` sends you back to key configuration, a `503` means the API
+middleware is still waiting for a ready session, and a `4xx` response usually
+means the recipient ID or JSON body needs correcting. Do not turn a `200`
+health response into a send attempt until both readiness fields are true.
+
 ## Retries
 
 Retry based on the error type. A retry strategy that helps one class of failure can make another class worse.
@@ -216,13 +285,14 @@ Turn on enough logging to see which layer failed: your app, Easy API, the browse
 For Easy API, start by capturing stdout and stderr:
 
 ```bash
-npx @open-wa/wa-automate@latest --port 8080 --log-console --verbose > open-wa.log 2>&1
+npx @open-wa/wa-automate@5.1.0 --session-id sales --host 127.0.0.1 --port 8080 --log-console --verbose > open-wa.log 2>&1
 ```
 
 For custom code, enable browser console logging during diagnosis:
 
 ```ts
-const client = await create({
+const runtime = await createClient({
+  driver: new PuppeteerDriver(),
   sessionId: 'sales',
   logConsole: true,
   logConsoleErrors: true,

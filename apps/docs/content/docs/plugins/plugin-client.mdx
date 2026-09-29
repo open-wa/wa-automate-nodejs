@@ -5,26 +5,26 @@ description: Reference for the PluginClient interface, the transport-agnostic pr
 
 # PluginClient Reference
 
-The `PluginClient` is the interface your plugin uses to call WhatsApp methods. It is a **transport-agnostic proxy**. Your plugin never gets direct browser or CDP access. All calls are forwarded through the host's transport layer.
+The `PluginClient` is the WhatsApp-method interface provided in `PluginInput`. It is a **host-managed proxy** backed by the connected runtime page. `PluginInput` does not include a browser or CDP handle, and the proxy does not create an isolation boundary around trusted plugin code.
 
 ## What PluginClient Is
 
-- A proxy that forwards method calls to the WhatsApp runtime
+- A proxy that forwards method calls to `window.WAPI` in the connected runtime
 - Available through `client` in your plugin's `PluginInput`
-- Works regardless of the underlying transport (HTTP RPC, SSE, etc.)
-- Provides the full WhatsApp Client surface via the `ask()` method
+- Uses the host's runtime transport without exposing that transport to plugin code
+- Forwards method names through `ask()` without an SDK method allowlist
 
 ## What PluginClient Is Not
 
-- Direct browser access. You cannot execute CDP commands
-- Direct file system access. You cannot read/write arbitrary files
-- A raw WebSocket. It is a managed proxy with security filters
+- A browser or CDP interface. The client proxy does not expose CDP commands, DOM access, cookies, or page injection.
+- Filesystem isolation. `PluginClient` has no filesystem methods; trusted in-process plugin code still has the OS permissions of its host process.
+- A raw WebSocket. It is a managed proxy whose methods are forwarded by the host transport.
 
 ## Generic Method Dispatcher
 
 ### `ask(method, args?)`
 
-Call any WhatsApp method by name. This is the most flexible way to interact with the runtime.
+Call a method by name on the connected runtime's `window.WAPI` object. This is the most flexible way to interact with the runtime; `ask()` does not check the requested name against a safe-method list.
 
 ```ts
 // Send a text message
@@ -48,12 +48,13 @@ const contact = await client.ask('getContact', ['1234567890@c.us']);
 
 ### `listen(listener, callback)`
 
-Listen for WhatsApp events directly from the client.
+The SDK keeps this method for interface compatibility, but the current host does not support direct client listeners. Calling it logs a warning, does not register the callback, and resolves to the placeholder string `'noop'`. Return event hooks from `init()` instead.
 
 ```ts
-const subscriptionId = await client.listen('onMessage', (data) => {
+const result = await client.listen('onMessage', (data) => {
   console.log('Message received:', data);
 });
+// Current host result: 'noop'; the callback is not registered.
 ```
 
 **Parameters:**
@@ -61,7 +62,7 @@ const subscriptionId = await client.listen('onMessage', (data) => {
 - `listener`, Listener name (e.g., `'onMessage'`, `'onAnyMessage'`)
 - `callback`, Callback function receiving the event data
 
-**Returns:** `Promise<string>`, A subscription ID you can use to unsubscribe later.
+**Returns:** `Promise<string>`, currently `'noop'`. There is no client-level unsubscribe flow; use `events` or named hooks from `PluginInput` for subscriptions.
 
 ## Convenience Methods
 
@@ -136,8 +137,8 @@ await client.reply('1234567890@c.us', 'Got it!', originalMessageId);
 Decrypt media from a message object.
 
 ```ts
-const base64Data = await client.decryptMedia(message);
-// base64Data is a base64-encoded string of the media content
+const mediaDataUrl = await client.decryptMedia(message);
+// mediaDataUrl is a data URL, such as 'data:image/png;base64,...'
 ```
 
 Use this for images, voice notes, videos, and documents received in messages.
@@ -187,7 +188,7 @@ const success = await client.sendSeen('1234567890@c.us');
 
 ## Proxy Fallback
 
-Any method not listed above can be called directly on the client object. The proxy forwards it to the runtime.
+Any method name not listed above can be called on the client object. The proxy forwards it to the runtime; availability depends on the connected runtime exposing that method through `window.WAPI`.
 
 ```ts
 // These all work via the proxy:

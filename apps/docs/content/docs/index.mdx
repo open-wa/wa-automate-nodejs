@@ -7,6 +7,13 @@ description: Start the Easy API, write custom Node.js code, connect integrations
 
 Use these docs to start a WhatsApp session and connect it to your app or helpdesk. Use the API reference to find exact methods.
 
+## Start here
+
+- Use **[Quick start](/docs/getting-started/quickstart)** if you want to start the API, authenticate WhatsApp, and send your first message.
+- Use **[Custom Code](/docs/getting-started/custom-code)** if you are embedding the library in your own Node.js project.
+- Use **[Socket Client](/docs/client-and-integrations/socket-client)** if you want to connect to a remote Easy API instance.
+- Use **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)** if you want remote session access without exposing a public port.
+
 ## What you can build
 
 - Customer support inboxes that sync WhatsApp into your own tools
@@ -19,36 +26,16 @@ Use these docs to start a WhatsApp session and connect it to your app or helpdes
 ## Prerequisites
 
 - **Node.js** >= 22.21.1
-- **npm** for released packages, or **pnpm 11.25.0** for repo development
+- **npm** for released packages, or **pnpm 11.9.0** for repo development
 - A WhatsApp account on a phone that can stay connected
 
-## v5 release
+## Version covered by these docs
 
-Version 5 is the current npm release line. The `latest` tag selects v5; pin an explicit version for repeatable deployments:
+The examples on this site are pinned to **v5.1.0**. v5 has stable releases; it is no longer an alpha-only package line. For current npm tags and the v4 archive, see [v5 release status](/docs/releases/v5-alpha).
 
-```bash
-# Current release
-npx @open-wa/wa-automate@latest
-```
+Use the version installed in your application when comparing method contracts. Choose the `alpha` tag only for deliberate prerelease work.
 
-### What changed in v5
-
-- Monorepo architecture with separate packages
-- Pluggable browser drivers (Puppeteer, Playwright, Lightpanda)
-- `createClient` as the new public contract
-- Plugin system with SDK for reusable integrations
-- Built-in MCP server for AI agent integration
-
-### Migrating from v4
-
-The v5 CLI, runtime, and SocketClient use new contracts. Pin `@open-wa/wa-automate@4.76.0` only while an existing v4 integration is being migrated, and keep the v5 Easy API and SocketClient on matching versions.
-
-## Start here
-
-- Use **[Quick start](/docs/getting-started/quickstart)** if you want to start the API, authenticate WhatsApp, and send your first message.
-- Use **[Custom Code](/docs/getting-started/custom-code)** if you are embedding the library in your own Node.js project.
-- Use **[Socket Client](/docs/client-and-integrations/socket-client)** if you want to connect to a remote Easy API instance.
-- Use **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)** if you want remote session access without exposing a public port.
+For changes in the current release, see the [v5.1.0 release notes](/docs/releases/v5.1).
 
 ## Documentation map
 
@@ -74,7 +61,7 @@ This project is unofficial and has no affiliation with WhatsApp or Meta. You acc
 
 - **Documentation**: https://openwa.dev
 - **Discord**: https://discord.gg/dnpp72a
-- **Get a license key**: https://openwa.page.link/key
+- **Get a license key**: [Licence options](/docs/licensing/pricing)
 
 ## If you came from the old docs
 

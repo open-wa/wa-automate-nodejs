@@ -110,7 +110,7 @@ export function ViewOptionsPopover({
 
     return [
       githubUrl && {
-        title: 'Open in GitHub',
+        title: 'Edit this page',
         href: githubUrl,
         icon: (
           <svg fill="currentColor" role="img" viewBox="0 0 24 24">

@@ -1,323 +1,121 @@
 ---
 title: Multiple sessions
-description: Run and coordinate multiple WhatsApp sessions safely.
+description: Run more than one WhatsApp account with separate session profiles, API keys, and failure boundaries.
 ---
 
 # Multiple sessions
 
-You can run multiple sessions in one process. Each session needs a unique `sessionId`. You must manage each session separately.
+Give each WhatsApp account a unique `sessionId` and persistent browser profile.
+For separate Easy API processes, also assign a unique port and API key. The
+[Easy API quick start](/docs/getting-started/easy-api) covers installation and
+API-key setup; use the [Docker guide](/docs/getting-started/docker) when each
+session needs its own persistent volume.
 
-## Basic pattern
+## One process per session
 
-```ts
-import { create } from '@open-wa/wa-automate';
-
-type ManagedSession = {
-  getSessionId(): string;
-};
-
-const registry: Record<string, ManagedSession> = {};
-
-async function start(client: ManagedSession) {
-  registry[client.getSessionId()] = client;
-}
-
-await create({ sessionId: 'sales' }).then(start);
-await create({ sessionId: 'support' }).then(start);
-```
-
-## QR handling per session
-
-```ts
-ev.on('qr.**', async (qrcode, sessionId) => {
-  // write or deliver a QR image for each session separately
-});
-```
-
-## Real orchestration patterns
-
-There are three common ways to run more than one session. Pick the one that matches how much isolation you need.
-
-### Process-per-session
-
-Run one Easy API process for each WhatsApp account. Each process gets its own `sessionId`, port, API key, and restart policy.
+Separate processes keep browser failures, restarts, and API credentials scoped
+to one account. The commands below target the published v5.1.0 CLI; specify
+`--host` and `--port` explicitly for that release. Before running them, set
+different, nonempty `SALES_API_KEY` and `SUPPORT_API_KEY` values in your secret
+store or shell environment.
 
 ```bash
-npx @open-wa/wa-automate@latest --session-id sales --port 8081 --api-key "sales-api-key"
-npx @open-wa/wa-automate@latest --session-id support --port 8082 --api-key "support-api-key"
-npx @open-wa/wa-automate@latest --session-id ops --port 8083 --api-key "ops-api-key"
+npx @open-wa/wa-automate@5.1.0 \
+  --session-id sales --host 127.0.0.1 --port 8081 --api-key "$SALES_API_KEY"
+
+npx @open-wa/wa-automate@5.1.0 \
+  --session-id support --host 127.0.0.1 --port 8082 --api-key "$SUPPORT_API_KEY"
 ```
 
-This is the easiest model to reason about in production. If `support` crashes, `sales` and `ops` keep running.
+Keep the API processes on loopback or a private network and configure your
+reverse proxy with a separate upstream credential for each session. `/health`
+is public and can include QR or diagnostic data, so do not expose it through a
+public proxy. See [Easy API security](/docs/getting-started/easy-api#security).
 
-### Single process with multiple createClient calls
+## One Node.js process
 
-Use one Node.js process when your app needs to coordinate sessions directly and you are comfortable owning the lifecycle yourself.
+Use one process when your application needs direct control of each runtime.
+Create and retain one runtime per session, and stop each runtime during
+application shutdown.
 
 ```ts
 import { createClient } from '@open-wa/wa-automate';
 import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
 
-const sessions = ['sales', 'support', 'ops'] as const;
-const clients = new Map<string, Awaited<ReturnType<typeof createClient>>>();
+const sessions = new Map();
 
-for (const sessionId of sessions) {
-  const client = await createClient({
+for (const sessionId of ['sales', 'support']) {
+  const runtime = await createClient({
     sessionId,
+    userDataDir: `./private/sessions/${sessionId}`,
     driver: new PuppeteerDriver(),
     headless: true,
   });
 
-  clients.set(sessionId, client);
+  sessions.set(sessionId, runtime);
+  await runtime.start();
 }
 ```
 
-This keeps routing inside your app, but one process owns every browser instance. If that process exits, every session exits with it.
+Each runtime owns a browser context, so resource use grows with the number of
+active accounts. If one process exits, all its sessions stop; supervise and
+recover them as a unit or move sessions into separate processes when they need
+independent availability.
 
-### PM2 ecosystem file for multiple sessions
+## Route requests to the intended session
 
-Use PM2 when you want process-per-session isolation with simple restarts and logs.
+Keep the session-to-origin and session-to-key mapping in your application.
+Authenticate the upstream request with the key for that session and reject
+unknown session names before forwarding traffic.
 
-```js
-// ecosystem.config.cjs
-module.exports = {
-  apps: [
-    {
-      name: 'open-wa-sales',
-      script: 'npx',
-      args: '@open-wa/wa-automate --session-id sales --port 8081 --api-key sales-api-key',
-      autorestart: true,
-      max_memory_restart: '1G',
-    },
-    {
-      name: 'open-wa-support',
-      script: 'npx',
-      args: '@open-wa/wa-automate --session-id support --port 8082 --api-key support-api-key',
-      autorestart: true,
-      max_memory_restart: '1G',
-    },
-  ],
-};
-```
+| Session | Local API origin | API key source |
+| --- | --- | --- |
+| `sales` | `http://127.0.0.1:8081` | `SALES_API_KEY` |
+| `support` | `http://127.0.0.1:8082` | `SUPPORT_API_KEY` |
 
-Start them together:
-
-```bash
-pm2 start ecosystem.config.cjs
-pm2 logs open-wa-support
-pm2 restart open-wa-sales
-```
-
-## Port/session mapping
-
-Keep a small record that shows the location of each session. Use unique ports and API keys for each Easy API process.
-
-| Session   |   Port | API key           | Base URL                |
-| --------- | -----: | ----------------- | ----------------------- |
-| `sales`   | `8081` | `sales-api-key`   | `http://localhost:8081` |
-| `support` | `8082` | `support-api-key` | `http://localhost:8082` |
-| `ops`     | `8083` | `ops-api-key`     | `http://localhost:8083` |
-
-Example config for a routing service:
+For example, a request to `sales` can be forwarded to the method route on its
+own API process:
 
 ```ts
-const sessionRoutes = {
-  sales: {
-    baseUrl: 'http://localhost:8081',
-    apiKey: process.env.OPEN_WA_SALES_KEY,
-  },
-  support: {
-    baseUrl: 'http://localhost:8082',
-    apiKey: process.env.OPEN_WA_SUPPORT_KEY,
-  },
-  ops: {
-    baseUrl: 'http://localhost:8083',
-    apiKey: process.env.OPEN_WA_OPS_KEY,
-  },
-} as const;
-```
-
-Do not share one API key across all sessions unless your network boundary already separates tenants. Separate keys make cross-session calls easier to find. You can replace one session key without changing the other sessions.
-
-## Persistence isolation
-
-Each session must have separate session data. The `sessionId` prevents the runtime from mixing data from different accounts.
-
-Good isolation rules:
-
-- give every account a stable, unique `sessionId`
-- do not point two live sessions at the same profile or session directory
-- mount separate persistent volumes when running containers
-- back up and restore one session at a time
-
-For Docker-style deployments, think in terms of one data volume per session:
-
-```bash
-docker run --name open-wa-sales \
-  -p 8081:8080 \
-  -v open-wa-sales-data:/data \
-  openwa/wa-automate \
-  --session-id sales \
-  --api-key "sales-api-key"
-
-docker run --name open-wa-support \
-  -p 8082:8080 \
-  -v open-wa-support-data:/data \
-  openwa/wa-automate \
-  --session-id support \
-  --api-key "support-api-key"
-```
-
-Prevent data transfer between sessions. A defective auth state for `support` must not change `sales`. When you delete one session, the login state of another session must remain.
-
-## Scaling limits
-
-The practical limit is usually the host, not the session registry. Each connected account can mean another browser context, active WebSocket connection, event stream, and message workload.
-
-Watch these limits first:
-
-- memory per browser instance
-- CPU during login, reconnects, media work, and high message volume
-- file descriptors and network sockets
-- disk growth from logs, profiles, and cached browser data
-- restart storms if many sessions reconnect at the same time
-
-There is no universal safe number because it depends on browser driver, host size, workload, media usage, and whether sessions are idle or busy. Start with a small number, measure memory and CPU under real traffic, then add sessions gradually.
-
-As a simple rule, use process isolation before you use one huge multi-session process. It gives you clearer logs, easier restarts, and safer failure boundaries.
-
-## Process-per-session
-
-In this model, each WhatsApp account is a separate operating system process. This is usually the most predictable production setup.
-
-Start each session with its own name, port, and API key:
-
-```bash
-npx @open-wa/wa-automate@latest \
-  --session-id sales \
-  --port 8081 \
-  --api-key "sales-api-key"
-
-npx @open-wa/wa-automate@latest \
-  --session-id support \
-  --port 8082 \
-  --api-key "support-api-key"
-```
-
-For webhook delivery in the current v5, configure `@open-wa/integration-webhook` in each session config. The CLI still parses `--webhook`, but it does not register webhook delivery. Do not use that flag for delivery.
-
-Run them under a supervisor such as PM2, systemd, Docker, Kubernetes, or your platform's process manager. The important part is that each session can be restarted without restarting the others.
-
-Recommended per-session settings:
-
-- unique `sessionId`
-- unique port
-- unique API key
-- separate logs
-- separate persistent storage
-- independent health check and restart policy
-
-## API routing
-
-When multiple Easy API processes are running, your app needs to route each request to the right base URL and API key.
-
-One simple pattern is to put `sessionId` in the URL your app exposes, then map
-it to the Easy API method route, which is always prefixed with `/api/`:
-
-```text
-POST /sessions/sales/api/sendText   ->  http://localhost:8081/api/sendText
-POST /sessions/support/api/sendText ->  http://localhost:8082/api/sendText
-```
-
-Then proxy the call to the matching Easy API process (note the `/api/` prefix
-on the Easy API path):
-
-```ts
-type SessionName = 'sales' | 'support';
-
-function requiredEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`Missing required environment variable: ${name}`);
-  return value;
+const salesApiKey = process.env.SALES_API_KEY;
+if (!salesApiKey) {
+  throw new Error('Set SALES_API_KEY before sending requests');
 }
 
-const routes: Record<SessionName, { baseUrl: string; apiKey: string }> = {
-  sales: {
-    baseUrl: 'http://localhost:8081',
-    apiKey: requiredEnv('OPEN_WA_SALES_KEY'),
+const response = await fetch('http://127.0.0.1:8081/api/sendText', {
+  method: 'POST',
+  headers: {
+    'content-type': 'application/json',
+    'x-api-key': salesApiKey,
   },
-  support: {
-    baseUrl: 'http://localhost:8082',
-    apiKey: requiredEnv('OPEN_WA_SUPPORT_KEY'),
-  },
-};
+  body: JSON.stringify({
+    to: '447700900000@c.us',
+    content: 'Your update is ready.',
+  }),
+});
 
-async function callSession(session: SessionName, path: string, body: unknown) {
-  const route = routes[session];
-
-  const response = await fetch(`${route.baseUrl}${path}`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-api-key': route.apiKey,
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Session ${session} returned ${response.status}`);
-  }
-
-  return response.json();
+if (!response.ok) {
+  throw new Error(`The sales session returned ${response.status}`);
 }
 ```
 
-Keep authorization in your app. Permission to send from `sales` must not give a user permission to send from `support`.
+The exact input shape comes from the method contract; see the
+[`sendText` reference](/docs/reference/client/messages#sendtext). Do not let a
+user with access to one session inherit permission to send from another.
 
-For inbound events, include the session in the webhook path or inspect the event metadata if your integration includes the session identifier:
+## Recovery and capacity
 
-```text
-https://your-app.example/webhooks/open-wa/sales
-https://your-app.example/webhooks/open-wa/support
-```
+Monitor each Easy API process separately and wait for `/health` to report
+`connected: true` and `session.ready: true` after startup or restart. A
+responding port establishes HTTP liveness only. Keep the session ID, profile
+directory, API key, logs, and restart policy paired so you can recover one
+account without changing another.
 
-## Failure recovery
+Browser memory, CPU, media work, sockets, and reconnect bursts determine how
+many sessions a host can support. There is no fixed safe count; add sessions
+only after measuring the workload on the intended host. For process
+supervision, use your platform's service manager or container runtime.
 
-If one session stops in a process-per-session setup, the failure must affect only that session. Other sessions keep their browser process, port, API key, and event stream.
-
-Detect failures with a combination of process supervision and application health checks:
-
-- let PM2, systemd, Docker, or Kubernetes restart exited processes
-- poll each session's health or docs endpoint from your monitoring system
-- alert when a port stops responding, QR login is necessary again, or message processing stalls
-- keep per-session logs so you can see which account failed
-
-With PM2, basic recovery looks like this:
-
-```bash
-pm2 status
-pm2 logs open-wa-support
-pm2 restart open-wa-support
-```
-
-In application code, treat a failed call as session-specific. Mark that session unhealthy, stop routing new work to it, and retry after the supervisor has restarted it.
-
-```ts
-async function safeCall(session: SessionName, path: string, body: unknown) {
-  try {
-    return await callSession(session, path, body);
-  } catch (error) {
-    markSessionUnhealthy(session, error);
-    throw error;
-  }
-}
-```
-
-After a restart, the session uses its persistent data again. A valid auth state lets the session reconnect without changes to other sessions. If the account needs a new QR scan, handle its QR flow separately. Keep the other sessions in operation.
-
-## Practical rules
-
-- Never reuse the same `sessionId` for two live sessions.
-- Keep a process-level registry if other parts of your app need to address specific sessions.
-- Keep cross-session orchestration outside the client itself whenever possible.
-- If you are running many sessions, think early about process isolation, restart policy, and state storage.
+See [authentication and session recovery](/docs/guides/authentication-flow)
+for profile handling and [configuration and CLI](/docs/guides/configuration-and-cli)
+for runtime flags.

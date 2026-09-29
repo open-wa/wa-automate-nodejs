@@ -12,6 +12,12 @@ export type InterfaceId = (typeof INTERFACES)[number];
 const STORAGE_KEY = 'openwa.preferredInterface';
 const DEFAULT: InterfaceId = 'Embedded';
 
+const INTERFACE_LABELS: Record<InterfaceId, string> = {
+  Embedded: 'In-process SDK',
+  SocketClient: 'Node.js client',
+  'Easy API': 'HTTP',
+};
+
 let current: InterfaceId = DEFAULT;
 const listeners = new Set<() => void>();
 
@@ -64,15 +70,16 @@ function TabBar({
   onChange: (v: InterfaceId) => void;
 }) {
   return (
-    <div className="inline-flex rounded-md border border-fd-border overflow-hidden text-sm not-prose">
+    <div className="inline-flex self-start rounded-[10px] border border-fd-border overflow-hidden text-sm not-prose">
       {options.map((opt) => (
         <button
           key={opt}
           type="button"
+          aria-pressed={value === opt}
           onClick={() => isInterface(opt) && onChange(opt)}
-          className={`px-3 py-1.5 ${value === opt ? 'bg-fd-primary text-fd-primary-foreground' : 'bg-fd-background hover:bg-fd-accent'}`}
+          className={`min-h-10 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-fd-ring ${value === opt ? 'bg-fd-primary text-fd-primary-foreground' : 'bg-fd-background hover:bg-fd-accent'}`}
         >
-          {opt}
+          {INTERFACE_LABELS[opt as InterfaceId] ?? opt}
         </button>
       ))}
     </div>

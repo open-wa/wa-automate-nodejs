@@ -3,6 +3,8 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AppSidebar } from "@/components/app-sidebar"
 import { ConnectionBadge } from "@/components/connection-badge"
+import { SessionLicenseBadge } from "@/components/session-license-badge"
+import { ReportIssueDialog } from "@/components/report-issue-dialog"
 import { Separator } from "@/components/ui/separator"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -11,6 +13,8 @@ import { PrivacyToggle } from "@/components/privacy-toggle"
 import { PrivacyProvider } from "@/lib/hooks/use-privacy"
 import { Toaster } from "@/components/ui/sonner"
 import { useMessageToasts } from "@/lib/hooks/use-message-toasts"
+import { MoreHorizontal } from "lucide-react"
+import { Popover, PopoverContent, PopoverTrigger } from "@open-wa/ui-components/popover"
 
 export const Route = createRootRoute({
   validateSearch: (search: Record<string, unknown>) => {
@@ -35,16 +39,21 @@ function RootComponent() {
           <SidebarProvider>
             <AppSidebar />
             <SidebarInset>
-              <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
+              <header className="flex h-14 shrink-0 items-center gap-2 border-b border-primary/15 bg-background/95 px-2 sm:px-4 shadow-[0_1px_0_rgb(37_99_235_/_0.08)] backdrop-blur supports-[backdrop-filter]:bg-background/80">
                 <SidebarTrigger className="-ms-2" />
-                <Separator orientation="vertical" className="mx-2 h-4" />
-                <div className="flex flex-1 items-center justify-between">
-                  <h1 className="text-sm font-medium">open-wa Dashboard</h1>
-                  <div className="flex items-center gap-2">
-                    <PrivacyToggle />
-                    <DemoToggle />
-                    <ThemeToggle />
-                    <ConnectionBadge />
+                <Separator orientation="vertical" className="mx-1 h-4 sm:mx-2" />
+                <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                  <h1 className="min-w-0 truncate text-sm font-medium">open-wa Dashboard</h1>
+                  <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+                    <ReportIssueDialog />
+                    <SessionLicenseBadge />
+                    <div className="hidden items-center gap-2 md:flex">
+                      <PrivacyToggle />
+                      <DemoToggle />
+                      <ThemeToggle />
+                      <ConnectionBadge />
+                    </div>
+                    <HeaderOverflow />
                   </div>
                 </div>
               </header>
@@ -58,5 +67,29 @@ function RootComponent() {
         <Toaster position="bottom-right" />
       </PrivacyProvider>
     </ThemeProvider>
+  )
+}
+
+function HeaderOverflow() {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-label="More dashboard controls"
+          className="inline-flex size-8 items-center justify-center rounded-md border border-input bg-background/50 text-muted-foreground hover:bg-accent hover:text-accent-foreground md:hidden"
+        >
+          <MoreHorizontal className="size-4" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" sideOffset={8} className="w-64 p-2">
+        <div className="flex flex-col gap-2 [&>div>button]:w-full [&>div>button]:justify-start">
+          <div><PrivacyToggle /></div>
+          <div><DemoToggle /></div>
+          <div><ThemeToggle /></div>
+          <div><ConnectionBadge /></div>
+        </div>
+      </PopoverContent>
+    </Popover>
   )
 }

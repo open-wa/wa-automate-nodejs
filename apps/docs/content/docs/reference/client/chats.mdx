@@ -6,34 +6,14 @@ icon: "BookOpen"
 
 # Chats Client API
 
-> Generated file warning: `packages/schema/scripts/gen-client-reference-docs.ts` generates this page. Do not edit generated method content by hand.
-
 This page documents 15 schema-registry client methods in the `chats` namespace.
+
 
 ## `archiveChat`
 
 Archive a chat
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `chats` |
-| Action | `update` |
-| Functionality | `both` |
-| Positional parameter order | `chatId` |
-| Aliases | `chats.archive` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/archive` | `archiveChat` | Active |
-| Alias | `PUT` | `/api/archiveChat` | `archiveChat` | Active |
+**Signature** `client.archiveChat(chatId: string): Promise<boolean>`
 
 ### Usage
 
@@ -41,10 +21,7 @@ Archive a chat
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.archiveChat({
-  chatId: "447123456789@c.us",
-});
-// namespaced form: client.chats.archive(...)
+const result = await client.archiveChat("447123456789@c.us");
 ```
 
   </InterfaceTab>
@@ -87,25 +64,28 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="ArchiveChatParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
 
-## `clearChat`
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Clear chat history
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
 | Prop | Value |
 | --- | --- |
 | Namespace | `chats` |
-| Action | `delete` |
+| Action | `update` |
 | Functionality | `both` |
 | Positional parameter order | `chatId` |
-| Aliases | `chats.clear` |
+| Aliases | `chats.archive` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -115,8 +95,17 @@ Clear chat history
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `DELETE` | `/api/chats/clear` | `clearChat` | Active |
-| Alias | `DELETE` | `/api/clearChat` | `clearChat` | Active |
+| Primary | `PUT` | `/api/chats/archive` | `archiveChat` | Active |
+| Alias | `PUT` | `/api/archiveChat` | `archiveChat` | Active |
+
+</details>
+
+
+## `clearChat`
+
+Clear chat history
+
+**Signature** `client.clearChat(chatId: string): Promise<boolean>`
 
 ### Usage
 
@@ -124,10 +113,7 @@ Clear chat history
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.clearChat({
-  chatId: "447123456789@c.us",
-});
-// namespaced form: client.chats.clear(...)
+const result = await client.clearChat("447123456789@c.us");
 ```
 
   </InterfaceTab>
@@ -170,15 +156,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="ClearChatParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
 
-## `deleteChat`
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Delete a chat
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -188,7 +177,7 @@ Delete a chat
 | Action | `delete` |
 | Functionality | `both` |
 | Positional parameter order | `chatId` |
-| Aliases | `chats.delete` |
+| Aliases | `chats.clear` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -198,8 +187,17 @@ Delete a chat
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `DELETE` | `/api/chats/delete` | `deleteChat` | Active |
-| Alias | `DELETE` | `/api/deleteChat` | `deleteChat` | Active |
+| Primary | `DELETE` | `/api/chats/clear` | `clearChat` | Active |
+| Alias | `DELETE` | `/api/clearChat` | `clearChat` | Active |
+
+</details>
+
+
+## `deleteChat`
+
+Delete a chat
+
+**Signature** `client.deleteChat(chatId: string): Promise<boolean>`
 
 ### Usage
 
@@ -207,10 +205,7 @@ Delete a chat
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.deleteChat({
-  chatId: "447123456789@c.us",
-});
-// namespaced form: client.chats.delete(...)
+const result = await client.deleteChat("447123456789@c.us");
 ```
 
   </InterfaceTab>
@@ -253,15 +248,108 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="DeleteChatParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
+
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chats` |
+| Action | `delete` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `chats.delete` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `DELETE` | `/api/chats/delete` | `deleteChat` | Active |
+| Alias | `DELETE` | `/api/deleteChat` | `deleteChat` | Active |
+
+</details>
+
 
 ## `getAllChats`
 
-Retrieves all chats
+Returns serialized Chat objects from the current session, optionally limited to chats with unread messages.
+
+**Signature** `client.getAllChats(withNewMessagesOnly?: boolean): Promise<Chat[]>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.getAllChats();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getAllChats();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X GET "http://localhost:8080/api/chats/getAll" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="GetAllChatsParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<Chat[]>` |
+| Chat | [View fields](/docs/reference/client/return-types#chat) |
+
+Resolves to `Chat[]`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<Chat[]>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+Serialized chat returned by chat lookups and listings. Its id is an opaque ChatId; additional WhatsApp Web fields may be present.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -287,89 +375,14 @@ Retrieves all chats
 | Alias | `GET` | `/api/getAllChats` | `getAllChats` | Active |
 | Alias | `GET` | `/api/listChats` | `listChats` | Active |
 
-### Usage
+</details>
 
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getAllChats({
-  withNewMessagesOnly: false,
-});
-// namespaced form: client.chats.getAll(...)
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getAllChats({
-  withNewMessagesOnly: false,
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -G "http://localhost:8080/api/chats/getAll" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data-urlencode "withNewMessagesOnly=false"
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": []
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="GetAllChatsParams" />
-
-### Output
-
-| Prop | Value |
-| --- | --- |
-| Return type | `any[]` |
-
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getChat`
 
 Get specific chat by ID
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `chats` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | `chatId` |
-| Aliases | `chats.get`, `chats.getById`, `getChatById` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/chats/get` | `getChat` | Active |
-| Alias | `GET` | `/api/chats/getById` | `chats.getById` | Active |
-| Alias | `GET` | `/api/getChat` | `getChat` | Active |
-| Alias | `GET` | `/api/getChatById` | `getChatById` | Active |
+**Signature** `client.getChat(chatId: string): Promise<Chat \| null \| undefined \| false>`
 
 ### Usage
 
@@ -377,10 +390,7 @@ Get specific chat by ID
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.getChat({
-  chatId: "447123456789@c.us",
-});
-// namespaced form: client.chats.get(...)
+const result = await client.getChat("447123456789@c.us");
 ```
 
   </InterfaceTab>
@@ -409,7 +419,13 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": {
+    "id": "447123456789@c.us",
+    "isGroup": true,
+    "contact": {
+      "id": "447123456789@c.us"
+    }
+  }
 }
 ```
 
@@ -420,17 +436,19 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetChatParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<Chat \| null \| undefined \| false>` |
+| Chat | [View fields](/docs/reference/client/return-types#chat) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `Chat \| null \| undefined \| false`. A rejected Promise indicates input validation or dispatch failure.
 
-## `getChatWithNonContacts`
+In-process Client resolves to `Promise<Chat \| false \| undefined>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
-Get chats with non-contacts
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -439,8 +457,8 @@ Get chats with non-contacts
 | Namespace | `chats` |
 | Action | `read` |
 | Functionality | `both` |
-| Positional parameter order | - |
-| Aliases | `chats.getWithNonContacts` |
+| Positional parameter order | `chatId` |
+| Aliases | `chats.get`, `chats.getById`, `getChatById` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -450,27 +468,30 @@ Get chats with non-contacts
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/chats/getWithNonContacts` | `getChatWithNonContacts` | Active |
-| Alias | `GET` | `/api/getChatWithNonContacts` | `getChatWithNonContacts` | Active |
+| Primary | `GET` | `/api/chats/get` | `getChat` | Active |
+| Alias | `GET` | `/api/chats/getById` | `chats.getById` | Active |
+| Alias | `GET` | `/api/getChat` | `getChat` | Active |
+| Alias | `GET` | `/api/getChatById` | `getChatById` | Active |
+
+</details>
+
+
+## `getChatWithNonContacts`
+
+Get chats with non-contacts
+
+**Signature** `client.getChatWithNonContacts(): Promise<Contact[]>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getChatWithNonContacts({});
-// namespaced form: client.chats.getWithNonContacts(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getChatWithNonContacts({});
+const result = await client.getChatWithNonContacts();
 ```
 
   </InterfaceTab>
@@ -499,17 +520,19 @@ Example response envelope:
 
 This method does not define input parameters.
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any[]` |
+| Return type | `Promise<Contact[]>` |
+| Contact | [View fields](/docs/reference/client/return-types#contact) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `Contact[]`. A rejected Promise indicates input validation or dispatch failure.
 
-## `isChatOnline`
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
-Check if chat is online
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -518,8 +541,8 @@ Check if chat is online
 | Namespace | `chats` |
 | Action | `read` |
 | Functionality | `both` |
-| Positional parameter order | `chatId` |
-| Aliases | `chats.isOnline` |
+| Positional parameter order | - |
+| Aliases | `chats.getWithNonContacts` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -529,8 +552,17 @@ Check if chat is online
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/chats/isOnline` | `isChatOnline` | Active |
-| Alias | `GET` | `/api/isChatOnline` | `isChatOnline` | Active |
+| Primary | `GET` | `/api/chats/getWithNonContacts` | `getChatWithNonContacts` | Active |
+| Alias | `GET` | `/api/getChatWithNonContacts` | `getChatWithNonContacts` | Active |
+
+</details>
+
+
+## `isChatOnline`
+
+Check if chat is online
+
+**Signature** `client.isChatOnline(chatId: string): Promise<boolean \| string>`
 
 ### Usage
 
@@ -538,10 +570,7 @@ Check if chat is online
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.isChatOnline({
-  chatId: "447123456789@c.us",
-});
-// namespaced form: client.chats.isOnline(...)
+const result = await client.isChatOnline("447123456789@c.us");
 ```
 
   </InterfaceTab>
@@ -581,25 +610,28 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="IsChatOnlineParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean \| string` |
+| Return type | `Promise<boolean \| string>` |
 
-## `markAsRead`
+Resolves to `boolean \| string`. A rejected Promise indicates input validation or dispatch failure.
 
-Mark chat as read
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
 | Prop | Value |
 | --- | --- |
 | Namespace | `chats` |
-| Action | `update` |
+| Action | `read` |
 | Functionality | `both` |
 | Positional parameter order | `chatId` |
-| Aliases | `chats.markAsRead` |
+| Aliases | `chats.isOnline` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -609,22 +641,21 @@ Mark chat as read
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/markAsRead` | `markAsRead` | Active |
-| Alias | `PUT` | `/api/markAsRead` | `markAsRead` | Active |
+| Primary | `GET` | `/api/chats/isOnline` | `isChatOnline` | Active |
+| Alias | `GET` | `/api/isChatOnline` | `isChatOnline` | Active |
+
+</details>
+
+
+## `markAsRead`
+
+Mark chat as read
+
+**Signature** `client.markAsRead(chatId: string): Promise<boolean>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.markAsRead({
-  chatId: "447123456789@c.us",
-});
-// namespaced form: client.chats.markAsRead(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -664,15 +695,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="MarkAsReadParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
 
-## `markAsUnread`
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Mark chat as unread
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -682,7 +716,7 @@ Mark chat as unread
 | Action | `update` |
 | Functionality | `both` |
 | Positional parameter order | `chatId` |
-| Aliases | `chats.markAsUnread` |
+| Aliases | `chats.markAsRead` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -692,8 +726,17 @@ Mark chat as unread
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/markAsUnread` | `markAsUnread` | Active |
-| Alias | `PUT` | `/api/markAsUnread` | `markAsUnread` | Active |
+| Primary | `PUT` | `/api/chats/markAsRead` | `markAsRead` | Active |
+| Alias | `PUT` | `/api/markAsRead` | `markAsRead` | Active |
+
+</details>
+
+
+## `markAsUnread`
+
+Mark chat as unread
+
+**Signature** `client.markAsUnread(chatId: string): Promise<boolean>`
 
 ### Usage
 
@@ -701,10 +744,7 @@ Mark chat as unread
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.markAsUnread({
-  chatId: "447123456789@c.us",
-});
-// namespaced form: client.chats.markAsUnread(...)
+const result = await client.markAsUnread("447123456789@c.us");
 ```
 
   </InterfaceTab>
@@ -747,15 +787,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="MarkAsUnreadParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
 
-## `muteChat`
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Mute a chat
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -764,8 +807,8 @@ Mute a chat
 | Namespace | `chats` |
 | Action | `update` |
 | Functionality | `both` |
-| Positional parameter order | `chatId`, `muteDuration` |
-| Aliases | `chats.mute` |
+| Positional parameter order | `chatId` |
+| Aliases | `chats.markAsUnread` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -775,8 +818,17 @@ Mute a chat
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/mute` | `muteChat` | Active |
-| Alias | `PUT` | `/api/muteChat` | `muteChat` | Active |
+| Primary | `PUT` | `/api/chats/markAsUnread` | `markAsUnread` | Active |
+| Alias | `PUT` | `/api/markAsUnread` | `markAsUnread` | Active |
+
+</details>
+
+
+## `muteChat`
+
+Mute a chat
+
+**Signature** `client.muteChat(chatId: string, muteDuration: number \| string): Promise<string \| boolean \| number>`
 
 ### Usage
 
@@ -784,11 +836,7 @@ Mute a chat
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.muteChat({
-  chatId: "447123456789@c.us",
-  muteDuration: 1,
-});
-// namespaced form: client.chats.mute(...)
+const result = await client.muteChat("447123456789@c.us", 1);
 ```
 
   </InterfaceTab>
@@ -822,7 +870,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "example"
 }
 ```
 
@@ -833,15 +881,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="MuteChatParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `string \| boolean \| number` |
+| Return type | `Promise<string \| boolean \| number>` |
 
-## `pinChat`
+Resolves to `string \| boolean \| number`. A rejected Promise indicates input validation or dispatch failure.
 
-Pin a chat
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -850,8 +901,8 @@ Pin a chat
 | Namespace | `chats` |
 | Action | `update` |
 | Functionality | `both` |
-| Positional parameter order | `chatId` |
-| Aliases | `chats.pin` |
+| Positional parameter order | `chatId`, `muteDuration` |
+| Aliases | `chats.mute` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -861,8 +912,17 @@ Pin a chat
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/pin` | `pinChat` | Active |
-| Alias | `PUT` | `/api/pinChat` | `pinChat` | Active |
+| Primary | `PUT` | `/api/chats/mute` | `muteChat` | Active |
+| Alias | `PUT` | `/api/muteChat` | `muteChat` | Active |
+
+</details>
+
+
+## `pinChat`
+
+Pin a chat
+
+**Signature** `client.pinChat(chatId: string): Promise<boolean>`
 
 ### Usage
 
@@ -870,10 +930,7 @@ Pin a chat
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.pinChat({
-  chatId: "447123456789@c.us",
-});
-// namespaced form: client.chats.pin(...)
+const result = await client.pinChat("447123456789@c.us");
 ```
 
   </InterfaceTab>
@@ -916,15 +973,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="PinChatParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
 
-## `setChatEphemeral`
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Set ephemeral messages for chat
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -933,8 +993,8 @@ Set ephemeral messages for chat
 | Namespace | `chats` |
 | Action | `update` |
 | Functionality | `both` |
-| Positional parameter order | `chatId`, `ephemeral` |
-| Aliases | `chats.setEphemeral` |
+| Positional parameter order | `chatId` |
+| Aliases | `chats.pin` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -944,23 +1004,21 @@ Set ephemeral messages for chat
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/setEphemeral` | `setChatEphemeral` | Active |
-| Alias | `PUT` | `/api/setChatEphemeral` | `setChatEphemeral` | Active |
+| Primary | `PUT` | `/api/chats/pin` | `pinChat` | Active |
+| Alias | `PUT` | `/api/pinChat` | `pinChat` | Active |
+
+</details>
+
+
+## `setChatEphemeral`
+
+Set ephemeral messages for chat
+
+**Signature** `client.setChatEphemeral(chatId: string, ephemeral: boolean \| number): Promise<boolean>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.setChatEphemeral({
-  chatId: "447123456789@c.us",
-  ephemeral: 1,
-});
-// namespaced form: client.chats.setEphemeral(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -1002,15 +1060,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="SetChatEphemeralParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
 
-## `unarchiveChat`
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Unarchive a chat
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1019,8 +1080,8 @@ Unarchive a chat
 | Namespace | `chats` |
 | Action | `update` |
 | Functionality | `both` |
-| Positional parameter order | `chatId` |
-| Aliases | `chats.unarchive` |
+| Positional parameter order | `chatId`, `ephemeral` |
+| Aliases | `chats.setEphemeral` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -1030,8 +1091,17 @@ Unarchive a chat
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/unarchive` | `unarchiveChat` | Active |
-| Alias | `PUT` | `/api/unarchiveChat` | `unarchiveChat` | Active |
+| Primary | `PUT` | `/api/chats/setEphemeral` | `setChatEphemeral` | Active |
+| Alias | `PUT` | `/api/setChatEphemeral` | `setChatEphemeral` | Active |
+
+</details>
+
+
+## `unarchiveChat`
+
+Unarchive a chat
+
+**Signature** `client.unarchiveChat(chatId: string): Promise<boolean>`
 
 ### Usage
 
@@ -1039,10 +1109,7 @@ Unarchive a chat
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.unarchiveChat({
-  chatId: "447123456789@c.us",
-});
-// namespaced form: client.chats.unarchive(...)
+const result = await client.unarchiveChat("447123456789@c.us");
 ```
 
   </InterfaceTab>
@@ -1085,15 +1152,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="UnarchiveChatParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
 
-## `unmuteChat`
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Unmute a chat
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1103,7 +1173,7 @@ Unmute a chat
 | Action | `update` |
 | Functionality | `both` |
 | Positional parameter order | `chatId` |
-| Aliases | `chats.unmute` |
+| Aliases | `chats.unarchive` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -1113,8 +1183,17 @@ Unmute a chat
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/unmute` | `unmuteChat` | Active |
-| Alias | `PUT` | `/api/unmuteChat` | `unmuteChat` | Active |
+| Primary | `PUT` | `/api/chats/unarchive` | `unarchiveChat` | Active |
+| Alias | `PUT` | `/api/unarchiveChat` | `unarchiveChat` | Active |
+
+</details>
+
+
+## `unmuteChat`
+
+Unmute a chat
+
+**Signature** `client.unmuteChat(chatId: string): Promise<string \| boolean \| number>`
 
 ### Usage
 
@@ -1122,10 +1201,7 @@ Unmute a chat
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.unmuteChat({
-  chatId: "447123456789@c.us",
-});
-// namespaced form: client.chats.unmute(...)
+const result = await client.unmuteChat("447123456789@c.us");
 ```
 
   </InterfaceTab>
@@ -1157,7 +1233,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "example"
 }
 ```
 
@@ -1168,15 +1244,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="UnmuteChatParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `string \| boolean \| number` |
+| Return type | `Promise<string \| boolean \| number>` |
 
-## `unpinChat`
+Resolves to `string \| boolean \| number`. A rejected Promise indicates input validation or dispatch failure.
 
-Unpin a chat
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1186,7 +1265,7 @@ Unpin a chat
 | Action | `update` |
 | Functionality | `both` |
 | Positional parameter order | `chatId` |
-| Aliases | `chats.unpin` |
+| Aliases | `chats.unmute` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -1196,8 +1275,17 @@ Unpin a chat
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/unpin` | `unpinChat` | Active |
-| Alias | `PUT` | `/api/unpinChat` | `unpinChat` | Active |
+| Primary | `PUT` | `/api/chats/unmute` | `unmuteChat` | Active |
+| Alias | `PUT` | `/api/unmuteChat` | `unmuteChat` | Active |
+
+</details>
+
+
+## `unpinChat`
+
+Unpin a chat
+
+**Signature** `client.unpinChat(chatId: string): Promise<boolean>`
 
 ### Usage
 
@@ -1205,10 +1293,7 @@ Unpin a chat
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.unpinChat({
-  chatId: "447123456789@c.us",
-});
-// namespaced form: client.chats.unpin(...)
+const result = await client.unpinChat("447123456789@c.us");
 ```
 
   </InterfaceTab>
@@ -1251,8 +1336,38 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="UnpinChatParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
+
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chats` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `chatId` |
+| Aliases | `chats.unpin` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/chats/unpin` | `unpinChat` | Active |
+| Alias | `PUT` | `/api/unpinChat` | `unpinChat` | Active |
+
+</details>

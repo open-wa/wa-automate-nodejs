@@ -1,258 +1,77 @@
 ---
 title: Session events
-description: Capture QR codes, session data, and launch lifecycle events with the shared event emitter.
+description: Observe client readiness, authentication progress, and connection changes through the runtime event map.
 ---
 
 # Session events
 
-When you need lifecycle visibility outside the client convenience methods, use the shared event emitter `ev`.
+Import `ev` when your application needs process-level lifecycle events. Use
+client listeners such as `client.onMessage` for WhatsApp messages after the
+session is ready.
 
 ```ts
 import { ev } from '@open-wa/wa-automate';
+
+ev.on('client.ready', ({ sessionId }) => {
+  console.log(`Session ${sessionId} is ready`);
+});
+
+ev.on('session.connection.disconnected', ({ details }) => {
+  console.warn('Session disconnected', details?.reason);
+});
 ```
 
-## Full event list
+`client.ready` follows authentication and runtime finalization. For Easy API,
+also check `/health` and wait for both `connected: true` and
+`session.ready: true` before sending; HTTP liveness alone does not establish
+WhatsApp readiness. See the [readiness guide](/docs/getting-started/quickstart#3-check-readiness).
 
-The public session lifecycle events are small and focused. Some names are emitted directly by the core event bus, while a few are compatibility or plugin hook names that map to lower-level launch events.
+## Authentication events
 
-| Event | When it fires | Payload |
-| --- | --- | --- |
-| `core.starting` | The runtime is about to start. | `{ config: unknown }` |
-| `core.started` | The runtime has finished startup. | `{}` |
-| `core.stopping` | The runtime is shutting down. | `{ reason?: string }` |
-| `client.ready` | WhatsApp is authenticated and the client is ready for commands. | `{ sessionId: string }` |
-| `client.disconnected` | A compatibility name for a disconnected session. In the core event map, listen for `session.connection.disconnected`. | `{ sessionId?: string; reason?: string; wasLoggedIn?: boolean }` |
-| `auth.qr` | A plugin hook name for QR generation. In the core event map, this is `launch.auth.qr.generated`. | `{ sessionId: string; qr: string; attempt: number }` |
-| `auth.authenticated` | Authentication has succeeded. The plugin hook maps to `launch.auth.check.after` when `isAuthenticated` is true. | `{ sessionId: string }` |
-| `auth.failure` | Authentication failed or timed out. If your integration emits this compatibility event, treat it as an auth error signal. | `{ sessionId?: string; reason?: string; error?: unknown }` |
-| `session.data` | Legacy session-data style event, if your runtime or migration path emits it. Older examples use `sessionData.**`. | `{ sessionId: string; sessionData: unknown }` |
-
-For low-level launch tracing, you can also listen to the internal `launch.auth.*` and `session.connection.*` events. Prefer the public names above unless you are debugging startup behavior.
-
-## Payload shapes
-
-Core lifecycle events use direct payload objects:
-
-```ts
-type CoreStartingPayload = {
-  config: unknown;
-};
-
-type CoreStartedPayload = Record<string, never>;
-
-type CoreStoppingPayload = {
-  reason?: string;
-};
-
-type ClientReadyPayload = {
-  sessionId: string;
-};
-```
-
-Auth and session events usually include the session id so you can route the event safely:
-
-```ts
-type AuthQrPayload = {
-  sessionId: string;
-  qr: string;
-  attempt: number;
-};
-
-type AuthAuthenticatedPayload = {
-  sessionId: string;
-};
-
-type AuthFailurePayload = {
-  sessionId?: string;
-  reason?: string;
-  error?: unknown;
-};
-
-type ClientDisconnectedPayload = {
-  sessionId?: string;
-  reason?: string;
-  wasLoggedIn?: boolean;
-};
-
-type SessionDataPayload = {
-  sessionId: string;
-  sessionData: unknown;
-};
-```
-
-The low-level `launch.*` events use a step-event shape with tracing fields:
-
-```ts
-type StepEvent<TDetails = Record<string, unknown>> = {
-  correlationId: string;
-  attempt?: number;
-  ts: number;
-  step: string;
-  details?: TDetails;
-  error?: {
-    name: string;
-    message: string;
-    stack?: string;
-  };
-  durationMs?: number;
-};
-```
-
-For example, `launch.auth.qr.generated` carries the QR inside `details`:
+The core event map reports QR generation as a `StepEvent`; the QR is in
+`event.details.qr`. This value is a credential for pairing. The CLI renders
+the QR in its local terminal, while Easy API exposes QR state through `/health`
+and `/qr`; keep those responses on a private network.
 
 ```ts
 ev.on('launch.auth.qr.generated', (event) => {
   const qr = event.details?.qr;
-  const attempt = event.details?.attemptInThisCycle;
+  if (!qr) return;
+
+  // Render only inside a trusted local pairing UI. Do not log or forward it.
+  showInPrivatePairingUi(qr);
 });
 ```
 
-## Timing
+`showInPrivatePairingUi` stands for your own trusted local UI. The runtime
+does not provide that helper.
 
-A first login usually follows this order:
+The embedded runtime emits `launch.auth.linkCode.generated` with the code in
+`event.details.linkCode`; this event is sensitive, and the plugin gateway
+blocks it. The published Easy API CLI does not forward `linkCode` or print the
+generated event, so use its QR flow. Do not relay link codes through plugins,
+logs, webhooks, or shared telemetry. `/api/events` streams runtime events
+behind the Easy API key and network boundary; do not expose that endpoint
+publicly. See [Easy API security](/docs/getting-started/easy-api#security).
 
-1. `core.starting`, the runtime has accepted the config and is launching.
-2. `auth.qr` or `launch.auth.qr.generated`, a QR is available for the user to scan.
-3. `auth.authenticated` or `launch.auth.check.after`, WhatsApp accepted the login.
-4. `client.ready`, the client can send commands and receive messages.
-5. `core.started`, startup has completed.
+## Event payloads
 
-If the session is already authenticated on disk, the QR step can be skipped. If WhatsApp disconnects later, listen for `session.connection.disconnected` or your integration's `client.disconnected` compatibility event.
-
-## Capture QR codes
+Lifecycle events such as `launch.auth.qr.generated` use a common step shape
+with a correlation ID, timestamp, step name, and optional `details` or error.
+For exact payloads and available names, use the
+[generated event reference](/docs/reference/events).
 
 ```ts
-import { ev } from '@open-wa/wa-automate';
-import fs from 'node:fs';
-
-ev.on('qr.**', async (qrcode) => {
-  const imageBuffer = Buffer.from(
-    qrcode.replace('data:image/png;base64,', ''),
-    'base64',
-  );
-
-  fs.writeFileSync('qr_code.png', imageBuffer);
-});
+type StepEvent<Details> = {
+  correlationId: string;
+  ts: number;
+  step: string;
+  details?: Details;
+  error?: { name: string; message: string; stack?: string };
+  durationMs?: number;
+};
 ```
 
-## Capture session data
-
-```ts
-ev.on('sessionData.**', async (sessionData, sessionId) => {
-  // store or encrypt the latest auth payload for your own workflow
-});
-```
-
-## QR/sessionData security
-
-QR codes and session data are sensitive auth material. Anyone who can read them can be able to connect or restore a WhatsApp session.
-
-Keep these rules strict:
-
-- do not log QR strings, `sessionData`, or base64 session payloads.
-- do not send them to analytics, crash reporting, or shared support channels.
-- Store session material only when you need it, and encrypt it at rest.
-- Redact these fields before forwarding wildcard event payloads to webhooks or logs.
-- Replace or delete stored session data when a device is lost, an employee leaves, or a session is no longer trusted.
-
-## Listen to launch namespaces
-
-Event names are typically shaped like:
-
-```text
-namespace.sessionId
-```
-
-Examples:
-
-```ts
-ev.on('qr.**', () => {});
-ev.on('sessionData.**', () => {});
-ev.on('**.session1', () => {});
-ev.on('**.**', (data, sessionId, namespace) => {
-  console.log(namespace, sessionId, data);
-});
-```
-
-Use wildcard subscriptions carefully in multi-session environments so you do not lose track of which session produced the event.
-
-## Multi-session examples
-
-When you run more than one session, keep every event tied to a `sessionId`.
-
-```ts
-import { ev } from '@open-wa/wa-automate';
-
-const sessions = new Map<string, { ready: boolean; lastQrAttempt?: number }>();
-
-ev.on('qr.**', async (qrcode, sessionId) => {
-  const state = sessions.get(sessionId) ?? { ready: false };
-  sessions.set(sessionId, {
-    ...state,
-    lastQrAttempt: (state.lastQrAttempt ?? 0) + 1,
-  });
-
-  await deliverQrToTheRightOwner(sessionId, qrcode);
-});
-
-ev.on('client.ready', ({ sessionId }) => {
-  sessions.set(sessionId, { ready: true });
-});
-
-ev.on('**.**', (event, sessionId, namespace) => {
-  if (namespace !== 'session.connection.disconnected') return;
-
-  sessions.set(sessionId, { ready: false });
-});
-```
-
-If you use wildcard events, always include `sessionId` in the data you forward:
-
-```ts
-ev.on('**.**', (data, sessionId, namespace) => {
-  auditEvent({
-    sessionId,
-    namespace,
-    kind: 'open-wa-session-event',
-  });
-});
-```
-
-## `ev` vs client listener
-
-Use `ev` for process-level lifecycle events. It can see startup, authentication, QR generation, disconnects, session data, and other runtime signals that can happen before a client is ready.
-
-Use client listeners for WhatsApp activity after the client is connected:
-
-```ts
-client.onMessage(async (message) => {
-  if (message.body === 'ping') {
-    await client.sendText(message.from, 'pong');
-  }
-});
-```
-
-The split is practical:
-
-- `ev` answers questions about the runtime, such as "did auth start?", "which session emitted a QR?", or "why did this session disconnect?"
-- `client.onMessage` and similar listeners give WhatsApp traffic data. For example, they show the received message and the necessary bot response.
-
-## Wildcard patterns
-
-The shared emitter supports wildcard subscriptions. Use them when you need to subscribe across sessions or namespaces.
-
-```ts
-// Every QR event for every session.
-ev.on('qr.**', (qrcode, sessionId) => {});
-
-// Every session-data event for every session, if emitted by your runtime.
-ev.on('sessionData.**', (sessionData, sessionId) => {});
-
-// Every namespace for one session.
-ev.on('**.sales', (data, sessionId, namespace) => {});
-
-// Everything. Keep this for debugging or carefully redacted audit sinks.
-ev.on('**.**', (data, sessionId, namespace) => {});
-```
-
-Wildcard listeners can capture sensitive data. Filter by namespace and redact the data before you log it. Do not use catch-all listeners in production without a clear retention policy.
+Some legacy event names in older examples, including `qr.**` and
+`sessionData.**`, are not the current core event names. Use the names and
+payloads in the generated reference for the package version you run.

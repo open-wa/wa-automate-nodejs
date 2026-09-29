@@ -33,7 +33,7 @@ export const Route = createFileRoute('/changelog/$version')({
       ...getDocsSocialMeta({
         title: `${entry.headline} — open-wa ${entry.version}`,
         description: entry.description,
-        imageUrl: entry.image ?? getAbsoluteDocsUrl(getPageImage(['releases', `v${entry.version.split('.').slice(0, 2).join('.')}`]).url),
+        imageUrl: getAbsoluteDocsUrl(entry.image ?? getPageImage(['releases', `v${entry.version.split('.').slice(0, 2).join('.')}`]).url),
       }),
       { property: 'og:type', content: 'article' },
       { property: 'article:published_time', content: entry.date },

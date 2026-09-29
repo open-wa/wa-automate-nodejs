@@ -1,6 +1,8 @@
+import { MessageIdReturnSchema, MessageSchema } from '../common-types';
+import { LLMMessageSchema, MessageInfoSchema } from '../return-types';
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
-import { MessageIdReturnSchema } from '../common-types';
+
 import {
     chatIdParam,
     toParam,
@@ -293,7 +295,7 @@ export const sendContact = defineMethodV2('sendContact', {
         contactId: contactIdParam.or(z.array(contactIdParam))
     }),
     parameterOrder: ['to', 'contactId'],
-    output: MessageIdReturnSchema.or(z.boolean())
+    output: MessageIdReturnSchema.or(z.boolean()).or(z.void())
 });
 
 /**
@@ -597,7 +599,7 @@ export const getMessageById = defineMethodV2('getMessageById', {
         messageId: messageIdParam
     }),
     parameterOrder: ['messageId'],
-    output: z.any() // MessageSchema causes circular dependency
+    output: MessageSchema.nullable().or(z.literal(false)),
 });
 
 /**
@@ -618,7 +620,7 @@ export const getAllMessages = defineMethodV2('getAllMessages', {
         includeNotifications: z.boolean().optional().default(false).describe('Include notification messages'),
     }),
     parameterOrder: ['chatId', 'includeMe', 'includeNotifications'],
-    output: z.array(z.any()) // MessageSchema causes circular dependency
+    output: z.array(MessageSchema),
 });
 
 export const getMyLastMessage = defineMethodV2('getMyLastMessage', {
@@ -634,7 +636,7 @@ export const getMyLastMessage = defineMethodV2('getMyLastMessage', {
         chatId: chatIdParam.optional(),
     }),
     parameterOrder: ['chatId'],
-    output: z.any(),
+    output: MessageSchema.optional(),
 });
 
 export const getStarredMessages = defineMethodV2('getStarredMessages', {
@@ -650,7 +652,7 @@ export const getStarredMessages = defineMethodV2('getStarredMessages', {
         chatId: chatIdParam.optional(),
     }),
     parameterOrder: ['chatId'],
-    output: z.array(z.any()),
+    output: z.array(MessageSchema),
 });
 
 export const getUnsentMessages = defineMethodV2('getUnsentMessages', {
@@ -664,7 +666,7 @@ export const getUnsentMessages = defineMethodV2('getUnsentMessages', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.array(z.any()),
+    output: z.array(MessageSchema),
 });
 
 export const getMessageInfo = defineMethodV2('getMessageInfo', {
@@ -680,7 +682,7 @@ export const getMessageInfo = defineMethodV2('getMessageInfo', {
         messageId: messageIdParam,
     }),
     parameterOrder: ['messageId'],
-    output: z.any(),
+    output: MessageInfoSchema,
 });
 
 export const getVCards = defineMethodV2('getVCards', {
@@ -717,7 +719,7 @@ export const getMessagesForLLM = defineMethodV2('getMessagesForLLM', {
         last: z.number().optional().default(10),
     }),
     parameterOrder: ['chatId', 'last'],
-    output: z.any(),
+    output: z.array(LLMMessageSchema),
 });
 
 export const starMessage = defineMethodV2('starMessage', {
@@ -804,7 +806,7 @@ export const loadEarlierMessages = defineMethodV2('loadEarlierMessages', {
         includeMe: z.boolean().optional().describe('Whether to include messages from the host account (default: false)'),
     }),
     parameterOrder: ['chatId', 'count', 'includeMe'],
-    output: z.array(z.any()),
+    output: z.array(MessageSchema),
 });
 
 export const sendFileFromUrl = defineMethodV2('sendFileFromUrl', {

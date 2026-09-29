@@ -1,145 +1,99 @@
 ---
-title: Authentication Flow
-description: Understand how authentication works, where session data is stored, and how to recover from logouts.
+title: Authentication and session recovery
+description: Pair a WhatsApp account, persist its browser profile, and distinguish process liveness from session readiness.
 ---
 
-# Authentication Flow
+# Authentication and session recovery
 
-Understanding how open-wa authenticates with WhatsApp helps you handle session lifecycle, recovery, and security properly.
+open-wa automates WhatsApp Web through a browser driver. On first launch, scan
+the QR code with WhatsApp's Linked Devices screen and keep the runtime running
+until authentication and client readiness complete. The
+[quick start](/docs/getting-started/quickstart) shows the complete first
+message path.
 
-## How Authentication Works
+## Pair a session
 
-open-wa automates **WhatsApp Web**. When you start a session, the library:
+The Easy API CLI's QR is rendered in its local terminal. The current published
+`@open-wa/wa-automate@5.1.0` CLI does not forward link-code configuration, so
+use QR pairing with that CLI. In an embedded application, set `createClient`'s
+`linkCode` to the phone's full international number using digits only, then
+listen for `launch.auth.linkCode.generated` before calling `client.start()`;
+read the code from `event.details.linkCode`. Follow the complete
+[link-code login flow](/docs/getting-started/link-code), which covers the phone
+steps and keeps the generated code in the local terminal.
 
-1. Launches a browser instance (Puppeteer, Playwright, or Lightpanda)
-2. Navigates to the WhatsApp Web URL
-3. Displays a QR code or generates a link code
-4. Waits for you to authenticate via your phone
-5. Stores the session token on disk for future use
+For the published CLI, see [Easy API setup](/docs/getting-started/easy-api)
+and [configuration options](/docs/guides/configuration-and-cli) before
+starting. Do not print link codes or QR values to shared logs, webhooks, or
+support tools.
 
-A valid session token lets the browser reconnect without another scan. This works if the phone did not log out the session.
+## Persist the session
 
-## Session Storage
+The browser profile holds WhatsApp authentication state. The runtime derives a
+profile directory from the session ID by default; set `userDataDir` when you
+need a specific path and keep that directory private, persistent, and unique
+to the session.
 
-### Where Session Data Lives
+```ts
+const runtime = await createClient({
+  sessionId: 'support',
+  userDataDir: './private/sessions/support',
+  driver: new PuppeteerDriver(),
+});
+```
 
-Open-wa stores session data on disk in a session directory. By default, it creates this directory in the CLI working directory.
+Set restrictive file permissions on the profile, exclude it from version
+control and backups shared across accounts, and protect it like a credential.
+Setting `ephemeral: true` uses a temporary profile that is discarded when the
+process exits, so the next run may require pairing again.
 
-The session files contain:
+## Check readiness
 
-- Authentication tokens
-- Browser state (cookies, local storage)
-- Session metadata
+An HTTP response from `/health` means the Easy API process answered. Wait until
+its `connected` and `session.ready` fields are both `true` before sending
+messages. The current `/health` response can include QR and diagnostic data and
+is public, so keep it on loopback or a private network.
 
-<Callout type="warning">
-**Session files contain sensitive authentication material.** Anyone with access to these files can impersonate your WhatsApp session. Protect them with appropriate file permissions and do not commit them to version control.
-</Callout>
+```bash
+curl -sS http://127.0.0.1:8080/health
+```
 
-### Session Persistence
+See [health and readiness](/docs/getting-started/quickstart#3-check-readiness)
+for the expected fields and recovery diagnostics. A process restart does not
+prove that WhatsApp reconnected; check readiness again after every restart.
 
-When you restart the process, open-wa loads the existing session files and attempts to reconnect. If the session is still valid, you will not need to re-scan the QR code.
+## Recover a session
 
-Sessions remain valid until:
+If the browser or Node process exits, restart with the same session ID and
+profile directory. The runtime attempts to restore authentication from that
+profile. If WhatsApp logged the device out, the profile is missing or damaged,
+or authentication times out, pair again and investigate the session state
+before retrying application work.
 
-- You explicitly log out from the phone
-- WhatsApp invalidates the session (rare, but can happen after long periods of inactivity)
-- The session files are deleted or corrupted
+If you suspect that someone copied the profile, log out the linked device from
+WhatsApp, stop the runtime, replace the profile, and authenticate a new
+session. Do not delete a profile as a routine recovery step because it removes
+the saved authentication state.
 
-## QR Code Flow
+## Runtime events
 
-### When the QR Code Appears
+Use `client.ready` for the point at which the client can accept commands and
+`session.connection.disconnected` to observe a later disconnect. QR and
+link-code lifecycle events contain authentication material; see the
+[session events guide](/docs/guides/session-events) for the safe event surface.
 
-The QR code appears when:
+```ts
+runtime.events.on('client.ready', ({ sessionId }) => {
+  console.log(`Session ${sessionId} is ready`);
+});
 
-- Starting a session for the first time
-- The existing session has expired or been invalidated
-- The session files are missing or corrupted
-
-### How Many QR Codes Are Emitted
-
-The runtime emits a limited number of QR codes. This is controlled by the `maxQr` configuration option. Once the limit is reached, the session will stop emitting QR codes and you will need to restart.
-
-### After Scanning
-
-Once you scan the QR code:
-
-1. WhatsApp on your phone links the session
-2. The browser loads your WhatsApp data
-3. The runtime saves the session token to disk
-4. The API becomes ready for use
-
-### Timeout Behavior
-
-If no one scans the QR code before the `qrTimeout`, the runtime emits a new code. This counts toward the `maxQr` limit.
-
-## Link-Code Flow
-
-As an alternative to QR scanning, you can use the link-code method if you know the host account number.
-
-### Accepted Phone Number Format
-
-The phone number must be in international format without the `+` sign:
-
-- `447700900000` (UK)
-- `15551234567` (US)
-
-### Where the Code Appears
-
-When you initiate a link-code login, a short numeric code appears on your phone's Linked Devices screen. You enter this code in the terminal to complete authentication.
-
-### Expiry and Failure Cases
-
-- Link codes expire after a short period (typically a few minutes)
-- If the code expires, you will need to request a new one
-- If the host account number is incorrect, authentication will fail
-- If the account is already linked to too many devices, linking can be rejected
-
-### Does QR Still Appear?
-
-Link-code mode bypasses the QR code flow. If link-code authentication fails, the runtime can show a QR code.
-
-## Session Recovery
-
-### What Happens If the Browser Closes
-
-If the browser process crashes or is closed:
-
-- The session token on disk remains valid
-- Restarting the process will reload the session
-- You do not need to scan again unless WhatsApp invalidated the session.
-
-### What Happens If the Process Crashes
-
-If the Node.js process crashes:
-
-- Session files on disk are usually intact
-- Restart the process to recover
-- If session files are corrupted, you can need to delete them and re-authenticate
-
-### Re-Scan vs Re-Auth
-
-- **Re-scan**: The QR code appears and you scan it again. This happens when the session token is invalid or missing.
-- **Re-auth**: The session token is still valid but the browser needs to reconnect. This happens automatically on restart.
-
-## Security
-
-### Protecting Session Data
-
-- Set restrictive file permissions on session directories (`chmod 700`)
-- Never commit session files to version control
-- Use separate session directories per session
-- Consider encrypting session storage for sensitive deployments
-
-### Rotating Sessions
-
-If you suspect a session has been compromised:
-
-1. Log out from the phone (WhatsApp > Linked Devices > select device > Log out)
-2. Delete the session files on disk
-3. Start a new session and re-authenticate
+runtime.events.on('session.connection.disconnected', ({ details }) => {
+  console.warn('Session disconnected', details?.reason);
+});
+```
 
 ## Related
 
-- **[Link-code login](/docs/getting-started/link-code)**: Alternative authentication method
-- **[Detect logouts](/docs/operations-and-troubleshooting/detect-logouts)**: Monitor session state
-- **[Security & deployment](/docs/operations/security-and-deployment)**: Production security checklist
+- [Easy API setup](/docs/getting-started/easy-api) for CLI installation and API-key configuration
+- [Security and deployment](/docs/operations/security-and-deployment) for network and credential boundaries
+- [Detect logouts](/docs/operations-and-troubleshooting/detect-logouts) for connection-state recovery

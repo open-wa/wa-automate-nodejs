@@ -6,15 +6,67 @@ icon: "BookOpen"
 
 # Status Client API
 
-> Generated file warning: `packages/schema/scripts/gen-client-reference-docs.ts` generates this page. Do not edit generated method content by hand.
-
 This page documents 6 schema-registry client methods in the `status` namespace.
 
-## `deleteAllStatus` - insiders
+<LicensedMethodSection tier="insiders">
+
+<span id="deleteallstatus---insiders" aria-hidden="true"></span>
+## `deleteAllStatus`
 
 Delete all statuses
 
-<LicensedFeatureCallout tier="insiders" />
+**Signature** `client.deleteAllStatus(): Promise<boolean>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.deleteAllStatus();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X DELETE "http://localhost:8080/api/status/deleteAll" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+This method does not define input parameters.
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<boolean>` |
+
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -38,100 +90,22 @@ Delete all statuses
 | Alias | `DELETE` | `/api/deleteAllStatus` | `deleteAllStatus` | Active |
 | Alias | `DELETE` | `/api/deleteAllStatuses` | `deleteAllStatuses` | Active |
 
-### Usage
+</details>
 
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
+</LicensedMethodSection>
 
-```ts
-const result = await client.deleteAllStatus({});
-// namespaced form: client.status.deleteAll(...)
-```
+<LicensedMethodSection tier="insiders">
 
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.deleteAllStatus({});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X DELETE "http://localhost:8080/api/status/deleteAll" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{}'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": {}
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-This method does not define input parameters.
-
-### Output
-
-| Prop | Value |
-| --- | --- |
-| Return type | `any` |
-
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
-
-## `deleteStatus` - insiders
+<span id="deletestatus---insiders" aria-hidden="true"></span>
+## `deleteStatus`
 
 Delete status
 
-<LicensedFeatureCallout tier="insiders" />
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `status` |
-| Action | `delete` |
-| Functionality | `both` |
-| Positional parameter order | `statusesToDelete` |
-| Aliases | `status.delete` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `DELETE` | `/api/status/delete` | `deleteStatus` | Active |
-| Alias | `DELETE` | `/api/deleteStatus` | `deleteStatus` | Active |
+**Signature** `client.deleteStatus(statusesToDelete: string \| string[]): Promise<boolean>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.deleteStatus({
-  statusesToDelete: [],
-});
-// namespaced form: client.status.delete(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -160,7 +134,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": true
 }
 ```
 
@@ -171,29 +145,28 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="DeleteStatusParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<boolean>` |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-## `getStories` - insiders
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
-Get all stories
-
-<LicensedFeatureCallout tier="insiders" />
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
 | Prop | Value |
 | --- | --- |
 | Namespace | `status` |
-| Action | `read` |
+| Action | `delete` |
 | Functionality | `both` |
-| Positional parameter order | - |
-| Aliases | `getStatuses`, `status.get`, `status.getAll`, `status.getStories` |
+| Positional parameter order | `statusesToDelete` |
+| Aliases | `status.delete` |
 | Deprecated aliases | - |
 | License | `insiders` |
 | WAPI override | - |
@@ -203,30 +176,32 @@ Get all stories
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/status/getAll` | `getStories` | Active |
-| Alias | `GET` | `/api/getStatuses` | `getStatuses` | Active |
-| Alias | `GET` | `/api/getStories` | `getStories` | Active |
-| Alias | `GET` | `/api/status/get` | `status.get` | Active |
-| Alias | `GET` | `/api/status/getStories` | `status.getStories` | Active |
+| Primary | `DELETE` | `/api/status/delete` | `deleteStatus` | Active |
+| Alias | `DELETE` | `/api/deleteStatus` | `deleteStatus` | Active |
+
+</details>
+
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="insiders">
+
+<span id="getstories---insiders" aria-hidden="true"></span>
+## `getStories`
+
+Get all stories
+
+**Signature** `client.getStories(): Promise<Story[]>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getStories({});
-// namespaced form: client.status.getAll(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getStories({});
+const result = await client.getStories();
 ```
 
   </InterfaceTab>
@@ -255,19 +230,113 @@ Example response envelope:
 
 This method does not define input parameters.
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any[]` |
+| Return type | `Promise<Story[]>` |
+| Story | [View fields](/docs/reference/client/return-types#story) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `Story[]`. A rejected Promise indicates input validation or dispatch failure.
 
-## `postImageStatus` - insiders
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+Message-shaped status entry, based on the legacy story API. Chat and sender may be absent or null. The licensed getStories payload has not been verified against this model.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `status` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `getStatuses`, `status.get`, `status.getAll`, `status.getStories` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/status/getAll` | `getStories` | Active |
+| Alias | `GET` | `/api/getStatuses` | `getStatuses` | Active |
+| Alias | `GET` | `/api/getStories` | `getStories` | Active |
+| Alias | `GET` | `/api/status/get` | `status.get` | Active |
+| Alias | `GET` | `/api/status/getStories` | `status.getStories` | Active |
+
+</details>
+
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="insiders">
+
+<span id="postimagestatus---insiders" aria-hidden="true"></span>
+## `postImageStatus`
 
 Post image status
 
-<LicensedFeatureCallout tier="insiders" />
+**Signature** `client.postImageStatus(image: string, caption?: string): Promise<MessageId \| string \| boolean>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.postImageStatus({
+  image: "image",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/status/postImage" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "image": "image"
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="PostImageStatusParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<MessageId \| string \| boolean>` |
+| MessageId | [View fields](/docs/reference/client/return-types#messageid) |
+
+Resolves to `MessageId \| string \| boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -290,29 +359,30 @@ Post image status
 | Primary | `POST` | `/api/status/postImage` | `postImageStatus` | Active |
 | Alias | `POST` | `/api/postImageStatus` | `postImageStatus` | Active |
 
+</details>
+
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="insiders">
+
+<span id="posttextstatus---insiders" aria-hidden="true"></span>
+## `postTextStatus`
+
+Post text status
+
+**Signature** `client.postTextStatus(text: string, backgroundColor?: string, font?: number): Promise<MessageId \| string \| boolean>`
+
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.postImageStatus({
-  image: "image",
-  caption: "caption",
-});
-// namespaced form: client.status.postImage(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.postImageStatus({
-  image: "image",
-  caption: "caption",
+const result = await client.postTextStatus({
+  text: "text",
 });
 ```
 
@@ -320,12 +390,11 @@ const result = await client.postImageStatus({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/status/postImage" \
+curl -X POST "http://localhost:8080/api/status/postText" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
-    "image": "image",
-    "caption": "caption"
+    "text": "text"
   }'
 ```
 
@@ -334,7 +403,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -343,21 +412,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="PostImageStatusParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="PostTextStatusParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<MessageId \| string \| boolean>` |
+| MessageId | [View fields](/docs/reference/client/return-types#messageid) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `MessageId \| string \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-## `postTextStatus` - insiders
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
-Post text status
-
-<LicensedFeatureCallout tier="insiders" />
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -380,31 +449,30 @@ Post text status
 | Primary | `POST` | `/api/status/postText` | `postTextStatus` | Active |
 | Alias | `POST` | `/api/postTextStatus` | `postTextStatus` | Active |
 
+</details>
+
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="insiders">
+
+<span id="postvideostatus---insiders" aria-hidden="true"></span>
+## `postVideoStatus`
+
+Post video status
+
+**Signature** `client.postVideoStatus(video: string, caption?: string): Promise<MessageId \| string \| boolean>`
+
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.postTextStatus({
-  text: "text",
-  backgroundColor: "backgroundColor",
-  font: 1,
-});
-// namespaced form: client.status.postText(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.postTextStatus({
-  text: "text",
-  backgroundColor: "backgroundColor",
-  font: 1,
+const result = await client.postVideoStatus({
+  video: "video",
 });
 ```
 
@@ -412,13 +480,11 @@ const result = await client.postTextStatus({
   <InterfaceTab value="Easy API">
 
 ```bash
-curl -X POST "http://localhost:8080/api/status/postText" \
+curl -X POST "http://localhost:8080/api/status/postVideo" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
-    "text": "text",
-    "backgroundColor": "backgroundColor",
-    "font": 1
+    "video": "video"
   }'
 ```
 
@@ -427,7 +493,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -436,21 +502,21 @@ Example response envelope:
 
 ### Parameters
 
-<AutoTypeTable path="./generated-method-params.ts" name="PostTextStatusParams" />
+<AutoTypeTable path="./generated-method-params.ts" name="PostVideoStatusParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<MessageId \| string \| boolean>` |
+| MessageId | [View fields](/docs/reference/client/return-types#messageid) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `MessageId \| string \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-## `postVideoStatus` - insiders
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
-Post video status
-
-<LicensedFeatureCallout tier="insiders" />
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -473,65 +539,6 @@ Post video status
 | Primary | `POST` | `/api/status/postVideo` | `postVideoStatus` | Active |
 | Alias | `POST` | `/api/postVideoStatus` | `postVideoStatus` | Active |
 
-### Usage
+</details>
 
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.postVideoStatus({
-  video: "video",
-  caption: "caption",
-});
-// namespaced form: client.status.postVideo(...)
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.postVideoStatus({
-  video: "video",
-  caption: "caption",
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X POST "http://localhost:8080/api/status/postVideo" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "video": "video",
-    "caption": "caption"
-  }'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": {}
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="PostVideoStatusParams" />
-
-### Output
-
-| Prop | Value |
-| --- | --- |
-| Return type | `any` |
-
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+</LicensedMethodSection>

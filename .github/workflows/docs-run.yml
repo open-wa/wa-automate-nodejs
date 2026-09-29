@@ -54,6 +54,14 @@ jobs:
         env:
           PUPPETEER_SKIP_DOWNLOAD: '1'
 
+      - name: Apply documentation feedback migrations
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/docs
+          command: d1 migrations apply openwa-docs-feedback --remote
+
       - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:

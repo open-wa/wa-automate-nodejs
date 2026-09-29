@@ -25,17 +25,18 @@
     "test:og": "tsx scripts/test-og.ts"
   },
   "dependencies": {
-    "@ai-sdk/react": "^4.0.123",
-    "@cloudflare/vite-plugin": "^1.61.0",
-    "@openrouter/ai-sdk-provider": "^3.1.0",
-    "@orama/orama": "^3.1.18",
-    "@radix-ui/react-popover": "^1.1.23",
+    "@ai-sdk/react": "4.0.125",
+    "@base-ui/react": "catalog:",
+    "@cloudflare/vite-plugin": "^1.62.0",
+    "@open-wa/ui-components": "workspace:*",
+    "@openrouter/ai-sdk-provider": "3.1.0",
+    "@paper-design/shaders-react": "0.0.81",
     "@radix-ui/react-presence": "^1.1.10",
-    "@scalar/api-reference-react": "^0.9.74",
+    "@scalar/api-reference-react": "0.9.74",
     "@tailwindcss/vite": "catalog:",
-    "@takumi-rs/helpers": "^2.14.0",
-    "@takumi-rs/image-response": "^2.14.0",
-    "@takumi-rs/wasm": "^2.14.0",
+    "@takumi-rs/helpers": "2.14.0",
+    "@takumi-rs/image-response": "2.14.0",
+    "@takumi-rs/wasm": "2.14.0",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-router-devtools": "catalog:",
     "@tanstack/react-start": "catalog:",
@@ -45,7 +46,7 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
-    "ai": "^7.0.120",
+    "ai": "7.0.122",
     "class-variance-authority": "^0.7.1",
     "flexsearch": "^0.8.212",
     "fumadocs-core": "16.15.15",
@@ -66,7 +67,6 @@
     "typescript": "catalog:",
     "unist-util-visit": "^5.1.0",
     "vite": "catalog:",
-    "vite-tsconfig-paths": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
@@ -78,7 +78,6 @@
     "@vitejs/plugin-react": "catalog:",
     "serve": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
-    "vite-tsconfig-paths": "catalog:"
+    "vite": "catalog:"
   }
 }

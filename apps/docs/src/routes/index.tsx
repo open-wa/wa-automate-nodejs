@@ -11,7 +11,7 @@ export const Route = createFileRoute('/')({
     meta: getDocsSocialMeta({
       title: SITE_NAME,
       description:
-        'The most reliable WhatsApp automation library — Easy API, embedded runtime, plugins, MCP, and integrations.',
+        'Self-hosted WhatsApp automation. Send messages, receive events, and connect your application through HTTP or Node.js.',
       imageUrl: getAbsoluteDocsUrl(getPageImage([]).url),
     }),
   }),

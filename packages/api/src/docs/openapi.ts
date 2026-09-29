@@ -1,4 +1,6 @@
+import { successResponseSchema } from '@open-wa/schema';
 import type { HttpMethodDefinition } from '@open-wa/schema';
+import { API_VERSION } from '../version';
 
 function schemaToOpenApi(schema: { toJSONSchema?: (params?: unknown) => unknown }) {
   if (typeof schema?.toJSONSchema === 'function') {
@@ -55,7 +57,60 @@ export function createOpenApiDocument(
               description: 'Successful response',
               content: {
                 'application/json': {
-                  schema: schemaToOpenApi(def.outputSchema),
+                  schema: successResponseSchema(def.outputSchema),
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Validation error',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['error', 'details'],
+                  properties: {
+                    error: { type: 'string', enum: ['Validation Error'] },
+                    details: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        required: ['code', 'path', 'message'],
+                        properties: {
+                          code: { type: 'string' },
+                          path: { type: 'array', items: { oneOf: [{ type: 'string' }, { type: 'integer' }] } },
+                          message: { type: 'string' },
+                        },
+                        additionalProperties: true,
+                      },
+                    },
+                  },
+                  additionalProperties: false,
+                },
+                examples: {
+                  validationError: {
+                    summary: 'Input validation failed',
+                    value: { error: 'Validation Error', details: [{ code: 'invalid_type', path: ['to'], message: 'Invalid input' }] },
+                  },
+                },
+              },
+            },
+          },
+          '500': {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['error'],
+                  properties: { error: { type: 'string' } },
+                  additionalProperties: false,
+                },
+                examples: {
+                  internalError: {
+                    summary: 'Execution failed',
+                    value: { error: 'Internal Server Error' },
+                  },
                 },
               },
             },
@@ -69,7 +124,7 @@ export function createOpenApiDocument(
     openapi: '3.0.3',
     info: {
       title: options.title || 'open-wa Easy API',
-      version: options.version || '5.0.0',
+      version: options.version || API_VERSION,
     },
     servers: [{ url: options.origin }],
     paths,

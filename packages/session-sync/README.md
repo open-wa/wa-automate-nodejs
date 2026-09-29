@@ -1,6 +1,6 @@
 # @open-wa/session-sync
 
-Synchronize Open-WA sessions to remote storage (S3/Zstd).
+Synchronize open-wa sessions to remote storage (S3/Zstd).
 
 Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
 

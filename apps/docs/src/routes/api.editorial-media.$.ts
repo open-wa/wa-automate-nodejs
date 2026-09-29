@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { env } from 'cloudflare:workers';
-import { remark } from 'remark';
-import { visit } from 'unist-util-visit';
+import { referencedEditorialMedia } from '@/lib/editorial-markdown';
 import { getEditorialSource } from '@/lib/editorial.server';
 
 const imageTypes = new Set(['image/png','image/jpeg','image/gif','image/webp','image/avif']);
@@ -12,12 +11,7 @@ export const Route = createFileRoute('/api/editorial-media/$')({server:{handlers
   const sources = await Promise.all([getEditorialSource('posts'),getEditorialSource('changelog')]);
   let referenced = false;
   for (const source of sources) for (const page of source.getPages()) {
-    visit(remark().parse(page.data.bodyMarkdown), 'image', node => {
-      try {
-        const url = new URL(node.url,'https://openwa.dev');
-        if (['https://openwa.dev','https://cms.openwa.dev'].includes(url.origin) && url.pathname===pathname) referenced=true;
-      } catch { /* Invalid image URLs are not public media references. */ }
-    });
+    if (referencedEditorialMedia(page.data.bodyMarkdown, page.data.image).has(pathname)) referenced = true;
   }
   // A guessed upload key cannot expose a draft image or a CMS backup.
   if (!referenced) return new Response('Not found',{status:404});

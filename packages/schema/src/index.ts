@@ -2,6 +2,8 @@ export * from './registry';
 export * from './config';
 export * from './client-config';
 export * from './common-types';
+export * from './return-types';
+export * from './output-json-schema';
 export * from './methods';
 export * from './events';
 export * from './enums';
