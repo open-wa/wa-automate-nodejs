@@ -1,5 +1,6 @@
 import { IDriver, IBrowser, LaunchOptions, ConnectOptions, IDriverContext, DriverCapabilities } from '@open-wa/driver-interface';
 import { PuppeteerBrowser } from './PuppeteerBrowser';
+import { ensureBrowser } from './ensureBrowser';
 
 export class PuppeteerDriver implements IDriver {
     readonly name = 'puppeteer' as const;
@@ -44,14 +45,28 @@ export class PuppeteerDriver implements IDriver {
     async launch(options?: LaunchOptions): Promise<IBrowser> {
         if (!this.puppeteer) await this.init();
         
-        const browser = await this.puppeteer.launch({
-            headless: options?.headless ?? true,
-            executablePath: options?.executablePath,
-            args: options?.args || [],
-            defaultViewport: options?.defaultViewport,
-            userDataDir: options?.userDataDir,
-            timeout: options?.timeoutMs,
-        });
+        const executablePath = await ensureBrowser(options, this.ctx);
+        let browser: any;
+        try {
+            browser = await this.puppeteer.launch({
+                browser: 'chrome',
+                headless: options?.headless ?? true,
+                executablePath,
+                args: options?.args || [],
+                defaultViewport: options?.defaultViewport,
+                userDataDir: options?.userDataDir,
+                timeout: options?.timeoutMs,
+            });
+        } catch (cause) {
+            const detail = cause instanceof Error ? cause.message : String(cause);
+            if (/error while loading shared libraries|Library not loaded|cannot open shared object file/i.test(detail)) {
+                throw new Error(`Chrome is installed but an operating-system dependency is missing. Install the library named in the browser error using your system administrator or deployment image; open-wa does not install OS packages. See https://pptr.dev/troubleshooting. Browser error: ${detail}`, { cause });
+            }
+            if (/No usable sandbox|Running as root without --no-sandbox|Failed to move to new namespace/i.test(detail)) {
+                throw new Error(`Chrome could not start with its sandbox enabled. Configure sandbox support and a non-root browser user in your deployment image. See https://pptr.dev/troubleshooting. Browser error: ${detail}`, { cause });
+            }
+            throw cause;
+        }
         
         try {
             const browserVersion = await browser.version();

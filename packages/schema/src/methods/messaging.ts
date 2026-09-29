@@ -29,12 +29,18 @@ import {
 // Messaging Methods
 // ============================================================================
 
+/** The normalized serialized message key returned by the public sendText client. */
+export const SendTextResultSchema = z.string()
+    .regex(/^(true|false)_[^\s_]+@[^\s_]+_[^\s]+$/)
+    .brand('MessageId')
+    .describe('Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.');
+
 /**
  * Sends a text message to a chat
  */
 export const sendText = defineMethodV2('sendText', {
     meta: {
-        description: 'Sends a text message to a chat',
+        description: 'Sends a text message and returns a validated serialized message ID. The in-process Client throws SendTextError on failure. An unknown outcome means the message may have been sent: check the chat before retrying. Starting a chat with a new number requires an applied restricted or premium license.',
         action: 'send',
         namespace: 'messages',
         license: 'none',
@@ -47,7 +53,7 @@ export const sendText = defineMethodV2('sendText', {
         options: messageOptionsParam
     }),
     parameterOrder: ['to', 'content', 'options'],
-    output: MessageIdReturnSchema.or(z.boolean()).or(z.string())
+    output: SendTextResultSchema
 });
 
 /**

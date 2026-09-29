@@ -1,9 +1,13 @@
-import { createClient as createCoreClient, type CreateClientOptions, type OpenWAClient } from '@open-wa/core';
+import { createClient as createCoreClient, type CreateClientOptions, type OpenWAEventMap } from '@open-wa/core';
+import { Client } from '@open-wa/client';
 import { resolveConfig, type PartialConfig, type Config, type TrackedConfig } from '@open-wa/config';
 import { LightpandaDriver } from '@open-wa/driver-lightpanda';
 import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { homedir } from 'node:os';
 import { dirname, resolve } from 'node:path';
+import { getCliOutputSink } from './cli/output-sink';
 
 export interface ExecutablePathResolution {
     executablePath?: string;
@@ -213,9 +217,13 @@ export function toCreateClientOptions(
         authTimeoutMs: typeof config.authTimeout === 'number' ? config.authTimeout * 1000 : undefined,
         executablePath: driverSelection.executableResolution.executablePath,
         browserArgs: config.chromiumArgs,
+        browser: config.browser,
+        allowDangerousBrowserArgs: config.allowDangerousBrowserArgs,
         userDataDir: config.userDataDir,
         ephemeral: config.ephemeral,
         linkCode: config.linkCode,
+        qrMax: config.qrMax,
+        oorTimeoutMs: config.oorTimeout * 1000,
         logConsole: config.logConsole,
         logConsoleErrors: config.logConsoleErrors,
         blockCrashLogs: config.blockCrashLogs,
@@ -223,12 +231,33 @@ export function toCreateClientOptions(
         safeMode: config.safeMode,
         lightpanda: config.useLightpanda ? config.lightpanda : undefined,
         licenseKey: config.licenseKey as any,
+        patchConfig: { ghPatch: config.ghPatch, cachedPatch: config.cachedPatch },
     };
 }
 
-export async function create(configOverrides: PartialConfig = {}): Promise<OpenWAClient> {
+/** Options for the ready-to-use messaging client. */
+export type CreateOptions = PartialConfig & {
+    /** Override the default Puppeteer driver. */
+    driver?: CreateClientOptions['driver'];
+};
+
+/** Private profile storage, stable for this project directory and session name. */
+function privateSessionDirectory(sessionId: string): string {
+    const project = createHash('sha256').update(realpathSync(process.cwd())).digest('hex').slice(0, 24);
+    const session = createHash('sha256').update(sessionId).digest('hex').slice(0, 24);
+    const root = resolve(homedir(), '.open-wa', 'sessions');
+    const directory = resolve(root, project, session);
+    mkdirSync(directory, { recursive: true, mode: 0o700 });
+    // Protect existing directories too; Chromium stores authentication here.
+    for (const path of [root, dirname(directory), directory]) chmodSync(path, 0o700);
+    return directory;
+}
+
+/** Start WhatsApp, display QR login when needed, and return a ready messaging client. */
+export async function create(options: CreateOptions = {}): Promise<Client> {
+    const { driver, ...configOverrides } = options;
     const { config, rawConfigs } = await resolveConfig({
-        programmaticOverrides: configOverrides,
+        programmaticOverrides: { qrTimeout: 0, ...configOverrides },
         skipConfigFile: true,
         skipEnv: true,
         includeRawConfigs: true,
@@ -240,5 +269,45 @@ export async function create(configOverrides: PartialConfig = {}): Promise<OpenW
         defaultPreferLocalChrome: false,
     });
 
-    return await createCoreClient(toCreateClientOptions(config, driverSelection));
+    const coreOptions = toCreateClientOptions(config, driverSelection);
+    if (driver) coreOptions.driver = driver;
+    if (!config.ephemeral && configOverrides.userDataDir === undefined && configOverrides.sessionDataPath === undefined) {
+        coreOptions.userDataDir = privateSessionDirectory(config.sessionId);
+        coreOptions.sessionDataPath = coreOptions.userDataDir;
+    }
+
+    const core = await createCoreClient(coreOptions);
+    const sink = getCliOutputSink();
+    const onQr = (event: OpenWAEventMap['launch.auth.qr.generated']) => {
+        if (config.qrLogSkip || !event.details?.qr) return;
+        sink.write({ level: 'info', message: 'Open WhatsApp on your sending phone: Linked Devices → Link a Device, then scan this QR code.' });
+        sink.qr({ qr: event.details.qr, sessionId: config.sessionId });
+    };
+    const onLinkCode = (event: OpenWAEventMap['launch.auth.linkCode.generated']) => {
+        if (event.details?.linkCode && !config.qrLogSkip) {
+            sink.write({ level: 'info', message: `Enter this link code on your sending phone: ${event.details.linkCode}` });
+        }
+    };
+    core.events.on('launch.auth.qr.generated', onQr);
+    core.events.on('launch.auth.linkCode.generated', onLinkCode);
+    let client: Client | undefined;
+    try {
+        client = new Client({ client: core, transport: core.getTransport() });
+        await client.start();
+        if (core.getState() !== 'READY' || !core.getReadiness().exposureSafe) {
+            throw new Error('WhatsApp startup finished without a messaging-ready session.');
+        }
+        return client;
+    } catch (error) {
+        try {
+            if (client) await client.stop('startup-failure');
+            else await core.stop('startup-failure');
+        } catch {
+            // Keep the startup failure as the actionable error.
+        }
+        throw error;
+    } finally {
+        core.events.off('launch.auth.qr.generated', onQr);
+        core.events.off('launch.auth.linkCode.generated', onLinkCode);
+    }
 }

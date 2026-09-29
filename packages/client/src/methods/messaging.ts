@@ -10,9 +10,11 @@ import type {
   Content,
 } from '@open-wa/schema';
 import { createUnsupportedMethodStub } from '../runtimeSurface';
+import { SendTextResultSchema } from '@open-wa/schema';
+import { SendTextError } from '../SendTextError';
 
 declare const WAPI: {
-  sendMessage: (to: string, content: string) => Promise<string | false>;
+  sendMessage: (to: string, content: string) => Promise<unknown>;
   sendImage: (base64: string, to: string, filename: string, caption: string, quotedMsgId?: string, waitForId?: boolean, ptt?: boolean, withoutPreview?: boolean, hideTags?: boolean, viewOnce?: boolean) => Promise<string | boolean>;
   sendFile: (base64: string, to: string, filename: string, caption: string) => Promise<string>;
   sendLocation: (to: string, lat: number, lng: number, loc: string, address?: string, url?: string) => Promise<string | false>;
@@ -28,7 +30,11 @@ declare const WAPI: {
 };
 
 export interface MessagingMethods {
-  sendText(to: ChatId, content: string): Promise<string | false>;
+  /**
+   * Returns a validated serialized message ID, not a delivery receipt.
+   * Throws SendTextError on failure and never retries an uncertain send.
+   */
+  sendText(to: ChatId | string, content: string): Promise<MessageId>;
   sendImage(to: ChatId, file: DataURL | Base64, filename: string, caption?: string, quotedMsgId?: MessageId): Promise<MessageId | false>;
   sendFile(to: ChatId, file: DataURL | Base64, filename: string, caption?: string): Promise<MessageId>;
   sendLocation(to: ChatId, lat: number, lng: number, locationText: string, address?: string): Promise<MessageId | false>;
@@ -50,20 +56,54 @@ export function messagingMethods(client: Client): MessagingMethods {
   const unsupportedReact = createUnsupportedMethodStub<MessagingMethods['react']>('react');
   
   return {
-    async sendText(to: ChatId, content: string): Promise<string | false> {
-      const result = await evaluate(
-        ({ to, content }) => WAPI.sendMessage(to, content),
-        { to, content }
-      );
+    async sendText(to: ChatId | string, content: string): Promise<MessageId> {
+      if (typeof to !== 'string' || to.trim().length === 0 || typeof content !== 'string' || content.length === 0) {
+        throw new SendTextError('sendText requires a non-empty chat ID and a non-empty text string.', {
+          code: 'INVALID_ARGUMENT',
+          outcome: 'not_sent',
+        });
+      }
+
+      let result: unknown;
+      try {
+        result = await evaluate(
+          ({ to, content }) => WAPI.sendMessage(to, content),
+          { to, content }
+        );
+      } catch (cause) {
+        throw new SendTextError('sendText could not confirm the result. The message may have been sent; check the chat before retrying.', {
+          code: 'SEND_FAILED',
+          outcome: 'unknown',
+          cause,
+        });
+      }
       if (result === 'Not a contact') {
         const message = 'Starting a chat with a new number requires an applied restricted or premium license.';
         client.logger.error('send_text_unknown_number_requires_license', {
           sessionId: client.sessionId,
           detail: message,
         });
-        throw new Error(message);
+        throw new SendTextError(message, { code: 'LICENSE_REQUIRED', outcome: 'not_sent' });
       }
-      return result;
+      if (result === 'Not able to send message to broadcast') {
+        throw new SendTextError('sendText cannot send to status@broadcast. Use a supported chat ID.', {
+          code: 'SEND_REJECTED',
+          outcome: 'not_sent',
+        });
+      }
+
+      const serialized = result !== null && typeof result === 'object' && '_serialized' in result
+        ? result._serialized
+        : result;
+      const parsed = SendTextResultSchema.safeParse(serialized);
+      if (!parsed.success) {
+        throw new SendTextError('sendText did not return a valid message ID. The message may have been sent; check the chat before retrying.', {
+          code: 'INVALID_SEND_RESULT',
+          outcome: 'unknown',
+          cause: result,
+        });
+      }
+      return parsed.data;
     },
     
     async sendImage(

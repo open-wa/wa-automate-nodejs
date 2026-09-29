@@ -22,6 +22,9 @@ const ENV_ALIASES: Record<string, string> = {
   BROWSER_WS_ENDPOINT: 'browserWSEndpoint', // Acronym casing: WS not Ws
   BYPASS_CSP: 'bypassCSP', // Acronym casing: CSP not Csp
   USE_LIGHTPANDA: 'useLightpanda',
+  BROWSER_DOWNLOAD: 'browser.download',
+  BROWSER_CACHE_DIRECTORY: 'browser.cacheDirectory',
+  BROWSER_DOWNLOAD_BASE_URL: 'browser.downloadBaseUrl',
   LIGHTPANDA_EXECUTABLE_PATH: 'lightpanda.executablePath',
   LIGHTPANDA_PORT_START: 'lightpanda.portStart',
   LIGHTPANDA_HOST: 'lightpanda.host',
@@ -33,7 +36,7 @@ const ENV_ALIASES: Record<string, string> = {
  * Get all valid config keys from the Zod schema (single source of truth)
  */
 const VALID_CONFIG_KEYS = new Set(Object.keys(ConfigSchema.shape));
-const NESTED_ENV_PREFIXES = new Set(['lightpanda']);
+const NESTED_ENV_PREFIXES = new Set(['lightpanda', 'browser']);
 
 /**
  * Detect the expected type for a config key from the Zod schema.

@@ -10,6 +10,7 @@ import type {
   IPage,
   IRequest,
   LightpandaOptions,
+  BrowserProvisionOptions,
   WaitForFunctionOptions,
 } from '@open-wa/driver-interface';
 import type { HyperEmitter } from '@open-wa/hyperemitter';
@@ -56,6 +57,7 @@ export interface TransportOptions {
   qrPollingMs?: number;
   navigationTimeoutMs?: number;
   executablePath?: string;
+  browser?: BrowserProvisionOptions;
   watermark?: boolean | { text?: string; color?: string; background?: string; };
   browserArgs?: string[];
   allowDangerousBrowserArgs?: boolean;
@@ -490,6 +492,7 @@ export class Transport {
     this.browser = await this.driver.launch({
       headless: this.headless,
       executablePath: this.executablePath,
+      browser: this.options.browser,
       args: [
         ...chromiumConfig.chromiumArgs,
         ...sanitizeBrowserArgs(this.browserArgs, {

@@ -1,6 +1,6 @@
 import { HyperEmitter } from '@open-wa/hyperemitter';
 import { createLogger, Logger } from '@open-wa/logger';
-import type { IDriver, LightpandaOptions } from '@open-wa/driver-interface';
+import type { IDriver, LightpandaOptions, BrowserProvisionOptions } from '@open-wa/driver-interface';
 import { requireCapability, type CapabilitySubject } from '@open-wa/driver-interface';
 import { OpenWAEventMap, STATE } from './events/eventMap';
 import { PluginHost, loadPlugins } from './plugins/index';
@@ -70,6 +70,7 @@ export interface CreateClientOptions {
   oorTimeoutMs?: number;
   navigationTimeoutMs?: number;
   executablePath?: string;
+  browser?: BrowserProvisionOptions;
   watermark?: boolean | { text?: string; color?: string; background?: string; };
   browserArgs?: string[];
   allowDangerousBrowserArgs?: boolean;
@@ -273,6 +274,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     oorTimeoutMs: options.oorTimeoutMs,
     navigationTimeoutMs: options.navigationTimeoutMs,
     executablePath: options.executablePath,
+    browser: options.browser,
     browserArgs: options.browserArgs,
     allowDangerousBrowserArgs: options.allowDangerousBrowserArgs,
     userDataDir: resolvedUserDataDir,
