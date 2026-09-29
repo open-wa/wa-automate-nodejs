@@ -1,31 +1,38 @@
 ---
 title: "Config Explorer"
-description: "Every open-wa config option in three forms: wa.config.json, CLI flags, and WA_ environment variables."
-icon: "Sliders"
+description: "Every open-wa config option and the CLI or environment adapters that actually support it."
+icon: "SlidersHorizontal"
 ---
 
 # Config Explorer
 
-open-wa has one configuration schema, and every option can be set three ways:
+open-wa has one configuration schema. The runtime exposes each schema field in
+the config file, while the CLI and environment adapters cover smaller,
+explicitly supported subsets:
 
 - in a config file (`wa.config.json` / `wa.config.mjs`), by its key
-- as a CLI flag (`--kebab-case`)
-- as an environment variable (`WA_UPPER_SNAKE`)
+- as a CLI flag where the v5 CLI parser supports that option
+- as an environment variable where the environment loader supports that key
 
 Use the explorer below to search every option, filter by group, and switch
-between the three forms. The table and the copy-paste snippet update to match
-the format you pick. Options are grouped by area (browser, session, server,
-logging, and so on) — the groups are inferred from the config schema itself, so
-they always match the source.
+between the three forms. The table and copy-paste snippet update to match the
+format you pick. Options are grouped by area (browser, session, server,
+logging, and so on) from the config schema itself. Nested fields are shown under
+their full config path, and a `config file only` label means the selected
+adapter does not accept that field.
+
+For the complete source-backed option reference, including full types and
+defaults, see [Configuration and CLI](/docs/guides/configuration-and-cli#full-configuration-reference).
 
 <ConfigExplorer />
 
 <Callout type="info">
-Nested options (like `mcp.enabled`) are set in the config file or via env vars
-(`WA_MCP_ENABLED`); they do not have a dedicated CLI flag. A few flags also have
-short aliases (for example `-p` for `--port`) — the canonical `--kebab-case`
-form shown here always works.
+The explorer does not invent adapters. For example, `mcp.enabled` is a nested
+config-file field, while `WA_MCP` is the supported environment form for the
+whole MCP object; the current CLI does not parse `--mcp`. A few supported flags
+also have short aliases, such as `-p` for `--port`.
 </Callout>
 
-This page is generated from `@open-wa/config`'s schema, so it always matches the
-options the runtime actually accepts.
+This page is generated from `@open-wa/config`'s schema plus the v5 CLI and
+environment adapters, so the displayed forms describe what each runtime path
+actually accepts.

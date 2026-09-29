@@ -9,7 +9,7 @@ import { createUnsupportedMethodStub } from '../runtimeSurface';
 type ChatMuteDuration = 'FOREVER' | 'EIGHT_HOURS' | 'ONE_WEEK' | number;
 
 declare const WAPI: {
-  getChat: (chatId: string) => Chat;
+  getChat: (chatId: string) => Chat | false | undefined;
   getAllChats: () => Chat[];
   getChatById: (chatId: string) => Chat;
   deleteConversation: (chatId: string) => Promise<boolean>;
@@ -24,7 +24,7 @@ declare const WAPI: {
 };
 
 export interface ChatMethods {
-  getChat(chatId: ChatId): Promise<Chat | null>;
+  getChat(chatId: ChatId): Promise<Chat | false | undefined>;
   getAllChats(): Promise<Chat[]>;
   getChatById(chatId: ChatId): Promise<Chat | null>;
   deleteChat(chatId: ChatId): Promise<boolean>;
@@ -48,7 +48,7 @@ export function chatMethods(client: Client): ChatMethods {
   const unsupportedUnmuteChat = createUnsupportedMethodStub<ChatMethods['unmuteChat']>('unmuteChat');
   
   return {
-    async getChat(chatId: ChatId): Promise<Chat | null> {
+    async getChat(chatId: ChatId): Promise<Chat | false | undefined> {
       return evaluate(
         ({ chatId }) => WAPI.getChat(chatId),
         { chatId }

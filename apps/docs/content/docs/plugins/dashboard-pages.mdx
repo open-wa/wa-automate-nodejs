@@ -1,81 +1,41 @@
 ---
 title: Dashboard Pages
-description: Add custom pages to the open-wa dashboard from your plugin.
+description: Add plugin status metadata to the open-wa dashboard.
 ---
 
 # Dashboard Pages
 
-Plugins can add custom pages to the open-wa dashboard. This lets you expose plugin status, stats, and controls through the built-in UI.
+Continue with `greeting-bot.mjs` and `wa.config.mjs` from [Plugin getting started](/docs/plugins/getting-started). Its async `init()` already returns the message hook and health route; add a page declaration to that returned object.
 
-## What Are Dashboard Pages
+## Declare a page from `init()`
 
-Dashboard pages are declared in your plugin definition and mounted automatically in the dashboard under your plugin section.
+In `greeting-bot.mjs`, add `pages` to the object already returned by `init()`, alongside the message hook and `routes`:
 
-## Declaring Pages
-
-Add a `pages` array to your plugin definition:
-
-```ts
-export default createPlugin({
-  meta: { name: 'my-plugin' },
-  pages: [
-    {
-      path: '/',
-      title: 'Status',
-      icon: '📊',
-    },
-    {
-      path: '/stats',
-      title: 'Statistics',
-      icon: '📈',
-    },
-  ],
-  init: async ({ events, logger, config, client }) => {
-    // Plugin initialization
-  },
-});
+```js
+pages: [{
+  path: '/',
+  title: 'Greeting bot',
+  icon: '👋',
+  description: 'The plugin is loaded and its health route is available.',
+}],
 ```
 
-### Page Properties
+Open the [local dashboard](http://localhost:8080/dashboard/) and select **Greeting bot**. The link opens the standard status view at `/dashboard/plugins/greeting-bot`; changing `path` changes the sidebar URL but does not create a custom plugin screen.
 
-- **path**: The URL path within your plugin dashboard section. `/` is the root page.
-- **title**: The display name shown in the sidebar.
-- **icon**: An emoji shown next to the title in the sidebar.
+### Page properties
 
-## What the Dashboard Renders
+- **`path`**: The path segment used in dashboard navigation. Use `/` for the standard status view; other values do not enable custom dashboard rendering.
+- **`title`**: The label shown in the sidebar.
+- **`icon`**: An emoji or supported icon name shown beside the label.
+- **`order`**: Optional ordering metadata; the current dashboard does not use it to sort plugin pages.
+- **`description`**: Optional page metadata; the current dashboard does not display it. Use the plugin's `meta.description` for the status view summary.
 
-Each page renders as a content area in the dashboard. The page at `/` becomes the default page when users navigate to your plugin section.
+## Add plugin-owned data
 
-## Real-Time Stats
-
-To show real-time data, track state in your plugin:
-
-```ts
-let messageCount = 0;
-
-export default createPlugin({
-  meta: { name: 'stats-plugin' },
-  pages: [
-    {
-      path: '/',
-      title: 'Stats',
-      icon: '📊',
-    },
-  ],
-  init: async ({ events, logger }) => {
-    events.on('message.received', () => {
-      messageCount++;
-    });
-  },
-});
-```
-
-## Custom React Components
-
-Custom React components for dashboard pages are planned for a future release. Currently, pages are rendered as simple content areas.
+The declaration adds a sidebar link to the standard status view. To display plugin-owned data, open the starter's [health route](http://localhost:8080/plugins/greeting-bot/health), or add another endpoint using the [HTTP routes guide](/docs/plugins/hono-routes).
 
 ## Related
 
-- **[Plugin getting started](/docs/plugins/getting-started)** - Build your first plugin
+- **[Plugin getting started](/docs/plugins/getting-started)** - Build and load `greeting-bot.mjs`
 - **[AI Tools](/docs/plugins/ai-tools)** - Register AI tools from plugins
 - **[Hono Routes](/docs/plugins/hono-routes)** - Add HTTP routes to plugins

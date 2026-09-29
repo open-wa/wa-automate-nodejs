@@ -3,8 +3,10 @@ import path from 'path';
 import { fileURLToPath } from 'node:url';
 import { getHttpMethodDefinitions } from '../src/http-manifest';
 import '../src/methods';
+import { successResponseSchema } from '../src/output-json-schema';
 
 const generatedDir = path.join(fileURLToPath(new URL('.', import.meta.url)), '../src/generated');
+const schemaPackage = JSON.parse(fs.readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')) as { version: string };
 if (!fs.existsSync(generatedDir)) {
   fs.mkdirSync(generatedDir, { recursive: true });
 }
@@ -39,9 +41,9 @@ const methods = getHttpMethodDefinitions();
 const document = {
   openapi: '3.0.3',
   info: {
-    title: 'Open WA API',
-    version: '5.0.0',
-    description: 'API definition for Open WA v5',
+    title: 'open-wa API',
+    version: schemaPackage.version,
+    description: `API definition for open-wa v${schemaPackage.version}`,
   },
   servers: [
     {
@@ -73,15 +75,62 @@ const document = {
             description: 'Successful response',
             content: {
               'application/json': {
-                schema: schemaToOpenApi(def.outputSchema),
+                schema: successResponseSchema(def.outputSchema),
               },
             },
           },
           400: {
             description: 'Validation error',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['error', 'details'],
+                  properties: {
+                    error: { type: 'string', enum: ['Validation Error'] },
+                    details: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        required: ['code', 'path', 'message'],
+                        properties: {
+                          code: { type: 'string' },
+                          path: { type: 'array', items: { oneOf: [{ type: 'string' }, { type: 'integer' }] } },
+                          message: { type: 'string' },
+                        },
+                        additionalProperties: true,
+                      },
+                    },
+                  },
+                  additionalProperties: false,
+                },
+                examples: {
+                  validationError: {
+                    summary: 'Input validation failed',
+                    value: { error: 'Validation Error', details: [{ code: 'invalid_type', path: ['to'], message: 'Invalid input' }] },
+                  },
+                },
+              },
+            },
           },
           500: {
             description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['error'],
+                  properties: { error: { type: 'string' } },
+                  additionalProperties: false,
+                },
+                examples: {
+                  internalError: {
+                    summary: 'Execution failed',
+                    value: { error: 'Internal Server Error' },
+                  },
+                },
+              },
+            },
           },
         },
       },

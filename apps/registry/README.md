@@ -1,6 +1,6 @@
 # registry
 
-Static component registry for OpenWA UI assets, served from `public/registry.json`.
+Static component registry for open-wa UI assets, served from `public/registry.json`.
 
 Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
 

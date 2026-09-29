@@ -43,6 +43,35 @@ type FieldInfo = {
   description: string | null;
 };
 
+/**
+ * These are the flags parsed by packages/wa-automate/src/cli-runtime.ts.
+ * ConfigSchema is broader than the v5 CLI adapter, so deriving a flag by
+ * kebab-casing every schema key creates commands the runtime ignores.
+ */
+const CLI_FLAGS: Record<string, string> = {
+  sessionId: '--session-id',
+  port: '--port',
+  host: '--host',
+  apiKey: '--api-key',
+  logLevel: '--log-level',
+  ezqr: '--no-ezqr',
+  headless: '--headless',
+  useChrome: '--use-chrome',
+  useLightpanda: '--use-lightpanda',
+  logConsole: '--log-console',
+  aggressiveGarbageCollection: '--aggressive-garbage-collection',
+  dashboard: '--no-dashboard',
+  ephemeral: '--ephemeral',
+  sandboxChats: '--sandbox-chats',
+  'sandboxChats.isolation': '--sandbox-isolation',
+  qrTimeout: '--qr-timeout',
+  dashboardPort: '--dashboard-port',
+  licenseKey: '--license-key',
+  webhook: '--webhook',
+  proxyHost: '--proxy-host',
+  proxyToken: '--proxy-token',
+};
+
 function getDescription(schema: z.ZodTypeAny): string | null {
   const publicSchema = asPublicSchema(schema);
   return publicSchema.description ?? publicSchema.meta?.()?.description ?? null;
@@ -157,25 +186,44 @@ function describeField(schema: z.ZodTypeAny): FieldInfo {
 
 function resolveFieldSchema(configKey: string): z.ZodTypeAny | undefined {
   const parts = configKey.split('.');
-  let shape: Record<string, z.ZodTypeAny> | undefined =
-    asPublicSchema(ConfigSchema).shape;
   let field: z.ZodTypeAny | undefined;
   for (const part of parts) {
-    if (!shape) return undefined;
-    field = shape[part];
+    field = field ? childSchema(field, part) : asPublicSchema(ConfigSchema).shape?.[part];
     if (!field) return undefined;
-    // Unwrap to an object shape for the next segment.
-    const inner = unwrapSchema(field);
-    shape = inner.type === 'object' ? inner.shape : undefined;
   }
   return field;
 }
 
+function childSchema(schema: z.ZodTypeAny, key: string): z.ZodTypeAny | undefined {
+  const current = unwrapSchema(schema);
+  if (current.type === 'object') return current.shape?.[key];
+  if (current.type === 'union') {
+    return current.options?.map((option) => childSchema(option, key)).find(Boolean);
+  }
+  return undefined;
+}
+
 function toCliFlag(configKey: string): string | null {
-  // Nested config (e.g. mcp.enabled) has no dedicated CLI flag.
-  if (configKey.includes('.')) return null;
-  const kebab = configKey.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
-  return `--${kebab}`;
+  return CLI_FLAGS[configKey] ?? null;
+}
+
+function nestedConfigKeys(schema: z.ZodTypeAny, prefix: string): string[] {
+  const current = unwrapSchema(schema);
+  if (current.type === 'union') {
+    return Array.from(
+      new Set(
+        (current.options ?? []).flatMap((option) =>
+          nestedConfigKeys(option, prefix),
+        ),
+      ),
+    );
+  }
+  if (current.type !== 'object' || !current.shape) return [];
+
+  return Object.entries(current.shape).flatMap(([key, child]) => {
+    const path = `${prefix}.${key}`;
+    return [path, ...nestedConfigKeys(child, path)];
+  });
 }
 
 /**
@@ -235,13 +283,42 @@ function inferGroups(): Map<string, string> {
 
 const GROUP_BY_KEY = inferGroups();
 
+const GROUP_OVERRIDES: Record<string, string> = {
+  mcp: 'MCP',
+  plugins: 'Plugin System',
+  pluginConfig: 'Plugin System',
+  s3Sync: 'Session Sync',
+};
+
 function groupForKey(configKey: string): string {
   const top = configKey.split('.')[0];
-  return GROUP_BY_KEY.get(top) ?? 'Other';
+  return GROUP_OVERRIDES[top] ?? GROUP_BY_KEY.get(top) ?? 'Other';
 }
 
-const entries = getConfigEnvVars('WA_')
-  .map(({ configKey, envVar }) => {
+const envVars = new Map(
+  getConfigEnvVars('WA_').map(({ configKey, envVar }) => [configKey, envVar]),
+);
+const topLevelKeys = Object.keys(asPublicSchema(ConfigSchema).shape ?? {});
+const configKeys = topLevelKeys.flatMap((key) => {
+  const schema = resolveFieldSchema(key);
+  return [key, ...(schema ? nestedConfigKeys(schema, key) : [])];
+});
+
+function envVarForKey(configKey: string): string | null {
+  const direct = envVars.get(configKey);
+  if (direct) return direct;
+
+  const topLevelKey = configKey.split('.')[0];
+  const topLevelSchema = resolveFieldSchema(topLevelKey);
+  // The environment adapter parses JSON for object fields, so nested values
+  // can travel through their parent's WA_* variable even without flat aliases.
+  return topLevelSchema && describeType(topLevelSchema) === 'object'
+    ? envVars.get(topLevelKey) ?? null
+    : null;
+}
+
+const entries = configKeys
+  .map((configKey) => {
     const schema = resolveFieldSchema(configKey);
     const info = schema
       ? describeField(schema)
@@ -253,9 +330,12 @@ const entries = getConfigEnvVars('WA_')
       default: info.default,
       description: info.description,
       cliFlag: toCliFlag(configKey),
-      envVar,
+      // A null value means this adapter does not accept the nested key. The
+      // config-file representation remains available for every schema field.
+      envVar: envVarForKey(configKey),
     };
   })
+  .filter((entry, index, all) => all.findIndex((candidate) => candidate.key === entry.key) === index)
   .sort((a, b) => a.key.localeCompare(b.key));
 
 const banner =
@@ -273,7 +353,7 @@ const body = `export type ConfigManifestEntry = {
   default: string | null;
   description: string | null;
   cliFlag: string | null;
-  envVar: string;
+  envVar: string | null;
 };
 
 /** Group labels in schema-declaration order. */

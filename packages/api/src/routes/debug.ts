@@ -11,9 +11,24 @@ export function registerDebugRoutes(
   options: {
     config: Config;
     getConfig: () => Config;
+    getDiagnostics: () => {
+      available: boolean;
+      captureSource: 'session event bridge';
+      captureLimit: number;
+      records: unknown[];
+    };
     setIntegration?: (id: string, data: { enabled: boolean; config: Record<string, string> }) => void;
   }
 ) {
+  // Error records can contain runtime details, so require the configured Easy API key.
+  app.get('/meta/debug/diagnostics', (c: any) => {
+    const apiKey = options.config.apiKey;
+    if (!apiKey || c.req.header('X-API-Key') !== apiKey) {
+      return c.json({ error: 'Unauthorized', details: 'Invalid or missing API key' }, 401);
+    }
+    return c.json(options.getDiagnostics());
+  });
+
   // ─── Memory Metrics ──────────────────────────────────────────────
   app.get('/meta/debug/memory', (c: any) => {
     const mem = process.memoryUsage();

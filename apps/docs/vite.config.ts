@@ -5,40 +5,35 @@ import mdx from 'fumadocs-mdx/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type UserConfig } from 'vite';
 
-type NitroConfig = Readonly<{
-    nitro: {
-        externals: {
-            external: string[];
-            traceInclude: string[];
-        };
-    };
-}>;
-
-const config: UserConfig & NitroConfig = {
+const config: UserConfig = {
     server: {
         port: 3022,
     },
     build: {
         chunkSizeWarningLimit: 1000,
     },
-    nitro: {
-        externals: {
-            external: ['@takumi-rs/core'],
-            traceInclude: [
-                '@takumi-rs/wasm',
-                '@takumi-rs/core-darwin-arm64',
-                '@takumi-rs/core-darwin-x64',
-                '@takumi-rs/core-linux-arm64-gnu',
-                '@takumi-rs/core-linux-arm64-musl',
-                '@takumi-rs/core-linux-x64-gnu',
-                '@takumi-rs/core-linux-x64-musl',
-                '@takumi-rs/core-win32-arm64-msvc',
-                '@takumi-rs/core-win32-x64-msvc',
-            ],
-        },
-    },
     resolve: {
-        tsconfigPaths: true,
+      tsconfigPaths: true,
+      // Keep React and the renderer on one physical module identity in the
+      // monorepo. Without this, SSR can mix the root React package with a
+      // Vite-optimized renderer and hooks fail before the route renders.
+      dedupe: ['react', 'react-dom'],
+    },
+    ssr: {
+      optimizeDeps: {
+        // Keep React, the server renderer, and the React packages that render
+        // HeadContent in one SSR optimization graph. If only React is
+        // optimized, external TanStack imports resolve a second dispatcher.
+        include: [
+          'react',
+          'react-dom',
+          'react-dom/server',
+          'react/jsx-runtime',
+          'react/jsx-dev-runtime',
+          '@tanstack/react-router',
+          '@tanstack/react-start',
+        ],
+      },
     },
     plugins: [
         cloudflare({
@@ -63,9 +58,6 @@ const config: UserConfig & NitroConfig = {
                 },
                 {
                     path: '/docs',
-                },
-                {
-                    path: '/api/search',
                 },
                 {
                     path: '/api-explorer',

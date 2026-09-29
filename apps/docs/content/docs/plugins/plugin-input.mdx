@@ -1,13 +1,11 @@
 ---
 title: PluginInput Breakdown
-description: Understand what your plugin receives — events, logger, config, sessionId, and client.
+description: "Understand what your plugin receives: events, logger, config, sessionId, and client."
 ---
 
 # PluginInput Breakdown
 
-When your plugin's `init()` function is called, it receives a `PluginInput` object. This contains everything your plugin needs to operate.
-
-## What is PluginInput?
+The host passes a `PluginInput` object to your plugin's `init()` function. It contains the event interface, logger, plugin configuration, session identifier, lifetime signal, and client proxy.
 
 ```ts
 interface PluginInput<TConfig = unknown> {
@@ -15,19 +13,20 @@ interface PluginInput<TConfig = unknown> {
   logger: PluginLogger;
   config: TConfig;
   sessionId: string;
+  signal: AbortSignal;
   client: PluginClient;
 }
 ```
 
 Each field is described below.
 
-## `events` — Security-Filtered Event Emitter
+## `events`: Filtered Event Emitter
 
-The `events` field is an event emitter that has been filtered for security.
+The `events` field provides `on()`, `once()`, and `off()`. The host gateway checks event metadata and ignores events marked internal or sensitive. It does not create a sandbox around plugin code.
 
 ### What you can do
 
-- Subscribe to public events with `on()`, `once()`, and `off()`
+- Subscribe to allowed events with `on()`, `once()`, and `off()`
 
 ```ts
 events.on('message.received', (payload) => {
@@ -37,13 +36,12 @@ events.on('message.received', (payload) => {
 
 ### What you cannot do
 
-- **Emit events** — Only the host can emit. Plugins can only subscribe.
-- **Listen to internal events** — Events prefixed with `launch.*`, `browser.*`, and `transport.*` are blocked.
-- **Listen to sensitive events** — Events prefixed with `license.*` and session data events are blocked.
+- **Emit through this object:** It has no `emit()` method.
+- **Subscribe to metadata marked internal or sensitive:** The gateway ignores these requests and logs them. This is based on host event metadata, not name prefixes; unknown names pass to the underlying emitter.
 
-This ensures plugins cannot interfere with the runtime lifecycle or access sensitive information.
+The loader dynamically imports plugins into the host process. They retain that process's Node.js and operating-system permissions, so review plugin source and dependencies before loading them. See the [plugin security model](/docs/plugins/security-model) for deployment isolation options.
 
-## `logger` — Scoped Logger
+## `logger`: Scoped Logger
 
 The `logger` provides structured logging with automatic plugin name prefixing.
 
@@ -56,10 +54,10 @@ logger.error('Failed to connect', { error: 'ECONNREFUSED' });
 logger.debug('Processing message', { messageId: 'abc123' });
 ```
 
-- `info(message, meta?)` — Informational messages
-- `warn(message, meta?)` — Warnings
-- `error(message, meta?)` — Errors
-- `debug(message, meta?)` — Debug output (only visible when debug logging is enabled)
+- `info(message, meta?)`: Informational messages
+- `warn(message, meta?)`: Warnings
+- `error(message, meta?)`: Errors
+- `debug(message, meta?)`: Debug output (only visible when debug logging is enabled)
 
 ### Auto-Prefixing
 
@@ -73,16 +71,16 @@ All log output is automatically prefixed with your plugin name:
 
 Plugin logs flow through the host's logging system. Whether they are persisted depends on the host's logging configuration. By default, logs are written to stdout/stderr.
 
-## `config` — Validated Configuration
+## `config`: Validated Configuration
 
-The `config` field contains your plugin's configuration from the global `wa.config.js` file, already validated against your `configSchema`.
+The `config` field contains your plugin's configuration from `wa.config.mjs`. When you provide a `configSchema`, the host validates and parses the value before calling `init()`; without a schema, it passes the configured value through (or `{}` when it is absent).
 
 ### Access Pattern
 
 Your plugin's config is accessed via the `pluginConfig` key in the global config file:
 
 ```js
-// wa.config.js
+// wa.config.mjs
 export default {
   pluginConfig: {
     'my-plugin': {
@@ -94,7 +92,7 @@ export default {
 ```
 
 ```ts
-// my-plugin.ts
+// src/my-plugin.ts
 init: async ({ config }) => {
   // config is { apiUrl: string; apiKey: string }
   // Already validated against your configSchema
@@ -117,7 +115,7 @@ const configSchema = z.object({
 init: async ({ config }) => { ... }
 ```
 
-## `sessionId` — Current Session
+## `sessionId`: Current Session
 
 A string identifier for the current session.
 
@@ -133,9 +131,22 @@ Use this for:
 - Scoping data to a specific session
 - Differentiating behavior across multiple sessions
 
-## `client` — WA Method Proxy
+## `signal`: Plugin lifetime
 
-The `client` is a transport-agnostic proxy for calling WhatsApp methods.
+The host aborts this signal when it starts disposing the plugin. Pass it to cancellable work or check `signal.aborted` before starting another operation.
+
+```ts
+init: async ({ signal, logger }) => {
+  if (signal.aborted) {
+    logger.debug('Plugin is already stopping');
+  }
+  return {};
+}
+```
+
+## `client`: WhatsApp Method Proxy
+
+The `client` is a host-managed proxy for calling methods exposed by `window.WAPI` in the connected runtime. Its `ask()` method forwards method names and arguments; the SDK does not apply a safe-method allowlist. The proxy does not restrict Node.js imports or replace process isolation.
 
 ```ts
 init: async ({ client }) => {
@@ -148,6 +159,6 @@ See the **[PluginClient reference](/docs/plugins/plugin-client)** for the comple
 
 ## Related
 
-- **[Hooks reference](/docs/plugins/hooks-reference)** — What your plugin can return
-- **[PluginClient reference](/docs/plugins/plugin-client)** — Available client methods
-- **[Plugin security model](/docs/plugins/security-model)** — What plugins can and cannot do
+- **[Hooks reference](/docs/plugins/hooks-reference):** What your plugin can return
+- **[PluginClient reference](/docs/plugins/plugin-client):** Available client methods
+- **[Plugin security model](/docs/plugins/security-model):** What plugins can and cannot do

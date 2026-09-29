@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'fumadocs-core/link';
 import { SidebarIcon, Languages } from 'lucide-react';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
-import { useDocsLayout } from 'fumadocs-ui/layouts/docs';
+import { useNotebookLayout } from 'fumadocs-ui/layouts/notebook';
 import type { LinkItemType } from 'fumadocs-ui/layouts/shared';
 import { cn } from '@/lib/cn';
 
@@ -34,7 +34,7 @@ function HeaderLink({ item }: { item: LinkItemType }) {
 
     return (
       <details className="group relative">
-        <summary className="flex cursor-pointer list-none items-center gap-1 rounded-xl px-2 py-1.5 text-sm font-bold text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground [&::-webkit-details-marker]:hidden">
+        <summary className="flex cursor-pointer list-none items-center gap-1 rounded-lg px-2 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground [&::-webkit-details-marker]:hidden">
           {href ? (
             <Link href={href}>{item.text}</Link>
           ) : (
@@ -44,7 +44,7 @@ function HeaderLink({ item }: { item: LinkItemType }) {
             v
           </span>
         </summary>
-        <div className="absolute left-0 top-full z-40 mt-2 grid min-w-56 gap-1 rounded-2xl border-backstitch bg-popover p-2 text-sm text-popover-foreground shadow-stipple">
+        <div className="absolute left-0 top-full z-40 mt-2 grid min-w-56 gap-1 rounded-xl border-backstitch bg-popover p-2 text-sm text-popover-foreground shadow-stipple">
           {item.items.map((child, index) => {
             if (child.type === 'custom') {
               return (
@@ -57,7 +57,7 @@ function HeaderLink({ item }: { item: LinkItemType }) {
                 key={`${index}-${child.url}`}
                 href={child.url}
                 external={child.external}
-                className="rounded-xl px-3 py-2 font-bold text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                className="rounded-lg px-3 py-2 font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
               >
                 {child.text}
               </Link>
@@ -76,7 +76,7 @@ function HeaderLink({ item }: { item: LinkItemType }) {
       className={cn(
         item.type === 'icon'
           ? buttonVariants({ color: 'ghost', size: 'icon' })
-          : 'inline-flex items-center gap-1 rounded-xl px-2 py-1.5 text-sm font-bold text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground data-[active=true]:text-primary',
+          : 'inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground data-[active=true]:text-primary',
       )}
     >
       {item.type === 'icon' ? item.icon : item.text}
@@ -96,7 +96,7 @@ function splitNavItems(items: LinkItemType[]) {
 }
 
 export function DocsTopBar(props: React.ComponentPropsWithoutRef<'header'>) {
-  const { isNavTransparent, navItems, slots } = useDocsLayout();
+  const { isNavTransparent, navItems, slots } = useNotebookLayout();
 
   const { primaryItems, customActions, utilityItems } = splitNavItems(navItems);
 
@@ -107,7 +107,7 @@ export function DocsTopBar(props: React.ComponentPropsWithoutRef<'header'>) {
         data-transparent={isNavTransparent}
         {...props}
         className={cn(
-          '[grid-area:header] sticky top-(--fd-docs-row-1) z-30 flex h-(--fd-header-height) items-center border-b-2 border-foreground bg-background ps-4 pe-2.5 transition-colors md:hidden max-md:layout:[--fd-header-height:--spacing(14)]',
+          'w-full min-w-0 [grid-area:header] sticky top-(--fd-docs-row-1) z-30 flex h-(--fd-header-height) items-center border-b border-border bg-background ps-4 pe-2.5 transition-colors md:hidden max-md:layout:[--fd-header-height:--spacing(14)]',
           props.className,
         )}
       >
@@ -115,6 +115,7 @@ export function DocsTopBar(props: React.ComponentPropsWithoutRef<'header'>) {
           <slots.navTitle className="inline-flex items-center gap-2.5 font-semibold" />
         ) : null}
         <div className="flex-1" />
+        {customActions.map((item, index) => <HeaderLink key={index} item={item} />)}
         {slots.searchTrigger ? (
           <slots.searchTrigger.sm
             hideIfDisabled
@@ -138,7 +139,7 @@ export function DocsTopBar(props: React.ComponentPropsWithoutRef<'header'>) {
         ) : null}
       </header>
 
-      <header className="sticky top-(--fd-docs-row-1) z-30 hidden h-14 items-center border-b-2 border-foreground bg-background px-4 md:flex">
+      <header className="w-full min-w-0 [grid-area:header] sticky top-(--fd-docs-row-1) z-30 hidden h-14 items-center border-b border-border bg-background px-4 md:flex">
         {slots.navTitle ? (
           <slots.navTitle className="inline-flex shrink-0 items-center gap-2.5 font-semibold" />
         ) : null}

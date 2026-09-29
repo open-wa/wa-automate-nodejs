@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiExplorerRouteImport } from './routes/api-explorer'
 import { Route as AuthDotmdRouteImport } from './routes/auth[.]md'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as LlmsFullDottxtRouteImport } from './routes/llms-full[.]txt'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as McpRouteImport } from './routes/mcp'
@@ -21,6 +22,7 @@ import { Route as DotwellKnownApiCatalogRouteImport } from './routes/[.]well-kno
 import { Route as DotwellKnownOauthAuthorizationServerRouteImport } from './routes/[.]well-known.oauth-authorization-server'
 import { Route as DotwellKnownOauthProtectedResourceRouteImport } from './routes/[.]well-known.oauth-protected-resource'
 import { Route as ApiChatRouteImport } from './routes/api.chat'
+import { Route as ApiFeedbackRouteImport } from './routes/api.feedback'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
 import { Route as ChangelogIndexRouteImport } from './routes/changelog/index'
 import { Route as ChangelogVersionRouteImport } from './routes/changelog/$version'
@@ -43,6 +45,11 @@ const ApiExplorerRoute = ApiExplorerRouteImport.update({
 const AuthDotmdRoute = AuthDotmdRouteImport.update({
   id: '/auth.md',
   path: '/auth.md',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LlmsFullDottxtRoute = LlmsFullDottxtRouteImport.update({
@@ -92,6 +99,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiFeedbackRoute = ApiFeedbackRouteImport.update({
+  id: '/api/feedback',
+  path: '/api/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiSearchRoute = ApiSearchRouteImport.update({
   id: '/api/search',
   path: '/api/search',
@@ -139,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api-explorer': typeof ApiExplorerRoute
   '/auth.md': typeof AuthDotmdRoute
+  '/checkout': typeof CheckoutRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/mcp': typeof McpRoute
@@ -148,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/feedback': typeof ApiFeedbackRoute
   '/api/search': typeof ApiSearchRoute
   '/changelog/$version': typeof ChangelogVersionRoute
   '/docs/$': typeof DocsSplatRoute
@@ -161,6 +175,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api-explorer': typeof ApiExplorerRoute
   '/auth.md': typeof AuthDotmdRoute
+  '/checkout': typeof CheckoutRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/mcp': typeof McpRoute
@@ -170,6 +185,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/feedback': typeof ApiFeedbackRoute
   '/api/search': typeof ApiSearchRoute
   '/changelog/$version': typeof ChangelogVersionRoute
   '/docs/$': typeof DocsSplatRoute
@@ -184,6 +200,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/api-explorer': typeof ApiExplorerRoute
   '/auth.md': typeof AuthDotmdRoute
+  '/checkout': typeof CheckoutRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/mcp': typeof McpRoute
@@ -193,6 +210,7 @@ export interface FileRoutesById {
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/feedback': typeof ApiFeedbackRoute
   '/api/search': typeof ApiSearchRoute
   '/changelog/$version': typeof ChangelogVersionRoute
   '/docs/$': typeof DocsSplatRoute
@@ -208,6 +226,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-explorer'
     | '/auth.md'
+    | '/checkout'
     | '/llms-full.txt'
     | '/llms.txt'
     | '/mcp'
@@ -217,6 +236,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-authorization-server'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
+    | '/api/feedback'
     | '/api/search'
     | '/changelog/$version'
     | '/docs/$'
@@ -230,6 +250,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-explorer'
     | '/auth.md'
+    | '/checkout'
     | '/llms-full.txt'
     | '/llms.txt'
     | '/mcp'
@@ -239,6 +260,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-authorization-server'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
+    | '/api/feedback'
     | '/api/search'
     | '/changelog/$version'
     | '/docs/$'
@@ -252,6 +274,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-explorer'
     | '/auth.md'
+    | '/checkout'
     | '/llms-full.txt'
     | '/llms.txt'
     | '/mcp'
@@ -261,6 +284,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-authorization-server'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
+    | '/api/feedback'
     | '/api/search'
     | '/changelog/$version'
     | '/docs/$'
@@ -275,6 +299,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiExplorerRoute: typeof ApiExplorerRoute
   AuthDotmdRoute: typeof AuthDotmdRoute
+  CheckoutRoute: typeof CheckoutRoute
   LlmsFullDottxtRoute: typeof LlmsFullDottxtRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
   McpRoute: typeof McpRoute
@@ -284,6 +309,7 @@ export interface RootRouteChildren {
   DotwellKnownOauthAuthorizationServerRoute: typeof DotwellKnownOauthAuthorizationServerRoute
   DotwellKnownOauthProtectedResourceRoute: typeof DotwellKnownOauthProtectedResourceRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiFeedbackRoute: typeof ApiFeedbackRoute
   ApiSearchRoute: typeof ApiSearchRoute
   ChangelogVersionRoute: typeof ChangelogVersionRoute
   DocsSplatRoute: typeof DocsSplatRoute
@@ -315,6 +341,13 @@ declare module '@tanstack/react-router' {
       path: '/auth.md'
       fullPath: '/auth.md'
       preLoaderRoute: typeof AuthDotmdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/llms-full.txt': {
@@ -380,6 +413,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/feedback': {
+      id: '/api/feedback'
+      path: '/api/feedback'
+      fullPath: '/api/feedback'
+      preLoaderRoute: typeof ApiFeedbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/search': {
       id: '/api/search'
       path: '/api/search'
@@ -443,6 +483,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiExplorerRoute: ApiExplorerRoute,
   AuthDotmdRoute: AuthDotmdRoute,
+  CheckoutRoute: CheckoutRoute,
   LlmsFullDottxtRoute: LlmsFullDottxtRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
   McpRoute: McpRoute,
@@ -454,6 +495,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotwellKnownOauthProtectedResourceRoute:
     DotwellKnownOauthProtectedResourceRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiFeedbackRoute: ApiFeedbackRoute,
   ApiSearchRoute: ApiSearchRoute,
   ChangelogVersionRoute: ChangelogVersionRoute,
   DocsSplatRoute: DocsSplatRoute,

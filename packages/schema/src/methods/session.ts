@@ -1,3 +1,4 @@
+import { FeatureFlagsSchema, HealthCheckSchema, HostAccountSchema, LicenseTypeSchema, ProcessStatsSchema } from '../return-types';
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
 import { chatIdParam, imageDataParam, nameParam, statusTextParam, userAgentParam } from '../parameters';
@@ -13,7 +14,7 @@ export const getMe = defineMethodV2('getMe', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.any(),
+    output: HostAccountSchema,
 });
 
 export const getHostNumber = defineMethodV2('getHostNumber', {
@@ -41,7 +42,7 @@ export const getConnectionState = defineMethodV2('getConnectionState', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.any(),
+    output: z.string(),
 });
 
 export const getWAVersion = defineMethodV2('getWAVersion', {
@@ -104,7 +105,7 @@ export const getFeatures = defineMethodV2('getFeatures', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.any(),
+    output: FeatureFlagsSchema,
 });
 
 export const getLicenseType = defineMethodV2('getLicenseType', {
@@ -118,7 +119,7 @@ export const getLicenseType = defineMethodV2('getLicenseType', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.union([z.any(), z.boolean()]),
+    output: LicenseTypeSchema.or(z.literal(false)),
 });
 
 export const getUserAgent = defineMethodV2('getUserAgent', {
@@ -150,7 +151,7 @@ export const getProcessStats = defineMethodV2('getProcessStats', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.any(),
+    output: ProcessStatsSchema,
 });
 
 export const getLoadedMessageCount = defineMethodV2('getLoadedMessageCount', {
@@ -203,7 +204,7 @@ export const healthCheck = defineMethodV2('healthCheck', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.any(),
+    output: HealthCheckSchema,
 });
 
 export const setMyName = defineMethodV2('setMyName', {

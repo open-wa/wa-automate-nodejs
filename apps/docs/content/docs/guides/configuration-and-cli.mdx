@@ -11,20 +11,20 @@ Use this page to choose runtime settings, CLI flags, environment variables, and 
 
 Use the config object passed to `createClient()` or exported from `wa.config.*` for library/runtime behavior such as:
 
-- `sessionId` — stable session naming
-- `userDataDir` — persistent browser profile directory
-- `headless` — visible vs background browser
-- `useChrome` / `executablePath` — browser selection
-- `qrTimeout` / `authTimeout` — authentication timing
-- `maxQr` — limit QR emission count
-- `cacheEnabled` — page/runtime memory trade-off
-- `licenseKey` — feature unlocks where applicable
-- `proxyServerCredentials` — outbound proxy support
-- `linkCode` — link-code login flow
+- `sessionId`: stable session naming
+- `userDataDir`: persistent browser profile directory
+- `headless`: visible vs background browser
+- `useChrome` / `executablePath`: browser selection
+- `qrTimeout` / `authTimeout`: authentication timing
+- `maxQr`: limit QR emission count
+- `cacheEnabled`: page/runtime memory trade-off
+- `licenseKey`: feature unlocks where applicable
+- `proxyServerCredentials`: outbound proxy support
+- `linkCode`: link-code login for embedded `createClient` applications
 
 ## Full Configuration Reference
 
-Use the `<AutoTypeTable />` to explore all available configuration options directly from the source code.
+The reference below lists supported configuration fields, types, defaults, and descriptions.
 
 <AutoTypeTable path="../../../../../packages/config/src/schema/config.ts" name="Config" />
 
@@ -76,6 +76,8 @@ The config loader replaces arrays instead of concatenating them. A later `plugin
 Config files can export a plain object or a function that returns an object. The config loader supports TypeScript config files.
 
 ## JSON/TS examples
+
+These config fields are available to embedded `createClient` applications. In the published Easy API CLI `5.1.0`, startup applies `host: 0.0.0.0` and `port: 8002` after config and environment loading, so pass `--host` and `--port` explicitly when starting the CLI.
 
 <Tabs items={['JSON', 'TypeScript']}>
 <Tab value="JSON">
@@ -137,12 +139,12 @@ Common runtime environment variables:
 | Environment variable | Config field | Notes |
 | --- | --- | --- |
 | `WA_SESSION_ID` | `sessionId` | Stable session name |
-| `WA_PORT` | `port` | Easy API port |
-| `WA_HOST` | `host` | Easy API host |
+| `WA_PORT` | `port` | The shared config loader reads this value, but the published CLI `5.1.0` applies `port: 8002` after environment variables. Pass `--port` to choose another port. |
+| `WA_HOST` | `host` | The shared config loader reads this value, but the published CLI `5.1.0` applies `host: 0.0.0.0` after environment variables. Pass `--host` to choose another bind address. |
 | `WA_API_KEY` | `apiKey` | API authentication key |
 | `WA_USER_DATA_DIR` | `userDataDir` | Persistent browser profile directory |
 | `WA_LICENSE_KEY` | `licenseKey` | License key where applicable |
-| `WA_LINK_CODE` | `linkCode` | Phone number for link-code login |
+| `WA_LINK_CODE` | `linkCode` | The shared config loader maps this variable. The published CLI `5.1.0` does not forward the field into startup; pass `linkCode` explicitly to embedded `createClient`. |
 | `WA_HEADLESS` | `headless` | Browser visibility |
 | `WA_USE_CHROME` | `useChrome` | Prefer local Chrome |
 | `WA_QR_TIMEOUT` | `qrTimeout` | QR wait time |
@@ -156,19 +158,17 @@ There are also compatibility aliases for a few browser-related settings, includi
 ## High-value CLI flags
 
 ```bash
-# networking
+# networking (pass explicit values to override published CLI 5.1.0 defaults)
+--host "127.0.0.1"
 --port 8080
 --api-key "your-secure-key"
---host "0.0.0.0"
 
 # session identity
 --session-id sales
---link-code "447123456789"
 
 # runtime helpers
 --pm2
 --tunnel
---multi-device
 
 # licensing
 --license-key "YOUR-LICENSE-KEY"
@@ -178,7 +178,7 @@ There are also compatibility aliases for a few browser-related settings, includi
 --sandbox-isolation container
 ```
 
-`sandboxChats` applies only to code or tools explicitly sent through `executeInChatSandbox`; it does not create a Chromium session per chat or change ordinary message handlers. The boolean form uses the process policy, while the object form controls the isolation boundary and resource access:
+Pass `linkCode` explicitly in an embedded `createClient` configuration. The shared config loader maps `WA_LINK_CODE`, but direct `createClient` calls do not load environment variables automatically. The published Easy API CLI `5.1.0` does not forward link-code settings and has no `--link-code` flag, so use its QR flow. Select a config file with `--config` when you need to choose it explicitly. `sandboxChats` applies only to code or tools explicitly sent through `executeInChatSandbox`; it does not create a Chromium session per chat or change ordinary message handlers. The boolean form uses the process policy, while the object form controls the isolation boundary and resource access:
 
 ```ts
 export default defineConfig({
@@ -211,9 +211,9 @@ These are the major flags most users need when starting the Easy API from the co
 | `--webhook "https://..."`, `-w "https://..."` | `webhook` | Parsed as a webhook target URL, but current v5 source warns that CLI webhook registration parity is not restored. Use `@open-wa/integration-webhook` in `plugins` plus `pluginConfig.webhook` for source-backed delivery. |
 | `--pm2` | PM2 wrapper | Starts the CLI under PM2 instead of running directly. |
 | `--license-key "key"`, `-l "key"` | `licenseKey` | Supplies a license key for licensed features where applicable. |
-| `--link-code "447123456789"` | `linkCode` | Uses link-code login instead of relying only on QR scanning. |
+| `linkCode` in library config | `linkCode` | Embedded `createClient` in `5.1.0` supports link-code login. The published Easy API CLI does not forward this setting and has no `--link-code` flag. |
 | `--tunnel` | transitional | Legacy tunnel flag. v5 currently warns that tunnel setup parity is not restored. |
-| `--mcp` | unsupported shorthand | The current source does not parse `--mcp`. Configure `mcp: { enabled: true }` in `wa.config.*` instead and keep `apiKey` enabled. |
+| `--mcp` | unsupported by the current v5 CLI | The parser does not accept this flag. Configure `mcp: { enabled: true }` in `wa.config.*`, keep `apiKey` enabled, and use `--config ./wa.config.mjs` when selecting that file explicitly. |
 | `--host "0.0.0.0"`, `-h "0.0.0.0"` | `host` | Local bind host for the Easy API server. |
 | `--sandbox-chats` | `sandboxChats: true` | Enables isolated execution for explicit per-chat code/tool calls. |
 | `--sandbox-isolation process` | `sandboxChats.isolation` | Selects `worker`, `process`, or `container`; use container for hostile code. |
@@ -227,12 +227,12 @@ The standalone `@open-wa/cli` entrypoint also accepts output-mode flags such as 
 Most CLI flags are thin aliases over config schema fields. For example:
 
 ```bash
-npx @open-wa/wa-automate@latest \
+npx @open-wa/wa-automate@5.1.0 \
   --session-id sales \
+  --host 127.0.0.1 \
   --port 8080 \
   --api-key "$WA_API_KEY" \
-  --license-key "$WA_LICENSE_KEY" \
-  --link-code "447123456789"
+  --license-key "$WA_LICENSE_KEY"
 ```
 
 is equivalent to these config fields:
@@ -243,17 +243,16 @@ export default {
   port: 8080,
   apiKey: process.env.WA_API_KEY,
   licenseKey: process.env.WA_LICENSE_KEY,
-  linkCode: '447123456789',
 };
 ```
 
-CLI flags win over config-file and environment values. That makes config files good for stable defaults and CLI flags good for one-off local overrides.
+Explicit CLI flags win over config-file and environment values. The published CLI `5.1.0` also applies its `0.0.0.0` and `8002` startup defaults after config loading, so always pass `--host` and `--port` when those values matter.
 
 Not every flag is a schema field. `--config` selects which file to load, `--pm2` controls process management, and `--name` controls the PM2 process name.
 
 ## Deprecated flags
 
-Some v4-era flags remain as compatibility warnings and do not enable their old behavior.
+Some v4-era flags remain as compatibility warnings in v5. Replace them with the documented v5 settings below.
 
 <Accordions type="single">
 <Accordion title="Deprecated and transitional flags" id="deprecated-and-transitional-flags">
@@ -264,7 +263,7 @@ Some v4-era flags remain as compatibility warnings and do not enable their old b
 | `--stats` | Warns that swagger-stats parity is not restored. |
 | `--generate-api-docs` | Warns that runtime docs are always served from the shared API layer. |
 | `--tunnel` | Warns that tunnel setup parity is not yet restored in the v5 CLI. |
-| `--mcp` | The current source does not parse this flag. Configure `mcp: { enabled: true }` in `wa.config.*`. Use `--mcp` only if your installed build documents it. |
+| `--mcp` | The current source does not parse this flag. Configure `mcp: { enabled: true }` in `wa.config.*` and select the file with `--config ./wa.config.mjs` if needed. |
 | `--api-host` | Not parsed by the current v5 CLI. Use `--host`/`-h` for the local bind host and configure any public origin in the integration that needs it. |
 | `--chatwoot-url`, `--twilio-webhook`, `--bot-press-url` | Legacy integration flags that are not yet wired into the v5 CLI boot path. Prefer plugins and config files. |
 | `sessionData`, `sessionDataPath`, `skipSessionSave` | Deprecated MD-obsolete JSON session fields. Prefer `userDataDir` managed persistence. |

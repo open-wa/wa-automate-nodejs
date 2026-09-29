@@ -7,11 +7,11 @@ description: Core terms used throughout the open-wa docs.
 
 ## ChatId
 
-A ChatId is the identifier for a WhatsApp chat. Direct messages use the `phone@c.us` format. Groups use the `group@g.us` format.
+A `ChatId` is the identifier accepted by a chat or messaging method. The current schema accepts a numeric direct-contact JID such as `447700900000@c.us`, a numeric group JID such as `447123456789-1445627445@g.us`, or a numeric LID JID such as `12345678901234@lid`. An incoming event can expose the value through fields such as `from` and `chatId`; preserve that returned value instead of reconstructing it.
 
 ## ContactId
 
-A ContactId is a chat ID that refers to a specific contact. It always ends in `@c.us`.
+A `ContactId` is a chat ID for a direct contact. The schema requires the numeric `@c.us` form, such as `447700900000@c.us`; display names, invite URLs, and guessed LIDs are not contact IDs.
 
 ## Driver
 
@@ -19,7 +19,7 @@ A driver is the browser automation backend open-wa uses to control WhatsApp Web.
 
 ## Easy API
 
-The hosted runtime surface that exposes client functionality over HTTP and related runtime transports. It is the ready made HTTP API surface that runs when you execute `npx @open-wa/wa-automate`, including interactive docs and generated schemas.
+The HTTP and runtime-transport surface served by an open-wa process. Running `npx @open-wa/wa-automate` starts it locally; the process can expose client methods, interactive API docs, and generated schemas.
 
 ## Event namespace
 
@@ -27,7 +27,7 @@ An event namespace is the naming convention used for runtime events, such as `me
 
 ## GroupChatId
 
-A GroupChatId is a chat ID that refers to a WhatsApp group. It always ends in `@g.us`.
+A `GroupChatId` is an assigned WhatsApp group identifier ending in `@g.us`. Keep the full value returned by an event or group method; an invite URL is an invite token and does not become a group ID until a group method resolves it.
 
 ## Headless / headful
 
@@ -43,11 +43,13 @@ License tiers are the different licensing levels that gate certain features, suc
 
 ## LID
 
-LID means Linked Device ID. It is an internal identifier WhatsApp uses for linked device sessions.
+A LID is an opaque WhatsApp identifier ending in `@lid`. The current API schema accepts a numeric value before that suffix. Keep the ID supplied by the runtime; don't derive one from a phone number or assume every incoming LID has the same representation. The [Chat ID primer](/docs/guides/chatid-primer) explains which inputs the current API accepts.
 
 ## MCP
 
-MCP means Model Context Protocol. It is a standard for connecting AI assistants to external tools, and open-wa exposes Easy API methods as MCP tools.
+MCP means Model Context Protocol. It is a standard for connecting AI
+assistants to external tools. When MCP is enabled for an Easy API instance and
+configured with its API key, open-wa exposes Easy API methods as MCP tools.
 
 ## Proxy
 
@@ -75,7 +77,10 @@ The remote consumer client used to connect to an Easy API instance without embed
 
 ## Tunnel
 
-A tunnel, such as Cloudflare Tunnel, exposes a local service to the internet. It does not open ports on your machine or network.
+A tunnel, such as Cloudflare Tunnel, exposes a local service through a public
+relay URL without requiring an inbound listening port on your machine or
+network. The relay URL is still an internet-facing entry point, so apply the
+service's authentication and access controls.
 
 ## WAPI
 

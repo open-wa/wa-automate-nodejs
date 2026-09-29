@@ -1,168 +1,69 @@
 ---
 title: Group vs DM Handling
-description: Detect group messages, filter by group ID, and exempt admins in your automation.
+description: Use message fields and stored group IDs to route group and direct-message automation.
 ---
 
 # Group vs DM Handling
 
-When building automation, you often need different behavior for group messages versus direct messages. This guide covers detection, filtering, and admin exemptions.
-
-## Detecting Group Messages
-
-### By Chat ID Suffix
-
-Group chat IDs end with `@g.us`. Direct messages end with `@c.us`.
-
-```ts
-client.onMessage(async (message) => {
-  const isGroup = message.from.includes('@g.us');
-  const isDirect = message.from.includes('@c.us');
-
-  if (isGroup) {
-    // Handle group message
-  }
-
-  if (isDirect) {
-    // Handle direct message
-  }
-});
-```
-
-### Use isGroupMsg
-
-Some message objects include an `isGroupMsg` field:
+Use `isGroupMsg` to distinguish group traffic from direct messages, then use
+the complete `chatId` value for routing. Do not rebuild a group ID from its
+name or assume every incoming identifier has the same format. See the
+[Chat ID guide](/docs/guides/chatid-primer) for the accepted input forms.
 
 ```ts
 client.onMessage(async (message) => {
   if (message.isGroupMsg) {
-    // This is a group message
-  }
-});
-```
-
-## Getting the Group ID
-
-The group ID is the `from` field for group messages:
-
-```ts
-client.onMessage(async (message) => {
-  if (message.from.includes('@g.us')) {
-    const groupId = message.from; // e.g., "123456789-1111111@g.us"
-    console.log('Message from group:', groupId);
-  }
-});
-```
-
-## Configuring Which Groups to Process
-
-### Allowlist
-
-Only process messages from specific groups:
-
-```ts
-const allowedGroups = new Set([
-  '123456789-1111111@g.us',
-  '987654321-2222222@g.us',
-]);
-
-client.onMessage(async (message) => {
-  if (message.from.includes('@g.us') && !allowedGroups.has(message.from)) {
-    return; // Skip groups not in allowlist
-  }
-  // Process the message
-});
-```
-
-### Blocklist
-
-Skip specific groups:
-
-```ts
-const blockedGroups = new Set([
-  '123456789-1111111@g.us',
-]);
-
-client.onMessage(async (message) => {
-  if (blockedGroups.has(message.from)) {
-    return; // Skip blocked groups
-  }
-  // Process the message
-});
-```
-
-## Exempting Admins
-
-### Getting Group Admins
-
-```ts
-const groupAdmins = await client.getGroupAdmins(groupId);
-```
-
-### Checking if Sender is Admin
-
-```ts
-client.onMessage(async (message) => {
-  if (!message.from.includes('@g.us')) return;
-
-  const admins = await client.getGroupAdmins(message.from);
-  const senderNumber = message.author?.split('@')[0];
-
-  if (admins.includes(senderNumber)) {
-    // Sender is an admin, exempt from moderation
+    console.log('Group message:', message.chatId);
     return;
   }
 
-  // Process the message (e.g., moderate it)
+  console.log('Direct message:', message.chatId);
 });
 ```
 
-### Config-Based Admin Exemption
+## Allow or block groups
+
+Populate the set with group IDs copied from a lookup or message event. Keeping
+the exact returned value avoids assumptions about the identifier suffix.
 
 ```ts
-const exemptAdmins = new Set(config.adminIds || []);
+const allowedGroups = new Set([
+  '447123456789-1445627445@g.us',
+]);
 
 client.onMessage(async (message) => {
-  const senderId = message.author || message.from;
-  if (exemptAdmins.has(senderId)) {
-    return; // Admin messages are exempt
-  }
-  // Process the message
+  if (message.isGroupMsg && !allowedGroups.has(message.chatId)) return;
+  await handleMessage(message);
 });
 ```
 
-## Group-Specific Behavior
+For a blocklist, replace the condition with
+`message.isGroupMsg && blockedGroups.has(message.chatId)`.
 
-### Different Responses per Group
+## Sender and administrator rules
+
+In group messages, `author` identifies the participant when WhatsApp provides
+it. Compare full contact IDs, not a bare number stripped from the ID. The
+current embedded `Client` does not expose `getGroupAdmins`; the generated Easy
+API has a [`getGroupAdmins` method](/docs/reference/client/groups#getgroupadmins).
+If your workflow uses that API, compare its returned contact IDs with
+`message.author` and handle missing authors or lookup failures explicitly.
 
 ```ts
-const groupConfig = {
-  'group1@g.us': { language: 'en', moderation: true },
-  'group2@g.us': { language: 'es', moderation: false },
-};
+const adminsByGroup = new Map<string, Set<string>>();
 
 client.onMessage(async (message) => {
-  const config = groupConfig[message.from];
-  if (!config) return; // Unknown group
+  if (!message.isGroupMsg || !message.author) return;
 
-  if (config.moderation) {
-    // Apply moderation
-  }
+  const adminIds = adminsByGroup.get(message.chatId);
+  if (adminIds?.has(message.author)) return;
+
+  await moderate(message);
 });
 ```
 
-### Group Welcome Messages
-
-```ts
-client.onMessage(async (message) => {
-  if (message.type === 'gp2' && message.subtype === 'add') {
-    const newMember = message.recipients?.[0];
-    await client.sendText(message.from, `Welcome ${newMember}!`);
-  }
-});
-```
-
-## Related
-
-- **[Groups guide](/docs/guides/groups)** - Full group management
-- **[AI Agent Patterns](/docs/guides/ai-agent-patterns)** - Group chat handling in AI agents
-- **[Example: OpenAI Moderation](/docs/plugins/example-moderation)** - Group moderation plugin
+This example uses application-owned admin data. Refresh it from the supported
+Easy API method when permissions change; do not treat a cached list as current
+membership state. See the [groups guide](/docs/guides/groups) for method
+availability and the [event reference](/docs/reference/events) for group
+membership events.

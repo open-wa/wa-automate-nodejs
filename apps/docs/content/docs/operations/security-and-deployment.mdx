@@ -5,7 +5,7 @@ description: Protect your API, manage keys, and deploy to production safely.
 
 # Security and Deployment
 
-Running open-wa in production requires attention to API key management, network security, and session protection.
+Running open-wa in production requires attention to API key management, network security, and session protection. The published npm CLI `5.1.0` defaults to `0.0.0.0:8002`, so use explicit `--host` and `--port` values for the intended bind address and port.
 
 ## Runtime prerequisites
 
@@ -34,7 +34,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ```bash
 export WA_API_KEY="your-generated-key"
-npx @open-wa/wa-automate@latest --port 8080 --api-key "$WA_API_KEY"
+npx @open-wa/wa-automate@5.1.0 --host 127.0.0.1 --port 8080 --api-key "$WA_API_KEY"
 ```
 
 Or in a `.env` file:
@@ -45,12 +45,9 @@ WA_API_KEY=your-generated-key
 
 For production deployments, use a secrets manager (AWS Secrets Manager, HashiCorp Vault, Doppler, etc.).
 
-### Rotating Keys Without Downtime
+### Rotating API keys
 
-1. Start a new session with the new API key
-2. Update all consumers to use the new key
-3. Stop the old session
-4. The session data (auth tokens) is separate from the API key, so rotation does not require re-authentication
+The API key is process configuration, so changing it requires a coordinated restart or deployment. Keep the session profile in place; changing the key alone does not require linking WhatsApp again.
 
 ### What Happens If a Key Is Leaked
 
@@ -65,7 +62,7 @@ If your API key is exposed:
 
 ### Exposing Ports to the Internet
 
-**Never expose the Easy API port directly to the internet without authentication.** At minimum:
+**Never expose the Easy API port directly to the internet without authentication.** `/health` is public even when the API key protects API calls, and its response can include QR and diagnostic data. Keep the health route private and do not expose it through a public proxy. At minimum:
 
 - Always use `--api-key "your-secure-key"`
 - Use a reverse proxy (nginx, Caddy) with HTTPS
@@ -98,13 +95,13 @@ whatsapp-api.example.com {
 
 ### Cloudflare Tunnel Alternative
 
-Instead of opening ports, use Cloudflare Tunnel to expose your API securely:
+Cloudflare Tunnel can route traffic to a local API without an inbound firewall port:
 
 ```bash
 cloudflared tunnel --url http://localhost:8080
 ```
 
-This gives you HTTPS without managing certificates or opening firewall rules.
+The tunnel creates an internet-facing route, so keep API authentication enabled and account for the public `/health` response described above.
 
 ### Firewall Rules
 
@@ -123,11 +120,9 @@ When open-wa sends webhooks to your service:
 
 - Use HTTPS for the webhook URL
 - Add authentication headers via the webhook `headers` config
-- Verify the source IP if your endpoint is public
+- Have your receiver reject requests without the expected shared-secret header
 
-### Signature Verification
-
-If your webhook endpoint is public, implement signature verification to make sure requests come from your open-wa instance.
+The webhook integration sends configured headers; it does not provide signed-payload verification. See [Webhook payloads](/docs/client-and-integrations/webhook-payloads) for the supported plugin configuration.
 
 ### Rate Limiting Webhook Receivers
 
@@ -141,7 +136,7 @@ Your webhook receiver must handle the volume of incoming events. The webhook plu
 
 ### API Key Enforcement
 
-MCP requires an Easy API API key. It will not start without one. Every MCP request must include the same key as the Easy API through an accepted API-key header: `X-API-Key`, `api_key`, or `key`.
+MCP requires the Easy API's API key and will not start without one. Every MCP request must include that key through an accepted API-key header: `X-API-Key`, `api_key`, or `key`.
 
 ### Endpoint Exposure Risks
 
@@ -201,59 +196,12 @@ Before deploying to production:
 ```
 
 - Simplest setup
-- Run with `npx @open-wa/wa-automate@latest --port 8080 --api-key "key"`
+- Run with `npx @open-wa/wa-automate@5.1.0 --host 127.0.0.1 --port 8080 --api-key "key"`
 - Use PM2 or systemd for process management
 
 ### Docker Container
 
-```bash
-docker run -p 8080:8080 \
-  -e WA_PORT=8080 \
-  -e WA_API_KEY="your-key" \
-  -e WA_SESSION_ID=sales \
-  -e WA_USER_DATA_DIR=/sessions/sales \
-  -v ./sessions:/sessions \
-  --init \
-  openwa/wa-automate
-```
-
-- Isolated environment
-- Volume mount plus `WA_USER_DATA_DIR` for session persistence
-- `--init` for proper process cleanup
-
-The v5 Docker image runs from `/usr/src/app`. If `WA_USER_DATA_DIR` is not set and the session is not ephemeral, the runtime derives profile storage as `/usr/src/app/_IGNORE_<sessionId>`. For Docker, prefer mounting `/sessions` and setting `WA_USER_DATA_DIR=/sessions/<sessionId>` so the browser profile is on the mounted volume.
-
-### Docker Compose (Multi-Session)
-
-```yaml
-version: '3'
-services:
-  sales-bot:
-    image: openwa/wa-automate
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./sessions:/sessions
-    environment:
-      - WA_API_KEY=sales-key
-      - WA_SESSION_ID=sales
-      - WA_PORT=8080
-      - WA_USER_DATA_DIR=/sessions/sales
-
-  support-bot:
-    image: openwa/wa-automate
-    ports:
-      - "8081:8081"
-    volumes:
-      - ./sessions:/sessions
-    environment:
-      - WA_API_KEY=support-key
-      - WA_SESSION_ID=support
-      - WA_PORT=8081
-      - WA_USER_DATA_DIR=/sessions/support
-```
-
-After first authentication, restart each container with the same `WA_SESSION_ID` and `WA_USER_DATA_DIR`. Expected local verification: the session reconnects without a new QR prompt because the profile directory under `./sessions/<sessionId>` is reused. This is a checklist expectation for local deployment validation, not captured terminal output from this docs update.
+Use the [Docker baseline](/docs/getting-started/docker), which pins the inspected image digest, configures a persistent profile and key, and passes the published CLI's host, port, and session flags explicitly. Keep the container port private because `/health` remains public and can include QR and operational details.
 
 ### Cloudflare Proxy + Local Runtime
 
@@ -276,5 +224,7 @@ For large-scale deployments:
 ## Related
 
 - **[Quick Start](/docs/getting-started/quickstart)**: First-time setup
+- **[Docker](/docs/getting-started/docker)**: Pinned image and persistent session setup
 - **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)**: Protected remote access
+- **[Webhook payloads](/docs/client-and-integrations/webhook-payloads)**: Webhook plugin configuration
 - **[Best Practices](/docs/operations-and-troubleshooting/best-practices)**: Production patterns

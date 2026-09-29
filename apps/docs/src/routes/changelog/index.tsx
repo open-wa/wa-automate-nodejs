@@ -25,9 +25,8 @@ function Changelog() {
   const entries = Route.useLoaderData();
   return <ChangelogLayout>
     <header className="changelog-intro">
-      <p className="changelog-eyebrow">Made for what you’re building</p>
-      <h1>What’s new in OpenWA.</h1>
-      <p>New possibilities, useful improvements, and the details that matter when you upgrade.</p>
+      <h1>What’s new in open-wa</h1>
+      <p>Explore each release, try its examples, and find the changes to consider before you upgrade.</p>
     </header>
     <div className="release-feed">{entries.map((entry, index) => <ReleaseCard key={entry.version} entry={entry} latest={index === 0} />)}</div>
     <footer className="changelog-footer">Looking for an older version? <a href="https://github.com/open-wa/wa-automate-nodejs/releases">Browse the release archive ↗</a></footer>

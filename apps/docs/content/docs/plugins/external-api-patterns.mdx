@@ -1,11 +1,11 @@
 ---
 title: External API Patterns
-description: Best practices for calling external services from plugins without blocking the message pipeline.
+description: Handle HTTP responses, retries, timeouts, and concurrency in plugins.
 ---
 
 # External API Patterns
 
-Plugins often need to call external services: LLMs, CRMs, databases, or third-party APIs. This guide covers how to do that reliably without blocking the WhatsApp message pipeline.
+Use this guide when a plugin calls an HTTP service, such as an LLM or CRM. It covers response handling, timeouts, retries, and bounded concurrency.
 
 ## Making HTTP Requests
 
@@ -58,7 +58,7 @@ try {
     // Rate limited
     const retryAfter = response.headers.get('Retry-After');
     logger.warn('Rate limited', { retryAfter });
-    return; // Skip this message, retry later
+    return; // Skip this message. Add a retry queue if it must be retried.
   }
 
   if (response.status === 401) {
@@ -76,18 +76,14 @@ try {
 }
 ```
 
-### Timeouts
+### Timeout a request
 
 ```ts
-const controller = new AbortController();
-const timeout = setTimeout(() => controller.abort(), 10000); // 10 seconds
-
 try {
-  const response = await fetch(url, { signal: controller.signal });
-  clearTimeout(timeout);
+  const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
   // Process response
 } catch (error) {
-  if (error.name === 'AbortError') {
+  if (error.name === 'TimeoutError' || error.name === 'AbortError') {
     logger.warn('Request timed out');
   } else {
     logger.error('Request failed', { error: error.message });
@@ -107,6 +103,7 @@ async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3)
       if (response.status === 429) {
         const retryAfter = response.headers.get('Retry-After');
         const delay = retryAfter ? parseInt(retryAfter) * 1000 : Math.pow(2, attempt) * 1000;
+        if (attempt === maxRetries) return response;
         logger.warn('Rate limited, retrying', { attempt, delay });
         await new Promise(r => setTimeout(r, delay));
         continue;
@@ -123,20 +120,20 @@ async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3)
 }
 ```
 
-## Not Blocking the Pipeline
+## Choose how the handler waits
 
-### Async Processing
+### Handle work asynchronously
 
-Never block the message handler with slow operations:
+An awaited network request keeps this handler pending. If it should return before the request completes, start the work separately and handle its rejection:
 
 ```ts
-// BAD - blocks the pipeline
+// Waits for the request before this hook completes.
 events.on('message.received', async ({ message }) => {
-  const result = await slowAPI(message.body); // Blocks all other messages
+  const result = await slowAPI(message.body);
   await client.sendText(message.from, result);
 });
 
-// GOOD - fire and forget
+// Returns without waiting for the request; rejection is logged.
 events.on('message.received', async ({ message }) => {
   processMessage(message).catch(error => {
     logger.error('Processing failed', { error: error.message });
@@ -149,33 +146,28 @@ events.on('message.received', async ({ message }) => {
 Use a queue to control concurrency:
 
 ```ts
-import pQueue from 'p-queue';
+import PQueue from 'p-queue';
 
-const queue = new pQueue({ concurrency: 3 });
+const queue = new PQueue({ concurrency: 3 });
 
 events.on('message.received', async ({ message }) => {
-  queue.add(async () => {
+  await queue.add(async () => {
     const result = await callAPI(message.body);
     await client.sendText(message.from, result);
+  }).catch(error => {
+    logger.error('Queued request failed', { error: error.message });
   });
 });
 ```
 
-### Timeout-Based Skipping
+### Bound how long you wait
 
-If an API call takes too long, skip it rather than blocking:
+Pass a deadline to the external client when it supports cancellation. `AbortSignal.timeout()` stops waiting after five seconds; the service must honor the signal to cancel the request:
 
 ```ts
 events.on('message.received', async ({ message }) => {
-  const timeout = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error('Timeout')), 5000)
-  );
-
   try {
-    const result = await Promise.race([
-      callAPI(message.body),
-      timeout,
-    ]);
+    const result = await callAPI(message.body, { signal: AbortSignal.timeout(5000) });
     await client.sendText(message.from, result);
   } catch (error) {
     logger.warn('API call skipped', { reason: error.message });
@@ -190,9 +182,8 @@ events.on('message.received', async ({ message }) => {
 Set reasonable concurrency limits:
 
 ```ts
-const queue = new pQueue({
+const queue = new PQueue({
   concurrency: 5, // Maximum 5 concurrent API calls
-  timeout: 30000, // 30 second timeout per task
 });
 ```
 
@@ -222,7 +213,7 @@ async function setCached(key: string, data: unknown) {
 Clear caches periodically:
 
 ```ts
-// Clear cache every hour
+// Remove expired entries once a minute.
 setInterval(() => {
   const now = Date.now();
   for (const [key, entry] of cache.entries()) {
@@ -230,30 +221,7 @@ setInterval(() => {
       cache.delete(key);
     }
   }
-}, 60 * 60 * 1000);
-```
-
-### Batch Processing
-
-Batch multiple requests when possible:
-
-```ts
-let batch: Array<{ message: unknown; resolve: (value: unknown) => void; reject: (error: Error) => void }> = [];
-let batchTimer: NodeJS.Timeout | null = null;
-
-function enqueue(message: unknown): Promise<unknown> {
-  return new Promise((resolve, reject) => {
-    batch.push({ message, resolve, reject });
-
-    if (!batchTimer) {
-      batchTimer = setTimeout(() => {
-        processBatch(batch);
-        batch = [];
-        batchTimer = null;
-      }, 1000); // Process every 1 second
-    }
-  });
-}
+}, 60 * 1000);
 ```
 
 ## Related

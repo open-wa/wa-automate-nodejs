@@ -7,22 +7,7 @@ description: Route WhatsApp conversations into a Chatwoot inbox and let agents r
 
 Use this integration when you want support agents to handle WhatsApp conversations from a Chatwoot inbox. Incoming WhatsApp messages create or reopen Chatwoot conversations. Chatwoot replies return through the connected open-wa session.
 
-## Setup order
-
-1. Create or choose the Chatwoot account and API inbox.
-2. Create a Chatwoot user access token with permission to manage contacts, conversations, messages, and inboxes.
-3. Decide the public open-wa origin Chatwoot can call, for example `https://wa.example.com`.
-4. Add `@open-wa/integration-chatwoot` to `plugins` and put the Chatwoot settings in `pluginConfig.chatwoot`.
-5. Start open-wa, send a WhatsApp test message, then reply from Chatwoot.
-
-## Core inputs
-
-At minimum you need:
-
-- the Chatwoot base or account URL
-- a Chatwoot API access token
-- the public API host your open-wa runtime exposes back to Chatwoot
-- an API key if your webhook endpoint is protected
+The current plugin package is `@open-wa/integration-chatwoot@5.1.0`. Chatwoot's account and API behavior can vary by self-hosted release, so record the Chatwoot version alongside your deployment runbook and verify the token permissions against that release.
 
 ## Chatwoot-side setup
 
@@ -55,36 +40,47 @@ The matching Chatwoot inbox values are:
 
 If `forceUpdateCwWebhook` is `true`, open-wa patches the inbox webhook URL during startup. Use that when the public API host changes or when you want config to be the source of truth.
 
-## Current config shape
-
-The integration package defines fields such as:
-
-- `chatwootUrl`
-- `chatwootApiAccessToken`
-- `apiHost`
-- `apiKey`
-- `forceUpdateCwWebhook`
-
 ## Exact open-wa config
 
 Load Chatwoot as a plugin and place the Chatwoot settings under `pluginConfig.chatwoot`:
 
-```ts
+Install the plugin in the Easy API project first:
+
+```bash
+npm install @open-wa/integration-chatwoot@5.1.0
+export OPENWA_CALLBACK_KEY='replace-with-a-long-random-value'
+export CHATWOOT_API_ACCESS_TOKEN='replace-with-a-Chatwoot-user-token'
+```
+
+```js
+const callbackKey = process.env.OPENWA_CALLBACK_KEY?.trim();
+const chatwootToken = process.env.CHATWOOT_API_ACCESS_TOKEN;
+if (!callbackKey || !chatwootToken) throw new Error('Set the Chatwoot and callback secrets');
+
 export default {
+  sessionId: 'sales',
   port: 8080,
   host: '0.0.0.0',
-  apiKey: 'your-secure-key',
+  apiKey: callbackKey,
   plugins: ['@open-wa/integration-chatwoot'],
   pluginConfig: {
     chatwoot: {
       chatwootUrl: 'https://app.chatwoot.com/api/v1/accounts/123',
-      chatwootApiAccessToken: 'your-chatwoot-user-access-token',
+      chatwootApiAccessToken: chatwootToken,
       apiHost: 'https://wa.example.com',
-      apiKey: 'your-secure-key',
+      apiKey: callbackKey,
       forceUpdateCwWebhook: true,
     },
   },
 };
+```
+
+The plugin appends `callbackKey` as `api_key` to Chatwoot's webhook URL. The Chatwoot route does not validate it, so configure a reverse proxy or gateway to check the query value before forwarding callbacks.
+
+Save this as `wa.config.mjs`, then start the matching session:
+
+```bash
+npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --session-id sales --host 0.0.0.0 --port 8080
 ```
 
 If you want to bind the plugin to an existing Chatwoot inbox, include the inbox ID in `chatwootUrl`:
@@ -129,59 +125,37 @@ Created contacts use:
 
 The plugin keeps an in-memory contact registry and conversation registry while the process is running. For each contact, it reuses an open conversation in the configured inbox when possible, reopens an existing conversation when needed, or creates a new conversation.
 
-## Older Easy API flags
+## Runbook capture checklist
 
-If you are reading older Easy API examples, you can see these flags:
+This guide uses a capture checklist rather than fabricated product screenshots. Chatwoot menus and labels vary across hosted and self-hosted releases, so capture these redacted states from the Chatwoot version you deploy and keep the version beside each image in your private runbook:
 
-```bash
---chatwoot-url "https://app.chatwoot.com/api/v1/accounts/123"
---chatwoot-api-access-token "token"
-```
+- **Account and token:** the account URL with the numeric account ID visible, while the access token and personal details are masked.
+- **API inbox:** the inbox type, name, phone number, and account or inbox ID, with private customer data removed.
+- **Webhook callback:** the inbox channel configuration showing `/plugins/chatwoot/webhook` and the redacted callback key boundary.
+- **Incoming message:** an open or reopened conversation containing one redacted WhatsApp message and its timestamp.
+- **Agent reply:** the same conversation after a plain text reply reaches WhatsApp, with customer and message content masked.
+- **Attachment path:** one supported attachment state, or the visible file-link result when the inbound media has only `cloudUrl` and cannot be decrypted by open-wa.
 
-## Plugin vs CLI difference
+These captures document the UI state your deployment reached; they do not prove that a different Chatwoot release has the same labels or that webhook authentication is enforced by the open-wa router. Keep the source version, account identifiers, access tokens, phone numbers, and message bodies out of published screenshots.
 
-The plugin path is the recommended path for new deployments. It loads `@open-wa/integration-chatwoot`, validates `pluginConfig.chatwoot`, mounts the Chatwoot webhook route, and handles WhatsApp to Chatwoot and Chatwoot to WhatsApp sync inside the plugin host.
+## Verify the integration
 
-The older CLI flags are shortcuts. They are useful when you are reading v4-era examples, but they do not describe the full plugin lifecycle. Prefer the plugin config because it makes the package name, webhook route, public API host, API key, and webhook update behavior explicit.
+Use these observable checks after configuration. They give you a useful success or failure record without relying on screenshots or asking you to create documentation artifacts.
 
-## Verification
-
-Check the integration in this order:
-
-1. Start open-wa and confirm the WhatsApp session is connected.
-2. Check the logs for `Chatwoot integration initialized`.
-3. Open Chatwoot and confirm the API inbox exists.
-4. Confirm the inbox webhook URL points to `/plugins/chatwoot/webhook` on your public open-wa host.
-5. Send a WhatsApp message to the connected number and confirm a Chatwoot contact, conversation, and message appear.
-6. Reply from Chatwoot and confirm the message arrives in WhatsApp.
-7. Test one media message in each direction if your workflow depends on attachments.
-
-## Screenshots
-
-When the integration works, Chatwoot shows an inbox conversation with the WhatsApp sender as the contact. Incoming WhatsApp messages appear as incoming Chatwoot messages. Agent replies appear as outgoing messages. Media appears as attachments or file links, based on the media source.
-
-Useful screenshots to capture for your own runbook:
-
-- the Chatwoot API inbox settings with the webhook URL visible
-- a WhatsApp inbound message shown inside a Chatwoot conversation
-- a Chatwoot agent reply received in WhatsApp
-- a media message shown as a Chatwoot attachment or file link
+1. **Confirm the Chatwoot token and account.** Run `curl -i -H "api_access_token: $CHATWOOT_API_ACCESS_TOKEN" "$CHATWOOT_ORIGIN/api/v1/profile"`. Expect `200` and a JSON `account_id`. If you receive `401`, create a new user access token or correct `chatwootUrl`; open-wa cannot create or find an inbox until this request succeeds.
+2. **Confirm the open-wa process initialized the integration.** Start the runtime and look for `Chatwoot integration initialized`. If the log instead contains `CW REQ ERROR` or a non-2xx `CW REQUEST`, compare `chatwootUrl`, the token header, and the account/inbox ID parsed from the URL. The plugin uses `api_access_token` on requests to Chatwoot.
+3. **Confirm the inbox and callback value.** In Chatwoot, open the API inbox and read its channel webhook URL. It should be `https://wa.example.com/plugins/chatwoot/webhook?api_key=your-secure-key` when `apiHost` and `apiKey` are configured. `forceUpdateCwWebhook: true` makes open-wa PATCH this value during startup; otherwise an existing inbox keeps its current URL.
+4. **Understand the callback key boundary.** The plugin appends `api_key` to the URL, and the Easy API's shared API-key middleware accepts `X-API-Key`, `api_key`, or `key` on the API routes. The current Chatwoot Hono router itself parses the query but does not validate `api_key`; if the callback must be authenticated, put a reverse proxy or gateway in front of `/plugins/chatwoot/webhook` that checks the query value (or an equivalent header) before forwarding it. A Chatwoot `200` response alone is not proof that this boundary is protected.
+5. **Verify WhatsApp to Chatwoot.** Send a direct WhatsApp message to the connected number, then inspect Chatwoot. Expect a contact, an open or reopened conversation, and an incoming message. The plugin ignores group and broadcast messages; check `message.from`, the session connection state, and the token's contact/conversation permissions when nothing appears.
+6. **Verify Chatwoot to WhatsApp.** Send a plain reply from that conversation. Chatwoot must POST an event with `event: "message_created"`, a non-private message, and a sender phone number. Expect the plugin response to contain a WhatsApp message ID and the recipient to receive the text. A private note, incoming message echo, missing phone number, or different event is intentionally ignored.
+7. **Verify media and special formats when they matter.** Send one attachment, one URL, and one location-formatted reply. Expect attachments to use `sendImage`, URLs to use link preview, and a leading token such as `@51.5072,-0.1276 Meeting point` to use `sendLocation`. If only `cloudUrl` is available on an inbound media message, expect a file link in Chatwoot rather than an uploaded attachment.
 
 ## Troubleshooting
 
 - **No inbox appears**: confirm `chatwootUrl` contains the right account ID and that the Chatwoot token can manage inboxes.
 - **Webhook URL is wrong**: set `apiHost` to the public open-wa origin and set `forceUpdateCwWebhook: true` for one startup.
-- **Chatwoot replies do not arrive in WhatsApp**: Make sure that Chatwoot can access `https://wa.example.com/plugins/chatwoot/webhook?api_key=your-secure-key`. Also make sure that the `apiKey` value matches the open-wa config.
+- **Chatwoot replies do not arrive in WhatsApp**: Confirm Chatwoot can POST to `https://wa.example.com/plugins/chatwoot/webhook?api_key=your-secure-key`, then inspect the open-wa log for `Webhook processing error`. The plugin expects `message_created`, a non-private message, a sender phone number, and a connected session. If a reverse proxy checks the query key, make sure its value matches the proxy configuration; the Chatwoot router does not enforce that query value itself.
 - **WhatsApp messages do not appear in Chatwoot**: Make sure that the WhatsApp session is connected. Make sure that the message is not from a group or broadcast chat. Make sure that the Chatwoot token can create contacts and conversations.
 - **Media does not appear as an attachment**: confirm open-wa can decrypt the media. If the message has only a `cloudUrl`, Chatwoot receives a file link instead of an uploaded attachment.
 - **Duplicate messages appear**: check for multiple open-wa runtimes connected to the same WhatsApp account or multiple Chatwoot inboxes pointing to the same webhook.
 - **Location replies are sent as text**: use the expected location format at the start of the Chatwoot reply, for example `@51.5072,-0.1276 Meeting point`.
-
-## Recommendation
-
-Treat Chatwoot as a proper integration deployment:
-
-1. protect the inbound webhook path
-2. confirm incoming and outgoing message sync
-3. verify media handling and webhook updates
-4. make the public API host explicit so Chatwoot always calls the right address

@@ -215,6 +215,7 @@ export function toCreateClientOptions(
         browserArgs: config.chromiumArgs,
         userDataDir: config.userDataDir,
         ephemeral: config.ephemeral,
+        linkCode: config.linkCode,
         logConsole: config.logConsole,
         logConsoleErrors: config.logConsoleErrors,
         blockCrashLogs: config.blockCrashLogs,

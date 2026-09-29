@@ -335,8 +335,8 @@ export function parseCliArgs(argv: string[] = process.argv.slice(2)): ParsedCliA
     let verbose = false;
     let configPath: string | undefined;
 
-    const sessionId = getVal(argv, '--session-id') || 'session';
-    cliOverrides.sessionId = sessionId;
+    const sessionId = getVal(argv, '--session-id');
+    if (sessionId) cliOverrides.sessionId = sessionId;
 
     const portValue = getVal(argv, '--port') || getVal(argv, '-p');
     if (portValue) cliOverrides.port = parseInt(portValue, 10);
@@ -419,7 +419,7 @@ export function parseCliArgs(argv: string[] = process.argv.slice(2)): ParsedCliA
         unsupportedWarnings.push('Legacy integration flags (Chatwoot/Twilio/BotPress) were provided but are not yet wired into the v5 CLI boot path.');
     }
 
-    if (argv.includes('--use-session-id-in-path')) {
+    if (argv.includes('--use-session-id-in-path') && sessionId) {
         cliOverrides.sessionId = sessionId;
     }
 
@@ -579,8 +579,8 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         cliOverrides: {
             disableSpins: true,
             apiLifecycle: 'hybrid',
-            host: '0.0.0.0',
-            port: 8002,
+            // Let schema defaults, config files, and WA_HOST/WA_PORT resolve
+            // before applying host/port flags actually supplied by the user.
             ...cliOverrides,
         },
         includeRawConfigs: true,
@@ -635,6 +635,7 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         allowDangerousBrowserArgs: config.allowDangerousBrowserArgs,
         userDataDir: config.userDataDir,
         ephemeral: config.ephemeral,
+        linkCode: config.linkCode,
         logConsole: config.logConsole,
         logConsoleErrors: config.logConsoleErrors,
         blockCrashLogs: config.blockCrashLogs,
@@ -667,6 +668,23 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         }
 
         server.setQR(qr);
+    });
+
+    openwaClient.events.on('launch.auth.linkCode.generated', (event) => {
+        const linkCode = event.details?.linkCode;
+        if (!linkCode) {
+            return;
+        }
+
+        sink.status({
+            phase: 'launch.auth',
+            sessionId: config.sessionId,
+            detail: 'Link code generated; enter it on the paired phone',
+        });
+        sink.write({
+            level: 'info',
+            message: `Link code (local console only): ${linkCode}`,
+        });
     });
 
     const client = new ClientFacade({

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
-import { MessageSchema } from '../common-types';
+import { DataURLSchema, MessageSchema } from '../common-types';
 
 export const decryptMedia = defineMethodV2('decryptMedia', {
     meta: {
@@ -15,7 +15,7 @@ export const decryptMedia = defineMethodV2('decryptMedia', {
         message: MessageSchema.describe('Message object containing media'),
     }),
     parameterOrder: ['message'],
-    output: z.string().describe('Base64 encoded decrypted media'),
+    output: DataURLSchema,
 });
 
 export const downloadMedia = defineMethodV2('downloadMedia', {

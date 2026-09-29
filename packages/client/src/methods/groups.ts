@@ -39,7 +39,7 @@ export interface GroupMethods {
   getGroupMembers(groupId: GroupId): Promise<ContactId[]>;
   getGroupInviteLink(groupId: GroupId): Promise<string>;
   revokeGroupInviteLink(groupId: GroupId): Promise<string | boolean>;
-  joinGroupViaLink(inviteLink: string): Promise<GroupId | boolean>;
+  joinGroupViaLink(inviteLink: string): Promise<GroupId | boolean | number>;
   leaveGroup(groupId: GroupId): Promise<boolean>;
 }
 
@@ -129,11 +129,11 @@ export function groupMethods(client: Client): GroupMethods {
       );
     },
     
-    async joinGroupViaLink(inviteLink: string): Promise<GroupId | boolean> {
+    async joinGroupViaLink(inviteLink: string): Promise<GroupId | boolean | number> {
       return evaluate(
         ({ inviteLink }) => WAPI.joinGroupViaLink(inviteLink, false),
         { inviteLink }
-      ) as Promise<GroupId | boolean>;
+      ) as Promise<GroupId | boolean | number>;
     },
     
     async leaveGroup(groupId: GroupId): Promise<boolean> {

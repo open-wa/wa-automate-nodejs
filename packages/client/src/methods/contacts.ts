@@ -3,6 +3,7 @@ import type {
   ChatId,
   ContactId,
   Contact,
+  NumberCheck,
   GroupId,
 } from '@open-wa/schema';
 import { createUnsupportedMethodStub } from '../runtimeSurface';
@@ -10,7 +11,7 @@ import { createUnsupportedMethodStub } from '../runtimeSurface';
 declare const WAPI: {
   getContact: (contactId: string) => Contact;
   getAllContacts: () => Contact[];
-  checkNumberStatus: (contactId: string) => Promise<{ canReceiveMessage: boolean; numberExists: boolean; id: string }>;
+  checkNumberStatus: (contactId: string) => Promise<NumberCheck>;
   getProfilePicFromServer: (chatId: string) => Promise<string | null>;
   contactBlock: (contactId: string) => Promise<boolean>;
   contactUnblock: (contactId: string) => Promise<boolean>;
@@ -24,7 +25,7 @@ export interface ContactMethods {
   getContact(contactId: ContactId): Promise<Contact | null>;
   getAllContacts(): Promise<Contact[]>;
   getContactById(contactId: ContactId): Promise<Contact | null>;
-  checkNumberStatus(contactId: ContactId): Promise<{ canReceiveMessage: boolean; numberExists: boolean; id: string }>;
+  checkNumberStatus(contactId: ContactId): Promise<NumberCheck>;
   getProfilePic(chatId: ChatId): Promise<string | null>;
   blockContact(contactId: ContactId): Promise<boolean>;
   unblockContact(contactId: ContactId): Promise<boolean>;
@@ -61,7 +62,7 @@ export function contactMethods(client: Client): ContactMethods {
       );
     },
     
-    async checkNumberStatus(contactId: ContactId): Promise<{ canReceiveMessage: boolean; numberExists: boolean; id: string }> {
+    async checkNumberStatus(contactId: ContactId): Promise<NumberCheck> {
       return evaluate(
         ({ contactId }) => WAPI.checkNumberStatus(contactId),
         { contactId }

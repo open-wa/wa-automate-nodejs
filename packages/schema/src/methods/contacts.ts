@@ -1,3 +1,5 @@
+import { ContactIdSchema, ContactSchema } from '../common-types';
+import { CommonGroupSchema, NumberCheckSchema, NumberProfileSchema } from '../return-types';
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
 import { chatIdParam, contactIdParam } from '../parameters';
@@ -13,7 +15,7 @@ export const getAllContacts = defineMethodV2('getAllContacts', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.array(z.any()),
+    output: z.array(ContactSchema),
 });
 
 export const getContact = defineMethodV2('getContact', {
@@ -27,7 +29,7 @@ export const getContact = defineMethodV2('getContact', {
     },
     input: z.object({ contactId: contactIdParam }),
     parameterOrder: ['contactId'],
-    output: z.any(),
+    output: ContactSchema.nullable(),
 });
 
 export const getCommonGroups = defineMethodV2('getCommonGroups', {
@@ -41,7 +43,7 @@ export const getCommonGroups = defineMethodV2('getCommonGroups', {
     },
     input: z.object({ contactId: contactIdParam }),
     parameterOrder: ['contactId'],
-    output: z.any(),
+    output: z.array(CommonGroupSchema).or(z.literal(false)),
 });
 
 export const getNumberProfile = defineMethodV2('getNumberProfile', {
@@ -55,7 +57,7 @@ export const getNumberProfile = defineMethodV2('getNumberProfile', {
     },
     input: z.object({ contactId: contactIdParam }),
     parameterOrder: ['contactId'],
-    output: z.any(),
+    output: NumberProfileSchema,
 });
 
 export const getBlockedIds = defineMethodV2('getBlockedIds', {
@@ -69,7 +71,7 @@ export const getBlockedIds = defineMethodV2('getBlockedIds', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.array(z.string()),
+    output: z.array(ContactIdSchema).or(z.literal(false)),
 });
 
 export const blockContact = defineMethodV2('blockContact', {
@@ -136,7 +138,7 @@ export const checkNumberStatus = defineMethodV2('checkNumberStatus', {
     },
     input: z.object({ contactId: contactIdParam }),
     parameterOrder: ['contactId'],
-    output: z.any(),
+    output: NumberCheckSchema,
 });
 
 export const getProfilePicture = defineMethodV2('getProfilePicture', {
