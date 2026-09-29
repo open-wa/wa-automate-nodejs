@@ -84,13 +84,15 @@ export class HealthStore {
       const durationMs = startTime ? ts - startTime : 0;
       this.stepStarts.delete(step);
 
-      const details = data as Record<string, unknown> | undefined;
+      const details = data?.details && typeof data.details === 'object'
+        ? data.details as Record<string, unknown>
+        : data;
       const hasFailed = details?.success === false || details?.blockingFailure === true;
 
       this.addTimelineStep({
         step,
         status: hasFailed ? 'failed' : 'done',
-        durationMs: (details?.durationMs as number) || durationMs,
+        durationMs: (data?.durationMs as number) ?? durationMs,
         details: details ? this.sanitizeDetails(details) : undefined,
         timestamp: ts,
       });
@@ -103,6 +105,14 @@ export class HealthStore {
       // Special: capture license info from launch.license.preload.after or launch.license.check.after
       if (step === 'launch.license.preload' || step === 'launch.license.check') {
         this.captureLicenseInfo(details);
+      }
+      return;
+    }
+
+    if (event === 'license.inject.after') {
+      const details = data?.details;
+      if (details && typeof details === 'object') {
+        this.captureLicenseInfo(details as Record<string, unknown>);
       }
       return;
     }
@@ -218,8 +228,8 @@ export class HealthStore {
     if (!details) return;
     this.license = {
       status: (details.status as LicenseInfo['status']) || 'missing',
-      source: (details.source as string) || 'unknown',
-      keyType: (details.payloadSource as string) || 'unknown',
+      source: (details.source as string) || this.license?.source || 'unknown',
+      keyType: (details.keyType as string) || this.license?.keyType || 'unknown',
       detail: (details.detail as string) || `License ${details.status || 'check complete'}`,
     };
   }
