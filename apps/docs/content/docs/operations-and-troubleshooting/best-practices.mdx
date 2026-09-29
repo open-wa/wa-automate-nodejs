@@ -5,13 +5,7 @@ description: Practical guidance for running open-wa more reliably in production.
 
 # Best practices
 
-- Keep session work small and predictable.
-- Offload heavy business logic to your own workers or services.
-- Await client methods consistently.
-- Use a process supervisor for restart policy.
-- Prefer explicit browser configuration when runtime behavior matters.
-- Keep good logging around session lifecycle and transport failures.
-- Plan for message replay or unread-message handling after downtime.
+Keep one runtime responsible for each session, persist its profile, and move slow business work into a queue or separate worker. The sections below cover the operational choices that affect recovery, security, and message delivery.
 
 ## Production checklist
 

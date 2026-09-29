@@ -10,6 +10,7 @@ packages:
   - sdks/*
 
 catalog:
+  '@base-ui/react': ^1.8.0
   '@effect/platform-browser': 4.0.0-beta.100
   '@effect/platform-bun': 4.0.0-beta.100
   '@effect/platform-node': 4.0.0-beta.100
@@ -73,7 +74,7 @@ catalog:
   vite-tsconfig-paths: ^6.1.1
   vitest: 5.0.2
   winston: ^3.19.0
-  wrangler: ^4.142.0
+  wrangler: ^4.143.0
   zod: ^4.6.5
 shamefullyHoist: true
 nodeLinker: hoisted
@@ -122,12 +123,12 @@ minimumReleaseAgeExclude:
   - '@effect/platform-node-shared@4.0.0-beta.100'
   - '@effect/platform-node@4.0.0-beta.100'
   - effect@4.0.0-beta.100
-  - '@ai-sdk/gateway@4.0.26 || 4.0.98'
-  - '@ai-sdk/mcp@2.0.16 || 2.0.61'
+  - '@ai-sdk/gateway@4.0.26 || 4.0.98 || 4.0.100'
+  - '@ai-sdk/mcp@2.0.16 || 2.0.61 || 2.0.62'
   - '@ai-sdk/provider@4.0.19'
-  - '@ai-sdk/provider-utils@5.0.12 || 5.0.50'
-  - '@ai-sdk/react@4.0.37 || 4.0.123'
-  - '@cloudflare/vite-plugin@1.46.0'
+  - '@ai-sdk/provider-utils@5.0.12 || 5.0.51'
+  - '@ai-sdk/react@4.0.37 || 4.0.125'
+  - '@cloudflare/vite-plugin@1.62.0'
   - '@cloudflare/workers-types@5.20260722.1'
   - '@oxlint/binding-android-arm-eabi@1.75.0'
   - '@oxlint/binding-android-arm64@1.75.0'
@@ -162,8 +163,8 @@ minimumReleaseAgeExclude:
   - '@takumi-rs/wasm@2.4.1'
   - '@tanstack/query-core@5.101.4'
   - '@tanstack/react-query@5.101.4'
-  - '@vitejs/plugin-react@6.0.4'
-  - ai@7.0.34 || 7.0.120
+  - '@vitejs/plugin-react@6.1.1'
+  - ai@7.0.34 || 7.0.122
   - miniflare@4.20260721.0
   - oxlint@1.75.0
   - postcss@8.5.22
@@ -174,4 +175,4 @@ minimumReleaseAgeExclude:
   - takumi-js@2.4.1
   - tsdown@0.22.13
   - web-vitals@6.0.0
-  - wrangler@4.113.0
+  - wrangler@4.143.0

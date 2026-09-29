@@ -1,3 +1,5 @@
+import { MessageIdSchema } from '../common-types';
+import { ContactStatusSchema, StorySchema } from '../return-types';
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
 import { contactIdParam } from '../parameters';
@@ -17,7 +19,7 @@ export const postTextStatus = defineMethodV2('postTextStatus', {
         font: z.number().optional().describe('Font style'),
     }),
     parameterOrder: ['text', 'backgroundColor', 'font'],
-    output: z.any(),
+    output: MessageIdSchema.or(z.string()).or(z.boolean()),
 });
 
 export const postImageStatus = defineMethodV2('postImageStatus', {
@@ -34,7 +36,7 @@ export const postImageStatus = defineMethodV2('postImageStatus', {
         caption: z.string().optional().describe('Status caption'),
     }),
     parameterOrder: ['image', 'caption'],
-    output: z.any(),
+    output: MessageIdSchema.or(z.string()).or(z.boolean()),
 });
 
 export const postVideoStatus = defineMethodV2('postVideoStatus', {
@@ -51,7 +53,7 @@ export const postVideoStatus = defineMethodV2('postVideoStatus', {
         caption: z.string().optional().describe('Status caption'),
     }),
     parameterOrder: ['video', 'caption'],
-    output: z.any(),
+    output: MessageIdSchema.or(z.string()).or(z.boolean()),
 });
 
 export const getStories = defineMethodV2('getStories', {
@@ -69,7 +71,7 @@ export const getStories = defineMethodV2('getStories', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.array(z.any()),
+    output: z.array(StorySchema),
 });
 
 export const getStatus = defineMethodV2('getStatus', {
@@ -83,7 +85,7 @@ export const getStatus = defineMethodV2('getStatus', {
     },
     input: z.object({ contactId: contactIdParam }),
     parameterOrder: ['contactId'],
-    output: z.any(),
+    output: ContactStatusSchema,
 });
 
 export const deleteStatus = defineMethodV2('deleteStatus', {
@@ -99,7 +101,7 @@ export const deleteStatus = defineMethodV2('deleteStatus', {
         statusesToDelete: z.union([z.string(), z.array(z.string())]).describe('Status ID(s)'),
     }),
     parameterOrder: ['statusesToDelete'],
-    output: z.any(),
+    output: z.boolean(),
 });
 
 export const deleteAllStatus = defineMethodV2('deleteAllStatus', {
@@ -116,5 +118,5 @@ export const deleteAllStatus = defineMethodV2('deleteAllStatus', {
     },
     input: z.object({}),
     parameterOrder: [],
-    output: z.any(),
+    output: z.boolean(),
 });

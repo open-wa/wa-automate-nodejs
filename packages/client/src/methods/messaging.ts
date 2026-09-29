@@ -3,43 +3,50 @@ import type {
   ChatId,
   ContactId,
   MessageId,
+  MessageIdReturn,
   Message,
   DataURL,
   Base64,
   Content,
 } from '@open-wa/schema';
 import { createUnsupportedMethodStub } from '../runtimeSurface';
+import { SendTextResultSchema } from '@open-wa/schema';
+import { SendTextError } from '../SendTextError';
 
 declare const WAPI: {
-  sendMessage: (to: string, content: string) => Promise<string>;
-  sendImage: (base64: string, to: string, filename: string, caption: string, quotedMsgId?: string, waitForId?: boolean, ptt?: boolean, withoutPreview?: boolean, hideTags?: boolean, viewOnce?: boolean) => Promise<string>;
+  sendMessage: (to: string, content: string) => Promise<unknown>;
+  sendImage: (base64: string, to: string, filename: string, caption: string, quotedMsgId?: string, waitForId?: boolean, ptt?: boolean, withoutPreview?: boolean, hideTags?: boolean, viewOnce?: boolean) => Promise<string | boolean>;
   sendFile: (base64: string, to: string, filename: string, caption: string) => Promise<string>;
-  sendLocation: (to: string, lat: number, lng: number, loc: string, address?: string, url?: string) => Promise<string>;
-  sendContact: (to: string, contact: string | string[]) => Promise<any>;
+  sendLocation: (to: string, lat: number, lng: number, loc: string, address?: string, url?: string) => Promise<string | false>;
+  sendContact: (to: string, contact: string | string[]) => void;
   sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => Promise<string | boolean>;
   reply: (to: string, content: string, quotedMsg: string | Message) => Promise<string | boolean>;
-  forwardMessages: (to: string, messages: string | (string | Message)[], skipMyMessages: boolean) => Promise<any>;
+  forwardMessages: (to: string, messages: string | (string | Message)[], skipMyMessages: boolean) => Promise<MessageIdReturn[] | boolean>;
   smartDeleteMessages: (chatId: string, messageId: string[] | string, onlyLocal: boolean) => Promise<any>;
   editMessage: (messageId: string, text: string) => Promise<any>;
   react: (messageId: string, emoji: string) => Promise<boolean>;
   sendSeen: (chatId: string) => Promise<boolean>;
-  getMessageById: (messageId: string) => Message;
+  getMessageById: (messageId: string) => Message | false | null;
 };
 
 export interface MessagingMethods {
-  sendText(to: ChatId, content: string): Promise<MessageId>;
-  sendImage(to: ChatId, file: DataURL | Base64, filename: string, caption?: string, quotedMsgId?: MessageId): Promise<MessageId>;
+  /**
+   * Returns a validated serialized message ID, not a delivery receipt.
+   * Throws SendTextError on failure and never retries an uncertain send.
+   */
+  sendText(to: ChatId | string, content: string): Promise<MessageId>;
+  sendImage(to: ChatId, file: DataURL | Base64, filename: string, caption?: string, quotedMsgId?: MessageId): Promise<MessageId | false>;
   sendFile(to: ChatId, file: DataURL | Base64, filename: string, caption?: string): Promise<MessageId>;
-  sendLocation(to: ChatId, lat: number, lng: number, locationText: string, address?: string): Promise<MessageId>;
-  sendContact(to: ChatId, contact: ContactId | ContactId[]): Promise<boolean>;
+  sendLocation(to: ChatId, lat: number, lng: number, locationText: string, address?: string): Promise<MessageId | false>;
+  sendContact(to: ChatId, contact: ContactId | ContactId[]): Promise<void>;
   sendSticker(to: ChatId, stickerData: DataURL | Base64, metadata?: { author?: string; pack?: string }): Promise<MessageId | boolean>;
   reply(to: ChatId, content: string, quotedMsgId: MessageId): Promise<MessageId | boolean>;
-  forwardMessages(to: ChatId, messages: MessageId | MessageId[], skipMyMessages?: boolean): Promise<boolean>;
+  forwardMessages(to: ChatId, messages: MessageId | MessageId[], skipMyMessages?: boolean): Promise<MessageIdReturn[] | boolean>;
   deleteMessage(chatId: ChatId, messageId: MessageId | MessageId[], onlyLocal?: boolean): Promise<boolean>;
   editMessage(messageId: MessageId, newContent: string): Promise<boolean>;
   react(messageId: MessageId, emoji: string): Promise<boolean>;
   sendSeen(chatId: ChatId): Promise<boolean>;
-  getMessageById(messageId: MessageId): Promise<Message | null>;
+  getMessageById(messageId: MessageId): Promise<Message | false | null>;
 }
 
 export function messagingMethods(client: Client): MessagingMethods {
@@ -49,20 +56,54 @@ export function messagingMethods(client: Client): MessagingMethods {
   const unsupportedReact = createUnsupportedMethodStub<MessagingMethods['react']>('react');
   
   return {
-    async sendText(to: ChatId, content: string): Promise<MessageId> {
-      const result = await evaluate(
-        ({ to, content }) => WAPI.sendMessage(to, content),
-        { to, content }
-      );
+    async sendText(to: ChatId | string, content: string): Promise<MessageId> {
+      if (typeof to !== 'string' || to.trim().length === 0 || typeof content !== 'string' || content.length === 0) {
+        throw new SendTextError('sendText requires a non-empty chat ID and a non-empty text string.', {
+          code: 'INVALID_ARGUMENT',
+          outcome: 'not_sent',
+        });
+      }
+
+      let result: unknown;
+      try {
+        result = await evaluate(
+          ({ to, content }) => WAPI.sendMessage(to, content),
+          { to, content }
+        );
+      } catch (cause) {
+        throw new SendTextError('sendText could not confirm the result. The message may have been sent; check the chat before retrying.', {
+          code: 'SEND_FAILED',
+          outcome: 'unknown',
+          cause,
+        });
+      }
       if (result === 'Not a contact') {
         const message = 'Starting a chat with a new number requires an applied restricted or premium license.';
         client.logger.error('send_text_unknown_number_requires_license', {
           sessionId: client.sessionId,
           detail: message,
         });
-        throw new Error(message);
+        throw new SendTextError(message, { code: 'LICENSE_REQUIRED', outcome: 'not_sent' });
       }
-      return result as MessageId;
+      if (result === 'Not able to send message to broadcast') {
+        throw new SendTextError('sendText cannot send to status@broadcast. Use a supported chat ID.', {
+          code: 'SEND_REJECTED',
+          outcome: 'not_sent',
+        });
+      }
+
+      const serialized = result !== null && typeof result === 'object' && '_serialized' in result
+        ? result._serialized
+        : result;
+      const parsed = SendTextResultSchema.safeParse(serialized);
+      if (!parsed.success) {
+        throw new SendTextError('sendText did not return a valid message ID. The message may have been sent; check the chat before retrying.', {
+          code: 'INVALID_SEND_RESULT',
+          outcome: 'unknown',
+          cause: result,
+        });
+      }
+      return parsed.data;
     },
     
     async sendImage(
@@ -71,12 +112,12 @@ export function messagingMethods(client: Client): MessagingMethods {
       filename: string,
       caption = '',
       quotedMsgId?: MessageId
-    ): Promise<MessageId> {
+    ): Promise<MessageId | false> {
       return evaluate(
         ({ to, file, filename, caption, quotedMsgId }) => 
           WAPI.sendImage(file, to, filename, caption, quotedMsgId, true),
         { to, file, filename, caption, quotedMsgId }
-      ) as Promise<MessageId>;
+      ) as Promise<MessageId | false>;
     },
     
     async sendFile(
@@ -98,15 +139,15 @@ export function messagingMethods(client: Client): MessagingMethods {
       lng: number,
       locationText: string,
       address?: string
-    ): Promise<MessageId> {
+    ): Promise<MessageId | false> {
       return evaluate(
         ({ to, lat, lng, locationText, address }) => 
           WAPI.sendLocation(to, lat, lng, locationText, address),
         { to, lat, lng, locationText, address }
-      ) as Promise<MessageId>;
+      ) as Promise<MessageId | false>;
     },
     
-    async sendContact(to: ChatId, contact: ContactId | ContactId[]): Promise<boolean> {
+    async sendContact(to: ChatId, contact: ContactId | ContactId[]): Promise<void> {
       return evaluate(
         ({ to, contact }) => WAPI.sendContact(to, contact),
         { to, contact }
@@ -136,7 +177,7 @@ export function messagingMethods(client: Client): MessagingMethods {
       to: ChatId,
       messages: MessageId | MessageId[],
       skipMyMessages = false
-    ): Promise<boolean> {
+    ): Promise<MessageIdReturn[] | boolean> {
       return evaluate(
         ({ to, messages, skipMyMessages }) => 
           WAPI.forwardMessages(to, messages, skipMyMessages),
@@ -171,7 +212,7 @@ export function messagingMethods(client: Client): MessagingMethods {
       );
     },
     
-    async getMessageById(messageId: MessageId): Promise<Message | null> {
+    async getMessageById(messageId: MessageId): Promise<Message | false | null> {
       return evaluate(
         ({ messageId }) => WAPI.getMessageById(messageId),
         { messageId }

@@ -1,139 +1,143 @@
 ---
-title: "All client methods"
-description: "Alphabetical index of every client method, linking to its namespace reference."
+title: "Client API"
+description: "Client methods, return values, and examples."
 icon: "BookOpen"
 ---
 
-# All client methods
+# Client API
 
-> Generated file warning: `packages/schema/scripts/gen-client-reference-docs.ts` generates this page. Do not edit generated method content by hand.
+<ClientReference />
 
-This is an alphabetical index of all 125 client methods. Each method links to its full reference on the namespace page (parameters, usage, HTTP route, and response).
+<details>
+<summary>Plain-text method index</summary>
+
 
 | Method | Namespace | Description | License |
 | --- | --- | --- | --- |
-| [`addLabel`](/docs/reference/client/labels#addlabel) | `labels` | Add label to chat | - |
-| [`addParticipant`](/docs/reference/client/groups#addparticipant) | `groups` | Add participant to group | - |
-| [`approveGroupJoinRequest`](/docs/reference/client/groups#approvegroupjoinrequest) | `groups` | Approve group join request | - |
-| [`archiveChat`](/docs/reference/client/chats#archivechat) | `chats` | Archive a chat | - |
-| [`blockContact`](/docs/reference/client/contacts#blockcontact) | `contacts` | Block a contact | - |
-| [`checkNumberStatus`](/docs/reference/client/contacts#checknumberstatus) | `contacts` | Check if number is on WhatsApp | `insiders` |
-| [`checkReadReceipts`](/docs/reference/client/contacts#checkreadreceipts) | `contacts` | Check read receipts setting | - |
-| [`clearChat`](/docs/reference/client/chats#clearchat) | `chats` | Clear chat history | - |
-| [`createGroup`](/docs/reference/client/groups#creategroup) | `groups` | Create new group | `restricted` |
-| [`decryptMedia`](/docs/reference/client/media#decryptmedia) | `media` | Decrypts media from a message | - |
-| [`deleteAllStatus`](/docs/reference/client/status#deleteallstatus) | `status` | Delete all statuses | `insiders` |
-| [`deleteChat`](/docs/reference/client/chats#deletechat) | `chats` | Delete a chat | - |
-| [`deleteMessage`](/docs/reference/client/messages#deletemessage) | `messages` | Deletes a message | - |
-| [`deleteStatus`](/docs/reference/client/status#deletestatus) | `status` | Delete status | `insiders` |
-| [`demoteParticipant`](/docs/reference/client/groups#demoteparticipant) | `groups` | Demote participant from admin | - |
-| [`downloadMedia`](/docs/reference/client/media#downloadmedia) | `media` | Downloads and decrypts media from a message to a file | - |
-| [`forwardMessages`](/docs/reference/client/messages#forwardmessages) | `messages` | Forwards messages to a chat | - |
-| [`getAllChatIds`](/docs/reference/client/chatids#getallchatids) | `chatIds` | Get all chat IDs | - |
-| [`getAllChats`](/docs/reference/client/chats#getallchats) | `chats` | Retrieves all chats | - |
-| [`getAllCommunities`](/docs/reference/client/communities#getallcommunities) | `communities` | Get all communities | - |
-| [`getAllContacts`](/docs/reference/client/contacts#getallcontacts) | `contacts` | Retrieves all contacts | - |
-| [`getAllGroups`](/docs/reference/client/groups#getallgroups) | `groups` | Get all groups | - |
-| [`getAllLabels`](/docs/reference/client/labels#getalllabels) | `labels` | Get all labels | - |
-| [`getAllMessages`](/docs/reference/client/messages#getallmessages) | `messages` | Retrieves all messages in the session | - |
-| [`getBatteryLevel`](/docs/reference/client/session#getbatterylevel) | `session` | Get phone battery level | - |
-| [`getBlockedIds`](/docs/reference/client/contacts#getblockedids) | `contacts` | Get blocked contact IDs | - |
-| [`getBusinessProducts`](/docs/reference/client/business#getbusinessproducts) | `business` | Get business products | - |
-| [`getBusinessProfile`](/docs/reference/client/business#getbusinessprofile) | `business` | Get business profile | - |
-| [`getChat`](/docs/reference/client/chats#getchat) | `chats` | Get specific chat by ID | - |
-| [`getChatsByLabel`](/docs/reference/client/labels#getchatsbylabel) | `labels` | Get chats by label | - |
-| [`getChatWithNonContacts`](/docs/reference/client/chats#getchatwithnoncontacts) | `chats` | Get chats with non-contacts | - |
-| [`getCommonGroups`](/docs/reference/client/contacts#getcommongroups) | `contacts` | Get common groups with contact | - |
-| [`getCommunityAdminIds`](/docs/reference/client/communities#getcommunityadminids) | `communities` | Get community admin IDs | - |
-| [`getCommunityAdmins`](/docs/reference/client/communities#getcommunityadmins) | `communities` | Get community admins | - |
-| [`getCommunityInfo`](/docs/reference/client/communities#getcommunityinfo) | `communities` | Get community metadata | - |
-| [`getCommunityParticipantIds`](/docs/reference/client/communities#getcommunityparticipantids) | `communities` | Get community participant IDs | - |
-| [`getCommunityParticipants`](/docs/reference/client/communities#getcommunityparticipants) | `communities` | Get community participants | - |
-| [`getConnectionState`](/docs/reference/client/session#getconnectionstate) | `session` | Get connection state | - |
-| [`getContact`](/docs/reference/client/contacts#getcontact) | `contacts` | Get specific contact | - |
-| [`getFeatures`](/docs/reference/client/session#getfeatures) | `session` | Get enabled features | - |
-| [`getGroupAdmins`](/docs/reference/client/groups#getgroupadmins) | `groups` | Get group admins | - |
-| [`getGroupInfo`](/docs/reference/client/groups#getgroupinfo) | `groups` | Get group metadata | - |
-| [`getGroupInviteLink`](/docs/reference/client/groups#getgroupinvitelink) | `groups` | Get group invite link | - |
-| [`getGroupMembers`](/docs/reference/client/groups#getgroupmembers) | `groups` | Retrieves members of a group | - |
-| [`getGroupMembersId`](/docs/reference/client/groups#getgroupmembersid) | `groups` | Get group member IDs | - |
-| [`getHostNumber`](/docs/reference/client/session#gethostnumber) | `session` | Get host phone number | - |
-| [`getKickedGroups`](/docs/reference/client/groups#getkickedgroups) | `groups` | Get groups where kicked | - |
-| [`getLicenseType`](/docs/reference/client/session#getlicensetype) | `session` | Get license type | - |
-| [`getLoadedMessageCount`](/docs/reference/client/session#getloadedmessagecount) | `session` | Get loaded message count | - |
-| [`getMe`](/docs/reference/client/session#getme) | `session` | Get host account info | - |
-| [`getMessageById`](/docs/reference/client/messages#getmessagebyid) | `messages` | Retrieves a specific message by ID | - |
-| [`getMessageInfo`](/docs/reference/client/messages#getmessageinfo) | `messages` | Get message delivery info | - |
-| [`getMessagesForLLM`](/docs/reference/client/messages#getmessagesforllm) | `messages` | Get messages formatted for LLMs | - |
-| [`getMyLastMessage`](/docs/reference/client/messages#getmylastmessage) | `messages` | Get last message sent by host | - |
-| [`getNumberProfile`](/docs/reference/client/contacts#getnumberprofile) | `contacts` | Get profile of number | `insiders` |
-| [`getOrder`](/docs/reference/client/business#getorder) | `business` | Get order details | `insiders` |
-| [`getProcessStats`](/docs/reference/client/session#getprocessstats) | `session` | Get process statistics | - |
-| [`getProfilePicture`](/docs/reference/client/contacts#getprofilepicture) | `contacts` | Get profile picture from server | - |
-| [`getSnapshot`](/docs/reference/client/session#getsnapshot) | `session` | Take screenshot | - |
-| [`getStarredMessages`](/docs/reference/client/messages#getstarredmessages) | `messages` | Get starred messages | `insiders` |
-| [`getStatus`](/docs/reference/client/mystatus#getstatus) | `mystatus` | Get specific status | `insiders` |
-| [`getStories`](/docs/reference/client/status#getstories) | `status` | Get all stories | `insiders` |
-| [`getUnsentMessages`](/docs/reference/client/messages#getunsentmessages) | `messages` | Get unsent/pending messages | - |
-| [`getUserAgent`](/docs/reference/client/session#getuseragent) | `session` | Get user agent | - |
-| [`getVCards`](/docs/reference/client/messages#getvcards) | `messages` | Extract vCards from message | - |
-| [`getWAVersion`](/docs/reference/client/session#getwaversion) | `session` | Get WhatsApp Web version | - |
-| [`healthCheck`](/docs/reference/client/session#healthcheck) | `session` | Health check | - |
-| [`isChatOnline`](/docs/reference/client/chats#ischatonline) | `chats` | Check if chat is online | - |
-| [`isPlugged`](/docs/reference/client/session#isplugged) | `session` | Check if phone is charging | - |
-| [`joinGroupViaLink`](/docs/reference/client/groups#joingroupvialink) | `groups` | Join group via invite link | `restricted` |
-| [`leaveGroup`](/docs/reference/client/groups#leavegroup) | `groups` | Leave a group | - |
-| [`loadEarlierMessages`](/docs/reference/client/messages#loadearliermessages) | `messages` | Loads earlier messages from a chat | - |
-| [`markAsRead`](/docs/reference/client/chats#markasread) | `chats` | Mark chat as read | - |
-| [`markAsUnread`](/docs/reference/client/chats#markasunread) | `chats` | Mark chat as unread | - |
-| [`muteChat`](/docs/reference/client/chats#mutechat) | `chats` | Mute a chat | - |
-| [`pinChat`](/docs/reference/client/chats#pinchat) | `chats` | Pin a chat | - |
-| [`postImageStatus`](/docs/reference/client/status#postimagestatus) | `status` | Post image status | `insiders` |
-| [`postTextStatus`](/docs/reference/client/status#posttextstatus) | `status` | Post text status | `insiders` |
-| [`postVideoStatus`](/docs/reference/client/status#postvideostatus) | `status` | Post video status | `insiders` |
-| [`promoteParticipant`](/docs/reference/client/groups#promoteparticipant) | `groups` | Promote participant to admin | - |
-| [`react`](/docs/reference/client/messages#react) | `messages` | React to message with emoji | - |
-| [`rejectGroupJoinRequest`](/docs/reference/client/groups#rejectgroupjoinrequest) | `groups` | Reject group join request | - |
-| [`removeLabel`](/docs/reference/client/labels#removelabel) | `labels` | Remove label from chat | - |
-| [`removeParticipant`](/docs/reference/client/groups#removeparticipant) | `groups` | Remove participant from group | - |
-| [`revokeGroupInviteLink`](/docs/reference/client/groups#revokegroupinvitelink) | `groups` | Revoke group invite link | - |
-| [`sendAdvancedButtons`](/docs/reference/client/messages#sendadvancedbuttons) | `messages` | Sends an advanced button message with media (deprecated) | `insiders` |
-| [`sendAudio`](/docs/reference/client/messages#sendaudio) | `messages` | Sends an audio file to a chat | - |
-| [`sendBanner`](/docs/reference/client/messages#sendbanner) | `messages` | Sends a banner image | - |
-| [`sendButtons`](/docs/reference/client/messages#sendbuttons) | `messages` | Sends a button message (deprecated) | `insiders` |
-| [`sendContact`](/docs/reference/client/messages#sendcontact) | `messages` | Sends a single contact | - |
-| [`sendFile`](/docs/reference/client/messages#sendfile) | `messages` | Sends a file or document to a chat | - |
-| [`sendFileFromUrl`](/docs/reference/client/messages#sendfilefromurl) | `messages` | Downloads a file from a URL and sends it to a chat | - |
-| [`sendImage`](/docs/reference/client/messages#sendimage) | `messages` | Sends an image to a chat | - |
-| [`sendInteractive`](/docs/reference/client/messages#sendinteractive) | `messages` | Send a portable interactive message document (Insiders and above) | `insiders` |
-| [`sendLinkWithAutoPreview`](/docs/reference/client/messages#sendlinkwithautopreview) | `messages` | Sends a link with auto-generated preview | - |
-| [`sendListMessage`](/docs/reference/client/messages#sendlistmessage) | `messages` | Sends a list/menu message (deprecated) | `insiders` |
-| [`sendLocation`](/docs/reference/client/messages#sendlocation) | `messages` | Sends a location to a chat | - |
-| [`sendMessageWithThumb`](/docs/reference/client/messages#sendmessagewiththumb) | `messages` | Sends a link preview message with custom thumbnail | - |
-| [`sendMultipleContacts`](/docs/reference/client/messages#sendmultiplecontacts) | `messages` | Sends multiple contacts | - |
-| [`sendPaymentRequest`](/docs/reference/client/messages#sendpaymentrequest) | `messages` | Sends a payment request message | - |
-| [`sendPoll`](/docs/reference/client/messages#sendpoll) | `messages` | Sends a poll message | - |
-| [`sendPtt`](/docs/reference/client/messages#sendptt) | `messages` | Sends a voice note (push-to-talk) to a chat | - |
-| [`sendRawMessage`](/docs/reference/client/messages#sendrawmessage) | `messages` | Send a constructed WhatsApp protobuf Message payload (Insiders and above); media must already be uploaded | `insiders` |
-| [`sendReplyWithMentions`](/docs/reference/client/messages#sendreplywithmentions) | `messages` | Sends a reply to a message that includes @mentions | - |
-| [`sendSeen`](/docs/reference/client/messages#sendseen) | `messages` | Mark message as seen | - |
-| [`sendText`](/docs/reference/client/messages#sendtext) | `messages` | Sends a text message to a chat | - |
-| [`sendTextWithMentions`](/docs/reference/client/messages#sendtextwithmentions) | `messages` | Sends a text message that includes @mentions | - |
-| [`sendVCard`](/docs/reference/client/messages#sendvcard) | `messages` | Sends a contact card (vCard) | - |
-| [`sendVideoAsGif`](/docs/reference/client/messages#sendvideoasgif) | `messages` | Sends a video as an animated GIF | - |
-| [`sendYouTubeLink`](/docs/reference/client/messages#sendyoutubelink) | `messages` | Sends a YouTube link with auto-generated preview | - |
-| [`setChatEphemeral`](/docs/reference/client/chats#setchatephemeral) | `chats` | Set ephemeral messages for chat | - |
-| [`setGroupDescription`](/docs/reference/client/groups#setgroupdescription) | `groups` | Set group description | - |
-| [`setGroupEditToAdminsOnly`](/docs/reference/client/groups#setgroupedittoadminsonly) | `groups` | Restrict group editing to admins only | - |
-| [`setGroupIcon`](/docs/reference/client/groups#setgroupicon) | `groups` | Set group icon | - |
-| [`setGroupTitle`](/docs/reference/client/groups#setgrouptitle) | `groups` | Set group title | - |
-| [`setGroupToAdminsOnly`](/docs/reference/client/groups#setgrouptoadminsonly) | `groups` | Restrict group to admins only | - |
-| [`setMyName`](/docs/reference/client/session#setmyname) | `session` | Set host name | - |
-| [`setMyStatus`](/docs/reference/client/session#setmystatus) | `session` | Set host status | - |
-| [`setProfilePicture`](/docs/reference/client/session#setprofilepicture) | `session` | Set profile picture | `insiders` |
-| [`starMessage`](/docs/reference/client/messages#starmessage) | `messages` | Star a message | - |
-| [`unarchiveChat`](/docs/reference/client/chats#unarchivechat) | `chats` | Unarchive a chat | - |
-| [`unblockContact`](/docs/reference/client/contacts#unblockcontact) | `contacts` | Unblock a contact | - |
-| [`unmuteChat`](/docs/reference/client/chats#unmutechat) | `chats` | Unmute a chat | - |
-| [`unpinChat`](/docs/reference/client/chats#unpinchat) | `chats` | Unpin a chat | - |
-| [`unstarMessage`](/docs/reference/client/messages#unstarmessage) | `messages` | Unstar a message | - |
+| [`addLabel`](/docs/reference/client/client#addlabel) | `labels` | Add label to chat | - |
+| [`addParticipant`](/docs/reference/client/client#addparticipant) | `groups` | Add participant to group | - |
+| [`approveGroupJoinRequest`](/docs/reference/client/client#approvegroupjoinrequest) | `groups` | Approve group join request | - |
+| [`archiveChat`](/docs/reference/client/client#archivechat) | `chats` | Archive a chat | - |
+| [`blockContact`](/docs/reference/client/client#blockcontact) | `contacts` | Block a contact | - |
+| [`checkNumberStatus`](/docs/reference/client/client#checknumberstatus) | `contacts` | Check if number is on WhatsApp | `insiders` |
+| [`checkReadReceipts`](/docs/reference/client/client#checkreadreceipts) | `contacts` | Check read receipts setting | - |
+| [`clearChat`](/docs/reference/client/client#clearchat) | `chats` | Clear chat history | - |
+| [`createGroup`](/docs/reference/client/client#creategroup) | `groups` | Create new group | `restricted` |
+| [`decryptMedia`](/docs/reference/client/client#decryptmedia) | `media` | Decrypts media from a message | - |
+| [`deleteAllStatus`](/docs/reference/client/client#deleteallstatus) | `status` | Delete all statuses | `insiders` |
+| [`deleteChat`](/docs/reference/client/client#deletechat) | `chats` | Delete a chat | - |
+| [`deleteMessage`](/docs/reference/client/client#deletemessage) | `messages` | Deletes a message | - |
+| [`deleteStatus`](/docs/reference/client/client#deletestatus) | `status` | Delete status | `insiders` |
+| [`demoteParticipant`](/docs/reference/client/client#demoteparticipant) | `groups` | Demote participant from admin | - |
+| [`downloadMedia`](/docs/reference/client/client#downloadmedia) | `media` | Downloads and decrypts media from a message to a file | - |
+| [`forwardMessages`](/docs/reference/client/client#forwardmessages) | `messages` | Forwards messages to a chat | - |
+| [`getAllChatIds`](/docs/reference/client/client#getallchatids) | `chatIds` | Get all chat IDs | - |
+| [`getAllChats`](/docs/reference/client/client#getallchats) | `chats` | Returns serialized Chat objects from the current session, optionally limited to chats with unread messages. | - |
+| [`getAllCommunities`](/docs/reference/client/client#getallcommunities) | `communities` | Get all communities | - |
+| [`getAllContacts`](/docs/reference/client/client#getallcontacts) | `contacts` | Retrieves all contacts | - |
+| [`getAllGroups`](/docs/reference/client/client#getallgroups) | `groups` | Get all groups | - |
+| [`getAllLabels`](/docs/reference/client/client#getalllabels) | `labels` | Get all labels | - |
+| [`getAllMessages`](/docs/reference/client/client#getallmessages) | `messages` | Retrieves all messages in the session | - |
+| [`getBatteryLevel`](/docs/reference/client/client#getbatterylevel) | `session` | Get phone battery level | - |
+| [`getBlockedIds`](/docs/reference/client/client#getblockedids) | `contacts` | Get blocked contact IDs | - |
+| [`getBusinessProducts`](/docs/reference/client/client#getbusinessproducts) | `business` | Get business products | - |
+| [`getBusinessProfile`](/docs/reference/client/client#getbusinessprofile) | `business` | Get business profile | - |
+| [`getChat`](/docs/reference/client/client#getchat) | `chats` | Get specific chat by ID | - |
+| [`getChatsByLabel`](/docs/reference/client/client#getchatsbylabel) | `labels` | Get chats by label | - |
+| [`getChatWithNonContacts`](/docs/reference/client/client#getchatwithnoncontacts) | `chats` | Get chats with non-contacts | - |
+| [`getCommonGroups`](/docs/reference/client/client#getcommongroups) | `contacts` | Get common groups with contact | - |
+| [`getCommunityAdminIds`](/docs/reference/client/client#getcommunityadminids) | `communities` | Get community admin IDs | - |
+| [`getCommunityAdmins`](/docs/reference/client/client#getcommunityadmins) | `communities` | Get community admins | - |
+| [`getCommunityInfo`](/docs/reference/client/client#getcommunityinfo) | `communities` | Get community metadata | - |
+| [`getCommunityParticipantIds`](/docs/reference/client/client#getcommunityparticipantids) | `communities` | Get community participant IDs | - |
+| [`getCommunityParticipants`](/docs/reference/client/client#getcommunityparticipants) | `communities` | Get community participants | - |
+| [`getConnectionState`](/docs/reference/client/client#getconnectionstate) | `session` | Get connection state | - |
+| [`getContact`](/docs/reference/client/client#getcontact) | `contacts` | Get specific contact | - |
+| [`getFeatures`](/docs/reference/client/client#getfeatures) | `session` | Get enabled features | - |
+| [`getGroupAdmins`](/docs/reference/client/client#getgroupadmins) | `groups` | Get group admins | - |
+| [`getGroupInfo`](/docs/reference/client/client#getgroupinfo) | `groups` | Get group metadata | - |
+| [`getGroupInviteLink`](/docs/reference/client/client#getgroupinvitelink) | `groups` | Get group invite link | - |
+| [`getGroupMembers`](/docs/reference/client/client#getgroupmembers) | `groups` | Retrieves members of a group | - |
+| [`getGroupMembersId`](/docs/reference/client/client#getgroupmembersid) | `groups` | Get group member IDs | - |
+| [`getHostNumber`](/docs/reference/client/client#gethostnumber) | `session` | Get host phone number | - |
+| [`getKickedGroups`](/docs/reference/client/client#getkickedgroups) | `groups` | Get groups where kicked | - |
+| [`getLicenseType`](/docs/reference/client/client#getlicensetype) | `session` | Get license type | - |
+| [`getLoadedMessageCount`](/docs/reference/client/client#getloadedmessagecount) | `session` | Get loaded message count | - |
+| [`getMe`](/docs/reference/client/client#getme) | `session` | Get host account info | - |
+| [`getMessageById`](/docs/reference/client/client#getmessagebyid) | `messages` | Retrieves a specific message by ID | - |
+| [`getMessageInfo`](/docs/reference/client/client#getmessageinfo) | `messages` | Get message delivery info | - |
+| [`getMessagesForLLM`](/docs/reference/client/client#getmessagesforllm) | `messages` | Get messages formatted for LLMs | - |
+| [`getMyLastMessage`](/docs/reference/client/client#getmylastmessage) | `messages` | Get last message sent by host | - |
+| [`getNumberProfile`](/docs/reference/client/client#getnumberprofile) | `contacts` | Get profile of number | `insiders` |
+| [`getOrder`](/docs/reference/client/client#getorder) | `business` | Get order details | `insiders` |
+| [`getProcessStats`](/docs/reference/client/client#getprocessstats) | `session` | Get process statistics | - |
+| [`getProfilePicture`](/docs/reference/client/client#getprofilepicture) | `contacts` | Get profile picture from server | - |
+| [`getSnapshot`](/docs/reference/client/client#getsnapshot) | `session` | Take screenshot | - |
+| [`getStarredMessages`](/docs/reference/client/client#getstarredmessages) | `messages` | Get starred messages | `insiders` |
+| [`getStatus`](/docs/reference/client/client#getstatus) | `mystatus` | Get specific status | `insiders` |
+| [`getStories`](/docs/reference/client/client#getstories) | `status` | Get all stories | `insiders` |
+| [`getUnsentMessages`](/docs/reference/client/client#getunsentmessages) | `messages` | Get unsent/pending messages | - |
+| [`getUserAgent`](/docs/reference/client/client#getuseragent) | `session` | Get user agent | - |
+| [`getVCards`](/docs/reference/client/client#getvcards) | `messages` | Extract vCards from message | - |
+| [`getWAVersion`](/docs/reference/client/client#getwaversion) | `session` | Get WhatsApp Web version | - |
+| [`healthCheck`](/docs/reference/client/client#healthcheck) | `session` | Health check | - |
+| [`isChatOnline`](/docs/reference/client/client#ischatonline) | `chats` | Check if chat is online | - |
+| [`isPlugged`](/docs/reference/client/client#isplugged) | `session` | Check if phone is charging | - |
+| [`joinGroupViaLink`](/docs/reference/client/client#joingroupvialink) | `groups` | Join group via invite link | `restricted` |
+| [`leaveGroup`](/docs/reference/client/client#leavegroup) | `groups` | Leave a group | - |
+| [`loadEarlierMessages`](/docs/reference/client/client#loadearliermessages) | `messages` | Loads earlier messages from a chat | - |
+| [`markAsRead`](/docs/reference/client/client#markasread) | `chats` | Mark chat as read | - |
+| [`markAsUnread`](/docs/reference/client/client#markasunread) | `chats` | Mark chat as unread | - |
+| [`muteChat`](/docs/reference/client/client#mutechat) | `chats` | Mute a chat | - |
+| [`pinChat`](/docs/reference/client/client#pinchat) | `chats` | Pin a chat | - |
+| [`postImageStatus`](/docs/reference/client/client#postimagestatus) | `status` | Post image status | `insiders` |
+| [`postTextStatus`](/docs/reference/client/client#posttextstatus) | `status` | Post text status | `insiders` |
+| [`postVideoStatus`](/docs/reference/client/client#postvideostatus) | `status` | Post video status | `insiders` |
+| [`promoteParticipant`](/docs/reference/client/client#promoteparticipant) | `groups` | Promote participant to admin | - |
+| [`react`](/docs/reference/client/client#react) | `messages` | React to message with emoji | - |
+| [`rejectGroupJoinRequest`](/docs/reference/client/client#rejectgroupjoinrequest) | `groups` | Reject group join request | - |
+| [`removeLabel`](/docs/reference/client/client#removelabel) | `labels` | Remove label from chat | - |
+| [`removeParticipant`](/docs/reference/client/client#removeparticipant) | `groups` | Remove participant from group | - |
+| [`revokeGroupInviteLink`](/docs/reference/client/client#revokegroupinvitelink) | `groups` | Revoke group invite link | - |
+| [`sendAdvancedButtons`](/docs/reference/client/client#sendadvancedbuttons) | `messages` | Sends an advanced button message with media (deprecated) | `insiders` |
+| [`sendAudio`](/docs/reference/client/client#sendaudio) | `messages` | Sends an audio file to a chat | - |
+| [`sendBanner`](/docs/reference/client/client#sendbanner) | `messages` | Sends a banner image | - |
+| [`sendButtons`](/docs/reference/client/client#sendbuttons) | `messages` | Sends a button message (deprecated) | `insiders` |
+| [`sendContact`](/docs/reference/client/client#sendcontact) | `messages` | Sends a single contact | - |
+| [`sendFile`](/docs/reference/client/client#sendfile) | `messages` | Sends a file or document to a chat | - |
+| [`sendFileFromUrl`](/docs/reference/client/client#sendfilefromurl) | `messages` | Downloads a file from a URL and sends it to a chat | - |
+| [`sendImage`](/docs/reference/client/client#sendimage) | `messages` | Sends an image to a chat | - |
+| [`sendInteractive`](/docs/reference/client/client#sendinteractive) | `messages` | Send a portable interactive message document (Insiders and above) | `insiders` |
+| [`sendLinkWithAutoPreview`](/docs/reference/client/client#sendlinkwithautopreview) | `messages` | Sends a link with auto-generated preview | - |
+| [`sendListMessage`](/docs/reference/client/client#sendlistmessage) | `messages` | Sends a list/menu message (deprecated) | `insiders` |
+| [`sendLocation`](/docs/reference/client/client#sendlocation) | `messages` | Sends a location to a chat | - |
+| [`sendMessageWithThumb`](/docs/reference/client/client#sendmessagewiththumb) | `messages` | Sends a link preview message with custom thumbnail | - |
+| [`sendMultipleContacts`](/docs/reference/client/client#sendmultiplecontacts) | `messages` | Sends multiple contacts | - |
+| [`sendPaymentRequest`](/docs/reference/client/client#sendpaymentrequest) | `messages` | Sends a payment request message | - |
+| [`sendPoll`](/docs/reference/client/client#sendpoll) | `messages` | Sends a poll message | - |
+| [`sendPtt`](/docs/reference/client/client#sendptt) | `messages` | Sends a voice note (push-to-talk) to a chat | - |
+| [`sendRawMessage`](/docs/reference/client/client#sendrawmessage) | `messages` | Send a constructed WhatsApp protobuf Message payload (Insiders and above); media must already be uploaded | `insiders` |
+| [`sendReplyWithMentions`](/docs/reference/client/client#sendreplywithmentions) | `messages` | Sends a reply to a message that includes @mentions | - |
+| [`sendSeen`](/docs/reference/client/client#sendseen) | `messages` | Mark message as seen | - |
+| [`sendText`](/docs/reference/client/client#sendtext) | `messages` | Sends a text message and returns a validated serialized message ID. The in-process Client throws SendTextError on failure. An unknown outcome means the message may have been sent: check the chat before retrying. Starting a chat with a new number requires an applied restricted or premium license. | - |
+| [`sendTextWithMentions`](/docs/reference/client/client#sendtextwithmentions) | `messages` | Sends a text message that includes @mentions | - |
+| [`sendVCard`](/docs/reference/client/client#sendvcard) | `messages` | Sends a contact card (vCard) | - |
+| [`sendVideoAsGif`](/docs/reference/client/client#sendvideoasgif) | `messages` | Sends a video as an animated GIF | - |
+| [`sendYouTubeLink`](/docs/reference/client/client#sendyoutubelink) | `messages` | Sends a YouTube link with auto-generated preview | - |
+| [`setChatEphemeral`](/docs/reference/client/client#setchatephemeral) | `chats` | Set ephemeral messages for chat | - |
+| [`setGroupDescription`](/docs/reference/client/client#setgroupdescription) | `groups` | Set group description | - |
+| [`setGroupEditToAdminsOnly`](/docs/reference/client/client#setgroupedittoadminsonly) | `groups` | Restrict group editing to admins only | - |
+| [`setGroupIcon`](/docs/reference/client/client#setgroupicon) | `groups` | Set group icon | - |
+| [`setGroupTitle`](/docs/reference/client/client#setgrouptitle) | `groups` | Set group title | - |
+| [`setGroupToAdminsOnly`](/docs/reference/client/client#setgrouptoadminsonly) | `groups` | Restrict group to admins only | - |
+| [`setMyName`](/docs/reference/client/client#setmyname) | `session` | Set host name | - |
+| [`setMyStatus`](/docs/reference/client/client#setmystatus) | `session` | Set host status | - |
+| [`setProfilePicture`](/docs/reference/client/client#setprofilepicture) | `session` | Set profile picture | `insiders` |
+| [`starMessage`](/docs/reference/client/client#starmessage) | `messages` | Star a message | - |
+| [`unarchiveChat`](/docs/reference/client/client#unarchivechat) | `chats` | Unarchive a chat | - |
+| [`unblockContact`](/docs/reference/client/client#unblockcontact) | `contacts` | Unblock a contact | - |
+| [`unmuteChat`](/docs/reference/client/client#unmutechat) | `chats` | Unmute a chat | - |
+| [`unpinChat`](/docs/reference/client/client#unpinchat) | `chats` | Unpin a chat | - |
+| [`unstarMessage`](/docs/reference/client/client#unstarmessage) | `messages` | Unstar a message | - |
+
+</details>

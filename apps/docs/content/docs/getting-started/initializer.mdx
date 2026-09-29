@@ -1,0 +1,68 @@
+---
+title: Create a Bun project
+description: Generate a TypeScript application with open-wa installed and private session storage.
+---
+
+# Create a Bun project
+
+With [Bun](https://bun.sh/docs/installation) installed, run:
+
+```bash
+bunx --bun @open-wa/wa-automate init my-bot
+cd my-bot
+```
+
+The initializer writes `index.ts`, a `package.json` with a `start` script,
+TypeScript settings, and ignore rules, then installs dependencies with Bun.
+The open-wa dependency is pinned to the initializer's version.
+
+Set `recipient` in `index.ts` to an existing chat whose recipient expects your
+message. Use their international phone number without `+` or spaces, followed
+by `@c.us`: the fictional number +44 7700 900123 becomes
+`447700900123@c.us`. See the [chat ID guide](/docs/guides/chatid-primer).
+
+```bash
+bun run start
+```
+
+[`create()`](/docs/reference/create) prepares the matched browser and displays
+a terminal QR code when login is needed. On the sending phone, open WhatsApp's
+**Linked Devices → Link a Device** and scan it. Once the session is ready, the
+starter submits one greeting, prints its confirmation, and closes the browser.
+Open the receiving chat to confirm receipt.
+
+Each run sends another message. If a send fails with an uncertain result, check
+the chat before retrying.
+
+## Options and existing projects
+
+| Command | Behavior |
+| --- | --- |
+| `bunx --bun @open-wa/wa-automate init .` | Scaffold in the current directory. |
+| `bunx --bun @open-wa/wa-automate init my-bot --no-install` | Write files, then let you run `bun install` later. |
+| `bunx --bun @open-wa/wa-automate init --help` | Show the initializer's options. |
+
+If any generated filename already exists, initialization stops before changing
+files and lists the conflicts. A second initialization preserves your edits.
+If dependency installation fails, keep the generated files and run `bun install`
+from that directory after resolving the reported problem.
+
+For an existing application, install the library and use the
+[`create()` example](/docs/reference/create):
+
+```bash
+bun add @open-wa/wa-automate
+```
+
+## Saved login
+
+The default browser profile is stored under `~/.open-wa/sessions`, outside the
+application. Its directories allow access only to your local user on systems
+that support Unix permissions. Each project directory and session name gets a
+separate profile. Running from the same directory reuses that connection while
+WhatsApp considers it valid. Moving the project or changing `sessionId` selects
+a different profile.
+
+The initializer also ignores common local session paths in case you later
+configure a project-local profile. Treat any explicit profile path as login
+credentials. See [session options](/docs/reference/create#session-and-login-options).

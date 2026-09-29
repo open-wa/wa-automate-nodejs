@@ -62,12 +62,47 @@ client.onMessage((message) => {
 
 ```ts
 await client.sendText(chatId, 'Hello');
-await client.sendTextWithMentions(chatId, 'Hello @447700000000');
 await client.reply(chatId, 'Hello', messageId);
-await client.sendReplyWithMentions(chatId, 'Hello @447700000000', messageId);
 ```
 
-Always `await` message operations so failures are visible.
+The minimum call is `sendText(chatId, text)`. The generated
+[sendText reference](/docs/reference/client/client#sendtext) lists an optional
+`options` value retained for request compatibility, but the current Client
+implementation ignores it. Use [`reply`](/docs/reference/client/client#reply)
+with a message ID for a quoted reply. For mentions, use the generated Easy API
+method [`sendTextWithMentions`](/docs/reference/client/client#sendtextwithmentions)
+with contact IDs such as `447700900000@c.us`; the current embedded Client does
+not declare that method.
+
+The in-process `Client` returns a validated serialized `MessageId` from
+`sendText`, or throws a typed `SendTextError`. A returned ID confirms submission,
+not delivery or reading. Subscribe to `onAck` before sending to observe later
+acknowledgements. Starting a chat with a new number requires an applied
+Restricted or Premium license; an existing chat is enough for this tutorial.
+
+An error with `outcome: 'unknown'` means the message may already have been sent.
+Check the conversation before retrying. open-wa never retries `sendText`
+automatically.
+
+Mention helpers are generated Easy API methods with their own parameter
+contract; they are not methods declared by the current embedded `Client`
+surface. When using that API surface, the call shape is:
+
+```ts
+await client.sendTextWithMentions(
+  groupId,
+  'Hello @447700000000',
+  false,
+  ['447700000000@c.us']
+);
+await client.sendReplyWithMentions(
+  groupId,
+  'Hello @447700000000',
+  messageId,
+  false,
+  ['447700000000@c.us']
+);
+```
 
 ## Formatting
 
@@ -91,24 +126,28 @@ await client.sendText(chatId, 'Order *confirmed* for _today_.');
 Text messages only need a chat ID and a string body. Attachment messages include a file payload, a filename, and often a caption.
 
 ```ts
+import { readFile } from 'node:fs/promises';
+
 await client.sendText(chatId, 'Here is the receipt.');
 
+const image = await readFile('./receipt.png');
+const imageDataUrl = `data:image/png;base64,${image.toString('base64')}`;
 await client.sendImage(
   chatId,
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...',
+  imageDataUrl,
   'receipt.png',
   'Receipt attached'
 );
-
-await client.sendFile(
-  chatId,
-  'data:application/pdf;base64,JVBERi0xLjQK...',
-  'receipt.pdf',
-  'PDF receipt'
-);
 ```
 
-Use `sendText` for plain conversation updates. Use `sendImage`, `sendFile`, `sendAudio`, `sendPtt`, or `sendVideoAsGif` when the payload is media. Captions belong to the attachment message, not a separate text message.
+Put a real `receipt.png` in the process working directory before running this
+example. The embedded `sendImage` method accepts base64 data or a data URL; the
+snippet encodes the actual file instead of a placeholder payload. Use
+`sendText` for plain conversation updates. The current embedded surface marks
+`sendFile` unsupported and does not declare `sendAudio`, `sendPtt`, or
+`sendVideoAsGif`; those names belong to the generated Easy API schema, so check
+their method references and runtime support before using them. Captions belong
+to the attachment message, not a separate text message.
 
 ## Quoted replies
 
@@ -122,7 +161,8 @@ client.onMessage(async (message) => {
 });
 ```
 
-For replies that also mention users, use `sendReplyWithMentions`.
+For replies that also mention users, use the generated Easy API method
+`sendReplyWithMentions`.
 
 ```ts
 await client.sendReplyWithMentions(
@@ -151,36 +191,21 @@ Set `hideTags` to `true` when you want WhatsApp to notify the users without show
 
 ## Buttons, lists, and polls
 
-Interactive messages let users choose from fixed options. Availability can depend on the WhatsApp account, client version, and message type.
+For new v5 integrations, use [`sendInteractive`](/docs/guides/interactive-messages)
+for buttons, lists, forms, carousels, or bookings. It requires an applied
+Insiders or higher license for the sending account. The guide covers the
+message format, response listeners, HTTP route, and recipient-side caveats.
+
+`sendButtons` and `sendListMessage` are deprecated legacy methods and remain
+Insiders-gated. `sendAdvancedButtons` is also an Insiders-gated legacy method.
+Check their exact contracts in the [sendButtons reference](/docs/reference/client/messages#sendbuttons)
+and [sendListMessage reference](/docs/reference/client/messages#sendlistmessage)
+before maintaining existing integrations. An available route does not prove
+that the session is licensed. For a fixed-choice flow without an Insiders gate,
+use the active [`sendPoll`](/docs/reference/client/messages#sendpoll) method
+when poll semantics fit the product.
 
 ```ts
-await client.sendButtons(
-  chatId,
-  'Choose an option',
-  [
-    { id: 'yes', text: 'Yes' },
-    { id: 'no', text: 'No' },
-  ],
-  'Confirmation',
-  'Reply with one tap'
-);
-
-await client.sendListMessage(
-  chatId,
-  [
-    {
-      title: 'Main menu',
-      rows: [
-        { id: 'orders', title: 'Orders' },
-        { id: 'support', title: 'Support' },
-      ],
-    },
-  ],
-  'Menu',
-  'Pick a topic',
-  'Open menu'
-);
-
 await client.sendPoll(
   chatId,
   'Which day works best?',
@@ -189,7 +214,11 @@ await client.sendPoll(
 );
 ```
 
-Button and list replies arrive as message events with types such as `buttons_response` or `list_response`. Poll updates arrive through WhatsApp message events when supported by the session.
+Legacy button and list replies arrive as message events with types such as
+`buttons_response` or `list_response`. Interactive-message response events
+use the structured shapes described in the linked guide. Poll updates arrive
+through WhatsApp message events when supported by the session. Handle
+unsupported or rejected sends explicitly.
 
 ## Forward messages
 
@@ -221,16 +250,26 @@ When receiving a location message, read fields such as `lat`, `lng`, and `loc` f
 A message send can fail when the session is not ready or the chat ID is incorrect. It can also fail when the user is not available. WhatsApp can reject a large, malformed, or prohibited payload.
 
 ```ts
-try {
-  const result = await client.sendText(chatId, 'Hello');
+import { SendTextError } from '@open-wa/wa-automate';
 
-  if (!result) {
-    console.warn('Message send returned no message ID');
-  }
+try {
+  const messageId = await client.sendText(chatId, 'Hello');
+  console.log('Submitted:', messageId);
 } catch (error) {
-  console.error('Could not send message', error);
+  if (error instanceof SendTextError) {
+    console.error(error.code, error.message);
+    if (error.outcome === 'unknown') {
+      console.error('Check the receiving chat before sending again.');
+    }
+  } else {
+    throw error;
+  }
 }
 ```
+
+`INVALID_ARGUMENT`, `LICENSE_REQUIRED`, and `SEND_REJECTED` report
+`outcome: 'not_sent'`. `SEND_FAILED` and `INVALID_SEND_RESULT` report
+`outcome: 'unknown'`; their `cause` retains the underlying failure or response.
 
 Common checks:
 
@@ -239,8 +278,8 @@ Common checks:
 | Invalid chat ID | Confirm the value matches a contact, group, or LID format. See **[ChatId primer](/docs/guides/chatid-primer)**. |
 | Session not ready | Wait for authentication and connection before sending. |
 | Media rejected | Check the MIME type, base64 data URL, filename, and file size. |
-| Message not delivered | Watch `onAck` and retry only when it is safe for your workflow. |
-| Temporary WhatsApp block | Slow down sends and review automation volume. |
+| Message not delivered | Watch `onAck`; retry only from one bounded owner after reviewing the failure. |
+| Provider restriction | Pause or slow the relevant queue and retain the provider error. Timing alone does not prove that the account is clear. |
 
 ## Rate limits
 
@@ -250,66 +289,33 @@ Read **[Rate limits](/docs/guides/rate-limits)** before running production autom
 
 ## Full bot example
 
-This example receives messages, sends formatted text, sends a quoted reply, mentions a group participant, sends an image, and sends a poll.
+Create a project with the [initializer](/docs/getting-started/initializer), then
+replace `index.ts` with this example. Run `bun run start`, link the sending
+account if prompted, and send `!help` to it from your test chat.
 
 ```ts
-import { createClient } from '@open-wa/wa-automate';
+import { create } from '@open-wa/wa-automate';
 
-async function start() {
-  const client = await createClient({
-    sessionId: 'messages-guide',
-  });
+const client = await create();
 
-  client.onMessage(async (message) => {
-    try {
-      if (message.body === '!help') {
-        await client.reply(
-          message.from,
-          '*Commands*\n!image\n!poll\n!mention',
-          message.id
-        );
+client.onMessage(async (message) => {
+  if (message.body !== '!help') return;
+  try {
+    await client.sendText(message.from, 'I received your request.');
+  } catch (error) {
+    console.error('Reply failed. Check the chat before retrying:', error);
+  }
+});
 
-        return;
-      }
-
-      if (message.body === '!image') {
-        await client.sendImage(
-          message.from,
-          'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...',
-          'example.png',
-          'Here is an example image.'
-        );
-
-        return;
-      }
-
-      if (message.body === '!poll') {
-        await client.sendPoll(
-          message.from,
-          'What should we do next?',
-          ['Send update', 'Wait', 'Ask support'],
-          1
-        );
-
-        return;
-      }
-
-      if (message.body === '!mention' && message.isGroupMsg && message.author) {
-        const contactId = message.author;
-        const phone = contactId.replace('@c.us', '');
-
-        await client.sendTextWithMentions(
-          message.from,
-          `Thanks @${phone}`,
-          false,
-          [contactId]
-        );
-      }
-    } catch (error) {
-      console.error('Message handler failed', error);
-    }
-  });
-}
-
-start().catch(console.error);
+let stopping = false;
+const shutdown = async () => {
+  if (stopping) return;
+  stopping = true;
+  await client.stop();
+};
+process.once('SIGINT', () => void shutdown());
+process.once('SIGTERM', () => void shutdown());
 ```
+
+The process stays connected to receive messages. Stop it with Ctrl+C when you
+finish; the saved connection remains available for the next run.

@@ -5,92 +5,96 @@ description: Understand what plugins can and cannot do, how config validation wo
 
 # Plugin Security Model
 
-Plugins run inside the open-wa host process with controlled access to the runtime. Understanding the security boundaries helps you build safe, reliable plugins.
+Plugins load as JavaScript modules in the open-wa Node.js process and run with that process's operating-system permissions. The SDK does not create a filesystem, network, or process sandbox, so review a plugin and its dependencies before loading it.
 
-## What Plugins Cannot Do
+## API restrictions
 
 ### Cannot Emit Events
 
-Plugins can only **subscribe** to events. They cannot emit events into the host's event system.
+The `events` object supplied to `init()` exposes `on()`, `once()`, and `off()`; it has no `emit()` method. This limits access through that object, but it does not prevent plugin code from importing Node.js modules or using other host-process capabilities.
 
 ```ts
 // This is NOT possible:
 events.emit('custom.event', data); // No emit method exists
 ```
 
-### Cannot Listen to Internal Events
+### Internal and sensitive events
 
-The event emitter filters out internal and sensitive event namespaces:
+The gateway checks the event metadata registered by the host. Events marked `internal` or `sensitive` are ignored and logged when a plugin subscribes; the policy is metadata-based, not a blanket block on particular name prefixes. Unknown event names are passed to the underlying emitter, so the gateway should not be treated as a sandbox or as an authorization boundary for arbitrary code.
 
-- `launch.*` — Browser launch events
-- `browser.*` — Browser lifecycle events
-- `transport.*` — Transport layer events
-- `license.*` — License validation events
-- Session data events — Raw authentication material
+### No direct browser access through the SDK
 
-If you try to listen to these events, the handler will never fire.
-
-### No Direct Browser Access
-
-Plugins receive a **client proxy**, not direct browser or CDP access. You cannot:
+`PluginInput` includes a **client proxy**, not a browser or CDP handle. The client can call WhatsApp methods exposed by `window.WAPI`; `ask(method, args)` forwards the requested method name to that runtime, so it is not a method allowlist. The SDK client interface does not expose methods to:
 
 - Execute CDP commands
 - Manipulate the browser DOM directly
 - Access browser cookies or storage directly
 - Inject scripts into the WhatsApp Web page
 
-### No File System Access Beyond Plugin Scope
+## What the SDK does not isolate
 
-Plugins cannot read or write arbitrary files on the host system. Limit file operations to the data directory of the plugin.
+Node's dynamic `import()` runs both a plugin's top-level code and `init()` in the host process. The event gateway and client proxy describe SDK interfaces; they do not limit a plugin's Node.js imports or OS permissions.
+
+Review the plugin source, transitive dependencies, and requested permissions before installation. If code must be treated as untrusted, run it in a separately managed service with an operating-system or container boundary and communicate through an external API. Configure that isolation in your deployment environment; open-wa does not provide a plugin sandbox.
 
 ## What Plugins Can Do
 
-### Subscribe to Public Events
+### Subscribe to Events Allowed by the Gateway
 
 ```ts
 events.on('message.received', (payload) => { ... });
 events.once('client.ready', () => { ... });
 ```
 
-### Call Any WhatsApp Method
+### Call WhatsApp Methods Through the Client Proxy
 
-Through the `client` proxy:
+The convenience methods and `ask()` call methods provided by the connected WhatsApp runtime:
 
 ```ts
 await client.sendText('123@c.us', 'Hello');
 await client.getHostNumber();
-await client.ask('anyMethod', ['args']);
+await client.ask('getAllChats');
 ```
 
-### Mount HTTP Routes
+### Mount HTTP routes
 
 ```ts
-routes: () => {
-  const app = new Hono();
-  app.get('/health', (c) => c.json({ ok: true }));
-  return app;
-}
-```
-
-Routes are mounted at `/plugins/<name>/`.
-
-### Register AI Tools
-
-```ts
-tool: {
-  myTool: {
-    description: 'Does something useful',
-    args: { input: z.string() },
-    execute: async (args, ctx) => { ... },
+init: async () => ({
+  routes: () => {
+    const app = new Hono();
+    app.get('/health', (c) => c.json({ ok: true }));
+    return app;
   },
-}
+})
 ```
 
-### Add Dashboard Pages
+The host mounts the returned Hono app at `/plugins/<name>/`.
+
+### Declare AI Tools
 
 ```ts
-pages: [{ path: '/', title: 'Status', icon: '📊' }]
+init: async () => ({
+  tool: {
+    myTool: {
+      description: 'Does something useful',
+      args: { input: z.string() },
+      execute: async (args, ctx) => { ... },
+    },
+  },
+})
 ```
+
+This declares a tool in the plugin hooks. The current MCP endpoint does not expose plugin-declared tools; see [AI Tools](/docs/plugins/ai-tools) for the host integration requirement.
+
+### Add dashboard pages
+
+```ts
+init: async () => ({
+  pages: [{ path: '/', title: 'Status', icon: '📊' }],
+})
+```
+
+The dashboard reads these declarations from the plugin manifest and renders its standard plugin status view. They do not grant a plugin a custom React component or a separate process.
 
 ## Config Validation
 
@@ -113,9 +117,9 @@ export default createPlugin({
 
 ### If Validation Fails
 
-- The plugin will **not** load
+- The plugin will **not** register
 - An error is logged with details about what failed
-- The host continues running other plugins
+- During client creation, the registration error aborts plugin setup and the client start path; the current host does not skip the invalid plugin and continue with the remaining list
 
 ### Handling Missing Config Gracefully
 
@@ -156,9 +160,9 @@ export default {
 };
 ```
 
-### .env File Support
+### Read values from a `.env` file
 
-Use a `.env` file in your project root:
+If your app loads dotenv values, keep them in a `.env` file in the project root:
 
 ```
 MY_PLUGIN_API_KEY=sk-abc123...
@@ -171,10 +175,10 @@ The config file can read from `process.env` which picks up `.env` values if your
 Plugin config values are **not** automatically logged. But if your plugin logs the config object directly, secrets will appear in the logs. Always redact sensitive fields:
 
 ```ts
-// BAD — logs the API key
+// BAD: logs the API key
 logger.info('Config loaded', { config });
 
-// GOOD — logs only non-sensitive fields
+// GOOD: logs only non-sensitive fields
 logger.info('Config loaded', { apiUrl: config.apiUrl, hasKey: !!config.apiKey });
 ```
 
@@ -266,13 +270,14 @@ Use lifecycle hooks to detect connection state:
 
 ### Throw an error or continue
 
-- **`logger.error()` and continue** — For recoverable errors (network timeouts, rate limits). The plugin keeps processing other messages.
-- **Throw** — For unrecoverable errors (invalid config detected at runtime, critical dependency failure). This can crash the plugin.
-- **`dispose()` and unregister** — Use this option for errors that must stop the plugin, such as an expired license or a revoked API key.
-- **Queue for retry** — For transient failures (network errors, rate limits). Implement retry with exponential backoff.
+- **`logger.error()` and continue:** For recoverable errors (network timeouts, rate limits), the plugin keeps processing other messages.
+- **Throw from an event handler:** The host catches the rejection and logs a `plugin_hook_error`; it does not provide an automatic retry or unregister operation.
+- **Throw from `init()`:** Registration fails and the client start path aborts, so use this for unrecoverable initialization errors.
+- **`dispose()`:** Use this hook to release resources during host shutdown. The current API has no plugin-level unregister operation.
+- **Queue for retry:** For transient failures (network errors, rate limits), implement retry with exponential backoff.
 
 ## Related
 
-- **[Plugin getting started](/docs/plugins/getting-started)** — Build your first plugin
-- **[PluginInput breakdown](/docs/plugins/plugin-input)** — What your plugin receives
-- **[External API patterns](/docs/plugins/external-api-patterns)** — Calling external services from plugins
+- **[Plugin getting started](/docs/plugins/getting-started):** Build your first plugin
+- **[PluginInput breakdown](/docs/plugins/plugin-input):** What your plugin receives
+- **[External API patterns](/docs/plugins/external-api-patterns):** Calling external services from plugins

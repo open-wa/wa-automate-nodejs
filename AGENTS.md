@@ -131,25 +131,27 @@ stop and report the issue instead of forcing a push.
 
 ## Release Process
 
-Publishing is driven by Bumpy and the `release` branch — **not** `master`.
+Publishing is driven by Bumpy and the `release` branch.
 
-- Development and bump files land on `master`. Merging PRs to `master` never
-  publishes.
-- The **`release`** branch is a publish-trigger mirror of `master`. A push to
-  `release` runs `.github/workflows/release.yml`.
-- To cut a release:
-  1. Reconcile `release` to the intended `master` commit. Use a fast-forward
-     push when possible; a non-fast-forward mirror reset needs explicit
-     authorization.
-  2. That push makes Bumpy open a **"chore: version packages"** PR that bumps
-     the fixed `@open-wa/*` group and consumes the bump files.
-  3. Merging that version PR publishes to npm + GitHub Packages, tags, creates
-     the GitHub Release, and notifies Discord. Documentation deployment has
-     its own workflow and must be checked separately.
-- Stable packages publish under npm's `latest` tag. Bumpy's release config is
-  `.bumpy/_config.json`; do not reintroduce Changesets pre-mode.
-- `tools/release/publish-packages-local.sh` is intentionally gitignored — it is
-  a local-only helper. Do not commit it.
+- Development and bump files land on `master`. Merging there deploys affected
+  docs, but does not publish packages.
+- Put package bump intent in `.bumpy/*.md`; `.bumpy/_config.json` defines the
+  fixed package group and publication settings.
+- Promote `master` into `release` with a normal merge PR. Preserve release-only
+  history; do not force-push or bypass branch/environment protections.
+- The release workflow creates a `bumpy/version-packages` PR. Review the versions
+  and merge that PR to publish packages using npm trusted publishing, publish
+  GitHub Packages, and create the aggregate GitHub release.
+- New aggregate releases normally announce on Discord. If the authorized
+  release excludes announcements, include `[skip-discord]` in the version PR's
+  **merge commit message**. This skips both the webhook requirement and posting
+  for that push, while retaining the normal release behavior otherwise.
+- Confirm registry versions and the workflow conclusion before reporting a
+  package as released. A merged development PR is not a published package.
+- Stable packages publish under npm's `latest` tag. Do not reintroduce
+  Changesets pre-mode.
+- `tools/release/publish-packages-local.sh` is intentionally gitignored and
+  local-only. Do not commit it.
 
 ## Repository Gotchas
 

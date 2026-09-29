@@ -229,9 +229,9 @@ export const mentionedJidListParam = z
         example: ['447123456789@c.us', '441234567890@c.us'],
     });
 
-export const messageOptionsParam = z.any().optional().describe('Additional message options').register(
+export const messageOptionsParam = z.unknown().optional().describe('Reserved for compatibility with legacy request shapes. The current sendText Client implementation ignores this argument; use reply() or sendTextWithMentions() for quoted replies and mentions.').register(
     parameterRegistry,
     {
-        example: { quotedMsg: 'messageId', mentionedJidList: ['447123456789@c.us'] },
+        formatDescription: 'Accepted as unknown for compatibility; currently ignored by sendText. Use reply() or sendTextWithMentions() for supported reply and mention behavior.',
     }
 );

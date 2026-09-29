@@ -17,6 +17,8 @@ import { registerDebugRoutes } from './routes/debug';
 import { registerAgentDiscoveryRoutes } from './routes/agent-discovery';
 import { type EventBridge } from './events/EventBridge';
 import { HealthStore } from './health/HealthStore';
+import { DiagnosticStore } from './diagnostics/DiagnosticStore';
+import { API_VERSION } from './version';
 import { EventBroadcaster } from './events/EventBroadcaster';
 import { ElasticEmitter } from './monitoring/elastic';
 import {
@@ -54,6 +56,7 @@ export class ApiServer {
   private isDashboardActive: boolean = false;
   private pluginHost?: PluginHost;
   private healthStore: HealthStore = new HealthStore();
+  private diagnosticStore: DiagnosticStore = new DiagnosticStore();
   private eventBroadcaster: EventBroadcaster;
   private eventBridge?: EventBridge;
   private eventBridgeListener?: (event: string, payload: any) => void;
@@ -115,11 +118,13 @@ export class ApiServer {
     this.eventBridge = bridge;
     this.eventBridgeListener = (event: string, payload: any) => {
       this.healthStore.processEvent(event, payload);
+      this.diagnosticStore.capture(event, payload);
       this.eventBroadcaster.broadcast(event, payload);
     };
 
     // Also wire events into the HealthStore so /health returns accumulated data
     bridge.onAny(this.eventBridgeListener);
+    this.diagnosticStore.attach();
   }
 
   public setReadinessProvider(
@@ -316,7 +321,7 @@ export class ApiServer {
       const healthSnapshot = this.healthStore.getSnapshot();
       return c.json({
         status: 'ok',
-        version: '5.0.0',
+        version: API_VERSION,
         host: {
           available: true,
           api: true,
@@ -431,6 +436,7 @@ export class ApiServer {
     registerDebugRoutes(this.app, {
       config: this.config,
       getConfig: () => this.config,
+      getDiagnostics: () => this.diagnosticStore.getSnapshot(),
       setIntegration: (id, data) => {
         if (!this.config.integrations) {
           this.config.integrations = {};

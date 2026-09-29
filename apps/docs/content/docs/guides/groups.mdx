@@ -1,129 +1,105 @@
 ---
 title: Groups
-description: Create groups, manage participants, and react to group membership changes.
+description: Create groups, manage participants, and handle invite links with the account permissions and license checks those actions require.
 ---
 
 # Groups
 
+Group IDs are assigned by WhatsApp. Keep the complete ID returned by a method
+or message event; do not derive it from a group name or participant numbers.
+See the [Chat ID guide](/docs/guides/chatid-primer) for accepted identifier
+forms and invite-token handling.
+
 ## Create a group
 
-```ts
-await client.createGroup('Cool new group', ['1234567890@c.us']);
-```
-
-## Group ID format
-
-Group chat IDs end in `@g.us`. The usual format is `timestamp-integer@g.us`:
+`createGroup` requires a Restricted license. It returns a group object with a
+`gid`, or `null` if creation did not return a group. The connected account must
+also be able to create the group and add the listed contacts.
 
 ```ts
-const groupId = '1234567890-123456789@g.us';
+const created = await client.createGroup('Support updates', [
+  '447700900000@c.us',
+]);
+
+if (!created?.gid) {
+  throw new Error('The group was not created');
+}
+
+const groupId = created.gid;
 ```
 
-Keep the full value exactly as WhatsApp returns it. Do not try to rebuild it from the group name or participant numbers.
+See the exact [`createGroup` contract](/docs/reference/client/client#creategroup)
+and [license guidance](/docs/licensing/pricing) before using this method.
 
-## Manage participants
+## Participants and permissions
+
+The embedded `Client` supports adding, removing, promoting, and demoting one
+participant at a time. These operations require group-administrator
+permissions, and each call returns `true` only when the runtime reports
+success.
 
 ```ts
-await client.addParticipant(groupId, participantId);
-await client.removeParticipant(groupId, participantId);
-await client.promoteParticipant(groupId, participantId);
-await client.demoteParticipant(groupId, participantId);
+const changed = await client.addParticipant(groupId, '447700900000@c.us');
+if (!changed) {
+  console.error('The participant was not added');
+}
 ```
 
-## Admin permissions
-
-Most group write actions need the connected WhatsApp account to be a group administrator. These methods add or remove participants and change administrator roles. They also change group data, invite links, join requests, announcements, and edit settings.
-
-Read actions like `getGroupInfo`, `getGroupMembers`, `getGroupAdmins`, and `getGroupInviteLink` still depend on the account being a member of the group.
+Use the [participant method reference](/docs/reference/client/groups#addparticipant)
+for the other operations and their exact signatures. Keep the returned contact
+IDs intact; see [group filtering](/docs/guides/group-filtering) for matching
+incoming messages to a group allowlist.
 
 ## Invite links
 
-Admins can read the current invite link, revoke it, and let another session join from a valid link.
+`getGroupInviteLink` and `revokeGroupInviteLink` operate on a group ID. The
+returned invite URL is a token for joining, not the group ID. Joining through a
+link requires a Restricted license. The embedded `Client` returns a group ID
+or `false`; the Easy API also accepts an option to return a chat object.
 
 ```ts
-const inviteLink = await client.getGroupInviteLink(groupId);
+const inviteUrl = await client.getGroupInviteLink(groupId);
+const result = await client.joinGroupViaLink(inviteUrl);
 
-const newInviteLink = await client.revokeGroupInviteLink(groupId);
-
-const joinedGroupId = await client.joinGroupViaLink(inviteLink);
+if (typeof result === 'string') {
+  console.log('Joined group:', result);
+} else {
+  console.error('The invite did not return a group ID:', result);
+}
 ```
 
-Revoking an invite link invalidates the old link. Store the returned link if your application needs to share the replacement.
+The [`joinGroupViaLink` contract](/docs/reference/client/client#joingroupvialink)
+includes its license tier and Easy API option. Check the result for your
+selected surface before treating the join as complete. Revoking an invite
+invalidates the old URL; retrieve and share the replacement only when your
+workflow needs one.
 
-## Join requests
+## Other group operations
 
-When a group uses invite approval, admins can approve or reject pending contacts.
+The generated Easy API catalog includes group reads and settings updates such
+as `getGroupMembers`, `getGroupAdmins`, and `setGroupDescription`. Method
+availability differs by client surface: the current embedded `Client` does not
+declare every Easy API group method, and its `getGroupInfo`, `setGroupTitle`,
+and `setGroupDescription` entries are unsupported. Check the exact method
+reference for your deployed surface before calling one:
 
-```ts
-await client.approveGroupJoinRequest(groupId, contactId);
-await client.rejectGroupJoinRequest(groupId, contactId);
-```
+- [Group methods](/docs/reference/client/groups)
+- [Licensed features](/docs/licensing/licensed-features)
 
-Treat join requests as short-lived. A request can already be handled by another admin, cancelled by the requester, or expired by the time your code acts on it.
+## Membership events
 
-## Settings
-
-Group settings are regular async calls. Check the returned boolean before assuming the setting changed.
-
-```ts
-await client.setGroupDescription(groupId, 'Support updates and product news.');
-await client.setGroupIcon(groupId, imageDataUrl);
-
-// Only admins can send messages when this is true.
-await client.setGroupToAdminsOnly(groupId, true);
-
-// Only admins can edit group info when this is true.
-await client.setGroupEditToAdminsOnly(groupId, true);
-```
-
-`setGroupIcon` expects an image data URL, for example `data:image/png;base64,...`.
-
-## Listen to membership changes for one group
+The runtime event map exposes `group.participants.changed.global`. Its
+`change` payload contains the group ID, action, affected participant IDs, and
+the actor when available:
 
 ```ts
-client.onParticipantsChanged(groupId, async (event) => {
-  console.log(event.action, event.who, event.by);
+import { ev } from '@open-wa/wa-automate';
+
+ev.on('group.participants.changed.global', ({ change }) => {
+  console.log(change.groupId, change.action, change.participantIds, change.by);
 });
 ```
 
-## Listen across all groups
-
-If your runtime supports it, `onGlobalParticipantsChanged` is the cleaner way to monitor participant changes across groups without managing a listener per room.
-
-## Event payloads
-
-Participant-change events report the group, the action, the affected participants, and the contact that made the change when WhatsApp provides it.
-
-```ts
-type ParticipantsChangedEvent = {
-  groupId: string;
-  action: 'add' | 'remove' | 'promote' | 'demote';
-  participantIds: string[];
-  by?: string;
-};
-```
-
-The same shape applies to added, removed, promoted, and demoted member events. Older handlers can expose similar values as `who` for the affected contact and `by` for the actor. Log the first runtime event before you configure strict storage code.
-
-## Common errors
-
-Group methods usually fail for one of a few reasons:
-
-- `not-admin`: the connected account is not an admin. Promote the account in WhatsApp, then retry.
-- `not-a-member`: the connected account is not in the group anymore. Rejoin the group or stop acting on that group ID.
-- `invalid-group-id`: the ID is missing the `@g.us` suffix or was copied from the wrong field. Use the ID returned by `createGroup`, `getAllGroups`, or an event.
-- `invalid-participant`: the contact ID is not a valid WhatsApp contact ID, or the contact cannot be added to that group.
-- `invite-link-expired`: the invite link was revoked, expired, or requires approval. Fetch a new link or handle the join request flow.
-- `rate-limited`: too many group actions happened in a short window. Slow down and retry later.
-
-Return values can be `false` instead of throwing for some runtime-backed group calls. Check the result and log the group ID, participant ID, and action so retries can be handled safely.
-
-## Safety/rate-limit warnings
-
-Group actions are visible to users and can start WhatsApp abuse checks. Do not add or remove users in bulk. Do not revoke invitations or change settings rapidly.
-
-Queue group writes, add delays between actions, and stop retrying when WhatsApp returns a permission or rate-limit failure. If you need to reconcile many groups, read state first, then only send the smallest set of changes.
-
-## Operational note
-
-Participant-change events can still be noisy in the real world. If group state matters to your application, keep your own source of truth and reconcile from events rather than assuming every event is perfect.
+The event is a change notification, not a complete membership snapshot. Keep
+an application-owned group record if later actions depend on current state.
+See the [event reference](/docs/reference/events) for its full type.

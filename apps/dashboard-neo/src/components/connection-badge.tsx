@@ -100,7 +100,7 @@ export function ConnectionBadge() {
           className={`size-2 rounded-full ${connected ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]" : "bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.6)]"}`}
         />
         <span className={connected ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}>
-          {connected ? "Connected" : "Disconnected"}
+          {connected ? "API connected" : "API disconnected"}
         </span>
       </button>
 

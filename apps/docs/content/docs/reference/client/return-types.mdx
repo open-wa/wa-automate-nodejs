@@ -1,0 +1,1391 @@
+---
+title: "Return types"
+description: "Named data models used by client method results."
+icon: "Braces"
+---
+
+# Return types
+
+These are TypeScript data shapes, not class instances. Follow a type from a method to inspect its fields. `unknown` marks a provider-controlled value that needs narrowing; it does not promise an undocumented shape.
+
+## ChatId
+
+Opaque conversation identifier. Use the exact value returned by a message event or chat lookup.
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type ChatId = string
+```
+
+</details>
+
+
+
+## Chat
+
+Serialized chat returned by chat lookups and listings. Its id is an opaque ChatId; additional WhatsApp Web fields may be present.
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type Chat = { id: ChatId; name?: string; formattedTitle?: string; isGroup: boolean; contact: Contact | null; groupMetadata?: GroupMetadata | null; presence?: Record<string, unknown> | null; t?: number; unreadCount?: number; lastReceivedKey?: unknown; msgs?: unknown[] | null; isReadOnly?: boolean; muteExpiration?: number; notSpam?: boolean; pin?: number; ack?: unknown }
+```
+
+</details>
+
+Related types: [ChatId](/docs/reference/client/return-types#chatid), [Contact](/docs/reference/client/return-types#contact), [GroupMetadata](/docs/reference/client/return-types#groupmetadata)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `ChatId` — [ChatId](/docs/reference/client/return-types#chatid) | Yes |
+| `name` | `string` | No |
+| `formattedTitle` | `string` | No |
+| `isGroup` | `boolean` | Yes |
+| `contact` | `Contact \| null` — [Contact](/docs/reference/client/return-types#contact) | Yes |
+| `groupMetadata` | `GroupMetadata \| null` — [GroupMetadata](/docs/reference/client/return-types#groupmetadata) | No |
+| `presence` | `Record<string, unknown> \| null` | No |
+| `t` | `number` | No |
+| `unreadCount` | `number` | No |
+| `lastReceivedKey` | `unknown` | No |
+| `msgs` | `unknown[] \| null` | No |
+| `isReadOnly` | `boolean` | No |
+| `muteExpiration` | `number` | No |
+| `notSpam` | `boolean` | No |
+| `pin` | `number` | No |
+| `ack` | `unknown` | No |
+
+Additional provider fields may be present; narrow them before use.
+## ContactId
+
+Opaque WhatsApp contact identifier. Preserve the exact value returned by the API.
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type ContactId = string
+```
+
+</details>
+
+
+
+## Contact
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type Contact = { id: ContactId; name?: string; shortName?: string; pushname?: string; formattedName?: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; msgs?: unknown[] | null; profilePicThumbObj?: { eurl?: string; id?: Id; img?: string; imgFull?: string; tag?: string }; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string; isOnline?: boolean; lastSeen?: number }
+```
+
+</details>
+
+Related types: [ContactId](/docs/reference/client/return-types#contactid), [Id](/docs/reference/client/return-types#id)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `ContactId` — [ContactId](/docs/reference/client/return-types#contactid) | Yes |
+| `name` | `string` | No |
+| `shortName` | `string` | No |
+| `pushname` | `string` | No |
+| `formattedName` | `string` | No |
+| `isBusiness` | `boolean` | No |
+| `isEnterprise` | `boolean` | No |
+| `isMe` | `boolean` | No |
+| `isMyContact` | `boolean` | No |
+| `isPSA` | `boolean` | No |
+| `isUser` | `boolean` | No |
+| `isWAContact` | `boolean` | No |
+| `labels` | `string[]` | No |
+| `msgs` | `unknown[] \| null` | No |
+| `profilePicThumbObj` | `{ eurl?: string; id?: Id; img?: string; imgFull?: string; tag?: string }` — [Id](/docs/reference/client/return-types#id) | No |
+| `statusMute` | `boolean` | No |
+| `type` | `string` | No |
+| `verifiedLevel` | `number` | No |
+| `verifiedName` | `string` | No |
+| `isOnline` | `boolean` | No |
+| `lastSeen` | `number` | No |
+
+Additional provider fields may be present; narrow them before use.
+## DataURL
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type DataURL = `data:${string};base64,${string}`
+```
+
+</details>
+
+
+
+## GroupChatId
+
+Opaque group conversation identifier returned by a group lookup or join method.
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type GroupChatId = string
+```
+
+</details>
+
+
+
+## GroupId
+
+Identifier for a WhatsApp group. Use the value returned by the API.
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type GroupId = string
+```
+
+</details>
+
+
+
+## GroupMetadata
+
+Serialized group metadata returned by group lookups. Additional WhatsApp Web fields may be present.
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type GroupMetadata = { id: GroupId; subject: string; creation: number; owner?: ContactId; desc?: string; descTime?: number; descOwner?: ContactId; restrict?: boolean; announce?: boolean; participants: { id: ContactId; isAdmin: boolean; isSuperAdmin?: boolean }[] }
+```
+
+</details>
+
+Related types: [ContactId](/docs/reference/client/return-types#contactid), [GroupId](/docs/reference/client/return-types#groupid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `GroupId` — [GroupId](/docs/reference/client/return-types#groupid) | Yes |
+| `subject` | `string` | Yes |
+| `creation` | `number` | Yes |
+| `owner` | `ContactId` — [ContactId](/docs/reference/client/return-types#contactid) | No |
+| `desc` | `string` | No |
+| `descTime` | `number` | No |
+| `descOwner` | `ContactId` — [ContactId](/docs/reference/client/return-types#contactid) | No |
+| `restrict` | `boolean` | No |
+| `announce` | `boolean` | No |
+| `participants` | `{ id: ContactId; isAdmin: boolean; isSuperAdmin?: boolean }[]` — [ContactId](/docs/reference/client/return-types#contactid) | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## Id
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type Id = { server: string; user: string; _serialized: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `server` | `string` | Yes |
+| `user` | `string` | Yes |
+| `_serialized` | `string` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## Location
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type Location = { lat: number; lng: number; name?: string; address?: string; url?: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `lat` | `number` | Yes |
+| `lng` | `number` | Yes |
+| `name` | `string` | No |
+| `address` | `string` | No |
+| `url` | `string` | No |
+
+Additional provider fields may be present; narrow them before use.
+## MessageIdReturn
+
+A message ID as a string or an object containing the serialized ID. Validate it before passing it to another method.
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type MessageIdReturn = MessageId | SerializedMessageId
+```
+
+</details>
+
+Related types: [MessageId](/docs/reference/client/return-types#messageid), [SerializedMessageId](/docs/reference/client/return-types#serializedmessageid)
+
+## MessageId
+
+Message identifier returned by a send method or message event.
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type MessageId = string
+```
+
+</details>
+
+
+
+## Message
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type Message = { id: MessageId; body: string; type: "chat" | "audio" | "ptt" | "image" | "video" | "document" | "sticker" | "location" | "vcard" | "multi_vcard" | "revoked" | "order" | "buttons_response" | "list_response" | "unknown"; t: number; notifyName?: string; from: ChatId; to: ChatId; self: "in" | "out"; ack: "ACK_PENDING" | "ACK_SERVER" | "ACK_DEVICE" | "ACK_READ" | "ACK_PLAYED" | -1 | "ACK_ERROR" | 0 | 1 | 2 | 3 | 4; invis?: boolean; isNewMsg?: boolean; star?: boolean; recvFresh?: boolean; broadcast?: boolean; isForwarded?: boolean; labels?: string[]; mentionedJidList?: ContactId[]; caption?: string; sender: Contact; timestamp: number; content: string; isGroupMsg: boolean; isMMS?: boolean; isMedia: boolean; isNotification: boolean; isPSA?: boolean; fromMe: boolean; chat: Chat; chatId: ChatId; author?: string; clientUrl?: string; deprecatedMms3Url?: string; isQuotedMsgAvailable: boolean; quotedMsg?: unknown; quotedMsgObj?: unknown; senderId?: string }
+```
+
+</details>
+
+Related types: [ChatId](/docs/reference/client/return-types#chatid), [Chat](/docs/reference/client/return-types#chat), [ContactId](/docs/reference/client/return-types#contactid), [Contact](/docs/reference/client/return-types#contact), [MessageId](/docs/reference/client/return-types#messageid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | Yes |
+| `body` | `string` | Yes |
+| `type` | `"chat" \| "audio" \| "ptt" \| "image" \| "video" \| "document" \| "sticker" \| "location" \| "vcard" \| "multi_vcard" \| "revoked" \| "order" \| "buttons_response" \| "list_response" \| "unknown"` | Yes |
+| `t` | `number` | Yes |
+| `notifyName` | `string` | No |
+| `from` | `ChatId` — [ChatId](/docs/reference/client/return-types#chatid) | Yes |
+| `to` | `ChatId` — [ChatId](/docs/reference/client/return-types#chatid) | Yes |
+| `self` | `"in" \| "out"` | Yes |
+| `ack` | `"ACK_PENDING" \| "ACK_SERVER" \| "ACK_DEVICE" \| "ACK_READ" \| "ACK_PLAYED" \| -1 \| "ACK_ERROR" \| 0 \| 1 \| 2 \| 3 \| 4` | Yes |
+| `invis` | `boolean` | No |
+| `isNewMsg` | `boolean` | No |
+| `star` | `boolean` | No |
+| `recvFresh` | `boolean` | No |
+| `broadcast` | `boolean` | No |
+| `isForwarded` | `boolean` | No |
+| `labels` | `string[]` | No |
+| `mentionedJidList` | `ContactId[]` — [ContactId](/docs/reference/client/return-types#contactid) | No |
+| `caption` | `string` | No |
+| `sender` | `Contact` — [Contact](/docs/reference/client/return-types#contact) | Yes |
+| `timestamp` | `number` | Yes |
+| `content` | `string` | Yes |
+| `isGroupMsg` | `boolean` | Yes |
+| `isMMS` | `boolean` | No |
+| `isMedia` | `boolean` | Yes |
+| `isNotification` | `boolean` | Yes |
+| `isPSA` | `boolean` | No |
+| `fromMe` | `boolean` | Yes |
+| `chat` | `Chat` — [Chat](/docs/reference/client/return-types#chat) | Yes |
+| `chatId` | `ChatId` — [ChatId](/docs/reference/client/return-types#chatid) | Yes |
+| `author` | `string` | No |
+| `clientUrl` | `string` | No |
+| `deprecatedMms3Url` | `string` | No |
+| `isQuotedMsgAvailable` | `boolean` | Yes |
+| `quotedMsg` | `unknown` | No |
+| `quotedMsgObj` | `unknown` | No |
+| `senderId` | `string` | No |
+
+Additional provider fields may be present; narrow them before use.
+## SerializedMessageId
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type SerializedMessageId = { _serialized: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `_serialized` | `string` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## BusinessProfile
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type BusinessProfile = { id: ContactId; tag?: string; description?: string; categories?: { id: string; localized_display_name: string }[]; profileOptions?: { commerceExperience: "catalog" | "none" | "shop"; cartEnabled: boolean }; email?: string; website?: string[]; businessHours?: { config: Record<string, { mode: "specific_hours" | "open_24h" | "appointment_only"; hours: number[][] }>; timezone: string }; catalogStatus?: string; address?: string; fbPage?: unknown; igProfessional?: unknown; isProfileLinked?: boolean; coverPhoto?: { id: string; url: string }; latitude?: number; longitude?: number }
+```
+
+</details>
+
+Related types: [ContactId](/docs/reference/client/return-types#contactid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `ContactId` — [ContactId](/docs/reference/client/return-types#contactid) | Yes |
+| `tag` | `string` | No |
+| `description` | `string` | No |
+| `categories` | `{ id: string; localized_display_name: string }[]` | No |
+| `profileOptions` | `{ commerceExperience: "catalog" \| "none" \| "shop"; cartEnabled: boolean }` | No |
+| `email` | `string` | No |
+| `website` | `string[]` | No |
+| `businessHours` | `{ config: Record<string, { mode: "specific_hours" \| "open_24h" \| "appointment_only"; hours: number[][] }>; timezone: string }` | No |
+| `catalogStatus` | `string` | No |
+| `address` | `string` | No |
+| `fbPage` | `unknown` | No |
+| `igProfessional` | `unknown` | No |
+| `isProfileLinked` | `boolean` | No |
+| `coverPhoto` | `{ id: string; url: string }` | No |
+| `latitude` | `number` | No |
+| `longitude` | `number` | No |
+
+Additional provider fields may be present; narrow them before use.
+## CartItem
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type CartItem = { id: string; name: string; qty: number; thumbnailId: string; thumbnailUrl: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `string` | Yes |
+| `name` | `string` | Yes |
+| `qty` | `number` | Yes |
+| `thumbnailId` | `string` | Yes |
+| `thumbnailUrl` | `string` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## CommonGroup
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type CommonGroup = { id: GroupId; title: string }
+```
+
+</details>
+
+Related types: [GroupId](/docs/reference/client/return-types#groupid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `GroupId` — [GroupId](/docs/reference/client/return-types#groupid) | Yes |
+| `title` | `string` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## CommunityAdminIds
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type CommunityAdminIds = { id: GroupChatId; admins: ContactId[]; subgroup: boolean }
+```
+
+</details>
+
+Related types: [ContactId](/docs/reference/client/return-types#contactid), [GroupChatId](/docs/reference/client/return-types#groupchatid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `GroupChatId` — [GroupChatId](/docs/reference/client/return-types#groupchatid) | Yes |
+| `admins` | `ContactId[]` — [ContactId](/docs/reference/client/return-types#contactid) | Yes |
+| `subgroup` | `boolean` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## CommunityAdmins
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type CommunityAdmins = { id: GroupChatId; admins: Contact[]; subgroup: boolean }
+```
+
+</details>
+
+Related types: [Contact](/docs/reference/client/return-types#contact), [GroupChatId](/docs/reference/client/return-types#groupchatid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `GroupChatId` — [GroupChatId](/docs/reference/client/return-types#groupchatid) | Yes |
+| `admins` | `Contact[]` — [Contact](/docs/reference/client/return-types#contact) | Yes |
+| `subgroup` | `boolean` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## CommunityMetadata
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type CommunityMetadata = { id: GroupId; subject: string; creation: number; owner?: ContactId; desc?: string; descTime?: number; descOwner?: ContactId; restrict?: boolean; announce?: boolean; participants: { id: ContactId; isAdmin: boolean; isSuperAdmin?: boolean }[]; subGroups: GroupMetadata[] }
+```
+
+</details>
+
+Related types: [ContactId](/docs/reference/client/return-types#contactid), [GroupId](/docs/reference/client/return-types#groupid), [GroupMetadata](/docs/reference/client/return-types#groupmetadata)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `GroupId` — [GroupId](/docs/reference/client/return-types#groupid) | Yes |
+| `subject` | `string` | Yes |
+| `creation` | `number` | Yes |
+| `owner` | `ContactId` — [ContactId](/docs/reference/client/return-types#contactid) | No |
+| `desc` | `string` | No |
+| `descTime` | `number` | No |
+| `descOwner` | `ContactId` — [ContactId](/docs/reference/client/return-types#contactid) | No |
+| `restrict` | `boolean` | No |
+| `announce` | `boolean` | No |
+| `participants` | `{ id: ContactId; isAdmin: boolean; isSuperAdmin?: boolean }[]` — [ContactId](/docs/reference/client/return-types#contactid) | Yes |
+| `subGroups` | `GroupMetadata[]` — [GroupMetadata](/docs/reference/client/return-types#groupmetadata) | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## CommunityParticipantIds
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type CommunityParticipantIds = { id: GroupChatId; participants: ContactId[]; subgroup: boolean }
+```
+
+</details>
+
+Related types: [ContactId](/docs/reference/client/return-types#contactid), [GroupChatId](/docs/reference/client/return-types#groupchatid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `GroupChatId` — [GroupChatId](/docs/reference/client/return-types#groupchatid) | Yes |
+| `participants` | `ContactId[]` — [ContactId](/docs/reference/client/return-types#contactid) | Yes |
+| `subgroup` | `boolean` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## CommunityParticipants
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type CommunityParticipants = { id: GroupChatId; participants: Contact[]; subgroup: boolean }
+```
+
+</details>
+
+Related types: [Contact](/docs/reference/client/return-types#contact), [GroupChatId](/docs/reference/client/return-types#groupchatid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `GroupChatId` — [GroupChatId](/docs/reference/client/return-types#groupchatid) | Yes |
+| `participants` | `Contact[]` — [Contact](/docs/reference/client/return-types#contact) | Yes |
+| `subgroup` | `boolean` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## ContactStatus
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type ContactStatus = { id: string; status: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `string` | Yes |
+| `status` | `string` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## FeatureFlags
+
+WhatsApp feature flags keyed by name. Values are provider-defined and must be narrowed before use.
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type FeatureFlags = Record<string, unknown>
+```
+
+</details>
+
+
+
+## GroupCreationResult
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type GroupCreationResult = { gid: GroupId | Id; status?: number; participants?: Record<string, { code: number; invite_code?: string; invite_code_exp?: string }> | Record<string, unknown>[] }
+```
+
+</details>
+
+Related types: [GroupId](/docs/reference/client/return-types#groupid), [Id](/docs/reference/client/return-types#id)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `gid` | `GroupId \| Id` — [GroupId](/docs/reference/client/return-types#groupid), [Id](/docs/reference/client/return-types#id) | Yes |
+| `status` | `number` | No |
+| `participants` | `Record<string, { code: number; invite_code?: string; invite_code_exp?: string }> \| Record<string, unknown>[]` | No |
+
+Additional provider fields may be present; narrow them before use.
+## HealthCheck
+
+Browser health diagnostics. This is not the Easy API /health HTTP envelope.
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type HealthCheck = { queuedMessages?: number; state?: string; isPhoneDisconnected?: boolean; isHere?: boolean; wapiInjected?: boolean; online?: boolean; tryingToReachPhone?: boolean; retryingIn?: number; batteryLow?: boolean }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `queuedMessages` | `number` | No |
+| `state` | `string` | No |
+| `isPhoneDisconnected` | `boolean` | No |
+| `isHere` | `boolean` | No |
+| `wapiInjected` | `boolean` | No |
+| `online` | `boolean` | No |
+| `tryingToReachPhone` | `boolean` | No |
+| `retryingIn` | `number` | No |
+| `batteryLow` | `boolean` | No |
+
+Additional provider fields may be present; narrow them before use.
+## HostAccount
+
+Host account attributes plus the current account ID. Additional WhatsApp Web attributes vary by version.
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type HostAccount = { me: Id | ContactId }
+```
+
+</details>
+
+Related types: [ContactId](/docs/reference/client/return-types#contactid), [Id](/docs/reference/client/return-types#id)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `me` | `Id \| ContactId` — [ContactId](/docs/reference/client/return-types#contactid), [Id](/docs/reference/client/return-types#id) | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## LLMMessage
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type LLMMessage = { role: "user" | "assistant"; content: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `role` | `"user" \| "assistant"` | Yes |
+| `content` | `string` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## Label
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type Label = { id: string; name: string; items: ({ type: "Chat" | "Contact" | "Message"; id: string })[] }
+```
+
+</details>
+
+Related types: [Chat](/docs/reference/client/return-types#chat), [Contact](/docs/reference/client/return-types#contact), [Message](/docs/reference/client/return-types#message)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `string` | Yes |
+| `name` | `string` | Yes |
+| `items` | `({ type: "Chat" \| "Contact" \| "Message"; id: string })[]` — [Chat](/docs/reference/client/return-types#chat), [Contact](/docs/reference/client/return-types#contact), [Message](/docs/reference/client/return-types#message) | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## LicenseType
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type LicenseType = "CUSTOM" | "B2B_RESTRICTED_VOLUME_LICENSE" | "Insiders Program" | "Text Story License Key" | "Image Story License Key" | "Video Story License Key" | "Premium License Key" | "NONE"
+```
+
+</details>
+
+Related types: [Story](/docs/reference/client/return-types#story)
+
+## MessageInfo
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type MessageInfo = { id: MessageId; deliveryRemaining: number; playedRemaining: number; readRemaining: number; delivery: MessageInteraction[]; read: MessageInteraction[]; played: MessageInteraction[] }
+```
+
+</details>
+
+Related types: [MessageId](/docs/reference/client/return-types#messageid), [MessageInteraction](/docs/reference/client/return-types#messageinteraction)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | Yes |
+| `deliveryRemaining` | `number` | Yes |
+| `playedRemaining` | `number` | Yes |
+| `readRemaining` | `number` | Yes |
+| `delivery` | `MessageInteraction[]` — [MessageInteraction](/docs/reference/client/return-types#messageinteraction) | Yes |
+| `read` | `MessageInteraction[]` — [MessageInteraction](/docs/reference/client/return-types#messageinteraction) | Yes |
+| `played` | `MessageInteraction[]` — [MessageInteraction](/docs/reference/client/return-types#messageinteraction) | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## MessageInteraction
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type MessageInteraction = { id: ContactId; t: number }
+```
+
+</details>
+
+Related types: [ContactId](/docs/reference/client/return-types#contactid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `ContactId` — [ContactId](/docs/reference/client/return-types#contactid) | Yes |
+| `t` | `number` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## NumberCheck
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type NumberCheck = { id: Id | ContactId; status?: unknown; isBusiness?: boolean; canReceiveMessage: boolean; numberExists?: boolean }
+```
+
+</details>
+
+Related types: [ContactId](/docs/reference/client/return-types#contactid), [Id](/docs/reference/client/return-types#id)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `Id \| ContactId` — [ContactId](/docs/reference/client/return-types#contactid), [Id](/docs/reference/client/return-types#id) | Yes |
+| `status` | `unknown` | No |
+| `isBusiness` | `boolean` | No |
+| `canReceiveMessage` | `boolean` | Yes |
+| `numberExists` | `boolean` | No |
+
+Additional provider fields may be present; narrow them before use.
+## NumberProfile
+
+Provisional number profile based on the public Contact fields. Fields are optional and additional provider fields are unknown. The licensed getNumberProfile payload has not been verified against this model.
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type NumberProfile = { id?: ContactId; name?: string | undefined; shortName?: string | undefined; pushname?: string | undefined; formattedName?: string | undefined; isBusiness?: boolean | undefined; isEnterprise?: boolean | undefined; isMe?: boolean | undefined; isMyContact?: boolean | undefined; isPSA?: boolean | undefined; isUser?: boolean | undefined; isWAContact?: boolean | undefined; labels?: string[] | undefined; msgs?: unknown[] | null | undefined; profilePicThumbObj?: { eurl?: string; id?: Id; img?: string; imgFull?: string; tag?: string } | undefined; statusMute?: boolean | undefined; type?: string | undefined; verifiedLevel?: number | undefined; verifiedName?: string | undefined; isOnline?: boolean | undefined; lastSeen?: number | undefined }
+```
+
+</details>
+
+Related types: [ContactId](/docs/reference/client/return-types#contactid), [Id](/docs/reference/client/return-types#id)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `ContactId` — [ContactId](/docs/reference/client/return-types#contactid) | No |
+| `name` | `string \| undefined` | No |
+| `shortName` | `string \| undefined` | No |
+| `pushname` | `string \| undefined` | No |
+| `formattedName` | `string \| undefined` | No |
+| `isBusiness` | `boolean \| undefined` | No |
+| `isEnterprise` | `boolean \| undefined` | No |
+| `isMe` | `boolean \| undefined` | No |
+| `isMyContact` | `boolean \| undefined` | No |
+| `isPSA` | `boolean \| undefined` | No |
+| `isUser` | `boolean \| undefined` | No |
+| `isWAContact` | `boolean \| undefined` | No |
+| `labels` | `string[] \| undefined` | No |
+| `msgs` | `unknown[] \| null \| undefined` | No |
+| `profilePicThumbObj` | `{ eurl?: string; id?: Id; img?: string; imgFull?: string; tag?: string } \| undefined` — [Id](/docs/reference/client/return-types#id) | No |
+| `statusMute` | `boolean \| undefined` | No |
+| `type` | `string \| undefined` | No |
+| `verifiedLevel` | `number \| undefined` | No |
+| `verifiedName` | `string \| undefined` | No |
+| `isOnline` | `boolean \| undefined` | No |
+| `lastSeen` | `number \| undefined` | No |
+
+Additional provider fields may be present; narrow them before use.
+## Order
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type Order = { id: string; createdAt: number; currency: string; products: CartItem[]; sellerJid: string; subtotal: string; total: string; message?: Message }
+```
+
+</details>
+
+Related types: [Message](/docs/reference/client/return-types#message), [CartItem](/docs/reference/client/return-types#cartitem)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `string` | Yes |
+| `createdAt` | `number` | Yes |
+| `currency` | `string` | Yes |
+| `products` | `CartItem[]` — [CartItem](/docs/reference/client/return-types#cartitem) | Yes |
+| `sellerJid` | `string` | Yes |
+| `subtotal` | `string` | Yes |
+| `total` | `string` | Yes |
+| `message` | `Message` — [Message](/docs/reference/client/return-types#message) | No |
+
+Additional provider fields may be present; narrow them before use.
+## ProcessStats
+
+Process diagnostics keyed by process ID. The provider controls each entry; no stable entry shape is guaranteed.
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type ProcessStats = Record<string, unknown>
+```
+
+</details>
+
+
+
+## Product
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type Product = { id: string; currency: string; name?: string; description?: string; isHidden?: boolean; catalogWid?: string; url?: string; availability?: number | "unknown"; reviewStatus?: "NO_REVIEW" | "PENDING" | "REJECTED" | "APPROVED" | "OUTDATED"; imageCdnUrl?: string; imageCount?: number; additionalImageCdnUrl?: string[]; priceAmount1000?: number; retailerId?: string; t?: number }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `string` | Yes |
+| `currency` | `string` | Yes |
+| `name` | `string` | No |
+| `description` | `string` | No |
+| `isHidden` | `boolean` | No |
+| `catalogWid` | `string` | No |
+| `url` | `string` | No |
+| `availability` | `number \| "unknown"` | No |
+| `reviewStatus` | `"NO_REVIEW" \| "PENDING" \| "REJECTED" \| "APPROVED" \| "OUTDATED"` | No |
+| `imageCdnUrl` | `string` | No |
+| `imageCount` | `number` | No |
+| `additionalImageCdnUrl` | `string[]` | No |
+| `priceAmount1000` | `number` | No |
+| `retailerId` | `string` | No |
+| `t` | `number` | No |
+
+Additional provider fields may be present; narrow them before use.
+## Story
+
+Message-shaped status entry, based on the legacy story API. Chat and sender may be absent or null. The licensed getStories payload has not been verified against this model.
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type Story = { id: MessageId; body: string; type: "chat" | "audio" | "ptt" | "image" | "video" | "document" | "sticker" | "location" | "vcard" | "multi_vcard" | "revoked" | "order" | "buttons_response" | "list_response" | "unknown"; t: number; notifyName?: string; from: ChatId; to: ChatId; self: "in" | "out"; ack: "ACK_PENDING" | "ACK_SERVER" | "ACK_DEVICE" | "ACK_READ" | "ACK_PLAYED" | -1 | "ACK_ERROR" | 0 | 1 | 2 | 3 | 4; invis?: boolean; isNewMsg?: boolean; star?: boolean; recvFresh?: boolean; broadcast?: boolean; isForwarded?: boolean; labels?: string[]; mentionedJidList?: ContactId[]; caption?: string; timestamp: number; content: string; isGroupMsg: boolean; isMMS?: boolean; isMedia: boolean; isNotification: boolean; isPSA?: boolean; fromMe: boolean; chatId: ChatId; author?: string; clientUrl?: string; deprecatedMms3Url?: string; isQuotedMsgAvailable: boolean; quotedMsg?: unknown; quotedMsgObj?: unknown; senderId?: string; chat?: Chat | null; sender?: Contact | null }
+```
+
+</details>
+
+Related types: [ChatId](/docs/reference/client/return-types#chatid), [Chat](/docs/reference/client/return-types#chat), [ContactId](/docs/reference/client/return-types#contactid), [Contact](/docs/reference/client/return-types#contact), [MessageId](/docs/reference/client/return-types#messageid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | Yes |
+| `body` | `string` | Yes |
+| `type` | `"chat" \| "audio" \| "ptt" \| "image" \| "video" \| "document" \| "sticker" \| "location" \| "vcard" \| "multi_vcard" \| "revoked" \| "order" \| "buttons_response" \| "list_response" \| "unknown"` | Yes |
+| `t` | `number` | Yes |
+| `notifyName` | `string` | No |
+| `from` | `ChatId` — [ChatId](/docs/reference/client/return-types#chatid) | Yes |
+| `to` | `ChatId` — [ChatId](/docs/reference/client/return-types#chatid) | Yes |
+| `self` | `"in" \| "out"` | Yes |
+| `ack` | `"ACK_PENDING" \| "ACK_SERVER" \| "ACK_DEVICE" \| "ACK_READ" \| "ACK_PLAYED" \| -1 \| "ACK_ERROR" \| 0 \| 1 \| 2 \| 3 \| 4` | Yes |
+| `invis` | `boolean` | No |
+| `isNewMsg` | `boolean` | No |
+| `star` | `boolean` | No |
+| `recvFresh` | `boolean` | No |
+| `broadcast` | `boolean` | No |
+| `isForwarded` | `boolean` | No |
+| `labels` | `string[]` | No |
+| `mentionedJidList` | `ContactId[]` — [ContactId](/docs/reference/client/return-types#contactid) | No |
+| `caption` | `string` | No |
+| `timestamp` | `number` | Yes |
+| `content` | `string` | Yes |
+| `isGroupMsg` | `boolean` | Yes |
+| `isMMS` | `boolean` | No |
+| `isMedia` | `boolean` | Yes |
+| `isNotification` | `boolean` | Yes |
+| `isPSA` | `boolean` | No |
+| `fromMe` | `boolean` | Yes |
+| `chatId` | `ChatId` — [ChatId](/docs/reference/client/return-types#chatid) | Yes |
+| `author` | `string` | No |
+| `clientUrl` | `string` | No |
+| `deprecatedMms3Url` | `string` | No |
+| `isQuotedMsgAvailable` | `boolean` | Yes |
+| `quotedMsg` | `unknown` | No |
+| `quotedMsgObj` | `unknown` | No |
+| `senderId` | `string` | No |
+| `chat` | `Chat \| null` — [Chat](/docs/reference/client/return-types#chat) | No |
+| `sender` | `Contact \| null` — [Contact](/docs/reference/client/return-types#contact) | No |
+
+Additional provider fields may be present; narrow them before use.
+## BookingContent
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type BookingContent = { version?: 1; body: string; footer?: string; type: "booking"; title?: string; buttonLabel?: string; booking: { startAt: string; endAt?: string; location?: string; url?: string; managementUrl?: string; phoneNumber?: string; email?: string; description?: string; labels?: { language?: string; meetingType?: string; detailsTitle?: string; addToCalendar?: string; viewOnMap?: string; manageBooking?: string } }; actions?: (LinkAction | CallAction | CopyAction)[] }
+```
+
+</details>
+
+Related types: [CallAction](/docs/reference/client/return-types#callaction), [CopyAction](/docs/reference/client/return-types#copyaction), [LinkAction](/docs/reference/client/return-types#linkaction)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `version` | `1` | No |
+| `body` | `string` | Yes |
+| `footer` | `string` | No |
+| `type` | `"booking"` | Yes |
+| `title` | `string` | No |
+| `buttonLabel` | `string` | No |
+| `booking` | `{ startAt: string; endAt?: string; location?: string; url?: string; managementUrl?: string; phoneNumber?: string; email?: string; description?: string; labels?: { language?: string; meetingType?: string; detailsTitle?: string; addToCalendar?: string; viewOnMap?: string; manageBooking?: string } }` | Yes |
+| `actions` | `(LinkAction \| CallAction \| CopyAction)[]` — [CallAction](/docs/reference/client/return-types#callaction), [CopyAction](/docs/reference/client/return-types#copyaction), [LinkAction](/docs/reference/client/return-types#linkaction) | No |
+
+Additional provider fields may be present; narrow them before use.
+## ButtonsContent
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type ButtonsContent = { version?: 1; body: string; footer?: string; type: "buttons"; header?: InteractiveHeader; actions: InteractiveAction[] }
+```
+
+</details>
+
+Related types: [InteractiveAction](/docs/reference/client/return-types#interactiveaction), [InteractiveHeader](/docs/reference/client/return-types#interactiveheader)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `version` | `1` | No |
+| `body` | `string` | Yes |
+| `footer` | `string` | No |
+| `type` | `"buttons"` | Yes |
+| `header` | `InteractiveHeader` — [InteractiveHeader](/docs/reference/client/return-types#interactiveheader) | No |
+| `actions` | `InteractiveAction[]` — [InteractiveAction](/docs/reference/client/return-types#interactiveaction) | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## CallAction
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type CallAction = { type: "call"; label: string; phoneNumber: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `type` | `"call"` | Yes |
+| `label` | `string` | Yes |
+| `phoneNumber` | `string` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## CarouselCard
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type CarouselCard = { body: string; header: { type: "image"; source: string; filename?: string; title?: string }; actions: InteractiveAction[] }
+```
+
+</details>
+
+Related types: [InteractiveAction](/docs/reference/client/return-types#interactiveaction)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `body` | `string` | Yes |
+| `header` | `{ type: "image"; source: string; filename?: string; title?: string }` | Yes |
+| `actions` | `InteractiveAction[]` — [InteractiveAction](/docs/reference/client/return-types#interactiveaction) | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## CarouselContent
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type CarouselContent = { version?: 1; body: string; footer?: string; type: "carousel"; cards: CarouselCard[] }
+```
+
+</details>
+
+Related types: [CarouselCard](/docs/reference/client/return-types#carouselcard)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `version` | `1` | No |
+| `body` | `string` | Yes |
+| `footer` | `string` | No |
+| `type` | `"carousel"` | Yes |
+| `cards` | `CarouselCard[]` — [CarouselCard](/docs/reference/client/return-types#carouselcard) | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## CopyAction
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type CopyAction = { type: "copy"; label: string; code: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `type` | `"copy"` | Yes |
+| `label` | `string` | Yes |
+| `code` | `string` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## FormContent
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type FormContent = { version?: 1; body: string; footer?: string; type: "form"; title?: string; questions: FormQuestion[] }
+```
+
+</details>
+
+Related types: [FormQuestion](/docs/reference/client/return-types#formquestion)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `version` | `1` | No |
+| `body` | `string` | Yes |
+| `footer` | `string` | No |
+| `type` | `"form"` | Yes |
+| `title` | `string` | No |
+| `questions` | `FormQuestion[]` — [FormQuestion](/docs/reference/client/return-types#formquestion) | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## FormQuestion
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type FormQuestion = { type: "singleSelect" | "multiSelect"; id: string; label: string; options: { id: string; label: string }[]; allowCustomAnswer?: boolean }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `type` | `"singleSelect" \| "multiSelect"` | Yes |
+| `id` | `string` | Yes |
+| `label` | `string` | Yes |
+| `options` | `{ id: string; label: string }[]` | Yes |
+| `allowCustomAnswer` | `boolean` | No |
+
+Additional provider fields may be present; narrow them before use.
+## FormResponse
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type FormResponse = { messageId: string; chatId: string; senderId: string; originalMessageId?: string; timestamp?: number; raw: JsonObject; type: "form"; answers: Record<string, string | string[]> }
+```
+
+</details>
+
+Related types: [JsonObject](/docs/reference/client/return-types#jsonobject)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `messageId` | `string` | Yes |
+| `chatId` | `string` | Yes |
+| `senderId` | `string` | Yes |
+| `originalMessageId` | `string` | No |
+| `timestamp` | `number` | No |
+| `raw` | `JsonObject` — [JsonObject](/docs/reference/client/return-types#jsonobject) | Yes |
+| `type` | `"form"` | Yes |
+| `answers` | `Record<string, string \| string[]>` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## InteractiveAction
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type InteractiveAction = ReplyAction | LinkAction | CallAction | CopyAction
+```
+
+</details>
+
+Related types: [CallAction](/docs/reference/client/return-types#callaction), [CopyAction](/docs/reference/client/return-types#copyaction), [LinkAction](/docs/reference/client/return-types#linkaction), [ReplyAction](/docs/reference/client/return-types#replyaction)
+
+## InteractiveContent
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type InteractiveContent = ButtonsContent | ListContent | FormContent | CarouselContent | BookingContent | NativeContent
+```
+
+</details>
+
+Related types: [BookingContent](/docs/reference/client/return-types#bookingcontent), [ButtonsContent](/docs/reference/client/return-types#buttonscontent), [CarouselContent](/docs/reference/client/return-types#carouselcontent), [FormContent](/docs/reference/client/return-types#formcontent), [ListContent](/docs/reference/client/return-types#listcontent), [NativeContent](/docs/reference/client/return-types#nativecontent)
+
+## InteractiveHeader
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type InteractiveHeader = { type: "text"; text: string } | { type: "image"; source: string; filename?: string; title?: string } | { type: "video"; source: string; filename?: string; title?: string } | { type: "document"; source: string; filename?: string; title?: string }
+```
+
+</details>
+
+
+
+## InteractiveResponse
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type InteractiveResponse = FormResponse | { messageId: string; chatId: string; senderId: string; originalMessageId?: string; timestamp?: number; raw: JsonObject; type: "reply"; id: string; label?: string } | { messageId: string; chatId: string; senderId: string; originalMessageId?: string; timestamp?: number; raw: JsonObject; type: "list"; id: string; label?: string } | { messageId: string; chatId: string; senderId: string; originalMessageId?: string; timestamp?: number; raw: JsonObject; type: "native"; name: string; parameters?: JsonValue; parseError?: string }
+```
+
+</details>
+
+Related types: [FormResponse](/docs/reference/client/return-types#formresponse), [JsonObject](/docs/reference/client/return-types#jsonobject), [JsonValue](/docs/reference/client/return-types#jsonvalue)
+
+## JsonObject
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type JsonObject = Record<string, JsonValue>
+```
+
+</details>
+
+Related types: [JsonValue](/docs/reference/client/return-types#jsonvalue)
+
+## JsonValue
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type JsonValue = null | boolean | number | string | JsonValue[] | Record<string, JsonValue>
+```
+
+</details>
+
+
+
+## LinkAction
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type LinkAction = { type: "url"; label: string; url: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `type` | `"url"` | Yes |
+| `label` | `string` | Yes |
+| `url` | `string` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## ListContent
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type ListContent = { version?: 1; body: string; footer?: string; type: "list"; title?: string; buttonLabel?: string; sections: { title?: string; rows: ListRow[] }[] }
+```
+
+</details>
+
+Related types: [ListRow](/docs/reference/client/return-types#listrow)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `version` | `1` | No |
+| `body` | `string` | Yes |
+| `footer` | `string` | No |
+| `type` | `"list"` | Yes |
+| `title` | `string` | No |
+| `buttonLabel` | `string` | No |
+| `sections` | `{ title?: string; rows: ListRow[] }[]` — [ListRow](/docs/reference/client/return-types#listrow) | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## ListRow
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type ListRow = { id: string; title: string; description?: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `string` | Yes |
+| `title` | `string` | Yes |
+| `description` | `string` | No |
+
+Additional provider fields may be present; narrow them before use.
+## NativeAction
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type NativeAction = { name: string; parameters?: JsonObject }
+```
+
+</details>
+
+Related types: [JsonObject](/docs/reference/client/return-types#jsonobject)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `name` | `string` | Yes |
+| `parameters` | `JsonObject` — [JsonObject](/docs/reference/client/return-types#jsonobject) | No |
+
+Additional provider fields may be present; narrow them before use.
+## NativeContent
+
+Advanced extension for new native action types; parameters are passed through without claiming recipient support
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type NativeContent = { version?: 1; body: string; footer?: string; type: "native"; header?: InteractiveHeader; actions: NativeAction[]; parameters?: JsonObject }
+```
+
+</details>
+
+Related types: [InteractiveHeader](/docs/reference/client/return-types#interactiveheader), [JsonObject](/docs/reference/client/return-types#jsonobject), [NativeAction](/docs/reference/client/return-types#nativeaction)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `version` | `1` | No |
+| `body` | `string` | Yes |
+| `footer` | `string` | No |
+| `type` | `"native"` | Yes |
+| `header` | `InteractiveHeader` — [InteractiveHeader](/docs/reference/client/return-types#interactiveheader) | No |
+| `actions` | `NativeAction[]` — [NativeAction](/docs/reference/client/return-types#nativeaction) | Yes |
+| `parameters` | `JsonObject` — [JsonObject](/docs/reference/client/return-types#jsonobject) | No |
+
+Additional provider fields may be present; narrow them before use.
+## ReplyAction
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type ReplyAction = { type: "reply"; id: string; label: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `type` | `"reply"` | Yes |
+| `id` | `string` | Yes |
+| `label` | `string` | Yes |
+
+Additional provider fields may be present; narrow them before use.

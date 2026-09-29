@@ -1,7 +1,7 @@
 {
   "title": "Plugins",
   "icon": "Puzzle",
-  "defaultOpen": true,
+  "defaultOpen": false,
   "pages": [
     "---Start here---",
     "getting-started",

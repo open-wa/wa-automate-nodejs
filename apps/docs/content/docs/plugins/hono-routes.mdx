@@ -5,157 +5,158 @@ description: Mount custom HTTP endpoints from your plugin with Hono.
 
 # HTTP Routes in Plugins
 
-Plugins can mount HTTP routes that are served alongside the Easy API. This lets you expose custom endpoints for webhooks, health checks, or admin interfaces.
+Plugins can mount Hono routes alongside the Easy API for webhooks, health checks, or admin endpoints. A route is a hook returned by the plugin's async `init()` function, and the host mounts that Hono sub-app at `/plugins/<meta.name>/`.
 
-## How Routes Work
+## Add a route to the starter plugin
 
-Define a `routes` function in your plugin that returns a Hono app. Routes are mounted at `/plugins/<name>/`:
+For a complete installation with the event hook, route, and dashboard declaration in one `plugins/greeting-bot.mjs` file, start with [Plugin getting started](/docs/plugins/getting-started). This is the same returned `routes` hook in isolation:
 
-```ts
+```js
 import { Hono } from 'hono';
+import { createPlugin } from '@open-wa/plugin-sdk';
 
 export default createPlugin({
-  meta: { name: 'my-plugin' },
+  meta: { name: 'greeting-bot', version: '1.0.0' },
+  init: async () => ({
+    routes: () => {
+      const app = new Hono();
+      app.get('/health', (c) => c.json({ status: 'ok' }));
+      return app;
+    },
+  }),
+});
+```
+
+This serves `GET /plugins/greeting-bot/health`, as in the starter. Declare `routes` in the object returned by `init()`; keep plugin metadata and `configSchema` in the top-level `createPlugin()` options.
+
+## Route patterns
+
+Keep each route inside the Hono app returned from `init()`:
+
+```js
+init: async () => ({
   routes: () => {
     const app = new Hono();
 
-    app.get('/health', (c) => c.json({ status: 'ok' }));
+    app.get('/status', (c) => c.json({
+      plugin: 'greeting-bot',
+      version: '1.0.0',
+      enabled: true,
+    }));
+
+    app.post('/trigger', async (c) => {
+      const body = await c.req.json();
+      return c.json({ received: true, data: body });
+    });
+
+    app.get('/contact/:phone', (c) => {
+      const phone = c.req.param('phone');
+      return c.json({ phone, found: true });
+    });
 
     return app;
   },
-  init: async ({ events, logger, config, client }) => {
-    // Plugin initialization
+}),
+```
+
+The resulting endpoints are `/plugins/greeting-bot/status`, `/plugins/greeting-bot/trigger`, and `/plugins/greeting-bot/contact/:phone`.
+
+## Route authentication
+
+Plugin routes are mounted under `/plugins/<meta.name>`, while the Easy API key middleware is mounted under `/api`. A configured Easy API key therefore does not automatically protect plugin routes; add an explicit guard or keep the route behind a trusted network boundary.
+
+For a shared-secret guard, close over validated plugin configuration from `init()`:
+
+```js
+import { Hono } from 'hono';
+import { createPlugin, defineConfig } from '@open-wa/plugin-sdk';
+
+const configSchema = defineConfig((z) => z.object({
+  webhookSecret: z.string().min(1),
+}));
+
+export default createPlugin({
+  meta: { name: 'greeting-bot', version: '1.0.0' },
+  configSchema,
+  init: async ({ config }) => ({
+    routes: () => {
+      const app = new Hono();
+
+      app.post('/webhook', async (c) => {
+        const suppliedSecret = c.req.header('X-Plugin-Secret');
+        if (!suppliedSecret || suppliedSecret !== config.webhookSecret) {
+          return c.json({ error: 'Unauthorized' }, 401);
+        }
+
+        const event = await c.req.json();
+        // Process the verified webhook event.
+        return c.json({ received: true, event });
+      });
+
+      return app;
+    },
+  }),
+});
+```
+
+Add `webhookSecret` to the existing `configSchema`, then save this complete config as `wa.config.mjs` beside the `plugins` directory:
+
+```js
+export default {
+  sessionId: 'my-session',
+  plugins: [
+    new URL('./plugins/greeting-bot.mjs', import.meta.url).href,
+  ],
+  pluginConfig: {
+    'greeting-bot': {
+      greeting: 'Hello! Welcome to our service.',
+      triggerWord: 'hello',
+      webhookSecret: process.env.GREETING_BOT_WEBHOOK_SECRET,
+    },
   },
-});
+};
 ```
 
-The health endpoint is available at `/plugins/my-plugin/health`.
+Keep the secret in an environment variable rather than committing its value. This example checks a bearer secret for a private route; it does not implement a provider-specific request signature. If an upstream webhook defines an HMAC or timestamped signing protocol, implement that protocol over the raw request body.
 
-## Basic Route Example
+## Common uses
 
-### GET Route
+### Health checks
 
-```ts
-routes: () => {
-  const app = new Hono();
+Return a small JSON response from `GET /health` so an external monitor can verify that the plugin registered.
 
-  app.get('/status', (c) => {
-    return c.json({
-      plugin: 'my-plugin',
-      version: '1.0.0',
-      enabled: true,
+### Webhook receivers
+
+Parse and validate the request body, then return a response after the plugin accepts the event. Use an idempotency key when the sender may retry delivery.
+
+### OAuth callbacks
+
+An OAuth callback is still an API route, so mount it from the returned `routes` hook. Validate and consume the one-time `state` created by your authorization-start route before exchanging the code. `consumeOAuthState` and `exchangeOAuthCode` below are application-provided helpers:
+
+```js
+init: async () => ({
+  routes: () => {
+    const app = new Hono();
+    app.get('/oauth/callback', async (c) => {
+      const code = c.req.query('code');
+      const state = c.req.query('state');
+      if (!code) return c.json({ error: 'Missing authorization code' }, 400);
+      if (!state || !await consumeOAuthState(state)) {
+        return c.json({ error: 'Invalid OAuth state' }, 400);
+      }
+
+      await exchangeOAuthCode(code);
+      return c.json({ connected: true });
     });
-  });
-
-  return app;
-},
+    return app;
+  },
+}),
 ```
 
-### POST Route
-
-```ts
-routes: () => {
-  const app = new Hono();
-
-  app.post('/trigger', async (c) => {
-    const body = await c.req.json();
-    // Process the request
-    return c.json({ received: true, data: body });
-  });
-
-  return app;
-},
-```
-
-### Route with Parameters
-
-```ts
-routes: () => {
-  const app = new Hono();
-
-  app.get('/contact/:phone', async (c) => {
-    const phone = c.req.param('phone');
-    // Look up contact
-    return c.json({ phone, found: true });
-  });
-
-  return app;
-},
-```
-
-## Securing Routes
-
-### Use the API key
-
-Routes mounted under the Easy API share its authentication. Requests must include the API key:
-
-```ts
-app.get('/admin', (c) => {
-  // The API key is already validated by the Easy API
-  return c.json({ admin: true });
-});
-```
-
-### Custom Route Auth
-
-For additional auth layers:
-
-```ts
-app.post('/webhook', async (c) => {
-  const signature = c.req.header('X-Signature');
-  if (signature !== config.webhookSecret) {
-    return c.json({ error: 'Unauthorized' }, 401);
-  }
-  // Process the webhook
-  return c.json({ received: true });
-});
-```
-
-## Interacting with Easy API Auth
-
-Routes inherit the Easy API authentication. If the Easy API requires an API key, all plugin routes also require it.
-
-## Use Cases
-
-### Health Checks
-
-```ts
-app.get('/health', (c) => c.json({ status: 'ok' }));
-```
-
-### Webhook Receivers
-
-```ts
-app.post('/events', async (c) => {
-  const event = await c.req.json();
-  // Process the event
-  return c.json({ received: true });
-});
-```
-
-### Admin Interfaces
-
-```ts
-app.get('/stats', async (c) => {
-  return c.json({
-    messagesProcessed: messageCount,
-    errors: errorCount,
-  });
-});
-```
-
-### OAuth Callbacks
-
-```ts
-app.get('/oauth/callback', async (c) => {
-  const code = c.req.query('code');
-  // Exchange code for token
-  return c.redirect('/plugins/my-plugin/success');
-});
-```
+Store state per authorization attempt, bind it to the initiating user, and expire it after use. The provider-specific token exchange and error handling belong in your helper.
 
 ## Related
 
-- **[Plugin getting started](/docs/plugins/getting-started)** - Build your first plugin
-- **[Dashboard Pages](/docs/plugins/dashboard-pages)** - Add UI pages to plugins
+- **[Plugin getting started](/docs/plugins/getting-started)** - Build and load `greeting-bot.mjs`
+- **[Dashboard Pages](/docs/plugins/dashboard-pages)** - Add dashboard metadata to a plugin
 - **[External API patterns](/docs/plugins/external-api-patterns)** - Calling external services

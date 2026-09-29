@@ -1,27 +1,28 @@
-# HyperEmitter (planning scaffold)
+# @open-wa/hyperemitter
 
-This package is a placeholder for the HyperEmitter benchmarks and developer tools. The emitter code will arrive later. This package records competitor performance and defines build and CI expectations.
+`@open-wa/hyperemitter` is a typed event emitter used by Open-WA packages. It supports exact event names, `+` and `#` wildcard subscriptions, one-time listeners, catch-all listeners, and listener cleanup with an `AbortSignal`.
 
-## Baseline benchmarks
+## Use
 
-Run competitor baselines (Node EventEmitter, eventemitter2/3, emittery, mitt, tseep):
+```typescript
+import { HyperEmitter } from '@open-wa/hyperemitter';
 
-```bash
-pnpm --filter @open-wa/hyperemitter bench:baseline
+type Events = {
+  'message.received': { id: string; body: string };
+  'session.state.changed': { state: string };
+};
+
+const events = new HyperEmitter<Events>();
+
+events.on('message.received', (message) => {
+  console.log(message.id, message.body);
+});
+
+events.emit('message.received', { id: 'message-id', body: 'Hello' });
 ```
 
-Options:
-- `--iterations <n>` to adjust emit count (default: 500000)
-- `--output <file>` to override output path
-- `--ci` to suppress console tables
+The repository also contains a benchmark runner for comparing other emitter libraries. Its results are measurements from that runner, not a performance guarantee.
 
-Outputs JSON to `packages/hyperemitter/benchmarks/baseline/results/baseline-node-<version>.json`.
+## License
 
-> If some competitors are not installed, the runner will skip them and record the reason. Install this package’s devDeps to populate all baselines.
-
-## Build/interop contract (snapshot)
-
-- Dual ESM/CJS outputs with typed entrypoints.
-- Adapters for `EventTarget`, Node `EventEmitter`, and worker threads.
-- Optional plugins (TTL/maxListeners/tracing) kept out of the hot path.
-- CI will enforce performance budgets after HyperEmitter arrives. The targets are a 5% tseep envelope for exact events and 10x EE2 for wildcards.
+Apache-2.0

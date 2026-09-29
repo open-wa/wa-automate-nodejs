@@ -111,7 +111,7 @@ export interface DecryptMediaParams {
   /**
    * Message object containing media
    */
-  message: { ack: any; author: any; body: any; broadcast: any; caption: any; chat: any; chatId: any; clientUrl: any; content: any; deprecatedMms3Url: any; from: any; fromMe: any; id: any; invis: any; isForwarded: any; isGroupMsg: any; isMedia: any; isMMS: any; isNewMsg: any; isNotification: any; isPSA: any; isQuotedMsgAvailable: any; labels: any; mentionedJidList: any; notifyName: any; quotedMsg: any; quotedMsgObj: any; recvFresh: any; self: any; sender: any; senderId: any; star: any; t: any; timestamp: any; to: any; type: any; };
+  message: { ack: -1 | 0 | 1 | 2 | 3 | 4; author?: string; body: string; broadcast?: boolean; caption?: string; chat: { ack?: any; contact: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; formattedTitle?: string; groupMetadata?: { announce?: boolean; creation: number; desc?: string; descOwner?: string; descTime?: number; id: string; owner?: string; participants: { id: string; isAdmin: boolean; isSuperAdmin?: boolean }[]; restrict?: boolean; subject: string }; id: string; isGroup: boolean; isReadOnly?: boolean; lastReceivedKey?: any; msgs?: any[]; muteExpiration?: number; name?: string; notSpam?: boolean; pin?: number; presence?: object; t?: number; unreadCount?: number }; chatId: string; clientUrl?: string; content: string; deprecatedMms3Url?: string; from: string; fromMe: boolean; id: string; invis?: boolean; isForwarded?: boolean; isGroupMsg: boolean; isMedia: boolean; isMMS?: boolean; isNewMsg?: boolean; isNotification: boolean; isPSA?: boolean; isQuotedMsgAvailable: boolean; labels?: string[]; mentionedJidList?: string[]; notifyName?: string; quotedMsg?: any; quotedMsgObj?: any; recvFresh?: boolean; self: "in" | "out"; sender: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; senderId?: string; star?: boolean; t: number; timestamp: number; to: string; type: "chat" | "audio" | "ptt" | "image" | "video" | "document" | "sticker" | "location" | "vcard" | "multi_vcard" | "revoked" | "order" | "buttons_response" | "list_response" | "unknown" };
 }
 
 export interface DeleteChatParams {
@@ -139,7 +139,7 @@ export interface DeleteMessageParams {
   /**
    * Delete only locally
    */
-  onlyLocal: boolean;
+  onlyLocal?: boolean;
 }
 
 export interface DeleteStatusParams {
@@ -169,7 +169,7 @@ export interface DownloadMediaParams {
   /**
    * Message object containing media
    */
-  message: { ack: any; author: any; body: any; broadcast: any; caption: any; chat: any; chatId: any; clientUrl: any; content: any; deprecatedMms3Url: any; from: any; fromMe: any; id: any; invis: any; isForwarded: any; isGroupMsg: any; isMedia: any; isMMS: any; isNewMsg: any; isNotification: any; isPSA: any; isQuotedMsgAvailable: any; labels: any; mentionedJidList: any; notifyName: any; quotedMsg: any; quotedMsgObj: any; recvFresh: any; self: any; sender: any; senderId: any; star: any; t: any; timestamp: any; to: any; type: any; };
+  message: { ack: -1 | 0 | 1 | 2 | 3 | 4; author?: string; body: string; broadcast?: boolean; caption?: string; chat: { ack?: any; contact: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; formattedTitle?: string; groupMetadata?: { announce?: boolean; creation: number; desc?: string; descOwner?: string; descTime?: number; id: string; owner?: string; participants: { id: string; isAdmin: boolean; isSuperAdmin?: boolean }[]; restrict?: boolean; subject: string }; id: string; isGroup: boolean; isReadOnly?: boolean; lastReceivedKey?: any; msgs?: any[]; muteExpiration?: number; name?: string; notSpam?: boolean; pin?: number; presence?: object; t?: number; unreadCount?: number }; chatId: string; clientUrl?: string; content: string; deprecatedMms3Url?: string; from: string; fromMe: boolean; id: string; invis?: boolean; isForwarded?: boolean; isGroupMsg: boolean; isMedia: boolean; isMMS?: boolean; isNewMsg?: boolean; isNotification: boolean; isPSA?: boolean; isQuotedMsgAvailable: boolean; labels?: string[]; mentionedJidList?: string[]; notifyName?: string; quotedMsg?: any; quotedMsgObj?: any; recvFresh?: boolean; self: "in" | "out"; sender: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; senderId?: string; star?: boolean; t: number; timestamp: number; to: string; type: "chat" | "audio" | "ptt" | "image" | "video" | "document" | "sticker" | "location" | "vcard" | "multi_vcard" | "revoked" | "order" | "buttons_response" | "list_response" | "unknown" };
   /**
    * File path to save the media
    */
@@ -193,7 +193,7 @@ export interface ForwardMessagesParams {
    * Skip own messages
    * @example false
    */
-  skipMyMessages: boolean;
+  skipMyMessages?: boolean;
 }
 
 export interface GetAllChatsParams {
@@ -201,7 +201,7 @@ export interface GetAllChatsParams {
    * Only chats with unread messages
    * @example false
    */
-  withNewMessagesOnly: boolean;
+  withNewMessagesOnly?: boolean;
 }
 
 export interface GetAllGroupsParams {
@@ -209,7 +209,7 @@ export interface GetAllGroupsParams {
    * Only chats with unread messages
    * @example false
    */
-  withNewMessagesOnly: boolean;
+  withNewMessagesOnly?: boolean;
 }
 
 export interface GetAllMessagesParams {
@@ -222,11 +222,11 @@ export interface GetAllMessagesParams {
   /**
    * Include own messages
    */
-  includeMe: boolean;
+  includeMe?: boolean;
   /**
    * Include notification messages
    */
-  includeNotifications: boolean;
+  includeNotifications?: boolean;
 }
 
 export interface GetBusinessProductsParams {
@@ -398,7 +398,7 @@ export interface GetMessagesForLLMParams {
    * @remarks Key aliases: 'contactId', 'id'
    */
   chatId: string;
-  last: number;
+  last?: number;
 }
 
 export interface GetMyLastMessageParams {
@@ -703,7 +703,7 @@ export interface SendAdvancedButtonsParams {
   /**
    * Message body, location, or media
    */
-  body: any;
+  body?: string | any;
   /**
    * Array of advanced buttons (max 3)
    */
@@ -771,7 +771,7 @@ export interface SendButtonsParams {
   /**
    * Message body or location
    */
-  body: any;
+  body?: string | any;
   /**
    * Array of buttons (max 3)
    */
@@ -878,7 +878,7 @@ export interface SendImageParams {
    * Wait for message ID
    * @example true
    */
-  waitForId: boolean;
+  waitForId?: boolean;
 }
 
 export interface SendInteractiveParams {
@@ -888,7 +888,7 @@ export interface SendInteractiveParams {
    * @remarks Key aliases: 'chatId'
    */
   to: string;
-  content: { actions: any; body: any; footer: any; header: any; type: any; version } | object { body: any; buttonLabel: any; footer: any; sections: any; title: any; type: any; version } | object { body: any; footer: any; questions: any; title: any; type: any; version } | object { body: any; cards: any; footer: any; type: any; version } | object { actions: any; body: any; booking: any; buttonLabel: any; footer: any; title: any; type: any; version } | object { actions: any; body: any; footer: any; header: any; parameters: any; type: any; version: any; };
+  content: { actions: ({ id: string; label: string; type: "reply" } | { label: string; type: "url"; url: string } | { label: string; phoneNumber: string; type: "call" } | { code: string; label: string; type: "copy" })[]; body: string; footer?: string; header?: { text: string; type: "text" } | { filename?: string; source: string; title?: string; type: "image" } | { filename?: string; source: string; title?: string; type: "video" } | { filename?: string; source: string; title?: string; type: "document" }; type: "buttons"; version?: 1 } | { body: string; buttonLabel: string; footer?: string; sections: { rows: { description?: string; id: string; title: string }[]; title?: string }[]; title?: string; type: "list"; version?: 1 } | { body: string; footer?: string; questions: ({ allowCustomAnswer?: boolean; id: string; label: string; options: { id: string; label: string }[]; type: "singleSelect" | "multiSelect" })[]; title?: string; type: "form"; version?: 1 } | { body: string; cards: ({ actions: ({ id: string; label: string; type: "reply" } | { label: string; type: "url"; url: string } | { label: string; phoneNumber: string; type: "call" } | { code: string; label: string; type: "copy" })[]; body: string; header: { filename?: string; source: string; title?: string; type: "image" } })[]; footer?: string; type: "carousel"; version?: 1 } | { actions?: ({ label: string; type: "url"; url: string } | { label: string; phoneNumber: string; type: "call" } | { code: string; label: string; type: "copy" })[]; body: string; booking: { description?: string; email?: string; endAt?: string; labels?: { addToCalendar?: string; detailsTitle?: string; language?: string; manageBooking?: string; meetingType?: string; viewOnMap?: string }; location?: string; managementUrl?: string; phoneNumber?: string; startAt: string; url?: string }; buttonLabel: string; footer?: string; title?: string; type: "booking"; version?: 1 } | { actions: { name: string; parameters?: object }[]; body: string; footer?: string; header?: { text: string; type: "text" } | { filename?: string; source: string; title?: string; type: "image" } | { filename?: string; source: string; title?: string; type: "video" } | { filename?: string; source: string; title?: string; type: "document" }; parameters?: object; type: "native"; version?: 1 };
 }
 
 export interface SendLinkWithAutoPreviewParams {
@@ -922,7 +922,7 @@ export interface SendLinkWithAutoPreviewParams {
   /**
    * Custom thumbnail size
    */
-  customSize?: { height: any; width: any; };
+  customSize?: { height: number; width: number };
 }
 
 export interface SendListMessageParams {
@@ -1021,7 +1021,7 @@ export interface SendMessageWithThumbParams {
   /**
    * Custom thumbnail size
    */
-  customSize?: { height: any; width: any; };
+  customSize?: { height: number; width: number };
 }
 
 export interface SendMultipleContactsParams {
@@ -1078,7 +1078,7 @@ export interface SendPollParams {
   /**
    * Number of selectable options
    */
-  selectableCount: number;
+  selectableCount?: number;
 }
 
 export interface SendPttParams {
@@ -1166,10 +1166,9 @@ export interface SendTextParams {
    */
   content: string;
   /**
-   * Additional message options
-   * @example &#123;"quotedMsg":"messageId","mentionedJidList":["447123456789@c.us"]&#125;
+   * Reserved for compatibility with legacy request shapes. The current sendText Client implementation ignores this argument; use reply() or sendTextWithMentions() for quoted replies and mentions. Accepted as unknown for compatibility; currently ignored by sendText. Use reply() or sendTextWithMentions() for supported reply and mention behavior.
    */
-  options?: any;
+  options?: unknown;
 }
 
 export interface SendTextWithMentionsParams {
@@ -1264,7 +1263,7 @@ export interface SendYouTubeLinkParams {
    * @example "Hello, world!"
    * @remarks Key aliases: 'body', 'message', 'text'
    */
-  text: string;
+  text?: string;
   /**
    * Base64 thumbnail override
    */
@@ -1279,7 +1278,7 @@ export interface SendYouTubeLinkParams {
   /**
    * Custom thumbnail size
    */
-  customSize?: { height: any; width: any; };
+  customSize?: { height: number; width: number };
 }
 
 export interface SetChatEphemeralParams {

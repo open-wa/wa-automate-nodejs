@@ -1,0 +1,37 @@
+.changelog { width: min(1120px, calc(100% - 48px)); margin: 0 auto; padding: 80px 0 64px; }
+.changelog-intro { max-width: 850px; margin-bottom: 80px; }
+.changelog-eyebrow, .release-audience { font: 600 13px var(--font-mono); letter-spacing: .03em; color: var(--muted-foreground); }
+.changelog-intro h1, .release-article h1 { font: 700 clamp(36px, 5vw, 64px)/1.13 var(--font-display); letter-spacing: -.055em; margin: 20px 0 24px; }
+.changelog-intro > p:last-child { font-size: 20px; line-height: 1.65; color: var(--muted-foreground); max-width: 650px; }
+.release-row { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 44px; padding: 0 0 64px; }
+.release-meta { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; padding-top: 24px; font-size: 14px; color: var(--muted-foreground); }
+.release-version { font: 600 14px var(--font-mono); color: var(--foreground); }
+.release-tag { border: 1px solid var(--border); border-radius: 999px; padding: 5px 10px; font: 500 11px var(--font-mono); background: var(--card); }
+.release-card { padding: 28px 0 0; border-top: 2px solid var(--border); }
+.release-card h2 { font: 700 clamp(26px, 4vw, 38px)/1.2 var(--font-display); letter-spacing: -.045em; margin: 15px 0; }
+.release-card h2 a { text-decoration: none; }
+.release-card h2 a:hover { text-decoration: underline; text-underline-offset: 7px; }
+.release-description { font-size: 19px; line-height: 1.7; color: var(--muted-foreground); margin-bottom: 24px; }
+.release-cover { display: block; width: 100%; height: auto; aspect-ratio: 8 / 5; border-radius: 12px; border: 1px solid var(--border); margin: 28px 0; }
+.release-highlights { list-style: disc; padding-left: 22px; margin: 24px 0 28px; }
+.release-highlights li { padding: 4px 0 4px 4px; line-height: 1.65; }
+.release-highlights li::marker { color: var(--stitch-lavender); }
+.release-read, .release-back { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; text-underline-offset: 5px; }
+.release-read:hover, .release-back:hover { text-decoration: underline; }
+.changelog-footer { border-top: 1px solid var(--border); padding-top: 28px; color: var(--muted-foreground); font-size: 14px; }
+.changelog-footer a { text-decoration: underline; text-underline-offset: 4px; }
+.release-back { font-size: 14px; margin-bottom: 40px; }
+.release-article { max-width: 810px; margin: 0 auto; }
+.release-article-header { margin-bottom: 42px; }
+.release-article-meta { display: flex; gap: 24px; align-items: center; font-size: 14px; color: var(--muted-foreground); }
+.release-prose { font-size: 17px; line-height: 1.85; }
+.release-prose h2 { scroll-margin-top: 100px; }
+.release-article-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; border-top: 1px solid var(--border); margin-top: 56px; padding-top: 28px; font-size: 14px; }
+@media (max-width: 700px) {
+  .changelog { width: calc(100% - 36px); padding-top: 36px; }
+  .changelog-intro { margin-bottom: 40px; }
+  .release-row { grid-template-columns: minmax(0, 1fr); gap: 12px; padding-bottom: 44px; }
+  .release-meta { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 14px; padding-top: 0; }
+  .release-card { padding-top: 14px; }
+  .release-description { font-size: 17px; }
+}

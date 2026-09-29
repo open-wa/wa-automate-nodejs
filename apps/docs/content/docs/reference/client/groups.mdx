@@ -6,35 +6,14 @@ icon: "BookOpen"
 
 # Groups Client API
 
-> Generated file warning: `packages/schema/scripts/gen-client-reference-docs.ts` generates this page. Do not edit generated method content by hand.
-
 This page documents 22 schema-registry client methods in the `groups` namespace.
+
 
 ## `addParticipant`
 
 Add participant to group
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Action | `update` |
-| Functionality | `both` |
-| Positional parameter order | `groupId`, `contactId` |
-| Aliases | `addGroupParticipant`, `groups.addParticipant` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/addParticipant` | `addParticipant` | Active |
-| Alias | `PUT` | `/api/addGroupParticipant` | `addGroupParticipant` | Active |
-| Alias | `PUT` | `/api/addParticipant` | `addParticipant` | Active |
+**Signature** `client.addParticipant(groupId: string, contactId: string): Promise<boolean>`
 
 ### Usage
 
@@ -42,11 +21,7 @@ Add participant to group
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.addParticipant({
-  groupId: "447123456789-1445627445@g.us",
-  contactId: "447123456789@c.us",
-});
-// namespaced form: client.groups.addParticipant(...)
+const result = await client.addParticipant("447123456789-1445627445@g.us", "447123456789@c.us");
 ```
 
   </InterfaceTab>
@@ -91,15 +66,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="AddParticipantParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
 
-## `approveGroupJoinRequest`
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Approve group join request
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -109,7 +87,7 @@ Approve group join request
 | Action | `update` |
 | Functionality | `both` |
 | Positional parameter order | `groupId`, `contactId` |
-| Aliases | `groups.approveJoinRequest` |
+| Aliases | `addGroupParticipant`, `groups.addParticipant` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -119,23 +97,22 @@ Approve group join request
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/approveJoinRequest` | `approveGroupJoinRequest` | Active |
-| Alias | `PUT` | `/api/approveGroupJoinRequest` | `approveGroupJoinRequest` | Active |
+| Primary | `PUT` | `/api/groups/addParticipant` | `addParticipant` | Active |
+| Alias | `PUT` | `/api/addGroupParticipant` | `addGroupParticipant` | Active |
+| Alias | `PUT` | `/api/addParticipant` | `addParticipant` | Active |
+
+</details>
+
+
+## `approveGroupJoinRequest`
+
+Approve group join request
+
+**Signature** `client.approveGroupJoinRequest(groupId: string, contactId: string): Promise<string \| boolean>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.approveGroupJoinRequest({
-  groupId: "447123456789-1445627445@g.us",
-  contactId: "447123456789@c.us",
-});
-// namespaced form: client.groups.approveJoinRequest(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -166,7 +143,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "example"
 }
 ```
 
@@ -177,17 +154,119 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="ApproveGroupJoinRequestParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `string \| boolean` |
+| Return type | `Promise<string \| boolean>` |
 
-## `createGroup` - restricted
+Resolves to `string \| boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `groupId`, `contactId` |
+| Aliases | `groups.approveJoinRequest` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/groups/approveJoinRequest` | `approveGroupJoinRequest` | Active |
+| Alias | `PUT` | `/api/approveGroupJoinRequest` | `approveGroupJoinRequest` | Active |
+
+</details>
+
+<LicensedMethodSection tier="restricted">
+
+<span id="creategroup---restricted" aria-hidden="true"></span>
+## `createGroup`
 
 Create new group
 
-<LicensedFeatureCallout tier="restricted" />
+**Signature** `client.createGroup(name: string, contacts: string[]): Promise<GroupCreationResult \| null>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.createGroup("name", ["447123456789@c.us"]);
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.createGroup({
+  name: "name",
+  contacts: ["447123456789@c.us"],
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/groups/create" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "name": "name",
+    "contacts": [
+      "447123456789@c.us"
+    ]
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {
+    "gid": "447123456789-1445627445@g.us"
+  }
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="CreateGroupParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<GroupCreationResult \| null>` |
+| GroupCreationResult | [View fields](/docs/reference/client/return-types#groupcreationresult) |
+
+Resolves to `GroupCreationResult \| null`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<{ gid: GroupId } \| null>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -210,94 +289,16 @@ Create new group
 | Primary | `POST` | `/api/groups/create` | `createGroup` | Active |
 | Alias | `POST` | `/api/createGroup` | `createGroup` | Active |
 
-### Usage
+</details>
 
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
+</LicensedMethodSection>
 
-```ts
-const result = await client.createGroup({
-  name: "name",
-  contacts: "447123456789@c.us",
-});
-// namespaced form: client.groups.create(...)
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.createGroup({
-  name: "name",
-  contacts: "447123456789@c.us",
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X POST "http://localhost:8080/api/groups/create" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "name": "name",
-    "contacts": "447123456789@c.us"
-  }'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": {}
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="CreateGroupParams" />
-
-### Output
-
-| Prop | Value |
-| --- | --- |
-| Return type | `any` |
-
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `demoteParticipant`
 
 Demote participant from admin
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Action | `update` |
-| Functionality | `both` |
-| Positional parameter order | `groupId`, `contactId` |
-| Aliases | `demoteGroupParticipant`, `groups.demoteParticipant` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/demoteParticipant` | `demoteParticipant` | Active |
-| Alias | `PUT` | `/api/demoteGroupParticipant` | `demoteGroupParticipant` | Active |
-| Alias | `PUT` | `/api/demoteParticipant` | `demoteParticipant` | Active |
+**Signature** `client.demoteParticipant(groupId: string, contactId: string): Promise<boolean \| string>`
 
 ### Usage
 
@@ -305,11 +306,7 @@ Demote participant from admin
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.demoteParticipant({
-  groupId: "447123456789-1445627445@g.us",
-  contactId: "447123456789@c.us",
-});
-// namespaced form: client.groups.demoteParticipant(...)
+const result = await client.demoteParticipant("447123456789-1445627445@g.us", "447123456789@c.us");
 ```
 
   </InterfaceTab>
@@ -354,15 +351,102 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="DemoteParticipantParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean \| string` |
+| Return type | `Promise<boolean \| string>` |
+
+Resolves to `boolean \| string`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `groupId`, `contactId` |
+| Aliases | `demoteGroupParticipant`, `groups.demoteParticipant` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/groups/demoteParticipant` | `demoteParticipant` | Active |
+| Alias | `PUT` | `/api/demoteGroupParticipant` | `demoteGroupParticipant` | Active |
+| Alias | `PUT` | `/api/demoteParticipant` | `demoteParticipant` | Active |
+
+</details>
+
 
 ## `getAllGroups`
 
 Get all groups
+
+**Signature** `client.getAllGroups(withNewMessagesOnly?: boolean): Promise<Chat[]>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getAllGroups();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X GET "http://localhost:8080/api/groups/getAll" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="GetAllGroupsParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<Chat[]>` |
+| Chat | [View fields](/docs/reference/client/return-types#chat) |
+
+Resolves to `Chat[]`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+Serialized chat returned by chat lookups and listings. Its id is an opaque ChatId; additional WhatsApp Web fields may be present.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -388,101 +472,18 @@ Get all groups
 | Alias | `GET` | `/api/groups/list` | `groups.list` | Active |
 | Alias | `GET` | `/api/listGroups` | `listGroups` | Active |
 
-### Usage
+</details>
 
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getAllGroups({
-  withNewMessagesOnly: false,
-});
-// namespaced form: client.groups.getAll(...)
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getAllGroups({
-  withNewMessagesOnly: false,
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -G "http://localhost:8080/api/groups/getAll" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data-urlencode "withNewMessagesOnly=false"
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": []
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="GetAllGroupsParams" />
-
-### Output
-
-| Prop | Value |
-| --- | --- |
-| Return type | `any[]` |
-
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `getGroupAdmins`
 
 Get group admins
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | `groupId` |
-| Aliases | `groups.getAdmins` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/groups/getAdmins` | `getGroupAdmins` | Active |
-| Alias | `GET` | `/api/getGroupAdmins` | `getGroupAdmins` | Active |
+**Signature** `client.getGroupAdmins(groupId: string): Promise<ContactId[]>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getGroupAdmins({
-  groupId: "447123456789-1445627445@g.us",
-});
-// namespaced form: client.groups.getAdmins(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -519,17 +520,20 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetGroupAdminsParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any[]` |
+| Return type | `Promise<ContactId[]>` |
+| ContactId | [View fields](/docs/reference/client/return-types#contactid) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `ContactId[]`. A rejected Promise indicates input validation or dispatch failure.
 
-## `getGroupInfo`
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+Opaque WhatsApp contact identifier. Preserve the exact value returned by the API.
 
-Get group metadata
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -539,7 +543,7 @@ Get group metadata
 | Action | `read` |
 | Functionality | `both` |
 | Positional parameter order | `groupId` |
-| Aliases | `groups.getInfo` |
+| Aliases | `groups.getAdmins` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -549,8 +553,17 @@ Get group metadata
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/groups/getInfo` | `getGroupInfo` | Active |
-| Alias | `GET` | `/api/getGroupInfo` | `getGroupInfo` | Active |
+| Primary | `GET` | `/api/groups/getAdmins` | `getGroupAdmins` | Active |
+| Alias | `GET` | `/api/getGroupAdmins` | `getGroupAdmins` | Active |
+
+</details>
+
+
+## `getGroupInfo`
+
+Get group metadata
+
+**Signature** `client.getGroupInfo(groupId: string): Promise<GroupMetadata \| null>`
 
 ### Usage
 
@@ -558,10 +571,7 @@ Get group metadata
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.getGroupInfo({
-  groupId: "447123456789-1445627445@g.us",
-});
-// namespaced form: client.groups.getInfo(...)
+const result = await client.getGroupInfo("447123456789-1445627445@g.us");
 ```
 
   </InterfaceTab>
@@ -590,7 +600,12 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": {
+    "id": "447123456789-1445627445@g.us",
+    "subject": "example",
+    "creation": 0,
+    "participants": []
+  }
 }
 ```
 
@@ -601,17 +616,19 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetGroupInfoParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<GroupMetadata \| null>` |
+| GroupMetadata | [View fields](/docs/reference/client/return-types#groupmetadata) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `GroupMetadata \| null`. A rejected Promise indicates input validation or dispatch failure.
 
-## `getGroupInviteLink`
+In-process Client resolves to `Promise<GroupMetadata \| null>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
-Get group invite link
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -621,7 +638,7 @@ Get group invite link
 | Action | `read` |
 | Functionality | `both` |
 | Positional parameter order | `groupId` |
-| Aliases | `groups.getInviteLink` |
+| Aliases | `groups.getInfo` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -631,8 +648,17 @@ Get group invite link
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/groups/getInviteLink` | `getGroupInviteLink` | Active |
-| Alias | `GET` | `/api/getGroupInviteLink` | `getGroupInviteLink` | Active |
+| Primary | `GET` | `/api/groups/getInfo` | `getGroupInfo` | Active |
+| Alias | `GET` | `/api/getGroupInfo` | `getGroupInfo` | Active |
+
+</details>
+
+
+## `getGroupInviteLink`
+
+Get group invite link
+
+**Signature** `client.getGroupInviteLink(groupId: string): Promise<string>`
 
 ### Usage
 
@@ -640,10 +666,7 @@ Get group invite link
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.getGroupInviteLink({
-  groupId: "447123456789-1445627445@g.us",
-});
-// namespaced form: client.groups.getInviteLink(...)
+const result = await client.getGroupInviteLink("447123456789-1445627445@g.us");
 ```
 
   </InterfaceTab>
@@ -672,7 +695,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+  "data": "example"
 }
 ```
 
@@ -683,15 +706,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetGroupInviteLinkParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `string` |
+| Return type | `Promise<string>` |
 
-## `getGroupMembers`
+Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.
 
-Retrieves members of a group
+In-process Client resolves to `Promise<string>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -701,7 +727,7 @@ Retrieves members of a group
 | Action | `read` |
 | Functionality | `both` |
 | Positional parameter order | `groupId` |
-| Aliases | `groups.getMembers` |
+| Aliases | `groups.getInviteLink` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -711,8 +737,17 @@ Retrieves members of a group
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/groups/getMembers` | `getGroupMembers` | Active |
-| Alias | `GET` | `/api/getGroupMembers` | `getGroupMembers` | Active |
+| Primary | `GET` | `/api/groups/getInviteLink` | `getGroupInviteLink` | Active |
+| Alias | `GET` | `/api/getGroupInviteLink` | `getGroupInviteLink` | Active |
+
+</details>
+
+
+## `getGroupMembers`
+
+Retrieves members of a group
+
+**Signature** `client.getGroupMembers(groupId: string): Promise<Contact[]>`
 
 ### Usage
 
@@ -720,10 +755,7 @@ Retrieves members of a group
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.getGroupMembers({
-  groupId: "447123456789-1445627445@g.us",
-});
-// namespaced form: client.groups.getMembers(...)
+const result = await client.getGroupMembers("447123456789-1445627445@g.us");
 ```
 
   </InterfaceTab>
@@ -763,17 +795,19 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetGroupMembersParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any[]` |
+| Return type | `Promise<Contact[]>` |
+| Contact | [View fields](/docs/reference/client/return-types#contact) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `Contact[]`. A rejected Promise indicates input validation or dispatch failure.
 
-## `getGroupMembersId`
+In-process Client resolves to `Promise<ContactId[]>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
-Get group member IDs
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -783,7 +817,7 @@ Get group member IDs
 | Action | `read` |
 | Functionality | `both` |
 | Positional parameter order | `groupId` |
-| Aliases | `getGroupMemberIds`, `groups.getMemberIds`, `groups.getMembersId` |
+| Aliases | `groups.getMembers` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -793,24 +827,21 @@ Get group member IDs
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/groups/getMemberIds` | `getGroupMembersId` | Active |
-| Alias | `GET` | `/api/getGroupMemberIds` | `getGroupMemberIds` | Active |
-| Alias | `GET` | `/api/getGroupMembersId` | `getGroupMembersId` | Active |
-| Alias | `GET` | `/api/groups/getMembersId` | `groups.getMembersId` | Active |
+| Primary | `GET` | `/api/groups/getMembers` | `getGroupMembers` | Active |
+| Alias | `GET` | `/api/getGroupMembers` | `getGroupMembers` | Active |
+
+</details>
+
+
+## `getGroupMembersId`
+
+Get group member IDs
+
+**Signature** `client.getGroupMembersId(groupId: string): Promise<ContactId[]>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getGroupMembersId({
-  groupId: "447123456789-1445627445@g.us",
-});
-// namespaced form: client.groups.getMemberIds(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -847,15 +878,20 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetGroupMembersIdParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `string[]` |
+| Return type | `Promise<ContactId[]>` |
+| ContactId | [View fields](/docs/reference/client/return-types#contactid) |
 
-## `getKickedGroups`
+Resolves to `ContactId[]`. A rejected Promise indicates input validation or dispatch failure.
 
-Get groups where kicked
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+Opaque WhatsApp contact identifier. Preserve the exact value returned by the API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -864,8 +900,8 @@ Get groups where kicked
 | Namespace | `groups` |
 | Action | `read` |
 | Functionality | `both` |
-| Positional parameter order | - |
-| Aliases | `groups.getKicked` |
+| Positional parameter order | `groupId` |
+| Aliases | `getGroupMemberIds`, `groups.getMemberIds`, `groups.getMembersId` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -875,27 +911,30 @@ Get groups where kicked
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/groups/getKicked` | `getKickedGroups` | Active |
-| Alias | `GET` | `/api/getKickedGroups` | `getKickedGroups` | Active |
+| Primary | `GET` | `/api/groups/getMemberIds` | `getGroupMembersId` | Active |
+| Alias | `GET` | `/api/getGroupMemberIds` | `getGroupMemberIds` | Active |
+| Alias | `GET` | `/api/getGroupMembersId` | `getGroupMembersId` | Active |
+| Alias | `GET` | `/api/groups/getMembersId` | `groups.getMembersId` | Active |
+
+</details>
+
+
+## `getKickedGroups`
+
+Get groups where kicked
+
+**Signature** `client.getKickedGroups(): Promise<GroupChatId[]>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getKickedGroups({});
-// namespaced form: client.groups.getKicked(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getKickedGroups({});
+const result = await client.getKickedGroups();
 ```
 
   </InterfaceTab>
@@ -924,17 +963,116 @@ Example response envelope:
 
 This method does not define input parameters.
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `string[]` |
+| Return type | `Promise<GroupChatId[]>` |
+| GroupChatId | [View fields](/docs/reference/client/return-types#groupchatid) |
 
-## `joinGroupViaLink` - restricted
+Resolves to `GroupChatId[]`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+Opaque group conversation identifier returned by a group lookup or join method.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `groups.getKicked` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/groups/getKicked` | `getKickedGroups` | Active |
+| Alias | `GET` | `/api/getKickedGroups` | `getKickedGroups` | Active |
+
+</details>
+
+<LicensedMethodSection tier="restricted">
+
+<span id="joingroupvialink---restricted" aria-hidden="true"></span>
+## `joinGroupViaLink`
 
 Join group via invite link
 
-<LicensedFeatureCallout tier="restricted" />
+**Signature** `client.joinGroupViaLink(link: string, returnChatObj?: boolean): Promise<GroupChatId \| boolean \| number \| Chat>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.joinGroupViaLink("link");
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.joinGroupViaLink({
+  link: "link",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/groups/join" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "link": "link"
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "447123456789-1445627445@g.us"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="JoinGroupViaLinkParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<GroupChatId \| boolean \| number \| Chat>` |
+| Chat | [View fields](/docs/reference/client/return-types#chat) |
+| GroupChatId | [View fields](/docs/reference/client/return-types#groupchatid) |
+
+Resolves to `GroupChatId \| boolean \| number \| Chat`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<GroupId \| boolean \| number>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -959,93 +1097,16 @@ Join group via invite link
 | Alias | `POST` | `/api/joinGroup` | `joinGroup` | Active |
 | Alias | `POST` | `/api/joinGroupViaLink` | `joinGroupViaLink` | Active |
 
-### Usage
+</details>
 
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
+</LicensedMethodSection>
 
-```ts
-const result = await client.joinGroupViaLink({
-  link: "link",
-  returnChatObj: true,
-});
-// namespaced form: client.groups.join(...)
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.joinGroupViaLink({
-  link: "link",
-  returnChatObj: true,
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X POST "http://localhost:8080/api/groups/join" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "link": "link",
-    "returnChatObj": true
-  }'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": {}
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="JoinGroupViaLinkParams" />
-
-### Output
-
-| Prop | Value |
-| --- | --- |
-| Return type | `any` |
-
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
 
 ## `leaveGroup`
 
 Leave a group
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Action | `update` |
-| Functionality | `both` |
-| Positional parameter order | `groupId` |
-| Aliases | `groups.leave` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/leave` | `leaveGroup` | Active |
-| Alias | `PUT` | `/api/leaveGroup` | `leaveGroup` | Active |
+**Signature** `client.leaveGroup(groupId: string): Promise<void>`
 
 ### Usage
 
@@ -1053,10 +1114,7 @@ Leave a group
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.leaveGroup({
-  groupId: "447123456789-1445627445@g.us",
-});
-// namespaced form: client.groups.leave(...)
+const result = await client.leaveGroup("447123456789-1445627445@g.us");
 ```
 
   </InterfaceTab>
@@ -1087,8 +1145,7 @@ Example response envelope:
 
 ```json
 {
-  "success": true,
-  "data": {}
+  "success": true
 }
 ```
 
@@ -1099,17 +1156,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="LeaveGroupParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<void>` |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `void`. A rejected Promise indicates input validation or dispatch failure.
 
-## `promoteParticipant`
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
-Promote participant to admin
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1118,8 +1176,8 @@ Promote participant to admin
 | Namespace | `groups` |
 | Action | `update` |
 | Functionality | `both` |
-| Positional parameter order | `groupId`, `contactId` |
-| Aliases | `groups.promoteParticipant`, `promoteGroupParticipant` |
+| Positional parameter order | `groupId` |
+| Aliases | `groups.leave` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -1129,9 +1187,17 @@ Promote participant to admin
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/promoteParticipant` | `promoteParticipant` | Active |
-| Alias | `PUT` | `/api/promoteGroupParticipant` | `promoteGroupParticipant` | Active |
-| Alias | `PUT` | `/api/promoteParticipant` | `promoteParticipant` | Active |
+| Primary | `PUT` | `/api/groups/leave` | `leaveGroup` | Active |
+| Alias | `PUT` | `/api/leaveGroup` | `leaveGroup` | Active |
+
+</details>
+
+
+## `promoteParticipant`
+
+Promote participant to admin
+
+**Signature** `client.promoteParticipant(groupId: string, contactId: string): Promise<boolean \| string>`
 
 ### Usage
 
@@ -1139,11 +1205,7 @@ Promote participant to admin
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.promoteParticipant({
-  groupId: "447123456789-1445627445@g.us",
-  contactId: "447123456789@c.us",
-});
-// namespaced form: client.groups.promoteParticipant(...)
+const result = await client.promoteParticipant("447123456789-1445627445@g.us", "447123456789@c.us");
 ```
 
   </InterfaceTab>
@@ -1188,15 +1250,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="PromoteParticipantParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean \| string` |
+| Return type | `Promise<boolean \| string>` |
 
-## `rejectGroupJoinRequest`
+Resolves to `boolean \| string`. A rejected Promise indicates input validation or dispatch failure.
 
-Reject group join request
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1206,7 +1271,7 @@ Reject group join request
 | Action | `update` |
 | Functionality | `both` |
 | Positional parameter order | `groupId`, `contactId` |
-| Aliases | `groups.rejectJoinRequest` |
+| Aliases | `groups.promoteParticipant`, `promoteGroupParticipant` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -1216,23 +1281,22 @@ Reject group join request
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/rejectJoinRequest` | `rejectGroupJoinRequest` | Active |
-| Alias | `PUT` | `/api/rejectGroupJoinRequest` | `rejectGroupJoinRequest` | Active |
+| Primary | `PUT` | `/api/groups/promoteParticipant` | `promoteParticipant` | Active |
+| Alias | `PUT` | `/api/promoteGroupParticipant` | `promoteGroupParticipant` | Active |
+| Alias | `PUT` | `/api/promoteParticipant` | `promoteParticipant` | Active |
+
+</details>
+
+
+## `rejectGroupJoinRequest`
+
+Reject group join request
+
+**Signature** `client.rejectGroupJoinRequest(groupId: string, contactId: string): Promise<string \| boolean>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.rejectGroupJoinRequest({
-  groupId: "447123456789-1445627445@g.us",
-  contactId: "447123456789@c.us",
-});
-// namespaced form: client.groups.rejectJoinRequest(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -1263,7 +1327,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "example"
 }
 ```
 
@@ -1274,15 +1338,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="RejectGroupJoinRequestParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `string \| boolean` |
+| Return type | `Promise<string \| boolean>` |
 
-## `removeParticipant`
+Resolves to `string \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Remove participant from group
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1292,7 +1359,7 @@ Remove participant from group
 | Action | `update` |
 | Functionality | `both` |
 | Positional parameter order | `groupId`, `contactId` |
-| Aliases | `groups.removeParticipant`, `removeGroupParticipant` |
+| Aliases | `groups.rejectJoinRequest` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -1302,9 +1369,17 @@ Remove participant from group
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/removeParticipant` | `removeParticipant` | Active |
-| Alias | `PUT` | `/api/removeGroupParticipant` | `removeGroupParticipant` | Active |
-| Alias | `PUT` | `/api/removeParticipant` | `removeParticipant` | Active |
+| Primary | `PUT` | `/api/groups/rejectJoinRequest` | `rejectGroupJoinRequest` | Active |
+| Alias | `PUT` | `/api/rejectGroupJoinRequest` | `rejectGroupJoinRequest` | Active |
+
+</details>
+
+
+## `removeParticipant`
+
+Remove participant from group
+
+**Signature** `client.removeParticipant(groupId: string, contactId: string): Promise<boolean>`
 
 ### Usage
 
@@ -1312,11 +1387,7 @@ Remove participant from group
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.removeParticipant({
-  groupId: "447123456789-1445627445@g.us",
-  contactId: "447123456789@c.us",
-});
-// namespaced form: client.groups.removeParticipant(...)
+const result = await client.removeParticipant("447123456789-1445627445@g.us", "447123456789@c.us");
 ```
 
   </InterfaceTab>
@@ -1361,15 +1432,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="RemoveParticipantParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
 
-## `revokeGroupInviteLink`
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Revoke group invite link
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1378,8 +1452,8 @@ Revoke group invite link
 | Namespace | `groups` |
 | Action | `update` |
 | Functionality | `both` |
-| Positional parameter order | `groupId` |
-| Aliases | `groups.revokeInviteLink` |
+| Positional parameter order | `groupId`, `contactId` |
+| Aliases | `groups.removeParticipant`, `removeGroupParticipant` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -1389,8 +1463,18 @@ Revoke group invite link
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/revokeInviteLink` | `revokeGroupInviteLink` | Active |
-| Alias | `PUT` | `/api/revokeGroupInviteLink` | `revokeGroupInviteLink` | Active |
+| Primary | `PUT` | `/api/groups/removeParticipant` | `removeParticipant` | Active |
+| Alias | `PUT` | `/api/removeGroupParticipant` | `removeGroupParticipant` | Active |
+| Alias | `PUT` | `/api/removeParticipant` | `removeParticipant` | Active |
+
+</details>
+
+
+## `revokeGroupInviteLink`
+
+Revoke group invite link
+
+**Signature** `client.revokeGroupInviteLink(groupId: string): Promise<string \| boolean>`
 
 ### Usage
 
@@ -1398,10 +1482,7 @@ Revoke group invite link
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.revokeGroupInviteLink({
-  groupId: "447123456789-1445627445@g.us",
-});
-// namespaced form: client.groups.revokeInviteLink(...)
+const result = await client.revokeGroupInviteLink("447123456789-1445627445@g.us");
 ```
 
   </InterfaceTab>
@@ -1433,7 +1514,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "example"
 }
 ```
 
@@ -1444,15 +1525,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="RevokeGroupInviteLinkParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `string \| boolean` |
+| Return type | `Promise<string \| boolean>` |
 
-## `setGroupDescription`
+Resolves to `string \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Set group description
+In-process Client resolves to `Promise<string \| boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1461,8 +1545,8 @@ Set group description
 | Namespace | `groups` |
 | Action | `update` |
 | Functionality | `both` |
-| Positional parameter order | `groupId`, `description` |
-| Aliases | `groups.setDescription` |
+| Positional parameter order | `groupId` |
+| Aliases | `groups.revokeInviteLink` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -1472,8 +1556,17 @@ Set group description
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/setDescription` | `setGroupDescription` | Active |
-| Alias | `PUT` | `/api/setGroupDescription` | `setGroupDescription` | Active |
+| Primary | `PUT` | `/api/groups/revokeInviteLink` | `revokeGroupInviteLink` | Active |
+| Alias | `PUT` | `/api/revokeGroupInviteLink` | `revokeGroupInviteLink` | Active |
+
+</details>
+
+
+## `setGroupDescription`
+
+Set group description
+
+**Signature** `client.setGroupDescription(groupId: string, description: string): Promise<boolean>`
 
 ### Usage
 
@@ -1481,11 +1574,7 @@ Set group description
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.setGroupDescription({
-  groupId: "447123456789-1445627445@g.us",
-  description: "description",
-});
-// namespaced form: client.groups.setDescription(...)
+const result = await client.setGroupDescription("447123456789-1445627445@g.us", "description");
 ```
 
   </InterfaceTab>
@@ -1530,15 +1619,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="SetGroupDescriptionParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
 
-## `setGroupEditToAdminsOnly`
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Restrict group editing to admins only
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1547,8 +1639,8 @@ Restrict group editing to admins only
 | Namespace | `groups` |
 | Action | `update` |
 | Functionality | `both` |
-| Positional parameter order | `groupId`, `onlyAdmins` |
-| Aliases | `groups.setEditAdminsOnly`, `groups.setEditToAdminsOnly` |
+| Positional parameter order | `groupId`, `description` |
+| Aliases | `groups.setDescription` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -1558,24 +1650,21 @@ Restrict group editing to admins only
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/setEditAdminsOnly` | `setGroupEditToAdminsOnly` | Active |
-| Alias | `PUT` | `/api/groups/setEditToAdminsOnly` | `groups.setEditToAdminsOnly` | Active |
-| Alias | `PUT` | `/api/setGroupEditToAdminsOnly` | `setGroupEditToAdminsOnly` | Active |
+| Primary | `PUT` | `/api/groups/setDescription` | `setGroupDescription` | Active |
+| Alias | `PUT` | `/api/setGroupDescription` | `setGroupDescription` | Active |
+
+</details>
+
+
+## `setGroupEditToAdminsOnly`
+
+Restrict group editing to admins only
+
+**Signature** `client.setGroupEditToAdminsOnly(groupId: string, onlyAdmins: boolean): Promise<boolean>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.setGroupEditToAdminsOnly({
-  groupId: "447123456789-1445627445@g.us",
-  onlyAdmins: true,
-});
-// namespaced form: client.groups.setEditAdminsOnly(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -1617,15 +1706,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="SetGroupEditToAdminsOnlyParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
 
-## `setGroupIcon`
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Set group icon
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1634,8 +1726,8 @@ Set group icon
 | Namespace | `groups` |
 | Action | `update` |
 | Functionality | `both` |
-| Positional parameter order | `groupId`, `image` |
-| Aliases | `groups.setIcon` |
+| Positional parameter order | `groupId`, `onlyAdmins` |
+| Aliases | `groups.setEditAdminsOnly`, `groups.setEditToAdminsOnly` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -1645,8 +1737,18 @@ Set group icon
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/setIcon` | `setGroupIcon` | Active |
-| Alias | `PUT` | `/api/setGroupIcon` | `setGroupIcon` | Active |
+| Primary | `PUT` | `/api/groups/setEditAdminsOnly` | `setGroupEditToAdminsOnly` | Active |
+| Alias | `PUT` | `/api/groups/setEditToAdminsOnly` | `groups.setEditToAdminsOnly` | Active |
+| Alias | `PUT` | `/api/setGroupEditToAdminsOnly` | `setGroupEditToAdminsOnly` | Active |
+
+</details>
+
+
+## `setGroupIcon`
+
+Set group icon
+
+**Signature** `client.setGroupIcon(groupId: string, image: string): Promise<boolean>`
 
 ### Usage
 
@@ -1654,11 +1756,7 @@ Set group icon
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.setGroupIcon({
-  groupId: "447123456789-1445627445@g.us",
-  image: "image",
-});
-// namespaced form: client.groups.setIcon(...)
+const result = await client.setGroupIcon("447123456789-1445627445@g.us", "image");
 ```
 
   </InterfaceTab>
@@ -1703,15 +1801,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="SetGroupIconParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
 
-## `setGroupTitle`
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Set group title
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1720,8 +1821,8 @@ Set group title
 | Namespace | `groups` |
 | Action | `update` |
 | Functionality | `both` |
-| Positional parameter order | `groupId`, `title` |
-| Aliases | `groups.setTitle` |
+| Positional parameter order | `groupId`, `image` |
+| Aliases | `groups.setIcon` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -1731,8 +1832,17 @@ Set group title
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/setTitle` | `setGroupTitle` | Active |
-| Alias | `PUT` | `/api/setGroupTitle` | `setGroupTitle` | Active |
+| Primary | `PUT` | `/api/groups/setIcon` | `setGroupIcon` | Active |
+| Alias | `PUT` | `/api/setGroupIcon` | `setGroupIcon` | Active |
+
+</details>
+
+
+## `setGroupTitle`
+
+Set group title
+
+**Signature** `client.setGroupTitle(groupId: string, title: string): Promise<boolean>`
 
 ### Usage
 
@@ -1740,11 +1850,7 @@ Set group title
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.setGroupTitle({
-  groupId: "447123456789-1445627445@g.us",
-  title: "title",
-});
-// namespaced form: client.groups.setTitle(...)
+const result = await client.setGroupTitle("447123456789-1445627445@g.us", "title");
 ```
 
   </InterfaceTab>
@@ -1789,15 +1895,18 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="SetGroupTitleParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
 
-## `setGroupToAdminsOnly`
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-Restrict group to admins only
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -1806,8 +1915,8 @@ Restrict group to admins only
 | Namespace | `groups` |
 | Action | `update` |
 | Functionality | `both` |
-| Positional parameter order | `groupId`, `onlyAdmins` |
-| Aliases | `groups.setAdminsOnly`, `groups.setToAdminsOnly` |
+| Positional parameter order | `groupId`, `title` |
+| Aliases | `groups.setTitle` |
 | Deprecated aliases | - |
 | License | `none` |
 | WAPI override | - |
@@ -1817,24 +1926,21 @@ Restrict group to admins only
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/setAdminsOnly` | `setGroupToAdminsOnly` | Active |
-| Alias | `PUT` | `/api/groups/setToAdminsOnly` | `groups.setToAdminsOnly` | Active |
-| Alias | `PUT` | `/api/setGroupToAdminsOnly` | `setGroupToAdminsOnly` | Active |
+| Primary | `PUT` | `/api/groups/setTitle` | `setGroupTitle` | Active |
+| Alias | `PUT` | `/api/setGroupTitle` | `setGroupTitle` | Active |
+
+</details>
+
+
+## `setGroupToAdminsOnly`
+
+Restrict group to admins only
+
+**Signature** `client.setGroupToAdminsOnly(groupId: string, onlyAdmins: boolean): Promise<boolean>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.setGroupToAdminsOnly({
-  groupId: "447123456789-1445627445@g.us",
-  onlyAdmins: true,
-});
-// namespaced form: client.groups.setAdminsOnly(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -1876,8 +1982,39 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="SetGroupToAdminsOnlyParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `boolean` |
+| Return type | `Promise<boolean>` |
+
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `groups` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `groupId`, `onlyAdmins` |
+| Aliases | `groups.setAdminsOnly`, `groups.setToAdminsOnly` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/groups/setAdminsOnly` | `setGroupToAdminsOnly` | Active |
+| Alias | `PUT` | `/api/groups/setToAdminsOnly` | `groups.setToAdminsOnly` | Active |
+| Alias | `PUT` | `/api/setGroupToAdminsOnly` | `setGroupToAdminsOnly` | Active |
+
+</details>

@@ -10,6 +10,7 @@ import type {
   IPage,
   IRequest,
   LightpandaOptions,
+  BrowserProvisionOptions,
   WaitForFunctionOptions,
 } from '@open-wa/driver-interface';
 import type { HyperEmitter } from '@open-wa/hyperemitter';
@@ -56,6 +57,7 @@ export interface TransportOptions {
   qrPollingMs?: number;
   navigationTimeoutMs?: number;
   executablePath?: string;
+  browser?: BrowserProvisionOptions;
   watermark?: boolean | { text?: string; color?: string; background?: string; };
   browserArgs?: string[];
   allowDangerousBrowserArgs?: boolean;
@@ -490,6 +492,7 @@ export class Transport {
     this.browser = await this.driver.launch({
       headless: this.headless,
       executablePath: this.executablePath,
+      browser: this.options.browser,
       args: [
         ...chromiumConfig.chromiumArgs,
         ...sanitizeBrowserArgs(this.browserArgs, {
@@ -1834,13 +1837,19 @@ export class Transport {
     });
 
     const authRace: Array<Promise<unknown>> = [this.isAuthenticated().catch(() => undefined)];
+    let authTimer: ReturnType<typeof setTimeout> | undefined;
     if (this.authTimeoutMs !== 0) {
       authRace.push(new Promise((resolve) => {
-        setTimeout(() => resolve('timeout'), this.authTimeoutMs);
+        authTimer = setTimeout(() => resolve('timeout'), this.authTimeoutMs);
       }));
     }
 
-    const authenticated = await Promise.race(authRace);
+    let authenticated: unknown;
+    try {
+      authenticated = await Promise.race(authRace);
+    } finally {
+      if (authTimer !== undefined) clearTimeout(authTimer);
+    }
 
     if (authenticated === true) {
       this.logger.info('successfulScan');
@@ -1922,7 +1931,7 @@ export class Transport {
           }
 
           const linkCodeTimeoutMs = this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
-          const sessionLoaded = await this.waitForSessionLoaded(linkCodeTimeoutMs || this.authTimeoutMs);
+          const sessionLoaded = await this.waitForSessionLoaded(linkCodeTimeoutMs);
           return sessionLoaded
             ? {
               outcome: 'authenticated',
@@ -1955,7 +1964,7 @@ export class Transport {
     }
 
     const qrScanTimeoutMs = this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
-    const sessionLoaded = await this.waitForSessionLoaded(qrScanTimeoutMs || this.authTimeoutMs);
+    const sessionLoaded = await this.waitForSessionLoaded(qrScanTimeoutMs);
     if (sessionLoaded) {
       return {
         outcome: 'authenticated',

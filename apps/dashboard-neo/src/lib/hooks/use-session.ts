@@ -6,6 +6,7 @@ import { useHealth } from "@/lib/hooks/use-health"
 
 export type SessionState = {
   connected: boolean
+  sessionId: string | null
   hostNumber: string | null
   waVersion: string | null
   battery: number | null
@@ -15,6 +16,7 @@ export type SessionState = {
 
 const INITIAL_STATE: SessionState = {
   connected: false,
+  sessionId: null,
   hostNumber: null,
   waVersion: null,
   battery: null,
@@ -42,6 +44,7 @@ export function useSession() {
     isDemo
       ? {
           connected: true,
+          sessionId: "my-session",
           hostNumber: demoSession.hostNumber,
           waVersion: demoSession.waVersion,
           battery: demoSession.battery,
@@ -99,8 +102,9 @@ export function useSession() {
     async function refreshSessionSnapshot(
       client: Awaited<ReturnType<typeof getClient>>
     ) {
-      const [hostNumber, waVersion, battery, connectionState] =
+      const [sessionId, hostNumber, waVersion, battery, connectionState] =
         await Promise.allSettled([
+          client.ask("getSessionId" as any, {}),
           client.ask("getHostNumber" as any, {}),
           client.ask("getWAVersion" as any, {}),
           client.ask("getBatteryLevel" as any, {}),
@@ -122,6 +126,10 @@ export function useSession() {
 
         return {
           ...prev,
+          sessionId:
+            sessionId.status === "fulfilled"
+              ? String(sessionId.value)
+              : prev.sessionId,
           connected: nextConnected,
           hostNumber:
             hostNumber.status === "fulfilled"

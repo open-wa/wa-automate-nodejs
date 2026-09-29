@@ -1,4 +1,5 @@
-import { defineConfig, defineDocs } from 'fumadocs-mdx/config';
+import { defineConfig, defineDocs, frontmatterSchema } from 'fumadocs-mdx/config';
+import { z } from 'zod';
 import {
     remarkAutoTypeTable,
     createGenerator,
@@ -24,12 +25,14 @@ try {
 const STATIC_MAPPINGS: Record<string, string> = {
     'Client': '/docs/reference/client/client',
     'ConfigObject': '/docs/guides/config-schema',
-    'Message': '/docs/reference/client/messages',
-    'SimpleListener': '/docs/reference/client/client',
-    'GroupMetadata': '/docs/reference/client/groups',
-    'onAck': '/docs/reference/client/messages#onack',
-    'onMessage': '/docs/reference/client/messages#onmessage',
-    'onAnyMessage': '/docs/reference/client/messages#onanymessage',
+    'Message': '/docs/reference/client/return-types#message',
+    'Chat': '/docs/reference/client/return-types#chat',
+    'MessageIdReturn': '/docs/reference/client/return-types#messageidreturn',
+    'SimpleListener': '/docs/reference/client/events',
+    'GroupMetadata': '/docs/reference/client/return-types#groupmetadata',
+    'onAck': '/docs/reference/client/events#ack',
+    'onMessage': '/docs/reference/client/events#message',
+    'onAnyMessage': '/docs/reference/client/events#anymessage',
 };
 
 function resolveLink(entity: string): string | null {
@@ -38,7 +41,7 @@ function resolveLink(entity: string): string | null {
     }
     if (entity.startsWith('ConfigObject.')) {
         const field = entity.split('.')[1];
-        return `/docs/guides/config-schema#${field.toLowerCase()}`;
+        return `/docs/guides/config-schema#type-table-config.ts-Config-${field}`;
     }
     if (methodsMap[entity]) {
         return methodsMap[entity];
@@ -211,13 +214,27 @@ function remarkBracketLinks() {
 }
 
 const generator = createGenerator({
-    cache: createFileSystemGeneratorCache('.fumadocs-typescript'),
-    tsconfigPath: './tsconfig.json',
+    // fumadocs-typescript 5.4 uses the native TypeScript 7 compiler and
+    // resolves imported files from this project explicitly. Keep both paths
+    // rooted at the docs app so Vite and CLI invocations share one cache and
+    // one project configuration.
+    cache: createFileSystemGeneratorCache(path.resolve(currentDir, '.fumadocs-typescript')),
+    tsconfigPath: path.resolve(currentDir, 'tsconfig.json'),
 });
 
 export const docs = defineDocs({
     dir: 'content/docs',
     docs: {
+        schema: frontmatterSchema.extend({
+            release: z.object({
+                version: z.string(),
+                date: z.string().datetime(),
+                headline: z.string(),
+                highlights: z.array(z.string()),
+                image: z.string().url().optional(),
+                audience: z.string().optional(),
+            }).optional(),
+        }),
         postprocess: {
             includeProcessedMarkdown: true,
         },

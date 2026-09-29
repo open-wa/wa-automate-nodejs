@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiExplorerRouteImport } from './routes/api-explorer'
 import { Route as AuthDotmdRouteImport } from './routes/auth[.]md'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as LlmsFullDottxtRouteImport } from './routes/llms-full[.]txt'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as McpRouteImport } from './routes/mcp'
@@ -21,10 +22,16 @@ import { Route as DotwellKnownApiCatalogRouteImport } from './routes/[.]well-kno
 import { Route as DotwellKnownOauthAuthorizationServerRouteImport } from './routes/[.]well-known.oauth-authorization-server'
 import { Route as DotwellKnownOauthProtectedResourceRouteImport } from './routes/[.]well-known.oauth-protected-resource'
 import { Route as ApiChatRouteImport } from './routes/api.chat'
+import { Route as ApiFeedbackRouteImport } from './routes/api.feedback'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
+import { Route as BlogIndexRouteImport } from './routes/blog/index'
+import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
+import { Route as ChangelogIndexRouteImport } from './routes/changelog/index'
+import { Route as ChangelogVersionRouteImport } from './routes/changelog/$version'
 import { Route as DocsSplatRouteImport } from './routes/docs/$'
 import { Route as DotwellKnownAgentSkillsIndexDotjsonRouteImport } from './routes/[.]well-known.agent-skills.index[.]json'
 import { Route as DotwellKnownMcpServerCardDotjsonRouteImport } from './routes/[.]well-known.mcp.server-card[.]json'
+import { Route as ApiEditorialMediaSplatRouteImport } from './routes/api.editorial-media.$'
 import { Route as LlmsDotmdxDocsSplatRouteImport } from './routes/llms[.]mdx.docs.$'
 import { Route as OgDocsSplatRouteImport } from './routes/og.docs.$'
 
@@ -41,6 +48,11 @@ const ApiExplorerRoute = ApiExplorerRouteImport.update({
 const AuthDotmdRoute = AuthDotmdRouteImport.update({
   id: '/auth.md',
   path: '/auth.md',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LlmsFullDottxtRoute = LlmsFullDottxtRouteImport.update({
@@ -90,9 +102,34 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiFeedbackRoute = ApiFeedbackRouteImport.update({
+  id: '/api/feedback',
+  path: '/api/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiSearchRoute = ApiSearchRouteImport.update({
   id: '/api/search',
   path: '/api/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChangelogIndexRoute = ChangelogIndexRouteImport.update({
+  id: '/changelog/',
+  path: '/changelog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChangelogVersionRoute = ChangelogVersionRouteImport.update({
+  id: '/changelog/$version',
+  path: '/changelog/$version',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DocsSplatRoute = DocsSplatRouteImport.update({
@@ -112,6 +149,11 @@ const DotwellKnownMcpServerCardDotjsonRoute =
     path: '/.well-known/mcp/server-card.json',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiEditorialMediaSplatRoute = ApiEditorialMediaSplatRouteImport.update({
+  id: '/api/editorial-media/$',
+  path: '/api/editorial-media/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LlmsDotmdxDocsSplatRoute = LlmsDotmdxDocsSplatRouteImport.update({
   id: '/llms.mdx/docs/$',
   path: '/llms.mdx/docs/$',
@@ -127,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api-explorer': typeof ApiExplorerRoute
   '/auth.md': typeof AuthDotmdRoute
+  '/checkout': typeof CheckoutRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/mcp': typeof McpRoute
@@ -136,10 +179,16 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/feedback': typeof ApiFeedbackRoute
   '/api/search': typeof ApiSearchRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/changelog/$version': typeof ChangelogVersionRoute
   '/docs/$': typeof DocsSplatRoute
+  '/blog/': typeof BlogIndexRoute
+  '/changelog/': typeof ChangelogIndexRoute
   '/.well-known/agent-skills/index.json': typeof DotwellKnownAgentSkillsIndexDotjsonRoute
   '/.well-known/mcp/server-card.json': typeof DotwellKnownMcpServerCardDotjsonRoute
+  '/api/editorial-media/$': typeof ApiEditorialMediaSplatRoute
   '/llms.mdx/docs/$': typeof LlmsDotmdxDocsSplatRoute
   '/og/docs/$': typeof OgDocsSplatRoute
 }
@@ -147,6 +196,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api-explorer': typeof ApiExplorerRoute
   '/auth.md': typeof AuthDotmdRoute
+  '/checkout': typeof CheckoutRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/mcp': typeof McpRoute
@@ -156,10 +206,16 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/feedback': typeof ApiFeedbackRoute
   '/api/search': typeof ApiSearchRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/changelog/$version': typeof ChangelogVersionRoute
   '/docs/$': typeof DocsSplatRoute
+  '/blog': typeof BlogIndexRoute
+  '/changelog': typeof ChangelogIndexRoute
   '/.well-known/agent-skills/index.json': typeof DotwellKnownAgentSkillsIndexDotjsonRoute
   '/.well-known/mcp/server-card.json': typeof DotwellKnownMcpServerCardDotjsonRoute
+  '/api/editorial-media/$': typeof ApiEditorialMediaSplatRoute
   '/llms.mdx/docs/$': typeof LlmsDotmdxDocsSplatRoute
   '/og/docs/$': typeof OgDocsSplatRoute
 }
@@ -168,6 +224,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/api-explorer': typeof ApiExplorerRoute
   '/auth.md': typeof AuthDotmdRoute
+  '/checkout': typeof CheckoutRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/mcp': typeof McpRoute
@@ -177,10 +234,16 @@ export interface FileRoutesById {
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/feedback': typeof ApiFeedbackRoute
   '/api/search': typeof ApiSearchRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/changelog/$version': typeof ChangelogVersionRoute
   '/docs/$': typeof DocsSplatRoute
+  '/blog/': typeof BlogIndexRoute
+  '/changelog/': typeof ChangelogIndexRoute
   '/.well-known/agent-skills/index.json': typeof DotwellKnownAgentSkillsIndexDotjsonRoute
   '/.well-known/mcp/server-card.json': typeof DotwellKnownMcpServerCardDotjsonRoute
+  '/api/editorial-media/$': typeof ApiEditorialMediaSplatRoute
   '/llms.mdx/docs/$': typeof LlmsDotmdxDocsSplatRoute
   '/og/docs/$': typeof OgDocsSplatRoute
 }
@@ -190,6 +253,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-explorer'
     | '/auth.md'
+    | '/checkout'
     | '/llms-full.txt'
     | '/llms.txt'
     | '/mcp'
@@ -199,10 +263,16 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-authorization-server'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
+    | '/api/feedback'
     | '/api/search'
+    | '/blog/$slug'
+    | '/changelog/$version'
     | '/docs/$'
+    | '/blog/'
+    | '/changelog/'
     | '/.well-known/agent-skills/index.json'
     | '/.well-known/mcp/server-card.json'
+    | '/api/editorial-media/$'
     | '/llms.mdx/docs/$'
     | '/og/docs/$'
   fileRoutesByTo: FileRoutesByTo
@@ -210,6 +280,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-explorer'
     | '/auth.md'
+    | '/checkout'
     | '/llms-full.txt'
     | '/llms.txt'
     | '/mcp'
@@ -219,10 +290,16 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-authorization-server'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
+    | '/api/feedback'
     | '/api/search'
+    | '/blog/$slug'
+    | '/changelog/$version'
     | '/docs/$'
+    | '/blog'
+    | '/changelog'
     | '/.well-known/agent-skills/index.json'
     | '/.well-known/mcp/server-card.json'
+    | '/api/editorial-media/$'
     | '/llms.mdx/docs/$'
     | '/og/docs/$'
   id:
@@ -230,6 +307,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-explorer'
     | '/auth.md'
+    | '/checkout'
     | '/llms-full.txt'
     | '/llms.txt'
     | '/mcp'
@@ -239,10 +317,16 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-authorization-server'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
+    | '/api/feedback'
     | '/api/search'
+    | '/blog/$slug'
+    | '/changelog/$version'
     | '/docs/$'
+    | '/blog/'
+    | '/changelog/'
     | '/.well-known/agent-skills/index.json'
     | '/.well-known/mcp/server-card.json'
+    | '/api/editorial-media/$'
     | '/llms.mdx/docs/$'
     | '/og/docs/$'
   fileRoutesById: FileRoutesById
@@ -251,6 +335,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiExplorerRoute: typeof ApiExplorerRoute
   AuthDotmdRoute: typeof AuthDotmdRoute
+  CheckoutRoute: typeof CheckoutRoute
   LlmsFullDottxtRoute: typeof LlmsFullDottxtRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
   McpRoute: typeof McpRoute
@@ -260,10 +345,16 @@ export interface RootRouteChildren {
   DotwellKnownOauthAuthorizationServerRoute: typeof DotwellKnownOauthAuthorizationServerRoute
   DotwellKnownOauthProtectedResourceRoute: typeof DotwellKnownOauthProtectedResourceRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiFeedbackRoute: typeof ApiFeedbackRoute
   ApiSearchRoute: typeof ApiSearchRoute
+  BlogSlugRoute: typeof BlogSlugRoute
+  ChangelogVersionRoute: typeof ChangelogVersionRoute
   DocsSplatRoute: typeof DocsSplatRoute
+  BlogIndexRoute: typeof BlogIndexRoute
+  ChangelogIndexRoute: typeof ChangelogIndexRoute
   DotwellKnownAgentSkillsIndexDotjsonRoute: typeof DotwellKnownAgentSkillsIndexDotjsonRoute
   DotwellKnownMcpServerCardDotjsonRoute: typeof DotwellKnownMcpServerCardDotjsonRoute
+  ApiEditorialMediaSplatRoute: typeof ApiEditorialMediaSplatRoute
   LlmsDotmdxDocsSplatRoute: typeof LlmsDotmdxDocsSplatRoute
   OgDocsSplatRoute: typeof OgDocsSplatRoute
 }
@@ -289,6 +380,13 @@ declare module '@tanstack/react-router' {
       path: '/auth.md'
       fullPath: '/auth.md'
       preLoaderRoute: typeof AuthDotmdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/llms-full.txt': {
@@ -354,11 +452,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/feedback': {
+      id: '/api/feedback'
+      path: '/api/feedback'
+      fullPath: '/api/feedback'
+      preLoaderRoute: typeof ApiFeedbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/search': {
       id: '/api/search'
       path: '/api/search'
       fullPath: '/api/search'
       preLoaderRoute: typeof ApiSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/changelog/': {
+      id: '/changelog/'
+      path: '/changelog'
+      fullPath: '/changelog/'
+      preLoaderRoute: typeof ChangelogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/changelog/$version': {
+      id: '/changelog/$version'
+      path: '/changelog/$version'
+      fullPath: '/changelog/$version'
+      preLoaderRoute: typeof ChangelogVersionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/docs/$': {
@@ -382,6 +515,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotwellKnownMcpServerCardDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/editorial-media/$': {
+      id: '/api/editorial-media/$'
+      path: '/api/editorial-media/$'
+      fullPath: '/api/editorial-media/$'
+      preLoaderRoute: typeof ApiEditorialMediaSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/llms.mdx/docs/$': {
       id: '/llms.mdx/docs/$'
       path: '/llms.mdx/docs/$'
@@ -403,6 +543,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiExplorerRoute: ApiExplorerRoute,
   AuthDotmdRoute: AuthDotmdRoute,
+  CheckoutRoute: CheckoutRoute,
   LlmsFullDottxtRoute: LlmsFullDottxtRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
   McpRoute: McpRoute,
@@ -414,11 +555,17 @@ const rootRouteChildren: RootRouteChildren = {
   DotwellKnownOauthProtectedResourceRoute:
     DotwellKnownOauthProtectedResourceRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiFeedbackRoute: ApiFeedbackRoute,
   ApiSearchRoute: ApiSearchRoute,
+  BlogSlugRoute: BlogSlugRoute,
+  ChangelogVersionRoute: ChangelogVersionRoute,
   DocsSplatRoute: DocsSplatRoute,
+  BlogIndexRoute: BlogIndexRoute,
+  ChangelogIndexRoute: ChangelogIndexRoute,
   DotwellKnownAgentSkillsIndexDotjsonRoute:
     DotwellKnownAgentSkillsIndexDotjsonRoute,
   DotwellKnownMcpServerCardDotjsonRoute: DotwellKnownMcpServerCardDotjsonRoute,
+  ApiEditorialMediaSplatRoute: ApiEditorialMediaSplatRoute,
   LlmsDotmdxDocsSplatRoute: LlmsDotmdxDocsSplatRoute,
   OgDocsSplatRoute: OgDocsSplatRoute,
 }

@@ -16,8 +16,6 @@ export const chromiumConfig = {
         '--disable-extensions',
         '--disable-default-apps',
         '--enable-features=NetworkService',
-        '--disable-setuid-sandbox',
-        '--no-sandbox',
         // Extras
         '--disable-webgl',
         '--disable-infobars',

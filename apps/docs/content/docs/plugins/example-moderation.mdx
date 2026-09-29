@@ -1,19 +1,11 @@
 ---
 title: "Example: OpenAI moderation"
-description: Build a plugin that scans incoming group messages, labels flagged content, and optionally deletes or reports it.
+description: Check incoming group messages with OpenAI moderation and choose how to handle flagged results.
 ---
 
 # Example: OpenAI moderation
 
-This example makes a plugin that scans incoming group messages with the OpenAI Moderation API. The plugin acts on flagged content. It can detect, label, or report the content. When permitted, it can delete the content or stop downstream handling.
-
-## What the plugin does
-
-When a message arrives in a moderated group:
-1. The plugin extracts the text content
-2. Sends it to OpenAI's Moderation API
-3. If flagged, the plugin can delete the message, warn the sender, and log the action
-4. If clean, your other handlers can continue processing it normally
+This plugin checks incoming group-message text with the OpenAI Moderation API. Depending on its configuration, it can delete a flagged message when the connected account has permission, reply to the sender, and log the result. The `message.send.before` hook is declared by the SDK but is not active in the host, so apply any outgoing policy before calling the send method.
 
 ## Scan incoming messages
 
@@ -88,20 +80,26 @@ async function checkModeration(text: string, apiKey: string) {
 }
 ```
 
-## Prevent flagged outgoing messages
+## Check messages before sending
 
-Use the `message.send.before` interceptor to prevent flagged messages from being sent:
+The host does not call the declared `message.send.before` hook, so it cannot block arbitrary sends. Apply moderation before calling `client.sendText()` in your own workflow, or put the policy in the service that owns outgoing sends:
 
 ```ts
-'message.send.before': async ({ message }) => {
-  // This interceptor runs before a message is sent
-  // Return modified output or cancel the send
+async function sendModerated(client, chatId, content, logger, apiKey) {
+  const result = await checkModeration(content, apiKey);
+  if (result.flagged) {
+    logger.warn('Outgoing message blocked by moderation', { chatId });
+    return { sent: false, reason: 'flagged' };
+  }
+
+  const messageId = await client.sendText(chatId, content);
+  return { sent: true, messageId };
 }
 ```
 
-## Handle flagged incoming messages
+## Act on flagged incoming messages
 
-For incoming messages, you cannot prevent delivery after receipt. You can delete the message when the connected account has permission, warn the sender, report to admins, and skip downstream business logic:
+The hook runs after a message arrives. You can delete it when the connected account has permission, reply to the sender, or record the result:
 
 ```ts
 if (result.flagged) {
@@ -194,7 +192,6 @@ const configSchema = z.object({
   actions: z.object({
     delete: z.boolean().default(true),
     warn: z.boolean().default(true),
-    notify: z.boolean().default(false), // Notify admins when action taken
     log: z.boolean().default(true),
   }).default({}),
 });
@@ -204,8 +201,7 @@ const configSchema = z.object({
 
 ```ts
 // moderation.ts
-import { createPlugin } from '@open-wa/plugin-sdk';
-import { z } from 'zod';
+import { createPlugin, z } from '@open-wa/plugin-sdk';
 
 type ModerationResult = {
   flagged: boolean;
@@ -257,7 +253,6 @@ const configSchema = z.object({
   actions: z.object({
     delete: z.boolean().default(true),
     warn: z.boolean().default(true),
-    notify: z.boolean().default(false),
     log: z.boolean().default(true),
   }).default({}),
 });
@@ -344,13 +339,15 @@ export default createPlugin({
 });
 ```
 
-## Load and test it
+## Load the plugin
+
+Using the TypeScript setup in [Publishing a plugin](/docs/plugins/publishing), compile `src/moderation.ts` to `dist/moderation.js`. Save this configuration as `wa.config.mjs` beside `src` and `dist`:
 
 ```js
-// wa.config.js
+// wa.config.mjs
 export default {
   plugins: [
-    './plugins/moderation',
+    new URL('./dist/moderation.js', import.meta.url).href,
   ],
   pluginConfig: {
     'openai-moderation': {
@@ -360,7 +357,6 @@ export default {
       actions: {
         delete: true,
         warn: true,
-        notify: false,
         log: true,
       },
     },
@@ -368,21 +364,30 @@ export default {
 };
 ```
 
-## Performance considerations
+From the directory containing `wa.config.mjs`, start the session with:
+
+```bash
+npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --session-id moderation-example --host 127.0.0.1 --port 8080
+```
+
+## Bound concurrent moderation requests
 
 ### Concurrent calls
 
 The moderation API is called for every message. If your group has high volume:
 
 ```ts
-import pQueue from 'p-queue';
-const queue = new pQueue({ concurrency: 5 });
+import PQueue from 'p-queue';
+const queue = new PQueue({ concurrency: 5 });
 
 events.on('message.received', async ({ message }) => {
-  // ... validation ...
-  queue.add(async () => {
+  const msg = getModeratableMessage(message);
+  if (!msg) return;
+  await queue.add(async () => {
     const result = await checkModeration(msg.body, config.apiKey);
     // ... handle result ...
+  }).catch(error => {
+    logger.error('Moderation request failed', { error: error.message });
   });
 });
 ```

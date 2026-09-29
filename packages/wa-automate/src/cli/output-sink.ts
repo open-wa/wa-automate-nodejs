@@ -1,4 +1,3 @@
-import boxen from 'boxen';
 import qrcode from 'qrcode-terminal';
 
 export type CliOutputLevel = 'debug' | 'info' | 'warn' | 'error';
@@ -65,13 +64,7 @@ export function createConsoleOutputSink(): CliOutputSink {
     },
     qr(payload) {
       qrcode.generate(payload.qr, { small: true }, (terminalQrCode) => {
-        console.log(
-          boxen(terminalQrCode, {
-            title: payload.sessionId,
-            padding: 1,
-            titleAlignment: 'center',
-          })
-        );
+        console.log(`WhatsApp login: ${payload.sessionId}\n${terminalQrCode}`);
       });
     },
   };

@@ -1,9 +1,10 @@
 {
   "title": "Getting Started",
   "icon": "Rocket",
-  "defaultOpen": true,
+  "defaultOpen": false,
   "pages": [
     "quickstart",
+    "initializer",
     "link-code",
     "easy-api",
     "custom-code",

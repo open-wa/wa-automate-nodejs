@@ -1,6 +1,6 @@
 # @open-wa/ui-components
 
-Reusable React UI components for Open-WA web applications.
+Reusable React UI components for open-wa web applications.
 
 Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
 

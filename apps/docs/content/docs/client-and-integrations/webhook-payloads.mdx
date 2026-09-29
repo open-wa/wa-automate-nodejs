@@ -1,58 +1,68 @@
 ---
 title: Webhook payloads
-description: See the JSON your webhook receives, how to verify it, and which fields to store.
+description: Receive, authenticate, validate, and deduplicate open-wa webhook events.
 ---
 
 # Webhook payloads
 
-Use this page when you are building the service that receives open-wa webhook events. It shows the current v5 envelope, how to enable delivery, how to verify requests, and which fields to store first.
+This page is the reference for the v5 webhook integration. It shows the envelope, a bounded authenticated receiver, and the delivery limits that apply to the default configuration.
 
-<Callout type="note" title="This complements webhook usage docs">
-  Use the Easy API guide to run the sender. Use Webhooks for Business for a receiver procedure.
+<Callout type="warning" title="Load the plugin from config">
+The CLI still parses `--webhook`, but it does not register webhook delivery. Load `@open-wa/integration-webhook` from `wa.config.mjs` and configure it under `pluginConfig.webhook`.
 </Callout>
 
-## Enablement flow
+## Enable delivery
 
-Use the source-backed v5 webhook integration plugin from config. The CLI still accepts `--webhook`, but it does not register webhook delivery. For v5, use config for reliable event delivery:
+Install the package in the project that runs the Easy API, then create `wa.config.mjs`:
 
-```ts
-// wa.config.ts
-const webhookSecret = process.env.OPEN_WA_WEBHOOK_SECRET;
+```bash
+npm install @open-wa/integration-webhook@5.1.0
+```
 
-if (!webhookSecret) {
-  throw new Error('OPEN_WA_WEBHOOK_SECRET is required');
-}
+```js
+// wa.config.mjs
+const webhookSecret = process.env.OPEN_WA_WEBHOOK_SECRET?.trim();
+if (!webhookSecret) throw new Error('OPEN_WA_WEBHOOK_SECRET is required');
 
 export default {
+  sessionId: 'sales',
+  host: '127.0.0.1',
   port: 8080,
   plugins: ['@open-wa/integration-webhook'],
   pluginConfig: {
     webhook: {
-      url: 'https://your-app.example/webhooks/open-wa',
-      events: ['message.received', 'session.state.changed', 'group.participants.changed.global'],
-      headers: {
-        'X-Webhook-Secret': webhookSecret,
-      },
+      url: 'https://receiver.example/webhooks/open-wa',
+      events: ['message.received', 'session.state.changed'],
+      headers: { 'X-Webhook-Secret': webhookSecret },
+      concurrency: 10,
+      queueCapacity: 1000,
+      overload: 'backpressure',
       retries: 3,
       retryDelay: 1000,
       timeout: 30000,
+      // Set enabled: true only when this process can write the journal path.
+      durability: {
+        enabled: false,
+        path: '.openwa/webhook-deliveries.sqlite',
+        replayLimit: 1000,
+      },
     },
   },
 };
 ```
 
-Verify it in this order:
+Start the CLI from the directory containing the config:
 
-1. Start your receiving service and make sure it accepts `POST` requests.
-2. Start open-wa with the config file that loads `@open-wa/integration-webhook`.
-3. Check logs for the webhook target URL and selected events.
-4. Send a WhatsApp message to the connected session.
-5. Confirm your endpoint receives a JSON body with `webhookId`, `sessionId`, `event`, `payload`, and `timestamp`.
-6. Return a `2xx` response quickly. Slow or failed responses trigger retries.
+```bash
+export OPEN_WA_WEBHOOK_SECRET='use-a-long-random-value'
+npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --session-id sales --host 127.0.0.1 --port 8080
+```
 
-## Current v5 envelope
+The receiver must be listening before open-wa starts sending events. A successful delivery is any HTTP `2xx` response; return it after storing the event or its deduplication key, then do slower work asynchronously.
 
-The outer envelope is the same for every event. The `payload` field changes based on `event`.
+## Envelope
+
+Every delivery has the same outer fields. `payload` is the event-specific value; current v5 does not use the older `data` field.
 
 ```json
 {
@@ -60,10 +70,6 @@ The outer envelope is the same for every event. The `payload` field changes base
   "sessionId": "sales",
   "event": "message.received",
   "payload": {
-    "ctx": {
-      "correlationId": "evt_01",
-      "ts": 1700000000000
-    },
     "message": {
       "id": "false_1234567890@c.us_ABC123",
       "from": "1234567890@c.us",
@@ -81,472 +87,185 @@ The outer envelope is the same for every event. The `payload` field changes base
 }
 ```
 
-<Callout type="warning" title="Current shape only">
-The current v5 webhook plugin source sends `payload`, not `data`. If you see `{ event, data }` in an older snippet, treat it as stale for v5 webhook receivers.
-</Callout>
+Store only the envelope fields and payload data required for the receiving workflow. `webhookId` identifies the plugin instance for that process; it is shared across that instance's events, so don't use it as a per-event deduplication key. For message workflows, the first useful application fields are:
 
-## Copy these three fields first
-
-| Field to store | Current v5 path | Notes |
+| Application field | v5 path | Use |
 | --- | --- | --- |
-| Sender | `payload.message.from` | Direct chats usually end in `@c.us`. Groups usually end in `@g.us`. |
-| Text or caption | `payload.message.body` or `payload.message.caption` | Media messages can have an empty `body` and a useful `caption`. |
-| Message id | `payload.message.id` | Use with `sessionId` for dedupe keys. |
+| Sender | `payload.message.from` | Route to a contact or conversation. |
+| Text | `payload.message.body` or `payload.message.caption` | Handle text and media captions. |
+| Message ID | `payload.message.id` | Build an idempotency key. |
 
-## Endpoint handler examples
+## Canonical receiver
 
-Every webhook delivery is a JSON `POST`. Your endpoint must authenticate the request and process only the applicable events. During development, log the raw body. Then, return a `2xx` response.
+This receiver rejects a missing secret at startup, authenticates before parsing the body, limits JSON to 2 MiB, returns explicit errors for malformed input, and logs identifiers rather than message content. It is the same receiver recipe used in [Webhooks for Business](/docs/guides/webhooks-for-business).
 
-### Express
-
-```ts
+```js
+// receiver.mjs
 import express from 'express';
+import Database from 'better-sqlite3';
+import { createHash, timingSafeEqual } from 'node:crypto';
 
-type WebhookEnvelope = {
-  webhookId: string;
-  sessionId: string;
-  event: string;
-  payload: unknown;
-  timestamp: number;
-};
-
-type MessageFields = {
-  id?: string;
-  from?: string;
-  body?: string;
-  caption?: string;
-};
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
+const expectedSecret = process.env.OPEN_WA_WEBHOOK_SECRET?.trim();
+if (!expectedSecret) {
+  throw new Error('OPEN_WA_WEBHOOK_SECRET must be set before the receiver starts');
 }
-
-function parseEnvelope(value: unknown): WebhookEnvelope | null {
-  if (!isRecord(value)) return null;
-  if (typeof value.webhookId !== 'string') return null;
-  if (typeof value.sessionId !== 'string') return null;
-  if (typeof value.event !== 'string') return null;
-  if (typeof value.timestamp !== 'number') return null;
-
-  return {
-    webhookId: value.webhookId,
-    sessionId: value.sessionId,
-    event: value.event,
-    payload: value.payload,
-    timestamp: value.timestamp,
-  };
-}
-
-function getMessageFields(envelope: WebhookEnvelope): MessageFields {
-  if (!isRecord(envelope.payload)) return {};
-  const message = envelope.payload.message;
-  if (!isRecord(message)) return {};
-
-  return {
-    id: typeof message.id === 'string' ? message.id : undefined,
-    from: typeof message.from === 'string' ? message.from : undefined,
-    body: typeof message.body === 'string' ? message.body : undefined,
-    caption: typeof message.caption === 'string' ? message.caption : undefined,
-  };
-}
+const expectedBytes = Buffer.from(expectedSecret, 'utf8');
+const inbox = new Database('./openwa-webhook-inbox.sqlite');
+inbox.exec(`
+  CREATE TABLE IF NOT EXISTS webhook_inbox (
+    idempotency_key TEXT PRIMARY KEY,
+    session_id TEXT NOT NULL,
+    event TEXT NOT NULL,
+    received_at INTEGER NOT NULL,
+    envelope TEXT NOT NULL
+  )
+`);
+const insertInbox = inbox.prepare(`
+  INSERT OR IGNORE INTO webhook_inbox
+    (idempotency_key, session_id, event, received_at, envelope)
+  VALUES (?, ?, ?, ?, ?)
+`);
 
 const app = express();
-const rawBodies = new WeakMap<object, string>();
+const rawBodies = new WeakMap();
+const allowRawDiagnostics = process.env.NODE_ENV !== 'production'
+  && process.env.DEBUG_WEBHOOK_RAW === '1';
 
-app.use(express.json({
-  limit: '2mb',
-  verify: (req, _res, buf) => {
-    rawBodies.set(req, buf.toString('utf8'));
-  },
-}));
-
-app.post('/webhooks/open-wa', (req, res) => {
-  console.log('raw webhook body:', rawBodies.get(req) ?? '(empty body)');
-
-  if (req.header('X-Webhook-Secret') !== process.env.OPEN_WA_WEBHOOK_SECRET) {
+function authenticate(req, res, next) {
+  const supplied = req.get('X-Webhook-Secret');
+  if (!supplied || supplied.length !== expectedSecret.length) {
     return res.status(401).send('Unauthorized');
   }
+  const suppliedBytes = Buffer.from(supplied, 'utf8');
+  if (suppliedBytes.length !== expectedBytes.length || !timingSafeEqual(suppliedBytes, expectedBytes)) {
+    return res.status(401).send('Unauthorized');
+  }
+  next();
+}
 
+function isRecord(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function parseEnvelope(value) {
+  if (!isRecord(value)) return null;
+  if (typeof value.webhookId !== 'string' || !value.webhookId) return null;
+  if (typeof value.sessionId !== 'string' || !value.sessionId) return null;
+  if (typeof value.event !== 'string' || !value.event) return null;
+  if (typeof value.timestamp !== 'number' || !Number.isFinite(value.timestamp)) return null;
+  if (!('payload' in value)) return null;
+  return value;
+}
+
+app.post('/webhooks/open-wa', authenticate, express.json({
+  limit: '2mb',
+  // Temporary local diagnosis only. This is disabled when NODE_ENV is production.
+  verify: (req, _res, buffer) => {
+    if (allowRawDiagnostics) rawBodies.set(req, buffer.toString('utf8'));
+  },
+}), (req, res) => {
   const envelope = parseEnvelope(req.body);
+  if (!envelope) return res.status(400).send('Invalid open-wa webhook envelope');
 
-  if (!envelope) {
-    return res.status(400).send('Invalid open-wa webhook envelope');
+  if (allowRawDiagnostics) {
+    console.warn('[LOCAL ONLY] raw webhook body:', rawBodies.get(req) ?? '(empty body)');
   }
 
-  const message = getMessageFields(envelope);
+  const messageId = envelope.payload?.message?.id;
+  const idempotencyKey = req.get('Idempotency-Key')
+    || (typeof messageId === 'string' && messageId
+      ? `${envelope.sessionId}:${envelope.event}:${messageId}`
+      : createHash('sha256').update(JSON.stringify(envelope)).digest('hex'));
 
-  if (envelope.event === 'message.received') {
-    console.log(`[${envelope.sessionId}] sender: ${message.from ?? 'unknown'}`);
-    console.log('text:', message.body || message.caption || '(no text)');
-    console.log('message id:', message.id ?? 'unknown');
-  }
-
+  // Insert the authenticated event before acknowledging it. A duplicate key is a no-op.
+  const result = insertInbox.run(
+    idempotencyKey,
+    envelope.sessionId,
+    envelope.event,
+    Date.now(),
+    JSON.stringify(envelope),
+  );
+  console.info('webhook inbox updated', {
+    sessionId: envelope.sessionId,
+    event: envelope.event,
+    duplicate: result.changes === 0,
+  });
   res.sendStatus(204);
 });
 
-app.listen(3000, () => {
-  console.log('Webhook receiver listening on http://localhost:3000');
+app.use((error, _req, res, _next) => {
+  if (error?.type === 'entity.too.large') return res.status(413).send('Webhook body too large');
+  if (error?.type === 'entity.parse.failed') return res.status(400).send('Malformed JSON');
+  console.error('webhook receiver error', { name: error?.name ?? 'Error' });
+  res.status(500).send('Webhook receiver error');
 });
+
+app.listen(3000, () => console.log('Webhook receiver listening on http://localhost:3000'));
 ```
 
-Send one local request before connecting open-wa to the receiver:
+Install and run the receiver in its own project:
 
 ```bash
+npm install express better-sqlite3
+export OPEN_WA_WEBHOOK_SECRET='use-a-long-random-value'
+node receiver.mjs
+```
+
+The following requests exercise the rejection paths before you connect WhatsApp:
+
+```bash
+# Missing secret: HTTP 401
 curl -i -X POST http://localhost:3000/webhooks/open-wa \
-  -H "Content-Type: application/json" \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+
+# Authenticated but malformed JSON: HTTP 400
+curl -i -X POST http://localhost:3000/webhooks/open-wa \
+  -H 'Content-Type: application/json' \
   -H "X-Webhook-Secret: $OPEN_WA_WEBHOOK_SECRET" \
-  -d '{"webhookId":"local-test","sessionId":"sales","event":"message.received","payload":{"message":{"id":"false_1234567890@c.us_ABC123","from":"1234567890@c.us","body":"Hello, I need help with my order"}},"timestamp":1700000000123}'
+  -d '{'
+
+# Valid envelope: HTTP 204
+curl -i -X POST http://localhost:3000/webhooks/open-wa \
+  -H 'Content-Type: application/json' \
+  -H "X-Webhook-Secret: $OPEN_WA_WEBHOOK_SECRET" \
+  -d '{"webhookId":"local-test","sessionId":"sales","event":"message.received","payload":{"message":{"id":"local-1","from":"1234567890@c.us","body":"Hello"}},"timestamp":1700000000123}'
 ```
 
-### Fastify
+The current plugin sends configured headers as-is; it does not generate an HMAC signature. With `durability.enabled: true`, it also sends an `Idempotency-Key` for the durable delivery row. If a gateway adds an HMAC header, verify the raw body before parsing and reject a signature whose decoded length differs from the expected digest before calling `timingSafeEqual`.
 
-```ts
-import Fastify from 'fastify';
+## Delivery limits and recovery
 
-type WebhookEnvelope = {
-  sessionId: string;
-  event: string;
-  payload: {
-    message?: {
-      id?: string;
-      from?: string;
-      body?: string;
-      caption?: string;
-    };
-  };
-};
+The defaults are finite and bounded:
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function parseEnvelope(value: unknown): WebhookEnvelope | null {
-  if (!isRecord(value)) return null;
-  if (typeof value.sessionId !== 'string') return null;
-  if (typeof value.event !== 'string') return null;
-  if (!isRecord(value.payload)) return null;
-
-  const message = isRecord(value.payload.message) ? value.payload.message : undefined;
-
-  return {
-    sessionId: value.sessionId,
-    event: value.event,
-    payload: {
-      message: message ? {
-        id: typeof message.id === 'string' ? message.id : undefined,
-        from: typeof message.from === 'string' ? message.from : undefined,
-        body: typeof message.body === 'string' ? message.body : undefined,
-        caption: typeof message.caption === 'string' ? message.caption : undefined,
-      } : undefined,
-    },
-  };
-}
-
-const fastify = Fastify({ logger: true });
-
-fastify.post('/webhooks/open-wa', async (request, reply) => {
-  if (request.headers['x-webhook-secret'] !== process.env.OPEN_WA_WEBHOOK_SECRET) {
-    return reply.code(401).send({ error: 'Unauthorized' });
-  }
-
-  const body = parseEnvelope(request.body);
-
-  if (!body) {
-    return reply.code(400).send({ error: 'Invalid open-wa webhook envelope' });
-  }
-
-  if (body.event === 'message.received') {
-    request.log.info({
-      sessionId: body.sessionId,
-      sender: body.payload.message?.from,
-      text: body.payload.message?.body || body.payload.message?.caption,
-      messageId: body.payload.message?.id,
-    }, 'message webhook received');
-  }
-
-  return reply.code(204).send();
-});
-
-await fastify.listen({ port: 3000 });
-```
-
-### Plain Node.js
-
-```ts
-import { createServer } from 'node:http';
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function getNextState(value: unknown): string {
-  if (!isRecord(value)) return 'unknown';
-  if (!isRecord(value.payload)) return 'unknown';
-  if (!isRecord(value.payload.details)) return 'unknown';
-  return typeof value.payload.details.next === 'string' ? value.payload.details.next : 'unknown';
-}
-
-const server = createServer(async (req, res) => {
-  if (req.method !== 'POST' || req.url !== '/webhooks/open-wa') {
-    res.writeHead(404).end();
-    return;
-  }
-
-  if (req.headers['x-webhook-secret'] !== process.env.OPEN_WA_WEBHOOK_SECRET) {
-    res.writeHead(401).end('Unauthorized');
-    return;
-  }
-
-  let rawBody = '';
-
-  for await (const chunk of req) {
-    rawBody += chunk;
-  }
-
-  console.log('raw webhook body:', rawBody);
-
-  const body: unknown = JSON.parse(rawBody);
-
-  if (isRecord(body) && body.event === 'session.state.changed') {
-    console.log('Session state:', getNextState(body));
-  }
-
-  res.writeHead(204).end();
-});
-
-server.listen(3000);
-```
-
-Expected local test output, illustrative and abbreviated:
-
-```text
-Webhook receiver listening on http://localhost:3000
-raw webhook body: {"webhookId":"...","sessionId":"sales","event":"message.received","payload":{...}}
-[sales] sender: 1234567890@c.us
-text: Hello, I need help with my order
-message id: false_1234567890@c.us_ABC123
-```
-
-The local `curl` request returns `HTTP/1.1 204 No Content`. A `401` means that the shared secret header did not match. A malformed envelope returns `400`. Open-wa identifies a non-`2xx` response as a failed delivery and can try the delivery again. Correct receiver validation before you send production events.
-
-## Auth/signature
-
-The webhook integration sends any headers you place in `headers` on every delivery. Use that for a shared secret, bearer token, or gateway-specific auth header.
-
-```ts
-const webhookToken = process.env.OPEN_WA_WEBHOOK_TOKEN;
-const webhookSecret = process.env.OPEN_WA_WEBHOOK_SECRET;
-
-if (!webhookToken || !webhookSecret) {
-  throw new Error('Webhook token and secret are required');
-}
-
-pluginConfig: {
-  webhook: {
-    url: 'https://your-app.example/webhooks/open-wa',
-    headers: {
-      Authorization: `Bearer ${webhookToken}`,
-      'X-Webhook-Secret': webhookSecret,
-    },
-  },
-}
-```
-
-The current webhook plugin does not generate a request signature. For HMAC verification, add a signing proxy in front of your receiver. Alternatively, sign the request in your infrastructure. Verify the raw body before you parse it.
-
-```ts
-import { createHmac, timingSafeEqual } from 'node:crypto';
-
-function verifySignature(rawBody: string, signature: string, secret: string) {
-  const expected = createHmac('sha256', secret).update(rawBody).digest('hex');
-  const received = signature.replace(/^sha256=/, '');
-
-  return timingSafeEqual(Buffer.from(expected), Buffer.from(received));
-}
-```
-
-Keep webhook URLs on HTTPS. Message payloads can include names, phone-number-based chat IDs, message text, and media metadata.
-
-## Retries
-
-Webhook delivery uses native `fetch`. A delivery is treated as successful when your endpoint returns a `2xx` response. Network errors, timeouts, and non-`2xx` responses are treated as failures.
-
-By default, open-wa tries the first delivery plus 3 retries. The retry delay uses exponential backoff from `retryDelay`, which defaults to `1000` milliseconds:
-
-| Attempt | Delay before attempt |
+| Behavior | Default |
 | --- | --- |
-| First delivery | none |
-| Retry 1 | `1000ms` |
-| Retry 2 | `2000ms` |
-| Retry 3 | `4000ms` |
+| Concurrent requests | `10` |
+| In-memory waiting queue | `1000` deliveries |
+| Full queue | `backpressure` (wait for capacity) |
+| Request timeout | `30000ms` |
+| Retries after the first request | `3` |
+| Retry delays | `1000ms`, `2000ms`, `4000ms` |
 
-After the final failed attempt, the failure is logged and the event is dropped from the in-memory delivery queue. If your receiver needs more protection, store the incoming webhook first, acknowledge it, then process it asynchronously.
+Network errors, timeouts, and non-`2xx` responses consume attempts. After the final attempt the event is logged as failed and the default in-memory configuration keeps no record for restart or automatic replay. This is a finite retry policy, not a guarantee of eventual delivery.
 
-After the local test returns `204`, configure the receiver URL. Send one WhatsApp message. Compare the raw log with the envelope fields above.
+Set `durability.enabled: true` to journal queued deliveries in SQLite. Pending rows are replayed on a later startup up to `replayLimit`; rows that exhaust retries are marked dead letter and the integration has no built-in inspection or replay route. The journal improves restart recovery but still permits duplicates, so the receiver should insert the supplied `Idempotency-Key` into its inbox before responding. When durability is disabled, this example derives a message key from `sessionId:event:payload.message.id` or hashes the exact envelope for other events.
 
-## Delivery guarantees
+## Common event values
 
-Webhook delivery is **at least once**. Your endpoint can receive the same event more than one time. This can occur after a response timeout or incomplete processing.
-
-Ordering is best effort. Message events are emitted by the runtime in order, but the webhook deliverer can send multiple requests concurrently. If strict order matters, set `concurrency: 1` and still design for duplicates.
-
-Use idempotent processing. A practical dedupe key for messages is:
-
-```text
-${sessionId}:${event}:${payload.message.id}
-```
-
-For non-message events, choose the stable identifier inside that event payload, such as `payload.messageId`, `payload.chatId`, or `timestamp`.
-
-## Event filtering
-
-Set `events` to `all` to forward every public runtime event. Set it to an array to forward only the events your endpoint needs.
-
-```ts
-pluginConfig: {
-  webhook: {
-    url: 'https://your-app.example/webhooks/open-wa',
-    events: ['message.received', 'ack.changed', 'session.state.changed'],
-  },
-}
-```
-
-Filtering happens before delivery. Events that do not match the list are ignored and never enter the webhook queue.
-
-## Sample JSON payloads per type
-
-### Message
-
-```json
-{
-  "webhookId": "0f5d6a52-2ff2-43d5-9d0d-9c0c8dd5f9d1",
-  "sessionId": "sales",
-  "event": "message.received",
-  "payload": {
-    "ctx": {
-      "correlationId": "evt_01",
-      "ts": 1700000000000
-    },
-    "message": {
-      "id": "false_1234567890@c.us_ABC123",
-      "from": "1234567890@c.us",
-      "to": "0987654321@c.us",
-      "body": "Hello, I need help with my order",
-      "type": "chat",
-      "timestamp": 1700000000,
-      "fromMe": false,
-      "isGroupMsg": false,
-      "isMedia": false
-    }
-  },
-  "timestamp": 1700000000123
-}
-```
-
-### Media message
-
-```json
-{
-  "webhookId": "0f5d6a52-2ff2-43d5-9d0d-9c0c8dd5f9d1",
-  "sessionId": "sales",
-  "event": "message.received",
-  "payload": {
-    "message": {
-      "id": "false_1234567890@c.us_DEF456",
-      "from": "1234567890@c.us",
-      "body": "",
-      "caption": "Photo of the receipt",
-      "type": "image",
-      "mimetype": "image/jpeg",
-      "timestamp": 1700000001,
-      "fromMe": false,
-      "isMedia": true
-    }
-  },
-  "timestamp": 1700000001123
-}
-```
-
-### Group participant change
-
-```json
-{
-  "webhookId": "0f5d6a52-2ff2-43d5-9d0d-9c0c8dd5f9d1",
-  "sessionId": "sales",
-  "event": "group.participants.changed.global",
-  "payload": {
-    "ctx": {
-      "correlationId": "evt_02",
-      "ts": 1700000002000
-    },
-    "change": {
-      "groupId": "1234567890-1111111111@g.us",
-      "action": "add",
-      "participantIds": ["447700900123@c.us"],
-      "by": "447700900456@c.us"
-    }
-  },
-  "timestamp": 1700000002123
-}
-```
-
-### Session state
-
-```json
-{
-  "webhookId": "0f5d6a52-2ff2-43d5-9d0d-9c0c8dd5f9d1",
-  "sessionId": "sales",
-  "event": "session.state.changed",
-  "payload": {
-    "ctx": {
-      "correlationId": "evt_03",
-      "ts": 1700000003000
-    },
-    "details": {
-      "prev": "AUTHENTICATING",
-      "next": "READY",
-      "reason": "session connected"
-    }
-  },
-  "timestamp": 1700000003123
-}
-```
-
-## Plain-language field explanations
-
-### Envelope fields
-
-| Field | Meaning |
+| Event | Payload focus |
 | --- | --- |
-| `webhookId` | A generated ID for this configured webhook target. It stays useful for tracing logs from one runtime process. |
-| `sessionId` | The open-wa session that produced the event, such as `sales` or `support`. |
-| `event` | The public runtime event name. Use this to route the payload to the right handler. |
-| `payload` | The actual event data. Its shape depends on `event`. |
-| `timestamp` | When open-wa queued the webhook delivery, in Unix milliseconds. |
+| `message.received` | `payload.message` for an inbound message. |
+| `message.any` | `payload.message` for inbound or outbound messages. |
+| `message.deleted` | `payload.messageId`, `payload.chatId`, and optional `payload.by`. |
+| `ack.changed` | `payload.ack` acknowledgment details. |
+| `session.state.changed` | `payload.details.prev` and `payload.details.next`. |
+| `group.participants.changed.global` | `payload.change` participant changes. |
 
-### Common message fields
-
-| Field | Meaning |
-| --- | --- |
-| `payload.message.id` | The WhatsApp message ID. Store it if you need deduplication. |
-| `payload.message.from` | The chat that sent the message. Direct chats usually end in `@c.us`. |
-| `payload.message.to` | The receiving chat or session chat ID when it is present. |
-| `payload.message.body` | The text body. Media messages can have an empty body and use `caption` instead. |
-| `payload.message.caption` | The text caption attached to a media message. |
-| `payload.message.type` | The WhatsApp message kind, such as `chat`, `image`, `audio`, `video`, or `document`. |
-| `payload.message.timestamp` | When WhatsApp says the message was sent, usually in Unix seconds. |
-| `payload.message.fromMe` | `true` when the connected session sent the message. |
-| `payload.message.isGroupMsg` | `true` when the message belongs to a group chat. |
-| `payload.message.isMedia` | `true` when the payload represents a media message. |
-
-## Webhook config
+## Generated type reference
 
 <AutoTypeTable path="../../../../../integrations/webhook/src/config.ts" name="WebhookConfig" />
 
-## Webhook registration model
-
 <AutoTypeTable path="../../../../../integrations/webhook/src/config.ts" name="Webhook" />
-
-## Webhook payload envelope
 
 <AutoTypeTable path="../../../../../integrations/webhook/src/config.ts" name="WebhookPayload" />

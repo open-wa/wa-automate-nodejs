@@ -1,5 +1,12 @@
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { convertToModelMessages, stepCountIs, streamText, tool, type UIMessage } from 'ai';
+import {
+  convertToModelMessages,
+  stepCountIs,
+  streamText,
+  tool,
+  type ModelMessage,
+  type UIMessage,
+} from 'ai';
 import { z } from 'zod';
 import { source } from '@/lib/source';
 import { Document, type DocumentData } from 'flexsearch';
@@ -20,8 +27,6 @@ export type ChatUIMessage = UIMessage<
     };
   }
 >;
-
-const searchServer = createSearchServer();
 
 async function createSearchServer() {
   const search = new Document<CustomDocument>({
@@ -61,9 +66,41 @@ async function chunkedAll<O>(promises: Promise<O>[]): Promise<O[]> {
   return out;
 }
 
-const openrouter = createOpenRouter({
-  apiKey: process.env.OPENROUTER_API_KEY,
-});
+const configuredApiKey = process.env.OPENROUTER_API_KEY?.trim();
+const modelId = process.env.OPENROUTER_MODEL?.trim() || 'openai/gpt-5-mini';
+
+function errorKind(error: unknown): string {
+  return error instanceof Error ? error.name : 'UnknownError';
+}
+
+function createProvider() {
+  if (!configuredApiKey) return null;
+
+  try {
+    return createOpenRouter({ apiKey: configuredApiKey });
+  } catch (error) {
+    console.error('AI_SEARCH_PROVIDER_INIT_ERROR', errorKind(error));
+    return null;
+  }
+}
+
+const openrouter = createProvider();
+const model = (() => {
+  if (!openrouter) return null;
+
+  try {
+    return openrouter.chat(modelId);
+  } catch (error) {
+    console.error('AI_SEARCH_MODEL_INIT_ERROR', errorKind(error));
+    return null;
+  }
+})();
+
+const searchServer = model
+  ? createSearchServer()
+  : Promise.resolve<Document<CustomDocument> | null>(null);
+
+const UNAVAILABLE_MESSAGE = 'Ask AI is unavailable right now. Use docs search or the quick start guide instead.';
 
 /** System prompt, you can update it to provide more specific information */
 const systemPrompt = [
@@ -78,32 +115,82 @@ import { createFileRoute } from '@tanstack/react-router';
 export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
+      GET: async () =>
+        Response.json(
+          { available: model !== null },
+          { headers: { 'Cache-Control': 'no-store' } },
+        ),
       POST: async (ctx: any) => {
+        if (!model) {
+          console.warn('AI_SEARCH_UNAVAILABLE: OpenRouter is not configured');
+          return Response.json(
+            { error: UNAVAILABLE_MESSAGE },
+            { status: 503 },
+          );
+        }
+
         const req = ctx.request;
-        const reqJson = await req.json();
+        let modelMessages: ModelMessage[];
 
-        const result = streamText({
-          model: openrouter.chat(process.env.OPENROUTER_MODEL ?? 'anthropic/claude-3.5-sonnet'),
-          stopWhen: stepCountIs(5),
-          tools: {
-            search: searchTool,
-          },
-          messages: [
-            { role: 'system', content: systemPrompt },
-            ...(await convertToModelMessages<ChatUIMessage>(reqJson.messages ?? [], {
-              convertDataPart(part) {
-                if (part.type === 'data-client')
-                  return {
-                    type: 'text',
-                    text: `[Client Context: ${JSON.stringify(part.data)}]`,
-                  };
-              },
-            })),
-          ],
-          toolChoice: 'auto',
-        });
+        try {
+          const reqJson: unknown = await req.json();
+          if (
+            !reqJson ||
+            typeof reqJson !== 'object' ||
+            !('messages' in reqJson) ||
+            !Array.isArray(reqJson.messages) ||
+            reqJson.messages.length === 0
+          ) {
+            return Response.json(
+              { error: 'Ask AI could not read that request. Try again or use docs search.' },
+              { status: 400 },
+            );
+          }
 
-        return result.toUIMessageStreamResponse();
+          modelMessages = await convertToModelMessages<ChatUIMessage>(reqJson.messages, {
+            convertDataPart(part) {
+              if (part.type === 'data-client')
+                return {
+                  type: 'text',
+                  text: `[Client Context: ${JSON.stringify(part.data)}]`,
+                };
+            },
+          });
+        } catch (error) {
+          console.warn('AI_SEARCH_INVALID_REQUEST', errorKind(error));
+          return Response.json(
+            { error: 'Ask AI could not read that request. Try again or use docs search.' },
+            { status: 400 },
+          );
+        }
+
+        try {
+          const result = streamText({
+            model,
+            stopWhen: stepCountIs(5),
+            tools: {
+              search: searchTool,
+            },
+            messages: [
+              { role: 'system', content: systemPrompt },
+              ...modelMessages,
+            ],
+            toolChoice: 'auto',
+          });
+
+          return result.toUIMessageStreamResponse({
+            onError(error) {
+              console.error('AI_SEARCH_ERROR', errorKind(error));
+              return 'Ask AI is temporarily unavailable. Use docs search or the quick start guide instead.';
+            },
+          });
+        } catch (error) {
+          console.error('AI_SEARCH_SETUP_ERROR', errorKind(error));
+          return Response.json(
+            { error: UNAVAILABLE_MESSAGE },
+            { status: 503 },
+          );
+        }
       },
     },
   },
@@ -120,6 +207,7 @@ const searchTool = tool({
   }),
   async execute({ query, limit }) {
     const search = await searchServer;
+    if (!search) return [];
     return await search.searchAsync(query, { limit, merge: true, enrich: true });
   },
 });

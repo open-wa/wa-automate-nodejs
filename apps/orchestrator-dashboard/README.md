@@ -1,6 +1,6 @@
 # @open-wa/orchestrator-dashboard
 
-TanStack Router dashboard for managing OpenWA orchestrator sessions.
+TanStack Router dashboard for managing open-wa orchestrator sessions.
 
 Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
 

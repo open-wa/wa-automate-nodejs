@@ -1,6 +1,6 @@
 # @open-wa/cf-proxy
 
-Cloudflare Worker Reverse-Tunnel Proxy for Open-WA Sessions
+Cloudflare Worker Reverse-Tunnel Proxy for open-wa Sessions
 
 Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs).
 

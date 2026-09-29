@@ -6,50 +6,18 @@ icon: "BookOpen"
 
 # Business Client API
 
-> Generated file warning: `packages/schema/scripts/gen-client-reference-docs.ts` generates this page. Do not edit generated method content by hand.
-
 This page documents 3 schema-registry client methods in the `business` namespace.
+
 
 ## `getBusinessProducts`
 
 Get business products
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `business` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | `contactId` |
-| Aliases | `business.getProducts`, `business.getProfilesProducts`, `getBusinessProfilesProducts` |
-| Deprecated aliases | `business.getProfilesProducts`, `getBusinessProfilesProducts` |
-| License | `none` |
-| WAPI override | `getBusinessProfilesProducts` |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/business/getProducts` | `getBusinessProducts` | Active |
-| Deprecated alias | `GET` | `/api/business/getProfilesProducts` | `business.getProfilesProducts` | **Deprecated** |
-| Alias | `GET` | `/api/getBusinessProducts` | `getBusinessProducts` | Active |
-| Deprecated alias | `GET` | `/api/getBusinessProfilesProducts` | `getBusinessProfilesProducts` | **Deprecated** |
+**Signature** `client.getBusinessProducts(contactId: string): Promise<Product[] \| false>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getBusinessProducts({
-  contactId: "447123456789@c.us",
-});
-// namespaced form: client.business.getProducts(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -75,7 +43,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": []
 }
 ```
 
@@ -86,17 +54,19 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetBusinessProductsParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<Product[] \| false>` |
+| Product | [View fields](/docs/reference/client/return-types#product) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `Product[] \| false`. A rejected Promise indicates input validation or dispatch failure.
 
-## `getBusinessProfile`
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
-Get business profile
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -106,32 +76,33 @@ Get business profile
 | Action | `read` |
 | Functionality | `both` |
 | Positional parameter order | `contactId` |
-| Aliases | `business.getProfile` |
-| Deprecated aliases | - |
+| Aliases | `business.getProducts`, `business.getProfilesProducts`, `getBusinessProfilesProducts` |
+| Deprecated aliases | `business.getProfilesProducts`, `getBusinessProfilesProducts` |
 | License | `none` |
-| WAPI override | - |
+| WAPI override | `getBusinessProfilesProducts` |
 | Deprecated | No |
 
 ### Routes
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/business/getProfile` | `getBusinessProfile` | Active |
-| Alias | `GET` | `/api/getBusinessProfile` | `getBusinessProfile` | Active |
+| Primary | `GET` | `/api/business/getProducts` | `getBusinessProducts` | Active |
+| Deprecated alias | `GET` | `/api/business/getProfilesProducts` | `business.getProfilesProducts` | **Deprecated** |
+| Alias | `GET` | `/api/getBusinessProducts` | `getBusinessProducts` | Active |
+| Deprecated alias | `GET` | `/api/getBusinessProfilesProducts` | `getBusinessProfilesProducts` | **Deprecated** |
+
+</details>
+
+
+## `getBusinessProfile`
+
+Get business profile
+
+**Signature** `client.getBusinessProfile(contactId: string): Promise<BusinessProfile>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getBusinessProfile({
-  contactId: "447123456789@c.us",
-});
-// namespaced form: client.business.getProfile(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -157,7 +128,9 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": {
+    "id": "447123456789@c.us"
+  }
 }
 ```
 
@@ -168,19 +141,19 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetBusinessProfileParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<BusinessProfile>` |
+| BusinessProfile | [View fields](/docs/reference/client/return-types#businessprofile) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `BusinessProfile`. A rejected Promise indicates input validation or dispatch failure.
 
-## `getOrder` - insiders
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
-Get order details
-
-<LicensedFeatureCallout tier="insiders" />
+<details>
+<summary>Advanced method metadata</summary>
 
 ### Overview
 
@@ -189,10 +162,10 @@ Get order details
 | Namespace | `business` |
 | Action | `read` |
 | Functionality | `both` |
-| Positional parameter order | `id` |
-| Aliases | `business.getOrder` |
+| Positional parameter order | `contactId` |
+| Aliases | `business.getProfile` |
 | Deprecated aliases | - |
-| License | `insiders` |
+| License | `none` |
 | WAPI override | - |
 | Deprecated | No |
 
@@ -200,22 +173,23 @@ Get order details
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/business/getOrder` | `getOrder` | Active |
-| Alias | `GET` | `/api/getOrder` | `getOrder` | Active |
+| Primary | `GET` | `/api/business/getProfile` | `getBusinessProfile` | Active |
+| Alias | `GET` | `/api/getBusinessProfile` | `getBusinessProfile` | Active |
+
+</details>
+
+<LicensedMethodSection tier="insiders">
+
+<span id="getorder---insiders" aria-hidden="true"></span>
+## `getOrder`
+
+Get order details
+
+**Signature** `client.getOrder(id: string): Promise<Order>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getOrder({
-  id: "id",
-});
-// namespaced form: client.business.getOrder(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -241,7 +215,15 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": {
+    "id": "example",
+    "createdAt": 0,
+    "currency": "example",
+    "products": [],
+    "sellerJid": "example",
+    "subtotal": "example",
+    "total": "example"
+  }
 }
 ```
 
@@ -252,10 +234,41 @@ Example response envelope:
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetOrderParams" />
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `any` |
+| Return type | `Promise<Order>` |
+| Order | [View fields](/docs/reference/client/return-types#order) |
 
-> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.
+Resolves to `Order`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `business` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `id` |
+| Aliases | `business.getOrder` |
+| Deprecated aliases | - |
+| License | `insiders` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/business/getOrder` | `getOrder` | Active |
+| Alias | `GET` | `/api/getOrder` | `getOrder` | Active |
+
+</details>
+
+</LicensedMethodSection>

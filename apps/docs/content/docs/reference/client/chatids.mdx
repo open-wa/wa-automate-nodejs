@@ -6,57 +6,25 @@ icon: "BookOpen"
 
 # ChatIds Client API
 
-> Generated file warning: `packages/schema/scripts/gen-client-reference-docs.ts` generates this page. Do not edit generated method content by hand.
-
 This page documents 1 schema-registry client methods in the `chatIds` namespace.
+
 
 ## `getAllChatIds`
 
 Get all chat IDs
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `chatIds` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | - |
-| Aliases | `chatIds.all`, `chatIds.getAll`, `chatIds.list`, `chats.ids`, `listChatIds` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/chatIds/getAll` | `getAllChatIds` | Active |
-| Alias | `GET` | `/api/chatIds/all` | `chatIds.all` | Active |
-| Alias | `GET` | `/api/chatIds/list` | `chatIds.list` | Active |
-| Alias | `GET` | `/api/chats/ids` | `chats.ids` | Active |
-| Alias | `GET` | `/api/getAllChatIds` | `getAllChatIds` | Active |
-| Alias | `GET` | `/api/listChatIds` | `listChatIds` | Active |
+**Signature** `client.getAllChatIds(): Promise<ChatId[]>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getAllChatIds({});
-// namespaced form: client.chatIds.getAll(...)
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getAllChatIds({});
+const result = await client.getAllChatIds();
 ```
 
   </InterfaceTab>
@@ -85,8 +53,44 @@ Example response envelope:
 
 This method does not define input parameters.
 
-### Output
+### Returns
 
 | Prop | Value |
 | --- | --- |
-| Return type | `string[]` |
+| Return type | `Promise<ChatId[]>` |
+| ChatId | [View fields](/docs/reference/client/return-types#chatid) |
+
+Resolves to `ChatId[]`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+Opaque conversation identifier. Use the exact value returned by a message event or chat lookup.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `chatIds` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `chatIds.all`, `chatIds.getAll`, `chatIds.list`, `chats.ids`, `listChatIds` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/chatIds/getAll` | `getAllChatIds` | Active |
+| Alias | `GET` | `/api/chatIds/all` | `chatIds.all` | Active |
+| Alias | `GET` | `/api/chatIds/list` | `chatIds.list` | Active |
+| Alias | `GET` | `/api/chats/ids` | `chats.ids` | Active |
+| Alias | `GET` | `/api/getAllChatIds` | `getAllChatIds` | Active |
+| Alias | `GET` | `/api/listChatIds` | `listChatIds` | Active |
+
+</details>

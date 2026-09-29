@@ -18,6 +18,7 @@ export type { Client, ClientMethods } from "@open-wa/socket-client"
 import { SocketClient } from "@open-wa/socket-client"
 
 const STORAGE_KEY = "wa-dashboard-connection"
+const API_KEY_STORAGE_KEY = "wa-dashboard-api-key"
 
 // We lazy-connect so SSR doesn't try to open a socket.
 let _client: (SocketClient & import("@open-wa/socket-client").Client) | null = null
@@ -32,7 +33,7 @@ export async function getClient(url?: string) {
 
   if (!_connecting) {
     const target = url || getApiUrl()
-    _connecting = SocketClient.connect(target).then((c) => {
+    _connecting = SocketClient.connect(target, getApiKey(target)).then((c) => {
       _client = c
       _connecting = null
       return c
@@ -43,6 +44,31 @@ export async function getClient(url?: string) {
   }
 
   return _connecting
+}
+
+/** Resolve the Easy API key through the same explicit connection channels as the socket client. */
+export function getApiKey(url = getApiUrl()): string | undefined {
+  const configured = import.meta.env?.VITE_EASY_API_KEY
+  if (configured) return configured
+
+  try {
+    const stored = localStorage.getItem(API_KEY_STORAGE_KEY)
+    if (stored) return stored
+  } catch {
+    // ignore unavailable storage
+  }
+
+  try {
+    if (typeof window !== "undefined") {
+      const pageParams = new URLSearchParams(window.location.search)
+      const pageKey = pageParams.get("api_key") || pageParams.get("key")
+      if (pageKey) return pageKey
+    }
+    const parsed = new URL(url, typeof window === "undefined" ? "http://localhost" : window.location.origin)
+    return parsed.searchParams.get("api_key") || parsed.searchParams.get("key") || undefined
+  } catch {
+    return undefined
+  }
 }
 
 /**

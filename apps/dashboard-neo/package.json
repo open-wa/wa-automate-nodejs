@@ -19,7 +19,7 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@base-ui/react": "^1.8.0",
+    "@base-ui/react": "catalog:",
     "@fontsource-variable/geist": "^5.3.0",
     "@hugeicons/core-free-icons": "^4.3.5",
     "@hugeicons/react": "^1.1.10",
@@ -57,6 +57,7 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
-    "web-vitals": "^6.2.2"
+    "web-vitals": "^6.2.2",
+    "@open-wa/ui-components": "workspace:*"
   }
 }

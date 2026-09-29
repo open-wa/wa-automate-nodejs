@@ -1,20 +1,36 @@
 ---
-title: "Worked example: sendText"
-description: "Following one method from schema definition to dispatch."
+title: "Trace sendText through the runtime"
+description: "Contributor walkthrough of how sendText is defined and dispatched."
 icon: "BookOpen"
 ---
 
-# Worked example: sendText
+# Trace sendText through the runtime
 
-> Generated file warning: `packages/schema/scripts/gen-client-reference-docs.ts` generates this page. Do not edit generated method content by hand.
+This contributor walkthrough follows `sendText` from its schema definition to runtime dispatch. For the consumer contract, start with the [sendText method block](/docs/reference/client/messages#sendtext).
+
+## Consumer usage
+
+```ts
+import { create } from '@open-wa/wa-automate';
+
+const client = await create({ sessionId: 'docs-example' });
+try {
+  const messageId = await client.sendText('447123456789@c.us', 'Hello from open-wa');
+  console.log('Message ID:', messageId);
+} finally {
+  await client.stop();
+}
+```
+
+## Runtime trace
 
 `sendText` is defined in `packages/schema/src/methods/messaging.ts`:
 
 ```ts
 export const sendText = defineMethodV2('sendText', {
-  meta: { description: "Sends a text message to a chat", namespace: "messages", httpMethod: "POST" },
+  meta: { description: "Sends a text message and returns a validated serialized message ID. The in-process Client throws SendTextError on failure. An unknown outcome means the message may have been sent: check the chat before retrying. Starting a chat with a new number requires an applied restricted or premium license.", namespace: "messages", httpMethod: "POST" },
   parameterOrder: ["to","content","options"],
-  // input: z.object({ to, content, options }), output: MessageId | boolean | string
+  // input: z.object({ to, content, options }), output: SendTextResultSchema
 });
 ```
 
